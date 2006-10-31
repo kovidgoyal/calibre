@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Project SYSTEM "Project-3.9.dtd">
+<!-- Project file for project pr5-500 -->
+<!-- Saved: 2006-10-31, 09:35:02 -->
+<!-- Copyright (C) 2006 Kovid Goyal, kovid@kovidgoyal.net -->
+<Project version="3.9">
+  <ProgLanguage mixed="0">Python</ProgLanguage>
+  <UIType>Console</UIType>
+  <Description>Library to communicate with the Sony Reader prs-500 via USB</Description>
+  <Version></Version>
+  <Author>Kovid Goyal</Author>
+  <Email>kovid@kovidgoyal.net</Email>
+  <Sources>
+    <Source>
+      <Name>communicate.py</Name>
+    </Source>
+    <Source>
+      <Name>data.py</Name>
+    </Source>
+    <Source>
+      <Name>prstypes.py</Name>
+    </Source>
+  </Sources>
+  <Forms>
+  </Forms>
+  <Translations>
+  </Translations>
+  <Interfaces>
+  </Interfaces>
+  <Others>
+  </Others>
+  <MainScript>
+    <Name>communicate.py</Name>
+  </MainScript>
+  <Vcs>
+    <VcsType>Subversion</VcsType>
+    <VcsOptions>(dp0
+S'status'
+p1
+(lp2
+S''
+p3
+asS'log'
+p4
+(lp5
+g3
+asS'global'
+p6
+(lp7
+g3
+asS'update'
+p8
+(lp9
+g3
+asS'remove'
+p10
+(lp11
+g3
+asS'add'
+p12
+(lp13
+g3
+asS'tag'
+p14
+(lp15
+g3
+asS'export'
+p16
+(lp17
+g3
+asS'commit'
+p18
+(lp19
+g3
+asS'diff'
+p20
+(lp21
+g3
+asS'checkout'
+p22
+(lp23
+g3
+asS'history'
+p24
+(lp25
+g3
+as.</VcsOptions>
+    <VcsOtherData>(dp0
+S'standardLayout'
+p1
+I01
+s.</VcsOtherData>
+  </Vcs>
+  <FiletypeAssociations>
+    <FiletypeAssociation pattern="*.ui.h" type="FORMS" />
+    <FiletypeAssociation pattern="*.ui" type="FORMS" />
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
+    <FiletypeAssociation pattern="*.py" type="SOURCES" />
+    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
+  </FiletypeAssociations>
+</Project>

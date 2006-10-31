@@ -1,0 +1,27 @@
+Control packets (see pg 199 in usb1.1 spec)
+
+00 01 02 03 04 05 06 07
+
+00    - Request Type
+01    - Request
+02,03 - Value
+04,05 - Index/Offset
+06,07 - Data length
+
+
+Request Type
+80 - device to host; type standard; recipient device
+c0 - device to host; type vendor  ; recipient device   
+40 - host to device; type vendor  ; recipient device
+
+c0, 40 are used for sony communication
+
+
+Request 
+06 - GET_DESCRIPTOR
+80 - Sony proprietary. goes with 40 on first bit
+81 - Sony proprietary. goes with c0 on first bit
+
+
+Data length
+Only the 6th byte seems to be used. The value of the 6th byte converted to decimal is the number of bytes to be read/written.
