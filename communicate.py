@@ -367,8 +367,9 @@ def main(argv):
                               "For help on a particular command: %prog command")
   parser.add_option("--log-packets", help="print out packet stream to stdout", dest="log_packets", action="store_true", default=False)
   parser.remove_option("-h")
-  parser.disable_interspersed_args()
+  parser.disable_interspersed_args() # Allow unrecognized options
   options, args = parser.parse_args()
+  global LOG_PACKETS
   LOG_PACKETS = options.log_packets
   if len(args) < 1:
     parser.print_help()
