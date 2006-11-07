@@ -6,22 +6,22 @@
 <Project version="3.9">
   <ProgLanguage mixed="0">Python</ProgLanguage>
   <UIType>Console</UIType>
-  <Description>Library to communicate with the Sony Reader prs-500 via USB</Description>
+  <Description>Library to communicate with the Sony Reader PRS-500 via USB</Description>
   <Version></Version>
   <Author>Kovid Goyal</Author>
   <Email>kovid@kovidgoyal.net</Email>
   <Sources>
     <Source>
-      <Name>communicate.py</Name>
+      <Name>libprs500/communicate.py</Name>
     </Source>
     <Source>
-      <Name>data.py</Name>
+      <Name>libprs500/terminfo.py</Name>
     </Source>
     <Source>
-      <Name>prstypes.py</Name>
+      <Name>libprs500/prstypes.py</Name>
     </Source>
     <Source>
-      <Name>errors.py</Name>
+      <Name>libprs500/errors.py</Name>
     </Source>
   </Sources>
   <Forms>
@@ -33,7 +33,7 @@
   <Others>
   </Others>
   <MainScript>
-    <Name>communicate.py</Name>
+    <Name>libprs500/communicate.py</Name>
   </MainScript>
   <Vcs>
     <VcsType>Subversion</VcsType>

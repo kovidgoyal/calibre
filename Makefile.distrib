@@ -1,0 +1,8 @@
+all: doc tarball
+
+tarball:
+	python setup.py sdist --formats=gztar,zip
+
+doc:
+	epydoc --config epydoc.conf
+	epydoc -v --config epydoc-pdf.conf

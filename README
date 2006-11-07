@@ -4,13 +4,16 @@ Requirements:
 1) Python >= 2.5
 2) PyUSB >= 0.3.4 (http://sourceforge.net/projects/pyusb/)
 
+Installation:
+As root
+python setup.py install
+
 Usage:
-At the moment all that it can do is a simple ls command. Add the following to /etc/udev/rules.d/90-local.rules
+Add the following to /etc/udev/rules.d/90-local.rules
+
 BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="plugdev"
+
 and run udevstart to enable access to the reader for non-root users. You may have to adjust the GROUP and the location of the
 rules file to suit your distribution.
 
-To see the listing
-./communicate.py /path/to/see
-
-If the path does not exist, it will throw an Exception. 
+Usage information is provided when you run the script prs500.py

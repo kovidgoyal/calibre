@@ -1,0 +1,5 @@
+include libprs500 *.py
+include scripts *.py
+include README
+include docs/pdf/api.pdf
+recursive-include docs/html *
