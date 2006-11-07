@@ -85,7 +85,7 @@ class TransferBuffer(list):
         0700 0100 0000 0000 0000 0000 0c00 0000         ................
         0200 0000 0400 0000 4461 7461                   ........Data
     """
-    ans, ascii = "", ""
+    ans, ascii = ": ".rjust(10,"0"), ""
     for i in range(0, len(self), 2):
       for b in range(2):
         try: 
@@ -95,10 +95,10 @@ class TransferBuffer(list):
       ans = ans + " "
       if (i+2)%16 == 0:
         if i+2 < len(self):
-          ans += "   " + ascii + "\n"
+          ans += "   " + ascii + "\n" + (TransferBuffer.phex(i+2)+": ").rjust(10, "0")
           ascii = ""
     last_line = ans[ans.rfind("\n")+1:]
-    padding = 40 - len(last_line)
+    padding = 50 - len(last_line)
     ans += "".ljust(padding) + "   " + ascii
     return ans.strip()
     
@@ -270,6 +270,43 @@ class ShortCommand(Command):
       self.pack(val, start=16, fmt=DWORD)
       
     return property(**locals())
+
+class FreeSpaceQuery(Command):
+  """ Query the free space available """
+  NUMBER = 0x53 #; Command number
+  def __init__(self, path):
+    Command.__init__(self, 20 + len(path))
+    self.number=FreeSpaceQuery.NUMBER
+    self.type=0x01
+    self.length = 4 + len(path)
+    self.path_length = len(path)
+    self.path = path
+    
+  @apply
+  def path_length():
+    doc =\
+    """ The length in bytes of the path to follow. C{unsigned int} stored at byte 16.  """
+    def fget(self):
+      return self.unpack(start=16, fmt=DWORD)[0]
+      
+    def fset(self, val):
+      self.pack(val, start=16, fmt=DWORD)
+      
+    return property(**locals())
+    
+  @apply
+  def path():
+    doc =\
+    """ The path. Stored as a string at byte 20. """
+    
+    def fget(self):
+      return self.unpack(start=20, fmt="<"+str(self.path_length)+"s")[0]
+      
+    def fset(self, val):
+      self.pack(val, start=20, fmt="<"+str(self.path_length)+"s")
+      
+    return property(**locals())
+
 
 class DirOpen(Command):
   
@@ -794,6 +831,31 @@ class DeviceInfo(Answer):
       src = self.unpack(start=104, fmt="<32s")[0]
       return src[0:src.find('\x00')]
     return property(**locals()) 
+
+class FreeSpaceAnswer(Answer):
+  @apply
+  def total():
+    doc =\
+    """ The total space in bytes. C{unsigned long long} stored in 8 bytes at byte 24 """
+    def fget(self):
+      return self.unpack(start=24, fmt=DDWORD)[0]
+      
+    def fset(self, val):
+      self.pack(val, start=24, fmt=DDWORD)
+      
+    return property(**locals())
+  
+  @apply
+  def free_space():
+    doc =\
+    """ The free space in bytes. C{unsigned long long} stored in 8 bytes at byte 32 """
+    def fget(self):
+      return self.unpack(start=32, fmt=DDWORD)[0]
+      
+    def fset(self, val):
+      self.pack(val, start=32, fmt=DDWORD)
+      
+    return property(**locals())
 
 class ListAnswer(Answer):
   

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-3.9.dtd">
-<!-- Project file for project pr5-500 -->
-<!-- Saved: 2006-10-31, 21:14:19 -->
+<!-- Project file for project prs-500 -->
+<!-- Saved: 2006-11-07, 00:09:05 -->
 <!-- Copyright (C) 2006 Kovid Goyal, kovid@kovidgoyal.net -->
 <Project version="3.9">
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -12,16 +12,31 @@
   <Email>kovid@kovidgoyal.net</Email>
   <Sources>
     <Source>
-      <Name>libprs500/communicate.py</Name>
+      <Dir>libprs500</Dir>
+      <Name>communicate.py</Name>
     </Source>
     <Source>
-      <Name>libprs500/terminfo.py</Name>
+      <Dir>libprs500</Dir>
+      <Name>terminfo.py</Name>
     </Source>
     <Source>
-      <Name>libprs500/prstypes.py</Name>
+      <Dir>libprs500</Dir>
+      <Name>prstypes.py</Name>
     </Source>
     <Source>
-      <Name>libprs500/errors.py</Name>
+      <Dir>libprs500</Dir>
+      <Name>errors.py</Name>
+    </Source>
+    <Source>
+      <Dir>libprs500</Dir>
+      <Name>__init__.py</Name>
+    </Source>
+    <Source>
+      <Name>setup.py</Name>
+    </Source>
+    <Source>
+      <Dir>scripts</Dir>
+      <Name>prs500.py</Name>
     </Source>
   </Sources>
   <Forms>
@@ -31,9 +46,16 @@
   <Interfaces>
   </Interfaces>
   <Others>
+    <Other>
+      <Name>epydoc.conf</Name>
+    </Other>
+    <Other>
+      <Name>epydoc-pdf.conf</Name>
+    </Other>
   </Others>
   <MainScript>
-    <Name>libprs500/communicate.py</Name>
+    <Dir>scripts</Dir>
+    <Name>prs500.py</Name>
   </MainScript>
   <Vcs>
     <VcsType>Subversion</VcsType>
@@ -96,9 +118,9 @@ s.</VcsOtherData>
   </Vcs>
   <FiletypeAssociations>
     <FiletypeAssociation pattern="*.ui.h" type="FORMS" />
-    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
-    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
     <FiletypeAssociation pattern="*.ui" type="FORMS" />
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
+    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
     <FiletypeAssociation pattern="*.py" type="SOURCES" />
   </FiletypeAssociations>
 </Project>

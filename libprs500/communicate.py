@@ -47,13 +47,19 @@ The public interface of class L{PRS500Device} defines the methods for performing
 import usb, sys
 from array import array
 
-from prstypes import AcknowledgeBulkRead, Answer, Command, DeviceInfo, DirOpen, DirRead, DirClose, \
-                     FileOpen, FileClose, FileRead, IdAnswer, ListAnswer, \
-                     ListResponse, LongCommand, FileProperties, PathQuery, Response, \
-                     ShortCommand, DeviceInfoQuery
+from prstypes import *
 from errors import *
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
+_packet_number = 0     #: Keep track of the packet number of packet tracing
+
+def _log_packet(packet, header, stream=sys.stderr):
+  """ Log C{packet} to stream C{stream}. Header should be a small word describing the type of packet. """
+  global _packet_number
+  _packet_number += 1
+  print >>stream, header, "(Packet #", str(_packet_number) + ")\n"
+  print >>stream, packet
+  print >>stream, "--"
 
 class File(object):
   """ Wrapper that allows easy access to all information about files/directories """
@@ -165,12 +171,12 @@ class PRS500Device(object):
     @param response_type: an object of type 'type'. The return packet from the device is returned as an object of type response_type. 
     @param timeout:       the time to wait for a response from the device, in milliseconds. If there is no response, a L{usb.USBError} is raised.
     """
-    if self._log_packets: print "Command\n%s\n--\n"%command
+    if self._log_packets: _log_packet(command, "Command")
     bytes_sent = self.handle.controlMsg(0x40, 0x80, command)
     if bytes_sent != len(command):
       raise ControlError(desc="Could not send control request to device\n" + str(query.query))
     response = response_type(self.handle.controlMsg(0xc0, 0x81, Response.SIZE, timeout=timeout))
-    if self._log_packets: print "Response\n%s\n--\n"%response
+    if self._log_packets: _log_packet(response, "Response")
     return response
     
   def _send_validated_command(self, command, cnumber=None, response_type=Response, timeout=100):
@@ -191,7 +197,7 @@ class PRS500Device(object):
     @param size: the expected size of the data packet. 
     """
     data = data_type(self.handle.bulkRead(PRS500Device.PRS500_BULK_IN_EP, size))
-    if self._log_packets: print "Answer\n%s\n--\n"%data
+    if self._log_packets: _log_packet(data, "Answer d->h")
     return data
   
   def _bulk_read(self, bytes, command_number=0x00, packet_size=4096, data_type=Answer):
@@ -364,3 +370,25 @@ class PRS500Device(object):
       if recurse and file.is_dir and not file.path.startswith(("/dev","/proc")):
         dirs[len(dirs):] = self.list(file.path, recurse=True)
     return dirs
+    
+  def available_space(self):
+    """ 
+    Get free space available on the mountpoints:
+      1. /Data/ Device memory
+      2. a:/    Memory Stick
+      3. b:/    SD Card
+      
+    @return: A list of tuples. Each tuple has form ("location", free space, total space)
+    """    
+    return self._run_session(self._available_space)
+  
+  def _available_space(self, args):
+    """ L{available_space} """
+    data = []
+    for path in ("/Data/", "a:/", "b:/"):
+      res = self._send_validated_command(FreeSpaceQuery(path),timeout=5000) # Timeout needs to be increased as it takes time to read card
+      buffer_size = 16 + res.data[2]
+      pkt = self._bulk_read(buffer_size, data_type=FreeSpaceAnswer, command_number=FreeSpaceQuery.NUMBER)[0]
+      data.append( (path, pkt.free_space, pkt.total) )
+    return data
+    

@@ -16,6 +16,16 @@ from libprs500.errors import ArgumentError
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 
+def human_readable(size):
+  """ Convert a size in bytes into a human readle form """
+  if size < 1024: divisor, suffix = 1, ""
+  elif size < 1024*1024: divisor, suffix = 1024., "K"
+  elif size < 1024*1024*1024: divisor, suffix = 1024*1024, "M"
+  elif size < 1024*1024*1024*1024: divisor, suffix = 1024*1024, "G"
+  size = str(size/divisor)
+  if size.find(".") > -1: size = size[:size.find(".")+2]
+  return size + suffix
+
 class FileFormatter(object):
   def __init__(self, file, term):
     self.term = term
@@ -56,13 +66,7 @@ class FileFormatter(object):
   def human_readable_size():
     doc=""" File size in human readable form """
     def fget(self):
-      if self.size < 1024: divisor, suffix = 1, ""
-      elif self.size < 1024*1024: divisor, suffix = 1024., "K"
-      elif self.size < 1024*1024*1024: divisor, suffix = 1024*1024, "M"
-      elif self.size < 1024*1024*1024*1024: divisor, suffix = 1024*1024, "G"
-      size = str(self.size/divisor)
-      if size.find(".") > -1: size = size[:size.find(".")+2]
-      return size + suffix
+      human_readable(self.size)
     return property(**locals())
     
   @apply
@@ -161,7 +165,7 @@ def main():
   term = TerminalController()
   cols = term.COLS
   
-  parser = OptionParser(usage="usage: %prog command [options] args\n\ncommand is one of: info, ls, cp, cat or rm\n\n"+
+  parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, df, ls, cp, cat or rm\n\n"+
                               "For help on a particular command: %prog command", version="libprs500 version: " + VERSION)
   parser.add_option("--log-packets", help="print out packet stream to stdout", dest="log_packets", action="store_true", default=False)
   parser.remove_option("-h")
@@ -174,7 +178,16 @@ def main():
   command = args[0]
   args = args[1:]
   dev = PRS500Device(log_packets=options.log_packets)
-  if command == "ls":
+  if command == "df":
+    dev.open()
+    data = dev.available_space()
+    dev.close()
+    print "Filesystem\tSize \tUsed \tAvail \tUse%"
+    for datum in data:
+      total, free, used, percent = human_readable(datum[2]), human_readable(datum[1]), human_readable(datum[2]-datum[1]), \
+                                   str(0 if datum[2]==0 else int(100*(datum[2]-datum[1])/(datum[2]*1.)))+"%"
+      print "%-10s\t%s\t%s\t%s\t%s"%(datum[0], total, used, free, percent)
+  elif command == "ls":
     parser = OptionParser(usage="usage: %prog ls [options] path\n\npath must begin with /,a:/ or b:/")
     parser.add_option("--color", help="show ls output in color", dest="color", action="store_true", default=False)
     parser.add_option("-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time unless other times are selected)", dest="ll", action="store_true", default=False)
