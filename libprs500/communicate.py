@@ -209,7 +209,7 @@ class PRS500Device(object):
       packet = self._bulk_read_packet(data_type=data_type, size=packet_size)
       bytes_left -= len(packet)
       packets.append(packet)
-    self._send_validated_command(AcknowledgeBulkRead(packets[0].id), cnumber=command_number)
+    self._send_validated_command(AcknowledgeBulkRead(packets[0].number), cnumber=command_number)
     return packets
     
   def _test_bulk_reads(self):

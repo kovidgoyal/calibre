@@ -40,8 +40,6 @@ Answers are organized as follows: G{classtree Answer}
 import struct
 from errors import PacketError
 
-BYTE      = "<B"    #: Unsigned char little endian encoded in 1 byte
-WORD      = "<H"    #: Unsigned short little endian encoded in 2 bytes
 DWORD     = "<I"    #: Unsigned integer little endian encoded in 4 bytes
 DDWORD    = "<Q"    #: Unsigned long long little endian encoded in 8 bytes
 
@@ -120,7 +118,7 @@ class TransferBuffer(list):
     @param start: Position in buffer at which to write encoded data
     """
     self[start:start+struct.calcsize(fmt)] = [ ord(i) for i in struct.pack(fmt, val) ]
-      
+  
   def _normalize(self):
     """ Replace negative bytes in C{self} by 256 + byte """
     for i in range(len(self)):
@@ -143,84 +141,136 @@ class TransferBuffer(list):
     return sign + h
 
       
+class field(object):
+  """ A U{Descriptor<http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html>}, that implements access
+      to protocol packets in a human readable way. 
+  """
+  def __init__(self, start=16, fmt=DWORD):
+    """
+    @param start: The byte at which this field is stored in the buffer
+    @param fmt:   The packing format for this field. See U{struct<http://docs.python.org/lib/module-struct.html>}.
+    """
+    self._fmt, self._start = fmt, start    
+    
+  def __get__(self, obj, typ=None):
+    return obj.unpack(start=self._start, fmt=self._fmt)[0]
+    
+  def __set__(self, obj, val):
+    obj.pack(val, start=self._start, fmt=self._fmt)
+    
+  def __repr__(self):
+    if self._fmt == DWORD: typ  = "unsigned int"
+    if self._fmt == DDWORD: typ = "unsigned long long"
+    return "An " + typ + " stored in " + str(struct.calcsize(self._fmt)) + " bytes starting at byte " + str(self._start)
+
+class stringfield(object):
+  """ A field storing a variable length string. """
+  def __init__(self, length_field, start=16):
+    """
+    @param length_field: A U{Descriptor<http://www.cafepy.com/article/python_attributes_and_methods/python_attributes_and_methods.html>} 
+                         that returns the length of the string.
+    @param start: The byte at which this field is stored in the buffer
+    """
+    self._length_field = length_field
+    self._start = start
+    
+  def __get__(self, obj, typ=None):
+    length = str(self._length_field.__get__(obj))
+    return obj.unpack(start=self._start, fmt="<"+length+"s")[0]
+    
+  def __set__(self, obj, val):
+    obj.pack(val, start=self._start, fmt="<"+str(len(val))+"s")
+    
+  def __repr__(self):
+    return "A string starting at byte " + str(self._start)
 
 class Command(TransferBuffer):
   
   """ Defines the structure of command packets sent to the device. """
+    
+  number = field(start=0, fmt=DWORD)
+  """
+  Command number. C{unsigned int} stored in 4 bytes at byte 0.
   
-  def __init__(self, packet):
-    """
-    @param packet: len(packet) > 15 or packet > 15
-    """
-    if ("__len__" in dir(packet) and len(packet) < 16) or ("__len__" not in dir(packet) and packet < 16): 
-      raise PacketError(str(self.__class__)[7:-2] + " packets must have length atleast 16")    
-    TransferBuffer.__init__(self, packet)
+  Command numbers are:
+       0 GetUsbProtocolVersion
+       1 ReqUsbConnect
+      
+      10 FskFileOpen
+      11 FskFileClose
+      12 FskGetSize
+      13 FskSetSize
+      14 FskFileSetPosition
+      15 FskGetPosition
+      16 FskFileRead
+      17 FskFileWrite
+      18 FskFileGetFileInfo
+      19 FskFileSetFileInfo
+      1A FskFileCreate
+      1B FskFileDelete
+      1C FskFileRename
+      
+      30 FskFileCreateDirectory
+      31 FskFileDeleteDirectory
+      32 FskFileRenameDirectory
+      33 FskDirectoryIteratorNew
+      34 FskDirectoryIteratorDispose
+      35 FskDirectoryIteratorGetNext
+      
+      52 FskVolumeGetInfo
+      53 FskVolumeGetInfoFromPath
+      
+      80 FskFileTerminate
+     
+     100 ConnectDevice
+     101 GetProperty
+     102 GetMediaInfo
+     103 GetFreeSpace
+     104 SetTime
+     105 DeviceBeginEnd
+     106 UnlockDevice
+     107 SetBulkSize 
+     
+     110 GetHttpRequest
+     111 SetHttpRespponse
+     112 Needregistration
+     114 GetMarlinState
     
-  @apply
-  def number():
-    doc =\
-    """
-    Command number. C{unsigned int} stored in 4 bytes at byte 0.
+     200 ReqDiwStart
+     201 SetDiwPersonalkey
+     202 GetDiwPersonalkey
+     203 SetDiwDhkey
+     204 GetDiwDhkey
+     205 SetDiwChallengeserver
+     206 GetDiwChallengeserver
+     207 GetDiwChallengeclient
+     208 SetDiwChallengeclient
+     209 GetDiwVersion
+     20A SetDiwWriteid
+     20B GetDiwWriteid
+     20C SetDiwSerial
+     20D GetDiwModel
+     20C SetDiwSerial
+     20E GetDiwDeviceid
+     20F GetDiwSerial
+     210 ReqDiwCheckservicedata
+     211 ReqDiwCheckiddata
+     212 ReqDiwCheckserialdata
+     213 ReqDiwFactoryinitialize
+     214 GetDiwMacaddress
+     215 ReqDiwTest
+     216 ReqDiwDeletekey
     
-    Observed command numbers are:
-      1.  0x00
-          Test bulk read
-      2.  0x01
-          End session
-      3.  0x0101
-          Ask for device information
-      4.  0x1000
-          Acknowledge
-      5.  0x107
-          Purpose unknown, occurs in the beginning of sessions duing command testing. Best guess is some sort of OK packet 
-      6.  0x106
-          Purpose unknown, occurs in the beginning of sessions duing command testing. Best guess is some sort of OK packet
-      7.  0x18
-          Ask for information about a file
-      8.  0x33
-          Open directory for reading
-      9.  0x34
-          Close directory
-      10. 0x35
-          Ask for next item in the directory
-      11. 0x10
-          File open command
-      12. 0x11
-          File close command
-      13. 0x16
-          File read command
-    """
-    def fget(self):
-      return self.unpack(start=0, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=0, fmt=DWORD)
-      
-    return property(**locals())
-    
-  @apply 
-  def type():
-    doc =\
-    """ Command type. C{unsigned long long} stored in 8 bytes at byte 4. Known types 0x00, 0x01. Not sure what the type means. """
-    def fget(self):
-      return self.unpack(start=4, fmt=DDWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=4, fmt=DDWORD)
-      
-    return property(**locals())
-    
-  @apply
-  def length():
-    doc =\
-    """ Length in bytes of the data part of the query. C{unsigned int} stored in 4 bytes at byte 12. """
-    def fget(self):
-      return self.unpack(start=12, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=12, fmt=DWORD)
-      
-    return property(**locals())
+     300 UpdateChangemode
+     301 UpdateDeletePartition
+     302 UpdateCreatePartition
+     303 UpdateCreatePartitionWithImage
+     304 UpdateGetPartitionSize
+  """    
+  
+  type   = field(start=4, fmt=DDWORD) #: Known types are 0x00 and 0x01. Acknowledge commands are always type 0x00
+  
+  length = field(start=12, fmt=DWORD) #: Length of the data part of this packet
     
   @apply
   def data():
@@ -239,13 +289,23 @@ class Command(TransferBuffer):
       self.length = len(buffer)
       
     return property(**locals())
-    
   
-class ShortCommand(Command):
+  def __init__(self, packet):
+    """
+    @param packet: len(packet) > 15 or packet > 15
+    """
+    if ("__len__" in dir(packet) and len(packet) < 16) or ("__len__" not in dir(packet) and packet < 16): 
+      raise PacketError(str(self.__class__)[7:-2] + " packets must have length atleast 16")    
+    TransferBuffer.__init__(self, packet)
   
-  """ A L{Command} whoose data section is 4 bytes long """
+  
+  
+class ShortCommand(Command):  
+  
+  """ A L{Command} whoose data section is 4 bytes long """  
   
   SIZE = 20 #: Packet size in bytes
+  command = field(start=16, fmt=DWORD) #: Usually carries additional information
   
   def __init__(self, number=0x00, type=0x00, command=0x00):
     """
@@ -259,93 +319,6 @@ class ShortCommand(Command):
     self.length  = 4
     self.command = command
     
-  @apply
-  def command():
-    doc =\
-    """ The command. Not sure why this is needed in addition to Command.number. C{unsigned int} 4 bytes long at byte 16. """
-    def fget(self):
-      return self.unpack(start=16, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=16, fmt=DWORD)
-      
-    return property(**locals())
-
-class FreeSpaceQuery(Command):
-  """ Query the free space available """
-  NUMBER = 0x53 #; Command number
-  def __init__(self, path):
-    Command.__init__(self, 20 + len(path))
-    self.number=FreeSpaceQuery.NUMBER
-    self.type=0x01
-    self.length = 4 + len(path)
-    self.path_length = len(path)
-    self.path = path
-    
-  @apply
-  def path_length():
-    doc =\
-    """ The length in bytes of the path to follow. C{unsigned int} stored at byte 16.  """
-    def fget(self):
-      return self.unpack(start=16, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=16, fmt=DWORD)
-      
-    return property(**locals())
-    
-  @apply
-  def path():
-    doc =\
-    """ The path. Stored as a string at byte 20. """
-    
-    def fget(self):
-      return self.unpack(start=20, fmt="<"+str(self.path_length)+"s")[0]
-      
-    def fset(self, val):
-      self.pack(val, start=20, fmt="<"+str(self.path_length)+"s")
-      
-    return property(**locals())
-
-
-class DirOpen(Command):
-  
-  """ Open a directory for reading its contents  """  
-  NUMBER     = 0x33 #: Command number
-  
-  def __init__(self, path):    
-    Command.__init__(self, 20 + len(path))
-    self.number=DirOpen.NUMBER
-    self.type = 0x01
-    self.length = 4 + len(path)
-    self.path_length = len(path)
-    self.path = path
-    
-  @apply
-  def path_length():
-    doc =\
-    """ The length in bytes of the path to follow. C{unsigned int} stored at byte 16.  """
-    def fget(self):
-      return self.unpack(start=16, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=16, fmt=DWORD)
-      
-    return property(**locals())
-    
-  @apply
-  def path():
-    doc =\
-    """ The path. Stored as a string at byte 20. """
-    
-    def fget(self):
-      return self.unpack(start=20, fmt="<"+str(self.path_length)+"s")[0]
-      
-    def fset(self, val):
-      self.pack(val, start=20, fmt="<"+str(self.path_length)+"s")
-      
-    return property(**locals())
-
 class DirRead(ShortCommand):
   """ The command that asks the device to send the next item in the list """
   NUMBER = 0x35 #: Command number
@@ -383,7 +356,7 @@ class LongCommand(Command):
   def command():
     doc =\
     """ 
-    The command. Not sure why it is needed in addition to L{Command.number}.  
+    Usually carries extra information needed for the command
     It is a list of C{unsigned integers} of length between 1 and 4. 4 C{unsigned int} stored in 16 bytes at byte 16.
     """
     def fget(self):
@@ -398,11 +371,34 @@ class LongCommand(Command):
       
     return property(**locals())
 
+class PathCommand(Command):
+  """ Abstract class that defines structure common to all path related commands. """
+  
+  path_length = field(start=16, fmt=DWORD)         #: Length of the path to follow
+  path        = stringfield(path_length, start=20) #: The path this query is about
+  def __init__(self, path, number, path_len_at_byte=16):    
+    Command.__init__(self, path_len_at_byte+4+len(path))
+    self.path_length = len(path)
+    self.path = path
+    self.type = 0x01
+    self.length = len(self)-16
+    self.number = number
+    
+class FreeSpaceQuery(PathCommand):
+  """ Query the free space available """
+  NUMBER = 0x53 #; Command number  
+  def __init__(self, path):
+    PathCommand.__init__(self, path, FreeSpaceQuery.NUMBER)
+
+class DirOpen(PathCommand):  
+  """ Open a directory for reading its contents  """  
+  NUMBER     = 0x33 #: Command number
+  def __init__(self, path):    
+    PathCommand.__init__(self, path, DirOpen.NUMBER)
+
 
 class AcknowledgeBulkRead(LongCommand):
-  
   """ Must be sent to device after a bulk read """
-  
   def __init__(self, bulk_read_id):
     """ bulk_read_id is an integer, the id of the bulk read we are acknowledging. See L{Answer.id} """
     LongCommand.__init__(self, number=0x1000, type=0x00, command=bulk_read_id)    
@@ -421,19 +417,17 @@ class FileClose(ShortCommand):
   def __init__(self, id):
     ShortCommand.__init__(self, number=FileClose.NUMBER, type=0x01, command=id)
 
-class FileOpen(Command):
+class FileOpen(PathCommand):
   """ File open command """
-  NUMBER = 0x10
-  READ   = 0x00
-  WRITE  = 0x01
+  NUMBER = 0x10 #: Command number
+  READ   = 0x00 #: Open file in read mode
+  WRITE  = 0x01 #: Open file in write mode
+  path_length = field(start=20, fmt=DWORD)
+  path        = stringfield(path_length, start=24)
+  
   def __init__(self, path, mode=0x00):
-    Command.__init__(self, 24 + len(path))
-    self.number=FileOpen.NUMBER
-    self.type = 0x01
-    self.length = 8 + len(path)
+    PathCommand.__init__(self, path, FileOpen.NUMBER, path_len_at_byte=20)
     self.mode = mode
-    self.path_length = len(path)
-    self.path = path
     
   @apply
   def mode():
@@ -447,34 +441,13 @@ class FileOpen(Command):
       
     return property(**locals())
   
-  @apply
-  def path_length():
-    doc =\
-    """ The length in bytes of the path to follow. C{unsigned int} stored at byte 20.  """
-    def fget(self):
-      return self.unpack(start=20, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=20, fmt=DWORD)
-      
-    return property(**locals())
-    
-  @apply
-  def path():
-    doc =\
-    """ The path. Stored as a string at byte 24. """
-    
-    def fget(self):
-      return self.unpack(start=24, fmt="<"+str(self.path_length)+"s")[0]
-      
-    def fset(self, val):
-      self.pack(val, start=24, fmt="<"+str(self.path_length)+"s")
-      
-    return property(**locals())
   
 class FileRead(Command):
   """ Command to read from an open file """
   NUMBER = 0x16 #: Command number to read from a file
+  id = field(start=16, fmt=DWORD) #: The file ID returned by a FileOpen command
+  offset = field(start=20, fmt=DDWORD) #: offset in the file at which to read
+  size = field(start=28, fmt=DWORD)   #: The number of bytes to reead from file.
   def __init__(self, id, offset, size):
     """
     @param id:     File identifier returned by a L{FileOpen} command
@@ -487,93 +460,17 @@ class FileRead(Command):
     Command.__init__(self, 32)
     self.number=FileRead.NUMBER
     self.type = 0x01
-    self.length = 32
+    self.length = 16
     self.id = id
     self.offset = offset
     self.size = size
-    
-  @apply
-  def id():
-    doc =\
-    """ The file ID returned by a FileOpen command. C{unsigned int} stored in 4 bytes at byte 16. """
-    def fget(self):
-      return self.unpack(start=16, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=16, fmt=DWORD)
-      
-    return property(**locals())
-    
-  @apply
-  def offset():
-    doc =\
-    """ offset in the file at which to read. C{unsigned long long} stored in 8 bytes at byte 20. """
-    def fget(self):
-      return self.unpack(start=20, fmt=DDWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=20, fmt=DDWORD)
-      
-    return property(**locals())
-    
-  @apply
-  def size():
-    doc =\
-    """ The number of bytes to read. C{unsigned int} stored in 4 bytes at byte 28. """
-    def fget(self):
-      return self.unpack(start=28, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=28, fmt=DWORD)
-      
-    return property(**locals())
-  
-  
-  
 
-class PathQuery(Command):
-  
-  """ 
-  Defines structure of command that requests information about a path 
-  
-  >>> print prstypes.PathQuery("/test/path/", number=prstypes.PathQuery.PROPERTIES)
-  1800 0000 0100 0000 0000 0000 0f00 0000    ................
-  0b00 0000 2f74 6573 742f 7061 7468 2f      ..../test/path/
-  """  
-  NUMBER     = 0x18 #: Command number
-  
+
+class PathQuery(PathCommand):  
+  """ Defines structure of command that requests information about a path """  
+  NUMBER     = 0x18 #: Command number  
   def __init__(self, path):    
-    Command.__init__(self, 20 + len(path))
-    self.number=PathQuery.NUMBER
-    self.type = 0x01
-    self.length = 4 + len(path)
-    self.path_length = len(path)
-    self.path = path
-    
-  @apply
-  def path_length():
-    doc =\
-    """ The length in bytes of the path to follow. C{unsigned int} stored at byte 16.  """
-    def fget(self):
-      return self.unpack(start=16, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=16, fmt=DWORD)
-      
-    return property(**locals())
-    
-  @apply
-  def path():
-    doc =\
-    """ The path. Stored as a string at byte 20. """
-    
-    def fget(self):
-      return self.unpack(start=20, fmt="<"+str(self.path_length)+"s")[0]
-      
-    def fset(self, val):
-      self.pack(val, start=20, fmt="<"+str(self.path_length)+"s")
-      
-    return property(**locals())
+    PathCommand.__init__(self, path, PathQuery.NUMBER)
     
     
 class Response(Command):
@@ -584,6 +481,7 @@ class Response(Command):
   """
   
   SIZE = 32   #: Size of response packets in the SONY protocol 
+  rnumber = field(start=16, fmt=DWORD) #: Response number, the command number of a command packet sent sometime before this packet was received
   
   def __init__(self, packet):
     """ C{len(packet) == Response.SIZE} """
@@ -593,22 +491,6 @@ class Response(Command):
     if self.number != 0x00001000:
       raise PacketError("Response packets must have their number set to " + hex(0x00001000))
   
-  @apply
-  def rnumber():
-    doc =\
-    """ 
-    The response number. C{unsigned int} stored in 4 bytes at byte 16.
-    
-    It will be the command number from a command that was sent to the device sometime before this response.
-    """
-    def fget(self):
-      return self.unpack(start=16, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=16, fmt=DWORD)
-      
-    return property(**locals())
-    
   @apply
   def data():
     doc =\
@@ -631,18 +513,8 @@ class ListResponse(Response):
   IS_EOL         = 0xfffffffa #: There are no more entries in the list
   PATH_NOT_FOUND = 0xffffffd7 #: Queried path is not found 
   
-  @apply
-  def code():
-    doc =\
-    """ The response code. Used to indicate conditions like EOL/Error/IsFile etc. C{unsigned int} stored in 4 bytes at byte 20. """
-    def fget(self):
-      return self.unpack(start=20, fmt=DDWORD)[0]
-      
-    def fset(self, val):      
-      self.pack(val, start=20, fmt=DDWORD)
-      
-    return property(**locals())
-    
+  code = field(start=20, fmt=DWORD) #: Used to indicate conditions like EOL/Error/IsFile etc.
+  
   @apply
   def is_file():
     """ True iff queried path is a file """
@@ -681,40 +553,21 @@ class ListResponse(Response):
 class Answer(TransferBuffer):
   """ Defines the structure of packets sent to host via a bulk transfer (i.e., bulk reads) """
   
+  number = field(start=0, fmt=DWORD) #: Answer identifier, should be sent in an acknowledgement packet
+  
   def __init__(self, packet):
     """ @param packet: C{len(packet)} S{>=} C{16} """
     if len(packet) < 16 : raise PacketError(str(self.__class__)[7:-2] + " packets must have a length of atleast 16 bytes")
     TransferBuffer.__init__(self, packet)
     
-  @apply
-  def id():
-    doc =\
-    """ The id of this bulk transfer packet. C{unsigned int} stored in 4 bytes at byte 0. """
-    
-    def fget(self):
-      return self.unpack(start=0, fmt=DWORD)[0]
-      
-    def fset(self, val):      
-      self.pack(val, start=0, fmt=DWORD)
-      
-    return property(**locals())
-
+  
 class FileProperties(Answer):
   
   """ Defines the structure of packets that contain size, date and permissions information about files/directories. """
   
-  @apply
-  def file_size():
-    doc =\
-    """ The file size. C{unsigned long long} stored in 8 bytes at byte 16. """
-    
-    def fget(self):
-      return self.unpack(start=16, fmt=DDWORD)[0]
-      
-    def fset(self, val):      
-      self.pack(val, start=16, fmt=DDWORD)
-      
-    return property(**locals())
+  file_size = field(start=16, fmt=DDWORD)
+  ctime     = field(start=28, fmt=DDWORD) #: Creation time
+  wtime     = field(start=16, fmt=DDWORD) #: Modification time
   
   @apply
   def is_dir():
@@ -735,31 +588,6 @@ class FileProperties(Answer):
       
     return property(**locals())
     
-  @apply
-  def ctime():
-    doc =\
-    """ The creation time of this file/dir as an epoch (seconds since Jan 1970). C{unsigned int} stored in 4 bytes at byte 28. """
-    
-    def fget(self):
-      return self.unpack(start=28, fmt=DWORD)[0]
-      
-    def fset(self, val):      
-      self.pack(val, start=28, fmt=DWORD)
-      
-    return property(**locals())
-    
-  @apply
-  def wtime():
-    doc =\
-    """ The modification time of this file/dir as an epoch (seconds since Jan 1970). C{unsigned int} stored in 4 bytes at byte 32"""
-    
-    def fget(self):
-      return self.unpack(start=32, fmt=DWORD)[0]
-      
-    def fset(self, val):      
-      self.pack(val, start=32, fmt=DWORD)
-      
-    return property(**locals())
     
   @apply
   def is_readonly():
@@ -799,67 +627,21 @@ class IdAnswer(Answer):
     
 class DeviceInfo(Answer):
   """ Defines the structure of the packet containing information about the device """
+  device_name = field(start=16, fmt="<32s")
+  device_version = field(start=48, fmt="<32s")
+  software_version = field(start=80, fmt="<24s")
+  mime_type = field(start=104, fmt="<32s")
   
-  @apply
-  def device_name():
-    """ The name of the device. Stored as a string in 32 bytes starting at byte 16. """
-    def fget(self):
-      src = self.unpack(start=16, fmt="<32s")[0]
-      return src[0:src.find('\x00')]
-    return property(**locals())
-  
-  @apply
-  def device_version():
-    """ The device version. Stored as a string in 32 bytes starting at byte 48. """
-    def fget(self):
-      src = self.unpack(start=48, fmt="<32s")[0]
-      return src[0:src.find('\x00')]
-    return property(**locals())
-    
-  @apply
-  def software_version():
-    """ Version of the software on the device. Stored as a string in 26 bytes starting at byte 80. """
-    def fget(self):
-      src = self.unpack(start=80, fmt="<26s")[0]
-      return src[0:src.find('\x00')]
-    return property(**locals()) 
-    
-  @apply
-  def mime_type():
-    """ Mime type served by tinyhttp?. Stored as a string in 32 bytes starting at byte 104. """
-    def fget(self):
-      src = self.unpack(start=104, fmt="<32s")[0]
-      return src[0:src.find('\x00')]
-    return property(**locals()) 
 
 class FreeSpaceAnswer(Answer):
-  @apply
-  def total():
-    doc =\
-    """ The total space in bytes. C{unsigned long long} stored in 8 bytes at byte 24 """
-    def fget(self):
-      return self.unpack(start=24, fmt=DDWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=24, fmt=DDWORD)
-      
-    return property(**locals())
-  
-  @apply
-  def free_space():
-    doc =\
-    """ The free space in bytes. C{unsigned long long} stored in 8 bytes at byte 32 """
-    def fget(self):
-      return self.unpack(start=32, fmt=DDWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=32, fmt=DDWORD)
-      
-    return property(**locals())
+  total = field(start=24, fmt=DDWORD)
+  free_space = field(start=32, fmt=DDWORD)
 
 class ListAnswer(Answer):
   
   """ Defines the structure of packets that contain items in a list. """
+  name_length = field(start=20, fmt=DWORD)
+  name        = stringfield(name_length, start=24)
   
   @apply
   def is_dir():
@@ -876,27 +658,4 @@ class ListAnswer(Answer):
       
     return property(**locals())
     
-  @apply
-  def name_length():
-    doc =\
-    """ The length in bytes of the list item to follow. C{unsigned int} stored in 4 bytes at byte 20 """
-    def fget(self):
-      return self.unpack(start=20, fmt=DWORD)[0]
-      
-    def fset(self, val):
-      self.pack(val, start=20, fmt=DWORD)
-      
-    return property(**locals())
   
-  @apply
-  def name():
-    doc =\
-    """ The name of the list item. Stored as an (ascii?) string at byte 24. """
-    
-    def fget(self):
-      return self.unpack(start=24, fmt="<"+str(self.name_length)+"s")[0]
-      
-    def fset(self, val):      
-      self.pack(val, start=24, fmt="<"+str(self.name_length)+"s")
-      
-    return property(**locals())
