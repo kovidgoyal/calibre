@@ -44,7 +44,7 @@ Contains the logic for communication with the device (a SONY PRS-500).
 
 The public interface of class L{PRS500Device} defines the methods for performing various tasks. 
 """
-import usb, sys
+import usb, sys, os, time
 from array import array
 
 from prstypes import *
@@ -52,12 +52,13 @@ from errors import *
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 _packet_number = 0     #: Keep track of the packet number of packet tracing
+KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L] #: Protocol versions libprs500 has been tested with
 
 def _log_packet(packet, header, stream=sys.stderr):
   """ Log C{packet} to stream C{stream}. Header should be a small word describing the type of packet. """
   global _packet_number
   _packet_number += 1
-  print >>stream, header, "(Packet #", str(_packet_number) + ")\n"
+  print >>stream, str(_packet_number), header, "Type:", packet.__class__.__name__
   print >>stream, packet
   print >>stream, "--"
 
@@ -76,7 +77,10 @@ class File(object):
     
   def __repr__(self):
     """ Return path to self """
-    return self.path
+    return "File:"+self.path
+    
+  def __str__(self):
+    return self.name
 
 
 class DeviceDescriptor:
@@ -124,6 +128,34 @@ class PRS500Device(object):
   PRS500_BULK_IN_EP   = 0x81   #: Endpoint for Bulk reads
   PRS500_BULK_OUT_EP  = 0x02   #: Endpoint for Bulk writes
 
+  def safe(func):
+    """ 
+    Decorator that wraps a call to C{func} to ensure that exceptions are handled correctly. 
+    
+    As a convenience, C{safe} automatically sends the a L{USBConnect} after calling func, unless func has
+    a keyword argument named C{end_session} set to C{False}.
+    
+    An L{ArgumentError} will cause the L{USBConnect} command to be sent to the device, unless end_session is set to C{False}.
+    An L{usb.USBError} will cause the library to release control of the USB interface via a call to L{close}.
+    """
+    def run_session(*args, **kwargs):
+      dev = args[0]
+      res = None
+      try:
+        res = func(*args, **kwargs)
+      except ArgumentError, e:
+        if not kwargs.has_key("end_session") or kwargs["end_session"]:
+          dev._send_validated_command(USBConnect())        
+        raise e
+      except usb.USBError, e:
+        dev.close()
+        raise e
+      if not kwargs.has_key("end_session") or kwargs["end_session"]:
+        dev._send_validated_command(USBConnect())
+      return res
+      
+    return run_session
+
   def __init__(self, log_packets=False) :
     """ @param log_packets: If true the packet stream to/from the device is logged """
     self.device_descriptor = DeviceDescriptor(PRS500Device.SONY_VENDOR_ID,
@@ -143,7 +175,9 @@ class PRS500Device(object):
   def open(self) :
     """
     Claim an interface on the device for communication. Requires write privileges to the device file.
+    Also initialize the device. See the source code for the sequenceof initialization commands.
     
+    @todo: Implement unlocking of the device
     @todo: Check this on Mac OSX
     """
     self.device = self.device_descriptor.getDevice()
@@ -152,11 +186,22 @@ class PRS500Device(object):
       sys.exit(1)
     self.handle = self.device.open()
     if sys.platform == 'darwin' :
-      # XXX : For some reason, Mac OS X doesn't set the
+      # For some reason, Mac OS X doesn't set the
       # configuration automatically like Linux does.
-      self.handle.setConfiguration(1) # TODO: Check on Mac OSX
+      self.handle.setConfiguration(1) 
     self.handle.claimInterface(self.device_descriptor.interface_id)
     self.handle.reset()
+    res = self._send_validated_command(GetUSBProtocolVersion())
+    if res.code != 0: raise ProtocolError("Unable to get USB Protocol version.")
+    version = self._bulk_read(24, data_type=USBProtocolVersion)[0].version
+    if version not in KNOWN_USB_PROTOCOL_VERSIONS:
+      print >>sys.stderr, "WARNING: Usb protocol version " + hex(version) + " is unknown"
+    res = self._send_validated_command(SetBulkSize(size=0x028000))
+    if res.code != 0: raise ProtocolError("Unable to set bulk size.")
+    self._send_validated_command(UnlockDevice(key=0x312d))
+    if res.code != 0: 
+      raise ProtocolError("Unlocking of device not implemented. Remove locking and retry.")
+    
     
   def close(self):    
     """ Release device interface """
@@ -189,115 +234,113 @@ class PRS500Device(object):
     PRS500Device._validate_response(res, type=command.type, number=cnumber)
     return res
     
-  def _bulk_read_packet(self, data_type=Answer, size=4096):
+  def _bulk_write(self, data, packet_size=0x1000):
+    """ 
+    Send data to device via a bulk transfer.
+    @type data: Any listable type supporting __getslice__
+    @param packet_size: Size of packets to be sent to device. C{data} is broken up into packets to be sent to device.
     """
-    Read in a data packet via a Bulk Read.
+    def bulk_write_packet(packet):
+      self.handle.bulkWrite(PRS500Device.PRS500_BULK_OUT_EP, packet)
+      if self._log_packets: _log_packet(Answer(packet), "Answer h->d")
+        
+    bytes_left = len(data)        
+    if bytes_left + 16 <= packet_size:
+      packet_size = bytes_left +16
+      first_packet = Answer(bytes_left+16)
+      first_packet[16:] = data
+      first_packet.length = len(data)
+    else:
+      first_packet = Answer(packet_size)
+      first_packet[16:] = data[0:packet_size-16]
+      first_packet.length = packet_size-16
+    first_packet.number = 0x10005
+    bulk_write_packet(first_packet)
+    pos = first_packet.length
+    bytes_left -= first_packet.length
+    while bytes_left > 0:
+      endpos = pos + packet_size if pos + packet_size <= len(data) else len(data)
+      bulk_write_packet(data[pos:endpos])
+      bytes_left -= endpos - pos
+      pos = endpos
+    res = Response(self.handle.controlMsg(0xc0, 0x81, Response.SIZE, timeout=5000))
+    if self._log_packets: _log_packet(res, "Response")
+    if res.rnumber != 0x10005 or res.code != 0:
+      raise ProtocolError("Sending via Bulk Transfer failed with response:\n"+str(res))  
+    if res.data_size != len(data):
+      raise ProtocolError("Unable to transfer all data to device. Response packet:\n"+str(res))
     
-    @param data_type: an object of type type. The data packet is returned as an object of type C{data_type}.
-    @param size: the expected size of the data packet. 
-    """
-    data = data_type(self.handle.bulkRead(PRS500Device.PRS500_BULK_IN_EP, size))
-    if self._log_packets: _log_packet(data, "Answer d->h")
-    return data
   
   def _bulk_read(self, bytes, command_number=0x00, packet_size=4096, data_type=Answer):
-    """ Read in C{bytes} bytes via a bulk transfer in packets of size S{<=} C{packet_size} """
+    """ 
+    Read in C{bytes} bytes via a bulk transfer in packets of size S{<=} C{packet_size} 
+    @param data_type: an object of type type. The data packet is returned as an object of type C{data_type}.    
+    @return: A list of packets read from the device. Each packet is of type data_type
+    """
+    def bulk_read_packet(data_type=Answer, size=0x1000):
+      data = data_type(self.handle.bulkRead(PRS500Device.PRS500_BULK_IN_EP, size))
+      if self._log_packets: _log_packet(data, "Answer d->h")
+      return data
+      
     bytes_left = bytes
     packets = []
     while bytes_left > 0:
       if packet_size > bytes_left: packet_size = bytes_left
-      packet = self._bulk_read_packet(data_type=data_type, size=packet_size)
+      packet = bulk_read_packet(data_type=data_type, size=packet_size)
       bytes_left -= len(packet)
       packets.append(packet)
     self._send_validated_command(AcknowledgeBulkRead(packets[0].number), cnumber=command_number)
     return packets
     
-  def _test_bulk_reads(self):
-    """ Carries out a test of bulk reading as part of session initialization. """
-    self._send_validated_command( ShortCommand(number=0x00, type=0x01, command=0x00) )    
-    self._bulk_read(24, command_number=0x00)
-      
-  def _start_session(self):
+  @safe
+  def get_device_information(self, end_session=True):
     """ 
-    Send the initialization sequence to the device. See the code for details. 
-    This method should be called before any real work is done. Though most things seem to work without it.
-    """    
-    self.handle.reset()
-    self._test_bulk_reads()
-    self._send_validated_command( ShortCommand(number=0x0107, command=0x028000, type=0x01) ) # TODO: Figure out the meaning of this command
-    self._test_bulk_reads()
-    self._send_validated_command( ShortCommand(number=0x0106, type=0x01, command=0x312d) )   # TODO: Figure out the meaning of this command
-    self._send_validated_command( ShortCommand(number=0x01, type=0x01, command=0x01) )
-    
-  def _end_session(self):
-    """ Send the end session command to the device. Causes the device to change status from "Do not disconnect" to "USB Connected" """
-    self._send_validated_command( ShortCommand(number=0x01, type=0x01, command=0x00) )
-  
-  def _run_session(self, *args):
+    Ask device for device information. See L{DeviceInfoQuery}. 
+    @return: (device name, device version, software version on device, mime type)
     """
-    Wrapper that automatically calls L{_start_session} and L{_end_session}.
-    
-    @param args: An array whose first element is the method to call and whose remaining arguments are passed to that mathos as an array.
-    """
-    self._start_session()
-    res = None
-    try:
-      res = args[0](args[1:])
-    except ArgumentError, e:
-      self._end_session()
-      raise e
-    self._end_session()
-    return res
-  
-  def _get_device_information(self, args):
-    """ Ask device for device information. See L{DeviceInfoQuery}. """
     size = self._send_validated_command(DeviceInfoQuery()).data[2] + 16
     data = self._bulk_read(size, command_number=DeviceInfoQuery.NUMBER, data_type=DeviceInfo)[0]
     return (data.device_name, data.device_version, data.software_version, data.mime_type)
     
-  def get_device_information(self):
-    """ Return (device name, device version, software version on device, mime type). See L{_get_device_information} """
-    return self._run_session(self._get_device_information)
-  
-  def _get_path_properties(self, path):
-    """ Send command asking device for properties of C{path}. Return (L{Response}, L{Answer}). """
-    res = self._send_validated_command(PathQuery(path), response_type=ListResponse)
+  @safe
+  def path_properties(self, path, end_session=True):
+    """ Send command asking device for properties of C{path}. Return L{FileProperties}. """
+    res  = self._send_validated_command(PathQuery(path), response_type=ListResponse)
     data = self._bulk_read(0x28, data_type=FileProperties, command_number=PathQuery.NUMBER)[0]
     if path.endswith("/"): path = path[:-1]
     if res.path_not_found : raise PathError(path + " does not exist on device")
     if res.is_invalid     : raise PathError(path + " is not a valid path")
     if res.is_unmounted   : raise PathError(path + " is not mounted")
-    return (res, data)
+    if res.code not in (0, PathResponseCodes.IS_FILE):
+      raise PathError(path + " has an unknown error. Code: " + hex(res.code))
+    return data
      
-  def get_file(self, path, outfile):
+  @safe
+  def get_file(self, path, outfile, end_session=True):
     """
     Read the file at path on the device and write it to outfile. For the logic see L{_get_file}.
     
-    @param outfile: file object like C{sys.stdout} or the result of an C{open} call
-    """
-    self._run_session(self._get_file, path, outfile)
-  
-  def _get_file(self, args):
-    """
-    Fetch a file from the device and write it to an output stream. 
-    
     The data is fetched in chunks of size S{<=} 32K. Each chunk is make of packets of size S{<=} 4K. See L{FileOpen},
     L{FileRead} and L{FileClose} for details on the command packets used. 
-    
-    @param args: C{path, outfile = arg[0], arg[1]}
+        
+    @param outfile: file object like C{sys.stdout} or the result of an C{open} call
     """
-    path, outfile = args[0], args[1]
     if path.endswith("/"): path = path[:-1] # We only copy files
-    res, data = self._get_path_properties(path)
-    if data.is_dir: raise PathError("Cannot read as " + path + " is a directory")
-    bytes = data.file_size
-    self._send_validated_command(FileOpen(path))
+    file = self.path_properties(path, end_session=False)
+    if file.is_dir: raise PathError("Cannot read as " + path + " is a directory")
+    bytes = file.file_size
+    res = self._send_validated_command(FileOpen(path))
+    if res.code != 0:
+      raise PathError("Unable to open " + path + " for reading. Response code: " + hex(res.code))
     id = self._bulk_read(20, data_type=IdAnswer, command_number=FileOpen.NUMBER)[0].id    
     bytes_left, chunk_size, pos = bytes, 0x8000, 0    
     while bytes_left > 0:
       if chunk_size > bytes_left: chunk_size = bytes_left
-      res = self._send_validated_command(FileRead(id, pos, chunk_size))
-      packets = self._bulk_read(chunk_size+16, command_number=FileRead.NUMBER, packet_size=4096)
+      res = self._send_validated_command(FileIO(id, pos, chunk_size))
+      if res.code != 0:
+        self._send_validated_command(FileClose(id))
+        raise ProtocolError("Error while reading from " + path + ". Response code: " + hex(res.code))
+      packets = self._bulk_read(chunk_size+16, command_number=FileIO.RNUMBER, packet_size=4096)
       try:
         array('B', packets[0][16:]).tofile(outfile) # The first 16 bytes are meta information on the packet stream
         for i in range(1, len(packets)): 
@@ -307,53 +350,16 @@ class PRS500Device(object):
         raise ArgumentError("File get operation failed. Could not write to local location: " + str(e))          
       bytes_left -= chunk_size
       pos += chunk_size
-    self._send_validated_command(FileClose(id))
+    self._send_validated_command(FileClose(id)) 
+    # Not going to check response code to see if close was successful as there's not much we can do if it wasnt
           
   
-  def _list(self, args):
-    """ 
-    Ask the device to list a path. See the code for details. See L{DirOpen},
-    L{DirRead} and L{DirClose} for details on the command packets used.
-    
-    @param args:  C{path=args[0]}
-    @return: A list of tuples. The first element of each tuple is a string, the path. The second is a L{FileProperties}.
-             If the path points to a file, the list will have length 1.
-    """
-    path = args[0]
-    if not path.endswith("/"): path += "/" # Initially assume path is a directory
-    files = []
-    res, data = self._get_path_properties(path)
-    if res.is_file: 
-      path = path[:-1]
-      res, data = self._get_path_properties(path)      
-      files = [ (path, data) ]
-    else:
-      # Get query ID used to ask for next element in list
-      self._send_validated_command(DirOpen(path), response_type=ListResponse)
-      id = self._bulk_read(0x14, data_type=IdAnswer, command_number=DirOpen.NUMBER)[0].id
-      # Create command asking for next element in list
-      next = DirRead(id)
-      items = []
-      while True:
-        res = self._send_validated_command(next, response_type=ListResponse)        
-        size = res.data[2] + 16
-        data = self._bulk_read(size, data_type=ListAnswer, command_number=DirRead.NUMBER)[0]
-        # path_not_found seems to happen if the usb server doesn't have the permissions to access the directory
-        if res.is_eol or res.path_not_found: break 
-        items.append(data.name)
-      self._send_validated_command(DirClose(id))
-      for item in items:
-        ipath = path + item
-        res, data = self._get_path_properties(ipath)
-        files.append( (ipath, data) )
-    files.sort()
-    return files
   
-  def list(self, path, recurse=False):
+  @safe
+  def list(self, path, recurse=False, end_session=True):
     """
-    Return a listing of path.
-    
-    See L{_list} for the communication logic.
+    Return a listing of path. See the code for details. See L{DirOpen},
+    L{DirRead} and L{DirClose} for details on the command packets used.
     
     @type path: string
     @param path: The path to list
@@ -361,17 +367,53 @@ class PRS500Device(object):
     @param recurse: If true do a recursive listing    
     @return: A list of tuples. The first element of each tuple is a path.  The second element is a list of L{Files<File>}. 
              The path is the path we are listing, the C{Files} are the files/directories in that path. If it is a recursive
-             list, then the first element will be (C{path}, children), the next will be (child, its children) and so on.
+             list, then the first element will be (C{path}, children), the next will be (child, its children) and so on. If it
+             is not recursive the length of the outermost list will be 1.
     """
-    files = self._run_session(self._list, path)    
-    files = [ File(file) for file in files ]
+    def _list(path): # Do a non recursive listsing of path
+      if not path.endswith("/"): path += "/" # Initially assume path is a directory
+      files = []
+      candidate = self.path_properties(path, end_session=False)
+      if not candidate.is_dir: 
+        path = path[:-1]
+        data = self.path_properties(path, end_session=False)      
+        files = [ File((path, data)) ]
+      else:
+        # Get query ID used to ask for next element in list
+        res = self._send_validated_command(DirOpen(path))
+        if res.code != 0:
+          raise PathError("Unable to open directory " + path + " for reading. Response code: " + hex(res.code))
+        id = self._bulk_read(0x14, data_type=IdAnswer, command_number=DirOpen.NUMBER)[0].id
+        # Create command asking for next element in list
+        next = DirRead(id)
+        items = []
+        while True:
+          res = self._send_validated_command(next, response_type=ListResponse)        
+          size = res.data_size + 16
+          data = self._bulk_read(size, data_type=ListAnswer, command_number=DirRead.NUMBER)[0]
+          # path_not_found seems to happen if the usb server doesn't have the permissions to access the directory
+          if res.is_eol or res.path_not_found: break 
+          elif res.code != 0:
+            raise ProtocolError("Unknown error occured while reading contents of directory " + path + ". Response code: " + haex(res.code))
+          items.append(data.name)
+        self._send_validated_command(DirClose(id)) # Ignore res.code as we cant do anything if close fails
+        for item in items:
+          ipath = path + item
+          data = self.path_properties(ipath, end_session=False)
+          files.append( File( (ipath, data) ) )
+      files.sort()
+      return files
+      
+    files = _list(path)
     dirs = [(path, files)]
+      
     for file in files:
       if recurse and file.is_dir and not file.path.startswith(("/dev","/proc")):
-        dirs[len(dirs):] = self.list(file.path, recurse=True)
+        dirs[len(dirs):] = self.list(file.path, recurse=True, end_session=False)
     return dirs
     
-  def available_space(self):
+  @safe
+  def available_space(self, end_session=True):
     """ 
     Get free space available on the mountpoints:
       1. /Data/ Device memory
@@ -380,10 +422,6 @@ class PRS500Device(object):
       
     @return: A list of tuples. Each tuple has form ("location", free space, total space)
     """    
-    return self._run_session(self._available_space)
-  
-  def _available_space(self, args):
-    """ L{available_space} """
     data = []
     for path in ("/Data/", "a:/", "b:/"):
       res = self._send_validated_command(FreeSpaceQuery(path),timeout=5000) # Timeout needs to be increased as it takes time to read card
@@ -392,3 +430,113 @@ class PRS500Device(object):
       data.append( (path, pkt.free_space, pkt.total) )
     return data
     
+  def _exists(self, path):
+    """ Return (True, FileProperties) if path exists or (False, None) otherwise """
+    dest = None
+    try:
+      dest = self.path_properties(path, end_session=False)
+    except PathError, e:
+      if "does not exist" in str(e): return (False, None)
+      else: raise e
+    return (True, dest)
+  
+  @safe
+  def touch(self, path, end_session=True):
+    """ 
+    Create a file at path 
+    
+    @todo: Update file modification time if it exists
+    """
+    if path.endswith("/") and len(path) > 1: path = path[:-1]
+    exists, file = self._exists(path)
+    if exists and file.is_dir:
+      raise PathError("Cannot touch directories")
+    if not exists:
+      res = self._send_validated_command(FileCreate(path))
+      if res.code != 0:
+        raise PathError("Could not create file " + path + ". Response code: " + str(hex(res.code)))
+##    res = self._send_validated_command(SetFileInfo(path))    
+##    if res.code != 0:
+##      raise ProtocolError("Unable to touch " + path + ". Response code: " + hex(res.code))
+##    file.wtime = int(time.time())
+##    self._bulk_write(file[16:])
+    
+  
+  @safe
+  def put_file(self, infile, path, end_session=True):
+    exists, dest = self._exists(path)        
+    if exists:
+      if not dest.is_dir: raise PathError("Cannot write to " + path + " as it already exists")
+      if not path.endswith("/"): path += "/"
+      path += os.path.basename(infile.name)
+      exists, dest = self._exists(path)
+      if exists: raise PathError("Cannot write to " + path + " as it already exists")
+    res = self._send_validated_command(FileCreate(path))
+    if res.code != 0:
+      raise ProtocolError("There was an error creating device:"+path+". Response code: "+hex(res.code))
+    chunk_size = 0x8000
+    data_left = True
+    res = self._send_validated_command(FileOpen(path, mode=FileOpen.WRITE))
+    if res.code != 0:
+      raise ProtocolError("Unable to open " + path + " for writing. Response code: " + hex(res.code))
+    id = self._bulk_read(20, data_type=IdAnswer, command_number=FileOpen.NUMBER)[0].id    
+    pos = 0
+    while data_left:
+      data = array('B')
+      try:
+        data.fromfile(infile, chunk_size)
+      except EOFError: 
+        data_left = False
+      res = self._send_validated_command(FileIO(id, pos, len(data), mode=FileIO.WNUMBER))      
+      if res.code != 0:
+        raise ProtocolError("Unable to write to " + path + ". Response code: " + hex(res.code))
+      self._bulk_write(data)
+      pos += len(data)
+    self._send_validated_command(FileClose(id)) # Ignore res.code as cant do anything if close fails
+    file = self.path_properties(path, end_session=False)
+    if file.file_size != pos:
+      raise ProtocolError("Copying to device failed. The file was truncated by " + str(data.file_size - pos) + " bytes")
+    
+  @safe
+  def del_file(self, path, end_session=True):
+    data = self.path_properties(path, end_session=False)
+    if data.is_dir: raise PathError("Cannot delete directories")
+    res = self._send_validated_command(FileDelete(path), response_type=ListResponse)
+    if res.code != 0:
+      raise ProtocolError("Unable to delete " + path + " with response:\n" + str(res))
+      
+  @safe
+  def mkdir(self, path, end_session=True):
+    if not path.endswith("/"): path += "/"
+    error_prefix = "Cannot create directory " + path
+    res = self._send_validated_command(DirCreate(path)).data[0]
+    if res == 0xffffffcc:
+      raise PathError(error_prefix + " as it already exists")
+    elif res == PathResponseCodes.NOT_FOUND:
+      raise PathError(error_prefix + " as " + path[0:path[:-1].rfind("/")] + " does not exist ")
+    elif res == PathResponseCodes.INVALID:
+      raise PathError(error_prefix + " as " + path + " is invalid")
+    elif res != 0:
+      raise PathError(error_prefix + ". Response code: " + hex(res))
+  
+  @safe
+  def rm(self, path, end_session=True):
+    """ Delete path from device if it is a file or an empty directory """
+    dir = self.path_properties(path, end_session=False)
+    if not dir.is_dir:
+      self.del_file(path, end_session=False)
+    else:
+      if not path.endswith("/"):  path += "/"        
+      res = self._send_validated_command(DirDelete(path))
+      if res.code == PathResponseCodes.HAS_CHILDREN:
+        raise PathError("Cannot delete directory " + path + " as it is not empty")
+      if res.code != 0:
+        raise ProtocolError("Failed to delete directory " + path + ". Response code: " + hex(res.code))
+    
+
+
+#dev = PRS500Device(log_packets=False)
+#dev.open()
+#print dev.get_file("/etc/sysctl.conf", sys.stdout)
+#dev.close()
+

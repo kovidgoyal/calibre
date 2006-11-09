@@ -44,6 +44,14 @@ DWORD     = "<I"    #: Unsigned integer little endian encoded in 4 bytes
 DDWORD    = "<Q"    #: Unsigned long long little endian encoded in 8 bytes
 
 
+class PathResponseCodes(object):
+  """ Known response commands to path related commands """
+  NOT_FOUND    = 0xffffffd7
+  INVALID      = 0xfffffff9
+  IS_FILE      = 0xffffffd2
+  HAS_CHILDREN = 0xffffffcc
+  
+
 class TransferBuffer(list):
   
   """
@@ -333,6 +341,27 @@ class DirClose(ShortCommand):
     """ @param id: The identifier returned as a result of a L{DirOpen} command """
     ShortCommand.__init__(self, number=DirClose.NUMBER, type=0x01, command=id)
 
+class USBConnect(ShortCommand):
+  """ Ask device to change status to 'USB connected' i.e., tell the device that the present sequence of commands is complete """
+  NUMBER=0x1 #: Command number
+  def __init__(self):
+    ShortCommand.__init__(self, number=USBConnect.NUMBER, type=0x01, command=0x00)
+    
+class GetUSBProtocolVersion(ShortCommand):
+  """ Get USB Protocol version used by device """
+  NUMBER=0x0 #: Command number
+  def __init__(self):
+    ShortCommand.__init__(self, number=GetUSBProtocolVersion.NUMBER, type=0x01, command=0x00)
+
+class SetBulkSize(ShortCommand):
+  NUMBER = 0x107 #: Command number
+  def __init__(self, size=0x028000):
+    ShortCommand.__init__(self, number=SetBulkSize.NUMBER, type=0x01, command=size)
+
+class UnlockDevice(ShortCommand):
+  NUMBER = 0x106 #: Command number  
+  def __init__(self, key=0x312d):
+    ShortCommand.__init__(self, number=UnlockDevice.NUMBER, type=0x01, command=key)
 
 class LongCommand(Command):
   
@@ -390,6 +419,12 @@ class FreeSpaceQuery(PathCommand):
   def __init__(self, path):
     PathCommand.__init__(self, path, FreeSpaceQuery.NUMBER)
 
+class DirCreate(PathCommand):
+  """ Create a directory """
+  NUMBER = 0x30
+  def __init__(self, path):
+    PathCommand.__init__(self, path, DirCreate.NUMBER)
+
 class DirOpen(PathCommand):  
   """ Open a directory for reading its contents  """  
   NUMBER     = 0x33 #: Command number
@@ -417,6 +452,24 @@ class FileClose(ShortCommand):
   def __init__(self, id):
     ShortCommand.__init__(self, number=FileClose.NUMBER, type=0x01, command=id)
 
+class FileCreate(PathCommand):
+  """ Create a file """
+  NUMBER=0x1a #: Command number
+  def __init__(self, path):
+    PathCommand.__init__(self, path, FileCreate.NUMBER)
+
+class FileDelete(PathCommand):
+  """ Delete a file """
+  NUMBER=0x1B
+  def __init__(self, path):
+    PathCommand.__init__(self, path, FileDelete.NUMBER)
+
+class DirDelete(PathCommand):
+  """ Delete a directory """
+  NUMBER=0x31
+  def __init__(self, path):
+    PathCommand.__init__(self, path, DirDelete.NUMBER)
+
 class FileOpen(PathCommand):
   """ File open command """
   NUMBER = 0x10 #: Command number
@@ -442,13 +495,14 @@ class FileOpen(PathCommand):
     return property(**locals())
   
   
-class FileRead(Command):
-  """ Command to read from an open file """
-  NUMBER = 0x16 #: Command number to read from a file
+class FileIO(Command):
+  """ Command to read/write from an open file """
+  RNUMBER = 0x16 #: Command number to read from a file
+  WNUMBER = 0x17 #: Command number to write  to a file
   id = field(start=16, fmt=DWORD) #: The file ID returned by a FileOpen command
   offset = field(start=20, fmt=DDWORD) #: offset in the file at which to read
   size = field(start=28, fmt=DWORD)   #: The number of bytes to reead from file.
-  def __init__(self, id, offset, size):
+  def __init__(self, id, offset, size, mode=0x16):
     """
     @param id:     File identifier returned by a L{FileOpen} command
     @type id: C{unsigned int}
@@ -456,9 +510,10 @@ class FileRead(Command):
     @type offset: C{unsigned long long}
     @param size: number of bytes to read
     @type size: C{unsigned int}
+    @param mode: Either L{FileIO.RNUMBER} or L{File.WNUMBER}
   """  
     Command.__init__(self, 32)
-    self.number=FileRead.NUMBER
+    self.number=mode
     self.type = 0x01
     self.length = 16
     self.id = id
@@ -472,6 +527,11 @@ class PathQuery(PathCommand):
   def __init__(self, path):    
     PathCommand.__init__(self, path, PathQuery.NUMBER)
     
+class SetFileInfo(PathCommand):
+  """ Set File information """
+  NUMBER = 0x19 #: Command number  
+  def __init__(self, path):
+    PathCommand.__init__(self, path, SetFileInfo.NUMBER)
     
 class Response(Command):
   """ 
@@ -480,8 +540,10 @@ class Response(Command):
   C{Response} inherits from C{Command} as the first 16 bytes have the same structure.
   """
   
-  SIZE = 32   #: Size of response packets in the SONY protocol 
-  rnumber = field(start=16, fmt=DWORD) #: Response number, the command number of a command packet sent sometime before this packet was received
+  SIZE      = 32                         #: Size of response packets in the SONY protocol 
+  rnumber   = field(start=16, fmt=DWORD) #: Response number, the command number of a command packet sent sometime before this packet was received
+  code      = field(start=20, fmt=DWORD) #: Used to indicate error conditions. A value of 0 means there was no error
+  data_size = field(start=28, fmt=DWORD) #: Used to indicate the size of the next bulk read
   
   def __init__(self, packet):
     """ C{len(packet) == Response.SIZE} """
@@ -512,8 +574,6 @@ class ListResponse(Response):
   IS_UNMOUNTED   = 0xffffffc8 #: Queried path is not mounted (i.e. a removed storage card/stick)
   IS_EOL         = 0xfffffffa #: There are no more entries in the list
   PATH_NOT_FOUND = 0xffffffd7 #: Queried path is not found 
-  
-  code = field(start=20, fmt=DWORD) #: Used to indicate conditions like EOL/Error/IsFile etc.
   
   @apply
   def is_file():
@@ -553,11 +613,16 @@ class ListResponse(Response):
 class Answer(TransferBuffer):
   """ Defines the structure of packets sent to host via a bulk transfer (i.e., bulk reads) """
   
-  number = field(start=0, fmt=DWORD) #: Answer identifier, should be sent in an acknowledgement packet
+  number = field(start=0, fmt=DWORD)  #: Answer identifier
+  length = field(start=12, fmt=DWORD) #: Length of data to follow
   
   def __init__(self, packet):
     """ @param packet: C{len(packet)} S{>=} C{16} """
-    if len(packet) < 16 : raise PacketError(str(self.__class__)[7:-2] + " packets must have a length of atleast 16 bytes")
+    if "__len__" in dir(packet):
+      if len(packet) < 16 : 
+        raise PacketError(str(self.__class__)[7:-2] + " packets must have a length of atleast 16 bytes")
+    elif packet < 16:
+      raise PacketError(str(self.__class__)[7:-2] + " packets must have a length of atleast 16 bytes")
     TransferBuffer.__init__(self, packet)
     
   
@@ -565,38 +630,30 @@ class FileProperties(Answer):
   
   """ Defines the structure of packets that contain size, date and permissions information about files/directories. """
   
-  file_size = field(start=16, fmt=DDWORD)
-  ctime     = field(start=28, fmt=DDWORD) #: Creation time
-  wtime     = field(start=16, fmt=DDWORD) #: Modification time
+  file_size   = field(start=16, fmt=DDWORD) #: Size in bytes of the file
+  file_type   = field(start=24, fmt=DWORD)  #: 1 == file, 2 == dir
+  ctime       = field(start=28, fmt=DWORD)  #: Creation time
+  wtime       = field(start=32, fmt=DWORD)  #: Modification time
+  permissions = field(start=36, fmt=DWORD)  #: 0 = default permissions, 4 = read only
   
   @apply
   def is_dir():
-    doc =\
-    """ 
-    True if path points to a directory, False if it points to a file. C{unsigned int} stored in 4 bytes at byte 24.
-    
-    Value of 1 == file and 2 == dir
-    """
+    doc = """True if path points to a directory, False if it points to a file."""    
     
     def fget(self):
-      return (self.unpack(start=24, fmt=DWORD)[0] == 2)
+      return (self.file_type == 2)
       
     def fset(self, val):
       if val: val = 2
       else: val = 1
-      self.pack(val, start=24, fmt=DWORD)
+      self.file_type = val
       
     return property(**locals())
     
     
   @apply
   def is_readonly():
-    doc =\
-    """ 
-    Whether this file is readonly. C{unsigned int} stored in 4 bytes at byte 36.
-    
-    A value of 0 corresponds to read/write and 4 corresponds to read-only. The device doesn't send full permissions information.
-    """
+    doc = """ Whether this file is readonly."""
     
     def fget(self):
       return self.unpack(start=36, fmt=DWORD)[0] != 0
@@ -608,6 +665,10 @@ class FileProperties(Answer):
       
     return property(**locals())
     
+
+class USBProtocolVersion(Answer):
+  version = field(start=16, fmt=DDWORD)
+
 class IdAnswer(Answer):
   
   """ Defines the structure of packets that contain identifiers for queries. """
@@ -637,8 +698,8 @@ class FreeSpaceAnswer(Answer):
   total = field(start=24, fmt=DDWORD)
   free_space = field(start=32, fmt=DDWORD)
 
-class ListAnswer(Answer):
-  
+
+class ListAnswer(Answer):  
   """ Defines the structure of packets that contain items in a list. """
   name_length = field(start=20, fmt=DWORD)
   name        = stringfield(name_length, start=24)

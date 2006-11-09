@@ -27,7 +27,7 @@ def human_readable(size):
   return size + suffix
 
 class FileFormatter(object):
-  def __init__(self, file, term):
+  def __init__(self, file, term):    
     self.term = term
     self.is_dir      = file.is_dir
     self.is_readonly = file.is_readonly
@@ -73,14 +73,14 @@ class FileFormatter(object):
   def modification_time():
     doc=""" Last modified time in the Linux ls -l format """
     def fget(self):
-      return time.strftime("%Y-%m-%d %H:%M", time.gmtime(self.wtime))
+      return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.wtime))
     return property(**locals())
     
   @apply
   def creation_time():
     doc=""" Last modified time in the Linux ls -l format """
     def fget(self):
-      return time.strftime("%Y-%m-%d %H:%M", time.gmtime(self.ctime))
+      return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.ctime))
     return property(**locals())
 
 def info(dev):
@@ -165,9 +165,11 @@ def main():
   term = TerminalController()
   cols = term.COLS
   
-  parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, df, ls, cp, cat or rm\n\n"+
+  parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, df, ls, cp, mkdir, touch, cat or rm\n\n"+
                               "For help on a particular command: %prog command", version="libprs500 version: " + VERSION)
-  parser.add_option("--log-packets", help="print out packet stream to stdout", dest="log_packets", action="store_true", default=False)
+  parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
+                    "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
+                    dest="log_packets", action="store_true", default=False)
   parser.remove_option("-h")
   parser.disable_interspersed_args() # Allow unrecognized options
   options, args = parser.parse_args()
@@ -178,80 +180,111 @@ def main():
   command = args[0]
   args = args[1:]
   dev = PRS500Device(log_packets=options.log_packets)
-  if command == "df":
-    dev.open()
-    data = dev.available_space()
-    dev.close()
-    print "Filesystem\tSize \tUsed \tAvail \tUse%"
-    for datum in data:
-      total, free, used, percent = human_readable(datum[2]), human_readable(datum[1]), human_readable(datum[2]-datum[1]), \
-                                   str(0 if datum[2]==0 else int(100*(datum[2]-datum[1])/(datum[2]*1.)))+"%"
-      print "%-10s\t%s\t%s\t%s\t%s"%(datum[0], total, used, free, percent)
-  elif command == "ls":
-    parser = OptionParser(usage="usage: %prog ls [options] path\n\npath must begin with /,a:/ or b:/")
-    parser.add_option("--color", help="show ls output in color", dest="color", action="store_true", default=False)
-    parser.add_option("-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time unless other times are selected)", dest="ll", action="store_true", default=False)
-    parser.add_option("-R", help="Recursively list subdirectories encountered. /dev and /proc are omitted", dest="recurse", action="store_true", default=False)
-    parser.remove_option("-h")
-    parser.add_option("-h", "--human-readable", help="show sizes in human readable format", dest="hrs", action="store_true", default=False)
-    options, args = parser.parse_args(args)
-    if len(args) < 1:
-      parser.print_help()
-      sys.exit(1)
-    dev.open()
-    try: 
-      print ls(dev, args[0], term, color=options.color, recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),
-    except ArgumentError, e: 
-      print >> sys.stderr, e
-      sys.exit(1)
-    finally: 
-      dev.close()
-  elif command == "info":
-    dev.open()
-    try:
+  dev.open()
+  try:
+    if command == "df":
+      data = dev.available_space()
+      print "Filesystem\tSize \tUsed \tAvail \tUse%"
+      for datum in data:
+        total, free, used, percent = human_readable(datum[2]), human_readable(datum[1]), human_readable(datum[2]-datum[1]), \
+                                     str(0 if datum[2]==0 else int(100*(datum[2]-datum[1])/(datum[2]*1.)))+"%"
+        print "%-10s\t%s\t%s\t%s\t%s"%(datum[0], total, used, free, percent)
+    elif command == "mkdir":
+      parser = OptionParser(usage="usage: %prog mkdir [options] path\n\npath must begin with /,a:/ or b:/")
+      if len(args) != 1:
+        parser.print_help()
+        sys.exit(1)
+      dev.mkdir(args[0])
+    elif command == "ls":
+      parser = OptionParser(usage="usage: %prog ls [options] path\n\npath must begin with /,a:/ or b:/")
+      parser.add_option("--color", help="show ls output in color", dest="color", action="store_true", default=False)
+      parser.add_option("-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time unless other times are selected). Times are local.", dest="ll", action="store_true", default=False)
+      parser.add_option("-R", help="Recursively list subdirectories encountered. /dev and /proc are omitted", dest="recurse", action="store_true", default=False)
+      parser.remove_option("-h")
+      parser.add_option("-h", "--human-readable", help="show sizes in human readable format", dest="hrs", action="store_true", default=False)
+      options, args = parser.parse_args(args)
+      if len(args) != 1:
+        parser.print_help()
+        sys.exit(1)
+      dev.open()
+      print ls(dev, args[0], term, color=options.color, recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),      
+    elif command == "info":
       info(dev)
-    finally: dev.close()
-  elif command == "cp":
-    parser = OptionParser(usage="usage: %prog cp [options] source destination\n\nsource is a path on the device and must begin with /,a:/ or b:/"+
-                                 "\n\ndestination is a path on your computer and can point to either a file or a directory")
-    options, args = parser.parse_args(args)
-    if len(args) < 2: 
-      parser.print_help()
-      sys.exit(1)
-    if args[0].endswith("/"): path = args[0][:-1]
-    else: path = args[0]
-    outfile = args[1]
-    if os.path.isdir(outfile):
-      outfile = os.path.join(outfile, path[path.rfind("/")+1:]) 
-    outfile = open(outfile, "w")
-    dev.open()
-    try:
+    elif command == "cp":
+      usage="usage: %prog cp [options] source destination\n\n"+\
+            "One of source or destination must be a path on the device. Device paths have the form:\n"+\
+            "device:mountpoint/my/path\n"+\
+            "where mountpoint is one of /, a: or b:\n"+\
+            "source must point to a file for which you have read permissions\n"+\
+            "destination must point to a file or directory for which you have write permissions"
+      parser = OptionParser(usage=usage)
+      options, args = parser.parse_args(args)
+      if len(args) != 2: 
+        parser.print_help()
+        sys.exit(1)    
+      if args[0].startswith("device:"):
+        outfile = args[1]
+        path = args[0][7:]
+        if path.endswith("/"): path = path[:-1]      
+        if os.path.isdir(outfile):
+          outfile = os.path.join(outfile, path[path.rfind("/")+1:]) 
+        try:
+          outfile = open(outfile, "w")
+        except IOError, e:
+          print >> sys.stderr, e
+          parser.print_help()
+          sys.exit(1)
+        dev.get_file(path, outfile)        
+        outfile.close()
+      elif args[1].startswith("device:"):
+        try:
+          infile = open(args[0], "r")
+        except IOError, e:
+          print >> sys.stderr, e
+          parser.print_help()
+          sys.exit(1)
+        dev.put_file(infile, args[1][7:])
+        infile.close()
+      else:
+        parser.print_help()
+        sys.exit(1)
+    elif command == "cat":
+      outfile = sys.stdout
+      parser = OptionParser(usage="usage: %prog cat path\n\npath should point to a file on the device and must begin with /,a:/ or b:/")
+      options, args = parser.parse_args(args)
+      if len(args) != 1: 
+        parser.print_help()
+        sys.exit(1)
+      if args[0].endswith("/"): path = args[0][:-1]
+      else: path = args[0]
+      outfile = sys.stdout
       dev.get_file(path, outfile)
-    except ArgumentError, e:
-      print >>sys.stderr, e
-    finally:
-      dev.close()
-    outfile.close()
-  elif command == "cat":
-    outfile = sys.stdout
-    parser = OptionParser(usage="usage: %prog cat path\n\npath should point to a file on the device and must begin with /,a:/ or b:/")
-    options, args = parser.parse_args(args)
-    if len(args) < 1: 
+    elif command == "rm":
+      parser = OptionParser(usage="usage: %prog rm path\n\npath should point to a file or empty directory on the device "+\
+                                  "and must begin with /,a:/ or b:/\n\n"+\
+                                  "rm will DELETE the file. Be very CAREFUL")
+      options, args = parser.parse_args(args)
+      if len(args) != 1: 
+        parser.print_help()
+        sys.exit(1)
+      dev.rm(args[0])      
+    elif command == "touch":
+      parser = OptionParser(usage="usage: %prog touch path\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+
+      "Unfortunately, I cant figure out how to update file times on the device, so if path already exists, touch does nothing" )
+      options, args = parser.parse_args(args)
+      if len(args) != 1: 
+        parser.print_help()
+        sys.exit(1)
+      dev.touch(args[0])
+    else:
       parser.print_help()
+      if dev.handle: dev.close()
       sys.exit(1)
-    if args[0].endswith("/"): path = args[0][:-1]
-    else: path = args[0]
-    outfile = sys.stdout
-    dev.open()
-    try:
-      dev.get_file(path, outfile)
-    except ArgumentError, e:
-      print >>sys.stderr, e
-    finally:
-      dev.close()
-  else:
-    parser.print_help()
-    sys.exit(1)
+  except ArgumentError, e:
+     print >>sys.stderr, e
+     sys.exit(1)
+  finally:
+    if dev.handle: dev.close()    
 
 if __name__ == "__main__":
   main()
