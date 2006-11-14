@@ -185,10 +185,6 @@ class PRS500Device(object):
       print >> sys.stderr, "Unable to find Sony Reader. Is it connected?"
       sys.exit(1)
     self.handle = self.device.open()
-    if sys.platform == 'darwin' :
-      # For some reason, Mac OS X doesn't set the
-      # configuration automatically like Linux does.
-      self.handle.setConfiguration(1) 
     self.handle.claimInterface(self.device_descriptor.interface_id)
     self.handle.reset()
     res = self._send_validated_command(GetUSBProtocolVersion())
@@ -276,6 +272,7 @@ class PRS500Device(object):
     Read in C{bytes} bytes via a bulk transfer in packets of size S{<=} C{packet_size} 
     @param data_type: an object of type type. The data packet is returned as an object of type C{data_type}.    
     @return: A list of packets read from the device. Each packet is of type data_type
+    @todo: Figure out how to make bulk reads work in OSX
     """
     def bulk_read_packet(data_type=Answer, size=0x1000):
       data = data_type(self.handle.bulkRead(PRS500Device.PRS500_BULK_IN_EP, size))
@@ -445,7 +442,7 @@ class PRS500Device(object):
     """ 
     Create a file at path 
     
-    @todo: Update file modification time if it exists
+    @todo: Update file modification time if file already exists
     """
     if path.endswith("/") and len(path) > 1: path = path[:-1]
     exists, file = self._exists(path)
