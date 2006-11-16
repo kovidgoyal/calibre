@@ -165,7 +165,7 @@ def main():
   term = TerminalController()
   cols = term.COLS
   
-  parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, df, ls, cp, mkdir, touch, cat or rm\n\n"+
+  parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, books, df, ls, cp, mkdir, touch, cat or rm\n\n"+
                               "For help on a particular command: %prog command", version="libprs500 version: " + VERSION)
   parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
@@ -189,6 +189,15 @@ def main():
         total, free, used, percent = human_readable(datum[2]), human_readable(datum[1]), human_readable(datum[2]-datum[1]), \
                                      str(0 if datum[2]==0 else int(100*(datum[2]-datum[1])/(datum[2]*1.)))+"%"
         print "%-10s\t%s\t%s\t%s\t%s"%(datum[0], total, used, free, percent)
+    elif command == "books":
+      main, card = dev.books()
+      print "Books in main memory:"
+      for book in main:
+        print book
+      print
+      print "Books on storage card:"
+      for book in card:
+        print book
     elif command == "mkdir":
       parser = OptionParser(usage="usage: %prog mkdir [options] path\n\npath must begin with /,a:/ or b:/")
       if len(args) != 1:

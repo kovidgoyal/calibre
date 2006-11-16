@@ -46,6 +46,11 @@ The public interface of class L{PRS500Device} defines the methods for performing
 """
 import usb, sys, os, time
 from array import array
+from xml.sax.handler import ContentHandler
+from xml.sax import make_parser
+from xml.sax.handler import feature_namespaces
+from base64 import b64decode as decode
+from tempfile import TemporaryFile
 
 from prstypes import *
 from errors import *
@@ -61,6 +66,54 @@ def _log_packet(packet, header, stream=sys.stderr):
   print >>stream, str(_packet_number), header, "Type:", packet.__class__.__name__
   print >>stream, packet
   print >>stream, "--"
+
+class FindBooks(ContentHandler):
+  """ Used to parse the cache.xml/media.xml files on the PRS 500 """
+  class Book(dict):
+    def __init__(self, src):
+      dict.__init__(self, src)
+      if not self.has_key("author") or len(self["author"].rstrip()) == 0:
+        self["author"] = "Unknown"
+      self["title"] = self["title"].strip()
+        
+    def __repr__(self):      
+      return self["title"] + " by " + self["author"] + " at " + self["path"]
+      
+    def __str__(self):
+      return self.__repr__()
+      
+  def __init__(self, type="media", root="/Data/media/"):
+    ContentHandler.__init__(self)
+    self.books = []
+    self.root  = root
+    self.thumbnail = ""
+    self.in_book = False
+    self.in_thumbnail = False
+    self.book_name = "text"
+    self.thumbnail_name = "thumbnail"
+    if type == "media":
+      self.book_name = "xs1:" + self.book_name
+      self.thumbnail_name = "xs1:" + self.thumbnail_name
+
+  def startElement(self, name, attrs):
+    if name == self.book_name:
+      data = FindBooks.Book(attrs)
+      data["path"] = self.root + data["path"]      
+      self.books.append(data)
+      self.in_book = True
+    elif self.in_book and name == self.thumbnail_name:
+      self.in_thumbnail = True
+
+  def characters(self, ch):
+    if self.in_thumbnail:
+      self.thumbnail += ch
+      
+  def endElement(self, name):
+    if self.in_book and name == self.thumbnail_name:
+      if len(self.books) > 0: self.books[len(self.books)-1]["thumbnail"] = decode(self.thumbnail)
+      self.thumbnail, self.in_thumbnail = "", False
+    elif name == self.book_name: self.in_book = False
+
 
 class File(object):
   """ Wrapper that allows easy access to all information about files/directories """
@@ -338,9 +391,9 @@ class PRS500Device(object):
         self._send_validated_command(FileClose(id))
         raise ProtocolError("Error while reading from " + path + ". Response code: " + hex(res.code))
       packets = self._bulk_read(chunk_size+16, command_number=FileIO.RNUMBER, packet_size=4096)
-      try:
+      try:        
         array('B', packets[0][16:]).tofile(outfile) # The first 16 bytes are meta information on the packet stream
-        for i in range(1, len(packets)): 
+        for i in range(1, len(packets)):           
           array('B', packets[i]).tofile(outfile)
       except IOError, e:
         self._send_validated_command(FileClose(id))
@@ -529,11 +582,49 @@ class PRS500Device(object):
         raise PathError("Cannot delete directory " + path + " as it is not empty")
       if res.code != 0:
         raise ProtocolError("Failed to delete directory " + path + ". Response code: " + hex(res.code))
+        
+  @safe
+  def books(self):
+    """ 
+    Return a list of all ebooks on the device 
+    
+    @return: A two element tuple. The first element is the books in the main memory and the second is the books on the storage card.
+             Each element is a list of dictionaries. Important fields in each dictionary are "title", "author", "path" and "thumbnail". 
+    """
+    buffer = TemporaryFile()
+    media = self.get_file("/Data/database/cache/media.xml", buffer, end_session=False)
+    parser = make_parser()
+    parser.setFeature(feature_namespaces, 0)
+    finder = FindBooks()
+    parser.setContentHandler(finder)
+    buffer.seek(0)
+    parser.parse(buffer)
+    buffer.close()
+    books = finder.books
+    root = "a:/"
+    buffer = TemporaryFile()
+    cbooks = []
+    try:
+      self.get_file("a:/Sony Reader/database/cache.xml", buffer, end_session=False)
+    except PathError:
+      try:
+        self.get_file("b:/Sony Reader/database/cache.xml", buffer, end_session=False)
+        root = "b:/"
+      except PathError: 
+        pass
+    if buffer.tell() > 0:
+      finder = FindBooks(type="cache", root=root)
+      buffer.seek(0)
+      parser.setContentHandler(finder)
+      parser.parse(buffer)
+      buffer.close()
+      cbooks = finder.books
+    return books, cbooks
     
 
 
-#dev = PRS500Device(log_packets=False)
-#dev.open()
-#print dev.get_file("/etc/sysctl.conf", sys.stdout)
-#dev.close()
+##dev = PRS500Device(log_packets=False)
+##dev.open()
+##print dev.books()
+##dev.close()
 
