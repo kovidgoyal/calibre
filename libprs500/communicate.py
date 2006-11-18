@@ -184,6 +184,7 @@ class PRS500Device(object):
   def safe(func):
     """ 
     Decorator that wraps a call to C{func} to ensure that exceptions are handled correctly. 
+    It also calls L{open} to claim the interface and initialize the Reader if needed.
     
     As a convenience, C{safe} automatically sends the a L{USBConnect} after calling func, unless func has
     a keyword argument named C{end_session} set to C{False}.
@@ -192,15 +193,20 @@ class PRS500Device(object):
     An L{usb.USBError} will cause the library to release control of the USB interface via a call to L{close}.
     """
     def run_session(*args, **kwargs):
-      dev = args[0]
+      dev = args[0]      
       res = None
       try:
+        if not dev.handle: dev.open()
         res = func(*args, **kwargs)
       except ArgumentError, e:
         if not kwargs.has_key("end_session") or kwargs["end_session"]:
           dev._send_validated_command(USBConnect())        
         raise e
       except usb.USBError, e:
+        if "No such device" in str(e):
+          raise DeviceError()
+        elif "Connection timed out" in str(e):
+          raise TimeoutError(func.__name__)
         dev.close()
         raise e
       if not kwargs.has_key("end_session") or kwargs["end_session"]:
@@ -214,8 +220,8 @@ class PRS500Device(object):
     self.device_descriptor = DeviceDescriptor(PRS500Device.SONY_VENDOR_ID,
                                               PRS500Device.PRS500_PRODUCT_ID,
                                               PRS500Device.PRS500_INTERFACE_ID)
-    self.device = self.device_descriptor.getDevice()
-    self.handle = None
+    self.device = self.device_descriptor.getDevice() #: The actual device (PyUSB object)
+    self.handle = None                               #: Handle that is used to communicate with device. Setup in L{open}
     self._log_packets = log_packets
     
   @classmethod
@@ -235,8 +241,7 @@ class PRS500Device(object):
     """
     self.device = self.device_descriptor.getDevice()
     if not self.device:
-      print >> sys.stderr, "Unable to find Sony Reader. Is it connected?"
-      sys.exit(1)
+      raise DeviceError()
     self.handle = self.device.open()
     self.handle.claimInterface(self.device_descriptor.interface_id)
     self.handle.reset()
@@ -492,11 +497,7 @@ class PRS500Device(object):
   
   @safe
   def touch(self, path, end_session=True):
-    """ 
-    Create a file at path 
-    
-    @todo: Update file modification time if file already exists
-    """
+    """ Create a file at path """
     if path.endswith("/") and len(path) > 1: path = path[:-1]
     exists, file = self._exists(path)
     if exists and file.is_dir:
@@ -505,11 +506,6 @@ class PRS500Device(object):
       res = self._send_validated_command(FileCreate(path))
       if res.code != 0:
         raise PathError("Could not create file " + path + ". Response code: " + str(hex(res.code)))
-##    res = self._send_validated_command(SetFileInfo(path))    
-##    if res.code != 0:
-##      raise ProtocolError("Unable to touch " + path + ". Response code: " + hex(res.code))
-##    file.wtime = int(time.time())
-##    self._bulk_write(file[16:])
     
   
   @safe
@@ -588,38 +584,38 @@ class PRS500Device(object):
     """ 
     Return a list of all ebooks on the device 
     
-    @return: A two element tuple. The first element is the books in the main memory and the second is the books on the storage card.
-             Each element is a list of dictionaries. Important fields in each dictionary are "title", "author", "path" and "thumbnail". 
+    @return: A four element tuple. The first element is the books in the main memory and the second is the books on the storage card.
+             The first two elements are each a list of dictionaries. If there is no card the second list is empty. 
+             Important fields in each dictionary are "title", "author", "path" and "thumbnail". 
+             The third and fourth elements are the temporary files that hold main.xml and cache.xml
     """
-    buffer = TemporaryFile()
-    media = self.get_file("/Data/database/cache/media.xml", buffer, end_session=False)
+    main_xml = TemporaryFile()
+    media = self.get_file("/Data/database/cache/media.xml", main_xml, end_session=False)
     parser = make_parser()
     parser.setFeature(feature_namespaces, 0)
     finder = FindBooks()
     parser.setContentHandler(finder)
-    buffer.seek(0)
-    parser.parse(buffer)
-    buffer.close()
+    main_xml.seek(0)
+    parser.parse(main_xml)
     books = finder.books
     root = "a:/"
-    buffer = TemporaryFile()
+    cache_xml = TemporaryFile()
     cbooks = []
     try:
-      self.get_file("a:/Sony Reader/database/cache.xml", buffer, end_session=False)
+      self.get_file("a:/Sony Reader/database/cache.xml", cache_xml, end_session=False)
     except PathError:
       try:
-        self.get_file("b:/Sony Reader/database/cache.xml", buffer, end_session=False)
+        self.get_file("b:/Sony Reader/database/cache.xml", cache_xml, end_session=False)
         root = "b:/"
       except PathError: 
         pass
-    if buffer.tell() > 0:
+    if cache_xml.tell() > 0:
       finder = FindBooks(type="cache", root=root)
-      buffer.seek(0)
+      cache_xml.seek(0)
       parser.setContentHandler(finder)
-      parser.parse(buffer)
-      buffer.close()
+      parser.parse(cache_xml)
       cbooks = finder.books
-    return books, cbooks
+    return books, cbooks, main_xml, cache_xml
     
 
 

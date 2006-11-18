@@ -24,6 +24,16 @@ class ProtocolError(Exception):
   def __init__(self, msg):
     Exception.__init__(self, msg)
     
+class TimeoutError(ProtocolError):
+  """ There was a timeout during communication """
+  def __init__(self, func_name):
+    ProtocolError.__init__(self, "There was a timeout while communicating with the device in function: "+func_name)
+
+class DeviceError(ProtocolError):
+  """ Raised when device is not found """
+  def __init__(self):
+    ProtocolError.__init__(self, "Unable to find SONY Reader. Is it connected?")
+    
 class PacketError(ProtocolError):
   """ Errors with creating/interpreting packets """
     
