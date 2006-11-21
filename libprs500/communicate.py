@@ -488,7 +488,6 @@ class PRS500Device(object):
     @return: A list of tuples. Each tuple has form ("location", free space, total space)
     """    
     data = []
-    if self.report_progress: self.report_progress(-1)
     for path in ("/Data/", "a:/", "b:/"):
       res = self._send_validated_command(FreeSpaceQuery(path),timeout=5000) # Timeout needs to be increased as it takes time to read card
       buffer_size = 16 + res.data[2]
@@ -508,7 +507,10 @@ class PRS500Device(object):
   
   @safe
   def touch(self, path, end_session=True):
-    """ Create a file at path """
+    """ 
+    Create a file at path 
+    @todo: Open file for reading if it exists so that mod time is updated
+    """
     if path.endswith("/") and len(path) > 1: path = path[:-1]
     exists, file = self._exists(path)
     if exists and file.is_dir:
@@ -521,6 +523,11 @@ class PRS500Device(object):
   
   @safe
   def put_file(self, infile, path, end_session=True):
+    """
+    Put infile onto the devoce at path
+    @param infile: An open file object
+    @param path: The path on the device at which to put infile. It should point to an existing directory.
+    """
     exists, dest = self._exists(path)        
     if exists:
       if not dest.is_dir: raise PathError("Cannot write to " + path + " as it already exists")
@@ -537,18 +544,24 @@ class PRS500Device(object):
     if res.code != 0:
       raise ProtocolError("Unable to open " + path + " for writing. Response code: " + hex(res.code))
     id = self._bulk_read(20, data_type=IdAnswer, command_number=FileOpen.NUMBER)[0].id    
-    pos = 0
+    pos = infile.tell()
+    infile.seek(0,2)
+    bytes = infile.tell() - pos
+    start_pos = pos
+    infile.seek(pos)    
     while data_left:
       data = array('B')
       try:
         data.fromfile(infile, chunk_size)
       except EOFError: 
         data_left = False
-      res = self._send_validated_command(FileIO(id, pos, len(data), mode=FileIO.WNUMBER))      
+      res = self._send_validated_command(FileIO(id, pos, len(data), mode=FileIO.WNUMBER))
       if res.code != 0:
         raise ProtocolError("Unable to write to " + path + ". Response code: " + hex(res.code))
       self._bulk_write(data)
       pos += len(data)
+      if self.report_progress:
+        self.report_progress( int(100*(pos-start_pos)/(1.*bytes)) )
     self._send_validated_command(FileClose(id)) # Ignore res.code as cant do anything if close fails
     file = self.path_properties(path, end_session=False)
     if file.file_size != pos:
@@ -600,18 +613,8 @@ class PRS500Device(object):
              Important fields in each dictionary are "title", "author", "path" and "thumbnail". 
              The third and fourth elements are the temporary files that hold main.xml and cache.xml
     """
-    main_xml = TemporaryFile()
-    media = self.get_file("/Data/database/cache/media.xml", main_xml, end_session=False)
-    parser = make_parser()
-    parser.setFeature(feature_namespaces, 0)
-    finder = FindBooks()
-    parser.setContentHandler(finder)
-    main_xml.seek(0)
-    parser.parse(main_xml)
-    books = finder.books
-    root = "a:/"
-    cache_xml = TemporaryFile()
-    cbooks = []
+    main_xml, cache_xml = TemporaryFile(), TemporaryFile()
+    self.get_file("/Data/database/cache/media.xml", main_xml, end_session=False)
     try:
       self.get_file("a:/Sony Reader/database/cache.xml", cache_xml, end_session=False)
     except PathError:
@@ -620,6 +623,15 @@ class PRS500Device(object):
         root = "b:/"
       except PathError: 
         pass
+    parser = make_parser()
+    parser.setFeature(feature_namespaces, 0)
+    finder = FindBooks()
+    parser.setContentHandler(finder)
+    main_xml.seek(0)
+    parser.parse(main_xml)
+    books = finder.books
+    root = "a:/"    
+    cbooks = []    
     if cache_xml.tell() > 0:
       finder = FindBooks(type="cache", root=root)
       cache_xml.seek(0)
