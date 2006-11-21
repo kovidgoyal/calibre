@@ -273,7 +273,7 @@ class PRS500Device(object):
     self.handle.releaseInterface()
     self.handle, self.device = None, None
 
-  def _send_command(self, command, response_type=Response, timeout=100):
+  def _send_command(self, command, response_type=Response, timeout=1000):
     """ 
     Send L{command<Command>} to device and return its L{response<Response>}. 
     
@@ -289,7 +289,7 @@ class PRS500Device(object):
     if self._log_packets: _log_packet(response, "Response")
     return response
     
-  def _send_validated_command(self, command, cnumber=None, response_type=Response, timeout=100):
+  def _send_validated_command(self, command, cnumber=None, response_type=Response, timeout=1000):
     """ 
     Wrapper around L{_send_command} that checks if the C{Response.rnumber == cnumber or command.number if cnumber==None}. Also check that
     C{Response.type == Command.type}.
