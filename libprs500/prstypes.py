@@ -182,11 +182,12 @@ class stringfield(object):
     self._length_field = length_field
     self._start = start
     
-  def __get__(self, obj, typ=None):
+  def __get__(self, obj, typ=None):    
     length = str(self._length_field.__get__(obj))
     return obj.unpack(start=self._start, fmt="<"+length+"s")[0]
     
   def __set__(self, obj, val):
+    if val.__class__.__name__ != 'str': val = str(val)
     obj.pack(val, start=self._start, fmt="<"+str(len(val))+"s")
     
   def __repr__(self):
@@ -404,7 +405,7 @@ class PathCommand(Command):
   """ Abstract class that defines structure common to all path related commands. """
   
   path_length = field(start=16, fmt=DWORD)         #: Length of the path to follow
-  path        = stringfield(path_length, start=20) #: The path this query is about
+  path             = stringfield(path_length, start=20) #: The path this query is about
   def __init__(self, path, number, path_len_at_byte=16):    
     Command.__init__(self, path_len_at_byte+4+len(path))
     self.path_length = len(path)
