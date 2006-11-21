@@ -1,49 +1,41 @@
-##    Copyright (C) 2006 Kovid Goyal kovid@kovidgoyal.net
-##    This program is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    This program is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License along
-##    with this program; if not, write to the Free Software Foundation, Inc.,
-##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 <ui version="4.0" >
+ <author>Kovid Goyal</author>
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>885</width>
+    <width>871</width>
     <height>631</height>
    </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy>
+    <hsizetype>5</hsizetype>
+    <vsizetype>5</vsizetype>
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle" >
    <string>SONY Reader</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QGridLayout" >
+   <layout class="QVBoxLayout" >
     <property name="margin" >
      <number>9</number>
     </property>
     <property name="spacing" >
      <number>6</number>
     </property>
-    <item row="0" column="1" >
-     <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>0</number>
+    <item>
+     <widget class="QSplitter" name="splitter" >
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
       </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item>
-       <layout class="QHBoxLayout" >
+      <widget class="QWidget" name="" >
+       <layout class="QVBoxLayout" >
         <property name="margin" >
          <number>0</number>
         </property>
@@ -51,77 +43,195 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QToolButton" name="clear" >
-          <property name="text" >
-           <string>...</string>
+         <widget class="QTreeView" name="treeView" >
+          <property name="sizePolicy" >
+           <sizepolicy>
+            <hsizetype>1</hsizetype>
+            <vsizetype>7</vsizetype>
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="search" >
           <property name="acceptDrops" >
+           <bool>true</bool>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="verticalScrollBarPolicy" >
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="autoScroll" >
            <bool>false</bool>
           </property>
-          <property name="autoFillBackground" >
-           <bool>false</bool>
+          <property name="alternatingRowColors" >
+           <bool>true</bool>
           </property>
-          <property name="text" >
-           <string>Search title and author</string>
+          <property name="indentation" >
+           <number>15</number>
           </property>
-          <property name="frame" >
+          <property name="uniformRowHeights" >
            <bool>true</bool>
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="QLabel" name="df" >
+          <property name="autoFillBackground" >
+           <bool>false</bool>
+          </property>
+          <property name="text" >
+           <string>Main Memory:&lt;br>&lt;br>Storage card:</string>
+          </property>
+          <property name="textFormat" >
+           <enum>Qt::RichText</enum>
+          </property>
+         </widget>
+        </item>
        </layout>
-      </item>
-      <item>
-       <widget class="QListView" name="listView" >
-        <property name="sizePolicy" >
-         <sizepolicy>
-          <hsizetype>5</hsizetype>
-          <vsizetype>7</vsizetype>
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+      </widget>
+      <widget class="QWidget" name="" >
+       <layout class="QVBoxLayout" >
+        <property name="margin" >
+         <number>0</number>
         </property>
-        <property name="frameShadow" >
-         <enum>QFrame::Plain</enum>
+        <property name="spacing" >
+         <number>6</number>
         </property>
-        <property name="autoScroll" >
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
+        <item>
+         <layout class="QVBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label" >
+              <property name="text" >
+               <string>&amp;Search:</string>
+              </property>
+              <property name="buddy" >
+               <cstring>search</cstring>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="search" >
+              <property name="enabled" >
+               <bool>true</bool>
+              </property>
+              <property name="acceptDrops" >
+               <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
+              </property>
+              <property name="whatsThis" >
+               <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
+              </property>
+              <property name="autoFillBackground" >
+               <bool>false</bool>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+              <property name="frame" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="clearButton" >
+              <property name="toolTip" >
+               <string>Reset Quick Search</string>
+              </property>
+              <property name="text" >
+               <string>...</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QTableView" name="table_view" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>7</hsizetype>
+              <vsizetype>7</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="alternatingRowColors" >
+             <bool>true</bool>
+            </property>
+            <property name="showGrid" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="book_cover" >
+            <property name="text" >
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="book_info" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>5</hsizetype>
+              <vsizetype>5</vsizetype>
+              <horstretch>10</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text" >
+             <string>&lt;table>&lt;tr>&lt;td>&lt;b>Title: &lt;/b>%1&lt;/td>&lt;td>&lt;b>&amp;nbsp;Size:&lt;/b> %2&lt;/td>&lt;/tr>&lt;tr>&lt;td>&lt;b>Author: &lt;/b>%3&lt;/td>&lt;td>&lt;b>&amp;nbsp;Type: &lt;/b>%4&lt;/td>&lt;/tr></string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::RichText</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
     </item>
-    <item row="0" column="0" >
-     <layout class="QVBoxLayout" >
-      <property name="margin" >
-       <number>0</number>
+    <item>
+     <widget class="QProgressBar" name="progress_bar" >
+      <property name="value" >
+       <number>100</number>
       </property>
-      <property name="spacing" >
-       <number>6</number>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
       </property>
-      <item>
-       <widget class="QTreeView" name="treeView" >
-        <property name="frameShadow" >
-         <enum>QFrame::Plain</enum>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="df" >
-        <property name="text" >
-         <string>TextLabel</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
+     </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QStatusBar" name="statusbar" />
   <widget class="QToolBar" name="toolBar" >
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
@@ -131,6 +241,7 @@
    </attribute>
   </widget>
  </widget>
+ <includes/>
  <resources/>
  <connections/>
 </ui>

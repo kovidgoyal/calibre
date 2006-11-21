@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+     <file>images/book.png</file>
+     <file>images/mycomputer.png</file>
+     <file>images/reader.png</file>
+     <file>images/clear.png</file>
+ </qresource>
+ </RCC>

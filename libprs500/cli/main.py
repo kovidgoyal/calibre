@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 ##    Copyright (C) 2006 Kovid Goyal kovid@kovidgoyal.net
 ##    This program is free software; you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -14,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Provides a command-line interface to the SONY Reader PRS-500.
+Provides a command-line and optional graphical interface to the SONY Reader PRS-500.
 
 For usage information run the script. 
 """
@@ -22,9 +21,9 @@ For usage information run the script.
 import StringIO, sys, time, os
 from optparse import OptionParser
 
-from libprs500 import VERSION
+from libprs500 import __version__ as VERSION
 from libprs500.communicate import PRS500Device
-from libprs500.terminfo import TerminalController
+from terminfo import TerminalController
 from libprs500.errors import ArgumentError, DeviceError
 
 
@@ -184,25 +183,13 @@ def main():
   parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
                     dest="log_packets", action="store_true", default=False)
-  parser.add_option("--gui", help="Run a Graphical User Interface", dest="gui", action="store_true", default=False)
   parser.remove_option("-h")
   parser.disable_interspersed_args() # Allow unrecognized options
   options, args = parser.parse_args()
 
-  if options.gui:
-    try:      
-      from PyQt4.Qt import QApplication, QMainWindow
-      from libprs500.gui.main import MainWindow
-      app = QApplication(args)
-      window = QMainWindow()
-      mw = MainWindow(window, options.log_packets)
-      sys.exit(app.exec_())
-    except ImportError, e:
-      print >>sys.stderr, "You dont have PyQt4 installed:", e
-      sys.exit(1)
   if len(args) < 1:
     parser.print_help()
-    sys.exit(1)  
+    return 1
   
   command = args[0]
   args = args[1:]
@@ -242,7 +229,7 @@ def main():
       options, args = parser.parse_args(args)
       if len(args) != 1:
         parser.print_help()
-        sys.exit(1)
+        return 1
       print ls(dev, args[0], term, color=options.color, recurse=options.recurse, ll=options.ll, human_readable_size=options.hrs, cols=cols),      
     elif command == "info":
       info(dev)
@@ -257,7 +244,7 @@ def main():
       options, args = parser.parse_args(args)
       if len(args) != 2: 
         parser.print_help()
-        sys.exit(1)    
+        return 1
       if args[0].startswith("prs500:"):
         outfile = args[1]
         path = args[0][7:]
@@ -269,7 +256,7 @@ def main():
         except IOError, e:
           print >> sys.stderr, e
           parser.print_help()
-          sys.exit(1)
+          return 1
         dev.get_file(path, outfile)        
         outfile.close()
       elif args[1].startswith("prs500:"):
@@ -278,19 +265,19 @@ def main():
         except IOError, e:
           print >> sys.stderr, e
           parser.print_help()
-          sys.exit(1)
+          return 1
         dev.put_file(infile, args[1][7:])
         infile.close()
       else:
         parser.print_help()
-        sys.exit(1)
+        return 1
     elif command == "cat":
       outfile = sys.stdout
       parser = OptionParser(usage="usage: %prog cat path\n\npath should point to a file on the device and must begin with /,a:/ or b:/")
       options, args = parser.parse_args(args)
       if len(args) != 1: 
         parser.print_help()
-        sys.exit(1)
+        return 1
       if args[0].endswith("/"): path = args[0][:-1]
       else: path = args[0]
       outfile = sys.stdout
@@ -302,7 +289,7 @@ def main():
       options, args = parser.parse_args(args)
       if len(args) != 1: 
         parser.print_help()
-        sys.exit(1)
+        return 1
       dev.rm(args[0])      
     elif command == "touch":
       parser = OptionParser(usage="usage: %prog touch path\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+
@@ -310,17 +297,13 @@ def main():
       options, args = parser.parse_args(args)
       if len(args) != 1: 
         parser.print_help()
-        sys.exit(1)
+        return 1
       dev.touch(args[0])
     else:
       parser.print_help()
       if dev.handle: dev.close()
-      sys.exit(1)
+      return 1
   except (ArgumentError, DeviceError), e:
      print >>sys.stderr, e
-     sys.exit(1)
-  finally:
-    if dev.handle: dev.close()    
-
-if __name__ == "__main__":
-  main()
+     return 1
+  return 0

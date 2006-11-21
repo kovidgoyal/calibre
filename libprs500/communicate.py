@@ -73,8 +73,9 @@ class FindBooks(ContentHandler):
     def __init__(self, src):
       dict.__init__(self, src)
       if not self.has_key("author") or len(self["author"].rstrip()) == 0:
-        self["author"] = "Unknown"
-      self["title"] = self["title"].strip()
+        self["author"] = u"Unknown"
+      self["title"] = unicode(self["title"].strip())
+      self["author"] = unicode(self["author"])
         
     def __repr__(self):      
       return self["title"] + " by " + self["author"] + " at " + self["path"]
@@ -98,7 +99,7 @@ class FindBooks(ContentHandler):
   def startElement(self, name, attrs):
     if name == self.book_name:
       data = FindBooks.Book(attrs)
-      data["path"] = self.root + data["path"]      
+      data["path"] = unicode(self.root + data["path"])
       self.books.append(data)
       self.in_book = True
     elif self.in_book and name == self.thumbnail_name:
@@ -215,15 +216,23 @@ class PRS500Device(object):
       
     return run_session
 
-  def __init__(self, log_packets=False) :
-    """ @param log_packets: If true the packet stream to/from the device is logged """
+  def __init__(self, log_packets=False, report_progress=None) :
+    """ 
+    @param log_packets: If true the packet stream to/from the device is logged 
+    @param: report_progress: Function that is called with a % progress (number between 0 and 100) for various tasks
+                                               If it is called with -1 that means that the task does not have any progress information
+    """
     self.device_descriptor = DeviceDescriptor(PRS500Device.SONY_VENDOR_ID,
                                               PRS500Device.PRS500_PRODUCT_ID,
                                               PRS500Device.PRS500_INTERFACE_ID)
     self.device = self.device_descriptor.getDevice() #: The actual device (PyUSB object)
     self.handle = None                               #: Handle that is used to communicate with device. Setup in L{open}
     self._log_packets = log_packets
+    self.report_progress = report_progress
     
+  def is_connected(self):
+    return self.device_descriptor.getDevice() != None
+  
   @classmethod
   def _validate_response(cls, res, type=0x00, number=0x00):
     """ Raise a ProtocolError if the type and number of C{res} is not the same as C{type} and C{number}. """
@@ -388,8 +397,8 @@ class PRS500Device(object):
     if res.code != 0:
       raise PathError("Unable to open " + path + " for reading. Response code: " + hex(res.code))
     id = self._bulk_read(20, data_type=IdAnswer, command_number=FileOpen.NUMBER)[0].id    
-    bytes_left, chunk_size, pos = bytes, 0x8000, 0    
-    while bytes_left > 0:
+    bytes_left, chunk_size, pos = bytes, 0x8000, 0        
+    while bytes_left > 0:      
       if chunk_size > bytes_left: chunk_size = bytes_left
       res = self._send_validated_command(FileIO(id, pos, chunk_size))
       if res.code != 0:
@@ -405,6 +414,7 @@ class PRS500Device(object):
         raise ArgumentError("File get operation failed. Could not write to local location: " + str(e))          
       bytes_left -= chunk_size
       pos += chunk_size
+      if self.report_progress: self.report_progress(int(100*((1.*pos)/bytes)))
     self._send_validated_command(FileClose(id)) 
     # Not going to check response code to see if close was successful as there's not much we can do if it wasnt
           
@@ -478,11 +488,12 @@ class PRS500Device(object):
     @return: A list of tuples. Each tuple has form ("location", free space, total space)
     """    
     data = []
+    if self.report_progress: self.report_progress(-1)
     for path in ("/Data/", "a:/", "b:/"):
       res = self._send_validated_command(FreeSpaceQuery(path),timeout=5000) # Timeout needs to be increased as it takes time to read card
       buffer_size = 16 + res.data[2]
       pkt = self._bulk_read(buffer_size, data_type=FreeSpaceAnswer, command_number=FreeSpaceQuery.NUMBER)[0]
-      data.append( (path, pkt.free_space, pkt.total) )
+      data.append( (path, pkt.free_space, pkt.total) )    
     return data
     
   def _exists(self, path):

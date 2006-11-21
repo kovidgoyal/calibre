@@ -14,6 +14,8 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import sys, re
 
+""" Get information about the terminal we are running in """
+
 class TerminalController:
     """
     A class that can be used to portably generate formatted output to
