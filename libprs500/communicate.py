@@ -181,6 +181,8 @@ class PRS500Device(object):
   PRS500_INTERFACE_ID = 0      #: The interface we use to talk to the device
   PRS500_BULK_IN_EP   = 0x81   #: Endpoint for Bulk reads
   PRS500_BULK_OUT_EP  = 0x02   #: Endpoint for Bulk writes
+  MEDIA_XML  = "/Data/database/cache/media.xml"  #: Location of media.xml file on device
+  CACHE_XML = "/Sony Reader/database/cache.xml" #: Location of cache.xml on storage card in device
 
   def safe(func):
     """ 
@@ -614,12 +616,13 @@ class PRS500Device(object):
              The third and fourth elements are the temporary files that hold main.xml and cache.xml
     """
     main_xml, cache_xml = TemporaryFile(), TemporaryFile()
-    self.get_file("/Data/database/cache/media.xml", main_xml, end_session=False)
+    self.get_file(self.MEDIA_XML, main_xml, end_session=False)
+    root = "a:/"
     try:
-      self.get_file("a:/Sony Reader/database/cache.xml", cache_xml, end_session=False)
+      self.get_file("a:"+self.CACHE_XML, cache_xml, end_session=False)
     except PathError:
       try:
-        self.get_file("b:/Sony Reader/database/cache.xml", cache_xml, end_session=False)
+        self.get_file("b:"+self.CACHE_XML, cache_xml, end_session=False)
         root = "b:/"
       except PathError: 
         pass
@@ -630,7 +633,7 @@ class PRS500Device(object):
     main_xml.seek(0)
     parser.parse(main_xml)
     books = finder.books
-    root = "a:/"    
+        
     cbooks = []    
     if cache_xml.tell() > 0:
       finder = FindBooks(type="cache", root=root)
