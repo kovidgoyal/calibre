@@ -19,15 +19,15 @@ ez_setup.use_setuptools()
 from setuptools import setup, find_packages
 from libprs500 import __version__ as VERSION
 
-# TODO: Dependencies
-
 setup(name='libprs500',
       entry_points = {
-        'console_scripts': [ 'prs500 = libprs500.cli.main:main' ],
+        'console_scripts': [ 'prs500 = libprs500.cli.main:main', 'lrf-meta = libprs500.lrf.meta:main' ],
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       },
       include_package_data = True,
       version=VERSION,
+      install_requires=["pyusb>=0.3.5","pyxml>=0.8.4"],
+      dependency_links=["http://sourceforge.net/project/showfiles.php?group_id=145185","http://sourceforge.net/project/showfiles.php?group_id=6473"],
       description='Library to interface with the Sony Portable Reader 500 over USB.',
       long_description = 
       """
