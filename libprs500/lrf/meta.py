@@ -73,7 +73,12 @@ class fixed_stringfield(object):
     return "A string of length " + str(self._length) + " starting at byte " + str(self._start)
 
 class xml_field(object):
+  """ 
+  Descriptor that gets and sets XML based meta information from an LRF file. 
+  Works for simple XML fields of the form <tagname>data</tagname>
+  """
   def __init__(self, tag_name):
+    """ @param tag_name: The XML tag whoose data we operate on """
     self.tag_name = tag_name
     
   def __get__(self, obj, typ=None):
@@ -94,17 +99,23 @@ class xml_field(object):
     Print(document, s)
     obj.info = s.getvalue()
     s.close()
+    
+  def __str__(self):
+    return self.tag_name
+  
+  def __repr__(self):
+    return "XML Field: " + self.tag_name
 
 class LRFMetaFile(object):
-  
-  LRF_HEADER = "L\0R\0F\0\0\0"
+  """ Has properties to read and write all Meta information in a LRF file. """
+  LRF_HEADER = "L\0R\0F\0\0\0" #: The first 8 bytes of all valid LRF files
   
   lrf_header               = fixed_stringfield(length=8, start=0)
   version                    = field(fmt=WORD, start=8)
   xor_key                   = field(fmt=WORD, start=10)
   root_object_id         = field(fmt=DWORD, start=12)
   number_of_objets   = field(fmt=QWORD, start=16)
-  object_table_offset = field(fmt=QWORD, start=24)
+  object_index_offset = field(fmt=QWORD, start=24)
   binding                    = field(fmt=BYTE, start=36)
   dpi                           = field(fmt=WORD, start=38)
   width                       = field(fmt=WORD, start=42)
@@ -131,6 +142,7 @@ class LRFMetaFile(object):
   page                        = xml_field("Page")
   
   def safe(func):
+    """ Decorator that ensures that function calls leave the pos in the underlying file unchanged """
     def restore_pos(*args, **kwargs):      
       obj = args[0]
       pos = obj._file.tell()
@@ -141,6 +153,7 @@ class LRFMetaFile(object):
     return restore_pos
     
   def safe_property(func):
+    """ Decorator that ensures that read or writing a property leaves the position in the underlying file unchanged """
     def decorator(f):
       def restore_pos(*args, **kwargs):      
         obj = args[0]
@@ -181,30 +194,44 @@ class LRFMetaFile(object):
     return locals()
   
   @safe_property
-  def thumbail_pos():
+  def thumbnail_pos():
+    doc=""" The position of the thumbnail in the LRF file """ 
     def fget(self):
       return self.info_start+ self.compressed_info_size-4
     return locals()
   
   @safe_property
-  def thumbnail():    
+  def thumbnail():
+    doc=\
+    """ The thumbnail. Represented as a string. The string you would get from the file read function. """    
     def fget(self):
-      if self.thumbnail_size:        
-        self._file.seek(self.thumbail_pos)
-        print hex(self._file.tell())
-        return self._file.read(self.thumbnail_size)
+      size = self.thumbnail_size
+      if size:
+        self._file.seek(self.thumbnail_pos)
+        return self._file.read(size)
+    
     def fset(self, data):
       if self.version <= 800: raise LRFException("Cannot store thumbnails in LRF files of version <= 800")
       orig_size = self.thumbnail_size
-      self._file.seek(self.thumbail_pos+orig_size)
-      rest_of_file = self._file.read()
+      self._file.seek(self.toc_object_offset)
+      toc = self._file.read(self.object_index_offset - self.toc_object_offset)
+      self._file.seek(self.object_index_offset)
+      objects = self._file.read()      
       self.thumbnail_size = len(data)
       self._file.seek(self.thumbnail_pos)
-      self.file.write(data+rest_of_file)
-      delta = len(data) - orig_size
-      self.object_table_offset  = self.object_table_offset + delta
-      self.toc_object_offset     = self.toc_object_offset + delta
+      self._file.write(data)
+      orig_offset = self.toc_object_offset
+      self.toc_object_offset = self._file.tell()
+      self._file.write(toc)
+      self.object_index_offset  = self._file.tell()
+      self._file.write(objects)
+      ttype = 0x14
+      if data[1:4] == "PNG": ttype = 0x12
+      if data[0:2] == "BM":   ttype = 0x13
+      if data[0:4] == "JIFF":   ttype = 0x11
+      self.thumbnail_type = ttype
       self._file.flush()
+      self.update_object_offsets(self.toc_object_offset - orig_offset) # Needed as new thumbnail may have different size than old thumbnail
     return locals()
   
   def __init__(self, file):
@@ -212,10 +239,25 @@ class LRFMetaFile(object):
     file.seek(0,2)
     self.size = file.tell()
     self._file = file
-    if self.lrf_header != LRFFile.LRF_HEADER:
+    if self.lrf_header != LRFMetaFile.LRF_HEADER:
       raise LRFException(file.name + " has an invalid LRF header. Are you sure it is an LRF file?")    
     self.info_start = 0x58 if self.version > 800 else 0x53 #: Byte at which the compressed meta information starts
     
+  @safe
+  def update_object_offsets(self, delta):
+    """ Run through the LRF Object index changing the offset by C{delta}. """
+    self._file.seek(self.object_index_offset)    
+    while(True):
+      try: self._file.read(4)
+      except EOFError: break
+      pos = self._file.tell()
+      try: offset = self.unpack(fmt=DWORD, start=pos)[0] + delta
+      except struct.error: break
+      self.pack(offset, fmt=DWORD, start=pos)
+      try: self._file.read(12)
+      except EOFError: break
+    self._file.flush()
+  
   @safe
   def unpack(self, fmt=DWORD, start=0):
     """ 
@@ -250,4 +292,53 @@ class LRFMetaFile(object):
   def __getslice__(self, start, end):
     """ Return a LRFFile rather than a list as the slice """
     return LRFFile(list.__getslice__(self, start, end))
-  
+    
+  def thumbail_extension(self):
+    ext = "gif"
+    ttype = self.thumbnail_type
+    if ttype == 0x11: ext = "jpeg"
+    elif ttype == 0x12: ext = "png"
+    elif ttype == 0x13: ext = "bm"
+    return ext
+    
+def main():
+  import sys, os.path
+  from optparse import OptionParser
+  from libprs500 import __version__ as VERSION
+  parser = OptionParser(usage="usage: %prog [options] mybook.lrf", version=VERSION)
+  parser.add_option("-t", "--title", action="store", type="string", dest="title", help="Set the book title")
+  parser.add_option("-a", "--author", action="store", type="string", dest="author", help="Set the author")
+  parser.add_option("-c", "--category", action="store", type="string", dest="category", help="The category this book belongs to. E.g.: History")
+  parser.add_option("--thumbnail", action="store", type="string", dest="thumbnail", help="Path to a graphic that will be set as this files' thumbnail")
+  parser.add_option("-p", "--page", action="store", type="string", dest="page", help="Set the current page number (I think)")
+  options, args = parser.parse_args()
+  if len(args) != 1:
+    parser.print_help()
+    sys.exit(1)
+  lrf = LRFMetaFile(open(args[0], "r+b"))
+  if options.title: lrf.title        = options.title
+  if options.author: lrf.author    = options.author
+  if options.category: lrf.category = options.category
+  if options.page: lrf.page = options.page
+  if options.thumbnail:
+    f = open(options.thumbnail, "r")
+    lrf.thumbnail = f.read()
+    f.close()
+
+  t = lrf.thumbnail
+  td = "None"
+  if t and len(t) > 0:
+    td = os.path.basename(args[0])+"_thumbnail_."+lrf.thumbail_extension()
+    f = open(td, "w")
+    f.write(t)
+    f.close()
+    
+  fields = LRFMetaFile.__dict__.items()
+  for f in fields:
+    if "XML" in str(f): 
+      print str(f[1]) + ":", lrf.__getattribute__(f[0])
+  print "Thumbnail:", td
+  print "object index offset:", hex(lrf.object_index_offset)
+  print "toc object offset", hex(lrf.toc_object_offset)
+
+
