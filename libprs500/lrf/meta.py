@@ -305,12 +305,13 @@ def main():
   import sys, os.path
   from optparse import OptionParser
   from libprs500 import __version__ as VERSION
-  parser = OptionParser(usage="usage: %prog [options] mybook.lrf", version=VERSION)
+  parser = OptionParser(usage="usage: %prog [options] mybook.lrf\n\nWARNING: Based on reverse engineering the LRF format. Making changes may render your LRF file unreadable. ", version=VERSION)
   parser.add_option("-t", "--title", action="store", type="string", dest="title", help="Set the book title")
   parser.add_option("-a", "--author", action="store", type="string", dest="author", help="Set the author")
   parser.add_option("-c", "--category", action="store", type="string", dest="category", help="The category this book belongs to. E.g.: History")
   parser.add_option("--thumbnail", action="store", type="string", dest="thumbnail", help="Path to a graphic that will be set as this files' thumbnail")
-  parser.add_option("-p", "--page", action="store", type="string", dest="page", help="Set the current page number (I think)")
+  parser.add_option("--get-thumbnail", action="store_true", dest="get_thumbnail", default=False, help="Extract thumbnail from LRF file")
+  parser.add_option("-p", "--page", action="store", type="string", dest="page", help="Don't know what this is for")
   options, args = parser.parse_args()
   if len(args) != 1:
     parser.print_help()
@@ -325,20 +326,17 @@ def main():
     lrf.thumbnail = f.read()
     f.close()
 
-  t = lrf.thumbnail
-  td = "None"
-  if t and len(t) > 0:
-    td = os.path.basename(args[0])+"_thumbnail_."+lrf.thumbail_extension()
-    f = open(td, "w")
-    f.write(t)
-    f.close()
-    
+  if options.get_thumbnail:
+    t = lrf.thumbnail
+    td = "None"
+    if t and len(t) > 0:
+      td = os.path.basename(args[0])+"_thumbnail_."+lrf.thumbail_extension()
+      f = open(td, "w")
+      f.write(t)
+      f.close()
+      
   fields = LRFMetaFile.__dict__.items()
   for f in fields:
     if "XML" in str(f): 
       print str(f[1]) + ":", lrf.__getattribute__(f[0])
-  print "Thumbnail:", td
-  print "object index offset:", hex(lrf.object_index_offset)
-  print "toc object offset", hex(lrf.toc_object_offset)
-
-
+  if options.get_thumbnail: print "Thumbnail:", td

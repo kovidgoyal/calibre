@@ -4,5 +4,7 @@
      <file>images/mycomputer.png</file>
      <file>images/reader.png</file>
      <file>images/clear.png</file>
+     <file>images/delete.png</file>
+     <file>images/fileopen.png</file>
  </qresource>
  </RCC>

@@ -167,6 +167,7 @@ class field(object):
     obj.pack(val, start=self._start, fmt=self._fmt)
     
   def __repr__(self):
+    typ = ""
     if self._fmt == DWORD: typ  = "unsigned int"
     if self._fmt == DDWORD: typ = "unsigned long long"
     return "An " + typ + " stored in " + str(struct.calcsize(self._fmt)) + " bytes starting at byte " + str(self._start)

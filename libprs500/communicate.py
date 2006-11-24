@@ -45,12 +45,12 @@ Contains the logic for communication with the device (a SONY PRS-500).
 The public interface of class L{PRS500Device} defines the methods for performing various tasks. 
 """
 import usb, sys, os, time
+from base64 import b64decode as decode
+from tempfile import TemporaryFile
 from array import array
 from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
 from xml.sax.handler import feature_namespaces
-from base64 import b64decode as decode
-from tempfile import TemporaryFile
 
 from prstypes import *
 from errors import *

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>871</width>
-    <height>631</height>
+    <width>878</width>
+    <height>759</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -22,14 +22,24 @@
    <string>SONY Reader</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QVBoxLayout" >
+   <layout class="QGridLayout" >
     <property name="margin" >
      <number>9</number>
     </property>
     <property name="spacing" >
      <number>6</number>
     </property>
-    <item>
+    <item row="1" column="0" >
+     <widget class="QProgressBar" name="progress_bar" >
+      <property name="value" >
+       <number>100</number>
+      </property>
+      <property name="orientation" >
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0" >
      <widget class="QSplitter" name="splitter" >
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
@@ -162,7 +172,25 @@
            </layout>
           </item>
           <item>
-           <widget class="QTableView" name="table_view" >
+           <widget class="QTableView" name="device_view" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>7</hsizetype>
+              <vsizetype>7</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="alternatingRowColors" >
+             <bool>true</bool>
+            </property>
+            <property name="showGrid" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableView" name="library_view" >
             <property name="sizePolicy" >
              <sizepolicy>
               <hsizetype>7</hsizetype>
@@ -220,21 +248,20 @@
       </widget>
      </widget>
     </item>
-    <item>
-     <widget class="QProgressBar" name="progress_bar" >
-      <property name="value" >
-       <number>100</number>
-      </property>
-      <property name="orientation" >
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
-  <widget class="QToolBar" name="toolBar" >
+  <widget class="QToolBar" name="tool_bar" >
+   <property name="movable" >
+    <bool>false</bool>
+   </property>
    <property name="orientation" >
     <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="iconSize" >
+    <size>
+     <width>22</width>
+     <height>22</height>
+    </size>
    </property>
    <attribute name="toolBarArea" >
     <number>4</number>
