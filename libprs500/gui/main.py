@@ -16,7 +16,6 @@ from libprs500.communicate import PRS500Device as device
 from libprs500.errors import *
 from libprs500.lrf.meta import LRFMetaFile, LRFException
 from database import LibraryDatabase
-import images
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QObject, QThread, QCoreApplication, QEventLoop, QString, QStandardItem, QStandardItemModel, QStatusBar, QVariant, QAbstractTableModel, \
                                    QAbstractItemView, QImage, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage
@@ -29,6 +28,7 @@ import xml.dom.minidom as dom
 from xml.dom.ext import PrettyPrint as PrettyPrint
 from operator import itemgetter
 
+DEFAULT_BOOK_COVER = None
 NONE = QVariant()
 TIME_WRITE_FMT  = "%d %b %Y"
 COVER_HEIGHT = 80
@@ -50,13 +50,12 @@ def wrap(s, width=20):
 class LibraryBooksModel(QAbstractTableModel):
   FIELDS = ["id", "title", "authors", "size", "date", "publisher", "tags"]
   TIME_READ_FMT = "%Y-%m-%d %H:%M:%S"
-  def __init__(self, parent, db_path):
+  def __init__(self, parent):
     QAbstractTableModel.__init__(self, parent)
-    self.db    = LibraryDatabase(db_path)
-    self._data = self.db.get_table(self.FIELDS)
-    self._orig_data = self._data
+    self.db    = None 
+    self._data = None
+    self._orig_data = None
     self.image_file = None
-    self.sort(0, Qt.DescendingOrder)
     
   def rowCount(self, parent): return len(self._data)
   def columnCount(self, parent): return len(self.FIELDS)-2
@@ -86,7 +85,7 @@ class LibraryBooksModel(QAbstractTableModel):
     cover = self.db.get_cover(row["id"])
     exts = ",".join(self.db.get_extensions(row["id"]))    
     if not cover: 
-      cover = QPixmap(":/images/book.png")
+      cover = DEFAULT_BOOK_COVER
       self.image_file = None
     else:
       pix = QPixmap()
@@ -206,7 +205,7 @@ class DeviceBooksModel(QAbstractTableModel):
       cover = pix.scaledToHeight(COVER_HEIGHT, Qt.SmoothTransformation)      
     except Exception, e: 
       self.image_file = None
-      cover = QPixmap(":/images/book.png")
+      cover = DEFAULT_BOOK_COVER
     return row["title"], row["author"], human_readable(int(row["size"])), row["mime"], cover
   
   def sort(self, col, order):
@@ -256,13 +255,26 @@ class DeviceBooksModel(QAbstractTableModel):
     
     
 
+
+ui = pkg_resources.resource_stream(__name__, "main.ui")
+sys.path.append(os.path.dirname(ui.name))
 Ui_MainWindow, bclass = uic.loadUiType(pkg_resources.resource_stream(__name__, "main.ui"))
 class MainWindow(QObject, Ui_MainWindow): 
   
+  def show_device(self, yes):
+    """ If C{yes} show the items on the device otherwise show the items in the library """
+    self.device_view.clearSelection(), self.library_view.clearSelection()
+    self.book_cover.hide(), self.book_info.hide()
+    if yes: 
+      self.device_view.show(), self.library_view.hide()
+      self.current_view = self.device_view
+    else: 
+      self.device_view.hide(), self.library_view.show()
+      self.current_view = self.device_view
+      
+  
   def tree_clicked(self, index):
-    def show_device(yes):
-      if yes: self.device_view.show(), self.library_view.hide()
-      else: self.device_view.hide(), self.library_view.show()
+    show_device = self.show_device
     item = self.tree.itemFromIndex(index)
     text = str(item.text())
     if text == "Library":
@@ -305,11 +317,10 @@ class MainWindow(QObject, Ui_MainWindow):
     try:
       name = os.path.abspath(current.model().image_file.name)
       self.book_cover.setToolTip('<img src="'+name+'">')
-    except Exception, e: self.book_cover.setToolTip('<img src=":/images/book.png">')
+    except Exception, e: self.book_cover.setToolTip('<img src=":/default_cover">')
     self.book_cover.show()
     self.book_info.show()
   
-  def clear(self, checked): self.search.setText("")
   
   def list_context_event(self, event):
     print "TODO:"
@@ -399,6 +410,9 @@ class MainWindow(QObject, Ui_MainWindow):
           except LRFException: pass
           self.library_model.add(file, title, author, publisher, cover)
       
+  def edit(self, action):
+    pass
+  
   def show_error(self, e, msg): 
     QErrorMessage(self.window).showMessage(msg+"<br><b>Error: </b>"+str(e)+"<br><br>Traceback:<br>"+traceback.format_exc(e))
   
@@ -414,8 +428,10 @@ class MainWindow(QObject, Ui_MainWindow):
     self.read_settings()
     
     # Setup Library Book list
-    self.library_model = LibraryBooksModel(window, str(self.database_path))
+    self.library_model = LibraryBooksModel(window)
+    self.library_model.set_data(LibraryDatabase(str(self.database_path)))
     self.library_view.setModel(self.library_model)
+    self.current_view = self.library_view
     self.library_view.setSelectionBehavior(QAbstractItemView.SelectRows)
     self.library_view.setSortingEnabled(True)
     self.library_view.contextMenuEvent = self.list_context_event
@@ -431,7 +447,7 @@ class MainWindow(QObject, Ui_MainWindow):
     # Create Device list
     self.tree = QStandardItemModel()
     library = QStandardItem(QString("Library"))
-    library.setIcon(QIcon(":/images/mycomputer.png"))
+    library.setIcon(QIcon(":/library"))
     font = library.font()
     font.setBold(True)    
     self.tree.appendRow(library)
@@ -447,7 +463,7 @@ class MainWindow(QObject, Ui_MainWindow):
     mc = QStandardItem(QString("Storage Card"))
     mc.appendRow(QStandardItem(QString("Books")))
     self.reader.appendRow(mc)
-    self.reader.setIcon(QIcon(":/images/reader.png"))
+    self.reader.setIcon(QIcon(":/reader"))
     self.tree.appendRow(self.reader)
     self.reader.setFont(font)
     self.treeView.setModel(self.tree)    
@@ -472,24 +488,18 @@ class MainWindow(QObject, Ui_MainWindow):
     QObject.connect(self.device_model, SIGNAL("sorted()"), self.model_modified)
     QObject.connect(self.device_model, SIGNAL("searched()"), self.model_modified)
     QObject.connect(self.device_model, SIGNAL("deleted()"), self.model_modified)
-    self.clearButton.setIcon(QIcon(":/images/clear.png"))
-    QObject.connect(self.clearButton, SIGNAL("clicked(bool)"), self.clear)
     self.device_view.hide()
     
     # Setup book display
     self.BOOK_TEMPLATE = self.book_info.text()    
-    self.BOOK_IMAGE       = QPixmap(":/images/book.png")
+    self.BOOK_IMAGE       = DEFAULT_BOOK_COVER
     self.book_cover.hide()
     self.book_info.hide()
     
-    # Populate toolbar
-    self.add_action = self.tool_bar.addAction(QIcon(":/images/fileopen.png"), "Add files to Library")
-    self.add_action.setShortcut(Qt.Key_A)
-    QObject.connect(self.add_action, SIGNAL("triggered(bool)"), self.add)
-    self.del_action = self.tool_bar.addAction(QIcon(":/images/delete.png"), "Delete selected items") 
-    self.del_action.setShortcut(Qt.Key_Delete)
-    QObject.connect(self.del_action, SIGNAL("triggered(bool)"), self.delete)
-    
+    # Connect actions
+    QObject.connect(self.action_add, SIGNAL("triggered(bool)"), self.add)
+    QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete)
+    QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit)
     
     self.device_detector = self.startTimer(1000)
     self.splitter.setStretchFactor(0,0)
@@ -573,7 +583,14 @@ class MainWindow(QObject, Ui_MainWindow):
 def main():
     from PyQt4.Qt import QApplication, QMainWindow
     app = QApplication(sys.argv)
+    global DEFAULT_BOOK_COVER
+    DEFAULT_BOOK_COVER = QPixmap(":/default_cover")
     window = QMainWindow()
+    def handle_exceptions(t, val, tb):
+      sys.__excepthook__(t, val, tb)
+      try: QErrorMessage(window).showMessage("There was an unexpected error: <br>"+"<br>".join(traceback.format_exception(t, val, tb)))
+      except: pass      
+    sys.excepthook = handle_exceptions
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName("prs500-gui")
     gui = MainWindow(window)    

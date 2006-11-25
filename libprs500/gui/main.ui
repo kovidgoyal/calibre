@@ -44,7 +44,7 @@
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="QWidget" name="" >
+      <widget class="QWidget" name="layoutWidget" >
        <layout class="QVBoxLayout" >
         <property name="margin" >
          <number>0</number>
@@ -100,7 +100,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="" >
+      <widget class="QWidget" name="layoutWidget" >
        <layout class="QVBoxLayout" >
         <property name="margin" >
          <number>0</number>
@@ -160,12 +160,15 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="clearButton" >
+             <widget class="QToolButton" name="clear_button" >
               <property name="toolTip" >
                <string>Reset Quick Search</string>
               </property>
               <property name="text" >
                <string>...</string>
+              </property>
+              <property name="icon" >
+               <iconset resource="images.qrc" >:/images/clear.png</iconset>
               </property>
              </widget>
             </item>
@@ -219,8 +222,20 @@
           </property>
           <item>
            <widget class="QLabel" name="book_cover" >
+            <property name="maximumSize" >
+             <size>
+              <width>60</width>
+              <height>80</height>
+             </size>
+            </property>
             <property name="text" >
-             <string>TextLabel</string>
+             <string/>
+            </property>
+            <property name="pixmap" >
+             <pixmap resource="images.qrc" >:/images/cherubs.jpg</pixmap>
+            </property>
+            <property name="scaledContents" >
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -251,6 +266,12 @@
    </layout>
   </widget>
   <widget class="QToolBar" name="tool_bar" >
+   <property name="minimumSize" >
+    <size>
+     <width>49</width>
+     <height>37</height>
+    </size>
+   </property>
    <property name="movable" >
     <bool>false</bool>
    </property>
@@ -266,9 +287,69 @@
    <attribute name="toolBarArea" >
     <number>4</number>
    </attribute>
+   <addaction name="action_add" />
+   <addaction name="action_del" />
+   <addaction name="action_edit" />
   </widget>
+  <action name="action_add" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/plus.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Add files to Library</string>
+   </property>
+   <property name="shortcut" >
+    <string>a</string>
+   </property>
+   <property name="autoRepeat" >
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_del" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/minus.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Delete selected items</string>
+   </property>
+   <property name="shortcut" >
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="action_edit" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/edit.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Edit meta-information for the currently selected items</string>
+   </property>
+   <property name="shortcut" >
+    <string>e</string>
+   </property>
+   <property name="autoRepeat" >
+    <bool>false</bool>
+   </property>
+  </action>
  </widget>
- <includes/>
- <resources/>
- <connections/>
+ <resources>
+  <include location="images.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>search</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>853</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>784</x>
+     <y>58</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

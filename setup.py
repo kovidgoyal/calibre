@@ -34,7 +34,10 @@ setup(name='libprs500',
       libprs500 is library to interface with the `SONY Portable Reader`_ over USB_. 
       It provides methods to list the contents of the file system on the device,
       as well as copy files from and to the device. 
-      It also provides a command line and a graphical user interface via the script prs500.py.
+      It also provides a command line and a graphical user interface via the commands prs500 and
+      prs500-gui. 
+      In addition libprs500 has a utility to read/write the metadata from LRF files (unencrypted books in the SONY BBeB format). A command line
+      interface to this is provided via the command lrf-meta.
       
       For SVN access: svn co https://kovidgoyal.net/svn/code/prs-500
       

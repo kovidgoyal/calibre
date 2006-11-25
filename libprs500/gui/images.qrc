@@ -1,0 +1,12 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+     <file alias="default_cover">images/cherubs.jpg</file>
+     <file alias="library">images/mycomputer.png</file>
+     <file alias="reader">images/reader.png</file>
+     <file>images/clear.png</file>
+     <file>images/minus.png</file>
+     <file>images/plus.png</file>
+     <file>images/edit.png</file>
+     <file>images/fileopen.png</file>
+ </qresource>
+ </RCC>
