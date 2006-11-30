@@ -74,8 +74,8 @@ class FindBooks(ContentHandler):
       dict.__init__(self, src)
       if not self.has_key("author") or len(self["author"].rstrip()) == 0:
         self["author"] = u"Unknown"
-      self["title"] = unicode(self["title"].strip())
-      self["author"] = unicode(self["author"])
+      self["title"] = self["title"].strip()
+      self["author"] = self["author"]
         
     def __repr__(self):      
       return self["title"] + " by " + self["author"] + " at " + self["path"]
