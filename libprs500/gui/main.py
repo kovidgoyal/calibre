@@ -16,9 +16,11 @@ from libprs500.communicate import PRS500Device as device
 from libprs500.errors import *
 from libprs500.lrf.meta import LRFMetaFile, LRFException
 from database import LibraryDatabase
+from editbook import EditBookDialog
+
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QObject, QThread, QCoreApplication, QEventLoop, QString, QStandardItem, QStandardItemModel, QStatusBar, QVariant, QAbstractTableModel, \
-                                   QAbstractItemView, QImage, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage
+                                   QAbstractItemView, QImage, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog
 from PyQt4 import uic
 import sys, pkg_resources, re, string, time, os, os.path, traceback, textwrap, zlib
 from stat import ST_SIZE
@@ -34,7 +36,7 @@ TIME_WRITE_FMT  = "%d %b %Y"
 COVER_HEIGHT = 80
 
 def human_readable(size):
-  """ Convert a size in bytes into a human readle form """
+  """ Convert a size in bytes into a human readable form """
   if size < 1024: divisor, suffix = 1, "B"
   elif size < 1024*1024: divisor, suffix = 1024., "KB"
   elif size < 1024*1024*1024: divisor, suffix = 1024*1024, "MB"
@@ -95,6 +97,12 @@ class LibraryBooksModel(QAbstractTableModel):
       pix.loadFromData(cover, "", Qt.AutoColor)
       cover = pix.scaledToHeight(COVER_HEIGHT, Qt.SmoothTransformation)
     return row["title"], row["authors"], human_readable(int(row["size"])), exts, cover
+  
+  def id_from_index(self, index): return self._data[index.row()]["id"]
+  
+  def refresh_row(self, row):
+    self._data[row] = self.db.get_row_by_id(self._data[row]["id"], self.FIELDS)
+    self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.index(row, 0), self.index(row, self.columnCount(0)-1))
   
   def data(self, index, role):
     if role == Qt.DisplayRole:      
@@ -258,7 +266,7 @@ class DeviceBooksModel(QAbstractTableModel):
 
 ui = pkg_resources.resource_stream(__name__, "main.ui")
 sys.path.append(os.path.dirname(ui.name))
-Ui_MainWindow, bclass = uic.loadUiType(pkg_resources.resource_stream(__name__, "main.ui"))
+Ui_MainWindow, bclass = uic.loadUiType(pkg_resources.resource_stream(__name__,  "main.ui"))
 class MainWindow(QObject, Ui_MainWindow): 
   
   def show_device(self, yes):
@@ -373,7 +381,7 @@ class MainWindow(QObject, Ui_MainWindow):
     settings.beginGroup("MainWindow")
     self.window.resize(settings.value("size", QVariant(QSize(1000, 700))).toSize())
     settings.endGroup()
-    self.database_path = settings.value("database path", QVariant(os.path.expanduser("~/library.sqlite"))).toString()
+    self.database_path = settings.value("database path", QVariant(os.path.expanduser("~/library.db"))).toString()
     
   def write_settings(self):
     settings = QSettings()
@@ -411,14 +419,23 @@ class MainWindow(QObject, Ui_MainWindow):
           self.library_model.add(file, title, author, publisher, cover)
       
   def edit(self, action):
-    pass
+    if self.library_view.isVisible():
+      rows = self.library_view.selectionModel().selectedRows()
+      for row in rows:
+        id = self.library_model.id_from_index(row)
+        dialog = QDialog(self.window)
+        ed = EditBookDialog(dialog, id, self.library_model.db)
+        if dialog.exec_() == QDialog.Accepted:
+          self.library_model.refresh_row(row.row())
+          
   
   def show_error(self, e, msg): 
     QErrorMessage(self.window).showMessage(msg+"<br><b>Error: </b>"+str(e)+"<br><br>Traceback:<br>"+traceback.format_exc(e))
   
   def __init__(self, window):
     QObject.__init__(self)
-    Ui_MainWindow.__init__(self)    
+    Ui_MainWindow.__init__(self)
+  
     self.dev = device(report_progress=self.progress)
     self.is_connected = False    
     self.setupUi(window)
@@ -548,7 +565,7 @@ class MainWindow(QObject, Ui_MainWindow):
     self.status("Connecting to device")    
     try:
       space = self.dev.available_space()
-    except TimeoutError:
+    except ProtocolError:
       c = 0
       self.status("Waiting for device to initialize")
       while c < 100: # Delay for 10s while device is initializing

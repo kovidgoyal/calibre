@@ -1,19 +1,22 @@
-Library implementing a reverse engineered protocol to communicate with the Sony Reader PRS-500. 
-
 Requirements:
 1) Python >= 2.5
 2) PyUSB >= 0.3.4 (http://sourceforge.net/projects/pyusb/)
+3) For the GUI:
+    - pyxml >= 0.84
+    - PyQt4 >= 4.1
 
 Installation:
 As root
 python setup.py install
 
-Usage:
-Add the following to /etc/udev/rules.d/90-local.rules
+On Linux, to enable access to the reader for non-root users, you need to add the following to
+/etc/udev/rules.d/90-local.rules
 
 BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="plugdev"
 
-and run udevstart to enable access to the reader for non-root users. You may have to adjust the GROUP and the location of the
-rules file to suit your distribution.
+You may have to adjust the GROUP and the location of the 90-local.rules file to suit your distribution. 
 
-Usage information is provided when you run the script prs500.py
+Usage:
+1) A command line interface is provided via, the command prs500
+2) A GUI is provided via the command prs500-gui
+3) You can read/edit the metadata of LRF files via the command lrf-meta

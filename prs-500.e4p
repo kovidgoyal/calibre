@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.0.dtd">
 <!-- eric4 project file for project prs-500 -->
-<!-- Saved: 2006-11-24, 20:24:29 -->
+<!-- Saved: 2006-11-29, 11:51:16 -->
 <!-- Copyright (C) 2006 Kovid Goyal, kovid@kovidgoyal.net -->
 <Project version="4.0">
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -70,6 +70,11 @@
       <Dir>gui</Dir>
       <Name>database.py</Name>
     </Source>
+    <Source>
+      <Dir>libprs500</Dir>
+      <Dir>gui</Dir>
+      <Name>editbook.py</Name>
+    </Source>
   </Sources>
   <Forms>
     <Form>
@@ -95,12 +100,6 @@
     </Other>
     <Other>
       <Name>epydoc-pdf.conf</Name>
-    </Other>
-    <Other>
-      <Dir>libprs500</Dir>
-      <Dir>gui</Dir>
-      <Dir>resources</Dir>
-      <Name>images.qrc</Name>
     </Other>
   </Others>
   <MainScript>
@@ -222,10 +221,10 @@
     </VcsOtherData>
   </Vcs>
   <FiletypeAssociations>
-    <FiletypeAssociation pattern="*.ui.h" type="FORMS" />
-    <FiletypeAssociation pattern="*.ui" type="FORMS" />
-    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
-    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
     <FiletypeAssociation pattern="*.py" type="SOURCES" />
+    <FiletypeAssociation pattern="*.ui.h" type="FORMS" />
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
+    <FiletypeAssociation pattern="*.ui" type="FORMS" />
+    <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
   </FiletypeAssociations>
 </Project>
