@@ -255,7 +255,6 @@ class PRS500Device(object):
       raise DeviceError()
     self.handle = self.device.open()
     self.handle.claimInterface(self.device_descriptor.interface_id)
-    self.handle.reset()
     res = self._send_validated_command(GetUSBProtocolVersion())
     if res.code != 0: raise ProtocolError("Unable to get USB Protocol version.")
     version = self._bulk_read(24, data_type=USBProtocolVersion)[0].version
