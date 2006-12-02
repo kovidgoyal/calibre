@@ -15,6 +15,7 @@
 from libprs500.communicate import PRS500Device as device
 from libprs500.errors import *
 from libprs500.lrf.meta import LRFMetaFile, LRFException
+from libprs500.gui import import_ui
 from database import LibraryDatabase
 from editbook import EditBookDialog
 
@@ -22,7 +23,7 @@ from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QObject, QThread, QCoreApplication, QEventLoop, QString, QStandardItem, QStandardItemModel, QStatusBar, QVariant, QAbstractTableModel, \
                                    QAbstractItemView, QImage, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog
 from PyQt4 import uic
-import sys, pkg_resources, re, string, time, os, os.path, traceback, textwrap, zlib
+import sys, re, string, time, os, os.path, traceback, textwrap, zlib
 from stat import ST_SIZE
 from tempfile import TemporaryFile, NamedTemporaryFile
 from exceptions import Exception as Exception
@@ -264,9 +265,7 @@ class DeviceBooksModel(QAbstractTableModel):
     
 
 
-ui = pkg_resources.resource_stream(__name__, "main.ui")
-sys.path.append(os.path.dirname(ui.name))
-Ui_MainWindow, bclass = uic.loadUiType(pkg_resources.resource_stream(__name__,  "main.ui"))
+Ui_MainWindow = import_ui("main.ui")
 class MainWindow(QObject, Ui_MainWindow): 
   
   def show_device(self, yes):
@@ -418,7 +417,7 @@ class MainWindow(QObject, Ui_MainWindow):
           except LRFException: pass
           self.library_model.add(file, title, author, publisher, cover)
       
-  def edit(self, action):
+  def edit(self, action):    
     if self.library_view.isVisible():
       rows = self.library_view.selectionModel().selectedRows()
       for row in rows:
@@ -519,7 +518,6 @@ class MainWindow(QObject, Ui_MainWindow):
     QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit)
     
     self.device_detector = self.startTimer(1000)
-    self.splitter.setStretchFactor(0,0)
     self.splitter.setStretchFactor(1,100)
     self.search.setFocus(Qt.OtherFocusReason)
     window.show()
@@ -565,7 +563,7 @@ class MainWindow(QObject, Ui_MainWindow):
     self.status("Connecting to device")    
     try:
       space = self.dev.available_space()
-    except ProtocolError:
+    except TimeoutError:
       c = 0
       self.status("Waiting for device to initialize")
       while c < 100: # Delay for 10s while device is initializing

@@ -24,11 +24,12 @@ setup(name='libprs500',
         'console_scripts': [ 'prs500 = libprs500.cli.main:main', 'lrf-meta = libprs500.lrf.meta:main' ],
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       },
-      include_package_data = True,
+      package_data = {'libprs500.gui' : ['*.ui']},
+      zip_safe = True,
       version=VERSION,
       install_requires=["pyusb>=0.3.5","pyxml>=0.8.4"],
       dependency_links=["http://sourceforge.net/project/showfiles.php?group_id=145185","http://sourceforge.net/project/showfiles.php?group_id=6473"],
-      description='Library to interface with the Sony Portable Reader 500 over USB.',
+      description='Library to interface with the Sony Portable Reader 500 over USB. Also has a GUI with library management features.',
       long_description = 
       """
       libprs500 is library to interface with the `SONY Portable Reader`_ over USB_. 
@@ -39,7 +40,7 @@ setup(name='libprs500',
       In addition libprs500 has a utility to read/write the metadata from LRF files (unencrypted books in the SONY BBeB format). A command line
       interface to this is provided via the command lrf-meta.
       
-      For SVN access: svn co https://kovidgoyal.net/svn/code/prs-500
+      For SVN access: svn co https://svn.kovidgoyal.net/code/prs-500
       
         .. _SONY Portable Reader: http://Sony.com/reader
         .. _USB: http://www.usb.org  
@@ -49,7 +50,7 @@ setup(name='libprs500',
       provides=['libprs500'],      
       packages = find_packages(),      
       license = 'GPL',
-      url = 'http://www.python.org/pypi/libprs500/',
+      url = 'http://libprs500.kovidgoyal.net',
       classifiers = [
         'Development Status :: 2 - Pre-Alpha',
         'Environment :: Console',
