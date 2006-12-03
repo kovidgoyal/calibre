@@ -56,10 +56,11 @@ class EditBookDialog(Ui_BookEditDialog):
   def write_data(self):
     title = str(self.title.text()).strip()
     authors = str(self.authors.text()).strip()
+    rating = self.rating.value()
     tags = str(self.tags.text()).strip()
     publisher = str(self.publisher.text()).strip()
     comments = str(self.comments.toPlainText()).strip()
-    self.db.set_metadata(self.id, title=title, authors=authors, tags=tags, publisher=publisher, comments=comments, cover=self.cover_data)
+    self.db.set_metadata(self.id, title=title, authors=authors, rating=rating, tags=tags, publisher=publisher, comments=comments, cover=self.cover_data)
     if self.formats_changed:
       for r in range(self.formats.count()):
         format = self.formats.item(r)
@@ -116,11 +117,12 @@ class EditBookDialog(Ui_BookEditDialog):
     QObject.connect(self.button_box, SIGNAL("accepted()"), self.write_data)
     QObject.connect(self.add_format_button, SIGNAL("clicked(bool)"), self.add_format)
     QObject.connect(self.remove_format_button, SIGNAL("clicked(bool)"), self.remove_format)
-    data = self.db.get_row_by_id(self.id, ["title","authors","publisher","tags","comments"])
+    data = self.db.get_row_by_id(self.id, ["title","authors","rating","publisher","tags","comments"])
     self.title.setText(data["title"])
     self.authors.setText(data["authors"] if data["authors"] else "")
     self.publisher.setText(data["publisher"] if data["publisher"] else "")
     self.tags.setText(data["tags"] if data["tags"] else "")
+    if data["rating"] > 0: self.rating.setValue(data["rating"])
     self.comments.setPlainText(data["comments"] if data["comments"] else "")
     cover = self.db.get_cover(self.id)
     if cover:

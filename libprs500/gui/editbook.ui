@@ -6,11 +6,11 @@
     <x>0</x>
     <y>0</y>
     <width>865</width>
-    <height>642</height>
+    <height>776</height>
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>Edit Meta Information</string>
+   <string>SONY Reader - Edit Meta Information</string>
   </property>
   <layout class="QGridLayout" >
    <property name="margin" >
@@ -44,17 +44,72 @@
           <property name="spacing" >
            <number>6</number>
           </property>
-          <item row="3" column="1" colspan="2" >
-           <widget class="QLineEdit" name="tags" >
+          <item row="2" column="1" colspan="2" >
+           <widget class="QSpinBox" name="rating" >
             <property name="toolTip" >
-             <string>Tags categorize the book. This is particularly useful while searching. &lt;br>&lt;br>They can be any words or phrases, separated by commas.</string>
+             <string>Rating of this book. 0-5 stars</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Rating of this book. 0-5 stars</string>
+            </property>
+            <property name="buttonSymbols" >
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="suffix" >
+             <string> stars</string>
+            </property>
+            <property name="maximum" >
+             <number>5</number>
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2" >
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_6" >
+            <property name="text" >
+             <string>&amp;Rating:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2" >
            <widget class="QLineEdit" name="publisher" >
             <property name="toolTip" >
              <string>Change the publisher of this book</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="label_3" >
+            <property name="text" >
+             <string>&amp;Publisher: </string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>publisher</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" >
+           <widget class="QLabel" name="label_4" >
+            <property name="text" >
+             <string>Ta&amp;gs: </string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>tags</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="2" >
+           <widget class="QLineEdit" name="tags" >
+            <property name="toolTip" >
+             <string>Tags categorize the book. This is particularly useful while searching. &lt;br>&lt;br>They can be any words or phrases, separated by commas.</string>
             </property>
            </widget>
           </item>
@@ -69,32 +124,6 @@
            <widget class="QLineEdit" name="title" >
             <property name="toolTip" >
              <string>Change the title of this book</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" >
-           <widget class="QLabel" name="label_4" >
-            <property name="text" >
-             <string>Ta&amp;gs: </string>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy" >
-             <cstring>tags</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" >
-           <widget class="QLabel" name="label_3" >
-            <property name="text" >
-             <string>&amp;Publisher: </string>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy" >
-             <cstring>publisher</cstring>
             </property>
            </widget>
           </item>
@@ -124,7 +153,7 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="2" >
+          <item row="6" column="2" >
            <layout class="QVBoxLayout" >
             <property name="margin" >
              <number>0</number>
@@ -174,33 +203,7 @@
             </item>
            </layout>
           </item>
-          <item row="6" column="2" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="4" column="2" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Vertical</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>20</width>
-              <height>21</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item rowspan="3" row="4" column="0" colspan="2" >
+          <item rowspan="3" row="5" column="0" colspan="2" >
            <widget class="QLabel" name="cover" >
             <property name="sizePolicy" >
              <sizepolicy>
@@ -226,6 +229,32 @@
              <bool>true</bool>
             </property>
            </widget>
+          </item>
+          <item row="7" column="2" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="5" column="2" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>20</width>
+              <height>21</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>

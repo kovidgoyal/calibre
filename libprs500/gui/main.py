@@ -21,7 +21,8 @@ from editbook import EditBookDialog
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QObject, QThread, QCoreApplication, QEventLoop, QString, QStandardItem, QStandardItemModel, QStatusBar, QVariant, QAbstractTableModel, \
-                                   QAbstractItemView, QImage, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog
+                                   QAbstractItemView, QImage, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog, QSpinBox,\
+                                   QPainterPath, QItemDelegate, QPainter, QPen, QColor, QLinearGradient, QBrush, QStyle
 from PyQt4 import uic
 import sys, re, string, time, os, os.path, traceback, textwrap, zlib
 from stat import ST_SIZE
@@ -30,6 +31,7 @@ from exceptions import Exception as Exception
 import xml.dom.minidom as dom
 from xml.dom.ext import PrettyPrint as PrettyPrint
 from operator import itemgetter
+from math import sin, cos, pi
 
 DEFAULT_BOOK_COVER = None
 NONE = QVariant()
@@ -50,8 +52,95 @@ def human_readable(size):
 def wrap(s, width=20):
   return textwrap.fill(str(s), width) 
 
+class LibraryDelegate(QItemDelegate):
+  COLOR = QColor("blue")
+  SIZE     = 16
+  PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap,  Qt.RoundJoin)
+  
+  def __init__(self, parent):
+    QItemDelegate.__init__(self, parent)
+    self.star_path = QPainterPath()
+    self.star_path.moveTo(90, 50)
+    for i in range(1, 5):
+      self.star_path.lineTo(50 + 40 * cos(0.8 * i * pi), 50 + 40 * sin(0.8 * i * pi))
+    self.star_path.closeSubpath()
+    self.star_path.setFillRule(Qt.WindingFill)
+    gradient = QLinearGradient(0, 0, 0, 100)
+    gradient.setColorAt(0.0, self.COLOR)
+    gradient.setColorAt(1.0, self.COLOR)
+    self. brush = QBrush(gradient)
+    self.factor = self.SIZE/100.
+    
+    
+  def sizeHint(self, option, index):
+    if index.column() != 4:
+      return QItemDelegate.sizeHint(self, option, index)
+    num = index.model().data(index, Qt.DisplayRole).toInt()[0]
+    return QSize(num*(self.SIZE), self.SIZE+4)
+  
+  def paint(self, painter, option, index):
+    if index.column() != 4:
+      return QItemDelegate.paint(self, painter, option, index)
+    num = index.model().data(index, Qt.DisplayRole).toInt()[0]
+    def draw_star(): 
+      painter.save()
+      painter.scale(self.factor, self.factor)
+      painter.translate(50.0, 50.0)
+      painter.rotate(-20)
+      painter.translate(-50.0, -50.0)
+      painter.drawPath(self.star_path)
+      painter.restore()
+      
+    painter.save()
+    try:
+      if option.state & QStyle.State_Selected:
+        painter.fillRect(option.rect, option.palette.highlight())
+      painter.setRenderHint(QPainter.Antialiasing)
+      y = option.rect.center().y()-self.SIZE/2. 
+      x = option.rect.right()  - self.SIZE
+      painter.setPen(self.PEN)      
+      painter.setBrush(self.brush)      
+      painter.translate(x, y)
+      for i in range(num):
+        draw_star()
+        painter.translate(-self.SIZE, 0)
+    except Exception, e:
+      traceback.print_exc(e)
+    painter.restore()
+    
+  def createEditor(self, parent, option, index):
+    if index.column() != 4:
+      return QItemDelegate.createEditor(self, parent, option, index)
+    print "hello"
+    editor = QSpinBox(parent)
+    editor.setSuffix(" stars")
+    editor.setMinimum(0)
+    editor.setMaximum(5)
+    editor.installEventFilter(self)
+    return editor
+    
+  def setEditorData(self, editor, index):
+    if index.column() != 4:
+      return QItemDelegate.setEditorData(self, editor, index)
+    val = index.model()._data[index.row()]["rating"]
+    if not val: val = 0
+    editor.setValue(val)
+    
+  def setModelData(self, editor, model, index):
+    if index.column() != 4:
+      return QItemDelegate.setModelData(self, editor, model, index)
+    editor.interpretText()
+    index.model().setData(index, QVariant(editor.value()), Qt.EditRole)
+    
+  def updateEditorGeometry(self, editor, option, index):
+    if index.column() != 4:
+      return QItemDelegate.updateEditorGeometry(self, editor, option, index)
+    editor.setGeometry(option.rect)
+    
+  
+
 class LibraryBooksModel(QAbstractTableModel):
-  FIELDS = ["id", "title", "authors", "size", "date", "publisher", "tags"]
+  FIELDS = ["id", "title", "authors", "size", "date", "rating", "publisher", "tags"]  
   TIME_READ_FMT = "%Y-%m-%d %H:%M:%S"
   def __init__(self, parent):
     QAbstractTableModel.__init__(self, parent)
@@ -63,6 +152,40 @@ class LibraryBooksModel(QAbstractTableModel):
   def rowCount(self, parent): return len(self._data)
   def columnCount(self, parent): return len(self.FIELDS)-2
     
+  def setData(self, index, value, role):
+    done = False
+    if role == Qt.EditRole:
+      row = index.row()
+      id = self._data[row]["id"]
+      col = index.column()
+      val = str(value.toString())
+      if col == 0: col = "title"
+      elif col == 1: col = "authors"
+      elif col == 2: return False
+      elif col == 3: return False
+      elif col == 4: 
+        col, val = "rating", int(value.toInt()[0])
+        if val < 0: val =0
+        if val > 5: val = 5
+      elif col == 5: col = "publisher"
+      else: return False
+      self.db.set_metadata_item(id, col, val)
+      self._data[row][col] = val      
+      self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), index, index)
+      for i in range(len(self._orig_data)):
+        if self._orig_data[i]["id"] == self._data[row]["id"]:
+          self._orig_data[i][col] = self._data[row][col]
+          break      
+      done = True
+    return done
+  
+  def flags(self, index):
+    flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+    col = index.column()
+    if col not in [2,3]:
+      flags |= Qt.ItemIsEditable
+    return flags
+  
   def set_data(self, db):
     self.emit(SIGNAL("layoutAboutToBeChanged()"))
     self.db    = db
@@ -79,7 +202,8 @@ class LibraryBooksModel(QAbstractTableModel):
       elif section == 1: text = "Author(s)"
       elif section == 2: text = "Size"
       elif section == 3: text = "Date"
-      elif section == 4: text = "Publisher"
+      elif section == 4: text = "Rating"
+      elif section == 5: text = "Publisher"
       return QVariant(self.trUtf8(text))
     else: return QVariant(str(1+section))
     
@@ -103,23 +227,32 @@ class LibraryBooksModel(QAbstractTableModel):
   
   def refresh_row(self, row):
     self._data[row] = self.db.get_row_by_id(self._data[row]["id"], self.FIELDS)
+    for i in range(len(self._orig_data)):
+      if self._orig_data[i]["id"] == self._data[row]["id"]:
+        self._orig_data[i:i+1] = self._data[row]
+        break
     self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.index(row, 0), self.index(row, self.columnCount(0)-1))
   
   def data(self, index, role):
-    if role == Qt.DisplayRole:      
+    if role == Qt.DisplayRole or role == Qt.EditRole:      
       row, col = index.row(), index.column()
       text = None
       row = self._data[row]
+      if col == 4: 
+        r = row["rating"] if row["rating"] else 0
+        if r < 0: r= 0
+        if r > 5: r=5
+        return QVariant(r)
       if   col == 0: text = wrap(row["title"], width=25)
       elif col == 1: 
         au = row["authors"]
         if au : text = wrap(re.sub("&", "\n", au), width=25)
       elif col == 2: text = human_readable(row["size"])
       elif col == 3: text = time.strftime(TIME_WRITE_FMT, time.strptime(row["date"], self.TIME_READ_FMT))
-      elif col == 4: 
+      elif col == 5: 
         pub = row["publisher"]
         if pub: text = wrap(pub, 20)
-      if not text: text = "Unknown"
+      if text == None: text = "Unknown"
       return QVariant(text)
     elif role == Qt.TextAlignmentRole and index.column() in [2,3,4]:
       return QVariant(Qt.AlignRight)
@@ -132,7 +265,8 @@ class LibraryBooksModel(QAbstractTableModel):
     if col == 1: key, func = "authors", lambda x : x.split()[-1:][0].lower() if x else ""
     if col == 2: key, func = "size", int
     if col == 3: key, func = "date", lambda x: time.mktime(time.strptime(x, self.TIME_READ_FMT))
-    if col == 4: key, func = "publisher", lambda x : x.lower() if x else ""
+    if col == 4: key, func = "rating", lambda x: x if x else 0
+    if col == 5: key, func = "publisher", lambda x : x.lower() if x else ""
     self.emit(SIGNAL("layoutAboutToBeChanged()"))
     self._data.sort(key=getter(key, func))
     if descending: self._data.reverse()
@@ -159,6 +293,20 @@ class LibraryBooksModel(QAbstractTableModel):
       if match: self._data.append(book)
     self.emit(SIGNAL("layoutChanged()"))
     self.emit(SIGNAL("searched()"))
+    
+  def delete(self, indices):
+    if len(indices): self.emit(SIGNAL("layoutAboutToBeChanged()"))
+    for index in indices:
+      id = self.id_from_index(index)
+      self.db.delete_by_id(id)
+      row = index.row()
+      self._data[row:row+1] = []
+      for i in range(len(self._orig_data)):
+        if self._orig_data[i]["id"] == id: 
+          self._orig_data[i:i+1] = []
+          i -=1
+    self.emit(SIGNAL("layoutChanged()"))
+    self.db.commit()    
 
 class DeviceBooksModel(QAbstractTableModel):
   TIME_READ_FMT  = "%a, %d %b %Y %H:%M:%S %Z"  
@@ -311,11 +459,19 @@ class MainWindow(QObject, Ui_MainWindow):
     self.device_view.resizeColumnsToContents()
   
   def model_modified(self):
-    self.device_view.clearSelection()
-    self.library_view.clearSelection()
+    if self.library_view.isVisible(): view = self.library_view
+    else: view = self.device_view
+    view.clearSelection()
+    view.resizeColumnsToContents()
     self.book_cover.hide()
     self.book_info.hide()
     QCoreApplication.processEvents(QEventLoop.ExcludeUserInputEvents)    
+  
+  def resize_columns(self, topleft, bottomright):
+    if self.library_view.isVisible(): view = self.library_view
+    else: view = self.device_view
+    for c in range(topleft.column(), bottomright.column()+1):
+      view.resizeColumnToContents(c)
   
   def show_book(self, current, previous):
     title, author, size, mime, thumbnail = current.model().info(current.row())
@@ -332,48 +488,49 @@ class MainWindow(QObject, Ui_MainWindow):
   def list_context_event(self, event):
     print "TODO:"
   
-  def do_delete(self, rows):
-    if self.device_model.__class__.__name__ == "DeviceBooksdevice_model":
-      paths, mc, cc = [], False, False
-      for book in rows:
-        path = book.model().path(book)
-        if path[0] == "/": file, prefix, mc = self.main_xml, "xs1:", True
-        else:                    file, prefix, cc = self.cache_xml, "",       True
-        file.seek(0)
-        document = dom.parse(file)
-        books = document.getElementsByTagName(prefix + "text")
-        for candidate in books:
-          if candidate.attributes["path"].value in path:
-            paths.append(path)
-            candidate.parentNode.removeChild(candidate)
-            break
-        file.close()
-        file = TemporaryFile()
-        PrettyPrint(document, file)        
-        if len(prefix) > 0: self.main_xml = file
-        else: self.cache_xml = file
-      for path in paths:
-        self.dev.del_file(path)
-        self.device_model.delete_by_path(path)        
-      self.cache_xml.seek(0)
-      self.main_xml.seek(0)
-      self.status("Files deleted. Updating media list on device")
-      if mc: 
-        self.dev.del_file(self.dev.MEDIA_XML)
-        self.dev.put_file(self.main_xml, self.dev.MEDIA_XML)
-      if cc: 
-        self.dev.del_file(self.card+self.dev.CACHE_XML)
-        self.dev.put_file(self.cache_xml, self.card+self.dev.CACHE_XML)
+  
   
   def delete(self, action):
-    self.window.setCursor(Qt.WaitCursor)
-    rows   = self.device_view.selectionModel().selectedRows()
-    items = [ row.model().title(row) + ": " +  row.model().path(row)[row.model().path(row).rfind("/")+1:] for row in rows ]
-    ret = QMessageBox.question(self.window, self.trUtf8("SONY Reader - confirm"),  self.trUtf8("Are you sure you want to delete these items from the device?\n\n") + "\n".join(items), 
-             QMessageBox.YesToAll | QMessageBox.No, QMessageBox.YesToAll)
-    if ret == QMessageBox.YesToAll:
-      self.do_delete(rows)
-    self.window.setCursor(Qt.ArrowCursor)
+    if self.device_view.isVisible():
+      rows   = self.device_view.selectionModel().selectedRows()
+      items = [ row.model().title(row) + ": " +  row.model().path(row)[row.model().path(row).rfind("/")+1:] for row in rows ]
+      ret = QMessageBox.question(self.window, self.trUtf8("SONY Reader - confirm"),  self.trUtf8("Are you sure you want to delete these items from the device?\n\n") + "\n".join(items), 
+               QMessageBox.YesToAll | QMessageBox.No, QMessageBox.YesToAll)
+      if ret == QMessageBox.YesToAll:
+        self.window.setCursor(Qt.WaitCursor)
+        paths, mc, cc = [], False, False
+        for book in rows:
+          path = book.model().path(book)
+          if path[0] == "/": file, prefix, mc = self.main_xml, "xs1:", True
+          else:                    file, prefix, cc = self.cache_xml, "",       True
+          file.seek(0)
+          document = dom.parse(file)
+          books = document.getElementsByTagName(prefix + "text")
+          for candidate in books:
+            if candidate.attributes["path"].value in path:
+              paths.append(path)
+              candidate.parentNode.removeChild(candidate)
+              break
+          file.close()
+          file = TemporaryFile()
+          PrettyPrint(document, file)        
+          if len(prefix) > 0: self.main_xml = file
+          else: self.cache_xml = file
+        for path in paths:
+          self.dev.del_file(path)
+          self.device_model.delete_by_path(path)        
+        self.cache_xml.seek(0)
+        self.main_xml.seek(0)
+        self.status("Files deleted. Updating media list on device")
+        if mc: 
+          self.dev.del_file(self.dev.MEDIA_XML)
+          self.dev.put_file(self.main_xml, self.dev.MEDIA_XML)
+        if cc: 
+          self.dev.del_file(self.card+self.dev.CACHE_XML)
+          self.dev.put_file(self.cache_xml, self.card+self.dev.CACHE_XML)
+      self.window.setCursor(Qt.ArrowCursor)
+    else:      
+      self.library_model.delete(self.library_view.selectionModel().selectedRows())
   
   def read_settings(self):
     settings = QSettings()
@@ -451,14 +608,15 @@ class MainWindow(QObject, Ui_MainWindow):
     self.library_view.setSelectionBehavior(QAbstractItemView.SelectRows)
     self.library_view.setSortingEnabled(True)
     self.library_view.contextMenuEvent = self.list_context_event
+    self.library_view.setItemDelegate(LibraryDelegate(self.library_view))
     QObject.connect(self.library_model, SIGNAL("layoutChanged()"), self.library_view.resizeRowsToContents)
     QObject.connect(self.library_view.selectionModel(), SIGNAL("currentChanged(QModelIndex, QModelIndex)"), self.show_book)
     QObject.connect(self.search, SIGNAL("textChanged(QString)"), self.library_model.search)
     QObject.connect(self.library_model, SIGNAL("sorted()"), self.model_modified)
     QObject.connect(self.library_model, SIGNAL("searched()"), self.model_modified)
     QObject.connect(self.library_model, SIGNAL("deleted()"), self.model_modified)    
+    QObject.connect(self.library_model, SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.resize_columns)
     self.library_view.resizeColumnsToContents()
-    
     
     # Create Device list
     self.tree = QStandardItemModel()
@@ -504,6 +662,7 @@ class MainWindow(QObject, Ui_MainWindow):
     QObject.connect(self.device_model, SIGNAL("sorted()"), self.model_modified)
     QObject.connect(self.device_model, SIGNAL("searched()"), self.model_modified)
     QObject.connect(self.device_model, SIGNAL("deleted()"), self.model_modified)
+    QObject.connect(self.device_model, SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.resize_columns)
     self.device_view.hide()
     
     # Setup book display
@@ -612,3 +771,4 @@ def main():
     ret = app.exec_()    
     return ret
     
+if __name__ == "__main__": main()

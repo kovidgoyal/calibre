@@ -17,12 +17,11 @@ import os, os.path, zlib
 from stat import ST_SIZE
 from libprs500.lrf.meta import LRFMetaFile
 
-
 class LibraryDatabase(object):
   
   BOOKS_SQL = """
                            create table if not exists books_meta(id INTEGER PRIMARY KEY, title TEXT, authors TEXT, publisher TEXT, size INTEGER,  tags TEXT,
-                                                                                       cover BLOB, date DATE DEFAULT CURRENT_TIMESTAMP, comments TEXT );
+                                                                                       cover BLOB, date DATE DEFAULT CURRENT_TIMESTAMP, comments TEXT, rating INTEGER);
                            create table if not exists books_data(id INTEGER, extension TEXT, data BLOB);
                            """
                               
@@ -53,7 +52,7 @@ class LibraryDatabase(object):
       if "unknown" in author.lower(): author = None
     file = zlib.compress(open(file).read())
     if cover: cover = sqlite.Binary(zlib.compress(cover))
-    self.con.execute("insert into books_meta (title, authors, publisher, size, tags, cover, comments) values (?,?,?,?,?,?)", (title, author, publisher, size, None, cover, None))    
+    self.con.execute("insert into books_meta (title, authors, publisher, size, tags, cover, comments, rating) values (?,?,?,?,?,?,?,?)", (title, author, publisher, size, None, cover, None, None))    
     id =  self.con.execute("select max(id) from books_meta").next()[0]    
     self.con.execute("insert into books_data values (?,?,?)", (id, ext, sqlite.Binary(file)))
     self.con.commit()
@@ -65,6 +64,12 @@ class LibraryDatabase(object):
     row, r = cur.next(), {}
     for c in columns: r[c] = row[c]
     return r
+  
+  def commit(self): self.con.commit()
+  
+  def delete_by_id(self, id):
+    self.con.execute("delete from books_meta where id=?", (id,))
+    self.con.execute("delete from books_data where id=?", (id,))
   
   def get_table(self, columns):
     cols = ",".join([ c for c in columns])
@@ -102,13 +107,17 @@ class LibraryDatabase(object):
       data[field] = row[field]
     return data
     
-  def set_metadata(self, id, title=None, authors=None, publisher=None, tags=None, cover=None, comments=None):
+  def set_metadata(self, id, title=None, authors=None, rating=None, publisher=None, tags=None, cover=None, comments=None):
     if authors and not len(authors): authors = None
     if publisher and not len(publisher): publisher = None
     if tags and not len(tags): tags = None
     if comments and not len(comments): comments = None
     if cover: cover = sqlite.Binary(zlib.compress(cover))
-    self.con.execute('update books_meta set title=?, authors=?, publisher=?, tags=?, cover=?, comments=? where id=?', (title, authors, publisher, tags, cover, comments, id))
+    self.con.execute('update books_meta set title=?, authors=?, publisher=?, tags=?, cover=?, comments=?, rating=? where id=?', (title, authors, publisher, tags, cover, comments, rating, id))
+    self.con.commit()
+  
+  def set_metadata_item(self, id, col, val):
+    self.con.execute('update books_meta set '+col+'=? where id=?',(val, id))
     self.con.commit()
   
   def search(self, query): pass
