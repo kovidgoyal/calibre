@@ -22,7 +22,8 @@ from editbook import EditBookDialog
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QObject, QThread, QCoreApplication, QEventLoop, QString, QStandardItem, QStandardItemModel, QStatusBar, QVariant, QAbstractTableModel, \
                                    QAbstractItemView, QImage, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog, QSpinBox,\
-                                   QPainterPath, QItemDelegate, QPainter, QPen, QColor, QLinearGradient, QBrush, QStyle
+                                   QPainterPath, QItemDelegate, QPainter, QPen, QColor, QLinearGradient, QBrush, QStyle,\
+                                   qInstallMsgHandler, qDebug, qFatal, qWarning, qCritical
 from PyQt4 import uic
 import sys, re, string, time, os, os.path, traceback, textwrap, zlib
 from stat import ST_SIZE
@@ -111,7 +112,6 @@ class LibraryDelegate(QItemDelegate):
   def createEditor(self, parent, option, index):
     if index.column() != 4:
       return QItemDelegate.createEditor(self, parent, option, index)
-    print "hello"
     editor = QSpinBox(parent)
     editor.setSuffix(" stars")
     editor.setMinimum(0)
@@ -428,7 +428,7 @@ class MainWindow(QObject, Ui_MainWindow):
       self.current_view = self.device_view
       
   
-  def tree_clicked(self, index):
+  def tree_clicked(self, index):    
     show_device = self.show_device
     item = self.tree.itemFromIndex(index)
     text = str(item.text())
@@ -679,7 +679,7 @@ class MainWindow(QObject, Ui_MainWindow):
     self.device_detector = self.startTimer(1000)
     self.splitter.setStretchFactor(1,100)
     self.search.setFocus(Qt.OtherFocusReason)
-    window.show()
+    window.show()    
     
   def timerEvent(self, e):
     if e.timerId() == self.device_detector:
@@ -762,11 +762,15 @@ def main():
     window = QMainWindow()
     def handle_exceptions(t, val, tb):
       sys.__excepthook__(t, val, tb)
-      try: QErrorMessage(window).showMessage("There was an unexpected error: <br>"+"<br>".join(traceback.format_exception(t, val, tb)))
+      try: 
+        qCritical("There was an unexpected error: \n"+"\n".join(traceback.format_exception(t, val, tb)))
       except: pass      
     sys.excepthook = handle_exceptions
     QCoreApplication.setOrganizationName("KovidsBrain")
-    QCoreApplication.setApplicationName("prs500-gui")
+    QCoreApplication.setApplicationName("SONY Reader")
+    handler = QErrorMessage.qtHandler()
+    handler.resize(600, 400)
+    handler.setModal(True)
     gui = MainWindow(window)    
     ret = app.exec_()    
     return ret
