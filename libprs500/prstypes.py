@@ -204,7 +204,7 @@ class Command(TransferBuffer):
   
   Command numbers are:
        0 GetUsbProtocolVersion
-       1 ReqUsbConnect
+       1 ReqEndSession
       
       10 FskFileOpen
       11 FskFileClose
@@ -343,11 +343,11 @@ class DirClose(ShortCommand):
     """ @param id: The identifier returned as a result of a L{DirOpen} command """
     ShortCommand.__init__(self, number=DirClose.NUMBER, type=0x01, command=id)
 
-class USBConnect(ShortCommand):
+class EndSession(ShortCommand):
   """ Ask device to change status to 'USB connected' i.e., tell the device that the present sequence of commands is complete """
   NUMBER=0x1 #: Command number
   def __init__(self):
-    ShortCommand.__init__(self, number=USBConnect.NUMBER, type=0x01, command=0x00)
+    ShortCommand.__init__(self, number=EndSession.NUMBER, type=0x01, command=0x00)
     
 class GetUSBProtocolVersion(ShortCommand):
   """ Get USB Protocol version used by device """

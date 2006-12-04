@@ -20,7 +20,7 @@ from database import LibraryDatabase
 from editbook import EditBookDialog
 
 from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.Qt import QObject, QThread, QCoreApplication, QEventLoop, QString, QStandardItem, QStandardItemModel, QStatusBar, QVariant, QAbstractTableModel, \
+from PyQt4.Qt import QObject, QThread, QCoreApplication, QEventLoop, QString, QTreeWidgetItem, QStandardItemModel, QStatusBar, QVariant, QAbstractTableModel, \
                                    QAbstractItemView, QImage, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog, QSpinBox,\
                                    QPainterPath, QItemDelegate, QPainter, QPen, QColor, QLinearGradient, QBrush, QStyle,\
                                    qInstallMsgHandler, qDebug, qFatal, qWarning, qCritical
@@ -31,7 +31,7 @@ from tempfile import TemporaryFile, NamedTemporaryFile
 from exceptions import Exception as Exception
 import xml.dom.minidom as dom
 from xml.dom.ext import PrettyPrint as PrettyPrint
-from operator import itemgetter
+from operator import itemgetter, attrgetter
 from math import sin, cos, pi
 
 DEFAULT_BOOK_COVER = None
@@ -309,18 +309,15 @@ class LibraryBooksModel(QAbstractTableModel):
     self.db.commit()    
 
 class DeviceBooksModel(QAbstractTableModel):
-  TIME_READ_FMT  = "%a, %d %b %Y %H:%M:%S %Z"  
-  def __init__(self, parent, data):
-    QAbstractTableModel.__init__(self, parent)
-    self._data = data
-    self._orig_data = data
-    self.image_file = None
-  
-  def set_data(self, data):
+  def __init__(self, parent):
+    QAbstractTableModel.__init__(self, parent)  
+    self._data = []
+    self._orig_data = []
+    
+  def set_data(self, book_list):
     self.emit(SIGNAL("layoutAboutToBeChanged()"))
-    self._data = data
-    self._orig_data = data
-    self.sort(0, Qt.DescendingOrder)
+    self._data = book_list
+    self._orig_data = book_list    
     
   def rowCount(self, parent): return len(self._data)
   def columnCount(self, parent): return 4
@@ -341,10 +338,10 @@ class DeviceBooksModel(QAbstractTableModel):
     if role == Qt.DisplayRole:
       row, col = index.row(), index.column()
       book = self._data[row]
-      if col == 0: text = book["title"]
-      elif col == 1: text = book["author"]
-      elif col == 2: text = human_readable(int(book["size"]))
-      elif col == 3: text = time.strftime(TIME_WRITE_FMT, time.strptime(book["date"], self.TIME_READ_FMT))
+      if col == 0: text = wrap(book.title, width=40)
+      elif col == 1: text = re.sub("&\s*","\n", book.author)
+      elif col == 2: text = human_readable(book.size)
+      elif col == 3: text = time.strftime(TIME_WRITE_FMT, book.datetime)
       return QVariant(text)
     elif role == Qt.TextAlignmentRole and index.column() in [2,3]:
       return QVariant(Qt.AlignRight)
@@ -353,7 +350,7 @@ class DeviceBooksModel(QAbstractTableModel):
   def info(self, row):
     row = self._data[row]    
     try:
-      cover = row["thumbnail"]
+      cover = row.thumbnail
       pix = QPixmap()
       self.image_file = NamedTemporaryFile()
       self.image_file.write(cover)
@@ -363,14 +360,14 @@ class DeviceBooksModel(QAbstractTableModel):
     except Exception, e: 
       self.image_file = None
       cover = DEFAULT_BOOK_COVER
-    return row["title"], row["author"], human_readable(int(row["size"])), row["mime"], cover
+    return row.title, row.author, human_readable(row.size), row.mime, cover
   
   def sort(self, col, order):
-    def getter(key, func):  return lambda x : func(itemgetter(key)(x))
+    def getter(key, func):  return lambda x : func(attrgetter(key)(x))
     if col == 0: key, func = "title", string.lower
-    if col == 1: key, func = "author", lambda x : x.split()[-1:][0].lower()
+    if col == 1: key, func = "author", lambda x :  x.split()[-1:][0].lower()
     if col == 2: key, func = "size", int
-    if col == 3: key, func = "date", lambda x: time.mktime(time.strptime(x, self.TIME_READ_FMT))
+    if col == 3: key, func = "datetime", lambda x: x
     descending = order != Qt.AscendingOrder
     self.emit(SIGNAL("layoutAboutToBeChanged()"))
     self._data.sort(key=getter(key, func))
@@ -385,7 +382,7 @@ class DeviceBooksModel(QAbstractTableModel):
     for book in self._orig_data:
       match = True
       for q in queries:
-        if q in book["title"].lower() or q in book["author"].lower(): continue
+        if q in book.title.lower() or q in book.author.lower(): continue
         else:
           match = False
           break
@@ -425,43 +422,34 @@ class MainWindow(QObject, Ui_MainWindow):
       self.current_view = self.device_view
     else: 
       self.device_view.hide(), self.library_view.show()
-      self.current_view = self.device_view
+      self.current_view = self.library_view
+    self.current_view.sortByColumn(3, Qt.DescendingOrder)
       
   
-  def tree_clicked(self, index):    
-    show_device = self.show_device
-    item = self.tree.itemFromIndex(index)
-    text = str(item.text())
-    if text == "Library":
-      show_device(False)
-    elif text == "SONY Reader":
-      show_device(True)
-      self.set_device_data(self.main_books + self.card_books)
-    elif text == "Main Memory":
-      show_device(True)
-      self.set_device_data(self.main_books)
-    elif text == "Storage Card":
-      show_device(True)
-      self.set_device_data(self.card_books)
-    elif text == "Books":
-      text = str(item.parent().text())
-      if text == "Library":
-        show_device(False)        
-      elif text == "Main Memory":
-        show_device(True)
-        self.set_device_data(self.main_books)  
-      elif text == "Storage Card":
-        show_device(True)
-        self.set_data(self.card_books)
+  def tree_clicked(self, item, col):
+    if item:
+      text = str(item.text(0))
+      if text == "Books": text = str(item.parent().text(0))
+      if "Library" in text:
+        self.show_device(False)
+      elif "SONY Reader" in text:
+        self.device_view.setModel(self.reader_model)
+        QObject.connect(self.device_view.selectionModel(), SIGNAL("currentChanged(QModelIndex, QModelIndex)"), self.show_book)
+        self.show_device(True)       
+      elif "Storage Card" in text:
+        self.device_view.setModel(self.card_model)
+        QObject.connect(self.device_view.selectionModel(), SIGNAL("currentChanged(QModelIndex, QModelIndex)"), self.show_book)
+        self.show_device(True)
+        
   
   def set_device_data(self, data): 
-    self.device_model.set_data(data) 
+    model.set_data(data) 
     self.device_view.resizeColumnsToContents()
   
   def model_modified(self):
     if self.library_view.isVisible(): view = self.library_view
     else: view = self.device_view
-    view.clearSelection()
+    view.clearSelection()    
     view.resizeColumnsToContents()
     self.book_cover.hide()
     self.book_info.hide()
@@ -518,7 +506,7 @@ class MainWindow(QObject, Ui_MainWindow):
           else: self.cache_xml = file
         for path in paths:
           self.dev.del_file(path)
-          self.device_model.delete_by_path(path)        
+          model.delete_by_path(path)        
         self.cache_xml.seek(0)
         self.main_xml.seek(0)
         self.status("Files deleted. Updating media list on device")
@@ -588,11 +576,11 @@ class MainWindow(QObject, Ui_MainWindow):
   def show_error(self, e, msg): 
     QErrorMessage(self.window).showMessage(msg+"<br><b>Error: </b>"+str(e)+"<br><br>Traceback:<br>"+traceback.format_exc(e))
   
-  def __init__(self, window):
+  def __init__(self, window, log_packets):
     QObject.__init__(self)
     Ui_MainWindow.__init__(self)
   
-    self.dev = device(report_progress=self.progress)
+    self.dev = device(report_progress=self.progress, log_packets=log_packets)
     self.is_connected = False    
     self.setupUi(window)
     self.card = None
@@ -618,52 +606,58 @@ class MainWindow(QObject, Ui_MainWindow):
     QObject.connect(self.library_model, SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.resize_columns)
     self.library_view.resizeColumnsToContents()
     
-    # Create Device list
-    self.tree = QStandardItemModel()
-    library = QStandardItem(QString("Library"))
-    library.setIcon(QIcon(":/library"))
-    font = library.font()
-    font.setBold(True)    
-    self.tree.appendRow(library)
-    library.setFont(font)
-    library.appendRow(QStandardItem(QString("Books")))
-    blank = QStandardItem(" ")
-    blank.setEnabled(False)
-    self.tree.appendRow(blank)
-    self.reader = QStandardItem(QString("SONY Reader"))    
-    mm = QStandardItem(QString("Main Memory"))
-    mm.appendRow(QStandardItem(QString("Books")))
-    self.reader.appendRow(mm)
-    mc = QStandardItem(QString("Storage Card"))
-    mc.appendRow(QStandardItem(QString("Books")))
-    self.reader.appendRow(mc)
-    self.reader.setIcon(QIcon(":/reader"))
-    self.tree.appendRow(self.reader)
-    self.reader.setFont(font)
-    self.treeView.setModel(self.tree)    
-    self.treeView.header().hide()
-    self.treeView.setExpanded(library.index(), True)
-    self.treeView.setExpanded(self.reader.index(), True)
-    self.treeView.setExpanded(mm.index(), True)
-    self.treeView.setExpanded(mc.index(), True)
-    self.treeView.setRowHidden(2, self.tree.invisibleRootItem().index(), True)
-    QObject.connect(self.treeView, SIGNAL("activated(QModelIndex)"),  self.tree_clicked)
-    QObject.connect(self.treeView, SIGNAL("clicked(QModelIndex)"),  self.tree_clicked)
+    # Create Device tree
+    QObject.connect(self.device_tree, SIGNAL("itemClicked ( QTreeWidgetItem *, int )"), self.tree_clicked)
+    QObject.connect(self.device_tree, SIGNAL("itemActivated ( QTreeWidgetItem *, int )"), self.tree_clicked)
+    self.device_tree.header().hide()    
+    library = QTreeWidgetItem(self.device_tree, QTreeWidgetItem.Type)
+    library.setData(0, Qt.DisplayRole, QVariant("Library"))
+    library.setData(0, Qt.DecorationRole, QVariant(QIcon(":/library")))
+    books =QTreeWidgetItem(library, QTreeWidgetItem.Type)
+    books.setData(0, Qt.DisplayRole, QVariant("Books"))
+    self.device_tree.expandItem(library)    
+    buffer = QTreeWidgetItem(self.device_tree, QTreeWidgetItem.Type)
+    buffer.setFlags(Qt.ItemFlags())
+    library = QTreeWidgetItem(self.device_tree, QTreeWidgetItem.Type)
+    library.setData(0, Qt.DisplayRole, QVariant("SONY Reader"))
+    library.setData(0, Qt.DecorationRole, QVariant(QIcon(":/reader")))
+    books =QTreeWidgetItem(library, QTreeWidgetItem.Type)
+    books.setData(0, Qt.DisplayRole, QVariant("Books"))
+    self.device_tree.expandItem(library)    
+    buffer = QTreeWidgetItem(self.device_tree, QTreeWidgetItem.Type)
+    buffer.setFlags(Qt.ItemFlags())
+    library = QTreeWidgetItem(self.device_tree, QTreeWidgetItem.Type)
+    library.setData(0, Qt.DisplayRole, QVariant("Storage Card"))
+    library.setData(0, Qt.DecorationRole, QVariant(QIcon(":/card")))
+    books =QTreeWidgetItem(library, QTreeWidgetItem.Type)
+    books.setData(0, Qt.DisplayRole, QVariant("Books"))
+    self.device_tree.expandItem(library)    
+    self.device_tree.reader = self.device_tree.topLevelItem(2)
+    self.device_tree.card = self.device_tree.topLevelItem(4)
+    def hider(i):
+      def do(s, x): s.topLevelItem(i).setHidden(x), s.topLevelItem(i+1).setHidden(x)
+      return do
+    self.device_tree.hide_reader = hider(1)
+    self.device_tree.hide_card = hider(3)
+    self.device_tree.hide_reader(self.device_tree, True)
+    self.device_tree.hide_card(self.device_tree, True)
+    
     
     # Create Device Book list
-    self.device_model = DeviceBooksModel(window, [])    
-    self.device_view.setModel(self.device_model)
+    self.reader_model = DeviceBooksModel(window)    
+    self.card_model = DeviceBooksModel(window)    
+    self.device_view.setModel(self.reader_model)
     self.device_view.setSelectionBehavior(QAbstractItemView.SelectRows)
     self.device_view.setSortingEnabled(True)
     self.device_view.contextMenuEvent = self.list_context_event
-    QObject.connect(self.device_model, SIGNAL("layoutChanged()"), self.device_view.resizeRowsToContents)
     QObject.connect(self.device_view.selectionModel(), SIGNAL("currentChanged(QModelIndex, QModelIndex)"), self.show_book)
-    QObject.connect(self.search, SIGNAL("textChanged(QString)"), self.device_model.search)
-    QObject.connect(self.device_model, SIGNAL("sorted()"), self.model_modified)
-    QObject.connect(self.device_model, SIGNAL("searched()"), self.model_modified)
-    QObject.connect(self.device_model, SIGNAL("deleted()"), self.model_modified)
-    QObject.connect(self.device_model, SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.resize_columns)
-    self.device_view.hide()
+    for model in (self.reader_model, self. card_model):
+      QObject.connect(model, SIGNAL("layoutChanged()"), self.device_view.resizeRowsToContents)
+      QObject.connect(self.search, SIGNAL("textChanged(QString)"), model.search)
+      QObject.connect(model, SIGNAL("sorted()"), self.model_modified)
+      QObject.connect(model, SIGNAL("searched()"), self.model_modified)
+      QObject.connect(model, SIGNAL("deleted()"), self.model_modified)
+      QObject.connect(model, SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.resize_columns)
     
     # Setup book display
     self.BOOK_TEMPLATE = self.book_info.text()    
@@ -679,6 +673,7 @@ class MainWindow(QObject, Ui_MainWindow):
     self.device_detector = self.startTimer(1000)
     self.splitter.setStretchFactor(1,100)
     self.search.setFocus(Qt.OtherFocusReason)
+    self.show_device(False)
     window.show()    
     
   def timerEvent(self, e):
@@ -692,13 +687,13 @@ class MainWindow(QObject, Ui_MainWindow):
   def device_removed(self, timeout=False):
     """ @todo: only reset stuff if library is not shown """
     self.is_connected = False
-    self.df.setText("Main memory: <br><br>Storage card:")
-    self.card = None
-    self.treeView.setRowHidden(2, self.tree.invisibleRootItem().index(), True)
-    self.device_model.set_data([])
+    self.df.setText("SONY Reader: <br><br>Storage card:")
+    self.device_tree.hide_reader(self.device_tree, True)
+    self.device_tree.hide_card(self.device_tree, True)
     self.book_cover.hide()
     self.book_info.hide()
     self.device_view.hide()
+    self.library_view.show()
     
   
   def timeout_error(self):
@@ -715,6 +710,7 @@ class MainWindow(QObject, Ui_MainWindow):
     self.progress_bar.setMaximum(100)
     self.progress_bar.reset()
     self.progress_bar.setFormat(msg + ": %p%")
+    self.progress(0)
     QCoreApplication.processEvents(QEventLoop.ExcludeUserInputEvents)
   
   def establish_connection(self):
@@ -722,39 +718,38 @@ class MainWindow(QObject, Ui_MainWindow):
     self.status("Connecting to device")    
     try:
       space = self.dev.available_space()
-    except TimeoutError:
-      c = 0
-      self.status("Waiting for device to initialize")
-      while c < 100: # Delay for 10s while device is initializing
-        if c % 10 == c/10:
-          self.progress(c)
-        QThread.currentThread().msleep(100)
-        c += 1   
-      space = self.dev.available_space()    
+    except DeviceError:
+      self.dev.reconnect()
+      return    
+    except ProtocolError, e: 
+      traceback.print_exc(e)
+      print >> sys.stderr, "Unable to connect device. Please try unplugiing and reconnecting it"
+      qFatal("Unable to connect device. Please try unplugiing and reconnecting it")
+      
     sc = space[1][1] if space[1][1] else space[2][1]
-    self.df.setText("Main memory:  " + human_readable(space[0][1]) + "<br><br>Storage card: " + human_readable(sc))
+    self.df.setText("SONY Reader:  " + human_readable(space[0][1]) + "<br><br>Storage card: " + human_readable(sc))
     self.is_connected = True
-    if space[1][2] > 0: self.card = "a:"
-    elif space[2][2] > 0: self.card = "b:"
-    else: self.card = None
-    if self.card: self.treeView.setRowHidden(1, self.reader.index(), False)
-    else: self.treeView.setRowHidden(1, self.reader.index(), True)
-    self.treeView.setRowHidden(2, self.tree.invisibleRootItem().index(), False)
-    self.status("Loading media list from device")
-    mb, cb, mx, cx = self.dev.books()    
-    
-    for x in (mb, cb):
-      for book in x:
-        if "&" in book["author"]:
-          book["author"] = re.sub(r"&\s*", r"\n", book["author"])
-          
-    self.main_books = mb
-    self.card_books = cb
-    self.main_xml = mx
-    self.cache_xml = cx
+    if space[1][2] > 0: card = "a:"
+    elif space[2][2] > 0: card = "b:"
+    else: card = None
+    if card: self.device_tree.hide_card(self.device_tree, False)
+    else: self.device_tree.hide_card(self.device_tree, True)
+    self.device_tree.hide_reader(self.device_tree, False)
+    self.status("Loading media list from SONY Reader")
+    self.reader_model.set_data(self.dev.books())
+    if card: self.status("Loading media list from Storage Card")
+    self.card_model.set_data(self.dev.books(oncard=True))
+    self.progress(100)
     self.window.setCursor(Qt.ArrowCursor)
     
 def main():
+    from optparse import OptionParser
+    from libprs500 import __version__ as VERSION
+    parser = OptionParser(usage="usage: %prog [options]", version=VERSION)
+    parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
+                    "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", \
+                    dest="log_packets", action="store_true", default=False)
+    options, args = parser.parse_args()
     from PyQt4.Qt import QApplication, QMainWindow
     app = QApplication(sys.argv)
     global DEFAULT_BOOK_COVER
@@ -771,7 +766,7 @@ def main():
     handler = QErrorMessage.qtHandler()
     handler.resize(600, 400)
     handler.setModal(True)
-    gui = MainWindow(window)    
+    gui = MainWindow(window, options.log_packets)    
     ret = app.exec_()    
     return ret
     

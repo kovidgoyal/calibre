@@ -133,17 +133,22 @@ class PRS500Device(object):
   PRS500_BULK_OUT_EP  = 0x02   #: Endpoint for Bulk writes
   MEDIA_XML  = "/Data/database/cache/media.xml"  #: Location of media.xml file on device
   CACHE_XML = "/Sony Reader/database/cache.xml" #: Location of cache.xml on storage card in device
+  
+  device_descriptor = DeviceDescriptor(SONY_VENDOR_ID, PRS500_PRODUCT_ID, PRS500_INTERFACE_ID)
+    
 
   def safe(func):
     """ 
     Decorator that wraps a call to C{func} to ensure that exceptions are handled correctly. 
     It also calls L{open} to claim the interface and initialize the Reader if needed.
     
-    As a convenience, C{safe} automatically sends the a L{USBConnect} after calling func, unless func has
+    As a convenience, C{safe} automatically sends the a L{EndSession} after calling func, unless func has
     a keyword argument named C{end_session} set to C{False}.
     
-    An L{ArgumentError} will cause the L{USBConnect} command to be sent to the device, unless end_session is set to C{False}.
+    An L{ArgumentError} will cause the L{EndSession} command to be sent to the device, unless end_session is set to C{False}.
     An L{usb.USBError} will cause the library to release control of the USB interface via a call to L{close}.
+    
+    @todo: Fix handling of timeout errors
     """
     def run_session(*args, **kwargs):
       dev = args[0]      
@@ -153,17 +158,21 @@ class PRS500Device(object):
         res = func(*args, **kwargs)
       except ArgumentError, e:
         if not kwargs.has_key("end_session") or kwargs["end_session"]:
-          dev._send_validated_command(USBConnect())        
+          dev._send_validated_command(EndSession())        
         raise e
       except usb.USBError, e:
         if "No such device" in str(e):
           raise DeviceError()
-        elif "Connection timed out" in str(e):
+        elif "Connection timed out" in str(e):           
+          dev.close()
           raise TimeoutError(func.__name__)
+        elif "Protocol error" in str(e):    
+          dev.close()
+          raise ProtocolError("There was an unknown error in the protocol. Contact the developer.")
         dev.close()
         raise e
       if not kwargs.has_key("end_session") or kwargs["end_session"]:
-        dev._send_validated_command(USBConnect())
+        dev._send_validated_command(EndSession())
       return res
       
     return run_session
@@ -174,16 +183,23 @@ class PRS500Device(object):
     @param: report_progress: Function that is called with a % progress (number between 0 and 100) for various tasks
                                                If it is called with -1 that means that the task does not have any progress information
     """
-    self.device_descriptor = DeviceDescriptor(PRS500Device.SONY_VENDOR_ID,
-                                              PRS500Device.PRS500_PRODUCT_ID,
-                                              PRS500Device.PRS500_INTERFACE_ID)
     self.device = self.device_descriptor.getDevice() #: The actual device (PyUSB object)
     self.handle = None                               #: Handle that is used to communicate with device. Setup in L{open}
     self._log_packets = log_packets
     self.report_progress = report_progress
     
-  def is_connected(self):
-    return self.device_descriptor.getDevice() != None
+  def reconnect(self):
+    self.device = self.device_descriptor.getDevice()
+    self.handle = None
+  
+  @classmethod
+  def is_connected(cls):
+    """ 
+    This method checks to see whether the device is physically connected. 
+    It does not return any information about the validity of the software connection. You may need to call L{reconnect} if you keep
+    getting L{DeviceError}.
+    """
+    return cls.device_descriptor.getDevice() != None
   
   @classmethod
   def _validate_response(cls, res, type=0x00, number=0x00):
@@ -205,7 +221,7 @@ class PRS500Device(object):
       raise DeviceError()
     self.handle = self.device.open()
     self.handle.claimInterface(self.device_descriptor.interface_id)
-    res = self._send_validated_command(GetUSBProtocolVersion())
+    res = self._send_validated_command(GetUSBProtocolVersion(), timeout=10000) # Large timeout as device mat still be initializing
     if res.code != 0: raise ProtocolError("Unable to get USB Protocol version.")
     version = self._bulk_read(24, data_type=USBProtocolVersion)[0].version
     if version not in KNOWN_USB_PROTOCOL_VERSIONS:
@@ -216,12 +232,12 @@ class PRS500Device(object):
     if res.code != 0: 
       raise ProtocolError("Unlocking of device not implemented. Remove locking and retry.")
     
-    
   def close(self):    
     """ Release device interface """
+    self.handle.reset()
     self.handle.releaseInterface()
     self.handle, self.device = None, None
-
+    
   def _send_command(self, command, response_type=Response, timeout=1000):
     """ 
     Send L{command<Command>} to device and return its L{response<Response>}. 

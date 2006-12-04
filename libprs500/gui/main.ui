@@ -53,36 +53,30 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QTreeView" name="treeView" >
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>1</hsizetype>
-            <vsizetype>7</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="acceptDrops" >
-           <bool>true</bool>
-          </property>
-          <property name="frameShadow" >
-           <enum>QFrame::Plain</enum>
-          </property>
-          <property name="verticalScrollBarPolicy" >
-           <enum>Qt::ScrollBarAsNeeded</enum>
-          </property>
-          <property name="autoScroll" >
-           <bool>false</bool>
+         <widget class="QTreeWidget" name="device_tree" >
+          <property name="dragDropMode" >
+           <enum>QAbstractItemView::DropOnly</enum>
           </property>
           <property name="alternatingRowColors" >
            <bool>true</bool>
           </property>
-          <property name="indentation" >
-           <number>15</number>
+          <property name="rootIsDecorated" >
+           <bool>false</bool>
           </property>
-          <property name="uniformRowHeights" >
+          <property name="animated" >
            <bool>true</bool>
           </property>
+          <property name="allColumnsShowFocus" >
+           <bool>true</bool>
+          </property>
+          <property name="columnCount" >
+           <number>1</number>
+          </property>
+          <column>
+           <property name="text" >
+            <string>1</string>
+           </property>
+          </column>
          </widget>
         </item>
         <item>
@@ -299,7 +293,7 @@
     <string>Add files to Library</string>
    </property>
    <property name="shortcut" >
-    <string>a</string>
+    <string>A</string>
    </property>
    <property name="autoRepeat" >
     <bool>false</bool>
@@ -313,7 +307,7 @@
     <string>Delete selected items</string>
    </property>
    <property name="shortcut" >
-    <string>Delete</string>
+    <string>Del</string>
    </property>
   </action>
   <action name="action_edit" >
@@ -324,7 +318,7 @@
     <string>Edit meta-information for the currently selected items</string>
    </property>
    <property name="shortcut" >
-    <string>e</string>
+    <string>E</string>
    </property>
    <property name="autoRepeat" >
     <bool>false</bool>

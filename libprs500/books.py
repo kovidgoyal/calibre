@@ -16,6 +16,7 @@
 from xml.dom.ext import PrettyPrint as PrettyPrint
 import xml.dom.minidom as dom
 from base64 import b64decode as decode
+import time
 
 class book_metadata_field(object):
   def __init__(self, attr, formatter=None): 
@@ -27,7 +28,7 @@ class book_metadata_field(object):
 
 class Book(object):
     title               = book_metadata_field("title")
-    author          = book_metadata_field("author")
+    author          = book_metadata_field("author", formatter=lambda x: x if x.strip() else "Unknown")
     mime           = book_metadata_field("mime")
     rpath            = book_metadata_field("path")
     id                  = book_metadata_field("id", formatter=int)
