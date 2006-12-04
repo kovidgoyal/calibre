@@ -220,7 +220,8 @@ class LibraryBooksModel(QAbstractTableModel):
       self.image_file.write(cover)
       self.image_file.flush()
       pix.loadFromData(cover, "", Qt.AutoColor)
-      cover = pix.scaledToHeight(COVER_HEIGHT, Qt.SmoothTransformation)
+      if not pix.isNull(): cover = pix.scaledToHeight(COVER_HEIGHT, Qt.SmoothTransformation)
+      else: self.image_file, cover = None, DEFAULT_BOOK_COVER
     return row["title"], row["authors"], human_readable(int(row["size"])), exts, cover
   
   def id_from_index(self, index): return self._data[index.row()]["id"]
@@ -296,18 +297,24 @@ class LibraryBooksModel(QAbstractTableModel):
     
   def delete(self, indices):
     if len(indices): self.emit(SIGNAL("layoutAboutToBeChanged()"))
-    for index in indices:
-      id = self.id_from_index(index)
+    items = [ self._data[index.row()] for index in indices ]    
+    for item in items:
+      id = item["id"]
+      try:
+        self._data.remove(item)
+      except ValueError: continue
       self.db.delete_by_id(id)
-      row = index.row()
-      self._data[row:row+1] = []
-      for i in range(len(self._orig_data)):
-        if self._orig_data[i]["id"] == id: 
-          self._orig_data[i:i+1] = []
-          i -=1
+      for x in self._orig_data:
+        if x["id"] == id: self._orig_data.remove(x)
     self.emit(SIGNAL("layoutChanged()"))
+    self.emit(SIGNAL("deleted()"))
     self.db.commit()    
 
+  def add_book(self, path):
+    """ Must call search and sort after this """
+    id = self.db.add_book(path)    
+    self._orig_data.append(self.db.get_row_by_id(id, self.FIELDS))
+    
 class DeviceBooksModel(QAbstractTableModel):
   def __init__(self, parent):
     QAbstractTableModel.__init__(self, parent)  
@@ -404,8 +411,8 @@ class DeviceBooksModel(QAbstractTableModel):
     self.emit(SIGNAL("layoutChanged()"))
     self.emit(SIGNAL("deleted()"))
     
-  def path(self, index):  return self._data[index.row()]["path"]
-  def title(self, index):  return self._data[index.row()]["title"]
+  def path(self, index):  return self._data[index.row()].path
+  def title(self, index):  return self._data[index.row()].title
     
     
 
@@ -440,11 +447,6 @@ class MainWindow(QObject, Ui_MainWindow):
         self.device_view.setModel(self.card_model)
         QObject.connect(self.device_view.selectionModel(), SIGNAL("currentChanged(QModelIndex, QModelIndex)"), self.show_book)
         self.show_device(True)
-        
-  
-  def set_device_data(self, data): 
-    model.set_data(data) 
-    self.device_view.resizeColumnsToContents()
   
   def model_modified(self):
     if self.library_view.isVisible(): view = self.library_view
@@ -479,13 +481,18 @@ class MainWindow(QObject, Ui_MainWindow):
   
   
   def delete(self, action):
-    if self.device_view.isVisible():
+    count = str(len(self.current_view.selectionModel().selectedRows()))
+    ret = QMessageBox.question(self.window, self.trUtf8("SONY Reader - confirm"),  self.trUtf8("Are you sure you want to <b>permanently delete</b> these ") +count+self.trUtf8(" items?"), QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+    if ret != QMessageBox.Yes: return
+    self.window.setCursor(Qt.WaitCursor)
+    if self.library_view.isVisible():
+      self.library_model.delete(self.library_view.selectionModel().selectedRows())
+    else:
       rows   = self.device_view.selectionModel().selectedRows()
       items = [ row.model().title(row) + ": " +  row.model().path(row)[row.model().path(row).rfind("/")+1:] for row in rows ]
-      ret = QMessageBox.question(self.window, self.trUtf8("SONY Reader - confirm"),  self.trUtf8("Are you sure you want to delete these items from the device?\n\n") + "\n".join(items), 
-               QMessageBox.YesToAll | QMessageBox.No, QMessageBox.YesToAll)
+       
       if ret == QMessageBox.YesToAll:
-        self.window.setCursor(Qt.WaitCursor)
+        
         paths, mc, cc = [], False, False
         for book in rows:
           path = book.model().path(book)
@@ -516,10 +523,10 @@ class MainWindow(QObject, Ui_MainWindow):
         if cc: 
           self.dev.del_file(self.card+self.dev.CACHE_XML)
           self.dev.put_file(self.cache_xml, self.card+self.dev.CACHE_XML)
-      self.window.setCursor(Qt.ArrowCursor)
-    else:      
-      self.library_model.delete(self.library_view.selectionModel().selectedRows())
-  
+      
+      
+    self.window.setCursor(Qt.ArrowCursor)
+    
   def read_settings(self):
     settings = QSettings()
     settings.beginGroup("MainWindow")
@@ -547,20 +554,13 @@ class MainWindow(QObject, Ui_MainWindow):
       files = str(files.join("|||")).split("|||")      
       for file in files:
         file = os.path.abspath(file)
-        title, author, cover, publisher = None, None, None, None
-        if ext == "lrf":
-          try: 
-            lrf = LRFMetaFile(open(file, "r+b"))
-            title = lrf.title
-            author = lrf.author
-            publisher = lrf.publisher
-            cover = lrf.thumbnail
-            if "unknown" in author.lower(): author = None
-          except IOError, e:
-            self.show_error(e, "Unable to access <b>"+file+"</b>")
-            return
-          except LRFException: pass
-          self.library_model.add(file, title, author, publisher, cover)
+        self.library_view.model().add_book(file)
+        self.search.clear()
+        hv = self.library_view.horizontalHeader()
+        col = hv.sortIndicatorSection()
+        order = hv.sortIndicatorOrder()
+        self.library_view.model().sort(col, order)
+      
       
   def edit(self, action):    
     if self.library_view.isVisible():
@@ -694,11 +694,6 @@ class MainWindow(QObject, Ui_MainWindow):
     self.book_info.hide()
     self.device_view.hide()
     self.library_view.show()
-    
-  
-  def timeout_error(self):
-    """ @todo: display error dialog """
-    pass
   
   def progress(self, val):
     if val < 0:
@@ -723,8 +718,8 @@ class MainWindow(QObject, Ui_MainWindow):
       return    
     except ProtocolError, e: 
       traceback.print_exc(e)
-      print >> sys.stderr, "Unable to connect device. Please try unplugiing and reconnecting it"
-      qFatal("Unable to connect device. Please try unplugiing and reconnecting it")
+      print >> sys.stderr, "Unable to connect to device. Please try unplugging and reconnecting it"
+      qFatal("Unable to connect to device. Please try unplugging and reconnecting it")
       
     sc = space[1][1] if space[1][1] else space[2][1]
     self.df.setText("SONY Reader:  " + human_readable(space[0][1]) + "<br><br>Storage card: " + human_readable(sc))
@@ -755,17 +750,8 @@ def main():
     global DEFAULT_BOOK_COVER
     DEFAULT_BOOK_COVER = QPixmap(":/default_cover")
     window = QMainWindow()
-    def handle_exceptions(t, val, tb):
-      sys.__excepthook__(t, val, tb)
-      try: 
-        qCritical("There was an unexpected error: \n"+"\n".join(traceback.format_exception(t, val, tb)))
-      except: pass      
-    sys.excepthook = handle_exceptions
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName("SONY Reader")
-    handler = QErrorMessage.qtHandler()
-    handler.resize(600, 400)
-    handler.setModal(True)
     gui = MainWindow(window, options.log_packets)    
     ret = app.exec_()    
     return ret

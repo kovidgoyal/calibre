@@ -56,6 +56,7 @@ class LibraryDatabase(object):
     id =  self.con.execute("select max(id) from books_meta").next()[0]    
     self.con.execute("insert into books_data values (?,?,?)", (id, ext, sqlite.Binary(file)))
     self.con.commit()
+    return id
     
   def get_row_by_id(self, id, columns):
     """ @param columns: list of column names """
