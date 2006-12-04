@@ -203,16 +203,10 @@ def main():
                                      str(0 if datum[2]==0 else int(100*(datum[2]-datum[1])/(datum[2]*1.)))+"%"
         print "%-10s\t%s\t%s\t%s\t%s"%(datum[0], total, used, free, percent)
     elif command == "books":
-      main, card, d1, d2 = dev.books()
-      d1.close()
-      d2.close()
       print "Books in main memory:"
-      for book in main:
-        print book
-      print
-      print "Books on storage card:"
-      for book in card:
-        print book
+      for book in dev.books(): print book
+      print "\nBooks on storage card:"
+      for book in dev.books(oncard=True): print book      
     elif command == "mkdir":
       parser = OptionParser(usage="usage: %prog mkdir [options] path\n\npath must begin with /,a:/ or b:/")
       if len(args) != 1:

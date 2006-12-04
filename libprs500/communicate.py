@@ -45,15 +45,12 @@ Contains the logic for communication with the device (a SONY PRS-500).
 The public interface of class L{PRS500Device} defines the methods for performing various tasks. 
 """
 import usb, sys, os, time
-from base64 import b64decode as decode
 from tempfile import TemporaryFile
 from array import array
-from xml.sax.handler import ContentHandler
-from xml.sax import make_parser
-from xml.sax.handler import feature_namespaces
 
-from prstypes import *
-from errors import *
+from libprs500.prstypes import *
+from libprs500.errors import *
+from libprs500.books import *
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 _packet_number = 0     #: Keep track of the packet number of packet tracing
@@ -67,53 +64,6 @@ def _log_packet(packet, header, stream=sys.stderr):
   print >>stream, packet
   print >>stream, "--"
 
-class FindBooks(ContentHandler):
-  """ Used to parse the cache.xml/media.xml files on the PRS 500 """
-  class Book(dict):
-    def __init__(self, src):
-      dict.__init__(self, src)
-      if not self.has_key("author") or len(self["author"].rstrip()) == 0:
-        self["author"] = u"Unknown"
-      self["title"] = self["title"].strip()
-      self["author"] = self["author"]
-        
-    def __repr__(self):      
-      return self["title"] + " by " + self["author"] + " at " + self["path"]
-      
-    def __str__(self):
-      return self.__repr__()
-      
-  def __init__(self, type="media", root="/Data/media/"):
-    ContentHandler.__init__(self)
-    self.books = []
-    self.root  = root
-    self.thumbnail = ""
-    self.in_book = False
-    self.in_thumbnail = False
-    self.book_name = "text"
-    self.thumbnail_name = "thumbnail"
-    if type == "media":
-      self.book_name = "xs1:" + self.book_name
-      self.thumbnail_name = "xs1:" + self.thumbnail_name
-
-  def startElement(self, name, attrs):
-    if name == self.book_name:
-      data = FindBooks.Book(attrs)
-      data["path"] = unicode(self.root + data["path"])
-      self.books.append(data)
-      self.in_book = True
-    elif self.in_book and name == self.thumbnail_name:
-      self.in_thumbnail = True
-
-  def characters(self, ch):
-    if self.in_thumbnail:
-      self.thumbnail += ch
-      
-  def endElement(self, name):
-    if self.in_book and name == self.thumbnail_name:
-      if len(self.books) > 0: self.books[len(self.books)-1]["thumbnail"] = decode(self.thumbnail)
-      self.thumbnail, self.in_thumbnail = "", False
-    elif name == self.book_name: self.in_book = False
 
 
 class File(object):
@@ -605,47 +555,26 @@ class PRS500Device(object):
         raise ProtocolError("Failed to delete directory " + path + ". Response code: " + hex(res.code))
         
   @safe
-  def books(self):
+  def books(self, oncard=False):
     """ 
-    Return a list of all ebooks on the device 
+    Return a list of ebooks on the device.
+    @param oncard: If True return a list of ebookson the storage card, otherwise return list of ebooks in main memory of device
     
-    @return: A four element tuple. The first element is the books in the main memory and the second is the books on the storage card.
-             The first two elements are each a list of dictionaries. If there is no card the second list is empty. 
-             Important fields in each dictionary are "title", "author", "path" and "thumbnail". 
-             The third and fourth elements are the temporary files that hold main.xml and cache.xml
-    """
-    main_xml, cache_xml = TemporaryFile(), TemporaryFile()
-    self.get_file(self.MEDIA_XML, main_xml, end_session=False)
-    root = "a:/"
-    try:
-      self.get_file("a:"+self.CACHE_XML, cache_xml, end_session=False)
-    except PathError:
+    @return: L{BookList}
+    """    
+    root = "/Data/media/"
+    prefix = "xs1:"
+    file = TemporaryFile()
+    if oncard:      
+      prefix=""
       try:
-        self.get_file("b:"+self.CACHE_XML, cache_xml, end_session=False)
-        root = "b:/"
-      except PathError: 
-        pass
-    parser = make_parser()
-    parser.setFeature(feature_namespaces, 0)
-    finder = FindBooks()
-    parser.setContentHandler(finder)
-    main_xml.seek(0)
-    parser.parse(main_xml)
-    books = finder.books
-        
-    cbooks = []    
-    if cache_xml.tell() > 0:
-      finder = FindBooks(type="cache", root=root)
-      cache_xml.seek(0)
-      parser.setContentHandler(finder)
-      parser.parse(cache_xml)
-      cbooks = finder.books
-    return books, cbooks, main_xml, cache_xml
-    
-
-
-##dev = PRS500Device(log_packets=False)
-##dev.open()
-##print dev.books()
-##dev.close()
-
+        self.get_file("a:"+self.CACHE_XML, file, end_session=False)
+        root = "a:/"
+      except PathError:
+        try:
+          self.get_file("b:"+self.CACHE_XML, file, end_session=False)
+          root = "b:/"
+        except PathError:  pass
+      if file.tell() == 0: file = None
+    else: self.get_file(self.MEDIA_XML, file, end_session=False)      
+    return BookList(prefix=prefix, root=root, file=file)
