@@ -89,6 +89,9 @@ class MainWindow(QObject, Ui_MainWindow):
     self.book_cover.show()
     self.book_info.show()
   
+  def formats_added(self, index):
+    if index == self.library_view.currentIndex():
+      self.show_book(index, index)
   
   def delete(self, action):
     count = str(len(self.current_view.selectionModel().selectedRows()))
@@ -162,15 +165,18 @@ class MainWindow(QObject, Ui_MainWindow):
       x = str(files[0])
       settings.setValue("add books dialog dir", QVariant(os.path.dirname(x)))
       files = str(files.join("|||")).split("|||")      
-      for file in files:
-        file = os.path.abspath(file)
-        self.library_view.model().add_book(file)
-        self.search.clear()
-        hv = self.library_view.horizontalHeader()
-        col = hv.sortIndicatorSection()
-        order = hv.sortIndicatorOrder()
-        self.library_view.model().sort(col, order)
-      
+    self.add_books(files)
+    
+  def add_books(self, files):    
+    for file in files:
+      file = os.path.abspath(file)
+      self.library_view.model().add_book(file)
+      self.search.clear()
+      hv = self.library_view.horizontalHeader()
+      col = hv.sortIndicatorSection()
+      order = hv.sortIndicatorOrder()
+      self.library_view.model().sort(col, order)
+    
       
   def edit(self, action):    
     if self.library_view.isVisible():
@@ -217,6 +223,8 @@ class MainWindow(QObject, Ui_MainWindow):
     QObject.connect(self.library_model, SIGNAL("searched()"), self.model_modified)
     QObject.connect(self.library_model, SIGNAL("deleted()"), self.model_modified)    
     QObject.connect(self.library_model, SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.resize_columns)
+    QObject.connect(self.library_view, SIGNAL('books_dropped'), self.add_books)
+    QObject.connect(self.library_model, SIGNAL('formats_added'), self.formats_added)
     self.library_view.resizeColumnsToContents()
     
     # Create Device tree

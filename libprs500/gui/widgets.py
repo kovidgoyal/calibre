@@ -16,11 +16,10 @@
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QApplication, QString, QFont, QStandardItemModel, QStandardItem, QVariant, QAbstractTableModel, QTableView, QTreeView, QLabel,\
-                                   QAbstractItemView, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog, QSpinBox, QPoint, QTemporaryFile, QDir,\
+                                   QAbstractItemView, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog, QSpinBox, QPoint, QTemporaryFile, QDir, QFile, QIODevice,\
                                    QPainterPath, QItemDelegate, QPainter, QPen, QColor, QLinearGradient, QBrush, QStyle,\
-                                   QStringList, QByteArray, QBuffer, QMimeData, QTextStream, QIODevice, QDrag,\
-                                   qDebug, qFatal, qWarning, qCritical
-import re, os, string, textwrap, time, traceback
+                                   QStringList, QByteArray, QBuffer, QMimeData, QTextStream, QIODevice, QDrag, QRect                     
+import re, os, string, textwrap, time, traceback, sys
 
 from operator import itemgetter, attrgetter
 from socket import gethostname
@@ -48,25 +47,11 @@ def human_readable(size):
 def wrap(s, width=20):
   return textwrap.fill(str(s), width) 
 
-def get_r_ok_files(event):
-  """ @type event: QDropEvent """
-  files = []
-  md = event.mimeData()
-  if md.hasFormat("text/uri-list"):
-    candidates = bytes_to_string(md.data("text/uri-list")).split("\n")
-    print candidates
-    for path in candidates:
-      path = os.path.abspath(re.sub(r"^file://", "", path))
-      if os.path.isfile(path) and os.access(path, os.R_OK): files.append(path)
-  return files
-  
 
-def bytes_to_string(qba):
-  """ @type qba: QByteArray """
-  return unicode(QString.fromUtf8(qba.data())).strip()
 
 class FileDragAndDrop(object):
   _drag_start_position = QPoint()
+  _dragged_files = []
   
   @classmethod
   def _bytes_to_string(cls, qba):
@@ -80,13 +65,13 @@ class FileDragAndDrop(object):
     if md.hasFormat("text/uri-list"):
       candidates = cls._bytes_to_string(md.data("text/uri-list")).split()
       for url in candidates:
-        o = urlparse(url)
-        if o.scheme != 'file':
-          qWarning(o.scheme + " not supported in drop events")
+        o = urlparse(url)        
+        if o.scheme and o.scheme != 'file':
+          print >>sys.stderr, o.scheme,  " not supported in drop events"
           continue
         path = unquote(o.path)
         if not os.access(path, os.R_OK):
-          qWarning("You do not have read permission for: " + path)
+          print >>sys.stderr, "You do not have read permission for: " + path
           continue
         if os.path.isdir(path):
           root, dirs, files2 = os.walk(path)
@@ -95,15 +80,22 @@ class FileDragAndDrop(object):
             if os.access(path, os.R_OK): files.append(path)
         else: files.append(path)
     return files
+    
+  def __init__(self, QtBaseClass):
+    self.QtBaseClass = QtBaseClass
   
   def mousePressEvent(self, event):
+    self.QtBaseClass.mousePressEvent(self, event)
     if event.button == Qt.LeftButton:
       self._drag_start_position = event.pos()
+    
   
   def mouseMoveEvent(self, event):
+    self.QtBaseClass.mousePressEvent(self, event)
     if event.buttons() & Qt.LeftButton != Qt.LeftButton: return
     if (event.pos() - self._drag_start_position).manhattanLength() < QApplication.startDragDistance(): return
     self.start_drag(self._drag_start_position)
+    
     
   def start_drag(self, pos): pass
   
@@ -116,38 +108,83 @@ class FileDragAndDrop(object):
   def dropEvent(self, event):
     files = self._get_r_ok_files(event)
     if files:
-      if self.files_dropped(files): event.acceptProposedAction()
+      if self.files_dropped(files, event): event.acceptProposedAction()
       
   def files_dropped(self, files): return False
   
-  def drag_object(self, extensions):
-    if extensions:
+  def drag_object_from_files(self, files):
+    if files:
       drag = QDrag(self)
       mime_data = QMimeData()
       self._dragged_files, urls = [], []
-      for ext in extensions:
-        f = TemporaryFile(ext=ext)
-        f.open()
-        urls.append(urlunparse(('file', quote(gethostname()), quote(str(f.fileName())), '','','')))
-        self._dragged_files.append(f)
+      for file in files:        
+        urls.append(urlunparse(('file', quote(gethostname()), quote(str(file.name)), '','','')))
+        self._dragged_files.append(file)      
       mime_data.setData("text/uri-list", QByteArray("\n".join(urls)))
       user = None
       try: user = os.environ['USER']
       except: pass
       if user: mime_data.setData("text/x-xdnd-username", QByteArray(user))
       drag.setMimeData(mime_data)
-      return drag, self._dragged_files
+      return drag
+      
+  def drag_object(self, extensions):
+    if extensions:
+      files = []
+      for ext in extensions:
+        f = TemporaryFile(ext=ext)
+        f.open()
+        files.append(f)
+      return self.drag_object_from_files(files), self._dragged_files
         
   
-
+class TableView(QTableView):
+  def renderToPixmap(self, indices):
+    rect = self.visualRect(indices[0])
+    rects = []
+    for i in range(len(indices)):
+      rects.append(self.visualRect(indices[i]))
+      rect |= rects[i]
+    rect = rect.intersected(self.viewport().rect())
+    pixmap = QPixmap(rect.size())
+    pixmap.fill(self.palette().base().color())
+    painter = QPainter(pixmap)
+    option = self.viewOptions()
+    option.state |= QStyle.State_Selected
+    for j in range(len(indices)):
+      option.rect = QRect(rects[j].topLeft() - rect.topLeft(), rects[j].size())
+      self.itemDelegate(indices[j]).paint(painter, option, indices[j])
+    painter.end()
+    return pixmap
+  
 class TemporaryFile(QTemporaryFile):
+  _file_name = ""
   def __init__(self, ext=""):
     if ext: ext = "." + ext
     path = QDir.tempPath() + "/" + TFT + "_XXXXXX"+ext
     QTemporaryFile.__init__(self, path)
+    
+  def open(self):    
+    ok = QFile.open(self, QIODevice.ReadWrite)
+    self._file_name = os.path.normpath(os.path.abspath(str(QTemporaryFile.fileName(self))))
+    return ok
+    
+  @apply
+  def name():
+    def fget(self): 
+      return self._file_name
+    return property(**locals())
+    
+class NamedTemporaryFile(TemporaryFile):
+  def __init__(self, name):
+    path = QDir.tempPath() + "/" + "XXXXXX"+name
+    QTemporaryFile.__init__(self, path)
 
 class CoverDisplay(FileDragAndDrop, QLabel):
-  def files_dropped(self, files):
+  def __init__(self, parent):
+    FileDragAndDrop.__init__(self, QLabel)
+    QLabel.__init__(self, parent)
+  def files_dropped(self, files, event):
     pix = QPixmap()
     for file in files:
       pix = QPixmap(file)
@@ -177,34 +214,45 @@ class DeviceView(QTreeView):
   def hide_card(self, x):
     self.setRowHidden(4, self.model().indexFromItem(self.model().invisibleRootItem()), x)
 
-class DeviceBooksView(QTableView):
+class DeviceBooksView(TableView):
   def __init__(self, parent):
     QTableView.__init__(self, parent)
     self.setSelectionBehavior(QAbstractItemView.SelectRows)
     self.setSortingEnabled(True)
 
-class LibraryBooksView(QTableView):
+class LibraryBooksView(FileDragAndDrop, TableView):
   def __init__(self, parent):
+    FileDragAndDrop.__init__(self, QTableView)
     QTableView.__init__(self, parent)
     self.setSelectionBehavior(QAbstractItemView.SelectRows)
     self.setSortingEnabled(True)
     self.setItemDelegate(LibraryDelegate(self))
     
-  def get_verified_path(self, mime_data):
-    if mime_data.hasFormat("text/plain"):
-      text = unicode(mime_data.text())
-      text = re.sub(r"^file://", "", text)
-      if os.access(os.path.abspath(text), os.R_OK): return text
-    return None
   def dragEnterEvent(self, event):
-    if self.get_verified_path(event.mimeData()): event.acceptProposedAction()
-    
-  def dragMoveEvent(self, event): event.acceptProposedAction()
+    if not event.mimeData().hasFormat("application/x-libprs500-id"):
+      FileDragAndDrop.dragEnterEvent(self, event)
+      
   
-  def dropEvent(self, event):
-    path = self.get_verified_path(event.mimeData())
-    if path: 
-      if self.model().handle_drop(path, self.indexAt(event.pos())): event.acceptProposedAction()
+  def start_drag(self, pos):    
+    index = self.indexAt(pos)
+    if index.isValid():
+      indexes = self.selectedIndexes()
+      files = self.model().extract_formats(indexes)
+      drag = self.drag_object_from_files(files)
+      if drag:
+        ids = [ str(self.model().id_from_index(index)) for index in indexes ]
+        drag.mimeData().setData("application/x-libprs500-id", QByteArray("\n".join(ids)))
+        drag.setPixmap(self.renderToPixmap(indexes))
+        drag.start()
+      
+  
+  def files_dropped(self, files, event):
+    if not files: return
+    index = self.indexAt(event.pos())    
+    if index.isValid():
+      self.model().add_formats(files, index)      
+    else: self.emit(SIGNAL('books_dropped'), files)      
+  
       
 
 
@@ -304,6 +352,28 @@ class LibraryBooksModel(QAbstractTableModel):
     self._orig_data = None
     self.image_file = None
     
+  def extract_formats(self, indices):
+    files, rows = [], []
+    for index in indices:
+      row = index.row()
+      if row in rows: continue
+      else: rows.append(row)
+      id = self.id_from_index(index)
+      basename = re.sub("\n", "", self._data[row]["title"]+" by "+ self._data[row]["authors"])
+      exts = self.db.get_extensions(id)
+      for ext in exts:
+        fmt = self.db.get_format(id, ext)
+        if not ext: ext =""
+        else: ext = "."+ext
+        name = basename+ext
+        file = NamedTemporaryFile(name)
+        file.open()
+        if not fmt: continue
+        file.write(QByteArray(fmt))
+        file.close()        
+        files.append(file)
+    return files
+  
   def update_cover(self, index, pix):
     id = self.id_from_index(index)
     qb = QBuffer()
@@ -313,17 +383,14 @@ class LibraryBooksModel(QAbstractTableModel):
     qb.close()
     self.db.update_cover(id, data)
   
-  def handle_drop(self, path, index):
-    print "249", path, index.row()
-    if index.isValid():
+  def add_formats(self, paths, index):
+    for path in paths:
       f = open(path, "rb")      
       title = os.path.basename(path)
       ext = title[title.rfind(".")+1:].lower() if "." in title > -1 else None
       self.db.add_format(self.id_from_index(index), ext, f)
       f.close()
-    else:
-      pass # TODO: emit book add signal
-    return True
+    self.emit(SIGNAL('formats_added'), index)
     
   def rowCount(self, parent): return len(self._data)
   def columnCount(self, parent): return len(self.FIELDS)-2
@@ -357,10 +424,8 @@ class LibraryBooksModel(QAbstractTableModel):
   
   def flags(self, index):
     flags = QAbstractTableModel.flags(self, index)
-    if index.isValid(): 
-      flags |= Qt.ItemIsDragEnabled | Qt.ItemIsDropEnabled
-      if index.column() not in [2,3]:  flags |= Qt.ItemIsEditable
-    else: flags |= Qt.ItemIsDropEnabled
+    if index.isValid():       
+      if index.column() not in [2,3]:  flags |= Qt.ItemIsEditable    
     return flags
   
   def set_data(self, db):    
@@ -428,7 +493,7 @@ class LibraryBooksModel(QAbstractTableModel):
       if text == None: text = "Unknown"
       return QVariant(text)
     elif role == Qt.TextAlignmentRole and index.column() in [2,3,4]:
-      return QVariant(Qt.AlignRight)
+      return QVariant(Qt.AlignRight | Qt.AlignVCenter)
     return NONE
       
   def sort(self, col, order):
@@ -483,34 +548,9 @@ class LibraryBooksModel(QAbstractTableModel):
     self.db.commit()    
 
   def add_book(self, path):
-    """ Must call search and sort after this """
+    """ Must call search and sort on this models view after this """
     id = self.db.add_book(path)    
     self._orig_data.append(self.db.get_row_by_id(id, self.FIELDS))
-    
-  def mimeTypes(self):
-    s = QStringList()
-    s << "application/vnd.text.list" # Title, authors
-    s << "image/jpeg"                    # 60x80 thumbnail
-    s << "application/x-sony-bbeb"
-    s << "application/pdf"
-    s << "text/rtf"
-    s <<  "text/plain"    
-    return s
-    
-  def mimeData(self, indices):
-    mime_data = QMimeData()    
-    encoded_data = QByteArray()    
-    rows = []
-    for index in indices:
-      if index.isValid():
-        row = index.row()
-        if row in rows: continue
-        title, authors, size, exts, cover = self.info(row)
-        encoded_data.append(title)
-        encoded_data.append(authors)
-        rows.append(row)
-    mime_data.setData("application/vnd.text.list", encoded_data)
-    return mime_data
     
 class DeviceBooksModel(QAbstractTableModel):
   def __init__(self, parent):
@@ -538,7 +578,7 @@ class DeviceBooksModel(QAbstractTableModel):
       return QVariant(self.trUtf8(text))
     else: return QVariant(str(1+section))
     
-  def data(self, index, role):
+  def data(self, index, role):    
     if role == Qt.DisplayRole:
       row, col = index.row(), index.column()
       book = self._data[row]
@@ -548,7 +588,7 @@ class DeviceBooksModel(QAbstractTableModel):
       elif col == 3: text = time.strftime(TIME_WRITE_FMT, book.datetime)
       return QVariant(text)
     elif role == Qt.TextAlignmentRole and index.column() in [2,3]:
-      return QVariant(Qt.AlignRight)
+      return QVariant(Qt.AlignRight | Qt.AlignVCenter)
     return NONE
     
   def info(self, row):
