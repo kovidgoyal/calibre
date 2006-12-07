@@ -53,7 +53,10 @@
          <number>6</number>
         </property>
         <item>
-         <widget class="QTreeWidget" name="device_tree" >
+         <widget class="DeviceView" name="device_tree" >
+          <property name="acceptDrops" >
+           <bool>true</bool>
+          </property>
           <property name="dragDropMode" >
            <enum>QAbstractItemView::DropOnly</enum>
           </property>
@@ -69,14 +72,6 @@
           <property name="allColumnsShowFocus" >
            <bool>true</bool>
           </property>
-          <property name="columnCount" >
-           <number>1</number>
-          </property>
-          <column>
-           <property name="text" >
-            <string>1</string>
-           </property>
-          </column>
          </widget>
         </item>
         <item>
@@ -169,17 +164,26 @@
            </layout>
           </item>
           <item>
-           <widget class="QTableView" name="device_view" >
+           <widget class="DeviceBooksView" name="device_view" >
             <property name="sizePolicy" >
              <sizepolicy>
-              <hsizetype>7</hsizetype>
-              <vsizetype>7</vsizetype>
+              <hsizetype>13</hsizetype>
+              <vsizetype>13</vsizetype>
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="dragEnabled" >
+             <bool>true</bool>
+            </property>
+            <property name="dragDropOverwriteMode" >
+             <bool>false</bool>
+            </property>
             <property name="alternatingRowColors" >
              <bool>true</bool>
+            </property>
+            <property name="selectionBehavior" >
+             <enum>QAbstractItemView::SelectRows</enum>
             </property>
             <property name="showGrid" >
              <bool>false</bool>
@@ -187,17 +191,32 @@
            </widget>
           </item>
           <item>
-           <widget class="QTableView" name="library_view" >
+           <widget class="LibraryBooksView" name="library_view" >
             <property name="sizePolicy" >
              <sizepolicy>
-              <hsizetype>7</hsizetype>
-              <vsizetype>7</vsizetype>
+              <hsizetype>13</hsizetype>
+              <vsizetype>13</vsizetype>
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="acceptDrops" >
+             <bool>true</bool>
+            </property>
+            <property name="dragEnabled" >
+             <bool>true</bool>
+            </property>
+            <property name="dragDropOverwriteMode" >
+             <bool>false</bool>
+            </property>
+            <property name="dragDropMode" >
+             <enum>QAbstractItemView::DragDrop</enum>
+            </property>
             <property name="alternatingRowColors" >
              <bool>true</bool>
+            </property>
+            <property name="selectionBehavior" >
+             <enum>QAbstractItemView::SelectRows</enum>
             </property>
             <property name="showGrid" >
              <bool>false</bool>
@@ -215,12 +234,15 @@
            <number>6</number>
           </property>
           <item>
-           <widget class="QLabel" name="book_cover" >
+           <widget class="CoverDisplay" name="book_cover" >
             <property name="maximumSize" >
              <size>
               <width>60</width>
               <height>80</height>
              </size>
+            </property>
+            <property name="acceptDrops" >
+             <bool>true</bool>
             </property>
             <property name="text" >
              <string/>
@@ -325,6 +347,28 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CoverDisplay</class>
+   <extends>QLabel</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LibraryBooksView</class>
+   <extends>QTableView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceView</class>
+   <extends>QTreeView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceBooksView</class>
+   <extends>QTableView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="images.qrc" />
  </resources>

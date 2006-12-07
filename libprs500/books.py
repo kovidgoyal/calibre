@@ -67,6 +67,9 @@ class Book(object):
       return self.__repr__()
   
 class BookList(list):
+  __getslice__ = None
+  __setslice__ = None
+  
   def __init__(self, prefix="xs1:", root="/Data/media/", file=None):
     list.__init__(self)
     if file:

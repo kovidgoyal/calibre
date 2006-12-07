@@ -51,6 +51,7 @@ from array import array
 from libprs500.prstypes import *
 from libprs500.errors import *
 from libprs500.books import *
+from libprs500 import __author__ as AUTHOR
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 _packet_number = 0     #: Keep track of the packet number of packet tracing
@@ -168,7 +169,7 @@ class PRS500Device(object):
           raise TimeoutError(func.__name__)
         elif "Protocol error" in str(e):    
           dev.close()
-          raise ProtocolError("There was an unknown error in the protocol. Contact the developer.")
+          raise ProtocolError("There was an unknown error in the protocol. Contact " + AUTHOR)
         dev.close()
         raise e
       if not kwargs.has_key("end_session") or kwargs["end_session"]:
@@ -221,7 +222,7 @@ class PRS500Device(object):
       raise DeviceError()
     self.handle = self.device.open()
     self.handle.claimInterface(self.device_descriptor.interface_id)
-    res = self._send_validated_command(GetUSBProtocolVersion(), timeout=10000) # Large timeout as device mat still be initializing
+    res = self._send_validated_command(GetUSBProtocolVersion(), timeout=20000) # Large timeout as device may still be initializing
     if res.code != 0: raise ProtocolError("Unable to get USB Protocol version.")
     version = self._bulk_read(24, data_type=USBProtocolVersion)[0].version
     if version not in KNOWN_USB_PROTOCOL_VERSIONS:

@@ -13,9 +13,11 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import sqlite3 as sqlite
-import os, os.path, zlib
+import os, os.path
+from zlib import compress, decompress
 from stat import ST_SIZE
 from libprs500.lrf.meta import LRFMetaFile
+from cStringIO import StringIO as cStringIO
 
 class LibraryDatabase(object):
   
@@ -32,7 +34,7 @@ class LibraryDatabase(object):
       
   def get_cover(self, id):
     raw = self.con.execute("select cover from books_meta where id=?", (id,)).next()["cover"]
-    return zlib.decompress(str(raw)) if raw else None
+    return decompress(str(raw)) if raw else None
     
   def get_extensions(self, id):
     exts = []
@@ -50,8 +52,8 @@ class LibraryDatabase(object):
       title, author, cover, publisher = lrf.title, lrf.author.strip(), lrf.thumbnail, lrf.publisher.strip()
       if "unknown" in publisher.lower(): publisher = None
       if "unknown" in author.lower(): author = None
-    file = zlib.compress(open(file).read())
-    if cover: cover = sqlite.Binary(zlib.compress(cover))
+    file = compress(open(file).read())
+    if cover: cover = sqlite.Binary(compress(cover))
     self.con.execute("insert into books_meta (title, authors, publisher, size, tags, cover, comments, rating) values (?,?,?,?,?,?,?,?)", (title, author, publisher, size, None, cover, None, None))    
     id =  self.con.execute("select max(id) from books_meta").next()[0]    
     self.con.execute("insert into books_data values (?,?,?)", (id, ext, sqlite.Binary(file)))
@@ -83,13 +85,28 @@ class LibraryDatabase(object):
     return rows
   
   def get_format(self, id, ext):
+    """ 
+    Return format C{ext} corresponding to the logical book C{id} or None if the format is unavailable. 
+    Format is returned as a string of binary data suitable for C{ file.write} operations. 
+    """ 
     ext = ext.lower()
-    cur = self.cur.execute("select data from books_data where id=? and extension=?",(id, ext))
+    cur = self.con.execute("select data from books_data where id=? and extension=?",(id, ext))
     try: data = cur.next()
     except: pass
-    else: return zlib.decompress(str(data["data"]))
+    else: return decompress(str(data["data"]))
       
   def add_format(self, id, ext, data):
+    """
+    If data for format ext already exists, it is replaced
+    @type ext: string or None
+    @type data: string 
+    """
+    try:
+      data.seek(0)
+      data = data.read()
+    except AttributeError: pass 
+    if ext: ext = ext.strip().lower()
+    data = sqlite.Binary(compress(data))
     cur = self.con.execute("select extension from books_data where id=? and extension=?", (id, ext))
     present = True
     try: cur.next()
@@ -113,15 +130,37 @@ class LibraryDatabase(object):
     if publisher and not len(publisher): publisher = None
     if tags and not len(tags): tags = None
     if comments and not len(comments): comments = None
-    if cover: cover = sqlite.Binary(zlib.compress(cover))
+    if cover: cover = sqlite.Binary(compress(cover))
     self.con.execute('update books_meta set title=?, authors=?, publisher=?, tags=?, cover=?, comments=?, rating=? where id=?', (title, authors, publisher, tags, cover, comments, rating, id))
     self.con.commit()
   
   def set_metadata_item(self, id, col, val):
-    self.con.execute('update books_meta set '+col+'=? where id=?',(val, id))
+    self.con.execute('update books_meta set '+col+'=? where id=?',(val, id))    
+    if col in ["authors", "title"]:      
+      lrf = self.get_format(id, "lrf")
+      if lrf:
+        c = cStringIO()
+        c.write(lrf)
+        lrf = LRFMetaFile(c)
+        if col == "authors": lrf.authors = val
+        else: lrf.title = val
+        self.add_format(id, "lrf", c.getvalue())
     self.con.commit()
+    
+  def update_cover(self, id, cover):    
+    data = None
+    if cover: data = sqlite.Binary(compress(cover))    
+    self.con.execute('update books_meta set cover=? where id=?', (data, id))
+    lrf = self.get_format(id, "lrf")
+    if lrf:
+      c = cStringIO()
+      c.write(lrf)
+      lrf = LRFMetaFile(c)
+      lrf.thumbnail = cover
+      self.add_format(id, "lrf", c.getvalue())
+    self.commit()
   
-  def search(self, query): pass
+
 
 #if __name__ == "__main__":
 #  lbm = LibraryDatabase("/home/kovid/library.db")
