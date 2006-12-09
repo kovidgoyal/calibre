@@ -16,15 +16,23 @@
 from xml.dom.ext import PrettyPrint as PrettyPrint
 import xml.dom.minidom as dom
 from base64 import b64decode as decode
+from base64 import b64encode as encode
 import time
 
+MIME_MAP   = { "lrf":"application/x-sony-bbeb", "rtf":"application/rtf", "pdf":"application/pdf", "txt":"text/plain" }
+
 class book_metadata_field(object):
-  def __init__(self, attr, formatter=None): 
+  def __init__(self, attr, formatter=None, setter=None): 
     self.attr = attr 
     self.formatter = formatter
+  
   def __get__(self, obj, typ=None):
     """ Return a string. String may be empty if self.attr is absent """
     return self.formatter(obj.elem.getAttribute(self.attr)) if self.formatter else obj.elem.getAttribute(self.attr).strip()
+  
+  def __set__(self, obj, val):
+      val = self.setter(val) if self.setter else val
+      obj.elem.setAttribute(self.attr, str(val))
 
 class Book(object):
     title               = book_metadata_field("title")
@@ -33,7 +41,7 @@ class Book(object):
     rpath            = book_metadata_field("path")
     id                  = book_metadata_field("id", formatter=int)
     size              = book_metadata_field("size", formatter=int)
-    datetime      = book_metadata_field("date", formatter=lambda x:  time.strptime(x, "%a, %d %b %Y %H:%M:%S %Z"))
+    datetime      = book_metadata_field("date", formatter=lambda x:  time.strptime(x, "%a, %d %b %Y %H:%M:%S %Z"), setter=lambda x: time.strftime("%a, %d %b %Y %H:%M:%S %Z", x))
     
     @apply
     def thumbnail():
@@ -45,7 +53,7 @@ class Book(object):
               th = n
               break
           rc = ""
-          for node in th.childNodes:            
+          for node in th.childNodes:
             if node.nodeType == node.TEXT_NODE: rc += node.data
           return decode(rc)
       return property(**locals())
@@ -60,7 +68,7 @@ class Book(object):
       self.prefix = prefix
       self.root = root
         
-    def __repr__(self):      
+    def __repr__(self):
       return self.title + " by " + self.author+ " at " + self.path
       
     def __str__(self):
@@ -78,4 +86,23 @@ class BookList(list):
       file.seek(0)
       self.document = dom.parse(file)
       for book in self.document.getElementsByTagName(self.prefix + "text"): self.append(Book(book, root=root, prefix=prefix))
-    self._file = file    
+      
+  def add_book(self, info, name):
+    root = self.document.documentElement
+    node = self.document.createElement(self.prefix + "text")
+    mime = MIME_MAP[name[name.rfind(".")+1:]]
+    id = 0
+    for book in self:
+      if book.id > id: 
+        id = book.id
+        break
+    attrs = { "title":info["title"], "author":info["authors"], "page":"0", "part":"0", "scale":"0", "sourceid":"1",  "id":str(id), "date":"", "mime":mime, "path":name, "size":str(size)} 
+    for attr in attrs.keys():      
+      node.setAttributeNode(self.document.createAttribute(attr))
+      node.setAttribute(attr, attrs[attr])
+    book = Book(node, root=self.root, prefix=self.prefix)
+    book.datetime = time.gmtime()
+    self.append(book)
+      
+      
+    

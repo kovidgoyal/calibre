@@ -15,10 +15,34 @@
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
-import pkg_resources, sys, os, StringIO
+import pkg_resources, sys, os, re, StringIO, traceback
 from PyQt4 import QtCore, QtGui                    # Needed for classes imported with import_ui
-from libprs500.gui.widgets import LibraryBooksView, DeviceBooksView, CoverDisplay, DeviceView   # Needed for import_ui
 from PyQt4.uic.Compiler import compiler
+
+error_dialog = None
+
+def extension(path):
+  return os.path.splitext(path)[1][1:].lower()
+
+def installErrorHandler(dialog):
+  global error_dialog
+  error_dialog = dialog
+  error_dialog.resize(600, 400)
+  error_dialog.setWindowTitle("SONY Reader - Error")
+  error_dialog.setModal(True)
+    
+
+def Warning(msg, e):
+  print >> sys.stderr, msg
+  traceback.print_exc(e)
+
+def Error(msg, e):  
+  if error_dialog:
+    if e: msg += "<br>" + traceback.format_exc(e)
+    msg = re.sub("Traceback", "<b>Traceback</b>", msg)
+    msg = re.sub(r"\n", "<br>", msg)
+    error_dialog.showMessage(msg)
+    error_dialog.show()
 
 def import_ui(name):
   uifile = pkg_resources.resource_stream(__name__, name)
@@ -27,3 +51,5 @@ def import_ui(name):
   ui = pkg_resources.resource_filename(__name__, name)
   exec code_string.getvalue()  
   return locals()[winfo["uiclass"]]
+
+from libprs500.gui.widgets import LibraryBooksView, DeviceBooksView, CoverDisplay, DeviceView   # Needed for import_ui

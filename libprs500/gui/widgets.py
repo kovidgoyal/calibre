@@ -15,7 +15,7 @@
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt, SIGNAL
-from PyQt4.Qt import QApplication, QString, QFont, QStandardItemModel, QStandardItem, QVariant, QAbstractTableModel, QTableView, QTreeView, QLabel,\
+from PyQt4.Qt import QApplication, QString, QFont, QAbstractListModel, QVariant, QAbstractTableModel, QTableView, QListView, QLabel,\
                                    QAbstractItemView, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog, QSpinBox, QPoint, QTemporaryFile, QDir, QFile, QIODevice,\
                                    QPainterPath, QItemDelegate, QPainter, QPen, QColor, QLinearGradient, QBrush, QStyle,\
                                    QStringList, QByteArray, QBuffer, QMimeData, QTextStream, QIODevice, QDrag, QRect                     
@@ -28,24 +28,11 @@ from urllib import quote, unquote
 from math import sin, cos, pi
 from libprs500 import TEMPORARY_FILENAME_TEMPLATE as TFT
 from libprs500.lrf.meta import LRFMetaFile
+from libprs500.gui import Error, Warning
 
 NONE = QVariant()
 TIME_WRITE_FMT  = "%d %b %Y"
 COVER_HEIGHT = 80
-
-def human_readable(size):
-  """ Convert a size in bytes into a human readable form """
-  if size < 1024: divisor, suffix = 1, "B"
-  elif size < 1024*1024: divisor, suffix = 1024., "KB"
-  elif size < 1024*1024*1024: divisor, suffix = 1024*1024, "MB"
-  elif size < 1024*1024*1024*1024: divisor, suffix = 1024*1024, "GB"
-  size = str(size/divisor)
-  if size.find(".") > -1: size = size[:size.find(".")+2]
-  return size + " " + suffix
-
-
-def wrap(s, width=20):
-  return textwrap.fill(str(s), width) 
 
 
 
@@ -67,11 +54,11 @@ class FileDragAndDrop(object):
       for url in candidates:
         o = urlparse(url)        
         if o.scheme and o.scheme != 'file':
-          print >>sys.stderr, o.scheme,  " not supported in drop events"
+          Warning(o.scheme +  " not supported in drop events")
           continue
         path = unquote(o.path)
         if not os.access(path, os.R_OK):
-          print >>sys.stderr, "You do not have read permission for: " + path
+          Warning("You do not have read permission for: " + path)
           continue
         if os.path.isdir(path):
           root, dirs, files2 = os.walk(path)
@@ -81,20 +68,23 @@ class FileDragAndDrop(object):
         else: files.append(path)
     return files
     
-  def __init__(self, QtBaseClass):
+  def __init__(self, QtBaseClass, enable_drag=True):
     self.QtBaseClass = QtBaseClass
+    self.enable_drag = enable_drag
   
   def mousePressEvent(self, event):
     self.QtBaseClass.mousePressEvent(self, event)
-    if event.button == Qt.LeftButton:
-      self._drag_start_position = event.pos()
-    
+    if self.enable_drag:
+      if event.button == Qt.LeftButton:
+        self._drag_start_position = event.pos()
+      
   
   def mouseMoveEvent(self, event):
     self.QtBaseClass.mousePressEvent(self, event)
-    if event.buttons() & Qt.LeftButton != Qt.LeftButton: return
-    if (event.pos() - self._drag_start_position).manhattanLength() < QApplication.startDragDistance(): return
-    self.start_drag(self._drag_start_position)
+    if self.enable_drag:
+      if event.buttons() & Qt.LeftButton != Qt.LeftButton: return
+      if (event.pos() - self._drag_start_position).manhattanLength() < QApplication.startDragDistance(): return
+      self.start_drag(self._drag_start_position)
     
     
   def start_drag(self, pos): pass
@@ -108,9 +98,14 @@ class FileDragAndDrop(object):
   def dropEvent(self, event):
     files = self._get_r_ok_files(event)
     if files:
-      if self.files_dropped(files, event): event.acceptProposedAction()
+      try:
+        if self.files_dropped(files, event): event.acceptProposedAction()
+      except Exception, e:        
+        Error("There was an error processing the dropped files.", e)
+        raise e
+        
       
-  def files_dropped(self, files): return False
+  def files_dropped(self, files, event): return False
   
   def drag_object_from_files(self, files):
     if files:
@@ -138,8 +133,26 @@ class FileDragAndDrop(object):
       return self.drag_object_from_files(files), self._dragged_files
         
   
-class TableView(QTableView):
-  def renderToPixmap(self, indices):
+class TableView(FileDragAndDrop, QTableView):
+  def __init__(self, parent):
+    FileDragAndDrop.__init__(self, QTableView)
+    QTableView.__init__(self, parent)
+    
+  @classmethod
+  def wrap(cls, s, width=20): return textwrap.fill(str(s), width) 
+  
+  @classmethod
+  def human_readable(cls, size):
+    """ Convert a size in bytes into a human readable form """
+    if size < 1024: divisor, suffix = 1, "B"
+    elif size < 1024*1024: divisor, suffix = 1024., "KB"
+    elif size < 1024*1024*1024: divisor, suffix = 1024*1024, "MB"
+    elif size < 1024*1024*1024*1024: divisor, suffix = 1024*1024, "GB"
+    size = str(size/divisor)
+    if size.find(".") > -1: size = size[:size.find(".")+2]
+    return size + " " + suffix
+  
+  def render_to_pixmap(self, indices):
     rect = self.visualRect(indices[0])
     rects = []
     for i in range(len(indices)):
@@ -156,9 +169,16 @@ class TableView(QTableView):
       self.itemDelegate(indices[j]).paint(painter, option, indices[j])
     painter.end()
     return pixmap
+    
+  def drag_object_from_files(self, files):
+    drag = FileDragAndDrop.drag_object_from_files(self, files)
+    drag.setPixmap(self.render_to_pixmap(self.selectedIndexes()))
+    return drag
   
 class TemporaryFile(QTemporaryFile):
   _file_name = ""
+  def __del__(self):    
+    if os.access(self.name, os.F_OK): os.remove(self.name)
   def __init__(self, ext=""):
     if ext: ext = "." + ext
     path = QDir.tempPath() + "/" + TFT + "_XXXXXX"+ext
@@ -202,31 +222,38 @@ class CoverDisplay(FileDragAndDrop, QLabel):
       file.close()
       drag.start(Qt.MoveAction)
     
-class DeviceView(QTreeView):
+class DeviceView(FileDragAndDrop, QListView):
   def __init__(self, parent):
-    QTreeView.__init__(self, parent)
-    self.header().hide()    
-    self.setIconSize(QSize(32,32))
+    FileDragAndDrop.__init__(self, QListView, enable_drag=False)
+    QListView.__init__(self, parent)
     
   def hide_reader(self, x):
-    self.setRowHidden(2, self.model().indexFromItem(self.model().invisibleRootItem()), x)
+    self.model().update_devices(reader=not x)
     
   def hide_card(self, x):
-    self.setRowHidden(4, self.model().indexFromItem(self.model().invisibleRootItem()), x)
+    self.model().update_devices(card=not x)
+    
+  def files_dropped(self, files, event):
+    ids = []
+    md = event.mimeData()
+    if md.hasFormat("application/x-libprs500-id"):
+      ids = [ int(id) for id in FileDragAndDrop._bytes_to_string(md.data("application/x-libprs500-id")).split()]
+    index = self.indexAt(event.pos())
+    if index.isValid():
+      return self.model().files_dropped(files, index, ids)
 
 class DeviceBooksView(TableView):
   def __init__(self, parent):
-    QTableView.__init__(self, parent)
+    TableView.__init__(self, parent)
     self.setSelectionBehavior(QAbstractItemView.SelectRows)
     self.setSortingEnabled(True)
 
-class LibraryBooksView(FileDragAndDrop, TableView):
-  def __init__(self, parent):
-    FileDragAndDrop.__init__(self, QTableView)
-    QTableView.__init__(self, parent)
+class LibraryBooksView(TableView):
+  def __init__(self, parent):    
+    TableView.__init__(self, parent)
     self.setSelectionBehavior(QAbstractItemView.SelectRows)
     self.setSortingEnabled(True)
-    self.setItemDelegate(LibraryDelegate(self))
+    self.setItemDelegate(LibraryDelegate(self, rating_column=4))
     
   def dragEnterEvent(self, event):
     if not event.mimeData().hasFormat("application/x-libprs500-id"):
@@ -242,7 +269,6 @@ class LibraryBooksView(FileDragAndDrop, TableView):
       if drag:
         ids = [ str(self.model().id_from_index(index)) for index in indexes ]
         drag.mimeData().setData("application/x-libprs500-id", QByteArray("\n".join(ids)))
-        drag.setPixmap(self.renderToPixmap(indexes))
         drag.start()
       
   
@@ -261,8 +287,9 @@ class LibraryDelegate(QItemDelegate):
   SIZE     = 16
   PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap,  Qt.RoundJoin)
   
-  def __init__(self, parent):
-    QItemDelegate.__init__(self, parent)
+  def __init__(self, parent, rating_column=-1):
+    QItemDelegate.__init__(self, parent )
+    self.rating_column = rating_column
     self.star_path = QPainterPath()
     self.star_path.moveTo(90, 50)
     for i in range(1, 5):
@@ -277,13 +304,13 @@ class LibraryDelegate(QItemDelegate):
     
     
   def sizeHint(self, option, index):
-    if index.column() != 4:
+    if index.column() != self.rating_column:
       return QItemDelegate.sizeHint(self, option, index)
     num = index.model().data(index, Qt.DisplayRole).toInt()[0]
     return QSize(num*(self.SIZE), self.SIZE+4)
   
   def paint(self, painter, option, index):
-    if index.column() != 4:
+    if index.column() != self.rating_column:
       return QItemDelegate.paint(self, painter, option, index)
     num = index.model().data(index, Qt.DisplayRole).toInt()[0]
     def draw_star(): 
@@ -343,14 +370,13 @@ class LibraryDelegate(QItemDelegate):
   
 
 class LibraryBooksModel(QAbstractTableModel):
-  FIELDS = ["id", "title", "authors", "size", "date", "rating", "publisher", "tags"]  
+  FIELDS = ["id", "title", "authors", "size", "date", "rating", "publisher", "tags", "comments"]  
   TIME_READ_FMT = "%Y-%m-%d %H:%M:%S"
   def __init__(self, parent):
     QAbstractTableModel.__init__(self, parent)
     self.db    = None 
     self._data = None
     self._orig_data = None
-    self.image_file = None
     
   def extract_formats(self, indices):
     files, rows = [], []
@@ -359,7 +385,8 @@ class LibraryBooksModel(QAbstractTableModel):
       if row in rows: continue
       else: rows.append(row)
       id = self.id_from_index(index)
-      basename = re.sub("\n", "", self._data[row]["title"]+" by "+ self._data[row]["authors"])
+      au = self._data[row]["authors"] if self._data[row]["authors"] else "Unknown"
+      basename = re.sub("\n", "", "_"+str(id)+"_"+self._data[row]["title"]+" by "+ au)
       exts = self.db.get_extensions(id)
       for ext in exts:
         fmt = self.db.get_format(id, ext)
@@ -393,7 +420,7 @@ class LibraryBooksModel(QAbstractTableModel):
     self.emit(SIGNAL('formats_added'), index)
     
   def rowCount(self, parent): return len(self._data)
-  def columnCount(self, parent): return len(self.FIELDS)-2
+  def columnCount(self, parent): return len(self.FIELDS)-3
     
   def setData(self, index, value, role):
     done = False
@@ -457,9 +484,11 @@ class LibraryBooksModel(QAbstractTableModel):
       pix = QPixmap()
       pix.loadFromData(cover, "", Qt.AutoColor)
       cover = None if pix.isNull() else pix      
-    au = row["authors"]
-    if not au: au = "Unknown"
-    return row["title"], au, human_readable(int(row["size"])), exts, cover
+    tags = row["tags"]
+    if not tags: tags = ""
+    comments = row["comments"]
+    if not comments: comments = ""
+    return exts, tags, comments, cover
   
   def id_from_index(self, index): return self._data[index.row()]["id"]
   
@@ -471,6 +500,9 @@ class LibraryBooksModel(QAbstractTableModel):
         break
     self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.index(row, 0), self.index(row, self.columnCount(0)-1))
   
+  def book_info(self, id, cols=["title", "authors", "cover"]):
+    return self.db.get_row_by_id(id, cols)
+  
   def data(self, index, role):
     if role == Qt.DisplayRole or role == Qt.EditRole:      
       row, col = index.row(), index.column()
@@ -481,15 +513,15 @@ class LibraryBooksModel(QAbstractTableModel):
         if r < 0: r= 0
         if r > 5: r=5
         return QVariant(r)
-      if   col == 0: text = wrap(row["title"], width=25)
+      if   col == 0: text = TableView.wrap(row["title"], width=25)
       elif col == 1: 
         au = row["authors"]
-        if au : text = wrap(re.sub("&", "\n", au), width=25)
-      elif col == 2: text = human_readable(row["size"])
+        if au : text = TableView.wrap(re.sub("&", "\n", au), width=25)
+      elif col == 2: text = TableView.human_readable(row["size"])
       elif col == 3: text = time.strftime(TIME_WRITE_FMT, time.strptime(row["date"], self.TIME_READ_FMT))
       elif col == 5: 
         pub = row["publisher"]
-        if pub: text = wrap(pub, 20)
+        if pub: text = TableView.wrap(pub, 20)
       if text == None: text = "Unknown"
       return QVariant(text)
     elif role == Qt.TextAlignmentRole and index.column() in [2,3,4]:
@@ -582,9 +614,9 @@ class DeviceBooksModel(QAbstractTableModel):
     if role == Qt.DisplayRole:
       row, col = index.row(), index.column()
       book = self._data[row]
-      if col == 0: text = wrap(book.title, width=40)
+      if col == 0: text = TableView.wrap(book.title, width=40)
       elif col == 1: text = re.sub("&\s*","\n", book.author)
-      elif col == 2: text = human_readable(book.size)
+      elif col == 2: text = TableView.human_readable(book.size)
       elif col == 3: text = time.strftime(TIME_WRITE_FMT, book.datetime)
       return QVariant(text)
     elif role == Qt.TextAlignmentRole and index.column() in [2,3]:
@@ -602,7 +634,7 @@ class DeviceBooksModel(QAbstractTableModel):
     except: 
       traceback.print_exc()
     au = row.author if row.author else "Unknown"
-    return row.title, au, human_readable(row.size), row.mime, cover
+    return row.title, au, TableView.human_readable(row.size), row.mime, cover
   
   def sort(self, col, order):
     def getter(key, func):  return lambda x : func(attrgetter(key)(x))
@@ -653,30 +685,61 @@ class DeviceBooksModel(QAbstractTableModel):
 
 
 
-class DeviceModel(QStandardItemModel):    
-  def __init__(self, parent): 
-    QStandardItemModel.__init__(self, parent)
-    root = self.invisibleRootItem()
-    font = QFont()
-    font.setBold(True)
-    self.library  = QStandardItem(QIcon(":/library"), QString("Library"))
-    self.reader = QStandardItem(QIcon(":/reader"), "SONY Reader")
-    self.card     = QStandardItem(QIcon(":/card"), "Storage Card")
-    self.library.setFont(font)
-    self.reader.setFont(font)
-    self.card.setFont(font)
-    self.blank   = QStandardItem("")
-    self.blank.setFlags(Qt.ItemFlags())
-    root.appendRow(self.library)
-    root.appendRow(self.blank)
-    root.appendRow(self.reader)
-    root.appendRow(self.blank.clone())
-    root.appendRow(self.card)
-    self.library.appendRow(QStandardItem("Books"))
-    self.reader.appendRow(QStandardItem("Books"))
-    self.card.appendRow(QStandardItem("Books"))   
+class DeviceModel(QAbstractListModel):
+  
+  memory_free = 0
+  card_free        = 0
+  show_reader = False
+  show_card = False
+  
+  def update_devices(self, reader=None, card=None):
+    if reader != None: self.show_reader = reader
+    if card != None: self.show_card = card
+    self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.index(1), self.index(2))
+  
+  def rowCount(self, parent): return 3
+  
+  def update_free_space(self, reader, card):
+    self.memory_free = reader
+    self.card_free = card
+    self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.index(1), self.index(2))
+  
+  def data(self, index, role):
+    row = index.row()    
+    data = NONE
+    if role == Qt.DisplayRole:
+      text = None
+      if row == 0: text = "Library"  
+      if row == 1 and self.show_reader: 
+        text = "Reader\n" + TableView.human_readable(self.memory_free) + " available"
+      elif row == 2 and self.show_card: 
+        text = "Card\n"  + TableView.human_readable(self.card_free) + " available"
+      if text: data = QVariant(text)
+    elif role == Qt.DecorationRole:      
+      icon = None
+      if row == 0: icon = QIcon(":/library")
+      elif row == 1 and self.show_reader: icon =  QIcon(":/reader")
+      elif self.show_card: icon = QIcon(":/card")
+      if icon: data = QVariant(icon)
+    elif role == Qt.SizeHintRole:
+      if row == 1: return QVariant(QSize(150, 70))
+    elif role == Qt.FontRole: 
+      font = QFont()
+      font.setBold(True)
+      data =  QVariant(font)
+    return data
     
+  def is_library(self, index): return index.row() == 0
+  def is_reader(self, index): return index.row() == 1
+  def is_card(self, index): return index.row() == 2
   
-  
-
-      
+  def files_dropped(self, files, index, ids):    
+    ret = False
+    if self.is_library(index) and not ids: 
+      self.emit(SIGNAL("books_dropped"), files)
+      ret = True
+    elif self.is_reader(index):
+      self.emit(SIGNAL("upload_books"), "reader", files, ids) 
+    elif self.is_card(index):
+      self.emit(SIGNAL("upload_books"), "card", files, ids) 
+    return ret

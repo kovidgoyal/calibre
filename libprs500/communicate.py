@@ -134,7 +134,8 @@ class PRS500Device(object):
   PRS500_BULK_OUT_EP  = 0x02   #: Endpoint for Bulk writes
   MEDIA_XML  = "/Data/database/cache/media.xml"  #: Location of media.xml file on device
   CACHE_XML = "/Sony Reader/database/cache.xml" #: Location of cache.xml on storage card in device
-  
+  FORMATS     = ["lrf", "rtf", "pdf", "txt"]                        #: Ordered list of supported formats
+    
   device_descriptor = DeviceDescriptor(SONY_VENDOR_ID, PRS500_PRODUCT_ID, PRS500_INTERFACE_ID)
     
 
@@ -572,7 +573,14 @@ class PRS500Device(object):
         raise ProtocolError("Failed to delete directory " + path + ". Response code: " + hex(res.code))
         
   @safe
-  def books(self, oncard=False):
+  def card(self, end_session=True):
+    card = None
+    if self._exists("a:/")[0]: card = "a:"
+    if self._exists("b:/")[0]: card = "b:"
+    return card
+  
+  @safe
+  def books(self, oncard=False, end_session=True):
     """ 
     Return a list of ebooks on the device.
     @param oncard: If True return a list of ebookson the storage card, otherwise return list of ebooks in main memory of device
@@ -595,3 +603,32 @@ class PRS500Device(object):
       if file.tell() == 0: file = None
     else: self.get_file(self.MEDIA_XML, file, end_session=False)      
     return BookList(prefix=prefix, root=root, file=file)
+    
+  @safe
+  def add_book(self, infile, name, info, booklists, oncard=False, end_session=True):
+    """
+    Add a book to the device. If oncard is True then the book is copied to the card rather than main memory. 
+    
+    @param infile: The source file, should be opened in "rb" mode
+    @param name: The name of the book file when uploaded to the device. The extension of name must be one of the supported formats for this device.
+    @param info: A dictionary that must have the keys "title", "authors", "cover". C{info["cover"]} should be the data from a 60x80 image file or None. If it is something else, results are undefined. 
+    @param booklists: A tuple containing the result of calls to (L{books}(oncard=False), L{books}(oncard=True)).    
+    @todo: Implement syncing the booklists to the device. This would mean juggling with the nextId attribute in media.xml and renumbering ids in cache.xml?
+    """
+    infile.seek(0,2)
+    size = infile.tell()
+    infile.seek(0)
+    card = self.card(end_session=False)
+    space = self.available_space(end_session=False)
+    mspace = space[0][1]
+    cspace = space[1][1] if space[1][1] >= space[2][1] else space[2][1]
+    if oncard and size > cspace - 1024*1024: raise FreeSpaceError("There is insufficient free space on the storage card")
+    if not oncard and size > mspace - 1024*1024: raise FreeSpaceError("There is insufficient free space in main memory")
+    prefix  = "/Data/media/"
+    if oncard: prefix = card + "/"
+    else: name = "books/"+name
+    path = prefix + name
+    self.put_file(infile, path, end_session=False)
+    if oncard: booklists[1].add_book(info, name, size)
+    else: booklists[0].add_book(info, name, size)
+        

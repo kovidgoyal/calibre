@@ -32,7 +32,7 @@ the following rule in C{/etc/udev/rules.d/90-local.rules} ::
   BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="plugdev"
 You may have to adjust the GROUP and the location of the rules file to suit your distribution.
 """
-__version__   = "0.2.1"
+__version__   = "0.3.0"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 TEMPORARY_FILENAME_TEMPLATE = "libprs500_"+__version__+"_temp"

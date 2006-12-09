@@ -36,6 +36,9 @@ class DeviceError(ProtocolError):
     
 class PacketError(ProtocolError):
   """ Errors with creating/interpreting packets """
+  
+class FreeSpaceError(ProtocolError):
+  """ Errors caused when trying to put files onto an overcrowded device """
     
 class ArgumentError(ProtocolError):
   """ Errors caused by invalid arguments to a public interface function """

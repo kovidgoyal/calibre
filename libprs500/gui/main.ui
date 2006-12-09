@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>878</width>
-    <height>759</height>
+    <width>728</width>
+    <height>711</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -22,14 +22,245 @@
    <string>SONY Reader</string>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QGridLayout" >
+   <layout class="QVBoxLayout" >
     <property name="margin" >
      <number>9</number>
     </property>
     <property name="spacing" >
      <number>6</number>
     </property>
-    <item row="1" column="0" >
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="DeviceView" name="device_tree" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize" >
+         <size>
+          <width>10000</width>
+          <height>95</height>
+         </size>
+        </property>
+        <property name="verticalScrollBarPolicy" >
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy" >
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="dragDropMode" >
+         <enum>QAbstractItemView::DropOnly</enum>
+        </property>
+        <property name="flow" >
+         <enum>QListView::TopToBottom</enum>
+        </property>
+        <property name="spacing" >
+         <number>20</number>
+        </property>
+        <property name="viewMode" >
+         <enum>QListView::IconMode</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="df" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>0</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text" >
+         <string>&lt;b>libprs500&lt;/b> was created by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>&lt;br>%1 %2 %3</string>
+        </property>
+        <property name="textFormat" >
+         <enum>Qt::RichText</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="0" column="0" >
+       <widget class="DeviceBooksView" name="device_view" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="dragEnabled" >
+         <bool>true</bool>
+        </property>
+        <property name="dragDropOverwriteMode" >
+         <bool>false</bool>
+        </property>
+        <property name="alternatingRowColors" >
+         <bool>true</bool>
+        </property>
+        <property name="selectionBehavior" >
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="showGrid" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="LibraryBooksView" name="library_view" >
+        <property name="sizePolicy" >
+         <sizepolicy>
+          <hsizetype>5</hsizetype>
+          <vsizetype>5</vsizetype>
+          <horstretch>0</horstretch>
+          <verstretch>10</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="acceptDrops" >
+         <bool>true</bool>
+        </property>
+        <property name="dragEnabled" >
+         <bool>true</bool>
+        </property>
+        <property name="dragDropOverwriteMode" >
+         <bool>false</bool>
+        </property>
+        <property name="dragDropMode" >
+         <enum>QAbstractItemView::DragDrop</enum>
+        </property>
+        <property name="alternatingRowColors" >
+         <bool>true</bool>
+        </property>
+        <property name="selectionBehavior" >
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="showGrid" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>&amp;Search:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>search</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="search" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
+        <property name="acceptDrops" >
+         <bool>false</bool>
+        </property>
+        <property name="toolTip" >
+         <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
+        </property>
+        <property name="autoFillBackground" >
+         <bool>false</bool>
+        </property>
+        <property name="text" >
+         <string/>
+        </property>
+        <property name="frame" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="clear_button" >
+        <property name="toolTip" >
+         <string>Reset Quick Search</string>
+        </property>
+        <property name="text" >
+         <string>...</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="images.qrc" >:/images/clear.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="CoverDisplay" name="book_cover" >
+        <property name="maximumSize" >
+         <size>
+          <width>60</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="acceptDrops" >
+         <bool>true</bool>
+        </property>
+        <property name="pixmap" >
+         <pixmap resource="images.qrc" >:/images/cherubs.jpg</pixmap>
+        </property>
+        <property name="scaledContents" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="book_info" >
+        <property name="text" >
+         <string>&lt;table>&lt;tr>&lt;td>&lt;b>Title: &lt;/b>%1&lt;/td>&lt;td>&lt;b>&amp;nbsp;Size:&lt;/b> %2&lt;/td>&lt;/tr>&lt;tr>&lt;td>&lt;b>Author: &lt;/b>%3&lt;/td>&lt;td>&lt;b>&amp;nbsp;Type: &lt;/b>%4&lt;/td>&lt;/tr>&lt;/table></string>
+        </property>
+        <property name="textFormat" >
+         <enum>Qt::RichText</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <widget class="QProgressBar" name="progress_bar" >
       <property name="value" >
        <number>100</number>
@@ -37,246 +268,6 @@
       <property name="orientation" >
        <enum>Qt::Horizontal</enum>
       </property>
-     </widget>
-    </item>
-    <item row="0" column="0" >
-     <widget class="QSplitter" name="splitter" >
-      <property name="orientation" >
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <widget class="QWidget" name="layoutWidget" >
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <widget class="DeviceView" name="device_tree" >
-          <property name="acceptDrops" >
-           <bool>true</bool>
-          </property>
-          <property name="dragDropMode" >
-           <enum>QAbstractItemView::DropOnly</enum>
-          </property>
-          <property name="alternatingRowColors" >
-           <bool>true</bool>
-          </property>
-          <property name="rootIsDecorated" >
-           <bool>false</bool>
-          </property>
-          <property name="animated" >
-           <bool>true</bool>
-          </property>
-          <property name="allColumnsShowFocus" >
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="df" >
-          <property name="autoFillBackground" >
-           <bool>false</bool>
-          </property>
-          <property name="text" >
-           <string>Main Memory:&lt;br>&lt;br>Storage card:</string>
-          </property>
-          <property name="textFormat" >
-           <enum>Qt::RichText</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="layoutWidget" >
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>0</number>
-        </property>
-        <property name="spacing" >
-         <number>6</number>
-        </property>
-        <item>
-         <layout class="QVBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="label" >
-              <property name="text" >
-               <string>&amp;Search:</string>
-              </property>
-              <property name="buddy" >
-               <cstring>search</cstring>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLineEdit" name="search" >
-              <property name="enabled" >
-               <bool>true</bool>
-              </property>
-              <property name="acceptDrops" >
-               <bool>false</bool>
-              </property>
-              <property name="toolTip" >
-               <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
-              </property>
-              <property name="whatsThis" >
-               <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
-              </property>
-              <property name="autoFillBackground" >
-               <bool>false</bool>
-              </property>
-              <property name="text" >
-               <string/>
-              </property>
-              <property name="frame" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="clear_button" >
-              <property name="toolTip" >
-               <string>Reset Quick Search</string>
-              </property>
-              <property name="text" >
-               <string>...</string>
-              </property>
-              <property name="icon" >
-               <iconset resource="images.qrc" >:/images/clear.png</iconset>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="DeviceBooksView" name="device_view" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>13</hsizetype>
-              <vsizetype>13</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="dragEnabled" >
-             <bool>true</bool>
-            </property>
-            <property name="dragDropOverwriteMode" >
-             <bool>false</bool>
-            </property>
-            <property name="alternatingRowColors" >
-             <bool>true</bool>
-            </property>
-            <property name="selectionBehavior" >
-             <enum>QAbstractItemView::SelectRows</enum>
-            </property>
-            <property name="showGrid" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="LibraryBooksView" name="library_view" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>13</hsizetype>
-              <vsizetype>13</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="acceptDrops" >
-             <bool>true</bool>
-            </property>
-            <property name="dragEnabled" >
-             <bool>true</bool>
-            </property>
-            <property name="dragDropOverwriteMode" >
-             <bool>false</bool>
-            </property>
-            <property name="dragDropMode" >
-             <enum>QAbstractItemView::DragDrop</enum>
-            </property>
-            <property name="alternatingRowColors" >
-             <bool>true</bool>
-            </property>
-            <property name="selectionBehavior" >
-             <enum>QAbstractItemView::SelectRows</enum>
-            </property>
-            <property name="showGrid" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" >
-          <property name="margin" >
-           <number>0</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item>
-           <widget class="CoverDisplay" name="book_cover" >
-            <property name="maximumSize" >
-             <size>
-              <width>60</width>
-              <height>80</height>
-             </size>
-            </property>
-            <property name="acceptDrops" >
-             <bool>true</bool>
-            </property>
-            <property name="text" >
-             <string/>
-            </property>
-            <property name="pixmap" >
-             <pixmap resource="images.qrc" >:/images/cherubs.jpg</pixmap>
-            </property>
-            <property name="scaledContents" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="book_info" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>5</hsizetype>
-              <vsizetype>5</vsizetype>
-              <horstretch>10</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text" >
-             <string>&lt;table>&lt;tr>&lt;td>&lt;b>Title: &lt;/b>%1&lt;/td>&lt;td>&lt;b>&amp;nbsp;Size:&lt;/b> %2&lt;/td>&lt;/tr>&lt;tr>&lt;td>&lt;b>Author: &lt;/b>%3&lt;/td>&lt;td>&lt;b>&amp;nbsp;Type: &lt;/b>%4&lt;/td>&lt;/tr></string>
-            </property>
-            <property name="textFormat" >
-             <enum>Qt::RichText</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
      </widget>
     </item>
    </layout>
@@ -349,22 +340,22 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>DeviceBooksView</class>
+   <extends>QTableView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
    <class>CoverDisplay</class>
    <extends>QLabel</extends>
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>LibraryBooksView</class>
-   <extends>QTableView</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
    <class>DeviceView</class>
-   <extends>QTreeView</extends>
+   <extends>QListView</extends>
    <header>widgets.h</header>
   </customwidget>
   <customwidget>
-   <class>DeviceBooksView</class>
+   <class>LibraryBooksView</class>
    <extends>QTableView</extends>
    <header>widgets.h</header>
   </customwidget>
