@@ -34,6 +34,11 @@ class DeviceError(ProtocolError):
   def __init__(self):
     ProtocolError.__init__(self, "Unable to find SONY Reader. Is it connected?")
     
+class DeviceBusy(ProtocolError):
+  """ Raised when device is busy """
+  def __init__(self):
+    ProtocolError.__init__(self, "Device is in use by another application")
+    
 class PacketError(ProtocolError):
   """ Errors with creating/interpreting packets """
   

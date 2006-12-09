@@ -116,9 +116,7 @@ class FileDragAndDrop(object):
         urls.append(urlunparse(('file', quote(gethostname()), quote(str(file.name)), '','','')))
         self._dragged_files.append(file)      
       mime_data.setData("text/uri-list", QByteArray("\n".join(urls)))
-      user = None
-      try: user = os.environ['USER']
-      except: pass
+      user = os.getenv['USER']
       if user: mime_data.setData("text/x-xdnd-username", QByteArray(user))
       drag.setMimeData(mime_data)
       return drag

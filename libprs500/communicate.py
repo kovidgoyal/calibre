@@ -221,8 +221,12 @@ class PRS500Device(object):
     self.device = self.device_descriptor.getDevice()
     if not self.device:
       raise DeviceError()
-    self.handle = self.device.open()
-    self.handle.claimInterface(self.device_descriptor.interface_id)
+    try:
+      self.handle = self.device.open()
+      self.handle.claimInterface(self.device_descriptor.interface_id)
+    except usb.USBError, e:
+      print >>sys.stderr, e
+      raise DeviceBusy()
     res = self._send_validated_command(GetUSBProtocolVersion(), timeout=20000) # Large timeout as device may still be initializing
     if res.code != 0: raise ProtocolError("Unable to get USB Protocol version.")
     version = self._bulk_read(24, data_type=USBProtocolVersion)[0].version
@@ -236,8 +240,10 @@ class PRS500Device(object):
     
   def close(self):    
     """ Release device interface """
-    self.handle.reset()
-    self.handle.releaseInterface()
+    try:
+      self.handle.reset()
+      self.handle.releaseInterface()
+    except: pass
     self.handle, self.device = None, None
     
   def _send_command(self, command, response_type=Response, timeout=1000):

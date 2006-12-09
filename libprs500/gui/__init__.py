@@ -13,7 +13,8 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 __docformat__ = "epytext"
-__author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
+__author__       = "Kovid Goyal <kovid@kovidgoyal.net>"
+APP_TITLE         = "libprs500"
 
 import pkg_resources, sys, os, re, StringIO, traceback
 from PyQt4 import QtCore, QtGui                    # Needed for classes imported with import_ui
@@ -28,7 +29,7 @@ def installErrorHandler(dialog):
   global error_dialog
   error_dialog = dialog
   error_dialog.resize(600, 400)
-  error_dialog.setWindowTitle("SONY Reader - Error")
+  error_dialog.setWindowTitle(APP_TITLE + " - Error")
   error_dialog.setModal(True)
     
 

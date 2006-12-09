@@ -19,7 +19,10 @@
    </sizepolicy>
   </property>
   <property name="windowTitle" >
-   <string>SONY Reader</string>
+   <string/>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="images.qrc" >:/images/library.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
    <layout class="QVBoxLayout" >
@@ -60,7 +63,7 @@
          <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
         <property name="dragDropMode" >
-         <enum>QAbstractItemView::DropOnly</enum>
+         <enum>QAbstractItemView::DragDrop</enum>
         </property>
         <property name="flow" >
          <enum>QListView::TopToBottom</enum>
@@ -84,10 +87,13 @@
          </sizepolicy>
         </property>
         <property name="text" >
-         <string>&lt;b>libprs500&lt;/b> was created by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>&lt;br>%1 %2 %3</string>
+         <string>For help visit &lt;a href="http://libprs500.kovidgoyal.net">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b> was created by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>%1 %2 %3</string>
         </property>
         <property name="textFormat" >
          <enum>Qt::RichText</enum>
+        </property>
+        <property name="openExternalLinks" >
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -275,8 +281,8 @@
   <widget class="QToolBar" name="tool_bar" >
    <property name="minimumSize" >
     <size>
-     <width>49</width>
-     <height>37</height>
+     <width>163</width>
+     <height>58</height>
     </size>
    </property>
    <property name="movable" >
@@ -291,6 +297,9 @@
      <height>22</height>
     </size>
    </property>
+   <property name="toolButtonStyle" >
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
    <attribute name="toolBarArea" >
     <number>4</number>
    </attribute>
@@ -303,7 +312,7 @@
     <iconset resource="images.qrc" >:/images/plus.png</iconset>
    </property>
    <property name="text" >
-    <string>Add files to Library</string>
+    <string>Add books to Library</string>
    </property>
    <property name="shortcut" >
     <string>A</string>
@@ -317,7 +326,7 @@
     <iconset resource="images.qrc" >:/images/minus.png</iconset>
    </property>
    <property name="text" >
-    <string>Delete selected items</string>
+    <string>Delete books</string>
    </property>
    <property name="shortcut" >
     <string>Del</string>
@@ -328,7 +337,7 @@
     <iconset resource="images.qrc" >:/images/edit.png</iconset>
    </property>
    <property name="text" >
-    <string>Edit meta-information for the currently selected items</string>
+    <string>Edit meta-information</string>
    </property>
    <property name="shortcut" >
     <string>E</string>

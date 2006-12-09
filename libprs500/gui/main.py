@@ -20,12 +20,12 @@ from PyQt4 import uic
 from libprs500.communicate import PRS500Device as device
 from libprs500.errors import *
 from libprs500.lrf.meta import LRFMetaFile, LRFException
-from libprs500.gui import import_ui, installErrorHandler, Error, Warning, extension
+from libprs500.gui import import_ui, installErrorHandler, Error, Warning, extension, APP_TITLE
 from libprs500.gui.widgets import LibraryBooksModel, DeviceBooksModel, DeviceModel, TableView
 from database import LibraryDatabase
 from editbook import EditBookDialog
 
-import sys, re, os, traceback
+import sys, re, os, traceback, tempfile
 
 DEFAULT_BOOK_COVER = None
 LIBRARY_BOOK_TEMPLATE = QString("<table><tr><td><b>Formats:</b> %1 </td><td><b>Tags:</b> %2</td></tr><tr><td><b>Comments:</b>%3</td></tr></table>")
@@ -102,7 +102,7 @@ class MainWindow(QObject, Ui_MainWindow):
   
   def delete(self, action):
     count = str(len(self.current_view.selectionModel().selectedRows()))
-    ret = QMessageBox.question(self.window, self.trUtf8("SONY Reader - confirm"),  self.trUtf8("Are you sure you want to <b>permanently delete</b> these ") +count+self.trUtf8(" item(s)?"), QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+    ret = QMessageBox.question(self.window, self.trUtf8(APP_TITLE + " - confirm"),  self.trUtf8("Are you sure you want to <b>permanently delete</b> these ") +count+self.trUtf8(" item(s)?"), QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
     if ret != QMessageBox.Yes: return
     self.window.setCursor(Qt.WaitCursor)
     if self.library_view.isVisible():
@@ -342,7 +342,7 @@ class MainWindow(QObject, Ui_MainWindow):
   def device_removed(self, timeout=False):
     """ @todo: only reset stuff if library is not shown """
     self.is_connected = False
-    self.df.setText("SONY Reader: <br><br>Storage card:")
+    self.df.setText(self.df_template.arg("").arg("").arg(""))
     self.device_tree.hide_reader(True)
     self.device_tree.hide_card(True)
     self.book_cover.hide()
@@ -368,13 +368,15 @@ class MainWindow(QObject, Ui_MainWindow):
     self.status("Connecting to device")        
     try:
       info = self.dev.get_device_information(end_session=False)
+    except DeviceBusy, e:
+      qFatal(str(e))
     except DeviceError:
       self.dev.reconnect()
       return    
     except ProtocolError, e: 
       traceback.print_exc(e)
       qFatal("Unable to connect to device. Please try unplugging and reconnecting it")
-    self.df.setText(self.df_template.arg(info[0]).arg(info[1]).arg(info[2]))
+    self.df.setText(self.df_template.arg("Connected: "+info[0]).arg(info[1]).arg(info[2]))
     space = self.dev.available_space(end_session=False)  
     sc = space[1][1] if space[1][1] else space[2][1]    
     self.device_tree.model().update_free_space(space[0][1], sc)
@@ -395,6 +397,11 @@ class MainWindow(QObject, Ui_MainWindow):
 def main():
     from optparse import OptionParser
     from libprs500 import __version__ as VERSION
+    lock = os.path.join(tempfile.gettempdir(),"libprs500_gui_lock")
+    if os.access(lock, os.F_OK):
+      print >>sys.stderr, "Another instance of", APP_TITLE, "is running"
+      print >>sys.stderr, "If you are sure this is not the case then manually delete the file", lock
+      sys.exit(1)
     parser = OptionParser(usage="usage: %prog [options]", version=VERSION)
     parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", \
@@ -405,12 +412,17 @@ def main():
     global DEFAULT_BOOK_COVER
     DEFAULT_BOOK_COVER = QPixmap(":/default_cover")
     window = QMainWindow()
+    window.setWindowTitle(APP_TITLE)
     window.setWindowIcon(QIcon(":/icon"))
     installErrorHandler(QErrorMessage(window))
     QCoreApplication.setOrganizationName("KovidsBrain")
-    QCoreApplication.setApplicationName("SONY Reader")
+    QCoreApplication.setApplicationName(APP_TITLE)
     gui = MainWindow(window, options.log_packets)    
-    ret = app.exec_()    
+    f = open(lock, "w")
+    f.close()
+    try:
+      ret = app.exec_()    
+    finally: os.remove(lock)
     return ret
     
 if __name__ == "__main__": main()
