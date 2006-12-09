@@ -16,6 +16,16 @@
 import ez_setup
 ez_setup.use_setuptools()
 
+# Try to install the Python imaging library as the package name (PIL) doesn't match the distributionfile name, thus declaring itas a dependency is useless
+#from setuptools.command.easy_install import main as easy_install
+#try:
+#  try:
+#    import Image
+#  except ImportError: 
+#    print "Trying to install thePython Imaging Library"
+#    easy_install(["-f", "http://www.pythonware.com/products/pil/", "Imaging"])
+#except: pass
+
 from setuptools import setup, find_packages
 from libprs500 import __version__ as VERSION
 
@@ -28,7 +38,9 @@ setup(name='libprs500',
       zip_safe = True,
       version=VERSION,
       install_requires=["pyusb>=0.3.5","pyxml>=0.8.4"],
-      dependency_links=["http://sourceforge.net/project/showfiles.php?group_id=145185","http://sourceforge.net/project/showfiles.php?group_id=6473"],
+      dependency_links=["http://sourceforge.net/project/showfiles.php?group_id=145185",
+                                      "http://sourceforge.net/project/showfiles.php?group_id=6473",
+                                    ],
       description='Library to interface with the Sony Portable Reader 500 over USB. Also has a GUI with library management features.',
       long_description = 
       """
@@ -65,3 +77,8 @@ setup(name='libprs500',
         'Topic :: System :: Hardware :: Hardware Drivers'
         ]
      )
+
+try:
+  import PyQt4
+except ImportError:
+  print "You do not have PyQt4 installed. The GUI will not work. You can obtain PyQt4 from http://www.riverbankcomputing.co.uk/pyqt/download.php"
