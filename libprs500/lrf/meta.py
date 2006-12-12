@@ -16,9 +16,10 @@
 """
 This module presents an easy to use interface for getting and setting meta information in LRF files.
 Just create an L{LRFMetaFile} object and use its properties to get and set meta information. For example:
-  lrf = LRFMetaFile("mybook.lrf")
-  print lrf.title, lrf.author
-  lrf.category = "History"
+  
+  >>> lrf = LRFMetaFile("mybook.lrf")
+  >>> print lrf.title, lrf.author
+  >>> lrf.category = "History"
 """
 
 import struct, array, zlib, StringIO
