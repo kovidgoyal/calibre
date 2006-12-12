@@ -178,7 +178,7 @@ def main():
   term = TerminalController()
   cols = term.COLS
   
-  parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, books, df, ls, cp, mkdir, touch, cat or rm\n\n"+
+  parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, books, df, ls, cp, mkdir, touch, cat, rm\n\n"+
                               "For help on a particular command: %prog command", version="libprs500 version: " + VERSION)
   parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
@@ -208,13 +208,13 @@ def main():
       print "\nBooks on storage card:"
       for book in dev.books(oncard=True): print book      
     elif command == "mkdir":
-      parser = OptionParser(usage="usage: %prog mkdir [options] path\n\npath must begin with /,a:/ or b:/")
+      parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a directory on the device\n\npath must begin with /,a:/ or b:/")
       if len(args) != 1:
         parser.print_help()
         sys.exit(1)
       dev.mkdir(args[0])
     elif command == "ls":
-      parser = OptionParser(usage="usage: %prog ls [options] path\n\npath must begin with /,a:/ or b:/")
+      parser = OptionParser(usage="usage: %prog ls [options] path\nList files on the device\n\npath must begin with /,a:/ or b:/")
       parser.add_option("--color", help="show ls output in color", dest="color", action="store_true", default=False)
       parser.add_option("-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time unless other times are selected). Times are local.", dest="ll", action="store_true", default=False)
       parser.add_option("-R", help="Recursively list subdirectories encountered. /dev and /proc are omitted", dest="recurse", action="store_true", default=False)
@@ -228,7 +228,7 @@ def main():
     elif command == "info":
       info(dev)
     elif command == "cp":
-      usage="usage: %prog cp [options] source destination\n\n"+\
+      usage="usage: %prog cp [options] source destination\nCopy files to/from the device\n\n"+\
             "One of source or destination must be a path on the device. \n\nDevice paths have the form\n"+\
             "prs500:mountpoint/my/path\n"+\
             "where mountpoint is one of /, a: or b:\n\n"+\
@@ -267,7 +267,7 @@ def main():
         return 1
     elif command == "cat":
       outfile = sys.stdout
-      parser = OptionParser(usage="usage: %prog cat path\n\npath should point to a file on the device and must begin with /,a:/ or b:/")
+      parser = OptionParser(usage="usage: %prog cat path\nShow file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/")
       options, args = parser.parse_args(args)
       if len(args) != 1: 
         parser.print_help()
@@ -277,7 +277,7 @@ def main():
       outfile = sys.stdout
       dev.get_file(path, outfile)
     elif command == "rm":
-      parser = OptionParser(usage="usage: %prog rm path\n\npath should point to a file or empty directory on the device "+\
+      parser = OptionParser(usage="usage: %prog rm path\nDelete files from the device\n\npath should point to a file or empty directory on the device "+\
                                   "and must begin with /,a:/ or b:/\n\n"+\
                                   "rm will DELETE the file. Be very CAREFUL")
       options, args = parser.parse_args(args)
@@ -286,7 +286,7 @@ def main():
         return 1
       dev.rm(args[0])      
     elif command == "touch":
-      parser = OptionParser(usage="usage: %prog touch path\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+
+      parser = OptionParser(usage="usage: %prog touch path\nCreate an empty file on the device\n\npath should point to a file on the device and must begin with /,a:/ or b:/\n\n"+
       "Unfortunately, I cant figure out how to update file times on the device, so if path already exists, touch does nothing" )
       options, args = parser.parse_args(args)
       if len(args) != 1: 
