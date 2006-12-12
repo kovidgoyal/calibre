@@ -37,7 +37,7 @@ Responses inherit Command as they share header structure.
 Answers are organized as follows: G{classtree Answer}
 """
 
-import struct
+import struct, time
 from errors import PacketError
 
 DWORD     = "<I"    #: Unsigned integer little endian encoded in 4 bytes
@@ -204,8 +204,7 @@ class Command(TransferBuffer):
   
   Command numbers are:
        0 GetUsbProtocolVersion
-       1 ReqEndSession
-      
+       1 ReqEndSession      
       10 FskFileOpen
       11 FskFileClose
       12 FskGetSize
@@ -218,20 +217,16 @@ class Command(TransferBuffer):
       19 FskFileSetFileInfo
       1A FskFileCreate
       1B FskFileDelete
-      1C FskFileRename
-      
+      1C FskFileRename      
       30 FskFileCreateDirectory
       31 FskFileDeleteDirectory
       32 FskFileRenameDirectory
       33 FskDirectoryIteratorNew
       34 FskDirectoryIteratorDispose
-      35 FskDirectoryIteratorGetNext
-      
+      35 FskDirectoryIteratorGetNext      
       52 FskVolumeGetInfo
-      53 FskVolumeGetInfoFromPath
-      
-      80 FskFileTerminate
-     
+      53 FskVolumeGetInfoFromPath      
+      80 FskFileTerminate     
      100 ConnectDevice
      101 GetProperty
      102 GetMediaInfo
@@ -239,13 +234,11 @@ class Command(TransferBuffer):
      104 SetTime
      105 DeviceBeginEnd
      106 UnlockDevice
-     107 SetBulkSize 
-     
+     107 SetBulkSize      
      110 GetHttpRequest
      111 SetHttpRespponse
      112 Needregistration
-     114 GetMarlinState
-    
+     114 GetMarlinState    
      200 ReqDiwStart
      201 SetDiwPersonalkey
      202 GetDiwPersonalkey
@@ -269,8 +262,7 @@ class Command(TransferBuffer):
      213 ReqDiwFactoryinitialize
      214 GetDiwMacaddress
      215 ReqDiwTest
-     216 ReqDiwDeletekey
-    
+     216 ReqDiwDeletekey    
      300 UpdateChangemode
      301 UpdateDeletePartition
      302 UpdateCreatePartition
@@ -308,7 +300,37 @@ class Command(TransferBuffer):
       raise PacketError(str(self.__class__)[7:-2] + " packets must have length atleast 16")    
     TransferBuffer.__init__(self, packet)
   
+
+class SetTime(Command):
+  """ 
+  Set time on device. All fields refer to time in the GMT time zone.
+  @todo: figure out what the 4 bytes starting at byte 16 are for 
+  """
+  NUMBER = 0x104
   
+  unknown = field(start=0x10, fmt=DWORD) #: Haven't figured out what this is for. Seems to always be set to 4294966816L
+  year        = field(start=0x14, fmt=DWORD) #: year e.g. 2006
+  month    = field(start=0x18, fmt=DWORD)  #: month 1-12
+  day         = field(start=0x1c, fmt=DWORD) #: day 1-31
+  hour       = field(start=0x20, fmt=DWORD) #: hour 0-23
+  minute   = field(start=0x24, fmt=DWORD) #: minute 0-59
+  second   = field(start=0x28, fmt=DWORD) #: second 0-59
+  
+  def __init__(self, t=None):
+    """ @param t: time as an epoch """
+    self.number = SetTime.NUMBER
+    self.type = 0x01
+    self.length = 0x1c
+    self.unknown = 4294966816L
+    if not t: t = time.time()
+    t = time.gmtime(t)
+    self.year = t[0]
+    self.month = t[1]
+    self.day = t[2]
+    self.hour = t[3]
+    self.minute = t[4]
+    self.second = t[5] if t[5] < 60 else 59 # Hack you should actually update the entire time tree is second is > 59
+    
   
 class ShortCommand(Command):  
   

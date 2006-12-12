@@ -158,10 +158,10 @@ class PRS500Device(object):
       try:
         if not dev.handle: dev.open()
         res = func(*args, **kwargs)
-      except ArgumentError, e:
+      except ArgumentError:
         if not kwargs.has_key("end_session") or kwargs["end_session"]:
           dev._send_validated_command(EndSession())        
-        raise e
+        raise 
       except usb.USBError, e:
         if "No such device" in str(e):
           raise DeviceError()
@@ -172,7 +172,7 @@ class PRS500Device(object):
           dev.close()
           raise ProtocolError("There was an unknown error in the protocol. Contact " + AUTHOR)
         dev.close()
-        raise e
+        raise 
       if not kwargs.has_key("end_session") or kwargs["end_session"]:
         dev._send_validated_command(EndSession())
       return res
@@ -182,7 +182,7 @@ class PRS500Device(object):
   def __init__(self, log_packets=False, report_progress=None) :
     """ 
     @param log_packets: If true the packet stream to/from the device is logged 
-    @param: report_progress: Function that is called with a % progress (number between 0 and 100) for various tasks
+    @param report_progress: Function that is called with a % progress (number between 0 and 100) for various tasks
                                                If it is called with -1 that means that the task does not have any progress information
     """
     self.device = self.device_descriptor.getDevice() #: The actual device (PyUSB object)
@@ -237,6 +237,9 @@ class PRS500Device(object):
     self._send_validated_command(UnlockDevice(key=0x312d))
     if res.code != 0: 
       raise ProtocolError("Unlocking of device not implemented. Remove locking and retry.")
+    res = self._send_validated_command(SetTime())
+    if res.code != 0:
+      raise ProtocolError("Could not set time on device")
     
   def close(self):    
     """ Release device interface """
@@ -476,8 +479,8 @@ class PRS500Device(object):
     try:
       dest = self.path_properties(path, end_session=False)
     except PathError, e:
-      if "does not exist" in str(e): return (False, None)
-      else: raise e
+      if "does not exist" in str(e) or "not mounted" in str(e): return (False, None)
+      else: raise 
     return (True, dest)
   
   @safe
@@ -497,22 +500,23 @@ class PRS500Device(object):
     
   
   @safe
-  def put_file(self, infile, path, end_session=True):
+  def put_file(self, infile, path, replace_file=False, end_session=True):
     """
     Put infile onto the devoce at path
     @param infile: An open file object
     @param path: The path on the device at which to put infile. It should point to an existing directory.
+    @param replace_file: If True and path points to a file that already exists, it is replaced
     """
-    exists, dest = self._exists(path)        
+    exists, dest = self._exists(path)
     if exists:
-      if not dest.is_dir: raise PathError("Cannot write to " + path + " as it already exists")
-      if not path.endswith("/"): path += "/"
-      path += os.path.basename(infile.name)
-      exists, dest = self._exists(path)
-      if exists: raise PathError("Cannot write to " + path + " as it already exists")
-    res = self._send_validated_command(FileCreate(path))
-    if res.code != 0:
-      raise ProtocolError("There was an error creating device:"+path+". Response code: "+hex(res.code))
+      if dest.is_dir:
+        if not path.endswith("/"): path += "/"
+        path += os.path.basename(infile.name)
+        return self.put_file(infile, path, replace_file=replace_file, end_session=False)
+      elif not replace_file: raise PathError("Cannot write to " + path + " as it already exists")      
+    else: 
+      res = self._send_validated_command(FileCreate(path))
+      if res.code != 0:  raise ProtocolError("There was an error creating "+path+" on device. Response code: "+hex(res.code))
     chunk_size = 0x8000
     data_left = True
     res = self._send_validated_command(FileOpen(path, mode=FileOpen.WRITE))
@@ -582,7 +586,7 @@ class PRS500Device(object):
   def card(self, end_session=True):
     card = None
     if self._exists("a:/")[0]: card = "a:"
-    if self._exists("b:/")[0]: card = "b:"
+    if self._exists("b:/")[0]: card = "b:"    
     return card
   
   @safe
@@ -611,7 +615,7 @@ class PRS500Device(object):
     return BookList(prefix=prefix, root=root, file=file)
     
   @safe
-  def add_book(self, infile, name, info, booklists, oncard=False, end_session=True):
+  def add_book(self, infile, name, info, booklists, oncard=False, sync_booklists=False, end_session=True):
     """
     Add a book to the device. If oncard is True then the book is copied to the card rather than main memory. 
     
@@ -635,6 +639,24 @@ class PRS500Device(object):
     else: name = "books/"+name
     path = prefix + name
     self.put_file(infile, path, end_session=False)
-    if oncard: booklists[1].add_book(info, name, size)
-    else: booklists[0].add_book(info, name, size)
-        
+    bl = booklists[1] if oncard else booklists[0]
+    bl.add_book(info, name, size)
+    fix_ids(booklists[0], booklists[1])
+    if sync_booklists:
+      self.upload_book_list(booklists[0], end_session=False)
+      if len(booklists[1]):
+        self.upload_book_list(booklists[1], end_session=False)
+    
+  @safe
+  def upload_book_list(self, booklist, end_session=True):
+    if not len(booklist): raise ArgumentError("booklist is empty")
+    path = self.MEDIA_XML
+    if not booklist.prefix:
+      card = self.card(end_session=True)
+      if not card: raise ArgumentError("Cannot upload list to card as card is not present")
+      path = card + self.CACHE_XML
+    f = TemporaryFile()
+    booklist.write(f)
+    f.seek(0)
+    self.put_file(f, path, replace_file=True, end_session=False)
+    f.close()
