@@ -304,11 +304,10 @@ class Command(TransferBuffer):
 class SetTime(Command):
   """ 
   Set time on device. All fields refer to time in the GMT time zone.
-  @todo: figure out what the 4 bytes starting at byte 16 are for 
   """
   NUMBER = 0x104
   
-  unknown = field(start=0x10, fmt=DWORD) #: Haven't figured out what this is for. Seems to always be set to 4294966816L
+  timezone = field(start=0x10, fmt=DWORD) #: -time.timezone with negative numbers encoded as int(0xffffffff +1 -time.timezone/60.)
   year        = field(start=0x14, fmt=DWORD) #: year e.g. 2006
   month    = field(start=0x18, fmt=DWORD)  #: month 1-12
   day         = field(start=0x1c, fmt=DWORD) #: day 1-31
@@ -321,7 +320,8 @@ class SetTime(Command):
     self.number = SetTime.NUMBER
     self.type = 0x01
     self.length = 0x1c
-    self.unknown = 4294966816L
+    tz = int(-time.timezone/60.)
+    self.timezone = tz if tz > 0 else 0xffffffff +1 + tz
     if not t: t = time.time()
     t = time.gmtime(t)
     self.year = t[0]
@@ -656,8 +656,8 @@ class FileProperties(Answer):
   
   file_size   = field(start=16, fmt=DDWORD) #: Size in bytes of the file
   file_type   = field(start=24, fmt=DWORD)  #: 1 == file, 2 == dir
-  ctime       = field(start=28, fmt=DWORD)  #: Creation time
-  wtime       = field(start=32, fmt=DWORD)  #: Modification time
+  ctime       = field(start=28, fmt=DWORD)  #: Creation time as an epoch
+  wtime       = field(start=32, fmt=DWORD)  #: Modification time as an epoch
   permissions = field(start=36, fmt=DWORD)  #: 0 = default permissions, 4 = read only
   
   @apply

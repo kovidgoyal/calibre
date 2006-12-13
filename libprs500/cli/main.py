@@ -216,7 +216,7 @@ def main():
     elif command == "ls":
       parser = OptionParser(usage="usage: %prog ls [options] path\nList files on the device\n\npath must begin with /,a:/ or b:/")
       parser.add_option("--color", help="show ls output in color", dest="color", action="store_true", default=False)
-      parser.add_option("-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time unless other times are selected). Times are local.", dest="ll", action="store_true", default=False)
+      parser.add_option("-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.", dest="ll", action="store_true", default=False)
       parser.add_option("-R", help="Recursively list subdirectories encountered. /dev and /proc are omitted", dest="recurse", action="store_true", default=False)
       parser.remove_option("-h")
       parser.add_option("-h", "--human-readable", help="show sizes in human readable format", dest="hrs", action="store_true", default=False)
