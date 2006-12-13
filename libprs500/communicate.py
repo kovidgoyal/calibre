@@ -487,7 +487,7 @@ class PRS500Device(object):
   def touch(self, path, end_session=True):
     """ 
     Create a file at path 
-    @todo: Open file for reading if it exists so that mod time is updated
+    @todo: Update file modification time if it exists. Opening the file in write mode and then closing it doesn't work.
     """
     if path.endswith("/") and len(path) > 1: path = path[:-1]
     exists, file = self._exists(path)
@@ -496,38 +496,41 @@ class PRS500Device(object):
     if not exists:
       res = self._send_validated_command(FileCreate(path))
       if res.code != 0:
-        raise PathError("Could not create file " + path + ". Response code: " + str(hex(res.code)))
-    
+        raise PathError("Could not create file " + path + ". Response code: " + str(hex(res.code)))      
   
   @safe
   def put_file(self, infile, path, replace_file=False, end_session=True):
     """
     Put infile onto the devoce at path
-    @param infile: An open file object
+    @param infile: An open file object. infile must have a name attribute. If you are using a StringIO object set its name attribute manually.
     @param path: The path on the device at which to put infile. It should point to an existing directory.
     @param replace_file: If True and path points to a file that already exists, it is replaced
-    """
+    """    
+    pos = infile.tell()
+    infile.seek(0,2)
+    bytes = infile.tell() - pos
+    start_pos = pos
+    infile.seek(pos)
     exists, dest = self._exists(path)
     if exists:
       if dest.is_dir:
         if not path.endswith("/"): path += "/"
         path += os.path.basename(infile.name)
         return self.put_file(infile, path, replace_file=replace_file, end_session=False)
-      elif not replace_file: raise PathError("Cannot write to " + path + " as it already exists")      
-    else: 
-      res = self._send_validated_command(FileCreate(path))
-      if res.code != 0:  raise ProtocolError("There was an error creating "+path+" on device. Response code: "+hex(res.code))
+      else:
+        if not replace_file: raise PathError("Cannot write to " + path + " as it already exists")
+        file = self.path_properties(path, end_session=False)
+        if file.file_size > bytes:
+          self.del_file(path, end_session=False)
+          self.touch(path, end_session=False)
+    else:  self.touch(path, end_session=False)
     chunk_size = 0x8000
     data_left = True
     res = self._send_validated_command(FileOpen(path, mode=FileOpen.WRITE))
     if res.code != 0:
       raise ProtocolError("Unable to open " + path + " for writing. Response code: " + hex(res.code))
     id = self._bulk_read(20, data_type=IdAnswer, command_number=FileOpen.NUMBER)[0].id    
-    pos = infile.tell()
-    infile.seek(0,2)
-    bytes = infile.tell() - pos
-    start_pos = pos
-    infile.seek(pos)    
+    
     while data_left:
       data = array('B')
       try:
@@ -544,7 +547,7 @@ class PRS500Device(object):
     self._send_validated_command(FileClose(id)) # Ignore res.code as cant do anything if close fails
     file = self.path_properties(path, end_session=False)
     if file.file_size != pos:
-      raise ProtocolError("Copying to device failed. The file was truncated by " + str(data.file_size - pos) + " bytes")
+      raise ProtocolError("Copying to device failed. The file on the device is larger by " + str(file.file_size - pos) + " bytes")
     
   @safe
   def del_file(self, path, end_session=True):
