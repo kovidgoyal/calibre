@@ -1,4 +1,4 @@
-TRAC_ROOT=/var/lib/trac/libprs500/htdocs/apidocs
+APIDOCS=/var/www/libprs500.kovidgoyal.net//htdocs/apidocs
 
 all: doc sdist egg
 
@@ -10,6 +10,6 @@ egg:
 
 doc:
 	epydoc --config epydoc.conf
-	cp -r docs/html ${TRAC_ROOT}/
+	cp -r docs/html ${APIDOCS}/
 	epydoc -v --config epydoc-pdf.conf
-	cp docs/pdf/api.pdf ${TRAC_ROOT}/
+	cp docs/pdf/api.pdf ${APIDOCS}/

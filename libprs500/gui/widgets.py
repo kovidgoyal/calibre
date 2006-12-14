@@ -51,7 +51,7 @@ class FileDragAndDrop(object):
       for url in candidates:
         o = urlparse(url)        
         if o.scheme and o.scheme != 'file':
-          Warning(o.scheme +  " not supported in drop events")
+          Warning(o.scheme +  " not supported in drop events", None)
           continue
         path = unquote(o.path)
         if not os.access(path, os.R_OK):

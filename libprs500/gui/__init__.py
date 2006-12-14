@@ -35,7 +35,7 @@ def installErrorHandler(dialog):
 
 def Warning(msg, e):
   print >> sys.stderr, msg
-  traceback.print_exc(e)
+  if e: traceback.print_exc(e)
 
 def Error(msg, e):  
   if error_dialog:
