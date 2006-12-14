@@ -12,12 +12,13 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QSettings, QVariant, QSize, QEventLoop, QString
+from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QSettings, QVariant, QSize, QEventLoop, QString, QBuffer, QIODevice, QModelIndex
 from PyQt4.QtGui import QPixmap, QAbstractItemView, QErrorMessage, QMessageBox, QFileDialog, QIcon
 from PyQt4.Qt import qInstallMsgHandler, qDebug, qFatal, qWarning, qCritical
 from PyQt4 import uic
 
 from libprs500.communicate import PRS500Device as device
+from libprs500.books import fix_ids
 from libprs500.errors import *
 from libprs500.lrf.meta import LRFMetaFile, LRFException
 from libprs500.gui import import_ui, installErrorHandler, Error, Warning, extension, APP_TITLE
@@ -36,7 +37,7 @@ class MainWindow(QObject, Ui_MainWindow):
   
   def show_device(self, yes):
     """ If C{yes} show the items on the device otherwise show the items in the library """
-    self.device_view.clearSelection(), self.library_view.clearSelection()
+    self.device_view.selectionModel().reset(), self.library_view.selectionModel().reset()
     self.book_cover.hide(), self.book_info.hide()
     if yes: 
       self.device_view.show(), self.library_view.hide()
@@ -80,7 +81,7 @@ class MainWindow(QObject, Ui_MainWindow):
     for c in range(topleft.column(), bottomright.column()+1):
       view.resizeColumnToContents(c)
   
-  def show_book(self, current, previous):
+  def show_book(self, current, previous):    
     if self.library_view.isVisible():
       formats, tags, comments, cover = current.model().info(current.row())
       data = LIBRARY_BOOK_TEMPLATE.arg(formats).arg(tags).arg(comments)
@@ -101,50 +102,28 @@ class MainWindow(QObject, Ui_MainWindow):
       self.show_book(index, index)
   
   def delete(self, action):
-    count = str(len(self.current_view.selectionModel().selectedRows()))
+    rows = self.current_view.selectionModel().selectedRows()
+    if not len(rows): return 
+    count = str(len(rows))
     ret = QMessageBox.question(self.window, self.trUtf8(APP_TITLE + " - confirm"),  self.trUtf8("Are you sure you want to <b>permanently delete</b> these ") +count+self.trUtf8(" item(s)?"), QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
     if ret != QMessageBox.Yes: return
     self.window.setCursor(Qt.WaitCursor)
     if self.library_view.isVisible():
       self.library_model.delete(self.library_view.selectionModel().selectedRows())
     else:
-      rows   = self.device_view.selectionModel().selectedRows()
-      items = [ row.model().title(row) + ": " +  row.model().path(row)[row.model().path(row).rfind("/")+1:] for row in rows ]
-       
-      if ret == QMessageBox.YesToAll:
-        
-        paths, mc, cc = [], False, False
-        for book in rows:
-          path = book.model().path(book)
-          if path[0] == "/": file, prefix, mc = self.main_xml, "xs1:", True
-          else:                    file, prefix, cc = self.cache_xml, "",       True
-          file.seek(0)
-          document = dom.parse(file)
-          books = document.getElementsByTagName(prefix + "text")
-          for candidate in books:
-            if candidate.attributes["path"].value in path:
-              paths.append(path)
-              candidate.parentNode.removeChild(candidate)
-              break
-          file.close()
-          file = TemporaryFile()
-          PrettyPrint(document, file)        
-          if len(prefix) > 0: self.main_xml = file
-          else: self.cache_xml = file
-        for path in paths:
-          self.dev.del_file(path)
-          model.delete_by_path(path)        
-        self.cache_xml.seek(0)
-        self.main_xml.seek(0)
-        self.status("Files deleted. Updating media list on device")
-        if mc: 
-          self.dev.del_file(self.dev.MEDIA_XML)
-          self.dev.put_file(self.main_xml, self.dev.MEDIA_XML)
-        if cc: 
-          self.dev.del_file(self.card+self.dev.CACHE_XML)
-          self.dev.put_file(self.cache_xml, self.card+self.dev.CACHE_XML)
-      
-      
+      self.status("Deleting files from device")
+      paths = self.device_view.model().delete(rows)
+      for path in paths:
+        self.status("Deleting "+path[path.rfind("/")+1:])
+        self.dev.del_file(path, end_session=False)
+      fix_ids(self.reader_model.booklist, self.card_model.booklist)
+      self.status("Syncing media list to reader")
+      self.dev.upload_book_list(self.reader_model.booklist)
+      if len(self.card_model.booklist):
+        self.status("Syncing media list to card")
+        self.dev.upload_book_list(self.card_model.booklist)
+      self.update_availabe_space()
+    self.show_book(self.current_view.currentIndex(), QModelIndex())
     self.window.setCursor(Qt.ArrowCursor)
     
   def read_settings(self):
@@ -207,6 +186,8 @@ class MainWindow(QObject, Ui_MainWindow):
       except Exception, e: Error("Unable to change cover", e)
       
   def upload_books(self, to, files, ids):
+    oncard = False if to == "reader" else True
+    booklists = (self.reader_model.booklist, self.card_model.booklist)
     def update_models():
       hv = self.device_view.horizontalHeader()
       col = hv.sortIndicatorSection()
@@ -216,52 +197,82 @@ class MainWindow(QObject, Ui_MainWindow):
       if self.device_view.isVisible() and self.device_view.model() == model: self.search.clear()
       else: model.search("")
       
+    def sync_lists():
+      self.status("Syncing media list to device main memory")
+      self.dev.upload_book_list(booklists[0])
+      if len(booklists[1]):
+        self.status("Syncing media list to storage card")
+        self.dev.upload_book_list(booklists[1])
+      
     self.window.setCursor(Qt.WaitCursor)
-    oncard = False if to == "reader" else True
-    ename = "file"
-    booklists = (self.reader_model._orig_data, self.card_model._orig_data)
+    ename = "file"    
     try:
       if ids:
         for id in ids:
           formats = []
-          info = self.library_view.model().book_info(id, ["title", "authors", "cover"])
+          info = self.library_view.model().book_info(id)
+          if info["cover"]:
+            pix = QPixmap()
+            pix.loadFromData(str(info["cover"]))
+            if pix.isNull(): pix = DEFAULT_BOOK_COVER            
+            pix = pix.scaledToHeight(self.dev.THUMBNAIL_HEIGHT, Qt.SmoothTransformation) 
+            buffer = QBuffer()
+            buffer.open(QIODevice.WriteOnly)
+            pix.save(buffer, "JPEG")
+            info["cover"] = (pix.width(), pix.height(), str(buffer.buffer()))
           ename = info["title"]
           for f in files: 
-            if re.match("......_"+str(id)+"_", f):
+            if re.match("......_"+str(id)+"_", os.path.basename(f)):
               formats.append(f)
           file = None
           try:
             for format in self.dev.FORMATS:
               for f in formats:
-                if extension(format) == format:
+                if extension(f) == format:
                   file = f
                   raise StopIteration()
           except StopIteration: pass        
           if not file: 
-           Error("The library does not have any compatible formats for " + ename)
+           Error("The library does not have any formats that can be viewed on the device for " + ename, None)
            continue
           f = open(file, "rb")          
           self.status("Sending "+info["title"]+" to device")
           try:
-            self.dev.add_book(f, "libprs500_"+str(id)+"."+extension(file), info, booklists, oncard=oncard)          
+            self.dev.add_book(f, "libprs500_"+str(id)+"."+extension(file), info, booklists, oncard=oncard, end_session=False)          
             update_models()
+          except PathError, e:
+            if "already exists" in str(e): 
+              Error(info["title"] + " already exists on the device", None)
+              self.progress(100)
+              continue
+            else: raise
           finally: f.close()
+        sync_lists()        
       else:
         for file in files:
           ename = file
           if extension(file) not in self.dev.FORMATS:
             Error(ename + " is not in a supported format")
             continue
-          info = { "title":file, "authors":"Unknown", cover:None }
+          info = { "title":os.path.basename(file), "authors":"Unknown", "cover":(None, None, None) }
           f = open(file, "rb")
           self.status("Sending "+info["title"]+" to device")
           try:
-            self.dev.add_book(f, os.path.basename(file), info, booklists, oncard=oncard)
+            self.dev.add_book(f, os.path.basename(file), info, booklists, oncard=oncard, end_session=False)
             update_models()
+          except PathError, e:
+            if "already exists" in str(e): 
+              Error(info["title"] + " already exists on the device", None)
+              self.progress(100)
+              continue
+            else: raise
           finally: f.close()
+        sync_lists()
     except Exception, e:
       Error("Unable to send "+ename+" to device", e)
-    finally: self.window.setCursor(Qt.WaitCursor)
+    finally: 
+      self.window.setCursor(Qt.ArrowCursor)
+      self.update_availabe_space()
   
   def __init__(self, window, log_packets):
     QObject.__init__(self)
@@ -377,13 +388,9 @@ class MainWindow(QObject, Ui_MainWindow):
       traceback.print_exc(e)
       qFatal("Unable to connect to device. Please try unplugging and reconnecting it")
     self.df.setText(self.df_template.arg("Connected: "+info[0]).arg(info[1]).arg(info[2]))
-    space = self.dev.available_space(end_session=False)  
-    sc = space[1][1] if space[1][1] else space[2][1]    
-    self.device_tree.model().update_free_space(space[0][1], sc)
-    self.is_connected = True
-    if space[1][2] > 0: self.card = "a:"
-    elif space[2][2] > 0: self.card = "b:"
-    else: self.card = None
+    self.update_availabe_space(end_session=False)
+    self.card = self.dev.card()
+    self.is_connected = True    
     if self.card: self.device_tree.hide_card(False)
     else: self.device_tree.hide_card(True)
     self.device_tree.hide_reader(False)
@@ -393,6 +400,20 @@ class MainWindow(QObject, Ui_MainWindow):
     self.card_model.set_data(self.dev.books(oncard=True))
     self.progress(100)
     self.window.setCursor(Qt.ArrowCursor)
+    
+  def update_availabe_space(self, end_session=True):
+    space = self.dev.free_space(end_session=end_session)  
+    sc = space[1] if int(space[1])>0 else space[2]    
+    self.device_tree.model().update_free_space(space[0], sc)
+    
+class LockFile(object):
+  def __init__(self, path):
+    self.path = path
+    f =open(path, "w")
+    f.close()
+    
+  def __del__(self):
+    if os.access(self.path, os.F_OK): os.remove(self.path)
     
 def main():
     from optparse import OptionParser
@@ -418,11 +439,7 @@ def main():
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName(APP_TITLE)
     gui = MainWindow(window, options.log_packets)    
-    f = open(lock, "w")
-    f.close()
-    try:
-      ret = app.exec_()    
-    finally: os.remove(lock)
-    return ret
+    lock = LockFile(lock)
+    return app.exec_()
     
-if __name__ == "__main__": main()
+if __name__ == "__main__": sys.exit(main())

@@ -12,6 +12,16 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import re, os, string, textwrap, time, traceback, sys
+from operator import itemgetter, attrgetter
+from socket import gethostname
+from urlparse import urlparse, urlunparse
+from urllib import quote, unquote
+from math import sin, cos, pi
+
+from libprs500 import TEMPORARY_FILENAME_TEMPLATE as TFT
+from libprs500.lrf.meta import LRFMetaFile
+from libprs500.gui import Error, Warning
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt, SIGNAL
@@ -19,22 +29,9 @@ from PyQt4.Qt import QApplication, QString, QFont, QAbstractListModel, QVariant,
                                    QAbstractItemView, QPixmap, QIcon, QSize, QMessageBox, QSettings, QFileDialog, QErrorMessage, QDialog, QSpinBox, QPoint, QTemporaryFile, QDir, QFile, QIODevice,\
                                    QPainterPath, QItemDelegate, QPainter, QPen, QColor, QLinearGradient, QBrush, QStyle,\
                                    QStringList, QByteArray, QBuffer, QMimeData, QTextStream, QIODevice, QDrag, QRect                     
-import re, os, string, textwrap, time, traceback, sys
 
-from operator import itemgetter, attrgetter
-from socket import gethostname
-from urlparse import urlparse, urlunparse
-from urllib import quote, unquote
-from math import sin, cos, pi
-from libprs500 import TEMPORARY_FILENAME_TEMPLATE as TFT
-from libprs500.lrf.meta import LRFMetaFile
-from libprs500.gui import Error, Warning
-
-NONE = QVariant()
-TIME_WRITE_FMT  = "%d %b %Y"
-COVER_HEIGHT = 80
-
-
+NONE = QVariant() #: Null value to return from the data function of item models
+TIME_WRITE_FMT  = "%d %b %Y" #: The display format used to show dates
 
 class FileDragAndDrop(object):
   _drag_start_position = QPoint()
@@ -99,7 +96,8 @@ class FileDragAndDrop(object):
     files = self._get_r_ok_files(event)
     if files:
       try:
-        if self.files_dropped(files, event): event.acceptProposedAction()
+        event.setDropAction(Qt.CopyAction)
+        if self.files_dropped(files, event): event.accept()
       except Exception, e:        
         Error("There was an error processing the dropped files.", e)
         raise e
@@ -116,7 +114,7 @@ class FileDragAndDrop(object):
         urls.append(urlunparse(('file', quote(gethostname()), quote(str(file.name)), '','','')))
         self._dragged_files.append(file)      
       mime_data.setData("text/uri-list", QByteArray("\n".join(urls)))
-      user = os.getenv['USER']
+      user = os.getenv('USER')
       if user: mime_data.setData("text/x-xdnd-username", QByteArray(user))
       drag.setMimeData(mime_data)
       return drag
@@ -131,7 +129,7 @@ class FileDragAndDrop(object):
       return self.drag_object_from_files(files), self._dragged_files
         
   
-class TableView(FileDragAndDrop, QTableView):
+class TableView(FileDragAndDrop, QTableView):    
   def __init__(self, parent):
     FileDragAndDrop.__init__(self, QTableView)
     QTableView.__init__(self, parent)
@@ -261,11 +259,11 @@ class LibraryBooksView(TableView):
   def start_drag(self, pos):    
     index = self.indexAt(pos)
     if index.isValid():
-      indexes = self.selectedIndexes()
-      files = self.model().extract_formats(indexes)
+      rows = frozenset([ index.row() for index in self.selectedIndexes() ])      
+      files = self.model().extract_formats(rows)
       drag = self.drag_object_from_files(files)
       if drag:
-        ids = [ str(self.model().id_from_index(index)) for index in indexes ]
+        ids = [ str(self.model().id_from_row(row)) for row in rows ]
         drag.mimeData().setData("application/x-libprs500-id", QByteArray("\n".join(ids)))
         drag.start()
       
@@ -376,13 +374,10 @@ class LibraryBooksModel(QAbstractTableModel):
     self._data = None
     self._orig_data = None
     
-  def extract_formats(self, indices):
-    files, rows = [], []
-    for index in indices:
-      row = index.row()
-      if row in rows: continue
-      else: rows.append(row)
-      id = self.id_from_index(index)
+  def extract_formats(self, rows):
+    files = []
+    for row in rows:      
+      id = self.id_from_row(row)
       au = self._data[row]["authors"] if self._data[row]["authors"] else "Unknown"
       basename = re.sub("\n", "", "_"+str(id)+"_"+self._data[row]["title"]+" by "+ au)
       exts = self.db.get_extensions(id)
@@ -489,6 +484,7 @@ class LibraryBooksModel(QAbstractTableModel):
     return exts, tags, comments, cover
   
   def id_from_index(self, index): return self._data[index.row()]["id"]
+  def id_from_row(self, row): return self._data[row]["id"]
   
   def refresh_row(self, row):
     self._data[row] = self.db.get_row_by_id(self._data[row]["id"], self.FIELDS)
@@ -498,8 +494,12 @@ class LibraryBooksModel(QAbstractTableModel):
         break
     self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.index(row, 0), self.index(row, self.columnCount(0)-1))
   
-  def book_info(self, id, cols=["title", "authors", "cover"]):
-    return self.db.get_row_by_id(id, cols)
+  def book_info(self, id):
+    """ Return title, authors and cover in a dict """
+    cover = self.db.get_cover(id)
+    info = self.db.get_row_by_id(id, ["title", "authors"])
+    info["cover"] = cover
+    return info
   
   def data(self, index, role):
     if role == Qt.DisplayRole or role == Qt.EditRole:      
@@ -583,6 +583,13 @@ class LibraryBooksModel(QAbstractTableModel):
     self._orig_data.append(self.db.get_row_by_id(id, self.FIELDS))
     
 class DeviceBooksModel(QAbstractTableModel):
+  @apply
+  def booklist():
+    doc = """ The booklist this model is based on """
+    def fget(self):
+      return self._orig_data
+    return property(**locals())
+    
   def __init__(self, parent):
     QAbstractTableModel.__init__(self, parent)  
     self._data = []
@@ -662,19 +669,20 @@ class DeviceBooksModel(QAbstractTableModel):
     self.emit(SIGNAL("layoutChanged()"))
     self.emit(SIGNAL("searched()"))
     
-  def delete_by_path(self, path):
+  def delete(self, indices):
+    paths = []
+    rows = [ index.row() for index in indices ]
+    if not rows: return
     self.emit(SIGNAL("layoutAboutToBeChanged()"))
-    index = -1
-    for book in self._data:
-      if path in book["path"]:
-        self._data.remove(book)
-        break
-    for book in self._orig_data:
-      if path in book["path"]:
-        self._orig_data.remove(book)
-        break
+    elems = [ self._data[row] for row in rows ]
+    for e in elems:
+      id = e.id
+      paths.append(e.path)
+      self._orig_data.delete_book(id)
+      try: self._data.remove(e)
+      except ValueError: pass
     self.emit(SIGNAL("layoutChanged()"))
-    self.emit(SIGNAL("deleted()"))
+    return paths
     
   def path(self, index):  return self._data[index.row()].path
   def title(self, index):  return self._data[index.row()].title
@@ -709,9 +717,9 @@ class DeviceModel(QAbstractListModel):
       text = None
       if row == 0: text = "Library"  
       if row == 1 and self.show_reader: 
-        text = "Reader\n" + TableView.human_readable(self.memory_free) + " available"
+        text = "Reader\n" + TableView.human_readable(self.memory_free) + " available"        
       elif row == 2 and self.show_card: 
-        text = "Card\n"  + TableView.human_readable(self.card_free) + " available"
+        text = "Card\n" + TableView.human_readable(self.card_free) + " available"
       if text: data = QVariant(text)
     elif role == Qt.DecorationRole:      
       icon = None

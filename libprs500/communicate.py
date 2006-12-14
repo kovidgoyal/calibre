@@ -651,9 +651,9 @@ class PRS500Device(object):
     size = infile.tell()
     infile.seek(0)
     card = self.card(end_session=False)
-    space = self.available_space(end_session=False)
-    mspace = space[0][1]
-    cspace = space[1][1] if space[1][1] >= space[2][1] else space[2][1]
+    space = self.free_space(end_session=False)
+    mspace = space[0]
+    cspace = space[1] if space[1] >= space[2] else space[2]
     if oncard and size > cspace - 1024*1024: raise FreeSpaceError("There is insufficient free space on the storage card")
     if not oncard and size > mspace - 1024*1024: raise FreeSpaceError("There is insufficient free space in main memory")
     prefix  = "/Data/media/"

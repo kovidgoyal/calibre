@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>728</width>
-    <height>711</height>
+    <height>822</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -100,6 +100,64 @@
      </layout>
     </item>
     <item>
+     <layout class="QHBoxLayout" >
+      <property name="margin" >
+       <number>0</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>&amp;Search:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>search</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="search" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
+        <property name="acceptDrops" >
+         <bool>false</bool>
+        </property>
+        <property name="toolTip" >
+         <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
+        </property>
+        <property name="autoFillBackground" >
+         <bool>false</bool>
+        </property>
+        <property name="text" >
+         <string/>
+        </property>
+        <property name="frame" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="clear_button" >
+        <property name="toolTip" >
+         <string>Reset Quick Search</string>
+        </property>
+        <property name="text" >
+         <string>...</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="images.qrc" >:/images/clear.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QGridLayout" >
       <property name="margin" >
        <number>0</number>
@@ -164,64 +222,6 @@
         </property>
         <property name="showGrid" >
          <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" >
-      <property name="margin" >
-       <number>0</number>
-      </property>
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <item>
-       <widget class="QLabel" name="label" >
-        <property name="text" >
-         <string>&amp;Search:</string>
-        </property>
-        <property name="buddy" >
-         <cstring>search</cstring>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="search" >
-        <property name="enabled" >
-         <bool>true</bool>
-        </property>
-        <property name="acceptDrops" >
-         <bool>false</bool>
-        </property>
-        <property name="toolTip" >
-         <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
-        </property>
-        <property name="whatsThis" >
-         <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
-        </property>
-        <property name="autoFillBackground" >
-         <bool>false</bool>
-        </property>
-        <property name="text" >
-         <string/>
-        </property>
-        <property name="frame" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="clear_button" >
-        <property name="toolTip" >
-         <string>Reset Quick Search</string>
-        </property>
-        <property name="text" >
-         <string>...</string>
-        </property>
-        <property name="icon" >
-         <iconset resource="images.qrc" >:/images/clear.png</iconset>
         </property>
        </widget>
       </item>
@@ -349,6 +349,11 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>LibraryBooksView</class>
+   <extends>QTableView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
    <class>DeviceBooksView</class>
    <extends>QTableView</extends>
    <header>widgets.h</header>
@@ -361,11 +366,6 @@
   <customwidget>
    <class>DeviceView</class>
    <extends>QListView</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
-   <class>LibraryBooksView</class>
-   <extends>QTableView</extends>
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>
