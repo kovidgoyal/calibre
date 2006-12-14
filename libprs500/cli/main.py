@@ -196,12 +196,13 @@ def main():
   dev = PRS500Device(log_packets=options.log_packets)
   try:
     if command == "df":
-      data = dev.available_space()
-      print "Filesystem\tSize \tUsed \tAvail \tUse%"
-      for datum in data:
-        total, free, used, percent = human_readable(datum[2]), human_readable(datum[1]), human_readable(datum[2]-datum[1]), \
-                                     str(0 if datum[2]==0 else int(100*(datum[2]-datum[1])/(datum[2]*1.)))+"%"
-        print "%-10s\t%s\t%s\t%s\t%s"%(datum[0], total, used, free, percent)
+      total = dev.total_space(end_session=False)
+      free = dev.free_space()
+      where = ("Memory", "Stick", "Card")
+      print "Filesystem\tSize \tUsed \tAvail \tUse%"      
+      for i in range(3):
+        print "%-10s\t%s\t%s\t%s\t%s"%(where[i], human_readable(total[i]), human_readable(total[i]-free[i]), human_readable(free[i]),\
+                                                                            str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%")
     elif command == "books":
       print "Books in main memory:"
       for book in dev.books(): print book

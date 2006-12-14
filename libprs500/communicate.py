@@ -135,6 +135,7 @@ class PRS500Device(object):
   MEDIA_XML  = "/Data/database/cache/media.xml"  #: Location of media.xml file on device
   CACHE_XML = "/Sony Reader/database/cache.xml" #: Location of cache.xml on storage card in device
   FORMATS     = ["lrf", "rtf", "pdf", "txt"]                        #: Ordered list of supported formats
+  THUMBNAIL_HEIGHT = 68                                         #: Height for thumbnails of books/images on the device
     
   device_descriptor = DeviceDescriptor(SONY_VENDOR_ID, PRS500_PRODUCT_ID, PRS500_INTERFACE_ID)
     
@@ -456,21 +457,38 @@ class PRS500Device(object):
     return dirs
     
   @safe
-  def available_space(self, end_session=True):
+  def total_space(self, end_session=True):
     """ 
-    Get free space available on the mountpoints:
-      1. /Data/ Device memory
-      2. a:/    Memory Stick
-      3. b:/    SD Card
+    Get total space available on the mountpoints:
+      1. Main memory
+      2. Memory Stick
+      3. SD Card
       
-    @return: A list of tuples. Each tuple has form ("location", free space, total space)
+    @return: A 3 element list with total space in bytes of (1, 2, 3)
     """    
     data = []
     for path in ("/Data/", "a:/", "b:/"):
-      res = self._send_validated_command(FreeSpaceQuery(path),timeout=5000) # Timeout needs to be increased as it takes time to read card
+      res = self._send_validated_command(TotalSpaceQuery(path),timeout=5000) # Timeout needs to be increased as it takes time to read card
       buffer_size = 16 + res.data[2]
-      pkt = self._bulk_read(buffer_size, data_type=FreeSpaceAnswer, command_number=FreeSpaceQuery.NUMBER)[0]
-      data.append( (path, pkt.free_space, pkt.total) )    
+      pkt = self._bulk_read(buffer_size, data_type=TotalSpaceAnswer, command_number=TotalSpaceQuery.NUMBER)[0]
+      data.append( pkt.total )    
+    return data
+    
+  @safe
+  def free_space(self, end_session=True):
+    """ 
+    Get free space available on the mountpoints:
+      1. Main memory
+      2. Memory Stick
+      3. SD Card
+      
+    @return: A 3 element list with free space in bytes of (1, 2, 3)
+    """    
+    data = []
+    for path in ("/", "a:/", "b:/"):
+      res = self._send_validated_command(FreeSpaceQuery(path),timeout=5000) # Timeout needs to be increased as it takes time to read card
+      pkt = self._bulk_read(FreeSpaceAnswer.SIZE, data_type=FreeSpaceAnswer, command_number=FreeSpaceQuery.NUMBER)[0]
+      data.append( pkt.free )    
     return data
     
   def _exists(self, path):
@@ -624,7 +642,8 @@ class PRS500Device(object):
     
     @param infile: The source file, should be opened in "rb" mode
     @param name: The name of the book file when uploaded to the device. The extension of name must be one of the supported formats for this device.
-    @param info: A dictionary that must have the keys "title", "authors", "cover". C{info["cover"]} should be the data from a 60x80 image file or None. If it is something else, results are undefined. 
+    @param info: A dictionary that must have the keys "title", "authors", "cover". 
+                          C{info["cover"]} should be a three element tuple (width, height, data) where data is the image data in JPEG format as a string
     @param booklists: A tuple containing the result of calls to (L{books}(oncard=False), L{books}(oncard=True)).    
     @todo: Implement syncing the booklists to the device. This would mean juggling with the nextId attribute in media.xml and renumbering ids in cache.xml?
     """
@@ -642,8 +661,9 @@ class PRS500Device(object):
     else: name = "books/"+name
     path = prefix + name
     self.put_file(infile, path, end_session=False)
+    ctime = self.path_properties(path, end_session=False).ctime
     bl = booklists[1] if oncard else booklists[0]
-    bl.add_book(info, name, size)
+    bl.add_book(info, name, size, ctime)
     fix_ids(booklists[0], booklists[1])
     if sync_booklists:
       self.upload_book_list(booklists[0], end_session=False)
@@ -662,4 +682,5 @@ class PRS500Device(object):
     booklist.write(f)
     f.seek(0)
     self.put_file(f, path, replace_file=True, end_session=False)
-    f.close()
+    f.close()   
+  

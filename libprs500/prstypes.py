@@ -437,11 +437,22 @@ class PathCommand(Command):
     self.length = len(self)-16
     self.number = number
     
-class FreeSpaceQuery(PathCommand):
-  """ Query the free space available """
-  NUMBER = 0x53 #; Command number  
+class TotalSpaceQuery(PathCommand):
+  """ Query the total space available on the volume represented by path """
+  NUMBER = 0x53 #: Command number  
   def __init__(self, path):
-    PathCommand.__init__(self, path, FreeSpaceQuery.NUMBER)
+    """ @param path: valid values are 'a:', 'b:', '/Data/' """ 
+    PathCommand.__init__(self, path, TotalSpaceQuery.NUMBER)
+
+class FreeSpaceQuery(ShortCommand):
+  """ Query the free space available """
+  NUMBER = 0x103 #: Command number
+  def __init__(self, where):
+    """ @param where: valid values are: 'a:', 'b:', '/' """
+    c = 0
+    if where.startswith('a:'): c = 1
+    elif where.startswith('b:'): c = 2
+    ShortCommand.__init__(self, number=FreeSpaceQuery.NUMBER, type=0x01, command=c)
 
 class DirCreate(PathCommand):
   """ Create a directory """
@@ -649,7 +660,7 @@ class Answer(TransferBuffer):
       raise PacketError(str(self.__class__)[7:-2] + " packets must have a length of atleast 16 bytes")
     TransferBuffer.__init__(self, packet)
     
-  
+
 class FileProperties(Answer):
   
   """ Defines the structure of packets that contain size, date and permissions information about files/directories. """
@@ -718,9 +729,13 @@ class DeviceInfo(Answer):
   mime_type = field(start=104, fmt="<32s")
   
 
-class FreeSpaceAnswer(Answer):
-  total = field(start=24, fmt=DDWORD)
-  free_space = field(start=32, fmt=DDWORD)
+class TotalSpaceAnswer(Answer):
+  total = field(start=24, fmt=DDWORD) #: Total space available 
+  free_space = field(start=32, fmt=DDWORD) #: Supposedly free space available, but it does not work for main memory
+ 
+class FreeSpaceAnswer(Answer): 
+  SIZE = 24
+  free = field(start=16, fmt=DDWORD)
 
 
 class ListAnswer(Answer):  
