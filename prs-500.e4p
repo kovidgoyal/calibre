@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.0.dtd">
 <!-- eric4 project file for project prs-500 -->
-<!-- Saved: 2006-11-29, 11:51:16 -->
+<!-- Saved: 2006-12-08, 23:24:29 -->
 <!-- Copyright (C) 2006 Kovid Goyal, kovid@kovidgoyal.net -->
 <Project version="4.0">
   <ProgLanguage mixed="0">Python</ProgLanguage>
@@ -74,6 +74,15 @@
       <Dir>libprs500</Dir>
       <Dir>gui</Dir>
       <Name>editbook.py</Name>
+    </Source>
+    <Source>
+      <Dir>libprs500</Dir>
+      <Name>books.py</Name>
+    </Source>
+    <Source>
+      <Dir>libprs500</Dir>
+      <Dir>gui</Dir>
+      <Name>widgets.py</Name>
     </Source>
   </Sources>
   <Forms>
