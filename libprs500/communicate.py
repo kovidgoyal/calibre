@@ -138,7 +138,11 @@ class PRS500Device(object):
   THUMBNAIL_HEIGHT = 68                                         #: Height for thumbnails of books/images on the device
     
   device_descriptor = DeviceDescriptor(SONY_VENDOR_ID, PRS500_PRODUCT_ID, PRS500_INTERFACE_ID)
-    
+   
+  @classmethod
+  def signature(cls):    
+    """ Return a two element tuple (vendor id, product id) """
+    return (cls.SONY_VENDOR_ID, cls.PRS500_PRODUCT_ID )
 
   def safe(func):
     """ 

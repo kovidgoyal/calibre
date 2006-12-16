@@ -279,7 +279,6 @@ class MainWindow(QObject, Ui_MainWindow):
     Ui_MainWindow.__init__(self)
   
     self.dev = device(report_progress=self.progress, log_packets=log_packets)
-    self.is_connected = False    
     self.setupUi(window)
     self.card = None
     self.window = window
@@ -335,24 +334,17 @@ class MainWindow(QObject, Ui_MainWindow):
     # DnD setup
     QObject.connect(self.book_cover, SIGNAL("cover_received(QPixmap)"), self.update_cover)
     
-    self.device_detector = self.startTimer(1000)
+    self.detector = DeviceConnectDetector(self.dev)
+    self.connect(self.detector, SIGNAL("device_connected()"), self.establish_connection)
+    self.connect(self.detector, SIGNAL("device_removed()"), self.device_removed)
     self.search.setFocus(Qt.OtherFocusReason)
     self.show_device(False)
     self.df_template = self.df.text()
     self.df.setText(self.df_template.arg("").arg("").arg(""))
     window.show()    
     
-  def timerEvent(self, e):
-    if e.timerId() == self.device_detector:
-      is_connected = self.dev.is_connected()
-      if is_connected and not self.is_connected:
-        self.establish_connection()
-      elif not is_connected and self.is_connected:
-        self.device_removed()
-  
-  def device_removed(self, timeout=False):
+  def device_removed(self):
     """ @todo: only reset stuff if library is not shown """
-    self.is_connected = False
     self.df.setText(self.df_template.arg("").arg("").arg(""))
     self.device_tree.hide_reader(True)
     self.device_tree.hide_card(True)
@@ -383,6 +375,7 @@ class MainWindow(QObject, Ui_MainWindow):
       qFatal(str(e))
     except DeviceError:
       self.dev.reconnect()
+      self.detector.connection_failed()
       return    
     except ProtocolError, e: 
       traceback.print_exc(e)
@@ -415,6 +408,58 @@ class LockFile(object):
   def __del__(self):
     if os.access(self.path, os.F_OK): os.remove(self.path)
     
+class DeviceConnectDetector(QObject):
+  
+  def timerEvent(self, e):
+    if e.timerId() == self.device_detector:
+      is_connected = self.dev.is_connected()
+      if is_connected and not self.is_connected:
+        self.emit(SIGNAL("device_connected()"))
+        self.is_connected = True
+      elif not is_connected and self.is_connected:
+        self.emit(SIGNAL("device_removed()"))       
+        self.is_connected = False
+        
+  def connection_failed(self):
+    # TODO: Do something intelligent if we're using HAL
+    self.is_connected = False
+  
+  def udi_is_device(self, udi):
+    ans = False
+    try:
+      devobj = bus.get_object('org.freedesktop.Hal', udi)
+      dev = dbus.Interface(devobj, "org.freedesktop.Hal.Device")
+      properties = dev.GetAllProperties()
+      vendor_id, product_id = int(properties["usb_device.vendor_id"]), int(properties["usb_device.product_id"])
+      if self.dev.signature() == (vendor_id, product_id): ans = True
+    except:
+      self.device_detector = self.startTimer(1000)
+    return ans
+  
+  def device_added_callback(self, udi):    
+    if self.udi_is_device(udi): 
+      self.emit(SIGNAL("device_connected()"))
+      
+  def device_removed_callback(self, udi):
+    if self.udi_is_device(udi):
+      self.emit(SIGNAL("device_removed()"))
+  
+  def __init__(self, dev):
+    QObject.__init__(self)
+    self.dev = dev
+    try:
+      raise Exception("DBUS doesn't support the Qt mainloop")
+      import dbus      
+      bus = dbus.SystemBus()
+      hal_manager_obj = bus.get_object('org.freedesktop.Hal', '/org/freedesktop/Hal/Manager')
+      hal_manager = dbus.Interface(hal_manager_obj, 'org.freedesktop.Hal.Manager')
+      hal_manager.connect_to_signal('DeviceAdded', self.device_added_callback)
+      hal_manager.connect_to_signal('DeviceRemoved', self.device_removed_callback)
+    except Exception, e:
+      #Warning("Could not connect to HAL", e)
+      self.is_connected = False
+      self.device_detector = self.startTimer(1000)
+
 def main():
     from optparse import OptionParser
     from libprs500 import __version__ as VERSION
