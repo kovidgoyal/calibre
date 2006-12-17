@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#!/usr/bin/env python
+#!/usr/bin/env python2.5
 import ez_setup
 ez_setup.use_setuptools()
 
@@ -26,8 +26,14 @@ ez_setup.use_setuptools()
 #    easy_install(["-f", "http://www.pythonware.com/products/pil/", "Imaging"])
 #except: pass
 
+import sys
 from setuptools import setup, find_packages
 from libprs500 import __version__ as VERSION
+
+if sys.hexversion < 0x2050000:
+    print >> sys.stderr, "You must use python >= 2.5 Try invoking this script as python2.5 setup.py."
+    print >> sys.stderr, "If you are using easy_install, try easy_install-2.5"
+    sys.exit(1)
 
 setup(
       name='libprs500',
@@ -43,7 +49,8 @@ setup(
       zip_safe = True,      
       install_requires=["pyusb>=0.3.5","pyxml>=0.8.4"],
       dependency_links=["http://sourceforge.net/project/showfiles.php?group_id=145185",
-                                      "http://sourceforge.net/project/showfiles.php?group_id=6473",
+                        "http://sourceforge.net/project/showfiles.php?group_id=6473",
+                        "http://easynews.dl.sourceforge.net/sourceforge/pyusb/pyusb-0.3.5.tar.gz",
                                     ],
       description='Library to interface with the Sony Portable Reader 500 over USB. Also has a GUI with library management features.',
       long_description = 
