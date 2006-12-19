@@ -88,3 +88,6 @@ try:
   import PyQt4
 except ImportError:
   print "You do not have PyQt4 installed. The GUI will not work. You can obtain PyQt4 from http://www.riverbankcomputing.co.uk/pyqt/download.php"
+else:
+  if PyQt4.Qt.PYQT_VERSION < 0x40101:
+    print "WARNING: The GUI needs PyQt >= 4.1.1"
