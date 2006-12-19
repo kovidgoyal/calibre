@@ -377,7 +377,8 @@ class PRS500Device(Device):
             raise ProtocolError("Sending via Bulk Transfer failed with response:\n"\
                                 +str(res))  
         if res.data_size != len(data):
-            raise ProtocolError("Unable to transfer all data to device. Response packet:\n"\
+            raise ProtocolError("Unable to transfer all data to device. "+\
+                                "Response packet:\n"\
                                 +str(res))
 
 
