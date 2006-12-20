@@ -34,6 +34,7 @@ if sys.hexversion < 0x2050000:
     print >> sys.stderr, "You must use python >= 2.5 Try invoking this script as python2.5 setup.py."
     print >> sys.stderr, "If you are using easy_install, try easy_install-2.5"
     sys.exit(1)
+    
 
 setup(
       name='libprs500',
@@ -41,9 +42,13 @@ setup(
       version=VERSION,
       author='Kovid Goyal',
       author_email='kovid@kovidgoyal.net',
-      url = 'http://libprs500.kovidgoyal.net',      
+      url = 'http://libprs500.kovidgoyal.net',
+      package_data = { 'libprs500.gui' : ['*.ui'] },
       entry_points = {
-        'console_scripts': [ 'prs500 = libprs500.cli.main:main', 'lrf-meta = libprs500.lrf.meta:main' ],
+        'console_scripts': [ \
+                             'prs500 = libprs500.cli.main:main', \
+                             'lrf-meta = libprs500.lrf.meta:main' \
+                           ],
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       },      
       zip_safe = True,      
@@ -51,16 +56,24 @@ setup(
       dependency_links=["http://sourceforge.net/project/showfiles.php?group_id=6473",
                         "http://easynews.dl.sourceforge.net/sourceforge/pyusb/pyusb-0.3.5.tar.gz",
                                     ],
-      description='Library to interface with the Sony Portable Reader 500 over USB. Also has a GUI with library management features.',
+      description = 
+                  """
+                  Library to interface with the Sony Portable Reader 500 
+                  over USB. Also has a GUI with library management features.
+                  """,
       long_description = 
       """
-      libprs500 is library to interface with the `SONY Portable Reader`_ over USB_. 
+      libprs500 is library to interface with the 
+      `SONY Portable Reader`_ over USB_. 
       It provides methods to list the contents of the file system on the device,
       as well as copy files from and to the device. 
-      It also provides a command line and a graphical user interface via the commands prs500 and
-      prs500-gui. The graphical user interface is designed to manage an ebook library and allows for easy 
+      It also provides a command line and a graphical user interface via 
+      the commands prs500 and
+      prs500-gui. The graphical user interface is designed to 
+      manage an ebook library and allows for easy 
       syncing between the library and the ebook reader. 
-      In addition libprs500 has a utility to read/write the metadata from LRF files (unencrypted books in the SONY BBeB format). A command line
+      In addition libprs500 has a utility to read/write the metadata 
+      from LRF files (unencrypted books in the SONY BBeB format). A command line
       interface to this is provided via the command lrf-meta.
       
       For SVN access: svn co https://svn.kovidgoyal.net/code/prs-500
@@ -81,7 +94,7 @@ setup(
         'Programming Language :: Python',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: System :: Hardware :: Hardware Drivers'
-        ]
+        ]      
      )
 
 try:

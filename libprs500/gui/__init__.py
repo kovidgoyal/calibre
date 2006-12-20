@@ -50,7 +50,7 @@ def import_ui(name):
     uifile = pkg_resources.resource_stream(__name__, name)
     code_string = StringIO.StringIO()
     winfo = compiler.UICompiler().compileUi(uifile, code_string)
-    ui = pkg_resources.resource_filename(__name__, name)
+    #ui = pkg_resources.resource_filename(__name__, name)
     exec code_string.getvalue()  
     return locals()[winfo["uiclass"]]
 
