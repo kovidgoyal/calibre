@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+""" The GUI to libprs500. Also has ebook library management features. """
 __docformat__ = "epytext"
 __author__       = "Kovid Goyal <kovid@kovidgoyal.net>"
 APP_TITLE         = "libprs500"
@@ -23,34 +24,36 @@ from PyQt4 import QtCore, QtGui # Needed in globals() for import_ui
 error_dialog = None
 
 def extension(path):
-  return os.path.splitext(path)[1][1:].lower()
+    return os.path.splitext(path)[1][1:].lower()
 
 def installErrorHandler(dialog):
-  global error_dialog
-  error_dialog = dialog
-  error_dialog.resize(600, 400)
-  error_dialog.setWindowTitle(APP_TITLE + " - Error")
-  error_dialog.setModal(True)
-    
+    global error_dialog
+    error_dialog = dialog
+    error_dialog.resize(600, 400)
+    error_dialog.setWindowTitle(APP_TITLE + " - Error")
+    error_dialog.setModal(True)
 
-def Warning(msg, e):
-  print >> sys.stderr, msg
-  if e: traceback.print_exc(e)
+
+def _Warning(msg, e):
+    print >> sys.stderr, msg
+    if e: traceback.print_exc(e)
 
 def Error(msg, e):  
-  if error_dialog:
-    if e: msg += "<br>" + traceback.format_exc(e)
-    msg = re.sub("Traceback", "<b>Traceback</b>", msg)
-    msg = re.sub(r"\n", "<br>", msg)
-    error_dialog.showMessage(msg)
-    error_dialog.show()
+    if error_dialog:
+        if e: msg += "<br>" + traceback.format_exc(e)
+        msg = re.sub("Traceback", "<b>Traceback</b>", msg)
+        msg = re.sub(r"\n", "<br>", msg)
+        error_dialog.showMessage(msg)
+        error_dialog.show()
 
 def import_ui(name): 
-  uifile = pkg_resources.resource_stream(__name__, name)
-  code_string = StringIO.StringIO()
-  winfo = compiler.UICompiler().compileUi(uifile, code_string)
-  ui = pkg_resources.resource_filename(__name__, name)
-  exec code_string.getvalue()  
-  return locals()[winfo["uiclass"]]
+    uifile = pkg_resources.resource_stream(__name__, name)
+    code_string = StringIO.StringIO()
+    winfo = compiler.UICompiler().compileUi(uifile, code_string)
+    ui = pkg_resources.resource_filename(__name__, name)
+    exec code_string.getvalue()  
+    return locals()[winfo["uiclass"]]
 
-from libprs500.gui.widgets import LibraryBooksView, DeviceBooksView, CoverDisplay, DeviceView # Needed in globals() for import_ui
+# Needed in globals() for import_ui
+from libprs500.gui.widgets import LibraryBooksView, \
+        DeviceBooksView, CoverDisplay, DeviceView 
