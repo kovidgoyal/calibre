@@ -186,9 +186,10 @@ class Main(QObject, Ui_MainWindow):
             "Choose books to add to library", _dir, \
             "Books (*.lrf *.lrx *.rtf *.pdf *.txt);;All files (*)")
         if not files.isEmpty():
-            x = str(files[0])
-            settings.setValue("add books dialog dir", QVariant(os.path.dirname(x)))
-            files = str(files.join("|||")).split("|||")      
+            x = unicode(files[0].toUtf8(), 'utf-8')
+            settings.setValue("add books dialog dir", \
+                                            QVariant(os.path.dirname(x)))
+            files = unicode(files.join("|||").toUtf8(), 'utf-8').split("|||")      
         self.add_books(files)
     
     def add_books(self, files):

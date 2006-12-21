@@ -24,8 +24,8 @@ from urlparse import urlparse, urlunparse
 from urllib import quote, unquote
 from math import sin, cos, pi
 
-from libprs500 import TEMPORARY_FILENAME_TEMPLATE as TFT
 from libprs500.gui import Error, _Warning
+from libprs500.ptempfile import PersistentTemporaryFile
 
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt, SIGNAL
@@ -33,7 +33,7 @@ from PyQt4.Qt import QApplication, QString, QFont, QAbstractListModel, \
                      QVariant, QAbstractTableModel, QTableView, QListView, \
                      QLabel, QAbstractItemView, QPixmap, QIcon, QSize, \
                      QMessageBox, QSettings, QFileDialog, QErrorMessage, \
-                     QSpinBox, QPoint, QTemporaryFile, QDir, QFile, \
+                     QSpinBox, QPoint, \
                      QIODevice, QPainterPath, QItemDelegate, QPainter, QPen, \
                      QColor, QLinearGradient, QBrush, QStyle, QStringList, \
                      QByteArray, QBuffer, QMimeData, QTextStream, QIODevice, \
@@ -48,8 +48,12 @@ class FileDragAndDrop(object):
     
     @classmethod
     def _bytes_to_string(cls, qba):
-        """ @type qba: QByteArray """
-        return unicode(QString.fromUtf8(qba.data())).strip()
+        """ 
+        Assumes qba is encoded in ASCII which is usually fine, since
+        this method is used mainly for escaped URIs.
+        @type qba: QByteArray 
+        """
+        return str(QString.fromAscii(qba.data())).strip()        
     
     @classmethod
     def _get_r_ok_files(cls, event):
@@ -66,9 +70,9 @@ class FileDragAndDrop(object):
                 if o.scheme and o.scheme != 'file':
                     _Warning(o.scheme +  " not supported in drop events", None)
                     continue
-                path = unquote(o.path)
+                path = unquote(o.path)                
                 if not os.access(path, os.R_OK):
-                    _Warning("You do not have read permission for: " + path)
+                    _Warning("You do not have read permission for: " + path, None)
                     continue
                 if os.path.isdir(path):
                     root, dirs, files2 = os.walk(path)
@@ -134,7 +138,7 @@ class FileDragAndDrop(object):
             self._dragged_files, urls = [], []
             for _file in files:        
                 urls.append(urlunparse(('file', quote(gethostname()), \
-                                quote(str(_file.name)), '','','')))
+                                quote(_file.name.encode('utf-8')), '','','')))
                 self._dragged_files.append(_file)      
             mime_data.setData("text/uri-list", QByteArray("\n".join(urls)))
             user = os.getenv('USER')
@@ -147,8 +151,7 @@ class FileDragAndDrop(object):
         if extensions:
             files = []
             for ext in extensions:
-                f = TemporaryFile(ext=ext)
-                f.open()
+                f = PersistentTemporaryFile(suffix="."+ext)
                 files.append(f)
             return self.drag_object_from_files(files), self._dragged_files
 
@@ -160,7 +163,7 @@ class TableView(FileDragAndDrop, QTableView):
     
     @classmethod
     def wrap(cls, s, width=20): 
-        return textwrap.fill(str(s), width) 
+        return textwrap.fill(s, width) 
     
     @classmethod
     def human_readable(cls, size):
@@ -202,31 +205,7 @@ class TableView(FileDragAndDrop, QTableView):
         drag.setPixmap(self.render_to_pixmap(self.selectedIndexes()))
         return drag
 
-class TemporaryFile(QTemporaryFile):
-    _file_name = ""
-    def __del__(self):    
-        if os.access(self.name, os.F_OK): os.remove(self.name)
-    def __init__(self, ext=""):
-        if ext: ext = "." + ext
-        path = QDir.tempPath() + "/" + TFT + "_XXXXXX"+ext
-        QTemporaryFile.__init__(self, path)
-    
-    def open(self):    
-        ok = QFile.open(self, QIODevice.ReadWrite)
-        self._file_name = os.path.normpath(os.path.abspath(\
-                str(QTemporaryFile.fileName(self))))
-        return ok
-    
-    @apply
-    def name():
-        def fget(self): 
-            return self._file_name
-        return property(**locals())
-
-class NamedTemporaryFile(TemporaryFile):
-    def __init__(self, name):
-        path = QDir.tempPath() + "/" + "XXXXXX"+name
-        QTemporaryFile.__init__(self, path)
+        
 
 class CoverDisplay(FileDragAndDrop, QLabel):
     def __init__(self, parent):
@@ -293,7 +272,7 @@ class LibraryBooksView(TableView):
         index = self.indexAt(pos)
         if index.isValid():
             rows = frozenset([ index.row() for index in self.selectedIndexes()])
-            files = self.model().extract_formats(rows)
+            files = self.model().extract_formats(rows)            
             drag = self.drag_object_from_files(files)
             if drag:
                 ids = [ str(self.model().id_from_row(row)) for row in rows ]
@@ -425,13 +404,12 @@ class LibraryBooksModel(QAbstractTableModel):
                     ext =""
                 else: 
                     ext = "."+ext
-                name = basename+ext
-                file = NamedTemporaryFile(name)
-                file.open()
+                name = basename+ext                
+                file = PersistentTemporaryFile(suffix=name)
                 if not fmt: 
                     continue
-                file.write(QByteArray(fmt))
-                file.close()        
+                file.write(fmt)
+                file.close() 
                 files.append(file)
         return files
     
@@ -465,7 +443,7 @@ class LibraryBooksModel(QAbstractTableModel):
             row = index.row()
             _id = self._data[row]["id"]
             col = index.column()
-            val = str(value.toString())
+            val = unicode(value.toString().toUtf8(), 'utf-8')
             if col == 0: 
                 col = "title"
             elif col == 1: 
