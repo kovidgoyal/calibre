@@ -225,7 +225,8 @@ class CoverDisplay(FileDragAndDrop, QLabel):
         if drag and files:
             _file = files[0]
             _file.close()
-            drag.setPixmap(self.pixmap())
+            drag.setPixmap(self.pixmap().scaledToHeight(68, \
+                                                    Qt.SmoothTransformation))
             self.pixmap().save(os.path.abspath(_file.name))
             drag.start(Qt.MoveAction)
 
@@ -574,6 +575,13 @@ class LibraryBooksModel(QAbstractTableModel):
             return QVariant(text)
         elif role == Qt.TextAlignmentRole and index.column() in [2,3,4]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
+        elif role == Qt.ToolTipRole:
+            if index.column() in [0, 1, 4, 5]:
+                edit = "Double click to <b>edit</b> me<br><br>"
+            else: 
+                edit = ""
+            return QVariant(edit + "You can <b>drag and drop</b> me to the \
+                            desktop to save all my formats to your hard disk.")
         return NONE
     
     def sort(self, col, order):
