@@ -482,6 +482,12 @@ class LibraryBooksModel(QAbstractTableModel):
             done = True
         return done
     
+    def update_tags_and_comments(self, index, tags, comments):
+        _id = self.id_from_index(index)
+        self.db.set_metadata_item(_id, "tags", tags)
+        self.db.set_metadata_item(_id, "comments", comments)
+        self.refresh_row(index.row())
+    
     def flags(self, index):
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid():       

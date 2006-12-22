@@ -209,13 +209,42 @@ class Main(QObject, Ui_MainWindow):
     def edit(self, action):    
         if self.library_view.isVisible():
             rows = self.library_view.selectionModel().selectedRows()
+            accepted = False
             for row in rows:
                 _id = self.library_model.id_from_index(row)
                 dialog = QDialog(self.window)
-                EditBookDialog(dialog, _id, self.library_model.db)
+                ebd = EditBookDialog(dialog, _id, self.library_model.db)
                 if dialog.exec_() == QDialog.Accepted:
+                    accepted = True
+                    title = str(ebd.title.text()).strip()
+                    authors = str(ebd.authors.text()).strip()
+                    rating = ebd.rating.value()
+                    tags = str(ebd.tags.text()).strip()
+                    publisher = str(ebd.publisher.text()).strip()
+                    comments = str(ebd.comments.toPlainText()).strip()
+                    pix = ebd.cover.pixmap()
+                    if not pix.isNull():
+                        self.update_cover(pix)
+                    model = self.library_view.model()
+                    if title:
+                        index = model.index(row.row(), 0)
+                        model.setData(index, QVariant(title), Qt.EditRole)
+                    if authors:
+                        index = model.index(row.row(), 1)
+                        model.setData(index, QVariant(authors), Qt.EditRole)
+                    if publisher:
+                        index = model.index(row.row(), 5)
+                        model.setData(index, QVariant(publisher), Qt.EditRole)
+                    index = model.index(row.row(), 4)
+                    model.setData(index, QVariant(rating), Qt.EditRole)
+                    self.update_tags_and_comments(row, tags, comments)
                     self.library_model.refresh_row(row.row())
+            self.show_book(self.current_view.currentIndex(), QModelIndex())
     
+    
+    def update_tags_and_comments(self, index, tags, comments):
+        self.library_model.update_tags_and_comments(index, tags, comments)
+        
     
     def update_cover(self, pix):    
         if not pix.isNull():

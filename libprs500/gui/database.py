@@ -116,6 +116,12 @@ class LibraryDatabase(object):
             pass
         else: 
             return decompress(str(data["data"]))
+            
+    def remove_format(self, _id, ext):
+        """ Remove format C{ext} from book C{_id} """
+        self.con.execute("delete from books_data where id=? and extension=?", \
+                            (_id, ext))
+        self.con.commit()
     
     def add_format(self, _id, ext, data):
         """
