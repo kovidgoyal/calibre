@@ -197,19 +197,27 @@ class LibraryDatabase(object):
                 self.add_format(_id, "lrf", c.getvalue())
         self.con.commit()
     
-    def update_cover(self, _id, cover):    
+    def update_cover(self, _id, cover, scaled=None):    
+        """
+        @param cover: The cover data
+        @param scaled: scaled version of cover that shoould be written to
+                       format files. If None, cover is used.
+        """
         data = None
         if cover: 
             data = sqlite.Binary(compress(cover))    
-        self.con.execute('update books_meta set cover=? where id=?', (data, _id))
-        lrf = self.get_format(_id, "lrf")
-        if lrf:
-            c = cStringIO()
-            c.write(lrf)
-            lrf = LRFMetaFile(c)
-            lrf.thumbnail = cover
-            self.add_format(_id, "lrf", c.getvalue())
-            self.update_max_size(_id)
+        self.con.execute('update books_meta set cover=? where id=?', (data, _id))        
+        if not scaled:
+            scaled = cover
+        if scaled:
+            lrf = self.get_format(_id, "lrf")
+            if lrf:
+                c = cStringIO()
+                c.write(lrf)
+                lrf = LRFMetaFile(c)            
+                lrf.thumbnail = scaled
+                self.add_format(_id, "lrf", c.getvalue())
+                self.update_max_size(_id)
         self.commit()
     
     def update_max_size(self, _id):        

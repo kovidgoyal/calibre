@@ -224,9 +224,9 @@ class CoverDisplay(FileDragAndDrop, QLabel):
         drag, files = self.drag_object(["jpeg"])
         if drag and files:
             _file = files[0]
-            drag.setPixmap(self.pixmap())
-            self.pixmap().save(_file)
             _file.close()
+            drag.setPixmap(self.pixmap())
+            self.pixmap().save(os.path.abspath(_file.name))
             drag.start(Qt.MoveAction)
 
 class DeviceView(FileDragAndDrop, QListView):
@@ -239,7 +239,7 @@ class DeviceView(FileDragAndDrop, QListView):
     
     def hide_card(self, x):
         self.model().update_devices(card=not x)
-    
+      
     def files_dropped(self, files, event):
         ids = []
         md = event.mimeData()
@@ -414,13 +414,18 @@ class LibraryBooksModel(QAbstractTableModel):
         return files
     
     def update_cover(self, index, pix):
+        spix = pix.scaledToHeight(68, Qt.SmoothTransformation)
         _id = self.id_from_index(index)
-        qb = QBuffer()
+        qb, sqb = QBuffer(), QBuffer()
         qb.open(QBuffer.ReadWrite)
+        sqb.open(QBuffer.ReadWrite)
         pix.save(qb, "JPG")
+        spix.save(sqb, "JPG")
         data = str(qb.data())
+        sdata = str(sqb.data())
         qb.close()
-        self.db.update_cover(_id, data)
+        sqb.close()
+        self.db.update_cover(_id, data, scaled=sdata)
         self.refresh_row(index.row())
     
     def add_formats(self, paths, index):
