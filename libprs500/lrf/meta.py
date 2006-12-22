@@ -294,7 +294,11 @@ class LRFMetaFile(object):
                 offset = self.unpack(fmt=DWORD, start=pos)[0] + delta
             except struct.error: 
                 break
-            self.pack(offset, fmt=DWORD, start=pos)
+            if offset >= (2**8)**4:
+                # New offset is larger than a DWORD, so leave 
+                # offset unchanged
+                offset -= delta
+            self.pack(offset, fmt=DWORD, start=pos)            
             try: 
                 self._file.read(12)
             except EOFError: 
@@ -397,7 +401,3 @@ def main():
             print str(f[1]) + ":", lrf.__getattribute__(f[0])
     if options.get_thumbnail: 
         print "Thumbnail:", td
-
-# This turns overflow warnings into errors
-import warnings
-warnings.simplefilter("error", DeprecationWarning)

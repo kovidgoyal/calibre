@@ -126,20 +126,28 @@ class LibraryDatabase(object):
         try:
             data.seek(0)
             data = data.read()
-        except AttributeError: pass 
-        if ext: ext = ext.strip().lower()
+        except AttributeError: pass
+        size = len(data)
+        if ext: 
+            ext = ext.strip().lower()
         data = sqlite.Binary(compress(data))
         cur = self.con.execute("select extension from books_data where id=? "+\
                                "and extension=?", (_id, ext))
         present = True
-        try: cur.next()
-        except: present = False
+        try: 
+            cur.next()
+        except: 
+            present = False
         if present:
             self.con.execute("update books_data set data=? where id=? "+\
                              "and extension=?", (data, _id, ext))
         else:
             self.con.execute("insert into books_data (id, extension, data) "+\
                              "values (?, ?, ?)", (_id, ext, data))
+        oldsize = self.get_row_by_id(_id, ['size'])['size']
+        if size > oldsize:
+            self.con.execute("update books_meta set size=? where id=? ", \
+                             (size, _id))
         self.con.commit()
     
     def get_meta_data(self, _id):
@@ -201,7 +209,18 @@ class LibraryDatabase(object):
             lrf = LRFMetaFile(c)
             lrf.thumbnail = cover
             self.add_format(_id, "lrf", c.getvalue())
+            self.update_max_size(_id)
         self.commit()
+    
+    def update_max_size(self, _id):        
+        cur = self.con.execute("select length(data) from books_data where id=?", \
+                                (_id,))
+        maxsize = 0
+        for row in cur:
+            maxsize = row[0] if row[0] > maxsize else maxsize
+        self.con.execute("update books_meta set size=? where id=? ", \
+                             (maxsize, _id))
+        self.con.commit()
 
 
 

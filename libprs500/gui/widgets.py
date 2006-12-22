@@ -421,14 +421,17 @@ class LibraryBooksModel(QAbstractTableModel):
         data = str(qb.data())
         qb.close()
         self.db.update_cover(_id, data)
+        self.refresh_row(index.row())
     
     def add_formats(self, paths, index):
         for path in paths:
             f = open(path, "rb")      
             title = os.path.basename(path)
             ext = title[title.rfind(".")+1:].lower() if "." in title > -1 else None
-            self.db.add_format(self.id_from_index(index), ext, f)
+            _id = self.id_from_index(index)
+            self.db.add_format(_id, ext, f)
             f.close()
+        self.refresh_row(index.row())
         self.emit(SIGNAL('formats_added'), index)
     
     def rowCount(self, parent): 
@@ -519,11 +522,11 @@ class LibraryBooksModel(QAbstractTableModel):
     def id_from_row(self, row): return self._data[row]["id"]
     
     def refresh_row(self, row):
-        self._data[row] = self.db.get_row_by_id(self._data[row]["id"], \
-                                                self.FIELDS)
+        datum = self.db.get_row_by_id(self._data[row]["id"], self.FIELDS)
+        self._data[row:row+1] = [datum]
         for i in range(len(self._orig_data)):
-            if self._orig_data[i]["id"] == self._data[row]["id"]:
-                self._orig_data[i:i+1] = self._data[row]
+            if self._orig_data[i]["id"] == datum["id"]:
+                self._orig_data[i:i+1] = [datum]
                 break
         self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                     self.index(row, 0), self.index(row, self.columnCount(0)-1))
