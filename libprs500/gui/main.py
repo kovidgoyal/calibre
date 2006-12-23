@@ -59,11 +59,15 @@ class Main(QObject, Ui_MainWindow):
         self.book_cover.hide() 
         self.book_info.hide()
         if yes: 
+            self.action_add.setEnabled(False)
+            self.action_edit.setEnabled(False)
             self.device_view.show()
             self.library_view.hide()
             self.book_cover.setAcceptDrops(False)
             self.current_view = self.device_view      
         else: 
+            self.action_add.setEnabled(True)
+            self.action_edit.setEnabled(True)
             self.device_view.hide()
             self.library_view.show()
             self.book_cover.setAcceptDrops(True)
@@ -94,7 +98,7 @@ class Main(QObject, Ui_MainWindow):
     def model_modified(self):
         if self.library_view.isVisible(): view = self.library_view
         else: view = self.device_view
-        view.clearSelection()    
+        view.selectionModel().reset()
         view.resizeColumnsToContents()
         self.book_cover.hide()
         self.book_info.hide()
