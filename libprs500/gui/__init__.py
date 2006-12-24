@@ -40,7 +40,8 @@ def _Warning(msg, e):
 
 def Error(msg, e):  
     if error_dialog:
-        if e: msg += "<br>" + traceback.format_exc(e)
+        if e: 
+            msg += "<br>" + traceback.format_exc(e)
         msg = re.sub("Traceback", "<b>Traceback</b>", msg)
         msg = re.sub(r"\n", "<br>", msg)
         error_dialog.showMessage(msg)

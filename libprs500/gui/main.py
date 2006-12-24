@@ -48,6 +48,19 @@ DEVICE_BOOK_TEMPLATE = QString("<table><tr><td><b>Title: </b>%1</td><td> \
 
 Ui_MainWindow = import_ui("main.ui")
 class Main(QObject, Ui_MainWindow): 
+    def report_error(func):
+        """ 
+        Decorator to ensure that unhandled exceptions are displayed 
+        to users via the GUI
+        """
+        def function(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except Exception, e:
+                Error("There was an error calling " + func.__name__, e)
+                raise
+        return function
+        
     """ Create GUI """
     def show_device(self, yes):
         """ 
@@ -136,7 +149,8 @@ class Main(QObject, Ui_MainWindow):
         if index == self.library_view.currentIndex():
             self.show_book(index, index)
     
-    def delete(self, action):
+    @report_error
+    def delete(self, action):        
         rows = self.current_view.selectionModel().selectedRows()
         if not len(rows): 
             return 
@@ -186,6 +200,7 @@ class Main(QObject, Ui_MainWindow):
         self.write_settings()
         e.accept()
     
+    @report_error
     def add(self, action):
         settings = QSettings()
         _dir = settings.value("add books dialog dir", \
@@ -213,7 +228,7 @@ class Main(QObject, Ui_MainWindow):
             self.library_view.model().sort(col, order)
         self.window.setCursor(Qt.ArrowCursor)
     
-    
+    @report_error
     def edit(self, action):    
         if self.library_view.isVisible():
             rows = self.library_view.selectionModel().selectedRows()
@@ -255,7 +270,7 @@ class Main(QObject, Ui_MainWindow):
     def update_tags_and_comments(self, index, tags, comments):
         self.library_model.update_tags_and_comments(index, tags, comments)
         
-    
+    @report_error
     def update_cover(self, pix):    
         if not pix.isNull():
             try:
@@ -265,6 +280,7 @@ class Main(QObject, Ui_MainWindow):
             except Exception, e: 
                 Error("Unable to change cover", e)
     
+    @report_error
     def upload_books(self, to, files, ids):
         oncard = False if to == "reader" else True
         booklists = (self.reader_model.booklist, self.card_model.booklist)
