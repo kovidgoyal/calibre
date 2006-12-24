@@ -64,14 +64,14 @@ class Main(QObject, Ui_MainWindow):
             self.device_view.show()
             self.library_view.hide()
             self.book_cover.setAcceptDrops(False)
-            self.current_view = self.device_view      
+            self.device_view.resizeColumnsToContents()
+            self.device_view.resizeRowsToContents()
         else: 
             self.action_add.setEnabled(True)
             self.action_edit.setEnabled(True)
             self.device_view.hide()
             self.library_view.show()
             self.book_cover.setAcceptDrops(True)
-            self.current_view = self.library_view
         self.current_view.sortByColumn(3, Qt.DescendingOrder)
     
     
@@ -96,29 +96,32 @@ class Main(QObject, Ui_MainWindow):
     
     
     def model_modified(self):
-        if self.library_view.isVisible(): view = self.library_view
-        else: view = self.device_view
-        view.selectionModel().reset()
-        view.resizeColumnsToContents()
+        if self.current_view.selectionModel():
+            self.current_view.selectionModel().reset()
+        self.current_view.resizeColumnsToContents()
+        self.current_view.resizeRowsToContents()
         self.book_cover.hide()
         self.book_info.hide()
         QCoreApplication.processEvents(QEventLoop.ExcludeUserInputEvents)    
     
-    def resize_columns(self, topleft, bottomright):
-        if self.library_view.isVisible(): 
-            view = self.library_view
-        else: view = self.device_view
+    def resize_rows_and_columns(self, topleft, bottomright):
         for c in range(topleft.column(), bottomright.column()+1):
-            view.resizeColumnToContents(c)
+            self.current_view.resizeColumnToContents(c)
+        for r in range(topleft.row(), bottomright.row()+1):
+            self.current_view.resizeRowToContents(c)
     
     def show_book(self, current, previous):    
+        if not len(self.current_view.selectedIndexes()):
+            return
         if self.library_view.isVisible():
-            formats, tags, comments, cover = current.model().info(current.row())
+            formats, tags, comments, cover = self.library_model\
+                                                        .info(current.row())
             data = LIBRARY_BOOK_TEMPLATE.arg(formats).arg(tags).arg(comments)
             tooltip = "To save the cover, drag it to the desktop.<br>To \
                        change the cover drag the new cover onto this picture"
         else:
-            title, author, size, mime, cover = current.model().info(current.row())
+            title, author, size, mime, cover = self.device_view.model()\
+                                                        .info(current.row())
             data = DEVICE_BOOK_TEMPLATE.arg(title).arg(size).arg(author).arg(mime)
             tooltip = "To save the cover, drag it to the desktop."
         self.book_info.setText(data)
@@ -194,7 +197,7 @@ class Main(QObject, Ui_MainWindow):
             settings.setValue("add books dialog dir", \
                                             QVariant(os.path.dirname(x)))
             files = unicode(files.join("|||").toUtf8(), 'utf-8').split("|||")      
-        self.add_books(files)
+            self.add_books(files)
     
     def add_books(self, files):
         self.window.setCursor(Qt.WaitCursor)
@@ -256,7 +259,8 @@ class Main(QObject, Ui_MainWindow):
                 self.library_view.model().update_cover(self.library_view\
                         .currentIndex(), pix)
                 self.book_cover.setPixmap(pix)
-            except Exception, e: Error("Unable to change cover", e)
+            except Exception, e: 
+                Error("Unable to change cover", e)
     
     def upload_books(self, to, files, ids):
         oncard = False if to == "reader" else True
@@ -268,8 +272,10 @@ class Main(QObject, Ui_MainWindow):
             model = self.card_model if oncard else self.reader_model
             model.sort(col, order)
             if self.device_view.isVisible() and self.device_view.model()\
-                    == model: self.search.clear()
-            else: model.search("")
+                    == model: 
+                        self.search.clear()
+            else: 
+                model.search("")
         
         def sync_lists():
             self.status("Syncing media list to device main memory")
@@ -299,7 +305,8 @@ class Main(QObject, Ui_MainWindow):
                                     str(_buffer.buffer()))
                     ename = info["title"]
                     for f in files: 
-                        if re.match("......_"+str(_id)+"_", os.path.basename(f)):
+                        if re.match("libprs500_\S+_......_" + \
+                                str(_id) + "_", os.path.basename(f)):
                             formats.append(f)
                     _file = None
                     try:
@@ -358,6 +365,14 @@ class Main(QObject, Ui_MainWindow):
             self.window.setCursor(Qt.ArrowCursor)
             self.update_availabe_space()
     
+    @apply
+    def current_view():
+        doc = """ The currently visible view """
+        def fget(self):
+            return self.library_view if self.library_view.isVisible() \
+                                     else self.device_view
+        return property(doc=doc, fget=fget)
+    
     def __init__(self, window, log_packets):
         QObject.__init__(self)
         Ui_MainWindow.__init__(self)
@@ -373,25 +388,26 @@ class Main(QObject, Ui_MainWindow):
         self.library_model = LibraryBooksModel(window)
         self.library_model.set_data(LibraryDatabase(str(self.database_path)))
         self.library_view.setModel(self.library_model)
-        self.current_view = self.library_view    
         QObject.connect(self.library_model, SIGNAL("layoutChanged()"), \
                         self.library_view.resizeRowsToContents)
         QObject.connect(self.library_view.selectionModel(), \
             SIGNAL("currentChanged(QModelIndex, QModelIndex)"), self.show_book)
         QObject.connect(self.search, SIGNAL("textChanged(QString)"), \
                         self.library_model.search)
-        QObject.connect(self.library_model, SIGNAL("sorted()"), self.model_modified)
+        QObject.connect(self.library_model, SIGNAL("sorted()"), \
+                        self.model_modified)
         QObject.connect(self.library_model, SIGNAL("searched()"), \
                         self.model_modified)
         QObject.connect(self.library_model, SIGNAL("deleted()"), \
                         self.model_modified)    
         QObject.connect(self.library_model, \
-            SIGNAL("dataChanged(QModelIndex, QModelIndex)"), self.resize_columns)
+            SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
+            self.resize_rows_and_columns)
         QObject.connect(self.library_view, \
             SIGNAL('books_dropped'), self.add_books)
         QObject.connect(self.library_model, \
             SIGNAL('formats_added'), self.formats_added)
-        self.library_view.resizeColumnsToContents()
+        self.library_view.sortByColumn(3, Qt.DescendingOrder)
         
         # Create Device tree
         model = DeviceModel(self.device_tree)
@@ -417,8 +433,9 @@ class Main(QObject, Ui_MainWindow):
             QObject.connect(model, SIGNAL("sorted()"), self.model_modified)
             QObject.connect(model, SIGNAL("searched()"), self.model_modified)
             QObject.connect(model, SIGNAL("deleted()"), self.model_modified)
-            QObject.connect(model, SIGNAL("dataChanged(QModelIndex, QModelIndex)")\
-                , self.resize_columns)
+            QObject.connect(model, \
+                SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
+                self.resize_rows_and_columns)
         
         # Setup book display    
         self.book_cover.hide()
@@ -441,17 +458,23 @@ class Main(QObject, Ui_MainWindow):
         self.show_device(False)
         self.df_template = self.df.text()
         self.df.setText(self.df_template.arg("").arg("").arg(""))
-        window.show()    
+        window.show()
+        self.library_view.resizeColumnsToContents()
+        self.library_view.resizeRowsToContents()        
+        
     
     def device_removed(self):
         """ @todo: only reset stuff if library is not shown """
         self.df.setText(self.df_template.arg("").arg("").arg(""))
         self.device_tree.hide_reader(True)
         self.device_tree.hide_card(True)
-        self.book_cover.hide()
-        self.book_info.hide()
-        self.device_view.hide()
-        self.library_view.show()
+        self.device_tree.selectionModel().reset()        
+        if self.device_view.isVisible():
+            self.device_view.hide()
+            self.library_view.selectionModel().reset()
+            self.library_view.show()
+            self.book_cover.hide()
+            self.book_info.hide()
     
     def progress(self, val):
         if val < 0:
@@ -471,12 +494,12 @@ class Main(QObject, Ui_MainWindow):
         self.status("Connecting to device")        
         try:
             info = self.dev.get_device_information(end_session=False)
-        except DeviceBusy, e:
-            qFatal(str(e))
-        except DeviceError:
+        except DeviceBusy, err:
+            qFatal(str(err))
+        except DeviceError, err:
             self.dev.reconnect()
-            self.detector.connection_failed()
-            return    
+            self.thread().msleep(100)
+            return self.establish_connection()
         except ProtocolError, e: 
             traceback.print_exc(e)
             qFatal("Unable to connect to device. Please try unplugging and"+\
@@ -521,10 +544,6 @@ class DeviceConnectDetector(QObject):
             elif not is_connected and self.is_connected:
                 self.emit(SIGNAL("device_removed()"))       
                 self.is_connected = False
-    
-    def connection_failed(self):
-        # TODO: Do something intelligent if we're using HAL
-        self.is_connected = False
     
     def udi_is_device(self, udi):
         ans = False

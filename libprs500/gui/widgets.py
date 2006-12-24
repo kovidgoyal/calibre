@@ -156,14 +156,17 @@ class FileDragAndDrop(object):
             return self.drag_object_from_files(files), self._dragged_files
 
 
-class TableView(FileDragAndDrop, QTableView):    
+class TableView(FileDragAndDrop, QTableView):
+    wrapper = textwrap.TextWrapper(width=20)
+    
     def __init__(self, parent):
         FileDragAndDrop.__init__(self, QTableView)
         QTableView.__init__(self, parent)
     
     @classmethod
-    def wrap(cls, s, width=20): 
-        return textwrap.fill(s, width) 
+    def wrap(cls, s, width=20):         
+        cls.wrapper.width = 20
+        return cls.wrapper.fill(s) 
     
     @classmethod
     def human_readable(cls, size):
@@ -452,7 +455,7 @@ class LibraryBooksModel(QAbstractTableModel):
             row = index.row()
             _id = self._data[row]["id"]
             col = index.column()
-            val = unicode(value.toString().toUtf8(), 'utf-8')
+            val = unicode(value.toString().toUtf8(), 'utf-8').strip()
             if col == 0: 
                 col = "title"
             elif col == 1: 
@@ -567,7 +570,9 @@ class LibraryBooksModel(QAbstractTableModel):
             elif col == 1: 
                 au = row["authors"]
                 if au:
-                    text = TableView.wrap(re.sub("&", "\n", au), width=25)
+                    au = au.split("&")
+                    jau = [ TableView.wrap(a, width=25).strip() for a in au ]
+                    text = "\n".join(jau)
             elif col == 2: 
                 text = TableView.human_readable(row["size"])
             elif col == 3: 
@@ -575,7 +580,8 @@ class LibraryBooksModel(QAbstractTableModel):
                                 time.strptime(row["date"], self.TIME_READ_FMT))
             elif col == 5: 
                 pub = row["publisher"]
-                if pub: text = TableView.wrap(pub, 20)
+                if pub: 
+                    text = TableView.wrap(pub, 20)
             if text == None: 
                 text = "Unknown"
             return QVariant(text)
@@ -689,8 +695,11 @@ class DeviceBooksModel(QAbstractTableModel):
             book = self._data[row]
             if col == 0: 
                 text = TableView.wrap(book.title, width=40)
-            elif col == 1: 
-                text = re.sub("&\s*", "\n", book.author)
+            elif col == 1:
+                au = book.author
+                au = au.split("&")
+                jau = [ TableView.wrap(a, width=25).strip() for a in au ]
+                text = "\n".join(jau)                
             elif col == 2: 
                 text = TableView.human_readable(book.size)
             elif col == 3: 
@@ -784,7 +793,8 @@ class DeviceModel(QAbstractListModel):
         self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                         self.index(1), self.index(2))
     
-    def rowCount(self, parent): return 3
+    def rowCount(self, parent): 
+        return 3
     
     def update_free_space(self, reader, card):
         self.memory_free = reader
