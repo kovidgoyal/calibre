@@ -40,7 +40,7 @@ from editbook import EditBookDialog
 DEFAULT_BOOK_COVER = None
 LIBRARY_BOOK_TEMPLATE = QString("<table><tr><td><b>Formats:</b> %1  \
                                  </td><td><b>Tags:</b> %2</td></tr> \
-                                 <tr><td><b>Comments:</b>%3</td></tr></table>")
+                                 <tr><td><b>Comments:</b> %3</td></tr></table>")
 DEVICE_BOOK_TEMPLATE = QString("<table><tr><td><b>Title: </b>%1</td><td> \
                                 <b>&nbsp;Size:</b> %2</td></tr>\
                                 <tr><td><b>Author: </b>%3</td>\
@@ -130,6 +130,7 @@ class Main(QObject, Ui_MainWindow):
         self.book_cover.setPixmap(cover)
         self.book_cover.show()
         self.book_info.show()
+        self.current_view.scrollTo(current)
     
     def formats_added(self, index):
         if index == self.library_view.currentIndex():
@@ -223,12 +224,14 @@ class Main(QObject, Ui_MainWindow):
                 ebd = EditBookDialog(dialog, _id, self.library_model.db)
                 if dialog.exec_() == QDialog.Accepted:
                     accepted = True
-                    title = str(ebd.title.text()).strip()
-                    authors = str(ebd.authors.text()).strip()
+                    title = unicode(ebd.title.text().toUtf8(), 'utf-8').strip()
+                    authors = unicode(ebd.authors.text().toUtf8(), 'utf-8').strip()
                     rating = ebd.rating.value()
-                    tags = str(ebd.tags.text()).strip()
-                    publisher = str(ebd.publisher.text()).strip()
-                    comments = str(ebd.comments.toPlainText()).strip()
+                    tags = unicode(ebd.tags.text().toUtf8(), 'utf-8').strip()
+                    publisher = unicode(ebd.publisher.text().toUtf8(), \
+                                        'utf-8').strip()
+                    comments = unicode(ebd.comments.toPlainText().toUtf8(), \
+                                        'utf-8').strip()
                     pix = ebd.cover.pixmap()
                     if not pix.isNull():
                         self.update_cover(pix)
