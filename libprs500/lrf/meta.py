@@ -24,9 +24,12 @@ to get and set meta information. For example:
 >>> lrf.category = "History"
 """
 
-import struct, array, zlib, StringIO
+import struct
+import array
+import zlib
+import StringIO
 import xml.dom.minidom as dom
-from xml.dom.ext import Print as Print
+from xml.dom.ext import Print
 
 from libprs500.prstypes import field
 
@@ -121,7 +124,8 @@ class xml_field(object):
 
 class LRFMetaFile(object):
     """ Has properties to read and write all Meta information in a LRF file. """
-    LRF_HEADER = "L\0R\0F\0\0\0" #: The first 8 bytes of all valid LRF files
+    # The first 8 bytes of all valid LRF files
+    LRF_HEADER = u'LRF'.encode('utf-16')[2:]+'\0\0' 
     
     lrf_header               = fixed_stringfield(length=8, start=0)
     version                    = field(fmt=WORD, start=8)
