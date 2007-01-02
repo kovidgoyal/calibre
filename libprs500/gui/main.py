@@ -483,7 +483,6 @@ class Main(QObject, Ui_MainWindow):
         
     
     def device_removed(self):
-        """ @todo: only reset stuff if library is not shown """
         self.df.setText(self.df_template.arg("").arg("").arg(""))
         self.device_tree.hide_reader(True)
         self.device_tree.hide_card(True)

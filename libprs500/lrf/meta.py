@@ -27,6 +27,7 @@ to get and set meta information. For example:
 import struct, array, zlib, StringIO
 import xml.dom.minidom as dom
 from xml.dom.ext import Print as Print
+
 from libprs500.prstypes import field
 
 BYTE          = "<B"  #: Unsigned char little endian encoded in 1 byte 
@@ -91,7 +92,7 @@ class xml_field(object):
         """ @param tag_name: The XML tag whoose data we operate on """
         self.tag_name = tag_name
     
-    def __get__(self, obj, typ=None):
+    def __get__(self, obj, typ=None): 
         document = dom.parseString(obj.info)
         elem = document.getElementsByTagName(self.tag_name)[0]
         elem.normalize() 
@@ -204,7 +205,9 @@ class LRFMetaFile(object):
                 if len(stream) != self.uncompressed_info_size:          
                     raise LRFException("Decompression of document meta info\
                                         yielded unexpected results")
-                return stream
+                # Remove null characters from string as in some LRF files 
+                # the stream is null-terminated
+                return stream.strip().replace('\0', '')
             except zlib.error, e:
                 raise LRFException("Unable to decompress document meta information")
         

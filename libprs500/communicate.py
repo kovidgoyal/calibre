@@ -190,8 +190,6 @@ class PRS500Device(Device):
         be sent to the device, unless end_session is set to C{False}.
         An L{usb.USBError} will cause the library to release control of the 
         USB interface via a call to L{close}.
-
-        @todo: Fix handling of timeout errors
         """
         def run_session(*args, **kwargs):
             dev = args[0]      
@@ -262,7 +260,6 @@ class PRS500Device(Device):
         See the source code for the sequenceof initialization commands.
 
         @todo: Implement unlocking of the device
-        @todo: Check this on Mac OSX
         """
         self.device = self.device_descriptor.get_device()
         if not self.device:
@@ -391,7 +388,6 @@ class PRS500Device(Device):
         The data packet is returned as an object of type C{data_type}.    
         @return: A list of packets read from the device. 
         Each packet is of type data_type
-        @todo: Figure out how to make bulk reads work in OSX
         """
         def bulk_read_packet(data_type=Answer, size=0x1000):
             data = data_type(self.handle.bulkRead(PRS500Device.PRS500_BULK_IN_EP, \
@@ -803,9 +799,6 @@ class PRS500Device(Device):
                                 where data is the image data in JPEG format as a string
         @param booklists: A tuple containing the result of calls to 
                                     (L{books}(oncard=False), L{books}(oncard=True)).    
-        @todo: Implement syncing the booklists to the device. 
-                    This would mean juggling with the nextId attribute in 
-                    media.xml and renumbering ids in cache.xml?
         """
         infile.seek(0, 2)
         size = infile.tell()
