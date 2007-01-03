@@ -200,7 +200,6 @@ class Main(QObject, Ui_MainWindow):
         self.write_settings()
         e.accept()
     
-    @report_error
     def add(self, action):
         settings = QSettings()
         _dir = settings.value("add books dialog dir", \
@@ -215,20 +214,26 @@ class Main(QObject, Ui_MainWindow):
             files = unicode(files.join("|||").toUtf8(), 'utf-8').split("|||")      
             self.add_books(files)
     
+    @report_error
     def add_books(self, files):
         self.window.setCursor(Qt.WaitCursor)
-        for _file in files:
-            _file = os.path.abspath(_file)
-            self.library_view.model().add_book(_file)
-            if self.library_view.isVisible(): 
-                self.search.clear()
-            else: 
-                self.library_model.search("")
-            hv = self.library_view.horizontalHeader()
-            col = hv.sortIndicatorSection()
-            order = hv.sortIndicatorOrder()
-            self.library_view.model().sort(col, order)
-        self.window.setCursor(Qt.ArrowCursor)
+        try:
+            for _file in files:
+                _file = os.path.abspath(_file)
+                self.library_view.model().add_book(_file)
+                if self.library_view.isVisible(): 
+                    if len(str(self.search.text())):
+                        self.search.clear()
+                    else:
+                        self.library_model.search("")
+                else: 
+                    self.library_model.search("")
+                hv = self.library_view.horizontalHeader()
+                col = hv.sortIndicatorSection()
+                order = hv.sortIndicatorOrder()
+                self.library_view.model().sort(col, order)
+        finally:
+            self.window.setCursor(Qt.ArrowCursor)
     
     @report_error
     def edit(self, action):    
@@ -292,9 +297,12 @@ class Main(QObject, Ui_MainWindow):
             order = hv.sortIndicatorOrder()
             model = self.card_model if oncard else self.reader_model
             model.sort(col, order)
-            if self.device_view.isVisible() and self.device_view.model()\
-                    == model: 
-                        self.search.clear()
+            if self.device_view.isVisible() and \
+                                        self.device_view.model() == model: 
+                if len(str(self.search.text())):
+                    self.search.clear()
+                else:
+                    self.device_view.model().search("")
             else: 
                 model.search("")
         

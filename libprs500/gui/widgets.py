@@ -165,7 +165,7 @@ class TableView(FileDragAndDrop, QTableView):
     
     @classmethod
     def wrap(cls, s, width=20):         
-        cls.wrapper.width = 20
+        cls.wrapper.width = width
         return cls.wrapper.fill(s) 
     
     @classmethod
@@ -566,12 +566,12 @@ class LibraryBooksModel(QAbstractTableModel):
                     r = 5
                 return QVariant(r)
             if   col == 0: 
-                text = TableView.wrap(row["title"], width=25)
+                text = TableView.wrap(row["title"], width=35)
             elif col == 1: 
                 au = row["authors"]
                 if au:
                     au = au.split("&")
-                    jau = [ TableView.wrap(a, width=25).strip() for a in au ]
+                    jau = [ TableView.wrap(a, width=30).strip() for a in au ]
                     text = "\n".join(jau)
             elif col == 2: 
                 text = TableView.human_readable(row["size"])
@@ -587,7 +587,7 @@ class LibraryBooksModel(QAbstractTableModel):
             return QVariant(text)
         elif role == Qt.TextAlignmentRole and index.column() in [2,3,4]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
-        elif role == Qt.ToolTipRole:
+        elif role == Qt.ToolTipRole and index.isValid():
             if index.column() in [0, 1, 4, 5]:
                 edit = "Double click to <b>edit</b> me<br><br>"
             else: 
@@ -780,21 +780,25 @@ class DeviceBooksModel(QAbstractTableModel):
 
 class DeviceModel(QAbstractListModel):
     
-    memory_free = 0
+    memory_free      = 0
     card_free        = 0
-    show_reader = False
-    show_card = False
+    show_reader      = False
+    show_card        = False
     
     def update_devices(self, reader=None, card=None):
         if reader != None: 
             self.show_reader = reader
         if card != None: 
             self.show_card = card
-        self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
-                        self.index(1), self.index(2))
+        self.emit(SIGNAL("layoutChanged()"))
     
-    def rowCount(self, parent): 
-        return 3
+    def rowCount(self, parent):
+        base = 1
+        if self.show_reader:
+            base += 1
+        if self.show_card:
+            base += 1
+        return base
     
     def update_free_space(self, reader, card):
         self.memory_free = reader
