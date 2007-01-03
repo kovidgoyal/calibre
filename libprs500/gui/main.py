@@ -220,8 +220,10 @@ class Main(QObject, Ui_MainWindow):
         for _file in files:
             _file = os.path.abspath(_file)
             self.library_view.model().add_book(_file)
-            if self.library_view.isVisible(): self.search.clear()
-            else: self.library_model.search("")
+            if self.library_view.isVisible(): 
+                self.search.clear()
+            else: 
+                self.library_model.search("")
             hv = self.library_view.horizontalHeader()
             col = hv.sortIndicatorSection()
             order = hv.sortIndicatorOrder()

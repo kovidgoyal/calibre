@@ -90,7 +90,7 @@ class EditBookDialog(Ui_BookEditDialog):
                 for row in range(self.formats.count()):
                     fmt = self.formats.item(row)
                     if fmt.ext == ext:
-                        self.formats.takeItem(fmt)
+                        self.formats.takeItem(row)
                         break
                 Format(self.formats, ext, path=_file)
                 self.formats_changed = True
@@ -153,7 +153,10 @@ class EditBookDialog(Ui_BookEditDialog):
         if cover:
             pm = QPixmap()
             pm.loadFromData(cover, "", Qt.AutoColor)
-            self.cover.setPixmap(pm)
+            if not pm.isNull(): 
+                self.cover.setPixmap(pm)
+            else:
+                self.cover.setPixmap(QPixmap(":/default_cover"))
         else: 
             self.cover.setPixmap(QPixmap(":/default_cover"))
         exts = self.db.get_extensions(self.id)
