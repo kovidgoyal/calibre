@@ -37,6 +37,6 @@ the following rule in C{/etc/udev/rules.d/90-local.rules} ::
 You may have to adjust the GROUP and the location of the rules file to 
 suit your distribution.
 """
-__version__   = "0.3.0a6"
+__version__   = "0.3.0b2"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"

@@ -40,7 +40,8 @@ from editbook import EditBookDialog
 DEFAULT_BOOK_COVER = None
 LIBRARY_BOOK_TEMPLATE = QString("<table><tr><td><b>Formats:</b> %1  \
                                  </td><td><b>Tags:</b> %2</td></tr> \
-                                 <tr><td><b>Comments:</b> %3</td></tr></table>")
+                                 <tr><td colspan='2'><b>Comments:</b> %3</td>\
+                                 </tr></table>")
 DEVICE_BOOK_TEMPLATE = QString("<table><tr><td><b>Title: </b>%1</td><td> \
                                 <b>&nbsp;Size:</b> %2</td></tr>\
                                 <tr><td><b>Author: </b>%3</td>\
