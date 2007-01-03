@@ -27,15 +27,13 @@ to get and set meta information. For example:
 import struct
 import array
 import zlib
-import StringIO
 import xml.dom.minidom as dom
-from xml.dom.ext import Print
 
 from libprs500.prstypes import field
 
-BYTE          = "<B"  #: Unsigned char little endian encoded in 1 byte 
-WORD        = "<H"  #: Unsigned short little endian encoded in 2 bytes 
-DWORD     = "<I"    #: Unsigned integer little endian encoded in 4 bytes
+BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte 
+WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes 
+DWORD     = "<I"  #: Unsigned integer little endian encoded in 4 bytes
 QWORD     = "<Q"  #: Unsigned long long little endian encoded in 8 bytes
 
 class versioned_field(field):
@@ -90,37 +88,69 @@ class xml_field(object):
     """ 
     Descriptor that gets and sets XML based meta information from an LRF file. 
     Works for simple XML fields of the form <tagname>data</tagname>
-    """
-    def __init__(self, tag_name):
-        """ @param tag_name: The XML tag whoose data we operate on """
+    """    
+    def __init__(self, tag_name, parent="BookInfo"):
+        """ 
+        @param tag_name: The XML tag whose data we operate on 
+        @param parent: The tagname of the parent element of C{tag_name}
+        """
         self.tag_name = tag_name
-    
+        self.parent = parent
+        
     def __get__(self, obj, typ=None): 
+        """ Return the data in this field or '' if the field is empty """
         document = dom.parseString(obj.info)
-        elem = document.getElementsByTagName(self.tag_name)[0]
-        elem.normalize() 
-        if not elem.hasChildNodes(): 
-            return ""      
-        return elem.firstChild.data.strip()
-    
+        elems = document.getElementsByTagName(self.tag_name)
+        if len(elems):
+            elem = None
+            for candidate in elems:
+                if candidate.parentNode.nodeName == self.parent:
+                    elem = candidate
+            if elem:
+                elem.normalize() 
+                if elem.hasChildNodes(): 
+                    return elem.firstChild.data.strip()
+        return ""
+        
     def __set__(self, obj, val):
         document = dom.parseString(obj.info)
-        elem = document.getElementsByTagName(self.tag_name)[0]      
-        elem.normalize()
-        while elem.hasChildNodes(): 
-            elem.removeChild(elem.lastChild)
-        elem.appendChild(dom.Text())
+        def create_elem():
+            elem = document.createElement(self.tag_name)
+            elem.appendChild(dom.Text())
+            parent = document.getElementsByTagName(self.parent)[0]
+            parent.appendChild(elem)
+            return elem
+            
+        if not val:
+            val = u''
+        if type(val).__name__ != 'unicode':
+            val = unicode(val, 'utf-8')
+        
+        elems = document.getElementsByTagName(self.tag_name)
+        elem = None
+        if len(elems):
+            for candidate in elems:
+                if candidate.parentNode.nodeName == self.parent:
+                    elem = candidate
+            if not elem:
+                elem = create_elem()
+            else:
+                elem.normalize()
+                while elem.hasChildNodes(): 
+                    elem.removeChild(elem.lastChild)
+                elem.appendChild(dom.Text())            
+        else:
+            elem = create_elem()            
         elem.firstChild.data = val
-        s = StringIO.StringIO()
-        Print(document, s)
-        obj.info = s.getvalue()
-        s.close()
+        info = document.toxml(encoding='utf-16')
+        obj.info = info
+            
     
     def __str__(self):
         return self.tag_name
     
     def __repr__(self):
-        return "XML Field: " + self.tag_name
+        return "XML Field: " + self.tag_name + " in " + self.parent
 
 class LRFMetaFile(object):
     """ Has properties to read and write all Meta information in a LRF file. """
@@ -128,36 +158,39 @@ class LRFMetaFile(object):
     LRF_HEADER = u'LRF'.encode('utf-16')[2:]+'\0\0' 
     
     lrf_header               = fixed_stringfield(length=8, start=0)
-    version                    = field(fmt=WORD, start=8)
-    xor_key                   = field(fmt=WORD, start=10)
-    root_object_id         = field(fmt=DWORD, start=12)
-    number_of_objets   = field(fmt=QWORD, start=16)
-    object_index_offset = field(fmt=QWORD, start=24)
-    binding                    = field(fmt=BYTE, start=36)
-    dpi                           = field(fmt=WORD, start=38)
-    width                       = field(fmt=WORD, start=42)
-    height                     = field(fmt=WORD, start=44)
-    color_depth            = field(fmt=BYTE, start=46)
-    toc_object_id          = field(fmt=DWORD, start=0x44)
-    toc_object_offset    = field(fmt=DWORD, start=0x48)
-    compressed_info_size = field(fmt=WORD, start=0x4c)
-    thumbnail_type        = versioned_field(version, 800, fmt=WORD, start=0x4e)
-    thumbnail_size         = versioned_field(version, 800, fmt=DWORD, start=0x50)
-    uncompressed_info_size = versioned_field(compressed_info_size, 0, \
+    version                  = field(fmt=WORD, start=8)
+    xor_key                  = field(fmt=WORD, start=10)
+    root_object_id           = field(fmt=DWORD, start=12)
+    number_of_objets         = field(fmt=QWORD, start=16)
+    object_index_offset      = field(fmt=QWORD, start=24)
+    binding                  = field(fmt=BYTE, start=36)
+    dpi                      = field(fmt=WORD, start=38)
+    width                    = field(fmt=WORD, start=42)
+    height                   = field(fmt=WORD, start=44)
+    color_depth              = field(fmt=BYTE, start=46)
+    toc_object_id            = field(fmt=DWORD, start=0x44)
+    toc_object_offset        = field(fmt=DWORD, start=0x48)
+    compressed_info_size     = field(fmt=WORD, start=0x4c)
+    thumbnail_type           = versioned_field(version, 800, fmt=WORD, start=0x4e)
+    thumbnail_size           = versioned_field(version, 800, fmt=DWORD, start=0x50)
+    uncompressed_info_size   = versioned_field(compressed_info_size, 0, \
                                              fmt=DWORD, start=0x54)
     
-    title                          = xml_field("Title")
-    author                     = xml_field("Author")
-    book_id                   = xml_field("BookID")
-    publisher                 = xml_field("Publisher")
-    label                        = xml_field("Label")
-    category                 = xml_field("Category")
+    title                 = xml_field("Title", parent="BookInfo")
+    author                = xml_field("Author", parent="BookInfo")
+    book_id               = xml_field("BookID", parent="BookInfo")
+    publisher             = xml_field("Publisher", parent="BookInfo")
+    label                 = xml_field("Label", parent="BookInfo")
+    category              = xml_field("Category", parent="BookInfo")
+    classification        = xml_field("Classification", parent="BookInfo")
+    free_text             = xml_field("FreeText", parent="BookInfo")
     
-    language                 = xml_field("Language")
-    creator                    = xml_field("Creator")
-    creation_date          = xml_field("CreationDate") #: Format is %Y-%m-%d
-    producer                  = xml_field("Producer")
-    page                        = xml_field("Page")
+    language              = xml_field("Language", parent="DocInfo")
+    creator               = xml_field("Creator", parent="DocInfo")
+    # Format is %Y-%m-%d
+    creation_date         = xml_field("CreationDate", parent="DocInfo") 
+    producer              = xml_field("Producer", parent="DocInfo")
+    page                  = xml_field("Page", parent="DocInfo")
     
     def safe(func):
         """ 
@@ -198,20 +231,36 @@ class LRFMetaFile(object):
     
     @safe_property
     def info():
-        doc = """ Document meta information in raw XML format """
+        doc = \
+        """ 
+        Document meta information in raw XML format as a byte string encoded in
+        utf-16.
+        To set use raw XML in a byte string encoded in utf-16.
+        """
         def fget(self):
             if self.compressed_info_size == 0:
                 raise LRFException("This document has no meta info")      
             size = self.compressed_info_size - 4
             self._file.seek(self.info_start)      
             try:
-                stream =  zlib.decompress(self._file.read(size))        
-                if len(stream) != self.uncompressed_info_size:          
+                src =  zlib.decompress(self._file.read(size))        
+                if len(src) != self.uncompressed_info_size:          
                     raise LRFException("Decompression of document meta info\
-                                        yielded unexpected results")
-                # Remove null characters from string as in some LRF files 
-                # the stream is null-terminated
-                return stream.strip().replace('\0', '')
+                                        yielded unexpected results")                
+                candidate = unicode(src, 'utf-16')
+                # LRF files produced with makelrf dont have a correctly
+                # encoded metadata block. 
+                # Decoding using latin1 is the most useful for me since I
+                # occassionally read french books.
+                if not u"Info" in candidate: 
+                    candidate = unicode(src, 'latin1', errors='ignore')
+                    if candidate[-1:] == '\0':
+                        candidate = candidate[:-1]
+                    candidate = dom.parseString(candidate.encode('utf-8')).\
+                            toxml(encoding='utf-16')
+                else:
+                    candidate = candidate.encode('utf-16')
+                return candidate.strip()
             except zlib.error, e:
                 raise LRFException("Unable to decompress document meta information")
         
@@ -222,6 +271,7 @@ class LRFMetaFile(object):
             self._file.seek(self.info_start)
             self._file.write(stream)
             self._file.flush()
+        
         return { "fget":fget, "fset":fset, "doc":doc }
     
     @safe_property
@@ -273,7 +323,7 @@ class LRFMetaFile(object):
                 ttype = 0x11
             self.thumbnail_type = ttype            
             # Needed as new thumbnail may have different size than old thumbnail
-            self.update_object_offsets(self.toc_object_offset - orig_offset)           
+            self.update_object_offsets(self.toc_object_offset - orig_offset)
         return { "fget":fget, "fset":fset, "doc":doc }
     
     def __init__(self, file):
