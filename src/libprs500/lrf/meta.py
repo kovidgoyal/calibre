@@ -389,7 +389,9 @@ class LRFMetaFile(object):
                 break
             if offset >= (2**8)**4:
                 # New offset is larger than a DWORD, so leave 
-                # offset unchanged
+                # offset unchanged. I'm assuming offset is an offset from
+                # the previous object, otherwise this would impose a ~ 4MB limit
+                # on LRF files.
                 offset -= delta
             self.pack(offset, fmt=DWORD, start=pos)            
             try: 

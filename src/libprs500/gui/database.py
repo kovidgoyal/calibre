@@ -57,18 +57,25 @@ class LibraryDatabase(object):
         title, author, publisher, size, cover = os.path.basename(_file), \
                                        None, None, os.stat(_file)[ST_SIZE], None
         ext = title[title.rfind(".")+1:].lower() if title.find(".") > -1 else None
-        comments = None
+        comments, tags = None, None
         if ext == "lrf":
             lrf = LRFMetaFile(open(_file, "r+b"))
             title, author, cover, publisher = lrf.title, lrf.author.strip(), \
                                             lrf.thumbnail, lrf.publisher.strip()
-            if "unknown" in publisher.lower(): 
+            if "unknown" in publisher.lower() or 'some publisher' in publisher.lower(): 
                 publisher = None
             if "unknown" in author.lower(): 
                 author = None
             comments = lrf.free_text
             if not comments:
                 comments = None
+            classification, category = lrf.classification, lrf.category
+            if 'unknown' in classification.lower():
+                classification = ''
+            if 'unknown' in category.lower():
+                category = ''
+            if classification or category:
+                tags = ", ".join((classification, category))
         data = open(_file).read()
         usize = len(data)
         data = compress(data)
@@ -79,7 +86,7 @@ class LibraryDatabase(object):
         self.con.execute("insert into books_meta (title, authors, publisher, "+\
                          "size, tags, comments, rating) values "+\
                          "(?,?,?,?,?,?,?)", \
-                         (title, author, publisher, size, None, comments, None))
+                         (title, author, publisher, size, tags, comments, None))
         _id =  self.con.execute("select max(id) from books_meta").next()[0]    
         self.con.execute("insert into books_data values (?,?,?,?)", \
                             (_id, ext, usize, sqlite.Binary(data)))
@@ -166,7 +173,7 @@ class LibraryDatabase(object):
             try:
                 lrf = LRFMetaFile(s)
                 lrf.author = metadata["authors"]
-                lrf.title = metadata["title"]
+                lrf.title  = metadata["title"]
                 # Not sure if I want to override the lrf freetext field
                 # with a possibly null value
                 #lrf.free_text = metadata["comments"]
