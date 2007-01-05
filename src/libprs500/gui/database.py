@@ -57,6 +57,7 @@ class LibraryDatabase(object):
         title, author, publisher, size, cover = os.path.basename(_file), \
                                        None, None, os.stat(_file)[ST_SIZE], None
         ext = title[title.rfind(".")+1:].lower() if title.find(".") > -1 else None
+        comments = None
         if ext == "lrf":
             lrf = LRFMetaFile(open(_file, "r+b"))
             title, author, cover, publisher = lrf.title, lrf.author.strip(), \
@@ -65,6 +66,9 @@ class LibraryDatabase(object):
                 publisher = None
             if "unknown" in author.lower(): 
                 author = None
+            comments = lrf.free_text
+            if not comments:
+                comments = None
         data = open(_file).read()
         usize = len(data)
         data = compress(data)
@@ -75,7 +79,7 @@ class LibraryDatabase(object):
         self.con.execute("insert into books_meta (title, authors, publisher, "+\
                          "size, tags, comments, rating) values "+\
                          "(?,?,?,?,?,?,?)", \
-                         (title, author, publisher, size, None, None, None))
+                         (title, author, publisher, size, None, comments, None))
         _id =  self.con.execute("select max(id) from books_meta").next()[0]    
         self.con.execute("insert into books_data values (?,?,?,?)", \
                             (_id, ext, usize, sqlite.Binary(data)))
@@ -163,6 +167,9 @@ class LibraryDatabase(object):
                 lrf = LRFMetaFile(s)
                 lrf.author = metadata["authors"]
                 lrf.title = metadata["title"]
+                # Not sure if I want to override the lrf freetext field
+                # with a possibly null value
+                #lrf.free_text = metadata["comments"]
             except LRFException:
                 pass
             data = s.getvalue()
@@ -201,7 +208,7 @@ class LibraryDatabase(object):
             return None
         data = {}
         for field in ("id", "title", "authors", "publisher", "size", "tags",
-                      "date"):
+                      "date", "comments"):
             data[field] = row[field]
         return data
     

@@ -114,6 +114,8 @@ class xml_field(object):
         return ""
         
     def __set__(self, obj, val):
+        if val == None:
+            val = ""
         document = dom.parseString(obj.info)
         def create_elem():
             elem = document.createElement(self.tag_name)

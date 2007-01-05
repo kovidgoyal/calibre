@@ -526,7 +526,9 @@ class LibraryBooksModel(QAbstractTableModel):
         tags = row["tags"]
         if not tags: tags = ""
         comments = row["comments"]
-        if not comments: comments = ""
+        if not comments: 
+            comments = ""
+        comments = TableView.wrap(comments, width=80)
         return exts, tags, comments, cover
     
     def id_from_index(self, index): return self._data[index.row()]["id"]

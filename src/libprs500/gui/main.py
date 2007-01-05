@@ -38,10 +38,7 @@ from editbook import EditBookDialog
 
 
 DEFAULT_BOOK_COVER = None
-LIBRARY_BOOK_TEMPLATE = QString("<table><tr><td><b>Formats:</b> %1  \
-                                 </td><td><b>Tags:</b> %2</td></tr> \
-                                 <tr><td colspan='2'><b>Comments:</b> %3</td>\
-                                 </tr></table>")
+LIBRARY_BOOK_TEMPLATE = QString("<b>Formats:</b> %1<br><b>Tags:</b> %2<br>%3") 
 DEVICE_BOOK_TEMPLATE = QString("<table><tr><td><b>Title: </b>%1</td><td> \
                                 <b>&nbsp;Size:</b> %2</td></tr>\
                                 <tr><td><b>Author: </b>%3</td>\
@@ -124,12 +121,13 @@ class Main(QObject, Ui_MainWindow):
         for r in range(topleft.row(), bottomright.row()+1):
             self.current_view.resizeRowToContents(r)
     
-    def show_book(self, current, previous):    
-        if not len(self.current_view.selectedIndexes()):
+    def show_book(self, current, previous):
+        if not current.isValid():
             return
         if self.library_view.isVisible():
             formats, tags, comments, cover = self.library_model\
                                                         .info(current.row())
+            comments = re.sub('\n', '<br>', comments)
             data = LIBRARY_BOOK_TEMPLATE.arg(formats).arg(tags).arg(comments)
             tooltip = "To save the cover, drag it to the desktop.<br>To \
                        change the cover drag the new cover onto this picture"
@@ -488,7 +486,7 @@ class Main(QObject, Ui_MainWindow):
         self.df.setText(self.df_template.arg("").arg("").arg(""))
         window.show()
         self.library_view.resizeColumnsToContents()
-        self.library_view.resizeRowsToContents()        
+        self.library_view.resizeRowsToContents()
         
     
     def device_removed(self):
