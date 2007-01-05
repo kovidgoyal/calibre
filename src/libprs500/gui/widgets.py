@@ -26,13 +26,12 @@ from math import sin, cos, pi
 from libprs500.gui import Error, _Warning
 from libprs500.ptempfile import PersistentTemporaryFile
 
-from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QApplication, QString, QFont, QAbstractListModel, \
                      QVariant, QAbstractTableModel, QTableView, QListView, \
                      QLabel, QAbstractItemView, QPixmap, QIcon, QSize, \
-                     QSpinBox, QPoint, QPainterPath, QItemDelegate, QPainter, QPen, \
-                     QColor, QLinearGradient, QBrush, QStyle, \
+                     QSpinBox, QPoint, QPainterPath, QItemDelegate, QPainter, \
+                     QPen, QColor, QLinearGradient, QBrush, QStyle, \
                      QByteArray, QBuffer, QMimeData, \
                      QDrag, QRect                     
 

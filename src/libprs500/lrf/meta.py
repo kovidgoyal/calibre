@@ -26,6 +26,8 @@ to get and set meta information. For example:
 
 import struct
 import zlib
+from shutil import copyfileobj
+from cStringIO import StringIO
 import xml.dom.minidom as dom
 
 from libprs500.prstypes import field
@@ -151,22 +153,54 @@ class xml_field(object):
     def __repr__(self):
         return "XML Field: " + self.tag_name + " in " + self.parent
 
+def insert_into_file(fileobj, data, start, end):
+    """
+    Insert data into fileobj at position C{start}.
+    
+    This function inserts data into a file, overwriting all data between start
+    and end. If end == start no data is overwritten. Do not use this function to
+    append data to a file.
+    
+    @param fileobj: file like object
+    @param data:    data to be inserted into fileobj
+    @param start:   The position at which to start inserting data
+    @param end:     The position in fileobj of data that must not be overwritten
+    @return:        C{start + len(data) - end}
+    """
+    buffer = StringIO()
+    fileobj.seek(end)
+    copyfileobj(fileobj, buffer, -1)
+    buffer.flush()
+    buffer.seek(0)
+    fileobj.seek(start)
+    fileobj.write(data)
+    fileobj.flush()
+    fileobj.truncate()
+    delta = fileobj.tell() - end # < 0 if len(data) < end-start
+    copyfileobj(buffer, fileobj, -1)
+    fileobj.flush()
+    buffer.close()
+    return delta
+
+
+    
+
 class LRFMetaFile(object):
     """ Has properties to read and write all Meta information in a LRF file. """
-    # The first 8 bytes of all valid LRF files
-    LRF_HEADER = 'LRF'.encode('utf-16le')+'\0\0' 
+    #: The first 6 bytes of all valid LRF files
+    LRF_HEADER = 'LRF'.encode('utf-16le')
     
-    lrf_header               = fixed_stringfield(length=8, start=0)
-    version                  = field(fmt=WORD, start=8)
-    xor_key                  = field(fmt=WORD, start=10)
-    root_object_id           = field(fmt=DWORD, start=12)
-    number_of_objets         = field(fmt=QWORD, start=16)
-    object_index_offset      = field(fmt=QWORD, start=24)
-    binding                  = field(fmt=BYTE, start=36)
-    dpi                      = field(fmt=WORD, start=38)
-    width                    = field(fmt=WORD, start=42)
-    height                   = field(fmt=WORD, start=44)
-    color_depth              = field(fmt=BYTE, start=46)
+    lrf_header               = fixed_stringfield(length=6, start=0x0)
+    version                  = field(fmt=WORD, start=0x8)
+    xor_key                  = field(fmt=WORD, start=0xa)
+    root_object_id           = field(fmt=DWORD, start=0xc)
+    number_of_objets         = field(fmt=QWORD, start=0x10)
+    object_index_offset      = field(fmt=QWORD, start=0x18)
+    binding                  = field(fmt=BYTE, start=0x24)
+    dpi                      = field(fmt=WORD, start=0x26)
+    width                    = field(fmt=WORD, start=0x2a)
+    height                   = field(fmt=WORD, start=0x2c)
+    color_depth              = field(fmt=BYTE, start=0x2e)
     toc_object_id            = field(fmt=DWORD, start=0x44)
     toc_object_offset        = field(fmt=DWORD, start=0x48)
     compressed_info_size     = field(fmt=WORD, start=0x4c)
@@ -266,10 +300,13 @@ class LRFMetaFile(object):
         def fset(self, info):
             self.uncompressed_info_size = len(info)
             stream = zlib.compress(info)
+            orig_size = self.compressed_info_size
             self.compressed_info_size = len(stream) + 4
-            self._file.seek(self.info_start)
-            self._file.write(stream)
-            self._file.flush()
+            delta = insert_into_file(self._file, stream, self.info_start, \
+                                     self.info_start + orig_size - 4)
+            self.toc_object_offset   += delta
+            self.object_index_offset += delta
+            self.update_object_offsets(delta)
         
         return { "fget":fget, "fset":fset, "doc":doc }
     
@@ -277,7 +314,7 @@ class LRFMetaFile(object):
     def thumbnail_pos():
         doc = """ The position of the thumbnail in the LRF file """ 
         def fget(self):
-            return self.info_start+ self.compressed_info_size-4
+            return self.info_start + self.compressed_info_size-4
         return { "fget":fget, "doc":doc }
     
     @classmethod
@@ -313,23 +350,14 @@ class LRFMetaFile(object):
                                     of version <= 800")
             slice = data[0:16]
             orig_size = self.thumbnail_size
-            self._file.seek(self.toc_object_offset)
-            toc = self._file.read(self.object_index_offset - self.toc_object_offset)
-            self._file.seek(self.object_index_offset)
-            objects = self._file.read()      
             self.thumbnail_size = len(data)
-            self._file.seek(self.thumbnail_pos)
-            self._file.write(data)
-            orig_offset = self.toc_object_offset
-            self.toc_object_offset = self._file.tell()
-            self._file.write(toc)
-            self.object_index_offset  = self._file.tell()
-            self._file.write(objects)
-            self._file.flush()
-            self._file.truncate() # Incase old thumbnail was bigger than new
-            self.thumbnail_type = self._detect_thumbnail_type(slice)            
-            # Needed as new thumbnail may have different size than old thumbnail
-            self.update_object_offsets(self.toc_object_offset - orig_offset)
+            delta = insert_into_file(self._file, data, self.thumbnail_pos, \
+                                     self.thumbnail_pos + orig_size)
+            self.toc_object_offset += delta 
+            self.object_index_offset += delta
+            self.thumbnail_type = self._detect_thumbnail_type(slice)
+            self.update_object_offsets(delta)
+            
         return { "fget":fget, "fset":fset, "doc":doc }
     
     def __init__(self, file):
@@ -426,10 +454,14 @@ def main():
     import sys, os.path
     from optparse import OptionParser
     from libprs500 import __version__ as VERSION
-    parser = OptionParser(usage="usage: %prog [options] mybook.lrf\n\
-                    \nWARNING: Based on reverse engineering the LRF format."+\
-                    " Making changes may render your LRF file unreadable. ", \
-                    version=VERSION)
+    parser = OptionParser(usage = \
+      """%prog [options] mybook.lrf
+      
+      Show/edit the metadata in an LRF file.
+      
+      WARNING: Based on reverse engineering the LRF format. 
+      Making changes may render your LRF file unreadable. 
+      """, version=VERSION)
     parser.add_option("-t", "--title", action="store", type="string", \
                     dest="title", help="Set the book title")
     parser.add_option("-a", "--author", action="store", type="string", \
@@ -440,6 +472,9 @@ def main():
     parser.add_option("--thumbnail", action="store", type="string", \
                     dest="thumbnail", help="Path to a graphic that will be"+\
                     " set as this files' thumbnail")
+    parser.add_option("--comment", action="store", type="string", \
+                    dest="comment", help="Path to a txt file containing the "+\
+                    "comment to be stored in the lrf file.")
     parser.add_option("--get-thumbnail", action="store_true", \
                     dest="get_thumbnail", default=False, \
                     help="Extract thumbnail from LRF file")
@@ -459,10 +494,13 @@ def main():
     if options.page: 
         lrf.page = options.page
     if options.thumbnail:
-        f = open(options.thumbnail, "r")
+        path = os.path.expanduser(os.path.expandvars(options.thumbnail))
+        f = open(path, "rb")
         lrf.thumbnail = f.read()
         f.close()
-    
+    if options.comment:
+        path = os.path.expanduser(os.path.expandvars(options.comment))
+        lrf.free_text = open(path).read()
     if options.get_thumbnail:
         t = lrf.thumbnail
         td = "None"
@@ -478,3 +516,11 @@ def main():
             print str(f[1]) + ":", lrf.__getattribute__(f[0])
     if options.get_thumbnail: 
         print "Thumbnail:", td
+        
+def zeroes(num):
+    temp = [ '\0' for i in range(num) ]
+    return "".join(temp)
+
+def create_lrf_header():
+    buffer = StringIO()
+    buffer.write()
