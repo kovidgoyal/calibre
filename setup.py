@@ -13,18 +13,25 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #!/usr/bin/env python2.5
+import sys
+
 import ez_setup
 ez_setup.use_setuptools()
 
-# Try to install the Python imaging library as the package name (PIL) doesn't match the distributionfile name, thus declaring itas a dependency is useless
-#from setuptools.command.easy_install import main as easy_install
-#try:
-#  try:
-#    import Image
-#  except ImportError: 
-#    print "Trying to install thePython Imaging Library"
-#    easy_install(["-f", "http://www.pythonware.com/products/pil/", "Imaging"])
-#except: pass
+# Try to install the Python imaging library as the package name (PIL) doesn't 
+# match the distribution file name, thus declaring itas a dependency is useless
+from setuptools.command.easy_install import main as easy_install
+try:
+  try:
+    import Image
+  except ImportError: 
+    print "Trying to install the Python Imaging Library"
+    easy_install(["-f", "http://www.pythonware.com/products/pil/", "Imaging"])
+except Exception, e:
+    print >> sys.stderr, e 
+    print >> sys.stderr, \
+          "WARNING: Could not install the Python Imaging Library.", \
+          "Some functionality will be unavailable"
 
 import sys
 from setuptools import setup, find_packages
@@ -43,11 +50,15 @@ setup(
       author='Kovid Goyal',
       author_email='kovid@kovidgoyal.net',
       url = 'http://libprs500.kovidgoyal.net',
-      package_data = { 'libprs500.gui' : ['*.ui'] },
+      package_data = { \
+                        'libprs500.gui' : ['*.ui'], \
+                        'libprs500.lrf' : ['*.jar', '*.jpg'] \
+                     },
       entry_points = {
         'console_scripts': [ \
-                             'prs500 = libprs500.cli.main:main', \
-                             'lrf-meta = libprs500.lrf.meta:main' \
+                             'prs500 = libprs500.cli.main:main',   \
+                             'lrf-meta = libprs500.lrf.meta:main', \
+                             'makelrf = libprs500.lrf.makelrf:main'\
                            ],
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       },      

@@ -56,4 +56,4 @@ def PersistentTemporaryFile(suffix="", prefix=""):
         prefix = ""
     fd, name = tempfile.mkstemp(suffix, "libprs500_"+ __version__+"_" + prefix)
     _file = os.fdopen(fd, "wb")
-    return _TemporaryFileWrapper(_file, name)
+    return _TemporaryFileWrapper(_file, name)    

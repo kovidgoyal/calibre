@@ -14,8 +14,8 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """ The GUI to libprs500. Also has ebook library management features. """
 __docformat__ = "epytext"
-__author__       = "Kovid Goyal <kovid@kovidgoyal.net>"
-APP_TITLE         = "libprs500"
+__author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
+APP_TITLE     = "libprs500"
 
 import pkg_resources, sys, os, re, StringIO, traceback
 from PyQt4.uic.Compiler import compiler

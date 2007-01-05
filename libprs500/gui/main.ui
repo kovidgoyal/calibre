@@ -87,7 +87,7 @@
          </sizepolicy>
         </property>
         <property name="text" >
-         <string>For help visit &lt;a href="http://libprs500.kovidgoyal.net">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b> was created by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>%1 %2 %3</string>
+         <string>For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/GuiUsage">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b> was created by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>%1 %2 %3</string>
         </property>
         <property name="textFormat" >
          <enum>Qt::RichText</enum>

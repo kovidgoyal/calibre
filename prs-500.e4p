@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE Project SYSTEM "Project-4.0.dtd">
 <!-- eric4 project file for project prs-500 -->
-<!-- Saved: 2006-12-08, 23:24:29 -->
-<!-- Copyright (C) 2006 Kovid Goyal, kovid@kovidgoyal.net -->
+<!-- Saved: 2007-01-03, 23:14:45 -->
+<!-- Copyright (C) 2007 Kovid Goyal, kovid@kovidgoyal.net -->
 <Project version="4.0">
   <ProgLanguage mixed="0">Python</ProgLanguage>
   <UIType>Qt4</UIType>
@@ -83,6 +83,15 @@
       <Dir>libprs500</Dir>
       <Dir>gui</Dir>
       <Name>widgets.py</Name>
+    </Source>
+    <Source>
+      <Dir>libprs500</Dir>
+      <Dir>lrf</Dir>
+      <Name>makelrf.py</Name>
+    </Source>
+    <Source>
+      <Dir>libprs500</Dir>
+      <Name>ptempfile.py</Name>
     </Source>
   </Sources>
   <Forms>
@@ -230,10 +239,10 @@
     </VcsOtherData>
   </Vcs>
   <FiletypeAssociations>
-    <FiletypeAssociation pattern="*.py" type="SOURCES" />
     <FiletypeAssociation pattern="*.ui.h" type="FORMS" />
-    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
     <FiletypeAssociation pattern="*.ui" type="FORMS" />
+    <FiletypeAssociation pattern="*.idl" type="INTERFACES" />
+    <FiletypeAssociation pattern="*.py" type="SOURCES" />
     <FiletypeAssociation pattern="*.ptl" type="SOURCES" />
   </FiletypeAssociations>
 </Project>

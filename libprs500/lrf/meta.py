@@ -155,7 +155,7 @@ class xml_field(object):
 class LRFMetaFile(object):
     """ Has properties to read and write all Meta information in a LRF file. """
     # The first 8 bytes of all valid LRF files
-    LRF_HEADER = u'LRF'.encode('utf-16')[2:]+'\0\0' 
+    LRF_HEADER = 'LRF'.encode('utf-16le')+'\0\0' 
     
     lrf_header               = fixed_stringfield(length=8, start=0)
     version                  = field(fmt=WORD, start=8)
@@ -281,6 +281,19 @@ class LRFMetaFile(object):
             return self.info_start+ self.compressed_info_size-4
         return { "fget":fget, "doc":doc }
     
+    @classmethod
+    def _detect_thumbnail_type(cls, slice):
+        """ @param slice: The first 16 bytes of the thumbnail """
+        ttype = 0x14 # GIF
+        if "PNG" in slice: 
+            ttype = 0x12
+        if "BM" in slice: 
+            ttype = 0x13
+        if "JFIF" in slice: 
+            ttype = 0x11
+        return ttype
+        
+    
     @safe_property
     def thumbnail():
         doc = \
@@ -299,6 +312,7 @@ class LRFMetaFile(object):
             if self.version <= 800: 
                 raise LRFException("Cannot store thumbnails in LRF files \
                                     of version <= 800")
+            slice = data[0:16]
             orig_size = self.thumbnail_size
             self._file.seek(self.toc_object_offset)
             toc = self._file.read(self.object_index_offset - self.toc_object_offset)
@@ -314,14 +328,7 @@ class LRFMetaFile(object):
             self._file.write(objects)
             self._file.flush()
             self._file.truncate() # Incase old thumbnail was bigger than new
-            ttype = 0x14
-            if data[1:4] == "PNG": 
-                ttype = 0x12
-            if data[0:2] == "BM": 
-                ttype = 0x13
-            if data[0:4] == "JIFF": 
-                ttype = 0x11
-            self.thumbnail_type = ttype            
+            self.thumbnail_type = self._detect_thumbnail_type(slice)            
             # Needed as new thumbnail may have different size than old thumbnail
             self.update_object_offsets(self.toc_object_offset - orig_offset)
         return { "fget":fget, "fset":fset, "doc":doc }
@@ -392,6 +399,11 @@ class LRFMetaFile(object):
         self._file.flush()
     
     def thumbail_extension(self):
+        """ 
+        Return the extension for the thumbnail image type as specified
+        by L{self.thumbnail_type}. If the LRF file was created by buggy
+        software, the extension maye be incorrect. See L{self.fix_thumbnail_type}.
+        """
         ext = "gif"
         ttype = self.thumbnail_type
         if ttype == 0x11: 
@@ -401,6 +413,15 @@ class LRFMetaFile(object):
         elif ttype == 0x13:
             ext = "bm"
         return ext
+        
+    def fix_thumbnail_type(self):
+        """ 
+        Attempt to guess the thumbnail image format and set 
+        L{self.thumbnail_type} accordingly.
+        """
+        slice = self.thumbnail[0:16]
+        self.thumbnail_type = self._detect_thumbnail_type(slice)
+        
 
 def main():
     import sys, os.path
