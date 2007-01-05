@@ -17,7 +17,6 @@ import os
 import textwrap
 import time 
 import traceback
-import sys
 from operator import itemgetter, attrgetter
 from socket import gethostname
 from urlparse import urlparse, urlunparse
@@ -32,11 +31,9 @@ from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QApplication, QString, QFont, QAbstractListModel, \
                      QVariant, QAbstractTableModel, QTableView, QListView, \
                      QLabel, QAbstractItemView, QPixmap, QIcon, QSize, \
-                     QMessageBox, QSettings, QFileDialog, QErrorMessage, \
-                     QSpinBox, QPoint, \
-                     QIODevice, QPainterPath, QItemDelegate, QPainter, QPen, \
-                     QColor, QLinearGradient, QBrush, QStyle, QStringList, \
-                     QByteArray, QBuffer, QMimeData, QTextStream, QIODevice, \
+                     QSpinBox, QPoint, QPainterPath, QItemDelegate, QPainter, QPen, \
+                     QColor, QLinearGradient, QBrush, QStyle, \
+                     QByteArray, QBuffer, QMimeData, \
                      QDrag, QRect                     
 
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -138,7 +135,7 @@ class FileDragAndDrop(object):
             self._dragged_files, urls = [], []
             for _file in files:        
                 urls.append(urlunparse(('file', quote(gethostname()), \
-                                quote(_file.name.encode('utf-8')), '','','')))
+                                quote(_file.name.encode('utf-8')), '', '', '')))
                 self._dragged_files.append(_file)      
             mime_data.setData("text/uri-list", QByteArray("\n".join(urls)))
             user = os.getenv('USER')
@@ -298,10 +295,10 @@ class LibraryBooksView(TableView):
 class LibraryDelegate(QItemDelegate):
     COLOR = QColor("blue")
     SIZE     = 16
-    PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap,  Qt.RoundJoin)
+    PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
     
     def __init__(self, parent, rating_column=-1):
-        QItemDelegate.__init__(self, parent )
+        QItemDelegate.__init__(self, parent)
         self.rating_column = rating_column
         self.star_path = QPainterPath()
         self.star_path.moveTo(90, 50)
@@ -585,7 +582,7 @@ class LibraryBooksModel(QAbstractTableModel):
             if text == None: 
                 text = "Unknown"
             return QVariant(text)
-        elif role == Qt.TextAlignmentRole and index.column() in [2,3,4]:
+        elif role == Qt.TextAlignmentRole and index.column() in [2, 3, 4]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         elif role == Qt.ToolTipRole and index.isValid():
             if index.column() in [0, 1, 4, 5]:
@@ -658,7 +655,7 @@ class LibraryBooksModel(QAbstractTableModel):
 
 class DeviceBooksModel(QAbstractTableModel):
     @apply
-    def booklist():
+    def booklist(): 
         doc = """ The booklist this model is based on """
         def fget(self):
             return self._orig_data
@@ -674,8 +671,11 @@ class DeviceBooksModel(QAbstractTableModel):
         self._orig_data = book_list
         self.reset()
     
-    def rowCount(self, parent): return len(self._data)
-    def columnCount(self, parent): return 4
+    def rowCount(self, parent): 
+        return len(self._data)
+    
+    def columnCount(self, parent): 
+        return 4
     
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
@@ -705,7 +705,7 @@ class DeviceBooksModel(QAbstractTableModel):
             elif col == 3: 
                 text = time.strftime(TIME_WRITE_FMT, book.datetime)
             return QVariant(text)
-        elif role == Qt.TextAlignmentRole and index.column() in [2,3]:
+        elif role == Qt.TextAlignmentRole and index.column() in [2, 3]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         return NONE
     

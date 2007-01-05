@@ -122,7 +122,7 @@ class Main(QObject, Ui_MainWindow):
         for c in range(topleft.column(), bottomright.column()+1):
             self.current_view.resizeColumnToContents(c)
         for r in range(topleft.row(), bottomright.row()+1):
-            self.current_view.resizeRowToContents(c)
+            self.current_view.resizeRowToContents(r)
     
     def show_book(self, current, previous):    
         if not len(self.current_view.selectedIndexes()):
@@ -239,14 +239,12 @@ class Main(QObject, Ui_MainWindow):
     @report_error
     def edit(self, action):    
         if self.library_view.isVisible():
-            rows = self.library_view.selectionModel().selectedRows()
-            accepted = False
+            rows = self.library_view.selectionModel().selectedRows()            
             for row in rows:
                 _id = self.library_model.id_from_index(row)
                 dialog = QDialog(self.window)
                 ebd = EditBookDialog(dialog, _id, self.library_model.db)
                 if dialog.exec_() == QDialog.Accepted:
-                    accepted = True
                     title = unicode(ebd.title.text().toUtf8(), 'utf-8').strip()
                     authors = unicode(ebd.authors.text().toUtf8(), 'utf-8').strip()
                     rating = ebd.rating.value()

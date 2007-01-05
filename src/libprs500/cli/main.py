@@ -59,7 +59,7 @@ class FileFormatter(object):
             if self.is_readonly: mode += "r-"+x+"r-"+x+"r-"+x
             else: mode += "rw"+x+"rw"+x+"rw"+x
             return mode
-        return property(**locals())
+        return property(doc=doc, fget=fget)
     
     @apply
     def name_in_color():
@@ -73,28 +73,28 @@ class FileFormatter(object):
                 ext = self.name[self.name.rfind("."):]
                 if ext in (".pdf", ".rtf", ".lrf", ".lrx", ".txt"): cname = green + self.name + normal        
             return cname
-        return property(**locals())
+        return property(doc=doc, fget=fget)
     
     @apply
     def human_readable_size():
         doc=""" File size in human readable form """
         def fget(self):
             human_readable(self.size)
-        return property(**locals())
+        return property(doc=doc, fget=fget)
     
     @apply
     def modification_time():
         doc=""" Last modified time in the Linux ls -l format """
         def fget(self):
             return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.wtime))
-        return property(**locals())
+        return property(doc=doc, fget=fget)
     
     @apply
     def creation_time():
         doc=""" Last modified time in the Linux ls -l format """
         def fget(self):
             return time.strftime("%Y-%m-%d %H:%M", time.localtime(self.ctime))
-        return property(**locals())
+        return property(doc=doc, fget=fget)
 
 def info(dev):
     info = dev.get_device_information()

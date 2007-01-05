@@ -25,7 +25,6 @@ to get and set meta information. For example:
 """
 
 import struct
-import array
 import zlib
 import xml.dom.minidom as dom
 
