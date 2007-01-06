@@ -213,13 +213,14 @@ class LRFMetaFile(object):
     
     title                 = xml_field("Title", parent="BookInfo")
     author                = xml_field("Author", parent="BookInfo")
+    # 16 characters. First two chars should be FB for personal use ebooks.
     book_id               = xml_field("BookID", parent="BookInfo")
     publisher             = xml_field("Publisher", parent="BookInfo")
     label                 = xml_field("Label", parent="BookInfo")
     category              = xml_field("Category", parent="BookInfo")
     classification        = xml_field("Classification", parent="BookInfo")
     free_text             = xml_field("FreeText", parent="BookInfo")
-    
+    # Should use ISO 639 language codes
     language              = xml_field("Language", parent="DocInfo")
     creator               = xml_field("Creator", parent="DocInfo")
     # Format is %Y-%m-%d
@@ -296,7 +297,7 @@ class LRFMetaFile(object):
                 else:
                     candidate = candidate.encode('utf-16')
                 return candidate.strip()
-            except zlib.error, e:
+            except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
         
         def fset(self, info):
@@ -453,6 +454,22 @@ class LRFMetaFile(object):
         slice = self.thumbnail[0:16]
         self.thumbnail_type = self._detect_thumbnail_type(slice)
         
+    def seek(self, *args):
+        """ See L{file.seek} """
+        return self._file.seek(*args)
+    
+    def tell(self):
+        """ See L{file.tell} """
+        return self._file.tell()
+    
+    def read(self):
+        """ See L{file.read} """
+        return self._file.read()
+    
+    def write(self, val):
+        """ See L{file.write} """
+        self._file.write(val)
+        
 
 def main():
     import sys, os.path
@@ -520,11 +537,3 @@ def main():
             print str(f[1]) + ":", lrf.__getattribute__(f[0])
     if options.get_thumbnail: 
         print "Thumbnail:", td
-        
-def zeroes(num):
-    temp = [ '\0' for i in range(num) ]
-    return "".join(temp)
-
-def create_lrf_header():
-    buffer = StringIO()
-    buffer.write()

@@ -77,7 +77,7 @@ def makelrf(author=None, title=None, \
     if not os.access(src, os.R_OK):
         raise LRFException("Unable to read from file: " + src)
     if thumbnail:
-            thumb = os.path.abspath(options.thumbnail)
+            thumb = os.path.abspath(thumbnail)
             if not os.access(thumb, os.R_OK):
                 raise LRFException("Unable to read from " + thumb)
     else:
@@ -88,7 +88,7 @@ def makelrf(author=None, title=None, \
     if not title:
         title = os.path.basename(src)
     label = os.path.basename(src)
-    id = hashlib.md5(os.path.basename(label)).hexdigest()
+    id = 'FB' + hashlib.md5(os.path.basename(label)).hexdigest()[:14]
     name, ext = os.path.splitext(label)
     cwd = os.path.dirname(src)    
     dirpath = None
@@ -163,7 +163,7 @@ def main(cargs=None):
                     dest="title", help="Set the book title")
     parser.add_option("-a", "--author", action="store", type="string", \
                     dest="author", help="Set the author")
-    parser.add_option('-r', '--rasterize', action='store_true', \
+    parser.add_option('-r', '--rasterize', action='store_false', \
                     dest="rasterize", 
                     help="Convert pdfs into image files.")
     parser.add_option('-c', '--cover', action='store', dest='cover',\
