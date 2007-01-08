@@ -177,6 +177,8 @@ def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, l
 def main():
     term = TerminalController()
     cols = term.COLS
+    if not cols: # On windows terminal width is unknown
+        cols = 80
     
     parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, books, df, ls, cp, mkdir, touch, cat, rm\n\n"+
     "For help on a particular command: %prog command", version="libprs500 version: " + VERSION)
@@ -302,3 +304,6 @@ def main():
         print >>sys.stderr, e
         return 1
     return 0
+
+if __name__ == '__main__':
+    main()

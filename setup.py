@@ -25,8 +25,12 @@ try:
   try:
     import Image
   except ImportError: 
-    print "Trying to install the Python Imaging Library"
-    easy_install(["-f", "http://www.pythonware.com/products/pil/", "Imaging"])
+    if sys.platform not in ['win32', 'darwin']:
+        print "Trying to install the Python Imaging Library"
+        easy_install(["-f", "http://www.pythonware.com/products/pil/", "Imaging"])
+    else:
+        raise Exception('Please install the Python Imaging library manually from '\
+                        'http://www.pythonware.com/products/pil/')
 except Exception, e:
     print >> sys.stderr, e 
     print >> sys.stderr, \
@@ -44,6 +48,10 @@ if sys.hexversion < 0x2050000:
     sys.exit(1)
     
 
+install_requires=[]
+if sys.platform not in ['win32', 'darwin']:
+  install_requires = ["pyusb>=0.3.5", "pyxml>=0.8.4"]
+
 setup(
       name='libprs500', 
       packages = find_packages('src'), 
@@ -54,7 +62,8 @@ setup(
       url = 'http://libprs500.kovidgoyal.net', 
       package_data = { \
                         'libprs500.gui' : ['*.ui'], \
-                        'libprs500.lrf' : ['*.jar', '*.jpg'] \
+                        'libprs500.lrf' : ['*.jar', '*.jpg'], \
+                        'libprs500.metadata' : ['*.pl'] \
                      }, 
       entry_points = {
         'console_scripts': [ \
@@ -65,9 +74,9 @@ setup(
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       }, 
       zip_safe = True, 
-      install_requires=["pyusb>=0.3.5", "pyxml>=0.8.4"], 
-      dependency_links=["http://sourceforge.net/project/showfiles.php?group_id=6473", 
-                        "http://easynews.dl.sourceforge.net/sourceforge/pyusb/pyusb-0.3.5.tar.gz", 
+      install_requires = install_requires, 
+      dependency_links = ["http://sourceforge.net/project/showfiles.php?group_id=6473", 
+                          "http://easynews.dl.sourceforge.net/sourceforge/pyusb/pyusb-0.3.5.tar.gz", 
                                     ], 
       description = 
                   """
