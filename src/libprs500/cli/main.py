@@ -207,7 +207,8 @@ def main():
                                                                             str(0 if total[i]==0 else int(100*(total[i]-free[i])/(total[i]*1.)))+"%")
         elif command == "books":
             print "Books in main memory:"
-            for book in dev.books(): print book
+            for book in dev.books(): 
+                print unicode(book)
             print "\nBooks on storage card:"
             for book in dev.books(oncard=True): print book      
         elif command == "mkdir":

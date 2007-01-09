@@ -480,9 +480,9 @@ class PRS500Device(Device):
                             command_number=FileIO.RNUMBER, packet_size=4096)
             try:
                 # The first 16 bytes are meta information on the packet stream
-                array('B', packets[0][16:]).tofile(outfile) 
-                for i in range(1, len(packets)):           
-                    array('B', packets[i]).tofile(outfile)
+                outfile.write("".join(map(chr, packets[0][16:])))
+                for i in range(1, len(packets)):                    
+                    outfile.write("".join(map(chr, packets[i])))
             except IOError, err:
                 self.send_validated_command(FileClose(_id))
                 raise ArgumentError("File get operation failed. " + \

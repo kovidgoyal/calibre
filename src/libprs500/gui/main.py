@@ -522,6 +522,8 @@ class Main(QObject, Ui_MainWindow):
         except DeviceBusy, err:
             Error("Device is in use by another application", None)
             self.status("Device busy")
+            self.window.setCursor(Qt.ArrowCursor)
+            return
         except DeviceError, err:
             self.dev.reconnect()
             self.thread().msleep(100)
@@ -550,26 +552,17 @@ class Main(QObject, Ui_MainWindow):
         sc = space[1] if int(space[1])>0 else space[2]    
         self.device_tree.model().update_free_space(space[0], sc)
 
-class LockFile(object):
-    def __init__(self, path):
-        self.path = path
-        f = open(path, "w")
-        f.close()
-    
-    def __del__(self):
-        if os.access(self.path, os.F_OK): os.remove(self.path)
-
 class DeviceConnectDetector(QObject):
     
     def timerEvent(self, e):
         if e.timerId() == self.device_detector:
             is_connected = self.dev.is_connected()
             if is_connected and not self.is_connected:
-                self.emit(SIGNAL("device_connected()"))
                 self.is_connected = True
+                self.emit(SIGNAL("device_connected()"))
             elif not is_connected and self.is_connected:
-                self.emit(SIGNAL("device_removed()"))       
                 self.is_connected = False
+                self.emit(SIGNAL("device_removed()"))
     
     def udi_is_device(self, udi):
         ans = False
@@ -638,7 +631,6 @@ def main():
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName(APP_TITLE)
     Main(window, options.log_packets)    
-    lock = LockFile(lock)
     return app.exec_()
 
 if __name__ == "__main__": 

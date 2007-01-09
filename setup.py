@@ -25,7 +25,7 @@ try:
   try:
     import Image
   except ImportError: 
-    if sys.platform not in ['win32', 'darwin']:
+    if sys.platform.lower()[:5] not in ['win32', 'darwin']:
         print "Trying to install the Python Imaging Library"
         easy_install(["-f", "http://www.pythonware.com/products/pil/", "Imaging"])
     else:
@@ -47,10 +47,6 @@ if sys.hexversion < 0x2050000:
     print >> sys.stderr, "If you are using easy_install, try easy_install-2.5"
     sys.exit(1)
     
-
-install_requires=[]
-if sys.platform not in ['win32', 'darwin']:
-  install_requires = ["pyusb>=0.3.5", "pyxml>=0.8.4"]
 
 setup(
       name='libprs500', 
@@ -74,10 +70,6 @@ setup(
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       }, 
       zip_safe = True, 
-      install_requires = install_requires, 
-      dependency_links = ["http://sourceforge.net/project/showfiles.php?group_id=6473", 
-                          "http://easynews.dl.sourceforge.net/sourceforge/pyusb/pyusb-0.3.5.tar.gz", 
-                                    ], 
       description = 
                   """
                   Library to interface with the Sony Portable Reader 500 

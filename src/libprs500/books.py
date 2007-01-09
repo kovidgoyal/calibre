@@ -16,7 +16,6 @@
 This module contains the logic for dealing with XML book lists found 
 in the reader cache. 
 """
-from xml.dom.ext import PrettyPrint
 import xml.dom.minidom as dom
 from base64 import b64decode as decode
 from base64 import b64encode as encode
@@ -94,8 +93,8 @@ class Book(object):
         self.prefix = prefix
         self.root = root
     
-    def __repr__(self):
-        return self.title + " by " + self.author+ " at " + self.path
+    def __repr__(self):        
+        return self.title + u" by " + self.author + u" at " + self.path
     
     def __str__(self):
         return self.__repr__()
@@ -208,4 +207,4 @@ class BookList(list):
     
     def write(self, stream):
         """ Write XML representation of DOM tree to C{stream} """
-        PrettyPrint(self.document, stream)
+        stream.write(self.document.toxml('utf-8'))

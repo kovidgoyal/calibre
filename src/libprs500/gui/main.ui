@@ -53,7 +53,7 @@
         <property name="maximumSize" >
          <size>
           <width>10000</width>
-          <height>95</height>
+          <height>90</height>
          </size>
         </property>
         <property name="verticalScrollBarPolicy" >
@@ -81,10 +81,16 @@
         <property name="sizePolicy" >
          <sizepolicy>
           <hsizetype>5</hsizetype>
-          <vsizetype>0</vsizetype>
+          <vsizetype>5</vsizetype>
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="maximumSize" >
+         <size>
+          <width>16777215</width>
+          <height>90</height>
+         </size>
         </property>
         <property name="text" >
          <string>For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/GuiUsage">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b> was created by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>%1 %2 %3</string>
@@ -281,8 +287,8 @@
   <widget class="QToolBar" name="tool_bar" >
    <property name="minimumSize" >
     <size>
-     <width>163</width>
-     <height>58</height>
+     <width>124</width>
+     <height>50</height>
     </size>
    </property>
    <property name="movable" >
