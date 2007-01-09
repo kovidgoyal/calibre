@@ -520,7 +520,8 @@ class Main(QObject, Ui_MainWindow):
         try:
             info = self.dev.get_device_information(end_session=False)
         except DeviceBusy, err:
-            qFatal(str(err))
+            Error("Device is in use by another application", None)
+            self.status("Device busy")
         except DeviceError, err:
             self.dev.reconnect()
             self.thread().msleep(100)
@@ -532,14 +533,14 @@ class Main(QObject, Ui_MainWindow):
         self.df.setText(self.df_template.arg("Connected: "+info[0])\
                 .arg(info[1]).arg(info[2]))
         self.update_availabe_space(end_session=False)
-        self.card = self.dev.card()
-        self.is_connected = True    
+        self.card = self.dev.card() 
         if self.card: self.device_tree.hide_card(False)
         else: self.device_tree.hide_card(True)
         self.device_tree.hide_reader(False)
         self.status("Loading media list from SONY Reader")
         self.reader_model.set_data(self.dev.books(end_session=False))
-        if self.card: self.status("Loading media list from Storage Card")
+        if self.card: 
+            self.status("Loading media list from Storage Card")
         self.card_model.set_data(self.dev.books(oncard=True))
         self.progress(100)
         self.window.setCursor(Qt.ArrowCursor)
