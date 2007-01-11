@@ -493,7 +493,9 @@ class Main(QObject, Ui_MainWindow):
         self.df.setText(self.df_template.arg("").arg("").arg(""))
         self.device_tree.hide_reader(True)
         self.device_tree.hide_card(True)
-        self.device_tree.selectionModel().reset()        
+        self.device_tree.selectionModel().reset()
+        self.status('SONY Reader disconnected')
+        self.progress(100)
         if self.device_view.isVisible():
             self.device_view.hide()
             self.library_view.selectionModel().reset()
@@ -519,12 +521,11 @@ class Main(QObject, Ui_MainWindow):
         self.status("Connecting to device")        
         try:
             info = self.dev.get_device_information(end_session=False)
-        except DeviceBusy, err:
-            Error("Device is in use by another application", None)
-            self.status("Device busy")
+        except DeviceBusy:            
+            self.status("Device is in use by another application")
             self.window.setCursor(Qt.ArrowCursor)
             return
-        except DeviceError, err:
+        except DeviceError:
             self.dev.reconnect()
             self.thread().msleep(100)
             return self.establish_connection()
@@ -563,47 +564,12 @@ class DeviceConnectDetector(QObject):
             elif not is_connected and self.is_connected:
                 self.is_connected = False
                 self.emit(SIGNAL("device_removed()"))
-    
-    def udi_is_device(self, udi):
-        ans = False
-        try:
-            devobj = bus.get_object('org.freedesktop.Hal', udi)
-            dev = dbus.Interface(devobj, "org.freedesktop.Hal.Device")
-            properties = dev.GetAllProperties()
-            vendor_id = int(properties["usb_device.vendor_id"]), 
-            product_id = int(properties["usb_device.product_id"])
-            if self.dev.signature() == (vendor_id, product_id): ans = True
-        except:
-            self.device_detector = self.startTimer(1000)
-        return ans
-    
-    def device_added_callback(self, udi):    
-        if self.udi_is_device(udi): 
-            self.emit(SIGNAL("device_connected()"))
-    
-    def device_removed_callback(self, udi):
-        if self.udi_is_device(udi):
-            self.emit(SIGNAL("device_removed()"))
-    
+        
     def __init__(self, dev):
         QObject.__init__(self)
         self.dev = dev
-        try:
-            raise Exception("DBUS doesn't support the Qt mainloop")
-            import dbus      
-            bus = dbus.SystemBus()
-            hal_manager_obj = bus.get_object('org.freedesktop.Hal',\
-                                                '/org/freedesktop/Hal/Manager')
-            hal_manager = dbus.Interface(hal_manager_obj,\
-                                            'org.freedesktop.Hal.Manager')
-            hal_manager.connect_to_signal('DeviceAdded', \
-                                            self.device_added_callback)
-            hal_manager.connect_to_signal('DeviceRemoved', \
-                                            self.device_removed_callback)
-        except Exception, e:
-            #_Warning("Could not connect to HAL", e)
-            self.is_connected = False
-            self.device_detector = self.startTimer(1000)
+        self.is_connected = False
+        self.device_detector = self.startTimer(1000)
 
 def main():
     from optparse import OptionParser
