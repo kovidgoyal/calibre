@@ -94,7 +94,8 @@ class Book(object):
         self.root = root
     
     def __repr__(self):        
-        return self.title + u" by " + self.author + u" at " + self.path
+        return self.title.encode('utf-8') + " by " + \
+               self.author.encode('utf-8') + " at " + self.path.encode('utf-8')
     
     def __str__(self):
         return self.__repr__()

@@ -79,7 +79,7 @@ class FileFormatter(object):
     def human_readable_size():
         doc=""" File size in human readable form """
         def fget(self):
-            human_readable(self.size)
+            return human_readable(self.size)
         return property(doc=doc, fget=fget)
     
     @apply
@@ -208,7 +208,7 @@ def main():
         elif command == "books":
             print "Books in main memory:"
             for book in dev.books(): 
-                print unicode(book)
+                print book
             print "\nBooks on storage card:"
             for book in dev.books(oncard=True): print book      
         elif command == "mkdir":

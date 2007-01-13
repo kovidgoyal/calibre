@@ -18,7 +18,7 @@ This module provides a thin ctypes based wrapper around libusb.
 
 import sys
 from ctypes import cdll, POINTER, byref, pointer, Structure, \
-                   c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte
+                   c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte, c_uint
 from errno import EBUSY, ENOMEM
 
 _iswindows = 'win32' in sys.platform.lower()
@@ -196,7 +196,7 @@ class DeviceHandle(Structure):
             if rsize < size:
                 raise Error('Could not read ' + str(size) + ' bytes on the '\
                             'control bus. Read: ' + str(rsize) + ' bytes.')
-            return tuple(arr)
+            return arr
         else:
             ArrayType = c_byte * size
             _libusb.usb_control_msg.argtypes = [POINTER(DeviceHandle), c_int, \
@@ -222,7 +222,7 @@ class DeviceHandle(Structure):
         if rsize < size:
                 raise Error('Could not read ' + str(size) + ' bytes on the '\
                             'bulk bus. Read: ' + str(rsize) + ' bytes.')
-        return tuple(arr)
+        return arr
         
     def bulk_write(self, endpoint, bytes, timeout=100):
         """
@@ -253,7 +253,9 @@ Bus._fields_ = [ \
                 ('next', POINTER(Bus)), \
                 ('previous', POINTER(Bus)), \
                 ('dirname', c_char * (PATH_MAX+1)), \
-                ('devices', POINTER(Device))
+                ('devices', POINTER(Device)), \
+                ('location', c_uint), \
+                ('root_dev', POINTER(Device))\
                ]
 
 Device._fields_ = [ \

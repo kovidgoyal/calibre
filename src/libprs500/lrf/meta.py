@@ -29,6 +29,7 @@ import zlib
 from shutil import copyfileobj
 from cStringIO import StringIO
 import xml.dom.minidom as dom
+from functools import wraps
 
 from libprs500.prstypes import field
 
@@ -233,6 +234,7 @@ class LRFMetaFile(object):
         Decorator that ensures that function calls leave the pos 
         in the underlying file unchanged 
         """
+        @wraps(func)
         def restore_pos(*args, **kwargs):      
             obj = args[0]
             pos = obj._file.tell()
@@ -534,6 +536,9 @@ def main():
     fields = LRFMetaFile.__dict__.items()
     for f in fields:
         if "XML" in str(f): 
-            print str(f[1]) + ":", lrf.__getattribute__(f[0])
+            print str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8')
     if options.get_thumbnail: 
         print "Thumbnail:", td
+        
+if __name__ == '__main__':
+    main()

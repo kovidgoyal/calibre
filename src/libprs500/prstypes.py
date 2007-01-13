@@ -615,7 +615,7 @@ class Response(Command):
     first 16 bytes have the same structure.
     """
     
-    SIZE      = 32                         #: Size of response packets in the SONY protocol 
+    SIZE      = 32              #: Size of response packets in the SONY protocol 
     # Response number, the command number of a command 
     # packet sent sometime before this packet was received
     rnumber   = field(start=16, fmt=DWORD)

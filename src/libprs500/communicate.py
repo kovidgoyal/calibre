@@ -51,6 +51,7 @@ import os
 import time
 from tempfile import TemporaryFile
 from array import array
+from functools import wraps
 
 from libprs500.libusb import Error as USBError
 from libprs500.libusb import get_device_by_id
@@ -65,7 +66,7 @@ MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L] 
 
 class Device(object):
-    """ Contains specific device independent methods """
+    """ Contains device independent methods """
     _packet_number = 0     #: Keep track of the packet number for packet tracing
     
     def log_packet(self, packet, header, stream=sys.stderr):
@@ -157,6 +158,7 @@ class PRS500Device(Device):
         An L{usb.USBError} will cause the library to release control of the 
         USB interface via a call to L{close}.
         """
+        @wraps(func)
         def run_session(*args, **kwargs):
             dev = args[0]      
             res = None
