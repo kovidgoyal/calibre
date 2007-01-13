@@ -1,21 +1,41 @@
+##    Copyright (C) 2006 Kovid Goyal kovid@kovidgoyal.net
+##    This program is free software; you can redistribute it and/or modify
+##    it under the terms of the GNU General Public License as published by
+##    the Free Software Foundation; either version 2 of the License, or
+##    (at your option) any later version.
+##
+##    This program is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU General Public License for more details.
+##
+##    You should have received a copy of the GNU General Public License along
+##    with this program; if not, write to the Free Software Foundation, Inc.,
+##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+"""
+This module provides a thin ctypes based wrapper around libusb. 
+"""
+
 import sys
 from ctypes import cdll, POINTER, byref, pointer, Structure, \
                    c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte
 from errno import EBUSY, ENOMEM
 
-iswindows = 'win32' in sys.platform.lower()
-isosx     = 'darwin' in sys.platform.lower()
+_iswindows = 'win32' in sys.platform.lower()
+_isosx     = 'darwin' in sys.platform.lower()
 _libusb_name = 'libusb.so'
-if iswindows:
+if _iswindows:
     _libusb_name = 'libusb0'
-elif isosx:
+elif _isosx:
     _libusb_name = 'libusb.dylib'
 _libusb = cdll.LoadLibrary(_libusb_name)
 
 # TODO: Need to set this in a platform dependednt way (limits.h in linux)
 PATH_MAX = 4096 
-if iswindows:
+if _iswindows:
     PATH_MAX = 511
+if _isosx:
+    PATH_MAX = 1024
 
 class DeviceDescriptor(Structure):
     _fields_ = [\
@@ -92,6 +112,7 @@ class Error(Exception):
 class Device(Structure):
     
     def open(self):
+        """ Open device for use. Return a DeviceHandle. """
         handle = _libusb.usb_open(byref(self))
         if not handle:
             raise Error("Cannot open device")
@@ -129,9 +150,14 @@ class DeviceHandle(Structure):
                ]
     
     def close(self):
+        """ Close this DeviceHandle """
         _libusb.usb_close(byref(self))
         
     def claim_interface(self, num):
+        """ 
+        Claim interface C{num} on device. 
+        Must be called before doing anything witht the device. 
+        """
         ret = _libusb.usb_claim_interface(byref(self), num)
         if -ret == ENOMEM:
             raise Error("Insufficient memory to claim interface")
@@ -183,6 +209,9 @@ class DeviceHandle(Structure):
                                               size, timeout)
             
     def bulk_read(self, endpoint, size, timeout=100):
+        """
+        Read C{size} bytes via a bulk transfer from the device.
+        """
         ArrayType = c_byte * size
         arr = ArrayType()
         _libusb.usb_bulk_read.argtypes = [POINTER(DeviceHandle), c_int, \
@@ -196,6 +225,9 @@ class DeviceHandle(Structure):
         return tuple(arr)
         
     def bulk_write(self, endpoint, bytes, timeout=100):
+        """
+        Send C{bytes} to device via a bulk transfer.
+        """
         size = len(bytes)
         ArrayType = c_byte * size
         arr = ArrayType(*bytes)
@@ -255,6 +287,7 @@ _libusb.usb_bulk_write.restype = c_int
 _libusb.usb_init()
 
 def busses():
+    """ Get list of USB busses present on system """
     if _libusb.usb_find_busses() < 0:
         raise Error('Unable to search for USB busses')
     if _libusb.usb_find_devices() < 0:
@@ -269,6 +302,7 @@ def busses():
         
 
 def get_device_by_id(idVendor, idProduct):
+    """ Return a L{Device} by vendor and prduct ids """
     buslist = busses()
     for bus in buslist:
         devices = bus.device_list
