@@ -46,13 +46,14 @@ Contains the logic for communication with the device (a SONY PRS-500).
 The public interface of class L{PRS500Device} defines the 
 methods for performing various tasks. 
 """
-import usb
 import sys
 import os
 import time
 from tempfile import TemporaryFile
 from array import array
 
+from libprs500.libusb import Error as USBError
+from libprs500.libusb import get_device_by_id
 from libprs500.prstypes import *
 from libprs500.errors import *
 from libprs500.books import BookList, fix_ids
@@ -115,34 +116,6 @@ class File(object):
         return self.name
 
 
-class DeviceDescriptor:
-    """ 
-    Describes a USB device.
-
-    A description is composed of the Vendor Id, Product Id and Interface Id. 
-    See the U{USB spec<http://www.usb.org/developers/docs/usb_20_05122006.zip>}
-    """
-
-    def __init__(self, vendor_id, product_id, interface_id) :
-        self.vendor_id = vendor_id
-        self.product_id = product_id
-        self.interface_id = interface_id
-
-    def get_device(self) :
-        """
-        Return the device corresponding to the device descriptor if it is
-        available on a USB bus.  Otherwise, return None.  Note that the
-        returned device has yet to be claimed or opened.
-        """
-        buses = usb.busses()
-        for bus in buses :
-            for device in bus.devices :
-                if device.idVendor == self.vendor_id :
-                    if device.idProduct == self.product_id :
-                        return device
-        return None
-
-
 class PRS500Device(Device):
 
     """
@@ -154,11 +127,11 @@ class PRS500Device(Device):
     2. Listing of directories. See the C{list} method. 
     """
 
-    SONY_VENDOR_ID      = 0x054c #: SONY Vendor Id
-    PRS500_PRODUCT_ID   = 0x029b #: Product Id for the PRS-500
-    PRS500_INTERFACE_ID = 0      #: The interface we use to talk to the device
-    PRS500_BULK_IN_EP   = 0x81   #: Endpoint for Bulk reads
-    PRS500_BULK_OUT_EP  = 0x02   #: Endpoint for Bulk writes
+    VENDOR_ID      = 0x054c #: SONY Vendor Id
+    PRODUCT_ID   = 0x029b #: Product Id for the PRS-500
+    INTERFACE_ID = 0      #: The interface we use to talk to the device
+    BULK_IN_EP   = 0x81   #: Endpoint for Bulk reads
+    BULK_OUT_EP  = 0x02   #: Endpoint for Bulk writes
     # Location of media.xml file on device
     MEDIA_XML  = "/Data/database/cache/media.xml"  
     # Location of cache.xml on storage card in device
@@ -168,13 +141,10 @@ class PRS500Device(Device):
     # Height for thumbnails of books/images on the device
     THUMBNAIL_HEIGHT = 68                                         
 
-    device_descriptor = DeviceDescriptor(SONY_VENDOR_ID, \
-                                         PRS500_PRODUCT_ID, PRS500_INTERFACE_ID)
-
     @classmethod
     def signature(cls):    
         """ Return a two element tuple (vendor id, product id) """
-        return (cls.SONY_VENDOR_ID, cls.PRS500_PRODUCT_ID )
+        return (cls.VENDOR_ID, cls.PRODUCT_ID )
 
     def safe(func):
         """ 
@@ -202,7 +172,7 @@ class PRS500Device(Device):
                 if not kwargs.has_key("end_session") or kwargs["end_session"]:
                     dev.send_validated_command(EndSession())        
                 raise 
-            except usb.USBError, err:
+            except USBError, err:
                 if "No such device" in str(err):
                     raise DeviceError()
                 elif "Connection timed out" in str(err):           
@@ -229,8 +199,7 @@ class PRS500Device(Device):
                                 task does not have any progress information
         """
         Device.__init__(self)
-        # The actual device (PyUSB object)
-        self.device = self.device_descriptor.get_device() 
+        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID) 
         # Handle that is used to communicate with device. Setup in L{open}
         self.handle = None                               
         self.log_packets = log_packets
@@ -238,7 +207,7 @@ class PRS500Device(Device):
 
     def reconnect(self):
         """ Only recreates the device node and deleted the connection handle """
-        self.device = self.device_descriptor.get_device()
+        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID) 
         self.handle = None
 
     @classmethod
@@ -249,7 +218,7 @@ class PRS500Device(Device):
         software connection. You may need to call L{reconnect} if you keep
         getting L{DeviceError}.
         """
-        return cls.device_descriptor.get_device() != None
+        return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None
 
     
     def open(self) :
@@ -261,13 +230,13 @@ class PRS500Device(Device):
 
         @todo: Implement unlocking of the device
         """
-        self.device = self.device_descriptor.get_device()
+        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID) 
         if not self.device:
             raise DeviceError()
         try:
             self.handle = self.device.open()
-            self.handle.claimInterface(self.device_descriptor.interface_id)
-        except usb.USBError, err:
+            self.handle.claim_interface(self.INTERFACE_ID)
+        except USBError, err:
             print >> sys.stderr, err
             raise DeviceBusy()
         # Large timeout as device may still be initializing
@@ -292,7 +261,7 @@ class PRS500Device(Device):
         """ Release device interface """
         try:
             self.handle.reset()
-            self.handle.releaseInterface()
+            self.handle.release_interface()
         except Exception, err:
             print >> sys.stderr, err
         self.handle, self.device = None, None
@@ -309,11 +278,11 @@ class PRS500Device(Device):
         """
         if self.log_packets: 
             self.log_packet(command, "Command")
-        bytes_sent = self.handle.controlMsg(0x40, 0x80, command)
+        bytes_sent = self.handle.control_msg(0x40, 0x80, command)
         if bytes_sent != len(command):
             raise ControlError(desc="Could not send control request to device\n"\
                                 + str(command))
-        response = response_type(self.handle.controlMsg(0xc0, 0x81, \
+        response = response_type(self.handle.control_msg(0xc0, 0x81, \
                                 Response.SIZE, timeout=timeout))
         if self.log_packets: 
             self.log_packet(response, "Response")
@@ -342,7 +311,7 @@ class PRS500Device(Device):
         C{data} is broken up into packets to be sent to device.
         """
         def bulk_write_packet(packet):
-            self.handle.bulkWrite(PRS500Device.PRS500_BULK_OUT_EP, packet)
+            self.handle.bulk_write(self.BULK_OUT_EP, packet)
             if self.log_packets: 
                 self.log_packet(Answer(packet), "Answer h->d")
 
@@ -366,7 +335,7 @@ class PRS500Device(Device):
             bulk_write_packet(data[pos:endpos])
             bytes_left -= endpos - pos
             pos = endpos
-        res = Response(self.handle.controlMsg(0xc0, 0x81, Response.SIZE, \
+        res = Response(self.handle.control_msg(0xc0, 0x81, Response.SIZE, \
                         timeout=5000))
         if self.log_packets: 
             self.log_packet(res, "Response")
@@ -390,8 +359,7 @@ class PRS500Device(Device):
         Each packet is of type data_type
         """
         def bulk_read_packet(data_type=Answer, size=0x1000):
-            data = data_type(self.handle.bulkRead(PRS500Device.PRS500_BULK_IN_EP, \
-                            size))
+            data = data_type(self.handle.bulk_read(self.BULK_IN_EP, size))
             if self.log_packets: 
                 self.log_packet(data, "Answer d->h")
             return data
@@ -844,4 +812,4 @@ class PRS500Device(Device):
         f.seek(0)
         self.put_file(f, path, replace_file=True, end_session=False)
         f.close()   
-
+        

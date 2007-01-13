@@ -1,11 +1,15 @@
 import sys
-from ctypes import *
+from ctypes import cdll, POINTER, byref, pointer, Structure, \
+                   c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte
 from errno import EBUSY, ENOMEM
 
 iswindows = 'win32' in sys.platform.lower()
+isosx     = 'darwin' in sys.platform.lower()
 _libusb_name = 'libusb.so'
 if iswindows:
     _libusb_name = 'libusb0'
+elif isosx:
+    _libusb_name = 'libusb.dylib'
 _libusb = cdll.LoadLibrary(_libusb_name)
 
 # TODO: Need to set this in a platform dependednt way (limits.h in linux)
@@ -96,7 +100,11 @@ class Device(Structure):
 class Bus(Structure):
     @apply
     def device_list():
-        doc = """ Flat list of devices on this bus. Note: children are not explored """
+        doc = """ 
+              Flat list of devices on this bus. 
+              Note: children are not explored 
+              TODO: Check if exploring children is neccessary (e.g. with an external hub)
+              """
         def fget(self):
             if _libusb.usb_find_devices() < 0:
                 raise Error('Unable to search for USB devices')
@@ -162,7 +170,7 @@ class DeviceHandle(Structure):
             if rsize < size:
                 raise Error('Could not read ' + str(size) + ' bytes on the '\
                             'control bus. Read: ' + str(rsize) + ' bytes.')
-            return list(arr)
+            return tuple(arr)
         else:
             ArrayType = c_byte * size
             _libusb.usb_control_msg.argtypes = [POINTER(DeviceHandle), c_int, \
@@ -185,7 +193,7 @@ class DeviceHandle(Structure):
         if rsize < size:
                 raise Error('Could not read ' + str(size) + ' bytes on the '\
                             'bulk bus. Read: ' + str(rsize) + ' bytes.')
-        return list(arr)
+        return tuple(arr)
         
     def bulk_write(self, endpoint, bytes, timeout=100):
         size = len(bytes)
@@ -268,17 +276,3 @@ def get_device_by_id(idVendor, idProduct):
             if dev.device_descriptor.idVendor == idVendor and \
                dev.device_descriptor.idProduct == idProduct:
                 return dev
-
-#dev = get_device_by_id(0x054c,0x029b)
-#handle = dev.open()
-#handle.claim_interface(0)
-#from libprs500.prstypes import *
-#comm = GetUSBProtocolVersion()
-#handle.control_msg(0x40, 0x80, comm)
-#ret = handle.control_msg(0xc0, 0x81, 32)
-#print ret
-#ret = handle.bulk_read(0x81, 24)
-#print ret
-#
-#handle.release_interface(0)
-#handle.close()

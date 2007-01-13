@@ -63,7 +63,7 @@ class TransferBuffer(list):
     """
     Represents raw (unstructured) data packets sent over the usb bus.
     
-    C{TransferBuffer} is a wrapper around the tuples used by L{PyUSB<usb>} for communication. 
+    C{TransferBuffer} is a wrapper around the tuples used by libusb for communication. 
     It has convenience methods to read and write data from the underlying buffer. See 
     L{TransferBuffer.pack} and L{TransferBuffer.unpack}.
     """

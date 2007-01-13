@@ -29,7 +29,6 @@ The packet structure used by the SONY Reader USB protocol is defined
 in the module L{prstypes}. The communication logic
 is defined in the module L{communicate}.
 
-This package requires U{PyUSB<http://pyusb.berlios.de/>}. 
 In order to use it as a non-root user on Linux, you should have 
 the following rule in C{/etc/udev/rules.d/90-local.rules} ::
   BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", 
@@ -37,6 +36,6 @@ the following rule in C{/etc/udev/rules.d/90-local.rules} ::
 You may have to adjust the GROUP and the location of the rules file to 
 suit your distribution.
 """
-__version__   = "0.3.0"
+__version__   = "0.3.1"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
