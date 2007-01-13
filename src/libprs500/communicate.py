@@ -120,11 +120,7 @@ class PRS500Device(Device):
 
     """
     Contains the logic for performing various tasks on the reader. 
-
-    The implemented tasks are:
-    0. Getting information about the device
-    1. Getting a file from the device
-    2. Listing of directories. See the C{list} method. 
+    Each method decorated by C{safe} performs a task.    
     """
 
     VENDOR_ID      = 0x054c #: SONY Vendor Id
@@ -537,9 +533,9 @@ class PRS500Device(Device):
     def total_space(self, end_session=True):
         """ 
         Get total space available on the mountpoints:
-        1. Main memory
-        2. Memory Stick
-        3. SD Card
+          1. Main memory
+          2. Memory Stick
+          3. SD Card
 
         @return: A 3 element list with total space in bytes of (1, 2, 3)
         """    
@@ -558,9 +554,9 @@ class PRS500Device(Device):
     def free_space(self, end_session=True):
         """ 
         Get free space available on the mountpoints:
-        1. Main memory
-        2. Memory Stick
-        3. SD Card
+          1. Main memory
+          2. Memory Stick
+          3. SD Card
 
         @return: A 3 element list with free space in bytes of (1, 2, 3)
         """    
@@ -763,8 +759,8 @@ class PRS500Device(Device):
                                 device. The extension of name must be one of 
                                 the supported formats for this device.
         @param info: A dictionary that must have the keys "title", "authors", "cover". 
-        C{info["cover"]} should be a three element tuple (width, height, data) 
-                                where data is the image data in JPEG format as a string
+                     C{info["cover"]} should be a three element tuple (width, height, data)
+                     where data is the image data in JPEG format as a string
         @param booklists: A tuple containing the result of calls to 
                                     (L{books}(oncard=False), L{books}(oncard=True)).    
         """

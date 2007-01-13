@@ -1,4 +1,4 @@
-APIDOCS=/var/www/libprs500.kovidgoyal.net//htdocs/apidocs
+APIDOCS=/var/www/libprs500.kovidgoyal.net/htdocs/apidocs
 
 all: doc sdist egg
 
