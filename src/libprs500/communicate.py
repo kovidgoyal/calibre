@@ -235,8 +235,7 @@ class PRS500Device(Device):
             self.handle = self.device.open()
             self.handle.claim_interface(self.INTERFACE_ID)
         except USBError, err:
-            print >> sys.stderr, err
-            raise DeviceBusy()
+            raise DeviceBusy(str(err))
         # Large timeout as device may still be initializing
         res = self.send_validated_command(GetUSBProtocolVersion(), timeout=20000) 
         if res.code != 0: 

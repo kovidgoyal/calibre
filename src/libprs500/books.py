@@ -93,12 +93,10 @@ class Book(object):
         self.prefix = prefix
         self.root = root
     
-    def __repr__(self):        
+    def __str__(self):
+        """ Return a utf-8 encoded string with title author and path information """
         return self.title.encode('utf-8') + " by " + \
                self.author.encode('utf-8') + " at " + self.path.encode('utf-8')
-    
-    def __str__(self):
-        return self.__repr__()
 
 
 def fix_ids(media, cache):
