@@ -138,14 +138,6 @@ class Bus(Structure):
             return ans
         return property(doc=doc, fget=fget)
 
-class NTStatus(Structure):
-    _fields_ = [\
-                ('code', c_uint, 16),
-                ('facility', c_uint, 13),
-                ('c', c_uint, 1),
-                ('sev', c_uint, 2)
-                ]
-
 class DeviceHandle(Structure):
     _fields_ = [\
                 ('fd', c_int), \
@@ -160,6 +152,11 @@ class DeviceHandle(Structure):
     def close(self):
         """ Close this DeviceHandle """
         _libusb.usb_close(byref(self))
+
+    def set_configuration(self, num):
+        ret = _libusb.usb_set_configuration(byref(self), num)
+        if ret < 0:
+            raise Error('Failed to set device configuration to: ' + num)
         
     def claim_interface(self, num):
         """ 
@@ -167,8 +164,7 @@ class DeviceHandle(Structure):
         Must be called before doing anything witht the device. 
         """
         ret = _libusb.usb_claim_interface(byref(self), num)
-        if _iswindows:
-            return
+            
         if -ret == ENOMEM:
             raise Error("Insufficient memory to claim interface")
         elif -ret == EBUSY:
@@ -203,7 +199,7 @@ class DeviceHandle(Structure):
             rsize = _libusb.usb_control_msg(byref(self), rtype, request, \
                                               value, index, byref(arr), \
                                               size, timeout)
-            if rsize < size:
+            if  rsize < size:
                 raise Error('Could not read ' + str(size) + ' bytes on the '\
                             'control bus. Read: ' + str(rsize) + ' bytes.')
             return arr
@@ -296,8 +292,8 @@ _libusb.usb_reset.restype = c_int
 _libusb.usb_control_msg.restype = c_int
 _libusb.usb_bulk_read.restype = c_int
 _libusb.usb_bulk_write.restype = c_int
-if _iswindows:
-    _libusb.usb_claim_interface.restype = NTStatus
+_libusb.usb_set_configuration.argtypes = [POINTER(DeviceHandle), c_int]
+_libusb.usb_set_configuration.restype = c_int
 _libusb.usb_init()
 
 def busses():
