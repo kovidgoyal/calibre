@@ -233,17 +233,10 @@ class PRS500Device(Device):
             raise DeviceError()
         try:
             self.handle = self.device.open()
-            configs = self.device.configurations
-            cfg = configs[0]
-            for config in configs:
-                if config.MaxPower > cfg.MaxPower:
-                    cfg = config
             try:
-                self.handle.set_configuration(cfg)
+                self.handle.set_configuration(1)
             except USBError:
-                for config in configs:
-                    if config.Value != cfg.Value:
-                        self.handle.set_configuration(config)
+                self.handle.set_configuration(2)
             self.handle.claim_interface(self.INTERFACE_ID)
         except USBError, err:
             raise DeviceBusy(str(err))

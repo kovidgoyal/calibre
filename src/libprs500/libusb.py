@@ -16,25 +16,24 @@
 This module provides a thin ctypes based wrapper around libusb. 
 """
 
-import sys
 from ctypes import cdll, POINTER, byref, pointer, Structure, \
                    c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte, c_uint
 from errno import EBUSY, ENOMEM
 
-_iswindows = 'win32' in sys.platform.lower()
-_isosx     = 'darwin' in sys.platform.lower()
+from libprs500 import iswindows, isosx
+
 _libusb_name = 'libusb.so'
-if _iswindows:
+if iswindows:
     _libusb_name = 'libusb0'
-elif _isosx:
+elif isosx:
     _libusb_name = 'libusb.dylib'
 _libusb = cdll.LoadLibrary(_libusb_name)
 
 # TODO: Need to set this in a platform dependednt way (limits.h in linux)
 PATH_MAX = 4096 
-if _iswindows:
+if iswindows:
     PATH_MAX = 511
-if _isosx:
+if isosx:
     PATH_MAX = 1024
 
 class DeviceDescriptor(Structure):
@@ -91,7 +90,7 @@ class Interface(Structure):
                 ('num_altsetting', c_int)\
                ]
 
-class ConfigDescriptor(Structure):
+class ConfigDescriptor(Structure):    
     _fields_ = [\
                 ('Length', c_ubyte), \
                 ('DescriptorType', c_ubyte), \
@@ -102,7 +101,7 @@ class ConfigDescriptor(Structure):
                 ('Attributes', c_ubyte), \
                 ('MaxPower', c_ubyte), \
                 ('interface', POINTER(Interface)), \
-                ('extra', POINTER(c_char)), \
+                ('extra', POINTER(c_ubyte)), \
                 ('extralen', c_int) \
                ]
     
@@ -131,7 +130,6 @@ class Device(Structure):
         doc = """ List of device configurations. See L{ConfigDescriptor} """
         def fget(self):
             ans = []
-            ans.append(self.config_descriptor.contents)            
             for config in range(self.device_descriptor.NumConfigurations):
                 ans.append(self.config_descriptor[config])
             return tuple(ans)
@@ -306,8 +304,6 @@ Device._fields_ = [ \
                 ('children', POINTER(POINTER(Device)))
                ] 
 
-
-
 _libusb.usb_get_busses.restype = POINTER(Bus)
 _libusb.usb_open.restype = POINTER(DeviceHandle)
 _libusb.usb_open.argtypes = [POINTER(Device)]
@@ -342,7 +338,6 @@ def busses():
 
 def get_device_by_id(idVendor, idProduct):
     """ Return a L{Device} by vendor and prduct ids """
-    ans = []
     buslist = busses()
     for bus in buslist:
         devices = bus.device_list

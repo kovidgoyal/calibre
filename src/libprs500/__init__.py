@@ -36,6 +36,11 @@ the following rule in C{/etc/udev/rules.d/90-local.rules} ::
 You may have to adjust the GROUP and the location of the rules file to 
 suit your distribution.
 """
+
 __version__   = "0.3.4"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
+
+import sys
+iswindows = 'win32' in sys.platform.lower()
+isosx     = 'darwin' in sys.platform.lower()
