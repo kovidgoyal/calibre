@@ -97,7 +97,7 @@ class ConfigDescriptor(Structure):
                 ('DescriptorType', c_ubyte), \
                 ('TotalLength', c_ushort), \
                 ('NumInterfaces', c_ubyte), \
-                ('ConfigurationValue', c_ubyte), \
+                ('Value', c_ubyte), \
                 ('Configuration', c_ubyte), \
                 ('Attributes', c_ubyte), \
                 ('MaxPower', c_ubyte), \
@@ -105,6 +105,14 @@ class ConfigDescriptor(Structure):
                 ('extra', POINTER(c_char)), \
                 ('extralen', c_int) \
                ]
+    
+    def __str__(self):
+        ans = ""
+        for field in self._fields_:
+            ans += field[0] + ": " + str(eval('self.'+field[0])) + '\n'
+        return ans.strip()
+        
+        
                 
 class Error(Exception):
     pass
@@ -117,6 +125,17 @@ class Device(Structure):
         if not handle:
             raise Error("Cannot open device")
         return handle.contents    
+    
+    @apply
+    def configurations():
+        doc = """ List of device configurations. See L{ConfigDescriptor} """
+        def fget(self):
+            ans = []
+            ans.append(self.config_descriptor.contents)            
+            for config in range(self.device_descriptor.NumConfigurations):
+                ans.append(self.config_descriptor[config])
+            return tuple(ans)
+        return property(doc=doc, fget=fget)
 
 class Bus(Structure):
     @apply
@@ -153,10 +172,20 @@ class DeviceHandle(Structure):
         """ Close this DeviceHandle """
         _libusb.usb_close(byref(self))
 
-    def set_configuration(self, num):
+    def set_configuration(self, config):
+        """
+        Set device configuration. This has to be called on windows before 
+        trying to claim an interface.
+        @param config: A L{ConfigDescriptor} or a integer (the ConfigurationValue)
+        """
+        try:
+            num = config.Value
+        except AttributeError:
+            num = config
         ret = _libusb.usb_set_configuration(byref(self), num)
         if ret < 0:
-            raise Error('Failed to set device configuration to: ' + num)
+            raise Error('Failed to set device configuration to: ' + str(num) + \
+                        '. Error code: ' + str(ret))
         
     def claim_interface(self, num):
         """ 
@@ -313,6 +342,7 @@ def busses():
 
 def get_device_by_id(idVendor, idProduct):
     """ Return a L{Device} by vendor and prduct ids """
+    ans = []
     buslist = busses()
     for bus in buslist:
         devices = bus.device_list
