@@ -29,7 +29,7 @@ elif isosx:
     _libusb_name = 'libusb.dylib'
 _libusb = cdll.LoadLibrary(_libusb_name)
 
-# TODO: Need to set this in a platform dependednt way (limits.h in linux)
+# TODO: Need to set this in a platform dependent way (limits.h in linux)
 PATH_MAX = 4096 
 if iswindows:
     PATH_MAX = 511
