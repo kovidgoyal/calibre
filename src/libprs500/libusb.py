@@ -138,6 +138,14 @@ class Bus(Structure):
             return ans
         return property(doc=doc, fget=fget)
 
+class NTStatus(Structure):
+    _fields_ = [\
+                ('code', c_uint, 16),
+                ('facility', c_uint, 13),
+                ('c', c_uint, 1),
+                ('sev', c_uint, 2)
+                ]
+
 class DeviceHandle(Structure):
     _fields_ = [\
                 ('fd', c_int), \
@@ -159,6 +167,8 @@ class DeviceHandle(Structure):
         Must be called before doing anything witht the device. 
         """
         ret = _libusb.usb_claim_interface(byref(self), num)
+        if _iswindows:
+            return
         if -ret == ENOMEM:
             raise Error("Insufficient memory to claim interface")
         elif -ret == EBUSY:
@@ -286,6 +296,8 @@ _libusb.usb_reset.restype = c_int
 _libusb.usb_control_msg.restype = c_int
 _libusb.usb_bulk_read.restype = c_int
 _libusb.usb_bulk_write.restype = c_int
+if _iswindows:
+    _libusb.usb_claim_interface.restype = NTStatus
 _libusb.usb_init()
 
 def busses():
