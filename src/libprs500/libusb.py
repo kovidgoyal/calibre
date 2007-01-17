@@ -23,18 +23,16 @@ from errno import EBUSY, ENOMEM
 from libprs500 import iswindows, isosx
 
 _libusb_name = 'libusb.so'
-if iswindows:
-    _libusb_name = 'libusb0'
-elif isosx:
-    _libusb_name = 'libusb.dylib'
-_libusb = cdll.LoadLibrary(_libusb_name)
-
-# TODO: Need to set this in a platform dependent way (limits.h in linux)
 PATH_MAX = 4096 
 if iswindows:
     PATH_MAX = 511
+    Structure._pack_ = 1
+    _libusb_name = 'libusb0'
 if isosx:
     PATH_MAX = 1024
+    _libusb_name = 'libusb.dylib'
+
+_libusb = cdll.LoadLibrary(_libusb_name)
 
 class DeviceDescriptor(Structure):
     _fields_ = [\
