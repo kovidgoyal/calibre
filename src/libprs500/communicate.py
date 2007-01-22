@@ -375,7 +375,7 @@ class PRS500Device(Device):
             rsize = size
             if size % msize:
                 rsize = size - size % msize + msize
-            data = data_type(self.handle.bulk_read(self.BULK_IN_EP, rsize)[:size])
+            data = data_type(self.handle.bulk_read(self.BULK_IN_EP, rsize))
             if self.log_packets: 
                 self.log_packet(data, "Answer d->h")
             return data

@@ -253,6 +253,8 @@ class DeviceHandle(Structure):
         if rsize < 0:
                 raise Error('Could not read ' + str(size) + ' bytes on the '\
                             'bulk bus. Error code: ' + str(rsize))
+        if rsize < size:
+            arr = arr[:rsize]
         return arr
         
     def bulk_write(self, endpoint, bytes, timeout=100):
