@@ -228,16 +228,27 @@ class PRS500Device(Device):
 
         @todo: Implement unlocking of the device
         """
-        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID) 
+        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)
+        configs = self.device.configurations 
         if not self.device:
             raise DeviceError()
         try:
             self.handle = self.device.open()
+            config = configs[0]
             try:
-                self.handle.set_configuration(1)
+                self.handle.set_configuration(configs[0])                
             except USBError:
-                self.handle.set_configuration(2)
-            self.handle.claim_interface(self.INTERFACE_ID)
+                self.handle.set_configuration(configs[1])
+                config = configs[1]
+            _id = config.interface.contents.altsetting.contents
+            ed1 = _id.endpoint[0]
+            ed2 = _id.endpoint[1]
+            if ed1.EndpointAddress == self.BULK_IN_EP:
+                red, wed = ed1, ed2
+            else:
+                red, wed = ed2, ed1
+            self.bulk_read_max_packet_size = red.MaxPacketSize
+            self.bulk_write_max_packet_size = wed.MaxPacketSize            
         except USBError, err:
             raise DeviceBusy(str(err))
         # Large timeout as device may still be initializing
@@ -349,7 +360,7 @@ class PRS500Device(Device):
                                 +str(res))
 
 
-    def _bulk_read(self, bytes, command_number=0x00, packet_size=4096, \
+    def _bulk_read(self, bytes, command_number=0x00, packet_size=0x1000, \
                    data_type=Answer):
         """ 
         Read in C{bytes} bytes via a bulk transfer in 
@@ -359,8 +370,12 @@ class PRS500Device(Device):
         @return: A list of packets read from the device. 
         Each packet is of type data_type
         """
+        msize = self.bulk_read_max_packet_size
         def bulk_read_packet(data_type=Answer, size=0x1000):
-            data = data_type(self.handle.bulk_read(self.BULK_IN_EP, size))
+            rsize = size
+            if size % msize:
+                rsize = size - size % msize + msize
+            data = data_type(self.handle.bulk_read(self.BULK_IN_EP, rsize)[:size])
             if self.log_packets: 
                 self.log_packet(data, "Answer d->h")
             return data
@@ -385,10 +400,10 @@ class PRS500Device(Device):
         @return: (device name, device version, software version on device, mime type)
         """
         size = self.send_validated_command(DeviceInfoQuery()).data[2] + 16
-        data = self._bulk_read(size, command_number=\
+        ans = self._bulk_read(size, command_number=\
                         DeviceInfoQuery.NUMBER, data_type=DeviceInfo)[0]
-        return (data.device_name, data.device_version, \
-                                          data.software_version, data.mime_type)
+        return (ans.device_name, ans.device_version, \
+                                          ans.software_version, ans.mime_type)
 
     @safe
     def path_properties(self, path, end_session=True):
@@ -436,7 +451,8 @@ class PRS500Device(Device):
                                 " for reading. Response code: " + hex(res.code))
         _id = self._bulk_read(20, data_type=IdAnswer, \
                                             command_number=FileOpen.NUMBER)[0].id    
-        bytes_left, chunk_size, pos = bytes, 0x8000, 0        
+        bytes_left, chunk_size = bytes, 512 * self.bulk_read_max_packet_size -16
+        packet_size, pos = 64 * self.bulk_read_max_packet_size, 0
         while bytes_left > 0:      
             if chunk_size > bytes_left: 
                 chunk_size = bytes_left
@@ -446,7 +462,7 @@ class PRS500Device(Device):
                 raise ProtocolError("Error while reading from " + path + \
                                            ". Response code: " + hex(res.code))
             packets = self._bulk_read(chunk_size+16, \
-                            command_number=FileIO.RNUMBER, packet_size=4096)
+                        command_number=FileIO.RNUMBER, packet_size=packet_size)            
             try:
                 # The first 16 bytes are meta information on the packet stream
                 outfile.write("".join(map(chr, packets[0][16:])))
@@ -461,8 +477,8 @@ class PRS500Device(Device):
             if self.report_progress: 
                 self.report_progress(int(100*((1.*pos)/bytes)))
         self.send_validated_command(FileClose(_id)) 
-    # Not going to check response code to see if close was successful 
-    # as there's not much we can do if it wasnt
+        # Not going to check response code to see if close was successful 
+        # as there's not much we can do if it wasnt
 
     @safe
     def list(self, path, recurse=False, end_session=True):
@@ -636,7 +652,7 @@ class PRS500Device(Device):
                     self.del_file(path, end_session=False)
                     self.touch(path, end_session=False)
         else:  self.touch(path, end_session=False)
-        chunk_size = 0x8000
+        chunk_size = 512 * self.bulk_write_max_packet_size
         data_left = True
         res = self.send_validated_command(FileOpen(path, mode=FileOpen.WRITE))
         if res.code != 0:
@@ -749,7 +765,7 @@ class PRS500Device(Device):
             if tfile.tell() == 0: 
                 tfile = None
         else: 
-            self.get_file(self.MEDIA_XML, tfile, end_session=False)      
+            self.get_file(self.MEDIA_XML, tfile, end_session=False)    
         return BookList(prefix=prefix, root=root, sfile=tfile)
 
     @safe

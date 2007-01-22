@@ -250,9 +250,9 @@ class DeviceHandle(Structure):
                                          ]
         rsize = _libusb.usb_bulk_read(byref(self), endpoint, byref(arr), \
                                    size, timeout)
-        if rsize < size:
+        if rsize < 0:
                 raise Error('Could not read ' + str(size) + ' bytes on the '\
-                            'bulk bus. Read: ' + str(rsize) + ' bytes.')
+                            'bulk bus. Error code: ' + str(rsize))
         return arr
         
     def bulk_write(self, endpoint, bytes, timeout=100):

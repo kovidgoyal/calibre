@@ -133,7 +133,7 @@ class BookList(list):
         list.__init__(self)
         if sfile:
             self.prefix = prefix
-            self.proot = root
+            self.proot = root            
             sfile.seek(0)
             self.document = dom.parse(sfile)
             # The root element containing all records
