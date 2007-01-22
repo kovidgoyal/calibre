@@ -249,6 +249,7 @@ class PRS500Device(Device):
                 red, wed = ed2, ed1
             self.bulk_read_max_packet_size = red.MaxPacketSize
             self.bulk_write_max_packet_size = wed.MaxPacketSize            
+            self.handle.claim_interface(self.INTERFACE_ID)
         except USBError, err:
             raise DeviceBusy(str(err))
         # Large timeout as device may still be initializing
