@@ -228,10 +228,10 @@ class PRS500Device(Device):
 
         @todo: Implement unlocking of the device
         """
-        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)
-        configs = self.device.configurations 
+        self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)        
         if not self.device:
             raise DeviceError()
+        configs = self.device.configurations
         try:
             self.handle = self.device.open()
             config = configs[0]
@@ -273,7 +273,7 @@ class PRS500Device(Device):
         """ Release device interface """
         try:
             self.handle.reset()
-            self.handle.release_interface()
+            self.handle.release_interface(self.INTERFACE_ID)
         except Exception, err:
             print >> sys.stderr, err
         self.handle, self.device = None, None
