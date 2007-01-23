@@ -377,8 +377,11 @@ class PRS500Device(Device):
             if size % msize:
                 rsize = size - size % msize + msize
             data = data_type(self.handle.bulk_read(self.BULK_IN_EP, rsize))
-            if self.log_packets: 
+            if self.log_packets:
                 self.log_packet(data, "Answer d->h")
+            if len(data) != size:
+                raise ProtocolError("Unable to read " + str(size) + " bytes from "\
+                               "device. Read: " + str(len(data)) + " bytes")
             return data
 
         bytes_left = bytes
@@ -452,6 +455,7 @@ class PRS500Device(Device):
                                 " for reading. Response code: " + hex(res.code))
         _id = self._bulk_read(20, data_type=IdAnswer, \
                                             command_number=FileOpen.NUMBER)[0].id    
+        # The first 16 bytes from the device are meta information on the packet stream
         bytes_left, chunk_size = bytes, 512 * self.bulk_read_max_packet_size -16
         packet_size, pos = 64 * self.bulk_read_max_packet_size, 0
         while bytes_left > 0:      
@@ -465,14 +469,13 @@ class PRS500Device(Device):
             packets = self._bulk_read(chunk_size+16, \
                         command_number=FileIO.RNUMBER, packet_size=packet_size)            
             try:
-                # The first 16 bytes are meta information on the packet stream
                 outfile.write("".join(map(chr, packets[0][16:])))
                 for i in range(1, len(packets)):                    
                     outfile.write("".join(map(chr, packets[i])))
             except IOError, err:
                 self.send_validated_command(FileClose(_id))
                 raise ArgumentError("File get operation failed. " + \
-                            "Could not write to local location: " + str(err))          
+                            "Could not write to local location: " + str(err))       
             bytes_left -= chunk_size
             pos += chunk_size
             if self.report_progress: 

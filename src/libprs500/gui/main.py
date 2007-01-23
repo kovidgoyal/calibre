@@ -525,7 +525,8 @@ class Main(QObject, Ui_MainWindow):
             self.status("Device is in use by another application")
             self.window.setCursor(Qt.ArrowCursor)
             return
-        except DeviceError:
+        except DeviceError, err:
+            traceback.print_exc(err)
             self.dev.reconnect()
             self.thread().msleep(100)
             return self.establish_connection()
