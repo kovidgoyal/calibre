@@ -536,8 +536,6 @@ class Main(QObject, Ui_MainWindow):
             traceback.print_exc(e)
             qFatal("Unable to connect to device. Please try unplugging and"+\
                    " reconnecting it")
-        self.df.setText(self.df_template.arg("Connected: "+info[0])\
-                .arg(info[1]).arg(info[2]))
         self.update_availabe_space(end_session=False)
         self.card = self.dev.card() 
         if self.card: self.device_tree.hide_card(False)
@@ -549,6 +547,8 @@ class Main(QObject, Ui_MainWindow):
             self.status("Loading media list from Storage Card")
         self.card_model.set_data(self.dev.books(oncard=True))
         self.progress(100)
+        self.df.setText(self.df_template.arg("Connected: "+info[0])\
+                .arg(info[1]).arg(info[2]))
         self.window.setCursor(Qt.ArrowCursor)
     
     def update_availabe_space(self, end_session=True):
