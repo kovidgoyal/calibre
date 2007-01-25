@@ -177,6 +177,7 @@ class Main(QObject, Ui_MainWindow):
                 self.status("Syncing media list to card")
                 self.dev.upload_book_list(self.card_model.booklist)
             self.update_availabe_space()
+            self.model_modified()
         self.show_book(self.current_view.currentIndex(), QModelIndex())
         self.window.setCursor(Qt.ArrowCursor)
     
@@ -479,7 +480,8 @@ class Main(QObject, Ui_MainWindow):
         self.detector = DeviceConnectDetector(self.dev)
         self.connect(self.detector, SIGNAL("device_connected()"), \
                 self.establish_connection)
-        self.connect(self.detector, SIGNAL("device_removed()"), self.device_removed)
+        self.connect(self.detector, SIGNAL("device_removed()"), \
+                     self.device_removed)
         self.search.setFocus(Qt.OtherFocusReason)
         self.show_device(False)
         self.df_template = self.df.text()

@@ -46,6 +46,7 @@ import time
 
 from libprs500.errors import PacketError
 
+WORD      = "<H"    #: Unsigned integer little endian encoded in 2 bytes
 DWORD     = "<I"    #: Unsigned integer little endian encoded in 4 bytes
 DDWORD    = "<Q"    #: Unsigned long long little endian encoded in 8 bytes
 
@@ -402,12 +403,17 @@ class GetUSBProtocolVersion(ShortCommand):
         number=GetUSBProtocolVersion.NUMBER, \
         type=0x01, command=0x00)
 
-class SetBulkSize(ShortCommand):
+class SetBulkSize(Command):
     """ Set size for bulk transfers in this session """
     NUMBER = 0x107 #: Command number
-    def __init__(self, size=0x028000):
-        ShortCommand.__init__(self, \
-        number=SetBulkSize.NUMBER, type=0x01, command=size)
+    chunk_size = field(fmt=WORD, start=0x10)
+    unknown = field(fmt=WORD, start=0x12)
+    def __init__(self, chunk_size=0x8000, unknown=0x2):
+        Command.__init__(self, [0 for i in range(24)])
+        self.number = SetBulkSize.NUMBER
+        self.type = 0x01
+        self.chunk_size = chunk_size
+        self.unknown = unknown
 
 class UnlockDevice(ShortCommand):
     """ Unlock the device """
@@ -714,7 +720,8 @@ class Answer(TransferBuffer):
         if "__len__" in dir(packet):
             if len(packet) < 16 : 
                 raise PacketError(str(self.__class__)[7:-2] + \
-                " packets must have a length of atleast 16 bytes")
+                " packets must have a length of atleast 16 bytes. "\
+                "Got initializer of " + str(len(packet)) + " bytes.")
         elif packet < 16:
             raise PacketError(str(self.__class__)[7:-2] + \
             " packets must have a length of atleast 16 bytes")

@@ -260,7 +260,9 @@ class PRS500Device(Device):
         if version not in KNOWN_USB_PROTOCOL_VERSIONS:
             print >> sys.stderr, "WARNING: Usb protocol version " + \
                                 hex(version) + " is unknown"
-        res = self.send_validated_command(SetBulkSize(size=0x028000))
+        res = self.send_validated_command(SetBulkSize(\
+                          chunk_size = 512*self.bulk_read_max_packet_size, \
+                          unknown = 2))
         if res.code != 0: 
             raise ProtocolError("Unable to set bulk size.")
         self.send_validated_command(UnlockDevice(key=0x312d))
