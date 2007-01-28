@@ -250,7 +250,7 @@ def main():
                 if os.path.isdir(outfile):
                     outfile = os.path.join(outfile, path[path.rfind("/")+1:]) 
                 try:
-                    outfile = open(outfile, "w")
+                    outfile = open(outfile, "wb")
                 except IOError, e:
                     print >> sys.stderr, e
                     parser.print_help()
@@ -259,7 +259,7 @@ def main():
                 outfile.close()
             elif args[1].startswith("prs500:"):
                 try:
-                    infile = open(args[0], "r")
+                    infile = open(args[0], "rb")
                 except IOError, e:
                     print >> sys.stderr, e
                     parser.print_help()
