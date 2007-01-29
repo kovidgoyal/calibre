@@ -17,6 +17,7 @@ import os
 from zlib import compress, decompress
 from stat import ST_SIZE
 from libprs500.lrf.meta import LRFMetaFile, LRFException
+from libprs500.metadata.meta import get_metadata
 from cStringIO import StringIO as cStringIO
 
 class LibraryDatabase(object):
@@ -54,28 +55,21 @@ class LibraryDatabase(object):
     
     def add_book(self, path):
         _file = os.path.abspath(path)
-        title, author, publisher, size, cover = os.path.basename(_file), \
-                                       None, None, os.stat(_file)[ST_SIZE], None
+        title, size, cover = os.path.basename(_file), \
+                                       os.stat(_file)[ST_SIZE], None
         ext = title[title.rfind(".")+1:].lower() if title.find(".") > -1 else None
-        comments, tags = None, None
-        if ext == "lrf":
-            lrf = LRFMetaFile(open(_file, "r+b"))
-            title, author, cover, publisher = lrf.title, lrf.author.strip(), \
-                                            lrf.thumbnail, lrf.publisher.strip()
-            if "unknown" in publisher.lower() or 'some publisher' in publisher.lower(): 
-                publisher = None
-            if "unknown" in author.lower(): 
-                author = None
-            comments = lrf.free_text
-            if not comments:
-                comments = None
-            classification, category = lrf.classification, lrf.category
-            if 'unknown' in classification.lower():
-                classification = ''
-            if 'unknown' in category.lower():
-                category = ''
-            if classification or category:
-                tags = ", ".join((classification, category))
+        mi = get_metadata(open(_file, "r+b"), ext)
+        tags = []
+        if not mi.title:
+            mi.title = title
+        if mi.category:
+            tags.append(mi.category)
+        if mi.classification:
+            tags.append(mi.classification)
+        if tags:
+            tags = ', '.join(tags)
+        else:
+            tags = None
         data = open(_file).read()
         usize = len(data)
         data = compress(data)
@@ -86,7 +80,8 @@ class LibraryDatabase(object):
         self.con.execute("insert into books_meta (title, authors, publisher, "+\
                          "size, tags, comments, rating) values "+\
                          "(?,?,?,?,?,?,?)", \
-                         (title, author, publisher, size, tags, comments, None))
+                         (mi.title, mi.author, mi.publisher, size, tags, \
+                          mi.comments, None))
         _id =  self.con.execute("select max(id) from books_meta").next()[0]    
         self.con.execute("insert into books_data values (?,?,?,?)", \
                             (_id, ext, usize, sqlite.Binary(data)))

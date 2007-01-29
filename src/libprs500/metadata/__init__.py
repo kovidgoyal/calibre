@@ -18,3 +18,25 @@ the L{libprs500.lrf.meta} module.
 """
 __docformat__ = "epytext"
 __author__       = "Kovid Goyal <kovid@kovidgoyal.net>"
+
+
+class MetaInformation(object):
+    
+    def __init__(self, title, author):
+        self.title = title
+        self.author = author
+        self.comments = None
+        self.category = None
+        self.classification = None
+        self.publisher = None
+        
+    def __str__(self):
+        ans = ''
+        ans += 'Title   : ' + str(self.title) + '\n'
+        ans += 'Author  : ' + str(self.author) + '\n'
+        ans += 'Category: ' + str(self.category) + '\n'
+        ans += 'Comments: ' + str(self.comments) + '\n'
+        return ans.strip()
+    
+    def __nonzero__(self):
+        return self.title or self.author or self.comments or self.category

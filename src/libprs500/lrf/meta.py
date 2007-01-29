@@ -32,6 +32,7 @@ import xml.dom.minidom as dom
 from functools import wraps
 
 from libprs500.prstypes import field
+from libprs500.metadata import MetaInformation
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte 
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes 
@@ -186,7 +187,29 @@ def insert_into_file(fileobj, data, start, end):
     return delta
 
 
-    
+def get_metadata(stream):
+    """
+    Return basic meta-data about the LRF file in C{stream} as a 
+    L{MetaInformation} object.
+    """
+    lrf = LRFMetaFile(stream)
+    mi = MetaInformation(lrf.title.strip(), lrf.author.strip())
+    mi.comments = lrf.free_text.strip()
+    mi.category = lrf.category.strip()
+    mi.classification = lrf.classification.strip()
+    mi.publisher = lrf.publisher.strip()
+    if not mi.title or 'unknown' in mi.title.lower():
+        mi.title = None
+    if not mi.author or 'unknown' in mi.author.lower():
+        mi.author = None
+    if not mi.category or 'unknown' in mi.category.lower():
+        mi.category = None
+    if not mi.classification or 'unknown' in mi.classification.lower():
+        mi.classification = None
+    if not mi.publisher or 'unknown' in mi.publisher.lower() or \
+            'some publisher' in mi.publisher.lower():
+        mi.publisher = None
+    return mi
 
 class LRFMetaFile(object):
     """ Has properties to read and write all Meta information in a LRF file. """
