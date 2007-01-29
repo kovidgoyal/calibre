@@ -12,17 +12,25 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
+"""
+Read metadata from RTF files.
+"""
 import re, cStringIO
 
 from libprs500.metadata import MetaInformation
 
-title_pat = re.compile(r'\{\\info.*?\{\\title(.*?)\}', re.DOTALL)
-author_pat = re.compile(r'\{\\info.*?\{\\author(.*?)\}', re.DOTALL)
-comment_pat = re.compile(r'\{\\info.*?\{\\subject(.*?)\}', re.DOTALL)
-category_pat = re.compile(r'\{\\info.*?\{\\category(.*?)\}', re.DOTALL)
+title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
+author_pat   = re.compile(r'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
+comment_pat  = re.compile(r'\{\\info.*?\{\\subject(.*?)(?<!\\)\}', re.DOTALL)
+category_pat = re.compile(r'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
 
 def get_document_info(stream):
+    """ 
+    Extract the \info block from an RTF file.
+    Return the info block as a stringa and the position in the file at which it
+    starts.
+    @param stream: File like object pointing to the RTF file.
+    """
     block_size = 4096
     stream.seek(0)
     found, block = False, ""
@@ -36,13 +44,17 @@ def get_document_info(stream):
             found = True
             stream.seek(stream.tell() - block_size + idx - len(prefix))
         else:
-            stream.seek(stream.tell())
+            if block.find(r'\sect') > -1:
+                break
     if not found:
         return None, 0
     data, count, = cStringIO.StringIO(), 0
     pos = stream.tell()
     while True:
         ch = stream.read(1)
+        if ch == '\\':
+            data.write(ch + stream.read(1))
+            continue
         if ch == '{':
             count += 1
         elif ch == '}':
@@ -53,6 +65,7 @@ def get_document_info(stream):
     return data.getvalue(), pos
 
 def get_metadata(stream):
+    """ Return metadata as a L{MetaInfo} object """
     stream.seek(0)
     if stream.read(5) != r'{\rtf':
         raise Exception('Not a valid RTF file')
@@ -79,6 +92,9 @@ def get_metadata(stream):
     
 def main():
     import sys
+    if len(sys.argv) != 2:
+        print >> sys.stderr, "Usage:", sys.argv[0], " mybook.rtf"
+        sys.exit(1)
     print get_metadata(open(sys.argv[1]))
 
 if __name__ == '__main__':
