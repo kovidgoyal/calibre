@@ -24,7 +24,7 @@ from optparse import OptionParser
 from libprs500 import __version__ as VERSION
 from libprs500.communicate import PRS500Device
 from terminfo import TerminalController
-from libprs500.errors import ArgumentError, DeviceError
+from libprs500.errors import ArgumentError, DeviceError, DeviceLocked
 
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
@@ -185,6 +185,8 @@ def main():
     parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
     dest="log_packets", action="store_true", default=False)
+    parser.add_option("--unlock", help="Unlock device with KEY. For e.g. --unlock=1234", \
+                      dest='key', default='-1')
     parser.remove_option("-h")
     parser.disable_interspersed_args() # Allow unrecognized options
     options, args = parser.parse_args()
@@ -195,7 +197,7 @@ def main():
     
     command = args[0]
     args = args[1:]
-    dev = PRS500Device(log_packets=options.log_packets)
+    dev = PRS500Device(key=options.key, log_packets=options.log_packets)
     try:
         if command == "df":
             total = dev.total_space(end_session=False)
@@ -301,6 +303,8 @@ def main():
             parser.print_help()
             if dev.handle: dev.close()
             return 1
+    except DeviceLocked:
+        print >> sys.stderr, "The device is locked. Use the --unlock option"
     except (ArgumentError, DeviceError), e:
         print >>sys.stderr, e
         return 1

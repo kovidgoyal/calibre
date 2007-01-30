@@ -42,6 +42,11 @@ class DeviceBusy(ProtocolError):
         ProtocolError.__init__(self, "Device is in use by another application:"\
                                "\nUnderlying error:" + str(uerr))
 
+class DeviceLocked(ProtocolError):
+    """ Raised when device has been locked """
+    def __init__(self):
+        ProtocolError.__init__(self, "Device is locked")
+
 class PacketError(ProtocolError):
     """ Errors with creating/interpreting packets """
 

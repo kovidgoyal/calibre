@@ -415,12 +415,17 @@ class SetBulkSize(Command):
         self.chunk_size = chunk_size
         self.unknown = unknown
 
-class UnlockDevice(ShortCommand):
+class UnlockDevice(Command):
     """ Unlock the device """
     NUMBER = 0x106 #: Command number  
-    def __init__(self, key=0x312d):
-        ShortCommand.__init__(self, \
-        number=UnlockDevice.NUMBER, type=0x01, command=key)
+    key = stringfield(8, start=16) #: The key defaults to -1
+    
+    def __init__(self, key='-1\0\0\0\0\0\0'):
+        Command.__init__(self, 24)
+        self.number = UnlockDevice.NUMBER
+        self.type = 0x01
+        self.length = 8
+        self.key = key
 
 class LongCommand(Command):
     

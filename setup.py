@@ -65,6 +65,7 @@ setup(
         'console_scripts': [ \
                              'prs500 = libprs500.cli.main:main', \
                              'lrf-meta = libprs500.lrf.meta:main', \
+                             'rtf-meta = libprs500.metadata.rtf:main', \
                              'makelrf = libprs500.lrf.makelrf:main'\
                            ], 
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']

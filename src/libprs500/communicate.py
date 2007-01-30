@@ -188,8 +188,9 @@ class PRS500Device(Device):
 
         return run_session
 
-    def __init__(self, log_packets=False, report_progress=None) :
+    def __init__(self, key='-1', log_packets=False, report_progress=None) :
         """ 
+        @param key: The key to unlock the device
         @param log_packets: If true the packet stream to/from the device is logged 
         @param report_progress: Function that is called with a % progress 
                                 (number between 0 and 100) for various tasks
@@ -202,6 +203,11 @@ class PRS500Device(Device):
         self.handle = None                               
         self.log_packets = log_packets
         self.report_progress = report_progress
+        if len(key) > 8:
+            key = key[:8]
+        elif len(key) < 8:
+            key += ''.join(['\0' for i in xrange(8 - len(key))])
+        self.key = key
 
     def reconnect(self):
         """ Only recreates the device node and deleted the connection handle """
@@ -265,9 +271,9 @@ class PRS500Device(Device):
                           unknown = 2))
         if res.code != 0: 
             raise ProtocolError("Unable to set bulk size.")
-        self.send_validated_command(UnlockDevice(key=0x312d))
+        res = self.send_validated_command(UnlockDevice(key=self.key))#0x312d))        
         if res.code != 0: 
-            raise ProtocolError("Unlocking of device not implemented. Remove locking and retry.")
+            raise DeviceLocked()
         res = self.send_validated_command(SetTime())
         if res.code != 0:
             raise ProtocolError("Could not set time on device")

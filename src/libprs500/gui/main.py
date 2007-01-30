@@ -22,8 +22,8 @@ import tempfile
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QEventLoop, QString, \
                          QBuffer, QIODevice, QModelIndex
-from PyQt4.QtGui import QPixmap, QErrorMessage, \
-                        QMessageBox, QFileDialog, QIcon, QDialog
+from PyQt4.QtGui import QPixmap, QErrorMessage, QLineEdit, \
+                        QMessageBox, QFileDialog, QIcon, QDialog, QInputDialog
 from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
 
 from libprs500.communicate import PRS500Device as device
@@ -404,7 +404,10 @@ class Main(QObject, Ui_MainWindow):
         QObject.__init__(self)
         Ui_MainWindow.__init__(self)
         
-        self.dev = device(report_progress=self.progress, log_packets=log_packets)
+        self.key = '-1'
+        self.log_packets = log_packets
+        self.dev = device(key=self.key, report_progress=self.progress, \
+                          log_packets=self.log_packets)
         self.setupUi(window)
         self.card = None
         self.window = window
@@ -532,6 +535,17 @@ class Main(QObject, Ui_MainWindow):
             self.dev.reconnect()
             self.thread().msleep(100)
             return self.establish_connection()
+        except DeviceLocked:
+            key, ok = QInputDialog.getText(self.window, 'Unlock device', \
+                                'Key to unlock device:', QLineEdit.Password)
+            self.key = str(key)
+            if not ok:
+                self.status('Device locked')
+                self.window.setCursor(Qt.ArrowCursor)
+                return
+            else:
+                self.dev.key = key
+                return self.establish_connection()
         except ProtocolError, e: 
             traceback.print_exc(e)
             qFatal("Unable to connect to device. Please try unplugging and"+\
