@@ -427,7 +427,7 @@ class PRS500Device(Device):
                                                     response_type=ListResponse)
         data = self._bulk_read(0x28, data_type=FileProperties, \
                                            command_number=PathQuery.NUMBER)[0]
-        if path.endswith("/"): 
+        if path.endswith('/') and path != '/': 
             path = path[:-1]
         if res.path_not_found : 
             raise PathError(path + " does not exist on device")
@@ -435,6 +435,8 @@ class PRS500Device(Device):
             raise PathError(path + " is not a valid path")
         if res.is_unmounted: 
             raise PathError(path + " is not mounted")
+        if res.permission_denied:
+            raise PathError('Permission denied for: ' + path)
         if res.code not in (0, PathResponseCodes.IS_FILE):
             raise PathError(path + " has an unknown error. Code: " + \
                                         hex(res.code))

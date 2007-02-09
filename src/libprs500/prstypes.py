@@ -57,6 +57,7 @@ class PathResponseCodes(object):
     INVALID      = 0xfffffff9
     IS_FILE      = 0xffffffd2
     HAS_CHILDREN = 0xffffffcc
+    PERMISSION_DENIED = 0xffffffd6
 
 
 class TransferBuffer(list):
@@ -675,6 +676,7 @@ class ListResponse(Response):
     IS_UNMOUNTED   = 0xffffffc8 
     IS_EOL         = 0xfffffffa #: There are no more entries in the list
     PATH_NOT_FOUND = 0xffffffd7 #: Queried path is not found 
+    PERMISSION_DENIED = 0xffffffd6 #: Permission denied
     
     @apply
     def is_file():
@@ -695,6 +697,13 @@ class ListResponse(Response):
         doc = """ True iff queried path is not found """
         def fget(self):    
             return self.code == ListResponse.PATH_NOT_FOUND
+        return property(doc=doc, fget=fget)
+    
+    @apply
+    def permission_denied():
+        doc = """ True iff permission is denied for path operations """
+        def fget(self):    
+            return self.code == ListResponse.PERMISSION_DENIED
         return property(doc=doc, fget=fget)
     
     @apply
