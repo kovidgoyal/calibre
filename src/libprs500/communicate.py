@@ -436,7 +436,8 @@ class PRS500Device(Device):
         if res.is_unmounted: 
             raise PathError(path + " is not mounted")
         if res.permission_denied:
-            raise PathError('Permission denied for: ' + path)
+            raise PathError('Permission denied for: ' + path + '\nYou can only '+\
+                            'operate on paths starting with /Data, a:/ or b:/')
         if res.code not in (0, PathResponseCodes.IS_FILE):
             raise PathError(path + " has an unknown error. Code: " + \
                                         hex(res.code))
