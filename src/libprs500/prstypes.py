@@ -386,15 +386,15 @@ class DirClose(ShortCommand):
         ShortCommand.__init__(self, number=DirClose.NUMBER, type=0x01, 
                                             command=_id)
 
-class EndSession(ShortCommand):
+class BeginEndSession(ShortCommand):
     """ 
-    Ask device to change status to 'USB connected' i.e., tell the 
-    device that the present sequence of commands is complete 
+    Ask device to either start or end a session.
     """
-    NUMBER = 0x1 #: Command number
-    def __init__(self):
+    NUMBER = 0x01 #: Command number
+    def __init__(self, end=True):
+        command = 0x00 if end else 0x01
         ShortCommand.__init__(self, \
-        number=EndSession.NUMBER, type=0x01, command=0x00)
+        number=BeginEndSession.NUMBER, type=0x01, command=command)
 
 class GetUSBProtocolVersion(ShortCommand):
     """ Get USB Protocol version used by device """

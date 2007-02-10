@@ -165,10 +165,14 @@ class PRS500Device(Device):
             try:
                 if not dev.handle: 
                     dev.open()
+                if not dev.in_session:
+                    dev.send_validated_command(BeginEndSession(end=False))
+                    dev.in_session = True
                 res = func(*args, **kwargs)
             except ArgumentError:
                 if not kwargs.has_key("end_session") or kwargs["end_session"]:
-                    dev.send_validated_command(EndSession())        
+                    dev.send_validated_command(BeginEndSession(end=True))
+                    dev.in_session = False
                 raise 
             except USBError, err:
                 if "No such device" in str(err):
@@ -183,7 +187,8 @@ class PRS500Device(Device):
                 dev.close()
                 raise 
             if not kwargs.has_key("end_session") or kwargs["end_session"]:
-                dev.send_validated_command(EndSession())
+                dev.send_validated_command(BeginEndSession(end=True))
+                dev.in_session = False
             return res
 
         return run_session
@@ -200,7 +205,8 @@ class PRS500Device(Device):
         Device.__init__(self)
         self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID) 
         # Handle that is used to communicate with device. Setup in L{open}
-        self.handle = None                               
+        self.handle = None
+        self.in_session = False
         self.log_packets = log_packets
         self.report_progress = report_progress
         if len(key) > 8:
@@ -286,6 +292,7 @@ class PRS500Device(Device):
         except Exception, err:
             print >> sys.stderr, err
         self.handle, self.device = None, None
+        self.in_session = False
 
     def _send_command(self, command, response_type=Response, timeout=1000):
         """ 
