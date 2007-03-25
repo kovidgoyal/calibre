@@ -189,8 +189,11 @@ class BookList(list):
                       "mime":mime, "path":name, "size":str(size)} 
         for attr in attrs.keys():
             node.setAttributeNode(self.document.createAttribute(attr))
-            node.setAttribute(attr, attrs[attr])
-        w, h, data = info["cover"] 
+            node.setAttribute(attr, attrs[attr])        
+        try:
+            w, h, data = info["cover"] 
+        except TypeError:
+            w, h, data = None, None, None
         if data:
             th = self.document.createElement(self.prefix + "thumbnail")            
             th.setAttribute("width", str(w))
