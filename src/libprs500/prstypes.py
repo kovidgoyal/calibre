@@ -128,13 +128,20 @@ class TransferBuffer(list):
     
     def pack(self, val, fmt=DWORD, start=0):
         """ 
-        Encode C{val} and write it to buffer.
+        Encode C{val} and write it to buffer. For fmt==WORD val is  
+        adjusted to be in the range 0 <= val < 256**2.
         
         @param fmt: See U{struct<http://docs.python.org/lib/module-struct.html>}
         @param start: Position in buffer at which to write encoded data
         """
-        self[start:start+struct.calcsize(fmt)] = [ ord(i) for i in struct.pack(fmt, val) ]
-    
+        # struct.py is fussy about packing values into a WORD. The value must be
+        # between 0 and 65535 or a DeprecationWarning is raised. In the future 
+        # this may become an error, so it's best to take care of wrapping here.
+        if fmt == WORD:
+            val = val % 256**2
+        self[start:start+struct.calcsize(fmt)] = \
+                                    [ ord(i) for i in struct.pack(fmt, val) ]
+        
     def _normalize(self):
         """ Replace negative bytes in C{self} by 256 + byte """
         for i in range(len(self)):
