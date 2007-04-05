@@ -22,7 +22,7 @@ import StringIO, sys, time, os
 from optparse import OptionParser
 
 from libprs500 import __version__ as VERSION
-from libprs500.communicate import PRS500Device
+from libprs500.prs500 import PRS500
 from terminfo import TerminalController
 from libprs500.errors import ArgumentError, DeviceError, DeviceLocked
 
@@ -197,7 +197,7 @@ def main():
     
     command = args[0]
     args = args[1:]
-    dev = PRS500Device(key=options.key, log_packets=options.log_packets)
+    dev = PRS500(key=options.key, log_packets=options.log_packets)
     try:
         if command == "df":
             total = dev.total_space(end_session=False)

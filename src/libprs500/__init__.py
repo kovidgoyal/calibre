@@ -15,14 +15,10 @@
 """
 This package provides an interface to the SONY Reader PRS-500 over USB.
 
-The public interface of libprs500 is in L{libprs500.communicate}. To use it
-  >>> from libprs500.communicate import PRS500Device
-  >>> dev = PRS500Device()
-  >>> dev.get_device_information()
-  ('Sony Reader', 'PRS-500/U', '1.0.00.21081', 'application/x-bbeb-book')
+The public interface for device backends is defined in libprs500.device.
   
 There is also a script L{prs500} that provides a command-line interface to 
-libprs500. See the script
+the SONY Reader. See the script
 for more usage examples. A GUI is available via the command prs500-gui.
 
 The packet structure used by the SONY Reader USB protocol is defined 

@@ -26,8 +26,7 @@ from PyQt4.QtGui import QPixmap, QErrorMessage, QLineEdit, \
                         QMessageBox, QFileDialog, QIcon, QDialog, QInputDialog
 from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
 
-from libprs500.communicate import PRS500Device as device
-from libprs500.books import fix_ids
+from libprs500.prs500 import PRS500 as device
 from libprs500.errors import *
 from libprs500.gui import import_ui, installErrorHandler, Error, _Warning, \
                           extension, APP_TITLE
@@ -165,17 +164,10 @@ class Main(QObject, Ui_MainWindow):
             self.library_model.delete(self.library_view.selectionModel()\
                                     .selectedRows())
         else:
-            self.status("Deleting files from device")
+            self.status("Deleting books and updating metadata on device")
             paths = self.device_view.model().delete(rows)
-            for path in paths:
-                self.status("Deleting "+path[path.rfind("/")+1:])
-                self.dev.del_file(path, end_session=False)
-            fix_ids(self.reader_model.booklist, self.card_model.booklist)
-            self.status("Syncing media list to reader")
-            self.dev.upload_book_list(self.reader_model.booklist)
-            if len(self.card_model.booklist):
-                self.status("Syncing media list to card")
-                self.dev.upload_book_list(self.card_model.booklist)
+            self.dev.remove_book(paths, (self.reader_model.booklist, \
+                                 self.card_model.booklist), end_session=False)
             self.update_availabe_space()
             self.model_modified()
         self.show_book(self.current_view.currentIndex(), QModelIndex())

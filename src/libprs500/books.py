@@ -47,16 +47,16 @@ class book_metadata_field(object):
 
 class Book(object):
     """ Provides a view onto the XML element that represents a book """
-    title               = book_metadata_field("title")
-    author          = book_metadata_field("author", \
+    title        = book_metadata_field("title")
+    author       = book_metadata_field("author", \
                             formatter=lambda x: x if x.strip() else "Unknown")
-    mime           = book_metadata_field("mime")
-    rpath            = book_metadata_field("path")
-    id                  = book_metadata_field("id", formatter=int)
-    sourceid       = book_metadata_field("sourceid", formatter=int)
-    size              = book_metadata_field("size", formatter=int)
+    mime         = book_metadata_field("mime")
+    rpath        = book_metadata_field("path")
+    id           = book_metadata_field("id", formatter=int)
+    sourceid     = book_metadata_field("sourceid", formatter=int)
+    size         = book_metadata_field("size", formatter=int)
     # When setting this attribute you must use an epoch
-    datetime      = book_metadata_field("date", \
+    datetime     = book_metadata_field("date", \
                            formatter=lambda x:  time.strptime(x, "%a, %d %b %Y %H:%M:%S %Z"), 
                            setter=lambda x: time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(x)))
     

@@ -43,7 +43,7 @@
 """
 Contains the logic for communication with the device (a SONY PRS-500).
 
-The public interface of class L{PRS500Device} defines the 
+The public interface of class L{PRS500} defines the 
 methods for performing various tasks. 
 """
 import sys
@@ -53,6 +53,7 @@ from tempfile import TemporaryFile
 from array import array
 from functools import wraps
 
+from libprs500.device import Device
 from libprs500.libusb import Error as USBError
 from libprs500.libusb import get_device_by_id
 from libprs500.prstypes import *
@@ -60,37 +61,8 @@ from libprs500.errors import *
 from libprs500.books import BookList, fix_ids
 from libprs500 import __author__ as AUTHOR
 
-MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
-
 # Protocol versions libprs500 has been tested with
 KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L] 
-
-class Device(object):
-    """ Contains device independent methods """
-    _packet_number = 0     #: Keep track of the packet number for packet tracing
-    
-    def log_packet(self, packet, header, stream=sys.stderr):
-        """ 
-        Log C{packet} to stream C{stream}. 
-        Header should be a small word describing the type of packet. 
-        """    
-        self._packet_number += 1
-        print >> stream, str(self._packet_number), header, "Type:", \
-                                   packet.__class__.__name__
-        print >> stream, packet
-        print >> stream, "--"
-        
-    @classmethod
-    def validate_response(cls, res, _type=0x00, number=0x00):
-        """ 
-        Raise a ProtocolError if the type and number of C{res} 
-        is not the same as C{type} and C{number}. 
-        """
-        if _type != res.type or number != res.rnumber:
-            raise ProtocolError("Inavlid response.\ntype: expected=" + \
-                                       hex(_type)+" actual=" + hex(res.type) + \
-                                       "\nrnumber: expected=" + hex(number) + \
-                                       " actual="+hex(res.rnumber))
 
 
 class File(object):
@@ -117,14 +89,14 @@ class File(object):
         return self.name
 
 
-class PRS500Device(Device):
+class PRS500(Device):
 
     """
-    Contains the logic for performing various tasks on the reader. 
+    Implements the backend for communication with the SONY Reader.
     Each method decorated by C{safe} performs a task.    
     """
 
-    VENDOR_ID      = 0x054c #: SONY Vendor Id
+    VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x029b #: Product Id for the PRS-500
     INTERFACE_ID = 0      #: The interface we use to talk to the device
     BULK_IN_EP   = 0x81   #: Endpoint for Bulk reads
@@ -136,7 +108,32 @@ class PRS500Device(Device):
     # Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]             
     # Height for thumbnails of books/images on the device
-    THUMBNAIL_HEIGHT = 68                                         
+    THUMBNAIL_HEIGHT = 68
+    
+    _packet_number = 0     #: Keep track of the packet number for packet tracing
+    
+    def log_packet(self, packet, header, stream=sys.stderr):
+        """ 
+        Log C{packet} to stream C{stream}. 
+        Header should be a small word describing the type of packet. 
+        """    
+        self._packet_number += 1
+        print >> stream, str(self._packet_number), header, "Type:", \
+                                   packet.__class__.__name__
+        print >> stream, packet
+        print >> stream, "--"
+        
+    @classmethod
+    def validate_response(cls, res, _type=0x00, number=0x00):
+        """ 
+        Raise a ProtocolError if the type and number of C{res} 
+        is not the same as C{type} and C{number}. 
+        """
+        if _type != res.type or number != res.rnumber:
+            raise ProtocolError("Inavlid response.\ntype: expected=" + \
+                                       hex(_type)+" actual=" + hex(res.type) + \
+                                       "\nrnumber: expected=" + hex(number) + \
+                                       " actual="+hex(res.rnumber))
 
     @classmethod
     def signature(cls):    
@@ -202,7 +199,6 @@ class PRS500Device(Device):
                                 If it is called with -1 that means that the 
                                 task does not have any progress information
         """
-        Device.__init__(self)
         self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID) 
         # Handle that is used to communicate with device. Setup in L{open}
         self.handle = None
@@ -237,8 +233,6 @@ class PRS500Device(Device):
         Requires write privileges to the device file.
         Also initialize the device. 
         See the source code for the sequenceof initialization commands.
-
-        @todo: Implement unlocking of the device
         """
         self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)        
         if not self.device:
@@ -790,6 +784,19 @@ class PRS500Device(Device):
             self.get_file(self.MEDIA_XML, tfile, end_session=False)    
         return BookList(prefix=prefix, root=root, sfile=tfile)
 
+    @safe
+    def remove_book(self, paths, booklists, end_session=True):
+        """
+        Remove the books specified by paths from the device. The metadata
+        cache on the device should also be updated.
+        """        
+        for path in paths:
+            self.del_file(path, end_session=False)
+        fix_ids(booklists[0], booklists[1])
+        self.upload_book_list(booklists[0], end_session=False)
+        if len(booklists[1]):
+            self.upload_book_list(booklists[1], end_session=False)
+        
     @safe
     def add_book(self, infile, name, info, booklists, oncard=False, \
                             sync_booklists=False, end_session=True):
