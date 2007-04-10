@@ -112,3 +112,4 @@ class Device(object):
                                 (L{books}(oncard=False), L{books}(oncard=True)).    
         """
         raise NotImplementedError()        
+

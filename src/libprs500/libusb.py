@@ -32,7 +32,12 @@ if isosx:
     PATH_MAX = 1024
     _libusb_name = 'libusb.dylib'
 
-_libusb = cdll.LoadLibrary(_libusb_name)
+try:
+    _libusb = cdll.LoadLibrary(_libusb_name)
+except OSError:
+    if iswindows or isosx:
+        raise
+    _libusb = cdll.LoadLibrary('libusb-0.1.so.4')
 
 class DeviceDescriptor(Structure):
     _fields_ = [\
