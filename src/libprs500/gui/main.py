@@ -28,10 +28,11 @@ from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
 
 from libprs500.prs500 import PRS500 as device
 from libprs500.errors import *
-from libprs500.gui import import_ui, installErrorHandler, Error, _Warning, \
+from libprs500.gui import installErrorHandler, Error, _Warning, \
                           extension, APP_TITLE
 from libprs500.gui.widgets import LibraryBooksModel, DeviceBooksModel, \
                                   DeviceModel
+from libprs500.gui.main_ui import Ui_MainWindow
 from database import LibraryDatabase
 from editbook import EditBookDialog
 
@@ -43,7 +44,6 @@ DEVICE_BOOK_TEMPLATE = QString("<table><tr><td><b>Title: </b>%1</td><td> \
                                 <tr><td><b>Author: </b>%3</td>\
                                 <td><b>&nbsp;Type: </b>%4</td></tr></table>")
 
-Ui_MainWindow = import_ui("main.ui")
 class Main(QObject, Ui_MainWindow): 
     def report_error(func):
         """ 

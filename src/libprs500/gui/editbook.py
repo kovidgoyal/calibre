@@ -22,7 +22,8 @@ from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QObject, QPixmap, QListWidgetItem, QErrorMessage, \
                     QVariant, QSettings, QFileDialog
 
-from libprs500.gui import import_ui, extension
+from libprs500.gui import extension
+from libprs500.gui.editbook_ui import Ui_BookEditDialog
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, path=None):
@@ -31,7 +32,6 @@ class Format(QListWidgetItem):
         QListWidgetItem.__init__(self, ext.upper(), parent, \
                         QListWidgetItem.UserType)
 
-Ui_BookEditDialog = import_ui("editbook.ui")
 class EditBookDialog(Ui_BookEditDialog):
     
     def select_cover(self, checked):

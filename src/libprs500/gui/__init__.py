@@ -18,7 +18,6 @@ __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 APP_TITLE     = "libprs500"
 
 import pkg_resources, sys, os, re, StringIO, traceback
-from PyQt4.uic import compiler
 from PyQt4 import QtCore, QtGui # Needed in globals() for import_ui
 
 error_dialog = None
@@ -48,14 +47,3 @@ def Error(msg, e):
         error_dialog.showMessage(msg)
         error_dialog.show()
 
-def import_ui(name): 
-    uifile = pkg_resources.resource_stream(__name__, name)
-    code_string = StringIO.StringIO()
-    winfo = compiler.UICompiler().compileUi(uifile, code_string)
-    #ui = pkg_resources.resource_filename(__name__, name)
-    exec code_string.getvalue()  
-    return locals()[winfo["uiclass"]]
-
-# Needed in globals() for import_ui
-from libprs500.gui.widgets import LibraryBooksView, \
-        DeviceBooksView, CoverDisplay, DeviceView 
