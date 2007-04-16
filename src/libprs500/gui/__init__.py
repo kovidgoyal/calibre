@@ -18,7 +18,6 @@ __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 APP_TITLE     = "libprs500"
 
 import pkg_resources, sys, os, re, StringIO, traceback
-from PyQt4 import QtCore, QtGui # Needed in globals() for import_ui
 
 error_dialog = None
 

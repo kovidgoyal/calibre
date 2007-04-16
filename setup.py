@@ -91,7 +91,7 @@ setup(
       from LRF files (unencrypted books in the SONY BBeB format). A command line
       interface to this is provided via the command lrf-meta.
       
-      For SVN access: svn co https://svn.kovidgoyal.net/code/prs-500
+      For SVN access: svn co https://svn.kovidgoyal.net/code/libprs500
       
         .. _SONY Portable Reader: http://Sony.com/reader
         .. _USB: http://www.usb.org  
