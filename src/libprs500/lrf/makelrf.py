@@ -24,6 +24,7 @@ from tempfile import mkdtemp
 from optparse import OptionParser
 import xml.dom.minidom as dom
 
+from libprs500.lrf import ConversionError
 from libprs500.lrf.meta import LRFException, LRFMetaFile
 from libprs500.ptempfile import PersistentTemporaryFile
 
@@ -148,6 +149,90 @@ def makelrf(author=None, title=None, \
     finally:
         if dirpath: 
             shutil.rmtree(dirpath, True)
+
+def txt():
+    """ CLI for txt -> lrf conversions """
+    parser = OptionParser(usage=\
+        """usage: %prog [options] mybook.txt
+        
+        %prog converts mybook.txt to mybook.lrf
+        """\
+        )
+    parser.add_option("-t", "--title", action="store", type="string", \
+                    dest="title", help="Set the title")
+    parser.add_option("-a", "--author", action="store", type="string", \
+                    dest="author", help="Set the author", default='Unknown')
+    defenc = 'cp1252'
+    enchelp = 'Set the encoding used to decode ' + \
+              'the text in mybook.txt. Default encoding is ' + defenc
+    parser.add_option('-e', '--encoding', action='store', type='string', \
+                      dest='encoding', help=enchelp, default=defenc)
+    options, args = parser.parse_args()
+    if len(args) != 1:
+        parser.print_help()
+        sys.exit(1)
+    src = args[0]
+    if options.title == None:
+        options.title = os.path.splitext(os.path.basename(src))[0]
+    try:
+        convert_txt(src, options)
+    except ConversionError, err:
+        print >>sys.stderr, err
+        sys.exit(1)
+        
+    
+def convert_txt(path, options):
+    """
+    Convert the text file at C{path} into an lrf file.
+    @param options: Object with the following attributes:
+                    C{author}, C{title}, C{encoding} (the assumed encoding of 
+                    the text in C{path}.)
+    """
+    import fileinput
+    from libprs500.lrf.pylrs.pylrs import Book
+    book = Book(title=options.title, author=options.author, \
+                sourceencoding=options.encoding)
+    buffer = ''
+    block = book.Page().TextBlock()
+    for line in fileinput.input(path):
+        line = line.strip()
+        if line:
+            buffer += line
+        else:
+            block.Paragraph(buffer)            
+            buffer = ''
+    basename = os.path.basename(path)
+    name = os.path.splitext(basename)[0]+'.lrf'
+    try: 
+        book.renderLrf(name)
+    except UnicodeDecodeError:
+        raise ConversionError(path + ' is not encoded in ' + \
+                              options.encoding +'. Specify the '+ \
+                              'correct encoding with the -e option.')
+    return os.path.abspath(name)
+    
+
+def html():
+    """ CLI for html -> lrf conversions """
+    parser = OptionParser(usage=\
+        """usage: %prog [options] mybook.txt
+        
+        %prog converts mybook.txt to mybook.lrf
+        """\
+        )
+    parser.add_option("-t", "--title", action="store", type="string", \
+                    dest="title", help="Set the title")
+    parser.add_option("-a", "--author", action="store", type="string", \
+                    dest="author", help="Set the author", default='Unknown')
+    options, args = parser.parse_args()
+    if len(args) != 1:
+        parser.print_help()
+        sys.exit(1)
+    src = args[0]
+    if options.title == None:
+        options.title = os.path.splitext(os.path.basename(src))[0]
+    from libprs500.lrf.html.convert import process_file
+    process_file(src, options)
 
 def main(cargs=None):
     parser = OptionParser(usage=\

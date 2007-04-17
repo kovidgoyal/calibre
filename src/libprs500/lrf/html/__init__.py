@@ -13,12 +13,8 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """ 
-This package contains logic to read and write LRF files. The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}. 
-At the time fo writing, this package only supports reading and writing LRF meat information. See L{meta}.
+This package contains code to convert HTML ebooks to LRF ebooks.
 """
 
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
-
-class ConversionError(Exception):
-    pass

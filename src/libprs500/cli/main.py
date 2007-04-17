@@ -23,7 +23,7 @@ from optparse import OptionParser
 
 from libprs500 import __version__ as VERSION
 from libprs500.prs500 import PRS500
-from terminfo import TerminalController
+from libprs500.cli.terminfo import TerminalController
 from libprs500.errors import ArgumentError, DeviceError, DeviceLocked
 
 

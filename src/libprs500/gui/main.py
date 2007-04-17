@@ -33,8 +33,8 @@ from libprs500.gui import installErrorHandler, Error, _Warning, \
 from libprs500.gui.widgets import LibraryBooksModel, DeviceBooksModel, \
                                   DeviceModel
 from libprs500.gui.main_ui import Ui_MainWindow
-from database import LibraryDatabase
-from editbook import EditBookDialog
+from libprs500.gui.database import LibraryDatabase
+from libprs500.gui.editbook import EditBookDialog
 
 
 DEFAULT_BOOK_COVER = None

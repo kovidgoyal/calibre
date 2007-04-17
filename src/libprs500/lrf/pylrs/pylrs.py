@@ -5,7 +5,6 @@
 import os
 import re
 import codecs
-import sys
 from datetime import date
 try:
     from elementtree.ElementTree import (Element, SubElement)

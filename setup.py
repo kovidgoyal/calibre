@@ -17,6 +17,17 @@ import sys
 
 import ez_setup
 ez_setup.use_setuptools()
+try:
+    import py2exe
+    console = [{'script' : 'src/libprs500/cli/main.py', 'dest_base':'prs500'}]
+    windows = [{'script' : 'src/libprs500/gui/main.py', 'dest_base':'prs500-gui',
+                'icon_resources':[(1,'icons/library.ico')]}]
+    options = { 'py2exe' : {'includes': ['sip', 'pkg_resources'], 'dist_dir':'c:\libprs500',
+                            'packages' : ['PIL']}}
+except ImportError:
+    console, windows, options = [], [], {}
+finally:
+    library = 'libprs500_lib.zip'
 
 # Try to install the Python imaging library as the package name (PIL) doesn't 
 # match the distribution file name, thus declaring itas a dependency is useless
@@ -66,11 +77,17 @@ setup(
                              'prs500 = libprs500.cli.main:main', \
                              'lrf-meta = libprs500.lrf.meta:main', \
                              'rtf-meta = libprs500.metadata.rtf:main', \
-                             'makelrf = libprs500.lrf.makelrf:main'\
+                             'makelrf = libprs500.lrf.makelrf:main', \
+                             'txt2lrf = libprs500.lrf.makelrf:txt', \
+                             'html2lrf = libprs500.lrf.makelrf:html',\
                            ], 
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       }, 
       zip_safe = True, 
+      console = console,
+      windows = windows,
+      options = options,
+      library = library,
       description = 
                   """
                   Library to interface with the Sony Portable Reader 500 
