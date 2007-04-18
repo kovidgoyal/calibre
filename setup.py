@@ -33,7 +33,10 @@ if sys.argv[1] == 'py2exe':
     f.close()
     try:
         import py2exe
-        console = [{'script' : 'src/libprs500/cli/main.py', 'dest_base':'prs500'}]
+        console = [{
+                    'script' : 'src/libprs500/cli/main.py', 'dest_base':'prs500',
+                    'script' : 'src/libprs500/lrf/html/convert_from.py', 'dest_base':'html2lrf'
+                  }]
         windows = [{'script' : 'src/libprs500/gui/main.py', 'dest_base':'prs500-gui',
                     'icon_resources':[(1,'icons/library.ico')]}]
         excludes = ["Tkconstants", "Tkinter", "tcl", "_imagingtk", 
@@ -94,9 +97,8 @@ setup(
                              'prs500 = libprs500.cli.main:main', \
                              'lrf-meta = libprs500.lrf.meta:main', \
                              'rtf-meta = libprs500.metadata.rtf:main', \
-                             'makelrf = libprs500.lrf.makelrf:main', \
                              'txt2lrf = libprs500.lrf.makelrf:txt', \
-                             'html2lrf = libprs500.lrf.makelrf:html',\
+                             'html2lrf = libprs500.lrf.html.convert_from:main',\
                            ], 
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       }, 

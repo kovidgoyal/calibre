@@ -17,18 +17,13 @@ import shutil
 import sys
 import hashlib
 import re
-import time
 import pkg_resources
 import subprocess
 from tempfile import mkdtemp
 from optparse import OptionParser
-import xml.dom.minidom as dom
-
 from libprs500.lrf import ConversionError
 from libprs500.lrf.meta import LRFException, LRFMetaFile
 from libprs500.ptempfile import PersistentTemporaryFile
-
-_bbebook = 'BBeBook-0.2.jar'
 
 def generate_thumbnail(path):
     """ Generate a JPEG thumbnail of size ~ 128x128 (aspect ratio preserved)"""
@@ -45,30 +40,6 @@ def generate_thumbnail(path):
     im.save(thumb.name)
     return thumb
     
-def create_xml(cfg):
-    doc = dom.getDOMImplementation().createDocument(None, None, None)
-    def add_field(parent, tag, value):
-        elem = doc.createElement(tag)
-        elem.appendChild(doc.createTextNode(value))
-        parent.appendChild(elem)
-    
-    info = doc.createElement('Info')
-    info.setAttribute('version', '1.0')
-    book_info = doc.createElement('BookInfo')
-    doc_info  = doc.createElement('DocInfo')
-    info.appendChild(book_info)
-    info.appendChild(doc_info)
-    add_field(book_info, 'File', cfg['File'])
-    add_field(doc_info, 'Output', cfg['Output'])
-    for field in ['Title', 'Author', 'BookID', 'Publisher', 'Label', \
-                  'Category', 'Classification', 'Icon', 'Cover', 'FreeText']:
-        if cfg.has_key(field):
-            add_field(book_info, field, cfg[field])
-    add_field(doc_info, 'Language', 'en')
-    add_field(doc_info, 'Creator', _bbebook)
-    add_field(doc_info, 'CreationDate', time.strftime('%Y-%m-%d', time.gmtime()))
-    doc.appendChild(info)
-    return doc.toxml()
 
 def makelrf(author=None, title=None, \
             thumbnail=None, src=None, odir=".",\
@@ -150,127 +121,3 @@ def makelrf(author=None, title=None, \
         if dirpath: 
             shutil.rmtree(dirpath, True)
 
-def txt():
-    """ CLI for txt -> lrf conversions """
-    parser = OptionParser(usage=\
-        """usage: %prog [options] mybook.txt
-        
-        %prog converts mybook.txt to mybook.lrf
-        """\
-        )
-    parser.add_option("-t", "--title", action="store", type="string", \
-                    dest="title", help="Set the title")
-    parser.add_option("-a", "--author", action="store", type="string", \
-                    dest="author", help="Set the author", default='Unknown')
-    defenc = 'cp1252'
-    enchelp = 'Set the encoding used to decode ' + \
-              'the text in mybook.txt. Default encoding is ' + defenc
-    parser.add_option('-e', '--encoding', action='store', type='string', \
-                      dest='encoding', help=enchelp, default=defenc)
-    options, args = parser.parse_args()
-    if len(args) != 1:
-        parser.print_help()
-        sys.exit(1)
-    src = args[0]
-    if options.title == None:
-        options.title = os.path.splitext(os.path.basename(src))[0]
-    try:
-        convert_txt(src, options)
-    except ConversionError, err:
-        print >>sys.stderr, err
-        sys.exit(1)
-        
-    
-def convert_txt(path, options):
-    """
-    Convert the text file at C{path} into an lrf file.
-    @param options: Object with the following attributes:
-                    C{author}, C{title}, C{encoding} (the assumed encoding of 
-                    the text in C{path}.)
-    """
-    import fileinput
-    from libprs500.lrf.pylrs.pylrs import Book
-    book = Book(title=options.title, author=options.author, \
-                sourceencoding=options.encoding)
-    buffer = ''
-    block = book.Page().TextBlock()
-    for line in fileinput.input(path):
-        line = line.strip()
-        if line:
-            buffer += line
-        else:
-            block.Paragraph(buffer)            
-            buffer = ''
-    basename = os.path.basename(path)
-    name = os.path.splitext(basename)[0]+'.lrf'
-    try: 
-        book.renderLrf(name)
-    except UnicodeDecodeError:
-        raise ConversionError(path + ' is not encoded in ' + \
-                              options.encoding +'. Specify the '+ \
-                              'correct encoding with the -e option.')
-    return os.path.abspath(name)
-    
-
-def html():
-    """ CLI for html -> lrf conversions """
-    parser = OptionParser(usage=\
-        """usage: %prog [options] mybook.txt
-        
-        %prog converts mybook.txt to mybook.lrf
-        """\
-        )
-    parser.add_option("-t", "--title", action="store", type="string", \
-                    dest="title", help="Set the title")
-    parser.add_option("-a", "--author", action="store", type="string", \
-                    dest="author", help="Set the author", default='Unknown')
-    options, args = parser.parse_args()
-    if len(args) != 1:
-        parser.print_help()
-        sys.exit(1)
-    src = args[0]
-    if options.title == None:
-        options.title = os.path.splitext(os.path.basename(src))[0]
-    from libprs500.lrf.html.convert import process_file
-    process_file(src, options)
-
-def main(cargs=None):
-    parser = OptionParser(usage=\
-        """usage: %prog [options] mybook.[html|pdf|rar]
-        
-        %prog converts mybook to mybook.lrf
-        If you specify a rar file you must have the unrar command line client
-        installed. makelrf assumes the rar file is an archive containing the
-        html file you want converted."""\
-        )
-    
-    parser.add_option("-t", "--title", action="store", type="string", \
-                    dest="title", help="Set the book title")
-    parser.add_option("-a", "--author", action="store", type="string", \
-                    dest="author", help="Set the author")
-    parser.add_option('-r', '--rasterize', action='store_false', \
-                    dest="rasterize", 
-                    help="Convert pdfs into image files.")
-    parser.add_option('-c', '--cover', action='store', dest='cover',\
-                    help="Path to a graphic that will be set as the cover. "\
-                    "If it is specified the thumbnail is automatically "\
-                    "generated from it")
-    parser.add_option("--thumbnail", action="store", type="string", \
-                    dest="thumbnail", \
-                    help="Path to a graphic that will be set as the thumbnail")
-    if not cargs:
-        cargs = sys.argv
-    options, args = parser.parse_args()
-    if len(args) != 1:
-        parser.print_help()
-        sys.exit(1)
-    src = args[0]
-    root, ext = os.path.splitext(src)
-    if ext not in ['.html', '.pdf', '.rar']:
-        print >> sys.stderr, "Can only convert files ending in .html|.pdf|.rar"
-        parser.print_help()
-        sys.exit(1)
-    name = makelrf(author=options.author, title=options.title, \
-        thumbnail=options.thumbnail, src=src, cover=options.cover, \
-        rasterize=options.rasterize)
-    print "LRF generated:", name
