@@ -1,12 +1,11 @@
 APIDOCS=/var/www/libprs500.kovidgoyal.net/htdocs/apidocs
+targets:
+	@echo Targets are: installer doc
 
-all: doc sdist egg
-
-sdist:
-	python setup.py sdist --formats=gztar,zip
-
-egg:
-	python setup.py bdist_egg 
+installer:
+	@scp dist/libprs500-*.exe castalia:/var/www/vhosts/kovidgoyal.net/subdomains/libprs500/httpdocs/downloads/
+	@ssh castalia chmod a+r /var/www/vhosts/kovidgoyal.net/subdomains/libprs500/httpdocs/downloads/\*
+	@echo Update link on the libprs500 wiki
 
 doc:
 	epydoc --config epydoc.conf

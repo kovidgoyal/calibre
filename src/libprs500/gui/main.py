@@ -35,6 +35,7 @@ from libprs500.gui.widgets import LibraryBooksModel, DeviceBooksModel, \
 from libprs500.gui.main_ui import Ui_MainWindow
 from libprs500.gui.database import LibraryDatabase
 from libprs500.gui.editbook import EditBookDialog
+from libprs500 import __version__ as VERSION
 
 
 DEFAULT_BOOK_COVER = None
@@ -479,7 +480,7 @@ class Main(QObject, Ui_MainWindow):
                      self.device_removed)
         self.search.setFocus(Qt.OtherFocusReason)
         self.show_device(False)
-        self.df_template = self.df.text()
+        self.df_template = self.df.text().arg(VERSION)
         self.df.setText(self.df_template.arg("").arg("").arg(""))
         window.show()
         self.library_view.resizeColumnsToContents()

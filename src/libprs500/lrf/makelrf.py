@@ -33,7 +33,7 @@ _bbebook = 'BBeBook-0.2.jar'
 def generate_thumbnail(path):
     """ Generate a JPEG thumbnail of size ~ 128x128 (aspect ratio preserved)"""
     try:
-        import Image
+        from PIL import Image
     except ImportError:
         raise LRFException("Unable to initialize Python Imaging Library." \
                 "Thumbnail generation is disabled")

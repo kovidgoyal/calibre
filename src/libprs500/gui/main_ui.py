@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main.ui'
+# Form implementation generated from reading ui file 'src/libprs500/gui/main.ui'
 #
-# Created: Mon Apr  9 18:48:38 2007
+# Created: Tue Apr 17 19:56:30 2007
 #      by: PyQt4 UI code generator 4.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -154,7 +154,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.tool_bar = QtGui.QToolBar(MainWindow)
-        self.tool_bar.setMinimumSize(QtCore.QSize(124,50))
+        self.tool_bar.setMinimumSize(QtCore.QSize(163,58))
         self.tool_bar.setMovable(False)
         self.tool_bar.setOrientation(QtCore.Qt.Horizontal)
         self.tool_bar.setIconSize(QtCore.QSize(22,22))
@@ -185,7 +185,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        self.df.setText(QtGui.QApplication.translate("MainWindow", "For help visit <a href=\"https://libprs500.kovidgoyal.net/wiki/GuiUsage\">http://libprs500.kovidgoyal.net</a><br><br><b>libprs500</b> was created by <b>Kovid Goyal</b> &copy; 2006<br>%1 %2 %3", None, QtGui.QApplication.UnicodeUTF8))
+        self.df.setText(QtGui.QApplication.translate("MainWindow", "For help visit <a href=\"https://libprs500.kovidgoyal.net/wiki/GuiUsage\">http://libprs500.kovidgoyal.net</a><br><br><b>libprs500</b>: %1 by <b>Kovid Goyal</b> &copy; 2006<br>%2 %3 %4", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "&Search:", None, QtGui.QApplication.UnicodeUTF8))
         self.search.setToolTip(QtGui.QApplication.translate("MainWindow", "Search the list of books by title or author<br><br>Words separated by spaces are ANDed", None, QtGui.QApplication.UnicodeUTF8))
         self.search.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Search the list of books by title or author<br><br>Words separated by spaces are ANDed", None, QtGui.QApplication.UnicodeUTF8))

@@ -93,7 +93,7 @@
          </size>
         </property>
         <property name="text" >
-         <string>For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/GuiUsage">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b> was created by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>%1 %2 %3</string>
+         <string>For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/GuiUsage">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b>: %1 by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>%2 %3 %4</string>
         </property>
         <property name="textFormat" >
          <enum>Qt::RichText</enum>
@@ -287,8 +287,8 @@
   <widget class="QToolBar" name="tool_bar" >
    <property name="minimumSize" >
     <size>
-     <width>124</width>
-     <height>50</height>
+     <width>163</width>
+     <height>58</height>
     </size>
    </property>
    <property name="movable" >
@@ -355,16 +355,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>LibraryBooksView</class>
-   <extends>QTableView</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
-   <class>DeviceBooksView</class>
-   <extends>QTableView</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
    <class>CoverDisplay</class>
    <extends>QLabel</extends>
    <header>widgets.h</header>
@@ -372,6 +362,16 @@
   <customwidget>
    <class>DeviceView</class>
    <extends>QListView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LibraryBooksView</class>
+   <extends>QTableView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceBooksView</class>
+   <extends>QTableView</extends>
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>

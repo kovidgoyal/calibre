@@ -13,21 +13,42 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #!/usr/bin/env python
-import sys
+import sys, re
+sys.path.append('src')
+from libprs500 import __version__ as VERSION
 
 import ez_setup
 ez_setup.use_setuptools()
-try:
-    import py2exe
-    console = [{'script' : 'src/libprs500/cli/main.py', 'dest_base':'prs500'}]
-    windows = [{'script' : 'src/libprs500/gui/main.py', 'dest_base':'prs500-gui',
-                'icon_resources':[(1,'icons/library.ico')]}]
-    options = { 'py2exe' : {'includes': ['sip', 'pkg_resources'], 'dist_dir':'c:\libprs500',
-                            'packages' : ['PIL']}}
-except ImportError:
-    console, windows, options = [], [], {}
-finally:
-    library = 'libprs500_lib.zip'
+from setuptools import setup, find_packages
+
+py2exe_options = {}
+if sys.argv[1] == 'py2exe':
+    py2exe_dir = 'C:\libprs500'
+    f = open('installer.nsi', 'r+')
+    src = f.read()
+    f.seek(0)
+    src = re.sub('(define PRODUCT_VERSION).*', r'\1 "'+VERSION+'"', src)
+    src = re.sub('(define PY2EXE_DIR).*', r'\1 "'+py2exe_dir+'"', src)
+    f.write(src)
+    f.close()
+    try:
+        import py2exe
+        console = [{'script' : 'src/libprs500/cli/main.py', 'dest_base':'prs500'}]
+        windows = [{'script' : 'src/libprs500/gui/main.py', 'dest_base':'prs500-gui',
+                    'icon_resources':[(1,'icons/library.ico')]}]
+        excludes = ["Tkconstants", "Tkinter", "tcl", "_imagingtk", 
+                    "ImageTk", "FixTk"]
+        options = { 'py2exe' : {'includes' : ['sip', 'pkg_resources'], 
+                                'dist_dir' : py2exe_dir,
+                                'packages' : ['PIL'],
+                                'excludes' : excludes}}
+        py2exe_options = {'console'  : console, 'windows' : windows, 
+                          'options'  : options, 'excludes' : excludes}
+    except ImportError:
+        print >>sys.stderr, 'Must be in Windows to run py2exe'
+        sys.exit(1)
+
+    
 
 # Try to install the Python imaging library as the package name (PIL) doesn't 
 # match the distribution file name, thus declaring itas a dependency is useless
@@ -48,10 +69,6 @@ except Exception, e:
           "WARNING: Could not install the Python Imaging Library.", \
           "Some functionality will be unavailable"
 
-
-from setuptools import setup, find_packages
-sys.path.append('src')
-from libprs500 import __version__ as VERSION
 
 if sys.hexversion < 0x2050000:
     print >> sys.stderr, "You must use python >= 2.5 Try invoking this script as python2.5 setup.py."
@@ -83,11 +100,7 @@ setup(
                            ], 
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       }, 
-      zip_safe = True, 
-      console = console,
-      windows = windows,
-      options = options,
-      library = library,
+      zip_safe = True,
       description = 
                   """
                   Library to interface with the Sony Portable Reader 500 
@@ -108,6 +121,8 @@ setup(
       from LRF files (unencrypted books in the SONY BBeB format). A command line
       interface to this is provided via the command lrf-meta.
       
+      A windows installer is available from https://libprs500.kovidgoyal.net 
+      
       For SVN access: svn co https://svn.kovidgoyal.net/code/libprs500
       
         .. _SONY Portable Reader: http://Sony.com/reader
@@ -126,7 +141,8 @@ setup(
         'Programming Language :: Python', 
         'Topic :: Software Development :: Libraries :: Python Modules', 
         'Topic :: System :: Hardware :: Hardware Drivers'
-        ]      
+        ],
+        **py2exe_options   
      )
 
 try:
@@ -135,6 +151,6 @@ except ImportError:
   print "You do not have PyQt4 installed. The GUI will not work.", \
         "You can obtain PyQt4 from http://www.riverbankcomputing.co.uk/pyqt/download.php"
 else:
-  import PyQt4.Qt
-  if PyQt4.Qt.PYQT_VERSION < 0x40101:
+  import PyQt4.QtCore
+  if PyQt4.QtCore.PYQT_VERSION < 0x40101:
     print "WARNING: The GUI needs PyQt >= 4.1.1"
