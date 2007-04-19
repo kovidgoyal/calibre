@@ -20,14 +20,16 @@ Code to convert HTML ebooks into LRF ebooks.
 import os, re, sys
 from htmlentitydefs import name2codepoint
 from optparse import OptionParser
+from urllib import urlopen
 
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, NavigableString
-from libprs500.lrf.pylrs.pylrs import Book, Page, Paragraph, TextBlock, CR, Italic
+from libprs500.lrf.pylrs.pylrs import Book, Page, Paragraph, TextBlock, \
+                                      CR, Italic, ImageStream, ImageBlock
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError
 
 class Span(_Span):
-    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
+    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo', 'nbsp' ]
     patterns = [ re.compile('&'+i+';') for i in replaced_entities ]
     targets  = [ unichr(name2codepoint[i]) for i in replaced_entities ]
     rules = zip(patterns, targets)
@@ -283,8 +285,8 @@ class HTMLConvertor(object):
             for key in css.keys():
                 test = key.lower()
                 if test.startswith('margin') or 'indent' in test or \
-                   'padding' in test or 'border' in test or test in \
-                   ['color', 'display', 'text-decoration', 'letter-spacing']:
+                   'padding' in test or 'border' in test or 'page-break' in test \
+                   or test in ['color', 'display', 'text-decoration', 'letter-spacing']:
                     css.pop(key)
             return css
                     
@@ -321,9 +323,29 @@ class HTMLConvertor(object):
             return
         if tagname in ["title", "script", "meta"]:
             pass
+        elif tagname == 'img':
+            if tag.has_key('src'):
+                if os.access(tag['src'], os.R_OK):
+                    self.current_block.append(self.current_para)
+                    self.current_page.append(self.current_block)
+                    ib = ImageBlock(ImageStream(tag['src']))
+                    self.current_page.append(ib)
+                    self.current_block = TextBlock()
+                    self.current_para  = Paragraph()                                                    
         elif tagname in ['style', 'link']:
-            # TODO: Append CSS to self.css
-            pass
+            if tagname == 'style':
+                for c in tag.contents:
+                    if isinstance(c,NavigableString):
+                        self.css.update(self.parse_css(str(c)))
+            elif tag.has_key('type') and tag['type'] == "text/css" \
+                    and tag.has_key('href'):
+                url = tag['href']
+                if url.startswith('http://'):
+                    f = urlopen(url)
+                else:
+                    f = open(url)
+                self.css.update(f.read())
+                f.close()
         elif tagname == 'p':
             css = self.tag_css(tag, parent_css=parent_css)
             indent = css.pop('text-indent', '')
