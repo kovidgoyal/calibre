@@ -17,6 +17,9 @@
 
 """ 
 Code to convert HTML ebooks into LRF ebooks.
+
+I am indebted to esperanc for the CSS->Xylog Style conversion routines
+and to Falstaff for pylrs.
 """
 import os, re, sys
 from htmlentitydefs import name2codepoint
@@ -48,6 +51,7 @@ class Span(_Span):
         (an int) if successful. Otherwise, returns None.
         Assumes: 1 pixel is 1/4 mm. One em is 10pts
         """
+        result = None
         m = re.match("\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
         if m is not None:
             unit = float(m.group(1))
@@ -66,12 +70,7 @@ class Span(_Span):
             elif m.group(2)== 'mm':
                 result =  int(unit * 4)
             elif m.group(2)== 'cm':
-                result =  int(unit * 10 * 4)            
-        else:
-            try:
-                result = int(val)
-            except ValueError:
-                return None
+                result =  int(unit * 10 * 4)                    
         return result
     
     @staticmethod
@@ -80,53 +79,78 @@ class Span(_Span):
         Receives a dictionary of html attributes and styles and returns
         approximate Xylog equivalents in a new dictionary
         """
+        def font_weight(val):
+            ans = None
+            m = re.search("([0-9]+)", val)
+            if m:
+                ans = str(int(m.group(1)))
+            elif val.find("bold") >= 0 or val.find("strong") >= 0:
+                ans = "1000"
+            return ans
+        
+        def font_family(val):
+            ans = None
+            if max(val.find("courier"), val.find("mono"), val.find("fixed"), val.find("typewriter"))>=0:
+                ans = "Courier10 BT Roman"
+            elif max(val.find("arial"), val.find("helvetica"), val.find("verdana"), 
+                 val.find("trebuchet"), val.find("sans")) >= 0:
+                ans = "Swis721 BT Roman"
+            return ans
+        
+        def font_size(val):
+            ans = None
+            unit = Span.unit_convert(val, 14)
+            if unit:
+                # Assume a 10 pt font (14 pixels) has fontsize 100
+                ans = int (unit / 14.0 * 100)
+            else:
+                if "xx-small" in val:
+                    ans = 40
+                elif "x-small" in val >= 0:
+                    ans = 60
+                elif "small" in val:
+                    ans = 80
+                elif "xx-large" in val:
+                    ans = 180
+                elif "x-large" in val >= 0:
+                    ans = 140
+                elif "large" in val >= 0:
+                    ans = 120
+            if ans is not None: 
+                ans += font_delta * 20
+                ans = str(ans)
+            return ans
+        
         t = dict()
         for key in d.keys():
-            try:
-                val = d[key].lower()
-            except IndexError:
-                val = None
-            if key == "font-family":
-                if max(val.find("courier"), val.find("mono"), val.find("fixed"), val.find("typewriter"))>=0:
-                    t["fontfacename"] = "Courier10 BT Roman"
-                elif max(val.find("arial"), val.find("helvetica"), val.find("verdana"), 
-                         val.find("trebuchet"), val.find("sans")) >= 0:
-                    t["fontfacename"] = "Swis721 BT Roman"
-                else:
-                    t["fontfacename"] = "Dutch801 Rm BT Roman"
+            val = d[key].lower()
+            if key == 'font':
+                val = val.split()
+                val.reverse()
+                for sval in val:
+                    ans = font_family(sval)
+                    if ans:
+                        t['fontfacename'] = ans
+                    else:
+                        ans = font_size(sval)
+                        if ans:
+                            t['fontsize'] = ans
+                        else:
+                            ans = font_weight(sval)
+                            if ans:
+                                t['fontweight'] = ans
+            elif key in ['font-family', 'font-name']:                
+                ans = font_family(val)                
+                if ans:
+                    t['fontfacename'] = ans
             elif key == "font-size":
-                unit = Span.unit_convert(val, 14)
-                if unit is not None:
-                    # Assume a 10 pt font (14 pixels) has fontsize 100
-                    t["fontsize"] = str(int (unit / 14.0 * 100))
-                else:
-                    if val.find("xx-small") >= 0:
-                        t["fontsize"] = "40"
-                    elif val.find("x-small") >= 0:
-                        t["fontsize"] = "60"
-                    elif val.find("small") >= 0:
-                        t["fontsize"] = "80"
-                    elif val.find("xx-large") >= 0:
-                        t["fontsize"] = "180"
-                    elif val.find("x-large") >= 0:
-                        t["fontsize"] = "140"
-                    elif val.find("large") >= 0:
-                        t["fontsize"] = "120"                
-                    else:
-                        t["fontsize"] = "100"
-                fnsz = int(t['fontsize'])
-                fnsz += font_delta * 20
-                t['fontsize'] = str(fnsz)
-            elif key == "font-weight":
-                m = re.match ("\s*([0-9]+)", val)
-                if m is not None:
-                    #report (m.group(1))
-                    t["fontweight"] = str(int(int(m.group(1))))
-                else:
-                    if val.find("bold") >= 0 or val.find("strong") >= 0:
-                        t["fontweight"] = "1000"
-                    else:
-                        t["fontweight"] = "400"
+                ans = font_size(val)
+                if ans:
+                    t['fontsize'] = ans
+            elif key == 'font-weight':
+                ans = font_weight(val)
+                if ans:
+                    t['fontweight'] = val            
             elif key.startswith("margin"):
                 if key == "margin":
                     u = []
@@ -161,7 +185,9 @@ class Span(_Span):
                 else:
                     t["align"] = "head"
             else:
-                t[key] = d[key]
+                print >>sys.stderr, 'Unhandled/malformed CSS key:', key, d[key]
+        if 'small' in t.values():
+            print d, 'font-size' in d.keys()
         return t        
     
     def __init__(self, ns, css, font_delta=0):
@@ -182,12 +208,13 @@ class Span(_Span):
         
 class HTMLConverter(object):
     selector_pat = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")    
-    # Defaults for various formatting tags
+    
     class Link(object):
         def __init__(self, para, tag):
             self.para = para
             self.tag = tag
             
+    # Defaults for various formatting tags        
     css = dict(
             h1     = {"font-size":"xx-large", "font-weight":"bold"},
             h2     = {"font-size":"x-large", "font-weight":"bold"},
@@ -407,6 +434,7 @@ class HTMLConverter(object):
                 test = key.lower()
                 if test.startswith('margin') or 'indent' in test or \
                    'padding' in test or 'border' in test or 'page-break' in test \
+                   or test.startswith('mso') \
                    or test in ['color', 'display', 'text-decoration', \
                                'letter-spacing', 'text-autospace', 'text-transform']:
                     css.pop(key)
@@ -494,7 +522,7 @@ class HTMLConverter(object):
                     f = open(url)
                 self.parse_css(f.read())
                 f.close()
-        elif tagname in ['p', 'div', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+        elif tagname in ['p', 'div', 'ul', 'ol', 'tr', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             # TODO: Implement ol
             indent = tag_css.pop('text-indent', '')
             if indent:
@@ -529,8 +557,8 @@ def process_file(path, options):
     cwd = os.getcwd()    
     try:
         path = os.path.abspath(path)
-        if options.cover and os.access(options.cover, os.R_OK):
-            cpath, tpath = options.cover, ''
+        cpath, tpath = options.cover, ''
+        if options.cover and os.access(options.cover, os.R_OK):            
             try:
                 from PIL import Image
                 from libprs500.prs500 import PRS500
@@ -551,10 +579,12 @@ def process_file(path, options):
                 print >>sys.stderr, "WARNING: You don't have PIL installed. ",
                 'Cover and thumbnails wont work'
                 pass
-        book = Book(font_delta=options.font_delta, title=options.title, \
+        args = dict(font_delta=options.font_delta, title=options.title, \
                     author=options.author, sourceencoding='utf8',\
-                    thumbnail=tpath, freetext=options.freetext, \
-                    category=options.category)
+                    freetext=options.freetext, category=options.category)
+        if tpath:
+            args['thumbnail'] = tpath
+        book = Book(**args)
         conv = HTMLConverter(book, path, font_delta=options.font_delta, cover=cpath)
         conv.process_links()
         oname = options.output
