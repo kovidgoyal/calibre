@@ -58,7 +58,8 @@ def convert_txt(path, options):
     """
     import fileinput
     book = Book(title=options.title, author=options.author, \
-                sourceencoding=options.encoding)
+                sourceencoding=options.encoding, freetext=options.freetext, \
+                category=options.category)
     buffer = ''
     block = book.Page().TextBlock()
     for line in fileinput.input(path):

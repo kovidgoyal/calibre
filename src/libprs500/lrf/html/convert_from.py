@@ -202,14 +202,15 @@ class HTMLConverter(object):
             )
     processed_files = {} #: Files that have been processed
     
-    def __init__(self, book, path, font_delta=0, verbose=False):
+    def __init__(self, book, path, font_delta=0, verbose=False, cover=None):
         self.images  = {} #: Images referenced in the HTML document
         self.targets = {} #: <a name=...> elements
         self.links   = [] #: <a href=...> elements        
         self.files   = {} #: links that point to other files
         self.links_processed = False #: Whether links_processed has been called on this object
         self.font_delta = font_delta
-        self.book = book #: The Book object representing a BBeB book
+        self.cover = cover
+        self.book = book #: The Book object representing a BBeB book        
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
@@ -220,10 +221,10 @@ class HTMLConverter(object):
                          convertEntities=BeautifulSoup.HTML_ENTITIES)
         print 'done\n\tConverting to BBeB...',
         sys.stdout.flush()
-        self.verbose = verbose
+        self.verbose = verbose        
         self.current_page = None
         self.current_para = None
-        self.current_style = {}
+        self.current_style = {}        
         self.parse_file(self.soup.html)
         HTMLConverter.processed_files[path] = self
         print 'done'
@@ -290,13 +291,13 @@ class HTMLConverter(object):
             prop.update(self.parse_style_properties(tag["style"]))    
         return prop
         
-    def parse_file(self, html):
-        if self.current_page:
-            self.book.append(self.current_page)
+    def parse_file(self, html):        
         self.current_page = Page()
         self.current_block = TextBlock()
-        self.top = self.current_block
         self.current_para = Paragraph()
+        if self.cover:
+            self.add_image_block(self.cover)
+        self.top = self.current_block        
         self.parse_tag(html, {})
         if self.current_para:
             self.current_block.append(self.current_para)
@@ -390,6 +391,15 @@ class HTMLConverter(object):
             self.current_page = Page()
         
         
+    def add_image_block(self, path):
+        if os.access(path, os.R_OK):
+            self.end_page()
+            page = ImagePage()
+            if not self.images.has_key(path):
+                self.images[path] = ImageBlock(ImageStream(path))
+            page.append(self.images[path])
+            self.book.append(page)
+    
     def parse_tag(self, tag, parent_css):
         def sanctify_css(css):
             """ Make css safe for use in a SPAM Xylog tag """
@@ -433,14 +443,7 @@ class HTMLConverter(object):
             if end_page:
                 self.end_page()
                 
-        def add_image_block(path):
-            if os.access(path, os.R_OK):
-                self.end_page()
-                page = ImagePage()
-                if not self.images.has_key(path):
-                    self.images[path] = ImageBlock(ImageStream(path))
-                page.append(self.images[path])
-                self.book.append(page)
+        
             
         try:
             tagname = tag.name.lower()
@@ -469,14 +472,14 @@ class HTMLConverter(object):
                 path = purl[2]
                 if path and os.path.splitext(path)[1][1:].lower() in \
                     ['png', 'jpg', 'bmp', 'jpeg']:
-                    add_image_block(path)
+                    self.add_image_block(path)
                 else:
                     span = _Span()
                     self.current_para.append(span)
                     self.links.append(HTMLConverter.Link(span, tag))
         elif tagname == 'img':
             if tag.has_key('src'):
-                add_image_block(tag['src'])                
+                self.add_image_block(tag['src'])                
         elif tagname in ['style', 'link']:
             if tagname == 'style':
                 for c in tag.contents:
@@ -526,10 +529,33 @@ def process_file(path, options):
     cwd = os.getcwd()    
     try:
         path = os.path.abspath(path)
+        if options.cover and os.access(options.cover, os.R_OK):
+            cpath, tpath = options.cover, ''
+            try:
+                from PIL import Image
+                from libprs500.prs500 import PRS500
+                from libprs500.ptempfile import PersistentTemporaryFile
+                im = Image.open(cpath)
+                cim = im.resize((600, 800), Image.BICUBIC)
+                cf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
+                cf.close()                
+                cim.save(cf.name)
+                cpath = cf.name
+                th = PRS500.THUMBNAIL_HEIGHT
+                tim = im.resize((int(0.75*th), th), Image.BICUBIC)
+                tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
+                tf.close()
+                tim.save(tf.name)
+                tpath = tf.name
+            except ImportError:
+                print >>sys.stderr, "WARNING: You don't have PIL installed. ",
+                'Cover and thumbnails wont work'
+                pass
         book = Book(font_delta=options.font_delta, title=options.title, \
                     author=options.author, sourceencoding='utf8',\
-                    )
-        conv = HTMLConverter(book, path, font_delta=options.font_delta)
+                    thumbnail=tpath, freetext=options.freetext, \
+                    category=options.category)
+        conv = HTMLConverter(book, path, font_delta=options.font_delta, cover=cpath)
         conv.process_links()
         oname = options.output
         if not oname:
@@ -546,6 +572,8 @@ def main():
     parser = option_parser("""usage: %prog [options] mybook.[html|rar|zip]
 
          %prog converts mybook.html to mybook.lrf""")
+    parser.add_option('--cover', action='store', dest='cover', default=None, \
+                      help='Path to file containing image to be used as cover')
     parser.add_option('--lrs', action='store_true', dest='lrs', \
                       help='Convert to LRS', default=False)
     parser.add_option('--font-delta', action='store', type='int', default=0, \

@@ -33,6 +33,10 @@ def option_parser(usage):
                     dest="title", help="Set the title")
     parser.add_option("-a", "--author", action="store", type="string", \
                     dest="author", help="Set the author", default='Unknown')
+    parser.add_option("--freetext", action="store", type="string", \
+                    dest="freetext", help="Set the comments in the metadata", default='  ')
+    parser.add_option("--category", action="store", type="string", \
+                    dest="category", help="Set the category", default='  ')
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')
     return parser

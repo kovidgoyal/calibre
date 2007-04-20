@@ -698,7 +698,7 @@ class DocInfo(object):
         self.language = "en"
         self.creator  = None
         self.creationdate = date.today().isoformat()
-        self.producer = "pylrs 0.1"
+        self.producer = "libprs500"
         self.numberofpages = "0"
 
 
