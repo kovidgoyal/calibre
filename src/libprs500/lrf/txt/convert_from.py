@@ -16,22 +16,20 @@
 Convert .txt files to .lrf
 """
 import os, sys
-from optparse import OptionParser
 
-from libprs500.lrf import ConversionError
+from libprs500.lrf import ConversionError, option_parser
+from libprs500.lrf import Book
+
 
 def main():
     """ CLI for txt -> lrf conversions """
-    parser = OptionParser(usage=\
+    parser = option_parser(\
         """usage: %prog [options] mybook.txt
         
         %prog converts mybook.txt to mybook.lrf
         """\
         )
-    parser.add_option("-t", "--title", action="store", type="string", \
-                    dest="title", help="Set the title")
-    parser.add_option("-a", "--author", action="store", type="string", \
-                    dest="author", help="Set the author", default='Unknown')
+    
     defenc = 'cp1252'
     enchelp = 'Set the encoding used to decode ' + \
               'the text in mybook.txt. Default encoding is ' + defenc
@@ -59,7 +57,6 @@ def convert_txt(path, options):
                     the text in C{path}.)
     """
     import fileinput
-    from libprs500.lrf.pylrs.pylrs import Book
     book = Book(title=options.title, author=options.author, \
                 sourceencoding=options.encoding)
     buffer = ''
@@ -72,14 +69,16 @@ def convert_txt(path, options):
             block.Paragraph(buffer)            
             buffer = ''
     basename = os.path.basename(path)
-    name = os.path.splitext(basename)[0]+'.lrf'
+    oname = options.output
+    if not oname:
+        oname = os.path.splitext(basename)[0]+'.lrf'
     try: 
-        book.renderLrf(name)
+        book.renderLrf(oname)
     except UnicodeDecodeError:
         raise ConversionError(path + ' is not encoded in ' + \
                               options.encoding +'. Specify the '+ \
                               'correct encoding with the -e option.')
-    return os.path.abspath(name)
+    return os.path.abspath(oname)
     
 
 if __name__ == '__main__':

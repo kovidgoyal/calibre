@@ -17,8 +17,27 @@ This package contains logic to read and write LRF files. The LRF file format is 
 At the time fo writing, this package only supports reading and writing LRF meat information. See L{meta}.
 """
 
+from optparse import OptionParser
+
+from libprs500.lrf.pylrs.pylrs import Book as _Book
+
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 class ConversionError(Exception):
     pass
+
+def option_parser(usage):
+    parser = OptionParser(usage=usage)
+    parser.add_option("-t", "--title", action="store", type="string", \
+                    dest="title", help="Set the title")
+    parser.add_option("-a", "--author", action="store", type="string", \
+                    dest="author", help="Set the author", default='Unknown')
+    parser.add_option('-o', '--output', action='store', default=None, \
+                      help='Output file name. Default is derived from input filename')
+    return parser
+
+def Book(font_delta=0, **settings):
+    return _Book(textstyledefault=dict(fontsize=100+font_delta*20), \
+                 pagestyledefault=dict(textwidth=570, textheight=747), \
+                  **settings)
