@@ -21,16 +21,20 @@ Code to convert HTML ebooks into LRF ebooks.
 I am indebted to esperanc for the CSS->Xylog Style conversion routines
 and to Falstaff for pylrs.
 """
-import os, re, sys
+import os, re, sys, shutil
 from htmlentitydefs import name2codepoint
 from urllib import urlopen
 from urlparse import urlparse
+from tempfile import mkdtemp
+from operator import itemgetter
 
-from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, NavigableString
+from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
+                                             NavigableString, Declaration
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
                                       ImageBlock, JumpButton, CharButton, Page
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
+from libprs500 import extract
 
 def ImagePage():
     return Page(evensidemargin=0, oddsidemargin=0, topmargin=0, \
@@ -150,7 +154,7 @@ class Span(_Span):
             elif key == 'font-weight':
                 ans = font_weight(val)
                 if ans:
-                    t['fontweight'] = val            
+                    t['fontweight'] = ans
             elif key.startswith("margin"):
                 if key == "margin":
                     u = []
@@ -186,8 +190,6 @@ class Span(_Span):
                     t["align"] = "head"
             else:
                 print >>sys.stderr, 'Unhandled/malformed CSS key:', key, d[key]
-        if 'small' in t.values():
-            print d, 'font-size' in d.keys()
         return t        
     
     def __init__(self, ns, css, font_delta=0):
@@ -252,7 +254,7 @@ class HTMLConverter(object):
         self.current_page = None
         self.current_para = None
         self.current_style = {}        
-        self.parse_file(self.soup.html)
+        self.parse_file()
         HTMLConverter.processed_files[path] = self
         print 'done'
         
@@ -318,14 +320,15 @@ class HTMLConverter(object):
             prop.update(self.parse_style_properties(tag["style"]))    
         return prop
         
-    def parse_file(self, html):        
+    def parse_file(self):        
         self.current_page = Page()
         self.current_block = TextBlock()
         self.current_para = Paragraph()
         if self.cover:
             self.add_image_block(self.cover)
-        self.top = self.current_block        
-        self.parse_tag(html, {})
+        self.top = self.current_block
+        
+        self.process_children(self.soup, {})
         if self.current_para:
             self.current_block.append(self.current_para)
         if self.current_block:
@@ -409,12 +412,12 @@ class HTMLConverter(object):
         """
         if self.current_para.contents:
             self.current_block.append(self.current_para)
+            self.current_para = Paragraph()
         if self.current_block.contents:
             self.current_page.append(self.current_block)
+            self.current_block = TextBlock()
         if self.current_page.contents: 
             self.book.append(self.current_page)
-            self.current_para = Paragraph()            
-            self.current_block = TextBlock()
             self.current_page = Page()
         
         
@@ -423,40 +426,42 @@ class HTMLConverter(object):
             self.end_page()
             page = ImagePage()
             if not self.images.has_key(path):
-                self.images[path] = ImageBlock(ImageStream(path))
-            page.append(self.images[path])
+                self.images[path] = ImageStream(path)
+            page.append(ImageBlock(self.images[path]))
             self.book.append(page)
     
-    def parse_tag(self, tag, parent_css):
-        def sanctify_css(css):
-            """ Make css safe for use in a SPAM Xylog tag """
-            for key in css.keys():
-                test = key.lower()
-                if test.startswith('margin') or 'indent' in test or \
-                   'padding' in test or 'border' in test or 'page-break' in test \
-                   or test.startswith('mso') \
-                   or test in ['color', 'display', 'text-decoration', \
-                               'letter-spacing', 'text-autospace', 'text-transform']:
-                    css.pop(key)
-            return css
+    def process_children(self, ptag, pcss):
+        """ Process the children of ptag """
+        for c in ptag.contents:
+            if isinstance(c, (Comment, Declaration)):
+                continue
+            elif isinstance(c, Tag):
+                self.parse_tag(c, pcss)
+            elif isinstance(c, NavigableString):
+                self.add_text(c, pcss)
                     
-        def add_text(tag, css):
-            try:
-                self.current_para.append(Span(tag, sanctify_css(css), \
-                                              font_delta=self.font_delta))
-            except ConversionError, err:
-                if self.verbose:
-                    print >>sys.stderr, err
+    def add_text(self, tag, css):
+        try:
+            self.current_para.append(Span(tag, self.sanctify_css(css), \
+                                          font_delta=self.font_delta))
+        except ConversionError, err:
+            if self.verbose:
+                print >>sys.stderr, err
         
-        def process_children(ptag, pcss):
-            """ Process the children of ptag """
-            for c in ptag.contents:
-                if isinstance(c, Comment):
-                    continue
-                elif isinstance(c, Tag):
-                    self.parse_tag(c, pcss)
-                elif isinstance(c, NavigableString):
-                    add_text(c, pcss)
+    def sanctify_css(self, css):
+        """ Make css safe for use in a SPAM Xylog tag """
+        for key in css.keys():
+            test = key.lower()
+            if test.startswith('margin') or 'indent' in test or \
+               'padding' in test or 'border' in test or 'page-break' in test \
+               or test.startswith('mso') \
+               or test in ['color', 'display', 'text-decoration', \
+                           'letter-spacing', 'text-autospace', 'text-transform']:
+                css.pop(key)
+        return css
+    
+    
+    def parse_tag(self, tag, parent_css):
                     
         def process_text_tag(tag, tag_css):
             if 'page-break-before' in tag_css.keys():
@@ -467,16 +472,14 @@ class HTMLConverter(object):
             if 'page-break-after' in tag_css.keys():
                 end_page = True
                 tag_css.pop('page-break-after')
-            process_children(tag, tag_css)
+            self.process_children(tag, tag_css)
             if end_page:
                 self.end_page()
-                
-        
             
         try:
             tagname = tag.name.lower()
         except AttributeError:
-            add_text(tag, parent_css)
+            self.add_text(tag, parent_css)
             return
         tag_css = self.tag_css(tag, parent_css=parent_css)
         try: # Skip element if its display attribute is set to none
@@ -494,7 +497,7 @@ class HTMLConverter(object):
                 self.current_block = tb
                 self.current_para = Paragraph()
                 self.targets[tag['name']] = tb
-                process_children(tag, tag_css)
+                self.process_children(tag, tag_css)
             elif tag.has_key('href'):
                 purl = urlparse(tag['href'])
                 path = purl[2]
@@ -516,12 +519,15 @@ class HTMLConverter(object):
             elif tag.has_key('type') and tag['type'] == "text/css" \
                     and tag.has_key('href'):
                 url = tag['href']
-                if url.startswith('http://'):
-                    f = urlopen(url)
-                else:
-                    f = open(url)
-                self.parse_css(f.read())
-                f.close()
+                try:
+                    if url.startswith('http://'):
+                        f = urlopen(url)
+                    else:
+                        f = open(url)
+                    self.parse_css(f.read())
+                    f.close()
+                except IOError:
+                    pass
         elif tagname in ['p', 'div', 'ul', 'ol', 'tr', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             # TODO: Implement ol
             indent = tag_css.pop('text-indent', '')
@@ -536,34 +542,33 @@ class HTMLConverter(object):
         elif tagname in ['b', 'strong', 'i', 'em', 'span']:
             process_text_tag(tag, tag_css)
         elif tagname == 'font':
-            pass
-        elif tagname == 'link':
-            pass
-        elif tagname == 'style':
-            pass
+            if tag.has_key('face'):
+                tag_css['font-family'] = tag['face']
+            process_text_tag(tag, tag_css)
         elif tagname == 'br':
             self.current_para.append(CR())
         elif tagname == 'hr':
             self.current_para.append(CR())
             # TODO: Horizontal line?
         else:            
-            process_children(tag, tag_css)            
+            self.process_children(tag, tag_css)            
                     
     def writeto(self, path, lrs=False):
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
         
 
 def process_file(path, options):
-    cwd = os.getcwd()    
+    cwd = os.getcwd()
+    dirpath = None
     try:
-        path = os.path.abspath(path)
+        dirpath, path = get_path(path)
         cpath, tpath = options.cover, ''
         if options.cover and os.access(options.cover, os.R_OK):            
             try:
                 from PIL import Image
                 from libprs500.prs500 import PRS500
                 from libprs500.ptempfile import PersistentTemporaryFile
-                im = Image.open(cpath)
+                im = Image.open(os.path.join(cwd, cpath))
                 cim = im.resize((600, 800), Image.BICUBIC)
                 cf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
                 cf.close()                
@@ -596,6 +601,8 @@ def process_file(path, options):
         print 'Output written to', oname
     finally:
         os.chdir(cwd)
+        if dirpath:
+            shutil.rmtree(dirpath, True)
         
 def main():
     """ CLI for html -> lrf conversions """
@@ -617,6 +624,67 @@ def main():
     if options.title == None:
         options.title = os.path.splitext(os.path.basename(src))[0]
     process_file(src, options)
+
+def console_query(dirpath, candidate, docs):
+    if len(docs) == 1:
+        return 0
+    try:
+        import readline
+    except ImportError:
+        pass
+    i = 0
+    for doc in docs:
+        prefix = '>' if i == candidate else ''
+        print prefix+str(i)+'.\t', doc[0]
+        i += 1
+    print
+    while True:
+        try:
+            choice = raw_input('Choose file to convert (0-'+str(i-1) + \
+                               '). Current choice is ['+ str(candidate) + ']:')
+            if not choice:
+                return candidate
+            choice = int(choice)
+            if choice < 0 or choice >= i:
+                continue
+            candidate = choice
+        except EOFError, KeyboardInterrupt:
+            sys.exit()
+        except:
+            continue
+        break
+    return candidate
+        
+
+def get_path(path, query=console_query):
+    path = os.path.abspath(path)
+    ext = os.path.splitext(path)[1][1:].lower()
+    if ext in ['htm', 'html', 'xhtml']:
+        return None, path
+    dirpath = mkdtemp('','html2lrf')
+    extract(path, dirpath)
+    candidate, docs = None, []
+    for root, dirs, files in os.walk(dirpath):
+        for name in files:
+            ext = os.path.splitext(name)[1][1:].lower()
+            if ext not in ['html', 'xhtml', 'htm', 'xhtm']:
+                continue
+            docs.append((name, root, os.stat(os.path.join(root, name)).st_size))
+            if 'toc' in name.lower():
+                candidate = name
+    docs.sort(key=itemgetter(2))
+    if candidate:
+        for i in range(len(docs)):
+            if docs[i][0] == candidate:
+                candidate = i
+                break
+    else:
+        candidate = len(docs) - 1
+    if len(docs) == 0:
+        raise ConversionError('No suitable files found in archive')
+    if len(docs) > 0:
+        candidate = query(dirpath, candidate, docs)
+    return dirpath, os.path.join(docs[candidate][1], docs[candidate][0])
 
 
 if __name__ == '__main__':

@@ -20,6 +20,7 @@ At the time fo writing, this package only supports reading and writing LRF meat 
 from optparse import OptionParser
 
 from libprs500.lrf.pylrs.pylrs import Book as _Book
+from libprs500 import __version__ as VERSION
 
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
@@ -28,7 +29,7 @@ class ConversionError(Exception):
     pass
 
 def option_parser(usage):
-    parser = OptionParser(usage=usage)
+    parser = OptionParser(usage=usage, version='libprs500 '+VERSION)
     parser.add_option("-t", "--title", action="store", type="string", \
                     dest="title", help="Set the title")
     parser.add_option("-a", "--author", action="store", type="string", \

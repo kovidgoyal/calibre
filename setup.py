@@ -21,6 +21,8 @@ import ez_setup
 ez_setup.use_setuptools()
 from setuptools import setup, find_packages
 
+
+################################# py2exe #######################################
 py2exe_options = {}
 if sys.argv[1] == 'py2exe':
     py2exe_dir = 'C:\libprs500'
@@ -33,10 +35,13 @@ if sys.argv[1] == 'py2exe':
     f.close()
     try:
         import py2exe
-        console = [{
-                    'script' : 'src/libprs500/cli/main.py', 'dest_base':'prs500',
-                    'script' : 'src/libprs500/lrf/html/convert_from.py', 'dest_base':'html2lrf'
-                  }]
+        console = [
+                    {'script' : 'src/libprs500/cli/main.py', 'dest_base':'prs500'},
+                    {'script' : 'src/libprs500/lrf/html/convert_from.py', 'dest_base':'html2lrf'},
+                    {'script' : 'src/libprs500/lrf/txt/convert_from.py', 'dest_base':'txt2lrf'},
+                    {'script' : 'src/libprs500/lrf/meta.py', 'dest_base':'lrf-meta'},
+                    {'script' : 'src/libprs500/metadata/rtf.py', 'dest_base':'rtf-meta'},
+                  ]
         windows = [{'script' : 'src/libprs500/gui/main.py', 'dest_base':'prs500-gui',
                     'icon_resources':[(1,'icons/library.ico')]}]
         excludes = ["Tkconstants", "Tkinter", "tcl", "_imagingtk", 
@@ -50,28 +55,8 @@ if sys.argv[1] == 'py2exe':
     except ImportError:
         print >>sys.stderr, 'Must be in Windows to run py2exe'
         sys.exit(1)
-
+################################################################################
     
-
-# Try to install the Python imaging library as the package name (PIL) doesn't 
-# match the distribution file name, thus declaring itas a dependency is useless
-from setuptools.command.easy_install import main as easy_install
-try:
-  try:
-    import Image
-  except ImportError: 
-    if sys.platform.lower()[:5] not in ['win32', 'darwin']:
-        print "Trying to install the Python Imaging Library"
-        easy_install(["-f", "http://www.pythonware.com/products/pil/", "Imaging"])
-    else:
-        raise Exception('Please install the Python Imaging library manually from '\
-                        'http://www.pythonware.com/products/pil/')
-except Exception, e:
-    print >> sys.stderr, e 
-    print >> sys.stderr, \
-          "WARNING: Could not install the Python Imaging Library.", \
-          "Some functionality will be unavailable"
-
 
 if sys.hexversion < 0x2050000:
     print >> sys.stderr, "You must use python >= 2.5 Try invoking this script as python2.5 setup.py."
@@ -110,20 +95,17 @@ setup(
                   """, 
       long_description = 
       """
-      libprs500 is library to interface with the 
-      `SONY Portable Reader`_ over USB_. 
-      It provides methods to list the contents of the file system on the device,
-      as well as copy files from and to the device. 
-      It also provides a command line and a graphical user interface via 
-      the commands prs500 and
-      prs500-gui. The graphical user interface is designed to 
-      manage an ebook library and allows for easy 
-      syncing between the library and the ebook reader. 
-      In addition libprs500 has a utility to read/write the metadata 
-      from LRF files (unencrypted books in the SONY BBeB format). A command line
-      interface to this is provided via the command lrf-meta.
+      libprs500 is a ebook management application. It maintains an ebook library
+      and allows for easy transfer of books from the library to an ebook reader.
+      At the moment, it supports the `SONY Portable Reader`_.
       
-      A windows installer is available from https://libprs500.kovidgoyal.net 
+      It can also convert various popular ebook formats into LRF, the native
+      ebook format of the SONY Reader.
+      
+      For screenshots: https://libprs500.kovidgoyal.net/wiki/Screenshots
+      
+      For installation/usage instructions please see 
+      https://libprs500.kovidgoyal.net/wiki/WikiStart#Installation
       
       For SVN access: svn co https://svn.kovidgoyal.net/code/libprs500
       

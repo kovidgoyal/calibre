@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Script to upload libprs500 to pypi, the installer to libprs500.kovidgoyal.net and update the api documentation
+
+PREFIX=/var/www/vhosts/kovidgoyal.net/subdomains/libprs500
+DOWNLOADS=$PREFIX/httpdocs/downloads
+DOCS=$PREFIX/httpdocs/apidocs
+exe=`cd dist && ls -1 libprs500-*.exe | tail -n1 && cd ..`
+
+ssh castalia rm -f $DOWNLOADS/libprs500\*.exe
+scp dist/$exe castalia:$DOWNLOADS/
+ssh castalia chmod a+r $DOWNLOADS/\*
+ssh castalia /root/bin/update-installer-link $exe
+
+epydoc --config epydoc.conf
+scp -r docs/html castalia:$DOCS/
+epydoc -v --config epydoc-pdf.conf
+scp docs/pdf/api.pdf castalia:$DOCS/
+
+python setup.py register sdist bdist_egg upload
+rm -rf dist/* build/*

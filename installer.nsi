@@ -15,10 +15,11 @@ Var MUI_TEMP
 
 !define PRODUCT_NAME "libprs500"
 !define XPUI_BRANDINGTEXT "${PRODUCT_NAME} created by Kovid Goyal"
-!define PRODUCT_VERSION "0.3.12"
+!define PRODUCT_VERSION "0.3.13"
 !define WEBSITE "https://libprs500.kovidgoyal.net"
 !define PY2EXE_DIR "C:\libprs500"
 !define LIBUSB_DIR "C:\libusb-prs500"
+!define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
 !define QT_DIR     "C:\Qt\4.2.3\bin"
 
 ;------------------------------------------------------------------------------------------------------
@@ -98,6 +99,7 @@ Section "libprs500" Seclibprs500
   
   SetOutPath "$SYSDIR"
   File "${LIBUSB_DIR}\libusb0.dll"
+  File "${LIBUNRAR_DIR}\unrar.dll"
   DetailPrint " "
   
   DetailPrint "Installing USB driver (this may take a few seconds) ..."

@@ -33,10 +33,24 @@ You may have to adjust the GROUP and the location of the rules file to
 suit your distribution.
 """
 
-__version__   = "0.3.12"
+__version__   = "0.3.13"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 import sys
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
+
+def extract(path, dir):
+    import os
+    ext = os.path.splitext(path)[1][1:].lower()
+    extractor = None
+    if ext == 'zip':
+        from libprs500.libunzip import extract
+        extractor = extract
+    elif ext == 'rar':
+        from libprs500.libunrar import extract
+        extractor = extract
+    if not extract:
+        raise Exception('Unknown archive type')
+    extractor(path, dir)

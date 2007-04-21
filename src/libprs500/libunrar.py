@@ -17,6 +17,7 @@ This module provides a thin ctypes based wrapper around libunrar.
 
 See  ftp://ftp.rarlabs.com/rar/unrarsrc-3.7.5.tar.gz
 """
+import os
 from ctypes import Structure, c_char_p, c_uint, c_void_p, POINTER, \
                     byref, c_wchar_p, CFUNCTYPE, c_int, c_long, c_char, c_wchar
 from StringIO import StringIO
@@ -164,14 +165,21 @@ def get_archive_info(flags):
     print >>ios, 'First Volume:\t', 'yes' if (flags & 256) else 'no or older than 3.0'
     return ios.getvalue()
 
-def extract(path):    
+def extract(path, dir):
+    """
+    Extract archive C{filename} into directory C{dir}
+    """    
     open_archive_data = RAROpenArchiveDataEx(ArcName=path, OpenMode=RAR_OM_EXTRACT, CmtBuf=None)
     arc_data = _libunrar.RAROpenArchiveEx(byref(open_archive_data))
+    cwd = os.getcwd()
+    if not os.path.isdir( dir ):
+        os.mkdir( dir )
+    os.chdir( dir )
     try:
         if open_archive_data.OpenResult != 0:
             raise UnRARException(_interpret_open_error(open_archive_data.OpenResult, path))
         print 'Archive:', path
-        print get_archive_info(open_archive_data.Flags)        
+        #print get_archive_info(open_archive_data.Flags)        
         header_data = RARHeaderDataEx(CmtBuf=None)
         #_libunrar.RARSetCallback(arc_data, callback_func, mode)
         while True:
@@ -184,7 +192,5 @@ def extract(path):
         if RHCode == ERAR_BAD_DATA:
             raise UnRARException('File header broken')
     finally:
+        os.chdir(cwd)
         _libunrar.RARCloseArchive(arc_data)
-    
-extract(r'z:\home\test.rar')
-#extract('/home/kovid/ero/Fansadox Collections/C21 Ponygirl Inferno.rar')
