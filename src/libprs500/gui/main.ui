@@ -288,7 +288,7 @@
    <property name="minimumSize" >
     <size>
      <width>163</width>
-     <height>58</height>
+     <height>100</height>
     </size>
    </property>
    <property name="movable" >
@@ -299,8 +299,8 @@
    </property>
    <property name="iconSize" >
     <size>
-     <width>22</width>
-     <height>22</height>
+     <width>64</width>
+     <height>64</height>
     </size>
    </property>
    <property name="toolButtonStyle" >
@@ -315,7 +315,7 @@
   </widget>
   <action name="action_add" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/plus.png</iconset>
+    <iconset resource="images.qrc" >:/images/addfile.png</iconset>
    </property>
    <property name="text" >
     <string>Add books to Library</string>
@@ -329,7 +329,7 @@
   </action>
   <action name="action_del" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/minus.png</iconset>
+    <iconset resource="images.qrc" >:/images/delfile.png</iconset>
    </property>
    <property name="text" >
     <string>Delete books</string>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'src/libprs500/gui/main.ui'
 #
-# Created: Tue Apr 17 19:56:30 2007
+# Created: Sat Apr 21 14:42:37 2007
 #      by: PyQt4 UI code generator 4.1.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -154,21 +154,21 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.tool_bar = QtGui.QToolBar(MainWindow)
-        self.tool_bar.setMinimumSize(QtCore.QSize(163,58))
+        self.tool_bar.setMinimumSize(QtCore.QSize(163,100))
         self.tool_bar.setMovable(False)
         self.tool_bar.setOrientation(QtCore.Qt.Horizontal)
-        self.tool_bar.setIconSize(QtCore.QSize(22,22))
+        self.tool_bar.setIconSize(QtCore.QSize(64,64))
         self.tool_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.tool_bar.setObjectName("tool_bar")
         MainWindow.addToolBar(self.tool_bar)
 
         self.action_add = QtGui.QAction(MainWindow)
-        self.action_add.setIcon(QtGui.QIcon(":/images/plus.png"))
+        self.action_add.setIcon(QtGui.QIcon(":/images/addfile.png"))
         self.action_add.setAutoRepeat(False)
         self.action_add.setObjectName("action_add")
 
         self.action_del = QtGui.QAction(MainWindow)
-        self.action_del.setIcon(QtGui.QIcon(":/images/minus.png"))
+        self.action_del.setIcon(QtGui.QIcon(":/images/delfile.png"))
         self.action_del.setObjectName("action_del")
 
         self.action_edit = QtGui.QAction(MainWindow)
