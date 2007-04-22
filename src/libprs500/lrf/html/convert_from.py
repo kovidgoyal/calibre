@@ -31,7 +31,7 @@ from operator import itemgetter
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
-                                      ImageBlock, JumpButton, CharButton, Page
+                                      ImageBlock, JumpButton, CharButton, Page, BlockStyle
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
@@ -218,16 +218,17 @@ class HTMLConverter(object):
             
     # Defaults for various formatting tags        
     css = dict(
-            h1     = {"font-size":"xx-large", "font-weight":"bold"},
-            h2     = {"font-size":"x-large", "font-weight":"bold"},
-            h3     = {"font-size":"large", "font-weight":"bold"},
-            h4     = {"font-size":"large"},
-            h5     = {"font-weight":"bold"},
-            b      = {"font-weight":"bold"},
-            strong = {"font-weight":"bold"},
-            i      = {"font-style":"italic"},
-            em     = {"font-style":"italic"},
-            small  = {'font-size':'small'}
+            h1     = {"font-size"   :"xx-large", "font-weight":"bold"},
+            h2     = {"font-size"   :"x-large", "font-weight":"bold"},
+            h3     = {"font-size"   :"large", "font-weight":"bold"},
+            h4     = {"font-size"   :"large"},
+            h5     = {"font-weight" :"bold"},
+            b      = {"font-weight" :"bold"},
+            strong = {"font-weight" :"bold"},
+            i      = {"font-style"  :"italic"},
+            em     = {"font-style"  :"italic"},
+            small  = {'font-size'   :'small'},
+            center = {'text-align'  : 'center'}
             )
     processed_files = {} #: Files that have been processed
     
@@ -427,7 +428,7 @@ class HTMLConverter(object):
             page = ImagePage()
             if not self.images.has_key(path):
                 self.images[path] = ImageStream(path)
-            page.append(ImageBlock(self.images[path]))
+            page.append(ImageBlock(self.images[path], blockStyle=BlockStyle(blockrule='block-fixed')))
             self.book.append(page)
     
     def process_children(self, ptag, pcss):
