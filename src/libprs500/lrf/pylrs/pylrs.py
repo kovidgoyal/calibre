@@ -1446,7 +1446,7 @@ class Paragraph(LrsContainer):
         explicit .append methods to build up the text stream.
     """
     def __init__(self, text=None):
-        LrsContainer.__init__(self, [Text, CR, DrawChar, CharButton,
+        LrsContainer.__init__(self, [Text, CR, DrawChar, CharButton, Span,
             LrsSimpleChar1, basestring])
         if text is not None:
             self.append(text)
@@ -2137,7 +2137,8 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
     defaults = dict(blockwidth="600", blockheight="800") 
 
     def __init__(self, refstream, x0="0", y0="0", x1="600", y1="800", 
-                       xsize="600", ysize="800",  blockStyle=None,
+                       xsize="600", ysize="800",  
+                       blockStyle=BlockStyle(blockrule='block-fixed'),
                        alttext=None, **settings):       
         LrsObject.__init__(self)
         LrsContainer.__init__(self, [])

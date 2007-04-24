@@ -326,7 +326,7 @@ class HTMLConverter(object):
         self.current_block = TextBlock()
         self.current_para = Paragraph()
         if self.cover:
-            self.add_image_block(self.cover)
+            self.add_image_page(self.cover)
         self.top = self.current_block
         
         self.process_children(self.soup, {})
@@ -422,13 +422,13 @@ class HTMLConverter(object):
             self.current_page = Page()
         
         
-    def add_image_block(self, path):
+    def add_image_page(self, path):
         if os.access(path, os.R_OK):
             self.end_page()
             page = ImagePage()
             if not self.images.has_key(path):
                 self.images[path] = ImageStream(path)
-            page.append(ImageBlock(self.images[path], blockStyle=BlockStyle(blockrule='block-fixed')))
+            page.append(ImageBlock(self.images[path]))
             self.book.append(page)
     
     def process_children(self, ptag, pcss):
@@ -504,14 +504,43 @@ class HTMLConverter(object):
                 path = purl[2]
                 if path and os.path.splitext(path)[1][1:].lower() in \
                     ['png', 'jpg', 'bmp', 'jpeg']:
-                    self.add_image_block(path)
+                    self.add_image_page(path)
                 else:
                     span = _Span()
                     self.current_para.append(span)
                     self.links.append(HTMLConverter.Link(span, tag))
         elif tagname == 'img':
-            if tag.has_key('src'):
-                self.add_image_block(tag['src'])                
+            if tag.has_key('src') and os.access(tag['src'], os.R_OK):
+                width, height = 600, 800
+                try:
+                    try:
+                        from PIL import Image
+                    except:
+                        pass
+                    else:
+                        im = Image.open(tag['src'])
+                        width, height = im.size
+                    if tag.has_key('width'):
+                        width = int(tag['width'])
+                    if tag.has_key('height'):
+                        height = int(tag['height'])
+                except:
+                    pass
+                self.current_block.append(self.current_para)
+                self.current_page.append(self.current_block)
+                self.current_para = Paragraph()
+                self.current_block = TextBlock()
+                path = os.path.abspath(tag['src'])
+                print width, height
+                if not self.images.has_key(path):
+                    self.images[path] = ImageStream(path)
+                im = ImageBlock(self.images[path], x1=width, y1=height, 
+                                xsize=width, ysize=height)
+                self.current_page.append(im)                        
+            else:
+                print >>sys.stderr, "Failed to process", tag
+                
+                self.add_image_page(tag['src'])                
         elif tagname in ['style', 'link']:
             if tagname == 'style':
                 for c in tag.contents:
