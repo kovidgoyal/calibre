@@ -531,7 +531,6 @@ class HTMLConverter(object):
                 self.current_para = Paragraph()
                 self.current_block = TextBlock()
                 path = os.path.abspath(tag['src'])
-                print width, height
                 if not self.images.has_key(path):
                     self.images[path] = ImageStream(path)
                 im = ImageBlock(self.images[path], x1=width, y1=height, 
@@ -605,7 +604,7 @@ def process_file(path, options):
                 cim.save(cf.name)
                 cpath = cf.name
                 th = PRS500.THUMBNAIL_HEIGHT
-                tim = im.resize((int(0.75*th), th), Image.BICUBIC)
+                tim = im.resize((int(0.75*th), th), Image.ANTIALIAS)
                 tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
                 tf.close()
                 tim.save(tf.name)

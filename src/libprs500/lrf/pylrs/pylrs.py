@@ -1446,8 +1446,8 @@ class Paragraph(LrsContainer):
         explicit .append methods to build up the text stream.
     """
     def __init__(self, text=None):
-        LrsContainer.__init__(self, [Text, CR, DrawChar, CharButton, Span,
-            LrsSimpleChar1, basestring])
+        LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
+                                     LrsSimpleChar1, basestring])
         if text is not None:
             self.append(text)
 
@@ -1517,10 +1517,10 @@ class LrsTextTag(LrsContainer):
 class LrsSimpleChar1(object):
     pass
 
-class DrawChar(LrsTextTag):
+class DropCaps(LrsTextTag):
     
     def __init__(self, lines):
-        LrsTextTag.__init__(self, None, [Italic, Bold, Plot, CR, NoBR])
+        LrsTextTag.__init__(self, None, [LrsSimpleChar1])
         if int(lines) <= 0:
             raise LrsError('A DrawChar must span at least one line.')
         self.lines = int(lines)
@@ -1545,7 +1545,7 @@ class Button(object):
     pass
         
         
-class Plot(LrsContainer):
+class Plot(LrsSimpleChar1, LrsContainer):
     
     ADJUSTMENT_VALUES = {'center':1, 'baseline':2, 'top':3, 'bottom':4}
     
@@ -1594,7 +1594,7 @@ class Text(LrsContainer):
 
 
 
-class CR(LrsContainer):
+class CR(LrsSimpleChar1, LrsContainer):
     """
         A line break (when appended to a Paragraph) or a paragraph break 
         (when appended to a TextBlock).
@@ -1612,26 +1612,26 @@ class CR(LrsContainer):
 
 
 
-class Italic(LrsTextTag):
+class Italic(LrsSimpleChar1, LrsTextTag):
     def __init__(self, text=None):
-        LrsTextTag.__init__(self, text, [DrawChar])
+        LrsTextTag.__init__(self, text, [LrsSimpleChar1])
 
 
 
 
-class Sub(LrsTextTag):
-    def __init__(self, text=None):
-        LrsTextTag.__init__(self, text, [])
-
-
-
-class Sup(LrsTextTag):
+class Sub(LrsSimpleChar1, LrsTextTag):
     def __init__(self, text=None):
         LrsTextTag.__init__(self, text, [])
 
 
 
-class NoBR(LrsTextTag):
+class Sup(LrsSimpleChar1, LrsTextTag):
+    def __init__(self, text=None):
+        LrsTextTag.__init__(self, text, [])
+
+
+
+class NoBR(LrsSimpleChar1, LrsTextTag):
     def __init__(self, text=None):
         LrsTextTag.__init__(self, text, [LrsSimpleChar1])
 
@@ -1684,9 +1684,9 @@ class Box(LrsSimpleChar1, LrsContainer):
 
 
         
-class Span(LrsContainer):
+class Span(LrsSimpleChar1, LrsContainer):
     def __init__(self, text=None, **attrs):
-        LrsContainer.__init__(self, [DrawChar, Text, basestring])
+        LrsContainer.__init__(self, [LrsSimpleChar1, Text, basestring])
         if text is not None:
             self.append(text)
 
@@ -1781,7 +1781,7 @@ class BlockSpace(LrsContainer):
 
 
 
-class CharButton(DrawChar, LrsContainer):
+class CharButton(LrsSimpleChar1, LrsContainer):
     """
         Define the text and target of a CharButton.  Must be passed a 
         JumpButton that is the destination of the CharButton.
