@@ -61,7 +61,8 @@ class LibraryDatabase(object):
         title, size, cover = os.path.basename(_file), \
                                        os.stat(_file)[ST_SIZE], None
         ext = title[title.rfind(".")+1:].lower() if title.find(".") > -1 else None
-        mi = get_metadata(open(_file, "r+b"), ext)
+        f = open(_file, "r+b")
+        mi = get_metadata(f, ext)
         tags = []
         if not mi.title:
             mi.title = title
@@ -73,7 +74,9 @@ class LibraryDatabase(object):
             tags = ', '.join(tags)
         else:
             tags = None
-        data = open(_file).read()
+        f.seek(0)
+        data = f.read()
+        f.close()
         usize = len(data)
         data = compress(data)
         csize = 0
