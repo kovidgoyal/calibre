@@ -44,5 +44,5 @@ def option_parser(usage):
 
 def Book(font_delta=0, **settings):
     return _Book(textstyledefault=dict(fontsize=100+font_delta*20), \
-                 pagestyledefault=dict(textwidth=570, textheight=747), \
+                 pagestyledefault=dict(textwidth=575, textheight=747), \
                   **settings)

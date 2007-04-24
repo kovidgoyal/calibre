@@ -1135,7 +1135,7 @@ class PageStyle(LrsStyle):
     """
     baseDefaults = dict(
             topmargin="20", headheight="0", headsep="0",
-            oddsidemargin="20", textheight="800", textwidth="600",
+            oddsidemargin="20", textheight="747", textwidth="575",
             footspace="0", evensidemargin="20", footheight="0",
             layout="LrTb", bgimagemode="fix", pageposition="any",
             setwaitprop="noreplay", setemptyview="show")
@@ -1446,7 +1446,7 @@ class Paragraph(LrsContainer):
         explicit .append methods to build up the text stream.
     """
     def __init__(self, text=None):
-        LrsContainer.__init__(self, [Text, CR, LrsDrawChar, CharButton,
+        LrsContainer.__init__(self, [Text, CR, DrawChar, CharButton,
             LrsSimpleChar1, basestring])
         if text is not None:
             self.append(text)
@@ -1517,10 +1517,70 @@ class LrsTextTag(LrsContainer):
 class LrsSimpleChar1(object):
     pass
 
+class DrawChar(LrsTextTag):
+    
+    def __init__(self, lines):
+        LrsTextTag.__init__(self, None, [Italic, Bold, Plot, CR, NoBR])
+        if int(lines) <= 0:
+            raise LrsError('A DrawChar must span at least one line.')
+        self.lines = int(lines)
+        
+    def toElement(self, se):
+        elem =  Element('DrawChar', line=str(self.lines))
+        appendTextElements(elem, self.contents, se)
+        return elem
+    
+    def toLrfContainer(self, lrfWriter, parent):
+        parent.appendLrfTag(LrfTag('DrawChar', (int(self.lines),)))
 
-class LrsDrawChar(LrsSimpleChar1):
+        for content in self.contents:
+            content.toLrfContainer(lrfWriter, parent)
+
+        parent.appendLrfTag(LrfTag("DrawCharEnd"))
+    
+            
+    
+class Button(object):
+    # TODO: Implement
     pass
-
+        
+        
+class Plot(LrsContainer):
+    
+    ADJUSTMENT_VALUES = {'center':1, 'baseline':2, 'top':3, 'bottom':4}
+    
+    def __init__(self, obj, xsize=0, ysize=0, adjustment=None):
+        LrsContainer.__init__(self, [])
+        if not isinstance(obj, (Image, Button)):
+            raise LrsError('Plot elements can only refer to Image or Button elements')
+        self.obj = obj
+        if xsize < 0 or ysize < 0:
+            raise LrsError('Sizes must be positive semi-definite')
+        self.xsize = int(xsize)
+        self.ysize = int(ysize)
+        if adjustment and adjustment not in Plot.ADJUSTMENT_VALUES.keys():
+            raise LrsError('adjustment must be one of' + Plot.ADJUSTMENT_VALUES.keys())
+        self.adjustment = adjustment
+        
+    def getReferencedObjIds(self):
+        return  [self.obj.objId]
+        
+    def appendReferencedObjects(self, parent):
+        if self.obj.parent is None:
+            parent.append(self.obj)
+        
+    def toElement(self, se):
+        elem =  Element('Plot', xsize=str(self.xsize), ysize=str(self.ysize), \
+                                refobj=str(self.obj.objId))
+        if self.adjustment:
+            elem.set('adjustment', self.adjustment)
+        return elem
+    
+    def toLrfContainer(self, lrfWriter, parent):
+        adj = self.adjustment if self.adjustment else 'bottom'
+        params = (int(self.xsize), int(self.ysize), int(self.obj.objId), \
+                  Plot.ADJUSTMENT_VALUES[adj])
+        parent.appendLrfTag(LrfTag("Plot", params))
 
 class Text(LrsContainer):
     """ A object that represents raw text.  Does not have a toElement. """
@@ -1534,7 +1594,7 @@ class Text(LrsContainer):
 
 
 
-class CR(LrsDrawChar, LrsContainer):
+class CR(LrsContainer):
     """
         A line break (when appended to a Paragraph) or a paragraph break 
         (when appended to a TextBlock).
@@ -1552,26 +1612,26 @@ class CR(LrsDrawChar, LrsContainer):
 
 
 
-class Italic(LrsDrawChar, LrsTextTag):
+class Italic(LrsTextTag):
     def __init__(self, text=None):
-        LrsTextTag.__init__(self, text, [LrsDrawChar])
+        LrsTextTag.__init__(self, text, [DrawChar])
 
 
 
 
-class Sub(LrsDrawChar, LrsTextTag):
-    def __init__(self, text=None):
-        LrsTextTag.__init__(self, text, [])
-
-
-
-class Sup(LrsDrawChar, LrsTextTag):
+class Sub(LrsTextTag):
     def __init__(self, text=None):
         LrsTextTag.__init__(self, text, [])
 
 
 
-class NoBR(LrsDrawChar, LrsTextTag):
+class Sup(LrsTextTag):
+    def __init__(self, text=None):
+        LrsTextTag.__init__(self, text, [])
+
+
+
+class NoBR(LrsTextTag):
     def __init__(self, text=None):
         LrsTextTag.__init__(self, text, [LrsSimpleChar1])
 
@@ -1624,9 +1684,9 @@ class Box(LrsSimpleChar1, LrsContainer):
 
 
         
-class Span(LrsDrawChar, LrsContainer):
+class Span(LrsContainer):
     def __init__(self, text=None, **attrs):
-        LrsContainer.__init__(self, [LrsDrawChar, Text, basestring])
+        LrsContainer.__init__(self, [DrawChar, Text, basestring])
         if text is not None:
             self.append(text)
 
@@ -1721,7 +1781,7 @@ class BlockSpace(LrsContainer):
 
 
 
-class CharButton(LrsDrawChar, LrsContainer):
+class CharButton(DrawChar, LrsContainer):
     """
         Define the text and target of a CharButton.  Must be passed a 
         JumpButton that is the destination of the CharButton.
@@ -1766,16 +1826,18 @@ class CharButton(LrsDrawChar, LrsContainer):
 class Objects(LrsContainer):
     def __init__(self):
         LrsContainer.__init__(self, [JumpButton, TextBlock, HeaderOrFooter,
-            ImageStream])
+            ImageStream, Image])
         self.appendJumpButton = self.appendTextBlock = self.appendHeader = \
-                self.appendFooter = self.appendImageStream = self.append
+                self.appendFooter = self.appendImageStream = \
+                self.appendImage = self.append
 
 
     def getMethods(self):
         return ["JumpButton", "appendJumpButton", "TextBlock", 
                 "appendTextBlock", "Header", "appendHeader",
                 "Footer", "appendFooter",
-                "ImageStream", "appendImageStream"]
+                "ImageStream", "appendImageStream", 
+                'Image','appendImage']
 
 
     def getSettings(self):
@@ -1812,6 +1874,10 @@ class Objects(LrsContainer):
         self.append(i)
         return i
 
+    def Image(self, *args, **kwargs):
+        i = Image(*args, **kwargs)
+        self.append(i)
+        return i
 
     def toElement(self, se):
         o = Element("Objects")
@@ -2025,7 +2091,44 @@ class ImageStream(LrsObject, LrsContainer):
         element.text = self.comment
         return element
 
+class Image(LrsObject, LrsContainer, LrsAttributes):
+    
+    defaults = dict()
+    
+    def __init__(self, refstream, x0=0, x1=0, \
+                 y0=0, y1=0, xsize=0, ysize=0, **settings):
+        LrsObject.__init__(self)
+        LrsContainer.__init__(self, [])        
+        LrsAttributes.__init__(self, self.defaults, settings)
+        self.x0, self.y0, self.x1, self.y1 = int(x0), int(y0), int(x1), int(y1)
+        self.xsize, self.ysize = int(xsize), int(ysize)
+        self.refstream = refstream
+        
+    def appendReferencedObjects(self, parent):
+        if self.refstream.parent is None:
+            parent.append(self.refstream)
+            
+    def getReferencedObjIds(self):
+        return  [self.objId, self.refstream.objId]
 
+    def toElement(self, se):
+        element = self.lrsObjectElement("Image", **self.attrs)
+        element.set("refstream", str(self.refstream.objId))
+        for name in ["x0", "y0", "x1", "y1", "xsize", "ysize"]:
+            element.set(name, str(getattr(self, name)))
+        return element
+    
+    def toLrf(self, lrfWriter):
+        ib = LrfObject("Image", self.objId)
+        ib.appendLrfTag(LrfTag("ImageRect",
+            (self.x0, self.y0, self.x1, self.y1)))
+        ib.appendLrfTag(LrfTag("ImageSize", (self.xsize, self.ysize)))
+        ib.appendLrfTag(LrfTag("RefObjId", self.refstream.objId))
+        lrfWriter.append(ib)
+
+
+            
+    
 
 class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
     """ Create an image on a page. """
