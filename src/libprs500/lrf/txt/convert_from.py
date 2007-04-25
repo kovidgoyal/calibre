@@ -61,10 +61,10 @@ def convert_txt(path, options):
     header = None
     if options.header:
         header = Paragraph()
-        header.append(Italic(options.title))
+        header.append(Bold(options.title))
         header.append(' by ')
-        header.append(Bold(options.author))
-    book = Book(title=options.title, author=options.author, \
+        header.append(Italic(options.author))
+    book = Book(header=header, title=options.title, author=options.author, \
                 sourceencoding=options.encoding, freetext=options.freetext, \
                 category=options.category)
     buffer = ''
