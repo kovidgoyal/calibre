@@ -19,6 +19,7 @@ import os, sys
 
 from libprs500.lrf import ConversionError, option_parser
 from libprs500.lrf import Book
+from libprs500.lrf.pylrs.pylrs import Paragraph, Italic, Bold
 
 
 def main():
@@ -57,6 +58,12 @@ def convert_txt(path, options):
                     the text in C{path}.)
     """
     import fileinput
+    header = None
+    if options.header:
+        header = Paragraph()
+        header.append(Italic(options.title))
+        header.append(' by ')
+        header.append(Bold(options.author))
     book = Book(title=options.title, author=options.author, \
                 sourceencoding=options.encoding, freetext=options.freetext, \
                 category=options.category)

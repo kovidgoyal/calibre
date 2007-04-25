@@ -31,7 +31,7 @@ from operator import itemgetter
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
-                                      ImageBlock, JumpButton, CharButton, Page, BlockStyle
+                                      ImageBlock, JumpButton, CharButton, Page, Bold
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
@@ -618,7 +618,13 @@ def process_file(path, options):
                     freetext=options.freetext, category=options.category)
         if tpath:
             args['thumbnail'] = tpath
-        book = Book(**args)
+        header = None
+        if options.header:
+            header = Paragraph()
+            header.append(Bold(options.title))
+            header.append(' by ')
+            header.append(Italic(options.author))
+        book = Book(header=header, **args)
         conv = HTMLConverter(book, path, font_delta=options.font_delta, cover=cpath)
         conv.process_links()
         oname = options.output

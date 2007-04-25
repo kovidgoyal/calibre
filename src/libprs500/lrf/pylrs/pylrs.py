@@ -1034,7 +1034,7 @@ class LrsStyle(LrsObject, LrsAttributes, LrsContainer):
     def setDefaults(selfClass, settings):
         for name, value in settings.items():
             if name not in selfClass.validSettings:
-                raise LrsError, "default setting %s not recognized"
+                raise LrsError, "default setting %s not recognized" % name
             selfClass.defaults[name] = value
 
 

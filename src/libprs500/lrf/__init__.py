@@ -20,6 +20,7 @@ At the time fo writing, this package only supports reading and writing LRF meat 
 from optparse import OptionParser
 
 from libprs500.lrf.pylrs.pylrs import Book as _Book
+from libprs500.lrf.pylrs.pylrs import TextBlock, Header, PutObj, Paragraph, TextStyle
 from libprs500 import __version__ as VERSION
 
 __docformat__ = "epytext"
@@ -30,6 +31,8 @@ class ConversionError(Exception):
 
 def option_parser(usage):
     parser = OptionParser(usage=usage, version='libprs500 '+VERSION)
+    parser.add_option('--header', action='store_true', default=False, dest='header',
+                      help='Add a header to all the pages with title and author.')
     parser.add_option("-t", "--title", action="store", type="string", \
                     dest="title", help="Set the title")
     parser.add_option("-a", "--author", action="store", type="string", \
@@ -42,7 +45,17 @@ def option_parser(usage):
                       help='Output file name. Default is derived from input filename')
     return parser
 
-def Book(font_delta=0, **settings):
+def Book(font_delta=0, header=None, **settings):
+    ps = dict(textwidth=575, textheight=747)
+    if header:
+        hdr = Header()
+        hb = TextBlock(TextStyle(align='foot', fontsize=50))
+        hb.append(header)
+        hdr.PutObj(hb)
+        ps['headheight'] = 30
+        ps['header'] = header
+        ps['header'] = hdr
+        ps['topmargin'] = 10
     return _Book(textstyledefault=dict(fontsize=100+font_delta*20), \
-                 pagestyledefault=dict(textwidth=575, textheight=747), \
+                 pagestyledefault=ps, \
                   **settings)
