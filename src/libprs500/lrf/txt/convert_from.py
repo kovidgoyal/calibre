@@ -40,7 +40,7 @@ def main():
     if len(args) != 1:
         parser.print_help()
         sys.exit(1)
-    src = args[0]
+    src = os.path.abspath(os.path.expanduser(args[0]))
     if options.title == None:
         options.title = os.path.splitext(os.path.basename(src))[0]
     try:
@@ -78,6 +78,7 @@ def convert_txt(path, options):
             buffer = ''
     basename = os.path.basename(path)
     oname = options.output
+    oname = os.path.abspath(os.path.expanduser(oname))
     if not oname:
         oname = os.path.splitext(basename)[0]+'.lrf'
     try: 

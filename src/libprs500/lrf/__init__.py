@@ -29,6 +29,16 @@ __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 class ConversionError(Exception):
     pass
 
+def get_text(elem):
+    ''' Return the textual content of a pylrs element '''
+    txt = ''
+    if hasattr(elem, 'text'):
+        txt += elem.text
+    if hasattr(elem, 'contents'):
+        for child in elem.contents:
+            txt += get_text(child)
+    return txt
+
 def option_parser(usage):
     parser = OptionParser(usage=usage, version='libprs500 '+VERSION)
     parser.add_option('--header', action='store_true', default=False, dest='header',

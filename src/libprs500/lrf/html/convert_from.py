@@ -14,14 +14,13 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
 """ 
 Code to convert HTML ebooks into LRF ebooks.
 
 I am indebted to esperanc for the CSS->Xylog Style conversion routines
 and to Falstaff for pylrs.
 """
-import os, re, sys, shutil
+import os, re, sys, shutil, traceback
 from htmlentitydefs import name2codepoint
 from urllib import urlopen
 from urlparse import urlparse
@@ -31,9 +30,10 @@ from operator import itemgetter
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
-                                      ImageBlock, JumpButton, CharButton, Page, Bold
+                                      ImageBlock, JumpButton, CharButton, \
+                                      Page, Bold, Space, Plot, TextStyle, Image
 from libprs500.lrf.pylrs.pylrs import Span as _Span
-from libprs500.lrf import ConversionError, option_parser, Book
+from libprs500.lrf import ConversionError, option_parser, Book, get_text
 from libprs500 import extract
 
 def ImagePage():
@@ -155,6 +155,8 @@ class Span(_Span):
                 ans = font_weight(val)
                 if ans:
                     t['fontweight'] = ans
+                    if ans > 140:
+                        t['wordspace'] = '50'
             elif key.startswith("margin"):
                 if key == "margin":
                     u = []
@@ -180,20 +182,13 @@ class Span(_Span):
                 if u[0] is not None:
                     t["topskip"] = str(u[0])
                 if u[1] is not None:
-                    t["sidemargin"] = str(u[1])
-            elif key == "text-align" or key == "align":
-                if val in ["right", "foot"]:
-                    t["align"] = "foot"
-                elif val == "center":
-                    t["align"] = "center"
-                else:
-                    t["align"] = "head"
+                    t["sidemargin"] = str(u[1])                
             else:
                 print >>sys.stderr, 'Unhandled/malformed CSS key:', key, d[key]
         return t        
     
     def __init__(self, ns, css, font_delta=0):
-        src = ns.string
+        src = ns.string if hasattr(ns, 'string') else str(ns)
         src = re.sub(r'\s{2,}', ' ', src)  # Remove multiple spaces
         for pat, repl in Span.rules:
             src = pat.sub(repl, src)
@@ -228,18 +223,43 @@ class HTMLConverter(object):
             i      = {"font-style"  :"italic"},
             em     = {"font-style"  :"italic"},
             small  = {'font-size'   :'small'},
+            pre    = {'font-family' :'monospace' },
             center = {'text-align'  : 'center'}
             )
     processed_files = {} #: Files that have been processed
     
-    def __init__(self, book, path, font_delta=0, verbose=False, cover=None):
-        self.images  = {} #: Images referenced in the HTML document
-        self.targets = {} #: <a name=...> elements
-        self.links   = [] #: <a href=...> elements        
-        self.files   = {} #: links that point to other files
+    def __init__(self, book, path, width=575, height=747, 
+                 font_delta=0, verbose=False, cover=None):
+        '''
+        Convert HTML file at C{path} and add it to C{book}. After creating
+        the object, you must call L{self.process_links} on it to create the links and
+        then L{self.writeto} to output the LRF/S file.
+        
+        @param book: The LRF book 
+        @type book:  L{libprs500.lrf.pylrs.Book}
+        @param path: path to the HTML file to process
+        @type path:  C{str}
+        @param width: Width of the device on which the LRF file is to be read
+        @type width: C{int}
+        @param height: Height of the device on which the LRF file is to be read
+        @type height: C{int}
+        @param font_delta: The amount in pts by which all fonts should be changed
+        @type font_delta: C{int}
+        @param verbose: Whether processing should be verbose or not
+        @type verbose: C{bool}
+        @param cover: Path to an image to use as the cover of this book
+        @type cover: C{str}
+        '''
+        self.page_width = width   #: The width of the page
+        self.page_height = height #: The height of the page
+        self.images  = {}         #: Images referenced in the HTML document
+        self.targets = {}         #: <a name=...> elements
+        self.links   = []         #: <a href=...> elements        
+        self.files   = {}         #: links that point to other files
         self.links_processed = False #: Whether links_processed has been called on this object
         self.font_delta = font_delta
         self.cover = cover
+        self.in_ol = False #: Flag indicating we're in an <ol> element
         self.book = book #: The Book object representing a BBeB book        
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
@@ -301,17 +321,18 @@ class HTMLConverter(object):
         def merge_parent_css(prop, pcss):
             temp = {}
             for key in pcss.keys():
-                if key.lower().startswith('font'):
+                chk = key.lower()
+                if chk.startswith('font') or chk == 'text-align':
                     temp[key] = pcss[key]
             prop.update(temp)
             
-        prop = dict()        
+        prop = dict()
         if tag.has_key("align"):
             prop["text-align"] = tag["align"]
         if self.css.has_key(tag.name):
             prop.update(self.css[tag.name])
         if tag.has_key("class"):
-            cls = tag["class"].lower()
+            cls = tag["class"].lower()            
             for classname in ["."+cls, tag.name+"."+cls]:
                 if self.css.has_key(classname):
                     prop.update(self.css[classname])
@@ -330,11 +351,11 @@ class HTMLConverter(object):
         self.top = self.current_block
         
         self.process_children(self.soup, {})
-        if self.current_para:
+        if self.current_para and get_text(self.current_para).strip():
             self.current_block.append(self.current_para)
-        if self.current_block:
+        if self.current_block and get_text(self.current_block).strip():
             self.current_page.append(self.current_block)
-        if self.current_page:
+        if self.current_page and get_text(self.current_page).strip():
             self.book.append(self.current_page)
         
             
@@ -356,16 +377,17 @@ class HTMLConverter(object):
         cwd = os.getcwd()
         for link in self.links:
             purl = urlparse(link.tag['href'])
-            if purl[1]: # Not a local link
+            if purl[1]: # Not a link to a file on the local filesystem
                 continue
             path, fragment = purl[2], purl[5]
             para, tag = link.para, link.tag
             if not path or os.path.basename(path) == self.file_name:
                 if fragment in self.targets.keys():
-                    tb = self.targets[fragment]                    
+                    tb = self.targets[fragment]
                     jb = JumpButton(tb)
                     self.book.append(jb)
                     cb = CharButton(jb, text=self.get_text(tag))
+                    para.contents = []
                     para.append(cb)
             else:                
                 if not os.access(path, os.R_OK):
@@ -373,12 +395,14 @@ class HTMLConverter(object):
                         print "Skipping", link
                     continue
                 path = os.path.abspath(path)
-                if not path in HTMLConverter.processed_files.keys():
+                if not path in HTMLConverter.processed_files.keys():                    
                     try:                        
                         self.files[path] = HTMLConverter(self.book, path, \
                                      font_delta=self.font_delta, verbose=self.verbose)
                         HTMLConverter.processed_files[path] = self.files[path]
-                    except:
+                    except Exception, e:
+                        print >>sys.stderr, 'Unable to process', path
+                        traceback.print_exc()
                         continue
                     finally:
                         os.chdir(cwd)
@@ -389,10 +413,11 @@ class HTMLConverter(object):
                     tb = conv.targets[fragment]
                 else:
                     tb = conv.top                        
-                jb = JumpButton(tb)
+                jb = JumpButton(tb)                
                 self.book.append(jb)
                 cb = CharButton(jb, text=self.get_text(tag))
-                para.append(cb)                    
+                para.contents = []
+                para.append(cb)                
                     
         self.links_processed = True        
         
@@ -411,13 +436,13 @@ class HTMLConverter(object):
         End the current page, ensuring that any further content is displayed
         on a new page.
         """
-        if self.current_para.contents:
+        if get_text(self.current_para).strip():
             self.current_block.append(self.current_para)
             self.current_para = Paragraph()
-        if self.current_block.contents:
+        if get_text(self.current_block).strip():
             self.current_page.append(self.current_block)
             self.current_block = TextBlock()
-        if self.current_page.contents: 
+        if get_text(self.current_page).strip(): 
             self.book.append(self.current_page)
             self.current_page = Page()
         
@@ -442,12 +467,37 @@ class HTMLConverter(object):
                 self.add_text(c, pcss)
                     
     def add_text(self, tag, css):
-        try:
-            self.current_para.append(Span(tag, self.sanctify_css(css), \
-                                          font_delta=self.font_delta))
-        except ConversionError, err:
-            if self.verbose:
-                print >>sys.stderr, err
+        '''
+        Add text to the current paragraph taking CSS into account.
+        @param tag: Either a BeautifulSoup tag or a string
+        @param css:
+        @type css:
+        '''
+        src = tag.string if hasattr(tag, 'string') else str(tag)
+        if not src.strip():
+            self.current_para.append(' ')
+        else:
+            align = 'head'
+            if css.has_key('text-align'):
+                val = css['text-align']                
+                if val in ["right", "foot"]:
+                    align = "foot"
+                elif val == "center":
+                    align = "center"
+                css.pop('text-align')
+            if align != self.current_block.textStyle.attrs['align']:
+                if get_text(self.current_para).strip():
+                    self.current_block.append(self.current_para)
+                if get_text(self.current_block).strip():
+                    self.current_page.append(self.current_block)
+                self.current_block = TextBlock(TextStyle(align=align))
+                self.current_para = Paragraph()
+            try:
+                self.current_para.append(Span(src, self.sanctify_css(css), \
+                                              font_delta=self.font_delta))
+            except ConversionError, err:
+                if self.verbose:
+                    print >>sys.stderr, err
         
     def sanctify_css(self, css):
         """ Make css safe for use in a SPAM Xylog tag """
@@ -461,22 +511,21 @@ class HTMLConverter(object):
                 css.pop(key)
         return css
     
+    def end_current_para(self):
+        ''' 
+        End current paragraph with a paragraph break after it. If the current
+        paragraph has no non whitespace text in it do nothing.
+        '''
+        if not get_text(self.current_para).strip():
+            return
+        if self.current_para.contents:
+            self.current_block.append(self.current_para)
+            self.current_para = Paragraph()
+        if self.current_block.contents and \
+            not isinstance(self.current_block.contents[-1], CR):
+            self.current_block.append(CR())
     
     def parse_tag(self, tag, parent_css):
-                    
-        def process_text_tag(tag, tag_css):
-            if 'page-break-before' in tag_css.keys():
-                if tag_css['page-break-before'].lower() != 'avoid':
-                    self.end_page()
-                tag_css.pop('page-break-before')
-            end_page = False
-            if 'page-break-after' in tag_css.keys():
-                end_page = True
-                tag_css.pop('page-break-after')
-            self.process_children(tag, tag_css)
-            if end_page:
-                self.end_page()
-            
         try:
             tagname = tag.name.lower()
         except AttributeError:
@@ -488,17 +537,47 @@ class HTMLConverter(object):
                 return
         except KeyError:
             pass
+        if 'page-break-before' in tag_css.keys():
+            if tag_css['page-break-before'].lower() != 'avoid':
+                self.end_page()
+            tag_css.pop('page-break-before')
+        end_page = False
+        if 'page-break-after' in tag_css.keys() and \
+           tag_css['page-break-after'].lower() != 'avoid':
+            end_page = True
+            tag_css.pop('page-break-after')
+            
         if tagname in ["title", "script", "meta", 'del']:            
             pass
         elif tagname == 'a':
             if tag.has_key('name'):
-                self.current_block.append(self.current_para)
-                self.current_page.append(self.current_block)
+                if get_text(self.current_para).strip():
+                    self.current_block.append(self.current_para)
+                if get_text(self.current_block).strip():
+                    self.current_page.append(self.current_block)
+                previous = self.current_block
                 tb = TextBlock()
                 self.current_block = tb
                 self.current_para = Paragraph()
                 self.targets[tag['name']] = tb
                 self.process_children(tag, tag_css)
+                if tb.parent == None:
+                    if self.current_block == tb:
+                        if get_text(self.current_para):
+                            self.current_block.append(self.current_para)
+                            self.current_para = Paragraph()
+                        self.current_page.append(self.current_block)
+                        self.current_block = TextBlock()
+                    else:
+                        found, marked = False, False
+                        for item in self.current_page.contents:
+                            if item == previous:
+                                found = True
+                            if found and isinstance(item, TextBlock):
+                                self.targets[tag['name']] = item
+                                marked = True
+                        if not marked:
+                            self.current_page.append(tb)
             elif tag.has_key('href'):
                 purl = urlparse(tag['href'])
                 path = purl[2]
@@ -506,19 +585,18 @@ class HTMLConverter(object):
                     ['png', 'jpg', 'bmp', 'jpeg']:
                     self.add_image_page(path)
                 else:
-                    span = _Span()
-                    self.current_para.append(span)
-                    self.links.append(HTMLConverter.Link(span, tag))
+                    self.add_text('Link: '+tag['href'], tag_css)
+                    self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
         elif tagname == 'img':
             if tag.has_key('src') and os.access(tag['src'], os.R_OK):
-                width, height = 600, 800
+                width, height = self.page_width, self.page_height
                 try:
                     try:
-                        from PIL import Image
+                        from PIL import Image as PILImage
                     except:
                         pass
                     else:
-                        im = Image.open(tag['src'])
+                        im = PILImage.open(tag['src'])
                         width, height = im.size
                     if tag.has_key('width'):
                         width = int(tag['width'])
@@ -526,16 +604,26 @@ class HTMLConverter(object):
                         height = int(tag['height'])
                 except:
                     pass
-                self.current_block.append(self.current_para)
-                self.current_page.append(self.current_block)
-                self.current_para = Paragraph()
-                self.current_block = TextBlock()
                 path = os.path.abspath(tag['src'])
                 if not self.images.has_key(path):
                     self.images[path] = ImageStream(path)
-                im = ImageBlock(self.images[path], x1=width, y1=height, 
-                                xsize=width, ysize=height)
-                self.current_page.append(im)                        
+                if max(width, height) <= min(self.page_width, self.page_height)/5.:
+                    im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
+                               xsize=width, ysize=height)
+                    self.current_para.append(Plot(im, xsize=width*10, ysize=width*10))
+                elif max(width, height) <= min(self.page_width, self.page_height)/2.:
+                    self.end_current_para()
+                    im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
+                               xsize=width, ysize=height)
+                    self.current_para.append(Plot(im, xsize=width*10, ysize=width*10))
+                else:
+                    self.current_block.append(self.current_para)
+                    self.current_page.append(self.current_block)
+                    self.current_para = Paragraph()
+                    self.current_block = TextBlock()
+                    im = ImageBlock(self.images[path], x1=width, y1=height, 
+                                    xsize=width, ysize=height)
+                    self.current_page.append(im)                        
             else:
                 print >>sys.stderr, "Failed to process", tag
                 
@@ -557,30 +645,72 @@ class HTMLConverter(object):
                     f.close()
                 except IOError:
                     pass
-        elif tagname in ['p', 'div', 'ul', 'ol', 'tr', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+        elif tagname == 'pre':
+            self.end_current_para()
+            src = ''.join([str(i) for i in tag.contents])
+            lines = src.split('\n')
+            for line in lines:
+                try:
+                    self.current_para.append(Span(line, tag_css))
+                except ConversionError:
+                    pass
+                self.current_para.CR()
+        elif tagname in ['ul', 'ol']:
+            self.in_ol = 1 if tagname == 'ol' else 0
+            self.end_current_para()
+            self.process_children(tag, tag_css)
+            self.in_ol = 0
+            self.end_current_para()
+        elif tagname == 'li':
+            prepend = str(self.in_ol)+'. ' if self.in_ol else u'\u2022' + ' '
+            if get_text(self.current_para).strip():
+                self.current_para.append(CR())
+                self.current_block.append(self.current_para)
+            self.current_para = Paragraph()
+            self.current_para.append(Space(xsize=100))
+            self.current_para.append(prepend)
+            self.process_children(tag, tag_css)
+            if self.in_ol:
+                self.in_ol += 1
+        elif tagname in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            self.end_current_para()
+            if self.current_block.contents:
+                self.current_block.append(CR())
+            self.process_children(tag, tag_css)
+            self.end_current_para()
+            self.current_block.append(CR())
+        elif tagname in ['p', 'div']:
             # TODO: Implement ol
-            indent = tag_css.pop('text-indent', '')
-            if indent:
+            #indent = tag_css.pop('text-indent', '')
+            #if indent:
                 # TODO: If indent is different from current textblock's parindent
                 # start a new TextBlock
-                pass
-            self.current_para.CR() # Put a paragraph end             
-            self.current_block.append(self.current_para)
-            self.current_para = Paragraph()
-            process_text_tag(tag, tag_css)
+                #pass
+            self.end_current_para()
+            self.process_children(tag, tag_css)
+            self.end_current_para()
         elif tagname in ['b', 'strong', 'i', 'em', 'span']:
-            process_text_tag(tag, tag_css)
+            self.process_children(tag, tag_css)
         elif tagname == 'font':
             if tag.has_key('face'):
                 tag_css['font-family'] = tag['face']
-            process_text_tag(tag, tag_css)
-        elif tagname == 'br':
+            self.process_children(tag, tag_css)
+        elif tagname in ['br', 'tr']:
             self.current_para.append(CR())
+            self.process_children(tag, tag_css)
         elif tagname == 'hr':
-            self.current_para.append(CR())
-            # TODO: Horizontal line?
+            if self.current_para.contents:
+                self.current_block.append(self.current_para)
+                self.current_para = Paragraph()
+            self.current_block.append(CR())
+            self.current_page.append(self.current_block)
+            self.current_block = TextBlock()            
+            self.current_page.RuledLine(linelength=self.page_width)
         else:            
-            self.process_children(tag, tag_css)            
+            self.process_children(tag, tag_css)
+        
+        if end_page:
+                self.end_page()
                     
     def writeto(self, path, lrs=False):
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
@@ -632,6 +762,7 @@ def process_file(path, options):
             suffix = '.lrs' if options.lrs else '.lrf'
             name = os.path.splitext(os.path.basename(path))[0] + suffix
             oname = os.path.join(cwd,name)
+        oname = os.path.abspath(os.path.expanduser(oname))
         conv.writeto(oname, lrs=options.lrs)
         print 'Output written to', oname
     finally:
@@ -692,7 +823,7 @@ def console_query(dirpath, candidate, docs):
         
 
 def get_path(path, query=console_query):
-    path = os.path.abspath(path)
+    path = os.path.abspath(os.path.expanduser(path))
     ext = os.path.splitext(path)[1][1:].lower()
     if ext in ['htm', 'html', 'xhtml']:
         return None, path
