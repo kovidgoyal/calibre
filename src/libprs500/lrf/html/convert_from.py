@@ -28,7 +28,7 @@ from tempfile import mkdtemp
 from operator import itemgetter
 
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
-                                             NavigableString, Declaration
+                                             NavigableString, Declaration, ProcessingInstruction
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
                                       ImageBlock, JumpButton, CharButton, \
                                       Page, Bold, Space, Plot, TextStyle, Image
@@ -204,7 +204,8 @@ class Span(_Span):
         
         
 class HTMLConverter(object):
-    selector_pat = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")    
+    selector_pat = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
+    IGNORED_TAGS = (Comment, Declaration, ProcessingInstruction)
     
     class Link(object):
         def __init__(self, para, tag):
@@ -457,7 +458,7 @@ class HTMLConverter(object):
     def process_children(self, ptag, pcss):
         """ Process the children of ptag """
         for c in ptag.contents:
-            if isinstance(c, (Comment, Declaration)):
+            if isinstance(c, HTMLConverter.IGNORED_TAGS):
                 continue
             elif isinstance(c, Tag):
                 self.parse_tag(c, pcss)
@@ -526,7 +527,8 @@ class HTMLConverter(object):
         try:
             tagname = tag.name.lower()
         except AttributeError:
-            self.add_text(tag, parent_css)
+            if not isinstance(tag, HTMLConverter.IGNORED_TAGS):
+                self.add_text(tag, parent_css)
             return
         tag_css = self.tag_css(tag, parent_css=parent_css)
         try: # Skip element if its display attribute is set to none
