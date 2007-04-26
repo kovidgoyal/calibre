@@ -51,7 +51,7 @@ if sys.argv[1] == 'py2exe':
                                 'packages' : ['PIL'],
                                 'excludes' : excludes}}
         py2exe_options = {'console'  : console, 'windows' : windows, 
-                          'options'  : options, 'excludes' : excludes}
+                          'options'  : options}
     except ImportError:
         print >>sys.stderr, 'Must be in Windows to run py2exe'
         sys.exit(1)
