@@ -25,6 +25,7 @@ from math import sin, cos, pi
 
 from libprs500.gui import Error, _Warning
 from libprs500.ptempfile import PersistentTemporaryFile
+from libprs500 import iswindows
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QApplication, QString, QFont, QAbstractListModel, \
@@ -66,7 +67,9 @@ class FileDragAndDrop(object):
                 if o.scheme and o.scheme != 'file':
                     _Warning(o.scheme +  " not supported in drop events", None)
                     continue
-                path = unquote(o.path)                
+                path = unquote(o.path)
+                if iswindows and path.startswith('/'):
+                    path = path[1:]
                 if not os.access(path, os.R_OK):
                     _Warning("You do not have read permission for: " + path, None)
                     continue

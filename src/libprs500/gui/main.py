@@ -13,11 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
 """ Create and launch the GUI """
-import sys
-import re
-import os
-import traceback
-import tempfile
+import sys, re, os, traceback, tempfile
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QEventLoop, QString, \

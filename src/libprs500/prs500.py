@@ -680,7 +680,12 @@ class PRS500(Device):
         while data_left:
             data = array('B')
             try:
-                data.fromfile(infile, chunk_size)
+                # Cannot use data.fromfile(infile, chunk_size) as it
+                # doesn't work in windows w/ python 2.5.1
+                ind = infile.read(chunk_size)
+                data.fromstring(ind)
+                if len(ind) < chunk_size:
+                    raise EOFError
             except EOFError: 
                 data_left = False
             res = self.send_validated_command(FileIO(_id, pos, len(data), \
