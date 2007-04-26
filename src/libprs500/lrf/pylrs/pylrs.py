@@ -275,6 +275,24 @@ class LrsContainer(object):
         self.validChildren = validChildren
             
         
+    def get_text(self):
+        ''' Return the textual content of this container'''
+        txt = ''
+        if hasattr(self, 'text'):
+            txt += self.text
+        if hasattr(self, 'contents'):
+            for child in self.contents:
+                txt += child.get_text()
+        return txt
+    
+    def append_to(self, parent):
+        '''
+        Append self to C{parent} iff self has non whitespace textual content        
+        @type parent: LrsContainer
+        '''
+        if self.get_text().strip():
+            parent.append(self)
+        
     def appendReferencedObjects(self, parent):
         for c in self.contents:
             c.appendReferencedObjects(parent)

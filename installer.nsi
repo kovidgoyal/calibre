@@ -15,7 +15,7 @@ Var MUI_TEMP
 
 !define PRODUCT_NAME "libprs500"
 !define XPUI_BRANDINGTEXT "${PRODUCT_NAME} created by Kovid Goyal"
-!define PRODUCT_VERSION "0.3.13"
+!define PRODUCT_VERSION "0.3.14"
 !define WEBSITE "https://libprs500.kovidgoyal.net"
 !define PY2EXE_DIR "C:\libprs500"
 !define LIBUSB_DIR "C:\libusb-prs500"

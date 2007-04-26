@@ -29,16 +29,6 @@ __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 class ConversionError(Exception):
     pass
 
-def get_text(elem):
-    ''' Return the textual content of a pylrs element '''
-    txt = ''
-    if hasattr(elem, 'text'):
-        txt += elem.text
-    if hasattr(elem, 'contents'):
-        for child in elem.contents:
-            txt += get_text(child)
-    return txt
-
 def option_parser(usage):
     parser = OptionParser(usage=usage, version='libprs500 '+VERSION)
     parser.add_option('--header', action='store_true', default=False, dest='header',
@@ -59,7 +49,7 @@ def Book(font_delta=0, header=None, **settings):
     ps = dict(textwidth=575, textheight=747)
     if header:
         hdr = Header()
-        hb = TextBlock(TextStyle(align='foot', fontsize=50))
+        hb = TextBlock(TextStyle(align='foot', fontsize=60))
         hb.append(header)
         hdr.PutObj(hb)
         ps['headheight'] = 30

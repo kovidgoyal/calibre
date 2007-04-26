@@ -33,7 +33,7 @@ from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBl
                                       ImageBlock, JumpButton, CharButton, \
                                       Page, Bold, Space, Plot, TextStyle, Image
 from libprs500.lrf.pylrs.pylrs import Span as _Span
-from libprs500.lrf import ConversionError, option_parser, Book, get_text
+from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
 
 def ImagePage():
@@ -351,11 +351,11 @@ class HTMLConverter(object):
         self.top = self.current_block
         
         self.process_children(self.soup, {})
-        if self.current_para and get_text(self.current_para).strip():
-            self.current_block.append(self.current_para)
-        if self.current_block and get_text(self.current_block).strip():
-            self.current_page.append(self.current_block)
-        if self.current_page and get_text(self.current_page).strip():
+        if self.current_para and self.current_block:
+            self.current_para.append_to(self.current_block)
+        if self.current_block and self.current_page:
+            self.current_block.append_to(self.current_page)
+        if self.current_page and self.current_page.get_text().strip():
             self.book.append(self.current_page)
         
             
@@ -436,13 +436,11 @@ class HTMLConverter(object):
         End the current page, ensuring that any further content is displayed
         on a new page.
         """
-        if get_text(self.current_para).strip():
-            self.current_block.append(self.current_para)
-            self.current_para = Paragraph()
-        if get_text(self.current_block).strip():
-            self.current_page.append(self.current_block)
-            self.current_block = TextBlock()
-        if get_text(self.current_page).strip(): 
+        self.current_para.append_to(self.current_block)
+        self.current_para = Paragraph()
+        self.current_block.append_to(self.current_page)
+        self.current_block = TextBlock()
+        if self.current_page.get_text().strip(): 
             self.book.append(self.current_page)
             self.current_page = Page()
         
@@ -486,10 +484,8 @@ class HTMLConverter(object):
                     align = "center"
                 css.pop('text-align')
             if align != self.current_block.textStyle.attrs['align']:
-                if get_text(self.current_para).strip():
-                    self.current_block.append(self.current_para)
-                if get_text(self.current_block).strip():
-                    self.current_page.append(self.current_block)
+                self.current_para.append_to(self.current_block)
+                self.current_block.append_to(self.current_page)
                 self.current_block = TextBlock(TextStyle(align=align))
                 self.current_para = Paragraph()
             try:
@@ -505,9 +501,10 @@ class HTMLConverter(object):
             test = key.lower()
             if test.startswith('margin') or 'indent' in test or \
                'padding' in test or 'border' in test or 'page-break' in test \
-               or test.startswith('mso') \
+               or test.startswith('mso') or test.startswith('background')\
                or test in ['color', 'display', 'text-decoration', \
-                           'letter-spacing', 'text-autospace', 'text-transform']:
+                           'letter-spacing', 'text-autospace', 'text-transform', 
+                           'font-variant']:
                 css.pop(key)
         return css
     
@@ -516,7 +513,7 @@ class HTMLConverter(object):
         End current paragraph with a paragraph break after it. If the current
         paragraph has no non whitespace text in it do nothing.
         '''
-        if not get_text(self.current_para).strip():
+        if not self.current_para.get_text().strip():
             return
         if self.current_para.contents:
             self.current_block.append(self.current_para)
@@ -551,10 +548,8 @@ class HTMLConverter(object):
             pass
         elif tagname == 'a':
             if tag.has_key('name'):
-                if get_text(self.current_para).strip():
-                    self.current_block.append(self.current_para)
-                if get_text(self.current_block).strip():
-                    self.current_page.append(self.current_block)
+                self.current_para.append_to(self.current_block)
+                self.current_block.append_to(self.current_page)
                 previous = self.current_block
                 tb = TextBlock()
                 self.current_block = tb
@@ -563,11 +558,11 @@ class HTMLConverter(object):
                 self.process_children(tag, tag_css)
                 if tb.parent == None:
                     if self.current_block == tb:
-                        if get_text(self.current_para):
-                            self.current_block.append(self.current_para)
-                            self.current_para = Paragraph()
-                        self.current_page.append(self.current_block)
-                        self.current_block = TextBlock()
+                        self.current_para.append_to(self.current_block)
+                        self.current_para = Paragraph()
+                        if not self.current_block.get_text().strip():
+                            self.current_page.append(self.current_block)
+                            self.current_block = TextBlock()
                     else:
                         found, marked = False, False
                         for item in self.current_page.contents:
@@ -663,7 +658,7 @@ class HTMLConverter(object):
             self.end_current_para()
         elif tagname == 'li':
             prepend = str(self.in_ol)+'. ' if self.in_ol else u'\u2022' + ' '
-            if get_text(self.current_para).strip():
+            if self.current_para.get_text().strip():
                 self.current_para.append(CR())
                 self.current_block.append(self.current_para)
             self.current_para = Paragraph()
@@ -680,12 +675,6 @@ class HTMLConverter(object):
             self.end_current_para()
             self.current_block.append(CR())
         elif tagname in ['p', 'div']:
-            # TODO: Implement ol
-            #indent = tag_css.pop('text-indent', '')
-            #if indent:
-                # TODO: If indent is different from current textblock's parindent
-                # start a new TextBlock
-                #pass
             self.end_current_para()
             self.process_children(tag, tag_css)
             self.end_current_para()
