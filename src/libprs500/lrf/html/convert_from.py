@@ -22,7 +22,7 @@ and to Falstaff for pylrs.
 """
 import os, re, sys, shutil, traceback
 from htmlentitydefs import name2codepoint
-from urllib import urlopen
+from urllib import urlopen, unquote
 from urlparse import urlparse
 from tempfile import mkdtemp
 from operator import itemgetter
@@ -397,7 +397,7 @@ class HTMLConverter(object):
             purl = urlparse(link.tag['href'])
             if purl[1]: # Not a link to a file on the local filesystem
                 continue
-            path, fragment = purl[2], purl[5]
+            path, fragment = unquote(purl[2]), purl[5]
             para, tag = link.para, link.tag
             if not path or os.path.basename(path) == self.file_name:
                 if fragment in self.targets.keys():
