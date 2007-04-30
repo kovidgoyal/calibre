@@ -610,7 +610,7 @@ class HTMLConverter(object):
                     self.add_text('Link: '+tag['href'], tag_css)
                     self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
         elif tagname == 'img':
-            if tag.has_key('src') and os.access(tag['src'], os.R_OK):
+            if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
                 width, height = self.page_width, self.page_height
                 try:
                     try:
@@ -618,7 +618,7 @@ class HTMLConverter(object):
                     except:
                         pass
                     else:
-                        im = PILImage.open(tag['src'])
+                        im = PILImage.open(unquote(tag['src']))
                         width, height = im.size
                     if tag.has_key('width'):
                         width = int(tag['width'])
@@ -626,7 +626,7 @@ class HTMLConverter(object):
                         height = int(tag['height'])
                 except:
                     pass
-                path = os.path.abspath(tag['src'])
+                path = os.path.abspath(unquote(tag['src']))
                 if not self.images.has_key(path):
                     self.images[path] = ImageStream(path)
                 if max(width, height) <= min(self.page_width, self.page_height)/5.:
@@ -647,7 +647,7 @@ class HTMLConverter(object):
                                     xsize=width, ysize=height)
                     self.current_page.append(im)                        
             else:
-                print >>sys.stderr, "Failed to process", tag
+                print >>sys.stderr, "Failed to process:", tag
                 
                 self.add_image_page(tag['src'])                
         elif tagname in ['style', 'link']:
@@ -662,7 +662,7 @@ class HTMLConverter(object):
                     if url.startswith('http://'):
                         f = urlopen(url)
                     else:
-                        f = open(url)
+                        f = open(unquote(url))
                     self.parse_css(f.read())
                     f.close()
                 except IOError:
