@@ -78,7 +78,7 @@ class Span(_Span):
         return result
     
     @staticmethod
-    def translate_attrs(d, font_delta=0):
+    def translate_attrs(d, font_delta=0, memory=None):
         """
         Receives a dictionary of html attributes and styles and returns
         approximate Xylog equivalents in a new dictionary
@@ -184,10 +184,17 @@ class Span(_Span):
                 if u[1] is not None:
                     t["sidemargin"] = str(u[1])                
             else:
-                print >>sys.stderr, 'Unhandled/malformed CSS key:', key, d[key]
+                report = True
+                if memory != None:
+                    if key in memory:
+                        report = False
+                    else:
+                        memory.append(key)
+                if report:
+                    print >>sys.stderr, 'Unhandled/malformed CSS key:', key, d[key]
         return t        
     
-    def __init__(self, ns, css, font_delta=0):
+    def __init__(self, ns, css, memory, font_delta=0):
         src = ns.string if hasattr(ns, 'string') else str(ns)
         src = re.sub(r'\s{2,}', ' ', src)  # Remove multiple spaces
         for pat, repl in Span.rules:
@@ -198,7 +205,7 @@ class Span(_Span):
             fs = css.pop('font-style')
             if fs.lower() == 'italic':
                 src = Italic(src)
-        attrs = Span.translate_attrs(css, font_delta=font_delta)
+        attrs = Span.translate_attrs(css, font_delta=font_delta, memory=memory)
         _Span.__init__(self, text=src, **attrs)
         
         
@@ -260,6 +267,7 @@ class HTMLConverter(object):
         self.links_processed = False #: Whether links_processed has been called on this object
         self.font_delta = font_delta
         self.cover = cover
+        self.memory = []          #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.in_ol = False #: Flag indicating we're in an <ol> element
         self.book = book #: The Book object representing a BBeB book        
         path = os.path.abspath(path)
@@ -372,7 +380,6 @@ class HTMLConverter(object):
                     self.top = page.contents[0]
                     break
             if not self.top.parent:
-                print self.top
                 raise ConversionError, 'Could not parse ' + self.file_name
                     
         
@@ -508,7 +515,7 @@ class HTMLConverter(object):
                 self.current_block = TextBlock(TextStyle(align=align))
                 self.current_para = Paragraph()
             try:
-                self.current_para.append(Span(src, self.sanctify_css(css), \
+                self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
                                               font_delta=self.font_delta))
             except ConversionError, err:
                 if self.verbose:
@@ -584,7 +591,6 @@ class HTMLConverter(object):
                             self.current_page.append(self.current_block)
                             self.current_block = TextBlock()
                     else:
-                        print 'yay'
                         found, marked = False, False
                         for item in self.current_page.contents:
                             if item == previous:
@@ -667,7 +673,7 @@ class HTMLConverter(object):
             lines = src.split('\n')
             for line in lines:
                 try:
-                    self.current_para.append(Span(line, tag_css))
+                    self.current_para.append(Span(line, tag_css, self.memory))
                 except ConversionError:
                     pass
                 self.current_para.CR()
