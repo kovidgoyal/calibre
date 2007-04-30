@@ -456,6 +456,27 @@ class Book(Delegator):
         self.applySettings(settings, testValid=True)
     
 
+    def pages(self):
+        '''Return list of Page objects in this book '''
+        ans = []
+        for item in self.delegates:
+            if isinstance(item, Main):
+                for candidate in item.contents:
+                    if isinstance(candidate, Page):
+                        ans.append(candidate)
+                break
+        return ans
+    
+    def last_page(self):
+        '''Return last Page in this book '''
+        for item in self.delegates:
+            if isinstance(item, Main):
+                temp = list(item.contents)
+                temp.reverse()
+                for candidate in temp:
+                    if isinstance(candidate, Page):
+                        return candidate
+    
     def getSettings(self):
         return ["sourceencoding"]
     

@@ -343,7 +343,8 @@ class HTMLConverter(object):
             prop.update(self.parse_style_properties(tag["style"]))    
         return prop
         
-    def parse_file(self):        
+    def parse_file(self):
+        previous = self.book.last_page()
         self.current_page = Page()
         self.current_block = TextBlock()
         self.current_para = Paragraph()
@@ -358,6 +359,22 @@ class HTMLConverter(object):
             self.current_block.append_to(self.current_page)
         if self.current_page and self.current_page.get_text().strip():
             self.book.append(self.current_page)
+            previous = self.current_page
+        
+        if not self.top.parent:
+            if not previous:
+                previous = self.current_page
+            found = False
+            for page in self.book.pages():
+                if page == previous:
+                    found = True
+                if found:
+                    self.top = page.contents[0]
+                    break
+            if not self.top.parent:
+                print self.top
+                raise ConversionError, 'Could not parse ' + self.file_name
+                    
         
             
     def get_text(self, tag):
@@ -384,7 +401,8 @@ class HTMLConverter(object):
             para, tag = link.para, link.tag
             if not path or os.path.basename(path) == self.file_name:
                 if fragment in self.targets.keys():
-                    tb = self.targets[fragment]
+                    tb = self.targets[fragment]                    
+                    sys.stdout.flush()
                     jb = JumpButton(tb)
                     self.book.append(jb)
                     cb = CharButton(jb, text=self.get_text(tag))
@@ -401,7 +419,7 @@ class HTMLConverter(object):
                         self.files[path] = HTMLConverter(self.book, path, \
                                      font_delta=self.font_delta, verbose=self.verbose)
                         HTMLConverter.processed_files[path] = self.files[path]
-                    except Exception, e:
+                    except Exception:
                         print >>sys.stderr, 'Unable to process', path
                         traceback.print_exc()
                         continue
@@ -566,6 +584,7 @@ class HTMLConverter(object):
                             self.current_page.append(self.current_block)
                             self.current_block = TextBlock()
                     else:
+                        print 'yay'
                         found, marked = False, False
                         for item in self.current_page.contents:
                             if item == previous:
