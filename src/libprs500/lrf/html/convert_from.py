@@ -30,7 +30,7 @@ from operator import itemgetter
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration, ProcessingInstruction
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
-                                      ImageBlock, JumpButton, CharButton, \
+                                      ImageBlock, JumpButton, CharButton, BlockStyle,\
                                       Page, Bold, Space, Plot, TextStyle, Image
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
@@ -213,6 +213,9 @@ class Span(_Span):
 class HTMLConverter(object):
     selector_pat = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     IGNORED_TAGS = (Comment, Declaration, ProcessingInstruction)
+    justification_styles = dict(head=TextStyle(align='head'), foot=TextStyle(align='foot'), 
+                                center=TextStyle(align='center'))
+    blockquote_style = [TextStyle(), BlockStyle(sidemargin=60, topskip=20, footskip=20)]
     
     class Link(object):
         def __init__(self, para, tag):
@@ -237,7 +240,8 @@ class HTMLConverter(object):
     processed_files = {} #: Files that have been processed
     
     def __init__(self, book, path, width=575, height=747, 
-                 font_delta=0, verbose=False, cover=None):
+                 font_delta=0, verbose=False, cover=None,
+                 max_link_levels=sys.maxint, link_level=0):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -257,9 +261,15 @@ class HTMLConverter(object):
         @type verbose: C{bool}
         @param cover: Path to an image to use as the cover of this book
         @type cover: C{str}
+        @param max_link_levels: Number of link levels to process recursively
+        @type max_link_levels: C{int}
+        @param link_level: Current link level
+        @type link_level: C{int}
         '''
         self.page_width = width   #: The width of the page
         self.page_height = height #: The height of the page
+        self.max_link_levels = max_link_levels #: Number of link levels to process recursively
+        self.link_level  = link_level  #: Current link level
         self.images  = {}         #: Images referenced in the HTML document
         self.targets = {}         #: <a name=...> elements
         self.links   = []         #: <a href=...> elements        
@@ -415,7 +425,7 @@ class HTMLConverter(object):
                     cb = CharButton(jb, text=self.get_text(tag))
                     para.contents = []
                     para.append(cb)
-            else:                
+            elif self.link_level < self.max_link_levels:                
                 if not os.access(path, os.R_OK):
                     if self.verbose:
                         print "Skipping", link
@@ -423,12 +433,15 @@ class HTMLConverter(object):
                 path = os.path.abspath(path)
                 if not path in HTMLConverter.processed_files.keys():                    
                     try:                        
-                        self.files[path] = HTMLConverter(self.book, path, \
-                                     font_delta=self.font_delta, verbose=self.verbose)
+                        self.files[path] = HTMLConverter(self.book, path, 
+                                     font_delta=self.font_delta, verbose=self.verbose,
+                                     link_level=self.link_level+1,
+                                     max_link_levels=self.max_link_levels)
                         HTMLConverter.processed_files[path] = self.files[path]
-                    except Exception:
-                        print >>sys.stderr, 'Unable to process', path
-                        traceback.print_exc()
+                    except Exception, err:
+                        print >>sys.stderr, 'Unable to process', path, err
+                        if self.verbose:
+                            traceback.print_exc()
                         continue
                     finally:
                         os.chdir(cwd)
@@ -512,7 +525,7 @@ class HTMLConverter(object):
             if align != self.current_block.textStyle.attrs['align']:
                 self.current_para.append_to(self.current_block)
                 self.current_block.append_to(self.current_page)
-                self.current_block = TextBlock(TextStyle(align=align))
+                self.current_block = TextBlock(HTMLConverter.justification_styles[align])
                 self.current_para = Paragraph()
             try:
                 self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
@@ -571,7 +584,7 @@ class HTMLConverter(object):
             end_page = True
             tag_css.pop('page-break-after')
             
-        if tagname in ["title", "script", "meta", 'del']:            
+        if tagname in ["title", "script", "meta", 'del', 'frameset']:            
             pass
         elif tagname == 'a':
             if tag.has_key('name'):
@@ -588,8 +601,14 @@ class HTMLConverter(object):
                         self.current_para.append_to(self.current_block)
                         self.current_para = Paragraph()
                         if not self.current_block.get_text().strip():
-                            self.current_page.append(self.current_block)
-                            self.current_block = TextBlock()
+                            # THis is neccessary as apparently the reader 
+                            # cannot handle empty TextBlocks, although
+                            # the Connect software displays them correctly
+                            mkr = TextBlock()
+                            mkr.append(Paragraph(text=' '))
+                            self.current_page.append(mkr)
+                            #self.current_page.append(self.current_block)
+                            #self.current_block = TextBlock()
                     else:
                         found, marked = False, False
                         for item in self.current_page.contents:
@@ -701,6 +720,16 @@ class HTMLConverter(object):
             self.process_children(tag, tag_css)
             self.end_current_para()
             self.current_block.append(CR())
+        elif tagname == 'blockquote':
+            self.current_para.append_to(self.current_block)
+            self.current_block.append_to(self.current_page)
+            self.current_para = Paragraph()
+            self.current_block = TextBlock(*HTMLConverter.blockquote_style)
+            self.process_children(tag, tag_css)
+            self.current_para.append_to(self.current_block)
+            self.current_block.append_to(self.current_page)
+            self.current_para = Paragraph()
+            self.current_block = TextBlock()
         elif tagname in ['p', 'div']:
             self.end_current_para()
             self.process_children(tag, tag_css)
@@ -740,17 +769,17 @@ def process_file(path, options):
         cpath, tpath = options.cover, ''
         if options.cover and os.access(options.cover, os.R_OK):            
             try:
-                from PIL import Image
+                from PIL import Image as PILImage
                 from libprs500.prs500 import PRS500
                 from libprs500.ptempfile import PersistentTemporaryFile
-                im = Image.open(os.path.join(cwd, cpath))
-                cim = im.resize((600, 800), Image.BICUBIC)
+                im = PILImage.open(os.path.join(cwd, cpath))
+                cim = im.resize((600, 800), PILImage.BICUBIC)
                 cf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
                 cf.close()                
                 cim.save(cf.name)
                 cpath = cf.name
                 th = PRS500.THUMBNAIL_HEIGHT
-                tim = im.resize((int(0.75*th), th), Image.ANTIALIAS)
+                tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS)
                 tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
                 tf.close()
                 tim.save(tf.name)
@@ -771,7 +800,8 @@ def process_file(path, options):
             header.append(' by ')
             header.append(Italic(options.author))
         book = Book(header=header, **args)
-        conv = HTMLConverter(book, path, font_delta=options.font_delta, cover=cpath)
+        conv = HTMLConverter(book, path, font_delta=options.font_delta, 
+                             cover=cpath, max_link_levels=options.link_levels)
         conv.process_links()
         oname = options.output
         if not oname:
@@ -796,8 +826,13 @@ def main():
     parser.add_option('--lrs', action='store_true', dest='lrs', \
                       help='Convert to LRS', default=False)
     parser.add_option('--font-delta', action='store', type='int', default=0, \
-                      help="""Increase the font size by 2 * font-delta pts. 
-                      If font-delta is negative, the font size is decreased.""")
+                      help="""Increase the font size by 2 * FONT_DELTA pts. 
+                      If FONT_DELTA is negative, the font size is decreased.""",
+                      dest='font_delta')
+    parser.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
+                      dest='link_levels',
+                      help='''The maximum number of levels to recursively process
+                              links. A value of 0 means thats links are not processed.''')
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
