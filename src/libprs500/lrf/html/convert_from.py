@@ -586,7 +586,7 @@ class HTMLConverter(object):
             
         if tagname in ["title", "script", "meta", 'del', 'frameset']:            
             pass
-        elif tagname == 'a':
+        elif tagname == 'a' and self.max_link_levels >= 0:
             if tag.has_key('name'):
                 self.current_para.append_to(self.current_block)
                 self.current_block.append_to(self.current_page)
@@ -832,7 +832,8 @@ def main():
     parser.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
                       dest='link_levels',
                       help='''The maximum number of levels to recursively process
-                              links. A value of 0 means thats links are not processed.''')
+                              links. A value of 0 means thats links are not followed.
+                              A negative value means that <a> tags are ignored.''')
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
