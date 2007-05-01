@@ -49,7 +49,7 @@ if sys.argv[1] == 'py2exe':
         print >>sys.stderr, 'Must be in Windows to run py2exe'
         sys.exit(1)
     installer = \
-'''
+r'''
 SetCompressor     lzma
 ShowInstDetails   show
 ShowUnInstDetails show
@@ -67,7 +67,7 @@ Var MUI_TEMP
 
 !define PRODUCT_NAME "libprs500"
 !define XPUI_BRANDINGTEXT "${PRODUCT_NAME} created by Kovid Goyal"
-!define PRODUCT_VERSION "'''+VERSION+'''"
+!define PRODUCT_VERSION "'''+VERSION+r'''"
 !define WEBSITE "https://libprs500.kovidgoyal.net"
 !define PY2EXE_DIR "C:\libprs500"
 !define LIBUSB_DIR "C:\libusb-prs500"

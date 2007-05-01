@@ -601,7 +601,7 @@ class HTMLConverter(object):
                         self.current_para.append_to(self.current_block)
                         self.current_para = Paragraph()
                         if not self.current_block.get_text().strip():
-                            # THis is neccessary as apparently the reader 
+                            # This is neccessary as apparently the reader 
                             # cannot handle empty TextBlocks, although
                             # the Connect software displays them correctly
                             mkr = TextBlock()
