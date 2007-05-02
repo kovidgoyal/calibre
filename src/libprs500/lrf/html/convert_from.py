@@ -31,7 +31,8 @@ from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration, ProcessingInstruction
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
                                       ImageBlock, JumpButton, CharButton, BlockStyle,\
-                                      Page, Bold, Space, Plot, TextStyle, Image, BlockSpace
+                                      Page, Bold, Space, Plot, TextStyle, Image, BlockSpace,\
+                                      TableOfContents
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
@@ -241,7 +242,8 @@ class HTMLConverter(object):
     
     def __init__(self, book, path, width=575, height=747, 
                  font_delta=0, verbose=False, cover=None,
-                 max_link_levels=sys.maxint, link_level=0):
+                 max_link_levels=sys.maxint, link_level=0,
+                 is_root=True):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -265,6 +267,8 @@ class HTMLConverter(object):
         @type max_link_levels: C{int}
         @param link_level: Current link level
         @type link_level: C{int}
+        @param is_root: True iff this object is converting the root HTML file 
+        @type is_root: C{bool}
         '''
         self.page_width = width   #: The width of the page
         self.page_height = height #: The height of the page
@@ -279,7 +283,8 @@ class HTMLConverter(object):
         self.cover = cover
         self.memory = []          #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.in_ol = False #: Flag indicating we're in an <ol> element
-        self.book = book #: The Book object representing a BBeB book        
+        self.book = book #: The Book object representing a BBeB book
+        self.is_root = is_root           #: Are we converting the root HTML file
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
@@ -419,7 +424,9 @@ class HTMLConverter(object):
             para, tag = link.para, link.tag
             if not path or os.path.basename(path) == self.file_name:
                 if fragment in self.targets.keys():
-                    tb = self.targets[fragment]                    
+                    tb = self.targets[fragment]
+                    if self.is_root:
+                        self.book.addTocEntry(self.get_text(tag), tb)                 
                     sys.stdout.flush()
                     jb = JumpButton(tb)
                     self.book.append(jb)
@@ -437,7 +444,8 @@ class HTMLConverter(object):
                         self.files[path] = HTMLConverter(self.book, path, 
                                      font_delta=self.font_delta, verbose=self.verbose,
                                      link_level=self.link_level+1,
-                                     max_link_levels=self.max_link_levels)
+                                     max_link_levels=self.max_link_levels,
+                                     is_root = False)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception, err:
                         print >>sys.stderr, 'Unable to process', path, err
@@ -452,7 +460,9 @@ class HTMLConverter(object):
                 if fragment in conv.targets.keys():
                     tb = conv.targets[fragment]
                 else:
-                    tb = conv.top                        
+                    tb = conv.top
+                if self.is_root:
+                    self.book.addTocEntry(self.get_text(tag), tb)      
                 jb = JumpButton(tb)                
                 self.book.append(jb)
                 cb = CharButton(jb, text=self.get_text(tag))

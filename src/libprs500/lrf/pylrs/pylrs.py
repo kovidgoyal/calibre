@@ -622,8 +622,8 @@ class TableOfContents(object):
 
 
     def addTocEntry(self, tocLabel, textBlock):
-        if not isinstance(textBlock, TextBlock) and not isinstance(textBlock, ImageBlock):
-            raise LrsError, "TOC destination must be a TextBlock or an ImageBlock"
+        if not isinstance(textBlock, (TextBlock, ImageBlock, BlockSpace)):
+            raise LrsError, "TOC destination must be a TextBlock, ImageBlock or BlockSpace"
 
         if textBlock.parent is None or not isinstance(textBlock.parent, Page):
             raise LrsError, "TOC text block must be already appended to a page"
