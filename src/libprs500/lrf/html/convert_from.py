@@ -31,7 +31,7 @@ from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration, ProcessingInstruction
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
                                       ImageBlock, JumpButton, CharButton, BlockStyle,\
-                                      Page, Bold, Space, Plot, TextStyle, Image
+                                      Page, Bold, Space, Plot, TextStyle, Image, BlockSpace
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
@@ -377,18 +377,19 @@ class HTMLConverter(object):
             self.current_block.append_to(self.current_page)
         if self.current_page and self.current_page.get_text().strip():
             self.book.append(self.current_page)
-            previous = self.current_page
         
         if not self.top.parent:
             if not previous:
-                previous = self.current_page
-            found = False
-            for page in self.book.pages():
-                if page == previous:
-                    found = True
-                if found:
-                    self.top = page.contents[0]
-                    break
+                self.top = self.book.pages()[0].contents[0]
+            else:
+                found = False
+                for page in self.book.pages():
+                    if page == previous:
+                        found = True
+                        continue
+                    if found:
+                        self.top = page.contents[0]
+                        break
             if not self.top.parent:
                 raise ConversionError, 'Could not parse ' + self.file_name
                     
@@ -588,37 +589,33 @@ class HTMLConverter(object):
             pass
         elif tagname == 'a' and self.max_link_levels >= 0:
             if tag.has_key('name'):
-                self.current_para.append_to(self.current_block)
-                self.current_block.append_to(self.current_page)
                 previous = self.current_block
-                tb = TextBlock()
-                self.current_block = tb
-                self.current_para = Paragraph()
-                self.targets[tag['name']] = tb
                 self.process_children(tag, tag_css)
-                if tb.parent == None:
-                    if self.current_block == tb:
-                        self.current_para.append_to(self.current_block)
-                        self.current_para = Paragraph()
-                        if not self.current_block.get_text().strip():
-                            # This is neccessary as apparently the reader 
-                            # cannot handle empty TextBlocks, although
-                            # the Connect software displays them correctly
-                            mkr = TextBlock()
-                            mkr.append(Paragraph(text=' '))
-                            self.current_page.append(mkr)
-                            #self.current_page.append(self.current_block)
-                            #self.current_block = TextBlock()
+                target = None
+                if self.current_block == previous:
+                    self.current_para.append_to(self.current_block)
+                    self.current_para = Paragraph()
+                    if self.current_block.get_text().strip():
+                        target = self.current_block
                     else:
-                        found, marked = False, False
-                        for item in self.current_page.contents:
-                            if item == previous:
-                                found = True
-                            if found and isinstance(item, TextBlock):
-                                self.targets[tag['name']] = item
-                                marked = True
-                        if not marked:
-                            self.current_page.append(tb)
+                        target = BlockSpace()
+                        self.current_page.append(target)
+                else:
+                    found = False
+                    for item in self.current_page.contents:
+                        if item == previous:
+                            found = True
+                            continue
+                        if found:
+                            target = item
+                            break
+                    if target == None:
+                        if self.current_block.get_text().strip():
+                            target = self.current_block
+                        else:
+                            target = BlockSpace()
+                            self.current_page.append(target)
+                self.targets[tag['name']] = target
             elif tag.has_key('href'):
                 purl = urlparse(tag['href'])
                 path = purl[2]
@@ -699,9 +696,13 @@ class HTMLConverter(object):
         elif tagname in ['ul', 'ol']:
             self.in_ol = 1 if tagname == 'ol' else 0
             self.end_current_para()
+            self.current_block.append_to(self.current_page)
+            self.current_block = TextBlock()
             self.process_children(tag, tag_css)
             self.in_ol = 0
             self.end_current_para()
+            self.current_block.append_to(self.current_page)
+            self.current_block = TextBlock()
         elif tagname == 'li':
             prepend = str(self.in_ol)+'. ' if self.in_ol else u'\u2022' + ' '
             if self.current_para.get_text().strip():

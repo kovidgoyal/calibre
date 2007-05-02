@@ -1791,9 +1791,10 @@ class Bold(Span):
         return e
 
 
-class BlockSpace(LrsContainer):
+class BlockSpace(LrsContainer, LrsObject):
     """ Can be appended to a page to move the text point. """
     def __init__(self, xspace=0, yspace=0, x=0, y=0):
+        LrsObject.__init__(self)
         LrsContainer.__init__(self, [])
         if xspace == 0 and x != 0: xspace = x
         if yspace == 0 and y != 0: yspace = y
