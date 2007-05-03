@@ -30,17 +30,13 @@ from operator import itemgetter
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration, ProcessingInstruction
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
-                                      ImageBlock, JumpButton, CharButton, BlockStyle,\
-                                      Page, Bold, Space, Plot, TextStyle, Image, BlockSpace,\
+                                      ImageBlock, JumpButton, CharButton, \
+                                      Bold, Space, Plot, Image, BlockSpace,\
                                       RuledLine
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
 
-def ImagePage():
-    return Page(evensidemargin=0, oddsidemargin=0, topmargin=0, \
-                       textwidth=600, textheight=800)
-    
 class Span(_Span):
     replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo', 'nbsp' ]
     patterns = [ re.compile('&'+i+';') for i in replaced_entities ]
@@ -212,12 +208,9 @@ class Span(_Span):
         
         
 class HTMLConverter(object):
-    selector_pat = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
+    SELECTOR_PAT = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     IGNORED_TAGS = (Comment, Declaration, ProcessingInstruction)
-    justification_styles = dict(head=TextStyle(align='head'), foot=TextStyle(align='foot'), 
-                                center=TextStyle(align='center'))
-    blockquote_style = BlockStyle(sidemargin=60, topskip=20, footskip=20)
-    unindented_style = TextStyle(parindent=0)
+    
     # Fix <a /> elements 
     markup_massage   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
                          lambda match: match.group(1)+"></a>")]
@@ -278,6 +271,12 @@ class HTMLConverter(object):
         self.page_height = height #: The height of the page
         self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
+        self.justification_styles = dict(head=book.create_text_style(align='head'), 
+                                         foot=book.create_text_style(align='foot'), 
+                                         center=book.create_text_style(align='center'))
+        self.blockquote_style = book.create_block_style(sidemargin=60, 
+                                                        topskip=20, footskip=20)
+        self.unindented_style = book.create_text_style(parindent=0)
         self.images  = {}         #: Images referenced in the HTML document
         self.targets = {}         #: <a name=...> elements
         self.links   = []         #: <a href=...> elements        
@@ -320,7 +319,7 @@ class HTMLConverter(object):
         """
         sdict = dict()
         style = re.sub('/\*.*?\*/', '', style) # Remove /*...*/ comments
-        for sel in re.findall(HTMLConverter.selector_pat, style):
+        for sel in re.findall(HTMLConverter.SELECTOR_PAT, style):
             for key in sel[0].split(','):
                 key = key.strip().lower()
                 val = self.parse_style_properties(sel[1])
@@ -376,8 +375,8 @@ class HTMLConverter(object):
         
     def parse_file(self):
         previous = self.book.last_page()
-        self.current_page = Page()
-        self.current_block = TextBlock()
+        self.current_page = self.book.create_page()
+        self.current_block = self.book.create_text_block()
         self.current_para = Paragraph()
         if self.cover:
             self.add_image_page(self.cover)
@@ -445,7 +444,7 @@ class HTMLConverter(object):
                         break
             
             if not ans: 
-                ntb = TextBlock()
+                ntb = self.book.create_text_block()
                 ntb.Paragraph(' ')
                 page.append(ntb)
                 ans = ntb
@@ -528,16 +527,18 @@ class HTMLConverter(object):
         self.current_para.append_to(self.current_block)
         self.current_para = Paragraph()
         self.current_block.append_to(self.current_page)
-        self.current_block = TextBlock()
+        self.current_block = self.book.create_text_block()
         if self.current_page.has_text(): 
             self.book.append(self.current_page)
-            self.current_page = Page()
+            self.current_page = self.book.create_page()
         
         
     def add_image_page(self, path):
         if os.access(path, os.R_OK):
             self.end_page()
-            page = ImagePage()
+            page = self.book.create_page(evensidemargin=0, oddsidemargin=0, 
+                                         topmargin=0, textwidth=self.page_width,
+                                         textheight=self.page_height)
             if not self.images.has_key(path):
                 self.images[path] = ImageStream(path)
             page.append(ImageBlock(self.images[path]))
@@ -578,7 +579,8 @@ class HTMLConverter(object):
             if align != self.current_block.textStyle.attrs['align']:
                 self.current_para.append_to(self.current_block)
                 self.current_block.append_to(self.current_page)
-                self.current_block = TextBlock(textStyle=HTMLConverter.justification_styles[align])
+                self.current_block = self.book.create_text_block(
+                                    textStyle=self.justification_styles[align])
                 self.current_para = Paragraph()
             try:
                 self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
@@ -613,6 +615,12 @@ class HTMLConverter(object):
         if self.current_block.contents and \
             not isinstance(self.current_block.contents[-1], CR):
             self.current_block.append(CR())
+            
+    def end_current_block(self):
+        self.current_para.append_to(self.current_block)
+        self.current_block.append_to(self.current_page)
+        self.current_para = Paragraph()
+        self.current_block = self.book.create_text_block()
     
     def parse_tag(self, tag, parent_css):
         try:
@@ -663,7 +671,7 @@ class HTMLConverter(object):
                             break
                     if target and not isinstance(target, (TextBlock, ImageBlock)):
                         if isinstance(target, RuledLine):
-                            target = TextBlock()
+                            target = self.book.create_text_block()
                             target.Paragraph(' ')
                             self.current_page.append(target)
                         else:
@@ -719,7 +727,7 @@ class HTMLConverter(object):
                     self.current_block.append(self.current_para)
                     self.current_page.append(self.current_block)
                     self.current_para = Paragraph()
-                    self.current_block = TextBlock()
+                    self.current_block = self.book.create_text_block()
                     im = ImageBlock(self.images[path], x1=width, y1=height, 
                                     xsize=width, ysize=height)
                     self.current_page.append(im)                        
@@ -747,7 +755,8 @@ class HTMLConverter(object):
         elif tagname == 'pre':
             self.end_current_para()
             self.current_block.append_to(self.current_page)
-            self.current_block = TextBlock(textStyle=HTMLConverter.unindented_style)
+            self.current_block = self.book.create_text_block(
+                                    textStyle=self.unindented_style)
             src = ''.join([str(i) for i in tag.contents])
             lines = src.split('\n')
             for line in lines:
@@ -756,19 +765,15 @@ class HTMLConverter(object):
                     self.current_para.CR()
                 except ConversionError:
                     pass
-            self.end_current_para()
-            self.current_block.append_to(self.current_page)
-            self.current_block = TextBlock()
+            self.end_current_block()
         elif tagname in ['ul', 'ol']:
             self.in_ol = 1 if tagname == 'ol' else 0
-            self.end_current_para()
-            self.current_block.append_to(self.current_page)
-            self.current_block = TextBlock(textStyle=HTMLConverter.unindented_style)
+            self.end_current_block()
+            self.current_block = self.book.create_text_block(
+                                        textStyle=self.unindented_style)
             self.process_children(tag, tag_css)
             self.in_ol = 0
-            self.end_current_para()
-            self.current_block.append_to(self.current_page)
-            self.current_block = TextBlock()
+            self.end_current_block()
         elif tagname == 'li':
             prepend = str(self.in_ol)+'. ' if self.in_ol else u'\u2022' + ' '
             if self.current_para.has_text():
@@ -791,13 +796,11 @@ class HTMLConverter(object):
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
             self.current_para = Paragraph()
-            self.current_block = TextBlock(blockStyle=HTMLConverter.blockquote_style,
-                                           textStyle=HTMLConverter.unindented_style)
+            self.current_block = self.book.create_text_block(
+                                    blockStyle=self.blockquote_style,
+                                    textStyle=self.unindented_style)
             self.process_children(tag, tag_css)
-            self.current_para.append_to(self.current_block)
-            self.current_block.append_to(self.current_page)
-            self.current_para = Paragraph()
-            self.current_block = TextBlock()
+            self.end_current_block()
         elif tagname in ['p', 'div']:
             self.end_current_para()
             self.lstrip_toggle = True
@@ -813,12 +816,9 @@ class HTMLConverter(object):
             self.current_para.append(CR())
             self.process_children(tag, tag_css)
         elif tagname == 'hr':
-            if self.current_para.contents:
-                self.current_block.append(self.current_para)
-                self.current_para = Paragraph()
+            self.end_current_para()            
             self.current_block.append(CR())
-            self.current_page.append(self.current_block)
-            self.current_block = TextBlock()            
+            self.end_current_block()
             self.current_page.RuledLine(linelength=self.page_width)
         else:            
             self.process_children(tag, tag_css)

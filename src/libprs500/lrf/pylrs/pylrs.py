@@ -1,33 +1,6 @@
-"""
-    pylrs.py -- a package to create LRS (and LRF) e-Books for the Sony PRS-500.
-"""
-
-import os
-import re
-import codecs
-from datetime import date
-try:
-    from elementtree.ElementTree import (Element, SubElement)
-except ImportError:
-    from xml.etree.ElementTree import (Element, SubElement)
-
-from elements import ElementWriter
-from pylrf import (LrfWriter, LrfObject, LrfTag, LrfToc,
-        STREAM_COMPRESSED, LrfTagStream, LrfStreamBase, IMAGE_TYPE_ENCODING,
-        BINDING_DIRECTION_ENCODING, LINE_TYPE_ENCODING, LrfFileStream,
-        STREAM_FORCE_COMPRESSED)
-
-PYLRS_VERSION = "1.0"
-
-DEFAULT_SOURCE_ENCODING = "cp1252"      # defualt is us-windows character set
-DEFAULT_GENREADING      = "f"           # default is yes to lrf, no to lrs
-
-#
-# Acknowledgement:
-#   This software would not have been possible without the pioneering
-#   efforts of the author of lrf2lrs.py, Igor Skochinsky.
-#
 # Copyright (c) 2007 Mike Higgins (Falstaff)
+# Modifications from the original: 
+#    Copyright (C) 2007 Kovid Goyal <kovid@kovidgoyal.net>
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -45,22 +18,8 @@ DEFAULT_GENREADING      = "f"           # default is yes to lrf, no to lrs
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
-
-# Check www.falstaffshouse.com for possible updates to this code.
-# Email contact: falstaff (at) falstaffshouse.com
-
-#
-# Change History:
-#
-# V1.0 06 Feb 2007
-# Initial Release.
-#
-
 #
 # Current limitations and bugs:
-#   Bug: using two instances of Book() at the same time can cause
-#        incorrect output if any default styles are used.  Workaround:
-#        supply all styles explicitly, or use only one Book class at a time.
 #   Bug: Does not check if most setting values are valid unless lrf is created.
 #
 #   Unsupported objects: MiniPage, SimpleTextBlock, Canvas, Window,
@@ -76,9 +35,23 @@ DEFAULT_GENREADING      = "f"           # default is yes to lrf, no to lrs
 #   Other unsupported tags: PageDiv, SoundStop, Wait, pos,
 #                           Plot, Image (outside of ImageBlock), 
 #                           EmpLine, EmpDots
-#
-#   Tested on Python 2.4 and 2.5, Windows XP and PRS-500.
-#
+
+import os, re, codecs
+from datetime import date
+try:
+    from elementtree.ElementTree import (Element, SubElement)
+except ImportError:
+    from xml.etree.ElementTree import (Element, SubElement)
+
+from elements import ElementWriter
+from pylrf import (LrfWriter, LrfObject, LrfTag, LrfToc,
+        STREAM_COMPRESSED, LrfTagStream, LrfStreamBase, IMAGE_TYPE_ENCODING,
+        BINDING_DIRECTION_ENCODING, LINE_TYPE_ENCODING, LrfFileStream,
+        STREAM_FORCE_COMPRESSED)
+
+DEFAULT_SOURCE_ENCODING = "cp1252"      # defualt is us-windows character set
+DEFAULT_GENREADING      = "f"           # default is yes to lrf, no to lrs
+
 
 class LrsError(Exception):
     pass
@@ -263,6 +236,7 @@ class LrsAttributes(object):
             if type(value) is int:
                 value = str(value)
             self.attrs[name] = value
+        
 
 
 class LrsContainer(object):
@@ -334,12 +308,12 @@ class LrsContainer(object):
 
 class LrsObject(object):
     """ A mixin class for elements that need an object id. """
-    NextObjId = 0
+    nextObjId = 0
  
     @classmethod
     def getNextObjId(selfClass):
-        selfClass.NextObjId += 1
-        return selfClass.NextObjId
+        selfClass.nextObjId += 1
+        return selfClass.nextObjId
 
     def __init__(self, assignId=False):
         if assignId:
@@ -412,6 +386,7 @@ class Book(Delegator):
         
         There are several other settings -- see the BookInfo class for more.       
     """
+    
     def __init__(self, textstyledefault=None, blockstyledefault=None,
                        pagestyledefault=None,
                        optimizeTags=False,
@@ -427,23 +402,23 @@ class Book(Delegator):
         self.optimizeTags = optimizeTags
         self.optimizeCompression = optimizeCompression
 
-        TextStyle.resetDefaults()
-        BlockStyle.resetDefaults()
-        PageStyle.resetDefaults()
+        pageStyle  = PageStyle(**PageStyle.baseDefaults.copy())
+        blockStyle = BlockStyle(**BlockStyle.baseDefaults.copy())
+        textStyle  = TextStyle(**TextStyle.baseDefaults.copy())
 
         if textstyledefault is not None:
-            TextStyle.setDefaults(textstyledefault)
+            textStyle.update(textstyledefault)
 
         if blockstyledefault is not None:
-            BlockStyle.setDefaults(blockstyledefault)
+            blockStyle.update(blockstyledefault)
 
         if pagestyledefault is not None:
-            PageStyle.setDefaults(pagestyledefault)
+            pageStyle.update(pagestyledefault)
 
-        Page.defaultPageStyle = PageStyle()
-        TextBlock.defaultTextStyle = TextStyle()
-        TextBlock.defaultBlockStyle = BlockStyle()
-        LrsObject.nextObjId = 1
+        self.defaultPageStyle = pageStyle
+        self.defaultTextStyle = textStyle
+        self.defaultBlockStyle = blockStyle
+        LrsObject.nextObjId += 1
 
         Delegator.__init__(self, [BookInformation(), Main(),
             Template(), Style(), Solos(), Objects()])
@@ -455,7 +430,46 @@ class Book(Delegator):
         self.applySetting("sourceencoding", DEFAULT_SOURCE_ENCODING)
         
         self.applySettings(settings, testValid=True)
+
+    def create_text_style(self, **settings):
+        ans = TextStyle(**self.defaultTextStyle.attrs.copy())
+        ans.update(settings)
+        return ans
+        
+    def create_block_style(self, **settings):
+        ans = BlockStyle(**self.defaultBlockStyle.attrs.copy())
+        ans.update(settings)
+        return ans
+        
+    def create_page_style(self, **settings):
+        ans = PageStyle(**self.defaultPageStyle.attrs.copy())
+        ans.update(settings)
+        return ans
     
+    def create_page(self, pageStyle=None, **settings):
+        '''
+        Return a new L{Page}. The page has not been appended to this book.
+        @param pageStyle: If None the default pagestyle is used.
+        @type pageStyle: L{PageStyle}
+        '''
+        if not pageStyle:
+            pageStyle = self.defaultPageStyle
+        return Page(pageStyle=pageStyle, **settings)
+    
+    def create_text_block(self, textStyle=None, blockStyle=None, **settings):
+        '''
+        Return a new L{TextBlock}. The block has not been appended to this
+        book.
+        @param textStyle: If None the default text style is used
+        @type textStyle: L{TextStyle}
+        @param blockStyle: If None the default block style is used.
+        @type blockStyle: L{BlockStyle}
+        '''
+        if not textStyle:
+            textStyle = self.defaultTextStyle
+        if not blockStyle:
+            blockStyle = self.defaultBlockStyle
+        return TextBlock(textStyle=textStyle, blockStyle=blockStyle, **settings)
 
     def pages(self):
         '''Return list of Page objects in this book '''
@@ -538,11 +552,6 @@ class Book(Delegator):
                                spaceBeforeClose=False)
         writer.write(f)
         
-       
-        
-
-
-
 
 
 class BookInformation(Delegator):
@@ -914,8 +923,6 @@ class Style(LrsContainer, Delegator):
                 "appendPageStyle", "appendTextStyle", "appendBlockStyle"] + \
                         self.delegatedMethods
 
-    
-
     def getSettings(self):
         return [(self.bookStyle, x) for x in self.bookStyle.getSettings()]
 
@@ -1066,19 +1073,13 @@ class LrsStyle(LrsObject, LrsAttributes, LrsContainer):
         #self.parent = None
         
 
-    @classmethod
-    def resetDefaults(selfClass):
-        selfClass.defaults = selfClass.baseDefaults.copy()
-
-
-    @classmethod
-    def setDefaults(selfClass, settings):
+    def update(self, settings):
         for name, value in settings.items():
-            if name not in selfClass.validSettings:
-                raise LrsError, "default setting %s not recognized" % name
-            selfClass.defaults[name] = value
-
-
+            if name not in self.__class__.validSettings:
+                raise LrsError, "%s not a valid setting for %s" % \
+                                                (name, self.__class__.__name__)
+            self.attrs[name] = value
+            
     def getLabel(self):
         return str(self.objId)
  
@@ -1119,7 +1120,7 @@ class TextStyle(LrsStyle):
             fontorientation="0", fontweight="400",
             fontfacename="Dutch801 Rm BT Roman",
             textcolor="0x00000000", wordspace="25", letterspace="0",
-            baselineskip="120", linespace="12", parindent="80", parskip="0",
+            baselineskip="120", linespace="10", parindent="0", parskip="0",
             textbgcolor="0xFF000000")
 
     alsoAllow = ["empdotscode", "empdotsfontname", "refempdotsfont",
@@ -1238,15 +1239,10 @@ class Page(LrsObject, LrsContainer):
     """
     defaultPageStyle = PageStyle()
 
-    def __init__(self, *args, **settings):
+    def __init__(self, pageStyle=defaultPageStyle, **settings):
         LrsObject.__init__(self)
         LrsContainer.__init__(self, [TextBlock, BlockSpace, RuledLine,
             ImageBlock])
-
-        if len(args) > 0:
-            pageStyle = args[0]
-        else:
-            pageStyle = Page.defaultPageStyle
 
         self.pageStyle = pageStyle
 
@@ -1381,7 +1377,7 @@ class TextBlock(LrsObject, LrsContainer):
         self.textStyle = textStyle
         self.blockStyle = blockStyle
 
-        # create a textStyle with our current text settings (for Span to find)
+        # create a textStyle with our current text settings (for Span to find)        
         self.currentTextStyle = textStyle.copy()
         self.currentTextStyle.attrs.update(self.textSettings)
 

@@ -56,6 +56,7 @@ def Book(font_delta=0, header=None, **settings):
         ps['header'] = header
         ps['header'] = hdr
         ps['topmargin'] = 10
-    return _Book(textstyledefault=dict(fontsize=100+font_delta*20), \
+    return _Book(textstyledefault=dict(fontsize=100+font_delta*20, 
+                                       parindent=80, linespace=12), \
                  pagestyledefault=ps, \
                   **settings)

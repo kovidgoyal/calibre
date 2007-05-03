@@ -68,7 +68,10 @@ def convert_txt(path, options):
                 sourceencoding=options.encoding, freetext=options.freetext, \
                 category=options.category)
     buffer = ''
-    block = book.Page().TextBlock()
+    pg = book.create_page()
+    block = book.create_text_block()
+    pg.append(block)
+    book.append(pg)
     for line in fileinput.input(path):
         line = line.strip()
         if line:
