@@ -20,7 +20,7 @@ Code to convert HTML ebooks into LRF ebooks.
 I am indebted to esperanc for the CSS->Xylog Style conversion routines
 and to Falstaff for pylrs.
 """
-import os, re, sys, shutil, traceback
+import os, re, sys, shutil, traceback, copy
 from htmlentitydefs import name2codepoint
 from urllib import urlopen, unquote
 from urlparse import urlparse
@@ -32,7 +32,7 @@ from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
                                       ImageBlock, JumpButton, CharButton, BlockStyle,\
                                       Page, Bold, Space, Plot, TextStyle, Image, BlockSpace,\
-                                      TableOfContents
+                                      RuledLine
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
@@ -196,7 +196,7 @@ class Span(_Span):
         return t        
     
     def __init__(self, ns, css, memory, font_delta=0):
-        src = ns.string if hasattr(ns, 'string') else str(ns)
+        src = ns.string if hasattr(ns, 'string') else ns
         src = re.sub(r'\s{2,}', ' ', src)  # Remove multiple spaces
         for pat, repl in Span.rules:
             src = pat.sub(repl, src)
@@ -216,7 +216,11 @@ class HTMLConverter(object):
     IGNORED_TAGS = (Comment, Declaration, ProcessingInstruction)
     justification_styles = dict(head=TextStyle(align='head'), foot=TextStyle(align='foot'), 
                                 center=TextStyle(align='center'))
-    blockquote_style = [TextStyle(), BlockStyle(sidemargin=60, topskip=20, footskip=20)]
+    blockquote_style = BlockStyle(sidemargin=60, topskip=20, footskip=20)
+    unindented_style = TextStyle(parindent=0)
+    # Fix <a /> elements 
+    markup_massage   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
+                         lambda match: match.group(1)+"></a>")]
     
     class Link(object):
         def __init__(self, para, tag):
@@ -285,14 +289,18 @@ class HTMLConverter(object):
         self.in_ol = False #: Flag indicating we're in an <ol> element
         self.book = book #: The Book object representing a BBeB book
         self.is_root = is_root           #: Are we converting the root HTML file
+        self.lstrip_toggle = False #; If true the next add_text call will do an lstrip
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
         print "Processing", self.file_name
         print '\tParsing HTML...',
         sys.stdout.flush()
-        self.soup = BeautifulSoup(open(self.file_name, 'r').read(), \
-                         convertEntities=BeautifulSoup.HTML_ENTITIES)
+        nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
+        nmassage.extend(HTMLConverter.markup_massage)
+        self.soup = BeautifulSoup(open(self.file_name, 'r').read(), 
+                         convertEntities=BeautifulSoup.HTML_ENTITIES,
+                         markupMassage=nmassage)
         print 'done\n\tConverting to BBeB...',
         sys.stdout.flush()
         self.verbose = verbose        
@@ -380,7 +388,7 @@ class HTMLConverter(object):
             self.current_para.append_to(self.current_block)
         if self.current_block and self.current_page:
             self.current_block.append_to(self.current_page)
-        if self.current_page and self.current_page.get_text().strip():
+        if self.current_page and self.current_page.has_text():
             self.book.append(self.current_page)
         
         if not self.top.parent:
@@ -415,6 +423,38 @@ class HTMLConverter(object):
             return text
     
     def process_links(self):
+        def get_target_block(fragment, targets):
+            '''Return the correct block for the <a name> element'''
+            bs = targets[fragment]
+            if not isinstance(bs, BlockSpace):
+                return bs
+            ans, found, page = None, False, bs.parent
+            for item in page.contents:
+                if found:
+                    if isinstance(item, (TextBlock, ImageBlock)):
+                        ans = item
+                        break
+                if item == bs:
+                    found = True
+                    continue
+            
+            if not ans:
+                for i in range(len(page.contents)-1, -1, -1):
+                    if isinstance(page.contents[i], (TextBlock, ImageBlock)):
+                        ans = page.contents[i]
+                        break
+            
+            if not ans: 
+                ntb = TextBlock()
+                ntb.Paragraph(' ')
+                page.append(ntb)
+                ans = ntb
+                
+            if found:
+                targets[fragment] =  ans
+                page.contents.remove(bs)
+            return ans
+        
         cwd = os.getcwd()
         for link in self.links:
             purl = urlparse(link.tag['href'])
@@ -424,7 +464,7 @@ class HTMLConverter(object):
             para, tag = link.para, link.tag
             if not path or os.path.basename(path) == self.file_name:
                 if fragment in self.targets.keys():
-                    tb = self.targets[fragment]
+                    tb = get_target_block(fragment, self.targets)
                     if self.is_root:
                         self.book.addTocEntry(self.get_text(tag), tb)                 
                     sys.stdout.flush()
@@ -458,7 +498,7 @@ class HTMLConverter(object):
                     self.files[path] = HTMLConverter.processed_files[path]
                 conv = self.files[path]
                 if fragment in conv.targets.keys():
-                    tb = conv.targets[fragment]
+                    tb = get_target_block(fragment, conv.targets)
                 else:
                     tb = conv.top
                 if self.is_root:
@@ -479,7 +519,6 @@ class HTMLConverter(object):
                 self.files[path].process_links()
             finally:
                 os.chdir(cwd)
-                        
             
     def end_page(self):
         """
@@ -490,7 +529,7 @@ class HTMLConverter(object):
         self.current_para = Paragraph()
         self.current_block.append_to(self.current_page)
         self.current_block = TextBlock()
-        if self.current_page.get_text().strip(): 
+        if self.current_page.has_text(): 
             self.book.append(self.current_page)
             self.current_page = Page()
         
@@ -521,7 +560,10 @@ class HTMLConverter(object):
         @param css:
         @type css:
         '''
-        src = tag.string if hasattr(tag, 'string') else str(tag)
+        src = tag.string if hasattr(tag, 'string') else tag 
+        if self.lstrip_toggle:
+            src = src.lstrip()
+            self.lstrip_toggle = False
         if not src.strip():
             self.current_para.append(' ')
         else:
@@ -536,7 +578,7 @@ class HTMLConverter(object):
             if align != self.current_block.textStyle.attrs['align']:
                 self.current_para.append_to(self.current_block)
                 self.current_block.append_to(self.current_page)
-                self.current_block = TextBlock(HTMLConverter.justification_styles[align])
+                self.current_block = TextBlock(textStyle=HTMLConverter.justification_styles[align])
                 self.current_para = Paragraph()
             try:
                 self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
@@ -563,7 +605,7 @@ class HTMLConverter(object):
         End current paragraph with a paragraph break after it. If the current
         paragraph has no non whitespace text in it do nothing.
         '''
-        if not self.current_para.get_text().strip():
+        if not self.current_para.has_text():
             return
         if self.current_para.contents:
             self.current_block.append(self.current_para)
@@ -605,8 +647,8 @@ class HTMLConverter(object):
                 if self.current_block == previous:
                     self.current_para.append_to(self.current_block)
                     self.current_para = Paragraph()
-                    if self.current_block.get_text().strip():
-                        target = self.current_block
+                    if self.current_block.has_text():
+                        target = self.current_block                        
                     else:
                         target = BlockSpace()
                         self.current_page.append(target)
@@ -619,12 +661,21 @@ class HTMLConverter(object):
                         if found:
                             target = item
                             break
+                    if target and not isinstance(target, (TextBlock, ImageBlock)):
+                        if isinstance(target, RuledLine):
+                            target = TextBlock()
+                            target.Paragraph(' ')
+                            self.current_page.append(target)
+                        else:
+                            target = BlockSpace()
+                            self.current_page.append(target)
                     if target == None:
-                        if self.current_block.get_text().strip():
+                        if self.current_block.has_text():
                             target = self.current_block
                         else:
                             target = BlockSpace()
                             self.current_page.append(target)
+                        
                 self.targets[tag['name']] = target
             elif tag.has_key('href'):
                 purl = urlparse(tag['href'])
@@ -695,19 +746,24 @@ class HTMLConverter(object):
                     pass
         elif tagname == 'pre':
             self.end_current_para()
+            self.current_block.append_to(self.current_page)
+            self.current_block = TextBlock(textStyle=HTMLConverter.unindented_style)
             src = ''.join([str(i) for i in tag.contents])
             lines = src.split('\n')
             for line in lines:
                 try:
                     self.current_para.append(Span(line, tag_css, self.memory))
+                    self.current_para.CR()
                 except ConversionError:
                     pass
-                self.current_para.CR()
+            self.end_current_para()
+            self.current_block.append_to(self.current_page)
+            self.current_block = TextBlock()
         elif tagname in ['ul', 'ol']:
             self.in_ol = 1 if tagname == 'ol' else 0
             self.end_current_para()
             self.current_block.append_to(self.current_page)
-            self.current_block = TextBlock()
+            self.current_block = TextBlock(textStyle=HTMLConverter.unindented_style)
             self.process_children(tag, tag_css)
             self.in_ol = 0
             self.end_current_para()
@@ -715,7 +771,7 @@ class HTMLConverter(object):
             self.current_block = TextBlock()
         elif tagname == 'li':
             prepend = str(self.in_ol)+'. ' if self.in_ol else u'\u2022' + ' '
-            if self.current_para.get_text().strip():
+            if self.current_para.has_text():
                 self.current_para.append(CR())
                 self.current_block.append(self.current_para)
             self.current_para = Paragraph()
@@ -735,7 +791,8 @@ class HTMLConverter(object):
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
             self.current_para = Paragraph()
-            self.current_block = TextBlock(*HTMLConverter.blockquote_style)
+            self.current_block = TextBlock(blockStyle=HTMLConverter.blockquote_style,
+                                           textStyle=HTMLConverter.unindented_style)
             self.process_children(tag, tag_css)
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
@@ -743,6 +800,7 @@ class HTMLConverter(object):
             self.current_block = TextBlock()
         elif tagname in ['p', 'div']:
             self.end_current_para()
+            self.lstrip_toggle = True
             self.process_children(tag, tag_css)
             self.end_current_para()
         elif tagname in ['b', 'strong', 'i', 'em', 'span']:

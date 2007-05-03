@@ -275,22 +275,23 @@ class LrsContainer(object):
         self.validChildren = validChildren
             
         
-    def get_text(self):
-        ''' Return the textual content of this container'''
-        txt = ''
+    def has_text(self):
+        ''' Return True iff this container has non whitespace text '''
         if hasattr(self, 'text'):
-            txt += self.text
-        if hasattr(self, 'contents'):
+            if self.text.strip():
+                return True
+        if hasattr(self, 'contents'):            
             for child in self.contents:
-                txt += child.get_text()
-        return txt
+                if child.has_text():
+                    return True
+        return False
     
     def append_to(self, parent):
         '''
         Append self to C{parent} iff self has non whitespace textual content        
         @type parent: LrsContainer
         '''
-        if self.get_text().strip():
+        if self.has_text():
             parent.append(self)
         
     def appendReferencedObjects(self, parent):
@@ -622,8 +623,9 @@ class TableOfContents(object):
 
 
     def addTocEntry(self, tocLabel, textBlock):
-        if not isinstance(textBlock, (TextBlock, ImageBlock, BlockSpace)):
-            raise LrsError, "TOC destination must be a TextBlock, ImageBlock or BlockSpace"
+        if not isinstance(textBlock, (TextBlock, ImageBlock)):
+            raise LrsError, "TOC destination must be a TextBlock or ImageBlock"+\
+                            " not a " + str(type(textBlock))
 
         if textBlock.parent is None or not isinstance(textBlock.parent, Page):
             raise LrsError, "TOC text block must be already appended to a page"
@@ -1117,7 +1119,7 @@ class TextStyle(LrsStyle):
             fontorientation="0", fontweight="400",
             fontfacename="Dutch801 Rm BT Roman",
             textcolor="0x00000000", wordspace="25", letterspace="0",
-            baselineskip="120", linespace="10", parindent="0", parskip="0",
+            baselineskip="120", linespace="12", parindent="80", parskip="0",
             textbgcolor="0xFF000000")
 
     alsoAllow = ["empdotscode", "empdotsfontname", "refempdotsfont",
@@ -1345,10 +1347,6 @@ class Page(LrsObject, LrsContainer):
 class TextBlock(LrsObject, LrsContainer):
     """
         TextBlocks are added to Pages.  They hold Paragraphs or CRs.
-        TextBlocks can be supplied a TextStyle and a BlockStyle as the first
-        two arguments to the constructor, but these can be left off
-        and defaults will be used (since the spec says you have to have
-        them).
         
         If a TextBlock is used in a header, it should be appended to
         the Book, not to a specific Page.
@@ -1356,22 +1354,22 @@ class TextBlock(LrsObject, LrsContainer):
     defaultTextStyle = TextStyle()
     defaultBlockStyle = BlockStyle()
 
-    def __init__(self, *args, **settings):
+    def __init__(self, textStyle=defaultTextStyle,   \
+                       blockStyle=defaultBlockStyle, \
+                       **settings):
+        '''
+        Create TextBlock.
+        @param textStyle: The L{TextStyle} for this block.
+        @param blockStyle: The L{BlockStyle} for this block.        
+        @param settings: C{dict} of extra settings to apply to this block. 
+        '''
         LrsObject.__init__(self)
         LrsContainer.__init__(self, [Paragraph, CR])
 
-        textStyle = TextBlock.defaultTextStyle
-        blockStyle = TextBlock.defaultBlockStyle
-        if len(args) > 0:
-            textStyle = args[0]
-        if len(args) > 1:
-            blockStyle = args[1]
-        if len(args) > 2:
-            raise LrsError, \
-                    "too many style arguments to TextBlock"
-
         self.textSettings = {}
         self.blockSettings = {}
+
+        
         for name, value in settings.items():
             if name in TextStyle.validSettings:
                 self.textSettings[name] = value
@@ -1410,8 +1408,9 @@ class TextBlock(LrsObject, LrsContainer):
         self.append(CR())
         return p
 
+                        
 
-    def toElement(self, sourceEncoding):     
+    def toElement(self, sourceEncoding):
         tb = self.lrsObjectElement("TextBlock", labelName="Block")
         tb.attrib.update(self.textSettings)
         tb.attrib.update(self.blockSettings)
@@ -1489,8 +1488,8 @@ class Paragraph(LrsContainer):
                                      LrsSimpleChar1, basestring])
         if text is not None:
             self.append(text)
-
-
+        
+    
     def CR(self):
         # Okay, here's a single autoappender for this common operation
         cr = CR()
@@ -1555,6 +1554,7 @@ class LrsTextTag(LrsContainer):
 
 class LrsSimpleChar1(object):
     pass
+                
 
 class DropCaps(LrsTextTag):
     
@@ -1630,7 +1630,6 @@ class Text(LrsContainer):
     def toLrfContainer(self, lrfWriter, parent):
         if self.text:
             parent.appendLrfTag(LrfTag("rawtext", self.text))
-
 
 
 class CR(LrsSimpleChar1, LrsContainer):
@@ -1749,6 +1748,7 @@ class Span(LrsSimpleChar1, LrsContainer):
         return parent.currentTextStyle
 
 
+    
     def toLrfContainer(self, lrfWriter, container):
 
         # set the attributes we want changed
@@ -1791,13 +1791,14 @@ class Bold(Span):
         return e
 
 
-class BlockSpace(LrsContainer, LrsObject):
+class BlockSpace(LrsContainer):
     """ Can be appended to a page to move the text point. """
     def __init__(self, xspace=0, yspace=0, x=0, y=0):
-        LrsObject.__init__(self)
         LrsContainer.__init__(self, [])
-        if xspace == 0 and x != 0: xspace = x
-        if yspace == 0 and y != 0: yspace = y
+        if xspace == 0 and x != 0: 
+            xspace = x
+        if yspace == 0 and y != 0: 
+            yspace = y
         self.xspace = xspace
         self.yspace = yspace
 

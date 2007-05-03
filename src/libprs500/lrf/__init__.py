@@ -49,7 +49,7 @@ def Book(font_delta=0, header=None, **settings):
     ps = dict(textwidth=575, textheight=747)
     if header:
         hdr = Header()
-        hb = TextBlock(TextStyle(align='foot', fontsize=60))
+        hb = TextBlock(textStyle=TextStyle(align='foot', fontsize=60))
         hb.append(header)
         hdr.PutObj(hb)
         ps['headheight'] = 30
