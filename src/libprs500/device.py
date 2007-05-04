@@ -12,12 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
 """
 Define the minimum interface that a device backend must satisfy to be used in
 the GUI. A device backend must subclass the L{Device} class. See prs500.py for
 a backend that implement the Device interface for the SONY PRS500 Reader.
 """
+
+import threading
+from functools import wraps
 
 class Device(object):
     """ 
@@ -111,5 +113,21 @@ class Device(object):
         @param booklists: A tuple containing the result of calls to 
                                 (L{books}(oncard=False), L{books}(oncard=True)).    
         """
-        raise NotImplementedError()        
+        raise NotImplementedError()   
+
+def _safe(func):
+    @wraps(func)
+    def run_in_thread(*args, **kwargs):
+        dm = args[0]
+        dm
+
+class DeviceManager(object):
+    
+    def __init__(self, device):
+        if not isinstance(device, Device):
+            raise TypeError, '%s must implement the Device interface' % (str(device),)     
+        self.dev = device
+        self.lock = threading.RLock()
+        
+    
 

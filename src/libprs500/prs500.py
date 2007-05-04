@@ -46,9 +46,7 @@ Contains the logic for communication with the device (a SONY PRS-500).
 The public interface of class L{PRS500} defines the 
 methods for performing various tasks. 
 """
-import sys
-import os
-import time
+import sys, os
 from tempfile import TemporaryFile
 from array import array
 from functools import wraps
