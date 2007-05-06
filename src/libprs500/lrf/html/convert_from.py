@@ -208,11 +208,14 @@ class Span(_Span):
         
         
 class HTMLConverter(object):
-    SELECTOR_PAT = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
-    IGNORED_TAGS = (Comment, Declaration, ProcessingInstruction)
+    SELECTOR_PAT  = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
+    IGNORED_TAGS  = (Comment, Declaration, ProcessingInstruction)
+    BAEN_SANCTIFY = [(re.compile(r'<[Aa] id=.p[0-9]*. name=.p[0-9]*.><\/[Aa]>'), 
+                      lambda match: ''), 
+                      (re.compile('page-break-before:'), lambda match: '') ] 
     
     # Fix <a /> elements 
-    markup_massage   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
+    MARKUP_MASSAGE   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
                          lambda match: match.group(1)+"></a>")]
     
     class Link(object):
@@ -240,7 +243,7 @@ class HTMLConverter(object):
     def __init__(self, book, path, width=575, height=747, 
                  font_delta=0, verbose=False, cover=None,
                  max_link_levels=sys.maxint, link_level=0,
-                 is_root=True):
+                 is_root=True, baen=False):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -296,7 +299,9 @@ class HTMLConverter(object):
         print '\tParsing HTML...',
         sys.stdout.flush()
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
-        nmassage.extend(HTMLConverter.markup_massage)
+        nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
+        if baen:
+            nmassage.extend(HTMLConverter.BAEN_SANCTIFY)
         self.soup = BeautifulSoup(open(self.file_name, 'r').read(), 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
@@ -870,7 +875,8 @@ def process_file(path, options):
             header.append(Italic(options.author))
         book = Book(header=header, **args)
         conv = HTMLConverter(book, path, font_delta=options.font_delta, 
-                             cover=cpath, max_link_levels=options.link_levels)
+                             cover=cpath, max_link_levels=options.link_levels,
+                             baen=options.baen)
         conv.process_links()
         oname = options.output
         if not oname:
@@ -903,6 +909,8 @@ def main():
                       help='''The maximum number of levels to recursively process
                               links. A value of 0 means thats links are not followed.
                               A negative value means that <a> tags are ignored.''')
+    parser.add_option('--baen', action='store_true', default=False, dest='baen',
+                      help='''Preprocess Baen HTML files to improve generated LRF.''')
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()

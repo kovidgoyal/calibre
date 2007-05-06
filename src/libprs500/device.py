@@ -115,13 +115,15 @@ class Device(object):
         """
         raise NotImplementedError()   
 
-def _safe(func):
-    @wraps(func)
-    def run_in_thread(*args, **kwargs):
-        dm = args[0]
-        dm
 
 class DeviceManager(object):
+    
+    def threaded(func):
+        @wraps(func)
+        def run_in_thread(*args, **kwargs):
+            dm = args[0]
+            dm
+
     
     def __init__(self, device):
         if not isinstance(device, Device):
