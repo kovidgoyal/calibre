@@ -210,13 +210,16 @@ class Span(_Span):
 class HTMLConverter(object):
     SELECTOR_PAT  = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     IGNORED_TAGS  = (Comment, Declaration, ProcessingInstruction)
-    BAEN_SANCTIFY = [(re.compile(r'<[Aa] id=.p[0-9]*. name=.p[0-9]*.><\/[Aa]>'), 
-                      lambda match: ''), 
-                      (re.compile('page-break-before:'), lambda match: '') ] 
-    
     # Fix <a /> elements 
     MARKUP_MASSAGE   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
                          lambda match: match.group(1)+"></a>")]
+    # Fix Baen markup
+    BAEN_SANCTIFY = [(re.compile(r'<\s*[Aa]\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*<\/[Aa]>'), 
+                      lambda match: ''), 
+                      (re.compile(r'page-break-before:\s*\w+([\s;\}])'), 
+                       lambda match: match.group(1)) ] 
+    
+    
     
     class Link(object):
         def __init__(self, para, tag):
@@ -300,6 +303,7 @@ class HTMLConverter(object):
         sys.stdout.flush()
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
+        self.baen = baen
         if baen:
             nmassage.extend(HTMLConverter.BAEN_SANCTIFY)
         self.soup = BeautifulSoup(open(self.file_name, 'r').read(), 
@@ -489,7 +493,7 @@ class HTMLConverter(object):
                                      font_delta=self.font_delta, verbose=self.verbose,
                                      link_level=self.link_level+1,
                                      max_link_levels=self.max_link_levels,
-                                     is_root = False)
+                                     is_root = False, baen=self.baen)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception, err:
                         print >>sys.stderr, 'Unable to process', path, err

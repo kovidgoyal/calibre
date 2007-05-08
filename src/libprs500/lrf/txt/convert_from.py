@@ -75,7 +75,7 @@ def convert_txt(path, options):
     for line in fileinput.input(path):
         line = line.strip()
         if line:
-            buffer += line
+            buffer = buffer.rstrip() + ' ' + line
         else:
             block.Paragraph(buffer)            
             buffer = ''
