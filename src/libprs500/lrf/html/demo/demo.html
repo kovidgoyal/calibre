@@ -1,8 +1,14 @@
 <html>
+<head>
+<style type='text/css'>
+.toc { page-break-after: always; text-indent: 0em; }
+</style>
+</head>
   <h1>Demo of <span style='font-family:monospace'>html2lrf</span></h1>
   <p>
   This file contains a demonstration of the capabilities of   <span style='font-family:monospace'>html2lrf,</span>   the HTML to LRF converter   from <em>libprs500.</em> To obtain libprs500 visit  <span style='font:sans-serif'>https://libprs500.kovidgoyal.net</span>
   </p>
+  <br/>
   <h2><a name='toc'>Table of Contents</a></h2>
   <ul style='page-break-after:always'>
     <li><a href='#lists'>Demonstration of Lists</a></li>
@@ -29,7 +35,7 @@
  <p>
  Note that nested lists are not supported.
  </p>
- <p style='page-break-after:always'>
+ <p class='toc'>
  <hr />
  <a href='#toc'>Table of Contents</a>
  </p>
@@ -49,27 +55,33 @@
  <center>A centered phrase</center>
  <span style='text-align:right'>A right aligned phrase</span>
  A normal phrase
- <br/>
  <hr />
  <p> A paragraph containing a <em>&lt;blockquote&gt;</em>
  <blockquote>This is blockquoted text. It is rendered in a separate block with margins.</blockquote>The above text should be distinct from the rest of the paragraph.
- <p style='page-break-after:always'>
+ </p>
+ <hr/>
+ <p style='text-indent:30em'>A very indented paragraph</p>
+ <p style='text-indent:0em'>An unindented paragraph</p>
+ <p>A default indented paragrpah</p>
+ <p class='toc'>
  <hr />
  <a href='#toc'>Table of Contents</a>
  </p>
 
- <h2 style='page-break-before:always'><a name='images'>Inline images</a></h2>
+ <h2><a name='images'>Inline images</a></h2>
  <p>
  Here I demonstrate the use of inline images in the midst of text. Here is a  small image <img src='small.jpg' /> embedded in a sentence. Now we have a  slightly larger image that is automatically put in its own block  <img src='medium.jpg' /> and finally we have a large image which is  automatically placed on a page by itself and prevented from being  autoscaled when the user changes from S to M to L. Try changing sizes  and see how the different embedding styles behave.  <img src='large.jpg' />
  </p>
-<p style='page-break-after:always'>
+<p class='toc'>
  <hr />
  <a href='#toc'>Table of Contents</a>
  </p>
 
- <h2 style='page-break-before:always'><a name='recursive'>Recursive link following</a></h2>
+ <h2><a name='recursive'>Recursive link following</a></h2>
+ <p>
  <span style='font:monospace'>html2lrf</span> follows links in HTML files that point to other files, recursively. Thus it can be used to convert a whole tree of HTML files into a single LRF file.
-<p style='page-break-after:always'>
+ </p>
+<p class='toc'>
  <hr />
  <a href='#toc'>Table of Contents</a>
  </p>

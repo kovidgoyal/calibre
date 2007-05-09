@@ -231,11 +231,11 @@ class HTMLConverter(object):
             
     # Defaults for various formatting tags        
     css = dict(
-            h1     = {"font-size"   :"xx-large", "font-weight":"bold"},
-            h2     = {"font-size"   :"x-large", "font-weight":"bold"},
-            h3     = {"font-size"   :"large", "font-weight":"bold"},
-            h4     = {"font-size"   :"large"},
-            h5     = {"font-weight" :"bold"},
+            h1     = {"font-size"   :"xx-large", "font-weight":"bold", 'text-indent':'0pt'},
+            h2     = {"font-size"   :"x-large", "font-weight":"bold", 'text-indent':'0pt'},
+            h3     = {"font-size"   :"large", "font-weight":"bold", 'text-indent':'0pt'},
+            h4     = {"font-size"   :"large", 'text-indent':'0pt'},
+            h5     = {"font-weight" :"bold", 'text-indent':'0pt'},
             b      = {"font-weight" :"bold"},
             strong = {"font-weight" :"bold"},
             i      = {"font-style"  :"italic"},
@@ -282,9 +282,6 @@ class HTMLConverter(object):
         self.scaled_images = {}   #: Temporary files with scaled version of images        
         self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
-        self.justification_styles = dict(head=book.create_text_style(align='head'), 
-                                         foot=book.create_text_style(align='foot'), 
-                                         center=book.create_text_style(align='center'))
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
@@ -595,8 +592,11 @@ class HTMLConverter(object):
             if align != self.current_block.textStyle.attrs['align']:
                 self.current_para.append_to(self.current_block)
                 self.current_block.append_to(self.current_page)
+                ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
+                ts.attrs['align'] = align
                 self.current_block = self.book.create_text_block(
-                                    textStyle=self.justification_styles[align])
+                                    blockStyle=self.current_block.blockStyle,
+                                    textStyle=ts)
                 self.current_para = Paragraph()
             try:
                 self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
@@ -609,7 +609,7 @@ class HTMLConverter(object):
         """ Make css safe for use in a SPAM Xylog tag """
         for key in css.keys():
             test = key.lower()
-            if test.startswith('margin') or 'indent' in test or \
+            if test.startswith('margin') or \
                'padding' in test or 'border' in test or 'page-break' in test \
                or test.startswith('mso') or test.startswith('background')\
                or test in ['color', 'display', 'text-decoration', \
@@ -636,7 +636,8 @@ class HTMLConverter(object):
         self.current_para.append_to(self.current_block)
         self.current_block.append_to(self.current_page)
         self.current_para = Paragraph()
-        self.current_block = self.book.create_text_block()
+        self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
+                                                         blockStyle=self.current_block.blockStyle)
     
     def parse_tag(self, tag, parent_css):
         try:
@@ -687,7 +688,8 @@ class HTMLConverter(object):
                             break
                     if target and not isinstance(target, (TextBlock, ImageBlock)):
                         if isinstance(target, RuledLine):
-                            target = self.book.create_text_block()
+                            target = self.book.create_text_block(textStyle=self.current_block.textStyle,
+                                                         blockStyle=self.current_block.blockStyle)
                             target.Paragraph(' ')
                             self.current_page.append(target)
                         else:
@@ -768,7 +770,8 @@ class HTMLConverter(object):
                     self.current_block.append(self.current_para)
                     self.current_page.append(self.current_block)
                     self.current_para = Paragraph()
-                    self.current_block = self.book.create_text_block()
+                    self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
+                                                         blockStyle=self.current_block.blockStyle)
                     im = ImageBlock(self.images[path], x1=width, y1=height, 
                                     xsize=width, ysize=height)
                     self.current_page.append(im)                        
@@ -795,6 +798,7 @@ class HTMLConverter(object):
             self.end_current_para()
             self.current_block.append_to(self.current_page)
             self.current_block = self.book.create_text_block(
+                                    blockStyle=self.current_block.blockStyle,
                                     textStyle=self.unindented_style)
             src = ''.join([str(i) for i in tag.contents])
             lines = src.split('\n')
@@ -809,6 +813,7 @@ class HTMLConverter(object):
             self.in_ol = 1 if tagname == 'ol' else 0
             self.end_current_block()
             self.current_block = self.book.create_text_block(
+                                        blockStyle=self.current_block.blockStyle,
                                         textStyle=self.unindented_style)
             self.process_children(tag, tag_css)
             self.in_ol = 0
@@ -824,7 +829,7 @@ class HTMLConverter(object):
             self.process_children(tag, tag_css)
             if self.in_ol:
                 self.in_ol += 1
-        elif tagname in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+        elif False and tagname in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             self.end_current_para()
             if self.current_block.contents:
                 self.current_block.append(CR())
@@ -834,17 +839,39 @@ class HTMLConverter(object):
         elif tagname == 'blockquote':
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
+            pb = self.current_block
             self.current_para = Paragraph()
+            ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
+            ts.attrs['parindent'] = 0
+            bs = self.book.create_block_style(**self.current_block.blockStyle.attrs)
+            bs.attrs['sidemargin'], bs.attrs['topskip'], bs.attrs['footskip'] = \
+            60, 20, 20
             self.current_block = self.book.create_text_block(
-                                    blockStyle=self.blockquote_style,
-                                    textStyle=self.unindented_style)
+                                    blockStyle=bs, textStyle=ts)
             self.process_children(tag, tag_css)
-            self.end_current_block()
-        elif tagname in ['p', 'div']:
+            self.current_para.append_to(self.current_block)
+            self.current_block.append_to(self.current_page)
+            self.current_para = Paragraph()
+            self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
+                                                             blockStyle=pb.blockStyle)
+        elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             self.end_current_para()
             self.lstrip_toggle = True
+            if tag_css.has_key('text-indent'):
+                indent = Span.unit_convert(tag_css['text-indent'])
+                tag_css.pop('text-indent')
+            else:
+                indent = self.book.defaultTextStyle.attrs['parindent']
+            if indent != self.current_block.textStyle.attrs['parindent']:
+                self.current_block.append_to(self.current_page)
+                ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
+                ts.attrs['parindent'] = indent
+                self.current_block = self.book.create_text_block(blockStyle=self.current_block.blockStyle,
+                                                                 textStyle=ts)
             self.process_children(tag, tag_css)
             self.end_current_para()
+            if tagname.startswith('h'):
+                self.current_block.append(CR())
         elif tagname in ['b', 'strong', 'i', 'em', 'span']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
