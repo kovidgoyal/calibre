@@ -26,6 +26,7 @@ from urllib import urlopen, unquote
 from urlparse import urlparse
 from tempfile import mkdtemp
 from operator import itemgetter
+from math import ceil
 
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration, ProcessingInstruction
@@ -243,7 +244,7 @@ class HTMLConverter(object):
             )
     processed_files = {} #: Files that have been processed
     
-    def __init__(self, book, path, width=575, height=747, 
+    def __init__(self, book, path, dpi=166, width=575, height=747, 
                  font_delta=0, verbose=False, cover=None,
                  max_link_levels=sys.maxint, link_level=0,
                  is_root=True, baen=False):
@@ -275,6 +276,7 @@ class HTMLConverter(object):
         '''
         self.page_width = width   #: The width of the page
         self.page_height = height #: The height of the page
+        self.dpi         = dpi    #: The DPI of the intended display device
         self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
         self.justification_styles = dict(head=book.create_text_style(align='head'), 
@@ -490,6 +492,8 @@ class HTMLConverter(object):
                 if not path in HTMLConverter.processed_files.keys():                    
                     try:                        
                         self.files[path] = HTMLConverter(self.book, path, 
+                                     width=self.page_width, height=self.page_height,
+                                     dpi=self.dpi,
                                      font_delta=self.font_delta, verbose=self.verbose,
                                      link_level=self.link_level+1,
                                      max_link_levels=self.max_link_levels,
@@ -723,15 +727,18 @@ class HTMLConverter(object):
                 path = os.path.abspath(unquote(tag['src']))
                 if not self.images.has_key(path):
                     self.images[path] = ImageStream(path)
+                factor = 720./self.dpi
                 if max(width, height) <= min(self.page_width, self.page_height)/5.:
                     im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
-                               xsize=width, ysize=height)
-                    self.current_para.append(Plot(im, xsize=width*10, ysize=width*10))
+                               xsize=width, ysize=height)                    
+                    self.current_para.append(Plot(im, xsize=ceil(width*factor), 
+                                                  ysize=ceil(height*factor)))
                 elif max(width, height) <= min(self.page_width, self.page_height)/2.:
                     self.end_current_para()
                     im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
                                xsize=width, ysize=height)
-                    self.current_para.append(Plot(im, xsize=width*10, ysize=width*10))
+                    self.current_para.append(Plot(im, xsize=width*factor, 
+                                                  ysize=height*factor))
                 else:
                     self.current_block.append(self.current_para)
                     self.current_page.append(self.current_block)
