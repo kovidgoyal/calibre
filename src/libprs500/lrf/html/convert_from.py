@@ -26,7 +26,8 @@ from urllib import urlopen, unquote
 from urlparse import urlparse
 from tempfile import mkdtemp
 from operator import itemgetter
-from math import ceil
+from math import ceil, floor
+from PIL import Image as PILImage
 
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration, ProcessingInstruction
@@ -37,6 +38,7 @@ from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBl
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
+from libprs500.ptempfile import PersistentTemporaryFile
 
 class Span(_Span):
     replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo', 'nbsp' ]
@@ -277,6 +279,7 @@ class HTMLConverter(object):
         self.page_width = width   #: The width of the page
         self.page_height = height #: The height of the page
         self.dpi         = dpi    #: The DPI of the intended display device
+        self.scaled_images = {}   #: Temporary files with scaled version of images        
         self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
         self.justification_styles = dict(head=book.create_text_style(align='head'), 
@@ -499,8 +502,8 @@ class HTMLConverter(object):
                                      max_link_levels=self.max_link_levels,
                                      is_root = False, baen=self.baen)
                         HTMLConverter.processed_files[path] = self.files[path]
-                    except Exception, err:
-                        print >>sys.stderr, 'Unable to process', path, err
+                    except Exception:
+                        print >>sys.stderr, 'Unable to process', path
                         if self.verbose:
                             traceback.print_exc()
                         continue
@@ -709,22 +712,41 @@ class HTMLConverter(object):
                     self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
-                width, height = self.page_width, self.page_height
+                path = os.path.abspath(unquote(tag['src']))
+                if self.scaled_images.has_key(path):
+                    path = self.scaled_images[path].name
+                im = PILImage.open(path)
+                width, height = im.size
                 try:
-                    try:
-                        from PIL import Image as PILImage
-                    except:
-                        pass
-                    else:
-                        im = PILImage.open(unquote(tag['src']))
-                        width, height = im.size
-                    if tag.has_key('width'):
-                        width = int(tag['width'])
-                    if tag.has_key('height'):
-                        height = int(tag['height'])
+                    width = int(tag['width'])
+                    height = int(tag['height'])
                 except:
                     pass
-                path = os.path.abspath(unquote(tag['src']))
+                
+                def scale_image(width, height):
+                    pt = PersistentTemporaryFile(suffix='.png')
+                    im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, 'PNG')
+                    pt.close()
+                    self.scaled_images[path] = pt
+                    return pt.name
+                    
+                    
+                if height > self.page_height:
+                    corrf = self.page_height/(1.*height)
+                    width, height = floor(corrf*width), self.page_height-1                        
+                    if width > self.page_width:
+                        corrf = (self.page_width)/(1.*width)
+                        width, height = self.page_width-1, floor(corrf*height)
+                    path = scale_image(width, height)
+                if width > self.page_width:
+                    corrf = self.page_width/(1.*width)
+                    width, height = self.page_width-1, floor(corrf*height)
+                    if height > self.page_height:
+                        corrf = (self.page_height)/(1.*height)
+                        width, height = floor(corrf*width), self.page_height-1                        
+                    path = scale_image(width, height)
+                width, height = int(width), int(height)
+                
                 if not self.images.has_key(path):
                     self.images[path] = ImageStream(path)
                 factor = 720./self.dpi
@@ -733,12 +755,15 @@ class HTMLConverter(object):
                                xsize=width, ysize=height)                    
                     self.current_para.append(Plot(im, xsize=ceil(width*factor), 
                                                   ysize=ceil(height*factor)))
-                elif max(width, height) <= min(self.page_width, self.page_height)/2.:
+                elif height <= self.page_height/1.5:
                     self.end_current_para()
                     im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
                                xsize=width, ysize=height)
                     self.current_para.append(Plot(im, xsize=width*factor, 
                                                   ysize=height*factor))
+                    self.current_block.append(self.current_para)
+                    self.current_block.append(CR())
+                    self.current_para = Paragraph()
                 else:
                     self.current_block.append(self.current_para)
                     self.current_page.append(self.current_block)
@@ -749,8 +774,6 @@ class HTMLConverter(object):
                     self.current_page.append(im)                        
             else:
                 print >>sys.stderr, "Failed to process:", tag
-                
-                self.add_image_page(tag['src'])                
         elif tagname in ['style', 'link']:
             if tagname == 'style':
                 for c in tag.contents:
@@ -845,6 +868,10 @@ class HTMLConverter(object):
     def writeto(self, path, lrs=False):
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
         
+    def cleanup(self):
+        for _file in self.scaled_images.values():   
+            _file.__del__()
+        
 
 def process_file(path, options):
     cwd = os.getcwd()
@@ -854,9 +881,7 @@ def process_file(path, options):
         cpath, tpath = options.cover, ''
         if options.cover and os.access(options.cover, os.R_OK):            
             try:
-                from PIL import Image as PILImage
-                from libprs500.prs500 import PRS500
-                from libprs500.ptempfile import PersistentTemporaryFile
+                from libprs500.prs500 import PRS500                
                 im = PILImage.open(os.path.join(cwd, cpath))
                 cim = im.resize((600, 800), PILImage.BICUBIC)
                 cf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
@@ -885,7 +910,8 @@ def process_file(path, options):
             header.append(' by ')
             header.append(Italic(options.author))
         book = Book(header=header, **args)
-        conv = HTMLConverter(book, path, font_delta=options.font_delta, 
+        conv = HTMLConverter(book, path, dpi=options.dpi,
+                             font_delta=options.font_delta, 
                              cover=cpath, max_link_levels=options.link_levels,
                              baen=options.baen)
         conv.process_links()
@@ -897,6 +923,7 @@ def process_file(path, options):
         oname = os.path.abspath(os.path.expanduser(oname))
         conv.writeto(oname, lrs=options.lrs)
         print 'Output written to', oname
+        conv.cleanup()
     finally:
         os.chdir(cwd)
         if dirpath:
@@ -922,6 +949,9 @@ def main():
                               A negative value means that <a> tags are ignored.''')
     parser.add_option('--baen', action='store_true', default=False, dest='baen',
                       help='''Preprocess Baen HTML files to improve generated LRF.''')
+    parser.add_option('--dpi', action='store', type='int', default=166, dest='dpi',
+                      help='''The DPI of the target device. Default is 166 for the
+                              Sony PRS 500''')
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
