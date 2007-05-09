@@ -570,6 +570,29 @@ class HTMLConverter(object):
             elif isinstance(c, NavigableString):
                 self.add_text(c, pcss)
                     
+    def process_alignment(self, css):
+        '''
+        Create a new TextBlock only if necessary as indicated by css
+        @type css: dict
+        '''
+        align = 'head'
+        if css.has_key('text-align'):
+            val = css['text-align']                
+            if val in ["right", "foot"]:
+                align = "foot"
+            elif val == "center":
+                align = "center"
+            css.pop('text-align')
+        if align != self.current_block.textStyle.attrs['align']:
+            self.current_para.append_to(self.current_block)
+            self.current_block.append_to(self.current_page)
+            ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
+            ts.attrs['align'] = align
+            self.current_block = self.book.create_text_block(
+                                blockStyle=self.current_block.blockStyle,
+                                textStyle=ts)
+            self.current_para = Paragraph()
+    
     def add_text(self, tag, css):
         '''
         Add text to the current paragraph taking CSS into account.
@@ -584,23 +607,7 @@ class HTMLConverter(object):
         if not src.strip():
             self.current_para.append(' ')
         else:
-            align = 'head'
-            if css.has_key('text-align'):
-                val = css['text-align']                
-                if val in ["right", "foot"]:
-                    align = "foot"
-                elif val == "center":
-                    align = "center"
-                css.pop('text-align')
-            if align != self.current_block.textStyle.attrs['align']:
-                self.current_para.append_to(self.current_block)
-                self.current_block.append_to(self.current_page)
-                ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
-                ts.attrs['align'] = align
-                self.current_block = self.book.create_text_block(
-                                    blockStyle=self.current_block.blockStyle,
-                                    textStyle=ts)
-                self.current_para = Paragraph()
+            self.process_alignment(css)
             try:
                 self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
                                               font_delta=self.font_delta))
@@ -761,13 +768,18 @@ class HTMLConverter(object):
                     self.current_para.append(Plot(im, xsize=ceil(width*factor), 
                                                   ysize=ceil(height*factor)))
                 elif height <= self.page_height/1.5:
-                    self.end_current_para()
+                    pb = self.current_block
+                    self.end_current_para()                    
+                    self.process_alignment(tag_css)
                     im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
                                xsize=width, ysize=height)
                     self.current_para.append(Plot(im, xsize=width*factor, 
                                                   ysize=height*factor))
                     self.current_block.append(self.current_para)
-                    self.current_block.append(CR())
+                    self.current_page.append(self.current_block)                    
+                    self.current_block = self.book.create_text_block(
+                                                    textStyle=pb.textStyle,
+                                                    blockStyle=pb.blockStyle)
                     self.current_para = Paragraph()
                 else:
                     self.current_block.append(self.current_para)
@@ -832,13 +844,6 @@ class HTMLConverter(object):
             self.process_children(tag, tag_css)
             if self.in_ol:
                 self.in_ol += 1
-        elif False and tagname in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-            self.end_current_para()
-            if self.current_block.contents:
-                self.current_block.append(CR())
-            self.process_children(tag, tag_css)
-            self.end_current_para()
-            self.current_block.append(CR())
         elif tagname == 'blockquote':
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
@@ -863,6 +868,8 @@ class HTMLConverter(object):
             if tag_css.has_key('text-indent'):
                 indent = Span.unit_convert(tag_css['text-indent'])
                 tag_css.pop('text-indent')
+                if not indent:
+                    indent=0
             else:
                 indent = self.book.defaultTextStyle.attrs['parindent']
             if indent != self.current_block.textStyle.attrs['parindent']:
