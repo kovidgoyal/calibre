@@ -27,7 +27,10 @@ from urlparse import urlparse
 from tempfile import mkdtemp
 from operator import itemgetter
 from math import ceil, floor
-from PIL import Image as PILImage
+try:
+    from PIL import Image as PILImage
+except ImportError:
+    import Image as PILImage
 
 from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
                                              NavigableString, Declaration, ProcessingInstruction
@@ -424,10 +427,10 @@ class HTMLConverter(object):
                 return ''
             text = ''
             for c in tag.contents:
-                if isinstance(c, NavigableString):
-                    text += str(c)
-                elif isinstance(c, Comment):
+                if isinstance(c, HTMLConverter.IGNORED_TAGS):
                     return ''
+                if isinstance(c, NavigableString):
+                    text += str(c)                
                 elif isinstance(c, Tag):
                     text += self.get_text(c)
             return text
