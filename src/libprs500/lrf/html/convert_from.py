@@ -582,7 +582,6 @@ class HTMLConverter(object):
                 align = "foot"
             elif val == "center":
                 align = "center"
-            css.pop('text-align')
         if align != self.current_block.textStyle.attrs['align']:
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
@@ -616,14 +615,15 @@ class HTMLConverter(object):
                     print >>sys.stderr, err
         
     def sanctify_css(self, css):
-        """ Make css safe for use in a SPAM Xylog tag """
+        """ Return a copy of C{css} that is safe for use in a SPAM Xylog tag """
+        css = copy.copy(css)
         for key in css.keys():
             test = key.lower()
-            if test.startswith('margin') or \
+            if test.startswith('margin') or test.startswith('text') or \
                'padding' in test or 'border' in test or 'page-break' in test \
                or test.startswith('mso') or test.startswith('background')\
-               or test in ['color', 'display', 'text-decoration', \
-                           'letter-spacing', 'text-autospace', 'text-transform', 
+               or test in ['color', 'display', \
+                           'letter-spacing',  
                            'font-variant']:
                 css.pop(key)
         return css
@@ -867,7 +867,6 @@ class HTMLConverter(object):
             self.lstrip_toggle = True
             if tag_css.has_key('text-indent'):
                 indent = Span.unit_convert(tag_css['text-indent'])
-                tag_css.pop('text-indent')
                 if not indent:
                     indent=0
             else:

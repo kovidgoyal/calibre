@@ -240,6 +240,12 @@ if sys.hexversion < 0x2050000:
     print >> sys.stderr, "If you are using easy_install, try easy_install-2.5"
     sys.exit(1)
     
+try:
+  from PIL import Image
+except ImportError:
+  import Image
+  print >>sys.stderr, "You do not have the Python Imaging Library correctly installed."
+  sys.exit(1)
 
 setup(
       name='libprs500', 
