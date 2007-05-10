@@ -19,7 +19,7 @@ import os, sys
 
 from libprs500.lrf import ConversionError, option_parser
 from libprs500.lrf import Book
-from libprs500.lrf.pylrs.pylrs import Paragraph, Italic, Bold
+from libprs500.lrf.pylrs.pylrs import Paragraph, Italic, Bold, BookSetting
 
 
 def main():
@@ -64,9 +64,12 @@ def convert_txt(path, options):
         header.append(Bold(options.title))
         header.append(' by ')
         header.append(Italic(options.author))
-    book = Book(header=header, title=options.title, author=options.author, \
+    title = (options.title, options.title_sort)
+    author = (options.author, options.author_sort)
+    book = Book(header=header, title=title, author=author, \
                 sourceencoding=options.encoding, freetext=options.freetext, \
-                category=options.category)
+                category=options.category, booksetting=BookSetting
+                (dpi=10*options.dpi,screenheight=800, screenwidth=600))
     buffer = ''
     pg = book.create_page()
     block = book.create_text_block()

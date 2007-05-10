@@ -43,6 +43,10 @@ def option_parser(usage):
                     dest="category", help="Set the category", default='  ')
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')
+    parser.add_option('--title-sort', action='store', default='', dest='title_sort',
+                      help='Sort key for the title')
+    parser.add_option('--author-sort', action='store', default='', dest='author_sort',
+                      help='Sort key for the author')
     return parser
 
 def Book(font_delta=0, header=None, **settings):

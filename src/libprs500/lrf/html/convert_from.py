@@ -991,11 +991,7 @@ def main():
                       help='''Preprocess Baen HTML files to improve generated LRF.''')
     parser.add_option('--dpi', action='store', type='int', default=166, dest='dpi',
                       help='''The DPI of the target device. Default is 166 for the
-                              Sony PRS 500''')
-    parser.add_option('--title-sort', action='store', default='', dest='title_sort',
-                      help='Sort key for the title')
-    parser.add_option('--author-sort', action='store', default='', dest='author_sort',
-                      help='Sort key for the author')
+                              Sony PRS 500''')    
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
