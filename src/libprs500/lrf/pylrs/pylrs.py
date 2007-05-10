@@ -50,7 +50,7 @@ from pylrf import (LrfWriter, LrfObject, LrfTag, LrfToc,
         STREAM_FORCE_COMPRESSED)
 
 DEFAULT_SOURCE_ENCODING = "cp1252"      # defualt is us-windows character set
-DEFAULT_GENREADING      = "f"           # default is yes to lrf, no to lrs
+DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 
 
 class LrsError(Exception):
@@ -90,13 +90,13 @@ def ElementWithReading(tag, text, reading=False):
     elif isinstance(text, basestring):
         readingText = text
     else:
-        # assumed to be a sequence of (name, sortas)
+        # assumed to be a sequence of (name, sortas)        
         readingText = text[1]
         text = text[0]
+        
 
     if not reading:
         readingText = ""
-
     return ElementWithText(tag, text, reading=readingText)
 
 
@@ -723,7 +723,7 @@ class BookInfo(object):
         bi.append(pi)
 
 
-    def toElement(self, se, reading=False):
+    def toElement(self, se, reading=True):
         bi = Element("BookInfo")
         bi.append(ElementWithReading("Title", self.title, reading=reading))
         bi.append(ElementWithReading("Author", self.author, reading=reading))
@@ -1038,7 +1038,7 @@ class StyleDefault(LrsAttributes):
 
 class BookSetting(LrsAttributes):
     def __init__(self, **settings):
-        defaults = dict(bindingdirection="Lr", dpi="1600",
+        defaults = dict(bindingdirection="Lr", dpi="1660",
                 screenheight="800", screenwidth="600", colordepth="24")
         LrsAttributes.__init__(self, defaults, **settings)
 

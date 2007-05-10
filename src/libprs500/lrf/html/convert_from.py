@@ -37,7 +37,7 @@ from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
                                       ImageBlock, JumpButton, CharButton, \
                                       Bold, Space, Plot, Image, BlockSpace,\
-                                      RuledLine
+                                      RuledLine, BookSetting
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
 from libprs500 import extract
@@ -934,9 +934,13 @@ def process_file(path, options):
                 print >>sys.stderr, "WARNING: You don't have PIL installed. ",
                 'Cover and thumbnails wont work'
                 pass
-        args = dict(font_delta=options.font_delta, title=options.title, \
-                    author=options.author, sourceencoding='utf8',\
-                    freetext=options.freetext, category=options.category)
+        title = (options.title, options.title_sort)
+        author = (options.author, options.author_sort)
+        args = dict(font_delta=options.font_delta, title=title, \
+                    author=author, sourceencoding='utf8',\
+                    freetext=options.freetext, category=options.category,
+                    booksetting=BookSetting(dpi=10*options.dpi,screenheight=800,
+                                            screenwidth=600))
         if tpath:
             args['thumbnail'] = tpath
         header = None
@@ -988,6 +992,10 @@ def main():
     parser.add_option('--dpi', action='store', type='int', default=166, dest='dpi',
                       help='''The DPI of the target device. Default is 166 for the
                               Sony PRS 500''')
+    parser.add_option('--title-sort', action='store', default='', dest='title_sort',
+                      help='Sort key for the title')
+    parser.add_option('--author-sort', action='store', default='', dest='author_sort',
+                      help='Sort key for the author')
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
