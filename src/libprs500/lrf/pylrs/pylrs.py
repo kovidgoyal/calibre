@@ -1096,6 +1096,10 @@ class LrsStyle(LrsObject, LrsAttributes, LrsContainer):
         obj.appendTagDict(self.attrs, self.__class__.__name__)
         lrfWriter.append(obj)
         
+    def __eq__(self, other):
+        if hasattr(other, 'attrs'):
+            return self.__class__ == other.__class__ and self.attrs == other.attrs
+        return False
         
 class TextStyle(LrsStyle):
     """ 

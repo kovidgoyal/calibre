@@ -252,7 +252,8 @@ class HTMLConverter(object):
     def __init__(self, book, path, dpi=166, width=575, height=747, 
                  font_delta=0, verbose=False, cover=None,
                  max_link_levels=sys.maxint, link_level=0,
-                 is_root=True, baen=False):
+                 is_root=True, baen=False, chapter_detection=True,
+                 chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE)):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -278,16 +279,24 @@ class HTMLConverter(object):
         @type link_level: C{int}
         @param is_root: True iff this object is converting the root HTML file 
         @type is_root: C{bool}
+        @param chapter_detection: Insert page breaks before what looks like 
+        the start of a chapter
+        @type chapter_detection: C{bool}
+        @param chapter_regex: The compiled regular expression used to search for chapter titles
         '''
         self.page_width = width   #: The width of the page
         self.page_height = height #: The height of the page
         self.dpi         = dpi    #: The DPI of the intended display device
+        self.chapter_detection = chapter_detection #: Flag to toggle chapter detection
+        self.chapter_regex = chapter_regex #: Regex used to search for chapter titles
         self.scaled_images = {}   #: Temporary files with scaled version of images        
         self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
+        self.text_styles      = []#: Keep track of already used textstyles
+        self.block_styles     = []#: Keep track of already used blockstyles
         self.images  = {}         #: Images referenced in the HTML document
         self.targets = {}         #: <a name=...> elements
         self.links   = []         #: <a href=...> elements        
@@ -500,7 +509,9 @@ class HTMLConverter(object):
                                      font_delta=self.font_delta, verbose=self.verbose,
                                      link_level=self.link_level+1,
                                      max_link_levels=self.max_link_levels,
-                                     is_root = False, baen=self.baen)
+                                     is_root = False, baen=self.baen,
+                                     chapter_detection=self.chapter_detection,
+                                     chapter_regex=self.chapter_regex)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
                         print >>sys.stderr, 'Unable to process', path
@@ -587,6 +598,11 @@ class HTMLConverter(object):
             self.current_block.append_to(self.current_page)
             ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
             ts.attrs['align'] = align
+            try:
+                index = self.text_styles.index(ts)
+                ts = self.text_styles[index]
+            except ValueError:
+                self.text_styles.append(ts)
             self.current_block = self.book.create_text_block(
                                 blockStyle=self.current_block.blockStyle,
                                 textStyle=ts)
@@ -851,9 +867,19 @@ class HTMLConverter(object):
             self.current_para = Paragraph()
             ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
             ts.attrs['parindent'] = 0
+            try:
+                index = self.text_styles.index(ts)
+                ts = self.text_styles[index]
+            except ValueError:
+                self.text_styles.append(ts)
             bs = self.book.create_block_style(**self.current_block.blockStyle.attrs)
             bs.attrs['sidemargin'], bs.attrs['topskip'], bs.attrs['footskip'] = \
             60, 20, 20
+            try:
+                index = self.block_styles.index(bs)
+                bs = self.block_styles[index]
+            except ValueError:
+                self.block_styles.append(bs)
             self.current_block = self.book.create_text_block(
                                     blockStyle=bs, textStyle=ts)
             self.process_children(tag, tag_css)
@@ -863,6 +889,12 @@ class HTMLConverter(object):
             self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
                                                              blockStyle=pb.blockStyle)
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            if self.chapter_detection and tagname.startswith('h'):
+                src = self.get_text(tag)                
+                if self.chapter_regex.search(src):
+                    if self.verbose:
+                        print 'Detected chapter', src
+                    self.end_page()
             self.end_current_para()
             self.lstrip_toggle = True
             if tag_css.has_key('text-indent'):
@@ -875,6 +907,11 @@ class HTMLConverter(object):
                 self.current_block.append_to(self.current_page)
                 ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
                 ts.attrs['parindent'] = indent
+                try:
+                    index = self.text_styles.index(ts)
+                    ts = self.text_styles[index]
+                except ValueError:
+                    self.text_styles.append(ts)
                 self.current_block = self.book.create_text_block(blockStyle=self.current_block.blockStyle,
                                                                  textStyle=ts)
             self.process_children(tag, tag_css)
@@ -953,7 +990,9 @@ def process_file(path, options):
         conv = HTMLConverter(book, path, dpi=options.dpi,
                              font_delta=options.font_delta, 
                              cover=cpath, max_link_levels=options.link_levels,
-                             baen=options.baen)
+                             baen=options.baen, 
+                             chapter_detection=options.chapter_detection,
+                             chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE))
         conv.process_links()
         oname = options.output
         if not oname:
@@ -984,14 +1023,22 @@ def main():
                       dest='font_delta')
     parser.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
                       dest='link_levels',
-                      help='''The maximum number of levels to recursively process
-                              links. A value of 0 means thats links are not followed.
-                              A negative value means that <a> tags are ignored.''')
+                      help=r'''The maximum number of levels to recursively process '''
+                              '''links. A value of 0 means thats links are not followed. '''
+                              '''A negative value means that <a> tags are ignored.''')
     parser.add_option('--baen', action='store_true', default=False, dest='baen',
                       help='''Preprocess Baen HTML files to improve generated LRF.''')
     parser.add_option('--dpi', action='store', type='int', default=166, dest='dpi',
                       help='''The DPI of the target device. Default is 166 for the
-                              Sony PRS 500''')    
+                              Sony PRS 500''')
+    parser.add_option('--disable-chapter-detection', action='store_false', 
+                      default=True, dest='chapter_detection', 
+                      help='''Prevent html2lrf from automatically inserting page breaks'''
+                      '''before what it thinks are chapters.''')
+    parser.add_option('--chapter-regex', dest='chapter_regex', 
+                      default='chapter|book|appendix',
+                      help='''The regular expression used to detect chapter titles.'''
+                      '''It is searched for in heading tags. Default is chapter|book|appendix''') 
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()
