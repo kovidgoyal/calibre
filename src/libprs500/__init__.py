@@ -51,6 +51,6 @@ def extract(path, dir):
     elif ext == 'rar':
         from libprs500.libunrar import extract
         extractor = extract
-    if not extract:
+    if not extractor:
         raise Exception('Unknown archive type')
     extractor(path, dir)
