@@ -232,21 +232,6 @@ class HTMLConverter(object):
             self.para = para
             self.tag = tag
             
-    # Defaults for various formatting tags        
-    css = dict(
-            h1     = {"font-size"   :"xx-large", "font-weight":"bold", 'text-indent':'0pt'},
-            h2     = {"font-size"   :"x-large", "font-weight":"bold", 'text-indent':'0pt'},
-            h3     = {"font-size"   :"large", "font-weight":"bold", 'text-indent':'0pt'},
-            h4     = {"font-size"   :"large", 'text-indent':'0pt'},
-            h5     = {"font-weight" :"bold", 'text-indent':'0pt'},
-            b      = {"font-weight" :"bold"},
-            strong = {"font-weight" :"bold"},
-            i      = {"font-style"  :"italic"},
-            em     = {"font-style"  :"italic"},
-            small  = {'font-size'   :'small'},
-            pre    = {'font-family' :'monospace' },
-            center = {'text-align'  : 'center'}
-            )
     processed_files = {} #: Files that have been processed
     
     def __init__(self, book, path, dpi=166, width=575, height=747, 
@@ -284,6 +269,21 @@ class HTMLConverter(object):
         @type chapter_detection: C{bool}
         @param chapter_regex: The compiled regular expression used to search for chapter titles
         '''
+        # Defaults for various formatting tags        
+        self.css = dict(
+            h1     = {"font-size"   :"xx-large", "font-weight":"bold", 'text-indent':'0pt'},
+            h2     = {"font-size"   :"x-large", "font-weight":"bold", 'text-indent':'0pt'},
+            h3     = {"font-size"   :"large", "font-weight":"bold", 'text-indent':'0pt'},
+            h4     = {"font-size"   :"large", 'text-indent':'0pt'},
+            h5     = {"font-weight" :"bold", 'text-indent':'0pt'},
+            b      = {"font-weight" :"bold"},
+            strong = {"font-weight" :"bold"},
+            i      = {"font-style"  :"italic"},
+            em     = {"font-style"  :"italic"},
+            small  = {'font-size'   :'small'},
+            pre    = {'font-family' :'monospace' },
+            center = {'text-align'  : 'center'}
+            )
         self.page_width = width   #: The width of the page
         self.page_height = height #: The height of the page
         self.dpi         = dpi    #: The DPI of the intended display device
@@ -810,10 +810,17 @@ class HTMLConverter(object):
             else:
                 print >>sys.stderr, "Failed to process:", tag
         elif tagname in ['style', 'link']:
+            def update_css(ncss):
+                for key in ncss.keys():
+                    if self.css.has_key(key):
+                        self.css[key].update(ncss[key])
+                    else:
+                        self.css[key] = ncss[key]
+            ncss = None
             if tagname == 'style':
                 for c in tag.contents:
-                    if isinstance(c,NavigableString):
-                        self.css.update(self.parse_css(str(c)))
+                    if isinstance(c, NavigableString):
+                        ncss = self.parse_css(str(c))                        
             elif tag.has_key('type') and tag['type'] == "text/css" \
                     and tag.has_key('href'):
                 url = tag['href']
@@ -822,10 +829,12 @@ class HTMLConverter(object):
                         f = urlopen(url)
                     else:
                         f = open(unquote(url))
-                    self.parse_css(f.read())
+                    ncss = self.parse_css(f.read())
                     f.close()
                 except IOError:
                     pass
+            if ncss:
+                update_css(ncss)
         elif tagname == 'pre':
             self.end_current_para()
             self.current_block.append_to(self.current_page)
