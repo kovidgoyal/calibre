@@ -415,7 +415,7 @@ class HTMLConverter(object):
         
         if not self.top.parent:
             if not previous:
-                self.top = self.book.pages()[0].contents[0]
+                self.top = self.book.pages()[0].contents[0]                
             else:
                 found = False
                 for page in self.book.pages():
@@ -427,6 +427,7 @@ class HTMLConverter(object):
                         break
             if not self.top.parent:
                 raise ConversionError, 'Could not parse ' + self.file_name
+            
                     
         
             

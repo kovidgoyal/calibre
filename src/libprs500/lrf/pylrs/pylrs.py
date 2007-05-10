@@ -632,8 +632,8 @@ class TableOfContents(object):
 
 
     def addTocEntry(self, tocLabel, textBlock):
-        if not isinstance(textBlock, (TextBlock, ImageBlock)):
-            raise LrsError, "TOC destination must be a TextBlock or ImageBlock"+\
+        if not isinstance(textBlock, (TextBlock, ImageBlock, RuledLine)):
+            raise LrsError, "TOC destination must be a TextBlock, ImageBlock or RuledLine"+\
                             " not a " + str(type(textBlock))
 
         if textBlock.parent is None or not isinstance(textBlock.parent, Page):
@@ -1968,7 +1968,7 @@ class JumpButton(LrsObject, LrsContainer):
 
 
 
-class RuledLine(LrsContainer, LrsAttributes):
+class RuledLine(LrsContainer, LrsAttributes, LrsObject):
     """ A line.  Default is 500 pixels long, 2 pixels wide. """
 
     defaults = dict(
@@ -1978,6 +1978,7 @@ class RuledLine(LrsContainer, LrsAttributes):
     def __init__(self, **settings): 
         LrsContainer.__init__(self, [])
         LrsAttributes.__init__(self, self.defaults, **settings)
+        LrsObject.__init__(self)
 
 
     def toLrfContainer(self, lrfWriter, container):
