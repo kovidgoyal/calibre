@@ -238,7 +238,8 @@ class HTMLConverter(object):
                  font_delta=0, verbose=False, cover=None,
                  max_link_levels=sys.maxint, link_level=0,
                  is_root=True, baen=False, chapter_detection=True,
-                 chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE)):
+                 chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE),
+                 link_exclude=re.compile('')):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -268,6 +269,7 @@ class HTMLConverter(object):
         the start of a chapter
         @type chapter_detection: C{bool}
         @param chapter_regex: The compiled regular expression used to search for chapter titles
+        @param link_exclude: Compiled regex. Matching hrefs are ignored.
         '''
         # Defaults for various formatting tags        
         self.css = dict(
@@ -289,6 +291,7 @@ class HTMLConverter(object):
         self.dpi         = dpi    #: The DPI of the intended display device
         self.chapter_detection = chapter_detection #: Flag to toggle chapter detection
         self.chapter_regex = chapter_regex #: Regex used to search for chapter titles
+        self.link_exclude = link_exclude #: Ignore matching hrefs
         self.scaled_images = {}   #: Temporary files with scaled version of images        
         self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
@@ -428,8 +431,6 @@ class HTMLConverter(object):
             if not self.top.parent:
                 raise ConversionError, 'Could not parse ' + self.file_name
             
-                    
-        
             
     def get_text(self, tag):
             css = self.tag_css(tag)
@@ -512,7 +513,8 @@ class HTMLConverter(object):
                                      max_link_levels=self.max_link_levels,
                                      is_root = False, baen=self.baen,
                                      chapter_detection=self.chapter_detection,
-                                     chapter_regex=self.chapter_regex)
+                                     chapter_regex=self.chapter_regex,
+                                     link_exclude=self.link_exclude)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
                         print >>sys.stderr, 'Unable to process', path
@@ -730,7 +732,7 @@ class HTMLConverter(object):
                             self.current_page.append(target)
                         
                 self.targets[tag['name']] = target
-            elif tag.has_key('href'):
+            elif tag.has_key('href') and not self.link_exclude.match(tag['href']):
                 purl = urlparse(tag['href'])
                 path = purl[2]
                 if path and os.path.splitext(path)[1][1:].lower() in \
@@ -1002,7 +1004,8 @@ def process_file(path, options):
                              cover=cpath, max_link_levels=options.link_levels,
                              baen=options.baen, 
                              chapter_detection=options.chapter_detection,
-                             chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE))
+                             chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
+                             link_exclude=re.compile(options.link_exclude))
         conv.process_links()
         oname = options.output
         if not oname:
@@ -1049,6 +1052,9 @@ def main():
                       default='chapter|book|appendix',
                       help='''The regular expression used to detect chapter titles.'''
                       '''It is searched for in heading tags. Default is chapter|book|appendix''') 
+    parser.add_option('--link-exclude', dest='link_exclude', default='',
+                      help='''A regular expression. <a> tags whoose href '''
+                      '''matches will be ignored''')
     options, args = parser.parse_args()
     if len(args) != 1:
         parser.print_help()

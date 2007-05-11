@@ -271,6 +271,7 @@ setup(
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       }, 
       zip_safe = True,
+      install_requires = ['sqlalchemy >= 0.3.7'],
       description = 
                   """
                   Library to interface with the Sony Portable Reader 500 
@@ -321,3 +322,16 @@ else:
   import PyQt4.QtCore
   if PyQt4.QtCore.PYQT_VERSION < 0x40101:
     print "WARNING: The GUI needs PyQt >= 4.1.1"
+
+import os
+if os.access('/etc/udev/rules.d', os.W_OK):
+  from subprocess import check_call
+  print 'Trying to setup udev rules...',
+  sys.stdout.flush()
+  udev = open('/etc/udev/rules.d/95-libprs500.rules', 'w')
+  udev.write('''# Sony Reader PRS-500\n'''
+             '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="plugdev"\n'''
+             )
+  udev.close()
+  check_call('udevstart', shell=True)
+  print 'success'
