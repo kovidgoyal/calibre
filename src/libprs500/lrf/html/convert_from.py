@@ -239,7 +239,7 @@ class HTMLConverter(object):
                  max_link_levels=sys.maxint, link_level=0,
                  is_root=True, baen=False, chapter_detection=True,
                  chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE),
-                 link_exclude=re.compile('')):
+                 link_exclude=re.compile('$')):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -999,13 +999,15 @@ def process_file(path, options):
             header.append(' by ')
             header.append(Italic(options.author))
         book = Book(header=header, **args)
+        le = re.compile(options.link_exclude) if options.link_exclude else \
+             re.compile('$')
         conv = HTMLConverter(book, path, dpi=options.dpi,
                              font_delta=options.font_delta, 
                              cover=cpath, max_link_levels=options.link_levels,
                              baen=options.baen, 
                              chapter_detection=options.chapter_detection,
                              chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
-                             link_exclude=re.compile(options.link_exclude))
+                             link_exclude=re.compile(le))
         conv.process_links()
         oname = options.output
         if not oname:
