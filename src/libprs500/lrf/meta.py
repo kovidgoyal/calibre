@@ -87,6 +87,46 @@ class fixed_stringfield(object):
         return "A string of length " + str(self._length) + \
                 " starting at byte " + str(self._start)
 
+class xml_attr_field(object):
+    def __init__(self, tag_name, attr, parent='BookInfo'):
+        self.tag_name = tag_name
+        self.parent = parent
+        self.attr= attr
+        
+    def __get__(self, obj, typ=None):
+        """ Return the data in this field or '' if the field is empty """
+        document = dom.parseString(obj.info)
+        elems = document.getElementsByTagName(self.tag_name)
+        if len(elems):
+            elem = None
+            for candidate in elems:
+                if candidate.parentNode.nodeName == self.parent:
+                    elem = candidate
+            if elem and elem.hasAttribute(self.attr):
+                return elem.getAttribute(self.attr)
+                
+    def __set__(self, obj, val):
+        if val == None:
+            val = ""
+        document = dom.parseString(obj.info)
+        elems = document.getElementsByTagName(self.tag_name)
+        if len(elems):
+            elem = None
+            for candidate in elems:
+                if candidate.parentNode.nodeName == self.parent:
+                    elem = candidate
+        if elem:
+            elem.setAttribute(self.attr, val)
+        info = document.toxml(encoding='utf-16')
+        obj.info = info
+                
+    
+    def __repr__(self):
+        return "XML Attr Field: " + self.tag_name + " in " + self.parent 
+    
+    def __str__(self):
+        return self.tag_name+'.'+self.attr
+
 class xml_field(object):
     """ 
     Descriptor that gets and sets XML based meta information from an LRF file. 
@@ -236,7 +276,9 @@ class LRFMetaFile(object):
                                              fmt=DWORD, start=0x54)
     
     title                 = xml_field("Title", parent="BookInfo")
+    title_reading         = xml_attr_field("Title", 'reading', parent="BookInfo")    
     author                = xml_field("Author", parent="BookInfo")
+    author_reading        = xml_attr_field("Author", 'reading', parent="BookInfo")
     # 16 characters. First two chars should be FB for personal use ebooks.
     book_id               = xml_field("BookID", parent="BookInfo")
     publisher             = xml_field("Publisher", parent="BookInfo")
@@ -510,8 +552,12 @@ def main():
       """, version=VERSION)
     parser.add_option("-t", "--title", action="store", type="string", \
                     dest="title", help="Set the book title")
+    parser.add_option('--title-sort', action='store', type='string', default=None,
+                      dest='title_reading', help='Set sort key for the title')
     parser.add_option("-a", "--author", action="store", type="string", \
                     dest="author", help="Set the author")
+    parser.add_option('--author-sort', action='store', type='string', default=None,
+                      dest='author_reading', help='Set sort key for the author')
     parser.add_option("-c", "--category", action="store", type="string", \
                     dest="category", help="The category this book belongs"+\
                     " to. E.g.: History")
@@ -533,6 +579,10 @@ def main():
     lrf = LRFMetaFile(open(args[0], "r+b"))
     if options.title:
         lrf.title        = options.title
+    if options.title_reading != None:
+        lrf.title_reading = options.title_reading
+    if options.author_reading != None:
+        lrf.author_reading = options.author_reading
     if options.author:
         lrf.author    = options.author
     if options.category: 
@@ -557,6 +607,7 @@ def main():
             f.close()
     
     fields = LRFMetaFile.__dict__.items()
+    fields.sort()
     for f in fields:
         if "XML" in str(f): 
             print str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8')

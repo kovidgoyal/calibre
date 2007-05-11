@@ -155,10 +155,10 @@ class Span(_Span):
                 if ans:
                     t['fontsize'] = ans
             elif key == 'font-weight':
-                ans = font_weight(val)
+                ans = font_weight(val)                
                 if ans:
                     t['fontweight'] = ans
-                    if ans > 140:
+                    if int(ans) > 1400:                        
                         t['wordspace'] = '50'
             elif key.startswith("margin"):
                 if key == "margin":
@@ -816,11 +816,11 @@ class HTMLConverter(object):
                         self.css[key].update(ncss[key])
                     else:
                         self.css[key] = ncss[key]
-            ncss = None
+            ncss = {}
             if tagname == 'style':
                 for c in tag.contents:
                     if isinstance(c, NavigableString):
-                        ncss = self.parse_css(str(c))                        
+                        ncss.update(self.parse_css(str(c)))
             elif tag.has_key('type') and tag['type'] == "text/css" \
                     and tag.has_key('href'):
                 url = tag['href']
@@ -834,7 +834,7 @@ class HTMLConverter(object):
                 except IOError:
                     pass
             if ncss:
-                update_css(ncss)
+                update_css(ncss)            
         elif tagname == 'pre':
             self.end_current_para()
             self.current_block.append_to(self.current_page)
