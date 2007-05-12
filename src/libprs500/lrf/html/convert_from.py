@@ -39,7 +39,7 @@ from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBl
                                       Bold, Space, Plot, Image, BlockSpace,\
                                       RuledLine, BookSetting
 from libprs500.lrf.pylrs.pylrs import Span as _Span
-from libprs500.lrf import ConversionError, option_parser, Book
+from libprs500.lrf import ConversionError, option_parser, Book, PRS500_PROFILE
 from libprs500 import extract, filename_to_utf8
 from libprs500.ptempfile import PersistentTemporaryFile
 
@@ -158,7 +158,7 @@ class Span(_Span):
                 ans = font_weight(val)                
                 if ans:
                     t['fontweight'] = ans
-                    if int(ans) > 1400:                        
+                    if int(ans) > 140:                        
                         t['wordspace'] = '50'
             elif key.startswith("margin"):
                 if key == "margin":
@@ -214,8 +214,9 @@ class Span(_Span):
         
         
 class HTMLConverter(object):
-    SELECTOR_PAT  = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
-    IGNORED_TAGS  = (Comment, Declaration, ProcessingInstruction)
+    SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
+    PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
+    IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
     # Fix <a /> elements 
     MARKUP_MASSAGE   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
                          lambda match: match.group(1)+"></a>")]
@@ -234,12 +235,14 @@ class HTMLConverter(object):
             
     processed_files = {} #: Files that have been processed
     
-    def __init__(self, book, path, dpi=166, width=575, height=747, 
+    def __init__(self, book, path, 
                  font_delta=0, verbose=False, cover=None,
                  max_link_levels=sys.maxint, link_level=0,
                  is_root=True, baen=False, chapter_detection=True,
                  chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE),
-                 link_exclude=re.compile('$')):
+                 link_exclude=re.compile('$'), 
+                 page_break=re.compile('h[12]', re.IGNORECASE),
+                 profile=PRS500_PROFILE, hide_broken_links=False):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -270,6 +273,11 @@ class HTMLConverter(object):
         @type chapter_detection: C{bool}
         @param chapter_regex: The compiled regular expression used to search for chapter titles
         @param link_exclude: Compiled regex. Matching hrefs are ignored.
+        @param page_break: Compiled regex. Page breaks are inserted before matching
+                           tags if no page-breaks are found and no chapter headings
+                           are detected.
+        @param profile: Defines the geometry of the display device
+        @param hide_broken_links: Don't display broken links
         '''
         # Defaults for various formatting tags        
         self.css = dict(
@@ -285,10 +293,8 @@ class HTMLConverter(object):
             small  = {'font-size'   :'small'},
             pre    = {'font-family' :'monospace' },
             center = {'text-align'  : 'center'}
-            )
-        self.page_width = width   #: The width of the page
-        self.page_height = height #: The height of the page
-        self.dpi         = dpi    #: The DPI of the intended display device
+            )        
+        self.profile     = profile #: Defines the geometry of the display device
         self.chapter_detection = chapter_detection #: Flag to toggle chapter detection
         self.chapter_regex = chapter_regex #: Regex used to search for chapter titles
         self.link_exclude = link_exclude #: Ignore matching hrefs
@@ -298,6 +304,7 @@ class HTMLConverter(object):
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
+        self.page_break       = page_break #: Regex controlling forced page-break behavior
         self.text_styles      = []#: Keep track of already used textstyles
         self.block_styles     = []#: Keep track of already used blockstyles
         self.images  = {}         #: Images referenced in the HTML document
@@ -311,7 +318,8 @@ class HTMLConverter(object):
         self.in_ol = False #: Flag indicating we're in an <ol> element
         self.book = book #: The Book object representing a BBeB book
         self.is_root = is_root           #: Are we converting the root HTML file
-        self.lstrip_toggle = False #; If true the next add_text call will do an lstrip
+        self.lstrip_toggle = False #: If true the next add_text call will do an lstrip
+        self.hide_broken_links = hide_broken_links
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
@@ -331,7 +339,11 @@ class HTMLConverter(object):
         self.verbose = verbose        
         self.current_page = None
         self.current_para = None
-        self.current_style = {}        
+        self.current_style = {}
+        self.page_break_found = False
+        match = self.PAGE_BREAK_PAT.search(unicode(self.soup))
+        if match and not re.match('avoid', match.group(1), re.IGNORECASE):
+            self.page_break_found = True
         self.parse_file()
         HTMLConverter.processed_files[path] = self
         print 'done'
@@ -440,7 +452,8 @@ class HTMLConverter(object):
             
     def get_text(self, tag):
             css = self.tag_css(tag)
-            if css.has_key('display') and css['display'].lower() == 'none':
+            if (css.has_key('display') and css['display'].lower() == 'none') or \
+               (css.has_key('visibility') and css['visibility'].lower() == 'hidden'):
                 return ''
             text = ''
             for c in tag.contents:
@@ -485,22 +498,26 @@ class HTMLConverter(object):
                 page.contents.remove(bs)
             return ans
         
-        cwd = os.getcwd()
+        cwd = os.getcwd()        
         for link in self.links:
+            para, tag = link.para, link.tag
+            text = self.get_text(tag)
+            if self.hide_broken_links:
+                    para.contents = []
+                    para.append(_Span(text=text))
             purl = urlparse(link.tag['href'])
             if purl[1]: # Not a link to a file on the local filesystem
                 continue
-            path, fragment = unquote(purl[2]), purl[5]
-            para, tag = link.para, link.tag
+            path, fragment = unquote(purl[2]), purl[5]            
             if not path or os.path.basename(path) == self.file_name:
                 if fragment in self.targets.keys():
                     tb = get_target_block(fragment, self.targets)
                     if self.is_root:
-                        self.book.addTocEntry(self.get_text(tag), tb)                 
+                        self.book.addTocEntry(text, tb)                 
                     sys.stdout.flush()
                     jb = JumpButton(tb)
                     self.book.append(jb)
-                    cb = CharButton(jb, text=self.get_text(tag))
+                    cb = CharButton(jb, text=text)
                     para.contents = []
                     para.append(cb)
             elif self.link_level < self.max_link_levels:
@@ -515,15 +532,16 @@ class HTMLConverter(object):
                 if not path in HTMLConverter.processed_files.keys():                    
                     try:                        
                         self.files[path] = HTMLConverter(self.book, path, 
-                                     width=self.page_width, height=self.page_height,
-                                     dpi=self.dpi,
+                                     profile=self.profile,
                                      font_delta=self.font_delta, verbose=self.verbose,
                                      link_level=self.link_level+1,
                                      max_link_levels=self.max_link_levels,
                                      is_root = False, baen=self.baen,
                                      chapter_detection=self.chapter_detection,
                                      chapter_regex=self.chapter_regex,
-                                     link_exclude=self.link_exclude)
+                                     link_exclude=self.link_exclude,
+                                     page_break=self.page_break,
+                                     hide_broken_links=self.hide_broken_links)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
                         print >>sys.stderr, 'Unable to process', path
@@ -540,10 +558,10 @@ class HTMLConverter(object):
                 else:
                     tb = conv.top
                 if self.is_root:
-                    self.book.addTocEntry(self.get_text(tag), tb)      
+                    self.book.addTocEntry(text, tb)      
                 jb = JumpButton(tb)                
                 self.book.append(jb)
-                cb = CharButton(jb, text=self.get_text(tag))
+                cb = CharButton(jb, text=text)
                 para.contents = []
                 para.append(cb)                
                     
@@ -574,10 +592,12 @@ class HTMLConverter(object):
         
     def add_image_page(self, path):
         if os.access(path, os.R_OK):
-            self.end_page()
+            self.end_page()            
             page = self.book.create_page(evensidemargin=0, oddsidemargin=0, 
-                                         topmargin=0, textwidth=self.page_width,
-                                         textheight=self.page_height)
+                                         topmargin=0, textwidth=self.profile.screen_width,
+                                         headheight=0, headsep=0, footspace=0,
+                                         footheight=0,
+                                         textheight=self.profile.screen_height)
             if not self.images.has_key(path):
                 self.images[path] = ImageStream(path)
             page.append(ImageBlock(self.images[path]))
@@ -651,11 +671,8 @@ class HTMLConverter(object):
                'padding' in test or 'border' in test or 'page-break' in test \
                or test.startswith('mso') or test.startswith('background')\
                or test.startswith('line') or test in ['color', 'display', \
-                           'letter-spacing',  
-                           'font-variant']:
-                css.pop(key)
-                if self.verbose:
-                    print 'Ignoring CSS key:', key
+                           'letter-spacing', 'font-variant']:
+                css.pop(key)              
         return css
     
     def end_current_para(self):
@@ -688,7 +705,8 @@ class HTMLConverter(object):
             return
         tag_css = self.tag_css(tag, parent_css=parent_css)
         try: # Skip element if its display attribute is set to none
-            if tag_css['display'].lower() == 'none':
+            if tag_css['display'].lower() == 'none' or \
+               tag_css['visibility'].lower() == 'hidden':
                 return
         except KeyError:
             pass
@@ -701,7 +719,11 @@ class HTMLConverter(object):
            tag_css['page-break-after'].lower() != 'avoid':
             end_page = True
             tag_css.pop('page-break-after')
-            
+        if not self.page_break_found and self.page_break.match(tagname):
+            if len(self.current_page.contents) > 3:
+                self.end_page()
+                if self.verbose:
+                    print 'Forcing page break at', tagname
         if tagname in ["title", "script", "meta", 'del', 'frameset']:            
             pass
         elif tagname == 'a' and self.max_link_levels >= 0:
@@ -744,12 +766,12 @@ class HTMLConverter(object):
                 self.targets[tag['name']] = target
             elif tag.has_key('href') and not self.link_exclude.match(tag['href']):
                 purl = urlparse(tag['href'])
-                path = purl[2]
+                path = unquote(purl[2])
                 if path and os.path.splitext(path)[1][1:].lower() in \
                     ['png', 'jpg', 'bmp', 'jpeg']:
                     self.add_image_page(path)
                 else:
-                    self.add_text('Link: '+tag['href'], tag_css)
+                    self.add_text('Link: ' + tag['href'], tag_css)
                     self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
@@ -772,31 +794,32 @@ class HTMLConverter(object):
                     return pt.name
                     
                     
-                if height > self.page_height:
-                    corrf = self.page_height/(1.*height)
-                    width, height = floor(corrf*width), self.page_height-1                        
-                    if width > self.page_width:
-                        corrf = (self.page_width)/(1.*width)
-                        width, height = self.page_width-1, floor(corrf*height)
+                if height > self.profile.page_height:
+                    corrf = self.profile.page_height/(1.*height)
+                    width, height = floor(corrf*width), self.profile.page_height-1                        
+                    if width > self.profile.page_width:
+                        corrf = (self.profile.page_width)/(1.*width)
+                        width, height = self.profile.page_width-1, floor(corrf*height)
                     path = scale_image(width, height)
-                if width > self.page_width:
-                    corrf = self.page_width/(1.*width)
-                    width, height = self.page_width-1, floor(corrf*height)
-                    if height > self.page_height:
-                        corrf = (self.page_height)/(1.*height)
-                        width, height = floor(corrf*width), self.page_height-1                        
+                if width > self.profile.page_width:
+                    corrf = self.profile.page_width/(1.*width)
+                    width, height = self.profile.page_width-1, floor(corrf*height)
+                    if height > self.profile.page_height:
+                        corrf = (self.profile.page_height)/(1.*height)
+                        width, height = floor(corrf*width), self.profile.page_height-1                        
                     path = scale_image(width, height)
                 width, height = int(width), int(height)
                 
                 if not self.images.has_key(path):
                     self.images[path] = ImageStream(path)
-                factor = 720./self.dpi
-                if max(width, height) <= min(self.page_width, self.page_height)/5.:
+                factor = 720./self.profile.dpi
+                if max(width, height) <= min(self.profile.page_width, 
+                                             self.profile.page_height)/5.:
                     im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
                                xsize=width, ysize=height)                    
                     self.current_para.append(Plot(im, xsize=ceil(width*factor), 
                                                   ysize=ceil(height*factor)))
-                elif height <= self.page_height/1.5:
+                else:
                     pb = self.current_block
                     self.end_current_para()                    
                     self.process_alignment(tag_css)
@@ -809,16 +832,7 @@ class HTMLConverter(object):
                     self.current_block = self.book.create_text_block(
                                                     textStyle=pb.textStyle,
                                                     blockStyle=pb.blockStyle)
-                    self.current_para = Paragraph()
-                else:
-                    self.current_block.append(self.current_para)
-                    self.current_page.append(self.current_block)
-                    self.current_para = Paragraph()
-                    self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
-                                                         blockStyle=self.current_block.blockStyle)
-                    im = ImageBlock(self.images[path], x1=width, y1=height, 
-                                    xsize=width, ysize=height)
-                    self.current_page.append(im)                        
+                    self.current_para = Paragraph()                
             else:
                 print >>sys.stderr, "Failed to process:", tag
         elif tagname in ['style', 'link']:
@@ -835,14 +849,16 @@ class HTMLConverter(object):
                         ncss.update(self.parse_css(str(c)))
             elif tag.has_key('type') and tag['type'] == "text/css" \
                     and tag.has_key('href'):
-                url = tag['href']
+                purl = urlparse(tag['href'])
+                path = unquote(purl[2])                
                 try:
-                    if url.startswith('http://'):
-                        f = urlopen(url)
-                    else:
-                        f = open(unquote(url))
-                    ncss = self.parse_css(f.read())
+                    f = open(path, 'rb')
+                    src = f.read()
                     f.close()
+                    match = self.PAGE_BREAK_PAT.search(src) 
+                    if match and not re.match('avoid', match.group(1), re.IGNORECASE):
+                        self.page_break_found = True
+                    ncss = self.parse_css(f.read())
                 except IOError:
                     pass
             if ncss:
@@ -917,6 +933,7 @@ class HTMLConverter(object):
                     if self.verbose:
                         print 'Detected chapter', src
                     self.end_page()
+                    self.page_break_found = True
             self.end_current_para()
             self.lstrip_toggle = True
             if tag_css.has_key('text-indent'):
@@ -953,7 +970,7 @@ class HTMLConverter(object):
             self.end_current_para()            
             self.current_block.append(CR())
             self.end_current_block()
-            self.current_page.RuledLine(linelength=self.page_width)
+            self.current_page.RuledLine(linelength=self.profile.page_width)
         else:            
             self.process_children(tag, tag_css)
         
@@ -967,18 +984,21 @@ class HTMLConverter(object):
         for _file in self.scaled_images.values():   
             _file.__del__()
         
-
 def process_file(path, options):
     cwd = os.getcwd()
     dirpath = None
     try:
         dirpath, path = get_path(path)
-        cpath, tpath = options.cover, ''
-        if options.cover and os.access(options.cover, os.R_OK):            
-            try:
+        cpath, tpath = '', '' 
+        if options.cover:
+            options.cover = os.path.abspath(os.path.expanduser(options.cover))
+            cpath = options.cover
+            if os.access(options.cover, os.R_OK):        
                 from libprs500.prs500 import PRS500                
                 im = PILImage.open(os.path.join(cwd, cpath))
-                cim = im.resize((600, 800), PILImage.BICUBIC)
+                cim = im.resize((options.profile.screen_width, 
+                                 options.profile.screen_height), 
+                                PILImage.BICUBIC)
                 cf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
                 cf.close()                
                 cim.save(cf.name)
@@ -989,17 +1009,16 @@ def process_file(path, options):
                 tf.close()
                 tim.save(tf.name)
                 tpath = tf.name
-            except ImportError:
-                print >>sys.stderr, "WARNING: You don't have PIL installed. ",
-                'Cover and thumbnails wont work'
-                pass
+            else:
+                raise ConversionError, 'Cannot read from: %s', (options.cover,)
         title = (options.title, options.title_sort)
         author = (options.author, options.author_sort)
         args = dict(font_delta=options.font_delta, title=title, \
                     author=author, sourceencoding='utf8',\
                     freetext=options.freetext, category=options.category,
-                    booksetting=BookSetting(dpi=10*options.dpi,screenheight=800,
-                                            screenwidth=600))
+                    booksetting=BookSetting(dpi=10*options.profile.dpi,
+                                            screenheight=options.profile.screen_height,
+                                            screenwidth=options.profile.screen_width))
         if tpath:
             args['thumbnail'] = tpath
         header = None
@@ -1011,13 +1030,16 @@ def process_file(path, options):
         book = Book(header=header, **args)
         le = re.compile(options.link_exclude) if options.link_exclude else \
              re.compile('$')
-        conv = HTMLConverter(book, path, dpi=options.dpi,
+        pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else \
+             re.compile('$')
+        conv = HTMLConverter(book, path, profile=options.profile,
                              font_delta=options.font_delta, 
                              cover=cpath, max_link_levels=options.link_levels,
-                             baen=options.baen, 
+                             verbose=options.verbose, baen=options.baen, 
                              chapter_detection=options.chapter_detection,
                              chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
-                             link_exclude=re.compile(le))
+                             link_exclude=re.compile(le), page_break=pb,
+                             hide_broken_links=not options.show_broken_links)
         conv.process_links()
         oname = options.output
         if not oname:
@@ -1033,47 +1055,73 @@ def process_file(path, options):
         if dirpath:
             shutil.rmtree(dirpath, True)
         
-def main():
+def parse_options(argv=None, cli=True):
     """ CLI for html -> lrf conversions """
+    if not argv:
+        argv = sys.argv[1:]
     parser = option_parser("""usage: %prog [options] mybook.[html|rar|zip]
 
          %prog converts mybook.html to mybook.lrf""")
     parser.add_option('--cover', action='store', dest='cover', default=None, \
                       help='Path to file containing image to be used as cover')
-    parser.add_option('--lrs', action='store_true', dest='lrs', \
-                      help='Convert to LRS', default=False)
     parser.add_option('--font-delta', action='store', type='int', default=0, \
                       help="""Increase the font size by 2 * FONT_DELTA pts. 
                       If FONT_DELTA is negative, the font size is decreased.""",
                       dest='font_delta')
-    parser.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
+    link = parser.add_option_group('LINK PROCESSING OPTIONS')
+    link.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
                       dest='link_levels',
                       help=r'''The maximum number of levels to recursively process '''
                               '''links. A value of 0 means thats links are not followed. '''
                               '''A negative value means that <a> tags are ignored.''')
-    parser.add_option('--baen', action='store_true', default=False, dest='baen',
-                      help='''Preprocess Baen HTML files to improve generated LRF.''')
-    parser.add_option('--dpi', action='store', type='int', default=166, dest='dpi',
-                      help='''The DPI of the target device. Default is 166 for the
-                              Sony PRS 500''')
-    parser.add_option('--disable-chapter-detection', action='store_false', 
+    link.add_option('--link-exclude', dest='link_exclude', default='$',
+                      help='''A regular expression. <a> tags whoose href '''
+                      '''matches will be ignored. Defaults to %default''')
+    chapter = parser.add_option_group('CHAPTER OPTIONS')
+    chapter.add_option('--disable-chapter-detection', action='store_false', 
                       default=True, dest='chapter_detection', 
                       help='''Prevent html2lrf from automatically inserting page breaks'''
                       '''before what it thinks are chapters.''')
-    parser.add_option('--chapter-regex', dest='chapter_regex', 
+    chapter.add_option('--chapter-regex', dest='chapter_regex', 
                       default='chapter|book|appendix',
                       help='''The regular expression used to detect chapter titles.'''
-                      '''It is searched for in heading tags. Default is chapter|book|appendix''') 
-    parser.add_option('--link-exclude', dest='link_exclude', default='',
-                      help='''A regular expression. <a> tags whoose href '''
-                      '''matches will be ignored''')
-    options, args = parser.parse_args()
+                      '''It is searched for in heading tags. Defaults to %default''')     
+    chapter.add_option('--page-break-before', dest='page_break', default='h[12]',
+                      help='''If html2lrf does not find any page breaks in the '''
+                      '''html file and cannot detect chapter headings, it will '''
+                      '''automatically insert page-breaks before the tags whose '''
+                      '''names match this regular expression. Defaults to %default. '''
+                      '''You can disable it by setting the regexp to "$". '''
+                      '''The purpose of this option is to try to ensure that '''
+                      '''there are no really long pages as this degrades the page '''
+                      '''turn performance of the LRF. Thus this option is ignored '''
+                      '''if the current page has only a few elements.''')
+    prepro = parser.add_option_group('PREPROCESSING OPTIONS')
+    prepro.add_option('--baen', action='store_true', default=False, dest='baen',
+                      help='''Preprocess Baen HTML files to improve generated LRF.''')
+    debug = parser.add_option_group('DEBUG OPTIONS')
+    debug.add_option('--verbose', dest='verbose', action='store_true', default=False,
+                      help='''Be verbose while processing''')
+    debug.add_option('--lrs', action='store_true', dest='lrs', \
+                      help='Convert to LRS', default=False)
+    debug.add_option('--show-broken-links', dest='show_broken_links', action='store_true',
+                    default=False, help='''Show the href of broken links in generated LRF''')   
+    options, args = parser.parse_args(args=argv)
     if len(args) != 1:
-        parser.print_help()
-        sys.exit(1)
-    src = args[0]
+        if cli:
+            parser.print_help()
+        raise ConversionError, 'no filename specified'
     if options.title == None:
-        options.title = filename_to_utf8(os.path.splitext(os.path.basename(src))[0])
+        options.title = filename_to_utf8(os.path.splitext(os.path.basename(args[0]))[0])
+    return options, args
+
+
+def main():    
+    try:
+        options, args = parse_options()
+        src = args[0]
+    except:        
+        sys.exit(1)    
     process_file(src, options)
 
 def console_query(dirpath, candidate, docs):

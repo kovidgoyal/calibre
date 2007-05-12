@@ -69,7 +69,9 @@ def convert_txt(path, options):
     book = Book(header=header, title=title, author=author, \
                 sourceencoding=options.encoding, freetext=options.freetext, \
                 category=options.category, booksetting=BookSetting
-                (dpi=10*options.dpi,screenheight=800, screenwidth=600))
+                (dpi=10*options.profile.dpi,
+                 screenheight=options.profile.screen_height, 
+                 screenwidth=options.profile.screen_height))
     buffer = ''
     pg = book.create_page()
     block = book.create_text_block()
