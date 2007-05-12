@@ -333,5 +333,9 @@ if os.access('/etc/udev/rules.d', os.W_OK):
              '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="plugdev"\n'''
              )
   udev.close()
-  check_call('udevstart', shell=True)
-  print 'success'
+  try:
+      check_call('udevstart', shell=True)
+      print 'success'
+  except:
+      print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
+  
