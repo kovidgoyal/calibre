@@ -41,6 +41,11 @@ import sys
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 
+def filename_to_utf8(name):
+    '''Return C{name} encoded in utf8. Unhandled characters are replaced. '''
+    codec = 'cp1252' if iswindows else 'utf8'
+    return name.decode(codec, 'replace').encode('utf8')
+
 def extract(path, dir):
     import os
     ext = os.path.splitext(path)[1][1:].lower()

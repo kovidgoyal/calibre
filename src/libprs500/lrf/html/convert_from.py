@@ -40,7 +40,7 @@ from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBl
                                       RuledLine, BookSetting
 from libprs500.lrf.pylrs.pylrs import Span as _Span
 from libprs500.lrf import ConversionError, option_parser, Book
-from libprs500 import extract
+from libprs500 import extract, filename_to_utf8
 from libprs500.ptempfile import PersistentTemporaryFile
 
 class Span(_Span):
@@ -1063,7 +1063,7 @@ def main():
         sys.exit(1)
     src = args[0]
     if options.title == None:
-        options.title = os.path.splitext(os.path.basename(src))[0]
+        options.title = filename_to_utf8(os.path.splitext(os.path.basename(src))[0])
     process_file(src, options)
 
 def console_query(dirpath, candidate, docs):

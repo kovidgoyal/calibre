@@ -20,7 +20,7 @@ import os, sys
 from libprs500.lrf import ConversionError, option_parser
 from libprs500.lrf import Book
 from libprs500.lrf.pylrs.pylrs import Paragraph, Italic, Bold, BookSetting
-
+from libprs500 import filename_to_utf8
 
 def main():
     """ CLI for txt -> lrf conversions """
@@ -42,7 +42,7 @@ def main():
         sys.exit(1)
     src = os.path.abspath(os.path.expanduser(args[0]))
     if options.title == None:
-        options.title = os.path.splitext(os.path.basename(src))[0]
+        options.title = filename_to_utf8(os.path.splitext(os.path.basename(src))[0])
     try:
         convert_txt(src, options)
     except ConversionError, err:
