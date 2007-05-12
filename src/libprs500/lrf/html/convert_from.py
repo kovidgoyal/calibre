@@ -400,6 +400,10 @@ class HTMLConverter(object):
         return prop
         
     def parse_file(self):
+        def get_valid_block(page):
+            for item in page.contents:
+                if isinstance(item, (TextBlock, ImageBlock, RuledLine)):
+                    return item
         previous = self.book.last_page()
         self.current_page = self.book.create_page()
         self.current_block = self.book.create_text_block()
@@ -418,7 +422,7 @@ class HTMLConverter(object):
         
         if not self.top.parent:
             if not previous:
-                self.top = self.book.pages()[0].contents[0]                
+                self.top = get_valid_block(self.book.pages()[0])
             else:
                 found = False
                 for page in self.book.pages():
@@ -426,7 +430,9 @@ class HTMLConverter(object):
                         found = True
                         continue
                     if found:
-                        self.top = page.contents[0]
+                        self.top = get_valid_block(page)
+                        if not self.top:
+                            continue
                         break
             if not self.top.parent:
                 raise ConversionError, 'Could not parse ' + self.file_name
@@ -455,7 +461,7 @@ class HTMLConverter(object):
             ans, found, page = None, False, bs.parent
             for item in page.contents:
                 if found:
-                    if isinstance(item, (TextBlock, ImageBlock)):
+                    if isinstance(item, (TextBlock, RuledLine, ImageBlock)):
                         ans = item
                         break
                 if item == bs:
@@ -464,7 +470,7 @@ class HTMLConverter(object):
             
             if not ans:
                 for i in range(len(page.contents)-1, -1, -1):
-                    if isinstance(page.contents[i], (TextBlock, ImageBlock)):
+                    if isinstance(page.contents[i], (TextBlock, RuledLine, ImageBlock)):
                         ans = page.contents[i]
                         break
             
@@ -497,8 +503,11 @@ class HTMLConverter(object):
                     cb = CharButton(jb, text=self.get_text(tag))
                     para.contents = []
                     para.append(cb)
-            elif self.link_level < self.max_link_levels:                
-                if not os.access(path, os.R_OK):
+            elif self.link_level < self.max_link_levels:
+                try: # os.access raises Exceptions in path has null bytes
+                    if not os.access(path.encode('utf8', 'replace'), os.R_OK):
+                        raise Exception()
+                except Exception:
                     if self.verbose:
                         print "Skipping", link
                     continue
@@ -641,10 +650,12 @@ class HTMLConverter(object):
             if test.startswith('margin') or test.startswith('text') or \
                'padding' in test or 'border' in test or 'page-break' in test \
                or test.startswith('mso') or test.startswith('background')\
-               or test in ['color', 'display', \
+               or test.startswith('line') or test in ['color', 'display', \
                            'letter-spacing',  
                            'font-variant']:
                 css.pop(key)
+                if self.verbose:
+                    print 'Ignoring CSS key:', key
         return css
     
     def end_current_para(self):
@@ -730,7 +741,6 @@ class HTMLConverter(object):
                         else:
                             target = BlockSpace()
                             self.current_page.append(target)
-                        
                 self.targets[tag['name']] = target
             elif tag.has_key('href') and not self.link_exclude.match(tag['href']):
                 purl = urlparse(tag['href'])
