@@ -502,6 +502,14 @@ class HTMLConverter(object):
         for link in self.links:
             para, tag = link.para, link.tag
             text = self.get_text(tag)
+            if not text:
+                text = 'Link'
+                img = tag.find('img')
+                if img:
+                    try:
+                        text = img['alt']
+                    except KeyError:
+                        pass
             if self.hide_broken_links:
                     para.contents = []
                     para.append(_Span(text=text))
