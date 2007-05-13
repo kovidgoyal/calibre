@@ -21,33 +21,39 @@ from libprs500.lrf import ConversionError, option_parser
 from libprs500.lrf import Book
 from libprs500.lrf.pylrs.pylrs import Paragraph, Italic, Bold, BookSetting
 from libprs500 import filename_to_utf8
+from libprs500 import iswindows
 
-def main():
+def parse_options(argv=None, cli=True):
     """ CLI for txt -> lrf conversions """
-    parser = option_parser(\
+    if not argv:
+        argv = sys.argv[1:]
+    parser = option_parser(
         """usage: %prog [options] mybook.txt
         
         %prog converts mybook.txt to mybook.lrf
-        """\
+        """
         )
-    
-    defenc = 'cp1252'
+    defenc = 'cp1252' if iswindows else 'utf8'
     enchelp = 'Set the encoding used to decode ' + \
-              'the text in mybook.txt. Default encoding is ' + defenc
+              'the text in mybook.txt. Default encoding is %default'
     parser.add_option('-e', '--encoding', action='store', type='string', \
                       dest='encoding', help=enchelp, default=defenc)
     options, args = parser.parse_args()
     if len(args) != 1:
-        parser.print_help()
-        sys.exit(1)
-    src = os.path.abspath(os.path.expanduser(args[0]))
+        if cli:
+            parser.print_help()
+        raise ConversionError, 'no filename specified'
     if options.title == None:
-        options.title = filename_to_utf8(os.path.splitext(os.path.basename(src))[0])
+        options.title = filename_to_utf8(os.path.splitext(os.path.basename(args[0]))[0])
+    return options, args, parser
+
+def main():
     try:
-        convert_txt(src, options)
-    except ConversionError, err:
-        print >>sys.stderr, err
-        sys.exit(1)
+        options, args, parser = parse_options()
+        src = os.path.abspath(os.path.expanduser(args[0]))
+    except:        
+        sys.exit(1)    
+    convert_txt(src, options)
         
     
 def convert_txt(path, options):

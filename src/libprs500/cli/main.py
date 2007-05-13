@@ -62,6 +62,17 @@ class FileFormatter(object):
         return property(doc=doc, fget=fget)
     
     @apply
+    def isdir_name():
+        doc='''Return self.name + '/' if self is a directory'''
+        def fget(self):
+            name = self.name
+            if self.is_dir:
+                name += '/'
+            return name
+        return property(doc=doc, fget=fget)
+            
+    
+    @apply
     def name_in_color():
         doc=""" The name in ANSI text. Directories are blue, ebooks are green """
         def fget(self):
@@ -140,7 +151,7 @@ def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, l
                 if size > maxlen: maxlen = size
         for file in files:
             file = FileFormatter(file, term)
-            name = file.name
+            name = file.name if ll else file.isdir_name
             lsoutput.append(name)
             if color: name = file.name_in_color
             lscoloutput.append(name)

@@ -22,7 +22,7 @@ and to Falstaff for pylrs.
 """
 import os, re, sys, shutil, traceback, copy
 from htmlentitydefs import name2codepoint
-from urllib import urlopen, unquote
+from urllib import unquote
 from urlparse import urlparse
 from tempfile import mkdtemp
 from operator import itemgetter
@@ -1121,12 +1121,12 @@ def parse_options(argv=None, cli=True):
         raise ConversionError, 'no filename specified'
     if options.title == None:
         options.title = filename_to_utf8(os.path.splitext(os.path.basename(args[0]))[0])
-    return options, args
+    return options, args, parser
 
 
 def main():    
     try:
-        options, args = parse_options()
+        options, args, parser = parse_options()
         src = args[0]
     except:        
         sys.exit(1)    

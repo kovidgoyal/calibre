@@ -24,8 +24,7 @@ to get and set meta information. For example:
 >>> lrf.category = "History"
 """
 
-import struct
-import zlib
+import struct, zlib, sys
 from shutil import copyfileobj
 from cStringIO import StringIO
 import xml.dom.minidom as dom
@@ -538,10 +537,11 @@ class LRFMetaFile(object):
         self._file.write(val)
         
 
-def main():
-    import sys, os.path
+def parse_options(argv=None, cli=True):
     from optparse import OptionParser
     from libprs500 import __version__ as VERSION
+    if not argv:
+        argv = sys.argv[1:]
     parser = OptionParser(usage = \
       """%prog [options] mybook.lrf
       
@@ -574,7 +574,16 @@ def main():
                     dest="page", help="Don't know what this is for")
     options, args = parser.parse_args()
     if len(args) != 1:
-        parser.print_help()
+        if cli:
+            parser.print_help()
+        raise LRFException, 'no filename specified'
+    return options, args, parser
+
+def main():
+    import os.path
+    try:
+        options, args, parser = parse_options()
+    except:
         sys.exit(1)
     lrf = LRFMetaFile(open(args[0], "r+b"))
     if options.title:

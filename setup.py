@@ -313,6 +313,9 @@ setup(
         **py2exe_options   
      )
 
+if '--uninstall' in ' '.join(sys.argv[1:]):
+    sys.exit(0)
+
 try:
   import PyQt4
 except ImportError:
@@ -324,6 +327,150 @@ else:
     print "WARNING: The GUI needs PyQt >= 4.1.1"
 
 import os
+def options(parse_options):
+    options, args, parser = parse_options(['dummy'], cli=False) 
+    options = parser.option_list
+    for group in parser.option_groups:
+        options += group.option_list
+    opts = []
+    for opt in options:
+        opts.extend(opt._short_opts)
+        opts.extend(opt._long_opts)
+    return opts
+
+def opts_and_exts(name, op, exts):
+    opts = ' '.join(options(op))
+    exts.extend([i.upper() for i in exts])
+    exts='|'.join(exts)
+    return '_'+name+'()'+\
+'''
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="%s"
+    pics="@(jpg|jpeg|png|gif|bmp|JPG|JPEG|PNG|GIF|BMP)"
+
+    case "${prev}" in
+      --cover )
+           _filedir "${pics}"
+           return 0
+           ;;
+    esac
+
+    case "${cur}" in
+      --cover )
+         _filedir "${pics}"
+         return 0
+         ;;
+      -* )
+         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+         return 0
+         ;;
+      *  )
+        _filedir '@(%s)'
+        return 0
+        ;;
+    esac
+
+}
+complete -o filenames -F _'''%(opts,exts) + name + ' ' + name +"\n\n"
+
+
+
+if os.access('/etc/bash_completion.d', os.W_OK):
+    try:
+        print 'Setting up bash completion...',
+        sys.stdout.flush()
+        from libprs500.lrf.html.convert_from import parse_options as htmlop
+        from libprs500.lrf.txt.convert_from import parse_options as txtop
+        from libprs500.lrf.meta import parse_options as metaop
+        f = open('/etc/bash_completion.d/libprs500', 'wb')
+        f.write('# libprs500 Bash Shell Completion\n')
+        f.write(opts_and_exts('html2lrf', htmlop, 
+                              ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip']))
+        f.write(opts_and_exts('txt2lrf', txtop, ['txt']))
+        f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
+        f.write('''
+_prs500_ls()
+{
+  local pattern search listing prefix
+  pattern="$1"
+  search="$1"
+  if [[ -n "{$pattern}" ]]; then
+    if [[ "${pattern:(-1)}" == "/" ]]; then
+      pattern=""
+    else
+      pattern="$(basename ${pattern} 2> /dev/null)"
+      search="$(dirname ${search} 2> /dev/null)"
+    fi
+  fi
+
+  if [[  "x${search}" == "x" || "x${search}" == "x." ]]; then
+    search="/"
+  fi
+
+  listing="$(prs500 ls ${search} 2>/dev/null)"
+
+  prefix="${search}"
+  if [[ "x${prefix:(-1)}" != "x/" ]]; then
+    prefix="${prefix}/"
+  fi
+
+  echo $(compgen -P "${prefix}" -W "${listing}" "${pattern}") 
+}
+
+_prs500()
+{
+  local cur prev 
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  COMPREPLY=()
+  case "${prev}" in
+    ls|rm|mkdir|touch|cat )        
+        COMPREPLY=( $(_prs500_ls "${cur}") )
+        return 0
+        ;;
+    cp )
+        if [[ ${cur} == prs500:* ]]; then
+          COMPREPLY=( $(_prs500_ls "${cur:7}") )
+          return 0
+        else
+          _filedir
+          return 0
+        fi
+        ;;
+    prs500 )
+        COMPREPLY=( $(compgen -W "cp ls rm mkdir touch cat info books df" "${cur}") )
+        return 0
+        ;;
+    * )
+        if [[ ${cur} == prs500:* ]]; then
+          COMPREPLY=( $(_prs500_ls "${cur:7}") )
+          return 0
+        else
+          if [[ ${prev} == prs500:* ]]; then
+            _filedir
+            return 0
+          else
+            COMPREPLY=( $(compgen -W "prs500:" "${cur}") )
+            return 0
+          fi
+          return 0
+        fi
+       ;;
+  esac
+}
+complete -o nospace  -F _prs500 prs500
+
+''')
+        f.close()
+        print 'done'
+    except:
+        print 'failed'
+                
+
 if os.access('/etc/udev/rules.d', os.W_OK):
   from subprocess import check_call
   print 'Trying to setup udev rules...',

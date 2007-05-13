@@ -44,7 +44,7 @@ class ConversionError(Exception):
 
 def option_parser(usage):
     parser = OptionParser(usage=usage, version='libprs500 '+VERSION,
-                          epilog='html2lrf created by Kovid Goyal')
+                          epilog='Created by Kovid Goyal')
     metadata = parser.add_option_group('METADATA OPTIONS')
     metadata.add_option('--header', action='store_true', default=False, dest='header',
                       help='Add a header to all the pages with title and author.')
