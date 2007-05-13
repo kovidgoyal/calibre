@@ -103,6 +103,7 @@ class xml_attr_field(object):
                     elem = candidate
             if elem and elem.hasAttribute(self.attr):
                 return elem.getAttribute(self.attr)
+        return ''
                 
     def __set__(self, obj, val):
         if val == None:
@@ -618,7 +619,7 @@ def main():
     fields = LRFMetaFile.__dict__.items()
     fields.sort()
     for f in fields:
-        if "XML" in str(f): 
+        if "XML" in str(f):
             print str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8')
     if options.get_thumbnail: 
         print "Thumbnail:", td

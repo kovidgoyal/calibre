@@ -17,7 +17,7 @@
 """ 
 Code to convert HTML ebooks into LRF ebooks.
 
-I am indebted to esperanc for the CSS->Xylog Style conversion routines
+I am indebted to esperanc for the initial CSS->Xylog Style conversion routines
 and to Falstaff for pylrs.
 """
 import os, re, sys, shutil, traceback, copy
