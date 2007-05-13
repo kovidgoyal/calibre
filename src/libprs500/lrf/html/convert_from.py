@@ -866,7 +866,7 @@ class HTMLConverter(object):
                     match = self.PAGE_BREAK_PAT.search(src) 
                     if match and not re.match('avoid', match.group(1), re.IGNORECASE):
                         self.page_break_found = True
-                    ncss = self.parse_css(f.read())
+                    ncss = self.parse_css(src)
                 except IOError:
                     pass
             if ncss:
