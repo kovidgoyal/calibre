@@ -631,11 +631,11 @@ class HTMLConverter(object):
         '''
         align = 'head'
         if css.has_key('text-align'):
-            val = css['text-align']                
+            val = css['text-align'].lower()             
             if val in ["right", "foot"]:
                 align = "foot"
             elif val == "center":
-                align = "center"
+                align = "center"        
         if align != self.current_block.textStyle.attrs['align']:
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
@@ -799,7 +799,7 @@ class HTMLConverter(object):
                 
                 def scale_image(width, height):
                     pt = PersistentTemporaryFile(suffix='.jpeg')
-                    im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, 'JPEG')
+                    im.resize((int(width), int(height)), PILImage.ANTIALIAS).convert('RGB').save(pt, 'JPEG')
                     pt.close()
                     self.scaled_images[path] = pt
                     return pt.name
@@ -832,7 +832,7 @@ class HTMLConverter(object):
                                                   ysize=ceil(height*factor)))
                 else:
                     pb = self.current_block
-                    self.end_current_para()                    
+                    self.end_current_para()
                     self.process_alignment(tag_css)
                     im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
                                xsize=width, ysize=height)
@@ -937,7 +937,7 @@ class HTMLConverter(object):
             self.current_para = Paragraph()
             self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
                                                              blockStyle=pb.blockStyle)
-        elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+        elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:            
             if self.chapter_detection and tagname.startswith('h'):
                 src = self.get_text(tag)                
                 if self.chapter_regex.search(src):
@@ -946,7 +946,7 @@ class HTMLConverter(object):
                     self.end_page()
                     self.page_break_found = True
             self.end_current_para()
-            self.lstrip_toggle = True
+            self.lstrip_toggle = True            
             if tag_css.has_key('text-indent'):
                 indent = Span.unit_convert(tag_css['text-indent'])
                 if not indent:
@@ -1008,7 +1008,7 @@ def process_file(path, options):
                 matches = glob.glob(re.sub('-', '', item[1])+'.*')
                 for match in matches:
                     if match.lower().endswith('.jpeg') or match.lower().endswith('.jpg') or \
-                    match.lower().endswith('.gif') or match.lower().endswith('.bmp'):
+                    match.lower().endswith('.gif') or match.lower().endswith('.png'):
                         options.cover = match
                         break
         if options.cover:
