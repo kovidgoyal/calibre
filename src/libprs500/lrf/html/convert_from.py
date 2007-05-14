@@ -797,8 +797,8 @@ class HTMLConverter(object):
                     pass
                 
                 def scale_image(width, height):
-                    pt = PersistentTemporaryFile(suffix='.png')
-                    im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, 'PNG')
+                    pt = PersistentTemporaryFile(suffix='.jpeg')
+                    im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, 'JPEG')
                     pt.close()
                     self.scaled_images[path] = pt
                     return pt.name
@@ -1120,8 +1120,7 @@ def parse_options(argv=None, cli=True):
         if cli:
             parser.print_help()
         raise ConversionError, 'no filename specified'
-    if options.title == None:
-        options.title = filename_to_utf8(os.path.splitext(os.path.basename(args[0]))[0])
+    
     return options, args, parser
 
 

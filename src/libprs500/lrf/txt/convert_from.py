@@ -91,7 +91,7 @@ def convert_txt(path, options):
             block.Paragraph(buffer)            
             buffer = ''
     basename = os.path.basename(path)
-    oname = options.output    
+    oname = options.output
     if not oname:
         oname = os.path.splitext(basename)[0]+('.lrs' if options.lrs else '.lrf')
     oname = os.path.abspath(os.path.expanduser(oname))

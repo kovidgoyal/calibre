@@ -258,6 +258,9 @@ class LrsContainer(object):
             for child in self.contents:
                 if child.has_text():
                     return True
+        for item in self.contents:
+            if isinstance(item, Plot):
+                return True
         return False
     
     def append_to(self, parent):
@@ -267,6 +270,7 @@ class LrsContainer(object):
         '''
         if self.has_text():
             parent.append(self)
+            
         
     def appendReferencedObjects(self, parent):
         for c in self.contents:
