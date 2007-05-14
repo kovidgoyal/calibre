@@ -20,7 +20,7 @@ Code to convert HTML ebooks into LRF ebooks.
 I am indebted to esperanc for the initial CSS->Xylog Style conversion routines
 and to Falstaff for pylrs.
 """
-import os, re, sys, shutil, traceback, copy
+import os, re, sys, shutil, traceback, copy, codecs
 from htmlentitydefs import name2codepoint
 from urllib import unquote
 from urlparse import urlparse
@@ -502,6 +502,8 @@ class HTMLConverter(object):
         for link in self.links:
             para, tag = link.para, link.tag
             text = self.get_text(tag)
+            # Needed for TOC entries due to bug in LRF
+            ascii_text = text.decode('utf8', 'replace').encode('ascii', 'replace')
             if not text:
                 text = 'Link'
                 img = tag.find('img')
@@ -521,7 +523,7 @@ class HTMLConverter(object):
                 if fragment in self.targets.keys():
                     tb = get_target_block(fragment, self.targets)
                     if self.is_root:
-                        self.book.addTocEntry(text, tb)                 
+                        self.book.addTocEntry(ascii_text, tb)                 
                     sys.stdout.flush()
                     jb = JumpButton(tb)
                     self.book.append(jb)
@@ -566,7 +568,7 @@ class HTMLConverter(object):
                 else:
                     tb = conv.top
                 if self.is_root:
-                    self.book.addTocEntry(text, tb)      
+                    self.book.addTocEntry(ascii_text, tb)      
                 jb = JumpButton(tb)                
                 self.book.append(jb)
                 cb = CharButton(jb, text=text)
