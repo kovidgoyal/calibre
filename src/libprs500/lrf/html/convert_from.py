@@ -14,13 +14,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.lrf.html.BeautifulSoup import BeautifulStoneSoup
 """ 
 Code to convert HTML ebooks into LRF ebooks.
 
 I am indebted to esperanc for the initial CSS->Xylog Style conversion routines
 and to Falstaff for pylrs.
 """
-import os, re, sys, shutil, traceback, copy, codecs
+import os, re, sys, shutil, traceback, copy, glob
 from htmlentitydefs import name2codepoint
 from urllib import unquote
 from urlparse import urlparse
@@ -32,7 +33,7 @@ try:
 except ImportError:
     import Image as PILImage
 
-from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, Comment, Tag, \
+from libprs500.lrf.html.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, Comment, Tag, \
                                              NavigableString, Declaration, ProcessingInstruction
 from libprs500.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, TextBlock, \
                                       ImageBlock, JumpButton, CharButton, \
@@ -997,9 +998,19 @@ class HTMLConverter(object):
 def process_file(path, options):
     cwd = os.getcwd()
     dirpath = None
+    default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
     try:
         dirpath, path = get_path(path)
         cpath, tpath = '', '' 
+        isbn = try_opf(path, options)
+        if not options.cover and isbn:
+            for item in isbn:
+                matches = glob.glob(re.sub('-', '', item[1])+'.*')
+                for match in matches:
+                    if match.lower().endswith('.jpeg') or match.lower().endswith('.jpg') or \
+                    match.lower().endswith('.gif') or match.lower().endswith('.bmp'):
+                        options.cover = match
+                        break
         if options.cover:
             options.cover = os.path.abspath(os.path.expanduser(options.cover))
             cpath = options.cover
@@ -1021,6 +1032,10 @@ def process_file(path, options):
                 tpath = tf.name
             else:
                 raise ConversionError, 'Cannot read from: %s', (options.cover,)
+        
+                    
+        if not options.title:
+            options.title = default_title
         title = (options.title, options.title_sort)
         author = (options.author, options.author_sort)
         args = dict(font_delta=options.font_delta, title=title, \
@@ -1051,7 +1066,7 @@ def process_file(path, options):
                              link_exclude=re.compile(le), page_break=pb,
                              hide_broken_links=not options.show_broken_links)
         conv.process_links()
-        oname = options.output
+        oname = options.output        
         if not oname:
             suffix = '.lrs' if options.lrs else '.lrf'
             name = os.path.splitext(os.path.basename(path))[0] + suffix
@@ -1064,7 +1079,42 @@ def process_file(path, options):
         os.chdir(cwd)
         if dirpath:
             shutil.rmtree(dirpath, True)
-        
+
+def try_opf(path, options):
+    try:
+        opf = glob.glob('*.opf')[0]
+    except IndexError:
+        return
+    soup = BeautifulStoneSoup(open(opf).read())
+    try:
+        title = soup.package.metadata.find('dc:title')
+        if title and not options.title:
+            options.title = title.string
+        creators = soup.package.metadata.findAll('dc:creator')
+        if options.author == 'Unknown':
+            for author in creators:
+                role = author.get('role')
+                if not role:
+                    role = author.get('opf:role')
+                if role == 'aut':
+                    options.author = author.string
+                    fa = author.get('file-as')
+                    if fa:
+                        options.author_sort = fa
+        isbn = []
+        for item in soup.package.metadata.findAll('dc:identifier'):
+            scheme = item.get('scheme')
+            if not scheme:
+                scheme = item.get('opf:scheme')
+            isbn.append((scheme, item.string))
+        return isbn
+    except Exception, err:
+        if options.verbose:
+            print >>sys.stderr, 'Failed to process opf file', err
+        pass
+                
+            
+
 def parse_options(argv=None, cli=True):
     """ CLI for html -> lrf conversions """
     if not argv:
