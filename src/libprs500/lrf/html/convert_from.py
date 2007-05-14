@@ -1109,11 +1109,10 @@ def parse_options(argv=None, cli=True):
     prepro = parser.add_option_group('PREPROCESSING OPTIONS')
     prepro.add_option('--baen', action='store_true', default=False, dest='baen',
                       help='''Preprocess Baen HTML files to improve generated LRF.''')
-    debug = parser.add_option_group('DEBUG OPTIONS')
-    debug.add_option('--verbose', dest='verbose', action='store_true', default=False,
-                      help='''Be verbose while processing''')
-    debug.add_option('--lrs', action='store_true', dest='lrs', \
-                      help='Convert to LRS', default=False)
+    debug = None
+    for g in parser.option_groups:
+        if g.title == 'DEBUG OPTIONS':
+            debug = g
     debug.add_option('--show-broken-links', dest='show_broken_links', action='store_true',
                     default=False, help='''Show the href of broken links in generated LRF''')   
     options, args = parser.parse_args(args=argv)

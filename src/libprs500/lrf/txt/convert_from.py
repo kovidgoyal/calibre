@@ -53,7 +53,7 @@ def main():
         src = os.path.abspath(os.path.expanduser(args[0]))
     except:        
         sys.exit(1)    
-    convert_txt(src, options)
+    print 'Output written to ', convert_txt(src, options)
         
     
 def convert_txt(path, options):
@@ -77,7 +77,7 @@ def convert_txt(path, options):
                 category=options.category, booksetting=BookSetting
                 (dpi=10*options.profile.dpi,
                  screenheight=options.profile.screen_height, 
-                 screenwidth=options.profile.screen_height))
+                 screenwidth=options.profile.screen_width))
     buffer = ''
     pg = book.create_page()
     block = book.create_text_block()
@@ -91,12 +91,12 @@ def convert_txt(path, options):
             block.Paragraph(buffer)            
             buffer = ''
     basename = os.path.basename(path)
-    oname = options.output
-    oname = os.path.abspath(os.path.expanduser(oname))
+    oname = options.output    
     if not oname:
-        oname = os.path.splitext(basename)[0]+'.lrf'
+        oname = os.path.splitext(basename)[0]+('.lrs' if options.lrs else '.lrf')
+    oname = os.path.abspath(os.path.expanduser(oname))
     try: 
-        book.renderLrf(oname)
+        book.renderLrs(oname) if options.lrs else book.renderLrf(oname)
     except UnicodeDecodeError:
         raise ConversionError(path + ' is not encoded in ' + \
                               options.encoding +'. Specify the '+ \

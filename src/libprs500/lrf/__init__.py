@@ -68,6 +68,11 @@ def option_parser(usage):
                       help='''Profile of the target device for which this LRF is '''
                       '''being generated. Default: ''' + profiles[0] + '''
                       Supported profiles: '''+', '.join(profiles))
+    debug = parser.add_option_group('DEBUG OPTIONS')
+    debug.add_option('--verbose', dest='verbose', action='store_true', default=False,
+                      help='''Be verbose while processing''')
+    debug.add_option('--lrs', action='store_true', dest='lrs', \
+                      help='Convert to LRS', default=False)
     return parser
 
 def Book(font_delta=0, header=None, profile=PRS500_PROFILE, **settings):
