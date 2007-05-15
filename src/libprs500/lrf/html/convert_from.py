@@ -392,7 +392,11 @@ class HTMLConverter(object):
             temp = {}
             for key in pcss.keys():
                 chk = key.lower()
-                if chk.startswith('font') or chk == 'text-align':
+                # float should not be inherited according to the CSS spec
+                # however we need to as we don't do alignment at a block level.
+                # float is removed by the process_alignment function.
+                if chk.startswith('font') or chk == 'text-align' or \
+                chk == 'float': 
                     temp[key] = pcss[key]
             prop.update(temp)
             
@@ -635,7 +639,14 @@ class HTMLConverter(object):
             if val in ["right", "foot"]:
                 align = "foot"
             elif val == "center":
-                align = "center"        
+                align = "center"
+        if css.has_key('float'):
+            val = css['float'].lower()
+            if val == 'left':
+                align = 'head'
+            if val == 'right':
+                align = 'foot'
+            css.pop('float')
         if align != self.current_block.textStyle.attrs['align']:
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
@@ -824,6 +835,9 @@ class HTMLConverter(object):
                 if not self.images.has_key(path):
                     self.images[path] = ImageStream(path)
                 factor = 720./self.profile.dpi
+                
+                self.process_alignment(tag_css)
+                
                 if max(width, height) <= min(self.profile.page_width, 
                                              self.profile.page_height)/5.:
                     im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
