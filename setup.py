@@ -485,7 +485,7 @@ if os.access('/etc/udev/rules.d', os.W_OK):
       print 'success'
   except:
       try:
-          check_call('/etc/init.d/udev reload, shell=True')
+          check_call('/etc/init.d/udev reload', shell=True)
           print 'success'
       except:
           print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
