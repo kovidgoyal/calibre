@@ -60,6 +60,8 @@ def option_parser(usage):
                       help='Sort key for the title')
     metadata.add_option('--author-sort', action='store', default='', dest='author_sort',
                       help='Sort key for the author')
+    metadata.add_option('--publisher', action='store', default='Unknown', dest='publisher',
+                      help='Publisher')
     profiles=['prs500']    
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')

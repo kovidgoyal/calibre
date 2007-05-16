@@ -1055,6 +1055,7 @@ def process_file(path, options):
         args = dict(font_delta=options.font_delta, title=title, \
                     author=author, sourceencoding='utf8',\
                     freetext=options.freetext, category=options.category,
+                    publisher=options.publisher,
                     booksetting=BookSetting(dpi=10*options.profile.dpi,
                                             screenheight=options.profile.screen_height,
                                             screenwidth=options.profile.screen_width))
@@ -1115,6 +1116,14 @@ def try_opf(path, options):
                     fa = author.get('file-as')
                     if fa:
                         options.author_sort = fa
+        if options.publisher == 'Unknown':
+            publisher = soup.package.metadata.find('dc:publisher')
+            if publisher:
+                options.publisher = publisher.string
+        if not options.category.strip():
+            category = soup.package.metadata.find('dc:type')
+            if category:
+                options.category = category.string
         isbn = []
         for item in soup.package.metadata.findAll('dc:identifier'):
             scheme = item.get('scheme')

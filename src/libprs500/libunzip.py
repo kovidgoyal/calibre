@@ -41,6 +41,8 @@ def extract(filename, dir):
             prefix = dirname
     # extract files
     for fn in filelist:
+        if not os.path.exists(os.path.dirname(fn)):
+            os.makedirs(os.path.dirname(fn))
         out = open( fn, 'wb' )
         buffer = StringIO( zf.read( fn ))
         buflen = 2 ** 20

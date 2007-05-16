@@ -73,6 +73,7 @@ def convert_txt(path, options):
     title = (options.title, options.title_sort)
     author = (options.author, options.author_sort)
     book = Book(header=header, title=title, author=author, \
+                publisher=options.publisher,
                 sourceencoding=options.encoding, freetext=options.freetext, \
                 category=options.category, booksetting=BookSetting
                 (dpi=10*options.profile.dpi,
