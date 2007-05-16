@@ -259,7 +259,7 @@ class LrsContainer(object):
                 if child.has_text():
                     return True
         for item in self.contents:
-            if isinstance(item, Plot):
+            if isinstance(item, (Plot, ImageBlock)):
                 return True
         return False
     
