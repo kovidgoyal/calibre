@@ -218,7 +218,10 @@ class HTMLConverter(object):
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
     # Fix <a /> elements 
     MARKUP_MASSAGE   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
-                         lambda match: match.group(1)+"></a>")]
+                         lambda match: match.group(1)+"></a>"),
+                        (re.compile(r"<\s*style.*?>.*?(<\!--).*?<.\s*style\s*>", re.DOTALL|re.IGNORECASE),
+                         lambda match: match.group().replace('<!--', '').replace('-->', '')),
+                         ]
     # Fix Baen markup
     BAEN_SANCTIFY = [(re.compile(r'<\s*[Aa]\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*<\/[Aa]>'), 
                       lambda match: ''), 
@@ -428,6 +431,7 @@ class HTMLConverter(object):
         self.top = self.current_block
         
         self.process_children(self.soup, {})
+        
         if self.current_para and self.current_block:
             self.current_para.append_to(self.current_block)
         if self.current_block and self.current_page:
@@ -437,7 +441,10 @@ class HTMLConverter(object):
         
         if not self.top.parent:
             if not previous:
-                self.top = get_valid_block(self.book.pages()[0])
+                try:
+                    previous = get_valid_block(self.book.pages()[0])
+                except IndexError:
+                    previous = self.current_page
             else:
                 found = False
                 for page in self.book.pages():
@@ -450,6 +457,8 @@ class HTMLConverter(object):
                             continue
                         break
             if not self.top.parent:
+                self.top = get_valid_block(self.current_page)
+            if not self.top or not self.top.parent:
                 raise ConversionError, 'Could not parse ' + self.file_name
             
             
@@ -691,7 +700,7 @@ class HTMLConverter(object):
                'padding' in test or 'border' in test or 'page-break' in test \
                or test.startswith('mso') or test.startswith('background')\
                or test.startswith('line') or test in ['color', 'display', \
-                           'letter-spacing', 'font-variant']:
+                           'letter-spacing', 'font-variant', 'position']:
                 css.pop(key)              
         return css
     
