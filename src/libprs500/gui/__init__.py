@@ -17,7 +17,7 @@ __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 APP_TITLE     = "libprs500"
 
-import pkg_resources, sys, os, re, StringIO, traceback
+import sys, os, re, StringIO, traceback
 
 error_dialog = None
 
