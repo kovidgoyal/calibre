@@ -20,7 +20,8 @@ At the time fo writing, this package only supports reading and writing LRF meat 
 from optparse import OptionParser, OptionValueError
 
 from libprs500.ebooks.lrf.pylrs.pylrs import Book as _Book
-from libprs500.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, Paragraph, TextStyle
+from libprs500.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, \
+                                             Paragraph, TextStyle, BlockStyle
 from libprs500 import __version__ as VERSION
 
 __docformat__ = "epytext"
@@ -82,7 +83,8 @@ def Book(font_delta=0, header=None, profile=PRS500_PROFILE, **settings):
               textheight=profile.page_height)
     if header:
         hdr = Header()
-        hb = TextBlock(textStyle=TextStyle(align='foot', fontsize=60))
+        hb = TextBlock(textStyle=TextStyle(align='foot', fontsize=60), 
+                       blockStyle=BlockStyle(sidemargin=10))
         hb.append(header)
         hdr.PutObj(hb)
         ps['headheight'] = 30

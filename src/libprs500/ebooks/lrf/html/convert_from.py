@@ -1051,7 +1051,7 @@ def process_file(path, options):
             options.cover = os.path.abspath(os.path.expanduser(options.cover))
             cpath = options.cover
             if os.access(options.cover, os.R_OK):        
-                from libprs500.prs500 import PRS500                
+                from libprs500.devices.prs500.driver import PRS500                
                 im = PILImage.open(os.path.join(cwd, cpath))
                 cim = im.resize((options.profile.screen_width, 
                                  options.profile.screen_height), 
@@ -1088,7 +1088,7 @@ def process_file(path, options):
             header = Paragraph()
             header.append(Bold(options.title))
             header.append(' by ')
-            header.append(Italic(options.author))
+            header.append(Italic(options.author+" "))
         book = Book(header=header, **args)
         le = re.compile(options.link_exclude) if options.link_exclude else \
              re.compile('$')
