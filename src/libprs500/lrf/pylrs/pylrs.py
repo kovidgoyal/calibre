@@ -7,6 +7,7 @@
 # the rights to use, copy, modify, merge, publish, distribute, sublicense,
 # and/or sell copies of the Software, and to permit persons to whom the
 # Software is furnished to do so, subject to the following conditions:
+from copy import copy
 
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
@@ -1250,7 +1251,7 @@ class Page(LrsObject, LrsContainer):
     def __init__(self, pageStyle=defaultPageStyle, **settings):
         LrsObject.__init__(self)
         LrsContainer.__init__(self, [TextBlock, BlockSpace, RuledLine,
-            ImageBlock])
+            ImageBlock, Canvas])
 
         self.pageStyle = pageStyle
 
@@ -1445,7 +1446,6 @@ class TextBlock(LrsObject, LrsContainer):
 
     def toLrfContainer(self, lrfWriter, container):
         # id really belongs to the outer block
-
         extraId = LrsObject.getNextObjId()
 
         b = LrfObject("Block", self.objId)
@@ -2051,17 +2051,60 @@ class Header(HeaderOrFooter):
 class Footer(HeaderOrFooter):
     pass
 
+class Canvas(LrsObject, LrsContainer, LrsAttributes):
+    defaults = dict(framemode="square", layout="LrTb", framewidth="0",
+                framecolor="0x00000000", bgcolor="0xFF000000",
+                canvasheight=0, canvaswidth=0)
+    
+    def __init__(self, width, height, **settings):      
+        LrsObject.__init__(self)
+        LrsContainer.__init__(self, [PutObj])
+        LrsAttributes.__init__(self, self.defaults, **settings)
+        
+        self.settings = self.defaults.copy()
+        self.settings.update(settings)
+        self.settings['canvasheight'] = height
+        self.settings['canvaswidth']  = width
+        
+    def put_object(self, obj, x, y):
+        self.append(PutObj(obj, x=x, y=y))
+        
+    def toElement(self, source_encoding):
+        el = self.lrsObjectElement("Canvas", **self.settings)
+        for po in self.contents:
+            el.append(po.toElement(source_encoding))
+        return el
+    
+    def toLrf(self, lrfWriter):
+        self.toLrfContainer(lrfWriter, lrfWriter)
+
+
+    def toLrfContainer(self, lrfWriter, container):
+        c = LrfObject("Canvas", self.objId)
+        c.appendTagDict(self.settings) 
+        stream = LrfTagStream(STREAM_COMPRESSED)
+        for content in self.contents:
+            content.toLrfContainer(lrfWriter, stream)
+        if lrfWriter.saveStreamTags: # true only if testing
+            c.saveStreamTags = stream.tags
+
+        c.appendLrfTags(
+                stream.getStreamTags(lrfWriter.getSourceEncoding(),
+                    optimizeTags=lrfWriter.optimizeTags,
+                    optimizeCompression=lrfWriter.optimizeCompression))
+        container.addLrfObject(c.objId)
+        lrfWriter.append(c)
+        
+    
 
 class PutObj(LrsContainer):
     """ PutObj holds other objects that are drawn on a Canvas or Header. """
 
-    def __init__(self, content, x1=0, y1=0, x=0, y=0):
-        LrsContainer.__init__(self, [])
+    def __init__(self, content, x=0, y=0):
+        LrsContainer.__init__(self, [TextBlock, ImageBlock])
         self.content = content
-        if x1 == 0 and x != 0: x1 = x
-        if y1 == 0 and y != 0: y1 = y
-        self.x1 = x1
-        self.y1 = y1
+        self.x1 = x
+        self.y1 = y
 
 
     def appendReferencedObjects(self, parent):
@@ -2071,12 +2114,14 @@ class PutObj(LrsContainer):
 
     def toLrfContainer(self, lrfWriter, container):
         container.appendLrfTag(LrfTag("PutObj", (self.x1, self.y1,
-            self.content.objId)))
+            self.content.objId)))        
 
 
     def toElement(self, se):
-        return Element("PutObj", x1=str(self.x1), y1=str(self.y1),
-                    refobj=str(self.content.objId))
+        el = Element("PutObj", x1=str(self.x1), y1=str(self.y1),
+                    refobj=str(self.content.objId))        
+        return el
+            
 
 
 

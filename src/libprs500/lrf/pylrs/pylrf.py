@@ -228,6 +228,8 @@ TAG_INFO = dict(
         oddsidemargin   = (0xF524, writeWord),
         textheight      = (0xF525, writeWord),
         textwidth       = (0xF526, writeWord),
+        canvaswidth     = (0xF551, writeWord),
+        canvasheight    = (0xF552, writeWord),
         footspace       = (0xF527, writeWord),
         footheight      = (0xF528, writeWord),
         bgimage         = (0xF529, writeBgImage),
@@ -489,6 +491,9 @@ class LrfObject(object):
             raise LrfError, "object name %s not recognized" % name
 
 
+    def __str__(self):
+        return 'LRFObject: ' + self.name + ", " + str(self.objId)
+    
     def appendLrfTag(self, tag):
         self.tags.append(tag)
 
