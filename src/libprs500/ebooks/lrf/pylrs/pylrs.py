@@ -144,7 +144,7 @@ class Delegator(object):
             d.parent = self
             methods = d.getMethods()
             self.delegatedMethods += methods
-            for m in methods:
+            for m in methods:                
                 setattr(self, m, getattr(d, m))
 
             """
@@ -247,6 +247,7 @@ class LrsContainer(object):
         self.parent = None
         self.contents = []
         self.validChildren = validChildren
+        self.must_append = False
             
         
     def has_text(self):
@@ -259,7 +260,7 @@ class LrsContainer(object):
                 if child.has_text():
                     return True
         for item in self.contents:
-            if isinstance(item, (Plot, ImageBlock)):
+            if isinstance(item, (Plot, ImageBlock, Canvas)):
                 return True
         return False
     
@@ -268,7 +269,7 @@ class LrsContainer(object):
         Append self to C{parent} iff self has non whitespace textual content        
         @type parent: LrsContainer
         '''
-        if self.has_text():
+        if self.has_text() or self.must_append:
             parent.append(self)
             
         
@@ -425,7 +426,7 @@ class Book(Delegator):
         LrsObject.nextObjId += 1
 
         Delegator.__init__(self, [BookInformation(), Main(),
-            Template(), Style(), Solos(), Objects()])
+            Template(), Style(), Solos(), Objects()])        
 
         self.sourceencoding = None
         
@@ -506,7 +507,7 @@ class Book(Delegator):
         className = content.__class__.__name__
         try:
             method = getattr(self, "append" + className)
-        except AttributeError:
+        except AttributeError:            
             raise LrsError, "can't append %s to Book" % className
 
         method(content)
@@ -1870,24 +1871,28 @@ class CharButton(LrsSimpleChar1, LrsContainer):
 class Objects(LrsContainer):
     def __init__(self):
         LrsContainer.__init__(self, [JumpButton, TextBlock, HeaderOrFooter,
-            ImageStream, Image])
+            ImageStream, Image, ImageBlock])
         self.appendJumpButton = self.appendTextBlock = self.appendHeader = \
                 self.appendFooter = self.appendImageStream = \
-                self.appendImage = self.append
+                self.appendImage = self.appendImageBlock = self.append
 
 
     def getMethods(self):
         return ["JumpButton", "appendJumpButton", "TextBlock", 
                 "appendTextBlock", "Header", "appendHeader",
-                "Footer", "appendFooter",
+                "Footer", "appendFooter", "ImageBlock",
                 "ImageStream", "appendImageStream", 
-                'Image','appendImage']
+                'Image','appendImage', 'appendImageBlock']
 
 
     def getSettings(self):
         return []
 
 
+    def ImageBlock(self, *args, **kwargs):
+        ib = ImageBlock(*args, **kwargs)
+        self.append(ib)
+        return ib
 
     def JumpButton(self, textBlock):
         b = JumpButton(textBlock)
@@ -2062,8 +2067,8 @@ class Canvas(LrsObject, LrsContainer, LrsAttributes):
         
         self.settings = self.defaults.copy()
         self.settings.update(settings)
-        self.settings['canvasheight'] = height
-        self.settings['canvaswidth']  = width
+        self.settings['canvasheight'] = int(height)
+        self.settings['canvaswidth']  = int(width)
         
     def put_object(self, obj, x, y):
         self.append(PutObj(obj, x=x, y=y))
@@ -2086,7 +2091,7 @@ class Canvas(LrsObject, LrsContainer, LrsAttributes):
             content.toLrfContainer(lrfWriter, stream)
         if lrfWriter.saveStreamTags: # true only if testing
             c.saveStreamTags = stream.tags
-
+        
         c.appendLrfTags(
                 stream.getStreamTags(lrfWriter.getSourceEncoding(),
                     optimizeTags=lrfWriter.optimizeTags,
@@ -2102,8 +2107,8 @@ class PutObj(LrsContainer):
     def __init__(self, content, x=0, y=0):
         LrsContainer.__init__(self, [TextBlock, ImageBlock])
         self.content = content
-        self.x1 = x
-        self.y1 = y
+        self.x1 = int(x)
+        self.y1 = int(y)
 
 
     def appendReferencedObjects(self, parent):

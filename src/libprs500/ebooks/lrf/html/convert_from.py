@@ -36,7 +36,7 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, \
                 Comment, Tag, NavigableString, Declaration, ProcessingInstruction
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, Bold, Space, \
-                Plot, Image, BlockSpace, RuledLine, BookSetting
+                Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
 from libprs500.ebooks.lrf import ConversionError, option_parser, Book, PRS500_PROFILE
 from libprs500 import extract, filename_to_utf8
@@ -217,8 +217,10 @@ class HTMLConverter(object):
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
     # Fix <a /> elements 
-    MARKUP_MASSAGE   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
+    MARKUP_MASSAGE   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), #Close <a /> tags
                          lambda match: match.group(1)+"></a>"),
+                         # Strip comments from <style> tags. This is needed as 
+                         # sometimes there are unterminated comments
                         (re.compile(r"<\s*style.*?>.*?(<\!--).*?<.\s*style\s*>", re.DOTALL|re.IGNORECASE),
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
                          ]
@@ -442,22 +444,20 @@ class HTMLConverter(object):
         if not self.top.parent:
             if not previous:
                 try:
-                    previous = get_valid_block(self.book.pages()[0])
+                    previous = self.book.pages()[0]
                 except IndexError:
-                    previous = self.current_page
-            else:
-                found = False
-                for page in self.book.pages():
-                    if page == previous:
-                        found = True
+                    raise ConversionError, self.file_name + ' does not seem to have any content'
+        
+            found = False
+            for page in self.book.pages():
+                if page == previous:
+                    found = True
+                    continue
+                if found:
+                    self.top = get_valid_block(page)
+                    if not self.top:
                         continue
-                    if found:
-                        self.top = get_valid_block(page)
-                        if not self.top:
-                            continue
-                        break
-            if not self.top.parent:
-                self.top = get_valid_block(self.current_page)
+                    break
             if not self.top or not self.top.parent:
                 raise ConversionError, 'Could not parse ' + self.file_name
             
@@ -622,7 +622,8 @@ class HTMLConverter(object):
                                          textheight=self.profile.screen_height)
             if not self.images.has_key(path):
                 self.images[path] = ImageStream(path)
-            page.append(ImageBlock(self.images[path]))
+            ib = ImageBlock(self.images[path])
+            page.append(ib)
             self.book.append(page)
     
     def process_children(self, ptag, pcss):
@@ -725,6 +726,69 @@ class HTMLConverter(object):
         self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                          blockStyle=self.current_block.blockStyle)
     
+    def process_image(self, path, tag_css, width=None, height=None):
+        def scale_image(width, height):
+            pt = PersistentTemporaryFile(suffix='.jpeg')
+            im.resize((int(width), int(height)), PILImage.ANTIALIAS).convert('RGB').save(pt, 'JPEG')
+            pt.close()
+            self.scaled_images[path] = pt
+            return pt.name
+                
+        if self.scaled_images.has_key(path):
+            path = self.scaled_images[path].name
+            
+        im = PILImage.open(path)
+        if width == None or height == None:            
+            width, height = im.size
+        if height > self.profile.page_height:
+            corrf = self.profile.page_height/(1.*height)
+            width, height = floor(corrf*width), self.profile.page_height-1                        
+            if width > self.profile.page_width:
+                corrf = (self.profile.page_width)/(1.*width)
+                width, height = self.profile.page_width-1, floor(corrf*height)
+            path = scale_image(width, height)
+        if width > self.profile.page_width:
+            corrf = self.profile.page_width/(1.*width)
+            width, height = self.profile.page_width-1, floor(corrf*height)
+            if height > self.profile.page_height:
+                corrf = (self.profile.page_height)/(1.*height)
+                width, height = floor(corrf*width), self.profile.page_height-1                        
+            path = scale_image(width, height)
+        width, height = int(width), int(height)
+                
+        if not self.images.has_key(path):
+            self.images[path] = ImageStream(path)
+            
+        im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
+                               xsize=width, ysize=height)                    
+        factor = 720./self.profile.dpi
+        
+        self.process_alignment(tag_css)
+        
+        if max(width, height) <= min(self.profile.page_width, 
+                                     self.profile.page_height)/5.:                    
+            self.current_para.append(Plot(im, xsize=ceil(width*factor), 
+                                          ysize=ceil(height*factor)))
+        elif height <= int(floor((2/3.)*self.profile.page_height)): 
+            pb = self.current_block
+            self.end_current_para()
+            self.process_alignment(tag_css)                    
+            self.current_para.append(Plot(im, xsize=width*factor, 
+                                          ysize=height*factor))
+            self.current_block.append(self.current_para)
+            self.current_page.append(self.current_block)                    
+            self.current_block = self.book.create_text_block(
+                                            textStyle=pb.textStyle,
+                                            blockStyle=pb.blockStyle)
+            self.current_para = Paragraph()
+        else:
+            self.end_page()
+            self.current_page.append(Canvas(width=self.profile.page_width,
+                                            height=height))
+            left = int(floor((self.profile.page_width - width)/2.))            
+            self.current_page.contents[0].put_object(ImageBlock(self.images[path]),
+                                                  left, 0)
+    
     def parse_tag(self, tag, parent_css):
         try:
             tagname = tag.name.lower()
@@ -798,73 +862,21 @@ class HTMLConverter(object):
                 path = unquote(purl[2])
                 if path and os.path.splitext(path)[1][1:].lower() in \
                     ['png', 'jpg', 'bmp', 'jpeg']:
-                    self.add_image_page(path)
+                    self.process_image(path, tag_css)
                 else:
                     self.add_text('Link: ' + tag['href'], tag_css)
                     self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
                 path = os.path.abspath(unquote(tag['src']))
-                if self.scaled_images.has_key(path):
-                    path = self.scaled_images[path].name
-                im = PILImage.open(path)
-                width, height = im.size
+                width, height = None, None
                 try:
                     width = int(tag['width'])
                     height = int(tag['height'])
                 except:
                     pass
-                
-                def scale_image(width, height):
-                    pt = PersistentTemporaryFile(suffix='.jpeg')
-                    im.resize((int(width), int(height)), PILImage.ANTIALIAS).convert('RGB').save(pt, 'JPEG')
-                    pt.close()
-                    self.scaled_images[path] = pt
-                    return pt.name
-                    
-                    
-                if height > self.profile.page_height:
-                    corrf = self.profile.page_height/(1.*height)
-                    width, height = floor(corrf*width), self.profile.page_height-1                        
-                    if width > self.profile.page_width:
-                        corrf = (self.profile.page_width)/(1.*width)
-                        width, height = self.profile.page_width-1, floor(corrf*height)
-                    path = scale_image(width, height)
-                if width > self.profile.page_width:
-                    corrf = self.profile.page_width/(1.*width)
-                    width, height = self.profile.page_width-1, floor(corrf*height)
-                    if height > self.profile.page_height:
-                        corrf = (self.profile.page_height)/(1.*height)
-                        width, height = floor(corrf*width), self.profile.page_height-1                        
-                    path = scale_image(width, height)
-                width, height = int(width), int(height)
-                
-                if not self.images.has_key(path):
-                    self.images[path] = ImageStream(path)
-                factor = 720./self.profile.dpi
-                
-                self.process_alignment(tag_css)
-                
-                if max(width, height) <= min(self.profile.page_width, 
-                                             self.profile.page_height)/5.:
-                    im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
-                               xsize=width, ysize=height)                    
-                    self.current_para.append(Plot(im, xsize=ceil(width*factor), 
-                                                  ysize=ceil(height*factor)))
-                else:
-                    pb = self.current_block
-                    self.end_current_para()
-                    self.process_alignment(tag_css)
-                    im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
-                               xsize=width, ysize=height)
-                    self.current_para.append(Plot(im, xsize=width*factor, 
-                                                  ysize=height*factor))
-                    self.current_block.append(self.current_para)
-                    self.current_page.append(self.current_block)                    
-                    self.current_block = self.book.create_text_block(
-                                                    textStyle=pb.textStyle,
-                                                    blockStyle=pb.blockStyle)
-                    self.current_para = Paragraph()                
+                self.process_image(path, tag_css, width, height)
+                                
             else:
                 print >>sys.stderr, "Failed to process:", tag
         elif tagname in ['style', 'link']:
@@ -997,6 +1009,9 @@ class HTMLConverter(object):
             self.process_children(tag, tag_css)
         elif tagname in ['br', 'tr']:
             self.current_para.append(CR())
+            self.process_children(tag, tag_css)
+        elif tagname in ['td']:
+            self.current_para.append(' ')
             self.process_children(tag, tag_css)
         elif tagname == 'hr':
             self.end_current_para()            
@@ -1208,6 +1223,9 @@ def main():
     try:
         options, args, parser = parse_options()
         src = args[0]
+        if options.verbose:
+            import warnings
+            warnings.defaultaction = 'error'
     except:        
         sys.exit(1)    
     process_file(src, options)
