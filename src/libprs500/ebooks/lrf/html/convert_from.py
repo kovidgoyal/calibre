@@ -740,6 +740,9 @@ class HTMLConverter(object):
         im = PILImage.open(path)
         if width == None or height == None:            
             width, height = im.size
+        if width > height:
+            im = im.rotate(-90)
+            width, height = im.size
         if height > self.profile.page_height:
             corrf = self.profile.page_height/(1.*height)
             width, height = floor(corrf*width), self.profile.page_height-1                        
