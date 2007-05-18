@@ -343,7 +343,7 @@ class SetTime(Command):
         self.number = SetTime.NUMBER
         self.type = 0x01
         self.length = 0x1c
-        tz = int(-time.timezone/60.)
+        tz = -int(time.timezone/60. -(60 if time.daylight else 0) )
         self.timezone = tz if tz > 0 else 0xffffffff +1 + tz
         if not t: t = time.time()
         t = time.gmtime(t)
