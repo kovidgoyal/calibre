@@ -2054,7 +2054,7 @@ class Footer(HeaderOrFooter):
 class Canvas(LrsObject, LrsContainer, LrsAttributes):
     defaults = dict(framemode="square", layout="LrTb", framewidth="0",
                 framecolor="0x00000000", bgcolor="0xFF000000",
-                canvasheight=0, canvaswidth=0)
+                canvasheight=0, canvaswidth=0, blockrule='block-adjustable')
     
     def __init__(self, width, height, **settings):      
         LrsObject.__init__(self)
