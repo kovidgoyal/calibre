@@ -18,8 +18,6 @@ the GUI. A device backend must subclass the L{Device} class. See prs500.py for
 a backend that implement the Device interface for the SONY PRS500 Reader.
 """
 
-import threading
-from functools import wraps
 
 class Device(object):
     """ 
@@ -114,22 +112,4 @@ class Device(object):
                                 (L{books}(oncard=False), L{books}(oncard=True)).    
         """
         raise NotImplementedError()   
-
-
-class DeviceManager(object):
-    
-    def threaded(func):
-        @wraps(func)
-        def run_in_thread(*args, **kwargs):
-            dm = args[0]
-            dm
-
-    
-    def __init__(self, device):
-        if not isinstance(device, Device):
-            raise TypeError, '%s must implement the Device interface' % (str(device),)     
-        self.dev = device
-        self.lock = threading.RLock()
-        
-    
 

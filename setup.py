@@ -29,11 +29,11 @@ if sys.argv[1] == 'py2exe':
     try:
         import py2exe
         console = [
-                    {'script' : 'src/libprs500/cli/main.py', 'dest_base':'prs500'},
-                    {'script' : 'src/libprs500/lrf/html/convert_from.py', 'dest_base':'html2lrf'},
-                    {'script' : 'src/libprs500/lrf/txt/convert_from.py', 'dest_base':'txt2lrf'},
-                    {'script' : 'src/libprs500/lrf/meta.py', 'dest_base':'lrf-meta'},
-                    {'script' : 'src/libprs500/metadata/rtf.py', 'dest_base':'rtf-meta'},
+                    {'script' : 'src/libprs500/devices/prs500/cli/main.py', 'dest_base':'prs500'},
+                    {'script' : 'src/libprs500/ebooks/lrf/html/convert_from.py', 'dest_base':'html2lrf'},
+                    {'script' : 'src/libprs500/ebooks/lrf/txt/convert_from.py', 'dest_base':'txt2lrf'},
+                    {'script' : 'src/libprs500/ebooks/lrf/meta.py', 'dest_base':'lrf-meta'},
+                    {'script' : 'src/libprs500/ebooks/metadata/rtf.py', 'dest_base':'rtf-meta'},
                   ]
         windows = [{'script' : 'src/libprs500/gui/main.py', 'dest_base':'prs500-gui',
                     'icon_resources':[(1,'icons/library.ico')]}]
@@ -255,18 +255,14 @@ setup(
       author='Kovid Goyal', 
       author_email='kovid@kovidgoyal.net', 
       url = 'http://libprs500.kovidgoyal.net', 
-      package_data = { \
-                        'libprs500.gui' : ['*.ui'], \
-                        'libprs500.lrf' : ['*.jar', '*.jpg'], \
-                        'libprs500.metadata' : ['*.pl'] \
-                     }, 
+      package_data = { 'libprs500.ebooks' : ['*.jpg', '*.pl'], }, 
       entry_points = {
         'console_scripts': [ \
-                             'prs500 = libprs500.cli.main:main', \
-                             'lrf-meta = libprs500.lrf.meta:main', \
-                             'rtf-meta = libprs500.metadata.rtf:main', \
-                             'txt2lrf = libprs500.lrf.txt.convert_from:main', \
-                             'html2lrf = libprs500.lrf.html.convert_from:main',\
+                             'prs500 = libprs500.devices.prs500.cli.main:main', \
+                             'lrf-meta = libprs500.ebooks.lrf.meta:main', \
+                             'rtf-meta = libprs500.ebooks.metadata.rtf:main', \
+                             'txt2lrf = libprs500.ebooks.lrf.txt.convert_from:main', \
+                             'html2lrf = libprs500.ebooks.lrf.html.convert_from:main',\
                            ], 
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       }, 

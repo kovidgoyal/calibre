@@ -19,8 +19,8 @@ import sqlite3 as sqlite
 import os
 from zlib import compress, decompress
 from stat import ST_SIZE
-from libprs500.lrf.meta import LRFMetaFile, LRFException
-from libprs500.metadata.meta import get_metadata
+from libprs500.ebooks.lrf.meta import LRFMetaFile, LRFException
+from libprs500.ebooks.metadata.meta import get_metadata
 from cStringIO import StringIO as cStringIO
 
 class LibraryDatabase(object):

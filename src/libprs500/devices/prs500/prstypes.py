@@ -44,7 +44,7 @@ Answers are organized as follows: G{classtree Answer}
 import struct
 import time
 
-from libprs500.errors import PacketError
+from libprs500.devices.errors import PacketError
 
 WORD      = "<H"    #: Unsigned integer little endian encoded in 2 bytes
 DWORD     = "<I"    #: Unsigned integer little endian encoded in 4 bytes

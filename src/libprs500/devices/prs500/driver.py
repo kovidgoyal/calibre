@@ -51,12 +51,12 @@ from tempfile import TemporaryFile
 from array import array
 from functools import wraps
 
-from libprs500.device import Device
-from libprs500.libusb import Error as USBError
-from libprs500.libusb import get_device_by_id
-from libprs500.prstypes import *
-from libprs500.errors import *
-from libprs500.books import BookList, fix_ids
+from libprs500.devices.interface import Device
+from libprs500.devices.libusb import Error as USBError
+from libprs500.devices.libusb import get_device_by_id
+from libprs500.devices.prs500.prstypes import *
+from libprs500.devices.errors import *
+from libprs500.devices.prs500.books import BookList, fix_ids
 from libprs500 import __author__ as AUTHOR
 
 # Protocol versions libprs500 has been tested with

@@ -7,7 +7,6 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-import sys
 from PyQt4 import QtCore, QtGui
 
 class Ui_BookEditDialog(object):

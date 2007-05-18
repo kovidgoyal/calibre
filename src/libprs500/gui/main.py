@@ -22,8 +22,8 @@ from PyQt4.QtGui import QPixmap, QErrorMessage, QLineEdit, \
                         QMessageBox, QFileDialog, QIcon, QDialog, QInputDialog
 from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
 
-from libprs500.prs500 import PRS500 as device
-from libprs500.errors import *
+from libprs500.devices.prs500.driver import PRS500 as device
+from libprs500.devices.errors import *
 from libprs500.gui import installErrorHandler, Error, _Warning, \
                           extension, APP_TITLE
 from libprs500.gui.widgets import LibraryBooksModel, DeviceBooksModel, \

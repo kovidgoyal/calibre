@@ -5,5 +5,8 @@
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.5</pydev_property>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
 <path>/libprs500/src</path>
+<path>/libprs500/devices</path>
+<path>/libprs500/libprs500.devices.prs500</path>
+<path>/libprs500/prs500</path>
 </pydev_pathproperty>
 </pydev_project>
