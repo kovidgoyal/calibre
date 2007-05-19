@@ -1106,7 +1106,7 @@ def process_file(path, options):
                              link_exclude=re.compile(le), page_break=pb,
                              hide_broken_links=not options.show_broken_links)
         conv.process_links()
-        oname = options.output        
+        oname = options.output
         if not oname:
             suffix = '.lrs' if options.lrs else '.lrf'
             name = os.path.splitext(os.path.basename(path))[0] + suffix
@@ -1218,7 +1218,8 @@ def parse_options(argv=None, cli=True):
         if cli:
             parser.print_help()
         raise ConversionError, 'no filename specified'
-    
+    if options.output:
+        options.output = os.path.abspath(os.path.expanduser(options.output))
     return options, args, parser
 
 
