@@ -193,6 +193,8 @@ class Row(object):
             width = sum(widths[i:i+cell.colspan])
             heights.append(cell.height(width))
             i += cell.colspan
+        if not heights:
+            return 0
         return max(heights)
     
     def preferred_width(self, col):
@@ -205,7 +207,8 @@ class Row(object):
                 i += 1
             if i == col:
                 break
-        
+        if not cell:
+            return 0
         return 0 if cell.colspan > 1 else cell.preferred_width()
     
     def cell_iterator(self):

@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #!/usr/bin/env python
-import sys, re
+import sys, re, os, shutil
 sys.path.append('src')
 from libprs500 import __version__ as VERSION
 
@@ -21,13 +21,13 @@ import ez_setup
 ez_setup.use_setuptools()
 from setuptools import setup, find_packages
 
-
 ################################# py2exe #######################################
 py2exe_options = {}
 if sys.argv[1] == 'py2exe':
-    py2exe_dir = 'C:\libprs500'    
+    py2exe_dir = 'c:\libprs500'
+    fonts = ['src/libprs500/ebooks/lrf/fonts/prs500']
     try:
-        import py2exe
+        import py2exe, glob
         console = [
                     {'script' : 'src/libprs500/devices/prs500/cli/main.py', 'dest_base':'prs500'},
                     {'script' : 'src/libprs500/ebooks/lrf/html/convert_from.py', 'dest_base':'html2lrf'},
@@ -45,6 +45,20 @@ if sys.argv[1] == 'py2exe':
                                 'excludes' : excludes}}
         py2exe_options = {'console'  : console, 'windows' : windows, 
                           'options'  : options}
+        
+        dest_dir = py2exe_dir + '\\fonts\\'
+        if os.path.exists(dest_dir):
+            shutil.rmtree(dest_dir, True)
+        from distutils.filelist import FileList        
+        fl = FileList()        
+        fl.include_pattern('^src.*\.ttf$', is_regex=True)
+        fl.findall()
+        
+        for file in fl.files:
+            dir = dest_dir + os.path.basename(os.path.dirname(file))
+            if not os.path.exists(dir):
+                os.makedirs(dir)
+            shutil.copy(file, dir)
     except ImportError:
         print >>sys.stderr, 'Must be in Windows to run py2exe'
         sys.exit(1)
@@ -255,7 +269,11 @@ setup(
       author='Kovid Goyal', 
       author_email='kovid@kovidgoyal.net', 
       url = 'http://libprs500.kovidgoyal.net', 
-      package_data = { 'libprs500.ebooks' : ['*.jpg', '*.pl'], }, 
+      package_data = { 
+                        'libprs500.ebooks' : ['*.jpg', '*.pl'], 
+                        'libpre500.ebooks.lrf.fonts' : ['*.ttf'],
+                     }, 
+      include_package_data = True,
       entry_points = {
         'console_scripts': [ \
                              'prs500 = libprs500.devices.prs500.cli.main:main', \
@@ -270,8 +288,7 @@ setup(
       install_requires = ['sqlalchemy >= 0.3.7'],
       description = 
                   """
-                  Library to interface with the Sony Portable Reader 500 
-                  over USB. Also has a GUI with library management features.
+                  Ebook management application.
                   """, 
       long_description = 
       """
