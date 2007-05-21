@@ -247,7 +247,8 @@ class HTMLConverter(object):
                  chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE),
                  link_exclude=re.compile('$'), 
                  page_break=re.compile('h[12]', re.IGNORECASE),
-                 profile=PRS500_PROFILE, hide_broken_links=False):
+                 profile=PRS500_PROFILE, hide_broken_links=False,
+                 disable_autorotation=False):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -307,6 +308,7 @@ class HTMLConverter(object):
         self.rotated_images = {}  #: Temporary files with rotated version of images        
         self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
+        self.disable_autorotation = disable_autorotation
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
@@ -577,7 +579,8 @@ class HTMLConverter(object):
                                      chapter_regex=self.chapter_regex,
                                      link_exclude=self.link_exclude,
                                      page_break=self.page_break,
-                                     hide_broken_links=self.hide_broken_links)
+                                     hide_broken_links=self.hide_broken_links,
+                                     disable_autorotation=self.disable_autorotation)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
                         print >>sys.stderr, 'Unable to process', path
@@ -758,7 +761,7 @@ class HTMLConverter(object):
             self.scaled_images[path] = pt
             return pt.name
         
-        if width > self.profile.page_width and width > height:
+        if not self.disable_autorotation and width > self.profile.page_width and width > height:
             pt = PersistentTemporaryFile(suffix='.jpeg')
             im = im.rotate(-90)
             im.convert('RGB').save(pt, 'JPEG')
@@ -813,7 +816,7 @@ class HTMLConverter(object):
             self.current_page.append(Canvas(width=self.profile.page_width,
                                             height=height))
             left = int(floor((self.profile.page_width - width)/2.))
-            self.current_page.contents[0].put_object(ImageBlock(self.images[path]),
+            self.current_page.contents[-1].put_object(ImageBlock(self.images[path]),
                                                   left, 0)
     
     def parse_tag(self, tag, parent_css):
@@ -1155,7 +1158,8 @@ def process_file(path, options):
                              chapter_detection=options.chapter_detection,
                              chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
                              link_exclude=re.compile(le), page_break=pb,
-                             hide_broken_links=not options.show_broken_links)
+                             hide_broken_links=not options.show_broken_links,
+                             disable_autorotation=options.disable_autorotation)
         conv.process_links()
         oname = options.output
         if not oname:
@@ -1221,12 +1225,15 @@ def parse_options(argv=None, cli=True):
     parser = option_parser("""usage: %prog [options] mybook.[html|rar|zip]
 
          %prog converts mybook.html to mybook.lrf""")
-    parser.add_option('--cover', action='store', dest='cover', default=None, \
+    laf = parser.add_option_group('LOOK AND FEEL')
+    laf.add_option('--cover', action='store', dest='cover', default=None, \
                       help='Path to file containing image to be used as cover')
-    parser.add_option('--font-delta', action='store', type='int', default=0, \
+    laf.add_option('--font-delta', action='store', type='int', default=0, \
                       help="""Increase the font size by 2 * FONT_DELTA pts. 
                       If FONT_DELTA is negative, the font size is decreased.""",
                       dest='font_delta')
+    laf.add_option('--disable-autorotation', action='store_true', default=False, 
+                   help='Disable autorotation of images.', dest='disable_autorotation')
     link = parser.add_option_group('LINK PROCESSING OPTIONS')
     link.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
                       dest='link_levels',

@@ -12,7 +12,8 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import pkg_resources
+import pkg_resources, sys, os
+
 try:
     from PIL import ImageFont
 except ImportError:
@@ -22,10 +23,19 @@ except ImportError:
 Default fonts used in the PRS500
 '''
 FONT_MAP = {
-            'Swis721 BT Roman'     : 'tt0003m_.ttf',
-            'Dutch801 Rm BT Roman' : 'tt0011m_.ttf',
-            'Courier10 BT Roman'   : 'tt0419m_.ttf'
+            'Swis721 BT Roman'     : 'prs500/tt0003m_.ttf',
+            'Dutch801 Rm BT Roman' : 'prs500/tt0011m_.ttf',
+            'Courier10 BT Roman'   : 'prs500/tt0419m_.ttf'
             }
+
+def get_font_path(name):
+    name = name.replace('/', os.path.sep)
+    if hasattr(sys, 'frozen'):
+        src = os.path.dirname(sys.executable)+os.path.sep+'fonts'+os.path.sep+name
+    else:
+        src = pkg_resources.resource_filename('libprs500.ebooks.lrf.fonts', name)
+    return src
+    
 
 def get_font(name, size, encoding='unic'):
     '''
@@ -33,8 +43,9 @@ def get_font(name, size, encoding='unic'):
     @param size: Font height in pixels. To convert from pts:
                  sz in pixels = (dpi/72) * size in pts
     @param encoding: Font encoding to use. E.g. 'unic', 'symbol', 'ADOB', 'ADBE', 'aprm'
+    @param manager: A dict that will store the PersistentTemporary
     '''
     if name in FONT_MAP.keys():
-        path = pkg_resources.resource_filename('libprs500.ebooks.lrf.fonts', FONT_MAP[name])
+        path = get_font_path(FONT_MAP[name])
         return ImageFont.truetype(path, size, encoding=encoding)
         

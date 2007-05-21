@@ -2313,7 +2313,7 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
 
 
 class Font(LrsContainer):
-    """ Allows a TrueType file to embedded in an Lrf. """
+    """ Allows a TrueType file to be embedded in an Lrf. """
     def __init__(self, filename, facename):
         LrsContainer.__init__(self, [])
         _checkExists(filename)
