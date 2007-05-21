@@ -56,6 +56,8 @@ DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 class LrsError(Exception):
     pass
 
+class ContentError(Exception):
+    pass
 
 def _checkExists(filename):
     if not os.path.exists(filename):
@@ -435,6 +437,8 @@ class Book(Delegator):
         self.applySetting("sourceencoding", DEFAULT_SOURCE_ENCODING)
         
         self.applySettings(settings, testValid=True)
+        
+        self.allow_new_page = True #: If False L{create_page} raises an exception
 
     def create_text_style(self, **settings):
         ans = TextStyle(**self.defaultTextStyle.attrs.copy())
@@ -447,6 +451,8 @@ class Book(Delegator):
         return ans
         
     def create_page_style(self, **settings):
+        if not self.allow_new_page:
+            raise ContentError
         ans = PageStyle(**self.defaultPageStyle.attrs.copy())
         ans.update(settings)
         return ans
@@ -641,12 +647,15 @@ class TableOfContents(object):
             raise LrsError, "TOC destination must be a TextBlock, ImageBlock or RuledLine"+\
                             " not a " + str(type(textBlock))
 
-        if textBlock.parent is None or not isinstance(textBlock.parent, Page):
+        if textBlock.parent is None:
             raise LrsError, "TOC text block must be already appended to a page"
 
         if textBlock.parent.parent is None:
             raise LrsError, \
                     "TOC destination page must be already appended to a book"
+                    
+        if not hasattr(textBlock.parent, 'objId'):
+            raise LrsError, "TOC destination must be appended to a container with an objID"
 
         self.tocEntries.append(TocLabel(tocLabel, textBlock))
         textBlock.tocLabel = tocLabel
@@ -1373,7 +1382,6 @@ class TextBlock(LrsObject, LrsContainer):
 
         self.textSettings = {}
         self.blockSettings = {}
-
         
         for name, value in settings.items():
             if name in TextStyle.validSettings:
@@ -1428,7 +1436,6 @@ class TextBlock(LrsObject, LrsContainer):
             tb.append(content.toElement(sourceEncoding))
             
         return tb
-
     
     def getReferencedObjIds(self):
         ids = [self.objId, self.extraId, self.blockStyle.objId,
@@ -2111,7 +2118,7 @@ class PutObj(LrsContainer):
         self.y1 = int(y)
 
 
-    def appendReferencedObjects(self, parent):
+    def appendReferencedObjects(self, parent):        
         if self.content.parent is None:
             parent.append(self.content)
 

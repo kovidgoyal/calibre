@@ -352,7 +352,7 @@ class SetTime(Command):
         self.day = t[2]
         self.hour = t[3]
         self.minute = t[4]
-        # Hack you should actually update the entire time tree is 
+        # Hack you should actually update the entire time tree if 
         # second is > 59
         self.second = t[5] if t[5] < 60 else 59 
 

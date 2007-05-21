@@ -39,6 +39,7 @@ from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream,
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
 from libprs500.ebooks.lrf import ConversionError, option_parser, Book, PRS500_PROFILE
+from libprs500.ebooks.lrf.html.table import Table 
 from libprs500 import extract, filename_to_utf8
 from libprs500.ptempfile import PersistentTemporaryFile
 
@@ -303,6 +304,7 @@ class HTMLConverter(object):
         self.chapter_regex = chapter_regex #: Regex used to search for chapter titles
         self.link_exclude = link_exclude #: Ignore matching hrefs
         self.scaled_images = {}   #: Temporary files with scaled version of images        
+        self.rotated_images = {}  #: Temporary files with rotated version of images        
         self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
         self.blockquote_style = book.create_block_style(sidemargin=60, 
@@ -317,6 +319,9 @@ class HTMLConverter(object):
         self.files   = {}         #: links that point to other files
         self.links_processed = False #: Whether links_processed has been called on this object
         self.font_delta = font_delta
+        # Set by table processing code so that any <a name> within the table 
+        # point to the previous element
+        self.anchor_to_previous = None 
         self.cover = cover
         self.memory = []          #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.in_ol = False #: Flag indicating we're in an <ol> element
@@ -478,6 +483,15 @@ class HTMLConverter(object):
             return text
     
     def process_links(self):
+        def add_toc_entry(text, target):
+            # TextBlocks in Canvases have a None parent or an Objects Parent
+            if target.parent != None and \
+               hasattr(target.parent, 'objId'): 
+                self.book.addTocEntry(ascii_text, tb)
+            elif self.verbose:
+                print "Cannot add link", ascii_text, "to TOC"
+                
+        
         def get_target_block(fragment, targets):
             '''Return the correct block for the <a name> element'''
             bs = targets[fragment]
@@ -535,7 +549,7 @@ class HTMLConverter(object):
                 if fragment in self.targets.keys():
                     tb = get_target_block(fragment, self.targets)
                     if self.is_root:
-                        self.book.addTocEntry(ascii_text, tb)                 
+                        add_toc_entry(ascii_text, tb)                        
                     sys.stdout.flush()
                     jb = JumpButton(tb)
                     self.book.append(jb)
@@ -580,7 +594,7 @@ class HTMLConverter(object):
                 else:
                     tb = conv.top
                 if self.is_root:
-                    self.book.addTocEntry(ascii_text, tb)      
+                    add_toc_entry(ascii_text, tb)  
                 jb = JumpButton(tb)                
                 self.book.append(jb)
                 cb = CharButton(jb, text=text)
@@ -727,22 +741,32 @@ class HTMLConverter(object):
                                                          blockStyle=self.current_block.blockStyle)
     
     def process_image(self, path, tag_css, width=None, height=None):
+        if self.rotated_images.has_key(path):
+            path = self.rotated_images[path].name
+        if self.scaled_images.has_key(path):
+            path = self.scaled_images[path].name            
+        
+        im = PILImage.open(path)
+        
+        if width == None or height == None:            
+            width, height = im.size
+        
         def scale_image(width, height):
             pt = PersistentTemporaryFile(suffix='.jpeg')
             im.resize((int(width), int(height)), PILImage.ANTIALIAS).convert('RGB').save(pt, 'JPEG')
             pt.close()
             self.scaled_images[path] = pt
             return pt.name
-                
-        if self.scaled_images.has_key(path):
-            path = self.scaled_images[path].name
-            
-        im = PILImage.open(path)
-        if width == None or height == None:            
-            width, height = im.size
-        if width > height:
+        
+        if width > self.profile.page_width and width > height:
+            pt = PersistentTemporaryFile(suffix='.jpeg')
             im = im.rotate(-90)
+            im.convert('RGB').save(pt, 'JPEG')
+            path = pt.name
+            pt.close()            
+            self.rotated_images[path] = pt
             width, height = im.size
+            
         if height > self.profile.page_height:
             corrf = self.profile.page_height/(1.*height)
             width, height = floor(corrf*width), self.profile.page_height-1                        
@@ -788,7 +812,7 @@ class HTMLConverter(object):
             self.end_page()
             self.current_page.append(Canvas(width=self.profile.page_width,
                                             height=height))
-            left = int(floor((self.profile.page_width - width)/2.))            
+            left = int(floor((self.profile.page_width - width)/2.))
             self.current_page.contents[0].put_object(ImageBlock(self.images[path]),
                                                   left, 0)
     
@@ -824,6 +848,18 @@ class HTMLConverter(object):
             pass
         elif tagname == 'a' and self.max_link_levels >= 0:
             if tag.has_key('name'):
+                if self.anchor_to_previous:
+                    self.process_children(tag, tag_css)
+                    return
+                    for c in self.anchor_to_previous.contents:
+                        if isinstance(c, (TextBlock, ImageBlock)):
+                            self.targets[tag['name']] = c
+                            return
+                    tb = self.book.create_text_block()
+                    tb.Paragraph(" ")
+                    self.anchor_to_previous.append(tb)
+                    self.targets[tag['name']] = tb                    
+                    return
                 previous = self.current_block
                 self.process_children(tag, tag_css)
                 target = None
@@ -867,7 +903,7 @@ class HTMLConverter(object):
                     ['png', 'jpg', 'bmp', 'jpeg']:
                     self.process_image(path, tag_css)
                 else:
-                    self.add_text('Link: ' + tag['href'], tag_css)
+                    self.add_text(self.get_text(tag), tag_css)
                     self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
@@ -1010,30 +1046,45 @@ class HTMLConverter(object):
             if tag.has_key('face'):
                 tag_css['font-family'] = tag['face']
             self.process_children(tag, tag_css)
-        elif tagname in ['br', 'tr']:
+        elif tagname in ['br']:
             self.current_para.append(CR())
-            self.process_children(tag, tag_css)
-        elif tagname in ['td']:
-            self.current_para.append(' ')
-            self.process_children(tag, tag_css)
         elif tagname == 'hr':
             self.end_current_para()            
             self.current_block.append(CR())
             self.end_current_block()
             self.current_page.RuledLine(linelength=self.profile.page_width)
+        elif tagname == 'table':
+            tag_css = self.tag_css(tag) # Table should not inherit CSS
+            self.process_table(tag, tag_css)
         else:            
-            self.process_children(tag, tag_css)
-        
+            self.process_children(tag, tag_css)        
         if end_page:
                 self.end_page()
                     
+    def process_table(self, tag, tag_css):
+        self.end_current_block()
+        colpad = 10
+        table = Table(self, tag, tag_css, rowpad=10, colpad=10)   
+        canvases = []
+        for block, xpos, ypos, delta in table.blocks(self.profile.page_width):
+            if not block:
+                canvases.append(Canvas(self.profile.page_width, ypos+colpad,
+                        blockrule='block-fixed'))
+            else:
+                canvases[-1].put_object(block, xpos + int(delta/2.), 0)
+            
+        for canvas in canvases:
+            self.current_page.append(canvas)
+        self.end_current_block()
+        
+    
     def writeto(self, path, lrs=False):
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
         
     def cleanup(self):
-        for _file in self.scaled_images.values():   
+        for _file in self.scaled_images.values() + self.rotated_images.values():   
             _file.__del__()
-        
+
 def process_file(path, options):
     cwd = os.getcwd()
     dirpath = None
@@ -1070,7 +1121,7 @@ def process_file(path, options):
                 tim.save(tf.name)
                 tpath = tf.name
             else:
-                raise ConversionError, 'Cannot read from: %s', (options.cover,)
+                raise ConversionError, 'Cannot read from: %s'% (options.cover,)
         
                     
         if not options.title:

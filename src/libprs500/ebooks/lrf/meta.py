@@ -94,7 +94,12 @@ class xml_attr_field(object):
         
     def __get__(self, obj, typ=None):
         """ Return the data in this field or '' if the field is empty """
-        document = dom.parseString(obj.info)
+        try:
+            document = dom.parseString(obj.info)
+        except Exception, err:
+            print >>sys.stderr, "Could not parse XML:", err
+            print obj.info
+            raise
         elems = document.getElementsByTagName(self.tag_name)
         if len(elems):
             elem = None
@@ -108,7 +113,12 @@ class xml_attr_field(object):
     def __set__(self, obj, val):
         if val == None:
             val = ""
-        document = dom.parseString(obj.info)
+        try:
+            document = dom.parseString(obj.info)
+        except Exception, err:
+            print >>sys.stderr, "Could not parse XML:", err
+            print obj.info
+            raise
         elems = document.getElementsByTagName(self.tag_name)
         if len(elems):
             elem = None
@@ -142,7 +152,13 @@ class xml_field(object):
         
     def __get__(self, obj, typ=None): 
         """ Return the data in this field or '' if the field is empty """
-        document = dom.parseString(obj.info)
+        try:
+            document = dom.parseString(obj.info)
+        except Exception, err:
+            print >>sys.stderr, "Could not parse XML:", err
+            print obj.info
+            raise
+            
         elems = document.getElementsByTagName(self.tag_name)
         if len(elems):
             elem = None
@@ -158,7 +174,12 @@ class xml_field(object):
     def __set__(self, obj, val):
         if val == None:
             val = ""
-        document = dom.parseString(obj.info)
+        try:
+            document = dom.parseString(obj.info)
+        except Exception, err:
+            print >>sys.stderr, "Could not parse XML:", err
+            print obj.info
+            raise
         def create_elem():
             elem = document.createElement(self.tag_name)
             elem.appendChild(dom.Text())

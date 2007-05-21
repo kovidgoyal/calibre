@@ -17,6 +17,7 @@ Convert .txt files to .lrf
 """
 import os, sys
 
+from libprs500.ebooks import BeautifulSoup
 from libprs500.ebooks.lrf import ConversionError, option_parser
 from libprs500.ebooks.lrf import Book
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, Italic, Bold, BookSetting
@@ -63,7 +64,7 @@ def convert_txt(path, options):
                     C{author}, C{title}, C{encoding} (the assumed encoding of 
                     the text in C{path}.)
     """
-    import fileinput
+    import codecs
     header = None
     if options.header:
         header = Paragraph()
@@ -84,7 +85,19 @@ def convert_txt(path, options):
     block = book.create_text_block()
     pg.append(block)
     book.append(pg)
-    for line in fileinput.input(path):
+    lines = ""
+    try:
+        lines = codecs.open(path, 'rb', 'ascii').readlines()
+        print 'huh'
+    except UnicodeDecodeError:
+            try:
+                lines = codecs.open(path, 'rb', 'cp1252').readlines()
+            except UnicodeDecodeError:
+                try:
+                    lines = codecs.open(path, 'rb', 'iso-8859-1').readlines()
+                except UnicodeDecodeError:
+                    lines = codecs.open(path, 'rb', 'utf8').readlines()
+    for line in lines:
         line = line.strip()
         if line:
             buffer = buffer.rstrip() + ' ' + line

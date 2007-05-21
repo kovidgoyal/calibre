@@ -2,20 +2,23 @@
 <head>
 <style type='text/css'>
 .toc { page-break-after: always; text-indent: 0em; }
+.tocpn            {text-align: right; }
+.tocchr           {text-align: right; font-variant: small-caps;}
 </style>
 </head>
   <h1>Demo of <span style='font-family:monospace'>html2lrf</span></h1>  
   <p>
-  This file contains a demonstration of the capabilities of   <span style='font-family:monospace'>html2lrf,</span>   the HTML to LRF converter   from <em>libprs500.</em> To obtain libprs500 visit  <span style='font:sans-serif'>https://libprs500.kovidgoyal.net</span>
+  This file contains a demonstration of the capabilities of   <span style='font-family:monospace'>html2lrf,</span>   the HTML to LRF converter   from <em>libprs500.</em> To obtain libprs500 visit<br/><span style='font:sans-serif'>https://libprs500.kovidgoyal.net</span>
   </p>
   <br/>
   <h2><a name='toc'>Table of Contents</a></h2>
   <ul style='page-break-after:always'>
-    <li><a href='#lists'>Demonstration of Lists</a></li>
+    <li><a href='#lists'>Lists</a></li>
+    <li><a href='#tables'>Tables</a></li>
     <li><a href='#text'>Text formatting and ruled lines</a></li>
     <li><a href='#images'>Inline images</a></li>
     <li><a href='#recursive'>Recursive link following</a></li>
-    <li><a href='demo_ext.html'>The HTML used to create this file</a>
+    <!--<li><a href='demo_ext.html'>The HTML used to create this file</a>-->
  </ul>
 
  <h2><a name='lists'>Lists</a></h2>
@@ -35,6 +38,53 @@
  <p>
  Note that nested lists are not supported.
  </p>
+ <p class='toc'>
+ <hr />
+ <a href='#toc'>Table of Contents</a>
+ </p>
+
+ <h2><a name='tables'>Tables</a></h2>
+ <p>
+ Because I can!
+ </p>
+ <br/>
+
+ <table>
+ <tr><td colspan=4><h3 style="text-align:center">A matrix</h3></td></tr>
+ <tr><td></td><td style="text-align:center"><b>Column 1</b></td><td style="text-align:center"><b>Column 2</b></td><td style="text-align:center"><b>Column 3</b></td></tr>
+ <tr><td><b>Row 1</b></td><td><p style="text-align:center">(1, 1)</p></tr>
+ <tr><td><b>Row 2</b></td><td></td><td style="text-align:center"><p>(2, 2)</p></td><td></td></tr>
+ <tr><td><b>Row 3</b></td><td></td><td></td><td><p style="text-align:center">(3, 3)</p></td></tr>
+ </table>
+ <br/>
+ <p>
+ html2lrf supports both rowspan and colspan, but no other HTML table attributes, as it uses its own algorithm to determine optimal placement of cells. 
+ </p>
+ <br/>
+ <p>
+ The table conversion code is very new and likely to be swarming with bugs, so please report them at <br/><font name="monospace>https://libprs500.kovidgoyal.net/newticket</font>
+ </p>
+ <br/>
+ <p style="page-break-after:always">
+ On the next page you'll see a real life example taken from a Project Gutenberg text with no modifications. It shows off html2lrf's handling of rowspan and colspan.
+ </p>
+ <h3 align="center">Sample Complex Table of Contents</h3>
+ <table summary="TOC">
+ <tr><td colspan="3">&nbsp;</td><td align="right">PAGE</td></tr>
+ <tr><td class="tocch" colspan="3"><a href="#PREFACE">Preface</a></td><td class="tocpn">v</td></tr>
+ <tr><td class="tocch" colspan="3"><a href="#REFERENCE_WORKS">List of Works of Reference</a></td><td class="tocpn">vii</td></tr>
+ <tr><td class="tocch" colspan="3"><a href="#LIST_OF_ILLUSTRATIONS">List of Illustrations</a></td><td class="tocpn">xi</td></tr>
+ <tr><td class="tocch">Chapter</td><td class="tocchr">I.</td><td class="tocch"><a href="#CHAPTER_I">History of the Foundation</a></td><td class="tocpn">3</td></tr>
+ <tr><td class="tocchr" colspan="2">II.</td><td class="tocch"><a href="#CHAPTER_II">Exterior of the Church</a></td><td class="tocpn">25</td></tr>
+ <tr><td class="tocchr" colspan="2">III.</td><td class="tocch"><a href="#CHAPTER_III">Interior of the Church</a></td><td class="tocpn">33</td></tr>
+ <tr><td class="tocchr" colspan="2">IV.</td><td class="tocch"><a href="#CHAPTER_IV">St. Bartholomew-the-Less and the Hospital</a></td><td class="tocpn">63</td></tr>
+ <tr><td class="tocch">Appendix</td><td class="tocchr">I.</td><td class="tocch"><a href="#APPENDIX_I">The Priory Seals</a></td><td class="tocpn">73</td></tr>
+ <tr><td class="tocchr" colspan="2">II.</td><td class="tocch"><a href="#APPENDIX_II">The Priors and Rectors</a></td><td class="tocpn">77</td></tr>
+ <tr><td class="tocchr" colspan="2">III.</td><td class="tocch"><a href="#APPENDIX_III">Inventory of Vestments, etc.</a></td><td class="tocpn">79</td></tr>
+ <tr><td class="tocchr" colspan="2">IV.</td><td class="tocch"><a href="#APPENDIX_IV">The Organ</a></td><td class="tocpn">80</td></tr>
+ <tr><td class="tocch" colspan="3"><a href="#INDEX">Index</a></td><td class="tocpn">83</td></tr>
+ </table>
+ 
  <p class='toc'>
  <hr />
  <a href='#toc'>Table of Contents</a>

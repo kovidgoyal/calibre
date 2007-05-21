@@ -13,7 +13,11 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import pkg_resources
-from PIL import ImageFont
+try:
+    from PIL import ImageFont
+except ImportError:
+    import ImageFont
+    
 '''
 Default fonts used in the PRS500
 '''
@@ -26,7 +30,8 @@ FONT_MAP = {
 def get_font(name, size, encoding='unic'):
     '''
     Get an ImageFont object by name. 
-    @param size: Size in pts
+    @param size: Font height in pixels. To convert from pts:
+                 sz in pixels = (dpi/72) * size in pts
     @param encoding: Font encoding to use. E.g. 'unic', 'symbol', 'ADOB', 'ADBE', 'aprm'
     '''
     if name in FONT_MAP.keys():
