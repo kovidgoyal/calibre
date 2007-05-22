@@ -247,7 +247,7 @@ class HTMLConverter(object):
                  chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE),
                  link_exclude=re.compile('$'), 
                  page_break=re.compile('h[12]', re.IGNORECASE),
-                 profile=PRS500_PROFILE, hide_broken_links=False,
+                 profile=PRS500_PROFILE,
                  disable_autorotation=False):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
@@ -283,7 +283,7 @@ class HTMLConverter(object):
                            tags if no page-breaks are found and no chapter headings
                            are detected.
         @param profile: Defines the geometry of the display device
-        @param hide_broken_links: Don't display broken links
+        @param disable_autorotation: Don't autorotate very wide images
         '''
         # Defaults for various formatting tags        
         self.css = dict(
@@ -330,7 +330,6 @@ class HTMLConverter(object):
         self.book = book #: The Book object representing a BBeB book
         self.is_root = is_root           #: Are we converting the root HTML file
         self.lstrip_toggle = False #: If true the next add_text call will do an lstrip
-        self.hide_broken_links = hide_broken_links
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
@@ -486,6 +485,9 @@ class HTMLConverter(object):
                 if isinstance(c, NavigableString):
                     text += str(c)                
                 elif isinstance(c, Tag):
+                    if c.name.lower() == 'img' and c.has_key('alt'):
+                        text += c['alt']
+                        return text
                     text += self.get_text(c)
             return text
     
@@ -545,9 +547,6 @@ class HTMLConverter(object):
                         text = img['alt']
                     except KeyError:
                         pass
-            if self.hide_broken_links:
-                    para.contents = []
-                    para.append(_Span(text=text))
             purl = urlparse(link.tag['href'])
             if purl[1]: # Not a link to a file on the local filesystem
                 continue
@@ -584,7 +583,6 @@ class HTMLConverter(object):
                                      chapter_regex=self.chapter_regex,
                                      link_exclude=self.link_exclude,
                                      page_break=self.page_break,
-                                     hide_broken_links=self.hide_broken_links,
                                      disable_autorotation=self.disable_autorotation)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
@@ -911,7 +909,10 @@ class HTMLConverter(object):
                     ['png', 'jpg', 'bmp', 'jpeg']:
                     self.process_image(path, tag_css)
                 else:
-                    self.add_text(self.get_text(tag), tag_css)
+                    text = self.get_text(tag)
+                    if not text:
+                        text = "Link"
+                    self.add_text(text, tag_css)
                     self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
@@ -1163,7 +1164,6 @@ def process_file(path, options):
                              chapter_detection=options.chapter_detection,
                              chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
                              link_exclude=re.compile(le), page_break=pb,
-                             hide_broken_links=not options.show_broken_links,
                              disable_autorotation=options.disable_autorotation)
         conv.process_links()
         oname = options.output
@@ -1270,12 +1270,6 @@ def parse_options(argv=None, cli=True):
     prepro = parser.add_option_group('PREPROCESSING OPTIONS')
     prepro.add_option('--baen', action='store_true', default=False, dest='baen',
                       help='''Preprocess Baen HTML files to improve generated LRF.''')
-    debug = None
-    for g in parser.option_groups:
-        if g.title == 'DEBUG OPTIONS':
-            debug = g
-    debug.add_option('--show-broken-links', dest='show_broken_links', action='store_true',
-                    default=False, help='''Show the href of broken links in generated LRF''')   
     options, args = parser.parse_args(args=argv)
     if len(args) != 1:
         if cli:
