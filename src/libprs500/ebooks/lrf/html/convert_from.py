@@ -298,6 +298,7 @@ class HTMLConverter(object):
             em     = {"font-style"  :"italic"},
             small  = {'font-size'   :'small'},
             pre    = {'font-family' :'monospace' },
+            tt     = {'font-family' :'monospace'},
             center = {'text-align'  : 'center'}
             )        
         self.profile     = profile #: Defines the geometry of the display device
@@ -325,6 +326,7 @@ class HTMLConverter(object):
         # point to the previous element
         self.anchor_to_previous = None 
         self.cover = cover
+        self.in_table = False
         self.memory = []          #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.in_ol = False #: Flag indicating we're in an <ol> element
         self.book = book #: The Book object representing a BBeB book
@@ -766,7 +768,7 @@ class HTMLConverter(object):
         
         if not self.disable_autorotation and width > self.profile.page_width and width > height:
             pt = PersistentTemporaryFile(suffix='.jpeg')
-            im = im.rotate(-90)
+            im = im.rotate(90)
             im.convert('RGB').save(pt, 'JPEG')
             path = pt.name
             pt.close()            
@@ -854,9 +856,9 @@ class HTMLConverter(object):
             pass
         elif tagname == 'a' and self.max_link_levels >= 0:
             if tag.has_key('name'):
+                print tag, self.anchor_to_previous
                 if self.anchor_to_previous:
                     self.process_children(tag, tag_css)
-                    return
                     for c in self.anchor_to_previous.contents:
                         if isinstance(c, (TextBlock, ImageBlock)):
                             self.targets[tag['name']] = c
@@ -1049,7 +1051,7 @@ class HTMLConverter(object):
             self.end_current_para()
             if tagname.startswith('h'):
                 self.current_block.append(CR())
-        elif tagname in ['b', 'strong', 'i', 'em', 'span']:
+        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
             if tag.has_key('face'):
@@ -1057,12 +1059,15 @@ class HTMLConverter(object):
             self.process_children(tag, tag_css)
         elif tagname in ['br']:
             self.current_para.append(CR())
-        elif tagname == 'hr':
+        elif tagname in ['hr', 'tr']: # tr needed for nested tables
             self.end_current_para()            
             self.current_block.append(CR())
             self.end_current_block()
             self.current_page.RuledLine(linelength=self.profile.page_width)
-        elif tagname == 'table':
+        elif tagname == 'td': # Needed for nested tables
+            self.current_para.append(" ")
+            self.process_children(tag, tag_css)
+        elif tagname == 'table' and not self.in_table:
             tag_css = self.tag_css(tag) # Table should not inherit CSS
             self.process_table(tag, tag_css)
         else:            

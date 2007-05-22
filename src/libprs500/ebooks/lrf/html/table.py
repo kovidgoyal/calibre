@@ -88,7 +88,6 @@ class Cell(object):
                 
         pp = conv.current_page
         conv.book.allow_new_page = False
-        conv.anchor_to_previous = pp
         conv.current_page = conv.book.create_page()
         conv.parse_tag(cell, css)
         conv.end_current_block()
@@ -96,8 +95,7 @@ class Cell(object):
             if isinstance(item, TextBlock):
                 self.text_blocks.append(item)
         conv.current_page = pp
-        conv.book.allow_new_page = True
-        conv.anchor_to_previous = None
+        conv.book.allow_new_page = True        
         if not self.text_blocks:
             tb = conv.book.create_text_block()
             tb.Paragraph(' ')
@@ -223,9 +221,14 @@ class Table(object):
         self.rowpad = rowpad
         self.colpad = colpad
         rows = table.findAll('tr')
+        conv.anchor_to_previous = conv.current_page
+        conv.in_table = True
         for row in rows:            
             rcss = conv.tag_css(row, css)
             self.rows.append(Row(conv, row, rcss, colpad))
+        conv.in_table = False
+        conv.anchor_to_previous = None
+        
             
     def number_of_columns(self):
         max = 0
