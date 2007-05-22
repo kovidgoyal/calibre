@@ -428,7 +428,7 @@ class HTMLConverter(object):
     def parse_file(self):
         def get_valid_block(page):
             for item in page.contents:
-                if isinstance(item, (TextBlock, ImageBlock, RuledLine)):
+                if isinstance(item, (Canvas, TextBlock, ImageBlock, RuledLine)):
                     return item
         previous = self.book.last_page()
         self.current_page = self.book.create_page()
