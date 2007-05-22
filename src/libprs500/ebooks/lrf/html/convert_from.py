@@ -450,7 +450,10 @@ class HTMLConverter(object):
         
         if not self.top.parent:
             if not previous:
-                self.top = get_valid_block(self.current_page)
+                previous = self.book.last_page()
+                if not previous:
+                    raise ConversionError, self.file_name + ' does not seem to have any content'
+                self.top = get_valid_block(previous)
                 if not self.top or not self.top.parent:
                     raise ConversionError, self.file_name + ' does not seem to have any content'
                 return
