@@ -450,11 +450,11 @@ class HTMLConverter(object):
         
         if not self.top.parent:
             if not previous:
-                try:
-                    previous = self.book.pages()[0]
-                except IndexError:
+                self.top = get_valid_block(self.current_page)
+                if not self.top or not self.top.parent:
                     raise ConversionError, self.file_name + ' does not seem to have any content'
-        
+                return
+                
             found = False
             for page in self.book.pages():
                 if page == previous:
@@ -465,6 +465,7 @@ class HTMLConverter(object):
                     if not self.top:
                         continue
                     break
+            
             if not self.top or not self.top.parent:
                 raise ConversionError, 'Could not parse ' + self.file_name
             
