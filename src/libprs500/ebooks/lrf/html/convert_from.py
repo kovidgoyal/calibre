@@ -1238,7 +1238,8 @@ def parse_options(argv=None, cli=True):
     laf.add_option('--cover', action='store', dest='cover', default=None, \
                       help='Path to file containing image to be used as cover')
     laf.add_option('--font-delta', action='store', type='int', default=0, \
-                      help="""Increase the font size by 2 * FONT_DELTA pts. 
+                      help="""Increase the font size by 2 * FONT_DELTA pts and
+                      the line spacing by FONT_DELTA pts.
                       If FONT_DELTA is negative, the font size is decreased.""",
                       dest='font_delta')
     laf.add_option('--disable-autorotation', action='store_true', default=False, 

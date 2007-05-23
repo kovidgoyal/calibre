@@ -91,6 +91,8 @@ def Book(font_delta=0, header=None, profile=PRS500_PROFILE, **settings):
         ps['header'] = header
         ps['header'] = hdr
         ps['topmargin'] = 10
+    baselineskip = (12 + 2*font_delta)*10
     return _Book(textstyledefault=dict(fontsize=100+font_delta*20, 
-                                       parindent=80, linespace=12), \
+                                       parindent=80, linespace=12,
+                                       baselineskip=baselineskip), \
                  pagestyledefault=ps, **settings)

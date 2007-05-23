@@ -163,7 +163,7 @@ class Cell(object):
         ts = tb.textStyle.attrs
         default_font = get_font(ts['fontfacename'], self.pts_to_pixels(ts['fontsize']))
         parindent = self.pts_to_pixels(ts['parindent'])
-        ls, ws = self.pts_to_pixels(ts['linespace']), self.pts_to_pixels(ts['wordspace'])
+        ls, ws = self.pts_to_pixels(ts['baselineskip']), self.pts_to_pixels(ts['wordspace'])
         top, bottom, left, right = 0, 0, parindent, parindent
         
         def add_word(width, height, left, right, top, bottom):            
