@@ -326,7 +326,7 @@ class Table(object):
                 if psum > 100:
                     adjustable_columns.append(i)
                 else:
-                    widths[i] = (wp/100.) * (maxwidth - (cols-1)*self.colpad)
+                    widths[i] = ceil((wp/100.) * (maxwidth - (cols-1)*self.colpad))
             else:
                 adjustable_columns.append(i)
                 
