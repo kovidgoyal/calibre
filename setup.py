@@ -285,7 +285,6 @@ setup(
         'gui_scripts'    : [ 'prs500-gui = libprs500.gui.main:main']
       }, 
       zip_safe = True,
-      install_requires = ['sqlalchemy >= 0.3.7'],
       description = 
                   """
                   Ebook management application.

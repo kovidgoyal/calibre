@@ -73,23 +73,36 @@ def tokens(tb):
 
 class Cell(object):
     
-    def __init__(self, conv, cell, css):
+    def __init__(self, conv, tag, css):
         self.conv = conv
-        self.cell = cell
+        self.tag = tag
         self.css  = css
         self.text_blocks = []
+        self.pwidth = -1.
+        if tag.has_key('width') and '%' in tag['width']:
+            try:
+                self.pwidth = float(tag['width'].replace('%', ''))
+            except ValueError:
+                pass
+        if css.has_key('width') and '%' in css['width']:
+            try:
+                self.pwidth = float(css['width'].replace('%', ''))
+            except ValueError:
+                pass
+        if self.pwidth > 100:
+            self.pwidth = -1
         self.rowspan = self.colspan = 1
         try:
-            self.colspan = int(cell['colspan']) if cell.has_key('colspan') else 1
-            self.rowspan = int(cell['rowspan']) if cell.has_key('rowspan') else 1
+            self.colspan = int(tag['colspan']) if tag.has_key('colspan') else 1
+            self.rowspan = int(tag['rowspan']) if tag.has_key('rowspan') else 1
         except:
             if conv.verbose:
-                print >>sys.stderr, "Error reading row/colspan for ", cell
+                print >>sys.stderr, "Error reading row/colspan for ", tag
                 
         pp = conv.current_page
         conv.book.allow_new_page = False
         conv.current_page = conv.book.create_page()
-        conv.parse_tag(cell, css)
+        conv.parse_tag(tag, css)
         conv.end_current_block()
         for item in conv.current_page.contents:
             if isinstance(item, TextBlock):
@@ -120,6 +133,31 @@ class Cell(object):
     def pts_to_pixels(self, pts):
         pts = int(pts)
         return ceil((float(self.conv.profile.dpi)/72)*(pts/10.))
+    
+    def minimum_width(self):
+        return max([self.minimum_tb_width(tb) for tb in self.text_blocks])
+    
+    def minimum_tb_width(self, tb):
+        ts = tb.textStyle.attrs
+        default_font = get_font(ts['fontfacename'], self.pts_to_pixels(ts['fontsize']))
+        parindent = self.pts_to_pixels(ts['parindent'])
+        
+        for token, attrs in tokens(tb):
+            font = default_font
+            if isinstance(token, int): # Handle para and line breaks        
+                continue
+            if isinstance(token, Plot):
+                return self.pts_to_pixels(token.xsize)
+            ff = attrs.get('fontfacename', ts['fontfacename'])
+            fs = attrs.get('fontsize', ts['fontsize'])
+            if (ff, fs) != (ts['fontfacename'], ts['fontsize']):
+                font = get_font(ff, self.pts_to_pixels(fs))
+            if not token.strip():
+                continue
+            word = token.split()
+            word = word[0] if word else ""
+            width, height = font.getsize(word)            
+            return parindent + width + 2
     
     def text_block_size(self, tb, maxwidth=sys.maxint, debug=False):
         ts = tb.textStyle.attrs
@@ -195,7 +233,7 @@ class Row(object):
             return 0
         return max(heights)
     
-    def preferred_width(self, col):
+    def cell_from_index(self, col):
         i = -1
         cell = None        
         for cell in self.cells:            
@@ -205,9 +243,25 @@ class Row(object):
                 i += 1
             if i == col:
                 break
+        return cell
+    
+    def minimum_width(self, col):
+        cell = self.cell_from_index(col)
+        if not cell:
+            return 0
+        return cell.minimum_width()
+    
+    def preferred_width(self, col):
+        cell = self.cell_from_index(col)
         if not cell:
             return 0
         return 0 if cell.colspan > 1 else cell.preferred_width()
+    
+    def width_percent(self, col):
+        cell = self.cell_from_index(col)
+        if not cell:
+            return -1
+        return -1 if cell.colspan > 1 else cell.pwidth
     
     def cell_iterator(self):
         for c in self.cells:
@@ -244,6 +298,12 @@ class Table(object):
         widths = self.get_widths(maxwidth)
         return sum([row.height(widths) + self.rowpad for row in self.rows]) - self.rowpad
     
+    def minimum_width(self, col):
+        return max([row.minimum_width(col) for row in self.rows])
+    
+    def width_percent(self, col):
+        return max([row.width_percent(col) for row in self.rows])
+    
     def get_widths(self, maxwidth):
         '''
         Return widths of columns + sefl.colpad
@@ -258,9 +318,24 @@ class Table(object):
                 except IndexError:
                     continue                 
             widths[c] = max(cellwidths)
+        adjustable_columns, psum = [], 0.
+        for i in xrange(len(widths)):
+            wp = self.width_percent(i)
+            if wp >= 0.:
+                psum += wp
+                if psum > 100:
+                    adjustable_columns.append(i)
+                else:
+                    widths[i] = (wp/100.) * (maxwidth - (cols-1)*self.colpad)
+            else:
+                adjustable_columns.append(i)
+                
         itercount = 0
+        min_widths = [self.minimum_width(i) for i in xrange(cols)]
         while sum(widths) > maxwidth-((len(widths)-1)*self.colpad) and itercount < 100:
-            widths = [ceil((95./100.)*w) for w in widths]
+            for i in adjustable_columns:
+                widths[i] = ceil((95./100.)*widths[i]) if \
+                    ceil((95./100.)*widths[i]) >= min_widths[i] else widths[i]
             itercount += 1
         return [i+self.colpad for i in widths]
     

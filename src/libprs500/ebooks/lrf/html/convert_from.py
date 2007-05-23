@@ -856,7 +856,6 @@ class HTMLConverter(object):
             pass
         elif tagname == 'a' and self.max_link_levels >= 0:
             if tag.has_key('name'):
-                print tag, self.anchor_to_previous
                 if self.anchor_to_previous:
                     self.process_children(tag, tag_css)
                     for c in self.anchor_to_previous.contents:
