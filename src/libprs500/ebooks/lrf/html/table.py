@@ -163,18 +163,18 @@ class Cell(object):
         ts = tb.textStyle.attrs
         default_font = get_font(ts['fontfacename'], self.pts_to_pixels(ts['fontsize']))
         parindent = self.pts_to_pixels(ts['parindent'])
-        ls, ws = self.pts_to_pixels(ts['baselineskip']), self.pts_to_pixels(ts['wordspace'])
+        ls, ws = self.pts_to_pixels(ts['baselineskip']) + self.pts_to_pixels(ts['linespace']), self.pts_to_pixels(ts['wordspace'])
         top, bottom, left, right = 0, 0, parindent, parindent
         
         def add_word(width, height, left, right, top, bottom):            
             if left + width > maxwidth:
                 left = width + ws
-                top += height + ls
-                bottom = top+height if top+height > bottom else bottom
+                top += ls
+                bottom = top+ls if top+ls > bottom else bottom
             else:
                 left += (width + ws)
                 right = left if left > right else right                    
-                bottom = top+height if top+height > bottom else bottom
+                bottom = top+ls if top+ls > bottom else bottom
             return left, right, top, bottom
         
         for token, attrs in tokens(tb):
