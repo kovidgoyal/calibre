@@ -69,8 +69,8 @@ def option_parser(usage):
     parser.add_option('-p', '--profile', default=PRS500_PROFILE, dest='profile', type='choice',
                       choices=profiles, action='callback', callback=profile_from_string,
                       help='''Profile of the target device for which this LRF is '''
-                      '''being generated. Default: ''' + profiles[0] + '''
-                      Supported profiles: '''+', '.join(profiles))
+                      '''being generated. Default: ''' + profiles[0] + \
+                      ''' Supported profiles: '''+', '.join(profiles))
     debug = parser.add_option_group('DEBUG OPTIONS')
     debug.add_option('--verbose', dest='verbose', action='store_true', default=False,
                       help='''Be verbose while processing''')

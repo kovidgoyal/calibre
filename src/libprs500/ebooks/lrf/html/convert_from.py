@@ -1241,9 +1241,9 @@ def parse_options(argv=None, cli=True):
     laf.add_option('--cover', action='store', dest='cover', default=None, \
                       help='Path to file containing image to be used as cover')
     laf.add_option('--font-delta', action='store', type='int', default=0, \
-                      help="""Increase the font size by 2 * FONT_DELTA pts and
-                      the line spacing by FONT_DELTA pts.
-                      If FONT_DELTA is negative, the font size is decreased.""",
+                      help="""Increase the font size by 2 * FONT_DELTA pts and """
+                      '''the line spacing by FONT_DELTA pts. '''
+                      """If FONT_DELTA is negative, the font size is decreased.""",
                       dest='font_delta')
     laf.add_option('--disable-autorotation', action='store_true', default=False, 
                    help='Disable autorotation of images.', dest='disable_autorotation')
@@ -1260,11 +1260,11 @@ def parse_options(argv=None, cli=True):
     chapter.add_option('--disable-chapter-detection', action='store_false', 
                       default=True, dest='chapter_detection', 
                       help='''Prevent html2lrf from automatically inserting page breaks'''
-                      '''before what it thinks are chapters.''')
+                      ''' before what it thinks are chapters.''')
     chapter.add_option('--chapter-regex', dest='chapter_regex', 
                       default='chapter|book|appendix',
                       help='''The regular expression used to detect chapter titles.'''
-                      '''It is searched for in heading tags. Defaults to %default''')     
+                      ''' It is searched for in heading tags. Defaults to %default''')     
     chapter.add_option('--page-break-before', dest='page_break', default='h[12]',
                       help='''If html2lrf does not find any page breaks in the '''
                       '''html file and cannot detect chapter headings, it will '''

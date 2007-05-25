@@ -3,6 +3,7 @@
 	<name>libprs500</name>
 	<comment></comment>
 	<projects>
+		<project>ipython</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
