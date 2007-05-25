@@ -959,9 +959,12 @@ class HTMLConverter(object):
         elif tagname == 'pre':
             self.end_current_para()
             self.current_block.append_to(self.current_page)
+            attrs = Span.translate_attrs(tag_css, self.font_delta, self.memory)
+            ts = self.book.create_text_style(**self.unindented_style.attrs)
+            ts.attrs.update(attrs)
             self.current_block = self.book.create_text_block(
                                     blockStyle=self.current_block.blockStyle,
-                                    textStyle=self.unindented_style)
+                                    textStyle=ts)
             src = ''.join([str(i) for i in tag.contents])
             lines = src.split('\n')
             for line in lines:
