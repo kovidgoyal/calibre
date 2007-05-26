@@ -395,9 +395,9 @@ if os.access('/etc/bash_completion.d', os.W_OK):
     try:
         print 'Setting up bash completion...',
         sys.stdout.flush()
-        from libprs500.lrf.html.convert_from import parse_options as htmlop
-        from libprs500.lrf.txt.convert_from import parse_options as txtop
-        from libprs500.lrf.meta import parse_options as metaop
+        from libprs500.ebooks.lrf.html.convert_from import parse_options as htmlop
+        from libprs500.ebooks.lrf.txt.convert_from import parse_options as txtop
+        from libprs500.ebooks.lrf.meta import parse_options as metaop
         f = open('/etc/bash_completion.d/libprs500', 'wb')
         f.write('# libprs500 Bash Shell Completion\n')
         f.write(opts_and_exts('html2lrf', htmlop, 
