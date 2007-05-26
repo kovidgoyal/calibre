@@ -209,6 +209,8 @@ class Span(_Span):
             if fs.lower() == 'italic':
                 src = Italic(src)
         attrs = Span.translate_attrs(css, font_delta=font_delta, memory=memory)
+        if 'fontsize' in attrs.keys():
+            attrs['baselineskip'] = int(attrs['fontsize']) + 20
         _Span.__init__(self, text=src, **attrs)
         
         

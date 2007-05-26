@@ -163,10 +163,9 @@ class Cell(object):
         ts = tb.textStyle.attrs
         default_font = get_font(ts['fontfacename'], self.pts_to_pixels(ts['fontsize']))
         parindent = self.pts_to_pixels(ts['parindent'])
-        ls, ws = self.pts_to_pixels(ts['baselineskip']) + self.pts_to_pixels(ts['linespace']), self.pts_to_pixels(ts['wordspace'])
         top, bottom, left, right = 0, 0, parindent, parindent
         
-        def add_word(width, height, left, right, top, bottom):            
+        def add_word(width, height, left, right, top, bottom, ls, ws):            
             if left + width > maxwidth:
                 left = width + ws
                 top += ls
@@ -178,14 +177,19 @@ class Cell(object):
             return left, right, top, bottom
         
         for token, attrs in tokens(tb):
+            if attrs == None:
+                attrs = {}
             font = default_font
+            ls = self.pts_to_pixels(attrs.get('baselineskip', ts['baselineskip']))+\
+                 self.pts_to_pixels(attrs.get('linespace', ts['linespace']))
+            ws = self.pts_to_pixels(attrs.get('wordspace', ts['wordspace']))
             if isinstance(token, int): # Handle para and line breaks
                 top = bottom
                 left = parindent if int == 1 else 0
                 continue
             if isinstance(token, Plot):
                 width, height = self.pts_to_pixels(token.xsize), self.pts_to_pixels(token.ysize)
-                left, right, top, bottom = add_word(width, height, left, right, top, bottom)
+                left, right, top, bottom = add_word(width, height, left, right, top, bottom, ls, ws)
                 continue
             ff = attrs.get('fontfacename', ts['fontfacename'])
             fs = attrs.get('fontsize', ts['fontsize'])
@@ -193,7 +197,7 @@ class Cell(object):
                 font = get_font(ff, self.pts_to_pixels(fs))
             for word in token.split():
                 width, height = font.getsize(word)
-                left, right, top, bottom = add_word(width, height, left, right, top, bottom)
+                left, right, top, bottom = add_word(width, height, left, right, top, bottom, ls, ws)
         return right+3, bottom
                 
     def text_block_preferred_width(self, tb, debug=False):

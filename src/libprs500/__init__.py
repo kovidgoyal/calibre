@@ -33,7 +33,7 @@ You may have to adjust the GROUP and the location of the rules file to
 suit your distribution.
 """
 
-__version__   = "0.3.41"
+__version__   = "0.3.42"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
