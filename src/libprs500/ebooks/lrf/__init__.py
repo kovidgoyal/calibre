@@ -83,12 +83,10 @@ def Book(font_delta=0, header=None, profile=PRS500_PROFILE, **settings):
               textheight=profile.page_height)
     if header:
         hdr = Header()
-        hb = TextBlock(textStyle=TextStyle(align='foot', fontsize=60), 
-                       blockStyle=BlockStyle(sidemargin=10))
+        hb = TextBlock(textStyle=TextStyle(align='foot', fontsize=60))
         hb.append(header)
         hdr.PutObj(hb)
         ps['headheight'] = 30
-        ps['header'] = header
         ps['header'] = hdr
         ps['topmargin'] = 10
     baselineskip = (12 + 2*font_delta)*10

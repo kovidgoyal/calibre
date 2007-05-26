@@ -1160,7 +1160,7 @@ def process_file(path, options):
             header = Paragraph()
             header.append(Bold(options.title))
             header.append(' by ')
-            header.append(Italic(options.author+" "))
+            header.append(Italic(options.author+"  "))
         book = Book(header=header, **args)
         le = re.compile(options.link_exclude) if options.link_exclude else \
              re.compile('$')
