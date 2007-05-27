@@ -40,6 +40,14 @@ def _connect(path):
     conn =  sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
     conn.row_factory = sqlite.Row
     conn.create_aggregate('concat', 1, Concatenate)
+    title_pat = re.compile('^(A|The|An\s+)', re.IGNORECASE)
+    def title_sort(title):
+        match = title_pat.search(title)
+        if match:
+            prep = match.group(1)
+            title = title.replace(prep, '') + ', ' + prep
+        return title.strip()
+    conn.create_function('title_sort', 1, title_sort)
     return conn
 
 class LibraryDatabase(object):
@@ -148,12 +156,12 @@ class LibraryDatabase(object):
         CREATE TRIGGER books_insert_trg 
         AFTER INSERT ON books
         BEGIN
-          UPDATE books SET sort=NEW.title WHERE id=NEW.id;
+          UPDATE books SET sort=title_sort(NEW.title) WHERE id=NEW.id;
         END;
         CREATE TRIGGER books_update_trg
         AFTER UPDATE ON books
         BEGIN
-          UPDATE books SET sort=NEW.title WHERE id=NEW.id;
+          UPDATE books SET sort=title_sort(NEW.title) WHERE id=NEW.id;
         END;
         
         
