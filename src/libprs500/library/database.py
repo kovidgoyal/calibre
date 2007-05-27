@@ -16,7 +16,7 @@
 Backend that implements storage of ebooks in an sqlite database.
 """
 import sqlite3 as sqlite
-import os, datetime
+import os, datetime, re
 from zlib import compress, decompress
 from stat import ST_SIZE
 
@@ -70,7 +70,15 @@ class LibraryDatabase(object):
             book = cur.fetchone()
             
     @staticmethod
-    def import_old_database(path, conn):
+    def sizeof_old_database(path):
+        conn = sqlite.connect(path)
+        ans  = conn.execute('SELECT COUNT(id) from books_meta').fetchone()[0]
+        conn.close()
+        return ans
+    
+    @staticmethod
+    def import_old_database(path, conn, progress=None):
+        count = 0
         for book, cover, formats in LibraryDatabase.books_in_old_database(path):
             obj = conn.execute('INSERT INTO books(title, timestamp) VALUES (?,?)', 
                                (book['title'], book['timestamp']))
@@ -83,15 +91,15 @@ class LibraryDatabase(object):
                 else:
                     aid = conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
                 conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
-            candidate = conn.execute('SELECT id from publishers WHERE name=?', (book['publisher'],)).fetchone()
-            if candidate:
+            if book['publisher']:
+                candidate = conn.execute('SELECT id from publishers WHERE name=?', (book['publisher'],)).fetchone()
                 pid = candidate[0] if candidate else conn.execute('INSERT INTO publishers(name) VALUES (?)', 
                                                               (book['publisher'],)).lastrowid
                 conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, pid))
-            candidate = conn.execute('SELECT id from ratings WHERE rating=?', (book['rating'],)).fetchone()
-            if candidate:
+            if book['rating']:
+                candidate = conn.execute('SELECT id from ratings WHERE rating=?', (2*book['rating'],)).fetchone()
                 rid = candidate[0] if candidate else conn.execute('INSERT INTO ratings(rating) VALUES (?)', 
-                                                              (book['rating'],)).lastrowid
+                                                              (2*book['rating'],)).lastrowid
                 conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rid))
             tags = book['tags']
             if tags:
@@ -119,6 +127,9 @@ class LibraryDatabase(object):
                              (id, format, formats[format]['uncompressed_size'], 
                               formats[format]['data']))
             conn.commit()
+            count += 1
+            if progress:
+                progress(count)
             
     
     @staticmethod
@@ -226,7 +237,7 @@ class LibraryDatabase(object):
         CREATE TABLE books_publishers_link ( id INTEGER PRIMARY KEY,
                                           book INTEGER NOT NULL,
                                           publisher INTEGER NOT NULL,
-                                          UNIQUE(book, publisher)
+                                          UNIQUE(book)
                                         );
         CREATE INDEX books_publishers_link_bidx ON books_publishers_link (book);
         CREATE INDEX books_publishers_link_aidx ON books_publishers_link (publisher);
@@ -336,7 +347,7 @@ class LibraryDatabase(object):
         CREATE TABLE books_series_link ( id INTEGER PRIMARY KEY,
                                           book INTEGER NOT NULL,
                                           series INTEGER NOT NULL,
-                                          UNIQUE(book, series)
+                                          UNIQUE(book)
                                         );
         CREATE INDEX books_series_link_bidx ON books_series_link (book);
         CREATE INDEX books_series_link_aidx ON books_series_link (series);
@@ -485,7 +496,7 @@ class LibraryDatabase(object):
         CREATE TABLE comments ( id INTEGER PRIMARY KEY,
                               book INTEGER NON NULL,
                               text TEXT NON NULL COLLATE NOCASE,
-                              UNIQUE(book, text)
+                              UNIQUE(book)
                             );
         CREATE INDEX comments_idx ON covers (book);
         CREATE TRIGGER fkc_comments_insert
@@ -523,29 +534,106 @@ class LibraryDatabase(object):
         CREATE VIEW meta AS
         SELECT id, title,
                (SELECT concat(name) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=books.id)) authors,
-               (SELECT concat(name) FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+               (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
                (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
                timestamp,
-               (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size
+               (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+               (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+               (SELECT text FROM comments WHERE book=books.id) comments,
+               (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+               sort,
+               (SELECT sort FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=books.id)) authors_sort,
+               (SELECT sort FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher_sort
         FROM books;
         '''\
         )
+        conn.execute('pragma user_version=1')
         conn.commit()
     
     def __init__(self, dbpath):
+        self.dbpath = dbpath
         self.conn = _connect(dbpath)
         self.user_version = self.conn.execute('pragma user_version;').next()[0]
+        self.cache = []
+        self.data  = []
         if self.user_version == 0:
             LibraryDatabase.create_version1(self.conn)
+        
             
-if __name__ == '__main__':
-    if os.path.exists('/tmp/test.sqlite'):
-        os.remove('/tmp/test.sqlite')
-    conn = _connect('/tmp/test.sqlite')
+    def is_empty(self):
+        return not self.conn.execute('SELECT id FROM books LIMIT 1').fetchone()
+    
+    def refresh(self, sort_field, ascending):
+        FIELDS = {'title'  : 'sort',
+                  'authors':  'authors_sort',
+                  'publisher': 'publisher_sort',
+                  'size': 'size',
+                  'date': 'timestamp',
+                  'rating': 'rating'
+                  }
+        field = FIELDS[sort_field]
+        order = 'ASC'
+        if not ascending:
+            order = 'DESC'
+        
+        
+        self.cache = self.conn.execute('select * from meta order by size').fetchall()
+        self.cache = self.conn.execute('SELECT * from meta ORDER BY '+field+' '
+                                       +order).fetchall()
+        self.data  = self.cache
+        self.conn.commit()
+        
+    def filter(self, filters, refilter=False):
+        '''
+        Filter data based on filters. All the filters must match for an item to
+        be accepted. Matching is case independent regexp matching.
+        @param filters: A list of strings suitable for compilation into regexps
+        @param refilter: If True filters are applied to the results of the previous
+                         filtering.
+        '''
+        if not filters:
+            self.data = self.data if refilter else self.cache
+        else:
+            filters = [re.compile(i, re.IGNORECASE) for i in filters if i]
+            matches = []
+            for item in self.data if refilter else self.cache:
+                keep = True
+                test = ' '.join([item[i] if item[i] else '' for i in (1,2,3,7,8,9)])
+                for filter in filters:
+                    if not filter.search(test):
+                        keep = False
+                        break
+                if keep:
+                    matches.append(item)
+            self.data = matches
+            
+    def rows(self):
+        return len(self.data) if self.data else 0
+    
+    def title(self, index):
+        return self.data[index][1]
+    
+    def authors(self, index):
+        return self.data[index][2]
+    
+    def publisher(self, index):
+        return self.data[index][3]
+    
+    def rating(self, index):
+        return self.data[index][4]
+        
+    def timestamp(self, index):
+        return self.data[index][5]
+        
+    def max_size(self, index):
+        return self.data[index][6]
+                
+            
+if __name__ == '__main__':    
     from IPython.Shell import IPShellEmbed
     ipshell = IPShellEmbed([],
                        banner = 'Dropping into IPython',
                        exit_msg = 'Leaving Interpreter, back to program.')
-    LibraryDatabase.create_version1(conn)
-    LibraryDatabase.import_old_database('/home/kovid/library.db', conn)
+    db = LibraryDatabase('/home/kovid/library1.db')
+    conn = db.conn
     ipshell()
