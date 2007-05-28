@@ -618,6 +618,9 @@ class LibraryDatabase(object):
     def rows(self):
         return len(self.data) if self.data else 0
     
+    def id(self, index):
+        return self.data[index][0]
+    
     def title(self, index):
         return self.data[index][1]
     
@@ -635,7 +638,65 @@ class LibraryDatabase(object):
         
     def max_size(self, index):
         return self.data[index][6]
-                
+    
+    def set(self, row, column, val):
+        ''' Convenience method for setting the title, authors, publisher or rating '''
+        id = self.data[row][0]
+        cols = {'title' : 1, 'authors': 2, 'publisher': 3, 'rating':4}
+        col = cols[column]
+        self.data[row][col] = val
+        for item in self.cache:
+            if item[0] == id:
+                item[col] = val
+                break
+        if column == 'authors':
+            val = val.split('&,')
+            self.set_authors(id, val)
+        elif column == 'title':
+            self.set_title(id, val)
+        elif column == 'publisher':
+            self.set_publisher(id, val)
+        elif column == 'rating':
+            self.set_rating(id, val)
+        print row, col, val
+        
+    def set_authors(self, id, authors):
+        self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
+        for a in authors:
+            if not a:
+                continue
+            author = conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
+            if author:
+                aid = author[0]
+            else:
+                aid = conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
+            conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
+        self.conn.commit()
+        
+    def set_title(self, id, title):
+        if not title:
+            return
+        self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
+        self.conn.commit()
+        
+    def set_publisher(self, id, publisher):
+        if not publisher:
+            return
+        self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
+        pub = conn.execute('SELECT id from publishers WHERE name=?', (publisher,)).fetchone()
+        if pub:
+            aid = pub[0]
+        else:
+            pub = conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
+        conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
+        self.conn.commit()
+    
+    def set_rating(self, id, rating):
+        rating = int(rating)
+        self.conn.execute('DELETE FROM books_ratings_link WHERE book=?',(id,))
+        rat = conn.execute('SELECT id FROM ratings WHERE rating=?', (rating,)).fetchone()
+        rat = rat[0] if rat else conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
+        conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
             
 if __name__ == '__main__':    
     from IPython.Shell import IPShellEmbed

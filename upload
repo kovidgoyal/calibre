@@ -1,28 +1,67 @@
-#!/bin/bash
+#!/usr/bin/python
+import sys, glob, os, subprocess
+from pyvix.vix import *
 
-# Script to upload libprs500 to pypi, the installer to libprs500.kovidgoyal.net and update the api documentation
+files = glob.glob('dist/*.exe')
+for file in files:
+    os.unlink(file)
 
-PREFIX=/var/www/vhosts/kovidgoyal.net/subdomains/libprs500
-DOWNLOADS=$PREFIX/httpdocs/downloads
-DOCS=$PREFIX/httpdocs/apidocs
-exe=`cd dist && ls -1 libprs500-*.exe | tail -n1 && cd ..`
-HTML2LRF=src/libprs500/ebooks/lrf/html/demo
 
-echo "<h2>The HTML</h2><pre>" > ${HTML2LRF}/demo_ext.html
-cat ${HTML2LRF}/demo.html >> ${HTML2LRF}/demo_ext.html
-echo '</pre>' >> ${HTML2LRF}/demo_ext.html
-html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' --header --output=/tmp/html2lrf.lrf ${HTML2LRF}/demo.html
-scp /tmp/html2lrf.lrf castalia:$DOWNLOADS/
+h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
+vm = h.openVM('/mnt/extra/vmware/Windows Vista/Windows Vista.vmx')
+vm.powerOn() 
+if not vm.waitForToolsInGuest():
+    print >>sys.stderr, 'Windows is not booting up'
+    sys.exit(1)
 
-ssh castalia rm -f $DOWNLOADS/libprs500\*.exe
-scp dist/$exe castalia:$DOWNLOADS/
-ssh castalia chmod a+r $DOWNLOADS/\*
-ssh castalia /root/bin/update-installer-link $exe
 
-epydoc --config epydoc.conf
-scp -r docs/html castalia:$DOCS/
-epydoc -v --config epydoc-pdf.conf
-scp docs/pdf/api.pdf castalia:$DOCS/
 
-python setup.py register sdist bdist_egg upload
-rm -rf dist/* build/*
+vm.loginInGuest('kovid', 'et tu brutus')
+vm.loginInGuest(VIX_CONSOLE_USER_NAME, '')
+vm.runProgramInGuest('C:\\Users\kovid\Desktop\libprs500.bat', '')
+vm.runProgramInGuest('C:\Windows\system32\shutdown.exe', '/s')
+
+if not glob.glob('dist/*.exe'):
+    raise Exception('Windows build has failed')
+
+
+PREFIX = "/var/www/vhosts/kovidgoyal.net/subdomains/libprs500"
+DOWNLOADS = PREFIX+"/httpdocs/downloads"
+DOCS = PREFIX+"/httpdocs/apidocs"
+exe = os.path.basename(glob.glob('dist/*.exe')[0])
+HTML2LRF = "src/libprs500/ebooks/lrf/html/demo"
+
+f = open(os.path.join(HTML2LRF, 'demo_ext.html'), 'w')
+f.write("<h2>The HTML</h2><pre>\n")
+f.write(open(os.path.join(HTML2LRF, 'demo.html')).read())
+f.write('\n</pre>')
+f.close()
+
+def check_call(cmd):
+    try:
+        retcode = subprocess.call(cmd, shell=True)
+        if retcode < 0:
+            print >>sys.stderr, cmd, "was terminated by signal", -retcode
+        elif retcode > 0:
+            print >>sys.stderr, cmd, 'failed with retrun code:', retcode
+        if retcode != 0:
+            sys.exit(1)
+    except OSError, e:
+        print >>sys.stderr, "Execution of", cmd, "failed:", e
+        sys.exit(1)
+        
+check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' --header --output=/tmp/html2lrf.lrf %s/demo.html'''%(HTML2LRF,))
+check_call('''scp /tmp/html2lrf.lrf castalia:%s/'''%(DOWNLOADS,))
+check_call('''python setup.py register sdist bdist_egg upload''')
+
+check_call('''ssh castalia rm -f %s/libprs500\*.exe'''%(DOWNLOADS,))
+check_call('''scp dist/%s castalia:%s/'''%(exe, DOWNLOADS))
+check_call('''ssh castalia chmod a+r %s/\*'''%(DOWNLOADS,))
+check_call('''ssh castalia /root/bin/update-installer-link %s'''%(exe,))
+
+check_call('''epydoc --config epydoc.conf''')
+check_call('''scp -r docs/html castalia:%s/'''%(DOCS,))
+check_call('''epydoc -v --config epydoc-pdf.conf''')
+check_call('''scp docs/pdf/api.pdf castalia:%s/'''%(DOCS,))
+
+check_call('''rm -rf dist/* build/*''')

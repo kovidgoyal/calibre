@@ -60,7 +60,7 @@ if sys.argv[1] == 'py2exe':
                 os.makedirs(dir)
             shutil.copy(file, dir)
     except ImportError:
-        print >>sys.stderr, 'Must be in Windows to run py2exe'
+        print >>sys.stderr, 'Failed to import py2exe'
         sys.exit(1)
     installer = \
 r'''

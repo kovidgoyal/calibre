@@ -8,5 +8,6 @@
 <path>/libprs500/devices</path>
 <path>/libprs500/libprs500.devices.prs500</path>
 <path>/libprs500/prs500</path>
+<path>/libprs500/gui2</path>
 </pydev_pathproperty>
 </pydev_project>
