@@ -1,6 +1,12 @@
 #!/usr/bin/python
 import sys, glob, os, subprocess
+from subprocess import check_call as _check_call
+from functools import partial
 from pyvix.vix import *
+
+check_call = partial(_check_call, shell=True)
+
+check_call("sudo python setup.py develop", shell=True)
 
 files = glob.glob('dist/*.exe')
 for file in files:
@@ -37,19 +43,7 @@ f.write(open(os.path.join(HTML2LRF, 'demo.html')).read())
 f.write('\n</pre>')
 f.close()
 
-def check_call(cmd):
-    try:
-        retcode = subprocess.call(cmd, shell=True)
-        if retcode < 0:
-            print >>sys.stderr, cmd, "was terminated by signal", -retcode
-        elif retcode > 0:
-            print >>sys.stderr, cmd, 'failed with retrun code:', retcode
-        if retcode != 0:
-            sys.exit(1)
-    except OSError, e:
-        print >>sys.stderr, "Execution of", cmd, "failed:", e
-        sys.exit(1)
-        
+       
 check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' --header --output=/tmp/html2lrf.lrf %s/demo.html'''%(HTML2LRF,))
 check_call('''scp /tmp/html2lrf.lrf castalia:%s/'''%(DOWNLOADS,))
 check_call('''python setup.py register sdist bdist_egg upload''')

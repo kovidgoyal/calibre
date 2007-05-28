@@ -12,27 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-"""
-This package provides an interface to the SONY Reader PRS-500 over USB.
-
-The public interface for device backends is defined in libprs500.device.
-  
-There is also a script L{prs500} that provides a command-line interface to 
-the SONY Reader. See the script
-for more usage examples. A GUI is available via the command prs500-gui.
-
-The packet structure used by the SONY Reader USB protocol is defined 
-in the module L{prstypes}. The communication logic
-is defined in the module L{communicate}.
-
-In order to use it as a non-root user on Linux, you should have 
-the following rule in C{/etc/udev/rules.d/90-local.rules} ::
-  BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", 
-  MODE="660", GROUP="plugdev"
-You may have to adjust the GROUP and the location of the rules file to 
-suit your distribution.
-"""
-
+''' E-book management software'''
 __version__   = "0.3.43"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
