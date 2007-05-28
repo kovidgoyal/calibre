@@ -83,6 +83,7 @@ Var MUI_TEMP
 !define XPUI_BRANDINGTEXT "${PRODUCT_NAME} created by Kovid Goyal"
 !define PRODUCT_VERSION "'''+VERSION+r'''"
 !define WEBSITE "https://libprs500.kovidgoyal.net"
+!define DEVCON  "C:\devcon\i386\devcon.exe"
 !define PY2EXE_DIR "C:\libprs500"
 !define LIBUSB_DIR "C:\libusb-prs500"
 !define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
@@ -162,17 +163,18 @@ Section "libprs500" Seclibprs500
   File "${LIBUSB_DIR}\*.sys"
   File "${LIBUSB_DIR}\*.cat"
   File "${LIBUSB_DIR}\*.inf"
+  File "${DEVCON}"
   
   SetOutPath "$SYSDIR"
   File "${LIBUSB_DIR}\libusb0.dll"
   File "${LIBUNRAR_DIR}\unrar.dll"
   DetailPrint " "
   
-  DetailPrint "Installing USB driver (this may take a few seconds) ..."
-  ExecWait '"rundll32" libusb0.dll,usb_install_driver_np_rundll "$INSTDIR\driver\prs500.inf"' $0
-  DetailPrint "rundll32 returned exit code $0"
+  DetailPrint "Installing USB driver for prs500..."
+  ExecWait '"$INSTDIR\driver\devcon.exe" install "$INSTDIR\driver\prs500.inf" "USB\VID_054C&PID_029B"' $0
+  DetailPrint "devcon returned exit code $0"
   IfErrors 0 +2
-           MessageBox MB_OK 'You may need to run the following at the console in order for the SONY Reader to be detected:\r\n"rundll32" libusb0.dll,usb_install_driver_np_rundll "$INSTDIR\driver\prs500.inf"'
+          MessageBox MB_OK "Failed to install USB driver. devcon exit code: $0"
   DetailPrint " "
   
   
