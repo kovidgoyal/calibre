@@ -224,7 +224,7 @@ class HTMLConverter(object):
                          lambda match: match.group(1)+"></a>"),
                          # Strip comments from <style> tags. This is needed as 
                          # sometimes there are unterminated comments
-                        (re.compile(r"<\s*style.*?>.*?(<\!--).*?<.\s*style\s*>", re.DOTALL|re.IGNORECASE),
+                        (re.compile(r"<\s*style.*?>(.*?)<\/\s*style\s*>", re.DOTALL|re.IGNORECASE),
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
                          ]
     # Fix Baen markup
