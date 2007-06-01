@@ -87,8 +87,7 @@ def convert_txt(path, options):
     book.append(pg)
     lines = ""
     try:
-        lines = codecs.open(path, 'rb', 'ascii').readlines()
-        print 'huh'
+        lines = codecs.open(path, 'rb', options.encoding).readlines()
     except UnicodeDecodeError:
             try:
                 lines = codecs.open(path, 'rb', 'cp1252').readlines()
@@ -96,7 +95,13 @@ def convert_txt(path, options):
                 try:
                     lines = codecs.open(path, 'rb', 'iso-8859-1').readlines()
                 except UnicodeDecodeError:
-                    lines = codecs.open(path, 'rb', 'utf8').readlines()
+                    try:
+                        lines = codecs.open(path, 'rb', 'koi8_r').readlines()
+                    except UnicodeDecodeError:
+                        try:
+                            lines = codecs.open(path, 'rb', 'koi8_u').readlines()
+                        except UnicodeDecodeError:
+                            lines = codecs.open(path, 'rb', 'utf8').readlines()
     for line in lines:
         line = line.strip()
         if line:
