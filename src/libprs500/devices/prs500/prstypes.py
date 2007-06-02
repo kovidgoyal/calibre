@@ -207,8 +207,11 @@ class stringfield(object):
         length = str(self._length_field.__get__(obj))
         return obj.unpack(start=self._start, fmt="<"+length+"s")[0]
     
-    def __set__(self, obj, val):        
-        val = str(val)
+    def __set__(self, obj, val):
+        if isinstance(val, unicode):
+            val = val.encode('utf8')
+        else:
+            val = str(val)
         obj.pack(val, start=self._start, fmt="<"+str(len(val))+"s")
     
     def __repr__(self):
@@ -480,6 +483,8 @@ class PathCommand(Command):
     path             = stringfield(path_length, start=20) #: The path this query is about
     def __init__(self, path, number, path_len_at_byte=16):    
         Command.__init__(self, path_len_at_byte+4+len(path))
+        if isinstance(path, unicode):
+            path = path.encode('utf8')
         self.path_length = len(path)
         self.path = path
         self.type = 0x01

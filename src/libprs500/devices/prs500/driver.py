@@ -428,7 +428,7 @@ class PRS500(Device):
                                            command_number=PathQuery.NUMBER)[0]
         if path.endswith('/') and path != '/': 
             path = path[:-1]
-        if res.path_not_found : 
+        if res.path_not_found :
             raise PathError(path + " does not exist on device")
         if res.is_invalid: 
             raise PathError(path + " is not a valid path")
