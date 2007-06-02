@@ -95,7 +95,8 @@ class TransferBuffer(list):
         """
         Return a string representation of this buffer.
         
-        Packets are represented as hex strings, in 2-byte pairs, S{<=} 16 bytes to a line. An ASCII representation is included. For example::
+        Packets are represented as hex strings, in 2-byte pairs, S{<=} 16 bytes to a line. 
+        An ASCII representation is included. For example::
         0700 0100 0000 0000 0000 0000 0c00 0000         ................
         0200 0000 0400 0000 4461 7461                   ........Data
         """

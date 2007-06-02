@@ -19,8 +19,26 @@ the L{libprs500.lrf.meta} module.
 __docformat__ = "epytext"
 __author__       = "Kovid Goyal <kovid@kovidgoyal.net>"
 
+from optparse import OptionParser
+from libprs500 import __version__ as VERSION
+
+def get_parser(extension):
+    ''' Return an option parser with the basic metadata options already setup'''
+    parser = OptionParser(version='libprs500 version: '+VERSION,
+                          usage='''%prog [options] myfile.'''+extension)
+    parser.add_option("-t", "--title", action="store", type="string", \
+                    dest="title", help="Set the book title")
+    parser.add_option("-a", "--authors", action="store", type="string", \
+                    dest="authors", help="Set the authors", default=None)
+    parser.add_option("-c", "--category", action="store", type="string", \
+                    dest="category", help="The category this book belongs"+\
+                    " to. E.g.: History", default=None)
+    parser.add_option('--comment', dest='comment', default=None, action='store',
+                      help='Set the comment')
+    return parser
 
 class MetaInformation(object):
+    '''Convenient encapsulation of book metadata'''
     
     def __init__(self, title, author):
         self.title = title

@@ -13,11 +13,11 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Read metadata from RTF files.
+Edit metadata in RTF files.
 """
-import re, cStringIO
+import re, cStringIO, sys
 
-from libprs500.ebooks.metadata import MetaInformation
+from libprs500.ebooks.metadata import MetaInformation, get_parser
 
 title_pat    = re.compile(r'\{\\info.*?\{\\title(.*?)(?<!\\)\}', re.DOTALL)
 author_pat   = re.compile(r'\{\\info.*?\{\\author(.*?)(?<!\\)\}', re.DOTALL)
@@ -27,7 +27,7 @@ category_pat = re.compile(r'\{\\info.*?\{\\category(.*?)(?<!\\)\}', re.DOTALL)
 def get_document_info(stream):
     """ 
     Extract the \info block from an RTF file.
-    Return the info block as a stringa and the position in the file at which it
+    Return the info block as a string and the position in the file at which it
     starts.
     @param stream: File like object pointing to the RTF file.
     """
@@ -81,7 +81,7 @@ def get_metadata(stream):
         author = author_match.group(1).strip()
     comment_match = comment_pat.search(block)
     if comment_match:
-        title = comment_match.group(1).strip()
+        comment = comment_match.group(1).strip()
     category_match = category_pat.search(block)
     if category_match:
         category = category_match.group(1).strip()
@@ -90,12 +90,67 @@ def get_metadata(stream):
     mi.category = category
     return mi
     
-def main():
-    import sys
-    if len(sys.argv) != 2:
-        print >> sys.stderr, "Usage:", sys.argv[0], " mybook.rtf"
+def set_metadata(stream, options):
+    '''
+    Modify/add RTF metadata in stream
+    @param options: Object with metadata attributes title, author, comment, category
+    '''
+    def add_metadata_item(src, name, val):
+        index = src.rindex('}')
+        return src[:index] + r'{\ '[:-1] + name + ' ' + val + '}}'
+    src, pos = get_document_info(stream)
+    olen = len(src)
+    base_pat = r'\{\\name(.*?)(?<!\\)\}'
+    title = options.title
+    if title != None:
+        title = title.encode('ascii', 'replace')
+        pat = re.compile(base_pat.replace('name', 'title'), re.DOTALL)        
+        if pat.search(src):
+            src = pat.sub(r'{\\title ' + title + r'}', src)
+        else:
+            src = add_metadata_item(src, 'title', title)
+    comment = options.comment
+    if comment != None:
+        comment = comment.encode('ascii', 'replace')
+        pat = re.compile(base_pat.replace('name', 'subject'), re.DOTALL)
+        if pat.search(src):
+            src = pat.sub(r'{\\subject ' + comment + r'}', src)
+        else:
+            src = add_metadata_item(src, 'subject', comment)
+    author = options.authors
+    if author != None:
+        author = author.encode('ascii', 'replace')
+        pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)        
+        if pat.search(src):
+            src = pat.sub(r'{\\author ' + author + r'}', src)
+        else:
+            src = add_metadata_item(src, 'author', author)
+    category = options.category
+    if category != None:
+        category = category.encode('ascii', 'replace')
+        pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)        
+        if pat.search(src):
+            src = pat.sub(r'{\\category ' + category + r'}', src)
+        else:
+            src = add_metadata_item(src, 'category', category)
+    stream.seek(pos + olen)
+    after = stream.read()
+    stream.seek(pos)
+    stream.truncate()
+    stream.write(src)
+    stream.write(after)
+    
+
+def main(args=sys.argv):
+    parser = get_parser('rtf')
+    options, args = parser.parse_args(args)
+    if len(args) != 2:
+        parser.print_help()
         sys.exit(1)
-    print get_metadata(open(sys.argv[1]))
+    stream = open(args[1], 'r+b')
+    set_metadata(stream, options)
+    mi = get_metadata(stream)
+    return mi
 
 if __name__ == '__main__':
     main()

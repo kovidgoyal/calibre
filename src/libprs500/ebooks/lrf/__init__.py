@@ -13,8 +13,8 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """ 
-This package contains logic to read and write LRF files. The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}. 
-At the time fo writing, this package only supports reading and writing LRF meat information. See L{meta}.
+This package contains logic to read and write LRF files. 
+The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}. 
 """
 
 from optparse import OptionParser, OptionValueError
@@ -53,8 +53,8 @@ def option_parser(usage):
                     dest="title", help="Set the title. Default: filename.")
     metadata.add_option("-a", "--author", action="store", type="string", \
                     dest="author", help="Set the author. Default: %default", default='Unknown')
-    metadata.add_option("--freetext", action="store", type="string", \
-                    dest="freetext", help="Set the comments.", default='  ')
+    metadata.add_option("--comment", action="store", type="string", \
+                    dest="freetext", help="Set the comment.", default='  ')
     metadata.add_option("--category", action="store", type="string", \
                     dest="category", help="Set the category", default='  ')    
     metadata.add_option('--title-sort', action='store', default='', dest='title_sort',
