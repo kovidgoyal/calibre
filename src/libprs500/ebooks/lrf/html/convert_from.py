@@ -233,8 +233,6 @@ class HTMLConverter(object):
                       (re.compile(r'page-break-before:\s*\w+([\s;\}])'), 
                        lambda match: match.group(1)) ] 
     
-    
-    
     class Link(object):
         def __init__(self, para, tag):
             self.para = para

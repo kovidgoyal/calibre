@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/" >
+        <file>images/addfile.png</file>
+        <file alias="default_cover" >images/cherubs.jpg</file>
+        <file>images/clear.png</file>
+        <file>images/delfile.png</file>
+        <file>images/edit.png</file>
+        <file>images/fileopen.png</file>
+        <file alias="library" >images/library.png</file>
+        <file alias="card" >images/memory_stick_unmount.png</file>
+        <file>images/minus.png</file>
+        <file>images/plus.png</file>
+        <file>images/upload.png</file>
+        <file alias="reader" >images/reader.png</file>
+    </qresource>
+</RCC>
