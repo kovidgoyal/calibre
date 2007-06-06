@@ -740,7 +740,10 @@ class HTMLConverter(object):
             self.scaled_images[path] = pt
             return pt.name
         
-        if not self.disable_autorotation and width > self.profile.page_width and width > height:
+        pheight = int(self.current_page.pageStyle.attrs['textheight'])
+        pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
+        
+        if not self.disable_autorotation and width > pwidth and width > height:
             pt = PersistentTemporaryFile(suffix='.jpeg')
             im = im.rotate(90)
             im.convert('RGB').save(pt, 'JPEG')
@@ -749,19 +752,20 @@ class HTMLConverter(object):
             self.rotated_images[path] = pt
             width, height = im.size
             
-        if height > self.profile.page_height:
-            corrf = self.profile.page_height/(1.*height)
-            width, height = floor(corrf*width), self.profile.page_height-1                        
-            if width > self.profile.page_width:
-                corrf = (self.profile.page_width)/(1.*width)
-                width, height = self.profile.page_width-1, floor(corrf*height)
+        
+        if height > pheight:
+            corrf = pheight/(1.*height)
+            width, height = floor(corrf*width), pheight-1                        
+            if width > pwidth:
+                corrf = (pwidth)/(1.*width)
+                width, height = pwidth-1, floor(corrf*height)
             path = scale_image(width, height)
-        if width > self.profile.page_width:
-            corrf = self.profile.page_width/(1.*width)
-            width, height = self.profile.page_width-1, floor(corrf*height)
-            if height > self.profile.page_height:
-                corrf = (self.profile.page_height)/(1.*height)
-                width, height = floor(corrf*width), self.profile.page_height-1                        
+        if width > pwidth:
+            corrf = pwidth/(1.*width)
+            width, height = pwidth-1, floor(corrf*height)
+            if height > pheight:
+                corrf = (pheight)/(1.*height)
+                width, height = floor(corrf*width), pheight-1                        
             path = scale_image(width, height)
         width, height = int(width), int(height)
                 
@@ -774,11 +778,10 @@ class HTMLConverter(object):
         
         self.process_alignment(tag_css)
         
-        if max(width, height) <= min(self.profile.page_width, 
-                                     self.profile.page_height)/5.:                    
+        if max(width, height) <= min(pwidth, pheight)/5.:                    
             self.current_para.append(Plot(im, xsize=ceil(width*factor), 
                                           ysize=ceil(height*factor)))
-        elif height <= int(floor((2/3.)*self.profile.page_height)): 
+        elif height <= int(floor((2/3.)*pheight)): 
             pb = self.current_block
             self.end_current_para()
             self.process_alignment(tag_css)                    
@@ -792,11 +795,14 @@ class HTMLConverter(object):
             self.current_para = Paragraph()
         else:
             self.end_page()
-            self.current_page.append(Canvas(width=self.profile.page_width,
+            self.current_page.append(Canvas(width=pwidth,
                                             height=height))
-            left = int(floor((self.profile.page_width - width)/2.))
-            self.current_page.contents[-1].put_object(ImageBlock(self.images[path]),
-                                                  left, 0)
+            left = int(floor((pwidth - width)/2.))
+            self.current_page.contents[-1].put_object(
+                            ImageBlock(self.images[path], xsize=pwidth,
+                                       ysize=pheight, x1=pwidth, y1=pheight,
+                                       blockwidth=pwidth, blockheight=pheight),
+                            left, 0)
     
     def parse_tag(self, tag, parent_css):
         try:
@@ -1039,7 +1045,7 @@ class HTMLConverter(object):
             self.end_current_para()            
             self.current_block.append(CR())
             self.end_current_block()
-            self.current_page.RuledLine(linelength=self.profile.page_width)
+            self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
         elif tagname == 'td': # Needed for nested tables
             self.current_para.append(" ")
             self.process_children(tag, tag_css)
@@ -1056,9 +1062,9 @@ class HTMLConverter(object):
         colpad = 10
         table = Table(self, tag, tag_css, rowpad=10, colpad=10)   
         canvases = []
-        for block, xpos, ypos, delta in table.blocks(self.profile.page_width):
+        for block, xpos, ypos, delta in table.blocks(int(self.current_page.pageStyle.attrs['textwidth'])):
             if not block:
-                canvases.append(Canvas(self.profile.page_width, ypos+colpad,
+                canvases.append(Canvas(int(self.current_page.pageStyle.attrs['textwidth']), ypos+colpad,
                         blockrule='block-fixed'))
             else:
                 canvases[-1].put_object(block, xpos + int(delta/2.), 0)
@@ -1133,7 +1139,7 @@ def process_file(path, options):
             header.append(Bold(options.title))
             header.append(' by ')
             header.append(Italic(options.author+"  "))
-        book = Book(header=header, **args)
+        book = Book(options, header=header, **args)
         le = re.compile(options.link_exclude) if options.link_exclude else \
              re.compile('$')
         pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else \

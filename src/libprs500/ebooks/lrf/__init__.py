@@ -29,10 +29,9 @@ __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 class PRS500_PROFILE(object):
     screen_width  = 600
-    screen_height = 800
-    page_width    = 575
-    page_height   = 747
+    screen_height = 775
     dpi           = 166
+    
     
 def profile_from_string(option, opt_str, value, parser):
     if value == 'prs500':
@@ -66,11 +65,21 @@ def option_parser(usage):
     profiles=['prs500']    
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')
-    parser.add_option('-p', '--profile', default=PRS500_PROFILE, dest='profile', type='choice',
+    page = parser.add_option_group('PAGE OPTIONS')
+    page.add_option('-p', '--profile', default=PRS500_PROFILE, dest='profile', type='choice',
                       choices=profiles, action='callback', callback=profile_from_string,
                       help='''Profile of the target device for which this LRF is '''
                       '''being generated. Default: ''' + profiles[0] + \
                       ''' Supported profiles: '''+', '.join(profiles))
+    page.add_option('--left-margin', default=20, dest='left_margin', type='int',
+                    help='''Left margin of page. Default is %default px.''')
+    page.add_option('--right-margin', default=5, dest='right_margin', type='int',
+                    help='''Right margin of page. Default is %default px.''')
+    page.add_option('--top-margin', default=10, dest='top_margin', type='int',
+                    help='''Top margin of page. Default is %default px.''')
+    page.add_option('--bottom-margin', default=10, dest='bottom_margin', type='int',
+                    help='''Bottom margin of page. Default is %default px.''')
+    
     debug = parser.add_option_group('DEBUG OPTIONS')
     debug.add_option('--verbose', dest='verbose', action='store_true', default=False,
                       help='''Be verbose while processing''')
@@ -78,9 +87,14 @@ def option_parser(usage):
                       help='Convert to LRS', default=False)
     return parser
 
-def Book(font_delta=0, header=None, profile=PRS500_PROFILE, **settings):
-    ps = dict(textwidth=profile.page_width, 
-              textheight=profile.page_height)
+def Book(options, font_delta=0, header=None, 
+         profile=PRS500_PROFILE, **settings):
+    ps = {}
+    ps['topmargin'] = options.top_margin
+    ps['evensidemargin'] = options.left_margin
+    ps['oddsidemargin'] = options.left_margin
+    ps['textwidth'] = profile.screen_width - (options.left_margin + options.right_margin)
+    ps['textheight'] = profile.screen_height - (options.top_margin + options.bottom_margin)
     if header:
         hdr = Header()
         hb = TextBlock(textStyle=TextStyle(align='foot', fontsize=60))
@@ -89,6 +103,8 @@ def Book(font_delta=0, header=None, profile=PRS500_PROFILE, **settings):
         ps['headheight'] = 30
         ps['header'] = hdr
         ps['topmargin'] = 10
+        if ps['textheight'] + ps['topmargin'] > profile.screen_height:
+            ps['textheight'] = profile.screen_height - ps['topmargin'] 
     baselineskip = (12 + 2*font_delta)*10
     return _Book(textstyledefault=dict(fontsize=100+font_delta*20, 
                                        parindent=80, linespace=12,

@@ -38,7 +38,7 @@ if sys.argv[1] == 'py2exe':
         windows = [{'script' : 'src/libprs500/gui/main.py', 'dest_base':'prs500-gui',
                     'icon_resources':[(1,'icons/library.ico')]}]
         excludes = ["Tkconstants", "Tkinter", "tcl", "_imagingtk", 
-                    "ImageTk", "FixTk"]
+                    "ImageTk", "FixTk", 'pydoc']
         options = { 'py2exe' : {'includes' : ['sip', 'pkg_resources'], 
                                 'dist_dir' : py2exe_dir,
                                 'packages' : ['PIL'],
@@ -87,7 +87,6 @@ Var MUI_TEMP
 !define PY2EXE_DIR "C:\libprs500"
 !define LIBUSB_DIR "C:\libusb-prs500"
 !define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
-!define QT_DIR     "C:\Qt\4.2.3\bin"
 
 ;------------------------------------------------------------------------------------------------------
 ;General
@@ -155,9 +154,7 @@ Section "libprs500" Seclibprs500
   
   ;ADD YOUR OWN FILES HERE...
   File /r "${PY2EXE_DIR}\*"
-  ; The next line can be commented out once py2exe starts including QtSvg.dll
-  File "${QT_DIR}\QtSvg4.dll"
-  
+    
   SetOutPath "$INSTDIR\driver"
   File "${LIBUSB_DIR}\*.dll"
   File "${LIBUSB_DIR}\*.sys"
