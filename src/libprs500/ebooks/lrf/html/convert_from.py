@@ -160,32 +160,6 @@ class Span(_Span):
                     t['fontweight'] = ans
                     if int(ans) > 140:                        
                         t['wordspace'] = '50'
-            elif key.startswith("margin"):
-                if key == "margin":
-                    u = []
-                    for x in val.split(" "):
-                        u.append(Span.unit_convert (x,200)*2)
-                    if len(u)==1:
-                        u = [u[0], u[0], u[0], u[0]]
-                    elif len(u)==2:
-                        u = [u[0], u[1], u[0], u[1]]
-                    elif len(u)==3:
-                        u = [u[0], u[1], u[2], u[1]]
-                elif key == "margin-top":
-                    u = [Span.unit_convert(val, 200)*2, None, None, None]
-                elif key == "margin-right":
-                    u = [None, Span.unit_convert(val, 200)*2, None, None]
-                elif key == "margin-bottom":
-                    u = [None, None, Span.unit_convert(val, 200)*2, None]
-                else:
-                    u = [None, None, None, Span.unit_convert(val, 200)*2]
-                if u[2] is not None:
-                    t["parskip"] = str(u[2])
-                    t["footskip"] = str(u[2])
-                if u[0] is not None:
-                    t["topskip"] = str(u[0])
-                if u[1] is not None:
-                    t["sidemargin"] = str(u[1])                
             else:
                 report = True
                 if memory != None:
