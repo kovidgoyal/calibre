@@ -1,0 +1,405 @@
+<ui version="4.0" >
+ <author>Kovid Goyal</author>
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>728</width>
+    <height>822</height>
+   </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle" >
+   <string/>
+  </property>
+  <property name="windowIcon" >
+   <iconset/>
+  </property>
+  <widget class="QWidget" name="centralwidget" >
+   <layout class="QVBoxLayout" >
+    <property name="spacing" >
+     <number>6</number>
+    </property>
+    <property name="leftMargin" >
+     <number>9</number>
+    </property>
+    <property name="topMargin" >
+     <number>9</number>
+    </property>
+    <property name="rightMargin" >
+     <number>9</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>9</number>
+    </property>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="DeviceView" name="device_tree" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize" >
+         <size>
+          <width>10000</width>
+          <height>90</height>
+         </size>
+        </property>
+        <property name="verticalScrollBarPolicy" >
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy" >
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="dragDropMode" >
+         <enum>QAbstractItemView::DragDrop</enum>
+        </property>
+        <property name="flow" >
+         <enum>QListView::TopToBottom</enum>
+        </property>
+        <property name="spacing" >
+         <number>20</number>
+        </property>
+        <property name="viewMode" >
+         <enum>QListView::IconMode</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="df" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize" >
+         <size>
+          <width>16777215</width>
+          <height>90</height>
+         </size>
+        </property>
+        <property name="text" >
+         <string>For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/GuiUsage">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b>: %1 by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>%2 %3 %4</string>
+        </property>
+        <property name="textFormat" >
+         <enum>Qt::RichText</enum>
+        </property>
+        <property name="openExternalLinks" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>&amp;Search:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>search</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="SearchBox" name="search" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
+        <property name="acceptDrops" >
+         <bool>false</bool>
+        </property>
+        <property name="toolTip" >
+         <string>Search the list of books by title or author&lt;br>&lt;br>Words separated by spaces are ANDed</string>
+        </property>
+        <property name="whatsThis" >
+         <string>Search the list of books by title, author, publisher, tags and comments&lt;br>&lt;br>Words separated by spaces are ANDed</string>
+        </property>
+        <property name="autoFillBackground" >
+         <bool>false</bool>
+        </property>
+        <property name="text" >
+         <string/>
+        </property>
+        <property name="frame" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="clear_button" >
+        <property name="toolTip" >
+         <string>Reset Quick Search</string>
+        </property>
+        <property name="text" >
+         <string>...</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="images.qrc" >:/images/clear.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QGridLayout" >
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <property name="horizontalSpacing" >
+       <number>6</number>
+      </property>
+      <property name="verticalSpacing" >
+       <number>6</number>
+      </property>
+      <item row="1" column="0" >
+       <widget class="BooksView" name="library_view" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+          <horstretch>0</horstretch>
+          <verstretch>10</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="acceptDrops" >
+         <bool>true</bool>
+        </property>
+        <property name="dragEnabled" >
+         <bool>true</bool>
+        </property>
+        <property name="dragDropOverwriteMode" >
+         <bool>false</bool>
+        </property>
+        <property name="dragDropMode" >
+         <enum>QAbstractItemView::DragDrop</enum>
+        </property>
+        <property name="alternatingRowColors" >
+         <bool>true</bool>
+        </property>
+        <property name="selectionBehavior" >
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <property name="showGrid" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" >
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="CoverDisplay" name="book_cover" >
+        <property name="maximumSize" >
+         <size>
+          <width>60</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="acceptDrops" >
+         <bool>true</bool>
+        </property>
+        <property name="pixmap" >
+         <pixmap/>
+        </property>
+        <property name="scaledContents" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="book_info" >
+        <property name="text" >
+         <string>&lt;table>&lt;tr>&lt;td>&lt;b>Title: &lt;/b>%1&lt;/td>&lt;td>&lt;b>&amp;nbsp;Size:&lt;/b> %2&lt;/td>&lt;/tr>&lt;tr>&lt;td>&lt;b>Author: &lt;/b>%3&lt;/td>&lt;td>&lt;b>&amp;nbsp;Type: &lt;/b>%4&lt;/td>&lt;/tr>&lt;/table></string>
+        </property>
+        <property name="textFormat" >
+         <enum>Qt::RichText</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="tool_bar" >
+   <property name="minimumSize" >
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="movable" >
+    <bool>false</bool>
+   </property>
+   <property name="orientation" >
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="iconSize" >
+    <size>
+     <width>64</width>
+     <height>64</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle" >
+    <enum>Qt::ToolButtonTextUnderIcon</enum>
+   </property>
+   <attribute name="toolBarArea" >
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak" >
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_add" />
+   <addaction name="action_del" />
+   <addaction name="action_edit" />
+  </widget>
+  <action name="action_add" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/addfile.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Add books to Library</string>
+   </property>
+   <property name="shortcut" >
+    <string>A</string>
+   </property>
+   <property name="autoRepeat" >
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_del" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/delfile.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Delete books</string>
+   </property>
+   <property name="shortcut" >
+    <string>Del</string>
+   </property>
+  </action>
+  <action name="action_edit" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/edit.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Edit meta-information</string>
+   </property>
+   <property name="shortcut" >
+    <string>E</string>
+   </property>
+   <property name="autoRepeat" >
+    <bool>false</bool>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CoverDisplay</class>
+   <extends>QLabel</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceView</class>
+   <extends>QListView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BooksView</class>
+   <extends>QTableView</extends>
+   <header>library.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SearchBox</class>
+   <extends>QLineEdit</extends>
+   <header>library.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="images.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>clear_button</sender>
+   <signal>clicked()</signal>
+   <receiver>search</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>853</x>
+     <y>61</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>784</x>
+     <y>58</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
