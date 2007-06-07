@@ -16,13 +16,14 @@ import os, tempfile, sys
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QEventLoop, QString, \
-                         QBuffer, QIODevice, QModelIndex
+                         QBuffer, QIODevice, QModelIndex, QThread
 from PyQt4.QtGui import QPixmap, QErrorMessage, QLineEdit, \
                         QMessageBox, QFileDialog, QIcon, QDialog, QInputDialog
 from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
 
 from libprs500.gui2 import APP_TITLE, installErrorHandler
 from libprs500.gui2.main_ui import Ui_MainWindow
+from libprs500.gui2.device import DeviceDetector
 
 class Main(QObject, Ui_MainWindow):
     
@@ -32,6 +33,11 @@ class Main(QObject, Ui_MainWindow):
         self.window = window
         self.setupUi(window)
         self.read_settings()
+        
+        ####################### Tabs setup #####################
+        self.tabs.setup()
+        self.tabs.animate()        
+        
         
         ####################### Setup books view ########################
         self.library_view.set_database(self.database_path)
@@ -45,11 +51,21 @@ class Main(QObject, Ui_MainWindow):
         self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
         
+        ####################### Setup device detection ########################
+        self.detector = DeviceDetector(sleep_time=2000)
+        QObject.connect(self.detector, SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), 
+                        self.device_connected, Qt.QueuedConnection)
+        self.detector.start(QThread.InheritPriority)
+        
+        
+        
+    def device_connected(self, cls, connected):
+        print cls, connected
+    
     def read_settings(self):
         settings = QSettings()
         settings.beginGroup("MainWindow")
-        self.window.resize(settings.value("size", QVariant(QSize(1000, 700))).\
-                            toSize())
+        self.window.resize(settings.value("size", QVariant(QSize(1000, 700))).toSize())
         settings.endGroup()
         self.database_path = settings.value("database path", QVariant(os.path\
                                     .expanduser("~/library1.db"))).toString()

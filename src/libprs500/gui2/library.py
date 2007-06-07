@@ -30,9 +30,8 @@ class LibraryDelegate(QItemDelegate):
     SIZE     = 16
     PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
     
-    def __init__(self, parent, rating_column=-1):
+    def __init__(self, parent):
         QItemDelegate.__init__(self, parent)
-        self.rating_column = rating_column
         self.star_path = QPainterPath()
         self.star_path.moveTo(90, 50)
         for i in range(1, 5):
@@ -47,14 +46,10 @@ class LibraryDelegate(QItemDelegate):
         self.factor = self.SIZE/100.        
 
     def sizeHint(self, option, index):
-        if index.column() != self.rating_column:
-            return QItemDelegate.sizeHint(self, option, index)
         num = index.model().data(index, Qt.DisplayRole).toInt()[0]
         return QSize(num*(self.SIZE), self.SIZE+4)
     
     def paint(self, painter, option, index):
-        if index.column() != self.rating_column:
-            return QItemDelegate.paint(self, painter, option, index)
         num = index.model().data(index, Qt.DisplayRole).toInt()[0]
         def draw_star(): 
             painter.save()
@@ -113,7 +108,7 @@ class BooksView(QTableView):
         self.setModel(self.model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
-        self.setItemDelegate(LibraryDelegate(self, rating_column=4))
+        self.setItemDelegateForColumn(4, LibraryDelegate(self))        
         QObject.connect(self.model, SIGNAL('sorted()'), self.resizeRowsToContents)
         QObject.connect(self.model, SIGNAL('searched()'), self.resizeRowsToContents)
         self.verticalHeader().setVisible(False)
