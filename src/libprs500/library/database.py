@@ -38,7 +38,7 @@ class Concatenate(object):
 
 def _connect(path):
     conn =  sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
-    conn.row_factory = sqlite.Row
+    conn.row_factory = lambda cursor, row : list(row)
     conn.create_aggregate('concat', 1, Concatenate)
     title_pat = re.compile('^(A|The|An\s+)', re.IGNORECASE)
     def title_sort(title):
@@ -644,6 +644,7 @@ class LibraryDatabase(object):
         id = self.data[row][0]
         cols = {'title' : 1, 'authors': 2, 'publisher': 3, 'rating':4}
         col = cols[column]
+        
         self.data[row][col] = val
         for item in self.cache:
             if item[0] == id:
@@ -658,19 +659,18 @@ class LibraryDatabase(object):
             self.set_publisher(id, val)
         elif column == 'rating':
             self.set_rating(id, val)
-        print row, col, val
         
     def set_authors(self, id, authors):
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
         for a in authors:
             if not a:
                 continue
-            author = conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
+            author = self.conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
             if author:
                 aid = author[0]
             else:
-                aid = conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
-            conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
+                aid = self.conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
+            self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
         self.conn.commit()
         
     def set_title(self, id, title):
@@ -683,20 +683,21 @@ class LibraryDatabase(object):
         if not publisher:
             return
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
-        pub = conn.execute('SELECT id from publishers WHERE name=?', (publisher,)).fetchone()
+        pub = self.conn.execute('SELECT id from publishers WHERE name=?', (publisher,)).fetchone()
         if pub:
             aid = pub[0]
         else:
-            pub = conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
-        conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
+            aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
+        self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
         self.conn.commit()
     
     def set_rating(self, id, rating):
         rating = int(rating)
         self.conn.execute('DELETE FROM books_ratings_link WHERE book=?',(id,))
-        rat = conn.execute('SELECT id FROM ratings WHERE rating=?', (rating,)).fetchone()
-        rat = rat[0] if rat else conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
-        conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
+        rat = self.conn.execute('SELECT id FROM ratings WHERE rating=?', (rating,)).fetchone()
+        rat = rat[0] if rat else self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
+        self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
+        self.conn.commit()
             
 if __name__ == '__main__':    
     from IPython.Shell import IPShellEmbed
