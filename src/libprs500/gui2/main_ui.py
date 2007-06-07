@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Wed Jun  6 19:26:17 2007
-#      by: PyQt4 UI code generator 4-snapshot-20070530
+# Created: Thu Jun  7 08:58:03 2007
+#      by: PyQt4 UI code generator 4-snapshot-20070606
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -29,11 +29,8 @@ class Ui_MainWindow(object):
 
         self.hboxlayout = QtGui.QHBoxLayout()
         self.hboxlayout.setSpacing(6)
-
-
-
-
-
+        self.hboxlayout.setMargin(0)
+        self.hboxlayout.setObjectName("hboxlayout")
 
         self.device_tree = DeviceView(self.centralwidget)
 
@@ -68,10 +65,7 @@ class Ui_MainWindow(object):
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
         self.hboxlayout1.setSpacing(6)
-
-
-
-
+        self.hboxlayout1.setMargin(0)
         self.hboxlayout1.setObjectName("hboxlayout1")
 
         self.label = QtGui.QLabel(self.centralwidget)
@@ -172,10 +166,7 @@ class Ui_MainWindow(object):
 
         self.hboxlayout2 = QtGui.QHBoxLayout()
         self.hboxlayout2.setSpacing(6)
-
-
-
-
+        self.hboxlayout2.setMargin(0)
         self.hboxlayout2.setObjectName("hboxlayout2")
 
         self.book_cover = CoverDisplay(self.centralwidget)

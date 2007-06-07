@@ -20,12 +20,12 @@ from PyQt4.QtSvg import QSvgRenderer
 class RotatingIconEngine(QIconEngine):
     
     @staticmethod
-    def create_pixmaps(path, size=16, delta=10):
+    def create_pixmaps(path, size=16, delta=20):
         r = QSvgRenderer(path)
         if not r.isValid():
             raise Exception(path + ' not valid svg')
         pixmaps = []
-        for angle in range(0, 360, 10):
+        for angle in range(0, 360, delta):
             pm = QPixmap(size, size)
             pm.fill(QColor(0,0,0,0))
             p = QPainter(pm)
