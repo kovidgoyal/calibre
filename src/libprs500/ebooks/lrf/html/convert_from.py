@@ -614,11 +614,13 @@ class HTMLConverter(object):
             page = self.book.create_page(evensidemargin=0, oddsidemargin=0, 
                                          topmargin=0, textwidth=self.profile.screen_width,
                                          headheight=0, headsep=0, footspace=0,
-                                         footheight=0,
+                                         footheight=0, 
                                          textheight=self.profile.screen_height)
             if not self.images.has_key(path):
                 self.images[path] = ImageStream(path)
-            ib = ImageBlock(self.images[path])
+            ib = ImageBlock(self.images[path], x1=self.profile.screen_width,
+                            y1=self.profile.screen_height, blockwidth=self.profile.screen_width,
+                            blockheight=self.profile.screen_height)
             page.append(ib)
             self.book.append(page)
     

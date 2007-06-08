@@ -29,8 +29,10 @@ __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 
 class PRS500_PROFILE(object):
     screen_width  = 600
-    screen_height = 775
+    screen_height = 765
     dpi           = 166
+    # Number of pixels to subtract from screen_height when calculating height of text area
+    fudge         = 18
     
     
 def profile_from_string(option, opt_str, value, parser):
@@ -77,7 +79,7 @@ def option_parser(usage):
                     help='''Right margin of page. Default is %default px.''')
     page.add_option('--top-margin', default=10, dest='top_margin', type='int',
                     help='''Top margin of page. Default is %default px.''')
-    page.add_option('--bottom-margin', default=10, dest='bottom_margin', type='int',
+    page.add_option('--bottom-margin', default=0, dest='bottom_margin', type='int',
                     help='''Bottom margin of page. Default is %default px.''')
     
     debug = parser.add_option_group('DEBUG OPTIONS')
@@ -94,7 +96,7 @@ def Book(options, font_delta=0, header=None,
     ps['evensidemargin'] = options.left_margin
     ps['oddsidemargin'] = options.left_margin
     ps['textwidth'] = profile.screen_width - (options.left_margin + options.right_margin)
-    ps['textheight'] = profile.screen_height - (options.top_margin + options.bottom_margin)
+    ps['textheight'] = profile.screen_height - (options.top_margin + options.bottom_margin) - profile.fudge
     if header:
         hdr = Header()
         hb = TextBlock(textStyle=TextStyle(align='foot', fontsize=60))
@@ -103,8 +105,7 @@ def Book(options, font_delta=0, header=None,
         ps['headheight'] = 30
         ps['header'] = hdr
         ps['topmargin'] = 10
-        if ps['textheight'] + ps['topmargin'] > profile.screen_height:
-            ps['textheight'] = profile.screen_height - ps['topmargin'] 
+        ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin']) - profile.fudge
     baselineskip = (12 + 2*font_delta)*10
     return _Book(textstyledefault=dict(fontsize=100+font_delta*20, 
                                        parindent=80, linespace=12,
