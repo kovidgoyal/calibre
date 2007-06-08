@@ -16,6 +16,7 @@
 __version__   = "0.3.47"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
+__appname__   = 'libprs500'
 
 import sys
 iswindows = 'win32' in sys.platform.lower()
