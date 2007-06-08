@@ -124,7 +124,7 @@ class Span(_Span):
                 elif "large" in val >= 0:
                     ans = 120
             if ans is not None: 
-                ans += font_delta * 20
+                ans += int(font_delta * 20)
                 ans = str(ans)
             return ans
         
@@ -1222,9 +1222,9 @@ def parse_options(argv=None, cli=True):
     laf = parser.add_option_group('LOOK AND FEEL')
     laf.add_option('--cover', action='store', dest='cover', default=None, \
                       help='Path to file containing image to be used as cover')
-    laf.add_option('--font-delta', action='store', type='int', default=0, \
+    laf.add_option('--font-delta', action='store', type='float', default=0., \
                       help="""Increase the font size by 2 * FONT_DELTA pts and """
-                      '''the line spacing by FONT_DELTA pts. '''
+                      '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
                       """If FONT_DELTA is negative, the font size is decreased.""",
                       dest='font_delta')
     laf.add_option('--disable-autorotation', action='store_true', default=False, 
@@ -1266,7 +1266,7 @@ def parse_options(argv=None, cli=True):
             parser.print_help()
         raise ConversionError, 'no filename specified'
     if options.output:
-        options.output = os.path.abspath(os.path.expanduser(options.output))
+        options.output = os.path.abspath(os.path.expanduser(options.output))    
     return options, args, parser
 
 

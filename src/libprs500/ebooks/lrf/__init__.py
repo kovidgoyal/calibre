@@ -106,8 +106,8 @@ def Book(options, font_delta=0, header=None,
         ps['header'] = hdr
         ps['topmargin'] = 10
         ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin']) - profile.fudge
-    baselineskip = (12 + 2*font_delta)*10
-    return _Book(textstyledefault=dict(fontsize=100+font_delta*20, 
+    baselineskip = 120 + int(20*font_delta)
+    return _Book(textstyledefault=dict(fontsize=100+int(font_delta*20), 
                                        parindent=80, linespace=12,
                                        baselineskip=baselineskip), \
                  pagestyledefault=ps, **settings)

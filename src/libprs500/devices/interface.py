@@ -44,6 +44,11 @@ class Device(object):
         """
         raise NotImplementedError()
     
+    @classmethod
+    def is_connected(cls):
+        '''Return True iff the device is physically connected to the computer'''
+        raise NotImplementedError()
+    
     def get_device_information(self, end_session=True):
         """ 
         Ask device for device information. See L{DeviceInfoQuery}. 

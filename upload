@@ -43,15 +43,15 @@ f.write(open(os.path.join(HTML2LRF, 'demo.html')).read())
 f.write('\n</pre>')
 f.close()
 
-       
+      
 check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' --header --output=/tmp/html2lrf.lrf %s/demo.html'''%(HTML2LRF,))
 check_call('''scp /tmp/html2lrf.lrf castalia:%s/'''%(DOWNLOADS,))
-check_call('''python setup.py register sdist bdist_egg upload''')
 
 check_call('''ssh castalia rm -f %s/libprs500\*.exe'''%(DOWNLOADS,))
 check_call('''scp dist/%s castalia:%s/'''%(exe, DOWNLOADS))
 check_call('''ssh castalia chmod a+r %s/\*'''%(DOWNLOADS,))
 check_call('''ssh castalia /root/bin/update-installer-link %s'''%(exe,))
+check_call('''python setup.py register sdist bdist_egg upload''')
 
 check_call('''epydoc --config epydoc.conf''')
 check_call('''scp -r docs/html castalia:%s/'''%(DOCS,))
