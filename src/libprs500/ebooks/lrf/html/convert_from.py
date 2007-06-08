@@ -51,12 +51,12 @@ class Span(_Span):
     
     
     @staticmethod
-    def unit_convert(val, ref=80):
+    def unit_convert(val, dpi, ref=80):
         """
-        Tries to convert html units stored in C{val} to pixels. C{ref} contains
-        the reference value for relative units. Returns the number of pixels
-        (an int) if successful. Otherwise, returns None.
-        Assumes: 1 pixel is 1/4 mm. One em is 10pts
+        Tries to convert html units stored in C{val} to pixels. 
+        @param ref: reference size in pixels for % units.
+        @return: The number of pixels (an int) if successful. Otherwise, returns None.
+        Assumes: One em is 10pts
         """
         result = None
         m = re.match("\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
@@ -67,21 +67,21 @@ class Span(_Span):
             elif m.group(2) == 'px':
                 result =  int(unit)
             elif m.group(2) == 'in':
-                result =  int(unit * 25.4 * 4)
+                result =  int(unit * dpi)
             elif m.group(2) == 'pt':
-                result = int(unit * 25.4 * 4 / 72)
+                result = int(unit * dpi/72.)
             elif m.group(2)== 'em':
-                result = int(unit * 25.4 * 4 / 72 * 10)
+                result = int(unit * (dpi/72.) * 10)
             elif m.group(2)== 'pc':
-                result =  int(unit * 25.4 * 4 / 72 * 12)
+                result =  int(unit * (dpi/72.) * 12)
             elif m.group(2)== 'mm':
-                result =  int(unit * 4)
+                result =  int(unit * 0.04 * (dpi/72.))
             elif m.group(2)== 'cm':
-                result =  int(unit * 10 * 4)                    
+                result =  int(unit * 0.4 * (dpi/72.))
         return result
     
     @staticmethod
-    def translate_attrs(d, font_delta=0, memory=None):
+    def translate_attrs(d, dpi, font_delta=0, memory=None):
         """
         Receives a dictionary of html attributes and styles and returns
         approximate Xylog equivalents in a new dictionary
@@ -106,10 +106,10 @@ class Span(_Span):
         
         def font_size(val):
             ans = None
-            unit = Span.unit_convert(val, 14)
+            unit = Span.unit_convert(val, dpi, 14)
             if unit:
                 # Assume a 10 pt font (14 pixels) has fontsize 100
-                ans = int (unit / 14.0 * 100)
+                ans = int(unit * (72./dpi) * 10)
             else:
                 if "xx-small" in val:
                     ans = 40
@@ -171,7 +171,7 @@ class Span(_Span):
                     print >>sys.stderr, 'Unhandled/malformed CSS key:', key, d[key]
         return t        
     
-    def __init__(self, ns, css, memory, font_delta=0):
+    def __init__(self, ns, css, memory, dpi, font_delta=0):
         src = ns.string if hasattr(ns, 'string') else ns
         src = re.sub(r'\s{2,}', ' ', src)  # Remove multiple spaces
         for pat, repl in Span.rules:
@@ -182,7 +182,7 @@ class Span(_Span):
             fs = css.pop('font-style')
             if fs.lower() == 'italic':
                 src = Italic(src)
-        attrs = Span.translate_attrs(css, font_delta=font_delta, memory=memory)
+        attrs = Span.translate_attrs(css, dpi, font_delta=font_delta, memory=memory)
         if 'fontsize' in attrs.keys():
             attrs['baselineskip'] = int(attrs['fontsize']) + 20
         _Span.__init__(self, text=src, **attrs)
@@ -685,7 +685,7 @@ class HTMLConverter(object):
             self.process_alignment(css)
             try:
                 self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
-                                              font_delta=self.font_delta))
+                                              self.profile.dpi, font_delta=self.font_delta))
             except ConversionError, err:
                 if self.verbose:
                     print >>sys.stderr, err
@@ -941,7 +941,7 @@ class HTMLConverter(object):
         elif tagname == 'pre':
             self.end_current_para()
             self.current_block.append_to(self.current_page)
-            attrs = Span.translate_attrs(tag_css, self.font_delta, self.memory)
+            attrs = Span.translate_attrs(tag_css, self.profile.dpi, self.font_delta, self.memory)
             ts = self.book.create_text_style(**self.unindented_style.attrs)
             ts.attrs.update(attrs)
             self.current_block = self.book.create_text_block(
@@ -951,7 +951,7 @@ class HTMLConverter(object):
             lines = src.split('\n')
             for line in lines:
                 try:
-                    self.current_para.append(Span(line, tag_css, self.memory))
+                    self.current_para.append(Span(line, tag_css, self.memory, self.profile.dpi))
                     self.current_para.CR()
                 except ConversionError:
                     pass
@@ -1015,7 +1015,7 @@ class HTMLConverter(object):
             self.end_current_para()
             self.lstrip_toggle = True            
             if tag_css.has_key('text-indent'):
-                indent = Span.unit_convert(tag_css['text-indent'])
+                indent = Span.unit_convert(tag_css['text-indent'], self.profile.dpi)
                 if not indent:
                     indent=0
             else:
