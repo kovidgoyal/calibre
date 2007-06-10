@@ -49,7 +49,7 @@ class Book(object):
     """ Provides a view onto the XML element that represents a book """
     title        = book_metadata_field("title")
     author       = book_metadata_field("author", \
-                            formatter=lambda x: x if x.strip() else "Unknown")
+                            formatter=lambda x: x if x and x.strip() else "Unknown")
     mime         = book_metadata_field("mime")
     rpath        = book_metadata_field("path")
     id           = book_metadata_field("id", formatter=int)
@@ -142,6 +142,7 @@ class BookList(list):
                 self.root = self.root.getElementsByTagName("records")[0]
             for book in self.document.getElementsByTagName(self.prefix + "text"): 
                 self.append(Book(book, root=root, prefix=prefix))
+                
     
     def max_id(self):
         """ Highest id in underlying XML file """
@@ -183,10 +184,13 @@ class BookList(list):
         mime = MIME_MAP[name[name.rfind(".")+1:]]
         cid = self.max_id()+1
         sourceid = str(self[0].sourceid) if len(self) else "1"
-        attrs = { "title":info["title"], "author":info["authors"], \
-                      "page":"0", "part":"0", "scale":"0", \
-                      "sourceid":sourceid,  "id":str(cid), "date":"", \
-                      "mime":mime, "path":name, "size":str(size)} 
+        attrs = {
+                 "title":info["title"], 
+                 "author":info["authors"] if info['authors'] else 'Unknown', \
+                 "page":"0", "part":"0", "scale":"0", \
+                 "sourceid":sourceid,  "id":str(cid), "date":"", \
+                 "mime":mime, "path":name, "size":str(size)
+                 } 
         for attr in attrs.keys():
             node.setAttributeNode(self.document.createAttribute(attr))
             node.setAttribute(attr, attrs[attr])        
