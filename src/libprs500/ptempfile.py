@@ -42,8 +42,9 @@ class _TemporaryFileWrapper(object):
         return a
         
     def __del__(self):
-        if os.access(self.name, os.F_OK): 
-            os.unlink(self.name)
+        import os # Needs to be here as the main os may no longer exist
+        if self.name and os.access(self.name, os.F_OK): 
+            os.remove(self.name)
     
     
 def PersistentTemporaryFile(suffix="", prefix=""):
