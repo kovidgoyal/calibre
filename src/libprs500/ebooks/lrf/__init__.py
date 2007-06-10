@@ -33,6 +33,11 @@ class PRS500_PROFILE(object):
     dpi           = 166
     # Number of pixels to subtract from screen_height when calculating height of text area
     fudge         = 18
+    font_size  = 10  #: Default (in pt)
+    parindent  = 80  #: Default (in px)
+    line_space = 1.2 #: Default (in pt)
+    header_size = 6  #: In pt
+    
     
     
 def profile_from_string(option, opt_str, value, parser):
@@ -99,15 +104,18 @@ def Book(options, font_delta=0, header=None,
     ps['textheight'] = profile.screen_height - (options.top_margin + options.bottom_margin) - profile.fudge
     if header:
         hdr = Header()
-        hb = TextBlock(textStyle=TextStyle(align='foot', fontsize=60))
+        hb = TextBlock(textStyle=TextStyle(align='foot', 
+                                           fontsize=int(profile.header_size*10)))
         hb.append(header)
         hdr.PutObj(hb)
         ps['headheight'] = 30
         ps['header'] = hdr
         ps['topmargin'] = 10
         ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin']) - profile.fudge
-    baselineskip = 120 + int(20*font_delta)
-    return _Book(textstyledefault=dict(fontsize=100+int(font_delta*20), 
-                                       parindent=80, linespace=12,
+    fontsize = int(10*profile.font_size+font_delta*20)
+    baselineskip = fontsize + 20
+    return _Book(textstyledefault=dict(fontsize=fontsize, 
+                                       parindent=int(profile.parindent), 
+                                       linespace=int(10*profile.line_space),
                                        baselineskip=baselineskip), \
                  pagestyledefault=ps, **settings)
