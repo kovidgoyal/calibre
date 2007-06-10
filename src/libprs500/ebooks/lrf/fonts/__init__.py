@@ -12,7 +12,11 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import pkg_resources, sys, os
+from libprs500.ebooks.lrf.fonts.prs500 import tt0419m_
+from libprs500.ebooks.lrf.fonts.prs500 import tt0011m_
+import sys, os
+from libprs500 import iswindows
+from libprs500.ptempfile import PersistentTemporaryFile
 
 try:
     from PIL import ImageFont
@@ -22,19 +26,23 @@ except ImportError:
 '''
 Default fonts used in the PRS500
 '''
+from libprs500.ebooks.lrf.fonts.prs500 import tt0003m_, tt0011m_, tt0419m_
+
 FONT_MAP = {
-            'Swis721 BT Roman'     : 'prs500/tt0003m_.ttf',
-            'Dutch801 Rm BT Roman' : 'prs500/tt0011m_.ttf',
-            'Courier10 BT Roman'   : 'prs500/tt0419m_.ttf'
+            'Swis721 BT Roman'     : tt0003m_,
+            'Dutch801 Rm BT Roman' : tt0011m_,
+            'Courier10 BT Roman'   : tt0419m_,
             }
+FONT_FILE_MAP = {}
 
 def get_font_path(name):
-    name = name.replace('/', os.path.sep)
-    if hasattr(sys, 'frozen'):
-        src = os.path.dirname(sys.executable)+os.path.sep+'fonts'+os.path.sep+name
-    else:
-        src = pkg_resources.resource_filename('libprs500.ebooks.lrf.fonts', name)
-    return src
+    if FONT_FILE_MAP.has_key(name) and os.access(FONT_FILE_MAP[name].name, os.R_OK):
+        return FONT_FILE_MAP[name].name
+    p = PersistentTemporaryFile('.ttf', 'font_')
+    p.write(FONT_MAP[name].font_data)
+    p.close()
+    FONT_FILE_MAP[name] = p
+    return p.name
     
 
 def get_font(name, size, encoding='unic'):
@@ -46,6 +54,6 @@ def get_font(name, size, encoding='unic'):
     @param manager: A dict that will store the PersistentTemporary
     '''
     if name in FONT_MAP.keys():
-        path = get_font_path(FONT_MAP[name])
+        path = get_font_path(name)
         return ImageFont.truetype(path, size, encoding=encoding)
         
