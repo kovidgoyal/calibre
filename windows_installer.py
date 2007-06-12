@@ -1,6 +1,20 @@
+##    Copyright (C) 2006 Kovid Goyal kovid@kovidgoyal.net
+##    This program is free software; you can redistribute it and/or modify
+##    it under the terms of the GNU General Public License as published by
+##    the Free Software Foundation; either version 2 of the License, or
+##    (at your option) any later version.
+##
+##    This program is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU General Public License for more details.
+##
+##    You should have received a copy of the GNU General Public License along
+##    with this program; if not, write to the Free Software Foundation, Inc.,
+##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''' Create a windows installer '''
 import sys, re, os, shutil, subprocess
-sys.path.append('src')
+from setup import VERSION, APPNAME, entry_points, scripts, basenames
 sys.argv[1:2] = ['py2exe']
 if '--verbose' not in ' '.join(sys.argv):
     sys.argv.append('--quiet') #py2exe produces too much output by default
@@ -210,7 +224,7 @@ SectionEnd
             os.remove(path)
 
 
-class BuildInstaller(build_exe):
+class BuildEXE(build_exe):
     manifest_resource_id = 0    
     MANIFEST_TEMPLATE = '''
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -249,20 +263,7 @@ class BuildInstaller(build_exe):
             print 'Adding', qtxmldll
             shutil.copyfile(qtxmldll, 
                             os.path.join(self.dist_dir, os.path.basename(qtxmldll)))
-        print 'Copying fonts'
-        dest_dir = os.path.join(self.dist_dir, 'fonts')
-        if os.path.exists(dest_dir):
-            shutil.rmtree(dest_dir, True)
         
-        fl = FileList()        
-        fl.include_pattern('^src.*\.ttf$', is_regex=True)
-        fl.findall()        
-        for file in fl.files:
-            dir = os.path.join(dest_dir, os.path.basename(os.path.dirname(file)))
-            if not os.path.exists(dir):
-                os.makedirs(dir)
-            print file
-            shutil.copy(file, dir)
         print
         print 'Building Installer'
         installer = NSISInstaller(APPNAME, self.dist_dir, 'dist')
@@ -274,20 +275,17 @@ class BuildInstaller(build_exe):
         return (24, cls.manifest_resource_id, 
                 cls.MANIFEST_TEMPLATE % dict(prog=prog, version=VERSION+'.0'))
 
+console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i]) 
+           for i in range(len(scripts['console']))]
+
 setup(
-      cmdclass = {'py2exe': BuildInstaller},
-      windows = [{'script'          : 'src/libprs500/gui/main.py', 
+      cmdclass = {'py2exe': BuildEXE},
+      windows = [{'script'          : scripts['gui'][0], 
                   'dest_base'       : APPNAME,
                   'icon_resources'  : [(1, 'icons/library.ico')],
-                  'other_resources' : [BuildInstaller.manifest(APPNAME)],
+                  'other_resources' : [BuildEXE.manifest(APPNAME)],
                   },],
-      console = [
-                    {'script' : 'src/libprs500/devices/prs500/cli/main.py', 'dest_base':'prs500'},
-                    {'script' : 'src/libprs500/ebooks/lrf/html/convert_from.py', 'dest_base':'html2lrf'},
-                    {'script' : 'src/libprs500/ebooks/lrf/txt/convert_from.py', 'dest_base':'txt2lrf'},
-                    {'script' : 'src/libprs500/ebooks/lrf/meta.py', 'dest_base':'lrf-meta'},
-                    {'script' : 'src/libprs500/ebooks/metadata/rtf.py', 'dest_base':'rtf-meta'},
-                  ],
+      console = console,
       options = { 'py2exe' : {'compressed': 1,
                               'optimize'  : 2,
                               'dist_dir'  : r'build\py2exe',
@@ -300,4 +298,3 @@ setup(
                 },
       
       )
-

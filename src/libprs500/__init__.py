@@ -13,14 +13,24 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''' E-book management software'''
-__version__   = "0.3.48"
+__version__   = "0.3.49"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys
+import sys, os
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
+
+def load_library(name, cdll):
+    if iswindows:
+        return cdll.LoadLibrary(name)
+    if isosx:
+        name += '.dylib'
+        if hasattr(sys, 'frameworks_dir'):
+            return cdll.LoadLibrary(os.path.join(sys.frameworks_dir, name))
+        return cdll.LoadLibrary(name)
+    return cdll.LoadLibrary(name+'.so')
 
 def filename_to_utf8(name):
     '''Return C{name} encoded in utf8. Unhandled characters are replaced. '''

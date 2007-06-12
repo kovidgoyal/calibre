@@ -20,20 +20,16 @@ from ctypes import cdll, POINTER, byref, pointer, Structure, \
                    c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte, c_uint
 from errno import EBUSY, ENOMEM
 
-from libprs500 import iswindows, isosx
+from libprs500 import iswindows, isosx, load_library
 
-_libusb_name = 'libusb.so'
-PATH_MAX = 4096 
+_libusb_name = 'libusb'
+PATH_MAX = 511 if iswindows else 1024 if isosx else 4096
 if iswindows:
-    PATH_MAX = 511
     Structure._pack_ = 1
     _libusb_name = 'libusb0'
-if isosx:
-    PATH_MAX = 1024
-    _libusb_name = 'libusb.dylib'
 
 try:
-    _libusb = cdll.LoadLibrary(_libusb_name)
+    _libusb = load_library(_libusb_name, cdll)
 except OSError:
     if iswindows or isosx:
         raise

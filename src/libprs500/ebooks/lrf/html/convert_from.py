@@ -1090,15 +1090,7 @@ def process_file(path, options):
     try:
         dirpath, path = get_path(path)
         cpath, tpath = '', '' 
-        isbn = try_opf(path, options)
-        if not options.cover and isbn:
-            for item in isbn:
-                matches = glob.glob(re.sub('-', '', item[1])+'.*')
-                for match in matches:
-                    if match.lower().endswith('.jpeg') or match.lower().endswith('.jpg') or \
-                    match.lower().endswith('.gif') or match.lower().endswith('.png'):
-                        options.cover = match
-                        break
+        try_opf(path, options)
         if options.cover:
             options.cover = os.path.abspath(os.path.expanduser(options.cover))
             cpath = options.cover
@@ -1204,7 +1196,23 @@ def try_opf(path, options):
             if not scheme:
                 scheme = item.get('opf:scheme')
             isbn.append((scheme, item.string))
-        return isbn
+            if not options.cover:
+                for item in isbn:
+                    matches = glob.glob(re.sub('-', '', item[1])+'.*')
+                    for match in matches:
+                        if match.lower().endswith('.jpeg') or match.lower().endswith('.jpg') or \
+                        match.lower().endswith('.gif') or match.lower().endswith('.png'):
+                            options.cover = match
+        if not options.cover:
+            ref = soup.package.find('reference', {'type':'other.ms-coverimage-standard'})
+            if ref:
+                try:
+                    options.cover = ref.get('href')
+                    if not os.access(options.cover, os.R_OK):
+                        options.cover = None
+                except:
+                    if options.verbose:
+                        traceback.print_exc()
     except Exception, err:
         if options.verbose:
             print >>sys.stderr, 'Failed to process opf file', err

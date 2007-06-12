@@ -185,8 +185,8 @@ class BookList(list):
         cid = self.max_id()+1
         sourceid = str(self[0].sourceid) if len(self) else "1"
         attrs = {
-                 "title":info["title"], 
-                 "author":info["authors"] if info['authors'] else 'Unknown', \
+                 "title"  : info["title"], 
+                 "author" : info["authors"] if info['authors'] else 'Unknown', \
                  "page":"0", "part":"0", "scale":"0", \
                  "sourceid":sourceid,  "id":str(cid), "date":"", \
                  "mime":mime, "path":name, "size":str(size)
