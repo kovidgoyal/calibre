@@ -36,7 +36,8 @@ class PRS500_PROFILE(object):
     font_size  = 10  #: Default (in pt)
     parindent  = 80  #: Default (in px)
     line_space = 1.2 #: Default (in pt)
-    header_size = 6  #: In pt
+    header_font_size = 6  #: In pt
+    header_height    = 30 #: In px
     
     
     
@@ -105,17 +106,19 @@ def Book(options, font_delta=0, header=None,
     if header:
         hdr = Header()
         hb = TextBlock(textStyle=TextStyle(align='foot', 
-                                           fontsize=int(profile.header_size*10)))
+                                           fontsize=int(profile.header_font_size*10)),
+                       blockStyle=BlockStyle(blockwidth=ps['textwidth']))
         hb.append(header)
         hdr.PutObj(hb)
-        ps['headheight'] = 30
+        ps['headheight'] = profile.header_height
         ps['header'] = hdr
-        ps['topmargin'] = 10
-        ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin']) - profile.fudge
+        ps['topmargin'] = 0
+        ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin'] + ps['headheight'] + profile.fudge)
     fontsize = int(10*profile.font_size+font_delta*20)
     baselineskip = fontsize + 20
     return _Book(textstyledefault=dict(fontsize=fontsize, 
                                        parindent=int(profile.parindent), 
                                        linespace=int(10*profile.line_space),
                                        baselineskip=baselineskip), \
-                 pagestyledefault=ps, **settings)
+                 pagestyledefault=ps, blockstyledefault=dict(blockwidth=ps['textwidth']),
+                 **settings)
