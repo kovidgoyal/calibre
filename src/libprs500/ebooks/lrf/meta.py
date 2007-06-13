@@ -169,7 +169,7 @@ class xml_field(object):
                 elem.normalize() 
                 if elem.hasChildNodes(): 
                     return elem.firstChild.data.strip()
-        return ""
+        return ''
         
     def __set__(self, obj, val):
         if val == None:
@@ -381,10 +381,10 @@ class LRFMetaFile(object):
                     if candidate[-1:] == '\0':
                         candidate = candidate[:-1]
                     candidate = dom.parseString(candidate.encode('utf-8')).\
-                            toxml(encoding='utf-16')
+                            toxml(encoding='utf-16').strip()
                 else:
-                    candidate = candidate.encode('utf-16')
-                return candidate.strip()
+                    candidate = candidate.strip().encode('utf-16')
+                return candidate
             except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
         
