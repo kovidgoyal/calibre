@@ -40,10 +40,12 @@ def build_osx():
     files = glob.glob('dist/*.dmg')
     for file in files:
             os.unlink(file)
+    if os.path.exists('dist/dmgdone'):
+        os.unlink('dist/dmgdone')
     
     vm = h.openVM('/mnt/extra/vmware/Mac OSX/Mac OSX.vmx')
     vm.powerOn()
-    c = 20 * 60
+    c = 25 * 60
     print 'Waiting (minutes):',
     while c > 0:
         if glob.glob('dist/*.dmg'):
@@ -54,7 +56,7 @@ def build_osx():
             print c, ',',
     print
         
-    if not glob.glob('dist/*.dmg'):
+    if not glob.glob('dist/dmgdone'):
         raise Exception('OSX build has failed')
     vm.powerOff()
     return os.path.basename(glob.glob('dist/*.dmg')[-1])

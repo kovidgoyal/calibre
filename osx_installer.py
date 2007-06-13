@@ -57,7 +57,7 @@ def _check_symlinks_prescript():
     import os, tempfile, traceback, sys
     from Authorization import Authorization, kAuthorizationFlagDestroyRights
     
-    AUTHTOOL="""#!%s
+    AUTHTOOL="""#!%(sp)s
 import os
 scripts = %(sp)s
 links = %(sp)s
