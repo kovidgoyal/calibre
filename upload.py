@@ -47,16 +47,14 @@ def build_osx():
     vm.powerOn()
     c = 25 * 60
     print 'Waiting (minutes):',
-    while c > 0:
-        if glob.glob('dist/*.dmg'):
-            break
+    while c > 0 and not os.path.exists('dist/dmgdone'):
         time.sleep(10)
         c -= 10
         if c%60==0:
-            print c, ',',
+            print c/60, ',',
     print
         
-    if not glob.glob('dist/dmgdone'):
+    if not os.path.exists('dist/dmgdone'):
         raise Exception('OSX build has failed')
     vm.powerOff()
     return os.path.basename(glob.glob('dist/*.dmg')[-1])
