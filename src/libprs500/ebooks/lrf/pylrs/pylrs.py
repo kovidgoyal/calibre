@@ -643,8 +643,8 @@ class TableOfContents(object):
 
 
     def addTocEntry(self, tocLabel, textBlock):
-        if not isinstance(textBlock, (TextBlock, ImageBlock, RuledLine)):
-            raise LrsError, "TOC destination must be a TextBlock, ImageBlock or RuledLine"+\
+        if not isinstance(textBlock, (Canvas, TextBlock, ImageBlock, RuledLine)):
+            raise LrsError, "TOC destination must be a Canvas, TextBlock, ImageBlock or RuledLine"+\
                             " not a " + str(type(textBlock))
 
         if textBlock.parent is None:
