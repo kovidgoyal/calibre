@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Thu Jun  7 08:58:03 2007
+# Created: Tue Jun 19 11:07:30 2007
 #      by: PyQt4 UI code generator 4-snapshot-20070606
 #
 # WARNING! All changes made in this file will be lost!
@@ -86,22 +86,11 @@ class Ui_MainWindow(object):
         self.hboxlayout1.addWidget(self.clear_button)
         self.gridlayout.addLayout(self.hboxlayout1,1,0,1,1)
 
-        self.tabs = AnimatedTabWidget(self.centralwidget)
-        self.tabs.setTabPosition(QtGui.QTabWidget.West)
-        self.tabs.setUsesScrollButtons(False)
-        self.tabs.setObjectName("tabs")
+        self.stacks = QtGui.QStackedWidget(self.centralwidget)
 
-        self.books_tab = QtGui.QWidget()
-        self.books_tab.setObjectName("books_tab")
-
-        self.gridlayout1 = QtGui.QGridLayout(self.books_tab)
-        self.gridlayout1.setObjectName("gridlayout1")
-
-        self.stacks = QtGui.QStackedWidget(self.books_tab)
-
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Preferred)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(100)
-        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setVerticalStretch(100)
         sizePolicy.setHeightForWidth(self.stacks.sizePolicy().hasHeightForWidth())
         self.stacks.setSizePolicy(sizePolicy)
         self.stacks.setObjectName("stacks")
@@ -109,8 +98,8 @@ class Ui_MainWindow(object):
         self.library = QtGui.QWidget()
         self.library.setObjectName("library")
 
-        self.gridlayout2 = QtGui.QGridLayout(self.library)
-        self.gridlayout2.setObjectName("gridlayout2")
+        self.vboxlayout = QtGui.QVBoxLayout(self.library)
+        self.vboxlayout.setObjectName("vboxlayout")
 
         self.library_view = BooksView(self.library)
 
@@ -127,14 +116,14 @@ class Ui_MainWindow(object):
         self.library_view.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.library_view.setShowGrid(False)
         self.library_view.setObjectName("library_view")
-        self.gridlayout2.addWidget(self.library_view,0,0,1,1)
+        self.vboxlayout.addWidget(self.library_view)
         self.stacks.addWidget(self.library)
 
         self.main_memory = QtGui.QWidget()
         self.main_memory.setObjectName("main_memory")
 
-        self.gridlayout3 = QtGui.QGridLayout(self.main_memory)
-        self.gridlayout3.setObjectName("gridlayout3")
+        self.gridlayout1 = QtGui.QGridLayout(self.main_memory)
+        self.gridlayout1.setObjectName("gridlayout1")
 
         self.main_memory_view = BooksView(self.main_memory)
 
@@ -151,36 +140,9 @@ class Ui_MainWindow(object):
         self.main_memory_view.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.main_memory_view.setShowGrid(False)
         self.main_memory_view.setObjectName("main_memory_view")
-        self.gridlayout3.addWidget(self.main_memory_view,0,0,1,1)
+        self.gridlayout1.addWidget(self.main_memory_view,0,0,1,1)
         self.stacks.addWidget(self.main_memory)
-        self.gridlayout1.addWidget(self.stacks,0,0,1,1)
-        self.tabs.addTab(self.books_tab,QtGui.QIcon(":/library"),"")
-
-        self.jobs_tab = QtGui.QWidget()
-        self.jobs_tab.setObjectName("jobs_tab")
-
-        self.gridlayout4 = QtGui.QGridLayout(self.jobs_tab)
-        self.gridlayout4.setObjectName("gridlayout4")
-        self.tabs.addTab(self.jobs_tab,"")
-        self.gridlayout.addWidget(self.tabs,2,0,1,1)
-
-        self.hboxlayout2 = QtGui.QHBoxLayout()
-        self.hboxlayout2.setSpacing(6)
-        self.hboxlayout2.setMargin(0)
-        self.hboxlayout2.setObjectName("hboxlayout2")
-
-        self.book_cover = CoverDisplay(self.centralwidget)
-        self.book_cover.setMaximumSize(QtCore.QSize(60,80))
-        self.book_cover.setAcceptDrops(True)
-        self.book_cover.setScaledContents(True)
-        self.book_cover.setObjectName("book_cover")
-        self.hboxlayout2.addWidget(self.book_cover)
-
-        self.book_info = QtGui.QLabel(self.centralwidget)
-        self.book_info.setTextFormat(QtCore.Qt.RichText)
-        self.book_info.setObjectName("book_info")
-        self.hboxlayout2.addWidget(self.book_info)
-        self.gridlayout.addLayout(self.hboxlayout2,3,0,1,1)
+        self.gridlayout.addWidget(self.stacks,2,0,1,1)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.tool_bar = QtGui.QToolBar(MainWindow)
@@ -191,6 +153,11 @@ class Ui_MainWindow(object):
         self.tool_bar.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
         self.tool_bar.setObjectName("tool_bar")
         MainWindow.addToolBar(self.tool_bar)
+
+        self.statusBar = QtGui.QStatusBar(MainWindow)
+        self.statusBar.setMouseTracking(True)
+        self.statusBar.setObjectName("statusBar")
+        MainWindow.setStatusBar(self.statusBar)
 
         self.action_add = QtGui.QAction(MainWindow)
         self.action_add.setIcon(QtGui.QIcon(":/images/addfile.png"))
@@ -211,7 +178,6 @@ class Ui_MainWindow(object):
         self.label.setBuddy(self.search)
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(0)
         self.stacks.setCurrentIndex(0)
         QtCore.QObject.connect(self.clear_button,QtCore.SIGNAL("clicked()"),self.search.clear)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -224,10 +190,6 @@ class Ui_MainWindow(object):
         self.search.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Search the list of books by title, author, publisher, tags and comments<br><br>Words separated by spaces are ANDed", None, QtGui.QApplication.UnicodeUTF8))
         self.clear_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Reset Quick Search", None, QtGui.QApplication.UnicodeUTF8))
         self.clear_button.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabs.setTabText(self.tabs.indexOf(self.books_tab), QtGui.QApplication.translate("MainWindow", "Books", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabs.setTabText(self.tabs.indexOf(self.jobs_tab), QtGui.QApplication.translate("MainWindow", "Jobs", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabs.setTabToolTip(self.tabs.indexOf(self.jobs_tab),QtGui.QApplication.translate("MainWindow", "Show jobs being currently processed", None, QtGui.QApplication.UnicodeUTF8))
-        self.book_info.setText(QtGui.QApplication.translate("MainWindow", "<table><tr><td><b>Title: </b>%1</td><td><b>&nbsp;Size:</b> %2</td></tr><tr><td><b>Author: </b>%3</td><td><b>&nbsp;Type: </b>%4</td></tr></table>", None, QtGui.QApplication.UnicodeUTF8))
         self.action_add.setText(QtGui.QApplication.translate("MainWindow", "Add books to Library", None, QtGui.QApplication.UnicodeUTF8))
         self.action_add.setShortcut(QtGui.QApplication.translate("MainWindow", "A", None, QtGui.QApplication.UnicodeUTF8))
         self.action_del.setText(QtGui.QApplication.translate("MainWindow", "Delete books", None, QtGui.QApplication.UnicodeUTF8))
@@ -235,7 +197,6 @@ class Ui_MainWindow(object):
         self.action_edit.setText(QtGui.QApplication.translate("MainWindow", "Edit meta-information", None, QtGui.QApplication.UnicodeUTF8))
         self.action_edit.setShortcut(QtGui.QApplication.translate("MainWindow", "E", None, QtGui.QApplication.UnicodeUTF8))
 
-from widgets import DeviceView, CoverDisplay
-from progress import AnimatedTabWidget
+from widgets import DeviceView
 from library import BooksView, SearchBox
 import images_rc

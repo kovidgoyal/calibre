@@ -170,167 +170,87 @@
      </layout>
     </item>
     <item row="2" column="0" >
-     <widget class="AnimatedTabWidget" name="tabs" >
-      <property name="tabPosition" >
-       <enum>QTabWidget::West</enum>
+     <widget class="QStackedWidget" name="stacks" >
+      <property name="sizePolicy" >
+       <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+        <horstretch>100</horstretch>
+        <verstretch>100</verstretch>
+       </sizepolicy>
       </property>
       <property name="currentIndex" >
        <number>0</number>
       </property>
-      <property name="usesScrollButtons" >
-       <bool>false</bool>
-      </property>
-      <widget class="QWidget" name="books_tab" >
-       <attribute name="title" >
-        <string>Books</string>
-       </attribute>
-       <attribute name="icon" >
-        <iconset resource="images.qrc" >:/library</iconset>
-       </attribute>
-       <layout class="QGridLayout" >
-        <item row="0" column="0" >
-         <widget class="QStackedWidget" name="stacks" >
+      <widget class="QWidget" name="library" >
+       <layout class="QVBoxLayout" >
+        <item>
+         <widget class="BooksView" name="library_view" >
           <property name="sizePolicy" >
-           <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
             <horstretch>100</horstretch>
-            <verstretch>0</verstretch>
+            <verstretch>10</verstretch>
            </sizepolicy>
           </property>
-          <property name="currentIndex" >
-           <number>0</number>
+          <property name="acceptDrops" >
+           <bool>true</bool>
           </property>
-          <widget class="QWidget" name="library" >
-           <layout class="QGridLayout" >
-            <item row="0" column="0" >
-             <widget class="BooksView" name="library_view" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-                <horstretch>100</horstretch>
-                <verstretch>10</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="acceptDrops" >
-               <bool>true</bool>
-              </property>
-              <property name="dragEnabled" >
-               <bool>true</bool>
-              </property>
-              <property name="dragDropOverwriteMode" >
-               <bool>false</bool>
-              </property>
-              <property name="dragDropMode" >
-               <enum>QAbstractItemView::DragDrop</enum>
-              </property>
-              <property name="alternatingRowColors" >
-               <bool>true</bool>
-              </property>
-              <property name="selectionBehavior" >
-               <enum>QAbstractItemView::SelectRows</enum>
-              </property>
-              <property name="showGrid" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-          <widget class="QWidget" name="main_memory" >
-           <layout class="QGridLayout" >
-            <item row="0" column="0" >
-             <widget class="BooksView" name="main_memory_view" >
-              <property name="sizePolicy" >
-               <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-                <horstretch>100</horstretch>
-                <verstretch>10</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="acceptDrops" >
-               <bool>true</bool>
-              </property>
-              <property name="dragEnabled" >
-               <bool>true</bool>
-              </property>
-              <property name="dragDropOverwriteMode" >
-               <bool>false</bool>
-              </property>
-              <property name="dragDropMode" >
-               <enum>QAbstractItemView::DragDrop</enum>
-              </property>
-              <property name="alternatingRowColors" >
-               <bool>true</bool>
-              </property>
-              <property name="selectionBehavior" >
-               <enum>QAbstractItemView::SelectRows</enum>
-              </property>
-              <property name="showGrid" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
+          <property name="dragEnabled" >
+           <bool>true</bool>
+          </property>
+          <property name="dragDropOverwriteMode" >
+           <bool>false</bool>
+          </property>
+          <property name="dragDropMode" >
+           <enum>QAbstractItemView::DragDrop</enum>
+          </property>
+          <property name="alternatingRowColors" >
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior" >
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="showGrid" >
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="jobs_tab" >
-       <attribute name="title" >
-        <string>Jobs</string>
-       </attribute>
-       <attribute name="toolTip" >
-        <string>Show jobs being currently processed</string>
-       </attribute>
-       <layout class="QGridLayout" />
+      <widget class="QWidget" name="main_memory" >
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
+         <widget class="BooksView" name="main_memory_view" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>100</horstretch>
+            <verstretch>10</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="acceptDrops" >
+           <bool>true</bool>
+          </property>
+          <property name="dragEnabled" >
+           <bool>true</bool>
+          </property>
+          <property name="dragDropOverwriteMode" >
+           <bool>false</bool>
+          </property>
+          <property name="dragDropMode" >
+           <enum>QAbstractItemView::DragDrop</enum>
+          </property>
+          <property name="alternatingRowColors" >
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior" >
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="showGrid" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
-    </item>
-    <item row="3" column="0" >
-     <layout class="QHBoxLayout" >
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <property name="leftMargin" >
-       <number>0</number>
-      </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="CoverDisplay" name="book_cover" >
-        <property name="maximumSize" >
-         <size>
-          <width>60</width>
-          <height>80</height>
-         </size>
-        </property>
-        <property name="acceptDrops" >
-         <bool>true</bool>
-        </property>
-        <property name="pixmap" >
-         <pixmap/>
-        </property>
-        <property name="scaledContents" >
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="book_info" >
-        <property name="text" >
-         <string>&lt;table>&lt;tr>&lt;td>&lt;b>Title: &lt;/b>%1&lt;/td>&lt;td>&lt;b>&amp;nbsp;Size:&lt;/b> %2&lt;/td>&lt;/tr>&lt;tr>&lt;td>&lt;b>Author: &lt;/b>%3&lt;/td>&lt;td>&lt;b>&amp;nbsp;Type: &lt;/b>%4&lt;/td>&lt;/tr>&lt;/table></string>
-        </property>
-        <property name="textFormat" >
-         <enum>Qt::RichText</enum>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </item>
    </layout>
   </widget>
@@ -365,6 +285,11 @@
    <addaction name="action_add" />
    <addaction name="action_del" />
    <addaction name="action_edit" />
+  </widget>
+  <widget class="QStatusBar" name="statusBar" >
+   <property name="mouseTracking" >
+    <bool>true</bool>
+   </property>
   </widget>
   <action name="action_add" >
    <property name="icon" >
@@ -408,11 +333,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>CoverDisplay</class>
-   <extends>QLabel</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
    <class>DeviceView</class>
    <extends>QListView</extends>
    <header>widgets.h</header>
@@ -426,12 +346,6 @@
    <class>SearchBox</class>
    <extends>QLineEdit</extends>
    <header>library.h</header>
-  </customwidget>
-  <customwidget>
-   <class>AnimatedTabWidget</class>
-   <extends>QTabWidget</extends>
-   <header>progress.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

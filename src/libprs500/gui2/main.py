@@ -24,6 +24,7 @@ from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
 from libprs500.gui2 import APP_TITLE, installErrorHandler
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector
+from libprs500.gui2.status import StatusBar
 
 class Main(QObject, Ui_MainWindow):
     
@@ -34,10 +35,9 @@ class Main(QObject, Ui_MainWindow):
         self.setupUi(window)
         self.read_settings()
         
-        ####################### Tabs setup #####################
-        self.tabs.setup()
-        self.tabs.animate()        
-        
+        ####################### Status Bar #####################
+        self.status_bar = StatusBar()
+        self.window.setStatusBar(self.status_bar)
         
         ####################### Setup books view ########################
         self.library_view.set_database(self.database_path)
