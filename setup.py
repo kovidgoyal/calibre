@@ -142,7 +142,7 @@ if __name__ == '__main__':
     
     import os
     def options(parse_options):
-        options, args, parser = parse_options(['dummy'], cli=False) 
+        options, args, parser = parse_options(['dummy']) 
         options = parser.option_list
         for group in parser.option_groups:
             options += group.option_list
@@ -282,6 +282,8 @@ if __name__ == '__main__':
             f.close()
             print 'done'
         except:
+            import traceback
+            traceback.print_exc()
             print 'failed'
                     
     
