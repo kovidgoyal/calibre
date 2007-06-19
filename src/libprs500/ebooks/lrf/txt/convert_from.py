@@ -107,9 +107,7 @@ def main():
             import warnings
             warnings.defaultaction = 'error'        
     except Exception, err:
-        print >> sys.stderr, err
-        import traceback
-        traceback.print_exc()
+        print >> sys.stderr, err        
         sys.exit(1)
     process_file(src, options)
         
