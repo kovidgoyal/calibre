@@ -9,6 +9,7 @@ PREFIX = "/var/www/vhosts/kovidgoyal.net/subdomains/libprs500"
 DOWNLOADS = PREFIX+"/httpdocs/downloads"
 DOCS = PREFIX+"/httpdocs/apidocs"
 HTML2LRF = "src/libprs500/ebooks/lrf/html/demo"
+TXT2LRF  = "src/libprs500/ebooks/lrf/txt/demo"
 check_call = partial(_check_call, shell=True)
 h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
 
@@ -19,7 +20,7 @@ def build_windows():
     
     
     
-    vm = h.openVM('/mnt/extra/vmware/Windows Vista/Windows Vista.vmx')
+    vm = h.openVM('/mnt/backup/vmware/Windows Vista/Windows Vista.vmx')
     vm.powerOn() 
     if not vm.waitForToolsInGuest():
         print >>sys.stderr, 'Windows is not booting up'
@@ -43,7 +44,7 @@ def build_osx():
     if os.path.exists('dist/dmgdone'):
         os.unlink('dist/dmgdone')
     
-    vm = h.openVM('/mnt/extra/vmware/Mac OSX/Mac OSX.vmx')
+    vm = h.openVM('/mnt/backup/vmware/Mac OSX/Mac OSX.vmx')
     vm.powerOn()
     c = 25 * 60
     print 'Waiting (minutes):',
@@ -69,6 +70,8 @@ def upload_demo():
     f.close()
     check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' --header --output=/tmp/html2lrf.lrf %s/demo.html'''%(HTML2LRF,))
     check_call('''scp /tmp/html2lrf.lrf castalia:%s/'''%(DOWNLOADS,))
+    check_call('''txt2lrf -t 'Demonstration of txt2lrf' -a 'Kovid Goyal' --header -o /tmp/txt2lrf.lrf %s/demo.txt'''%(TXT2LRF,) )
+    check_call('''scp /tmp/txt2lrf.lrf castalia:%s/'''%(DOWNLOADS,))
 
 def upload_installers(exe, dmg):
     check_call('''ssh castalia rm -f %s/libprs500\*.exe'''%(DOWNLOADS,))

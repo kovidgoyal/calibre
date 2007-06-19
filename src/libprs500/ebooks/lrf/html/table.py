@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import math, sys
+import math, sys, re
 
 from libprs500.ebooks.lrf.fonts import get_font
 from libprs500.ebooks.lrf.pylrs.pylrs import TextBlock, Text, CR, Span, \
@@ -215,7 +215,7 @@ class Row(object):
     def __init__(self, conv, row, css, colpad):
         self.cells = []
         self.colpad = colpad
-        cells = row.findAll('td')
+        cells = row.findAll(re.compile('td|th'))
         for cell in cells:
             ccss = conv.tag_css(cell, css)
             self.cells.append(Cell(conv, cell, ccss))        

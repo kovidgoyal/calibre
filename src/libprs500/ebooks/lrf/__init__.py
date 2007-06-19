@@ -70,9 +70,19 @@ def option_parser(usage):
                       help='Sort key for the author')
     metadata.add_option('--publisher', action='store', default='Unknown', dest='publisher',
                       help='Publisher')
-    profiles=['prs500']    
+    profiles=['prs500'] 
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')
+    laf = parser.add_option_group('LOOK AND FEEL')
+    laf.add_option('--cover', action='store', dest='cover', default=None, \
+                      help='Path to file containing image to be used as cover')
+    laf.add_option('--font-delta', action='store', type='float', default=0., \
+                      help="""Increase the font size by 2 * FONT_DELTA pts and """
+                      '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
+                      """If FONT_DELTA is negative, the font size is decreased.""",
+                      dest='font_delta')
+    laf.add_option('--disable-autorotation', action='store_true', default=False, 
+                   help='Disable autorotation of images.', dest='disable_autorotation')
     page = parser.add_option_group('PAGE OPTIONS')
     page.add_option('-p', '--profile', default=PRS500_PROFILE, dest='profile', type='choice',
                       choices=profiles, action='callback', callback=profile_from_string,

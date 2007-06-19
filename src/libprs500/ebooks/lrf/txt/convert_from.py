@@ -15,19 +15,17 @@
 """
 Convert .txt files to .lrf
 """
-import os, sys
+import os, sys, codecs
 
-from libprs500.ebooks import BeautifulSoup
-from libprs500.ebooks.lrf import ConversionError, option_parser
-from libprs500.ebooks.lrf import Book
-from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, Italic, Bold, BookSetting
-from libprs500 import filename_to_utf8
 from libprs500 import iswindows
+from libprs500.ptempfile import PersistentTemporaryFile
+from libprs500.ebooks.lrf import ConversionError, option_parser
+from libprs500.ebooks.lrf.html.convert_from import parse_options as html_parse_options
+from libprs500.ebooks.lrf.html.convert_from import process_file
+from libprs500.ebooks.markdown import markdown
 
-def parse_options(argv=None, cli=True):
+def parse_options(cli=True):
     """ CLI for txt -> lrf conversions """
-    if not argv:
-        argv = sys.argv[1:]
     parser = option_parser(
         """usage: %prog [options] mybook.txt
         
@@ -44,83 +42,77 @@ def parse_options(argv=None, cli=True):
         if cli:
             parser.print_help()
         raise ConversionError, 'no filename specified'
-    if options.title == None:
-        options.title = filename_to_utf8(os.path.splitext(os.path.basename(args[0]))[0])
     return options, args, parser
 
+def generate_html(txtfile, encoding):
+    '''
+    Convert txtfile to html and return a PersistentTemporaryFile object pointing
+    to the file with the HTML.
+    '''
+    encodings = ['iso-8859-1', 'koi8_r', 'koi8_u', 'utf8']
+    if iswindows:
+        encodings = ['cp1252'] + encodings
+    if encoding not in ['cp1252', 'utf8']:
+        encodings = [encoding] + encodings
+    txt, enc = None, None
+    for encoding in encodings:
+        try:
+            txt = codecs.open(txtfile, 'rb', encoding).read()
+        except UnicodeDecodeError:
+            continue
+        enc = encoding
+        break
+    if txt == None:
+        raise ConversionError, 'Could not detect encoding of %s'%(txtfile,)
+    md = markdown.Markdown(txt,
+                           extensions=['footnotes', 'tables', 'toc'],
+                           encoding=enc,
+                           safe_mode=False,
+                           )
+    html = md.toString().decode(enc)
+    p = PersistentTemporaryFile('.html', dir=os.path.dirname(txtfile))
+    p.close()
+    codecs.open(p.name, 'wb', enc).write(html)
+    return p
+        
 def main():
     try:
         options, args, parser = parse_options()
-        src = os.path.abspath(os.path.expanduser(args[0]))
-    except:        
-        sys.exit(1)    
-    print 'Output written to ', convert_txt(src, options)
+        txt = os.path.abspath(os.path.expanduser(args[0]))
+        p = generate_html(txt, options.encoding)
+        for i in range(1, len(sys.argv)):
+            if sys.argv[i] == args[0]:
+                sys.argv.remove(sys.argv[i])
+                break            
+        sys.argv.append(p.name)
+        sys.argv.append('--force-page-break-before')
+        sys.argv.append('h2')
+        o_spec = False
+        for arg in sys.argv[1:]:
+            arg = arg.lstrip()
+            if arg.startswith('-o') or arg.startswith('--output'):
+                o_spec = True
+                break
+        ext = '.lrf'
+        for arg in sys.argv[1:]:
+            if arg.strip() == '--lrs':
+                ext = '.lrs'
+                break
+        if not o_spec:
+            sys.argv.append('-o')
+            sys.argv.append(os.path.splitext(os.path.basename(txt))[0]+ext)
+        options, args, parser = html_parse_options(parser=parser)
+        src = args[0]
+        if options.verbose:
+            import warnings
+            warnings.defaultaction = 'error'        
+    except Exception, err:
+        print >> sys.stderr, err
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+    process_file(src, options)
         
-    
-def convert_txt(path, options):
-    """
-    Convert the text file at C{path} into an lrf file.
-    @param options: Object with the following attributes:
-                    C{author}, C{title}, C{encoding} (the assumed encoding of 
-                    the text in C{path}.)
-    """
-    import codecs
-    header = None
-    if options.header:
-        header = Paragraph()
-        header.append(Bold(options.title))
-        header.append(' by ')
-        header.append(Italic(options.author))
-    title = (options.title, options.title_sort)
-    author = (options.author, options.author_sort)
-    book = Book(options, header=header, title=title, author=author, \
-                publisher=options.publisher,
-                sourceencoding=options.encoding, freetext=options.freetext, \
-                category=options.category, booksetting=BookSetting
-                (dpi=10*options.profile.dpi,
-                 screenheight=options.profile.screen_height, 
-                 screenwidth=options.profile.screen_width))
-    buffer = ''
-    pg = book.create_page()
-    block = book.create_text_block()
-    pg.append(block)
-    book.append(pg)
-    lines = ""
-    try:
-        lines = codecs.open(path, 'rb', options.encoding).readlines()
-    except UnicodeDecodeError:
-            try:
-                lines = codecs.open(path, 'rb', 'cp1252').readlines()
-            except UnicodeDecodeError:
-                try:
-                    lines = codecs.open(path, 'rb', 'iso-8859-1').readlines()
-                except UnicodeDecodeError:
-                    try:
-                        lines = codecs.open(path, 'rb', 'koi8_r').readlines()
-                    except UnicodeDecodeError:
-                        try:
-                            lines = codecs.open(path, 'rb', 'koi8_u').readlines()
-                        except UnicodeDecodeError:
-                            lines = codecs.open(path, 'rb', 'utf8').readlines()
-    for line in lines:
-        line = line.strip()
-        if line:
-            buffer = buffer.rstrip() + ' ' + line
-        else:
-            block.Paragraph(buffer)            
-            buffer = ''
-    basename = os.path.basename(path)
-    oname = options.output
-    if not oname:
-        oname = os.path.splitext(basename)[0]+('.lrs' if options.lrs else '.lrf')
-    oname = os.path.abspath(os.path.expanduser(oname))
-    try: 
-        book.renderLrs(oname) if options.lrs else book.renderLrf(oname)
-    except UnicodeDecodeError:
-        raise ConversionError(path + ' is not encoded in ' + \
-                              options.encoding +'. Specify the '+ \
-                              'correct encoding with the -e option.')
-    return os.path.abspath(oname)
     
 
 if __name__ == '__main__':

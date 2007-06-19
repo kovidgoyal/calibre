@@ -47,7 +47,7 @@ class _TemporaryFileWrapper(object):
             os.remove(self.name)
     
     
-def PersistentTemporaryFile(suffix="", prefix=""):
+def PersistentTemporaryFile(suffix="", prefix="", dir=None):
     """ 
     Return a temporary file that is available even after being closed on
     all platforms. It is automatically deleted when this object is deleted.
@@ -55,6 +55,7 @@ def PersistentTemporaryFile(suffix="", prefix=""):
     """
     if prefix == None: 
         prefix = ""
-    fd, name = tempfile.mkstemp(suffix, "libprs500_"+ __version__+"_" + prefix)
+    fd, name = tempfile.mkstemp(suffix, "libprs500_"+ __version__+"_" + prefix,
+                                dir=dir)
     _file = os.fdopen(fd, "wb")
     return _TemporaryFileWrapper(_file, name)    

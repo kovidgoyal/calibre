@@ -221,6 +221,7 @@ class HTMLConverter(object):
                  chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE),
                  link_exclude=re.compile('$'), 
                  page_break=re.compile('h[12]', re.IGNORECASE),
+                 force_page_break=re.compile('$', re.IGNORECASE),
                  profile=PRS500_PROFILE,
                  disable_autorotation=False):
         '''
@@ -273,7 +274,8 @@ class HTMLConverter(object):
             small  = {'font-size'   :'small'},
             pre    = {'font-family' :'monospace' },
             tt     = {'font-family' :'monospace'},
-            center = {'text-align'  : 'center'}
+            center = {'text-align'  : 'center'},
+            th     = {'font-size':'large', 'font-weight':'bold'},
             )        
         self.profile     = profile #: Defines the geometry of the display device
         self.chapter_detection = chapter_detection #: Flag to toggle chapter detection
@@ -287,7 +289,8 @@ class HTMLConverter(object):
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
-        self.page_break       = page_break #: Regex controlling forced page-break behavior
+        self.page_break       = page_break #: Regex controlling page-break behavior
+        self.force_page_break = force_page_break #: Regex controlling forced page-break behavior
         self.text_styles      = []#: Keep track of already used textstyles
         self.block_styles     = []#: Keep track of already used blockstyles
         self.images  = {}         #: Images referenced in the HTML document
@@ -559,6 +562,7 @@ class HTMLConverter(object):
                                      chapter_regex=self.chapter_regex,
                                      link_exclude=self.link_exclude,
                                      page_break=self.page_break,
+                                     force_page_break=self.force_page_break,
                                      disable_autorotation=self.disable_autorotation)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
@@ -829,6 +833,9 @@ class HTMLConverter(object):
            tag_css['page-break-after'].lower() != 'avoid':
             end_page = True
             tag_css.pop('page-break-after')
+        if self.force_page_break.match(tagname):
+            self.end_page()
+            self.page_break_found = True
         if not self.page_break_found and self.page_break.match(tagname):
             if len(self.current_page.contents) > 3:
                 self.end_page()
@@ -956,6 +963,7 @@ class HTMLConverter(object):
                 except ConversionError:
                     pass
             self.end_current_block()
+            self.current_block = self.book.create_text_block()
         elif tagname in ['ul', 'ol']:
             self.in_ol = 1 if tagname == 'ol' else 0
             self.end_current_block()
@@ -1138,13 +1146,15 @@ def process_file(path, options):
              re.compile('$')
         pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else \
              re.compile('$')
+        fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
+             re.compile('$')
         conv = HTMLConverter(book, path, profile=options.profile,
                              font_delta=options.font_delta, 
                              cover=cpath, max_link_levels=options.link_levels,
                              verbose=options.verbose, baen=options.baen, 
                              chapter_detection=options.chapter_detection,
                              chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
-                             link_exclude=re.compile(le), page_break=pb,
+                             link_exclude=re.compile(le), page_break=pb, force_page_break=fpb,
                              disable_autorotation=options.disable_autorotation)
         conv.process_links()
         oname = options.output
@@ -1220,23 +1230,14 @@ def try_opf(path, options):
                 
             
 
-def parse_options(argv=None, cli=True):
+def parse_options(argv=None, cli=True, parser=None):
     """ CLI for html -> lrf conversions """
     if not argv:
         argv = sys.argv[1:]
-    parser = option_parser("""usage: %prog [options] mybook.[html|rar|zip]
+    if not parser:
+        parser = option_parser("""usage: %prog [options] mybook.[html|rar|zip]
 
          %prog converts mybook.html to mybook.lrf""")
-    laf = parser.add_option_group('LOOK AND FEEL')
-    laf.add_option('--cover', action='store', dest='cover', default=None, \
-                      help='Path to file containing image to be used as cover')
-    laf.add_option('--font-delta', action='store', type='float', default=0., \
-                      help="""Increase the font size by 2 * FONT_DELTA pts and """
-                      '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
-                      """If FONT_DELTA is negative, the font size is decreased.""",
-                      dest='font_delta')
-    laf.add_option('--disable-autorotation', action='store_true', default=False, 
-                   help='Disable autorotation of images.', dest='disable_autorotation')
     link = parser.add_option_group('LINK PROCESSING OPTIONS')
     link.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
                       dest='link_levels',
@@ -1265,6 +1266,8 @@ def parse_options(argv=None, cli=True):
                       '''there are no really long pages as this degrades the page '''
                       '''turn performance of the LRF. Thus this option is ignored '''
                       '''if the current page has only a few elements.''')
+    chapter.add_option('--force-page-break-before', dest='force_page_break',
+                       default='$', help='Like --page-break-before, but page breaks are forced.')
     prepro = parser.add_option_group('PREPROCESSING OPTIONS')
     prepro.add_option('--baen', action='store_true', default=False, dest='baen',
                       help='''Preprocess Baen HTML files to improve generated LRF.''')
@@ -1285,7 +1288,8 @@ def main():
         if options.verbose:
             import warnings
             warnings.defaultaction = 'error'
-    except:        
+    except Exception, err:
+        print >> sys.stderr, err
         sys.exit(1)    
     process_file(src, options)
 
