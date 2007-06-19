@@ -657,6 +657,10 @@ class TableOfContents(object):
         if not hasattr(textBlock.parent, 'objId'):
             raise LrsError, "TOC destination must be appended to a container with an objID"
 
+        for tl in self.tocEntries:
+            if tl.label == tocLabel:
+                return
+        
         self.tocEntries.append(TocLabel(tocLabel, textBlock))
         textBlock.tocLabel = tocLabel
  
