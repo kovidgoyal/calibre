@@ -15,12 +15,9 @@
 """ The GUI for libprs500. """
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant
-
-__docformat__ = "epytext"
-__author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
-APP_TITLE     = "libprs500"
+from libprs500 import __appname__ as APP_TITLE
+from libprs500 import __author__
 NONE = QVariant() #: Null value to return from the data function of item models
-
 
 error_dialog = None
 
@@ -49,4 +46,19 @@ def Error(msg, e):
         msg = re.sub(r"\n", "<br>", msg)
         error_dialog.showMessage(msg)
         error_dialog.show()
+        
+def human_readable(cls, size):
+    """ Convert a size in bytes into a human readable form """
+    if size < 1024: 
+        divisor, suffix = 1, "B"
+    elif size < 1024*1024: 
+        divisor, suffix = 1024., "KB"
+    elif size < 1024*1024*1024: 
+        divisor, suffix = 1024*1024, "MB"
+    elif size < 1024*1024*1024*1024: 
+        divisor, suffix = 1024*1024, "GB"
+    size = str(size/divisor)
+    if size.find(".") > -1: 
+        size = size[:size.find(".")+2]
+    return size + " " + suffix
 

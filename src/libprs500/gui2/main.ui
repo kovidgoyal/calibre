@@ -42,7 +42,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="DeviceView" name="device_tree" >
+       <widget class="LocationView" name="device_tree" >
         <property name="sizePolicy" >
          <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
           <horstretch>0</horstretch>
@@ -90,7 +90,7 @@
          </size>
         </property>
         <property name="text" >
-         <string>For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/GuiUsage">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b>: %1 by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2006&lt;br>%2 %3 %4</string>
+         <string>For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/GuiUsage">http://libprs500.kovidgoyal.net&lt;/a>&lt;br>&lt;br>&lt;b>libprs500&lt;/b>: %1 by &lt;b>Kovid Goyal&lt;/b> &amp;copy; 2007&lt;br>%2 %3 %4</string>
         </property>
         <property name="textFormat" >
          <enum>Qt::RichText</enum>
@@ -333,11 +333,6 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>DeviceView</class>
-   <extends>QListView</extends>
-   <header>widgets.h</header>
-  </customwidget>
-  <customwidget>
    <class>BooksView</class>
    <extends>QTableView</extends>
    <header>library.h</header>
@@ -346,6 +341,11 @@
    <class>SearchBox</class>
    <extends>QLineEdit</extends>
    <header>library.h</header>
+  </customwidget>
+  <customwidget>
+   <class>LocationView</class>
+   <extends>QListView</extends>
+   <header>widgets.h</header>
   </customwidget>
  </customwidgets>
  <resources>

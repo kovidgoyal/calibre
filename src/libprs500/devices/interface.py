@@ -31,7 +31,7 @@ class Device(object):
     # Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
     VENDOR_ID   = 0x0000
-    PRODICT_ID  = 0x0000 
+    PRODUCT_ID  = 0x0000 
     
     def __init__(self, key='-1', log_packets=False, report_progress=None) :
         """ 
@@ -49,11 +49,26 @@ class Device(object):
         '''Return True iff the device is physically connected to the computer'''
         raise NotImplementedError()
     
+    def set_progress_reporter(self, report_progress):
+        '''
+        @param report_progress: Function that is called with a % progress 
+                                (number between 0 and 100) for various tasks
+                                If it is called with -1 that means that the 
+                                task does not have any progress information
+        '''
+        raise NotImplementedError()
+    
     def get_device_information(self, end_session=True):
         """ 
         Ask device for device information. See L{DeviceInfoQuery}. 
         @return: (device name, device version, software version on device, mime type)
         """
+        raise NotImplementedError()
+    
+    def card_prefix(self, end_session=True):
+        '''
+        Return prefix to paths on the card or None if no cards present.
+        '''
         raise NotImplementedError()
     
     def total_space(self, end_session=True):
@@ -72,11 +87,11 @@ class Device(object):
         """ 
         Get free space available on the mountpoints:
           1. Main memory
-          2. Memory Stick
-          3. SD Card
+          2. Card A
+          3. Card B
 
         @return: A 3 element list with free space in bytes of (1, 2, 3). If a
-        particular device doesn't have any of these locations it should return 0.
+        particular device doesn't have any of these locations it should return -1.
         """    
         raise NotImplementedError()
     
@@ -84,8 +99,8 @@ class Device(object):
         """ 
         Return a list of ebooks on the device.
         @param oncard: If True return a list of ebooks on the storage card, 
-                            otherwise return list of ebooks in main memory of device
-
+                       otherwise return list of ebooks in main memory of device.
+                       If True and no books on card return empty list. 
         @return: A list of Books. Each Book object must have the fields:
         title, author, size, datetime (a time tuple), path, thumbnail (can be None).
         """    

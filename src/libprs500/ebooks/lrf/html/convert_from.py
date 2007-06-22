@@ -106,26 +106,26 @@ class Span(_Span):
         
         def font_size(val):
             ans = None
-            unit = Span.unit_convert(val, dpi, 14)
+            unit = Span.unit_convert(val, dpi, 14)            
             if unit:
                 # Assume a 10 pt font (14 pixels) has fontsize 100
                 ans = int(unit * (72./dpi) * 10)
             else:
                 if "xx-small" in val:
                     ans = 40
-                elif "x-small" in val >= 0:
+                elif "x-small" in val:
                     ans = 60
                 elif "small" in val:
                     ans = 80
                 elif "xx-large" in val:
                     ans = 180
-                elif "x-large" in val >= 0:
+                elif "x-large" in val:
                     ans = 140
-                elif "large" in val >= 0:
+                elif "large" in val:
                     ans = 120
             if ans is not None: 
                 ans += int(font_delta * 20)
-                ans = str(ans)
+                ans = str(ans)                
             return ans
         
         t = dict()
@@ -262,20 +262,21 @@ class HTMLConverter(object):
         '''
         # Defaults for various formatting tags        
         self.css = dict(
-            h1     = {"font-size"   :"xx-large", "font-weight":"bold", 'text-indent':'0pt'},
-            h2     = {"font-size"   :"x-large", "font-weight":"bold", 'text-indent':'0pt'},
-            h3     = {"font-size"   :"large", "font-weight":"bold", 'text-indent':'0pt'},
-            h4     = {"font-size"   :"large", 'text-indent':'0pt'},
-            h5     = {"font-weight" :"bold", 'text-indent':'0pt'},
-            b      = {"font-weight" :"bold"},
-            strong = {"font-weight" :"bold"},
-            i      = {"font-style"  :"italic"},
-            em     = {"font-style"  :"italic"},
-            small  = {'font-size'   :'small'},
-            pre    = {'font-family' :'monospace' },
-            tt     = {'font-family' :'monospace'},
+            h1     = {"font-size"   : "xx-large", "font-weight":"bold", 'text-indent':'0pt'},
+            h2     = {"font-size"   : "x-large", "font-weight":"bold", 'text-indent':'0pt'},
+            h3     = {"font-size"   : "large", "font-weight":"bold", 'text-indent':'0pt'},
+            h4     = {"font-size"   : "large", 'text-indent':'0pt'},
+            h5     = {"font-weight" : "bold", 'text-indent':'0pt'},
+            b      = {"font-weight" : "bold"},
+            strong = {"font-weight" : "bold"},
+            i      = {"font-style"  : "italic"},
+            em     = {"font-style"  : "italic"},
+            small  = {'font-size'   : 'small'},
+            pre    = {'font-family' : 'monospace' },
+            tt     = {'font-family' : 'monospace'},
             center = {'text-align'  : 'center'},
-            th     = {'font-size':'large', 'font-weight':'bold'},
+            th     = {'font-size'   : 'large', 'font-weight':'bold'},
+            big    = {'font-size'   : 'large', 'font-weight':'bold'},
             )        
         self.profile     = profile #: Defines the geometry of the display device
         self.chapter_detection = chapter_detection #: Flag to toggle chapter detection
@@ -389,6 +390,8 @@ class HTMLConverter(object):
             prop.update(temp)
             
         prop = dict()
+        if parent_css:
+            merge_parent_css(prop, parent_css)
         if tag.has_key("align"):
             prop["text-align"] = tag["align"]
         if self.css.has_key(tag.name):
@@ -398,8 +401,6 @@ class HTMLConverter(object):
             for classname in ["."+cls, tag.name+"."+cls]:
                 if self.css.has_key(classname):
                     prop.update(self.css[classname])
-        if parent_css:
-            merge_parent_css(prop, parent_css)
         if tag.has_key("style"):
             prop.update(self.parse_style_properties(tag["style"]))    
         return prop
@@ -1043,7 +1044,7 @@ class HTMLConverter(object):
             self.end_current_para()
             if tagname.startswith('h'):
                 self.current_block.append(CR())
-        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt']:
+        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
             if tag.has_key('face'):

@@ -224,6 +224,8 @@ class PRS500(Device):
         """
         return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None
 
+    def set_progress_reporter(self, report_progress):
+        self.report_progress = report_progress
     
     def open(self) :
         """
@@ -585,6 +587,21 @@ class PRS500(Device):
             data.append( pkt.total )    
         return data
 
+    @safe
+    def card_prefix(self, end_session=True):
+        '''Return prefix of path to card or None if no cards present'''
+        try:
+            path = 'a:/'
+            self.path_properties(path, end_session=False)
+            return path
+        except PathError:
+            try:
+                path = 'b:/'
+                self.path_properties(path, end_session=False)
+                return path
+            except PathError:
+                return None
+    
     @safe
     def free_space(self, end_session=True):
         """ 

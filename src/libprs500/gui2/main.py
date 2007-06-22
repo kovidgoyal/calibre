@@ -21,10 +21,12 @@ from PyQt4.QtGui import QPixmap, QErrorMessage, QLineEdit, \
                         QMessageBox, QFileDialog, QIcon, QDialog, QInputDialog
 from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
 
+from libprs500 import __version__ as VERSION
 from libprs500.gui2 import APP_TITLE, installErrorHandler
 from libprs500.gui2.main_ui import Ui_MainWindow
-from libprs500.gui2.device import DeviceDetector
+from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
+from libprs500.gui2.jobs import JobManager, JobException
 
 class Main(QObject, Ui_MainWindow):
     
@@ -34,6 +36,10 @@ class Main(QObject, Ui_MainWindow):
         self.window = window
         self.setupUi(window)
         self.read_settings()
+        self.job_manager = JobManager()
+        self.device_manager = None
+        self.temporary_slots = {}
+        self.df.setText(self.df.text().arg(VERSION))
         
         ####################### Status Bar #####################
         self.status_bar = StatusBar()
@@ -54,13 +60,23 @@ class Main(QObject, Ui_MainWindow):
         ####################### Setup device detection ########################
         self.detector = DeviceDetector(sleep_time=2000)
         QObject.connect(self.detector, SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), 
-                        self.device_connected, Qt.QueuedConnection)
+                        self.device_detected, Qt.QueuedConnection)
         self.detector.start(QThread.InheritPriority)
         
+    
         
-        
-    def device_connected(self, cls, connected):
-        print cls, connected
+    def device_detected(self, cls, connected):
+        if connected:
+            def info_read(id, result, exception, formatted_traceback):
+                if exception:
+                    pass #TODO: Handle error
+                info, cp, fs = result
+                print self, id, result, exception, formatted_traceback
+            self.temporary_slots['device_info_read'] = info_read
+            self.device_manager = DeviceManager(cls)
+            func = self.device_manager.get_info_func()
+            self.job_manager.run_device_job(info_read, func)
+            
     
     def read_settings(self):
         settings = QSettings()
@@ -95,8 +111,16 @@ def main():
     installErrorHandler(QErrorMessage(window))
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName(APP_TITLE)
-    Main(window) 
+    main = Main(window)
+    def unhandled_exception(type, value, tb):
+        import traceback
+        traceback.print_exception(type, value, tb, file=sys.stderr)
+        if type == KeyboardInterrupt:
+            QCoreApplication.exit(1)
+    sys.excepthook = unhandled_exception
+    
     return app.exec_()
+    
         
 if __name__ == '__main__':
     main()

@@ -91,7 +91,7 @@ def option_parser(usage):
                       ''' Supported profiles: '''+', '.join(profiles))
     page.add_option('--left-margin', default=20, dest='left_margin', type='int',
                     help='''Left margin of page. Default is %default px.''')
-    page.add_option('--right-margin', default=5, dest='right_margin', type='int',
+    page.add_option('--right-margin', default=20, dest='right_margin', type='int',
                     help='''Right margin of page. Default is %default px.''')
     page.add_option('--top-margin', default=10, dest='top_margin', type='int',
                     help='''Top margin of page. Default is %default px.''')
