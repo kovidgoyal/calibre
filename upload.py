@@ -20,7 +20,7 @@ def build_windows():
     
     
     
-    vm = h.openVM('/mnt/backup/vmware/Windows Vista/Windows Vista.vmx')
+    vm = h.openVM('/mnt/vista/vmware/Windows Vista/Windows Vista.vmx')
     vm.powerOn() 
     if not vm.waitForToolsInGuest():
         print >>sys.stderr, 'Windows is not booting up'
@@ -44,7 +44,7 @@ def build_osx():
     if os.path.exists('dist/dmgdone'):
         os.unlink('dist/dmgdone')
     
-    vm = h.openVM('/mnt/backup/vmware/Mac OSX/Mac OSX.vmx')
+    vm = h.openVM('/mnt/osx/Mac OSX/Mac OSX.vmx')
     vm.powerOn()
     c = 25 * 60
     print 'Waiting (minutes):',

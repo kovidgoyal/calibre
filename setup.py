@@ -21,12 +21,13 @@ from libprs500 import __appname__ as APPNAME
 
 entry_points = {
         'console_scripts': [ \
-                             'prs500 = libprs500.devices.prs500.cli.main:main', \
+                             'prs500   = libprs500.devices.prs500.cli.main:main', \
                              'lrf-meta = libprs500.ebooks.lrf.meta:main', \
                              'rtf-meta = libprs500.ebooks.metadata.rtf:main', \
-                             'txt2lrf = libprs500.ebooks.lrf.txt.convert_from:main', \
+                             'txt2lrf  = libprs500.ebooks.lrf.txt.convert_from:main', \
                              'html2lrf = libprs500.ebooks.lrf.html.convert_from:main',\
                              'markdown = libprs500.ebooks.markdown.markdown:main',\
+                             'lit2lrf  = libprs500.ebooks.lrf.lit.convert_from:main',\
                            ], 
         'gui_scripts'    : [ APPNAME+' = libprs500.gui.main:main']
       }

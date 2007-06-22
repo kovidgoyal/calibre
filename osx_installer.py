@@ -174,6 +174,7 @@ _check_symlinks_prescript()
         self.add_qt_plugins()
         resource_dir = os.path.join(self.dist_dir, 
                                     APPNAME + '.app', 'Contents', 'Resources')
+        frameworks_dir = os.path.join(os.path.dirname(resource_dir), 'Frameworks')
         all_scripts = scripts['console'] + scripts['gui']
         all_names   = basenames['console'] + basenames['gui']
         all_modules   = main_modules['console'] + main_modules['gui']
@@ -189,6 +190,9 @@ _check_symlinks_prescript()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
             
+        print
+        print 'Adding clit'
+        os.link(os.path.expanduser('~/clit'), os.path.join(frameworks_dir, 'clit'))
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]

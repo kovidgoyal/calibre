@@ -50,6 +50,7 @@ Var MUI_TEMP
 !define PY2EXE_DIR "%(py2exe_dir)s"
 !define LIBUSB_DIR "C:\libusb-prs500"
 !define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
+!define CLIT         "C:\clit\clit.exe"
 
 ;------------------------------------------------------------------------------------------------------
 ;General
@@ -117,6 +118,7 @@ Section "libprs500" Seclibprs500
   
   ;ADD YOUR OWN FILES HERE...
   File /r "${PY2EXE_DIR}\*"
+  File "${CLIT}"
     
   SetOutPath "$INSTDIR\driver"
   File "${LIBUSB_DIR}\*.dll"
@@ -278,6 +280,9 @@ class BuildEXE(build_exe):
 console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i]) 
            for i in range(len(scripts['console']))]
 
+PY2EXE_DIR = os.path.join('build','py2exe')
+if os.path.exists(PY2EXE_DIR):
+    shutil.rmtree(PY2EXE_DIR)
 setup(
       cmdclass = {'py2exe': BuildEXE},
       windows = [{'script'          : scripts['gui'][0], 
@@ -288,7 +293,7 @@ setup(
       console = console,
       options = { 'py2exe' : {'compressed': 1,
                               'optimize'  : 2,
-                              'dist_dir'  : r'build\py2exe',
+                              'dist_dir'  : PY2EXE_DIR,
                               'includes'  : ['sip', 'pkg_resources', 'PyQt4.QtSvg'],                                
                               'packages'  : ['PIL'],
                               'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
