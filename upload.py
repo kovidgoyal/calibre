@@ -20,7 +20,7 @@ def build_windows():
     
     
     
-    vm = h.openVM('/mnt/vista/vmware/Windows Vista/Windows Vista.vmx')
+    vm = h.openVM('/mnt/vista/Windows Vista/Windows Vista.vmx')
     vm.powerOn() 
     if not vm.waitForToolsInGuest():
         print >>sys.stderr, 'Windows is not booting up'
