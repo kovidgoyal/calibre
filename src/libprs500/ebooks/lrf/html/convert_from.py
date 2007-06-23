@@ -1174,12 +1174,12 @@ def process_file(path, options):
 
 def try_opf(path, options):
     try:
-        opf = glob.glob('*.opf')[0]
+        opf = glob.glob(os.path.join(os.path.dirname(path),'*.opf'))[0]
     except IndexError:
         return
     soup = BeautifulStoneSoup(open(opf).read())
     try:
-        title = soup.package.metadata.find('dc:title')
+        title = soup.package.metadata.find('dc:title')        
         if title and not options.title:
             options.title = title.string
         creators = soup.package.metadata.findAll('dc:creator')
