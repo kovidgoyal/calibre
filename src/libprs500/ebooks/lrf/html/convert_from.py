@@ -1215,10 +1215,10 @@ def try_opf(path, options):
                         match.lower().endswith('.gif') or match.lower().endswith('.png'):
                             options.cover = match
         if not options.cover:
-            ref = soup.package.find('reference', {'type':'other.ms-coverimage-standard'})
+            ref = soup.package.find('reference', {'type':'other.ms-coverimage-standard'})            
             if ref:
                 try:
-                    options.cover = ref.get('href')
+                    options.cover = os.path.join(os.path.dirname(path), ref.get('href'))
                     if not os.access(options.cover, os.R_OK):
                         options.cover = None
                 except:
