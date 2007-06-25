@@ -1013,16 +1013,16 @@ class HTMLConverter(object):
             self.current_para = Paragraph()
             self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
                                                              blockStyle=pb.blockStyle)
-        elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:            
+        elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            src = self.get_text(tag)
             if self.chapter_detection and tagname.startswith('h'):
-                src = self.get_text(tag)                
                 if self.chapter_regex.search(src):
                     if self.verbose:
                         print 'Detected chapter', src
                     self.end_page()
                     self.page_break_found = True
             self.end_current_para()
-            if not tag.contents or not ''.join(tag.contents).strip(): # Handle empty <p></p> elements
+            if not tag.contents or not src.strip(): # Handle empty <p></p> elements
                 self.current_block.append(CR())
                 return
             self.lstrip_toggle = True            
