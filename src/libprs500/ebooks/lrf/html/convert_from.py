@@ -1022,6 +1022,9 @@ class HTMLConverter(object):
                     self.end_page()
                     self.page_break_found = True
             self.end_current_para()
+            if not tag.contents or not ''.join(tag.contents).strip(): # Handle empty <p></p> elements
+                self.current_block.append(CR())
+                return
             self.lstrip_toggle = True            
             if tag_css.has_key('text-indent'):
                 indent = Span.unit_convert(tag_css['text-indent'], self.profile.dpi)
@@ -1215,6 +1218,7 @@ def try_opf(path, options):
                         match.lower().endswith('.gif') or match.lower().endswith('.png'):
                             options.cover = match
         if not options.cover:
+            # Search for cover image in opf as created by convertlit
             ref = soup.package.find('reference', {'type':'other.ms-coverimage-standard'})            
             if ref:
                 try:
