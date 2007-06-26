@@ -47,7 +47,7 @@ def Error(msg, e):
         error_dialog.showMessage(msg)
         error_dialog.show()
         
-def human_readable(cls, size):
+def human_readable(size):
     """ Convert a size in bytes into a human readable form """
     if size < 1024: 
         divisor, suffix = 1, "B"

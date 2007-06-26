@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Thu Jun 21 20:31:43 2007
+# Created: Fri Jun 22 16:40:15 2007
 #      by: PyQt4 UI code generator 4-snapshot-20070606
 #
 # WARNING! All changes made in this file will be lost!
@@ -32,35 +32,35 @@ class Ui_MainWindow(object):
         self.hboxlayout.setMargin(0)
         self.hboxlayout.setObjectName("hboxlayout")
 
-        self.device_tree = LocationView(self.centralwidget)
+        self.location_view = LocationView(self.centralwidget)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.device_tree.sizePolicy().hasHeightForWidth())
-        self.device_tree.setSizePolicy(sizePolicy)
-        self.device_tree.setMaximumSize(QtCore.QSize(10000,90))
-        self.device_tree.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.device_tree.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.device_tree.setDragDropMode(QtGui.QAbstractItemView.DragDrop)
-        self.device_tree.setFlow(QtGui.QListView.TopToBottom)
-        self.device_tree.setSpacing(20)
-        self.device_tree.setViewMode(QtGui.QListView.IconMode)
-        self.device_tree.setObjectName("device_tree")
-        self.hboxlayout.addWidget(self.device_tree)
+        sizePolicy.setHeightForWidth(self.location_view.sizePolicy().hasHeightForWidth())
+        self.location_view.setSizePolicy(sizePolicy)
+        self.location_view.setMaximumSize(QtCore.QSize(10000,90))
+        self.location_view.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.location_view.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.location_view.setDragDropMode(QtGui.QAbstractItemView.DragDrop)
+        self.location_view.setFlow(QtGui.QListView.TopToBottom)
+        self.location_view.setSpacing(20)
+        self.location_view.setViewMode(QtGui.QListView.IconMode)
+        self.location_view.setObjectName("location_view")
+        self.hboxlayout.addWidget(self.location_view)
 
-        self.df = QtGui.QLabel(self.centralwidget)
+        self.vanity = QtGui.QLabel(self.centralwidget)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.df.sizePolicy().hasHeightForWidth())
-        self.df.setSizePolicy(sizePolicy)
-        self.df.setMaximumSize(QtCore.QSize(16777215,90))
-        self.df.setTextFormat(QtCore.Qt.RichText)
-        self.df.setOpenExternalLinks(True)
-        self.df.setObjectName("df")
-        self.hboxlayout.addWidget(self.df)
+        sizePolicy.setHeightForWidth(self.vanity.sizePolicy().hasHeightForWidth())
+        self.vanity.setSizePolicy(sizePolicy)
+        self.vanity.setMaximumSize(QtCore.QSize(16777215,90))
+        self.vanity.setTextFormat(QtCore.Qt.RichText)
+        self.vanity.setOpenExternalLinks(True)
+        self.vanity.setObjectName("vanity")
+        self.hboxlayout.addWidget(self.vanity)
         self.gridlayout.addLayout(self.hboxlayout,0,0,1,1)
 
         self.hboxlayout1 = QtGui.QHBoxLayout()
@@ -184,7 +184,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "libprs500", None, QtGui.QApplication.UnicodeUTF8))
-        self.df.setText(QtGui.QApplication.translate("MainWindow", "For help visit <a href=\"https://libprs500.kovidgoyal.net/wiki/GuiUsage\">http://libprs500.kovidgoyal.net</a><br><br><b>libprs500</b>: %1 by <b>Kovid Goyal</b> &copy; 2007<br>%2 %3 %4", None, QtGui.QApplication.UnicodeUTF8))
+        self.vanity.setText(QtGui.QApplication.translate("MainWindow", "For help visit <a href=\"https://libprs500.kovidgoyal.net/wiki/GuiUsage\">http://libprs500.kovidgoyal.net</a><br><br><b>libprs500</b>: %1 by <b>Kovid Goyal</b> &copy; 2007<br>%2", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "&Search:", None, QtGui.QApplication.UnicodeUTF8))
         self.search.setToolTip(QtGui.QApplication.translate("MainWindow", "Search the list of books by title or author<br><br>Words separated by spaces are ANDed", None, QtGui.QApplication.UnicodeUTF8))
         self.search.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Search the list of books by title, author, publisher, tags and comments<br><br>Words separated by spaces are ANDed", None, QtGui.QApplication.UnicodeUTF8))

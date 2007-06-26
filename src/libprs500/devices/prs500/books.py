@@ -57,7 +57,7 @@ class Book(object):
     size         = book_metadata_field("size", formatter=int)
     # When setting this attribute you must use an epoch
     datetime     = book_metadata_field("date", \
-                           formatter=lambda x:  time.strptime(x, "%a, %d %b %Y %H:%M:%S %Z"), 
+                           formatter=lambda x:  time.strptime(x.strip(), "%a, %d %b %Y %H:%M:%S %Z"), 
                            setter=lambda x: time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(x)))
     
     @apply

@@ -31,10 +31,9 @@ def build_windows():
     vm.loginInGuest('kovid', 'et tu brutus')
     vm.loginInGuest(VIX_CONSOLE_USER_NAME, '')
     vm.runProgramInGuest('C:\\Users\kovid\Desktop\libprs500.bat', '')
-    vm.runProgramInGuest('C:\Windows\system32\shutdown.exe', '/s')
-    
     if not glob.glob('dist/*.exe'):
         raise Exception('Windows build has failed')
+    vm.runProgramInGuest('C:\Windows\system32\shutdown.exe', '/s')
     return os.path.basename(glob.glob('dist/*.exe')[-1])
 
 def build_osx():
@@ -53,6 +52,7 @@ def build_osx():
         c -= 10
         if c%60==0:
             print c/60, ',',
+            sys.stdout.flush()
     print
         
     if not os.path.exists('dist/dmgdone'):

@@ -1212,11 +1212,15 @@ def try_opf(path, options):
             isbn.append((scheme, item.string))
             if not options.cover:
                 for item in isbn:
-                    matches = glob.glob(re.sub('-', '', item[1])+'.*')
+                    src = item[1].replace('-', '')
+                    matches = glob.glob(os.path.join(os.path.dirname(path), src+'.*'))
                     for match in matches:
-                        if match.lower().endswith('.jpeg') or match.lower().endswith('.jpg') or \
-                        match.lower().endswith('.gif') or match.lower().endswith('.png'):
+                        test = os.path.splitext(match)[1].lower()
+                        if test in ['.jpeg', '.jpg', '.gif', '.png']:
                             options.cover = match
+                            break
+                
+        
         if not options.cover:
             # Search for cover image in opf as created by convertlit
             ref = soup.package.find('reference', {'type':'other.ms-coverimage-standard'})            

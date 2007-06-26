@@ -45,7 +45,7 @@ class LocationModel(QAbstractListModel):
             data = self.icons[row]
         elif role == Qt.SizeHintRole:
             if row == 1: 
-                return QVariant(QSize(150, 70))
+                return QVariant(QSize(150, 65))
         elif role == Qt.FontRole: 
             font = QFont()
             font.setBold(True)
@@ -55,13 +55,13 @@ class LocationModel(QAbstractListModel):
     def headerData(self, section, orientation, role):
         return NONE
     
-    def update_devices(self, cp, fs):
+    def update_devices(self, cp=None, fs=[-1, -1, -1]):
         self.free[0] = fs[0]
         self.free[1] = max(fs[1:])
         if cp == None:
             self.free[1] = -1
-        self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), 
-                  self.index(1), self.index(2))
+        print self.free, self.rowCount(None)
+        self.reset()
 
 class LocationView(QListView):
         

@@ -39,7 +39,10 @@ class Main(QObject, Ui_MainWindow):
         self.job_manager = JobManager()
         self.device_manager = None
         self.temporary_slots = {}
-        self.df.setText(self.df.text().arg(VERSION))
+        
+        ####################### Vanity ########################
+        self.vanity_template = self.vanity.text().arg(VERSION)
+        self.vanity.setText(self.vanity_template.arg(' '))
         
         ####################### Status Bar #####################
         self.status_bar = StatusBar()
@@ -64,18 +67,25 @@ class Main(QObject, Ui_MainWindow):
         self.detector.start(QThread.InheritPriority)
         
     
+    def job_exception(self, id, exception, formatted_traceback):
+        raise JobException, str(exception) + '\n\r' + formatted_traceback
         
     def device_detected(self, cls, connected):
         if connected:
-            def info_read(id, result, exception, formatted_traceback):
-                if exception:
-                    pass #TODO: Handle error
-                info, cp, fs = result
-                print self, id, result, exception, formatted_traceback
-            self.temporary_slots['device_info_read'] = info_read
+            
+                
             self.device_manager = DeviceManager(cls)
             func = self.device_manager.get_info_func()
-            self.job_manager.run_device_job(info_read, func)
+            
+            self.job_manager.run_device_job(self.info_read, func)
+            
+    def info_read(self, id, result, exception, formatted_traceback):
+        if exception:
+            self.job_exception(id, exception, formatted_traceback)
+            return
+        info, cp, fs = result
+        self.location_view.model().update_devices(cp, fs)
+        self.vanity.setText(self.vanity_template.arg('Connected '+' '.join(info[:-1])))
             
     
     def read_settings(self):

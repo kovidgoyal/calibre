@@ -88,19 +88,18 @@ class DeviceManager(QObject):
     def get_info_func(self):
         ''' Return callable that returns device information and free space on device'''
         def get_device_information(updater):
-            self.device.set_updater(updater)
+            self.device.set_progress_reporter(updater)
             info = self.device.get_device_information(end_session=False)
-            info = {'name':info[0], 'version':info[1], 'swversion':[2], 'mimetype':info[3]}
+            info = [i.replace('\x00', '').replace('\x01', '') for i in info]
             cp = self.device.card_prefix(end_session=False)
             fs = self.device.free_space()
-            fs = {'main':fs[0], 'carda':fs[1], 'cardb':fs[2]}
             return info, cp, fs
         return get_device_information
     
     def books_func(self):
         '''Return callable that returns the list of books on device as two booklists'''
         def books(updater):
-            self.device.set_updater(updater)
+            self.device.set_progress_reporter(updater)
             mainlist = self.device.books(oncard=False, end_session=False)
             cardlist = self.device.books(oncard=True)
             return mainlist, cardlist
