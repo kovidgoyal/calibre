@@ -483,17 +483,19 @@ class HTMLConverter(object):
                 raise ConversionError, 'Could not parse ' + self.file_name
             
             
-    def get_text(self, tag):
+    def get_text(self, tag, limit=None):
             css = self.tag_css(tag)
             if (css.has_key('display') and css['display'].lower() == 'none') or \
                (css.has_key('visibility') and css['visibility'].lower() == 'hidden'):
                 return ''
-            text = ''
+            text = u''
             for c in tag.contents:
+                if limit != None and len(text) > limit:
+                    break
                 if isinstance(c, HTMLConverter.IGNORED_TAGS):
-                    return ''
+                    return u''
                 if isinstance(c, NavigableString):
-                    text += str(c)                
+                    text += unicode(c)                
                 elif isinstance(c, Tag):
                     if c.name.lower() == 'img' and c.has_key('alt'):
                         text += c['alt']
@@ -1046,7 +1048,7 @@ class HTMLConverter(object):
             self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
                                                              blockStyle=pb.blockStyle)
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-            src = self.get_text(tag)
+            src = self.get_text(tag, limit=1000)
             if self.chapter_detection and tagname.startswith('h'):
                 if self.chapter_regex.search(src):
                     if self.verbose:
