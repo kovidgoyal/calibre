@@ -61,8 +61,16 @@ def main():
             if not l:
                 l = glob.glob(os.path.join(tdir, '*top*.htm*'))
             if not l:
-                raise ConversionError, 'Conversion of lit to html failed.'
-            htmlfile = l[0]
+                l = glob.glob(os.path.join(tdir, '*.htm*'))
+                if not l:
+                    raise ConversionError, 'Conversion of lit to html failed. Cannot find html file.'
+                maxsize, htmlfile = 0, None
+                for c in l:
+                    sz = os.path.getsize(c)
+                    if sz > maxsize:
+                        maxsize, htmlfile = sz, c
+            else:
+                htmlfile = l[0]
             for i in range(1, len(sys.argv)):
                 if sys.argv[i] == args[0]:
                     sys.argv.remove(sys.argv[i])

@@ -1143,7 +1143,7 @@ def process_file(path, options):
                 im = PILImage.open(os.path.join(cwd, cpath))
                 cim = im.resize((options.profile.screen_width, 
                                  options.profile.screen_height), 
-                                PILImage.BICUBIC)
+                                PILImage.BICUBIC).convert('RGB')
                 cf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
                 cf.close()                
                 cim.save(cf.name)
