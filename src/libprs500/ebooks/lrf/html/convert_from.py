@@ -1149,7 +1149,7 @@ def process_file(path, options):
                 cim.save(cf.name)
                 cpath = cf.name
                 th = PRS500.THUMBNAIL_HEIGHT
-                tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS)
+                tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
                 tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
                 tf.close()
                 tim.save(tf.name)

@@ -68,7 +68,11 @@ def upload_demo():
     f.write(open(os.path.join(HTML2LRF, 'demo.html')).read())
     f.write('\n</pre>')
     f.close()
-    check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' --header --output=/tmp/html2lrf.lrf %s/demo.html'''%(HTML2LRF,))
+    check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' '''
+               '''--header --output=/tmp/html2lrf.lrf %s/demo.html '''
+               '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''
+               '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
+               ''''''%(HTML2LRF,))
     check_call('''scp /tmp/html2lrf.lrf castalia:%s/'''%(DOWNLOADS,))
     check_call('''txt2lrf -t 'Demonstration of txt2lrf' -a 'Kovid Goyal' --header -o /tmp/txt2lrf.lrf %s/demo.txt'''%(TXT2LRF,) )
     check_call('''scp /tmp/txt2lrf.lrf castalia:%s/'''%(DOWNLOADS,))
