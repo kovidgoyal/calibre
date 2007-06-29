@@ -228,6 +228,9 @@ class HTMLConverter(object):
                          # sometimes there are unterminated comments
                         (re.compile(r"<\s*style.*?>(.*?)<\/\s*style\s*>", re.DOTALL|re.IGNORECASE),
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
+                         # remove <p> tags from within <a> tags
+                        (re.compile(r'<a.*?>.*?(<p.*?>)', re.DOTALL|re.IGNORECASE),
+                         lambda match: match.group().replace(match.group(1), '')),
                          ]
     # Fix Baen markup
     BAEN_SANCTIFY = [(re.compile(r'<\s*[Aa]\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*<\/[Aa]>'), 
@@ -619,7 +622,7 @@ class HTMLConverter(object):
                 self.book.append(jb)
                 cb = CharButton(jb, text=text)
                 para.contents = []
-                para.append(cb)                
+                para.append(cb)       
                     
         self.links_processed = True        
         
@@ -933,8 +936,8 @@ class HTMLConverter(object):
                     ['png', 'jpg', 'bmp', 'jpeg']:
                     self.process_image(path, tag_css)
                 else:
-                    text = self.get_text(tag)
-                    if not text:
+                    text = self.get_text(tag, limit=1000)
+                    if not text.strip():
                         text = "Link"
                     self.add_text(text, tag_css)
                     self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
@@ -1081,6 +1084,8 @@ class HTMLConverter(object):
             self.end_current_para()
             if tagname.startswith('h'):
                 self.current_block.append(CR())
+            if tag.has_key('id'):
+                self.targets[tag['id']] = self.current_block
         elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
