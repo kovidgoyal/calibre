@@ -215,8 +215,6 @@ class Span(_Span):
             attrs.pop('fontfacename')
         _Span.__init__(self, text=src, **attrs)
         
-        
-        
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
@@ -230,7 +228,7 @@ class HTMLConverter(object):
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
                          # remove <p> tags from within <a> tags
                         (re.compile(r'<a.*?>(.*?)</a\s*>', re.DOTALL|re.IGNORECASE),
-                         lambda match: re.compile(r'<.*?p.*?>', re.IGNORECASE).sub('', match.group())),
+                         lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
                          ]
     # Fix Baen markup
     BAEN_SANCTIFY = [(re.compile(r'<\s*[Aa]\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*<\/[Aa]>'), 
@@ -551,9 +549,9 @@ class HTMLConverter(object):
         cwd = os.getcwd()        
         for link in self.links:
             para, tag = link.para, link.tag
-            text = self.get_text(tag)
+            text = self.get_text(tag, 1000)
             # Needed for TOC entries due to bug in LRF
-            ascii_text = text.decode('utf8', 'replace').encode('ascii', 'replace')
+            ascii_text = text.encode('ascii', 'replace')
             if not text:
                 text = 'Link'
                 img = tag.find('img')
@@ -996,7 +994,7 @@ class HTMLConverter(object):
             lines = src.split('\n')
             for line in lines:
                 try:
-                    self.current_para.append(Span(line, tag_css, self.memory, self.profile.dpi, self.fonts))
+                    self.current_para.append(line)
                     self.current_para.CR()
                 except ConversionError:
                     pass
@@ -1375,7 +1373,7 @@ def console_query(dirpath, candidate, docs):
 def get_path(path, query=console_query):
     path = os.path.abspath(os.path.expanduser(path))
     ext = os.path.splitext(path)[1][1:].lower()
-    if ext in ['htm', 'html', 'xhtml']:
+    if ext in ['htm', 'html', 'xhtml', 'php']:
         return None, path
     dirpath = mkdtemp('','html2lrf')
     extract(path, dirpath)
