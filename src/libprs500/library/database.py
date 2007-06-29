@@ -698,11 +698,3 @@ class LibraryDatabase(object):
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
         self.conn.commit()
             
-if __name__ == '__main__':    
-    from IPython.Shell import IPShellEmbed
-    ipshell = IPShellEmbed([],
-                       banner = 'Dropping into IPython',
-                       exit_msg = 'Leaving Interpreter, back to program.')
-    db = LibraryDatabase('/home/kovid/library1.db')
-    conn = db.conn
-    ipshell()

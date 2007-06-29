@@ -61,6 +61,8 @@ def main():
             if not l:
                 l = glob.glob(os.path.join(tdir, '*top*.htm*'))
             if not l:
+                l = glob.glob(os.path.join(tdir, '*contents*.htm*'))
+            if not l:
                 l = glob.glob(os.path.join(tdir, '*.htm*'))
                 if not l:
                     raise ConversionError, 'Conversion of lit to html failed. Cannot find html file.'

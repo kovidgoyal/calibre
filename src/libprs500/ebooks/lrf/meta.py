@@ -594,7 +594,7 @@ def parse_options(argv=None, cli=True):
                     help="Extract thumbnail from LRF file")
     parser.add_option("-p", "--page", action="store", type="string", \
                     dest="page", help="Don't know what this is for")
-    options, args = parser.parse_args()
+    options, args = parser.parse_args(args=argv)
     if len(args) != 1:
         if cli:
             parser.print_help()

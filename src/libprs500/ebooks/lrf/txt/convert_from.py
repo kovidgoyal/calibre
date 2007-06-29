@@ -24,8 +24,10 @@ from libprs500.ebooks.lrf.html.convert_from import parse_options as html_parse_o
 from libprs500.ebooks.lrf.html.convert_from import process_file
 from libprs500.ebooks.markdown import markdown
 
-def parse_options(cli=True):
+def parse_options(argv=None, cli=True):
     """ CLI for txt -> lrf conversions """
+    if not argv:
+        argv = sys.argv[1:]
     parser = option_parser(
         """usage: %prog [options] mybook.txt
         
@@ -37,7 +39,7 @@ def parse_options(cli=True):
               'the text in mybook.txt. Default encoding is %default'
     parser.add_option('-e', '--encoding', action='store', type='string', \
                       dest='encoding', help=enchelp, default=defenc)
-    options, args = parser.parse_args()
+    options, args = parser.parse_args(args=argv)
     if len(args) != 1:
         if cli:
             parser.print_help()
