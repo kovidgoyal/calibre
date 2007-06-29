@@ -102,7 +102,7 @@ class Device(object):
                        otherwise return list of ebooks in main memory of device.
                        If True and no books on card return empty list. 
         @return: A list of Books. Each Book object must have the fields:
-        title, author, size, datetime (a time tuple), path, thumbnail (can be None).
+        title, authors, size, datetime (a UTC time tuple), path, thumbnail (can be None).
         """    
         raise NotImplementedError()
     
@@ -131,5 +131,13 @@ class Device(object):
         @param booklists: A tuple containing the result of calls to 
                                 (L{books}(oncard=False), L{books}(oncard=True)).    
         """
-        raise NotImplementedError()   
+        raise NotImplementedError()
+    
+    def sync_booklists(self, booklists, end_session=True):
+        '''
+        Update metadata on device.
+        @param booklists: A tuple containing the result of calls to 
+                                (L{books}(oncard=False), L{books}(oncard=True)).
+        '''
+        raise NotImplementedError()
 

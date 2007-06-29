@@ -595,14 +595,13 @@ class LibraryDatabase(object):
         '''
         Filter data based on filters. All the filters must match for an item to
         be accepted. Matching is case independent regexp matching.
-        @param filters: A list of strings suitable for compilation into regexps
+        @param filters: A list of compiled regexps
         @param refilter: If True filters are applied to the results of the previous
                          filtering.
         '''
         if not filters:
             self.data = self.data if refilter else self.cache
         else:
-            filters = [re.compile(i, re.IGNORECASE) for i in filters if i]
             matches = []
             for item in self.data if refilter else self.cache:
                 keep = True

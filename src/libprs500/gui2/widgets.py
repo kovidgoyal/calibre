@@ -16,7 +16,7 @@
 Miscellanous widgets used in the GUI
 '''
 from PyQt4.QtGui import QListView, QIcon, QFont
-from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL
+from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, QObject
 
 from libprs500.gui2 import human_readable, NONE
 
@@ -60,8 +60,7 @@ class LocationModel(QAbstractListModel):
         self.free[1] = max(fs[1:])
         if cp == None:
             self.free[1] = -1
-        print self.free, self.rowCount(None)
-        self.reset()
+        self.reset()        
 
 class LocationView(QListView):
         
@@ -69,4 +68,12 @@ class LocationView(QListView):
         QListView.__init__(self, parent)
         self.setModel(LocationModel(self))
         self.reset()
+        QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)
+        
+    
+    def current_changed(self, current, previous):
+        i = current.row()
+        location = 'library' if i == 0 else 'main' if i == 1 else 'card'
+        self.emit(SIGNAL('location_selected(PyQt_PyObject)'), location)
+                        
 

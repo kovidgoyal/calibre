@@ -700,7 +700,7 @@ class DeviceBooksModel(QAbstractTableModel):
             if col == 0: 
                 text = TableView.wrap(book.title, width=40)
             elif col == 1:
-                au = book.author
+                au = book.authors
                 au = au.split("&")
                 jau = [ TableView.wrap(a, width=25).strip() for a in au ]
                 text = "\n".join(jau)                
@@ -723,7 +723,7 @@ class DeviceBooksModel(QAbstractTableModel):
             cover = None if pix.isNull() else pix
         except: 
             traceback.print_exc()
-        au = row.author if row.author else "Unknown"
+        au = row.authors if row.authors else "Unknown"
         return row.title, au, TableView.human_readable(row.size), row.mime, cover
     
     def sort(self, col, order):

@@ -39,6 +39,7 @@ class JobManager(QAbstractTableModel):
             job = job_class(self.next_id, lock, *args, **kwargs)
             QObject.connect(job, SIGNAL('finished()'), self.cleanup_jobs)
             self.jobs[self.next_id] = job
+            self.emit(SIGNAL('job_added(int)'), self.next_id)
             return job
         finally:
             self.job_create_lock.unlock()
@@ -55,8 +56,9 @@ class JobManager(QAbstractTableModel):
         job = self.create_job(DeviceJob, self.device_lock, callable, *args, **kwargs)        
         QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                         self.job_done)
-        QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                        slot)
+        if slot:
+            QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+                            slot)
         job.start()
         
     def job_done(self, id, *args, **kwargs):
@@ -69,6 +71,8 @@ class JobManager(QAbstractTableModel):
             self.cleanup_lock.lock()
             self.cleanup[id] = job            
             self.cleanup_lock.unlock()
+            if len(self.jobs.keys()) == 0:
+                self.emit(SIGNAL('no_more_jobs()'))
         finally:
             self.job_remove_lock.unlock()
         

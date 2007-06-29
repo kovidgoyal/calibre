@@ -15,11 +15,8 @@
 import os, tempfile, sys
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QEventLoop, QString, \
-                         QBuffer, QIODevice, QModelIndex, QThread
-from PyQt4.QtGui import QPixmap, QErrorMessage, QLineEdit, \
-                        QMessageBox, QFileDialog, QIcon, QDialog, QInputDialog
-from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
+                         QSettings, QVariant, QSize, QThread
+from PyQt4.QtGui import QErrorMessage
 
 from libprs500 import __version__ as VERSION
 from libprs500.gui2 import APP_TITLE, installErrorHandler
@@ -40,6 +37,10 @@ class Main(QObject, Ui_MainWindow):
         self.device_manager = None
         self.temporary_slots = {}
         
+        ####################### Location View ########################
+        QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
+                        self.location_selected)
+        
         ####################### Vanity ########################
         self.vanity_template = self.vanity.text().arg(VERSION)
         self.vanity.setText(self.vanity_template.arg(' '))
@@ -47,10 +48,17 @@ class Main(QObject, Ui_MainWindow):
         ####################### Status Bar #####################
         self.status_bar = StatusBar()
         self.window.setStatusBar(self.status_bar)
+        QObject.connect(self.job_manager, SIGNAL('job_added(int)'), self.status_bar.job_added)
+        QObject.connect(self.job_manager, SIGNAL('no_more_jobs()'), self.status_bar.no_more_jobs)
         
-        ####################### Setup books view ########################
+        
+        ####################### Library view ########################
         self.library_view.set_database(self.database_path)
         self.library_view.connect_to_search_box(self.search)
+        self.memory_view.connect_to_search_box(self.search)
+        self.card_view.connect_to_search_box(self.search)
+        self.memory_view.connect_dirtied_signal(self.upload_booklists)
+        self.card_view.connect_dirtied_signal(self.upload_booklists)
         
         window.closeEvent = self.close_event
         window.show()
@@ -67,16 +75,28 @@ class Main(QObject, Ui_MainWindow):
         self.detector.start(QThread.InheritPriority)
         
     
+    def upload_booklists(self):
+        booklists = self.memory_view.model().db, self.card_view.model().db
+        self.job_manager.run_device_job(None, self.device_manager.sync_booklists_func(),
+                                        booklists)
+    
+    def location_selected(self, location):
+        page = 0 if location == 'library' else 1 if location == 'main' else 2
+        self.stack.setCurrentIndex(page)
+        if page == 1:
+            self.memory_view.resizeRowsToContents()
+            self.memory_view.resizeColumnsToContents()
+        if page == 2:
+            self.card_view.resizeRowsToContents()
+            self.card_view.resizeColumnsToContents()
+    
     def job_exception(self, id, exception, formatted_traceback):
         raise JobException, str(exception) + '\n\r' + formatted_traceback
         
     def device_detected(self, cls, connected):
-        if connected:
-            
-                
+        if connected:    
             self.device_manager = DeviceManager(cls)
-            func = self.device_manager.get_info_func()
-            
+            func = self.device_manager.info_func()
             self.job_manager.run_device_job(self.info_read, func)
             
     def info_read(self, id, result, exception, formatted_traceback):
@@ -86,6 +106,20 @@ class Main(QObject, Ui_MainWindow):
         info, cp, fs = result
         self.location_view.model().update_devices(cp, fs)
         self.vanity.setText(self.vanity_template.arg('Connected '+' '.join(info[:-1])))
+        func = self.device_manager.books_func()
+        self.job_manager.run_device_job(self.books_read, func)
+        
+    def books_read(self, id, result, exception, formatted_traceback):
+        if exception:
+            self.job_exception(id, exception, formatted_traceback)
+            return
+        mainlist, cardlist = result
+        self.memory_view.set_database(mainlist)
+        self.card_view.set_database(cardlist)
+        self.memory_view.sortByColumn(3, Qt.DescendingOrder)
+        self.card_view.sortByColumn(3, Qt.DescendingOrder)
+        self.location_selected('main')
+        
             
     
     def read_settings(self):

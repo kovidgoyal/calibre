@@ -170,7 +170,7 @@
      </layout>
     </item>
     <item row="2" column="0" >
-     <widget class="QStackedWidget" name="stacks" >
+     <widget class="QStackedWidget" name="stack" >
       <property name="sizePolicy" >
        <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
         <horstretch>100</horstretch>
@@ -178,7 +178,7 @@
        </sizepolicy>
       </property>
       <property name="currentIndex" >
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="library" >
        <layout class="QVBoxLayout" >
@@ -218,7 +218,42 @@
       <widget class="QWidget" name="main_memory" >
        <layout class="QGridLayout" >
         <item row="0" column="0" >
-         <widget class="BooksView" name="main_memory_view" >
+         <widget class="DeviceBooksView" name="memory_view" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+            <horstretch>100</horstretch>
+            <verstretch>10</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="acceptDrops" >
+           <bool>true</bool>
+          </property>
+          <property name="dragEnabled" >
+           <bool>true</bool>
+          </property>
+          <property name="dragDropOverwriteMode" >
+           <bool>false</bool>
+          </property>
+          <property name="dragDropMode" >
+           <enum>QAbstractItemView::DragDrop</enum>
+          </property>
+          <property name="alternatingRowColors" >
+           <bool>true</bool>
+          </property>
+          <property name="selectionBehavior" >
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+          <property name="showGrid" >
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page" >
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
+         <widget class="DeviceBooksView" name="card_view" >
           <property name="sizePolicy" >
            <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
             <horstretch>100</horstretch>
@@ -346,6 +381,11 @@
    <class>LocationView</class>
    <extends>QListView</extends>
    <header>widgets.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DeviceBooksView</class>
+   <extends>QTableView</extends>
+   <header>library.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -813,10 +813,19 @@ class PRS500(Device):
         for path in paths:
             self.del_file(path, end_session=False)
         fix_ids(booklists[0], booklists[1])
+        self.sync_booklists(booklists, end_session=False)
+        
+    @safe
+    def sync_booklists(self, booklists, end_session=True):
+        '''
+        Upload bookslists to device.
+        @param booklists: A tuple containing the result of calls to 
+                                (L{books}(oncard=False), L{books}(oncard=True)).
+        '''
         self.upload_book_list(booklists[0], end_session=False)
         if len(booklists[1]):
             self.upload_book_list(booklists[1], end_session=False)
-        
+    
     @safe
     def add_book(self, infile, name, info, booklists, oncard=False, \
                             sync_booklists=False, end_session=True):
@@ -858,9 +867,7 @@ class PRS500(Device):
         bkl.add_book(info, name, size, ctime)
         fix_ids(booklists[0], booklists[1])
         if sync_booklists:
-            self.upload_book_list(booklists[0], end_session=False)
-            if len(booklists[1]):
-                self.upload_book_list(booklists[1], end_session=False)
+            self.sync_booklists(booklists, end_session=False)
 
     @safe
     def upload_book_list(self, booklist, end_session=True):

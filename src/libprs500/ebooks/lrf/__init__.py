@@ -16,13 +16,17 @@
 This package contains logic to read and write LRF files. 
 The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}. 
 """
-
+import sys, os
 from optparse import OptionParser, OptionValueError
+from ttfquery import describe, findsystem
+from fontTools.ttLib import TTLibError
 
 from libprs500.ebooks.lrf.pylrs.pylrs import Book as _Book
 from libprs500.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, \
                                              Paragraph, TextStyle, BlockStyle
+from libprs500.ebooks.lrf.fonts import FONT_FILE_MAP
 from libprs500 import __version__ as VERSION
+from libprs500 import iswindows
 
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
@@ -33,11 +37,13 @@ class PRS500_PROFILE(object):
     dpi           = 166
     # Number of pixels to subtract from screen_height when calculating height of text area
     fudge         = 18
-    font_size  = 10  #: Default (in pt)
-    parindent  = 80  #: Default (in px)
-    line_space = 1.2 #: Default (in pt)
+    font_size     = 10  #: Default (in pt)
+    parindent     = 80  #: Default (in px)
+    line_space    = 1.2 #: Default (in pt)
     header_font_size = 6  #: In pt
     header_height    = 30 #: In px
+    default_fonts    = { 'sans': "Swis721 BT Roman", 'mono': "Courier10 BT Roman",
+                         'serif': "Dutch801 Rm BT Roman"} 
     
     
     
@@ -46,6 +52,20 @@ def profile_from_string(option, opt_str, value, parser):
         setattr(parser.values, option.dest, PRS500_PROFILE)
     else:
         raise OptionValueError('Profile: '+value+' is not implemented')
+    
+def font_family(option, opt_str, value, parser):
+    if value:
+        value = value.split(',')
+        if len(value) != 2:
+            raise OptionValueError('Font family specification must be of the form'+\
+                                   ' "path to font directory, font family"')
+        path, family = tuple(value)
+        if not os.path.isdir(path) or not os.access(path, os.R_OK|os.X_OK):
+            raise OptionValueError('Cannot read from ' + path)
+        setattr(parser.values, option.dest, (path, family))
+    else:
+        setattr(parser.values, option.dest, tuple())
+            
     
 class ConversionError(Exception):
     pass
@@ -98,6 +118,24 @@ def option_parser(usage):
     page.add_option('--bottom-margin', default=0, dest='bottom_margin', type='int',
                     help='''Bottom margin of page. Default is %default px.''')
     
+    fonts = parser.add_option_group('FONT FAMILIES', 
+    '''Specify trutype font families for serif, sans-serif and monospace fonts. '''
+    '''These fonts will be embedded in the LRF file. Note that custom fonts lead to '''
+    '''slower page turns. Each family specification is of the form: '''
+    '''"path to fonts directory, family" '''
+    '''For example: '''
+    '''--serif-family "%s, Times New Roman"
+    ''' % ('C:\Windows\Fonts' if iswindows else '/usr/share/fonts/corefonts'))
+    fonts.add_option('--serif-family', action='callback', callback=font_family, 
+                     default=None, dest='serif_family', type='string',
+                     help='The serif family of fonts to embed')
+    fonts.add_option('--sans-family',  action='callback', callback=font_family, 
+                     default=None, dest='sans_family', type='string',
+                     help='The sans-serif family of fonts to embed')
+    fonts.add_option('--mono-family',  action='callback', callback=font_family, 
+                     default=None, dest='mono_family', type='string',
+                     help='The monospace family of fonts to embed')
+    
     debug = parser.add_option_group('DEBUG OPTIONS')
     debug.add_option('--verbose', dest='verbose', action='store_true', default=False,
                       help='''Be verbose while processing''')
@@ -105,6 +143,42 @@ def option_parser(usage):
                       help='Convert to LRS', default=False)
     return parser
 
+def find_custom_fonts(options):
+    fonts = {'serif' : None, 'sans' : None, 'mono' : None}
+    def find_family(option):
+        path, family = option
+        paths = findsystem.findFonts([path])
+        results = {}
+        for path in paths:
+            if len(results.keys()) == 4:
+                break
+            f = describe.openFont(path)
+            name, cfamily = describe.shortName(f)
+            if cfamily.lower().strip() != family.lower().strip():
+                continue
+            try:
+                wt, italic = describe.modifiers(f)
+            except TTLibError:
+                print >>sys.stderr, 'Could not process', path
+            result = (path, name)
+            if wt == 400 and italic == 0:
+                results['normal'] = result
+            elif wt == 400 and italic > 0:
+                results['italic'] = result
+            elif wt >= 700 and italic == 0:
+                results['bold'] = result
+            elif wt >= 700 and italic > 0:
+                results['bi'] = result
+        return results
+    if options.serif_family:
+        fonts['serif'] = find_family(options.serif_family)
+    if options.sans_family:
+        fonts['sans'] = find_family(options.sans_family)
+    if options.mono_family:
+        fonts['mono'] = find_family(options.mono_family)
+    return fonts
+    
+        
 def Book(options, font_delta=0, header=None, 
          profile=PRS500_PROFILE, **settings):
     ps = {}
@@ -126,9 +200,27 @@ def Book(options, font_delta=0, header=None,
         ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin'] + ps['headheight'] + profile.fudge)
     fontsize = int(10*profile.font_size+font_delta*20)
     baselineskip = fontsize + 20
-    return _Book(textstyledefault=dict(fontsize=fontsize, 
-                                       parindent=int(profile.parindent), 
-                                       linespace=int(10*profile.line_space),
-                                       baselineskip=baselineskip), \
-                 pagestyledefault=ps, blockstyledefault=dict(blockwidth=ps['textwidth']),
-                 **settings)
+    fonts = find_custom_fonts(options)
+    tsd = dict(fontsize=fontsize, 
+               parindent=int(profile.parindent), 
+               linespace=int(10*profile.line_space),
+               baselineskip=baselineskip)
+    if fonts['serif'] and fonts['serif'].has_key('normal'):
+        tsd['fontfacename'] = fonts['serif']['normal'][1]
+    
+    book = _Book(textstyledefault=tsd, 
+                pagestyledefault=ps, 
+                blockstyledefault=dict(blockwidth=ps['textwidth']),
+                **settings)
+    for family in fonts.keys():
+        if fonts[family]:
+            for font in fonts[family].values():
+                book.embed_font(*font)
+                FONT_FILE_MAP[font[1]] = font[0]
+    
+    for family in ['serif', 'sans', 'mono']:
+        if not fonts[family]:
+            fonts[family] = { 'normal' : (None, profile.default_fonts[family]) }
+        elif not fonts[family].has_key('normal'):
+            raise ConversionError, 'Could not find the normal version of the ' + family + ' font'
+    return book, fonts

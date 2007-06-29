@@ -75,8 +75,7 @@ class DeviceJob(QThread):
                       self.id, self.result, exception, last_traceback)
             
     def progress_update(self, val):
-        print val
-        self.emit(SIGNAL('status_update(int)'), int(val), Qt.QueuedConnection)
+        self.emit(SIGNAL('status_update(int)'), int(val))
         
         
 class DeviceManager(QObject):
@@ -85,7 +84,7 @@ class DeviceManager(QObject):
         self.device_class = device_class
         self.device = device_class()
         
-    def get_info_func(self):
+    def info_func(self):
         ''' Return callable that returns device information and free space on device'''
         def get_device_information(updater):
             self.device.set_progress_reporter(updater)
@@ -102,5 +101,12 @@ class DeviceManager(QObject):
             self.device.set_progress_reporter(updater)
             mainlist = self.device.books(oncard=False, end_session=False)
             cardlist = self.device.books(oncard=True)
-            return mainlist, cardlist
+            return (mainlist, cardlist)
         return books
+    
+    def sync_booklists_func(self):
+        '''Upload booklists to device'''
+        def sync_booklists(updater, booklists):
+            self.device.set_progress_reporter(updater)
+            self.device.sync_booklists(booklists)
+        return sync_booklists

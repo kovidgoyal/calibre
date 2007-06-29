@@ -56,7 +56,7 @@ class MovieButton(QLabel):
         self.movie = movie
         self.setMovie(movie)
         self.movie.start()
-        self.movie.stop()
+        self.movie.setPaused(True)
 
 class StatusBar(QStatusBar):
     def __init__(self):
@@ -65,6 +65,16 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.movie_button)
         self.book_info = BookInfoDisplay()
         self.addWidget(self.book_info)
+        
+    def job_added(self, id):
+        if self.movie_button.movie.state() == QMovie.Paused:
+            self.movie_button.movie.setPaused(False)
+            
+    def no_more_jobs(self):
+        if self.movie_button.movie.state() == QMovie.Running:
+            self.movie_button.movie.setPaused(True)
+            self.movie_button.movie.jumpToFrame(0) # This causes MNG error 11, but seems to work regardless
+            
         
 if __name__ == '__main__':
     # Used to create the animated status icon
@@ -99,7 +109,6 @@ if __name__ == '__main__':
             pixmaps[i].save(name, 'PNG')
             filesc = ' '.join(filesl)
         cmd = 'convert -dispose Background -delay '+str(delay)+ ' ' + filesc + ' -loop 0 animated.mng'
-        print cmd
         try:
             check_call(cmd, shell=True)
         finally:

@@ -81,28 +81,45 @@ class Span(_Span):
         return result
     
     @staticmethod
-    def translate_attrs(d, dpi, font_delta=0, memory=None):
+    def translate_attrs(d, dpi, fonts, font_delta=0, memory=None):
         """
         Receives a dictionary of html attributes and styles and returns
         approximate Xylog equivalents in a new dictionary
         """
         def font_weight(val):
-            ans = None
+            ans = 0
             m = re.search("([0-9]+)", val)
             if m:
-                ans = str(int(m.group(1)))
+                ans = int(m.group(1))
             elif val.find("bold") >= 0 or val.find("strong") >= 0:
-                ans = "1000"
+                ans = 700
+            return 'bold' if ans >= 700 else 'normal'
+        
+        def font_style(val):
+            ans = 'normal'
+            if 'italic' in val or 'oblique' in val:
+                ans = 'italic'
             return ans
         
         def font_family(val):
-            ans = None
+            ans = 'serif'
             if max(val.find("courier"), val.find("mono"), val.find("fixed"), val.find("typewriter"))>=0:
-                ans = "Courier10 BT Roman"
+                ans = 'mono'
             elif max(val.find("arial"), val.find("helvetica"), val.find("verdana"), 
                  val.find("trebuchet"), val.find("sans")) >= 0:
-                ans = "Swis721 BT Roman"
+                ans = 'sans'
             return ans
+        
+        def font_key(family, style, weight):
+            key = 'normal'
+            if style == 'italic' and weight == 'normal':
+                key = 'italic'
+            elif style == 'normal' and weight == 'bold':
+                key = 'bold'
+            elif style == 'italic' and weight == 'bold':
+                key = 'bi'
+            return key
+            
         
         def font_size(val):
             ans = None
@@ -129,37 +146,38 @@ class Span(_Span):
             return ans
         
         t = dict()
+        family, weight, style = 'serif', 'normal', 'normal'
         for key in d.keys():
             val = d[key].lower()
             if key == 'font':
-                val = val.split()
-                val.reverse()
-                for sval in val:
-                    ans = font_family(sval)
-                    if ans:
-                        t['fontfacename'] = ans
-                    else:
-                        ans = font_size(sval)
-                        if ans:
-                            t['fontsize'] = ans
-                        else:
-                            ans = font_weight(sval)
-                            if ans:
-                                t['fontweight'] = ans
+                vals = val.split()
+                for val in vals:
+                    family = font_family(val)
+                    if family != 'serif':
+                        break
+                for val in vals:
+                    weight = font_weight(val)
+                    if weight != 'normal':
+                        break
+                for val in vals:
+                    style = font_style(val)
+                    if style != 'normal':
+                        break
+                for val in vals:
+                    sz = font_size(val)
+                    if sz:
+                        t['fontsize'] = sz
+                        break
             elif key in ['font-family', 'font-name']:                
-                ans = font_family(val)                
-                if ans:
-                    t['fontfacename'] = ans
+                family = font_family(val) 
             elif key == "font-size":
                 ans = font_size(val)
                 if ans:
                     t['fontsize'] = ans
             elif key == 'font-weight':
-                ans = font_weight(val)                
-                if ans:
-                    t['fontweight'] = ans
-                    if int(ans) > 140:                        
-                        t['wordspace'] = '50'
+                weight = font_weight(val)                
+            elif key == 'font-style':
+                style = font_style(val)
             else:
                 report = True
                 if memory != None:
@@ -169,22 +187,32 @@ class Span(_Span):
                         memory.append(key)
                 if report:
                     print >>sys.stderr, 'Unhandled/malformed CSS key:', key, d[key]
-        return t        
+        t['fontfacename'] = (family, font_key(family, style, weight))
+        if t.has_key('fontsize') and int(t['fontsize']) > 120:
+            t['wordspace'] = 50
+        return t
     
-    def __init__(self, ns, css, memory, dpi, font_delta=0):
+    def __init__(self, ns, css, memory, dpi, fonts, font_delta=0):
         src = ns.string if hasattr(ns, 'string') else ns
         src = re.sub(r'\s{2,}', ' ', src)  # Remove multiple spaces
         for pat, repl in Span.rules:
             src = pat.sub(repl, src)
         if not src:
             raise ConversionError('No point in adding an empty string to a Span')
-        if 'font-style' in css.keys():
-            fs = css.pop('font-style')
-            if fs.lower() == 'italic':
+        attrs = Span.translate_attrs(css, dpi, fonts, font_delta=font_delta, memory=memory)
+        family, key = attrs['fontfacename']
+        if fonts[family].has_key(key):
+            attrs['fontfacename'] = fonts[family][key][1]
+        else:
+            attrs['fontfacename'] = fonts[family]['normal'][1]
+            if key in ['bold', 'bi']:
+                attrs['fontweight'] = 700
+            if key in ['italic', 'bi']:
                 src = Italic(src)
-        attrs = Span.translate_attrs(css, dpi, font_delta=font_delta, memory=memory)
         if 'fontsize' in attrs.keys():
             attrs['baselineskip'] = int(attrs['fontsize']) + 20
+        if attrs['fontfacename'] == fonts['serif']['normal'][1]:
+            attrs.pop('fontfacename')
         _Span.__init__(self, text=src, **attrs)
         
         
@@ -214,7 +242,7 @@ class HTMLConverter(object):
             
     processed_files = {} #: Files that have been processed
     
-    def __init__(self, book, path, 
+    def __init__(self, book, fonts, path, 
                  font_delta=0, verbose=False, cover=None,
                  max_link_levels=sys.maxint, link_level=0,
                  is_root=True, baen=False, chapter_detection=True,
@@ -231,6 +259,7 @@ class HTMLConverter(object):
         
         @param book: The LRF book 
         @type book:  L{libprs500.lrf.pylrs.Book}
+        @param fonts: dict specifying the font families to use
         @param path: path to the HTML file to process
         @type path:  C{str}
         @param width: Width of the device on which the LRF file is to be read
@@ -278,6 +307,7 @@ class HTMLConverter(object):
             th     = {'font-size'   : 'large', 'font-weight':'bold'},
             big    = {'font-size'   : 'large', 'font-weight':'bold'},
             )        
+        self.fonts = fonts #: dict specifting font families to use
         self.profile     = profile #: Defines the geometry of the display device
         self.chapter_detection = chapter_detection #: Flag to toggle chapter detection
         self.chapter_regex = chapter_regex #: Regex used to search for chapter titles
@@ -553,7 +583,8 @@ class HTMLConverter(object):
                 path = os.path.abspath(path)
                 if not path in HTMLConverter.processed_files.keys():                    
                     try:                        
-                        self.files[path] = HTMLConverter(self.book, path, 
+                        self.files[path] = HTMLConverter(
+                                     self.book, self.fonts, path, 
                                      profile=self.profile,
                                      font_delta=self.font_delta, verbose=self.verbose,
                                      link_level=self.link_level+1,
@@ -690,7 +721,7 @@ class HTMLConverter(object):
             self.process_alignment(css)
             try:
                 self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
-                                              self.profile.dpi, font_delta=self.font_delta))
+                                              self.profile.dpi, self.fonts, font_delta=self.font_delta))
             except ConversionError, err:
                 if self.verbose:
                     print >>sys.stderr, err
@@ -949,7 +980,8 @@ class HTMLConverter(object):
         elif tagname == 'pre':
             self.end_current_para()
             self.current_block.append_to(self.current_page)
-            attrs = Span.translate_attrs(tag_css, self.profile.dpi, self.font_delta, self.memory)
+            attrs = Span.translate_attrs(tag_css, self.profile.dpi, self.fonts, self.font_delta, self.memory)
+            attrs['fontfacename'] = self.fonts['mono']['normal'][1]
             ts = self.book.create_text_style(**self.unindented_style.attrs)
             ts.attrs.update(attrs)
             self.current_block = self.book.create_text_block(
@@ -959,7 +991,7 @@ class HTMLConverter(object):
             lines = src.split('\n')
             for line in lines:
                 try:
-                    self.current_para.append(Span(line, tag_css, self.memory, self.profile.dpi))
+                    self.current_para.append(Span(line, tag_css, self.memory, self.profile.dpi, self.fonts))
                     self.current_para.CR()
                 except ConversionError:
                     pass
@@ -1145,14 +1177,14 @@ def process_file(path, options):
             header.append(Bold(options.title))
             header.append(' by ')
             header.append(Italic(options.author+"  "))
-        book = Book(options, header=header, **args)
+        book, fonts = Book(options, header=header, **args)
         le = re.compile(options.link_exclude) if options.link_exclude else \
              re.compile('$')
         pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else \
              re.compile('$')
         fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
              re.compile('$')
-        conv = HTMLConverter(book, path, profile=options.profile,
+        conv = HTMLConverter(book, fonts, path, profile=options.profile,
                              font_delta=options.font_delta, 
                              cover=cpath, max_link_levels=options.link_levels,
                              verbose=options.verbose, baen=options.baen, 

@@ -56,4 +56,5 @@ def get_font(name, size, encoding='unic'):
     if name in FONT_MAP.keys():
         path = get_font_path(name)
         return ImageFont.truetype(path, size, encoding=encoding)
-        
+    elif name in FONT_FILE_MAP.keys():
+        return ImageFont.truetype(FONT_FILE_MAP[name], size, encoding=encoding)

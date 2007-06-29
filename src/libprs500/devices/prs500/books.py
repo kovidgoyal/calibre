@@ -19,7 +19,7 @@ in the reader cache.
 import xml.dom.minidom as dom
 from base64 import b64decode as decode
 from base64 import b64encode as encode
-import time
+import time, re
 
 MIME_MAP   = { \
                         "lrf":"application/x-sony-bbeb", \
@@ -27,6 +27,9 @@ MIME_MAP   = { \
                         "pdf":"application/pdf", \
                         "txt":"text/plain" \
                       }
+
+def sortable_title(title):
+    return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', ' An Crum').rstrip()
 
 class book_metadata_field(object):
     """ Represents metadata stored as an attribute """
@@ -48,7 +51,7 @@ class book_metadata_field(object):
 class Book(object):
     """ Provides a view onto the XML element that represents a book """
     title        = book_metadata_field("title")
-    author       = book_metadata_field("author", \
+    authors      = book_metadata_field("author", \
                             formatter=lambda x: x if x and x.strip() else "Unknown")
     mime         = book_metadata_field("mime")
     rpath        = book_metadata_field("path")
@@ -59,6 +62,18 @@ class Book(object):
     datetime     = book_metadata_field("date", \
                            formatter=lambda x:  time.strptime(x.strip(), "%a, %d %b %Y %H:%M:%S %Z"), 
                            setter=lambda x: time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(x)))
+    
+    @apply
+    def title_sorter():
+        doc = '''String to sort the title. If absent, title is returned'''
+        def fget(self):
+            src = self.elem.getAttribute('titleSorter').strip()
+            if not src:
+                src = self.title
+            return src
+        def fset(self, val):
+            self.elem.setAttribute('titleSorter', sortable_title(str(val)))
+        return property(doc=doc, fget=fget, fset=fset)
     
     @apply
     def thumbnail():
@@ -186,6 +201,7 @@ class BookList(list):
         sourceid = str(self[0].sourceid) if len(self) else "1"
         attrs = {
                  "title"  : info["title"], 
+                 'titleSorter' : info['title'],
                  "author" : info["authors"] if info['authors'] else 'Unknown', \
                  "page":"0", "part":"0", "scale":"0", \
                  "sourceid":sourceid,  "id":str(cid), "date":"", \

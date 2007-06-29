@@ -503,6 +503,10 @@ class Book(Delegator):
                     if isinstance(candidate, Page):
                         return candidate
     
+    def embed_font(self, file, facename):
+        f = Font(file, facename)
+        self.append(f)
+    
     def getSettings(self):
         return ["sourceencoding"]
     

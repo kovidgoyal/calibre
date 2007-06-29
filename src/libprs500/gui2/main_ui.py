@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Fri Jun 22 16:40:15 2007
+# Created: Wed Jun 27 16:19:53 2007
 #      by: PyQt4 UI code generator 4-snapshot-20070606
 #
 # WARNING! All changes made in this file will be lost!
@@ -86,14 +86,14 @@ class Ui_MainWindow(object):
         self.hboxlayout1.addWidget(self.clear_button)
         self.gridlayout.addLayout(self.hboxlayout1,1,0,1,1)
 
-        self.stacks = QtGui.QStackedWidget(self.centralwidget)
+        self.stack = QtGui.QStackedWidget(self.centralwidget)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(100)
         sizePolicy.setVerticalStretch(100)
-        sizePolicy.setHeightForWidth(self.stacks.sizePolicy().hasHeightForWidth())
-        self.stacks.setSizePolicy(sizePolicy)
-        self.stacks.setObjectName("stacks")
+        sizePolicy.setHeightForWidth(self.stack.sizePolicy().hasHeightForWidth())
+        self.stack.setSizePolicy(sizePolicy)
+        self.stack.setObjectName("stack")
 
         self.library = QtGui.QWidget()
         self.library.setObjectName("library")
@@ -117,7 +117,7 @@ class Ui_MainWindow(object):
         self.library_view.setShowGrid(False)
         self.library_view.setObjectName("library_view")
         self.vboxlayout.addWidget(self.library_view)
-        self.stacks.addWidget(self.library)
+        self.stack.addWidget(self.library)
 
         self.main_memory = QtGui.QWidget()
         self.main_memory.setObjectName("main_memory")
@@ -125,24 +125,48 @@ class Ui_MainWindow(object):
         self.gridlayout1 = QtGui.QGridLayout(self.main_memory)
         self.gridlayout1.setObjectName("gridlayout1")
 
-        self.main_memory_view = BooksView(self.main_memory)
+        self.memory_view = DeviceBooksView(self.main_memory)
 
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(100)
         sizePolicy.setVerticalStretch(10)
-        sizePolicy.setHeightForWidth(self.main_memory_view.sizePolicy().hasHeightForWidth())
-        self.main_memory_view.setSizePolicy(sizePolicy)
-        self.main_memory_view.setAcceptDrops(True)
-        self.main_memory_view.setDragEnabled(True)
-        self.main_memory_view.setDragDropOverwriteMode(False)
-        self.main_memory_view.setDragDropMode(QtGui.QAbstractItemView.DragDrop)
-        self.main_memory_view.setAlternatingRowColors(True)
-        self.main_memory_view.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.main_memory_view.setShowGrid(False)
-        self.main_memory_view.setObjectName("main_memory_view")
-        self.gridlayout1.addWidget(self.main_memory_view,0,0,1,1)
-        self.stacks.addWidget(self.main_memory)
-        self.gridlayout.addWidget(self.stacks,2,0,1,1)
+        sizePolicy.setHeightForWidth(self.memory_view.sizePolicy().hasHeightForWidth())
+        self.memory_view.setSizePolicy(sizePolicy)
+        self.memory_view.setAcceptDrops(True)
+        self.memory_view.setDragEnabled(True)
+        self.memory_view.setDragDropOverwriteMode(False)
+        self.memory_view.setDragDropMode(QtGui.QAbstractItemView.DragDrop)
+        self.memory_view.setAlternatingRowColors(True)
+        self.memory_view.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.memory_view.setShowGrid(False)
+        self.memory_view.setObjectName("memory_view")
+        self.gridlayout1.addWidget(self.memory_view,0,0,1,1)
+        self.stack.addWidget(self.main_memory)
+
+        self.page = QtGui.QWidget()
+        self.page.setObjectName("page")
+
+        self.gridlayout2 = QtGui.QGridLayout(self.page)
+        self.gridlayout2.setObjectName("gridlayout2")
+
+        self.card_view = DeviceBooksView(self.page)
+
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Expanding)
+        sizePolicy.setHorizontalStretch(100)
+        sizePolicy.setVerticalStretch(10)
+        sizePolicy.setHeightForWidth(self.card_view.sizePolicy().hasHeightForWidth())
+        self.card_view.setSizePolicy(sizePolicy)
+        self.card_view.setAcceptDrops(True)
+        self.card_view.setDragEnabled(True)
+        self.card_view.setDragDropOverwriteMode(False)
+        self.card_view.setDragDropMode(QtGui.QAbstractItemView.DragDrop)
+        self.card_view.setAlternatingRowColors(True)
+        self.card_view.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.card_view.setShowGrid(False)
+        self.card_view.setObjectName("card_view")
+        self.gridlayout2.addWidget(self.card_view,0,0,1,1)
+        self.stack.addWidget(self.page)
+        self.gridlayout.addWidget(self.stack,2,0,1,1)
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.tool_bar = QtGui.QToolBar(MainWindow)
@@ -178,7 +202,7 @@ class Ui_MainWindow(object):
         self.label.setBuddy(self.search)
 
         self.retranslateUi(MainWindow)
-        self.stacks.setCurrentIndex(0)
+        self.stack.setCurrentIndex(2)
         QtCore.QObject.connect(self.clear_button,QtCore.SIGNAL("clicked()"),self.search.clear)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -198,5 +222,5 @@ class Ui_MainWindow(object):
         self.action_edit.setShortcut(QtGui.QApplication.translate("MainWindow", "E", None, QtGui.QApplication.UnicodeUTF8))
 
 from widgets import LocationView
-from library import BooksView, SearchBox
+from library import BooksView, DeviceBooksView, SearchBox
 import images_rc

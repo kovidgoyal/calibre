@@ -8,7 +8,7 @@
 </head>
   <h1>Demo of <span style='font-family:monospace'>html2lrf</span></h1>  
   <p>
-  This file contains a demonstration of the capabilities of   <span style='font-family:monospace'>html2lrf,</span>   the HTML to LRF converter   from <em>libprs500.</em> To obtain libprs500 visit<br/><span style='font:sans-serif'>https://libprs500.kovidgoyal.net</span>
+  This file contains a demonstration of the capabilities of <span style='font-family:monospace'>html2lrf</span>, the HTML to LRF converter   from <em>libprs500.</em> To obtain libprs500 visit<br/><span style='font:sans-serif'>https://libprs500.kovidgoyal.net</span>
   </p>
   <br/>
   <h2><a name='toc'>Table of Contents</a></h2>
@@ -17,18 +17,21 @@
     <li><a href='#tables'>Tables</a></li>
     <li><a href='#text'>Text formatting and ruled lines</a></li>
     <li><a href='#images'>Inline images</a></li>
+    <li><a href='#fonts'>Embedded Fonts</a></li>
     <li><a href='#recursive'>Recursive link following</a></li>
     <li><a href='demo_ext.html'>The HTML used to create this file</a>
  </ul>
 
  <h2><a name='lists'>Lists</a></h2>
- <p><h3>Unordered lists</h3>
+ <p></p>
+ <h3>Unordered lists</h3>
  <ul>
    <li>Item 1</li>
    <li>Item 2</li>
  </ul>
  </p>
- <p><h3>Ordered lists</h3>
+ <p></p>
+<h3>Ordered lists</h3>
  <ol>
    <li>Item 1</li>
    <li>Item 2</li>
@@ -36,7 +39,7 @@
  </p>
  <br/>
  <p>
- Note that nested lists are not supported.
+ Note that nested lists are not supported.<br />
  </p>
  <p class='toc'>
  <hr />
@@ -94,7 +97,7 @@
  <h2><a name='text'>Text formatting</a></h2>
  <p>
  A simple <i>paragraph</i> of <b>formatted 
-   <i>text</i></b> with a ruled line following it.
+   <i>text</i></b>, with a ruled line following it.
  </p>
  <hr/>
  <p>  A 
@@ -113,7 +116,7 @@
  <hr/>
  <p style='text-indent:30em'>A very indented paragraph</p>
  <p style='text-indent:0em'>An unindented paragraph</p>
- <p>A default indented paragrpah</p>
+ <p>A default indented paragrpah<br /></p>
  <p class='toc'>
  <hr />
  <a href='#toc'>Table of Contents</a>
@@ -128,9 +131,29 @@
  <a href='#toc'>Table of Contents</a>
  </p>
 
+ <h2><a name='fonts'>Embedded fonts</a></h2>
+ <p>This LRF file has been prepared by embedding Times New Roman and Andale Mono
+ as the default serif and monospace fonts. This allows it to correctly display
+ non English characters such as: </p>
+ <ul>
+ <li>mouse in German: mūs</li>
+ <li>mouse in Russian: мышь</li>
+ </ul>
+ <p>
+ Note that embedding fonts in LRF files slows down page turns slightly.
+ <br />
+ </p>
+ 
+ <p class='toc'>
+ <hr />
+ <a href='#toc'>Table of Contents</a>
+ </p>
+ 
+
  <h2><a name='recursive'>Recursive link following</a></h2>
  <p>
  <span style='font:monospace'>html2lrf</span> follows links in HTML files that point to other files, recursively. Thus it can be used to convert a whole tree of HTML files into a single LRF file.
+ <br />
  </p>
 <p class='toc'>
  <hr />
