@@ -76,7 +76,7 @@ def setup_completion():
         f = open('/etc/bash_completion.d/libprs500', 'wb')
         f.write('# libprs500 Bash Shell Completion\n')
         f.write(opts_and_exts('html2lrf', htmlop, 
-                              ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip']))
+                              ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'php']))
         f.write(opts_and_exts('txt2lrf', txtop, ['txt']))
         f.write(opts_and_exts('lit2lrf', txtop, ['lit']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
