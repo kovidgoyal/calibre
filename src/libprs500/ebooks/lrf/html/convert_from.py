@@ -229,8 +229,8 @@ class HTMLConverter(object):
                         (re.compile(r"<\s*style.*?>(.*?)<\/\s*style\s*>", re.DOTALL|re.IGNORECASE),
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
                          # remove <p> tags from within <a> tags
-                        (re.compile(r'<a.*?>.*?(<p.*?>)', re.DOTALL|re.IGNORECASE),
-                         lambda match: match.group().replace(match.group(1), '')),
+                        (re.compile(r'<a.*?>(.*?)</a\s*>', re.DOTALL|re.IGNORECASE),
+                         lambda match: re.compile(r'<.*?p.*?>', re.IGNORECASE).sub('', match.group())),
                          ]
     # Fix Baen markup
     BAEN_SANCTIFY = [(re.compile(r'<\s*[Aa]\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*<\/[Aa]>'), 
