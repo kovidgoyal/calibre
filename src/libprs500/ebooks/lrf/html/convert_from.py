@@ -930,7 +930,7 @@ class HTMLConverter(object):
             elif tag.has_key('href') and not self.link_exclude.match(tag['href']):
                 purl = urlparse(tag['href'])
                 path = unquote(purl[2])
-                if path and os.path.splitext(path)[1][1:].lower() in \
+                if path and os.access(path, os.R_OK) and os.path.splitext(path)[1][1:].lower() in \
                     ['png', 'jpg', 'bmp', 'jpeg']:
                     self.process_image(path, tag_css)
                 else:
