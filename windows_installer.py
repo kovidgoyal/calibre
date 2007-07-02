@@ -51,6 +51,7 @@ Var MUI_TEMP
 !define LIBUSB_DIR "C:\libusb-prs500"
 !define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
 !define CLIT         "C:\clit\clit.exe"
+!define UNRTF        "C:\unrtf\unrtf.exe"
 
 ;------------------------------------------------------------------------------------------------------
 ;General
@@ -119,6 +120,7 @@ Section "libprs500" Seclibprs500
   ;ADD YOUR OWN FILES HERE...
   File /r "${PY2EXE_DIR}\*"
   File "${CLIT}"
+  File "${UNRTF}"
     
   SetOutPath "$INSTDIR\driver"
   File "${LIBUSB_DIR}\*.dll"

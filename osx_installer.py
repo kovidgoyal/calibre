@@ -193,6 +193,9 @@ _check_symlinks_prescript()
         print
         print 'Adding clit'
         os.link(os.path.expanduser('~/clit'), os.path.join(frameworks_dir, 'clit'))
+        print 
+        print 'Adding unrtf'
+        os.link(os.path.expanduser('~/unrtf'), os.path.join(frameworks_dir, 'unrtf'))
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]

@@ -1,4 +1,4 @@
-##    Copyright (C) 2006 Kovid Goyal kovid@kovidgoyal.net
+##    Copyright (C) 2007 Kovid Goyal kovid@kovidgoyal.net
 ##    This program is free software; you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
 ##    the Free Software Foundation; either version 2 of the License, or
@@ -12,11 +12,3 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-'''
-Code for the conversion of ebook formats and the reading of metadata
-from various formats.
-'''
-
-class ConversionError(Exception):
-    pass

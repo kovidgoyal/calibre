@@ -38,7 +38,8 @@ from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream,
                 TextBlock, ImageBlock, JumpButton, CharButton, Bold, Space, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
-from libprs500.ebooks.lrf import ConversionError, option_parser, Book, PRS500_PROFILE
+from libprs500.ebooks.lrf import option_parser, Book, PRS500_PROFILE
+from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.table import Table 
 from libprs500 import extract, filename_to_utf8
 from libprs500.ptempfile import PersistentTemporaryFile

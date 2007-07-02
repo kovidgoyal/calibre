@@ -19,7 +19,8 @@ import os, sys, codecs
 
 from libprs500 import iswindows
 from libprs500.ptempfile import PersistentTemporaryFile
-from libprs500.ebooks.lrf import ConversionError, option_parser
+from libprs500.ebooks.lrf import option_parser
+from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.convert_from import parse_options as html_parse_options
 from libprs500.ebooks.lrf.html.convert_from import process_file
 from libprs500.ebooks.markdown import markdown

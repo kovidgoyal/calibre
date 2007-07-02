@@ -25,6 +25,7 @@ from libprs500.ebooks.lrf.pylrs.pylrs import Book as _Book
 from libprs500.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, \
                                              Paragraph, TextStyle, BlockStyle
 from libprs500.ebooks.lrf.fonts import FONT_FILE_MAP
+from libprs500.ebooks import ConversionError
 from libprs500 import __version__ as VERSION
 from libprs500 import iswindows
 
@@ -67,9 +68,6 @@ def font_family(option, opt_str, value, parser):
         setattr(parser.values, option.dest, tuple())
             
     
-class ConversionError(Exception):
-    pass
-
 def option_parser(usage):
     parser = OptionParser(usage=usage, version='libprs500 '+VERSION,
                           epilog='Created by Kovid Goyal')
