@@ -17,7 +17,7 @@
 """ 
 Code to convert HTML ebooks into LRF ebooks.
 
-I am indebted to esperanc for the initial CSS->Xylog Style conversion routines
+I am indebted to esperanc for the initial CSS->Xylog Style conversion code
 and to Falstaff for pylrs.
 """
 import os, re, sys, shutil, traceback, copy, glob
@@ -36,7 +36,7 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, \
                 Comment, Tag, NavigableString, Declaration, ProcessingInstruction
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, Bold, Space, \
-                Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas
+                Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
 from libprs500.ebooks.lrf import option_parser, Book, PRS500_PROFILE
 from libprs500.ebooks import ConversionError
@@ -304,11 +304,13 @@ class HTMLConverter(object):
             em     = {"font-style"  : "italic"},
             small  = {'font-size'   : 'small'},
             pre    = {'font-family' : 'monospace' },
+            code   = {'font-family' : 'monospace' },
             tt     = {'font-family' : 'monospace'},
             center = {'text-align'  : 'center'},
             th     = {'font-size'   : 'large', 'font-weight':'bold'},
             big    = {'font-size'   : 'large', 'font-weight':'bold'},
-            )        
+            )
+        self.css['.libprs500_dropcaps'] = {'font-size': 'xx-large'}
         self.fonts = fonts #: dict specifting font families to use
         self.profile     = profile #: Defines the geometry of the display device
         self.chapter_detection = chapter_detection #: Flag to toggle chapter detection
@@ -764,7 +766,7 @@ class HTMLConverter(object):
         self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                          blockStyle=self.current_block.blockStyle)
     
-    def process_image(self, path, tag_css, width=None, height=None):
+    def process_image(self, path, tag_css, width=None, height=None, dropcaps=False):
         if self.rotated_images.has_key(path):
             path = self.rotated_images[path].name
         if self.scaled_images.has_key(path):
@@ -779,6 +781,8 @@ class HTMLConverter(object):
         
         if width == None or height == None:            
             width, height = im.size
+            
+        factor = 720./self.profile.dpi
         
         def scale_image(width, height):
             pt = PersistentTemporaryFile(suffix='.jpeg')
@@ -789,6 +793,29 @@ class HTMLConverter(object):
         
         pheight = int(self.current_page.pageStyle.attrs['textheight'])
         pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
+        
+        if dropcaps:
+            scale = False
+            if width > 0.75*pwidth:
+                width = int(0.75*pwidth)
+                scale = True
+            if height > 0.75*pheight:
+                height = int(0.75*pheight)
+                scale = True
+            if scale:
+                path = scale_image(width, height)
+            if not self.images.has_key(path):
+                self.images[path] = ImageStream(path)
+            im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
+                               xsize=width, ysize=height)
+            line_height = (int(self.current_block.textStyle.attrs['baselineskip']) + 
+                            int(self.current_block.textStyle.attrs['linespace']))//10
+            line_height *= self.profile.dpi/72.
+            lines = int(ceil(float(height)/line_height))
+            dc = DropCaps(lines)
+            dc.append(Plot(im, xsize=ceil(width*factor), ysize=ceil(height*factor)))
+            self.current_para.append(dc)            
+            return
         
         if not self.disable_autorotation and width > pwidth and width > height:
             pt = PersistentTemporaryFile(suffix='.jpeg')
@@ -821,7 +848,7 @@ class HTMLConverter(object):
             
         im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
                                xsize=width, ysize=height)                    
-        factor = 720./self.profile.dpi
+        
         
         self.process_alignment(tag_css)
         
@@ -954,8 +981,8 @@ class HTMLConverter(object):
                     height = int(tag['height'])
                 except:
                     pass
-                self.process_image(path, tag_css, width, height)
-                                
+                dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
+                self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
             else:
                 print >>sys.stderr, "Failed to process:", tag
         elif tagname in ['style', 'link']:
