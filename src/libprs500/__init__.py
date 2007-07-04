@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''' E-book management software'''
-__version__   = "0.3.64"
+__version__   = "0.3.65"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
@@ -21,6 +21,12 @@ __appname__   = 'libprs500'
 import sys, os
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
+
+if iswindows:
+    try:
+        import WmfPlugin
+    except:
+        pass
 
 def load_library(name, cdll):
     if iswindows:

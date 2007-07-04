@@ -89,22 +89,25 @@ def main():
                 sys.argv.append('-o')
                 sys.argv.append(os.path.splitext(os.path.basename(rtf))[0]+ext)
             
-            if not options.title or options.title == 'Unknown':
+            if (not options.title or options.title == 'Unknown') and mi.title:
                 sys.argv.append('-t')
                 sys.argv.append('"'+mi.title+'"')
-            if not options.author or options.author == 'Unknown':
+            if (not options.author or options.author == 'Unknown') and mi.author:
                 sys.argv.append('-a')
                 sys.argv.append('"'+mi.author+'"')
-            if not options.category or options.category == 'Unknown' and mi.category:
+            if (not options.category or options.category == 'Unknown') and mi.category:
                 sys.argv.append('--category')
                 sys.argv.append('"'+mi.category+'"')
-            if not options.freetext or options.freetext == 'Unknown' and mi.comments:
+            if (not options.freetext or options.freetext == 'Unknown') and mi.comments:
                 sys.argv.append('--comment')
                 sys.argv.append('"'+mi.comments+'"')
             options, args, parser = html_parse_options(parser=parser)
             process_file(html, options)
         finally:
-            shutil.rmtree(tdir)
+            #try:
+                shutil.rmtree(tdir)
+            #except: # Windows can raise an error if some file is still being used
+            #    pass
     except ConversionError, err:
         print >>sys.stderr, err
         sys.exit(1)

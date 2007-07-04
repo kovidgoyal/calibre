@@ -770,7 +770,12 @@ class HTMLConverter(object):
         if self.scaled_images.has_key(path):
             path = self.scaled_images[path].name            
         
-        im = PILImage.open(path)
+        try:
+            im = PILImage.open(path)
+        except IOError, err:
+            print >>sys.stderr, 'Unable to process:', path, err
+            return
+
         
         if width == None or height == None:            
             width, height = im.size
