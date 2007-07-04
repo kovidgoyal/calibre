@@ -1166,6 +1166,8 @@ class HTMLConverter(object):
             _file.__del__()
 
 def process_file(path, options):
+    if re.match('http://|https://', path):
+        raise ConversionError, 'You have to save the website %s as an html file first and then run html2lrf on it.'%(path,)
     cwd = os.getcwd()
     dirpath = None
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
