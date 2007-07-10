@@ -232,10 +232,13 @@ class HTMLConverter(object):
                          lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
                          ]
     # Fix Baen markup
-    BAEN_SANCTIFY = [(re.compile(r'<\s*[Aa]\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*<\/[Aa]>'), 
+    BAEN_SANCTIFY = [(re.compile(r'<\s*a\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*</a>', re.IGNORECASE), 
                       lambda match: ''), 
-                      (re.compile(r'page-break-before:\s*\w+([\s;\}])'), 
-                       lambda match: match.group(1)) ] 
+                     (re.compile(r'page-break-before:\s*\w+([\s;\}])', re.IGNORECASE), 
+                      lambda match: match.group(1)),
+                     (re.compile(r'<p>\s*(<a id.*?>\s*</a>)\s*</p>', re.IGNORECASE), 
+                      lambda match: match.group(1)),
+                     ] 
     
     class Link(object):
         def __init__(self, para, tag):
