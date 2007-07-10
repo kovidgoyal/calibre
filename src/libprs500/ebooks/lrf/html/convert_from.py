@@ -1033,7 +1033,7 @@ class HTMLConverter(object):
                     pass
             self.end_current_block()
             self.current_block = self.book.create_text_block()
-        elif tagname in ['ul', 'ol']:
+        elif tagname in ['ul', 'ol', 'dl']:
             self.in_ol = 1 if tagname == 'ol' else 0
             self.end_current_block()
             self.current_block = self.book.create_text_block(
@@ -1053,6 +1053,15 @@ class HTMLConverter(object):
             self.process_children(tag, tag_css)
             if self.in_ol:
                 self.in_ol += 1
+        elif tagname in ['dt', 'dd']:
+            if self.current_para.has_text():
+                self.current_para.append(CR())
+                self.current_block.append(self.current_para)
+            self.current_para = Paragraph()
+            self.current_para.append(Space(xsize=100))
+            if tagname == 'dd':
+                self.current_para.append(Space(xsize=200))
+            self.process_children(tag, tag_css)
         elif tagname == 'blockquote':
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
