@@ -386,10 +386,10 @@ class DeviceBooksModel(BooksModel):
             val = unicode(value.toString().toUtf8(), 'utf-8').strip() 
             idx = self.map[row]
             if col == 0:
-                self.db.title = val
-                self.db.title_sorter = val
+                self.db[idx].title = val
+                self.db[idx].title_sorter = val
             elif col == 1:
-                self.db.authors = val
+                self.db[idx].authors = val
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                                 index, index)
             self.emit(SIGNAL('booklist_dirtied()'))
