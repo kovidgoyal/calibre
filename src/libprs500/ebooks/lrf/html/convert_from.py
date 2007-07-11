@@ -796,7 +796,7 @@ class HTMLConverter(object):
                 return pt.name
             except IOError: # PIL chokes on interlaced PNG images
                 print >>sys.stderr, 'Unable to process interlaced PNG', path
-                return
+                return None
         
         pheight = int(self.current_page.pageStyle.attrs['textheight'])
         pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
@@ -837,8 +837,8 @@ class HTMLConverter(object):
                     print >>sys.stderr, 'Unable to autorotate interlaced PNG', path
                     print >>sys.stderr, err 
             finally:
-                pt.close()            
-            
+                pt.close()
+        
         if height > pheight:
             corrf = pheight/(1.*height)
             width, height = floor(corrf*width), pheight-1                        
@@ -854,13 +854,15 @@ class HTMLConverter(object):
                 width, height = floor(corrf*width), pheight-1                        
             path = scale_image(width, height)
         width, height = int(width), int(height)
-                
+        
+        if not path:
+            return        
+        
         if not self.images.has_key(path):
             self.images[path] = ImageStream(path)
             
         im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
                                xsize=width, ysize=height)                    
-        
         
         self.process_alignment(tag_css)
         
