@@ -789,10 +789,14 @@ class HTMLConverter(object):
         
         def scale_image(width, height):
             pt = PersistentTemporaryFile(suffix='.jpeg')
-            im.resize((int(width), int(height)), PILImage.ANTIALIAS).convert('RGB').save(pt, 'JPEG')
-            pt.close()
-            self.scaled_images[path] = pt
-            return pt.name
+            try:
+                im.resize((int(width), int(height)), PILImage.ANTIALIAS).convert('RGB').save(pt, 'JPEG')
+                pt.close()
+                self.scaled_images[path] = pt
+                return pt.name
+            except IOError: # PIL chokes on interlaced PNG images
+                print >>sys.stderr, 'Unable to process interlaced PNG', path
+                return
         
         pheight = int(self.current_page.pageStyle.attrs['textheight'])
         pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
@@ -819,17 +823,22 @@ class HTMLConverter(object):
             dc.append(Plot(im, xsize=ceil(width*factor), ysize=ceil(height*factor)))
             self.current_para.append(dc)            
             return
-        
+            
         if not self.disable_autorotation and width > pwidth and width > height:
             pt = PersistentTemporaryFile(suffix='.jpeg')
-            im = im.rotate(90)
-            im.convert('RGB').save(pt, 'JPEG')
-            path = pt.name
-            pt.close()            
-            self.rotated_images[path] = pt
-            width, height = im.size
+            try:
+                im = im.rotate(90)
+                im.convert('RGB').save(pt, 'JPEG')
+                path = pt.name
+                self.rotated_images[path] = pt
+                width, height = im.size
+            except IOError, err: # PIL chokes on interlaced PNG files and since auto-rotation is not critical we ignore the error
+                if self.verbose:
+                    print >>sys.stderr, 'Unable to autorotate interlaced PNG', path
+                    print >>sys.stderr, err 
+            finally:
+                pt.close()            
             
-        
         if height > pheight:
             corrf = pheight/(1.*height)
             width, height = floor(corrf*width), pheight-1                        
