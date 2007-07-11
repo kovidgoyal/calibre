@@ -184,6 +184,9 @@ SectionEnd
 ;Uninstaller Section
 
 Section "Uninstall"
+  ; Uninstall USB drivers
+  ExecWait '"$INSTDIR\driver\devcon.exe" remove "USB\VID_054C&PID_029B"' $0
+  DetailPrint "devcon returned exit code $0"
   ;ADD YOUR OWN FILES HERE...
   RMDir /r "$INSTDIR"
   !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
@@ -206,8 +209,7 @@ Section "Uninstall"
   DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
   ; Remove installation directory from PATH
   Push "$INSTDIR"
-  Call un.RemoveFromPath
-
+  Call un.RemoveFromPath  
 SectionEnd
     '''
     def __init__(self, name, py2exe_dir, output_dir):
