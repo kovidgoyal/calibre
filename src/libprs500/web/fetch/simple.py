@@ -15,7 +15,7 @@
 '''
 Fetch a webpage and its links recursively.
 '''
-import sys, socket, urllib2, os, urlparse, codecs, logging, re
+import sys, socket, urllib2, os, urlparse, codecs, logging, re, time
 from urllib import url2pathname
 from httplib import responses
 from optparse import OptionParser
@@ -27,17 +27,6 @@ logger = logging.getLogger('libprs500.web.fetch.simple')
 
 class FetchError(Exception):
     pass
-
-def fetch_url(url):
-    f = None
-    logger.info('Fetching %s', url)
-    try:
-        f = urllib2.urlopen(url)
-    except urllib2.URLError, err:
-        if hasattr(err, 'code') and responses.has_key(err.code):
-            raise FetchError, responses[err.code]
-        raise err
-    return f
 
 def basename(url):
     parts = urlparse.urlsplit(url)
@@ -68,11 +57,30 @@ class RecursiveFetcher(object):
         self.match_regexps  = [re.compile(i, re.IGNORECASE) for i in options.match_regexps]
         self.filter_regexps = [re.compile(i, re.IGNORECASE) for i in options.filter_regexps]
         self.max_files = options.max_files
+        self.delay = options.delay
+        self.last_fetch_at = 0.
         self.filemap = {}
         self.imagemap = {}
         self.stylemap = {}
         self.current_dir = self.base_dir
         self.files = 0
+
+    def fetch_url(self, url):
+        f = None
+        logger.info('Fetching %s', url)
+        delta = time.time() - self.last_fetch_at 
+        if  delta < self.delay:
+            time.sleep(delta)
+        try:
+            f = urllib2.urlopen(url)
+        except urllib2.URLError, err:
+            if hasattr(err, 'code') and responses.has_key(err.code):
+                raise FetchError, responses[err.code]
+            raise err
+        finally:
+            self.last_fetch_at = time.time()
+        return f
+
         
     def start_fetch(self, url):
         soup = BeautifulSoup('<a href="'+url+'" />')
@@ -114,7 +122,7 @@ class RecursiveFetcher(object):
                     tag['href'] = self.stylemap[iurl]
                     continue
                 try:
-                    f = fetch_url(iurl)
+                    f = self.fetch_url(iurl)
                 except Exception, err:
                     logger.warning('Could not fetch stylesheet %s', iurl)
                     logger.debug('Error: %s', str(err), exc_info=True)
@@ -136,7 +144,7 @@ class RecursiveFetcher(object):
                             ns.replaceWith(src.replace(m.group(1), self.stylemap[iurl]))
                             continue
                         try:
-                            f = fetch_url(iurl)
+                            f = self.fetch_url(iurl)
                         except Exception, err:
                             logger.warning('Could not fetch stylesheet %s', iurl)
                             logger.debug('Error: %s', str(err), exc_info=True)
@@ -165,7 +173,7 @@ class RecursiveFetcher(object):
                 tag['src'] = self.imagemap[iurl]
                 continue
             try:
-                f = fetch_url(iurl)
+                f = self.fetch_url(iurl)
             except Exception, err:
                 logger.warning('Could not fetch image %s', iurl)
                 logger.debug('Error: %s', str(err), exc_info=True)
@@ -234,7 +242,7 @@ class RecursiveFetcher(object):
                     os.mkdir(linkdiskpath)
                 try:
                     self.current_dir = linkdiskpath
-                    f = fetch_url(iurl)
+                    f = self.fetch_url(iurl)
                     soup = BeautifulSoup(f.read())
                     logger.info('Processing images...')
                     self.process_images(soup, f.geturl())
@@ -280,6 +288,8 @@ def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com
                       help='Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.')
     parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',
                       help='Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --match-regexp is ignored.')
+    parser.add_option('--delay', default=0, dest='delay', type='int',
+                      help='Minimum interval in seconds between consecutive fetches. Default is %default s')
     parser.add_option('--verbose', help='Show detailed output information. Useful for debugging',
                       default=False, action='store_true', dest='verbose')
     return parser
