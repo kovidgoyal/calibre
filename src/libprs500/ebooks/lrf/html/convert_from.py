@@ -39,7 +39,8 @@ from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream,
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
                 LrsError
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
-from libprs500.ebooks.lrf import option_parser, Book, PRS500_PROFILE
+from libprs500.ebooks.lrf import Book, PRS500_PROFILE
+from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.table import Table 
 from libprs500 import extract, filename_to_utf8
@@ -1032,6 +1033,8 @@ class HTMLConverter(object):
             if ncss:
                 update_css(ncss)            
         elif tagname == 'pre':
+            for c in tag.findAll(True):
+                c.replaceWith(self.get_text(c))
             self.end_current_para()
             self.current_block.append_to(self.current_page)
             attrs = Span.translate_attrs(tag_css, self.profile.dpi, self.fonts, self.font_delta, self.memory)
@@ -1144,7 +1147,7 @@ class HTMLConverter(object):
                 self.current_block.append(CR())
             if tag.has_key('id'):
                 self.targets[tag['id']] = self.current_block
-        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big']:
+        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
             if tag.has_key('face'):
@@ -1269,6 +1272,7 @@ def process_file(path, options):
         conv.writeto(oname, lrs=options.lrs)
         print 'Output written to', oname
         conv.cleanup()
+        return oname
     finally:
         os.chdir(cwd)
         if dirpath:
@@ -1337,15 +1341,11 @@ def try_opf(path, options):
         pass
                 
             
-
-def parse_options(argv=None, cli=True, parser=None):
-    """ CLI for html -> lrf conversions """
-    if not argv:
-        argv = sys.argv[1:]
+def option_parser(parser=None, usage='''Usage: %prog [options] mybook.[html|rar|zip]\n\n'''
+                    '''%prog converts mybook.html to mybook.lrf'''         
+                  ):
     if not parser:
-        parser = option_parser("""usage: %prog [options] mybook.[html|rar|zip]
-
-         %prog converts mybook.html to mybook.lrf""")
+        parser = lrf_option_parser(usage)
     link = parser.add_option_group('LINK PROCESSING OPTIONS')
     link.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
                       dest='link_levels',
@@ -1379,7 +1379,16 @@ def parse_options(argv=None, cli=True, parser=None):
     prepro = parser.add_option_group('PREPROCESSING OPTIONS')
     prepro.add_option('--baen', action='store_true', default=False, dest='baen',
                       help='''Preprocess Baen HTML files to improve generated LRF.''')
-    options, args = parser.parse_args(args=argv)
+    return parser
+
+
+
+def parse_options(argv=None, cli=True, parser=None):
+    """ CLI for html -> lrf conversions """
+    parser = option_parser(parser)
+    if not argv:
+        argv = sys.argv[1:]
+        options, args = parser.parse_args(args=argv)
     if len(args) != 1:
         if cli:
             parser.print_help()
