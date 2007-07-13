@@ -74,7 +74,7 @@ def option_parser(usage):
     metadata = parser.add_option_group('METADATA OPTIONS')
     metadata.add_option('--header', action='store_true', default=False, dest='header',
                       help='Add a header to all the pages with title and author.')
-    metadata.add_option("-t", "--title", action="store", type="string", \
+    metadata.add_option("-t", "--title", action="store", type="string", default=None,\
                     dest="title", help="Set the title. Default: filename.")
     metadata.add_option("-a", "--author", action="store", type="string", \
                     dest="author", help="Set the author. Default: %default", default='Unknown')

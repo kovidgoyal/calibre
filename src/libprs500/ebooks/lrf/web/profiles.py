@@ -1,0 +1,99 @@
+##    Copyright (C) 2007 Kovid Goyal kovid@kovidgoyal.net
+##    This program is free software; you can redistribute it and/or modify
+##    it under the terms of the GNU General Public License as published by
+##    the Free Software Foundation; either version 2 of the License, or
+##    (at your option) any later version.
+##
+##    This program is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU General Public License for more details.
+##
+##    You should have received a copy of the GNU General Public License along
+##    with this program; if not, write to the Free Software Foundation, Inc.,
+##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+'''Profiles for known websites.'''
+
+import time, re
+
+profiles = {
+            'default' : {
+                         'url'               : '',    # The URL of the website
+                         'title'             : '',    # The title to use for the LRF file
+                         'max_recursions'    : 1,     # Number of levels of links to follow
+                         'max_files'         : 1000,  # Maximum number of files to download
+                         'delay'             : 0,     # Delay between consecutive downloads
+                         'timeout'           : 10,    # Timeout for fetching files from server
+                         'no_stylesheets'    : False, # Download stylesheets 
+                         'match_regexps'     : [],    # List of regular expressions that determines which links to follow
+                         'filter_regexps'    : [],    # List of regular expressions that determines which links to ignore
+                         # Only one of match_regexps or filter_regexps should be defined
+                         'html2lrf_options'  : [],    # List of options to pass to html2lrf
+                         'preprocess_regexps': [],    # List of regexp substitution rules to run on the downloaded HTML before running html2lrf
+                         # See the profiles below for examples of these settings. 
+                       },
+                       
+            'nytimes' : {
+                         'url'               : 'http://nytimesriver.com',
+                         'title'             : 'The New York Times',
+                         'match_regexps'     : 'nytimes.com/'+time.strftime('%Y', time.localtime()),
+                         'preprocess_regexps' :
+                         [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+                          [
+                           # Remove help link and replace by title
+                           (r'<a .*?alt=.Click here for information about this service.*?</a>', 
+                            lambda match: '<h1>The New York Times</h1>\n<p align="right"><b>%s</b></p>'%(time.strftime('%a %d %b %Y', time.localtime()),)),
+                           # Blank line before categories
+                           (r'<b>\s*NYT', lambda match: '<p></p><b>NYT'),
+                           # Blank line between articles
+                           (r'<p><a href', lambda match : '<br /><p><a href'),
+                           # Remove header on individual articles
+                           (r'<body class=.printerversion..*?<h1><nyt_headline', 
+                            lambda match : '<body class="printerversion">\n<h1><nyt_headline'),
+                           # Remove footer from individiual articles
+                           (r'<nyt_update_bottom.*', lambda match : '</body></html>'),
+                           # Remove TimesSelect garbage
+                           (r'<title>.*?TimesSelect', lambda match : 'Downloading of TimesSelect stories is not supported.<!--'),
+                           ]
+                          ],
+                         },
+                         
+            'bbc'     : {
+                         'url'               : 'http://bbcriver.com',
+                         'title'             : 'The BBC',
+                         'no_stylesheets'    : True,
+                         'preprocess_regexps' :
+                         [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+                          [
+                           # Remove help link and replace by title
+                           (r'<a .*?alt=.Click here for information about this service.*?</a>', 
+                            lambda match: '<h1>The BBC</h1>\n<p align="right"><b>%s</b></p>'%(time.strftime('%a %d %b %Y', time.localtime()),)),
+                           # Blank line before categories
+                           (r'<b>\s*BBC', lambda match: '<p></p><b>BBC'),
+                           # Remove footer from individual stories
+                           (r'<div class=.footer.>.*?Published', 
+                            lambda match : '<p></p><div class="footer">Published'),
+                           # Add some style info in place of disabled stylesheet
+                           (r'<link.*?type=.text/css.*?>',
+                            '<style type="text/css">.headline {font-size: x-large;}</style>'),
+                           ]
+                          ],
+                         },                                     
+            }
+
+for key in profiles.keys():
+    if key == 'default':
+        continue
+    newd = profiles['default'].copy()
+    newd.update(profiles[key])
+    profiles[key] = newd
+
+def profile_to_command_line_options(profile):
+    args = []
+    args.append('--max-recursions='+str(profile['max_recursions']))
+    args.append('--delay='+str(profile['delay']))
+    for i in profile['match_regexps']:
+        args.append('--match-regexp="'+i+'"')
+    for i in profile['filter_regexps']:
+        args.append('--filter-regexp="'+i+'"')
+    return args

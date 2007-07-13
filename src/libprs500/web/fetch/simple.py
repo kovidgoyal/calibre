@@ -15,7 +15,7 @@
 '''
 Fetch a webpage and its links recursively.
 '''
-import sys, socket, urllib2, os, urlparse, codecs, logging, re, time
+import sys, socket, urllib2, os, urlparse, codecs, logging, re, time, copy
 from urllib import url2pathname
 from httplib import responses
 from optparse import OptionParser
@@ -45,6 +45,11 @@ def save_soup(soup, target):
 class RecursiveFetcher(object):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in 
                 ('.exe\s*$', '.mp3\s*$', '.ogg\s*$', '^\s*mailto:', '^\s*$'))
+    #ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
+    #                       (
+    #                        
+    #                        )
+    #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     
     def __init__(self, options):
@@ -64,6 +69,14 @@ class RecursiveFetcher(object):
         self.stylemap = {}
         self.current_dir = self.base_dir
         self.files = 0
+        self.preprocess_regexps = []
+        self.download_stylesheets = not options.no_stylesheets
+               
+
+    def get_soup(self, src):
+        nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
+        nmassage.extend(self.preprocess_regexps)
+        return BeautifulSoup(src, markupMassage=nmassage)
 
     def fetch_url(self, url):
         f = None
@@ -84,7 +97,7 @@ class RecursiveFetcher(object):
         
     def start_fetch(self, url):
         soup = BeautifulSoup('<a href="'+url+'" />')
-        print 'Working',
+        print 'Downloading',
         res = self.process_links(soup, url, 0, into_dir='')
         print '%s saved to %s'%(url, res)
         return res
@@ -99,9 +112,8 @@ class RecursiveFetcher(object):
         if self.filter_regexps:
             for f in self.filter_regexps:
                 if f.search(url):
-                    return False
-            return True
-        elif self.match_regexps:
+                    return False            
+        if self.match_regexps:
             for m in self.match_regexps:
                 if m.search(url):
                     return True
@@ -243,10 +255,11 @@ class RecursiveFetcher(object):
                 try:
                     self.current_dir = linkdiskpath
                     f = self.fetch_url(iurl)
-                    soup = BeautifulSoup(f.read())
+                    soup = self.get_soup(f.read())
                     logger.info('Processing images...')
                     self.process_images(soup, f.geturl())
-                    self.process_stylesheets(soup, f.geturl())
+                    if self.download_stylesheets:
+                        self.process_stylesheets(soup, f.geturl())
                     
                     res = os.path.join(linkdiskpath, basename(iurl))
                     self.filemap[nurl] = res
@@ -284,15 +297,26 @@ def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com
                       default=1, type='int', dest='max_recursions')
     parser.add_option('-n', '--max-files', default=sys.maxint, type='int', dest='max_files',
                       help='The maximum number of files to download. This only applies to files from <a href> tags. Default is %default')
+    parser.add_option('--delay', default=0, dest='delay', type='int',
+                      help='Minimum interval in seconds between consecutive fetches. Default is %default s')
     parser.add_option('--match-regexp', default=[], action='append', dest='match_regexps',
                       help='Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.')
     parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',
-                      help='Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --match-regexp is ignored.')
-    parser.add_option('--delay', default=0, dest='delay', type='int',
-                      help='Minimum interval in seconds between consecutive fetches. Default is %default s')
+                      help='Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --filter-regexp is applied first.')
+    parser.add_option('--dont-download-stylesheets', action='store_true', default=False,
+                      help='Do not download CSS stylesheets.', dest='no_stylesheets')
+
     parser.add_option('--verbose', help='Show detailed output information. Useful for debugging',
                       default=False, action='store_true', dest='verbose')
     return parser
+
+
+def create_fetcher(options):
+    return RecursiveFetcher(options)
+
+def setup_logger(options):
+    level = logging.DEBUG if options.verbose else logging.WARNING
+    setup_cli_handlers(logger, level)
 
 def main(args=sys.argv):
     parser = option_parser()    
@@ -300,10 +324,9 @@ def main(args=sys.argv):
     if len(args) != 2:
         parser.print_help()
         return 1
-    level = logging.DEBUG if options.verbose else logging.WARNING
-    setup_cli_handlers(logger, level)
-        
-    fetcher = RecursiveFetcher(options)
+    
+    setup_logger(options)
+    fetcher = create_fetcher(options) 
     fetcher.start_fetch(args[1])
     
 
