@@ -223,7 +223,8 @@ class HTMLConverter(object):
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
     # Fix <a /> elements 
-    MARKUP_MASSAGE   = [(re.compile("(<\s*[aA]\s+.*\/)\s*>"), #Close <a /> tags
+    MARKUP_MASSAGE   = [(re.compile('&nbsp;'), lambda match : ' '), # Convert &nbsp; into a normal space as the default conversion converts it into \xa0 which is not a space in LRF
+                        (re.compile("(<\s*[aA]\s+.*\/)\s*>"), #Close <a /> tags
                          lambda match: match.group(1)+"></a>"),
                          # Strip comments from <style> tags. This is needed as 
                          # sometimes there are unterminated comments
@@ -1003,7 +1004,8 @@ class HTMLConverter(object):
                 dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
                 self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
             else:
-                print >>sys.stderr, "Failed to process:", tag
+                if self.verbose:
+                    print >>sys.stderr, "Failed to process:", tag
         elif tagname in ['style', 'link']:
             def update_css(ncss):
                 for key in ncss.keys():
