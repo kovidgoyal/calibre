@@ -17,7 +17,7 @@ Backend that implements storage of ebooks in an sqlite database.
 """
 import sqlite3 as sqlite
 import os, datetime, re
-from zlib import compress, decompress
+from zlib import compressobj, decompress
 from stat import ST_SIZE
 
 class Concatenate(object):
@@ -689,6 +689,17 @@ class LibraryDatabase(object):
             aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
         self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
         self.conn.commit()
+        
+    def set_series(self, id, series):
+        self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
+        if series:
+            s = self.conn.execute('SELECT id from series WHERE name=?', (series,)).fetchone()
+            if s:
+                aid = s[0]
+            else:
+                aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
+            self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
+            self.conn.commit()
     
     def set_rating(self, id, rating):
         rating = int(rating)
@@ -696,5 +707,30 @@ class LibraryDatabase(object):
         rat = self.conn.execute('SELECT id FROM ratings WHERE rating=?', (rating,)).fetchone()
         rat = rat[0] if rat else self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
+        self.conn.commit()
+        
+    def add_book(self, stream, format, mi, uri=None):
+        if not mi.author:
+            mi.author = 'Unknown'
+        obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
+                          (mi.title, uri, mi.series_index))
+        id = obj.lastrowid
+        self.conn.commit()
+        temp = mi.author.split(',')
+        authors = []
+        for a in temp:
+            authors += a.split('&')
+        self.set_authors(id, authors)
+        if mi.publisher:
+            self.set_publisher(id, mi.publisher)
+        if mi.rating:
+            self.set_rating(id, mi.rating)
+        if mi.series:
+            self.set_series(id, mi.series)
+        stream.seek(0, 2)
+        usize = stream.tell()
+        stream.seek(0)
+        self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
+                          (id, format, usize, compressobj().compress(stream)))
         self.conn.commit()
             

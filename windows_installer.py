@@ -237,7 +237,8 @@ SectionEnd
 class WixInstaller(object):
     '''
     Make a .msi installer. Can't get the driver installation to play well with
-    an existing installation of the connect USB driver.
+    an existing installation of the connect USB driver. Pick this up again when
+    libusb1.dll is released based on winusb.
     '''
     TEMPLATE=\
 r'''<?xml version='1.0' encoding='windows-1252'?>

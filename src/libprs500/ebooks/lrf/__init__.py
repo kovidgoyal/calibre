@@ -26,11 +26,11 @@ from libprs500.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, \
                                              Paragraph, TextStyle, BlockStyle
 from libprs500.ebooks.lrf.fonts import FONT_FILE_MAP
 from libprs500.ebooks import ConversionError
-from libprs500 import __version__ as VERSION
+from libprs500 import __appname__, __version__, __author__
 from libprs500 import iswindows
 
 __docformat__ = "epytext"
-__author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
+
 
 class PRS500_PROFILE(object):
     screen_width  = 600
@@ -69,8 +69,8 @@ def font_family(option, opt_str, value, parser):
             
     
 def option_parser(usage):
-    parser = OptionParser(usage=usage, version='libprs500 '+VERSION,
-                          epilog='Created by Kovid Goyal')
+    parser = OptionParser(usage=usage, version=__appname__+' '+__version__,
+                          epilog='Created by '+__author__)
     metadata = parser.add_option_group('METADATA OPTIONS')
     metadata.add_option('--header', action='store_true', default=False, dest='header',
                       help='Add a header to all the pages with title and author.')

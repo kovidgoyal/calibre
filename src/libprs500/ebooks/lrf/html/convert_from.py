@@ -36,7 +36,8 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, \
                 Comment, Tag, NavigableString, Declaration, ProcessingInstruction
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, Bold, Space, \
-                Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps
+                Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
+                LrsError
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
 from libprs500.ebooks.lrf import option_parser, Book, PRS500_PROFILE
 from libprs500.ebooks import ConversionError
@@ -584,7 +585,7 @@ class HTMLConverter(object):
             elif self.link_level < self.max_link_levels:
                 try: # os.access raises Exceptions in path has null bytes
                     if not os.access(path.encode('utf8', 'replace'), os.R_OK):
-                        raise Exception()
+                        continue
                 except Exception:
                     if self.verbose:
                         print "Skipping", link
@@ -859,7 +860,10 @@ class HTMLConverter(object):
             return        
         
         if not self.images.has_key(path):
-            self.images[path] = ImageStream(path)
+            try:
+                self.images[path] = ImageStream(path)
+            except LrsError:
+                return
             
         im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
                                xsize=width, ysize=height)                    

@@ -47,6 +47,9 @@ class MetaInformation(object):
         self.category = None
         self.classification = None
         self.publisher = None
+        self.series    = None
+        self.series_index = None
+        self.rating       = None
         
     def __str__(self):
         ans = ''

@@ -13,12 +13,12 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''' E-book management software'''
-__version__   = "0.3.68"
+__version__   = "0.3.69"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys, os
+import sys, os, logging
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 
@@ -27,6 +27,23 @@ if iswindows:
         import WmfPlugin
     except:
         pass
+
+def setup_cli_handlers(logger, level):
+    logger.setLevel(level)
+    if level == logging.WARNING:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+        handler.setLevel(logging.WARNING)
+    elif level == logging.INFO:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter())
+        handler.setLevel(logging.INFO)
+    elif level == logging.DEBUG:
+        handler = logging.StreamHandler(sys.stderr)
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
+    logger.addHandler(handler)
+
 
 def load_library(name, cdll):
     if iswindows:
