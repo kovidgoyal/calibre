@@ -1081,7 +1081,7 @@ class HTMLConverter(object):
         elif tagname in ['li', 'dt', 'dd']:
             margin = self.list_indent*self.list_level
             if tagname == 'dd':
-                margin += 100
+                margin += 80
             if int(self.current_block.blockStyle.attrs['sidemargin']) != margin:
                 self.end_current_block()
                 attrs = self.current_block.blockStyle.attrs
