@@ -63,11 +63,6 @@ def build_osx():
 
 
 def upload_demo():
-    f = open(os.path.join(HTML2LRF, 'demo_ext.html'), 'w')
-    f.write("<h2>The HTML</h2><pre>\n")
-    f.write(open(os.path.join(HTML2LRF, 'demo.html')).read())
-    f.write('\n</pre>')
-    f.close()
     check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' '''
                '''--header --output=/tmp/html2lrf.lrf %s/demo.html '''
                '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''

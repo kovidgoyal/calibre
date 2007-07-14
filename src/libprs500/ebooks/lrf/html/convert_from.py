@@ -345,8 +345,10 @@ class HTMLConverter(object):
         self.anchor_to_previous = None 
         self.cover = cover
         self.in_table = False
+        self.list_level = 0
+        self.list_indent = 20
+        self.list_counter = 1
         self.memory = []          #: Used to ensure that duplicate CSS unhandled erros are not reported
-        self.in_ol = False #: Flag indicating we're in an <ol> element
         self.book = book #: The Book object representing a BBeB book
         self.is_root = is_root           #: Are we converting the root HTML file
         self.lstrip_toggle = False #: If true the next add_text call will do an lstrip
@@ -1057,34 +1059,58 @@ class HTMLConverter(object):
             self.end_current_block()
             self.current_block = self.book.create_text_block()
         elif tagname in ['ul', 'ol', 'dl']:
-            self.in_ol = 1 if tagname == 'ol' else 0
+            self.list_level += 1
+            if tagname == 'ol':
+                old_counter = self.list_counter
+            self.list_counter = 1
+            prev_bs = self.current_block.blockStyle
             self.end_current_block()
+            attrs = self.current_block.blockStyle.attrs
+            attrs = attrs.copy()
+            attrs['sidemargin'] = self.list_indent*self.list_level
+            bs = self.book.create_block_style(**attrs)
             self.current_block = self.book.create_text_block(
-                                        blockStyle=self.current_block.blockStyle,
+                                        blockStyle=bs,
                                         textStyle=self.unindented_style)
             self.process_children(tag, tag_css)
-            self.in_ol = 0
             self.end_current_block()
-        elif tagname == 'li':
-            prepend = str(self.in_ol)+'. ' if self.in_ol else u'\u2022' + ' '
-            if self.current_para.has_text():
-                self.current_para.append(CR())
-                self.current_block.append(self.current_para)
-            self.current_para = Paragraph()
-            self.current_para.append(Space(xsize=100))
-            self.current_para.append(prepend)
-            self.process_children(tag, tag_css)
-            if self.in_ol:
-                self.in_ol += 1
-        elif tagname in ['dt', 'dd']:
-            if self.current_para.has_text():
-                self.current_para.append(CR())
-                self.current_block.append(self.current_para)
-            self.current_para = Paragraph()
-            self.current_para.append(Space(xsize=100))
+            self.current_block.blockStyle = prev_bs
+            self.list_level -= 1
+            if tagname == 'ol':
+                self.list_counter = old_counter
+        elif tagname in ['li', 'dt', 'dd']:
+            margin = self.list_indent*self.list_level
             if tagname == 'dd':
-                self.current_para.append(Space(xsize=200))
-            self.process_children(tag, tag_css)
+                margin += 100
+            if int(self.current_block.blockStyle.attrs['sidemargin']) != margin:
+                self.end_current_block()
+                attrs = self.current_block.blockStyle.attrs
+                attrs = attrs.copy()
+                attrs['sidemargin'] = margin
+                attrs['blockwidth'] = int(attrs['blockwidth']) + margin
+                bs = self.book.create_block_style(**attrs)
+                self.current_block = self.book.create_text_block(
+                                        blockStyle=bs,
+                                        textStyle=self.unindented_style)
+
+            if self.current_para.has_text():
+                self.current_para.append(CR())
+                self.current_block.append(self.current_para)
+            self.current_para = Paragraph()
+            if tagname == 'li':
+                in_ol, parent = True, tag.parent            
+                while parent:                
+                    if parent.name and parent.name.lower() in ['ul', 'ol']:
+                        in_ol = parent.name.lower() == 'ol'
+                        break
+                    parent = parent.parent
+                prepend = str(self.list_counter)+'. ' if in_ol else u'\u2022' + ' '
+                self.current_para.append(_Span(prepend))
+                self.process_children(tag, tag_css)
+                if in_ol:
+                    self.list_counter += 1
+            else:
+                self.process_children(tag, tag_css)    
         elif tagname == 'blockquote':
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)

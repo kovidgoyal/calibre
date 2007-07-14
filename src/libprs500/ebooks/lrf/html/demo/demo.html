@@ -20,33 +20,30 @@
     <li><a href='#fonts'>Embedded Fonts</a></li>
     <li><a href='#dropcaps'>Dropcaps</a></li>
     <li><a href='#recursive'>Recursive link following</a></li>
-    <li><a href='demo_ext.html'>The HTML used to create this file</a>
  </ul>
 
  <h2><a name='lists'>Lists</a></h2>
  <p></p>
- <h3>Unordered lists</h3>
- <ul>
-   <li>Item 1</li>
-   <li>Item 2</li>
- </ul>
- </p>
- <p></p>
-<h3>Ordered lists</h3>
+ <h3>Nested lists</h3>
  <ol>
    <li>Item 1</li>
+   <ul>
+   <li>Sub item 1</li>
+   <li>Sub item 2</li>
+   <ol>
+   <li>Sub sub item 1. This is a multiline item with <i>almost</i> correct blocking.</li>
+   <li>Sub sub item 2</li>
+   </ol>
+   </ul>
    <li>Item 2</li>
  </ol>
  </p>
  <br/>
- <p>
- Note that nested lists are not supported.<br />
- </p>
  <p></p>
  <h3>Definition Lists</h3>
  <dl>
  <dt>Term 1</dt>
- <dd>Definition of Term 1</dd>
+ <dd>Definition of Term 1. A multi line definition showing correct blocking.</dd>
  <dt>Term 2</dt>
  <dd>Definition of Term 2</dd>
  </dl>
