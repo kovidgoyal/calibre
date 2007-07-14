@@ -18,7 +18,7 @@ import sys, time, tempfile, shutil, os
 from urlparse import urlsplit
 
 from libprs500 import __appname__
-from libprs500.ebooks.lrf.html.convert_from import option_parser as html_option_parser
+from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks.lrf.html.convert_from import process_file
 from libprs500.ebooks.lrf.web.profiles import profiles
 from libprs500.web.fetch.simple import setup_logger as web2disk_setup_logger
@@ -29,7 +29,7 @@ available_profiles.remove('default')
 available_profiles = ' '.join(available_profiles)
 
 def option_parser():
-    parser = html_option_parser(usage='''%prog [options] website_profile\n\n'''
+    parser = lrf_option_parser(usage='''%prog [options] website_profile\n\n'''
                           '''%prog downloads a site from the web and converts it '''
                           '''into a LRF file for use with the SONY Reader. '''
                           '''website_profile is one of '''+available_profiles+\
