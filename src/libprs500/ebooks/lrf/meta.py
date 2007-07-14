@@ -559,19 +559,16 @@ class LRFMetaFile(object):
         self._file.write(val)
         
 
-def parse_options(argv=None, cli=True):
+def option_parser():
     from optparse import OptionParser
-    from libprs500 import __version__ as VERSION
-    if not argv:
-        argv = sys.argv[1:]
+    from libprs500 import __appname__, __version__
     parser = OptionParser(usage = \
-      """%prog [options] mybook.lrf
-      
-      Show/edit the metadata in an LRF file.
-      
-      WARNING: Based on reverse engineering the LRF format. 
-      Making changes may render your LRF file unreadable. 
-      """, version=VERSION)
+      '''%prog [options] mybook.lrf\n\n'''
+      '''Show/edit the metadata in an LRF file.\n\n'''      
+      '''WARNING: Based on reverse engineering the LRF format.\n''' 
+      '''Making changes may render your LRF file unreadable.''', 
+      version=__appname__+' '+__version__,
+      epilog='Created by Kovid Goyal')
     parser.add_option("-t", "--title", action="store", type="string", \
                     dest="title", help="Set the book title")
     parser.add_option('--title-sort', action='store', type='string', default=None,
@@ -594,20 +591,20 @@ def parse_options(argv=None, cli=True):
                     help="Extract thumbnail from LRF file")
     parser.add_option("-p", "--page", action="store", type="string", \
                     dest="page", help="Don't know what this is for")
-    options, args = parser.parse_args(args=argv)
-    if len(args) != 1:
-        if cli:
-            parser.print_help()
-        raise LRFException, 'no filename specified'
-    return options, args, parser
+    
+    return parser
 
-def main():
+
+def main(args=sys.argv):
     import os.path
-    try:
-        options, args, parser = parse_options()
-    except:
-        sys.exit(1)
-    lrf = LRFMetaFile(open(args[0], "r+b"))
+    parser = option_parser()
+    options, args = parser.parse_args(args)
+    if len(args) != 2:
+        parser.print_help()
+        print
+        print 'No lrf file specified'
+        return 1
+    lrf = LRFMetaFile(open(args[1], "r+b"))
     if options.title:
         lrf.title        = options.title
     if options.title_reading != None:
@@ -646,4 +643,4 @@ def main():
         print "Thumbnail:", td
         
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

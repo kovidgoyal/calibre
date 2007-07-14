@@ -35,7 +35,7 @@ except ImportError:
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, \
                 Comment, Tag, NavigableString, Declaration, ProcessingInstruction
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
-                TextBlock, ImageBlock, JumpButton, CharButton, Bold, Space, \
+                TextBlock, ImageBlock, JumpButton, CharButton, Bold,\
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
                 LrsError
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
@@ -1368,74 +1368,28 @@ def try_opf(path, options):
             print >>sys.stderr, 'Failed to process opf file', err
         pass
                 
-            
-def option_parser(parser=None, usage='''Usage: %prog [options] mybook.[html|rar|zip]\n\n'''
-                    '''%prog converts mybook.html to mybook.lrf'''         
-                  ):
-    if not parser:
-        parser = lrf_option_parser(usage)
-    link = parser.add_option_group('LINK PROCESSING OPTIONS')
-    link.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
-                      dest='link_levels',
-                      help=r'''The maximum number of levels to recursively process '''
-                              '''links. A value of 0 means thats links are not followed. '''
-                              '''A negative value means that <a> tags are ignored.''')
-    link.add_option('--link-exclude', dest='link_exclude', default='$',
-                      help='''A regular expression. <a> tags whoose href '''
-                      '''matches will be ignored. Defaults to %default''')
-    chapter = parser.add_option_group('CHAPTER OPTIONS')
-    chapter.add_option('--disable-chapter-detection', action='store_false', 
-                      default=True, dest='chapter_detection', 
-                      help='''Prevent html2lrf from automatically inserting page breaks'''
-                      ''' before what it thinks are chapters.''')
-    chapter.add_option('--chapter-regex', dest='chapter_regex', 
-                      default='chapter|book|appendix',
-                      help='''The regular expression used to detect chapter titles.'''
-                      ''' It is searched for in heading tags. Defaults to %default''')     
-    chapter.add_option('--page-break-before', dest='page_break', default='h[12]',
-                      help='''If html2lrf does not find any page breaks in the '''
-                      '''html file and cannot detect chapter headings, it will '''
-                      '''automatically insert page-breaks before the tags whose '''
-                      '''names match this regular expression. Defaults to %default. '''
-                      '''You can disable it by setting the regexp to "$". '''
-                      '''The purpose of this option is to try to ensure that '''
-                      '''there are no really long pages as this degrades the page '''
-                      '''turn performance of the LRF. Thus this option is ignored '''
-                      '''if the current page has only a few elements.''')
-    chapter.add_option('--force-page-break-before', dest='force_page_break',
-                       default='$', help='Like --page-break-before, but page breaks are forced.')
-    prepro = parser.add_option_group('PREPROCESSING OPTIONS')
-    prepro.add_option('--baen', action='store_true', default=False, dest='baen',
-                      help='''Preprocess Baen HTML files to improve generated LRF.''')
-    return parser
+def option_parser():
+    return lrf_option_parser('''Usage: %prog [options] mybook.[html|rar|zip]\n\n'''
+                    '''%prog converts mybook.html to mybook.lrf''')
 
-
-
-def parse_options(argv=sys.argv[1:], cli=True, parser=None):
-    """ CLI for html -> lrf conversions """
-    parser = option_parser(parser)
-    options, args = parser.parse_args(args=argv)
-    
-    if len(args) != 1:
-        if cli:
-            parser.print_help()
-        raise ConversionError, 'no filename specified'
-    if options.output:
-        options.output = os.path.abspath(os.path.expanduser(options.output))    
-    return options, args, parser
-
-
-def main():    
+def main(args=sys.argv):
     try:
-        options, args, parser = parse_options()
-        src = args[0]
+        parser = option_parser()
+        options, args = parser.parse_args(args)    
+        if options.output:
+            options.output = os.path.abspath(os.path.expanduser(options.output))
+        if len(args) != 2:
+            parser.print_help()
+            return 1
+        src = args[1]
         if options.verbose:
             import warnings
             warnings.defaultaction = 'error'
     except Exception, err:
         print >> sys.stderr, err
-        sys.exit(1)    
+        return 1    
     process_file(src, options)
+    return 0
 
 def console_query(dirpath, candidate, docs):
     if len(docs) == 1:
@@ -1500,4 +1454,4 @@ def get_path(path, query=console_query):
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

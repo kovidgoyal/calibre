@@ -19,33 +19,21 @@ import os, sys, codecs
 
 from libprs500 import iswindows
 from libprs500.ptempfile import PersistentTemporaryFile
-from libprs500.ebooks.lrf import option_parser
+from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
-from libprs500.ebooks.lrf.html.convert_from import parse_options as html_parse_options
 from libprs500.ebooks.lrf.html.convert_from import process_file
 from libprs500.ebooks.markdown import markdown
 
-def parse_options(argv=None, cli=True):
-    """ CLI for txt -> lrf conversions """
-    if not argv:
-        argv = sys.argv[1:]
-    parser = option_parser(
-        """usage: %prog [options] mybook.txt
-        
-        %prog converts mybook.txt to mybook.lrf
-        """
-        )
+def option_parser():
+    parser = lrf_option_parser('''Usage: %prog [options] mybook.txt\n\n'''
+        '''%prog converts mybook.txt to mybook.lrf''')
     defenc = 'cp1252' if iswindows else 'utf8'
     enchelp = 'Set the encoding used to decode ' + \
               'the text in mybook.txt. Default encoding is %default'
     parser.add_option('-e', '--encoding', action='store', type='string', \
                       dest='encoding', help=enchelp, default=defenc)
-    options, args = parser.parse_args(args=argv)
-    if len(args) != 1:
-        if cli:
-            parser.print_help()
-        raise ConversionError, 'no filename specified'
-    return options, args, parser
+    return parser
+    
 
 def generate_html(txtfile, encoding):
     '''
@@ -78,43 +66,22 @@ def generate_html(txtfile, encoding):
     codecs.open(p.name, 'wb', enc).write(html)
     return p
         
-def main():
-    try:
-        options, args, parser = parse_options()
-        txt = os.path.abspath(os.path.expanduser(args[0]))
-        p = generate_html(txt, options.encoding)
-        for i in range(1, len(sys.argv)):
-            if sys.argv[i] == args[0]:
-                sys.argv.remove(sys.argv[i])
-                break            
-        sys.argv.append(p.name)
-        sys.argv.append('--force-page-break-before')
-        sys.argv.append('h2')
-        o_spec = False
-        for arg in sys.argv[1:]:
-            arg = arg.lstrip()
-            if arg.startswith('-o') or arg.startswith('--output'):
-                o_spec = True
-                break
-        ext = '.lrf'
-        for arg in sys.argv[1:]:
-            if arg.strip() == '--lrs':
-                ext = '.lrs'
-                break
-        if not o_spec:
-            sys.argv.append('-o')
-            sys.argv.append(os.path.splitext(os.path.basename(txt))[0]+ext)
-        options, args, parser = html_parse_options(parser=parser)
-        src = args[0]
-        if options.verbose:
-            import warnings
-            warnings.defaultaction = 'error'        
-    except Exception, err:
-        print >> sys.stderr, err        
-        sys.exit(1)
-    process_file(src, options)
-        
+def main(args=sys.argv):
+    parser = option_parser()    
+    options, args = parser.parse_args(args)
+    if len(args) != 2:
+        parser.print_help()
+        print
+        print 'No txt file specified'
+        return 1
+    txt = os.path.abspath(os.path.expanduser(args[1]))
+    htmlfile = generate_html(txt, options.encoding)
+    options.force_page_break = 'h2'
+    if not options.output:
+        ext = '.lrs' if options.lrs else '.lrf'
+        options.output = os.path.basename(os.path.splitext(args[1])[0]) + ext                
     
+    process_file(htmlfile.name, options)
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

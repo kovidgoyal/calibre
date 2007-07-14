@@ -14,9 +14,8 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import os, sys, tempfile, subprocess, shutil
 
-from libprs500.ebooks.lrf import option_parser
+from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks.metadata.meta import get_metadata
-from libprs500.ebooks.lrf.html.convert_from import parse_options as html_parse_options
 from libprs500.ebooks.lrf.html.convert_from import process_file
 from libprs500.ebooks import ConversionError
 from libprs500 import isosx
@@ -25,20 +24,11 @@ UNRTF = 'unrtf'
 if isosx and hasattr(sys, 'frameworks_dir'):
     UNRTF = os.path.join(sys.frameworks_dir, UNRTF)
 
-def parse_options(cli=True):
-    """ CLI for rtf -> lrf conversions """
-    parser = option_parser(
-        """usage: %prog [options] mybook.rtf
-        
-        %prog converts mybook.rtf to mybook.lrf
-        """
+def option_parser():
+    return lrf_option_parser(
+        '''Usage: %prog [options] mybook.rtf\n\n'''
+        '''%prog converts mybook.rtf to mybook.lrf'''
         )
-    options, args = parser.parse_args()
-    if len(args) != 1:
-        if cli:
-            parser.print_help()
-        raise ConversionError, 'no filename specified'
-    return options, args, parser
 
 def generate_html(rtfpath):
     tdir = tempfile.mkdtemp(prefix='rtf2lrf_')
@@ -61,58 +51,41 @@ def generate_html(rtfpath):
     finally:
         os.chdir(cwd)
         
-def main():
+def main(args=sys.argv):
+    parser = option_parser()
+    options, args = parser.parse_args(args)
+    if len(args) != 2:
+        parser.print_help()
+        print
+        print 'No rtf file specified'
+        return 1
+    rtf = os.path.abspath(os.path.expanduser(args[1]))
+    f = open(rtf, 'rb')
+    mi = get_metadata(f, 'rtf')
+    f.close()
+    html = generate_html(rtf)
+    tdir = os.path.dirname(html)
     try:
-        options, args, parser = parse_options()
-        rtf = os.path.abspath(os.path.expanduser(args[0]))
-        f = open(rtf, 'rb')
-        mi = get_metadata(f, 'rtf')
-        f.close()
-        html = generate_html(rtf)
-        tdir = os.path.dirname(html)
-        try:
-            for i in range(len(sys.argv)):
-                if sys.argv[i] == args[0]:
-                    sys.argv[i] = html
-            o_spec = False
-            for arg in sys.argv[1:]:
-                arg = arg.lstrip()
-                if arg.startswith('-o') or arg.startswith('--output'):
-                    o_spec = True
-                    break
-            ext = '.lrf'
-            for arg in sys.argv[1:]:
-                if arg.strip() == '--lrs':
-                    ext = '.lrs'
-                    break
-            if not o_spec:
-                sys.argv.append('-o')
-                sys.argv.append(os.path.splitext(os.path.basename(rtf))[0]+ext)
-            
-            if (not options.title or options.title == 'Unknown') and mi.title:
-                sys.argv.append('-t')
-                sys.argv.append('"'+mi.title+'"')
-            if (not options.author or options.author == 'Unknown') and mi.author:
-                sys.argv.append('-a')
-                sys.argv.append('"'+mi.author+'"')
-            if (not options.category or options.category == 'Unknown') and mi.category:
-                sys.argv.append('--category')
-                sys.argv.append('"'+mi.category+'"')
-            if (not options.freetext or options.freetext == 'Unknown') and mi.comments:
-                sys.argv.append('--comment')
-                sys.argv.append('"'+mi.comments+'"')
-            options, args, parser = html_parse_options(parser=parser)
-            process_file(html, options)
-        finally:
-            #try:
-                shutil.rmtree(tdir)
-            #except: # Windows can raise an error if some file is still being used
-            #    pass
-    except ConversionError, err:
-        print >>sys.stderr, err
-        sys.exit(1)
+        if not options.output:
+            ext = '.lrs' if options.lrs else '.lrf'
+            options.output = os.path.basename(os.path.splitext(args[1])[0]) + ext 
+        if (not options.title or options.title == 'Unknown') and mi.title:
+            sys.argv.append('-t')
+            sys.argv.append('"'+mi.title+'"')
+        if (not options.author or options.author == 'Unknown') and mi.author:
+            sys.argv.append('-a')
+            sys.argv.append('"'+mi.author+'"')
+        if (not options.category or options.category == 'Unknown') and mi.category:
+            sys.argv.append('--category')
+            sys.argv.append('"'+mi.category+'"')
+        if (not options.freetext or options.freetext == 'Unknown') and mi.comments:
+            sys.argv.append('--comment')
+            sys.argv.append('"'+mi.comments+'"')
+        process_file(html, options)
+    finally:
+        shutil.rmtree(tdir)
             
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
     
         

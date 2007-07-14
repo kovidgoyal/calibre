@@ -16,8 +16,8 @@
 import sys, os
 from subprocess import check_call
 
-def options(parse_options):
-    options, args, parser = parse_options(['dummy'], cli=False) 
+def options(option_parser):
+    parser = option_parser() 
     options = parser.option_list
     for group in parser.option_groups:
         options += group.option_list
@@ -70,15 +70,16 @@ def setup_completion():
     try:
         print 'Setting up bash completion...',
         sys.stdout.flush()
-        from libprs500.ebooks.lrf.html.convert_from import parse_options as htmlop
-        from libprs500.ebooks.lrf.txt.convert_from import parse_options as txtop
-        from libprs500.ebooks.lrf.meta import parse_options as metaop
+        from libprs500.ebooks.lrf.html.convert_from import option_parser as htmlop
+        from libprs500.ebooks.lrf.txt.convert_from import option_parser as txtop
+        from libprs500.ebooks.lrf.meta import option_parser as metaop
         f = open('/etc/bash_completion.d/libprs500', 'wb')
         f.write('# libprs500 Bash Shell Completion\n')
         f.write(opts_and_exts('html2lrf', htmlop, 
                               ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'php']))
         f.write(opts_and_exts('txt2lrf', txtop, ['txt']))
-        f.write(opts_and_exts('lit2lrf', txtop, ['lit']))
+        f.write(opts_and_exts('lit2lrf', htmlop, ['lit']))
+        f.write(opts_and_exts('rtf2lrf', htmlop, ['rtf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write('''
 _prs500_ls()

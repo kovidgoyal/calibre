@@ -115,6 +115,40 @@ def option_parser(usage):
                     help='''Top margin of page. Default is %default px.''')
     page.add_option('--bottom-margin', default=0, dest='bottom_margin', type='int',
                     help='''Bottom margin of page. Default is %default px.''')
+    link = parser.add_option_group('LINK PROCESSING OPTIONS')
+    link.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
+                      dest='link_levels',
+                      help=r'''The maximum number of levels to recursively process '''
+                              '''links. A value of 0 means thats links are not followed. '''
+                              '''A negative value means that <a> tags are ignored.''')
+    link.add_option('--link-exclude', dest='link_exclude', default='$',
+                      help='''A regular expression. <a> tags whoose href '''
+                      '''matches will be ignored. Defaults to %default''')
+    chapter = parser.add_option_group('CHAPTER OPTIONS')
+    chapter.add_option('--disable-chapter-detection', action='store_false', 
+                      default=True, dest='chapter_detection', 
+                      help='''Prevent html2lrf from automatically inserting page breaks'''
+                      ''' before what it thinks are chapters.''')
+    chapter.add_option('--chapter-regex', dest='chapter_regex', 
+                      default='chapter|book|appendix',
+                      help='''The regular expression used to detect chapter titles.'''
+                      ''' It is searched for in heading tags. Defaults to %default''')     
+    chapter.add_option('--page-break-before', dest='page_break', default='h[12]',
+                      help='''If html2lrf does not find any page breaks in the '''
+                      '''html file and cannot detect chapter headings, it will '''
+                      '''automatically insert page-breaks before the tags whose '''
+                      '''names match this regular expression. Defaults to %default. '''
+                      '''You can disable it by setting the regexp to "$". '''
+                      '''The purpose of this option is to try to ensure that '''
+                      '''there are no really long pages as this degrades the page '''
+                      '''turn performance of the LRF. Thus this option is ignored '''
+                      '''if the current page has only a few elements.''')
+    chapter.add_option('--force-page-break-before', dest='force_page_break',
+                       default='$', help='Like --page-break-before, but page breaks are forced.')
+    prepro = parser.add_option_group('PREPROCESSING OPTIONS')
+    prepro.add_option('--baen', action='store_true', default=False, dest='baen',
+                      help='''Preprocess Baen HTML files to improve generated LRF.''')
+
     
     fonts = parser.add_option_group('FONT FAMILIES', 
     '''Specify trutype font families for serif, sans-serif and monospace fonts. '''
