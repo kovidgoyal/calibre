@@ -13,8 +13,10 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Profiles for known websites.'''
-
 import time, re
+
+from libprs500.ebooks.lrf.web.newsweek import initialize as newsweek_initialize
+from libprs500.ebooks.lrf.web.newsweek import finalize as newsweek_finalize
 
 profiles = {
             'default' : {
@@ -24,6 +26,7 @@ profiles = {
                          'max_files'         : 1000,  # Maximum number of files to download
                          'delay'             : 0,     # Delay between consecutive downloads
                          'timeout'           : 10,    # Timeout for fetching files from server
+                         'timefmt'           : ' [%a %d %b %Y]',
                          'no_stylesheets'    : False, # Download stylesheets 
                          'match_regexps'     : [],    # List of regular expressions that determines which links to follow
                          'filter_regexps'    : [],    # List of regular expressions that determines which links to ignore
@@ -78,7 +81,37 @@ profiles = {
                             '<style type="text/css">.headline {font-size: x-large;}</style>'),
                            ]
                           ],
-                         },                                     
+                         },
+                         
+            'newsweek' : {
+                          'initialize'          : newsweek_initialize,
+                          'finalize'            : newsweek_finalize,
+                          'title'               : 'Newsweek',
+                          'timefmt'             :  ' [%d %b %Y]',
+                          'no_stylesheets'      : True,
+                          'max_recursions'      : 2,
+                          'preprocess_regexps'  :
+                         [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+                          [
+                           # Make fonts larger
+                           (r'<style.*?\.copyright.*?</style>', 
+                            lambda match : \
+                        '''<style type="text/css">'''
+                        '''updateTime{font:small Arial;color:#000000;}'''
+                        '''.credit{font:small Arial;color:#999999;}'''
+                        '''.head{font:bold 18pt x-large;color:#CC0000;}'''
+                        '''.abstract{font:14pt large Verdana;color:#000000;}'''
+                        '''.title{font:bold;color:#000000;}'''
+                        '''.source{font:bold small Verdana;color:#CC0000;}'''
+                        '''.footerLink{font:bold Verdana;color:#000000;}'''
+                        '''.caption{font: Verdana;color:#000000;}'''
+                        '''.textBodyBlack, .copyright{font: Verdana;color:#000000;}'''
+                        '''.copyright{font-style:italic;}'''
+                        '''</style>'''
+                            ),
+                           ]
+                          ],
+                          },                                    
             }
 
 for key in profiles.keys():

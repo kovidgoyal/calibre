@@ -61,8 +61,7 @@ def option_parser():
     
 def fetch_website(options):
     tdir = tempfile.mkdtemp(prefix=__appname__+'_' )
-    options.dir = tdir 
-    web2disk_setup_logger(options)
+    options.dir = tdir
     fetcher = create_fetcher(options)
     fetcher.preprocess_regexps = options.preprocess_regexps
     return fetcher.start_fetch(options.url), tdir
@@ -77,6 +76,7 @@ def create_lrf(htmlfile, options):
 def main(args=sys.argv):
     parser = option_parser()
     options, args = parser.parse_args(args)
+    web2disk_setup_logger(options)
     if len(args) > 2:
         parser.print_help()
         return 1
@@ -86,6 +86,9 @@ def main(args=sys.argv):
             print >>sys.stderr, 'Valid profiles:', profiles.keys()
             return 1
     profile = profiles[args[1]] if len(args) == 2 else profiles['default']
+    
+    if profile.has_key('initialize'):
+        profile['initialize'](profile)
     
     for opt in ('url', 'timeout', 'max_recursions', 'max_files', 'delay', 'no_stylesheets'):
         val = getattr(options, opt)
@@ -103,7 +106,7 @@ def main(args=sys.argv):
         title = profile['title']
         if not title:
             title = urlsplit(options.url).netloc
-        options.title = title + time.strftime(' [%a %d %b %Y]', time.localtime())
+        options.title = title + time.strftime(profile['timefmt'], time.localtime())
     
     options.match_regexps += profile['match_regexps']
     options.preprocess_regexps = profile['preprocess_regexps']
@@ -111,6 +114,8 @@ def main(args=sys.argv):
         
     htmlfile, tdir = fetch_website(options)
     create_lrf(htmlfile, options)
+    if profile.has_key('finalize'):
+        profile['finalize'](profile)
     shutil.rmtree(tdir)
          
     return 0
