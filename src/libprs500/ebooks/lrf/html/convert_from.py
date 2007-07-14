@@ -1062,7 +1062,7 @@ class HTMLConverter(object):
             self.list_level += 1
             if tagname == 'ol':
                 old_counter = self.list_counter
-            self.list_counter = 1
+                self.list_counter = 1
             prev_bs = self.current_block.blockStyle
             self.end_current_block()
             attrs = self.current_block.blockStyle.attrs
