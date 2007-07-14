@@ -1411,12 +1411,11 @@ def option_parser(parser=None, usage='''Usage: %prog [options] mybook.[html|rar|
 
 
 
-def parse_options(argv=None, cli=True, parser=None):
+def parse_options(argv=sys.argv[1:], cli=True, parser=None):
     """ CLI for html -> lrf conversions """
     parser = option_parser(parser)
-    if not argv:
-        argv = sys.argv[1:]
-        options, args = parser.parse_args(args=argv)
+    options, args = parser.parse_args(args=argv)
+    
     if len(args) != 1:
         if cli:
             parser.print_help()
