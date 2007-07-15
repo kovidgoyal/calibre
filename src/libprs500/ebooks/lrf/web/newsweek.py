@@ -16,7 +16,7 @@
 
 import sys, urllib2, time, re, tempfile, os, shutil
 
-from libprs500 import __appname__
+from libprs500 import __appname__, iswindows
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
 from htmlentitydefs import name2codepoint
 
@@ -133,8 +133,9 @@ def initialize(profile):
     sys.stdout.flush()
     contents = get_contents()
     print 'done'
-    index = create_aggregator(contents)    
-    profile['url'] = 'file://'+index
+    index = create_aggregator(contents)
+     
+    profile['url'] = 'file:'+ ('' if iswindows else '//') +index
 
 def finalize(profile):
     global _tdir
