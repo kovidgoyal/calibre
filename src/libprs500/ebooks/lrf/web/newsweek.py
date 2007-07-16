@@ -77,7 +77,8 @@ def create_aggregator(sections):
         sec += 1
         secfile = os.path.join(_tdir, 'sec%d.html'%(sec,))
         title, contents = section
-        toc += '<li><a href="%s">%s</a></li>\n'%(secfile, title,)
+        fix = 'file:' if iswindows else ''
+        toc += '<li><a href="%s">%s</a></li>\n'%(fix+secfile, title,)
         stoc = u''
         for item in contents:
             desc = item['description'].strip() 
