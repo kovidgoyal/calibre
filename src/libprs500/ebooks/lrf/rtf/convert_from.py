@@ -68,7 +68,9 @@ def main(args=sys.argv):
     try:
         if not options.output:
             ext = '.lrs' if options.lrs else '.lrf'
-            options.output = os.path.basename(os.path.splitext(args[1])[0]) + ext 
+            options.output = os.path.abspath(os.path.basename(os.path.splitext(args[1])[0]) + ext)
+        else:
+            options.output = os.path.abspath(options.output)
         if (not options.title or options.title == 'Unknown') and mi.title:
             sys.argv.append('-t')
             sys.argv.append('"'+mi.title+'"')

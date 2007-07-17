@@ -79,7 +79,9 @@ def main(args=sys.argv):
     options.force_page_break = 'h2'
     if not options.output:
         ext = '.lrs' if options.lrs else '.lrf'
-        options.output = os.path.basename(os.path.splitext(args[1])[0]) + ext                
+        options.output = os.path.abspath(os.path.basename(os.path.splitext(args[1])[0]) + ext)
+    else:
+        options.output = os.path.abspath(options.output)                
     
     process_file(htmlfile.name, options)
 
