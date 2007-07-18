@@ -747,7 +747,7 @@ class DeviceBooksModel(QAbstractTableModel):
         for book in self._orig_data:
             match = True
             for q in queries:
-                if q in book.title.lower() or q in book.author.lower(): continue
+                if q in book.title.lower() or q in book.authors.lower(): continue
                 else:
                     match = False
                     break
