@@ -730,7 +730,7 @@ class DeviceBooksModel(QAbstractTableModel):
         def getter(key, func): 
             return lambda x : func(attrgetter(key)(x))
         if col == 0: key, func = "title", lambda x : x.lower()
-        if col == 1: key, func = "author", lambda x :  x.split()[-1:][0].lower()
+        if col == 1: key, func = "authors", lambda x :  x.split()[-1:][0].lower()
         if col == 2: key, func = "size", int
         if col == 3: key, func = "datetime", lambda x: x
         descending = order != Qt.AscendingOrder
