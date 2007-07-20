@@ -111,6 +111,9 @@ class Device(object):
         '''
         Upload a list of books to the device. If a file already
         exists on the device, it should be replaced.
+        This method should raise a L{FreeSpaceError} if there is not enough
+        free space on the device. The text of the FreeSpaceError must contain the
+        word "card" if C{on_card} is True otherwise it must contain the word "memory".
         @param files: A list of paths and/or file-like objects.
         @param names: A list of file names that the books should have 
         once uploaded to the device. len(names) == len(files)

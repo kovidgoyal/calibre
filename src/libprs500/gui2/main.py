@@ -12,18 +12,18 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-from libprs500.devices.interface import Device
-from libprs500 import __appname__
 import os, tempfile, sys
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread, QBuffer, QByteArray
-from PyQt4.QtGui import QErrorMessage, QPixmap, QColor, QPainter, QMenu, QIcon
+from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon
 from PyQt4.QtSvg import QSvgRenderer
 
-from libprs500 import __version__ as VERSION
+from libprs500 import __version__, __appname__
 from libprs500.ebooks.metadata.meta import get_metadata
-from libprs500.gui2 import APP_TITLE, installErrorHandler, choose_files
+from libprs500.devices.errors import FreeSpaceError
+from libprs500.devices.interface import Device
+from libprs500.gui2 import APP_TITLE, warning_dialog, choose_files, error_dialog
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
@@ -60,7 +60,7 @@ class Main(QObject, Ui_MainWindow):
                         self.location_selected)
         
         ####################### Vanity ########################
-        self.vanity_template = self.vanity.text().arg(VERSION)
+        self.vanity_template = self.vanity.text().arg(__version__)
         self.vanity.setText(self.vanity_template.arg(' '))
         
         ####################### Status Bar #####################
@@ -238,7 +238,15 @@ class Main(QObject, Ui_MainWindow):
         '''
         metadata = self.upload_memory.pop(id)
         if exception:
-            self.job_exception(id, exception, formatted_traceback)
+            if isinstance(exception, FreeSpaceError):
+                where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
+                titles = '\n'.join(['<li>'+mi['title']+'</li>' for mi in metadata])
+                d = error_dialog(self.window, 'No space on device',
+                                 '<p>Cannot upload books to device there is no more free space available '+where+
+                                 '</p><ul>%s</ul>'%(titles,))
+                d.exec_()                
+            else:
+                self.job_exception(id, exception, formatted_traceback)
             return
         
         self.device_manager.add_books_to_metadata(result, metadata, self.booklists())
@@ -343,15 +351,17 @@ class Main(QObject, Ui_MainWindow):
             mi = metadata.next()
             id = ids.next()
             if f is None:
-                bad.append(mi)
+                bad.append(mi['title'])
             else:
                 good.append(mi)
                 gf.append(f)
                 names.append('%s_%d%s'%(__appname__, id, os.path.splitext(f.name)[1]))
         self.upload_books(gf, names, good, on_card)
         
-        raise Exception, str(bad)
-        
+        if bad:
+            bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
+            d = warning_dialog(self.window, 'No suitable formats', 'Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>'%(bad,))
+            d.exec_()
                 
             
     ############################################################################
@@ -411,7 +421,6 @@ def main():
     #return 0
     window = QMainWindow()
     window.setWindowTitle(APP_TITLE)
-    installErrorHandler(QErrorMessage(window))
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName(APP_TITLE)
     main = Main(window)

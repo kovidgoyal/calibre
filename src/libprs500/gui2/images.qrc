@@ -2,6 +2,8 @@
     <qresource prefix="/" >
         <file>images/book.svg</file>
         <file>images/clear_left.svg</file>
+        <file>images/dialog_error.svg</file>
+        <file>images/dialog_warning.svg</file>
         <file>images/edit_input.svg</file>
         <file>images/jobs-animated.mng</file>
         <file>images/jobs.svg</file>

@@ -15,7 +15,7 @@
 """ The GUI for libprs500. """
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant, QSettings
-from PyQt4.QtGui import QFileDialog
+from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap
 from libprs500 import __appname__ as APP_TITLE
 from libprs500 import __author__
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -25,29 +25,19 @@ error_dialog = None
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
 
-def installErrorHandler(dialog):
-    ''' Create the error dialog for unhandled exceptions'''
-    global error_dialog
-    error_dialog = dialog
-    error_dialog.resize(600, 400)
-    error_dialog.setWindowTitle(APP_TITLE + " - Error")
-    error_dialog.setModal(True)
+def warning_dialog(parent, title, msg):
+    d = QMessageBox(QMessageBox.Warning, 'WARNING: '+title, msg, QMessageBox.Ok,
+                    parent)
+    d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
+    return d
+
+def error_dialog(parent, title, msg):
+    d = QMessageBox(QMessageBox.Critical, 'ERROR: '+title, msg, QMessageBox.Ok,
+                    parent)
+    d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
+    return d
 
 
-def _Warning(msg, e):
-    print >> sys.stderr, msg
-    if e: 
-        traceback.print_exc(e)
-
-def Error(msg, e):  
-    if error_dialog:
-        if e: 
-            msg += "<br>" + traceback.format_exc(e)
-        msg = re.sub("Traceback", "<b>Traceback</b>", msg)
-        msg = re.sub(r"\n", "<br>", msg)
-        error_dialog.showMessage(msg)
-        error_dialog.show()
-        
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
     if size < 1024: 

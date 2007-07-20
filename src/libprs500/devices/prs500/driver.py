@@ -830,23 +830,24 @@ class PRS500(Device):
     def upload_books(self, files, names, on_card=False, end_session=True):
         card = self.card(end_session=False)
         prefix = card + '/' if on_card else '/Data/media/books/'
-        paths, ctimes, sizes = [], [], []
+        paths, ctimes = [], []
         names = iter(names)
-        for file in files:
-            infile = file if hasattr(file, 'read') else open(file, 'rb')
-            infile.seek(0, 2)
-            size = infile.tell()
-            sizes.append(size)
+        infiles = [file if hasattr(file, 'read') else open(file, 'rb') for file in files]
+        for f in infiles: f.seek(0, 2)
+        sizes = [f.tell() for f in infiles]
+        size = sum(sizes)
+        space = self.free_space(end_session=False)
+        mspace = space[0]
+        cspace = space[1] if space[1] >= space[2] else space[2]
+        if on_card and size > cspace - 1024*1024: 
+            raise FreeSpaceError("There is insufficient free space "+\
+                                          "on the storage card")
+        if not on_card and size > mspace - 2*1024*1024: 
+            raise FreeSpaceError("There is insufficient free space " +\
+                                         "in main memory")
+            
+        for infile in infiles:
             infile.seek(0)            
-            space = self.free_space(end_session=False)
-            mspace = space[0]
-            cspace = space[1] if space[1] >= space[2] else space[2]
-            if on_card and size > cspace - 1024*1024: 
-                raise FreeSpaceError("There is insufficient free space "+\
-                                              "on the storage card")
-            if not on_card and size > mspace - 1024*1024: 
-                raise FreeSpaceError("There is insufficient free space " +\
-                                             "in main memory")
             name = names.next()
             paths.append(prefix+name)
             self.put_file(infile, paths[-1], replace_file=True, end_session=False)
