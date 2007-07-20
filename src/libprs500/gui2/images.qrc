@@ -1,18 +1,15 @@
 <RCC>
     <qresource prefix="/" >
-        <file>images/addfile.png</file>
-        <file alias="default_cover" >images/cherubs.jpg</file>
-        <file>images/clear.png</file>
-        <file>images/delfile.png</file>
-        <file>images/edit.png</file>
-        <file>images/fileopen.png</file>
+        <file>images/book.svg</file>
+        <file>images/clear_left.svg</file>
+        <file>images/edit_input.svg</file>
         <file>images/jobs-animated.mng</file>
         <file>images/jobs.svg</file>
         <file alias="library" >images/library.png</file>
-        <file alias="card" >images/memory_stick_unmount.png</file>
-        <file>images/minus.png</file>
-        <file>images/plus.png</file>
-        <file alias="reader" >images/reader.png</file>
-        <file>images/upload.png</file>
+        <file>images/plus.svg</file>
+        <file>images/reader.svg</file>
+        <file>images/sd.svg</file>
+        <file>images/sync.svg</file>
+        <file>images/trash.svg</file>
     </qresource>
 </RCC>

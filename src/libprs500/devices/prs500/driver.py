@@ -805,7 +805,7 @@ class PRS500(Device):
         return BookList(prefix=prefix, root=root, sfile=tfile)
 
     @safe
-    def remove_book(self, paths, booklists, end_session=True):
+    def remove_books(self, paths, booklists, end_session=True):
         """
         Remove the books specified by paths from the device. The metadata
         cache on the device should also be updated.
@@ -826,6 +826,58 @@ class PRS500(Device):
         if len(booklists[1]):
             self.upload_book_list(booklists[1], end_session=False)
     
+    @safe
+    def upload_books(self, files, names, on_card=False, end_session=True):
+        card = self.card(end_session=False)
+        prefix = card + '/' if on_card else '/Data/media/books/'
+        paths, ctimes, sizes = [], [], []
+        names = iter(names)
+        for file in files:
+            infile = file if hasattr(file, 'read') else open(file, 'rb')
+            infile.seek(0, 2)
+            size = infile.tell()
+            sizes.append(size)
+            infile.seek(0)            
+            space = self.free_space(end_session=False)
+            mspace = space[0]
+            cspace = space[1] if space[1] >= space[2] else space[2]
+            if on_card and size > cspace - 1024*1024: 
+                raise FreeSpaceError("There is insufficient free space "+\
+                                              "on the storage card")
+            if not on_card and size > mspace - 1024*1024: 
+                raise FreeSpaceError("There is insufficient free space " +\
+                                             "in main memory")
+            name = names.next()
+            paths.append(prefix+name)
+            self.put_file(infile, paths[-1], replace_file=True, end_session=False)
+            ctimes.append(self.path_properties(paths[-1], end_session=False).ctime)
+        return zip(paths, sizes, ctimes)
+            
+    @classmethod
+    def add_books_to_metadata(cls, locations, metadata, booklists):
+        metadata = iter(metadata)
+        for location in locations:
+            info = metadata.next()
+            path = location[0]
+            on_card = 1 if path[1] == ':' else 0
+            name = path.rpartition('/')[2]
+            if not on_card:
+                name = 'books/' + name
+            booklists[on_card].add_book(info, name, *location[1:])
+        fix_ids(*booklists)
+        
+    @safe
+    def delete_books(self, paths, end_session=True):
+        for path in paths:
+            self.del_file(path, end_session=False)
+            
+    @classmethod
+    def remove_books_from_metadata(cls, paths, booklists):
+        for path in paths:
+            on_card = 1 if path[1] == ':' else 0
+            booklists[on_card].remove_book(path)
+        fix_ids(*booklists)
+            
     @safe
     def add_book(self, infile, name, info, booklists, oncard=False, \
                             sync_booklists=False, end_session=True):

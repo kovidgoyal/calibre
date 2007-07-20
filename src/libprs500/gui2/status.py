@@ -12,23 +12,24 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import textwrap
 
-from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
-                        QSizePolicy
+from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap
 from PyQt4.QtCore import Qt, QSize
 
 class BookInfoDisplay(QFrame):
     class BookCoverDisplay(QLabel):
-        WIDTH = 60
-        HEIGHT = 80
-        def __init__(self, coverpath=':default_cover'):
+        WIDTH = 80
+        HEIGHT = 100
+        def __init__(self, coverpath=':/images/book.svg'):
             QLabel.__init__(self)
             self.default_pixmap = QPixmap(coverpath).scaled(self.__class__.WIDTH,
                                                             self.__class__.HEIGHT,
                                                             Qt.IgnoreAspectRatio,
                                                             Qt.SmoothTransformation)
             self.setPixmap(self.default_pixmap)
-            self.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
+            self.setMaximumSize(QSize(self.WIDTH, self.HEIGHT))
+            self.setScaledContents(True)
         
         def sizeHint(self):
             return QSize(self.__class__.WIDTH, self.__class__.HEIGHT)
@@ -38,7 +39,7 @@ class BookInfoDisplay(QFrame):
         def __init__(self):
             QLabel.__init__(self)
             self.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            self.setText('TODO')
+            self.setText('')#<table><tr><td>row 1</td><td>row 2</td></tr><tr><td>fsfdsfsfsfsfsfsdfsffsfsd</td></tr></table>')
     
     def __init__(self):
         QFrame.__init__(self)
@@ -48,7 +49,28 @@ class BookInfoDisplay(QFrame):
         self.layout.addWidget(self.cover_display)        
         self.book_data = BookInfoDisplay.BookDataDisplay()
         self.layout.addWidget(self.book_data)
+        self.setVisible(False)
         
+    def show_data(self, data):
+        if data.has_key('cover'):
+            cover_data = data.pop('cover')
+            pixmap = QPixmap()
+            pixmap.loadFromData(cover_data)
+            if pixmap.isNull():
+                self.cover_display.setPixmap(self.cover_display.default_pixmap)
+            else:
+                self.cover_display.setPixmap(pixmap)
+        else:
+            self.cover_display.setPixmap(self.cover_display.default_pixmap)
+            
+        rows = u''
+        self.book_data.setText('')
+        for key in data.keys():
+            txt = '<br />\n'.join(textwrap.wrap(data[key], 120))
+            rows += '<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
+        self.book_data.setText('<table>'+rows+'</table>')
+        
+        self.setVisible(True)
 
 class MovieButton(QLabel):
     def __init__(self, movie):

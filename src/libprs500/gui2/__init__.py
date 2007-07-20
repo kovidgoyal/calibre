@@ -14,7 +14,8 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """ The GUI for libprs500. """
 import sys, os, re, StringIO, traceback
-from PyQt4.QtCore import QVariant
+from PyQt4.QtCore import QVariant, QSettings
+from PyQt4.QtGui import QFileDialog
 from libprs500 import __appname__ as APP_TITLE
 from libprs500 import __author__
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -62,3 +63,31 @@ def human_readable(size):
         size = size[:size.find(".")+2]
     return size + " " + suffix
 
+def choose_files(window, dialog, title, filetype='', 
+                 extensions=[], all_files=True):
+    '''
+    Ask user to choose a bunch of files.
+    @param dialog: Unique gialog name used to store the opened directory
+    @param title: Title to show in dialogs titlebar
+    @param filetype: What types of files is this dialog choosing
+    @params extensions: list of allowable extension
+    @params all_files: If True show all files 
+    '''
+    settings = QSettings()
+    _dir = settings.value(dialog, QVariant(os.path.expanduser("~"))).toString()
+    books = []
+    extensions = ['*.'+i for i in extensions]
+    if extensions:
+        filter = filetype + ' (' + ' '.join(extensions) + ')'
+        if all_files:
+            filter += ';;All files (*)'
+    else:
+        filter = 'All files (*)'
+    files = QFileDialog.getOpenFileNames(window, title, _dir, filter)
+    for file in files:
+        file = unicode(file.toUtf8(), 'utf8')
+        books.append(os.path.abspath(file))
+    if books:
+        settings.setValue(dialog, QVariant(os.path.dirname(books[0])))
+    return books
+    

@@ -110,3 +110,21 @@ class DeviceManager(QObject):
             self.device.set_progress_reporter(updater)
             self.device.sync_booklists(booklists)
         return sync_booklists
+    
+    def upload_books_func(self):
+        '''Upload books to device'''
+        def upload_books(updater, files, names, on_card=False):
+            return self.device.upload_books(files, names, on_card, end_session=True)
+        return upload_books
+    
+    def add_books_to_metadata(self, locations, metadata, booklists):
+        self.device_class.add_books_to_metadata(locations, metadata, booklists)
+    
+    def delete_books_func(self):
+        '''Remove books from device'''
+        def delete_books(updater, paths):
+            self.device.delete_books(paths, end_session=True)
+        return delete_books
+    
+    def remove_books_from_metadata(self, paths, booklists):
+        self.device_class.remove_books_from_metadata(paths, booklists)

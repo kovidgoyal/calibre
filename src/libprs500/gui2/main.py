@@ -12,20 +12,37 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
+from libprs500.devices.interface import Device
+from libprs500 import __appname__
 import os, tempfile, sys
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QThread
-from PyQt4.QtGui import QErrorMessage
+                         QSettings, QVariant, QSize, QThread, QBuffer, QByteArray
+from PyQt4.QtGui import QErrorMessage, QPixmap, QColor, QPainter, QMenu, QIcon
+from PyQt4.QtSvg import QSvgRenderer
 
 from libprs500 import __version__ as VERSION
-from libprs500.gui2 import APP_TITLE, installErrorHandler
+from libprs500.ebooks.metadata.meta import get_metadata
+from libprs500.gui2 import APP_TITLE, installErrorHandler, choose_files
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
 from libprs500.gui2.jobs import JobManager, JobException
 
 class Main(QObject, Ui_MainWindow):
+    
+    def set_default_thumbnail(self, height):
+        r = QSvgRenderer(':/images/book.svg')
+        pixmap = QPixmap(height, height)
+        pixmap.fill(QColor(255,255,255))
+        p = QPainter(pixmap)
+        r.render(p)
+        p.end()
+        ba = QByteArray()
+        buf = QBuffer(ba)
+        buf.open(QBuffer.WriteOnly)
+        pixmap.save(buf, 'JPEG')  
+        self.default_thumbnail = (pixmap.width(), pixmap.height(), ba.data())
     
     def __init__(self, window):
         QObject.__init__(self)
@@ -35,8 +52,9 @@ class Main(QObject, Ui_MainWindow):
         self.read_settings()
         self.job_manager = JobManager()
         self.device_manager = None
-        self.temporary_slots = {}
-        
+        self.upload_memory = {}
+        self.delete_memory = {}
+        self.default_thumbnail = None
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -51,17 +69,36 @@ class Main(QObject, Ui_MainWindow):
         QObject.connect(self.job_manager, SIGNAL('job_added(int)'), self.status_bar.job_added)
         QObject.connect(self.job_manager, SIGNAL('no_more_jobs()'), self.status_bar.no_more_jobs)
         
+        ####################### Setup Toolbar #####################
+        sm = QMenu()
+        sm.addAction(QIcon(':/images/reader.svg'), 'Send to main memory')
+        sm.addAction(QIcon(':/images/sd.svg'), 'Send to storage card')
+        self.sync_menu = sm # Needed
+        QObject.connect(self.action_add, SIGNAL("triggered(bool)"), self.add_books)
+        QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete_books)
+        QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit_metadata)
+        QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)        
+        QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
+        QObject.connect(sm.actions()[1], SIGNAL('triggered(bool)'), self.sync_to_card)
+        self.action_sync.setMenu(sm)
+        self.tool_bar.insertAction(self.action_edit, self.action_sync)
+        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         
         ####################### Library view ########################
         self.library_view.set_database(self.database_path)
-        self.library_view.connect_to_search_box(self.search)
-        self.memory_view.connect_to_search_box(self.search)
-        self.card_view.connect_to_search_box(self.search)
+        for func, target in [
+                             ('connect_to_search_box', self.search),
+                             ('connect_to_book_display', self.status_bar.book_info.show_data),
+                             ]:
+            for view in (self.library_view, self.memory_view, self.card_view):
+                getattr(view, func)(target)
+                
         self.memory_view.connect_dirtied_signal(self.upload_booklists)
         self.card_view.connect_dirtied_signal(self.upload_booklists)
         
         window.closeEvent = self.close_event
         window.show()
+        self.stack.setCurrentIndex(0)
         self.library_view.migrate_database()
         self.library_view.sortByColumn(3, Qt.DescendingOrder)        
         self.library_view.resizeColumnsToContents()
@@ -75,31 +112,36 @@ class Main(QObject, Ui_MainWindow):
         self.detector.start(QThread.InheritPriority)
         
     
-    def upload_booklists(self):
-        booklists = self.memory_view.model().db, self.card_view.model().db
-        self.job_manager.run_device_job(None, self.device_manager.sync_booklists_func(),
-                                        booklists)
-    
-    def location_selected(self, location):
-        page = 0 if location == 'library' else 1 if location == 'main' else 2
-        self.stack.setCurrentIndex(page)
-        if page == 1:
-            self.memory_view.resizeRowsToContents()
-            self.memory_view.resizeColumnsToContents()
-        if page == 2:
-            self.card_view.resizeRowsToContents()
-            self.card_view.resizeColumnsToContents()
-    
-    def job_exception(self, id, exception, formatted_traceback):
-        raise JobException, str(exception) + '\n\r' + formatted_traceback
+    def current_view(self):
+        '''Convenience method that returns the currently visible view '''
+        idx = self.stack.currentIndex()
+        if idx == 0:
+            return self.library_view
+        if idx == 1:
+            return self.memory_view
+        if idx == 2:
+            return self.card_view
         
+    def booklists(self):
+        return self.memory_view.model().db, self.card_view.model().db
+            
+        
+    
+    ########################## Connect to device ##############################
     def device_detected(self, cls, connected):
+        '''
+        Called when a device is connected to the computer.
+        '''
         if connected:    
             self.device_manager = DeviceManager(cls)
             func = self.device_manager.info_func()
             self.job_manager.run_device_job(self.info_read, func)
+            self.set_default_thumbnail(cls.THUMBNAIL_HEIGHT)
             
     def info_read(self, id, result, exception, formatted_traceback):
+        '''
+        Called once device information has been read.
+        '''
         if exception:
             self.job_exception(id, exception, formatted_traceback)
             return
@@ -107,20 +149,232 @@ class Main(QObject, Ui_MainWindow):
         self.location_view.model().update_devices(cp, fs)
         self.vanity.setText(self.vanity_template.arg('Connected '+' '.join(info[:-1])))
         func = self.device_manager.books_func()
-        self.job_manager.run_device_job(self.books_read, func)
+        self.job_manager.run_device_job(self.metadata_downloaded, func)
         
-    def books_read(self, id, result, exception, formatted_traceback):
+    def metadata_downloaded(self, id, result, exception, formatted_traceback):
+        '''
+        Called once metadata has been read for all books on the device.
+        '''
         if exception:
             self.job_exception(id, exception, formatted_traceback)
             return
         mainlist, cardlist = result
         self.memory_view.set_database(mainlist)
         self.card_view.set_database(cardlist)
-        self.memory_view.sortByColumn(3, Qt.DescendingOrder)
-        self.card_view.sortByColumn(3, Qt.DescendingOrder)
-        self.location_selected('main')
+        for view in (self.memory_view, self.card_view):
+            view.sortByColumn(3, Qt.DescendingOrder)            
+            view.resizeColumnsToContents()
+            view.resizeRowsToContents()
+            view.resize_on_select = not view.isVisible()
+        #self.location_selected('main')
+    ############################################################################
+    
+    
+    ############################# Upload booklists #############################
+    def upload_booklists(self):
+        '''
+        Upload metadata to device.
+        '''
+        self.job_manager.run_device_job(self.metadata_synced, 
+                                        self.device_manager.sync_booklists_func(),
+                                        self.booklists())
+    
+    def metadata_synced(self, id, result, exception, formatted_traceback):
+        '''
+        Called once metadata has been uploaded.
+        '''
+        if exception:
+            self.job_exception(id, exception, formatted_traceback)
+            return
+    ############################################################################
+    
+    
+    ################################# Add books ################################
+    def add_books(self, checked):
+        '''
+        Add books from the local filesystem to either the library or the device.
+        '''
+        books = choose_files(self.window, 'add books dialog dir', 'Select books', 'Books',
+                             extensions=['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'html', 'xhtml', 'epub'])
+        if not books:
+            return
+        on_card = False if self.stack.currentIndex() != 2 else True
+        # Get format and metadata information
+        formats, metadata, names, infos = [], [], [], []        
+        for book in books:
+            format = os.path.splitext(book)[1]
+            format = format[1:] if format else None
+            stream = open(book, 'rb')
+            mi = get_metadata(stream, stream_type=format)
+            if not mi.title:
+                mi.title = os.path.splitext(os.path.basename(book))[0]
+            formats.append(format)
+            metadata.append(mi)
+            names.append(os.path.basename(book))
+            infos.append({'title':mi.title, 'authors':mi.author, 'cover':self.default_thumbnail})
+        
+        if self.stack.currentIndex() == 0:
+            model = self.current_view().model()
+            model.add_books(books, formats, metadata)
+            model.resort()
+            model.research()
+        else:
+            self.upload_books(books, names, infos, on_card=on_card)
+    
+    def upload_books(self, files, names, metadata, on_card=False):
+        '''
+        Upload books to device.
+        @param files: List of either paths to files or file like objects
+        '''
+        id = self.job_manager.run_device_job(self.books_uploaded,
+                                        self.device_manager.upload_books_func(),
+                                        files, names, on_card=on_card 
+                                        )
+        self.upload_memory[id] = metadata
+    
+    def books_uploaded(self, id, result, exception, formatted_traceback):
+        '''
+        Called once books have been uploaded.
+        '''
+        metadata = self.upload_memory.pop(id)
+        if exception:
+            self.job_exception(id, exception, formatted_traceback)
+            return
+        
+        self.device_manager.add_books_to_metadata(result, metadata, self.booklists())
+        
+        self.upload_booklists()
+        
+        for view in (self.memory_view, self.card_view):
+            view.model().resort()
+            view.model().research()
+            
+        
+    ############################################################################    
+    
+    ############################### Delete books ###############################
+    def delete_books(self, checked):
+        '''
+        Delete selected books from device or library.
+        '''
+        view = self.current_view()
+        rows = view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            return
+        if self.stack.currentIndex() == 0:
+            view.model().delete_books(rows)
+        else:
+            view = self.memory_view if self.stack.currentIndex() == 1 else self.card_view            
+            paths = view.model().paths(rows)
+            id = self.remove_paths(paths)
+            self.delete_memory[id] = paths
+            view.model().mark_for_deletion(id, rows)
+            
+            
+    def remove_paths(self, paths):
+        return self.job_manager.run_device_job(self.books_deleted,
+                                self.device_manager.delete_books_func(), paths)
         
             
+    def books_deleted(self, id, result, exception, formatted_traceback):
+        '''
+        Called once deletion is done on the device
+        '''
+        for view in (self.memory_view, self.card_view):
+            view.model().deletion_done(id, bool(exception))
+        if exception:
+            self.job_exception(id, exception, formatted_traceback)            
+            return
+        
+        self.upload_booklists()
+        
+        if self.delete_memory.has_key(id):
+            paths = self.delete_memory.pop(id)
+            self.device_manager.remove_books_from_metadata(paths, self.booklists())
+        
+            for view in (self.memory_view, self.card_view):
+                view.model().remap()
+            
+    ############################################################################
+    
+    ############################### Edit metadata ##############################
+    def edit_metadata(self, checked):
+        '''
+        Edit metadata of selected books in library or on device.
+        '''
+        pass
+    ############################################################################
+    
+    ############################# Syncing to device#############################
+    def sync_to_main_memory(self, checked):
+        self.sync_to_device(False)
+        
+    def sync_to_card(self, checked):
+        self.sync_to_device(True)
+        
+    def cover_to_thumbnail(self, data):
+        p = QPixmap()
+        p.loadFromData(data)
+        if not p.isNull():
+            ht = self.device_manager.device_class.THUMBNAIL_HEIGHT if self.device_manager else \
+                       Device.THUMBNAIL_HEIGHT
+            p = p.scaledToHeight(ht)
+            ba = QByteArray()
+            buf = QBuffer(ba)
+            buf.open(QBuffer.WriteOnly)
+            p.save(buf, 'JPEG')
+            return (p.width(), p.height(), ba.data())
+    
+    def sync_to_device(self, on_card):
+        rows = self.library_view.selectionModel().selectedRows()
+        if not self.device_manager or not rows or len(rows) == 0:
+            return
+        ids = iter(self.library_view.model().id(r) for r in rows)
+        metadata = self.library_view.model().get_metadata(rows)
+        for mi in metadata:
+            cdata = mi['cover']
+            if cdata:
+                mi['cover'] = self.cover_to_thumbnail(cdata)
+        metadata = iter(metadata)
+        files = self.library_view.model().get_preferred_formats(rows, 
+                                    self.device_manager.device_class.FORMATS)
+        bad, good, gf, names = [], [], [], []
+        for f in files:
+            mi = metadata.next()
+            id = ids.next()
+            if f is None:
+                bad.append(mi)
+            else:
+                good.append(mi)
+                gf.append(f)
+                names.append('%s_%d%s'%(__appname__, id, os.path.splitext(f.name)[1]))
+        self.upload_books(gf, names, good, on_card)
+        
+        raise Exception, str(bad)
+        
+                
+            
+    ############################################################################
+    
+    def location_selected(self, location):
+        '''
+        Called when a location icon is clicked (e.g. Library)
+        '''
+        page = 0 if location == 'library' else 1 if location == 'main' else 2
+        self.stack.setCurrentIndex(page)
+        view = self.memory_view if page == 1 else self.card_view if page == 2 else None
+        if view:
+            if view.resize_on_select:
+                view.resizeRowsToContents()
+                view.resizeColumnsToContents()
+                view.resize_on_select = False
+    
+    def job_exception(self, id, exception, formatted_traceback):
+        '''
+        Handle exceptions in threaded jobs.
+        '''
+        raise JobException, str(exception) + '\n\r' + formatted_traceback
+        
     
     def read_settings(self):
         settings = QSettings()
@@ -149,9 +403,14 @@ def main():
         sys.exit(1)
     from PyQt4.Qt import QApplication, QMainWindow
     app = QApplication(sys.argv)
+    #from IPython.Shell import IPShellEmbed
+    #ipshell = IPShellEmbed([],
+    #                   banner = 'Dropping into IPython',
+    #                   exit_msg = 'Leaving Interpreter, back to program.')
+    #ipshell()
+    #return 0
     window = QMainWindow()
     window.setWindowTitle(APP_TITLE)
-    #window.setWindowIcon(QIcon(":/icon"))
     installErrorHandler(QErrorMessage(window))
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName(APP_TITLE)
@@ -167,4 +426,4 @@ def main():
     
         
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

@@ -16,9 +16,8 @@
 Backend that implements storage of ebooks in an sqlite database.
 """
 import sqlite3 as sqlite
-import os, datetime, re
+import datetime, re
 from zlib import compressobj, decompress
-from stat import ST_SIZE
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -506,7 +505,7 @@ class LibraryDatabase(object):
                               text TEXT NON NULL COLLATE NOCASE,
                               UNIQUE(book)
                             );
-        CREATE INDEX comments_idx ON covers (book);
+        CREATE INDEX comments_idx ON comments (book);
         CREATE TRIGGER fkc_comments_insert
         BEFORE INSERT ON comments
         BEGIN
@@ -572,6 +571,9 @@ class LibraryDatabase(object):
         return not self.conn.execute('SELECT id FROM books LIMIT 1').fetchone()
     
     def refresh(self, sort_field, ascending):
+        '''
+        Rebuild self.data and self.cache. Filter results are lost. 
+        '''
         FIELDS = {'title'  : 'sort',
                   'authors':  'authors_sort',
                   'publisher': 'publisher_sort',
@@ -637,6 +639,43 @@ class LibraryDatabase(object):
         
     def max_size(self, index):
         return self.data[index][6]
+    
+    def cover(self, index):
+        id = self.id(index)
+        matches = self.conn.execute('SELECT data from covers where id=?', (id,)).fetchall()
+        if not matches:
+            return None
+        raw = matches[0][0]
+        if raw:
+            return decompress(raw)
+        return None
+    
+    def tags(self, index):
+        id = self.id(index)
+        matches = self.conn.execute('SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=?)', (id,)).fetchall()
+        if not matches:
+            return None
+        return matches[0][0]
+    
+    def comments(self, index):
+        id = self.id(index)
+        matches = self.conn.execute('SELECT text FROM comments WHERE book=?', (id,)).fetchall()
+        if not matches:
+            return None
+        return matches[0][0]
+    
+    def formats(self, index):
+        ''' Return available formats as a comma separated list '''
+        id = self.id(index)
+        matches = self.conn.execute('SELECT concat(format) FROM data WHERE data.book=?', (id,)).fetchall()
+        if not matches:
+            return None
+        return matches[0][0]
+    
+    def format(self, index, format):
+        id = self.id(index)
+        return decompress(self.conn.execute('SELECT data FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0])
+        
     
     def set(self, row, column, val):
         ''' Convenience method for setting the title, authors, publisher or rating '''
@@ -709,28 +748,55 @@ class LibraryDatabase(object):
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
         self.conn.commit()
         
-    def add_book(self, stream, format, mi, uri=None):
-        if not mi.author:
-            mi.author = 'Unknown'
-        obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
-                          (mi.title, uri, mi.series_index))
-        id = obj.lastrowid
+    def add_books(self, paths, formats, metadata, uris=[]):
+        '''
+        Add a book to the database. self.data and self.cache are not updated.
+        '''
+        formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
+        for path in paths:
+            mi = metadata.next()
+            try:
+                uri = uris.next()
+            except StopIteration:
+                uri = None
+            obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
+                              (mi.title, uri, mi.series_index))
+            id = obj.lastrowid
+            self.conn.commit()
+            if not mi.author:
+                mi.author = 'Unknown'
+            temp = mi.author.split(',')
+            authors = []
+            for a in temp:
+                authors += a.split('&')
+            self.set_authors(id, authors)
+            if mi.publisher:
+                self.set_publisher(id, mi.publisher)
+            if mi.rating:
+                self.set_rating(id, mi.rating)
+            if mi.series:
+                self.set_series(id, mi.series)
+            stream = open(path, 'rb')
+            stream.seek(0, 2)
+            usize = stream.tell()
+            stream.seek(0)
+            format = formats.next()
+            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
+                              (id, format, usize, compressobj().compress(stream.read())))
+            stream.close()
         self.conn.commit()
-        temp = mi.author.split(',')
-        authors = []
-        for a in temp:
-            authors += a.split('&')
-        self.set_authors(id, authors)
-        if mi.publisher:
-            self.set_publisher(id, mi.publisher)
-        if mi.rating:
-            self.set_rating(id, mi.rating)
-        if mi.series:
-            self.set_series(id, mi.series)
-        stream.seek(0, 2)
-        usize = stream.tell()
-        stream.seek(0)
-        self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
-                          (id, format, usize, compressobj().compress(stream)))
+        
+        
+    def delete_books(self, indices):
+        '''
+        Removes books from self.cache, self.data and underlying database.
+        '''
+        ids = [ self.id(i) for i in indices ]
+        cache_indices = [ idx for idx in range(len(self.cache)-1, -1, -1) if self.cache[idx][0] in ids ]
+        for idx in cache_indices:
+            self.cache[idx:idx+1] = []
+        for idx in indices:
+            self.data[idx:idx+1] = [] 
+        for id in ids:
+            self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
-            

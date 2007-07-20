@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.ptempfile import PersistentTemporaryFile
 import os, textwrap, traceback, time, re
 from datetime import timedelta, datetime
 from operator import attrgetter
@@ -19,9 +20,9 @@ from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
-                        QPalette
+                        QPalette, QItemSelectionModel
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         QCoreApplication, SIGNAL, QObject, QSize
+                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
 from libprs500.library.database import LibraryDatabase
 from libprs500.gui2 import NONE
@@ -44,11 +45,11 @@ class LibraryDelegate(QItemDelegate):
         gradient.setColorAt(0.0, self.COLOR)
         gradient.setColorAt(1.0, self.COLOR)
         self. brush = QBrush(gradient)
-        self.factor = self.SIZE/100.        
+        self.factor = self.SIZE/100.
 
     def sizeHint(self, option, index):
-        num = index.model().data(index, Qt.DisplayRole).toInt()[0]
-        return QSize(num*(self.SIZE), self.SIZE+4)
+        #num = index.model().data(index, Qt.DisplayRole).toInt()[0]
+        return QSize(5*(self.SIZE), self.SIZE+4)
     
     def paint(self, painter, option, index):
         num = index.model().data(index, Qt.DisplayRole).toInt()[0]
@@ -84,13 +85,37 @@ class BooksModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher']
-        self.sorted_on = None
-        
+        self.sorted_on = (3, Qt.AscendingOrder)
+        self.last_search = '' # The last search performed on this model
+            
     def set_database(self, db):
         if isinstance(db, (QString, basestring)):
             db = LibraryDatabase(os.path.expanduser(str(db)))
         self.db = db
         
+    def add_books(self, paths, formats, metadata, uris=[]):
+        self.db.add_books(paths, formats, metadata, uris)
+        
+    def row_indices(self, index):
+        ''' Return list indices of all cells in index.row()'''
+        return [ self.index(index.row(), c) for c in range(self.columnCount(None))]
+        
+    def removeRows(self, row, count, parent=QModelIndex()):
+        rows = [row + i for i in range(count)]
+        self.beginRemoveRows(parent, row, row+count-1)
+        self.db.delete_books(rows)
+        self.endRemoveRows()
+    
+    def removeRow(self, row, parent=QModelIndex()):
+        self.removeRows(row, 1)
+    
+    def delete_books(self, indices):
+        rows = [ i.row() for i in indices ]
+        for row in rows:
+            self.removeRow(row)
+        self.emit(SIGNAL('layoutChanged()'))
+        self.emit(SIGNAL('deleted()'))
+    
     def search_tokens(self, text):
         tokens = []
         quot = re.search('"(.*?)"', text)
@@ -104,17 +129,22 @@ class BooksModel(QAbstractTableModel):
     def search(self, text, refinement):
         tokens = self.search_tokens(text)
         self.db.filter(tokens, refinement)
+        self.last_search = text
         self.reset()
-        self.emit(SIGNAL('searched()'))
-    
+            
     def sort(self, col, order):
         if not self.db:
             return
         ascending = order == Qt.AscendingOrder
         self.db.refresh(self.cols[col], ascending)
-        self.reset()
-        self.emit(SIGNAL('sorted()'))
+        self.reset()        
         self.sorted_on = (col, order)
+        
+    def resort(self):
+        self.sort(*self.sorted_on)
+        
+    def research(self):
+        self.search(self.last_search, False)
         
     def database_needs_migration(self):
         path = os.path.expanduser('~/library.db')
@@ -127,6 +157,72 @@ class BooksModel(QAbstractTableModel):
     
     def rowCount(self, parent):
         return self.db.rows() if self.db else 0
+    
+    def current_changed(self, current, previous):
+        data = {}
+        idx = current.row()
+        cdata = self.db.cover(idx)
+        if cdata:
+            data['cover'] = cdata
+        tags = self.db.tags(idx)
+        if tags:
+            tags = tags.replace(',', ', ')
+        else:
+             tags = 'None'
+        data['Tags'] = tags
+        formats = self.db.formats(idx)
+        if formats:
+            formats = formats.replace(',', ', ')
+        else:
+            formats = 'None'
+        data['Formats'] = formats
+        comments = self.db.comments(idx)
+        if not comments:
+            comments = 'None'
+        data['Comments'] = comments
+        self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
+    
+    def get_metadata(self, rows):
+        metadata = []
+        for row in rows:
+            row = row.row()
+            au = self.db.authors(row)
+            if not au:
+                au = 'Unknown'
+            au = au.split(',')
+            if len(au) > 1:
+                t = ', '.join(au[:-1])
+                t += ' & ' + au[-1]
+                au = t
+            else:
+                au = ' & '.join(au)
+            mi = {
+                  'title'   : self.db.title(row),
+                  'authors' : au,
+                  'cover'   : self.db.cover(row),
+                  } 
+            metadata.append(mi)
+        return metadata
+    
+    def get_preferred_formats(self, rows, formats):
+        ans = []
+        for row in (row.row() for row in rows):
+            format = None
+            for f in self.db.formats(row).split(','):
+                if f.lower() in formats:
+                    format = f
+                    break
+            if format:
+                pt = PersistentTemporaryFile(suffix='.'+format)
+                pt.write(self.db.format(row, format))
+                pt.seek(0)
+                ans.append(pt)                
+            else:
+                ans.append(None)
+        return ans
+    
+    def id(self, row):
+        return self.db.id(row.row())
     
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:      
@@ -231,12 +327,29 @@ class BooksView(QTableView):
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.setItemDelegateForColumn(4, LibraryDelegate(self))        
-        QObject.connect(self._model, SIGNAL('sorted()'), self.resizeRowsToContents)
-        QObject.connect(self._model, SIGNAL('searched()'), self.resizeRowsToContents)
+        QObject.connect(self._model, SIGNAL('modelReset()'), self.resizeRowsToContents)
+        QObject.connect(self._model, SIGNAL('deleted()'), self.deleted)
+        QObject.connect(self._model, SIGNAL('update_current()'), self.update_current)
+        QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
+                        self._model.current_changed)
         #self.verticalHeader().setVisible(False)
         
     def set_database(self, db):
         self._model.set_database(db)
+        
+    def update_current(self):
+        '''
+        Clear selection and update durrent index.
+        '''
+        cidx = self.currentIndex() 
+        self.selectionModel().clear()
+        for idx in self.model().row_indices(cidx):
+            self.selectionModel().select(idx, QItemSelectionModel.Select)
+        self.selectionModel().setCurrentIndex(cidx, QItemSelectionModel.NoUpdate)
+    
+    def deleted(self):
+        self.resizeRowsToContents()
+        self.update_current()
         
     def migrate_database(self):
         if self._model.database_needs_migration():
@@ -256,13 +369,20 @@ class BooksView(QTableView):
             LibraryDatabase.import_old_database(path, self._model.db.conn, meter)
             
     def connect_to_search_box(self, sb):
-        QObject.connect(sb, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), self._model.search)
+        QObject.connect(sb, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), 
+                        self._model.search)
+        
+    def connect_to_book_display(self, bd):
+        QObject.connect(self._model, SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
+                        bd)
+    
 
 class DeviceBooksView(BooksView):
     
     def __init__(self, parent):
         BooksView.__init__(self, parent, DeviceBooksModel)
         self.columns_resized = False
+        self.resize_on_select = False
         
     def resizeColumnsToContents(self):
         QTableView.resizeColumnsToContents(self)
@@ -274,12 +394,48 @@ class DeviceBooksView(BooksView):
 class DeviceBooksModel(BooksModel):
     
     def __init__(self, parent):
-        QAbstractTableModel.__init__(self, parent)
+        BooksModel.__init__(self, parent)
         self.db  = []
         self.map = []
         self.sorted_map = []
         self.unknown = str(self.trUtf8('Unknown'))
+        self.marked_for_deletion = {}
         
+    def mark_for_deletion(self, id, rows):
+        self.marked_for_deletion[id] = self.indices(rows)
+        for row in rows:
+            indices = self.row_indices(row)
+            self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
+        
+            
+    def deletion_done(self, id, succeeded=True):
+        if not self.marked_for_deletion.has_key(id):
+            return
+        rows = self.marked_for_deletion.pop(id)
+        for row in rows:
+            if not succeeded:
+                indices = self.row_indices(self.index(row, 0))
+                self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
+        
+    def remap(self):
+        self.set_database(self.db)
+        self.resort()
+        self.research()
+        self.emit(SIGNAL('update_current()'))
+    
+    
+    def indices_to_be_deleted(self):
+        ans = []
+        for v in self.marked_for_deletion.values():
+            ans.extend(v)
+        return ans
+    
+    def flags(self, index):
+        if self.map[index.row()] in self.indices_to_be_deleted():
+            return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python  
+        return BooksModel.flags(self, index)
+        
+    
     def search(self, text, refinement):
         tokens = self.search_tokens(text)
         base = self.map if refinement else self.sorted_map
@@ -293,9 +449,9 @@ class DeviceBooksModel(BooksModel):
                     break
             if add:
                 result.append(i)
+        
         self.map = result
         self.reset()
-        self.emit(SIGNAL('searched()'))
     
     def sort(self, col, order):
         if not self.db:
@@ -330,7 +486,6 @@ class DeviceBooksModel(BooksModel):
             self.sorted_map.sort(cmp=fcmp, reverse=descending)
         self.sorted_on = (col, order)
         self.reset()
-        self.emit(SIGNAL('sorted()'))
     
     def columnCount(self, parent):
         return 4
@@ -341,6 +496,34 @@ class DeviceBooksModel(BooksModel):
     def set_database(self, db):
         self.db = db
         self.map = list(range(0, len(db)))
+    
+    def current_changed(self, current, previous):
+        data = {}
+        item = self.db[self.map[current.row()]]
+        cdata = item.thumbnail
+        if cdata:
+            data['cover'] = cdata
+        type = 'Unknown'
+        ext = os.path.splitext(item.path)[1]
+        if ext:
+            type = ext[1:].lower()
+        data['Format'] = type
+        data['Path'] = item.path
+        dt = item.datetime
+        dt = datetime(*dt[0:6])
+        dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
+        data['Timestamp'] = dt.ctime()
+        self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
+        
+    def paths(self, rows):
+        return [self.db[self.map[r.row()]].path for r in rows ]
+    
+    def indices(self, rows):
+        '''
+        Return indices into underlying database from rows
+        '''
+        return [ self.map[r.row()] for r in rows]
+    
     
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:      
@@ -372,7 +555,9 @@ class DeviceBooksModel(BooksModel):
                 return QVariant(dt.strftime(BooksView.TIME_FMT))
         elif role == Qt.TextAlignmentRole and index.column() in [2, 3]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
-        elif role == Qt.ToolTipRole and index.isValid():            
+        elif role == Qt.ToolTipRole and index.isValid():
+            if self.map[index.row()] in self.indices_to_be_deleted():
+                return QVariant('Marked for deletion')            
             if index.column() in [0, 1]:
                 return QVariant("Double click to <b>edit</b> me<br><br>")
         return NONE
@@ -399,24 +584,31 @@ class DeviceBooksModel(BooksModel):
         return done
 
 class SearchBox(QLineEdit):
+    
+    INTERVAL = 1000 #: Time to wait before emitting search signal
+    
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
         self.help_text = 'Search by title, author, publisher, tags and comments'
-        self.setText(self.help_text)
-        self.home(False)
-        QObject.connect(self, SIGNAL('textEdited(QString)'), self.text_edited_slot)
-        self.default_palette = QApplication.palette(self)
-        gray = QPalette(self.default_palette)
-        gray.setBrush(QPalette.Text, QBrush(QColor('lightgray')))
-        self.setPalette(gray)
         self.initial_state = True
+        self.default_palette = QApplication.palette(self)
+        self.gray = QPalette(self.default_palette)
+        self.gray.setBrush(QPalette.Text, QBrush(QColor('lightgray')))
         self.prev_search = ''
         self.timer = None
-        self.interval = 1000 #: Time to wait before emitting search signal
+        self.clear_to_help()
+        QObject.connect(self, SIGNAL('textEdited(QString)'), self.text_edited_slot)
+        
         
     def normalize_state(self):
         self.setText('')
         self.setPalette(self.default_palette)
+        
+    def clear_to_help(self):
+        self.setText(self.help_text)
+        self.home(False)
+        self.setPalette(self.gray)
+        self.initial_state = True
         
     def keyPressEvent(self, event):
         if self.initial_state:
@@ -433,7 +625,7 @@ class SearchBox(QLineEdit):
     def text_edited_slot(self, text):
         text = str(text)
         self.prev_text = text
-        self.timer = self.startTimer(self.interval)
+        self.timer = self.startTimer(self.__class__.INTERVAL)
         
     def timerEvent(self, event):
         self.killTimer(event.timerId())

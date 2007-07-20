@@ -24,8 +24,8 @@ class LocationModel(QAbstractListModel):
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
         self.icons = [QVariant(QIcon(':/library')),
-                      QVariant(QIcon(':/reader')),
-                      QVariant(QIcon(':/card'))]
+                      QVariant(QIcon(':/images/reader.svg')),
+                      QVariant(QIcon(':/images/sd.svg'))]
         self.text = ['Library',
                      'Reader\n%s available',
                      'Card\n%s available']

@@ -163,7 +163,7 @@
          <string>...</string>
         </property>
         <property name="icon" >
-         <iconset resource="images.qrc" >:/images/clear.png</iconset>
+         <iconset resource="images.qrc" >:/images/clear_left.svg</iconset>
         </property>
        </widget>
       </item>
@@ -328,10 +328,10 @@
   </widget>
   <action name="action_add" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/addfile.png</iconset>
+    <iconset resource="images.qrc" >:/images/plus.svg</iconset>
    </property>
    <property name="text" >
-    <string>Add books to Library</string>
+    <string>Add books</string>
    </property>
    <property name="shortcut" >
     <string>A</string>
@@ -342,7 +342,7 @@
   </action>
   <action name="action_del" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/delfile.png</iconset>
+    <iconset resource="images.qrc" >:/images/trash.svg</iconset>
    </property>
    <property name="text" >
     <string>Delete books</string>
@@ -353,16 +353,24 @@
   </action>
   <action name="action_edit" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/edit.png</iconset>
+    <iconset resource="images.qrc" >:/images/edit_input.svg</iconset>
    </property>
    <property name="text" >
-    <string>Edit meta-information</string>
+    <string>Edit meta information</string>
    </property>
    <property name="shortcut" >
     <string>E</string>
    </property>
    <property name="autoRepeat" >
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="action_sync" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/sync.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Send to device</string>
    </property>
   </action>
  </widget>

@@ -60,6 +60,7 @@ class JobManager(QAbstractTableModel):
             QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                             slot)
         job.start()
+        return job.id
         
     def job_done(self, id, *args, **kwargs):
         '''

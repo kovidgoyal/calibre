@@ -31,7 +31,8 @@ class Device(object):
     # Ordered list of supported formats
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
     VENDOR_ID   = 0x0000
-    PRODUCT_ID  = 0x0000 
+    PRODUCT_ID  = 0x0000
+    THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
     
     def __init__(self, key='-1', log_packets=False, report_progress=None) :
         """ 
@@ -106,33 +107,50 @@ class Device(object):
         """    
         raise NotImplementedError()
     
-    def add_book(self, infile, name, info, booklists, oncard=False, \
-                            sync_booklists=False, end_session=True):
-        """
-        Add a book to the device. If oncard is True then the book is copied 
-        to the card rather than main memory. 
-
-        @param infile: The source file, should be opened in "rb" mode
-        @param name: The name of the book file when uploaded to the 
-                                device. The extension of name must be one of 
-                                the supported formats for this device.
-        @param info: A dictionary that must have the keys "title", "authors", "cover". 
-                     C{info["cover"]} should be a three element tuple (width, height, data)
-                     where data is the image data in JPEG format as a string
-        @param booklists: A tuple containing the result of calls to 
-                                (L{books}(oncard=False), L{books}(oncard=True)).    
-        """
+    def upload_books(self, files, names, on_card=False, end_session=True):
+        '''
+        Upload a list of books to the device. If a file already
+        exists on the device, it should be replaced.
+        @param files: A list of paths and/or file-like objects.
+        @param names: A list of file names that the books should have 
+        once uploaded to the device. len(names) == len(files)
+        @return: A list of 3-element tuples. The list is meant to be passed 
+        to L{add_books_to_metadata}.
+        '''
         raise NotImplementedError()
     
-    def remove_book(self, paths, booklists, end_session=True):
-        """
-        Remove the books specified by C{paths} from the device. The metadata
-        cache on the device must also be updated.
+    @classmethod
+    def add_books_to_metadata(cls, locations, metadata, booklists):
+        '''
+        Add locations to the booklists. This function must not communicate with 
+        the device. 
+        @param locations: Result of a call to L{upload_books}
+        @param metadata: List of dictionaries. Each dictionary must have the
+        keys C{title}, C{authors}, C{cover}. The value of the C{cover} element
+        can be None or a three element tuple (width, height, data)
+        where data is the image data in JPEG format as a string.
         @param booklists: A tuple containing the result of calls to 
-                                (L{books}(oncard=False), L{books}(oncard=True)).    
-        """
+                                (L{books}(oncard=False), L{books}(oncard=True)).
+        '''
+        raise NotImplementedError
+    
+    def delete_books(self, paths, end_session=True):
+        '''
+        Delete books at paths on device.
+        '''
         raise NotImplementedError()
     
+    @classmethod
+    def remove_books_from_metadata(cls, paths, booklists):
+        '''
+        Remove books from the metadata list. This function must not communicate 
+        with the device.
+        @param paths: paths to books on the device.
+        @param booklists:  A tuple containing the result of calls to 
+                                (L{books}(oncard=False), L{books}(oncard=True)).
+        '''
+        raise NotImplementedError()
+        
     def sync_booklists(self, booklists, end_session=True):
         '''
         Update metadata on device.

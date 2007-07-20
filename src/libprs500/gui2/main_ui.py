@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'main.ui'
 #
-# Created: Wed Jun 27 16:19:53 2007
+# Created: Thu Jul 19 21:07:39 2007
 #      by: PyQt4 UI code generator 4-snapshot-20070606
 #
 # WARNING! All changes made in this file will be lost!
@@ -81,7 +81,7 @@ class Ui_MainWindow(object):
         self.hboxlayout1.addWidget(self.search)
 
         self.clear_button = QtGui.QToolButton(self.centralwidget)
-        self.clear_button.setIcon(QtGui.QIcon(":/images/clear.png"))
+        self.clear_button.setIcon(QtGui.QIcon(":/images/clear_left.svg"))
         self.clear_button.setObjectName("clear_button")
         self.hboxlayout1.addWidget(self.clear_button)
         self.gridlayout.addLayout(self.hboxlayout1,1,0,1,1)
@@ -184,18 +184,22 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusBar)
 
         self.action_add = QtGui.QAction(MainWindow)
-        self.action_add.setIcon(QtGui.QIcon(":/images/addfile.png"))
+        self.action_add.setIcon(QtGui.QIcon(":/images/plus.svg"))
         self.action_add.setAutoRepeat(False)
         self.action_add.setObjectName("action_add")
 
         self.action_del = QtGui.QAction(MainWindow)
-        self.action_del.setIcon(QtGui.QIcon(":/images/delfile.png"))
+        self.action_del.setIcon(QtGui.QIcon(":/images/trash.svg"))
         self.action_del.setObjectName("action_del")
 
         self.action_edit = QtGui.QAction(MainWindow)
-        self.action_edit.setIcon(QtGui.QIcon(":/images/edit.png"))
+        self.action_edit.setIcon(QtGui.QIcon(":/images/edit_input.svg"))
         self.action_edit.setAutoRepeat(False)
         self.action_edit.setObjectName("action_edit")
+
+        self.action_sync = QtGui.QAction(MainWindow)
+        self.action_sync.setIcon(QtGui.QIcon(":/images/sync.svg"))
+        self.action_sync.setObjectName("action_sync")
         self.tool_bar.addAction(self.action_add)
         self.tool_bar.addAction(self.action_del)
         self.tool_bar.addAction(self.action_edit)
@@ -214,12 +218,13 @@ class Ui_MainWindow(object):
         self.search.setWhatsThis(QtGui.QApplication.translate("MainWindow", "Search the list of books by title, author, publisher, tags and comments<br><br>Words separated by spaces are ANDed", None, QtGui.QApplication.UnicodeUTF8))
         self.clear_button.setToolTip(QtGui.QApplication.translate("MainWindow", "Reset Quick Search", None, QtGui.QApplication.UnicodeUTF8))
         self.clear_button.setText(QtGui.QApplication.translate("MainWindow", "...", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_add.setText(QtGui.QApplication.translate("MainWindow", "Add books to Library", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_add.setText(QtGui.QApplication.translate("MainWindow", "Add books", None, QtGui.QApplication.UnicodeUTF8))
         self.action_add.setShortcut(QtGui.QApplication.translate("MainWindow", "A", None, QtGui.QApplication.UnicodeUTF8))
         self.action_del.setText(QtGui.QApplication.translate("MainWindow", "Delete books", None, QtGui.QApplication.UnicodeUTF8))
         self.action_del.setShortcut(QtGui.QApplication.translate("MainWindow", "Del", None, QtGui.QApplication.UnicodeUTF8))
-        self.action_edit.setText(QtGui.QApplication.translate("MainWindow", "Edit meta-information", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_edit.setText(QtGui.QApplication.translate("MainWindow", "Edit meta information", None, QtGui.QApplication.UnicodeUTF8))
         self.action_edit.setShortcut(QtGui.QApplication.translate("MainWindow", "E", None, QtGui.QApplication.UnicodeUTF8))
+        self.action_sync.setText(QtGui.QApplication.translate("MainWindow", "Send to device", None, QtGui.QApplication.UnicodeUTF8))
 
 from widgets import LocationView
 from library import BooksView, DeviceBooksView, SearchBox

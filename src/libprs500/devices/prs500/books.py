@@ -192,6 +192,17 @@ class BookList(list):
                 break
         node.elem.parentNode.removeChild(node.elem)
         node.elem.unlink()
+        
+    def remove_book(self, path):
+        node = None
+        for book in self:
+            if book.path == path:
+                node = book
+                self.remove(book)
+                break
+        if node:
+            node.elem.parentNode.removeChild(node.elem)
+            node.elem.unlink()
     
     def add_book(self, info, name, size, ctime):
         """ Add a node into DOM tree representing a book """
@@ -214,6 +225,7 @@ class BookList(list):
             w, h, data = info["cover"] 
         except TypeError:
             w, h, data = None, None, None
+        
         if data:
             th = self.document.createElement(self.prefix + "thumbnail")            
             th.setAttribute("width", str(w))
