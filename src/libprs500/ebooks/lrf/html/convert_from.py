@@ -1155,6 +1155,7 @@ class HTMLConverter(object):
             self.end_current_para()
             if not tag.contents or not src.strip(): # Handle empty <p></p> elements
                 self.current_block.append(CR())
+                self.process_children(tag, tag_css)
                 return
             self.lstrip_toggle = True            
             if tag_css.has_key('text-indent'):
