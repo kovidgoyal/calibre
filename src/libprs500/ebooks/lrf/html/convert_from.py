@@ -308,6 +308,7 @@ class HTMLConverter(object):
             b      = {"font-weight" : "bold"},
             strong = {"font-weight" : "bold"},
             i      = {"font-style"  : "italic"},
+            cite   = {'font-style'  : 'italic'},
             em     = {"font-style"  : "italic"},
             small  = {'font-size'   : 'small'},
             pre    = {'font-family' : 'monospace' },
@@ -1176,7 +1177,7 @@ class HTMLConverter(object):
                 self.current_block.append(CR())
             if tag.has_key('id'):
                 self.targets[tag['id']] = self.current_block
-        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code']:
+        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
             if tag.has_key('face'):
