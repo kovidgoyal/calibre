@@ -163,7 +163,7 @@ class Main(QObject, Ui_MainWindow):
         else:
             self.status("Deleting books and updating metadata on device")
             paths = self.device_view.model().delete(rows)
-            self.dev.remove_book(paths, (self.reader_model.booklist, \
+            self.dev.remove_books(paths, (self.reader_model.booklist, \
                                  self.card_model.booklist), end_session=False)
             self.update_availabe_space()
             self.model_modified()
