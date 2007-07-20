@@ -19,7 +19,7 @@ being closed.
 import tempfile
 import os
 
-from libprs500 import __version__
+from libprs500 import __version__, __appname__
 
 class _TemporaryFileWrapper(object):
     """
@@ -43,6 +43,7 @@ class _TemporaryFileWrapper(object):
         
     def __del__(self):
         import os # Needs to be here as the main os may no longer exist
+        self.close()
         if self.name and os.access(self.name, os.F_OK): 
             os.remove(self.name)
     
@@ -55,7 +56,7 @@ def PersistentTemporaryFile(suffix="", prefix="", dir=None):
     """
     if prefix == None: 
         prefix = ""
-    fd, name = tempfile.mkstemp(suffix, "libprs500_"+ __version__+"_" + prefix,
+    fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
                                 dir=dir)
     _file = os.fdopen(fd, "wb")
     return _TemporaryFileWrapper(_file, name)    
