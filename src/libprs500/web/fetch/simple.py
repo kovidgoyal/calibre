@@ -86,7 +86,7 @@ class RecursiveFetcher(object):
             time.sleep(delta)
         try:
             opener = urllib2.build_opener()
-            opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+            opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
             f = opener.open(url)
         except urllib2.URLError, err:
             if hasattr(err, 'code') and responses.has_key(err.code):
