@@ -102,7 +102,7 @@ def main():
     print 'Uploading installers...'
     upload_installers(exe, dmg)
     print 'Uploading to PyPI'
-    check_call('''python setup.py register bdist_egg upload''')
+    check_call('''python setup.py register bdist_egg --exclude-source-files upload''')
     upload_docs()
     check_call('''rm -rf dist/* build/*''')
     
