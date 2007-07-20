@@ -41,8 +41,9 @@ class BookInfoDisplay(QFrame):
             self.setTextInteractionFlags(Qt.TextSelectableByMouse)
             self.setText('')#<table><tr><td>row 1</td><td>row 2</td></tr><tr><td>fsfdsfsfsfsfsfsdfsffsfsd</td></tr></table>')
     
-    def __init__(self):
+    def __init__(self, clear_message):
         QFrame.__init__(self)
+        self.clear_message = clear_message
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
         self.cover_display = BookInfoDisplay.BookCoverDisplay()
@@ -70,6 +71,7 @@ class BookInfoDisplay(QFrame):
             rows += '<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
         self.book_data.setText('<table>'+rows+'</table>')
         
+        self.clear_message()
         self.setVisible(True)
 
 class MovieButton(QLabel):
@@ -85,7 +87,7 @@ class StatusBar(QStatusBar):
         QStatusBar.__init__(self)
         self.movie_button = MovieButton(QMovie(':/images/jobs-animated.mng'))
         self.addPermanentWidget(self.movie_button)
-        self.book_info = BookInfoDisplay()
+        self.book_info = BookInfoDisplay(self.clearMessage)
         self.addWidget(self.book_info)
         
     def job_added(self, id):

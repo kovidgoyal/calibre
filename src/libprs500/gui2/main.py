@@ -220,6 +220,7 @@ class Main(QObject, Ui_MainWindow):
             model.research()
         else:
             self.upload_books(books, names, infos, on_card=on_card)
+            self.status_bar.showMessage('Adding books to device.', 2000)
     
     def upload_books(self, files, names, metadata, on_card=False):
         '''
@@ -277,7 +278,7 @@ class Main(QObject, Ui_MainWindow):
             id = self.remove_paths(paths)
             self.delete_memory[id] = paths
             view.model().mark_for_deletion(id, rows)
-            
+            self.status_bar.showMessage('Deleting books from device.', 1000)
             
     def remove_paths(self, paths):
         return self.job_manager.run_device_job(self.books_deleted,
@@ -326,7 +327,7 @@ class Main(QObject, Ui_MainWindow):
         if not p.isNull():
             ht = self.device_manager.device_class.THUMBNAIL_HEIGHT if self.device_manager else \
                        Device.THUMBNAIL_HEIGHT
-            p = p.scaledToHeight(ht)
+            p = p.scaledToHeight(ht, Qt.SmoothTransformation)
             ba = QByteArray()
             buf = QBuffer(ba)
             buf.open(QBuffer.WriteOnly)
@@ -357,7 +358,7 @@ class Main(QObject, Ui_MainWindow):
                 gf.append(f)
                 names.append('%s_%d%s'%(__appname__, id, os.path.splitext(f.name)[1]))
         self.upload_books(gf, names, good, on_card)
-        
+        self.status_bar.showMessage('Sending books to device.', 5000)
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
             d = warning_dialog(self.window, 'No suitable formats', 'Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>'%(bad,))
