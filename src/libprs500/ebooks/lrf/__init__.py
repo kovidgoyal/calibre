@@ -91,6 +91,8 @@ def option_parser(usage):
     profiles=['prs500'] 
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')
+    parser.add_option('--ignore-tables', action='store_true', default=False,
+                      help='Render HTML tables as blocks of text instead of actual tables. This is neccessary if the HTML contains very large or complex tables.')
     laf = parser.add_option_group('LOOK AND FEEL')
     laf.add_option('--cover', action='store', dest='cover', default=None, \
                       help='Path to file containing image to be used as cover')

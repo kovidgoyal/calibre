@@ -260,7 +260,8 @@ class HTMLConverter(object):
                  page_break=re.compile('h[12]', re.IGNORECASE),
                  force_page_break=re.compile('$', re.IGNORECASE),
                  profile=PRS500_PROFILE,
-                 disable_autorotation=False):
+                 disable_autorotation=False,
+                 ignore_tables=False):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -342,6 +343,7 @@ class HTMLConverter(object):
         self.files   = {}         #: links that point to other files
         self.links_processed = False #: Whether links_processed has been called on this object
         self.font_delta = font_delta
+        self.ignore_tables = ignore_tables
         # Set by table processing code so that any <a name> within the table 
         # point to the previous element
         self.anchor_to_previous = None 
@@ -611,7 +613,8 @@ class HTMLConverter(object):
                                      link_exclude=self.link_exclude,
                                      page_break=self.page_break,
                                      force_page_break=self.force_page_break,
-                                     disable_autorotation=self.disable_autorotation)
+                                     disable_autorotation=self.disable_autorotation,
+                                     ignore_tables=self.ignore_tables)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
                         print >>sys.stderr, 'Unable to process', path
@@ -1189,14 +1192,16 @@ class HTMLConverter(object):
             self.end_current_para()            
             self.current_block.append(CR())
             self.end_current_block()
-            self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
-        elif tagname == 'td': # Needed for nested tables
-            self.current_para.append(" ")
+            if tagname == 'hr':
+                self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
             self.process_children(tag, tag_css)
-        elif tagname == 'table' and not self.in_table:
+        elif tagname == 'td': # Needed for nested tables
+            self.current_para.append(' ')
+            self.process_children(tag, tag_css)
+        elif tagname == 'table' and not self.ignore_tables and not self.in_table:
             tag_css = self.tag_css(tag) # Table should not inherit CSS
             self.process_table(tag, tag_css)
-        else:            
+        else:
             self.process_children(tag, tag_css)        
         if end_page:
                 self.end_page()
@@ -1291,7 +1296,8 @@ def process_file(path, options):
                              chapter_detection=options.chapter_detection,
                              chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
                              link_exclude=re.compile(le), page_break=pb, force_page_break=fpb,
-                             disable_autorotation=options.disable_autorotation)
+                             disable_autorotation=options.disable_autorotation,
+                             ignore_tables=options.ignore_tables)
         conv.process_links()
         oname = options.output
         if not oname:
