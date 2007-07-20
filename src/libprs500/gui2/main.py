@@ -243,7 +243,7 @@ class Main(QObject, Ui_MainWindow):
                 titles = '\n'.join(['<li>'+mi['title']+'</li>' for mi in metadata])
                 d = error_dialog(self.window, 'No space on device',
                                  '<p>Cannot upload books to device there is no more free space available '+where+
-                                 '</p><ul>%s</ul>'%(titles,))
+                                 '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()                
             else:
                 self.job_exception(id, exception, formatted_traceback)
