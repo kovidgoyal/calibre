@@ -223,8 +223,12 @@ class HTMLConverter(object):
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
     # Fix <a /> elements 
-    MARKUP_MASSAGE   = [(re.compile('&nbsp;'), lambda match : ' '), # Convert &nbsp; into a normal space as the default conversion converts it into \xa0 which is not a space in LRF
-                        (re.compile("(<\s*[aA]\s+.*\/)\s*>"), #Close <a /> tags
+    MARKUP_MASSAGE   = [
+                        # Convert &nbsp; into a normal space as the default 
+                        # conversion converts it into \xa0 which is not a space in LRF
+                        (re.compile('&nbsp;'), lambda match : ' '),
+                        # Close <a /> tags
+                        (re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
                          lambda match: match.group(1)+"></a>"),
                          # Strip comments from <style> tags. This is needed as 
                          # sometimes there are unterminated comments
@@ -242,7 +246,16 @@ class HTMLConverter(object):
                       lambda match: match.group(1)),
                      (re.compile(r'<\s*a\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*</a>', re.IGNORECASE), 
                       lambda match: ''),
-                     ] 
+                     ]
+    # Fix pdftohtml markup
+    PDFTOHTML  = [
+                  # Remove <hr> tags
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: ''),
+                  # Remove <br> and replace <br><br> with <p>
+                  (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
+                  (re.compile(r'(.{75,}?)<br.*?>', re.IGNORECASE), 
+                   lambda match: match.group(1)),
+                  ]
     
     class Link(object):
         def __init__(self, para, tag):
@@ -261,7 +274,8 @@ class HTMLConverter(object):
                  force_page_break=re.compile('$', re.IGNORECASE),
                  profile=PRS500_PROFILE,
                  disable_autorotation=False,
-                 ignore_tables=False):
+                 ignore_tables=False,
+                 pdftohtml=False):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -365,9 +379,15 @@ class HTMLConverter(object):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
         self.baen = baen
+        self.pdftohtml = pdftohtml
         if baen:
             nmassage.extend(HTMLConverter.BAEN_SANCTIFY)
-        self.soup = BeautifulSoup(open(self.file_name, 'r').read(), 
+            
+        raw = open(self.file_name, 'rb').read()
+        if pdftohtml:
+            nmassage.extend(HTMLConverter.PDFTOHTML)
+            raw = unicode(raw, 'utf8', 'replace')
+        self.soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
         print 'done\n\tConverting to BBeB...',
@@ -614,7 +634,8 @@ class HTMLConverter(object):
                                      page_break=self.page_break,
                                      force_page_break=self.force_page_break,
                                      disable_autorotation=self.disable_autorotation,
-                                     ignore_tables=self.ignore_tables)
+                                     ignore_tables=self.ignore_tables,
+                                     pdftohtml=self.pdftohtml)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
                         print >>sys.stderr, 'Unable to process', path
@@ -1298,7 +1319,8 @@ def process_file(path, options):
                              chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
                              link_exclude=re.compile(le), page_break=pb, force_page_break=fpb,
                              disable_autorotation=options.disable_autorotation,
-                             ignore_tables=options.ignore_tables)
+                             ignore_tables=options.ignore_tables,
+                             pdftohtml=options.pdftohtml)
         conv.process_links()
         oname = options.output
         if not oname:

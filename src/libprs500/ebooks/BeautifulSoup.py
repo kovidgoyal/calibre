@@ -959,6 +959,9 @@ class BeautifulStoneSoup(Tag, SGMLParser):
                      (markup, [self.fromEncoding, inDocumentEncoding],
                       smartQuotesTo=self.smartQuotesTo)
             markup = dammit.unicode
+            if not markup: # Added by Kovid
+                from libprs500.ebooks import ConversionError
+                raise ConversionError, 'Failed to coerce to unicode'
             self.originalEncoding = dammit.originalEncoding
         if markup:
             if self.markupMassage:
@@ -967,7 +970,7 @@ class BeautifulStoneSoup(Tag, SGMLParser):
                 for fix, m in self.markupMassage:
                     markup = fix.sub(m, markup)
         self.reset()
-
+        
         SGMLParser.feed(self, markup)
         # Close out any unfinished strings and close all the open tags.
         self.endData()
@@ -1530,7 +1533,7 @@ class UnicodeDammit:
         self.triedEncodings = []
         if markup == '' or isinstance(markup, unicode):
             self.originalEncoding = None
-            self.unicode = unicode(markup)            
+            self.unicode = unicode(markup)
             return
         
         u = None
@@ -1552,7 +1555,7 @@ class UnicodeDammit:
                 u = self._convertFrom(proposed_encoding)
                 if u: break
         self.unicode = u
-        if not u: self.originalEncoding = None
+        if not u: self.originalEncoding = None        
 
     def _subMSChar(self, orig):
         """Changes a MS smart quote character to an XML or HTML
@@ -1587,10 +1590,11 @@ class UnicodeDammit:
             self.markup = u       
             self.originalEncoding = proposed
         except Exception, e:
-            # print "That didn't work!"
-            # print e
+            #print "That didn't work!"
+            #print e
             return None        
         #print "Correct encoding: %s" % proposed
+        
         return self.markup
 
     def _toUnicode(self, data, encoding):
@@ -1679,6 +1683,7 @@ class UnicodeDammit:
                                  'utf-16', 'utf-32', 'utf_16', 'utf_32',
                                  'utf16', 'u16')):
                 xml_encoding = sniffed_xml_encoding
+        
         return xml_data, xml_encoding, sniffed_xml_encoding
 
 
