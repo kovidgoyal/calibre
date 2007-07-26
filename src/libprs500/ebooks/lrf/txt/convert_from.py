@@ -27,11 +27,10 @@ from libprs500.ebooks.markdown import markdown
 def option_parser():
     parser = lrf_option_parser('''Usage: %prog [options] mybook.txt\n\n'''
         '''%prog converts mybook.txt to mybook.lrf''')
-    defenc = 'cp1252' if iswindows else 'utf8'
     enchelp = 'Set the encoding used to decode ' + \
-              'the text in mybook.txt. Default encoding is %default'
+              'the text in mybook.txt. Default is to try to autodetect.'
     parser.add_option('-e', '--encoding', action='store', type='string', \
-                      dest='encoding', help=enchelp, default=defenc)
+                      dest='encoding', help=enchelp, default=None)
     return parser
     
 
@@ -40,27 +39,27 @@ def generate_html(txtfile, encoding):
     Convert txtfile to html and return a PersistentTemporaryFile object pointing
     to the file with the HTML.
     '''
-    encodings = ['iso-8859-1', 'koi8_r', 'koi8_u', 'utf8']
-    if iswindows:
-        encodings = ['cp1252'] + encodings
-    if encoding not in ['cp1252', 'utf8']:
-        encodings = [encoding] + encodings
-    txt, enc = None, None
-    for encoding in encodings:
-        try:
-            txt = codecs.open(txtfile, 'rb', encoding).read()
-        except UnicodeDecodeError:
-            continue
-        enc = encoding
-        break
-    if txt == None:
-        raise ConversionError, 'Could not detect encoding of %s'%(txtfile,)
+    enc = encoding
+    if not encoding:
+        encodings = ['cp1252', 'latin-1', 'iso-8859-1', 'koi8_r', 'koi8_u', 'utf8']
+        txt, enc = None, None
+        for encoding in encodings:
+            try:
+                txt = codecs.open(txtfile, 'rb', encoding).read()
+            except UnicodeDecodeError:
+                continue
+            enc = encoding
+            break
+        if txt == None:
+            raise ConversionError, 'Could not detect encoding of %s'%(txtfile,)
+    else:
+        txt = codecs.open(txtfile, 'rb', enc).read()
     md = markdown.Markdown(txt,
                            extensions=['footnotes', 'tables', 'toc'],
                            encoding=enc,
                            safe_mode=False,
                            )
-    html = md.toString().decode(enc)
+    html = md.toString()
     p = PersistentTemporaryFile('.html', dir=os.path.dirname(txtfile))
     p.close()
     codecs.open(p.name, 'wb', enc).write(html)
