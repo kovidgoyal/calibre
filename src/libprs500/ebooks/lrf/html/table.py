@@ -198,7 +198,7 @@ class Cell(object):
             for word in token.split():
                 width, height = font.getsize(word)
                 left, right, top, bottom = add_word(width, height, left, right, top, bottom, ls, ws)
-        return right+3, bottom
+        return right+3+max(parindent, 10), bottom
                 
     def text_block_preferred_width(self, tb, debug=False):
         return self.text_block_size(tb, sys.maxint, debug=debug)[0]
