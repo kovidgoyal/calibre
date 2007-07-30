@@ -1099,7 +1099,12 @@ class Markdown:
         for regexp in ['ul', 'ol', 'quoted', 'tabbed'] :
             m = RE.regExp[regexp].match(lines[0])
             if m :
-                processFn[regexp](parent_elem, lines, inList)
+                try:
+                    processFn[regexp](parent_elem, lines, inList)
+                except RuntimeError:
+                    print 'WARNING: Max recursion depth excedeeded, skipping section'
+                    #print '\n'.join(lines)
+                    #sys.exit()
                 return
 
         # We are NOT looking at one of the high-level structures like
