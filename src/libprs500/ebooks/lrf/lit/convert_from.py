@@ -18,7 +18,7 @@ from subprocess import Popen, PIPE
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.convert_from import process_file
-from libprs500 import isosx
+from libprs500 import isosx, __appname__
 CLIT = 'clit'
 if isosx and hasattr(sys, 'frameworks_dir'):
     CLIT = os.path.join(sys.frameworks_dir, CLIT)
@@ -32,7 +32,7 @@ def option_parser():
 def generate_html(pathtolit):
     if not os.access(pathtolit, os.R_OK):
         raise ConversionError, 'Cannot read from ' + pathtolit
-    tdir = mkdtemp(prefix='libprs500_lit2lrf_')
+    tdir = mkdtemp(prefix=__appname__+'_')
     cmd = ' '.join([CLIT, '"'+pathtolit+'"', tdir])
     p = Popen(cmd, shell=True, stderr=PIPE)
     ret = p.wait()

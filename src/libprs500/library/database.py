@@ -626,6 +626,7 @@ class LibraryDatabase(object):
         return self.data[index][1]
     
     def authors(self, index):
+        ''' Authors as a comman separated list or None'''
         return self.data[index][2]
     
     def publisher(self, index):
@@ -641,6 +642,7 @@ class LibraryDatabase(object):
         return self.data[index][6]
     
     def cover(self, index):
+        '''Cover as a data string or None'''
         id = self.id(index)
         matches = self.conn.execute('SELECT data from covers where id=?', (id,)).fetchall()
         if not matches:
@@ -651,6 +653,7 @@ class LibraryDatabase(object):
         return None
     
     def tags(self, index):
+        '''tags as a comman separated list or None'''
         id = self.id(index)
         matches = self.conn.execute('SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=?)', (id,)).fetchall()
         if not matches:
@@ -658,6 +661,7 @@ class LibraryDatabase(object):
         return matches[0][0]
     
     def comments(self, index):
+        '''Comments as string or None'''
         id = self.id(index)
         matches = self.conn.execute('SELECT text FROM comments WHERE book=?', (id,)).fetchall()
         if not matches:
@@ -678,7 +682,9 @@ class LibraryDatabase(object):
         
     
     def set(self, row, column, val):
-        ''' Convenience method for setting the title, authors, publisher or rating '''
+        ''' 
+        Convenience method for setting the title, authors, publisher or rating 
+        '''
         id = self.data[row][0]
         cols = {'title' : 1, 'authors': 2, 'publisher': 3, 'rating':4}
         col = cols[column]
@@ -699,10 +705,14 @@ class LibraryDatabase(object):
             self.set_rating(id, val)
         
     def set_authors(self, id, authors):
+        '''
+        @param authors: A list of authors.
+        '''
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
         for a in authors:
             if not a:
                 continue
+            a = a.strip()
             author = self.conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
             if author:
                 aid = author[0]

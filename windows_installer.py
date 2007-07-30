@@ -57,6 +57,7 @@ Var MUI_TEMP
 !define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
 !define CLIT         "C:\clit\clit.exe"
 !define UNRTF        "C:\unrtf\unrtf.exe"
+!define PDFTOHTML    "C:\pdftohtml\pdftohtml.exe"
 
 ;------------------------------------------------------------------------------------------------------
 ;General
@@ -126,6 +127,7 @@ Section "libprs500" Seclibprs500
   File /r "${PY2EXE_DIR}\*"
   File "${CLIT}"
   File "${UNRTF}"
+  File "${PDFTOHTML}"
     
   SetOutPath "$INSTDIR\driver"
   File "${LIBUSB_DIR}\*.dll"

@@ -496,22 +496,6 @@
  <connections>
   <connection>
    <sender>button_box</sender>
-   <signal>rejected()</signal>
-   <receiver>MetadataSingleDialog</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>button_box</sender>
    <signal>accepted()</signal>
    <receiver>MetadataSingleDialog</receiver>
    <slot>accept()</slot>
@@ -522,6 +506,22 @@
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_box</sender>
+   <signal>rejected()</signal>
+   <receiver>MetadataSingleDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
      <y>274</y>
     </hint>
    </hints>

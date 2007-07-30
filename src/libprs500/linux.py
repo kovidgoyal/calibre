@@ -80,6 +80,7 @@ def setup_completion():
         f.write(opts_and_exts('txt2lrf', txtop, ['txt']))
         f.write(opts_and_exts('lit2lrf', htmlop, ['lit']))
         f.write(opts_and_exts('rtf2lrf', htmlop, ['rtf']))
+        f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write('''
 _prs500_ls()

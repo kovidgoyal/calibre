@@ -20,9 +20,11 @@ import os
 
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.Qt import QObject, QPixmap, QListWidgetItem, QErrorMessage, \
-                    QVariant, QSettings, QFileDialog, QDialog
+                    QVariant, QSettings, QFileDialog
 
 
+from libprs500.gui2 import qstring_to_unicode, error_dialog
+from libprs500.gui2.dialogs import ModalDialog
 from libprs500.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 
 class Format(QListWidgetItem):
@@ -32,7 +34,7 @@ class Format(QListWidgetItem):
         QListWidgetItem.__init__(self, ext.upper(), parent, \
                         QListWidgetItem.UserType)
 
-class EditBookDialog(Ui_MetadataSingleDialog, QDialog):
+class MetadataSingleDialog(Ui_MetadataSingleDialog, ModalDialog):
     
     def select_cover(self, checked):
         settings = QSettings()
@@ -40,25 +42,27 @@ class EditBookDialog(Ui_MetadataSingleDialog, QDialog):
                         QVariant(os.path.expanduser("~"))).toString()
         _file = str(QFileDialog.getOpenFileName(self.parent, \
             "Choose cover for " + str(self.title.text()), _dir, \
-            "Images (*.png *.gif *.jpeg *.jpg);;All files (*)"))
+            "Images (*.png *.gif *.jpeg *.jpg *.svg);;All files (*)"))
         if len(_file):
             _file = os.path.abspath(_file)
             settings.setValue("change cover dir", \
                                         QVariant(os.path.dirname(_file)))
             if not os.access(_file, os.R_OK):
-                QErrorMessage(self.parent).showMessage("You do not have "+\
-                                        "permission to read the file: " + _file)
+                d = error_dialog(self.window, 'Cannot read', 
+                        'You do not have permission to read the file: ' + _file)
+                d.exec_()
                 return
             cf, cover = None, None
             try:
                 cf = open(_file, "rb")
                 cover = cf.read()
             except IOError, e: 
-                QErrorMessage(self.parent).showMessage("There was an error"+\
-                                " reading from file: " + _file + "\n"+str(e))
+                d = error_dialog(self.window, 'Error reading file',
+                        "<p>There was an error reading from file: <br /><b>" + _file + "</b></p><br />"+str(e))
+                d.exec_()
             if cover:
                 pix = QPixmap()
-                pix.loadFromData(cover, "", Qt.AutoColor)
+                pix.loadFromData(cover)
                 if pix.isNull(): 
                     QErrorMessage(self.parent).showMessage(_file + \
                                     " is not a valid picture")
@@ -83,7 +87,7 @@ class EditBookDialog(Ui_MetadataSingleDialog, QDialog):
             for _file in files:
                 _file = os.path.abspath(_file)
                 if not os.access(_file, os.R_OK):
-                    QErrorMessage(self.parent).showMessage("You do not have "+\
+                    QErrorMessage(self.window).showMessage("You do not have "+\
                                         "permission to read the file: " + _file)
                     continue
                 ext = os.path.splitext(_file)[1].lower()
@@ -124,15 +128,17 @@ class EditBookDialog(Ui_MetadataSingleDialog, QDialog):
                 self.db.remove_format(self.id, ext)
         self.db.update_max_size(self.id)
     
-    def __init__(self, parent, row, db):
+    def __init__(self, window, row, db, slot):
         Ui_MetadataSingleDialog.__init__(self)
-        QDialog.__init__(parent)
-        self.setupUi(parent)
+        ModalDialog.__init__(self, window)
+        self.setupUi(self.dialog)
         self.splitter.setStretchFactor(100, 1)
         self.db = db
         self.id = db.id(row)
         self.cover_data = None
         self.formats_changed = False
+        self.cover_changed = False
+        self.slot = slot
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
                                                     self.select_cover)
         QObject.connect(self.add_format_button, SIGNAL("clicked(bool)"), \
@@ -140,10 +146,8 @@ class EditBookDialog(Ui_MetadataSingleDialog, QDialog):
         QObject.connect(self.remove_format_button, SIGNAL("clicked(bool)"), \
                                                 self.remove_format)
         QObject.connect(self.button_box, SIGNAL("accepted()"), \
-                                                self.sync_formats)
+                                                self.sync)
         
-        data = self.db.get_row_by_id(self.id, \
-                    ["title","authors","rating","publisher","tags","comments"])
         self.title.setText(db.title(row))
         au = self.db.authors(row)
         self.authors.setText(au if au else '')
@@ -154,7 +158,8 @@ class EditBookDialog(Ui_MetadataSingleDialog, QDialog):
         rating = self.db.rating(row)
         if rating > 0: 
             self.rating.setValue(rating)
-        self.comments.setPlainText(data["comments"] if data["comments"] else "")
+        comments = self.db.comments(row)
+        self.comments.setPlainText(comments if comments else '')
         cover = self.db.cover(row)
         if cover:
             pm = QPixmap()
@@ -166,3 +171,17 @@ class EditBookDialog(Ui_MetadataSingleDialog, QDialog):
 #            if not ext:
 #                ext = "Unknown"
 #            Format(self.formats, ext)
+
+        self.dialog.exec_()
+
+    def sync(self):
+        if self.formats_changed:
+            self.sync_formats()
+        title = qstring_to_unicode(self.title.text())
+        self.db.set_title(self.id, title)
+        au = qstring_to_unicode(self.authors.text()).split(',')
+        self.db.set_authors(self.id, au)
+        self.slot()
+    
+    def reject(self):
+        self.rejected = True

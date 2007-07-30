@@ -14,8 +14,8 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """ The GUI for libprs500. """
 import sys, os, re, StringIO, traceback
-from PyQt4.QtCore import QVariant, QSettings
-from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap
+from PyQt4.QtCore import QVariant, QSettings, QFileInfo
+from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider
 from libprs500 import __appname__ as APP_TITLE
 from libprs500 import __author__
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -37,6 +37,8 @@ def error_dialog(parent, title, msg):
     d.setIconPixmap(QPixmap(':/images/dialog_error.svg'))
     return d
 
+def qstring_to_unicode(q):
+    return unicode(q.toUtf8(), 'utf8')
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
@@ -53,31 +55,111 @@ def human_readable(size):
         size = size[:size.find(".")+2]
     return size + " " + suffix
 
-def choose_files(window, dialog, title, filetype='', 
-                 extensions=[], all_files=True):
+
+class FileIconProvider(QFileIconProvider):
+    
+    ICONS = {
+             'default' : 'unknown',
+             'dir'     : 'dir',
+             'zero'    : 'zero',
+             'jpeg'    : 'jpeg',
+             'jpg'     : 'jpeg',
+             'gif'     : 'gif',
+             'png'     : 'png',
+             'bmp'     : 'bmp',
+             'svg'     : 'svg',
+             'html'    : 'html',
+             'lit'     : 'lit',
+             'lrf'     : 'lrf',
+             'lrx'     : 'lrx',
+             'pdf'     : 'pdf',
+             'rar'     : 'rar',
+             'zip'     : 'zip',
+             'txt'     : 'txt',
+             }
+    
+    def __init__(self):
+        QFileIconProvider.__init__(self)
+        self.icons = {}
+        for key in self.__class__.ICONS.keys():
+            self.icons[key] = ':/images/mimetypes/'+self.__class__.ICONS[key]+'.svg'
+            
+    
+    def pixmap(self, fileinfo):
+        key = 'default'
+        icons = self.icons
+        if fileinfo.isSymlink():
+            if not fileinfo.exists():
+                return icons['zero']
+            fileinfo = QFileInfo(fileinfo.readLink())
+        if fileinfo.isDir():
+            key = 'dir'
+        else:
+            ext = qstring_to_unicode(fileinfo.extension(True)).lower()
+            key = [i for i in icons.keys() if i in ext]
+            key = key[0] if key else 'default'
+            if key:
+                key = key[0]
+        candidate = icons[key]
+        if isinstance(candidate, QPixmap):
+            return candidate
+        pixmap = QPixmap(candidate)
+        icons[key] = pixmap
+        return pixmap
+
+file_icon_provider = None
+        
+class FileDialog(QFileDialog):
+    def __init__(self, title='Choose Files', 
+                       filters=[],
+                       add_all_files_filter=True, 
+                       parent=None,
+                       modal = True,
+                       name = '',
+                       mode = QFileDialog.ExistingFiles,
+                       ):
+        QFileDialog.__init__(self, parent)
+        self.setModal(modal)
+        global file_icon_provider
+        if not file_icon_provider:
+            file_icon_provider = FileIconProvider()
+        if not self.iconProvider() is file_icon_provider:
+            self.setIconProvider(file_icon_provider)
+        
+        settings = QSettings()
+        _dir = settings.value(name, QVariant(os.path.expanduser("~"))).toString()
+        self.setDirectory(_dir)
+        ftext = ''
+        if filters:
+            for filter in filters:
+                text, extensions = filter
+                extensions = ['.'+i if not i.startswith('.') else i for i in extensions]
+                ftext += '%s (%s);;'%(text, ' '.join(extensions)) 
+        if add_all_files_filter or not ftext:
+            ftext += 'All files (*)'
+        self.setFilters(ftext)
+        self.setWindowTitle(title)
+        
+    def get_files(self):
+        self.exec_()
+        return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.selectedFiles()) 
+        
+
+def choose_files(window, name, title,  
+                 filters=[], all_files=True, select_only_single_file=False):
     '''
     Ask user to choose a bunch of files.
-    @param dialog: Unique gialog name used to store the opened directory
+    @param name: Unique dialog name used to store the opened directory
     @param title: Title to show in dialogs titlebar
-    @param filetype: What types of files is this dialog choosing
-    @params extensions: list of allowable extension
-    @params all_files: If True show all files 
+    @param filters: list of allowable extensions. Each element of the list
+                     must be a 2-tuple with first element a string describing 
+                     the type of files to be filtered and second element a list
+                     of extensions. 
+    @param all_files: If True add All files to filters.
+    @param select_only_single_file: If True only one file can be selected  
     '''
-    settings = QSettings()
-    _dir = settings.value(dialog, QVariant(os.path.expanduser("~"))).toString()
-    books = []
-    extensions = ['*.'+i for i in extensions]
-    if extensions:
-        filter = filetype + ' (' + ' '.join(extensions) + ')'
-        if all_files:
-            filter += ';;All files (*)'
-    else:
-        filter = 'All files (*)'
-    files = QFileDialog.getOpenFileNames(window, title, _dir, filter)
-    for file in files:
-        file = unicode(file.toUtf8(), 'utf8')
-        books.append(os.path.abspath(file))
-    if books:
-        settings.setValue(dialog, QVariant(os.path.dirname(books[0])))
-    return books
-    
+    mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
+    fd = FileDialog(title=title, name=name, filters=filters, 
+                    parent=window, add_all_files_filter=all_files, mode=mode,
+                    )
+    return fd.get_files()

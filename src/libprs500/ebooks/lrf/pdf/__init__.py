@@ -12,15 +12,3 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-'''Various dialogs used in the GUI'''
-
-from PyQt4.QtCore import QObject
-from PyQt4.QtGui import  QDialog
-
-class ModalDialog(QObject):
-    def __init__(self, window):
-        QObject.__init__(self, window)
-        self.dialog = QDialog(window)
-        self.accept = self.dialog.accept
-        self.reject = self.dialog.reject
-        self.window = window

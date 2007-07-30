@@ -7,10 +7,6 @@ RC = images_rc.pyc
 %_rc.pyc : %.qrc %
 	pyrcc4 $< > $*_rc.py
 	python -c "import compiler; compiler.compileFile('$*_rc.py')"
-	echo > $*_rc.py
-	touch $*_rc.pyc
-
-
 
 all : $(UI) $(RC)
 

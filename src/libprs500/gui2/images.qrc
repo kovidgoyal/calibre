@@ -10,22 +10,27 @@
         <file>images/jobs.svg</file>
         <file alias="library" >images/library.png</file>
         <file>images/list_remove.svg</file>
+        <file>images/mimetypes/bmp.svg</file>
+        <file>images/mimetypes/dir.svg</file>
+        <file>images/mimetypes/gif.svg</file>
+        <file>images/mimetypes/html.svg</file>
+        <file>images/mimetypes/jpeg.svg</file>
+        <file>images/mimetypes/lit.svg</file>
+        <file>images/mimetypes/lrf.svg</file>
+        <file>images/mimetypes/lrx.svg</file>
+        <file>images/mimetypes/pdf.svg</file>
+        <file>images/mimetypes/png.svg</file>
+        <file>images/mimetypes/rar.svg</file>
+        <file>images/mimetypes/rtf.svg</file>
+        <file>images/mimetypes/svg.svg</file>
+        <file>images/mimetypes/txt.svg</file>
+        <file>images/mimetypes/unknown.svg</file>
+        <file>images/mimetypes/zero.svg</file>
+        <file>images/mimetypes/zip.svg</file>
         <file>images/plus.svg</file>
         <file>images/reader.svg</file>
         <file>images/sd.svg</file>
         <file>images/sync.svg</file>
         <file>images/trash.svg</file>
-    </qresource>
-    <qresource prefix="/" >
-        <file>images/mimetypes/format_html.svg</file>
-        <file>images/mimetypes/format_lit.svg</file>
-        <file>images/mimetypes/format_lrf.svg</file>
-        <file>images/mimetypes/format_lrx.svg</file>
-        <file>images/mimetypes/format_pdf.svg</file>
-        <file>images/mimetypes/format_rar.svg</file>
-        <file>images/mimetypes/format_rtf.svg</file>
-        <file>images/mimetypes/format_txt.svg</file>
-        <file>images/mimetypes/format_unknown.svg</file>
-        <file>images/mimetypes/format_zip.svg</file>
     </qresource>
 </RCC>

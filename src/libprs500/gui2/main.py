@@ -28,6 +28,7 @@ from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
 from libprs500.gui2.jobs import JobManager, JobException
+from libprs500.gui2.dialogs.metadata_single import MetadataSingleDialog
 
 class Main(QObject, Ui_MainWindow):
     
@@ -194,8 +195,9 @@ class Main(QObject, Ui_MainWindow):
         '''
         Add books from the local filesystem to either the library or the device.
         '''
-        books = choose_files(self.window, 'add books dialog dir', 'Select books', 'Books',
-                             extensions=['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'html', 'xhtml', 'epub'])
+        books = choose_files(self.window, 'add books dialog dir', 'Select books',
+                             filters=[('Books', ['lrf', 'lrx', 'rar', 'zip', 
+                            'rtf', 'lit', 'txt', 'htm', 'html', 'xhtml', 'epub',])])
         if not books:
             return
         on_card = False if self.stack.currentIndex() != 2 else True
@@ -309,9 +311,21 @@ class Main(QObject, Ui_MainWindow):
     ############################### Edit metadata ##############################
     def edit_metadata(self, checked):
         '''
-        Edit metadata of selected books in library or on device.
+        Edit metadata of selected books in library individually.
         '''
-        pass
+        rows = self.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            return
+        changed = False
+        def cs():
+            changed = True
+        for row in rows:
+            MetadataSingleDialog(self.window, row.row(), self.library_view.model().db, cs)            
+        
+        if changed:
+            self.library_view.model().resort()
+            self.library_view.model().research()
+            
     ############################################################################
     
     ############################# Syncing to device#############################
@@ -413,7 +427,7 @@ def main():
                             "manually delete the file", lock
         sys.exit(1)
     from PyQt4.Qt import QApplication, QMainWindow
-    app = QApplication(sys.argv)
+    app = QApplication(sys.argv)    
     #from IPython.Shell import IPShellEmbed
     #ipshell = IPShellEmbed([],
     #                   banner = 'Dropping into IPython',

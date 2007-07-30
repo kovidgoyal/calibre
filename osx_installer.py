@@ -196,6 +196,9 @@ _check_symlinks_prescript()
         print 
         print 'Adding unrtf'
         os.link(os.path.expanduser('~/unrtf'), os.path.join(frameworks_dir, 'unrtf'))
+        print 
+        print 'Adding pdftohtml'
+        os.link(os.path.expanduser('~/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]

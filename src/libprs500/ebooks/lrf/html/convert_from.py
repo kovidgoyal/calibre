@@ -255,11 +255,17 @@ class HTMLConverter(object):
     # Fix pdftohtml markup
     PDFTOHTML  = [
                   # Remove <hr> tags
-                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: ''),
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<span style="page-break-after:always"> </span>'),
+                  # Remove page numbers
+                  (re.compile(r'\d+<br>', re.IGNORECASE), lambda match: ''),
                   # Remove <br> and replace <br><br> with <p>
                   (re.compile(r'<br.*?>\s*<br.*?>', re.IGNORECASE), lambda match: '<p>'),
-                  (re.compile(r'(.{75,}?)<br.*?>', re.IGNORECASE), 
-                   lambda match: match.group(1)),
+                  (re.compile(r'(.*)<br.*?>', re.IGNORECASE), 
+                   lambda match: match.group() if re.match('<', match.group(1).lstrip()) or len(match.group(1)) < 40 
+                                else match.group(1)),
+                  # Remove hyphenation
+                  (re.compile(r'-\n|-\n\r'), lambda match: ''),
+                  
                   ]
     
     class Link(object):
