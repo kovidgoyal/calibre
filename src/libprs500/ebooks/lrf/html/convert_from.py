@@ -125,10 +125,15 @@ class Span(_Span):
             
         
         def font_size(val):
+            # Assumes a 10 pt font (14 pixels) has fontsize 100
             ans = None
-            unit = Span.unit_convert(val, dpi, 14)            
+            normal = 14
+            unit = Span.unit_convert(val, dpi, normal)            
             if unit:
-                # Assume a 10 pt font (14 pixels) has fontsize 100
+                if unit < 0:
+                    unit = normal + unit
+                    if unit < 0:
+                        unit = normal
                 ans = int(unit * (72./dpi) * 10)
             else:
                 if "xx-small" in val:
