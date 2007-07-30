@@ -184,7 +184,11 @@ class Cell(object):
                  self.pts_to_pixels(attrs.get('linespace', ts['linespace']))
             ws = self.pts_to_pixels(attrs.get('wordspace', ts['wordspace']))
             if isinstance(token, int): # Handle para and line breaks
-                top = bottom
+                if top != bottom: #Previous element not a line break
+                    top = bottom
+                else:
+                    top += ls
+                    bottom += ls
                 left = parindent if int == 1 else 0
                 continue
             if isinstance(token, Plot):
@@ -310,7 +314,7 @@ class Table(object):
     
     def get_widths(self, maxwidth):
         '''
-        Return widths of columns + sefl.colpad
+        Return widths of columns + self.colpad
         '''
         rows, cols = self.number_or_rows(), self.number_of_columns()
         widths = range(cols)
@@ -376,16 +380,17 @@ class Table(object):
                 cell = cellmatrix[r][c]
                 if not cell:
                     continue
-                width = sum(widths[c:c+cell.colspan])
+                width = sum(widths[c:c+cell.colspan])-self.colpad*cell.colspan
                 sypos = 0
                 for tb in cell.text_blocks:
                     tb.blockStyle = self.conv.book.create_block_style(
                                     blockwidth=width, 
-                                    blockheight=cell.text_block_size(tb, width)[1])
+                                    blockheight=cell.text_block_size(tb, width)[1],
+                                    blockrule='horz-fixed')
                     
                     yield tb, xpos[c], sypos, delta
                     sypos += tb.blockStyle.attrs['blockheight']
-                
+                    
             
         
                 

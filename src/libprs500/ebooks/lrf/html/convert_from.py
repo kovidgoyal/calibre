@@ -1235,15 +1235,15 @@ class HTMLConverter(object):
                     
     def process_table(self, tag, tag_css):
         self.end_current_block()
-        colpad = 10
-        table = Table(self, tag, tag_css, rowpad=10, colpad=10)   
+        rowpad = 10
+        table = Table(self, tag, tag_css, rowpad=rowpad, colpad=10)
         canvases = []
         for block, xpos, ypos, delta in table.blocks(int(self.current_page.pageStyle.attrs['textwidth'])):
             if not block:
-                canvases.append(Canvas(int(self.current_page.pageStyle.attrs['textwidth']), ypos+colpad,
+                canvases.append(Canvas(int(self.current_page.pageStyle.attrs['textwidth']), ypos+rowpad,
                         blockrule='block-fixed'))
             else:
-                canvases[-1].put_object(block, xpos + int(delta/2.), 0)
+                canvases[-1].put_object(block, xpos + int(delta/2.), ypos)
             
         for canvas in canvases:
             self.current_page.append(canvas)
