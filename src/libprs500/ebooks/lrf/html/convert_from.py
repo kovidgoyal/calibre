@@ -233,7 +233,7 @@ class HTMLConverter(object):
                         # conversion converts it into \xa0 which is not a space in LRF
                         (re.compile('&nbsp;'), lambda match : ' '),
                         # Close <a /> tags
-                        (re.compile("(<\s*[aA]\s+.*\/)\s*>"), 
+                        (re.compile("(<a\s+.*?)/>|<a/>", re.IGNORECASE), 
                          lambda match: match.group(1)+"></a>"),
                          # Strip comments from <style> tags. This is needed as 
                          # sometimes there are unterminated comments
@@ -395,6 +395,7 @@ class HTMLConverter(object):
         self.soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
+        #print self.soup
         print 'done\n\tConverting to BBeB...',
         sys.stdout.flush()
         self.verbose = verbose        
