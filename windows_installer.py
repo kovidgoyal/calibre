@@ -141,6 +141,12 @@ Section "libprs500" Seclibprs500
   File "${LIBUNRAR_DIR}\unrar.dll"
   DetailPrint " "
   
+  ; Uninstall USB drivers
+  DetailPrint "Uninstalling any existing device drivers"
+  ExecWait '"$INSTDIR\driver\devcon.exe" remove "USB\VID_054C&PID_029B"' $0
+  DetailPrint "devcon returned exit code $0"
+  
+  
   DetailPrint "Installing USB driver for prs500..."
   ExecWait '"$INSTDIR\driver\devcon.exe" install "$INSTDIR\driver\prs500.inf" "USB\VID_054C&PID_029B"' $0
   DetailPrint "devcon returned exit code $0"
