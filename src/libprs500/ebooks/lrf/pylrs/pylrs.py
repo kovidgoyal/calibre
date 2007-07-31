@@ -252,6 +252,51 @@ class LrsContainer(object):
         self.must_append = False
             
         
+    def normalize_spaces(self, prior_text=False):
+        '''
+        Remove multiple spaces and handle &nbsp;
+        @param prior_text: True if the paragraph this container is part of
+                           has non whitespace text before this container. 
+        '''
+        temp = []
+        for i in range(len(self.contents)):
+            elem = self.contents[i]
+            try:
+                if isinstance(elem, Text):
+                    n = self.contents[i+1]
+                    if isinstance(n, Text):
+                        elem.text += n.text
+                        i += 1                        
+            except:
+                continue
+            finally:
+                temp.append(elem)
+        self.contents = temp
+        
+        def has_prior_text(idx):
+            for i in range(idx):
+                con = self.contents[i]
+                if hasattr(con, 'has_text') and con.has_text():
+                    return True
+            return False
+        
+        for i in range(len(self.contents)):
+            elem = self.contents[i]
+            if not prior_text and i > 0:
+                prior_text = has_prior_text(i)
+                
+            if isinstance(elem, Text):
+                src = elem.text
+                if isinstance(src, basestring):
+                    src = re.sub(r'\s{1,}', ' ', src)
+                    if isinstance(self.contents[i-1], (CR, DropCaps)) \
+                              or not prior_text:
+                        src = src.lstrip()                        
+                    src = src.replace(u'\xa0', ' ') # nbsp is replaced with \xa0 by BeatifulSoup
+                elem.text = src
+            elif hasattr(elem, 'normalize_spaces'):
+                elem.normalize_spaces(prior_text)
+    
     def has_text(self):
         ''' Return True iff this container has non whitespace text '''
         if hasattr(self, 'text'):
@@ -1508,7 +1553,6 @@ class Paragraph(LrsContainer):
         if text is not None:
             self.append(text)
         
-    
     def CR(self):
         # Okay, here's a single autoappender for this common operation
         cr = CR()

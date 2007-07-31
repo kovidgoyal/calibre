@@ -103,6 +103,8 @@ def option_parser(usage):
                       dest='font_delta')
     laf.add_option('--disable-autorotation', action='store_true', default=False, 
                    help='Disable autorotation of images.', dest='disable_autorotation')
+    laf.add_option('--wordspace', dest='wordspace', default=2.5, type='float',
+                   help='Set the space between words in pts. Default is %default')
     page = parser.add_option_group('PAGE OPTIONS')
     page.add_option('-p', '--profile', default=PRS500_PROFILE, dest='profile', type='choice',
                       choices=profiles, action='callback', callback=profile_from_string,
@@ -240,7 +242,8 @@ def Book(options, font_delta=0, header=None,
     tsd = dict(fontsize=fontsize, 
                parindent=int(profile.parindent), 
                linespace=int(10*profile.line_space),
-               baselineskip=baselineskip)
+               baselineskip=baselineskip,
+               wordspace=10*options.wordspace)
     if fonts['serif'] and fonts['serif'].has_key('normal'):
         tsd['fontfacename'] = fonts['serif']['normal'][1]
     

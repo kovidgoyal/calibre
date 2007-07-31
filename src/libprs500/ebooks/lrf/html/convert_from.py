@@ -47,7 +47,7 @@ from libprs500 import extract, filename_to_utf8
 from libprs500.ptempfile import PersistentTemporaryFile
 
 class Span(_Span):
-    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo', 'nbsp' ]
+    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
     patterns = [ re.compile('&'+i+';') for i in replaced_entities ]
     targets  = [ unichr(name2codepoint[i]) for i in replaced_entities ]
     rules = zip(patterns, targets)
@@ -229,9 +229,6 @@ class HTMLConverter(object):
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
     # Fix <a /> elements 
     MARKUP_MASSAGE   = [
-                        # Convert &nbsp; into a normal space as the default 
-                        # conversion converts it into \xa0 which is not a space in LRF
-                        (re.compile('&nbsp;'), lambda match : ' '),
                         # Close <a /> tags
                         (re.compile("(<a\s+.*?)/>|<a/>", re.IGNORECASE), 
                          lambda match: match.group(1)+"></a>"),
@@ -401,7 +398,6 @@ class HTMLConverter(object):
         self.soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
-        #print self.soup
         print 'done\n\tConverting to BBeB...',
         sys.stdout.flush()
         self.verbose = verbose        
@@ -763,7 +759,8 @@ class HTMLConverter(object):
         @param css:
         @type css:
         '''
-        src = tag.string if hasattr(tag, 'string') else tag 
+        src = tag.string if hasattr(tag, 'string') else tag
+        src = re.sub(r'\s{1,}', ' ', src) 
         if self.lstrip_toggle:
             src = src.lstrip()
             self.lstrip_toggle = False
@@ -774,6 +771,7 @@ class HTMLConverter(object):
             try:
                 self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
                                               self.profile.dpi, self.fonts, font_delta=self.font_delta))
+                self.current_para.normalize_spaces()
             except ConversionError, err:
                 if self.verbose:
                     print >>sys.stderr, err
