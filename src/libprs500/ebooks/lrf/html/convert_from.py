@@ -970,17 +970,33 @@ class HTMLConverter(object):
         if tagname in ["title", "script", "meta", 'del', 'frameset']:            
             pass
         elif tagname == 'a' and self.max_link_levels >= 0:
-            if tag.has_key('name'):
+            if tag.has_key('href') and not self.link_exclude.match(tag['href']):
+                purl = urlparse(tag['href'])
+                path = unquote(purl[2])
+                if path and os.access(path, os.R_OK) and os.path.splitext(path)[1][1:].lower() in \
+                    ['png', 'jpg', 'bmp', 'jpeg']:
+                    self.process_image(path, tag_css)
+                else:
+                    text = self.get_text(tag, limit=1000)
+                    if not text.strip():
+                        text = "Link"
+                    self.add_text(text, tag_css)
+                    self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
+                    if tag.has_key('id') or tag.has_key('name'):
+                        key = 'name' if tag.has_key('name') else 'id'
+                        self.targets[tag[key]] = self.current_block
+            elif tag.has_key('name') or tag.has_key('id'):
+                key = 'name' if tag.has_key('name') else 'id'
                 if self.anchor_to_previous:
                     self.process_children(tag, tag_css)
                     for c in self.anchor_to_previous.contents:
                         if isinstance(c, (TextBlock, ImageBlock)):
-                            self.targets[tag['name']] = c
+                            self.targets[tag[key]] = c
                             return
                     tb = self.book.create_text_block()
                     tb.Paragraph(" ")
                     self.anchor_to_previous.append(tb)
-                    self.targets[tag['name']] = tb                    
+                    self.targets[tag[key]] = tb                    
                     return
                 previous = self.current_block
                 self.process_children(tag, tag_css)
@@ -1017,19 +1033,7 @@ class HTMLConverter(object):
                         else:
                             target = BlockSpace()
                             self.current_page.append(target)
-                self.targets[tag['name']] = target
-            elif tag.has_key('href') and not self.link_exclude.match(tag['href']):
-                purl = urlparse(tag['href'])
-                path = unquote(purl[2])
-                if path and os.access(path, os.R_OK) and os.path.splitext(path)[1][1:].lower() in \
-                    ['png', 'jpg', 'bmp', 'jpeg']:
-                    self.process_image(path, tag_css)
-                else:
-                    text = self.get_text(tag, limit=1000)
-                    if not text.strip():
-                        text = "Link"
-                    self.add_text(text, tag_css)
-                    self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
+                self.targets[tag[key]] = target            
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
                 path = os.path.abspath(unquote(tag['src']))
