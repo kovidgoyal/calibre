@@ -14,8 +14,8 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """ The GUI for libprs500. """
 import sys, os, re, StringIO, traceback
-from PyQt4.QtCore import QVariant, QSettings, QFileInfo
-from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider
+from PyQt4.QtCore import QVariant, QSettings, QFileInfo, QObject, SIGNAL
+from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, QIcon
 from libprs500 import __appname__ as APP_TITLE
 from libprs500 import __author__
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -62,6 +62,7 @@ class FileIconProvider(QFileIconProvider):
              'default' : 'unknown',
              'dir'     : 'dir',
              'zero'    : 'zero',
+             
              'jpeg'    : 'jpeg',
              'jpg'     : 'jpeg',
              'gif'     : 'gif',
@@ -69,6 +70,9 @@ class FileIconProvider(QFileIconProvider):
              'bmp'     : 'bmp',
              'svg'     : 'svg',
              'html'    : 'html',
+             'htm'     : 'html',
+             'xhtml'   : 'html',
+             'xhtm'    : 'html',
              'lit'     : 'lit',
              'lrf'     : 'lrf',
              'lrx'     : 'lrx',
@@ -83,30 +87,42 @@ class FileIconProvider(QFileIconProvider):
         self.icons = {}
         for key in self.__class__.ICONS.keys():
             self.icons[key] = ':/images/mimetypes/'+self.__class__.ICONS[key]+'.svg'
-            
+        for i in ('dir', 'default'):
+            self.icons[i] = QIcon(self.icons[i])
     
-    def pixmap(self, fileinfo):
+    def load_icon(self, fileinfo):
         key = 'default'
         icons = self.icons
-        if fileinfo.isSymlink():
+        if fileinfo.isSymLink():
             if not fileinfo.exists():
                 return icons['zero']
             fileinfo = QFileInfo(fileinfo.readLink())
         if fileinfo.isDir():
             key = 'dir'
         else:
-            ext = qstring_to_unicode(fileinfo.extension(True)).lower()
-            key = [i for i in icons.keys() if i in ext]
-            key = key[0] if key else 'default'
-            if key:
-                key = key[0]
+            ext = qstring_to_unicode(fileinfo.completeSuffix()).lower()
+            key = ext if ext in self.icons.keys() else 'default'
+            if key == 'default' and ext.count('.') > 0:
+                ext = ext.rpartition('.')[2]
+                key = ext if ext in self.icons.keys() else 'default'
         candidate = icons[key]
-        if isinstance(candidate, QPixmap):
+        if isinstance(candidate, QIcon):
             return candidate
-        pixmap = QPixmap(candidate)
-        icons[key] = pixmap
-        return pixmap
-
+        icon = QIcon(candidate)
+        icons[key] = icon
+        if icon.isNull():
+            print 'null icon: ', key
+        return icon
+    
+    def icon(self, arg):
+        if isinstance(arg, QFileInfo):
+            return self.load_icon(arg)
+        if arg == QFileIconProvider.Folder:
+            return self.icons['dir']
+        if arg == QFileIconProvider.File:
+            return self.icons['default']
+        return QFileIconProvider.icon(self, arg)
+        
 file_icon_provider = None
         
 class FileDialog(QFileDialog):
@@ -118,31 +134,35 @@ class FileDialog(QFileDialog):
                        name = '',
                        mode = QFileDialog.ExistingFiles,
                        ):
-        QFileDialog.__init__(self, parent)
-        self.setModal(modal)
         global file_icon_provider
-        if not file_icon_provider:
+        if file_icon_provider is None:
             file_icon_provider = FileIconProvider()
-        if not self.iconProvider() is file_icon_provider:
-            self.setIconProvider(file_icon_provider)
-        
+        QFileDialog.__init__(self, parent)        
+        self.setIconProvider(file_icon_provider)
+        self.setModal(modal)
         settings = QSettings()
-        _dir = settings.value(name, QVariant(os.path.expanduser("~"))).toString()
-        self.setDirectory(_dir)
+        state = settings.value(name, QVariant()).toByteArray()
+        if not self.restoreState(state):
+            self.setDirectory(os.path.expanduser('~'))
+        self.dialog_name = name
         ftext = ''
         if filters:
             for filter in filters:
                 text, extensions = filter
-                extensions = ['.'+i if not i.startswith('.') else i for i in extensions]
+                extensions = ['*.'+i if not i.startswith('.') else i for i in extensions]
                 ftext += '%s (%s);;'%(text, ' '.join(extensions)) 
         if add_all_files_filter or not ftext:
             ftext += 'All files (*)'
-        self.setFilters(ftext)
+        self.setFilter(ftext)
         self.setWindowTitle(title)
-        
-    def get_files(self):
-        self.exec_()
-        return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.selectedFiles()) 
+        QObject.connect(self, SIGNAL('accepted()'), self.save_dir)
+    
+    def get_files(self):        
+        return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.selectedFiles())
+    
+    def save_dir(self):
+         settings = QSettings()
+         settings.setValue(self.dialog_name, QVariant(self.saveState()))
         
 
 def choose_files(window, name, title,  
@@ -162,4 +182,6 @@ def choose_files(window, name, title,
     fd = FileDialog(title=title, name=name, filters=filters, 
                     parent=window, add_all_files_filter=all_files, mode=mode,
                     )
-    return fd.get_files()
+    if fd.exec_() == QFileDialog.Accepted:
+        return fd.get_files()
+    return None
