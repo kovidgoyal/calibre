@@ -100,20 +100,12 @@ class BooksModel(QAbstractTableModel):
         ''' Return list indices of all cells in index.row()'''
         return [ self.index(index.row(), c) for c in range(self.columnCount(None))]
         
-    def removeRows(self, row, count, parent=QModelIndex()):
-        rows = [row + i for i in range(count)]
-        self.beginRemoveRows(parent, row, row+count-1)
-        self.db.delete_books(rows)
-        self.endRemoveRows()
-    
-    def removeRow(self, row, parent=QModelIndex()):
-        self.removeRows(row, 1)
-    
     def delete_books(self, indices):
         rows = [ i.row() for i in indices ]
         for row in rows:
-            self.removeRow(row)
-        self.emit(SIGNAL('layoutChanged()'))
+            self.beginRemoveRows(QModelIndex(), row, row)
+        self.db.delete_books(rows)
+        self.endRemoveRows()
         self.emit(SIGNAL('deleted()'))
     
     def search_tokens(self, text):
