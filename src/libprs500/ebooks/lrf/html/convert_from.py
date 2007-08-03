@@ -241,7 +241,7 @@ class HTMLConverter(object):
                          lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
                          ]
     # Fix Baen markup
-    BAEN_SANCTIFY = [ 
+    BAEN = [ 
                      (re.compile(r'page-break-before:\s*\w+([\s;\}])', re.IGNORECASE), 
                       lambda match: match.group(1)),
                      (re.compile(r'<p>\s*(<a id.*?>\s*</a>)\s*</p>', re.IGNORECASE), 
@@ -356,7 +356,7 @@ class HTMLConverter(object):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
         if self.baen:
-            nmassage.extend(HTMLConverter.BAEN_SANCTIFY)
+            nmassage.extend(HTMLConverter.BAEN)
             
         raw = open(self.file_name, 'rb').read()
         if self.pdftohtml:

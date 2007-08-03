@@ -39,7 +39,7 @@ class PRS500_PROFILE(object):
     # Number of pixels to subtract from screen_height when calculating height of text area
     fudge         = 18
     font_size     = 10  #: Default (in pt)
-    parindent     = 80  #: Default (in px)
+    parindent     = 10  #: Default (in pt)
     line_space    = 1.2 #: Default (in pt)
     header_font_size = 6  #: In pt
     header_height    = 30 #: In px
@@ -242,7 +242,7 @@ def Book(options, font_delta=0, header=None,
     baselineskip = fontsize + 20
     fonts = find_custom_fonts(options)
     tsd = dict(fontsize=fontsize, 
-               parindent=int(profile.parindent), 
+               parindent=int(10*profile.parindent), 
                linespace=int(10*profile.line_space),
                baselineskip=baselineskip,
                wordspace=10*options.wordspace)
