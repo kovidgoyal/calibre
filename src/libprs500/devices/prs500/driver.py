@@ -57,7 +57,7 @@ from libprs500.devices.libusb import get_device_by_id
 from libprs500.devices.prs500.prstypes import *
 from libprs500.devices.errors import *
 from libprs500.devices.prs500.books import BookList, fix_ids
-from libprs500 import __author__ as AUTHOR
+from libprs500 import __author__, __appname__
 
 # Protocol versions libprs500 has been tested with
 KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L] 
@@ -178,7 +178,7 @@ class PRS500(Device):
                 elif "Protocol error" in str(err):    
                     dev.close()
                     raise ProtocolError("There was an unknown error in the"+\
-                                                 " protocol. Contact " + AUTHOR)
+                                                 " protocol. Contact " + __author__)
                 dev.close()
                 raise 
             if not kwargs.has_key("end_session") or kwargs["end_session"]:
@@ -829,7 +829,9 @@ class PRS500(Device):
     @safe
     def upload_books(self, files, names, on_card=False, end_session=True):
         card = self.card(end_session=False)
-        prefix = card + '/' if on_card else '/Data/media/books/'
+        prefix = card + '/libprs500' if on_card else '/Data/media/books/'
+        if on_card and not self._exists(prefix)[0]:
+            self.mkdir(prefix, False)
         paths, ctimes = [], []
         names = iter(names)
         infiles = [file if hasattr(file, 'read') else open(file, 'rb') for file in files]
