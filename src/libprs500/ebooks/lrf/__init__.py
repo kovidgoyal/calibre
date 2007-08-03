@@ -91,7 +91,7 @@ def option_parser(usage):
     profiles=['prs500'] 
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')
-    parser.add_option('--ignore-tables', action='store_true', default=False,
+    parser.add_option('--ignore-tables', action='store_true', default=False, dest='ignore_tables',
                       help='Render HTML tables as blocks of text instead of actual tables. This is neccessary if the HTML contains very large or complex tables.')
     laf = parser.add_option_group('LOOK AND FEEL')
     laf.add_option('--cover', action='store', dest='cover', default=None, \
@@ -105,6 +105,8 @@ def option_parser(usage):
                    help='Disable autorotation of images.', dest='disable_autorotation')
     laf.add_option('--wordspace', dest='wordspace', default=2.5, type='float',
                    help='Set the space between words in pts. Default is %default')
+    laf.add_option('--blank-after-para', action='store_true', default=False,
+                   dest='blank_after_para', help='Separate paragraphs by blank lines.')
     page = parser.add_option_group('PAGE OPTIONS')
     page.add_option('-p', '--profile', default=PRS500_PROFILE, dest='profile', type='choice',
                       choices=profiles, action='callback', callback=profile_from_string,

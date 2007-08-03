@@ -272,18 +272,23 @@ class HTMLConverter(object):
             
     processed_files = {} #: Files that have been processed
     
-    def __init__(self, book, fonts, path, 
-                 font_delta=0, verbose=False, cover=None,
-                 max_link_levels=sys.maxint, link_level=0,
-                 is_root=True, baen=False, chapter_detection=True,
-                 chapter_regex=re.compile('chapter|book|appendix', re.IGNORECASE),
-                 link_exclude=re.compile('$'), 
-                 page_break=re.compile('h[12]', re.IGNORECASE),
-                 force_page_break=re.compile('$', re.IGNORECASE),
-                 profile=PRS500_PROFILE,
-                 disable_autorotation=False,
-                 ignore_tables=False,
-                 pdftohtml=False):
+    def __hasattr__(self, attr):
+        if hasattr(self.options, attr):
+            return True
+        return object.__hasattr__(self, attr)
+    
+    def __getattr__(self, attr):
+        if hasattr(self.options, attr):
+            return getattr(self.options, attr)
+        return object.__getattr__(self, attr)
+    
+    def __setattr__(self, attr, val):
+        if hasattr(self.options, attr):
+            setattr(self.options, attr, val)
+        else:
+            object.__setattr__(self, attr, val)
+    
+    def __init__(self, book, fonts, path, options, link_level=0, is_root=True):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -294,34 +299,9 @@ class HTMLConverter(object):
         @param fonts: dict specifying the font families to use
         @param path: path to the HTML file to process
         @type path:  C{str}
-        @param width: Width of the device on which the LRF file is to be read
-        @type width: C{int}
-        @param height: Height of the device on which the LRF file is to be read
-        @type height: C{int}
-        @param font_delta: The amount in pts by which all fonts should be changed
-        @type font_delta: C{int}
-        @param verbose: Whether processing should be verbose or not
-        @type verbose: C{bool}
-        @param cover: Path to an image to use as the cover of this book
-        @type cover: C{str}
-        @param max_link_levels: Number of link levels to process recursively
-        @type max_link_levels: C{int}
-        @param link_level: Current link level
-        @type link_level: C{int}
-        @param is_root: True iff this object is converting the root HTML file 
-        @type is_root: C{bool}
-        @param chapter_detection: Insert page breaks before what looks like 
-        the start of a chapter
-        @type chapter_detection: C{bool}
-        @param chapter_regex: The compiled regular expression used to search for chapter titles
-        @param link_exclude: Compiled regex. Matching hrefs are ignored.
-        @param page_break: Compiled regex. Page breaks are inserted before matching
-                           tags if no page-breaks are found and no chapter headings
-                           are detected.
-        @param profile: Defines the geometry of the display device
-        @param disable_autorotation: Don't autorotate very wide images
         '''
         # Defaults for various formatting tags        
+        object.__setattr__(self, 'options', options)
         self.css = dict(
             h1     = {"font-size"   : "xx-large", "font-weight":"bold", 'text-indent':'0pt'},
             h2     = {"font-size"   : "x-large", "font-weight":"bold", 'text-indent':'0pt'},
@@ -341,22 +321,14 @@ class HTMLConverter(object):
             th     = {'font-size'   : 'large', 'font-weight':'bold'},
             big    = {'font-size'   : 'large', 'font-weight':'bold'},
             )
-        self.css['.libprs500_dropcaps'] = {'font-size': 'xx-large'}
+        self.css['.libprs500_dropcaps'] = {'font-size': 'xx-large'}        
         self.fonts = fonts #: dict specifting font families to use
-        self.profile     = profile #: Defines the geometry of the display device
-        self.chapter_detection = chapter_detection #: Flag to toggle chapter detection
-        self.chapter_regex = chapter_regex #: Regex used to search for chapter titles
-        self.link_exclude = link_exclude #: Ignore matching hrefs
         self.scaled_images = {}   #: Temporary files with scaled version of images        
         self.rotated_images = {}  #: Temporary files with rotated version of images        
-        self.max_link_levels = max_link_levels #: Number of link levels to process recursively
         self.link_level  = link_level  #: Current link level
-        self.disable_autorotation = disable_autorotation
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
-        self.page_break       = page_break #: Regex controlling page-break behavior
-        self.force_page_break = force_page_break #: Regex controlling forced page-break behavior
         self.text_styles      = []#: Keep track of already used textstyles
         self.block_styles     = []#: Keep track of already used blockstyles
         self.images  = {}         #: Images referenced in the HTML document
@@ -364,12 +336,9 @@ class HTMLConverter(object):
         self.links   = []         #: <a href=...> elements        
         self.files   = {}         #: links that point to other files
         self.links_processed = False #: Whether links_processed has been called on this object
-        self.font_delta = font_delta
-        self.ignore_tables = ignore_tables
         # Set by table processing code so that any <a name> within the table 
         # point to the previous element
         self.anchor_to_previous = None 
-        self.cover = cover
         self.in_table = False
         self.list_level = 0
         self.list_indent = 20
@@ -386,21 +355,18 @@ class HTMLConverter(object):
         sys.stdout.flush()
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
-        self.baen = baen
-        self.pdftohtml = pdftohtml
-        if baen:
+        if self.baen:
             nmassage.extend(HTMLConverter.BAEN_SANCTIFY)
             
         raw = open(self.file_name, 'rb').read()
-        if pdftohtml:
+        if self.pdftohtml:
             nmassage.extend(HTMLConverter.PDFTOHTML)
             raw = unicode(raw, 'utf8', 'replace')
         self.soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
         print 'done\n\tConverting to BBeB...',
-        sys.stdout.flush()
-        self.verbose = verbose        
+        sys.stdout.flush()        
         self.current_page = None
         self.current_para = None
         self.current_style = {}
@@ -618,7 +584,7 @@ class HTMLConverter(object):
                     cb = CharButton(jb, text=text)
                     para.contents = []
                     para.append(cb)
-            elif self.link_level < self.max_link_levels:
+            elif self.link_level < self.link_levels:
                 try: # os.access raises Exceptions in path has null bytes
                     if not os.access(path.encode('utf8', 'replace'), os.R_OK):
                         continue
@@ -630,20 +596,9 @@ class HTMLConverter(object):
                 if not path in HTMLConverter.processed_files.keys():                    
                     try:                        
                         self.files[path] = HTMLConverter(
-                                     self.book, self.fonts, path, 
-                                     profile=self.profile,
-                                     font_delta=self.font_delta, verbose=self.verbose,
-                                     link_level=self.link_level+1,
-                                     max_link_levels=self.max_link_levels,
-                                     is_root = False, baen=self.baen,
-                                     chapter_detection=self.chapter_detection,
-                                     chapter_regex=self.chapter_regex,
-                                     link_exclude=self.link_exclude,
-                                     page_break=self.page_break,
-                                     force_page_break=self.force_page_break,
-                                     disable_autorotation=self.disable_autorotation,
-                                     ignore_tables=self.ignore_tables,
-                                     pdftohtml=self.pdftohtml)
+                                     self.book, self.fonts, path, self.options,
+                                     link_level = self.link_level+1,
+                                     is_root = False,)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
                         print >>sys.stderr, 'Unable to process', path
@@ -969,7 +924,7 @@ class HTMLConverter(object):
                     print 'Forcing page break at', tagname
         if tagname in ["title", "script", "meta", 'del', 'frameset']:            
             pass
-        elif tagname == 'a' and self.max_link_levels >= 0:
+        elif tagname == 'a' and self.link_levels >= 0:
             if tag.has_key('href') and not self.link_exclude.match(tag['href']):
                 purl = urlparse(tag['href'])
                 path = unquote(purl[2])
@@ -1212,7 +1167,7 @@ class HTMLConverter(object):
                                                                  textStyle=ts)
             self.process_children(tag, tag_css)
             self.end_current_para()
-            if tagname.startswith('h'):
+            if tagname.startswith('h') or self.blank_after_para:
                 self.current_block.append(CR())
             if tag.has_key('id'):
                 self.targets[tag['id']] = self.current_block
@@ -1325,16 +1280,12 @@ def process_file(path, options):
              re.compile('$')
         fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
              re.compile('$')
-        conv = HTMLConverter(book, fonts, path, profile=options.profile,
-                             font_delta=options.font_delta, 
-                             cover=cpath, max_link_levels=options.link_levels,
-                             verbose=options.verbose, baen=options.baen, 
-                             chapter_detection=options.chapter_detection,
-                             chapter_regex=re.compile(options.chapter_regex, re.IGNORECASE),
-                             link_exclude=re.compile(le), page_break=pb, force_page_break=fpb,
-                             disable_autorotation=options.disable_autorotation,
-                             ignore_tables=options.ignore_tables,
-                             pdftohtml=options.pdftohtml)
+        options.cover = cpath
+        options.force_page_break = fpb
+        options.link_exclude = le
+        options.page_break = pb
+        options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
+        conv = HTMLConverter(book, fonts, path, options)
         conv.process_links()
         oname = options.output
         if not oname:
