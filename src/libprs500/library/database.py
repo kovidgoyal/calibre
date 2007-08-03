@@ -17,7 +17,7 @@ Backend that implements storage of ebooks in an sqlite database.
 """
 import sqlite3 as sqlite
 import datetime, re
-from zlib import compressobj, decompress
+from zlib import compress, decompress
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -149,7 +149,7 @@ class LibraryDatabase(object):
                              sort      TEXT COLLATE NOCASE,
                              timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                              uri       TEXT,
-                             series_index INTEGER
+                             series_index INTEGER NOT NULL DEFAULT 1
                            );
         CREATE INDEX books_idx ON books (sort COLLATE NOCASE);
         CREATE TRIGGER books_insert_trg 
@@ -476,7 +476,6 @@ class LibraryDatabase(object):
         /**** covers table ****/
         CREATE TABLE covers ( id INTEGER PRIMARY KEY,
                               book INTEGER NON NULL,
-                              type TEXT NON NULL COLLATE NOCASE,
                               uncompressed_size INTEGER NON NULL,
                               data BLOB NON NULL,
                               UNIQUE(book)
@@ -644,13 +643,10 @@ class LibraryDatabase(object):
     def cover(self, index):
         '''Cover as a data string or None'''
         id = self.id(index)
-        matches = self.conn.execute('SELECT data from covers where id=?', (id,)).fetchall()
-        if not matches:
+        data = self.conn.execute('SELECT data FROM covers WHERE book=?', (id,)).fetchone()
+        if not data:
             return None
-        raw = matches[0][0]
-        if raw:
-            return decompress(raw)
-        return None
+        return(decompress(data[0]))
     
     def tags(self, index):
         '''tags as a comman separated list or None'''
@@ -659,6 +655,22 @@ class LibraryDatabase(object):
         if not matches:
             return None
         return matches[0][0]
+    
+    def series_id(self, index):
+        id = self.id(index)
+        ans= self.conn.execute('SELECT series from books_series_link WHERE book=?', (id,)).fetchone()
+        if ans:
+            return ans[0]
+        
+    def series(self, index):
+        id = self.series_id(index)
+        ans = self.conn.execute('SELECT name from series WHERE id=?', (id,)).fetchone()
+        if ans:
+            return ans[0]
+        
+    def series_index(self, index):
+        id = self.id(index)
+        return self.conn.execute('SELECT series_index FROM books WHERE id=?', (id,)).fetchone()[0]
     
     def comments(self, index):
         '''Comments as string or None'''
@@ -679,8 +691,38 @@ class LibraryDatabase(object):
     def format(self, index, format):
         id = self.id(index)
         return decompress(self.conn.execute('SELECT data FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0])
-        
     
+    def all_series(self):
+        return [ (i[0], i[1]) for i in \
+                self.conn.execute('SELECT id, name FROM series').fetchall()]
+    
+    def add_format(self, index, ext, stream):
+        '''
+        Add the format specified by ext. If it already exists it is replaced.
+        '''
+        id = self.id(index)
+        stream.seek(0, 2)
+        usize = stream.tell()
+        stream.seek(0)
+        data = sqlite.Binary(compress(stream.read()))
+        exts = self.formats(index)
+        if not exts:
+            exts = []
+        if ext in exts:
+            self.conn.execute('UPDATE data SET data=? WHERE format=? AND book=?',
+                              (data, ext, id))
+            self.conn.execute('UPDATE data SET uncompressed_size=? WHERE format=? AND book=?',
+                              (usize, ext, id))
+        else:
+            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?, ?, ?, ?)',
+                              (id, ext, usize, data))
+        self.conn.commit()
+        
+    def remove_format(self, index, ext):
+        id = self.id(index)
+        self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, ext.lower()))
+        self.conn.commit()
+        
     def set(self, row, column, val):
         ''' 
         Convenience method for setting the title, authors, publisher or rating 
@@ -728,16 +770,37 @@ class LibraryDatabase(object):
         self.conn.commit()
         
     def set_publisher(self, id, publisher):
-        if not publisher:
-            return
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
-        pub = self.conn.execute('SELECT id from publishers WHERE name=?', (publisher,)).fetchone()
-        if pub:
-            aid = pub[0]
-        else:
-            aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
-        self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
+        if publisher:
+            pub = self.conn.execute('SELECT id from publishers WHERE name=?', (publisher,)).fetchone()
+            if pub:
+                aid = pub[0]
+            else:
+                aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
+            self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
         self.conn.commit()
+        
+    def set_comment(self, id, text):
+        self.conn.execute('DELETE FROM comments WHERE book=?', (id,))
+        self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
+        self.conn.commit()
+    
+    def set_tags(self, id, tags):
+        '''
+        @param tags: list of strings
+        '''
+        self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
+        tag = set(tags)
+        for tag in tags:
+            t = self.conn.execute('SELECT id from tags WHERE name=?', (tag,)).fetchone()
+            if t:
+                tid = t[0]
+            else:
+                tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
+            self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
+                              (id, tid))
+        self.conn.commit()
+        
         
     def set_series(self, id, series):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
@@ -748,7 +811,12 @@ class LibraryDatabase(object):
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
-            self.conn.commit()
+        self.conn.commit()
+            
+    def set_series_index(self, id, idx):
+        print 
+        self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (idx, id))
+        self.conn.commit()
     
     def set_rating(self, id, rating):
         rating = int(rating)
@@ -757,7 +825,16 @@ class LibraryDatabase(object):
         rat = rat[0] if rat else self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
         self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
         self.conn.commit()
-        
+    
+    def set_cover(self, id, data):
+        self.conn.execute('DELETE FROM covers where book=?', (id,))
+        if data:
+            usize = len(data)
+            data = compress(data)
+            self.conn.execute('INSERT INTO covers(book, uncompressed_size, data) VALUES (?,?,?)',
+                              (id, usize, sqlite.Binary(data)))
+        self.conn.commit()
+    
     def add_books(self, paths, formats, metadata, uris=[]):
         '''
         Add a book to the database. self.data and self.cache are not updated.
@@ -792,7 +869,7 @@ class LibraryDatabase(object):
             stream.seek(0)
             format = formats.next()
             self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
-                              (id, format, usize, compressobj().compress(stream.read())))
+                              (id, format, usize, sqlite.Binary(compress(stream.read()))))
             stream.close()
         self.conn.commit()
         

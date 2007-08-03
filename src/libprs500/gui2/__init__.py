@@ -14,13 +14,15 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """ The GUI for libprs500. """
 import sys, os, re, StringIO, traceback
-from PyQt4.QtCore import QVariant, QSettings, QFileInfo, QObject, SIGNAL
+from PyQt4.QtCore import QVariant, QSettings, QFileInfo, QObject, SIGNAL, QBuffer, \
+                         QByteArray
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, QIcon
 from libprs500 import __appname__ as APP_TITLE
 from libprs500 import __author__
 NONE = QVariant() #: Null value to return from the data function of item models
 
-error_dialog = None
+BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 
+                   'html', 'xhtml', 'epub',]
 
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
@@ -90,6 +92,25 @@ class FileIconProvider(QFileIconProvider):
         for i in ('dir', 'default'):
             self.icons[i] = QIcon(self.icons[i])
     
+    def key_from_ext(self, ext):
+        key = ext if ext in self.icons.keys() else 'default'
+        if key == 'default' and ext.count('.') > 0:
+            ext = ext.rpartition('.')[2]
+            key = ext if ext in self.icons.keys() else 'default'
+        return key
+    
+    def cached_icon(self, key):
+        candidate = self.icons[key]
+        if isinstance(candidate, QIcon):
+            return candidate
+        icon = QIcon(candidate)
+        self.icons[key] = icon
+        return icon
+    
+    def icon_from_ext(self, ext):
+        key = self.key_from_ext(ext)
+        return self.cached_icon(key)
+    
     def load_icon(self, fileinfo):
         key = 'default'
         icons = self.icons
@@ -101,18 +122,8 @@ class FileIconProvider(QFileIconProvider):
             key = 'dir'
         else:
             ext = qstring_to_unicode(fileinfo.completeSuffix()).lower()
-            key = ext if ext in self.icons.keys() else 'default'
-            if key == 'default' and ext.count('.') > 0:
-                ext = ext.rpartition('.')[2]
-                key = ext if ext in self.icons.keys() else 'default'
-        candidate = icons[key]
-        if isinstance(candidate, QIcon):
-            return candidate
-        icon = QIcon(candidate)
-        icons[key] = icon
-        if icon.isNull():
-            print 'null icon: ', key
-        return icon
+            key = self.key_from_ext(ext)
+        return self.cached_icon(key)
     
     def icon(self, arg):
         if isinstance(arg, QFileInfo):
@@ -123,7 +134,15 @@ class FileIconProvider(QFileIconProvider):
             return self.icons['default']
         return QFileIconProvider.icon(self, arg)
         
-file_icon_provider = None
+_file_icon_provider = None
+def initialize_file_icon_provider():
+    global _file_icon_provider
+    if _file_icon_provider is None:
+        _file_icon_provider = FileIconProvider()
+        
+def file_icon_provider():
+    global _file_icon_provider
+    return _file_icon_provider
         
 class FileDialog(QFileDialog):
     def __init__(self, title='Choose Files', 
@@ -134,11 +153,9 @@ class FileDialog(QFileDialog):
                        name = '',
                        mode = QFileDialog.ExistingFiles,
                        ):
-        global file_icon_provider
-        if file_icon_provider is None:
-            file_icon_provider = FileIconProvider()
+        initialize_file_icon_provider()
         QFileDialog.__init__(self, parent)        
-        self.setIconProvider(file_icon_provider)
+        self.setIconProvider(_file_icon_provider)
         self.setModal(modal)
         settings = QSettings()
         state = settings.value(name, QVariant()).toByteArray()
@@ -185,3 +202,24 @@ def choose_files(window, name, title,
     if fd.exec_() == QFileDialog.Accepted:
         return fd.get_files()
     return None
+
+def choose_images(window, name, title, select_only_single_file=True):
+    mode = QFileDialog.ExistingFile if select_only_single_file else QFileDialog.ExistingFiles
+    fd = FileDialog(title=title, name=name, 
+                    filters=[('Images', ['png', 'gif', 'jpeg', 'jpg', 'svg'])], 
+                    parent=window, add_all_files_filter=False, mode=mode,
+                    )
+    if fd.exec_() == QFileDialog.Accepted:
+        return fd.get_files()
+    return None
+
+def pixmap_to_data(pixmap, format='JPEG'):
+    '''
+    Return the QPixmap pixmap as a string saved in the specified format.
+    '''
+    ba = QByteArray()
+    buf = QBuffer(ba)
+    buf.open(QBuffer.WriteOnly)
+    pixmap.save(buf, format)
+    return str(ba.data())
+            

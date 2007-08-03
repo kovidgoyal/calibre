@@ -81,6 +81,8 @@ class LibraryDelegate(QItemDelegate):
 
 class BooksModel(QAbstractTableModel):
     
+    ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
+    
     def __init__(self, parent):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
@@ -172,6 +174,11 @@ class BooksModel(QAbstractTableModel):
         if not comments:
             comments = 'None'
         data['Comments'] = comments
+        series = self.db.series(idx)
+        if series:
+            sidx = self.db.series_index(idx)
+            sidx = self.__class__.ROMAN[sidx] if sidx < len(self.__class__.ROMAN) else str(sidx)
+            data['Series'] = 'Book <font face="serif">%s</font> of %s.'%(sidx, series)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
     
     def get_metadata(self, rows):

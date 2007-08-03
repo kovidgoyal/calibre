@@ -15,7 +15,7 @@
 import os, tempfile, sys
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QThread, QBuffer, QByteArray
+                         QSettings, QVariant, QSize, QThread
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon
 from PyQt4.QtSvg import QSvgRenderer
 
@@ -23,7 +23,9 @@ from libprs500 import __version__, __appname__
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
-from libprs500.gui2 import APP_TITLE, warning_dialog, choose_files, error_dialog
+from libprs500.gui2 import APP_TITLE, warning_dialog, choose_files, error_dialog, \
+                           initialize_file_icon_provider, BOOK_EXTENSIONS, \
+                           pixmap_to_data
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
@@ -39,11 +41,7 @@ class Main(QObject, Ui_MainWindow):
         p = QPainter(pixmap)
         r.render(p)
         p.end()
-        ba = QByteArray()
-        buf = QBuffer(ba)
-        buf.open(QBuffer.WriteOnly)
-        pixmap.save(buf, 'JPEG')  
-        self.default_thumbnail = (pixmap.width(), pixmap.height(), ba.data())
+        self.default_thumbnail = (pixmap.width(), pixmap.height(), pixmap_to_data(pixmap))
     
     def __init__(self, window):
         QObject.__init__(self)
@@ -196,8 +194,7 @@ class Main(QObject, Ui_MainWindow):
         Add books from the local filesystem to either the library or the device.
         '''
         books = choose_files(self.window, 'add books dialog dir', 'Select books',
-                             filters=[('Books', ['lrf', 'lrx', 'rar', 'zip', 
-                            'rtf', 'lit', 'txt', 'htm', 'html', 'xhtml', 'epub',])])
+                             filters=[('Books', BOOK_EXTENSIONS)])
         if not books:
             return
         on_card = False if self.stack.currentIndex() != 2 else True
@@ -317,10 +314,10 @@ class Main(QObject, Ui_MainWindow):
         if not rows or len(rows) == 0:
             return
         changed = False
-        def cs():
-            changed = True
         for row in rows:
-            MetadataSingleDialog(self.window, row.row(), self.library_view.model().db, cs)            
+            if MetadataSingleDialog(self.window, row.row(), 
+                                    self.library_view.model().db).changed:
+                changed = True                        
         
         if changed:
             self.library_view.model().resort()
@@ -342,11 +339,7 @@ class Main(QObject, Ui_MainWindow):
             ht = self.device_manager.device_class.THUMBNAIL_HEIGHT if self.device_manager else \
                        Device.THUMBNAIL_HEIGHT
             p = p.scaledToHeight(ht, Qt.SmoothTransformation)
-            ba = QByteArray()
-            buf = QBuffer(ba)
-            buf.open(QBuffer.WriteOnly)
-            p.save(buf, 'JPEG')
-            return (p.width(), p.height(), ba.data())
+            return (p.width(), p.height(), pixmap_to_data(p))
     
     def sync_to_device(self, on_card):
         rows = self.library_view.selectionModel().selectedRows()
@@ -438,6 +431,7 @@ def main():
     window.setWindowTitle(APP_TITLE)
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName(APP_TITLE)
+    initialize_file_icon_provider()
     main = Main(window)
     def unhandled_exception(type, value, tb):
         import traceback
