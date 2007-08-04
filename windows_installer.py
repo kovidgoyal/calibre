@@ -53,7 +53,8 @@ Var MUI_TEMP
 !define WEBSITE "https://libprs500.kovidgoyal.net"
 !define DEVCON  "C:\devcon\i386\devcon.exe"
 !define PY2EXE_DIR "%(py2exe_dir)s"
-!define LIBUSB_DIR "C:\libusb-prs500"
+;!define LIBUSB_DIR "C:\libusb-prs500"
+!define LIBUSB_DIR "C:\Users\kovid\libusb1"
 !define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
 !define CLIT         "C:\clit\clit.exe"
 !define UNRTF        "C:\unrtf\unrtf.exe"
@@ -119,7 +120,7 @@ Function .onInit
 FunctionEnd
 
 
-Section "libprs500" Seclibprs500
+Section "Main" "secmain"
 
   SetOutPath "$INSTDIR"
   
@@ -129,31 +130,9 @@ Section "libprs500" Seclibprs500
   File "${UNRTF}"
   File "${PDFTOHTML}"
     
-  SetOutPath "$INSTDIR\driver"
-  File "${LIBUSB_DIR}\*.dll"
-  File "${LIBUSB_DIR}\*.sys"
-  File "${LIBUSB_DIR}\*.cat"
-  File "${LIBUSB_DIR}\*.inf"
-  File "${DEVCON}"
-  
   SetOutPath "$SYSDIR"
-  File "${LIBUSB_DIR}\libusb0.dll"
   File "${LIBUNRAR_DIR}\unrar.dll"
   DetailPrint " "
-  
-  ; Uninstall USB drivers
-  DetailPrint "Uninstalling any existing device drivers"
-  ExecWait '"$INSTDIR\driver\devcon.exe" remove "USB\VID_054C&PID_029B"' $0
-  DetailPrint "devcon returned exit code $0"
-  
-  
-  DetailPrint "Installing USB driver for prs500..."
-  ExecWait '"$INSTDIR\driver\devcon.exe" install "$INSTDIR\driver\prs500.inf" "USB\VID_054C&PID_029B"' $0
-  DetailPrint "devcon returned exit code $0"
-  IfErrors 0 +2
-          MessageBox MB_OK "Failed to install USB driver. devcon exit code: $0"
-  DetailPrint " "
-  
   
   ;Store installation folder
   WriteRegStr HKCU "Software\${PRODUCT_NAME}" "" $INSTDIR
@@ -174,7 +153,7 @@ Section "libprs500" Seclibprs500
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\libprs500.lnk" "$INSTDIR\${PRODUCT_NAME}.exe"
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
-    CreateShortCut  "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\prs500-gui.exe"
+    CreateShortCut  "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\libprs500.exe"
 
   !insertmacro MUI_STARTMENU_WRITE_END
   
@@ -183,23 +162,65 @@ Section "libprs500" Seclibprs500
   Call AddToPath
   
 SectionEnd
+
+Section "Device Drivers" "secdd"
+  SetOutPath "$INSTDIR\driver"
+  File "${LIBUSB_DIR}\*.dll"
+  File "${LIBUSB_DIR}\*.sys"
+  File "${LIBUSB_DIR}\*.cat"
+  File "${LIBUSB_DIR}\*.inf"
+  File "${LIBUSB_DIR}\testlibusb-win.exe"
+  File "${DEVCON}"
+
+  SetOutPath "$SYSDIR"
+  File "${LIBUSB_DIR}\libusb0.dll"
+  File "${LIBUSB_DIR}\libusb0.sys"
+  ;File "${LIBUSB_DIR}\libusb0_x64.dll"
+  ;File "${LIBUSB_DIR}\libusb0_x64.sys"
+    
+  ; Uninstall USB drivers
+  DetailPrint "Uninstalling any existing device drivers"
+  ExecWait '"$INSTDIR\driver\devcon.exe" remove "USB\VID_054C&PID_029B"' $0
+  DetailPrint "devcon returned exit code $0"
+  
+  
+  DetailPrint "Installing USB driver for prs500..."
+  ExecWait '"$INSTDIR\driver\devcon.exe" install "$INSTDIR\driver\prs500.inf" "USB\VID_054C&PID_029B"' $0
+  DetailPrint "devcon returned exit code $0"
+  IfErrors 0 +3
+          MessageBox MB_OK|MB_ICONINFORMATION|MB_TOPMOST "Failed to install USB driver. devcon exit code: $0"
+          Goto +2
+  MessageBox MB_OK 'If you have the SONY Connect Reader software installed: $\nGoto Add Remove Programs and uninstall the entry "Windows Driver Package - Sony Corporation (PRSUSB)". $\n$\nIf your reader is connected to the computer, disconnect and reconnect it now.'
+  DetailPrint " "
+  
+  
+  
+  
+SectionEnd
+
 ;------------------------------------------------------------------------------------------------------
 ;Descriptions
 
   ;Language strings
-  LangString DESC_Seclibprs500 ${LANG_ENGLISH} "The GUI and command-line tools for working with ebooks"
+  LangString DESC_secmain ${LANG_ENGLISH} "The GUI and command-line tools for working with ebooks."
+  LangString DESC_secdd   ${LANG_ENGLISH} "The device drivers to talk to the ebook reader. If you want to use the device through the SONY Connect software then uncheck this. If you uncheck this you will not be able to transfer books to your reader using ${PRODUCT_NAME}."
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
-    !insertmacro MUI_DESCRIPTION_TEXT ${Seclibprs500} $(DESC_Seclibprs500)
+    !insertmacro MUI_DESCRIPTION_TEXT ${secmain} $(DESC_secmain)
+    !insertmacro MUI_DESCRIPTION_TEXT ${secdd} $(DESC_secdd)
   !insertmacro MUI_FUNCTION_DESCRIPTION_END
 ;------------------------------------------------------------------------------------------------------
 ;Uninstaller Section
 
-Section "Uninstall"
+Section "un.DeviceDrivers"
   ; Uninstall USB drivers
   ExecWait '"$INSTDIR\driver\devcon.exe" remove "USB\VID_054C&PID_029B"' $0
   DetailPrint "devcon returned exit code $0"
+SectionEnd
+
+Section "Uninstall"
+  
   ;ADD YOUR OWN FILES HERE...
   RMDir /r "$INSTDIR"
   !insertmacro MUI_STARTMENU_GETFOLDER Application $MUI_TEMP
