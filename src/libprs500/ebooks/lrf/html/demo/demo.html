@@ -3,7 +3,7 @@
 <style type='text/css'>
 .toc { page-break-after: always; text-indent: 0em; }
 .tocpn            {text-align: right; }
-.tocchr           {text-align: right; font-variant: small-caps;}
+.tocchr           {text-align: right;}
 </style>
 </head>
   <h1>Demo of <span style='font-family:monospace'>html2lrf</span></h1>  
@@ -18,7 +18,7 @@
     <li><a href='#text'>Text formatting and ruled lines</a></li>
     <li><a href='#images'>Inline images</a></li>
     <li><a href='#fonts'>Embedded Fonts</a></li>
-    <li><a href='#dropcaps'>Dropcaps</a></li>
+    <li><a href='#dropcaps'>Dropcaps  and Small-Caps</a></li>
     <li><a href='#recursive'>Recursive link following</a></li>
  </ul>
 
@@ -155,7 +155,7 @@
  <a href='#toc'>Table of Contents</a>
  </p>
  
- <h2><a name='dropcaps'>Dropcaps</a></h2>
+ <h2><a name='dropcaps'>Dropcaps and Small-Caps</a></h2>
  <br/>
  <p><img class='libprs500_dropcaps' src='a.png' /> beautiful image based dropcaps to emphasize this 
  paragraph. Image based dropcaps are specified by adding the <code>class = 'libprs500_dropcaps'</code>
@@ -164,6 +164,11 @@
  <br/>
  <p><big class='libprs500_dropcaps'>T</big>his is a plain text based dropcaps. It
  is not nearly as dramatic, but easier to code ;-)
+ </p>
+ <br/>
+ <br/>
+ <p><span style="font-variant: small-caps">This is an example</span> of small-caps.
+ It can also be used to highlight the start of a paragraph very effectively.
  </p>
  <p class='toc'> 
  <hr />

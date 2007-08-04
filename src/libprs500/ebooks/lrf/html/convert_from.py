@@ -113,6 +113,12 @@ class Span(_Span):
                 ans = 'sans'
             return ans
         
+        def font_variant(val):
+            ans = None
+            if 'small-caps' in val.lower():
+                ans = 'small-caps'
+            return ans
+        
         def font_key(family, style, weight):
             key = 'normal'
             if style == 'italic' and weight == 'normal':
@@ -122,6 +128,8 @@ class Span(_Span):
             elif style == 'italic' and weight == 'bold':
                 key = 'bi'
             return key
+        
+        
             
         
         def font_size(val):
@@ -154,7 +162,7 @@ class Span(_Span):
             return ans
         
         t = dict()
-        family, weight, style = 'serif', 'normal', 'normal'
+        family, weight, style, variant = 'serif', 'normal', 'normal', None
         for key in d.keys():
             val = d[key].lower()
             if key == 'font':
@@ -176,6 +184,11 @@ class Span(_Span):
                     if sz:
                         t['fontsize'] = sz
                         break
+                for val in vals:
+                    variant = font_variant(val)
+                    if variant:
+                        t['fontvariant'] = variant
+                        break
             elif key in ['font-family', 'font-name']:                
                 family = font_family(val) 
             elif key == "font-size":
@@ -186,6 +199,10 @@ class Span(_Span):
                 weight = font_weight(val)                
             elif key == 'font-style':
                 style = font_style(val)
+            elif key == 'font-variant':
+                variant = font_variant(val)
+                if variant:
+                    t['fontvariant'] = variant
             else:
                 report = True
                 if memory != None:
@@ -200,7 +217,7 @@ class Span(_Span):
             t['wordspace'] = 50
         return t
     
-    def __init__(self, ns, css, memory, dpi, fonts, font_delta=0):
+    def __init__(self, ns, css, memory, dpi, fonts, font_delta=0, normal_font_size=100):
         src = ns.string if hasattr(ns, 'string') else ns
         src = re.sub(r'\s{2,}', ' ', src)  # Remove multiple spaces
         for pat, repl in Span.rules:
@@ -208,6 +225,20 @@ class Span(_Span):
         if not src:
             raise ConversionError('No point in adding an empty string to a Span')
         attrs = Span.translate_attrs(css, dpi, fonts, font_delta=font_delta, memory=memory)
+        if 'fontsize' in attrs.keys():
+            normal_font_size = attrs['fontsize']
+        variant = attrs.pop('fontvariant', None)
+        if variant == 'small-caps':
+            tokens = [ i.upper() for i in src.split()]
+            spans  = []
+            for i in tokens:
+                f, r = i[0], i[1:]+' '
+                spans.append(f)
+                spans.append(_Span(r, fontsize=normal_font_size-30))
+            src = _Span(fontsize=normal_font_size)
+            for i in spans:
+                src.append(i)                
+                 
         family, key = attrs['fontfacename']
         if fonts[family].has_key(key):
             attrs['fontfacename'] = fonts[family][key][1]
@@ -740,7 +771,7 @@ class HTMLConverter(object):
                'padding' in test or 'border' in test or 'page-break' in test \
                or test.startswith('mso') or test.startswith('background')\
                or test.startswith('line') or test in ['color', 'display', \
-                           'letter-spacing', 'font-variant', 'position']:
+                           'letter-spacing', 'position']:
                 css.pop(key)              
         return css
     
