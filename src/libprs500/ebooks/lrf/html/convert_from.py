@@ -229,15 +229,19 @@ class Span(_Span):
             normal_font_size = attrs['fontsize']
         variant = attrs.pop('fontvariant', None)
         if variant == 'small-caps':
-            tokens = [ i.upper() for i in src.split()]
-            spans  = []
-            for i in tokens:
-                f, r = i[0], i[1:]+' '
-                spans.append(f)
-                spans.append(_Span(r, fontsize=normal_font_size-30))
-            src = _Span(fontsize=normal_font_size)
-            for i in spans:
-                src.append(i)                
+            dump = _Span(fontsize=normal_font_size-30)
+            temp = []
+            for c in src:
+                if c.isupper():
+                    if temp:
+                        dump.append(''.join(temp))
+                        temp = []
+                    dump.append(_Span(c, fontsize=normal_font_size))
+                else:
+                    temp.append(c.upper())
+            src = dump                
+            if temp:
+                src.append(''.join(temp))
                  
         family, key = attrs['fontfacename']
         if fonts[family].has_key(key):
