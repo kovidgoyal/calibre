@@ -19,8 +19,7 @@ add/remove formats
 import os
 
 from PyQt4.QtCore import SIGNAL
-from PyQt4.Qt import QObject, QPixmap, QListWidgetItem, QErrorMessage, \
-                     QVariant, QSettings, QFileDialog
+from PyQt4.Qt import QObject, QPixmap, QListWidgetItem, QErrorMessage
 
 
 from libprs500.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
@@ -171,8 +170,6 @@ class MetadataSingleDialog(Ui_MetadataSingleDialog, ModalDialog):
         if qstring_to_unicode(self.series.currentText()):
             self.enable_series_index()
             
-        QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
-        QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
         
         all_series = self.db.all_series()
         series_id = self.db.series_id(row)
@@ -183,10 +180,14 @@ class MetadataSingleDialog(Ui_MetadataSingleDialog, ModalDialog):
                 idx = c
             self.series.addItem(name)
             c += 1
+        
+        self.series.lineEdit().setText('')
         if idx is not None:
             self.series.setCurrentIndex(idx)
             
         self.series_index.setValue(self.db.series_index(row))
+        QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
+        QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
          
 
         self.dialog.exec_()

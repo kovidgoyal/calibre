@@ -319,7 +319,6 @@
    </attribute>
    <addaction name="action_add" />
    <addaction name="action_del" />
-   <addaction name="action_edit" />
   </widget>
   <widget class="QStatusBar" name="statusBar" >
    <property name="mouseTracking" >

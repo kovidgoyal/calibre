@@ -785,11 +785,13 @@ class LibraryDatabase(object):
         self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
         self.conn.commit()
     
-    def set_tags(self, id, tags):
+    def set_tags(self, id, tags, append=False):
         '''
         @param tags: list of strings
+        @param append: If True existing tags are not removed
         '''
-        self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
+        if not append:
+            self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
         tag = set(tags)
         for tag in tags:
             t = self.conn.execute('SELECT id from tags WHERE name=?', (tag,)).fetchone()
@@ -797,7 +799,9 @@ class LibraryDatabase(object):
                 tid = t[0]
             else:
                 tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
-            self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
+            if (append and not self.conn.execute('SELECT book FROM books_tags_link WHERE book=? AND tag=?',
+                                        (id, tid)).fetchone()) or not append:
+                self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
         self.conn.commit()
         

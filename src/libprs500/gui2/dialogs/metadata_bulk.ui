@@ -1,0 +1,248 @@
+<ui version="4.0" >
+ <class>MetadataBulkDialog</class>
+ <widget class="QDialog" name="MetadataBulkDialog" >
+  <property name="windowModality" >
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>461</width>
+    <height>342</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Edit Meta information</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../images.qrc" >:/images/edit_input.svg</iconset>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QSplitter" name="splitter" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="layoutWidget" >
+      <layout class="QVBoxLayout" >
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <property name="leftMargin" >
+        <number>0</number>
+       </property>
+       <property name="topMargin" >
+        <number>0</number>
+       </property>
+       <property name="rightMargin" >
+        <number>0</number>
+       </property>
+       <property name="bottomMargin" >
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string>Meta information</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="leftMargin" >
+           <number>9</number>
+          </property>
+          <property name="topMargin" >
+           <number>9</number>
+          </property>
+          <property name="rightMargin" >
+           <number>9</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>9</number>
+          </property>
+          <property name="horizontalSpacing" >
+           <number>6</number>
+          </property>
+          <property name="verticalSpacing" >
+           <number>6</number>
+          </property>
+          <item row="2" column="1" colspan="2" >
+           <widget class="QSpinBox" name="rating" >
+            <property name="toolTip" >
+             <string>Rating of this book. 0-5 stars</string>
+            </property>
+            <property name="whatsThis" >
+             <string>Rating of this book. 0-5 stars</string>
+            </property>
+            <property name="buttonSymbols" >
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="suffix" >
+             <string> stars</string>
+            </property>
+            <property name="maximum" >
+             <number>5</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_6" >
+            <property name="text" >
+             <string>&amp;Rating:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2" >
+           <widget class="QLineEdit" name="publisher" >
+            <property name="toolTip" >
+             <string>Change the publisher of this book</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="label_3" >
+            <property name="text" >
+             <string>&amp;Publisher: </string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>publisher</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" >
+           <widget class="QLabel" name="label_4" >
+            <property name="text" >
+             <string>Add Ta&amp;gs: </string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>tags</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="2" >
+           <widget class="QLineEdit" name="tags" >
+            <property name="toolTip" >
+             <string>Tags categorize the book. This is particularly useful while searching. &lt;br>&lt;br>They can be any words or phrases, separated by commas.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2" >
+           <widget class="QLineEdit" name="authors" >
+            <property name="toolTip" >
+             <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_2" >
+            <property name="text" >
+             <string>&amp;Author(s): </string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>authors</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1" colspan="2" >
+           <widget class="QComboBox" name="series" >
+            <property name="toolTip" >
+             <string>List of known series. You can add new series.</string>
+            </property>
+            <property name="whatsThis" >
+             <string>List of known series. You can add new series.</string>
+            </property>
+            <property name="editable" >
+             <bool>true</bool>
+            </property>
+            <property name="insertPolicy" >
+             <enum>QComboBox::InsertAlphabetically</enum>
+            </property>
+            <property name="sizeAdjustPolicy" >
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" >
+           <widget class="QLabel" name="label_7" >
+            <property name="text" >
+             <string>&amp;Series:</string>
+            </property>
+            <property name="textFormat" >
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>series</cstring>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QDialogButtonBox" name="button_box" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../images.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>button_box</sender>
+   <signal>accepted()</signal>
+   <receiver>MetadataBulkDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>button_box</sender>
+   <signal>rejected()</signal>
+   <receiver>MetadataBulkDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

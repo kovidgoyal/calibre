@@ -1,6 +1,9 @@
 <ui version="4.0" >
  <class>MetadataSingleDialog</class>
  <widget class="QDialog" name="MetadataSingleDialog" >
+  <property name="windowModality" >
+   <enum>Qt::ApplicationModal</enum>
+  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -10,7 +13,7 @@
    </rect>
   </property>
   <property name="windowTitle" >
-   <string>libprs500 - Edit Meta Information</string>
+   <string>Edit Meta Information</string>
   </property>
   <property name="windowIcon" >
    <iconset resource="../images.qrc" >:/images/edit_input.svg</iconset>

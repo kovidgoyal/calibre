@@ -31,6 +31,7 @@ from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
 from libprs500.gui2.jobs import JobManager, JobException
 from libprs500.gui2.dialogs.metadata_single import MetadataSingleDialog
+from libprs500.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 
 class Main(QObject, Ui_MainWindow):
     
@@ -73,14 +74,23 @@ class Main(QObject, Ui_MainWindow):
         sm.addAction(QIcon(':/images/reader.svg'), 'Send to main memory')
         sm.addAction(QIcon(':/images/sd.svg'), 'Send to storage card')
         self.sync_menu = sm # Needed
+        md = QMenu()
+        md.addAction('Edit metadata individually')
+        md.addAction('Edit metadata in bulk')
+        self.metadata_menu = md
         QObject.connect(self.action_add, SIGNAL("triggered(bool)"), self.add_books)
         QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit_metadata)
+        QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), self.edit_metadata)
+        QObject.connect(md.actions()[1], SIGNAL('triggered(bool)'), self.edit_bulk_metadata)
         QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)        
         QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
         QObject.connect(sm.actions()[1], SIGNAL('triggered(bool)'), self.sync_to_card)
+        
         self.action_sync.setMenu(sm)
-        self.tool_bar.insertAction(self.action_edit, self.action_sync)
+        self.action_edit.setMenu(md)
+        self.tool_bar.addAction(self.action_sync)
+        self.tool_bar.addAction(self.action_edit)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         
         ####################### Library view ########################
@@ -312,6 +322,8 @@ class Main(QObject, Ui_MainWindow):
         '''
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
+            d = error_dialog(self.window, 'Cannot edit metadata', 'No books selected')
+            d.exec_()
             return
         changed = False
         for row in rows:
@@ -320,6 +332,19 @@ class Main(QObject, Ui_MainWindow):
                 changed = True                        
         
         if changed:
+            self.library_view.model().resort()
+            self.library_view.model().research()
+            
+    def edit_bulk_metadata(self, checked):
+        '''
+        Edit metadata of selected books in library in bulk.
+        '''
+        rows = [r.row() for r in self.library_view.selectionModel().selectedRows()]
+        if not rows or len(rows) == 0:
+            d = error_dialog(self.window, 'Cannot edit metadata', 'No books selected')
+            d.exec_()
+            return
+        if MetadataBulkDialog(self.window, rows, self.library_view.model().db).changed:
             self.library_view.model().resort()
             self.library_view.model().research()
             
