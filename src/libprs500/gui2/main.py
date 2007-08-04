@@ -16,7 +16,7 @@ import os, tempfile, sys
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
-from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon
+from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox
 from PyQt4.QtSvg import QSvgRenderer
 
 from libprs500 import __version__, __appname__
@@ -32,6 +32,8 @@ from libprs500.gui2.status import StatusBar
 from libprs500.gui2.jobs import JobManager, JobException
 from libprs500.gui2.dialogs.metadata_single import MetadataSingleDialog
 from libprs500.gui2.dialogs.metadata_bulk import MetadataBulkDialog
+from libprs500.gui2.dialogs.jobs import JobsDialog
+
 
 class Main(QObject, Ui_MainWindow):
     
@@ -51,6 +53,7 @@ class Main(QObject, Ui_MainWindow):
         self.setupUi(window)
         self.read_settings()
         self.job_manager = JobManager()
+        self.jobs_dialog = JobsDialog(self.window, self.job_manager)
         self.device_manager = None
         self.upload_memory = {}
         self.delete_memory = {}
@@ -64,10 +67,10 @@ class Main(QObject, Ui_MainWindow):
         self.vanity.setText(self.vanity_template.arg(' '))
         
         ####################### Status Bar #####################
-        self.status_bar = StatusBar()
+        self.status_bar = StatusBar(self.jobs_dialog)
         self.window.setStatusBar(self.status_bar)
         QObject.connect(self.job_manager, SIGNAL('job_added(int)'), self.status_bar.job_added)
-        QObject.connect(self.job_manager, SIGNAL('no_more_jobs()'), self.status_bar.no_more_jobs)
+        QObject.connect(self.job_manager, SIGNAL('job_done(int)'), self.status_bar.job_done)
         
         ####################### Setup Toolbar #####################
         sm = QMenu()
@@ -195,6 +198,8 @@ class Main(QObject, Ui_MainWindow):
         if exception:
             self.job_exception(id, exception, formatted_traceback)
             return
+        cp, fs = result
+        self.location_view.model().update_devices(cp, fs)
     ############################################################################
     
     
@@ -236,9 +241,11 @@ class Main(QObject, Ui_MainWindow):
         Upload books to device.
         @param files: List of either paths to files or file like objects
         '''
+        titles = ', '.join([i['title'] for i in metadata])
         id = self.job_manager.run_device_job(self.books_uploaded,
                                         self.device_manager.upload_books_func(),
-                                        files, names, on_card=on_card 
+                                        files, names, on_card=on_card,
+                                        job_extra_description=titles 
                                         )
         self.upload_memory[id] = metadata
     
@@ -434,8 +441,21 @@ class Main(QObject, Ui_MainWindow):
         settings.endGroup()
     
     def close_event(self, e):
-        self.write_settings()
-        e.accept()
+        msg = 'There are active jobs. Are you sure you want to quit?'
+        if self.job_manager.has_device_jobs():
+            msg = '<p>'+__appname__ + ' is communicating with the device!<br>'+\
+                  'Quitting may cause corruption on the device.<br>'+\
+                  'Are you sure you want to quit?'
+        if self.job_manager.has_jobs():
+            d = QMessageBox(QMessageBox.Warning, 'WARNING: Active jobs', msg,
+                            QMessageBox.Yes|QMessageBox.No, self.window)
+            d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
+            d.setDefaultButton(QMessageBox.No)
+            if d.exec_() == QMessageBox.Yes:
+                self.write_settings()
+                e.accept()
+            else:
+                e.ignore()
 
 def main():
     lock = os.path.join(tempfile.gettempdir(),"libprs500_gui_lock")

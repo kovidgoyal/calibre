@@ -12,10 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.gui2.dialogs.jobs import JobsDialog
+
 import textwrap
 
-from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap
+from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
+                        QVBoxLayout, QSizePolicy
 from PyQt4.QtCore import Qt, QSize
+from libprs500.gui2 import qstring_to_unicode
 
 class BookInfoDisplay(QFrame):
     class BookCoverDisplay(QLabel):
@@ -39,7 +43,7 @@ class BookInfoDisplay(QFrame):
         def __init__(self):
             QLabel.__init__(self)
             self.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            self.setText('')#<table><tr><td>row 1</td><td>row 2</td></tr><tr><td>fsfdsfsfsfsfsfsdfsffsfsd</td></tr></table>')
+            self.setText('')
     
     def __init__(self, clear_message):
         QFrame.__init__(self)
@@ -74,35 +78,83 @@ class BookInfoDisplay(QFrame):
         self.clear_message()
         self.setVisible(True)
 
-class MovieButton(QLabel):
-    def __init__(self, movie):
+class BusyIndicator(QLabel):
+    def __init__(self, movie, jobs_dialog):
         QLabel.__init__(self)
-        self.movie = movie
+        self.setCursor(Qt.PointingHandCursor)
+        self.setToolTip('Click to see list of active jobs.')
         self.setMovie(movie)
-        self.movie.start()
-        self.movie.setPaused(True)
+        movie.start()
+        movie.setPaused(True)
+        self.jobs_dialog = jobs_dialog
+        
+        
+    def mouseReleaseEvent(self, event):
+        if self.jobs_dialog.isVisible():
+            self.jobs_dialog.hide()
+        else:
+            self.jobs_dialog.show()
+        
+
+class MovieButton(QFrame):
+    def __init__(self, movie, jobs_dialog):
+        QFrame.__init__(self)
+        self.setLayout(QVBoxLayout())
+        self.movie_widget = BusyIndicator(movie, jobs_dialog)        
+        self.movie = movie        
+        self.layout().addWidget(self.movie_widget)
+        self.jobs = QLabel('<b>Jobs: 0')
+        self.jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)  
+        self.layout().addWidget(self.jobs)
+        self.layout().setAlignment(self.jobs, Qt.AlignHCenter)
+        self.jobs.setMargin(0)
+        self.layout().setMargin(0)
+        self.jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        
 
 class StatusBar(QStatusBar):
-    def __init__(self):
+    def __init__(self, jobs_dialog):
         QStatusBar.__init__(self)
-        self.movie_button = MovieButton(QMovie(':/images/jobs-animated.mng'))
+        self.movie_button = MovieButton(QMovie(':/images/jobs-animated.mng'), jobs_dialog)
         self.addPermanentWidget(self.movie_button)
         self.book_info = BookInfoDisplay(self.clearMessage)
         self.addWidget(self.book_info)
+    
+    def jobs(self):
+        src = qstring_to_unicode(self.movie_button.jobs.text())
+        return int(src.rpartition(':')[2].lstrip())
         
+    
     def job_added(self, id):
+        jobs = self.movie_button.jobs
+        src = qstring_to_unicode(jobs.text())
+        num = self.jobs()
+        nnum = num+1
+        text = src.replace(str(num), str(nnum))
+        jobs.setText(text)
         if self.movie_button.movie.state() == QMovie.Paused:
             self.movie_button.movie.setPaused(False)
+            
+    def job_done(self, id):
+        jobs = self.movie_button.jobs
+        src = qstring_to_unicode(jobs.text())
+        num = self.jobs()
+        nnum = num-1
+        text = src.replace(str(num), str(nnum))
+        jobs.setText(text)
+        if nnum == 0:
+            self.no_more_jobs()
             
     def no_more_jobs(self):
         if self.movie_button.movie.state() == QMovie.Running:
             self.movie_button.movie.setPaused(True)
-            self.movie_button.movie.jumpToFrame(0) # This causes MNG error 11, but seems to work regardless
+            # This causes MNG error 11
+            #self.movie_button.movie.jumpToFrame(0) 
             
         
 if __name__ == '__main__':
     # Used to create the animated status icon
-    from PyQt4.Qt import QApplication, QPainter, QSvgRenderer, QPixmap, QColor
+    from PyQt4.Qt import QApplication, QPainter, QSvgRenderer, QColor
     from subprocess import check_call
     import os
     app = QApplication([])

@@ -12,9 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import traceback
-
-from PyQt4.QtCore import QThread, SIGNAL, QObject, Qt
+from PyQt4.QtCore import QThread, SIGNAL, QObject
 
 from libprs500.devices.prs500.driver import PRS500
 
@@ -45,37 +43,6 @@ class DeviceDetector(QThread):
                     device[1] ^= True
             self.msleep(self.sleep_time)
             
-class DeviceJob(QThread):
-    '''
-    Worker thread that communicates with device.
-    '''
-    def __init__(self, id, mutex, func, *args, **kwargs):
-        QThread.__init__(self)
-        self.id = id
-        self.func = func
-        self.args = args
-        self.kwargs = kwargs
-        self.mutex = mutex
-        self.result = None
-        
-    def run(self):
-        if self.mutex != None:
-            self.mutex.lock()
-        last_traceback, exception = None, None
-        try:            
-            try:
-                self.result = self.func(self.progress_update, *self.args, **self.kwargs)
-            except Exception, err:
-                exception = err
-                last_traceback = traceback.format_exc()            
-        finally:
-            if self.mutex != None:
-                self.mutex.unlock()
-            self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
-                      self.id, self.result, exception, last_traceback)
-            
-    def progress_update(self, val):
-        self.emit(SIGNAL('status_update(int)'), int(val))
         
         
 class DeviceManager(QObject):
@@ -87,6 +54,7 @@ class DeviceManager(QObject):
     def info_func(self):
         ''' Return callable that returns device information and free space on device'''
         def get_device_information(updater):
+            '''Get device information'''
             self.device.set_progress_reporter(updater)
             info = self.device.get_device_information(end_session=False)
             info = [i.replace('\x00', '').replace('\x01', '') for i in info]
@@ -98,6 +66,7 @@ class DeviceManager(QObject):
     def books_func(self):
         '''Return callable that returns the list of books on device as two booklists'''
         def books(updater):
+            '''Get metadata from device'''
             self.device.set_progress_reporter(updater)
             mainlist = self.device.books(oncard=False, end_session=False)
             cardlist = self.device.books(oncard=True)
@@ -107,14 +76,17 @@ class DeviceManager(QObject):
     def sync_booklists_func(self):
         '''Upload booklists to device'''
         def sync_booklists(updater, booklists):
+            '''Sync metadata to device'''
             self.device.set_progress_reporter(updater)
-            self.device.sync_booklists(booklists)
+            self.device.sync_booklists(booklists, end_session=False)
+            return self.device.card_prefix(end_session=False), self.device.free_space()
         return sync_booklists
     
     def upload_books_func(self):
         '''Upload books to device'''
         def upload_books(updater, files, names, on_card=False):
-            return self.device.upload_books(files, names, on_card, end_session=True)
+            '''Upload books to device: '''
+            return self.device.upload_books(files, names, on_card, end_session=False)
         return upload_books
     
     def add_books_to_metadata(self, locations, metadata, booklists):
@@ -123,6 +95,7 @@ class DeviceManager(QObject):
     def delete_books_func(self):
         '''Remove books from device'''
         def delete_books(updater, paths):
+            '''Delete books from device'''
             self.device.delete_books(paths, end_session=True)
         return delete_books
     

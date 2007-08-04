@@ -24,7 +24,7 @@ from PyQt4.Qt import QObject, QPixmap, QListWidgetItem, QErrorMessage
 
 from libprs500.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
                            choose_files, pixmap_to_data, BOOK_EXTENSIONS, choose_images
-from libprs500.gui2.dialogs import ModalDialog
+from libprs500.gui2.dialogs import Dialog
 from libprs500.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 
 class Format(QListWidgetItem):
@@ -34,7 +34,7 @@ class Format(QListWidgetItem):
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext), 
                                  ext.upper(), parent, QListWidgetItem.UserType)
 
-class MetadataSingleDialog(Ui_MetadataSingleDialog, ModalDialog):
+class MetadataSingleDialog(Ui_MetadataSingleDialog, Dialog):
     
     def select_cover(self, checked):
         files = choose_images(self.window, 'change cover dialog', 
@@ -121,7 +121,7 @@ class MetadataSingleDialog(Ui_MetadataSingleDialog, ModalDialog):
     
     def __init__(self, window, row, db):
         Ui_MetadataSingleDialog.__init__(self)
-        ModalDialog.__init__(self, window)
+        Dialog.__init__(self, window)
         self.setupUi(self.dialog)
         self.splitter.setStretchFactor(100, 1)
         self.db = db

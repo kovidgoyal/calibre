@@ -1,0 +1,50 @@
+<ui version="4.0" >
+ <class>JobsDialog</class>
+ <widget class="QDialog" name="JobsDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>633</width>
+    <height>542</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Active Jobs</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../images.qrc" >:/images/jobs.svg</iconset>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <widget class="QTableView" name="jobs_view" >
+     <property name="contextMenuPolicy" >
+      <enum>Qt::NoContextMenu</enum>
+     </property>
+     <property name="editTriggers" >
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="alternatingRowColors" >
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode" >
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior" >
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
+     <property name="iconSize" >
+      <size>
+       <width>32</width>
+       <height>32</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../images.qrc" />
+ </resources>
+ <connections/>
+</ui>

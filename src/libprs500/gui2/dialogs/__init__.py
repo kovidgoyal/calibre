@@ -17,10 +17,11 @@
 from PyQt4.QtCore import QObject
 from PyQt4.QtGui import  QDialog
 
-class ModalDialog(QObject):
+class Dialog(QObject):
     def __init__(self, window):
         QObject.__init__(self, window)
         self.dialog = QDialog(window)
         self.accept = self.dialog.accept
         self.reject = self.dialog.reject
         self.window = window
+        self.isVisible = self.dialog.isVisible

@@ -18,13 +18,13 @@
 from PyQt4.QtCore import SIGNAL, QObject
 
 from libprs500.gui2 import qstring_to_unicode
-from libprs500.gui2.dialogs import ModalDialog
+from libprs500.gui2.dialogs import Dialog
 from libprs500.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 
-class MetadataBulkDialog(Ui_MetadataBulkDialog, ModalDialog):
+class MetadataBulkDialog(Ui_MetadataBulkDialog, Dialog):
     def __init__(self, window, rows, db):
         Ui_MetadataBulkDialog.__init__(self)
-        ModalDialog.__init__(self, window)
+        Dialog.__init__(self, window)
         self.setupUi(self.dialog)
         self.db = db
         self.ids = [ db.id(r) for r in rows]
@@ -42,7 +42,7 @@ class MetadataBulkDialog(Ui_MetadataBulkDialog, ModalDialog):
             id, name = i
             self.series.addItem(name)
             
-        
+        self.series.lineEdit().setText('')
         
         self.dialog.exec_()
             
