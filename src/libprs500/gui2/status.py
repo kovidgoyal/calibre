@@ -120,6 +120,9 @@ class StatusBar(QStatusBar):
         self.book_info = BookInfoDisplay(self.clearMessage)
         self.addWidget(self.book_info)
     
+    def reset_info(self):
+        self.book_info.show_data({})
+    
     def jobs(self):
         src = qstring_to_unicode(self.movie_button.jobs.text())
         return int(src.rpartition(':')[2].lstrip())

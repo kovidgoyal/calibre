@@ -15,8 +15,9 @@
 import os, tempfile, sys
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QThread
-from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox
+                         QSettings, QVariant, QSize, QThread, QModelIndex
+from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
+                        QItemSelectionModel
 from PyQt4.QtSvg import QSvgRenderer
 
 from libprs500 import __version__, __appname__
@@ -149,13 +150,23 @@ class Main(QObject, Ui_MainWindow):
             func = self.device_manager.info_func()
             self.job_manager.run_device_job(self.info_read, func)
             self.set_default_thumbnail(cls.THUMBNAIL_HEIGHT)
+            self.status_bar.showMessage('Device: '+cls.__name__+' detected.', 3000)
+            self.action_sync.setEnabled(True)
+        else:
+            self.job_manager.terminate_device_jobs()
+            self.device_manager.device_removed()
+            self.location_view.model().update_devices()
+            self.action_sync.setEnabled(False)
+            if self.current_view() != self.library_view:
+                self.status_bar.reset_info()
+                self.location_selected('library')
             
-    def info_read(self, id, result, exception, formatted_traceback):
+    def info_read(self, id, description, result, exception, formatted_traceback):
         '''
         Called once device information has been read.
         '''
         if exception:
-            self.job_exception(id, exception, formatted_traceback)
+            self.job_exception(id, description, exception, formatted_traceback)
             return
         info, cp, fs = result
         self.location_view.model().update_devices(cp, fs)
@@ -163,12 +174,12 @@ class Main(QObject, Ui_MainWindow):
         func = self.device_manager.books_func()
         self.job_manager.run_device_job(self.metadata_downloaded, func)
         
-    def metadata_downloaded(self, id, result, exception, formatted_traceback):
+    def metadata_downloaded(self, id, description, result, exception, formatted_traceback):
         '''
         Called once metadata has been read for all books on the device.
         '''
         if exception:
-            self.job_exception(id, exception, formatted_traceback)
+            self.job_exception(id, description, exception, formatted_traceback)
             return
         mainlist, cardlist = result
         self.memory_view.set_database(mainlist)
@@ -191,12 +202,12 @@ class Main(QObject, Ui_MainWindow):
                                         self.device_manager.sync_booklists_func(),
                                         self.booklists())
     
-    def metadata_synced(self, id, result, exception, formatted_traceback):
+    def metadata_synced(self, id, description, result, exception, formatted_traceback):
         '''
         Called once metadata has been uploaded.
         '''
         if exception:
-            self.job_exception(id, exception, formatted_traceback)
+            self.job_exception(id, description, exception, formatted_traceback)
             return
         cp, fs = result
         self.location_view.model().update_devices(cp, fs)
@@ -249,7 +260,7 @@ class Main(QObject, Ui_MainWindow):
                                         )
         self.upload_memory[id] = metadata
     
-    def books_uploaded(self, id, result, exception, formatted_traceback):
+    def books_uploaded(self, id, description, result, exception, formatted_traceback):
         '''
         Called once books have been uploaded.
         '''
@@ -263,7 +274,7 @@ class Main(QObject, Ui_MainWindow):
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()                
             else:
-                self.job_exception(id, exception, formatted_traceback)
+                self.job_exception(id, description, exception, formatted_traceback)
             return
         
         self.device_manager.add_books_to_metadata(result, metadata, self.booklists())
@@ -301,14 +312,14 @@ class Main(QObject, Ui_MainWindow):
                                 self.device_manager.delete_books_func(), paths)
         
             
-    def books_deleted(self, id, result, exception, formatted_traceback):
+    def books_deleted(self, id, description, result, exception, formatted_traceback):
         '''
         Called once deletion is done on the device
         '''
         for view in (self.memory_view, self.card_view):
             view.model().deletion_done(id, bool(exception))
         if exception:
-            self.job_exception(id, exception, formatted_traceback)            
+            self.job_exception(id, description, exception, formatted_traceback)            
             return
         
         self.upload_booklists()
@@ -418,6 +429,10 @@ class Main(QObject, Ui_MainWindow):
                 view.resizeRowsToContents()
                 view.resizeColumnsToContents()
                 view.resize_on_select = False
+        self.status_bar.reset_info()
+        self.current_view().clearSelection()
+        self.current_view().setCurrentIndex(view.model().index(0, 0))
+                
     
     def job_exception(self, id, exception, formatted_traceback):
         '''

@@ -289,13 +289,19 @@
            <item>
             <widget class="QToolButton" name="add_format_button" >
              <property name="toolTip" >
-              <string>Add a new format for this book</string>
+              <string>Add a new format for this book to the database</string>
              </property>
              <property name="text" >
               <string>...</string>
              </property>
              <property name="icon" >
               <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
+             </property>
+             <property name="iconSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
              </property>
             </widget>
            </item>
@@ -324,7 +330,13 @@
               <string>...</string>
              </property>
              <property name="icon" >
-              <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+              <iconset resource="../images.qrc" >:/images/trash.svg</iconset>
+             </property>
+             <property name="iconSize" >
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
              </property>
             </widget>
            </item>

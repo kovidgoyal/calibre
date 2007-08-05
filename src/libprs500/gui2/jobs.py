@@ -15,7 +15,7 @@
 import traceback, textwrap
 
 from PyQt4.QtCore import QAbstractTableModel, QMutex, QObject, SIGNAL, Qt, \
-                         QVariant, QThread
+                         QVariant, QThread, QModelIndex
 from PyQt4.QtGui import QIcon
 
 from libprs500.gui2 import NONE
@@ -55,8 +55,8 @@ class Job(QThread):
         finally:
             if self.mutex != None:
                 self.mutex.unlock()
-            self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
-                      self.id, self.result, exception, last_traceback)
+            self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
+                      self.id, self.description, self.result, exception, last_traceback)
             
     def progress_update(self, val):
         self.percent_done = val
@@ -87,6 +87,18 @@ class JobManager(QAbstractTableModel):
         self.job_icon        = QVariant(QIcon(':/images/jobs.svg'))
         self.wrapper = textwrap.TextWrapper(width=40)
         
+    def terminate_device_jobs(self):
+        changed = False
+        for key in self.jobs.keys():
+            if isinstance(self.jobs[key], DeviceJob):
+                changed = True
+                job = self.jobs.pop(key)
+                job.terminate()
+                job.mutex.unlock()
+                self.emit(SIGNAL('job_done(int)'), job.id)
+        if changed:
+            self.reset()
+    
     def create_job(self, job_class, description, lock, *args, **kwargs):
         self.job_create_lock.lock()
         try:
@@ -94,9 +106,10 @@ class JobManager(QAbstractTableModel):
             job = job_class(self.next_id, description, lock, *args, **kwargs)
             QObject.connect(job, SIGNAL('finished()'), self.cleanup_jobs)
             QObject.connect(job, SIGNAL('status_update(int, int)'), self.status_update)
+            self.beginInsertRows(QModelIndex(), len(self.jobs), len(self.jobs))
             self.jobs[self.next_id] = job
+            self.endInsertRows()
             self.emit(SIGNAL('job_added(int)'), self.next_id)
-            self.reset()
             return job
         finally:
             self.job_create_lock.unlock()
@@ -122,10 +135,10 @@ class JobManager(QAbstractTableModel):
         desc = callable.__doc__ if callable.__doc__ else ''
         desc += kwargs.pop('job_extra_description', '')
         job = self.create_job(DeviceJob, desc, self.device_lock, callable, *args, **kwargs)        
-        QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+        QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                         self.job_done)
         if slot:
-            QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+            QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                             slot)
         job.start()
         return job.id
@@ -134,10 +147,16 @@ class JobManager(QAbstractTableModel):
         '''
         Slot that is called when a job is completed.
         '''
+        keys = self.jobs.keys()
+        if not id in keys: # Terminated job
+            return
         self.job_remove_lock.lock()
         try:
-            job = self.jobs.pop(id)            
-            self.reset()
+            keys.sort()
+            idx = keys.index(id)
+            self.beginRemoveRows(QModelIndex(), idx, idx)
+            job = self.jobs.pop(id)
+            self.endRemoveRows()
             self.cleanup_lock.lock()
             self.cleanup[id] = job            
             self.cleanup_lock.unlock()

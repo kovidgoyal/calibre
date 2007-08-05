@@ -365,6 +365,9 @@
    </property>
   </action>
   <action name="action_sync" >
+   <property name="enabled" >
+    <bool>false</bool>
+   </property>
    <property name="icon" >
     <iconset resource="images.qrc" >:/images/sync.svg</iconset>
    </property>

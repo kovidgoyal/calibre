@@ -51,6 +51,9 @@ class DeviceManager(QObject):
         self.device_class = device_class
         self.device = device_class()
         
+    def device_removed(self):
+        self.device = None
+        
     def info_func(self):
         ''' Return callable that returns device information and free space on device'''
         def get_device_information(updater):
