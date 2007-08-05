@@ -89,6 +89,7 @@ def upload_docs():
     
 
 def main():
+    upload = len(sys.argv) < 2
     shutil.rmtree('build')
     os.mkdir('build')
     shutil.rmtree('docs')
@@ -99,12 +100,13 @@ def main():
     dmg = build_osx()
     print 'Building Windows installer...'
     exe = build_windows()
-    print 'Uploading installers...'
-    upload_installers(exe, dmg)
-    print 'Uploading to PyPI'
-    check_call('''python setup.py register bdist_egg --exclude-source-files upload''')
-    upload_docs()
-    check_call('''rm -rf dist/* build/*''')
+    if upload:
+        print 'Uploading installers...'
+        upload_installers(exe, dmg)
+        print 'Uploading to PyPI'
+        check_call('''python setup.py register bdist_egg --exclude-source-files upload''')
+        upload_docs()
+        check_call('''rm -rf dist/* build/*''')
     
 if __name__ == '__main__':
     main()

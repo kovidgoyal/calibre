@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
+from libprs500.ptempfile import PersistentTemporaryFile
 import os, tempfile, sys, traceback
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
@@ -485,40 +486,25 @@ class Main(QObject, Ui_MainWindow):
                 
     def unhandled_exception(self, type, value, tb):
         traceback.print_exception(type, value, tb, file=sys.stderr)
+        if type == KeyboardInterrupt:
+            self.window.close()
+            self.window.thread().exit(0)
         fe = '\n'.join(traceback.format_exception(type, value, tb))
         msg = '<p><b>' + str(value) + '</b></p>'
         msg += '<p>Detailed <b>traceback</b>:<pre>'+fe+'</pre>'
         d = error_dialog(self.window, 'ERROR: Unhandled exception', msg)
         d.exec_()
 
-def main():
-    lock = os.path.join(tempfile.gettempdir(),"libprs500_gui_lock")
-    if os.access(lock, os.F_OK):
-        print >>sys.stderr, "Another instance of", APP_TITLE, "is running"
-        print >>sys.stderr, "If you are sure this is not the case then "+\
-                            "manually delete the file", lock
-        sys.exit(1)
+def main():    
     from PyQt4.Qt import QApplication, QMainWindow
     app = QApplication(sys.argv)    
-    #from IPython.Shell import IPShellEmbed
-    #ipshell = IPShellEmbed([],
-    #                   banner = 'Dropping into IPython',
-    #                   exit_msg = 'Leaving Interpreter, back to program.')
-    #ipshell()
-    #return 0
     window = QMainWindow()
     window.setWindowTitle(APP_TITLE)
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName(APP_TITLE)
     initialize_file_icon_provider()
-    main = Main(window)
-    def unhandled_exception(type, value, tb):
-        import traceback
-        traceback.print_exception(type, value, tb, file=sys.stderr)
-        if type == KeyboardInterrupt:
-            main.window.close()
-    sys.excepthook = main.unhandled_exception
-    
+    main = Main(window)        
+    sys.excepthook = main.unhandled_exception    
     return app.exec_()
     
         

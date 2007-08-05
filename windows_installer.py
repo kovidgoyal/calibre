@@ -190,7 +190,7 @@ Section "Device Drivers" "secdd"
   IfErrors 0 +3
           MessageBox MB_OK|MB_ICONINFORMATION|MB_TOPMOST "Failed to install USB driver. devcon exit code: $0"
           Goto +2
-  MessageBox MB_OK 'If you have the SONY Connect Reader software installed: $\nGoto Add Remove Programs and uninstall the entry "Windows Driver Package - Sony Corporation (PRSUSB)". $\n$\nIf your reader is connected to the computer, disconnect and reconnect it now.'
+  MessageBox MB_OK '1. If you have the SONY Connect Reader software installed: $\nGoto Add Remove Programs and uninstall the entry "Windows Driver Package - Sony Corporation (PRSUSB)". $\n$\n2. If your reader is connected to the computer, disconnect and reconnect it now.'
   DetailPrint " "
   
   
