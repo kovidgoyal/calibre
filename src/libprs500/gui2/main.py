@@ -12,12 +12,11 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import os, tempfile, sys
+import os, tempfile, sys, traceback
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QThread, QModelIndex
-from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QItemSelectionModel
+                         QSettings, QVariant, QSize, QThread
+from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox
 from PyQt4.QtSvg import QSvgRenderer
 
 from libprs500 import __version__, __appname__
@@ -59,6 +58,8 @@ class Main(QObject, Ui_MainWindow):
         self.upload_memory = {}
         self.delete_memory = {}
         self.default_thumbnail = None
+        self.device_error_dialog = error_dialog(self.window, 'Error communicating with device', ' ')
+        self.device_error_dialog.setModal(Qt.NonModal)
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -166,7 +167,7 @@ class Main(QObject, Ui_MainWindow):
         Called once device information has been read.
         '''
         if exception:
-            self.job_exception(id, description, exception, formatted_traceback)
+            self.device_job_exception(id, description, exception, formatted_traceback)
             return
         info, cp, fs = result
         self.location_view.model().update_devices(cp, fs)
@@ -179,7 +180,7 @@ class Main(QObject, Ui_MainWindow):
         Called once metadata has been read for all books on the device.
         '''
         if exception:
-            self.job_exception(id, description, exception, formatted_traceback)
+            self.device_job_exception(id, description, exception, formatted_traceback)
             return
         mainlist, cardlist = result
         self.memory_view.set_database(mainlist)
@@ -207,7 +208,7 @@ class Main(QObject, Ui_MainWindow):
         Called once metadata has been uploaded.
         '''
         if exception:
-            self.job_exception(id, description, exception, formatted_traceback)
+            self.device_job_exception(id, description, exception, formatted_traceback)
             return
         cp, fs = result
         self.location_view.model().update_devices(cp, fs)
@@ -274,7 +275,7 @@ class Main(QObject, Ui_MainWindow):
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()                
             else:
-                self.job_exception(id, description, exception, formatted_traceback)
+                self.device_job_exception(id, description, exception, formatted_traceback)
             return
         
         self.device_manager.add_books_to_metadata(result, metadata, self.booklists())
@@ -319,7 +320,7 @@ class Main(QObject, Ui_MainWindow):
         for view in (self.memory_view, self.card_view):
             view.model().deletion_done(id, bool(exception))
         if exception:
-            self.job_exception(id, description, exception, formatted_traceback)            
+            self.device_job_exception(id, description, exception, formatted_traceback)            
             return
         
         self.upload_booklists()
@@ -431,14 +432,24 @@ class Main(QObject, Ui_MainWindow):
                 view.resize_on_select = False
         self.status_bar.reset_info()
         self.current_view().clearSelection()
-        self.current_view().setCurrentIndex(view.model().index(0, 0))
+        self.current_view().setCurrentIndex(self.current_view().model().index(0, 0))
                 
     
-    def job_exception(self, id, exception, formatted_traceback):
+    def device_job_exception(self, id, description, exception, formatted_traceback):
         '''
         Handle exceptions in threaded jobs.
         '''
-        raise JobException, str(exception) + '\n\r' + formatted_traceback
+        print >>sys.stderr, 'Error in job:', description
+        print >>sys.stderr, exception
+        print >>sys.stderr, formatted_traceback
+        if not self.device_error_dialog.isVisible():
+            msg = '<p><b>%s</b>: '%(exception.__class__.__name__,) + str(exception) + '</p>'
+            msg += '<p>Failed to perform <b>job</b>: '+description
+            msg += '<p>Further device related error messages will not be shown while this message is visible.'
+            msg += '<p>Detailed <b>traceback</b>:<pre>'+formatted_traceback+'</pre>'
+            self.device_error_dialog.setText(msg)
+            self.device_error_dialog.show()
+        
         
     
     def read_settings(self):
@@ -471,6 +482,14 @@ class Main(QObject, Ui_MainWindow):
                 e.accept()
             else:
                 e.ignore()
+                
+    def unhandled_exception(self, type, value, tb):
+        traceback.print_exception(type, value, tb, file=sys.stderr)
+        fe = '\n'.join(traceback.format_exception(type, value, tb))
+        msg = '<p><b>' + str(value) + '</b></p>'
+        msg += '<p>Detailed <b>traceback</b>:<pre>'+fe+'</pre>'
+        d = error_dialog(self.window, 'ERROR: Unhandled exception', msg)
+        d.exec_()
 
 def main():
     lock = os.path.join(tempfile.gettempdir(),"libprs500_gui_lock")
@@ -497,8 +516,8 @@ def main():
         import traceback
         traceback.print_exception(type, value, tb, file=sys.stderr)
         if type == KeyboardInterrupt:
-            QCoreApplication.exit(1)
-    sys.excepthook = unhandled_exception
+            main.window.close()
+    sys.excepthook = main.unhandled_exception
     
     return app.exec_()
     
