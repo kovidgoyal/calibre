@@ -69,7 +69,7 @@ def get_metadata(stream):
     stream.seek(0)
     if stream.read(5) != r'{\rtf':
         raise Exception('Not a valid RTF file')
-    block, pos = get_document_info(stream)
+    block = get_document_info(stream)[0]
     if not block:
         return MetaInformation(None, None)
     title, author, comment, category = None, None, None, None
@@ -90,6 +90,29 @@ def get_metadata(stream):
     mi.category = category
     return mi
     
+
+def create_metadata(stream, options):
+    md = r'{\info'
+    if options.title:
+        title = options.title.encode('ascii', 'replace')
+        md += r'{\title %s}'%(title,)
+    if options.authors:
+        author = options.authors.encode('ascii', 'replace')
+        md += r'{\author %s}'%(author,)
+    if options.category:
+        category = options.category.encode('ascii', 'replace')
+        md += r'{\category %s}'%(category,)
+    if options.comment:
+        comment = options.comment.encode('ascii', 'replace')
+        md += r'{\subject %s}'%(comment,)
+    if len(md) > 6:
+        md += '}'
+        stream.seek(0)
+        src   = stream.read()
+        ans = src[:6] + md + src[6:]
+        stream.seek(0)
+        stream.write(ans)
+
 def set_metadata(stream, options):
     '''
     Modify/add RTF metadata in stream
@@ -99,46 +122,50 @@ def set_metadata(stream, options):
         index = src.rindex('}')
         return src[:index] + r'{\ '[:-1] + name + ' ' + val + '}}'
     src, pos = get_document_info(stream)
-    olen = len(src)
-    base_pat = r'\{\\name(.*?)(?<!\\)\}'
-    title = options.title
-    if title != None:
-        title = title.encode('ascii', 'replace')
-        pat = re.compile(base_pat.replace('name', 'title'), re.DOTALL)        
-        if pat.search(src):
-            src = pat.sub(r'{\\title ' + title + r'}', src)
-        else:
-            src = add_metadata_item(src, 'title', title)
-    comment = options.comment
-    if comment != None:
-        comment = comment.encode('ascii', 'replace')
-        pat = re.compile(base_pat.replace('name', 'subject'), re.DOTALL)
-        if pat.search(src):
-            src = pat.sub(r'{\\subject ' + comment + r'}', src)
-        else:
-            src = add_metadata_item(src, 'subject', comment)
-    author = options.authors
-    if author != None:
-        author = author.encode('ascii', 'replace')
-        pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)        
-        if pat.search(src):
-            src = pat.sub(r'{\\author ' + author + r'}', src)
-        else:
-            src = add_metadata_item(src, 'author', author)
-    category = options.category
-    if category != None:
-        category = category.encode('ascii', 'replace')
-        pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)        
-        if pat.search(src):
-            src = pat.sub(r'{\\category ' + category + r'}', src)
-        else:
-            src = add_metadata_item(src, 'category', category)
-    stream.seek(pos + olen)
-    after = stream.read()
-    stream.seek(pos)
-    stream.truncate()
-    stream.write(src)
-    stream.write(after)
+    if not src:
+        create_metadata(stream, options)
+    else:
+        olen = len(src)
+         
+        base_pat = r'\{\\name(.*?)(?<!\\)\}'
+        title = options.title
+        if title != None:
+            title = title.encode('ascii', 'replace')
+            pat = re.compile(base_pat.replace('name', 'title'), re.DOTALL)        
+            if pat.search(src):
+                src = pat.sub(r'{\\title ' + title + r'}', src)
+            else:
+                src = add_metadata_item(src, 'title', title)
+        comment = options.comment
+        if comment != None:
+            comment = comment.encode('ascii', 'replace')
+            pat = re.compile(base_pat.replace('name', 'subject'), re.DOTALL)
+            if pat.search(src):
+                src = pat.sub(r'{\\subject ' + comment + r'}', src)
+            else:
+                src = add_metadata_item(src, 'subject', comment)
+        author = options.authors
+        if author != None:
+            author = author.encode('ascii', 'replace')
+            pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)        
+            if pat.search(src):
+                src = pat.sub(r'{\\author ' + author + r'}', src)
+            else:
+                src = add_metadata_item(src, 'author', author)
+        category = options.category
+        if category != None:
+            category = category.encode('ascii', 'replace')
+            pat = re.compile(base_pat.replace('name', 'category'), re.DOTALL)        
+            if pat.search(src):
+                src = pat.sub(r'{\\category ' + category + r'}', src)
+            else:
+                src = add_metadata_item(src, 'category', category)
+        stream.seek(pos + olen)
+        after = stream.read()
+        stream.seek(pos)
+        stream.truncate()
+        stream.write(src)
+        stream.write(after)
     
 
 def main(args=sys.argv):
