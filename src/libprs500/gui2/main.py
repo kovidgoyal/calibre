@@ -12,15 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-from libprs500.ptempfile import PersistentTemporaryFile
-import os, tempfile, sys, traceback
+import os, sys, traceback, StringIO, textwrap
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox
 from PyQt4.QtSvg import QSvgRenderer
 
-from libprs500 import __version__, __appname__
+from libprs500 import __version__, __appname__, iswindows, isosx
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
@@ -30,7 +29,7 @@ from libprs500.gui2 import APP_TITLE, warning_dialog, choose_files, error_dialog
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
-from libprs500.gui2.jobs import JobManager, JobException
+from libprs500.gui2.jobs import JobManager
 from libprs500.gui2.dialogs.metadata_single import MetadataSingleDialog
 from libprs500.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from libprs500.gui2.dialogs.jobs import JobsDialog
@@ -61,6 +60,7 @@ class Main(QObject, Ui_MainWindow):
         self.default_thumbnail = None
         self.device_error_dialog = error_dialog(self.window, 'Error communicating with device', ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
+        self.tb_wrapper = textwrap.TextWrapper(width=40)
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -436,6 +436,12 @@ class Main(QObject, Ui_MainWindow):
         self.current_view().setCurrentIndex(self.current_view().model().index(0, 0))
                 
     
+    def wrap_traceback(self, tb):
+        tb = unicode(tb, 'utf8', 'replace')
+        if iswindows or isosx:
+            tb = '\n'.join(self.tb_wrapper.wrap(tb))
+        return tb
+    
     def device_job_exception(self, id, description, exception, formatted_traceback):
         '''
         Handle exceptions in threaded jobs.
@@ -444,10 +450,11 @@ class Main(QObject, Ui_MainWindow):
         print >>sys.stderr, exception
         print >>sys.stderr, formatted_traceback
         if not self.device_error_dialog.isVisible():
-            msg = '<p><b>%s</b>: '%(exception.__class__.__name__,) + str(exception) + '</p>'
-            msg += '<p>Failed to perform <b>job</b>: '+description
-            msg += '<p>Further device related error messages will not be shown while this message is visible.'
-            msg += '<p>Detailed <b>traceback</b>:<pre>'+formatted_traceback+'</pre>'
+            msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
+            msg += u'<p>Failed to perform <b>job</b>: '+description
+            msg += u'<p>Further device related error messages will not be shown while this message is visible.'
+            msg += u'<p>Detailed <b>traceback</b>:<pre>'
+            msg += self.wrap_traceback(formatted_traceback)
             self.device_error_dialog.setText(msg)
             self.device_error_dialog.show()
         
@@ -456,10 +463,10 @@ class Main(QObject, Ui_MainWindow):
     def read_settings(self):
         settings = QSettings()
         settings.beginGroup("MainWindow")
-        self.window.resize(settings.value("size", QVariant(QSize(1000, 700))).toSize())
+        self.window.resize(settings.value("size", QVariant(QSize(800, 600))).toSize())
         settings.endGroup()
-        self.database_path = settings.value("database path", QVariant(os.path\
-                                    .expanduser("~/library1.db"))).toString()
+        self.database_path = settings.value("database path", 
+                QVariant(os.path.join(os.path.expanduser('~'),'library1.db'))).toString()
     
     def write_settings(self):
         settings = QSettings()
@@ -485,13 +492,15 @@ class Main(QObject, Ui_MainWindow):
                 e.ignore()
                 
     def unhandled_exception(self, type, value, tb):
-        traceback.print_exception(type, value, tb, file=sys.stderr)
+        sio = StringIO.StringIO()
+        traceback.print_exception(type, value, tb, file=sio)
+        fe = sio.getvalue()
+        print >>sys.stderr, fe
         if type == KeyboardInterrupt:
             self.window.close()
             self.window.thread().exit(0)
-        fe = '\n'.join(traceback.format_exception(type, value, tb))
-        msg = '<p><b>' + str(value) + '</b></p>'
-        msg += '<p>Detailed <b>traceback</b>:<pre>'+fe+'</pre>'
+        msg = '<p><b>' + unicode(str(value), 'utf8', 'replace') + '</b></p>'
+        msg += '<p>Detailed <b>traceback</b>:<pre>'+self.wrap_traceback(fe)+'</pre>'
         d = error_dialog(self.window, 'ERROR: Unhandled exception', msg)
         d.exec_()
 
@@ -502,6 +511,7 @@ def main():
     window.setWindowTitle(APP_TITLE)
     QCoreApplication.setOrganizationName("KovidsBrain")
     QCoreApplication.setApplicationName(APP_TITLE)
+    
     initialize_file_icon_provider()
     main = Main(window)        
     sys.excepthook = main.unhandled_exception    

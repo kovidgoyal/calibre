@@ -905,7 +905,7 @@ class PRS500(Device):
         space = self.free_space(end_session=False)
         mspace = space[0]
         cspace = space[1] if space[1] >= space[2] else space[2]
-        if oncard and size > cspace - 1024*1024: 
+        if oncard and size > cspace - 1024*1024:
             raise FreeSpaceError("There is insufficient free space "+\
                                               "on the storage card")
         if not oncard and size > mspace - 1024*1024: 

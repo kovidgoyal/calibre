@@ -355,7 +355,8 @@ r'''<?xml version='1.0' encoding='windows-1252'?>
         
 
 class BuildEXE(build_exe):
-    manifest_resource_id = 0    
+    manifest_resource_id = 0
+    QT_PREFIX = r'C:\\Qt\\4.3.0' 
     MANIFEST_TEMPLATE = '''
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0"> 
@@ -393,7 +394,20 @@ class BuildEXE(build_exe):
             print 'Adding', qtxmldll
             shutil.copyfile(qtxmldll, 
                             os.path.join(self.dist_dir, os.path.basename(qtxmldll)))
+        print 'Adding plugins...',
+        qt_prefix = self.QT_PREFIX
+        if qtsvgdll:
+            qt_prefix = os.path.dirname(os.path.dirname(qtsvgdll))
+        plugdir = os.path.join(qt_prefix, 'plugins')
+        for d in ('imageformats', 'codecs', 'iconengines'):
+            print d,
+            imfd = os.path.join(plugdir, d)
+            tg = os.path.join(self.dist_dir, d)        
+            if os.path.exists(tg):
+                shutil.rmtree(tg)
+            shutil.copytree(imfd, tg)
         
+        print
         print
         print 'Building Installer'
         installer = NSISInstaller(APPNAME, self.dist_dir, 'dist')

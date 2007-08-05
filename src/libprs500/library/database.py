@@ -90,7 +90,10 @@ class LibraryDatabase(object):
             obj = conn.execute('INSERT INTO books(title, timestamp) VALUES (?,?)', 
                                (book['title'], book['timestamp']))
             id = obj.lastrowid
-            authors = book['authors'].split('&')
+            authors = book['authors']
+            if not authors:
+                authors = 'Unknown'
+            authors = authors.split('&')
             for a in authors:
                 author = conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
                 if author:
@@ -644,7 +647,7 @@ class LibraryDatabase(object):
         '''Cover as a data string or None'''
         id = self.id(index)
         data = self.conn.execute('SELECT data FROM covers WHERE book=?', (id,)).fetchone()
-        if not data:
+        if not data or not data[0]:
             return None
         return(decompress(data[0]))
     

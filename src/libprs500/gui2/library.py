@@ -12,8 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.ptempfile import PersistentTemporaryFile
-import os, textwrap, traceback, time, re
+import os, textwrap, traceback, time, re, sre_constants
 from datetime import timedelta, datetime
 from operator import attrgetter
 from math import cos, sin, pi
@@ -24,6 +23,7 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
+from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.library.database import LibraryDatabase
 from libprs500.gui2 import NONE
 
@@ -118,7 +118,15 @@ class BooksModel(QAbstractTableModel):
             text = text.replace('"'+quot.group(1)+'"', '')
             quot = re.search('"(.*?)"', text)
         tokens += text.split(' ')
-        return [re.compile(i, re.IGNORECASE) for i in tokens]
+        ans = []
+        for i in tokens:
+            try:
+                ans.append(re.compile(i, re.IGNORECASE))
+            except sre_constants.error:
+                continue
+        return ans
+            
+        
     
     def search(self, text, refinement):
         tokens = self.search_tokens(text)

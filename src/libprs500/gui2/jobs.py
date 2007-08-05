@@ -222,7 +222,11 @@ class JobManager(QAbstractTableModel):
     def status_update(self, id, progress):
         keys = self.jobs.keys()
         keys.sort()
-        row = keys.index(id)
-        index = self.index(row, 2)
-        self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), index, index)
+        try:
+            row = keys.index(id)
+            index = self.index(row, 2)
+            self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), index, index)
+        except ValueError:
+            pass
+        
         

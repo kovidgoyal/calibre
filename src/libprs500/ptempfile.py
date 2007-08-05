@@ -58,5 +58,5 @@ def PersistentTemporaryFile(suffix="", prefix="", dir=None):
         prefix = ""
     fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
                                 dir=dir)
-    _file = os.fdopen(fd, "wb")
+    _file = os.fdopen(fd, 'w+b')
     return _TemporaryFileWrapper(_file, name)    
