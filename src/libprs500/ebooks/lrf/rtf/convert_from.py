@@ -42,11 +42,14 @@ def generate_html(rtfpath):
         cmd = ' '.join([UNRTF, '"'+rtfpath+'"'])
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         file.write(p.stdout.read())
-        file.close()
         ret = p.wait()
         if ret != 0:
-            raise ConversionError, 'unrtf failed with error code: %d'%(ret,)
+            if isosx and ret == -11: #unrtf segfaults on OSX but seems to convert most of the file.
+                file.write('</body>\n</html>')
+            else:
+                raise ConversionError, 'unrtf failed with error code: %d'%(ret,)
         print 'done'
+        file.close()
         return path        
     finally:
         os.chdir(cwd)
