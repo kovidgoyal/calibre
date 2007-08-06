@@ -438,8 +438,7 @@ class Main(QObject, Ui_MainWindow):
     
     def wrap_traceback(self, tb):
         tb = unicode(tb, 'utf8', 'replace')
-        if iswindows or isosx:
-            tb = '\n'.join(self.tb_wrapper.wrap(tb))
+        tb = '\n'.join(self.tb_wrapper.wrap(tb))
         return tb
     
     def device_job_exception(self, id, description, exception, formatted_traceback):

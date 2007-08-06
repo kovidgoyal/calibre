@@ -22,7 +22,7 @@ from libprs500 import __author__
 NONE = QVariant() #: Null value to return from the data function of item models
 
 BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 
-                   'html', 'xhtml', 'epub',]
+                   'html', 'xhtml', 'epub', 'pdf']
 
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
@@ -89,7 +89,7 @@ class FileIconProvider(QFileIconProvider):
         self.icons = {}
         for key in self.__class__.ICONS.keys():
             self.icons[key] = ':/images/mimetypes/'+self.__class__.ICONS[key]+'.svg'
-        for i in ('dir', 'default'):
+        for i in ('dir', 'default', 'zero'):
             self.icons[i] = QIcon(self.icons[i])
     
     def key_from_ext(self, ext):
@@ -144,7 +144,7 @@ def file_icon_provider():
     global _file_icon_provider
     return _file_icon_provider
         
-class FileDialog(QFileDialog):
+class FileDialog(QObject):
     def __init__(self, title='Choose Files', 
                        filters=[],
                        add_all_files_filter=True, 
@@ -153,14 +153,15 @@ class FileDialog(QFileDialog):
                        name = '',
                        mode = QFileDialog.ExistingFiles,
                        ):
+        QObject.__init__(self)
         initialize_file_icon_provider()
-        QFileDialog.__init__(self, parent)        
-        self.setIconProvider(_file_icon_provider)
-        self.setModal(modal)
+        self.fd = QFileDialog(parent)        
+        self.fd.setIconProvider(_file_icon_provider)
+        self.fd.setModal(modal)
         settings = QSettings()
         state = settings.value(name, QVariant()).toByteArray()
-        if not self.restoreState(state):
-            self.setDirectory(os.path.expanduser('~'))
+        if not self.fd.restoreState(state):
+            self.fd.setDirectory(os.path.expanduser('~'))
         self.dialog_name = name
         ftext = ''
         if filters:
@@ -170,16 +171,18 @@ class FileDialog(QFileDialog):
                 ftext += '%s (%s);;'%(text, ' '.join(extensions)) 
         if add_all_files_filter or not ftext:
             ftext += 'All files (*)'
-        self.setFilter(ftext)
-        self.setWindowTitle(title)
-        QObject.connect(self, SIGNAL('accepted()'), self.save_dir)
+        self.fd.setFilter(ftext)
+        self.fd.setWindowTitle(title)
+        QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
+        self.exec_ = self.fd.exec_
+        self.show = self.fd.show
     
     def get_files(self):        
-        return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.selectedFiles())
+        return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.fd.selectedFiles())
     
     def save_dir(self):
          settings = QSettings()
-         settings.setValue(self.dialog_name, QVariant(self.saveState()))
+         settings.setValue(self.dialog_name, QVariant(self.fd.saveState()))
         
 
 def choose_files(window, name, title,  
