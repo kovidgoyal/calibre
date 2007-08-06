@@ -786,10 +786,8 @@ class PRS500(Device):
         @return: L{BookList}
         """    
         root = "/Data/media/"
-        prefix = "xs1:"
         tfile = TemporaryFile()
         if oncard:      
-            prefix = ""
             try:
                 self.get_file("a:"+self.CACHE_XML, tfile, end_session=False)
                 root = "a:/"
@@ -802,7 +800,7 @@ class PRS500(Device):
                 tfile = None
         else: 
             self.get_file(self.MEDIA_XML, tfile, end_session=False)    
-        return BookList(prefix=prefix, root=root, sfile=tfile)
+        return BookList(root=root, sfile=tfile)
 
     @safe
     def remove_books(self, paths, booklists, end_session=True):
@@ -829,9 +827,9 @@ class PRS500(Device):
     @safe
     def upload_books(self, files, names, on_card=False, end_session=True):
         card = self.card(end_session=False)
-        prefix = card + '/libprs500' if on_card else '/Data/media/books/'
+        prefix = card + '/libprs500/' if on_card else '/Data/media/books/'
         if on_card and not self._exists(prefix)[0]:
-            self.mkdir(prefix, False)
+            self.mkdir(prefix[:-1], False)
         paths, ctimes = [], []
         names = iter(names)
         infiles = [file if hasattr(file, 'read') else open(file, 'rb') for file in files]

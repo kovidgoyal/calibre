@@ -21,6 +21,8 @@ from base64 import b64decode as decode
 from base64 import b64encode as encode
 import time, re
 
+from libprs500.devices.errors import ProtocolError
+
 MIME_MAP   = { \
                         "lrf":"application/x-sony-bbeb", \
                         "rtf":"application/rtf", \
@@ -103,7 +105,7 @@ class Book(object):
             return self.root + self.rpath
         return property(fget=fget, doc=doc)
     
-    def __init__(self, node, prefix="xs1:", root="/Data/media/"):
+    def __init__(self, node, prefix="", root="/Data/media/"):
         self.elem = node
         self.prefix = prefix
         self.root = root
@@ -115,14 +117,19 @@ class Book(object):
 
 
 def fix_ids(media, cache):
-    """ 
+    ''' 
     Update ids in media, cache to be consistent with their 
     current structure 
-    """
+    '''
+    media.purge_empty_playlists()
+    plitems = media.playlist_items()
     cid = 0
     for child in media.root.childNodes:
-        if child.nodeType == child.ELEMENT_NODE and \
-        child.hasAttribute("id"):
+        if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
+            old_id = child.getAttribute('id')
+            for item in plitems:
+                if item.hasAttribute('id') and item.getAttribute('id') == old_id:
+                    item.setAttribute('id', str(cid))
             child.setAttribute("id", str(cid))
             cid += 1
     mmaxid = cid - 1
@@ -144,19 +151,26 @@ class BookList(list):
     __getslice__ = None
     __setslice__ = None
     
-    def __init__(self, prefix="xs1:", root="/Data/media/", sfile=None):
+    def __init__(self, root="/Data/media/", sfile=None):
         list.__init__(self)
         if sfile:
-            self.prefix = prefix
-            self.proot = root            
             sfile.seek(0)
             self.document = dom.parse(sfile)
-            # The root element containing all records
-            self.root = self.document.documentElement 
-            if prefix == "xs1:": 
-                self.root = self.root.getElementsByTagName("records")[0]
+            self.root = self.document.documentElement
+            self.prefix = ''
+            records = self.root.getElementsByTagName('records')
+            if records:
+                self.root = records[0]
+                for child in self.root.childNodes:
+                    if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
+                        self.prefix = child.tagName.partition(':')[0] + ':'
+                        break
+                if not self.prefix:
+                    raise ProtocolError, 'Could not determine prefix in media.xml'
+            self.proot = root            
+            
             for book in self.document.getElementsByTagName(self.prefix + "text"): 
-                self.append(Book(book, root=root, prefix=prefix))
+                self.append(Book(book, root=root, prefix=self.prefix))
                 
     
     def max_id(self):
@@ -182,27 +196,51 @@ class BookList(list):
                 break
         return ans
     
+    def playlist_items(self):        
+        playlists = self.root.getElementsByTagName(self.prefix+'playlist')
+        plitems = []
+        for pl in playlists:
+            plitems.extend(pl.getElementsByTagName(self.prefix+'item'))
+        return plitems
+        
+    def purge_empty_playlists(self):
+        ''' Remove all playlist entries that have no children. '''
+        playlists = self.root.getElementsByTagName(self.prefix+'playlist')
+        for pl in playlists:
+            if not pl.getElementsByTagName(self.prefix + 'item'):
+                pl.parentNode.removeChild(pl)
+                pl.unlink()
+    
+    def _delete_book(self, node):
+        nid = node.getAttribute('id')
+        node.parentNode.removeChild(node)
+        node.unlink()
+        for pli in self.playlist_items():
+            if pli.getAttribute('id') == nid:
+                pli.parentNode.removeChild(pli)
+                pli.unlink()
+    
     def delete_book(self, cid):
-        """ Remove DOM node corresponding to book with C{id == cid}."""
-        node = None
+        ''' 
+        Remove DOM node corresponding to book with C{id == cid}.
+        Also remove book from any collections it is part of.
+        '''
         for book in self:
-            if book.id == cid:
-                node = book
+            if str(book.id) == str(cid):
                 self.remove(book)
+                self._delete_book(book.elem)                        
                 break
-        node.elem.parentNode.removeChild(node.elem)
-        node.elem.unlink()
         
     def remove_book(self, path):
-        node = None
+        '''
+        Remove DOM node corresponding to book with C{id == cid}.
+        Also remove book from any collections it is part of.
+        '''
         for book in self:
             if book.path == path:
-                node = book
                 self.remove(book)
+                self._delete_book(book.elem)                        
                 break
-        if node:
-            node.elem.parentNode.removeChild(node.elem)
-            node.elem.unlink()
     
     def add_book(self, info, name, size, ctime):
         """ Add a node into DOM tree representing a book """
