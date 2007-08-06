@@ -1,9 +1,6 @@
 <ui version="4.0" >
  <class>MetadataBulkDialog</class>
  <widget class="QDialog" name="MetadataBulkDialog" >
-  <property name="windowModality" >
-   <enum>Qt::ApplicationModal</enum>
-  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>

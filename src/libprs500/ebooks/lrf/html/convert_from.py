@@ -1231,6 +1231,7 @@ class HTMLConverter(object):
             except Exception, err:
                 print 'WARNING: An error occurred while processing a table:', err
                 print 'Ignoring table markup'
+                self.in_table = False
                 self.process_children(tag, tag_css) 
         else:
             self.process_children(tag, tag_css)        
@@ -1309,10 +1310,13 @@ def process_file(path, options):
             args['thumbnail'] = tpath
         header = None
         if options.header:
-            header = Paragraph()
-            header.append(Bold(options.title))
-            header.append(' by ')
-            header.append(Italic(options.author+"  "))
+            header = Paragraph()            
+            fheader = options.headerformat
+            fheader = re.sub(r'([^%]|^)%t','\1' + options.title, fheader)
+            fheader = re.sub(r'([^%]|^)%a','\1' + options.author, fheader)
+            fheader = re.sub(r'%%a','%a',fheader)
+            fheader = re.sub(r'%%t','%t',fheader)                
+            header.append(fheader + "  ")            
         book, fonts = Book(options, header=header, **args)
         le = re.compile(options.link_exclude) if options.link_exclude else \
              re.compile('$')

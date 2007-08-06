@@ -1,15 +1,12 @@
 <ui version="4.0" >
  <class>MetadataSingleDialog</class>
  <widget class="QDialog" name="MetadataSingleDialog" >
-  <property name="windowModality" >
-   <enum>Qt::ApplicationModal</enum>
-  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>865</width>
-    <height>776</height>
+    <width>777</width>
+    <height>656</height>
    </rect>
   </property>
   <property name="windowTitle" >

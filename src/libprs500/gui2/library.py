@@ -367,7 +367,9 @@ class BooksView(QTableView):
                                        QString(), 0, LibraryDatabase.sizeof_old_database(path),
                                        self)
             progress.setModal(True)
+            progress.setValue(0)
             app = QCoreApplication.instance()
+            
             def meter(count):
                 progress.setValue(count)
                 app.processEvents()
