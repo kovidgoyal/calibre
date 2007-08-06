@@ -1226,7 +1226,12 @@ class HTMLConverter(object):
             self.process_children(tag, tag_css)
         elif tagname == 'table' and not self.ignore_tables and not self.in_table:
             tag_css = self.tag_css(tag) # Table should not inherit CSS
-            self.process_table(tag, tag_css)
+            try:
+                self.process_table(tag, tag_css)
+            except Exception, err:
+                print 'WARNING: An error occurred while processing a table:', err
+                print 'Ignoring table markup'
+                self.process_children(tag, tag_css) 
         else:
             self.process_children(tag, tag_css)        
         if end_page:
