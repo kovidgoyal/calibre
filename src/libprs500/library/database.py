@@ -821,8 +821,7 @@ class LibraryDatabase(object):
         self.conn.commit()
             
     def set_series_index(self, id, idx):
-        print 
-        self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (idx, id))
+        self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (int(idx), id))
         self.conn.commit()
     
     def set_rating(self, id, rating):
@@ -853,6 +852,8 @@ class LibraryDatabase(object):
                 uri = uris.next()
             except StopIteration:
                 uri = None
+            if mi.series_index is None:
+                mi.series_index = 1
             obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
                               (mi.title, uri, mi.series_index))
             id = obj.lastrowid
