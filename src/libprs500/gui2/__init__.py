@@ -155,7 +155,8 @@ class FileDialog(QObject):
                        ):
         QObject.__init__(self)
         initialize_file_icon_provider()
-        self.fd = QFileDialog(parent)        
+        self.fd = QFileDialog(parent)      
+        self.fd.setFileMode(mode)  
         self.fd.setIconProvider(_file_icon_provider)
         self.fd.setModal(modal)
         settings = QSettings()

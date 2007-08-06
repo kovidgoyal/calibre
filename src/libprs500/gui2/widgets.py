@@ -29,7 +29,8 @@ class LocationModel(QAbstractListModel):
         self.text = ['Library',
                      'Reader\n%s available',
                      'Card\n%s available']
-        self.free = [-1, -1]            
+        self.free = [-1, -1]
+        self.highlight_row = 0            
         
     def rowCount(self, parent):
         return 1 + sum([1 for i in self.free if i >= 0])
@@ -46,7 +47,7 @@ class LocationModel(QAbstractListModel):
         elif role == Qt.SizeHintRole:
             if row == 1: 
                 return QVariant(QSize(150, 65))
-        elif role == Qt.FontRole: 
+        elif role == Qt.FontRole and row == self.highlight_row: 
             font = QFont()
             font.setBold(True)
             data =  QVariant(font)
@@ -61,6 +62,10 @@ class LocationModel(QAbstractListModel):
         if cp == None:
             self.free[1] = -1
         self.reset()        
+        
+    def location_changed(self, row):
+        self.highlight_row = row
+        self.reset()
 
 class LocationView(QListView):
         
@@ -68,12 +73,15 @@ class LocationView(QListView):
         QListView.__init__(self, parent)
         self.setModel(LocationModel(self))
         self.reset()
-        QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)
-        
+        QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)        
     
     def current_changed(self, current, previous):
         i = current.row()
         location = 'library' if i == 0 else 'main' if i == 1 else 'card'
         self.emit(SIGNAL('location_selected(PyQt_PyObject)'), location)
+        
+    def location_changed(self, row):
+        if 0 <= row and row <= 2:
+            self.model().location_changed(row)
                         
 

@@ -64,6 +64,8 @@ class Main(QObject, Ui_MainWindow):
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
+        QObject.connect(self.stack, SIGNAL('currentChanged(int)'), 
+                        self.location_view.location_changed)
         
         ####################### Vanity ########################
         self.vanity_template = self.vanity.text().arg(__version__)

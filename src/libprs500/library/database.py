@@ -589,7 +589,6 @@ class LibraryDatabase(object):
             order = 'DESC'
         
         
-        self.cache = self.conn.execute('select * from meta order by size').fetchall()
         self.cache = self.conn.execute('SELECT * from meta ORDER BY '+field+' '
                                        +order).fetchall()
         self.data  = self.cache
@@ -882,16 +881,20 @@ class LibraryDatabase(object):
         self.conn.commit()
         
         
-    def delete_books(self, indices):
+    def index(self, id, cache=False):
+        data = self.cache if cache else self.data
+        for i in range(len(data)):
+            if data[i][0] == id:
+                return i
+    
+    def delete_book(self, id):
         '''
-        Removes books from self.cache, self.data and underlying database.
+        Removes book from self.cache, self.data and underlying database.
         '''
-        ids = [ self.id(i) for i in indices ]
-        cache_indices = [ idx for idx in range(len(self.cache)-1, -1, -1) if self.cache[idx][0] in ids ]
-        for idx in cache_indices:
-            self.cache[idx:idx+1] = []
-        for idx in indices:
-            self.data[idx:idx+1] = [] 
-        for id in ids:
-            self.conn.execute('DELETE FROM books WHERE id=?', (id,))
+        try:
+            self.cache.pop(self.index(id, cache=True))
+            self.data.pop(self.index(id, cache=False))
+        except TypeError: #If data and cache are the same object
+            pass
+        self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()

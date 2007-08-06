@@ -103,11 +103,12 @@ class BooksModel(QAbstractTableModel):
         return [ self.index(index.row(), c) for c in range(self.columnCount(None))]
         
     def delete_books(self, indices):
-        rows = [ i.row() for i in indices ]
-        for row in rows:
+        ids = [ self.id(i) for i in indices ]
+        for id in ids:
+            row = self.db.index(id)
             self.beginRemoveRows(QModelIndex(), row, row)
-        self.db.delete_books(rows)
-        self.endRemoveRows()
+            self.db.delete_book(id)
+            self.endRemoveRows()
         self.emit(SIGNAL('deleted()'))
     
     def search_tokens(self, text):
@@ -139,7 +140,8 @@ class BooksModel(QAbstractTableModel):
             return
         ascending = order == Qt.AscendingOrder
         self.db.refresh(self.cols[col], ascending)
-        self.reset()        
+        self.research()
+        self.reset()     
         self.sorted_on = (col, order)
         
     def resort(self):
