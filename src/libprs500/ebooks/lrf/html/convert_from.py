@@ -226,7 +226,7 @@ class Span(_Span):
             raise ConversionError('No point in adding an empty string to a Span')
         attrs = Span.translate_attrs(css, dpi, fonts, font_delta=font_delta, memory=memory)
         if 'fontsize' in attrs.keys():
-            normal_font_size = attrs['fontsize']
+            normal_font_size = int(attrs['fontsize'])
         variant = attrs.pop('fontvariant', None)
         if variant == 'small-caps':
             dump = _Span(fontsize=normal_font_size-30)
