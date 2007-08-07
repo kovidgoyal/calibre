@@ -109,7 +109,6 @@ class BooksModel(QAbstractTableModel):
             self.beginRemoveRows(QModelIndex(), row, row)
             self.db.delete_book(id)
             self.endRemoveRows()
-        self.emit(SIGNAL('deleted()'))
     
     def search_tokens(self, text):
         tokens = []
@@ -127,28 +126,28 @@ class BooksModel(QAbstractTableModel):
                 continue
         return ans
             
-        
-    
-    def search(self, text, refinement):
+    def search(self, text, refinement, reset=True):
         tokens = self.search_tokens(text)
         self.db.filter(tokens, refinement)
         self.last_search = text
-        self.reset()
+        if reset:
+            self.reset()
             
-    def sort(self, col, order):
+    def sort(self, col, order, reset=True):
         if not self.db:
             return
         ascending = order == Qt.AscendingOrder
         self.db.refresh(self.cols[col], ascending)
         self.research()
-        self.reset()     
+        if reset:
+            self.reset()     
         self.sorted_on = (col, order)
         
-    def resort(self):
-        self.sort(*self.sorted_on)
+    def resort(self, reset=True):
+        self.sort(*self.sorted_on, **dict(reset=reset))
         
-    def research(self):
-        self.search(self.last_search, False)
+    def research(self, reset=True):
+        self.search(self.last_search, False, reset=reset)
         
     def database_needs_migration(self):
         path = os.path.expanduser('~/library.db')
@@ -336,29 +335,16 @@ class BooksView(QTableView):
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         self.setItemDelegateForColumn(4, LibraryDelegate(self))        
-        QObject.connect(self._model, SIGNAL('modelReset()'), self.resizeRowsToContents)
-        QObject.connect(self._model, SIGNAL('deleted()'), self.deleted)
-        QObject.connect(self._model, SIGNAL('update_current()'), self.update_current)
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
-        #self.verticalHeader().setVisible(False)
+        # Adding and removing rows should resize rows to contents
+        QObject.connect(self.model(), SIGNAL('rowsRemoved(QModelIndex, int, int)'), self.resizeRowsToContents)
+        QObject.connect(self.model(), SIGNAL('rowsInserted(QModelIndex, int, int)'), self.resizeRowsToContents)
+        # Resetting the model should resize rows (model is reset after search and sort operations)
+        QObject.connect(self.model(), SIGNAL('modelReset()'), self.resizeRowsToContents)
         
     def set_database(self, db):
         self._model.set_database(db)
-        
-    def update_current(self):
-        '''
-        Clear selection and update durrent index.
-        '''
-        cidx = self.currentIndex() 
-        self.selectionModel().clear()
-        for idx in self.model().row_indices(cidx):
-            self.selectionModel().select(idx, QItemSelectionModel.Select)
-        self.selectionModel().setCurrentIndex(cidx, QItemSelectionModel.NoUpdate)
-    
-    def deleted(self):
-        self.resizeRowsToContents()
-        self.update_current()
         
     def migrate_database(self):
         if self._model.database_needs_migration():
@@ -426,15 +412,19 @@ class DeviceBooksModel(BooksModel):
         for row in rows:
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))
-                self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
+                self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])        
+    
+    def path_about_to_be_deleted(self, path):
+        for row in range(len(self.map)):
+            if self.db[self.map[row]].path == path:
+                print row, path
+                self.beginRemoveRows(QModelIndex(), row, row)
+                self.map.pop(row)
+                return
+    
+    def path_deleted(self):
+        self.endRemoveRows()
         
-    def remap(self):
-        self.set_database(self.db)
-        self.resort()
-        self.research()
-        self.emit(SIGNAL('update_current()'))
-    
-    
     def indices_to_be_deleted(self):
         ans = []
         for v in self.marked_for_deletion.values():
@@ -447,7 +437,7 @@ class DeviceBooksModel(BooksModel):
         return BooksModel.flags(self, index)
         
     
-    def search(self, text, refinement):
+    def search(self, text, refinement, reset=True):
         tokens = self.search_tokens(text)
         base = self.map if refinement else self.sorted_map
         result = []
@@ -462,9 +452,10 @@ class DeviceBooksModel(BooksModel):
                 result.append(i)
         
         self.map = result
-        self.reset()
+        if reset:
+            self.reset()
     
-    def sort(self, col, order):
+    def sort(self, col, order, reset=True):
         if not self.db:
             return
         descending = order != Qt.AscendingOrder
@@ -496,7 +487,8 @@ class DeviceBooksModel(BooksModel):
             self.sorted_map = list(range(len(self.db)))
             self.sorted_map.sort(cmp=fcmp, reverse=descending)
         self.sorted_on = (col, order)
-        self.reset()
+        if reset:
+            self.reset()
     
     def columnCount(self, parent):
         return 4
@@ -600,7 +592,7 @@ class SearchBox(QLineEdit):
     
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
-        self.help_text = 'Search by title, author, publisher, tags and comments'
+        self.help_text = 'Search by title, author, publisher, tags, series and comments'
         self.initial_state = True
         self.default_palette = QApplication.palette(self)
         self.gray = QPalette(self.default_palette)

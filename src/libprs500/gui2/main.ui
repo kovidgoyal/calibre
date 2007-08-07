@@ -344,7 +344,10 @@
     <iconset resource="images.qrc" >:/images/trash.svg</iconset>
    </property>
    <property name="text" >
-    <string>Delete books</string>
+    <string>Remove books</string>
+   </property>
+   <property name="toolTip" >
+    <string>Remove books</string>
    </property>
    <property name="shortcut" >
     <string>Del</string>

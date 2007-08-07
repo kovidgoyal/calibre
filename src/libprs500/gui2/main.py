@@ -262,13 +262,13 @@ class Main(QObject, Ui_MainWindow):
                                         files, names, on_card=on_card,
                                         job_extra_description=titles 
                                         )
-        self.upload_memory[id] = metadata
+        self.upload_memory[id] = (metadata, on_card)
     
     def books_uploaded(self, id, description, result, exception, formatted_traceback):
         '''
         Called once books have been uploaded.
         '''
-        metadata = self.upload_memory.pop(id)
+        metadata, on_card = self.upload_memory.pop(id)
         if exception:
             if isinstance(exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
@@ -285,9 +285,9 @@ class Main(QObject, Ui_MainWindow):
         
         self.upload_booklists()
         
-        for view in (self.memory_view, self.card_view):
-            view.model().resort()
-            view.model().research()
+        view = self.card_view if on_card else self.memory_view    
+        view.model().resort(reset=False)
+        view.model().research()
             
         
     ############################################################################    
@@ -307,7 +307,7 @@ class Main(QObject, Ui_MainWindow):
             view = self.memory_view if self.stack.currentIndex() == 1 else self.card_view            
             paths = view.model().paths(rows)
             id = self.remove_paths(paths)
-            self.delete_memory[id] = paths
+            self.delete_memory[id] = (paths, view.model())
             view.model().mark_for_deletion(id, rows)
             self.status_bar.showMessage('Deleting books from device.', 1000)
             
@@ -329,11 +329,12 @@ class Main(QObject, Ui_MainWindow):
         self.upload_booklists()
         
         if self.delete_memory.has_key(id):
-            paths = self.delete_memory.pop(id)
-            self.device_manager.remove_books_from_metadata(paths, self.booklists())
-        
-            for view in (self.memory_view, self.card_view):
-                view.model().remap()
+            paths, model = self.delete_memory.pop(id)
+            for path in paths:
+                model.path_about_to_be_deleted(path)
+                self.device_manager.remove_books_from_metadata((path,), self.booklists())
+                model.path_deleted()
+            
             
     ############################################################################
     
@@ -354,7 +355,7 @@ class Main(QObject, Ui_MainWindow):
                 changed = True                        
         
         if changed:
-            self.library_view.model().resort()
+            self.library_view.model().resort(reset=False)
             self.library_view.model().research()
             
     def edit_bulk_metadata(self, checked):
@@ -367,7 +368,7 @@ class Main(QObject, Ui_MainWindow):
             d.exec_()
             return
         if MetadataBulkDialog(self.window, rows, self.library_view.model().db).changed:
-            self.library_view.model().resort()
+            self.library_view.model().resort(reset=False)
             self.library_view.model().research()
             
     ############################################################################
@@ -436,7 +437,6 @@ class Main(QObject, Ui_MainWindow):
                 view.resize_on_select = False
         self.status_bar.reset_info()
         self.current_view().clearSelection()
-        self.current_view().setCurrentIndex(self.current_view().model().index(0, 0))
                 
     
     def wrap_traceback(self, tb):
