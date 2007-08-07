@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500 import filename_to_utf8
 ''''''
 
 import sys, os, subprocess
@@ -35,12 +36,18 @@ def generate_html(pathtopdf):
         raise ConversionError, 'Cannot read from ' + pathtopdf
     pf = PersistentTemporaryFile('.html')
     pf.close()
-    cmd = PDFTOHTML + ' -noframes -p -nomerge "%s" "%s"'%(pathtopdf, pf.name)
-    p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
-    ret = p.wait()
-    if ret != 0:
-        err = p.stderr.read()
-        raise ConversionError, err
+    # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
+    cmd = PDFTOHTML + ' -noframes -p -nomerge "%s" "%s"'%(pathtopdf, os.path.basename(pf.name))
+    cwd = os.getcwd()
+    try:
+        os.chdir(os.path.dirname(pf.name)) 
+        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+        ret = p.wait()
+        if ret != 0:
+            err = p.stderr.read()
+            raise ConversionError, err
+    finally:
+        os.chdir(cwd)
     return pf
 
 def option_parser():
@@ -61,11 +68,13 @@ def main(args=sys.argv):
     pdf = os.path.abspath(os.path.expanduser(args[1]))
     htmlfile = generate_html(pdf)
     if not options.output:
-        ext = '.lrs' if options.lrs else '.lrf'
+        ext = '.lrs' if options.lrs else '.lrf'        
         options.output = os.path.abspath(os.path.basename(os.path.splitext(args[1])[0]) + ext)
     else:
         options.output = os.path.abspath(options.output)
-    options.pdftohtml = True  
+    options.pdftohtml = True
+    if not options.title:
+        options.title = filename_to_utf8(os.path.splitext(os.path.basename(options.output))[0])
     process_file(htmlfile.name, options)
     return 0
 

@@ -415,7 +415,8 @@ class Main(QObject, Ui_MainWindow):
         self.status_bar.showMessage('Sending books to device.', 5000)
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
-            d = warning_dialog(self.window, 'No suitable formats', 'Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>'%(bad,))
+            d = warning_dialog(self.window, 'No suitable formats', 
+                    'Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>'%(bad,))
             d.exec_()
                 
             

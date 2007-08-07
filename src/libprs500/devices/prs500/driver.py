@@ -107,7 +107,8 @@ class PRS500(Device):
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]             
     # Height for thumbnails of books/images on the device
     THUMBNAIL_HEIGHT = 68
-    
+    # Directory on card to which books are copied
+    CARD_PATH_PREFIX = 'libprs500'
     _packet_number = 0     #: Keep track of the packet number for packet tracing
     
     def log_packet(self, packet, header, stream=sys.stderr):
@@ -799,8 +800,15 @@ class PRS500(Device):
             if tfile.tell() == 0: 
                 tfile = None
         else: 
-            self.get_file(self.MEDIA_XML, tfile, end_session=False)    
-        return BookList(root=root, sfile=tfile)
+            self.get_file(self.MEDIA_XML, tfile, end_session=False)
+        bl = BookList(root=root, sfile=tfile)
+        paths = bl.purge_corrupted_files()        
+        for path in paths:
+            try:
+                self.del_file(path, end_session=False)
+            except PathError: # Incase this is a refetch without a sync in between
+                continue    
+        return bl
 
     @safe
     def remove_books(self, paths, booklists, end_session=True):
@@ -827,7 +835,7 @@ class PRS500(Device):
     @safe
     def upload_books(self, files, names, on_card=False, end_session=True):
         card = self.card(end_session=False)
-        prefix = card + '/libprs500/' if on_card else '/Data/media/books/'
+        prefix = card + '/' + self.CARD_PATH_PREFIX +'/' if on_card else '/Data/media/books/'
         if on_card and not self._exists(prefix)[0]:
             self.mkdir(prefix[:-1], False)
         paths, ctimes = [], []
@@ -862,8 +870,7 @@ class PRS500(Device):
             path = location[0]
             on_card = 1 if path[1] == ':' else 0
             name = path.rpartition('/')[2]
-            if not on_card:
-                name = 'books/' + name
+            name = (cls.CARD_PATH_PREFIX+'/' if on_card else 'books/') + name
             booklists[on_card].add_book(info, name, *location[1:])
         fix_ids(*booklists)
         

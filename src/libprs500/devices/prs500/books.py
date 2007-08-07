@@ -31,7 +31,7 @@ MIME_MAP   = { \
                       }
 
 def sortable_title(title):
-    return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', ' An Crum').rstrip()
+    return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', title).rstrip()
 
 class book_metadata_field(object):
     """ Represents metadata stored as an attribute """
@@ -113,7 +113,7 @@ class Book(object):
     def __str__(self):
         """ Return a utf-8 encoded string with title author and path information """
         return self.title.encode('utf-8') + " by " + \
-               self.author.encode('utf-8') + " at " + self.path.encode('utf-8')
+               self.authors.encode('utf-8') + " at " + self.path.encode('utf-8')
 
 
 def fix_ids(media, cache):
@@ -203,6 +203,16 @@ class BookList(list):
             plitems.extend(pl.getElementsByTagName(self.prefix+'item'))
         return plitems
         
+    def purge_corrupted_files(self):
+        corrupted = self.root.getElementsByTagName(self.prefix+'corrupted')
+        paths = []
+        proot = self.proot if self.proot.endswith('/') else self.proot + '/'
+        for c in corrupted:
+            paths.append(proot + c.getAttribute('path'))
+            c.parentNode.removeChild(c)
+            c.unlink()
+        return paths
+    
     def purge_empty_playlists(self):
         ''' Remove all playlist entries that have no children. '''
         playlists = self.root.getElementsByTagName(self.prefix+'playlist')
@@ -250,12 +260,13 @@ class BookList(list):
         sourceid = str(self[0].sourceid) if len(self) else "1"
         attrs = {
                  "title"  : info["title"], 
-                 'titleSorter' : info['title'],
+                 'titleSorter' : sortable_title(info['title']),
                  "author" : info["authors"] if info['authors'] else 'Unknown', \
                  "page":"0", "part":"0", "scale":"0", \
                  "sourceid":sourceid,  "id":str(cid), "date":"", \
                  "mime":mime, "path":name, "size":str(size)
                  } 
+        print name
         for attr in attrs.keys():
             node.setAttributeNode(self.document.createAttribute(attr))
             node.setAttribute(attr, attrs[attr])        
