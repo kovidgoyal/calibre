@@ -61,6 +61,7 @@ class Main(QObject, Ui_MainWindow):
         self.device_error_dialog = error_dialog(self.window, 'Error communicating with device', ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
+        self.device_connected = False
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -156,7 +157,9 @@ class Main(QObject, Ui_MainWindow):
             self.set_default_thumbnail(cls.THUMBNAIL_HEIGHT)
             self.status_bar.showMessage('Device: '+cls.__name__+' detected.', 3000)
             self.action_sync.setEnabled(True)
+            self.device_connected = True
         else:
+            self.device_connected = False
             self.job_manager.terminate_device_jobs()
             self.device_manager.device_removed()
             self.location_view.model().update_devices()
@@ -326,15 +329,12 @@ class Main(QObject, Ui_MainWindow):
             self.device_job_exception(id, description, exception, formatted_traceback)            
             return
         
-        self.upload_booklists()
-        
         if self.delete_memory.has_key(id):
             paths, model = self.delete_memory.pop(id)
             for path in paths:
                 model.path_about_to_be_deleted(path)
                 self.device_manager.remove_books_from_metadata((path,), self.booklists())
-                model.path_deleted()
-            
+            self.upload_booklists()    
             
     ############################################################################
     
@@ -437,6 +437,13 @@ class Main(QObject, Ui_MainWindow):
                 view.resize_on_select = False
         self.status_bar.reset_info()
         self.current_view().clearSelection()
+        if location == 'library':
+            if self.device_connected:
+                self.action_sync.setEnabled(True)
+            self.action_edit.setEnabled(True)
+        else:
+            self.action_sync.setEnabled(False)
+            self.action_edit.setEnabled(False)
                 
     
     def wrap_traceback(self, tb):

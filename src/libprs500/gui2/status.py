@@ -12,8 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.gui2.dialogs.jobs import JobsDialog
-
 import textwrap
 
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
@@ -78,29 +76,12 @@ class BookInfoDisplay(QFrame):
         self.clear_message()
         self.setVisible(True)
 
-class BusyIndicator(QLabel):
-    def __init__(self, movie, jobs_dialog):
-        QLabel.__init__(self)
-        self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip('Click to see list of active jobs.')
-        self.setMovie(movie)
-        movie.start()
-        movie.setPaused(True)
-        self.jobs_dialog = jobs_dialog
-        
-        
-    def mouseReleaseEvent(self, event):
-        if self.jobs_dialog.isVisible():
-            self.jobs_dialog.hide()
-        else:
-            self.jobs_dialog.show()
-        
-
 class MovieButton(QFrame):
     def __init__(self, movie, jobs_dialog):
         QFrame.__init__(self)
         self.setLayout(QVBoxLayout())
-        self.movie_widget = BusyIndicator(movie, jobs_dialog)        
+        self.movie_widget = QLabel()
+        self.movie_widget.setMovie(movie)
         self.movie = movie        
         self.layout().addWidget(self.movie_widget)
         self.jobs = QLabel('<b>Jobs: 0')
@@ -110,6 +91,18 @@ class MovieButton(QFrame):
         self.jobs.setMargin(0)
         self.layout().setMargin(0)
         self.jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.jobs_dialog = jobs_dialog
+        self.setCursor(Qt.PointingHandCursor)
+        self.setToolTip('Click to see list of active jobs.')
+        movie.start()
+        movie.setPaused(True)       
+        
+        
+    def mouseReleaseEvent(self, event):
+        if self.jobs_dialog.isVisible():
+            self.jobs_dialog.hide()
+        else:
+            self.jobs_dialog.show()
         
 
 class StatusBar(QStatusBar):

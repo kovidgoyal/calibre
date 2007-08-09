@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.gui2 import qstring_to_unicode
 import os, textwrap, traceback, time, re, sre_constants
 from datetime import timedelta, datetime
 from operator import attrgetter
@@ -19,7 +20,7 @@ from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
-                        QPalette, QItemSelectionModel
+                        QPalette
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
@@ -195,6 +196,7 @@ class BooksModel(QAbstractTableModel):
         for row in rows:
             row = row.row()
             au = self.db.authors(row)
+            tags = self.db.tags(row)
             if not au:
                 au = 'Unknown'
             au = au.split(',')
@@ -204,11 +206,17 @@ class BooksModel(QAbstractTableModel):
                 au = t
             else:
                 au = ' & '.join(au)
+            if not tags:
+                tags = []
+            else:
+                tags = tags.split(',')
             mi = {
                   'title'   : self.db.title(row),
                   'authors' : au,
                   'cover'   : self.db.cover(row),
+                  'tags'    : tags,
                   } 
+            
             metadata.append(mi)
         return metadata
     
@@ -334,7 +342,8 @@ class BooksView(QTableView):
         self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
-        self.setItemDelegateForColumn(4, LibraryDelegate(self))        
+        if self.__class__.__name__ == 'BooksView': # Subclasses may not have rating as col 4
+            self.setItemDelegateForColumn(4, LibraryDelegate(self))        
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
         # Adding and removing rows should resize rows to contents
@@ -398,6 +407,7 @@ class DeviceBooksModel(BooksModel):
         self.unknown = str(self.trUtf8('Unknown'))
         self.marked_for_deletion = {}
         
+    
     def mark_for_deletion(self, id, rows):
         self.marked_for_deletion[id] = self.indices(rows)
         for row in rows:
@@ -415,16 +425,16 @@ class DeviceBooksModel(BooksModel):
                 self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])        
     
     def path_about_to_be_deleted(self, path):
-        for row in range(len(self.map)):
+        for row in range(len(self.map)):            
             if self.db[self.map[row]].path == path:
-                print row, path
+                #print row, path
+                #print self.rowCount(None)
                 self.beginRemoveRows(QModelIndex(), row, row)
                 self.map.pop(row)
+                self.endRemoveRows()
+                #print self.rowCount(None)
                 return
     
-    def path_deleted(self):
-        self.endRemoveRows()
-        
     def indices_to_be_deleted(self):
         ans = []
         for v in self.marked_for_deletion.values():
@@ -433,8 +443,12 @@ class DeviceBooksModel(BooksModel):
     
     def flags(self, index):
         if self.map[index.row()] in self.indices_to_be_deleted():
-            return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python  
-        return BooksModel.flags(self, index)
+            return Qt.ItemIsUserCheckable  # Can't figure out how to get the disabled flag in python
+        flags = QAbstractTableModel.flags(self, index)
+        if index.isValid():       
+            if index.column() in [0, 1] or (index.column() == 4 and self.db.supports_tags()):  
+                flags |= Qt.ItemIsEditable  
+        return flags
         
     
     def search(self, text, refinement, reset=True):
@@ -443,7 +457,7 @@ class DeviceBooksModel(BooksModel):
         result = []
         for i in base:
             add = True
-            q = self.db[i].title + ' ' + self.db[i].authors
+            q = self.db[i].title + ' ' + self.db[i].authors + ' ' + ', '.join(self.db[i].tags)
             for token in tokens:
                 if not token.search(q):
                     add = False
@@ -478,8 +492,11 @@ class DeviceBooksModel(BooksModel):
         def sizecmp(x, y):
             x, y = int(self.db[x].size), int(self.db[y].size)
             return cmp(x, y)
+        def tagscmp(x, y):
+            x, y = ','.join(self.db[x].tags), ','.join(self.db[y].tags)
+            return cmp(x, y)
         fcmp = strcmp('title_sorter') if col == 0 else strcmp('authors') if col == 1 else \
-               sizecmp if col == 2 else datecmp
+               sizecmp if col == 2 else datecmp if col == 3 else tagscmp 
         self.map.sort(cmp=fcmp, reverse=descending)
         if len(self.map) == len(self.db):
             self.sorted_map = list(self.map)
@@ -491,7 +508,7 @@ class DeviceBooksModel(BooksModel):
             self.reset()
     
     def columnCount(self, parent):
-        return 4
+        return 5
     
     def rowCount(self, parent):
         return len(self.map)
@@ -516,6 +533,7 @@ class DeviceBooksModel(BooksModel):
         dt = datetime(*dt[0:6])
         dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
         data['Timestamp'] = dt.ctime()
+        data['Tags'] = ', '.join(item.tags)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
         
     def paths(self, rows):
@@ -556,14 +574,33 @@ class DeviceBooksModel(BooksModel):
                 dt = datetime(*dt[0:6])
                 dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
                 return QVariant(dt.strftime(BooksView.TIME_FMT))
+            elif col == 4:
+                tags = self.db[self.map[row]].tags                
+                if tags:
+                    return QVariant(', '.join(tags))                
         elif role == Qt.TextAlignmentRole and index.column() in [2, 3]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         elif role == Qt.ToolTipRole and index.isValid():
             if self.map[index.row()] in self.indices_to_be_deleted():
                 return QVariant('Marked for deletion')            
-            if index.column() in [0, 1]:
+            col = index.column()
+            if col in [0, 1] or (col == 4 and self.db.supports_tags()):
                 return QVariant("Double click to <b>edit</b> me<br><br>")
         return NONE
+    
+    def headerData(self, section, orientation, role):    
+        if role != Qt.DisplayRole:
+            return NONE
+        text = ""
+        if orientation == Qt.Horizontal:      
+            if   section == 0: text = "Title"
+            elif section == 1: text = "Author(s)"
+            elif section == 2: text = "Size (MB)"
+            elif section == 3: text = "Date"
+            elif section == 4: text = "Tags"
+            return QVariant(self.trUtf8(text))
+        else: 
+            return QVariant(section+1)
     
     def setData(self, index, value, role):
         done = False
@@ -571,15 +608,17 @@ class DeviceBooksModel(BooksModel):
             row, col = index.row(), index.column()
             if col in [2, 3]:
                 return False
-            val = unicode(value.toString().toUtf8(), 'utf-8').strip() 
+            val = qstring_to_unicode(value.toString()).strip() 
             idx = self.map[row]
             if col == 0:
                 self.db[idx].title = val
                 self.db[idx].title_sorter = val
             elif col == 1:
                 self.db[idx].authors = val
-            self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
-                                index, index)
+            elif col == 4:
+                tags = [i.strip() for i in val.split(',')]
+                self.db.set_tags(self.db[idx], tags)
+            self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), index, index)
             self.emit(SIGNAL('booklist_dirtied()'))
             if col == self.sorted_on[0]:
                 self.sort(col, self.sorted_on[1])

@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from StringIO import StringIO
 
 ### End point description for PRS-500 procductId=667
 ### Endpoint Descriptor:
@@ -802,12 +803,12 @@ class PRS500(Device):
         else: 
             self.get_file(self.MEDIA_XML, tfile, end_session=False)
         bl = BookList(root=root, sfile=tfile)
-        paths = bl.purge_corrupted_files()        
+        paths = bl.purge_corrupted_files()
         for path in paths:
             try:
                 self.del_file(path, end_session=False)
             except PathError: # Incase this is a refetch without a sync in between
-                continue    
+                continue
         return bl
 
     @safe
@@ -828,8 +829,9 @@ class PRS500(Device):
         @param booklists: A tuple containing the result of calls to 
                                 (L{books}(oncard=False), L{books}(oncard=True)).
         '''
+        fix_ids(*booklists)
         self.upload_book_list(booklists[0], end_session=False)
-        if len(booklists[1]):
+        if booklists[1].root:
             self.upload_book_list(booklists[1], end_session=False)
     
     @safe
@@ -940,7 +942,7 @@ class PRS500(Device):
                 raise ArgumentError("Cannot upload list to card as "+\
                                                  "card is not present")
             path = card + self.CACHE_XML
-        f = TemporaryFile()
+        f = StringIO()        
         booklist.write(f)
         f.seek(0)
         self.put_file(f, path, replace_file=True, end_session=False)

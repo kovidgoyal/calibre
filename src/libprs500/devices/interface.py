@@ -102,8 +102,7 @@ class Device(object):
         @param oncard: If True return a list of ebooks on the storage card, 
                        otherwise return list of ebooks in main memory of device.
                        If True and no books on card return empty list. 
-        @return: A list of Books. Each Book object must have the fields:
-        title, authors, size, datetime (a UTC time tuple), path, thumbnail (can be None).
+        @return: A BookList. 
         """    
         raise NotImplementedError()
     
@@ -129,9 +128,10 @@ class Device(object):
         the device. 
         @param locations: Result of a call to L{upload_books}
         @param metadata: List of dictionaries. Each dictionary must have the
-        keys C{title}, C{authors}, C{cover}. The value of the C{cover} element
-        can be None or a three element tuple (width, height, data)
-        where data is the image data in JPEG format as a string.
+        keys C{title}, C{authors}, C{cover}, C{tags}. The value of the C{cover} 
+        element can be None or a three element tuple (width, height, data)
+        where data is the image data in JPEG format as a string. C{tags} must be
+        a possibly empty list of strings.
         @param booklists: A tuple containing the result of calls to 
                                 (L{books}(oncard=False), L{books}(oncard=True)).
         '''
@@ -159,6 +159,33 @@ class Device(object):
         Update metadata on device.
         @param booklists: A tuple containing the result of calls to 
                                 (L{books}(oncard=False), L{books}(oncard=True)).
+        '''
+        raise NotImplementedError()
+    
+class BookList(list):
+    '''
+    A list of books. Each Book object must have the fields:
+      1. title
+      2. authors
+      3. size (file size of the book)
+      4. datetime (a UTC time tuple)
+      5. path (path on the device to the book)
+      6. thumbnail (can be None)
+      7. tags (a list of strings, can be empty). 
+    '''
+    
+    def __init__(self):
+        list.__init__(self)
+    
+    def supports_tags(self):
+        ''' Return True if the the device supports tags (collections) for this book list. '''
+        raise NotImplementedError()
+    
+    def set_tags(self, book, tags):
+        '''
+        Set the tags for C{book} to C{tags}. 
+        @param tags: A list of strings. Can be empty.
+        @param book: A book object that is in this BookList. 
         '''
         raise NotImplementedError()
 

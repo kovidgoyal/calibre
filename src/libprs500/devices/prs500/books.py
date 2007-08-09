@@ -22,6 +22,7 @@ from base64 import b64encode as encode
 import time, re
 
 from libprs500.devices.errors import ProtocolError
+from libprs500.devices.interface import BookList as _BookList
 
 MIME_MAP   = { \
                         "lrf":"application/x-sony-bbeb", \
@@ -64,7 +65,6 @@ class Book(object):
     datetime     = book_metadata_field("date", \
                            formatter=lambda x:  time.strptime(x.strip(), "%a, %d %b %Y %H:%M:%S %Z"), 
                            setter=lambda x: time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(x)))
-    
     @apply
     def title_sorter():
         doc = '''String to sort the title. If absent, title is returned'''
@@ -105,10 +105,11 @@ class Book(object):
             return self.root + self.rpath
         return property(fget=fget, doc=doc)
     
-    def __init__(self, node, prefix="", root="/Data/media/"):
-        self.elem = node
+    def __init__(self, node, tags=[], prefix="", root="/Data/media/"):
+        self.elem   = node
         self.prefix = prefix
-        self.root = root
+        self.root   = root
+        self.tags   = tags
     
     def __str__(self):
         """ Return a utf-8 encoded string with title author and path information """
@@ -117,33 +118,22 @@ class Book(object):
 
 
 def fix_ids(media, cache):
-    ''' 
-    Update ids in media, cache to be consistent with their 
-    current structure 
+    '''
+    Adjust ids in cache to correspond with media.
     '''
     media.purge_empty_playlists()
-    plitems = media.playlist_items()
-    cid = 0
-    for child in media.root.childNodes:
-        if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
-            old_id = child.getAttribute('id')
-            for item in plitems:
-                if item.hasAttribute('id') and item.getAttribute('id') == old_id:
-                    item.setAttribute('id', str(cid))
-            child.setAttribute("id", str(cid))
-            cid += 1
-    mmaxid = cid - 1
-    cid = mmaxid + 2
-    if len(cache):
+    if cache.root:
+        sourceid = media.max_id()
+        cid = sourceid + 1
         for child in cache.root.childNodes:
-            if child.nodeType == child.ELEMENT_NODE and \
-            child.hasAttribute("sourceid"):
-                child.setAttribute("sourceid", str(mmaxid+1))
+            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("sourceid"):
+                child.setAttribute("sourceid", str(sourceid))
                 child.setAttribute("id", str(cid))
                 cid += 1
-    media.document.documentElement.setAttribute("nextID", str(cid))
-
-class BookList(list):
+        media.set_next_id(str(cid))
+    
+    
+class BookList(_BookList):
     """ 
     A list of L{Book}s. Created from an XML file. Can write list 
     to an XML file.
@@ -152,7 +142,8 @@ class BookList(list):
     __setslice__ = None
     
     def __init__(self, root="/Data/media/", sfile=None):
-        list.__init__(self)
+        _BookList.__init__(self)
+        self.root = self.document = self.proot = None
         if sfile:
             sfile.seek(0)
             self.document = dom.parse(sfile)
@@ -160,50 +151,30 @@ class BookList(list):
             self.prefix = ''
             records = self.root.getElementsByTagName('records')
             if records:
+                self.prefix = 'xs1:'
                 self.root = records[0]
-                for child in self.root.childNodes:
-                    if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
-                        self.prefix = child.tagName.partition(':')[0] + ':'
-                        break
-                if not self.prefix:
-                    raise ProtocolError, 'Could not determine prefix in media.xml'
             self.proot = root            
             
-            for book in self.document.getElementsByTagName(self.prefix + "text"): 
-                self.append(Book(book, root=root, prefix=self.prefix))
+            for book in self.document.getElementsByTagName(self.prefix + "text"):
+                id = book.getAttribute('id')
+                pl = [i.getAttribute('title') for i in self.get_playlists(id)]
+                self.append(Book(book, root=root, prefix=self.prefix, tags=pl))
                 
+    def supports_tags(self):
+        return bool(self.prefix)
     
-    def max_id(self):
-        """ Highest id in underlying XML file """
-        cid = -1
-        for child in self.root.childNodes:
-            if child.nodeType == child.ELEMENT_NODE and \
-               child.hasAttribute("id"):
-                c = int(child.getAttribute("id"))
-                if c > cid: 
-                    cid = c
-        return cid
-    
-    def has_id(self, cid):
-        """ 
-        Check if a book with id C{ == cid} exists already. 
-        This *does not* check if id exists in the underlying XML file 
-        """
-        ans = False
-        for book in self: 
-            if book.id == cid:
-                ans = True
-                break
-        return ans
+    def playlists(self):
+        return self.root.getElementsByTagName(self.prefix+'playlist')
     
     def playlist_items(self):        
-        playlists = self.root.getElementsByTagName(self.prefix+'playlist')
         plitems = []
-        for pl in playlists:
+        for pl in self.playlists():
             plitems.extend(pl.getElementsByTagName(self.prefix+'item'))
         return plitems
         
     def purge_corrupted_files(self):
+        if not self.root:
+            return []
         corrupted = self.root.getElementsByTagName(self.prefix+'corrupted')
         paths = []
         proot = self.proot if self.proot.endswith('/') else self.proot + '/'
@@ -215,8 +186,7 @@ class BookList(list):
     
     def purge_empty_playlists(self):
         ''' Remove all playlist entries that have no children. '''
-        playlists = self.root.getElementsByTagName(self.prefix+'playlist')
-        for pl in playlists:
+        for pl in self.playlists():
             if not pl.getElementsByTagName(self.prefix + 'item'):
                 pl.parentNode.removeChild(pl)
                 pl.unlink()
@@ -225,10 +195,8 @@ class BookList(list):
         nid = node.getAttribute('id')
         node.parentNode.removeChild(node)
         node.unlink()
-        for pli in self.playlist_items():
-            if pli.getAttribute('id') == nid:
-                pli.parentNode.removeChild(pli)
-                pli.unlink()
+        self.remove_from_playlists(nid)
+        
     
     def delete_book(self, cid):
         ''' 
@@ -247,10 +215,25 @@ class BookList(list):
         Also remove book from any collections it is part of.
         '''
         for book in self:
-            if book.path == path:
+            if path.endswith(book.path):
                 self.remove(book)
                 self._delete_book(book.elem)                        
                 break
+    
+    def next_id(self):
+        return self.document.documentElement.getAttribute('nextID')
+    
+    def set_next_id(self, id):
+        self.document.documentElement.setAttribute('nextID', str(id))
+        
+    def max_id(self):
+        max = 0
+        for child in self.root.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("id"):
+                nid = int(child.getAttribute('id'))
+                if nid > max:
+                    max = nid
+        return max 
     
     def add_book(self, info, name, size, ctime):
         """ Add a node into DOM tree representing a book """
@@ -266,7 +249,6 @@ class BookList(list):
                  "sourceid":sourceid,  "id":str(cid), "date":"", \
                  "mime":mime, "path":name, "size":str(size)
                  } 
-        print name
         for attr in attrs.keys():
             node.setAttributeNode(self.document.createAttribute(attr))
             node.setAttribute(attr, attrs[attr])        
@@ -287,6 +269,63 @@ class BookList(list):
         book = Book(node, root=self.proot, prefix=self.prefix)
         book.datetime = ctime
         self.append(book)
+        self.set_next_id(cid+1)
+        if self.prefix: # Playlists only supportted in main memory
+            self.set_playlists(book.id, info['tags'])
+                
+    
+    def playlist_by_title(self, title):
+        for pl in self.playlists():
+            if pl.getAttribute('title').lower() == title.lower():
+                return pl
+    
+    def add_playlist(self, title):
+        cid = self.max_id()+1        
+        pl = self.document.createElement(self.prefix+'playlist')
+        pl.setAttribute('sourceid', '0')
+        pl.setAttribute('id', str(cid))
+        pl.setAttribute('title', title)
+        for child in self.root.childNodes:
+            try:
+                if child.getAttribute('id') == '1':
+                    self.root.insertBefore(pl, child)
+                    self.set_next_id(cid+1)
+                    break
+            except AttributeError:
+                continue
+        return pl
+    
+    
+    def remove_from_playlists(self, id):
+        for pli in self.playlist_items():
+            if pli.getAttribute('id') == str(id):
+                pli.parentNode.removeChild(pli)
+                pli.unlink()
+    
+    def set_tags(self, book, tags):
+        book.tags = tags
+        self.set_playlists(book.id, tags)
+    
+    def set_playlists(self, id, collections):
+        self.remove_from_playlists(id)
+        for collection in set(collections):
+            coll = self.playlist_by_title(collection)
+            if not coll:
+                coll = self.add_playlist(collection)
+            item = self.document.createElement(self.prefix+'item')
+            item.setAttribute('id', str(id))
+            coll.appendChild(item)
+                    
+    def get_playlists(self, id):
+        ans = []
+        for pl in self.playlists():
+            for item in pl.getElementsByTagName(self.prefix+'item'):
+                if item.getAttribute('id') == str(id):
+                    ans.append(pl)
+                    continue
+        return ans
+        
+        
     
     def write(self, stream):
         """ Write XML representation of DOM tree to C{stream} """

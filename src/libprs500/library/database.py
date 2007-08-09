@@ -57,7 +57,7 @@ class LibraryDatabase(object):
         Iterator over the books in the old pre 0.4.0 database.
         '''
         conn = sqlite.connect(path)
-        cur = conn.execute('select * from books_meta;')
+        cur = conn.execute('select * from books_meta order by id;')
         book = cur.fetchone()
         while book:
             id = book[0]
