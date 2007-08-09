@@ -146,7 +146,15 @@ class BookList(_BookList):
         self.root = self.document = self.proot = None
         if sfile:
             sfile.seek(0)
-            self.document = dom.parse(sfile)
+            src = sfile.read()
+            try:
+                src = src.decode('utf8')
+            except UnicodeDecodeError:
+                try:
+                    src = src.decode('latin1')
+                except UnicodeDecodeError:
+                    src = src.decode('cp1252')
+            self.document = dom.parseString(src.encode('utf8'))
             self.root = self.document.documentElement
             self.prefix = ''
             records = self.root.getElementsByTagName('records')
