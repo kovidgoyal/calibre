@@ -22,7 +22,11 @@ from PyQt4.QtGui import QPixmap, QErrorMessage, QLineEdit, \
                         QMessageBox, QFileDialog, QIcon, QDialog, QInputDialog
 from PyQt4.Qt import qDebug, qFatal, qWarning, qCritical
 
-from libprs500.devices.prs500.driver import PRS500 as device
+try:
+    from libprs500.devices.prs500.driver import PRS500 as device
+except OSError:
+    device = None
+    
 from libprs500.devices.errors import *
 from libprs500.gui import installErrorHandler, Error, _Warning, \
                           extension, APP_TITLE
@@ -395,8 +399,11 @@ class Main(QObject, Ui_MainWindow):
         
         self.key = '-1'
         self.log_packets = log_packets
-        self.dev = device(key=self.key, report_progress=self.progress, \
+        if device:
+            self.dev = device(key=self.key, report_progress=self.progress, \
                           log_packets=self.log_packets)
+        else:
+            self.dev = None
         self.setupUi(window)
         self.card = None
         self.window = window
