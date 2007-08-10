@@ -1174,7 +1174,10 @@ class Markdown:
             if theRest :
                 theRest = theRest[1:]  # skip the first (blank) line
 
-            self._processSection(parent_elem, theRest, inList)
+            try:
+                self._processSection(parent_elem, theRest, inList)
+            except RuntimeError: #Added by Kovid
+                pass
 
 
 
