@@ -570,7 +570,7 @@ class DeviceConnectDetector(QObject):
     
     def timerEvent(self, e):
         if e.timerId() == self.device_detector:
-            is_connected = self.dev.is_connected()
+            is_connected = self.dev.is_connected() if self.dev else False
             if is_connected and not self.is_connected:
                 self.is_connected = True
                 self.emit(SIGNAL("device_connected()"))
