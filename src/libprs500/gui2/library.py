@@ -22,7 +22,8 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
                         QPalette
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
+                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
+                         QSettings
 
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.library.database import LibraryDatabase
@@ -355,9 +356,25 @@ class BooksView(QTableView):
         QObject.connect(self.model(), SIGNAL('rowsInserted(QModelIndex, int, int)'), self.resizeRowsToContents)
         # Resetting the model should resize rows (model is reset after search and sort operations)
         QObject.connect(self.model(), SIGNAL('modelReset()'), self.resizeRowsToContents)
-        
+        self.cw = str(QSettings().value(self.__class__.__name__ + ' column widths', QVariant('')).toString())
+        self.cw = tuple(int(i) for i in self.cw.split(','))
+    
+    def write_settings(self):
+        settings = QSettings()
+        settings.setValue(self.__class__.__name__ + ' column widths',
+                          QVariant(','.join(str(self.columnWidth(i))
+                             for i in range(self.model().columnCount(None)))))
+    
+    def restore_column_widths(self):
+        if self.cw and len(self.cw):
+            for i in range(len(self.cw)):
+                self.setColumnWidth(i, self.cw[i])
+            return True
+        return False
+    
     def set_database(self, db):
         self._model.set_database(db)
+        
         
     def migrate_database(self):
         if self._model.database_needs_migration():

@@ -118,8 +118,9 @@ class Main(QObject, Ui_MainWindow):
         window.show()
         self.stack.setCurrentIndex(0)
         self.library_view.migrate_database()
-        self.library_view.sortByColumn(3, Qt.DescendingOrder)        
-        self.library_view.resizeColumnsToContents()
+        self.library_view.sortByColumn(3, Qt.DescendingOrder)
+        if not self.library_view.restore_column_widths():        
+            self.library_view.resizeColumnsToContents()
         self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
         
@@ -192,11 +193,11 @@ class Main(QObject, Ui_MainWindow):
         self.memory_view.set_database(mainlist)
         self.card_view.set_database(cardlist)
         for view in (self.memory_view, self.card_view):
-            view.sortByColumn(3, Qt.DescendingOrder)            
-            view.resizeColumnsToContents()
+            view.sortByColumn(3, Qt.DescendingOrder)
+            if not view.restore_column_widths():            
+                view.resizeColumnsToContents()
             view.resizeRowsToContents()
             view.resize_on_select = not view.isVisible()
-        #self.location_selected('main')
     ############################################################################
     
     
@@ -456,7 +457,8 @@ class Main(QObject, Ui_MainWindow):
         if view:
             if view.resize_on_select:
                 view.resizeRowsToContents()
-                view.resizeColumnsToContents()
+                if not view.restore_column_widths():
+                    view.resizeColumnsToContents()
                 view.resize_on_select = False
         self.status_bar.reset_info()
         self.current_view().clearSelection()
@@ -494,7 +496,7 @@ class Main(QObject, Ui_MainWindow):
     
     def read_settings(self):
         settings = QSettings()
-        settings.beginGroup("MainWindow")
+        settings.beginGroup("Main Window")
         self.window.resize(settings.value("size", QVariant(QSize(800, 600))).toSize())
         settings.endGroup()
         self.database_path = settings.value("database path", 
@@ -502,8 +504,12 @@ class Main(QObject, Ui_MainWindow):
     
     def write_settings(self):
         settings = QSettings()
-        settings.beginGroup("MainWindow")
+        settings.beginGroup("Main Window")
         settings.setValue("size", QVariant(self.window.size()))
+        settings.endGroup()
+        settings.beginGroup('Book Views')
+        for view in (self.library_view, self.memory_view):
+            view.write_settings()
         settings.endGroup()
     
     def close_event(self, e):
@@ -517,11 +523,12 @@ class Main(QObject, Ui_MainWindow):
                             QMessageBox.Yes|QMessageBox.No, self.window)
             d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
             d.setDefaultButton(QMessageBox.No)
-            if d.exec_() == QMessageBox.Yes:
-                self.write_settings()
-                e.accept()
-            else:
+            if d.exec_() != QMessageBox.Yes:
                 e.ignore()
+                return
+        self.write_settings()
+        e.accept()
+        
                 
     def unhandled_exception(self, type, value, tb):
         sio = StringIO.StringIO()
