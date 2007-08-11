@@ -35,11 +35,11 @@ except ImportError:
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, \
                 Comment, Tag, NavigableString, Declaration, ProcessingInstruction
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
-                TextBlock, ImageBlock, JumpButton, CharButton, Bold,\
+                TextBlock, ImageBlock, JumpButton, CharButton, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
                 LrsError
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
-from libprs500.ebooks.lrf import Book, PRS500_PROFILE
+from libprs500.ebooks.lrf import Book
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.table import Table 
@@ -262,7 +262,7 @@ class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
-    # Fix <a /> elements 
+     
     MARKUP_MASSAGE   = [
                         # Close <a /> tags
                         (re.compile("(<a\s+.*?)/>|<a/>", re.IGNORECASE), 
@@ -926,6 +926,29 @@ class HTMLConverter(object):
                                        blockwidth=pwidth, blockheight=pheight),
                             left, 0)
     
+    def process_page_breaks(self, tag, tagname, tag_css):
+        if 'page-break-before' in tag_css.keys():
+            if tag_css['page-break-before'].lower() != 'avoid':
+                self.end_page()
+            tag_css.pop('page-break-before')
+        end_page = False
+        if 'page-break-after' in tag_css.keys() and \
+           tag_css['page-break-after'].lower() != 'avoid':
+            end_page = True
+            tag_css.pop('page-break-after')
+        if (self.force_page_break_attr[0].match(tagname) and \
+           tag.has_key(self.force_page_break_attr[1]) and \
+           self.force_page_break_attr[2].match(tag[self.force_page_break_attr[1]])) or \
+           self.force_page_break.match(tagname):
+            self.end_page()
+            self.page_break_found = True
+        if not self.page_break_found and self.page_break.match(tagname):
+            if len(self.current_page.contents) > 3:
+                self.end_page()
+                if self.verbose:
+                    print 'Forcing page break at', tagname
+        return end_page
+    
     def parse_tag(self, tag, parent_css):
         try:
             tagname = tag.name.lower()
@@ -940,23 +963,8 @@ class HTMLConverter(object):
                 return
         except KeyError:
             pass
-        if 'page-break-before' in tag_css.keys():
-            if tag_css['page-break-before'].lower() != 'avoid':
-                self.end_page()
-            tag_css.pop('page-break-before')
-        end_page = False
-        if 'page-break-after' in tag_css.keys() and \
-           tag_css['page-break-after'].lower() != 'avoid':
-            end_page = True
-            tag_css.pop('page-break-after')
-        if self.force_page_break.match(tagname):
-            self.end_page()
-            self.page_break_found = True
-        if not self.page_break_found and self.page_break.match(tagname):
-            if len(self.current_page.contents) > 3:
-                self.end_page()
-                if self.verbose:
-                    print 'Forcing page break at', tagname
+        end_page = self.process_page_breaks(tag, tagname, tag_css)
+        
         if tagname in ["title", "script", "meta", 'del', 'frameset']:            
             pass
         elif tagname == 'a' and self.link_levels >= 0:
@@ -991,13 +999,17 @@ class HTMLConverter(object):
                 previous = self.current_block
                 self.process_children(tag, tag_css)
                 target = None
-                if self.current_block == previous:
-                    self.current_para.append_to(self.current_block)
-                    self.current_para = Paragraph()
-                    if self.current_block.has_text():
-                        target = self.current_block                        
-                    else:
-                        target = BlockSpace()
+                if self.current_block == previous:                    
+                    if self.current_para.has_text():
+                        self.current_para.append_to(self.current_block)
+                        self.current_para = Paragraph()
+                        target = self.current_block                 
+                    else: # Empty <a> element
+                        self.current_page.append(self.current_block)                        
+                        self.current_block = self.book.create_text_block(
+                                textStyle=self.current_block.textStyle,
+                                blockStyle=self.current_block.blockStyle)
+                        target = self.book.create_text_block()
                         self.current_page.append(target)
                 else:
                     found = False
@@ -1330,6 +1342,11 @@ def process_file(path, options):
         options.link_exclude = le
         options.page_break = pb
         options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
+        fpba = options.force_page_break_attr.split(',')
+        if len(fpba) != 3:
+            fpba = ['$', '', '$']
+        options.force_page_break_attr = [re.compile(fpba[0], re.IGNORECASE), fpba[1],
+                                         re.compile(fpba[2], re.IGNORECASE)]
         conv = HTMLConverter(book, fonts, path, options)
         conv.process_links()
         oname = options.output

@@ -153,6 +153,8 @@ def option_parser(usage):
                       '''if the current page has only a few elements.''')
     chapter.add_option('--force-page-break-before', dest='force_page_break',
                        default='$', help='Like --page-break-before, but page breaks are forced.')
+    chapter.add_option('--force-page-break-before-attr', dest='force_page_break_attr',
+                       default='$,,$', help='Force a page break before an element having the specified attribute. The format for this option is tagname regexp,attribute name,attribute value regexp. For example to match all heading tags that have the attribute class="chapter" you would use "h\d,class,chapter". Default is %default''')
     prepro = parser.add_option_group('PREPROCESSING OPTIONS')
     prepro.add_option('--baen', action='store_true', default=False, dest='baen',
                       help='''Preprocess Baen HTML files to improve generated LRF.''')
