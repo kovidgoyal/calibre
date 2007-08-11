@@ -37,12 +37,10 @@ def option_parser():
                           '''it, you must specify the --url option.'''
                           )
     
-    parser.remove_option('-t')
-    
     parser.add_option('-u', '--url', dest='url', default=None,  
                       help='The URL to download. You only need to specify this if you are not specifying a website_profile.')
     
-    parser.add_option('-t', '--timeout', help='Timeout in seconds to wait for a response from the server. Default: %default s',
+    parser.add_option('--timeout', help='Timeout in seconds to wait for a response from the server. Default: %default s',
                       default=None, type='int', dest='timeout')
     parser.add_option('-r', '--max-recursions', help='Maximum number of levels to recurse i.e. depth of links to follow. Default %default',
                       default=None, type='int', dest='max_recursions')
@@ -67,10 +65,14 @@ def fetch_website(options):
     return fetcher.start_fetch(options.url), tdir
     
 def create_lrf(htmlfile, options):
-    options.author = __appname__
+    if not options.author:
+        options.author = __appname__
     options.header = True
-    if not options.output:
+    if options.output:
+        options.output = os.path.abspath(os.path.expanduser(options.output))
+    else:
         options.output = os.path.abspath(os.path.expanduser(options.title + ('.lrs' if options.lrs else '.lrf')))
+        
     process_file(htmlfile, options)
 
 def main(args=sys.argv):
@@ -111,7 +113,7 @@ def main(args=sys.argv):
     options.match_regexps += profile['match_regexps']
     options.preprocess_regexps = profile['preprocess_regexps']
     options.filter_regexps += profile['filter_regexps']
-        
+    
     htmlfile, tdir = fetch_website(options)
     create_lrf(htmlfile, options)
     if profile.has_key('finalize'):
