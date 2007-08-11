@@ -1231,7 +1231,7 @@ class HTMLConverter(object):
             except Exception, err:
                 print 'WARNING: An error occurred while processing a table:', err
                 print 'Ignoring table markup for table:'
-                print str(tag)[:100]
+                print str(tag)[:300]
                 self.in_table = False
                 self.process_children(tag, tag_css) 
         else:

@@ -162,6 +162,15 @@ class Device(object):
         '''
         raise NotImplementedError()
     
+    def get_file(self, path, outfile, end_session=True): 
+        '''
+        Read the file at C{path} on the device and write it to outfile.
+        @param outfile: file object like C{sys.stdout} or the result of an C{open} call
+        '''
+        raise NotImplementedError()         
+
+
+    
 class BookList(list):
     '''
     A list of books. Each Book object must have the fields:

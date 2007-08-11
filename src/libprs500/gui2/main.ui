@@ -319,6 +319,7 @@
    </attribute>
    <addaction name="action_add" />
    <addaction name="action_del" />
+   <addaction name="action_save" />
   </widget>
   <widget class="QStatusBar" name="statusBar" >
    <property name="mouseTracking" >
@@ -376,6 +377,14 @@
    </property>
    <property name="text" >
     <string>Send to device</string>
+   </property>
+  </action>
+  <action name="action_save" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/save.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Save to disk</string>
    </property>
   </action>
  </widget>

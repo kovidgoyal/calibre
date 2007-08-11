@@ -186,6 +186,13 @@ class FileDialog(QObject):
          settings.setValue(self.dialog_name, QVariant(self.fd.saveState()))
         
 
+def choose_dir(window, name, title):
+    settings = QSettings()
+    dir = settings.value(name, QVariant(os.path.expanduser('~'))).toString()
+    dir = qstring_to_unicode(QFileDialog.getExistingDirectory(window, title, dir))
+    if os.path.exists(dir):
+        return dir
+
 def choose_files(window, name, title,  
                  filters=[], all_files=True, select_only_single_file=False):
     '''

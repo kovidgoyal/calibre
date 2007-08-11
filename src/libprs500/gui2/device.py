@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import sys
+import sys, os
 
 from PyQt4.QtCore import QThread, SIGNAL, QObject
 
@@ -111,9 +111,21 @@ class DeviceManager(QObject):
     def delete_books_func(self):
         '''Remove books from device'''
         def delete_books(updater, paths):
-            '''Delete books from device'''
+            '''Remove books from device'''
             self.device.delete_books(paths, end_session=True)
         return delete_books
     
     def remove_books_from_metadata(self, paths, booklists):
         self.device_class.remove_books_from_metadata(paths, booklists)
+        
+    def save_books_func(self):
+        '''Copy books from device to disk'''        
+        def save_books(updater, paths, target):
+            '''Copy books from device to disk'''
+            self.device.set_progress_reporter(updater)
+            for path in paths:
+                name = path.rpartition('/')[2]
+                f = open(os.path.join(target, name), 'wb')
+                self.device.get_file(path, f)
+                f.close()
+        return save_books

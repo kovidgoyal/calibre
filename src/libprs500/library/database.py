@@ -12,11 +12,12 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500 import __appname__
 """
 Backend that implements storage of ebooks in an sqlite database.
 """
 import sqlite3 as sqlite
-import datetime, re
+import datetime, re, os
 from zlib import compress, decompress
 
 class Concatenate(object):
@@ -898,3 +899,31 @@ class LibraryDatabase(object):
             pass
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
+        
+    def export_to_dir(self, dir, indices):
+        by_author = {}
+        for index in indices:
+            id = self.id(index)
+            au = self.conn.execute('SELECT concat(sort) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=?)', (id,)).fetchone()[0]            
+            if not by_author.has_key(au):
+                by_author[au] = []
+            by_author[au].append(index)
+        for au in by_author.keys():
+            apath = os.path.join(dir, au)
+            if not os.path.exists(apath):
+                os.mkdir(apath)
+            for idx in by_author[au]:
+                title = self.title(idx)
+                tpath = os.path.join(apath, title)
+                id = str(self.id(idx))
+                if not os.path.exists(tpath):
+                    os.mkdir(tpath)
+                for fmt in self.formats(idx).split(','):
+                    data = self.format(idx, fmt)
+                    f = open(os.path.join(tpath, __appname__+'_'+id+'.'+fmt.lower()), 'wb')
+                    f.write(data)
+                    
+if __name__ == '__main__':
+    db = LibraryDatabase('/home/kovid/library1.db')
+    db.refresh('title', True)
+    db.export_to_dir('/tmp/test', range(1, 10))

@@ -19,13 +19,13 @@ from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox
 from PyQt4.QtSvg import QSvgRenderer
 
-from libprs500 import __version__, __appname__, iswindows, isosx
+from libprs500 import __version__, __appname__
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_TITLE, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, BOOK_EXTENSIONS, \
-                           pixmap_to_data
+                           pixmap_to_data, choose_dir
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
@@ -95,13 +95,13 @@ class Main(QObject, Ui_MainWindow):
         QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)        
         QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
         QObject.connect(sm.actions()[1], SIGNAL('triggered(bool)'), self.sync_to_card)
-        
+        QObject.connect(self.action_save, SIGNAL("triggered(bool)"), self.save_to_disk)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
         self.tool_bar.addAction(self.action_sync)
         self.tool_bar.addAction(self.action_edit)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
-        
+                
         ####################### Library view ########################
         self.library_view.set_database(self.database_path)
         for func, target in [
@@ -423,6 +423,29 @@ class Main(QObject, Ui_MainWindow):
             
     ############################################################################
     
+    ############################## Save to disk ################################
+    def save_to_disk(self, checked):
+        rows = self.current_view().selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self.window, 'Cannot save to disk', 'No books selected')
+            d.exec_()
+            return
+        dir = choose_dir(self.window, 'save to disk dialog', 'Choose destination directory')
+        if not dir:
+            return
+        if self.current_view() == self.library_view:
+            self.current_view().model().save_to_disk(rows, dir)
+        else:
+            paths = self.current_view().model().paths(rows)
+        self.job_manager.run_device_job(self.books_saved,
+                                self.device_manager.save_books_func(), paths, dir)
+        
+    def books_saved(self, id, description, result, exception, formatted_traceback):
+        if exception:
+            self.device_job_exception(id, description, exception, formatted_traceback)            
+            return
+            
+    ############################################################################
     def location_selected(self, location):
         '''
         Called when a location icon is clicked (e.g. Library)
