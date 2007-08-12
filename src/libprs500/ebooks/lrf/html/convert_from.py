@@ -1178,6 +1178,16 @@ class HTMLConverter(object):
             self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
                                                              blockStyle=pb.blockStyle)
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            if tag.has_key('id'):
+                target = self.book.create_text_block(textStyle=self.current_block.textStyle,
+                                                     blockStyle=self.current_block.blockStyle)
+                self.targets[tag['id']] = target
+                self.current_para.append_to(self.current_block)
+                self.current_para = Paragraph()
+                self.current_block.append_to(self.current_page)
+                self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
+                                                     blockStyle=self.current_block.blockStyle)
+                self.current_page.append(target)
             src = self.get_text(tag, limit=1000)
             if self.chapter_detection and tagname.startswith('h'):
                 if self.chapter_regex.search(src):
@@ -1210,9 +1220,7 @@ class HTMLConverter(object):
             self.process_children(tag, tag_css)
             self.end_current_para()
             if tagname.startswith('h') or self.blank_after_para:
-                self.current_block.append(CR())
-            if tag.has_key('id'):
-                self.targets[tag['id']] = self.current_block
+                self.current_block.append(CR())            
         elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
