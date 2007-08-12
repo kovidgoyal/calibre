@@ -14,14 +14,13 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Convert known websites into LRF files.'''
 
-import sys, time, tempfile, shutil, os
+import sys, time, tempfile, shutil, os, logging
 from urlparse import urlsplit
 
-from libprs500 import __appname__
+from libprs500 import __appname__, setup_cli_handlers, CommandLineError
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks.lrf.html.convert_from import process_file
 from libprs500.ebooks.lrf.web.profiles import profiles
-from libprs500.web.fetch.simple import setup_logger as web2disk_setup_logger
 from libprs500.web.fetch.simple import create_fetcher
 
 available_profiles = profiles.keys()
@@ -57,14 +56,14 @@ def option_parser():
                       help='Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --filter-regexp is applied first.')
     return parser
     
-def fetch_website(options):
+def fetch_website(options, logger):
     tdir = tempfile.mkdtemp(prefix=__appname__+'_' )
     options.dir = tdir
-    fetcher = create_fetcher(options)
+    fetcher = create_fetcher(options, logger)
     fetcher.preprocess_regexps = options.preprocess_regexps
     return fetcher.start_fetch(options.url), tdir
     
-def create_lrf(htmlfile, options):
+def create_lrf(htmlfile, options, logger):
     if not options.author:
         options.author = __appname__
     options.header = True
@@ -73,20 +72,16 @@ def create_lrf(htmlfile, options):
     else:
         options.output = os.path.abspath(os.path.expanduser(options.title + ('.lrs' if options.lrs else '.lrf')))
         
-    process_file(htmlfile, options)
+    process_file(htmlfile, options, logger)
 
-def main(args=sys.argv):
-    parser = option_parser()
-    options, args = parser.parse_args(args)
-    web2disk_setup_logger(options)
-    if len(args) > 2:
-        parser.print_help()
-        return 1
+def process_profile(args, options, logger=None):
+    if logger is None:
+        level = logging.DEBUG if options.verbose else logging.INFO
+        logger = logging.getLogger('web2lrf')
+        setup_cli_handlers(logger, level)
     if len(args) == 2:
         if not profiles.has_key(args[1]):
-            print >>sys.stderr, 'Unknown profile', args[1]
-            print >>sys.stderr, 'Valid profiles:', profiles.keys()
-            return 1
+            raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], profiles.keys()))
     profile = profiles[args[1]] if len(args) == 2 else profiles['default']
     
     if profile.has_key('initialize'):
@@ -98,11 +93,7 @@ def main(args=sys.argv):
             setattr(options, opt, profile[opt])
         
     if not options.url:
-        parser.print_help()
-        print >>sys.stderr
-        print >>sys.stderr, 'You must specify the --url option or a profile from one of:',
-        print >>sys.stderr, available_profiles
-        return 1
+        raise CommandLineError('You must specify the --url option or a profile from one of: %s', available_profiles)
     
     if not options.title:
         title = profile['title']
@@ -114,12 +105,24 @@ def main(args=sys.argv):
     options.preprocess_regexps = profile['preprocess_regexps']
     options.filter_regexps += profile['filter_regexps']
     
-    htmlfile, tdir = fetch_website(options)
-    create_lrf(htmlfile, options)
+    htmlfile, tdir = fetch_website(options, logger)
+    create_lrf(htmlfile, options, logger)
     if profile.has_key('finalize'):
         profile['finalize'](profile)
     shutil.rmtree(tdir)
-         
+
+    
+
+def main(args=sys.argv):
+    parser = option_parser()
+    options, args = parser.parse_args(args)
+    if len(args) > 2:
+        parser.print_help()
+        return 1
+    try:
+        process_profile(args, options)
+    except CommandLineError, err:
+        print >>sys.stderr, err         
     return 0
 
 if __name__ == '__main__':

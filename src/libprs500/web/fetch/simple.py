@@ -23,8 +23,6 @@ from optparse import OptionParser
 from libprs500 import __version__, __appname__, __author__, setup_cli_handlers
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
-logger = logging.getLogger('libprs500.web.fetch.simple')
-
 class FetchError(Exception):
     pass
 
@@ -52,7 +50,8 @@ class RecursiveFetcher(object):
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     
-    def __init__(self, options):
+    def __init__(self, options, logger):
+        self.logger = logger
         self.base_dir = os.path.abspath(os.path.expanduser(options.dir))
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
@@ -80,7 +79,7 @@ class RecursiveFetcher(object):
 
     def fetch_url(self, url):
         f = None
-        logger.info('Fetching %s', url)
+        self.logger.debug('Fetching %s', url)
         delta = time.time() - self.last_fetch_at 
         if  delta < self.delay:
             time.sleep(delta)
@@ -138,8 +137,8 @@ class RecursiveFetcher(object):
                 try:
                     f = self.fetch_url(iurl)
                 except Exception, err:
-                    logger.warning('Could not fetch stylesheet %s', iurl)
-                    logger.debug('Error: %s', str(err), exc_info=True)
+                    self.logger.warning('Could not fetch stylesheet %s', iurl)
+                    self.logger.debug('Error: %s', str(err), exc_info=True)
                     continue
                 c += 1
                 stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
@@ -160,8 +159,8 @@ class RecursiveFetcher(object):
                         try:
                             f = self.fetch_url(iurl)
                         except Exception, err:
-                            logger.warning('Could not fetch stylesheet %s', iurl)
-                            logger.debug('Error: %s', str(err), exc_info=True)
+                            self.logger.warning('Could not fetch stylesheet %s', iurl)
+                            self.logger.debug('Error: %s', str(err), exc_info=True)
                             continue
                         c += 1
                         stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
@@ -179,7 +178,7 @@ class RecursiveFetcher(object):
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
             iurl, ext = tag['src'], os.path.splitext(tag['src'])[1]
             if not ext:
-                logger.info('Skipping extensionless image %s', iurl)
+                self.logger.debug('Skipping extensionless image %s', iurl)
                 continue
             if not urlparse.urlsplit(iurl).scheme:
                 iurl = urlparse.urljoin(baseurl, iurl, False)
@@ -189,8 +188,8 @@ class RecursiveFetcher(object):
             try:
                 f = self.fetch_url(iurl)
             except Exception, err:
-                logger.warning('Could not fetch image %s', iurl)
-                logger.debug('Error: %s', str(err), exc_info=True)
+                self.logger.warning('Could not fetch image %s', iurl)
+                self.logger.debug('Error: %s', str(err), exc_info=True)
                 continue
             c += 1
             imgpath = os.path.join(diskpath, 'img'+str(c)+ext)
@@ -206,7 +205,7 @@ class RecursiveFetcher(object):
         if not parts.scheme:
             iurl = urlparse.urljoin(baseurl, iurl, False)
         if not self.is_link_ok(iurl):
-            logger.info('Skipping invalid link: %s', iurl)
+            self.logger.debug('Skipping invalid link: %s', iurl)
             return None
         return iurl
     
@@ -258,7 +257,7 @@ class RecursiveFetcher(object):
                     self.current_dir = linkdiskpath
                     f = self.fetch_url(iurl)
                     soup = self.get_soup(f.read())
-                    logger.info('Processing images...')
+                    self.logger.debug('Processing images...')
                     self.process_images(soup, f.geturl())
                     if self.download_stylesheets:
                         self.process_stylesheets(soup, f.geturl())
@@ -266,17 +265,17 @@ class RecursiveFetcher(object):
                     res = os.path.join(linkdiskpath, basename(iurl))
                     self.filemap[nurl] = res
                     if recursion_level < self.max_recursions:
-                        logger.info('Processing links...')
+                        self.logger.debug('Processing links...')
                         self.process_links(soup, iurl, recursion_level+1)
                     else:
                         self.process_return_links(soup, iurl) 
-                        logger.info('Recursion limit reached. Skipping %s', iurl)
+                        self.logger.debug('Recursion limit reached. Skipping %s', iurl)
                     
                     save_soup(soup, res)
                     self.localize_link(tag, 'href', res)
                 except Exception, err:
-                    logger.warning('Could not fetch link %s', iurl)
-                    logger.debug('Error: %s', str(err), exc_info=True)
+                    self.logger.warning('Could not fetch link %s', iurl)
+                    self.logger.debug('Error: %s', str(err), exc_info=True)
                 finally:
                     self.current_dir = diskpath
                     self.files += 1                
@@ -313,12 +312,12 @@ def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com
     return parser
 
 
-def create_fetcher(options):
-    return RecursiveFetcher(options)
-
-def setup_logger(options):
-    level = logging.DEBUG if options.verbose else logging.WARNING
-    setup_cli_handlers(logger, level)
+def create_fetcher(options, logger=None):
+    if logger is None:
+        level = logging.DEBUG if options.verbose else logging.INFO
+        logger = logging.getLogger('web2disk')
+        setup_cli_handlers(logger, level)
+    return RecursiveFetcher(options, logger)
 
 def main(args=sys.argv):
     parser = option_parser()    
@@ -327,7 +326,6 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     
-    setup_logger(options)
     fetcher = create_fetcher(options) 
     fetcher.start_fetch(args[1])
     

@@ -28,6 +28,9 @@ if iswindows:
     except:
         pass
 
+class CommandLineError(Exception):
+    pass
+
 def setup_cli_handlers(logger, level):
     logger.setLevel(level)
     if level == logging.WARNING:

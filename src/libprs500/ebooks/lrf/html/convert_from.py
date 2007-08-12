@@ -20,7 +20,7 @@ Code to convert HTML ebooks into LRF ebooks.
 I am indebted to esperanc for the initial CSS->Xylog Style conversion code
 and to Falstaff for pylrs.
 """
-import os, re, sys, shutil, traceback, copy, glob
+import os, re, sys, shutil, copy, glob, logging
 from htmlentitydefs import name2codepoint
 from urllib import unquote
 from urlparse import urlparse
@@ -43,7 +43,7 @@ from libprs500.ebooks.lrf import Book
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.table import Table 
-from libprs500 import extract, filename_to_utf8
+from libprs500 import extract, filename_to_utf8,  setup_cli_handlers
 from libprs500.ptempfile import PersistentTemporaryFile
 
 class Span(_Span):
@@ -84,7 +84,7 @@ class Span(_Span):
         return result
     
     @staticmethod
-    def translate_attrs(d, dpi, fonts, font_delta=0, memory=None):
+    def translate_attrs(d, dpi, fonts, logger, font_delta=0, memory=None):
         """
         Receives a dictionary of html attributes and styles and returns
         approximate Xylog equivalents in a new dictionary
@@ -211,20 +211,20 @@ class Span(_Span):
                     else:
                         memory.append(key)
                 if report:
-                    print >>sys.stderr, 'Unhandled/malformed CSS key:', key, d[key]
+                    logger.info('Unhandled/malformed CSS key: %s: %s', key, d[key])
         t['fontfacename'] = (family, font_key(family, style, weight))
         if t.has_key('fontsize') and int(t['fontsize']) > 120:
             t['wordspace'] = 50
         return t
     
-    def __init__(self, ns, css, memory, dpi, fonts, font_delta=0, normal_font_size=100):
+    def __init__(self, ns, css, memory, dpi, fonts, logger, font_delta=0, normal_font_size=100):
         src = ns.string if hasattr(ns, 'string') else ns
         src = re.sub(r'\s{2,}', ' ', src)  # Remove multiple spaces
         for pat, repl in Span.rules:
             src = pat.sub(repl, src)
         if not src:
             raise ConversionError('No point in adding an empty string to a Span')
-        attrs = Span.translate_attrs(css, dpi, fonts, font_delta=font_delta, memory=memory)
+        attrs = Span.translate_attrs(css, dpi, fonts, logger, font_delta=font_delta, memory=memory)
         if 'fontsize' in attrs.keys():
             normal_font_size = int(attrs['fontsize'])
         variant = attrs.pop('fontvariant', None)
@@ -323,7 +323,7 @@ class HTMLConverter(object):
         else:
             object.__setattr__(self, attr, val)
     
-    def __init__(self, book, fonts, path, options, link_level=0, is_root=True):
+    def __init__(self, book, fonts, path, options, logger, link_level=0, is_root=True):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -356,7 +356,8 @@ class HTMLConverter(object):
             th     = {'font-size'   : 'large', 'font-weight':'bold'},
             big    = {'font-size'   : 'large', 'font-weight':'bold'},
             )
-        self.css['.libprs500_dropcaps'] = {'font-size': 'xx-large'}        
+        self.css['.libprs500_dropcaps'] = {'font-size': 'xx-large'}
+        self.logger = logger        
         self.fonts = fonts #: dict specifting font families to use
         self.scaled_images = {}   #: Temporary files with scaled version of images        
         self.rotated_images = {}  #: Temporary files with rotated version of images        
@@ -385,8 +386,7 @@ class HTMLConverter(object):
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
-        print "Processing", self.file_name
-        print '\tParsing HTML...',
+        self.logger.info('Processing %s\n\tParsing HTML...', self.file_name)
         sys.stdout.flush()
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
@@ -400,7 +400,7 @@ class HTMLConverter(object):
         self.soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
-        print 'done\n\tConverting to BBeB...',
+        logger.info('\tConverting to BBeB...')
         sys.stdout.flush()        
         self.current_page = None
         self.current_para = None
@@ -411,7 +411,6 @@ class HTMLConverter(object):
             self.page_break_found = True
         self.parse_file()
         HTMLConverter.processed_files[path] = self
-        print 'done'
         
     def parse_css(self, style):
         """
@@ -554,8 +553,8 @@ class HTMLConverter(object):
             if target.parent != None and \
                hasattr(target.parent, 'objId'): 
                 self.book.addTocEntry(ascii_text, tb)
-            elif self.verbose:
-                print "Cannot add link", ascii_text, "to TOC"
+            else:
+                self.logger.debug("Cannot add link %s to TOC", ascii_text)
                 
         
         def get_target_block(fragment, targets):
@@ -624,21 +623,21 @@ class HTMLConverter(object):
                     if not os.access(path.encode('utf8', 'replace'), os.R_OK):
                         continue
                 except Exception:
-                    if self.verbose:
-                        print "Skipping", link
+                    self.logger.exception('Skipping %s', link)
                     continue
                 path = os.path.abspath(path)
                 if not path in HTMLConverter.processed_files.keys():                    
                     try:                        
                         self.files[path] = HTMLConverter(
                                      self.book, self.fonts, path, self.options,
+                                     self.logger,
                                      link_level = self.link_level+1,
                                      is_root = False,)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
-                        print >>sys.stderr, 'Unable to process', path
+                        self.logger.warning('Unable to process %s', path)
                         if self.verbose:
-                            traceback.print_exc()
+                            self.logger.exception('')
                         continue
                     finally:
                         os.chdir(cwd)
@@ -759,12 +758,12 @@ class HTMLConverter(object):
         else:
             self.process_alignment(css)
             try:
-                self.current_para.append(Span(src, self.sanctify_css(css), self.memory,\
-                                              self.profile.dpi, self.fonts, font_delta=self.font_delta))
+                self.current_para.append(Span(src, self.sanctify_css(css), self.memory,
+                                              self.profile.dpi, self.fonts, self.logger, 
+                                              font_delta=self.font_delta))
                 self.current_para.normalize_spaces()
-            except ConversionError, err:
-                if self.verbose:
-                    print >>sys.stderr, err
+            except ConversionError:
+                self.logger.exception('Bad text')
         
     def sanctify_css(self, css):
         """ Return a copy of C{css} that is safe for use in a SPAM Xylog tag """
@@ -809,7 +808,7 @@ class HTMLConverter(object):
         try:
             im = PILImage.open(path)
         except IOError, err:
-            print >>sys.stderr, 'Unable to process:', path, err
+            self.logger.warning('Unable to process image: %s\n%s', path, err)
             return
 
         
@@ -826,7 +825,7 @@ class HTMLConverter(object):
                 self.scaled_images[path] = pt
                 return pt.name
             except IOError: # PIL chokes on interlaced PNG images
-                print >>sys.stderr, 'Unable to process interlaced PNG', path
+                self.logger.warning('Unable to process interlaced PNG %s', path)
                 return None
         
         pheight = int(self.current_page.pageStyle.attrs['textheight'])
@@ -863,10 +862,8 @@ class HTMLConverter(object):
                 path = pt.name
                 self.rotated_images[path] = pt
                 width, height = im.size
-            except IOError, err: # PIL chokes on interlaced PNG files and since auto-rotation is not critical we ignore the error
-                if self.verbose:
-                    print >>sys.stderr, 'Unable to autorotate interlaced PNG', path
-                    print >>sys.stderr, err 
+            except IOError: # PIL chokes on interlaced PNG files and since auto-rotation is not critical we ignore the error
+                self.logger.debug('Unable to process interlaced PNG %s', path)                 
             finally:
                 pt.close()
         
@@ -945,8 +942,7 @@ class HTMLConverter(object):
         if not self.page_break_found and self.page_break.match(tagname):
             if len(self.current_page.contents) > 3:
                 self.end_page()
-                if self.verbose:
-                    print 'Forcing page break at', tagname
+                self.logger.debug('Forcing page break at %s', tagname)
         return end_page
     
     def parse_tag(self, tag, parent_css):
@@ -1048,8 +1044,7 @@ class HTMLConverter(object):
                 dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
                 self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
             else:
-                if self.verbose:
-                    print >>sys.stderr, "Failed to process:", tag
+                self.logger.debug("Failed to process: %s", str(tag))
         elif tagname in ['style', 'link']:
             def update_css(ncss):
                 for key in ncss.keys():
@@ -1083,7 +1078,8 @@ class HTMLConverter(object):
                 c.replaceWith(self.get_text(c))
             self.end_current_para()
             self.current_block.append_to(self.current_page)
-            attrs = Span.translate_attrs(tag_css, self.profile.dpi, self.fonts, self.font_delta, self.memory)
+            attrs = Span.translate_attrs(tag_css, self.profile.dpi, self.fonts, 
+                                    self.logger, self.font_delta, self.memory)
             attrs['fontfacename'] = self.fonts['mono']['normal'][1]
             ts = self.book.create_text_style(**self.unindented_style.attrs)
             ts.attrs.update(attrs)
@@ -1185,8 +1181,7 @@ class HTMLConverter(object):
             src = self.get_text(tag, limit=1000)
             if self.chapter_detection and tagname.startswith('h'):
                 if self.chapter_regex.search(src):
-                    if self.verbose:
-                        print 'Detected chapter', src
+                    self.logger.debug('Detected chapter %s', src)
                     self.end_page()
                     self.page_break_found = True
             self.end_current_para()
@@ -1241,9 +1236,8 @@ class HTMLConverter(object):
             try:
                 self.process_table(tag, tag_css)
             except Exception, err:
-                print 'WARNING: An error occurred while processing a table:', err
-                print 'Ignoring table markup for table:'
-                print str(tag)[:300]
+                self.logger.warning('An error occurred while processing a table: %s', str(err))
+                self.logger.warning('Ignoring table markup for table:\n%s', str(tag)[:300])
                 self.in_table = False
                 self.process_children(tag, tag_css) 
         else:
@@ -1275,16 +1269,20 @@ class HTMLConverter(object):
         for _file in self.scaled_images.values() + self.rotated_images.values():   
             _file.__del__()
 
-def process_file(path, options):
+def process_file(path, options, logger=None):
     if re.match('http://|https://', path):
         raise ConversionError, 'You have to save the website %s as an html file first and then run html2lrf on it.'%(path,)
+    if logger is None:
+        level = logging.DEBUG if options.verbose else logging.INFO
+        logger = logging.getLogger('html2lrf')
+        setup_cli_handlers(logger, level)
     cwd = os.getcwd()
     dirpath = None
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
     try:
         dirpath, path = get_path(path)
         cpath, tpath = '', '' 
-        try_opf(path, options)
+        try_opf(path, options, logger)
         if options.cover:
             options.cover = os.path.abspath(os.path.expanduser(options.cover))
             cpath = options.cover
@@ -1347,7 +1345,7 @@ def process_file(path, options):
             fpba = ['$', '', '$']
         options.force_page_break_attr = [re.compile(fpba[0], re.IGNORECASE), fpba[1],
                                          re.compile(fpba[2], re.IGNORECASE)]
-        conv = HTMLConverter(book, fonts, path, options)
+        conv = HTMLConverter(book, fonts, path, options, logger)
         conv.process_links()
         oname = options.output
         if not oname:
@@ -1356,7 +1354,7 @@ def process_file(path, options):
             oname = os.path.join(cwd,name)
         oname = os.path.abspath(os.path.expanduser(oname))
         conv.writeto(oname, lrs=options.lrs)
-        print 'Output written to', oname
+        logger.info('Output written to %s', oname)
         conv.cleanup()
         return oname
     finally:
@@ -1364,7 +1362,7 @@ def process_file(path, options):
         if dirpath:
             shutil.rmtree(dirpath, True)
 
-def try_opf(path, options):
+def try_opf(path, options, logger):
     try:
         opf = glob.glob(os.path.join(os.path.dirname(path),'*.opf'))[0]
     except IndexError:
@@ -1419,12 +1417,9 @@ def try_opf(path, options):
                     if not os.access(options.cover, os.R_OK):
                         options.cover = None
                 except:
-                    if options.verbose:
-                        traceback.print_exc()
-    except Exception, err:
-        if options.verbose:
-            print >>sys.stderr, 'Failed to process opf file', err
-        pass
+                    logger.exception('Could not load cover')
+    except Exception:
+        logger.exception('Failed to process opf file')
                 
 def option_parser():
     return lrf_option_parser('''Usage: %prog [options] mybook.[html|rar|zip]\n\n'''
