@@ -1284,8 +1284,10 @@ def process_file(path, options, logger=None):
         cpath, tpath = '', '' 
         try_opf(path, options, logger)
         if options.cover:
-            options.cover = os.path.abspath(os.path.expanduser(options.cover))
-            cpath = options.cover
+            cpath = os.path.join(dirpath, os.path.basename(options.cover))
+            if not os.path.exists(cpath):
+                cpath = os.path.abspath(os.path.expanduser(options.cover))
+            options.cover = cpath
             if os.access(options.cover, os.R_OK):        
                 from libprs500.devices.prs500.driver import PRS500                
                 im = PILImage.open(os.path.join(cwd, cpath))
