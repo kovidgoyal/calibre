@@ -15,19 +15,19 @@
 from libprs500 import filename_to_utf8
 ''''''
 
-import sys, os, subprocess
-from libprs500 import isosx
+import sys, os, subprocess, logging
+from libprs500 import isosx, setup_cli_handlers
 from libprs500.ebooks import ConversionError
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
-from libprs500.ebooks.lrf.html.convert_from import process_file
+from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_file
 
 PDFTOHTML = 'pdftohtml'
 if isosx and hasattr(sys, 'frameworks_dir'):
     PDFTOHTML = os.path.join(sys.frameworks_dir, PDFTOHTML)
 
 
-def generate_html(pathtopdf):
+def generate_html(pathtopdf, logger):
     '''
     Convert the pdf into html.
     @return: A closed PersistentTemporaryFile.
@@ -41,8 +41,10 @@ def generate_html(pathtopdf):
     cwd = os.getcwd()
     try:
         os.chdir(os.path.dirname(pf.name)) 
-        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE)
+        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, 
+                             stdout=subprocess.PIPE)
         ret = p.wait()
+        logger.info(p.stdout.read())
         if ret != 0:
             err = p.stderr.read()
             raise ConversionError, err
@@ -56,8 +58,25 @@ def option_parser():
         '''%prog converts mybook.pdf to mybook.lrf\n\n'''
         )
 
+def process_file(path, options, logger=None):
+    if logger is None:
+        level = logging.DEBUG if options.verbose else logging.INFO
+        logger = logging.getLogger('pdf2lrf')
+        setup_cli_handlers(logger, level)
+    pdf = os.path.abspath(os.path.expanduser(path))
+    htmlfile = generate_html(pdf, logger)
+    if not options.output:
+        ext = '.lrs' if options.lrs else '.lrf'        
+        options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
+    else:
+        options.output = os.path.abspath(options.output)
+    options.pdftohtml = True
+    if not options.title:
+        options.title = filename_to_utf8(os.path.splitext(os.path.basename(options.output))[0])
+    html_process_file(htmlfile.name, options, logger)
 
-def main(args=sys.argv):
+
+def main(args=sys.argv, logger=None):
     parser = option_parser()
     options, args = parser.parse_args(args)
     if len(args) != 2:            
@@ -65,17 +84,7 @@ def main(args=sys.argv):
         print
         print 'No pdf file specified'
         return 1
-    pdf = os.path.abspath(os.path.expanduser(args[1]))
-    htmlfile = generate_html(pdf)
-    if not options.output:
-        ext = '.lrs' if options.lrs else '.lrf'        
-        options.output = os.path.abspath(os.path.basename(os.path.splitext(args[1])[0]) + ext)
-    else:
-        options.output = os.path.abspath(options.output)
-    options.pdftohtml = True
-    if not options.title:
-        options.title = filename_to_utf8(os.path.splitext(os.path.basename(options.output))[0])
-    process_file(htmlfile.name, options)
+    process_file(args[1], options, logger)
     return 0
 
 if __name__ == '__main__':

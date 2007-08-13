@@ -131,7 +131,7 @@ class Device(object):
         keys C{title}, C{authors}, C{cover}, C{tags}. The value of the C{cover} 
         element can be None or a three element tuple (width, height, data)
         where data is the image data in JPEG format as a string. C{tags} must be
-        a possibly empty list of strings.
+        a possibly empty list of strings. C{authors} must be a string.
         @param booklists: A tuple containing the result of calls to 
                                 (L{books}(oncard=False), L{books}(oncard=True)).
         '''

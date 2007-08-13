@@ -68,8 +68,6 @@ class LibraryDatabase(object):
             mi.title = title
         if mi.category:
             tags.append(mi.category)
-        if mi.classification:
-            tags.append(mi.classification)
         if tags:
             tags = ', '.join(tags)
         else:

@@ -86,6 +86,11 @@ def get_metadata(stream):
     if category_match:
         category = category_match.group(1).strip()
     mi = MetaInformation(title, author)
+    if author:
+        au = author.split(',')
+        mi.authors = []
+        for i in au:
+            mi.authors.extend(i.split('&'))
     mi.comments = comment
     mi.category = category
     return mi

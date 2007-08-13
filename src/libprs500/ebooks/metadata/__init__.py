@@ -40,12 +40,20 @@ def get_parser(extension):
 class MetaInformation(object):
     '''Convenient encapsulation of book metadata'''
     
-    def __init__(self, title, author):
+    def __init__(self, title, authors):
+        '''
+        @param title: title or "Unknonw"
+        @param authors: List of strings or []
+        '''
         self.title = title
-        self.author = author
+        self.author = authors # Needed for backward compatibility
+        #: List of strings or []
+        self.authors = authors
+        #: Sort text for author
+        self.author_sort = None
+        self.title_sort = None
         self.comments = None
         self.category = None
-        self.classification = None
         self.publisher = None
         self.series    = None
         self.series_index = None

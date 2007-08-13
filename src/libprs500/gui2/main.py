@@ -265,7 +265,7 @@ class Main(QObject, Ui_MainWindow):
             formats.append(format)
             metadata.append(mi)
             names.append(os.path.basename(book))
-            infos.append({'title':mi.title, 'authors':mi.author, 
+            infos.append({'title':mi.title, 'authors':', '.join(mi.authors), 
                           'cover':self.default_thumbnail, 'tags':[]})
         
         if not to_device:

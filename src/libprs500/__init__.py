@@ -64,14 +64,13 @@ def filename_to_utf8(name):
     return name.decode(codec, 'replace').encode('utf8')
 
 def extract(path, dir):
-    import os
     ext = os.path.splitext(path)[1][1:].lower()
     extractor = None
     if ext == 'zip':
         from libprs500.libunzip import extract
         extractor = extract
     elif ext == 'rar':
-        from libprs500.libunrar import extract
+        from libprs500.libunrar import extract # In case the dll is not found
         extractor = extract
     if not extractor:
         raise Exception('Unknown archive type')

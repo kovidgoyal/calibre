@@ -254,19 +254,35 @@ def get_metadata(stream):
     L{MetaInformation} object.
     """
     lrf = LRFMetaFile(stream)
-    mi = MetaInformation(lrf.title.strip(), lrf.author.strip())
+    au = lrf.author.strip().split(',')
+    authors = []
+    for i in au:
+        authors.extend(i.split('&'))
+    mi = MetaInformation(lrf.title.strip(), authors)
+    mi.author = lrf.author.strip()
     mi.comments = lrf.free_text.strip()
-    mi.category = lrf.category.strip()
-    mi.classification = lrf.classification.strip()
+    mi.category = lrf.category.strip()+', '+lrf.classification.strip()
     mi.publisher = lrf.publisher.strip()
+    try:
+        mi.title_sort = lrf.title_reading.strip()
+        if not mi.title_sort:
+            mi.title_sort = None
+    except:
+        pass
+    try:
+        mi.author_sort = lrf.author_reading.strip()
+        if not mi.author_sort:
+            mi.author_sort = None
+    except:
+        pass
     if not mi.title or 'unknown' in mi.title.lower():
         mi.title = None
+    if not mi.authors:
+        mi.authors = None
     if not mi.author or 'unknown' in mi.author.lower():
         mi.author = None
     if not mi.category or 'unknown' in mi.category.lower():
         mi.category = None
-    if not mi.classification or 'unknown' in mi.classification.lower():
-        mi.classification = None
     if not mi.publisher or 'unknown' in mi.publisher.lower() or \
             'some publisher' in mi.publisher.lower():
         mi.publisher = None

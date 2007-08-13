@@ -20,20 +20,18 @@ Code to convert HTML ebooks into LRF ebooks.
 I am indebted to esperanc for the initial CSS->Xylog Style conversion code
 and to Falstaff for pylrs.
 """
-import os, re, sys, shutil, copy, glob, logging
+import os, re, sys, copy, glob, logging
 from htmlentitydefs import name2codepoint
 from urllib import unquote
 from urlparse import urlparse
-from tempfile import mkdtemp
-from operator import itemgetter
 from math import ceil, floor
 try:
     from PIL import Image as PILImage
 except ImportError:
     import Image as PILImage
 
-from libprs500.ebooks.BeautifulSoup import BeautifulSoup, BeautifulStoneSoup, \
-                Comment, Tag, NavigableString, Declaration, ProcessingInstruction
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
+                            NavigableString, Declaration, ProcessingInstruction
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
@@ -43,8 +41,9 @@ from libprs500.ebooks.lrf import Book
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.table import Table 
-from libprs500 import extract, filename_to_utf8,  setup_cli_handlers
+from libprs500 import filename_to_utf8,  setup_cli_handlers, __appname__
 from libprs500.ptempfile import PersistentTemporaryFile
+from libprs500.ebooks.metadata.opf import OPFReader
 
 class Span(_Span):
     replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
@@ -643,7 +642,7 @@ class HTMLConverter(object):
                     except Exception:
                         self.logger.warning('Unable to process %s', path)
                         if self.verbose:
-                            self.logger.exception('')
+                            self.logger.exception(' ')
                         continue
                     finally:
                         os.chdir(cwd)
@@ -1291,15 +1290,13 @@ def process_file(path, options, logger=None):
         logger = logging.getLogger('html2lrf')
         setup_cli_handlers(logger, level)
     cwd = os.getcwd()
-    dirpath = None
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
+    dirpath = os.path.dirname(path)
     try:
-        dirpath, path = get_path(path)        
         cpath, tpath = '', '' 
         try_opf(path, options, logger)
-        if options.cover:
-            dp = dirpath if dirpath else os.path.dirname(path)
-            cpath = os.path.join(dp, os.path.basename(options.cover))
+        if options.cover:            
+            cpath = os.path.join(dirpath, os.path.basename(options.cover))
             if not os.path.exists(cpath):
                 cpath = os.path.abspath(os.path.expanduser(options.cover))
             options.cover = cpath
@@ -1309,7 +1306,7 @@ def process_file(path, options, logger=None):
                 cim = im.resize((options.profile.screen_width, 
                                  options.profile.screen_height), 
                                 PILImage.BICUBIC).convert('RGB')
-                cf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
+                cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
                 cf.close()                
                 cim.save(cf.name)
                 cpath = cf.name
@@ -1376,70 +1373,57 @@ def process_file(path, options, logger=None):
         return oname
     finally:
         os.chdir(cwd)
-        if dirpath:
-            shutil.rmtree(dirpath, True)
 
 def try_opf(path, options, logger):
     try:
         opf = glob.glob(os.path.join(os.path.dirname(path),'*.opf'))[0]
     except IndexError:
         return
-    soup = BeautifulStoneSoup(open(opf).read())
+    opf = OPFReader(open(opf, 'rb'))    
     try:
-        title = soup.package.metadata.find('dc:title')        
+        title = opf.title        
         if title and not options.title:
-            options.title = title.string
-        creators = soup.package.metadata.findAll('dc:creator')
+            options.title = title
         if options.author == 'Unknown':
-            for author in creators:
-                role = author.get('role')
-                if not role:
-                    role = author.get('opf:role')
-                if role == 'aut':
-                    options.author = author.string
-                    fa = author.get('file-as')
-                    if fa:
-                        options.author_sort = fa
+            if opf.authors:
+                options.author = ', '.join(opf.authors)
+            if opf.author_sort:
+                options.author_sort = opf.author_sort
         if options.publisher == 'Unknown':
-            publisher = soup.package.metadata.find('dc:publisher')
+            publisher = opf.publisher
             if publisher:
-                options.publisher = publisher.string
-        if not options.category.strip():
-            category = soup.package.metadata.find('dc:type')
+                options.publisher = publisher
+        if not options.category:
+            category = opf.category
             if category:
-                options.category = category.string
-        isbn = []
-        for item in soup.package.metadata.findAll('dc:identifier'):
-            scheme = item.get('scheme')
-            if not scheme:
-                scheme = item.get('opf:scheme')
-            isbn.append((scheme, item.string))
-            if not options.cover:
-                for item in isbn:
-                    src = item[1].replace('-', '')
-                    matches = glob.glob(os.path.join(os.path.dirname(path), src+'.*'))
-                    for match in matches:
-                        test = os.path.splitext(match)[1].lower()
-                        if test in ['.jpeg', '.jpg', '.gif', '.png']:
-                            options.cover = match
-                            break
-                
-        
+                options.category = category
         if not options.cover:
-            # Search for cover image in opf as created by convertlit
-            ref = soup.package.find('reference', {'type':'other.ms-coverimage-standard'})            
-            if ref:
-                try:
-                    options.cover = os.path.join(os.path.dirname(path), ref.get('href'))
-                    if not os.access(options.cover, os.R_OK):
-                        options.cover = None
-                except:
-                    logger.exception('Could not load cover')
+            cover = opf.cover            
+            if cover:
+                cover = os.path.join(os.path.dirname(path), cover)
+                if os.access(cover, os.R_OK):
+                    try:
+                        PILImage.open(cover)
+                        options.cover = cover
+                    except:
+                        pass
+        if not options.cover:
+            for prefix in opf.possible_cover_prefixes():
+                if options.cover:
+                    break
+                for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
+                    cpath = os.path.join(os.path.dirname(path), prefix+suffix)
+                    try:
+                        PILImage.open(cpath)
+                        options.cover = cpath
+                        break
+                    except:
+                        continue        
     except Exception:
         logger.exception('Failed to process opf file')
                 
 def option_parser():
-    return lrf_option_parser('''Usage: %prog [options] mybook.[html|rar|zip]\n\n'''
+    return lrf_option_parser('''Usage: %prog [options] mybook.html\n\n'''
                     '''%prog converts mybook.html to mybook.lrf''')
 
 def main(args=sys.argv):
@@ -1461,66 +1445,6 @@ def main(args=sys.argv):
     process_file(src, options)
     return 0
 
-def console_query(dirpath, candidate, docs):
-    if len(docs) == 1:
-        return 0
-    try:
-        import readline
-    except ImportError:
-        pass
-    i = 0
-    for doc in docs:
-        prefix = '>' if i == candidate else ''
-        print prefix+str(i)+'.\t', doc[0]
-        i += 1
-    print
-    while True:
-        try:
-            choice = raw_input('Choose file to convert (0-'+str(i-1) + \
-                               '). Current choice is ['+ str(candidate) + ']:')
-            if not choice:
-                return candidate
-            choice = int(choice)
-            if choice < 0 or choice >= i:
-                continue
-            candidate = choice
-        except EOFError, KeyboardInterrupt:
-            sys.exit()
-        except:
-            continue
-        break
-    return candidate
-        
-
-def get_path(path, query=console_query):
-    path = os.path.abspath(os.path.expanduser(path))
-    ext = os.path.splitext(path)[1][1:].lower()
-    if ext in ['htm', 'html', 'xhtml', 'php']:
-        return None, path
-    dirpath = mkdtemp('','html2lrf')
-    extract(path, dirpath)
-    candidate, docs = None, []
-    for root, dirs, files in os.walk(dirpath):
-        for name in files:
-            ext = os.path.splitext(name)[1][1:].lower()
-            if ext not in ['html', 'xhtml', 'htm', 'xhtm']:
-                continue
-            docs.append((name, root, os.stat(os.path.join(root, name)).st_size))
-            if 'toc' in name.lower():
-                candidate = name
-    docs.sort(key=itemgetter(2))
-    if candidate:
-        for i in range(len(docs)):
-            if docs[i][0] == candidate:
-                candidate = i
-                break
-    else:
-        candidate = len(docs) - 1
-    if len(docs) == 0:
-        raise ConversionError('No suitable files found in archive')
-    if len(docs) > 0:
-        candidate = query(dirpath, candidate, docs)
-    return dirpath, os.path.join(docs[candidate][1], docs[candidate][0])
 
 
 if __name__ == '__main__':
