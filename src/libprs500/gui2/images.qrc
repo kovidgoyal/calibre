@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/" >
         <file>images/book.svg</file>
+        <file>images/news.svg</file>
         <file>images/clear_left.svg</file>
         <file>images/dialog_error.svg</file>
         <file>images/dialog_warning.svg</file>
@@ -33,5 +34,8 @@
         <file>images/sd.svg</file>
         <file>images/sync.svg</file>
         <file>images/trash.svg</file>
+        <file>images/news/bbc.png</file>
+        <file>images/news/newsweek.png</file>
+        <file>images/news/nytimes.png</file>
     </qresource>
 </RCC>

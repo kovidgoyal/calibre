@@ -319,7 +319,12 @@
    </attribute>
    <addaction name="action_add" />
    <addaction name="action_del" />
+   <addaction name="action_edit" />
+   <addaction name="separator" />
+   <addaction name="action_sync" />
    <addaction name="action_save" />
+   <addaction name="separator" />
+   <addaction name="action_news" />
   </widget>
   <widget class="QStatusBar" name="statusBar" >
    <property name="mouseTracking" >
@@ -385,6 +390,14 @@
    </property>
    <property name="text" >
     <string>Save to disk</string>
+   </property>
+  </action>
+  <action name="action_news" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/news.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Fetch news</string>
    </property>
   </action>
  </widget>

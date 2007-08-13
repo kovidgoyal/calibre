@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import traceback, textwrap
+import traceback, textwrap, logging, cStringIO
 
 from PyQt4.QtCore import QAbstractTableModel, QMutex, QObject, SIGNAL, Qt, \
                          QVariant, QThread, QModelIndex
@@ -41,12 +41,28 @@ class Job(QThread):
         self.mutex = mutex
         self.result = None
         self.percent_done = 0
+        self.logger = logging.getLogger('Job #'+str(id))
+        self.logger.setLevel(logging.DEBUG)
+        self.log_dest = cStringIO.StringIO()
+        handler = logging.StreamHandler(self.log_dest)
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
+        self.logger.addHandler(handler)
         
+        
+    def progress_update(self, val):
+        self.percent_done = val
+        self.emit(SIGNAL('status_update(int, int)'), self.id, int(val))
+
+class DeviceJob(Job):
+    '''
+    Jobs that involve communication with the device. Synchronous.
+    '''
     def run(self):
         if self.mutex != None:
             self.mutex.lock()
         last_traceback, exception = None, None
-        try:            
+        try:
             try:
                 self.result = self.func(self.progress_update, *self.args, **self.kwargs)
             except Exception, err:
@@ -57,20 +73,24 @@ class Job(QThread):
                 self.mutex.unlock()
             self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
                       self.id, self.description, self.result, exception, last_traceback)
-            
-    def progress_update(self, val):
-        self.percent_done = val
-        self.emit(SIGNAL('status_update(int, int)'), self.id, int(val))
-
-class DeviceJob(Job):
-    '''
-    Jobs that involve communication with the device.
-    '''
-    def __init__(self, id, description, mutex, func, *args, **kwargs):
-        Job.__init__(self, id, description, mutex, func, *args, **kwargs)
         
     
-
+class ConversionJob(Job):
+    ''' Jobs that invlove conversion of content. Asynchronous. '''
+    def run(self):
+        last_traceback, exception = None, None
+        try:
+            try:
+                self.kwargs['logger'] = self.logger
+                self.result = self.func(*self.args, **self.kwargs)
+            except Exception, err:
+                exception = err
+                last_traceback = traceback.format_exc()            
+        finally:
+            self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
+                      self.id, self.description, self.result, exception, last_traceback, self.log_dest.getvalue())
+            
+        
 
 class JobManager(QAbstractTableModel):
     
@@ -122,6 +142,17 @@ class JobManager(QAbstractTableModel):
     
     def has_jobs(self):
         return len(self.jobs.values()) > 0
+    
+    def run_conversion_job(self, slot, callable, *args, **kwargs):
+        desc = kwargs.pop('job_description', '')
+        job = self.create_job(ConversionJob, desc, None, callable, *args, **kwargs)
+        QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+                        self.job_done)
+        if slot:
+            QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
+                            slot)
+        job.start()
+        return job.id
     
     def run_device_job(self, slot, callable, *args, **kwargs):
         '''
@@ -213,7 +244,7 @@ class JobManager(QAbstractTableModel):
                     status = 'Done'
                 return QVariant(status)
             if col == 2:
-                p = str(job.percent_done) + r'%'
+                p = str(job.percent_done) + r'%' if job.percent_done > 0 else 'Unavailable'
                 return QVariant(p)
         if role == Qt.DecorationRole and col == 0:
             return self.device_job_icon if isinstance(job, DeviceJob) else self.job_icon

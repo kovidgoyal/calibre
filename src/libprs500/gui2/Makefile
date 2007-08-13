@@ -1,4 +1,4 @@
-UI = main_ui.py dialogs/metadata_single_ui.py dialogs/metadata_bulk_ui.py dialogs/jobs_ui.py
+UI = main_ui.py dialogs/metadata_single_ui.py dialogs/metadata_bulk_ui.py dialogs/jobs_ui.py dialogs/conversion_error_ui.py
 RC = images_rc.pyc
 
 %_ui.py : %.ui

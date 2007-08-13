@@ -16,11 +16,14 @@ import os, sys, traceback, StringIO, textwrap
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
-from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox
+from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
+                        QToolButton
 from PyQt4.QtSvg import QSvgRenderer
 
 from libprs500 import __version__, __appname__
+from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata
+from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_TITLE, warning_dialog, choose_files, error_dialog, \
@@ -33,6 +36,7 @@ from libprs500.gui2.jobs import JobManager
 from libprs500.gui2.dialogs.metadata_single import MetadataSingleDialog
 from libprs500.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from libprs500.gui2.dialogs.jobs import JobsDialog
+from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog 
 
 
 class Main(QObject, Ui_MainWindow):
@@ -57,6 +61,8 @@ class Main(QObject, Ui_MainWindow):
         self.device_manager = None
         self.upload_memory = {}
         self.delete_memory = {}
+        self.conversion_jobs = {}
+        self.persistent_files = []
         self.default_thumbnail = None
         self.device_error_dialog = error_dialog(self.window, 'Error communicating with device', ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
@@ -98,10 +104,19 @@ class Main(QObject, Ui_MainWindow):
         QObject.connect(self.action_save, SIGNAL("triggered(bool)"), self.save_to_disk)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
-        self.tool_bar.addAction(self.action_sync)
-        self.tool_bar.addAction(self.action_edit)
-        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
-                
+        nm = QMenu()
+        nm.addAction(QIcon(':/images/news/bbc.png'), 'BBC')
+        nm.addAction(QIcon(':/images/news/newsweek.png'), 'Newsweek')
+        nm.addAction(QIcon(':/images/news/nytimes.png'), 'New York Times')
+        QObject.connect(nm.actions()[0], SIGNAL('triggered(bool)'), self.fetch_news_bbc)
+        QObject.connect(nm.actions()[1], SIGNAL('triggered(bool)'), self.fetch_news_newsweek)
+        QObject.connect(nm.actions()[2], SIGNAL('triggered(bool)'), self.fetch_news_nytimes)
+        self.news_menu = nm
+        self.action_news.setMenu(nm)
+        self.tool_bar.widgetForAction(self.action_news).setPopupMode(QToolButton.InstantPopup)
+        self.tool_bar.widgetForAction(self.action_edit).setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_sync).setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)        
         ####################### Library view ########################
         self.library_view.set_database(self.database_path)
         for func, target in [
@@ -231,10 +246,16 @@ class Main(QObject, Ui_MainWindow):
                              filters=[('Books', BOOK_EXTENSIONS)])
         if not books:
             return
+        to_device = self.stack.currentIndex() != 0
+        self._add_books(books, to_device)
+        if to_device:
+            self.status_bar.showMessage('Uploading books to device.', 2000)
+        
+    def _add_books(self, paths, to_device):
         on_card = False if self.stack.currentIndex() != 2 else True
         # Get format and metadata information
         formats, metadata, names, infos = [], [], [], []        
-        for book in books:
+        for book in paths:
             format = os.path.splitext(book)[1]
             format = format[1:] if format else None
             stream = open(book, 'rb')
@@ -244,16 +265,16 @@ class Main(QObject, Ui_MainWindow):
             formats.append(format)
             metadata.append(mi)
             names.append(os.path.basename(book))
-            infos.append({'title':mi.title, 'authors':mi.author, 'cover':self.default_thumbnail})
+            infos.append({'title':mi.title, 'authors':mi.author, 
+                          'cover':self.default_thumbnail, 'tags':[]})
         
-        if self.stack.currentIndex() == 0:
+        if not to_device:
             model = self.current_view().model()
-            model.add_books(books, formats, metadata)
+            model.add_books(paths, formats, metadata)
             model.resort()
             model.research()
         else:
-            self.upload_books(books, names, infos, on_card=on_card)
-            self.status_bar.showMessage('Adding books to device.', 2000)
+            self.upload_books(paths, names, infos, on_card=on_card)            
     
     def upload_books(self, files, names, metadata, on_card=False):
         '''
@@ -447,6 +468,39 @@ class Main(QObject, Ui_MainWindow):
             return
             
     ############################################################################
+    
+    ############################### Fetch news #################################
+    
+    def fetch_news(self, profile, pretty):
+        pt = PersistentTemporaryFile(suffix='.lrf')
+        pt.close()
+        args = ['web2lrf', '-o', pt.name, profile]
+        id = self.job_manager.run_conversion_job(self.news_fetched, web2lrf, args=args,
+                                            job_description='Fetch news from '+pretty)
+        self.conversion_jobs[id] = (pt, 'lrf')
+        self.status_bar.showMessage('Fetching news from '+pretty, 2000)
+        
+    def news_fetched(self, id, description, result, exception, formatted_traceback, log):
+        pt, fmt = self.conversion_jobs.pop(id)
+        if exception:
+            self.conversion_job_exception(id, description, exception, formatted_traceback, log)
+            return
+        to_device = self.device_connected and fmt in self.device_manager.device_class.FORMATS
+        self._add_books([pt.name], to_device)
+        if to_device:
+            self.status_bar.showMessage('News fetched. Uploading to device.', 2000)
+            self.persistent_files.append(pt)
+    
+    def fetch_news_bbc(self, checked):
+        self.fetch_news('bbc', 'BBC')
+    
+    def fetch_news_newsweek(self, checked):
+        self.fetch_news('newsweek', 'Newsweek')
+    
+    def fetch_news_nytimes(self, checked):
+        self.fetch_news('nytimes', 'New York Times')
+    
+    ############################################################################
     def location_selected(self, location):
         '''
         Called when a location icon is clicked (e.g. Library)
@@ -491,7 +545,19 @@ class Main(QObject, Ui_MainWindow):
             msg += self.wrap_traceback(formatted_traceback)
             self.device_error_dialog.setText(msg)
             self.device_error_dialog.show()
-        
+            
+    def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
+        print >>sys.stderr, 'Error in job:', description
+        print >>sys.stderr, log
+        print >>sys.stderr, exception
+        print >>sys.stderr, formatted_traceback
+        msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
+        msg += u'<p>Failed to perform <b>job</b>: '+description
+        msg += u'<p>Detailed <b>traceback</b>:<pre>'
+        msg += formatted_traceback + '</pre>'
+        msg += '<p><b>Log:</b></p><pre>'
+        msg += log
+        ConversionErrorDialog(self.window, 'Conversion Error', msg)
         
     
     def read_settings(self):

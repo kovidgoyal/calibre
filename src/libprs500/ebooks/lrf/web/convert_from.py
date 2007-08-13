@@ -111,16 +111,14 @@ def process_profile(args, options, logger=None):
         profile['finalize'](profile)
     shutil.rmtree(tdir)
 
-    
-
-def main(args=sys.argv):
+def main(args=sys.argv, logger=None):
     parser = option_parser()
     options, args = parser.parse_args(args)
     if len(args) > 2:
         parser.print_help()
         return 1
     try:
-        process_profile(args, options)
+        process_profile(args, options, logger=logger)
     except CommandLineError, err:
         print >>sys.stderr, err         
     return 0

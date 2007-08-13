@@ -1,0 +1,51 @@
+<ui version="4.0" >
+ <class>ConversionErrorDialog</class>
+ <widget class="QDialog" name="ConversionErrorDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>658</width>
+    <height>515</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>ERROR</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../images.qrc" >:/library</iconset>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string/>
+     </property>
+     <property name="pixmap" >
+      <pixmap resource="../images.qrc" >:/images/dialog_error.svg</pixmap>
+     </property>
+    </widget>
+   </item>
+   <item rowspan="2" row="0" column="1" >
+    <widget class="QTextBrowser" name="text" />
+   </item>
+   <item row="1" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../images.qrc" />
+ </resources>
+ <connections/>
+</ui>
