@@ -323,7 +323,9 @@ class HTMLConverter(object):
         else:
             object.__setattr__(self, attr, val)
     
-    def __init__(self, book, fonts, path, options, logger, link_level=0, is_root=True):
+    def __init__(self, book, fonts, path, options, logger, 
+                 link_level=0, is_root=True, 
+                 rotated_images={}, scaled_images={}, images={}, memory=[]):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -359,15 +361,15 @@ class HTMLConverter(object):
         self.css['.libprs500_dropcaps'] = {'font-size': 'xx-large'}
         self.logger = logger        
         self.fonts = fonts #: dict specifting font families to use
-        self.scaled_images = {}   #: Temporary files with scaled version of images        
-        self.rotated_images = {}  #: Temporary files with rotated version of images        
+        self.scaled_images = scaled_images    #: Temporary files with scaled version of images        
+        self.rotated_images = rotated_images  #: Temporary files with rotated version of images        
         self.link_level  = link_level  #: Current link level
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
         self.text_styles      = []#: Keep track of already used textstyles
         self.block_styles     = []#: Keep track of already used blockstyles
-        self.images  = {}         #: Images referenced in the HTML document
+        self.images  = images     #: Images referenced in the HTML document
         self.targets = {}         #: <a name=...> elements
         self.links   = []         #: <a href=...> elements        
         self.files   = {}         #: links that point to other files
@@ -379,8 +381,8 @@ class HTMLConverter(object):
         self.list_level = 0
         self.list_indent = 20
         self.list_counter = 1
-        self.memory = []          #: Used to ensure that duplicate CSS unhandled erros are not reported
-        self.book = book #: The Book object representing a BBeB book
+        self.memory = memory        #: Used to ensure that duplicate CSS unhandled erros are not reported
+        self.book = book            #: The Book object representing a BBeB book
         self.is_root = is_root           #: Are we converting the root HTML file
         self.lstrip_toggle = False #: If true the next add_text call will do an lstrip
         path = os.path.abspath(path)
@@ -632,7 +634,11 @@ class HTMLConverter(object):
                                      self.book, self.fonts, path, self.options,
                                      self.logger,
                                      link_level = self.link_level+1,
-                                     is_root = False,)
+                                     is_root = False,
+                                     rotated_images=self.rotated_images,
+                                     scaled_images=self.scaled_images,
+                                     images=self.images,
+                                     memory=self.memory)
                         HTMLConverter.processed_files[path] = self.files[path]
                     except Exception:
                         self.logger.warning('Unable to process %s', path)
@@ -803,7 +809,7 @@ class HTMLConverter(object):
         if self.rotated_images.has_key(path):
             path = self.rotated_images[path].name
         if self.scaled_images.has_key(path):
-            path = self.scaled_images[path].name            
+            path = self.scaled_images[path].name         
         
         try:
             im = PILImage.open(path)
@@ -1288,11 +1294,12 @@ def process_file(path, options, logger=None):
     dirpath = None
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
     try:
-        dirpath, path = get_path(path)
+        dirpath, path = get_path(path)        
         cpath, tpath = '', '' 
         try_opf(path, options, logger)
         if options.cover:
-            cpath = os.path.join(dirpath, os.path.basename(options.cover))
+            dp = dirpath if dirpath else os.path.dirname(path)
+            cpath = os.path.join(dp, os.path.basename(options.cover))
             if not os.path.exists(cpath):
                 cpath = os.path.abspath(os.path.expanduser(options.cover))
             options.cover = cpath
