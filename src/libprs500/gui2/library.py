@@ -357,7 +357,10 @@ class BooksView(QTableView):
         # Resetting the model should resize rows (model is reset after search and sort operations)
         QObject.connect(self.model(), SIGNAL('modelReset()'), self.resizeRowsToContents)
         self.cw = str(QSettings().value(self.__class__.__name__ + ' column widths', QVariant('')).toString())
-        self.cw = tuple(int(i) for i in self.cw.split(','))
+        try:
+            self.cw = tuple(int(i) for i in self.cw.split(','))
+        except ValueError:
+            self.cw = None
     
     def write_settings(self):
         settings = QSettings()
