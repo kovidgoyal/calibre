@@ -22,12 +22,11 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
                         QPalette
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
-                         QSettings
+                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.library.database import LibraryDatabase
-from libprs500.gui2 import NONE
+from libprs500.gui2 import NONE, TableView
 
 class LibraryDelegate(QItemDelegate):
     COLOR = QColor("blue")
@@ -326,7 +325,7 @@ class BooksModel(QAbstractTableModel):
         return done
 
         
-class BooksView(QTableView):
+class BooksView(TableView):
     TIME_FMT = '%d %b %Y'
     wrapper = textwrap.TextWrapper(width=20)
     
@@ -341,7 +340,7 @@ class BooksView(QTableView):
         return ('%.'+str(precision)+'f') % ((size/(1024.*1024.)),)
     
     def __init__(self, parent, modelcls=BooksModel):
-        QTableView.__init__(self, parent)
+        TableView.__init__(self, parent)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
@@ -356,24 +355,7 @@ class BooksView(QTableView):
         QObject.connect(self.model(), SIGNAL('rowsInserted(QModelIndex, int, int)'), self.resizeRowsToContents)
         # Resetting the model should resize rows (model is reset after search and sort operations)
         QObject.connect(self.model(), SIGNAL('modelReset()'), self.resizeRowsToContents)
-        self.cw = str(QSettings().value(self.__class__.__name__ + ' column widths', QVariant('')).toString())
-        try:
-            self.cw = tuple(int(i) for i in self.cw.split(','))
-        except ValueError:
-            self.cw = None
-    
-    def write_settings(self):
-        settings = QSettings()
-        settings.setValue(self.__class__.__name__ + ' column widths',
-                          QVariant(','.join(str(self.columnWidth(i))
-                             for i in range(self.model().columnCount(None)))))
-    
-    def restore_column_widths(self):
-        if self.cw and len(self.cw):
-            for i in range(len(self.cw)):
-                self.setColumnWidth(i, self.cw[i])
-            return True
-        return False
+        
     
     def set_database(self, db):
         self._model.set_database(db)
@@ -448,16 +430,10 @@ class DeviceBooksModel(BooksModel):
                 indices = self.row_indices(self.index(row, 0))
                 self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])        
     
-    def path_about_to_be_deleted(self, path):
-        for row in range(len(self.map)):            
-            if self.db[self.map[row]].path == path:
-                #print row, path
-                #print self.rowCount(None)
-                self.beginRemoveRows(QModelIndex(), row, row)
-                self.map.pop(row)
-                self.endRemoveRows()
-                #print self.rowCount(None)
-                return
+    def paths_deleted(self, paths):
+        self.map = list(range(0, len(self.db)))
+        self.resort(False)
+        self.research(True)
     
     def indices_to_be_deleted(self):
         ans = []
@@ -492,6 +468,7 @@ class DeviceBooksModel(BooksModel):
         self.map = result
         if reset:
             self.reset()
+        self.last_search = text
     
     def sort(self, col, order, reset=True):
         if not self.db:

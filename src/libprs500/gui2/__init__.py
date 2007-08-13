@@ -16,7 +16,8 @@
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant, QSettings, QFileInfo, QObject, SIGNAL, QBuffer, \
                          QByteArray
-from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, QIcon
+from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
+                        QIcon, QTableView
 from libprs500 import __appname__ as APP_TITLE
 from libprs500 import __author__
 NONE = QVariant() #: Null value to return from the data function of item models
@@ -57,6 +58,32 @@ def human_readable(size):
         size = size[:size.find(".")+2]
     return size + " " + suffix
 
+
+class TableView(QTableView):
+    def __init__(self, parent):
+        QTableView.__init__(self, parent)
+        self.read_settings()
+        
+    
+    def read_settings(self):
+        self.cw = str(QSettings().value(self.__class__.__name__ + ' column widths', QVariant('')).toString())
+        try:
+            self.cw = tuple(int(i) for i in self.cw.split(','))
+        except ValueError:
+            self.cw = None
+    
+    def write_settings(self):
+        settings = QSettings()
+        settings.setValue(self.__class__.__name__ + ' column widths',
+                          QVariant(','.join(str(self.columnWidth(i))
+                             for i in range(self.model().columnCount(None)))))
+    
+    def restore_column_widths(self):
+        if self.cw and len(self.cw):
+            for i in range(len(self.cw)):
+                self.setColumnWidth(i, self.cw[i])
+            return True
+    
 
 class FileIconProvider(QFileIconProvider):
     

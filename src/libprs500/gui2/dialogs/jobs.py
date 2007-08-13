@@ -38,3 +38,7 @@ class JobsDialog(Ui_JobsDialog, Dialog):
         
     def hide(self):
         self.dialog.hide()
+        
+    def close_event(self, e):
+        self.jobs_view.write_settings()
+        e.accept()

@@ -98,9 +98,9 @@ class RecursiveFetcher(object):
         
     def start_fetch(self, url):
         soup = BeautifulSoup('<a href="'+url+'" />')
-        print 'Downloading',
+        self.logger.info('Downloading')
         res = self.process_links(soup, url, 0, into_dir='')
-        print '%s saved to %s'%(url, res)
+        self.logger.info('%s saved to %s', url, res)
         return res
     
     def is_link_ok(self, url):

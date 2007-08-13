@@ -17,7 +17,7 @@
   </property>
   <layout class="QVBoxLayout" >
    <item>
-    <widget class="QTableView" name="jobs_view" >
+    <widget class="JobsView" name="jobs_view" >
      <property name="contextMenuPolicy" >
       <enum>Qt::NoContextMenu</enum>
      </property>
@@ -43,6 +43,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>JobsView</class>
+   <extends>QTableView</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../images.qrc" />
  </resources>

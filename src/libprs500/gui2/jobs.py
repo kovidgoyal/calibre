@@ -105,7 +105,6 @@ class JobManager(QAbstractTableModel):
         self.cleanup = {}
         self.device_job_icon = QVariant(QIcon(':/images/reader.svg'))
         self.job_icon        = QVariant(QIcon(':/images/jobs.svg'))
-        self.wrapper = textwrap.TextWrapper(width=40)
         
     def terminate_device_jobs(self):
         changed = False
@@ -235,7 +234,7 @@ class JobManager(QAbstractTableModel):
         job = self.jobs[keys[row]]
         if role == Qt.DisplayRole:            
             if col == 0:
-                return QVariant('\n'.join(self.wrapper.wrap(job.description)))
+                return QVariant(job.description)
             if col == 1:
                 status = 'Waiting'
                 if job.isRunning():
@@ -259,5 +258,10 @@ class JobManager(QAbstractTableModel):
             self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), index, index)
         except ValueError:
             pass
+        
+    def closeEvent(self, e):
+        self.jobs_view.write_settings()
+        e.accept()
+            
         
         

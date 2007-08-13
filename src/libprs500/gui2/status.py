@@ -95,14 +95,18 @@ class MovieButton(QFrame):
         self.setCursor(Qt.PointingHandCursor)
         self.setToolTip('Click to see list of active jobs.')
         movie.start()
-        movie.setPaused(True)       
+        movie.setPaused(True)
+        self.jobs_dialog.jobs_view.restore_column_widths()
         
         
     def mouseReleaseEvent(self, event):
         if self.jobs_dialog.isVisible():
+            self.jobs_dialog.jobs_view.write_settings()
             self.jobs_dialog.hide()
         else:
+            self.jobs_dialog.jobs_view.read_settings()
             self.jobs_dialog.show()
+            self.jobs_dialog.jobs_view.restore_column_widths()
         
 
 class StatusBar(QStatusBar):
