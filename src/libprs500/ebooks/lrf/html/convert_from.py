@@ -35,7 +35,7 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
-                LrsError
+                LrsError, Sup, Sub
 from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
 from libprs500.ebooks.lrf import Book
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
@@ -1182,6 +1182,11 @@ class HTMLConverter(object):
             self.current_para = Paragraph()
             self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
                                                              blockStyle=pb.blockStyle)
+        elif tagname in ['sub', 'sup']:
+            text = self.get_text(tag)
+            elem = Sub if tagname == 'sub' else Sup 
+            self.current_para.append(elem(text))
+                    
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             if tag.has_key('id'):
                 target = self.book.create_text_block(textStyle=self.current_block.textStyle,
