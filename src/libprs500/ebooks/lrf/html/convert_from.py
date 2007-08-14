@@ -489,7 +489,7 @@ class HTMLConverter(object):
         self.current_page = self.book.create_page()
         self.current_block = self.book.create_text_block()
         self.current_para = Paragraph()
-        if self.cover:
+        if self.cover and self.is_root:
             self.add_image_page(self.cover)
         self.top = self.current_block
         
