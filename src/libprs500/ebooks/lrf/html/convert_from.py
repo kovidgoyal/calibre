@@ -1203,11 +1203,7 @@ class HTMLConverter(object):
                 target = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                      blockStyle=self.current_block.blockStyle)
                 self.targets[tag['id']] = target
-                self.current_para.append_to(self.current_block)
-                self.current_para = Paragraph()
-                self.current_block.append_to(self.current_page)
-                self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
-                                                     blockStyle=self.current_block.blockStyle)
+                self.end_current_block()
                 self.current_page.append(target)
             src = self.get_text(tag, limit=1000)
             if not self.disable_chapter_detection and tagname.startswith('h'):
