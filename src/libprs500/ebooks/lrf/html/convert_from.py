@@ -834,6 +834,7 @@ class HTMLConverter(object):
                 im.resize((int(width), int(height)), PILImage.ANTIALIAS).convert('RGB').save(pt, 'JPEG')
                 pt.close()
                 self.scaled_images[path] = pt
+                encoding = 'JPEG'
                 return pt.name
             except IOError: # PIL chokes on interlaced PNG images
                 self.logger.warning('Unable to process interlaced PNG %s', path)
@@ -871,6 +872,7 @@ class HTMLConverter(object):
                 im = im.rotate(90)
                 im.convert('RGB').save(pt, 'JPEG')
                 path = pt.name
+                encoding = 'JPEG'
                 self.rotated_images[path] = pt
                 width, height = im.size
             except IOError: # PIL chokes on interlaced PNG files and since auto-rotation is not critical we ignore the error
