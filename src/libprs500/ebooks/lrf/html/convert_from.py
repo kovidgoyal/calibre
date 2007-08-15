@@ -805,6 +805,7 @@ class HTMLConverter(object):
                                                          blockStyle=self.current_block.blockStyle)
     
     def process_image(self, path, tag_css, width=None, height=None, dropcaps=False):
+        original_path = path
         if self.rotated_images.has_key(path):
             path = self.rotated_images[path].name
         if self.scaled_images.has_key(path):
@@ -812,8 +813,13 @@ class HTMLConverter(object):
         
         try:
             im = PILImage.open(path)
+            encoding = im.format
+            if encoding:
+                encoding = encoding.upper()
+                if encoding == 'JPG':
+                    encoding = 'JPEG'
         except IOError, err:
-            self.logger.warning('Unable to process image: %s\n%s', path, err)
+            self.logger.warning('Unable to process image: %s\n%s', original_path, err)
             return
 
         
@@ -868,7 +874,7 @@ class HTMLConverter(object):
                 self.rotated_images[path] = pt
                 width, height = im.size
             except IOError: # PIL chokes on interlaced PNG files and since auto-rotation is not critical we ignore the error
-                self.logger.debug('Unable to process interlaced PNG %s', path)                 
+                self.logger.debug('Unable to process interlaced PNG %s', original_path)                 
             finally:
                 pt.close()
         
@@ -893,8 +899,9 @@ class HTMLConverter(object):
         
         if not self.images.has_key(path):
             try:
-                self.images[path] = ImageStream(path)
-            except LrsError:
+                self.images[path] = ImageStream(path, encoding=encoding)
+            except LrsError, err:
+                self.logger.warning('Could not process image: %s\n%s', original_path, err)
                 return
             
         im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
@@ -972,8 +979,10 @@ class HTMLConverter(object):
             if tag.has_key('href') and not self.link_exclude.match(tag['href']):
                 purl = urlparse(tag['href'])
                 path = unquote(purl[2])
-                if path and os.access(path, os.R_OK) and os.path.splitext(path)[1][1:].lower() in \
-                    ['png', 'jpg', 'bmp', 'jpeg']:
+                ext = os.path.splitext(path)[1]
+                if ext: ext = ext[1:].lower()
+                if path and os.access(path, os.R_OK) and ext and \
+                                        ext in ['png', 'jpg', 'bmp', 'jpeg']:
                     self.process_image(path, tag_css)
                 else:
                     text = self.get_text(tag, limit=1000)
@@ -1199,7 +1208,7 @@ class HTMLConverter(object):
                                                      blockStyle=self.current_block.blockStyle)
                 self.current_page.append(target)
             src = self.get_text(tag, limit=1000)
-            if self.chapter_detection and tagname.startswith('h'):
+            if not self.disable_chapter_detection and tagname.startswith('h'):
                 if self.chapter_regex.search(src):
                     self.logger.debug('Detected chapter %s', src)
                     self.end_page()
