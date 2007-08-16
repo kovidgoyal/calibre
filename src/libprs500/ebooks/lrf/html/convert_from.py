@@ -53,10 +53,11 @@ class Span(_Span):
     
     
     @staticmethod
-    def unit_convert(val, dpi, ref=80):
+    def unit_convert(val, dpi, ref=80, pts=False):
         """
         Tries to convert html units stored in C{val} to pixels. 
         @param ref: reference size in pixels for % units.
+        @param pts: If True return 10*pts instead of pixels.
         @return: The number of pixels (an int) if successful. Otherwise, returns None.
         Assumes: One em is 10pts
         """
@@ -80,6 +81,8 @@ class Span(_Span):
                 result =  int(unit * 0.04 * (dpi/72.))
             elif m.group(2)== 'cm':
                 result =  int(unit * 0.4 * (dpi/72.))
+        if pts:
+            result = int((float(result)/dpi)*720)
         return result
     
     @staticmethod
@@ -1174,7 +1177,7 @@ class HTMLConverter(object):
             text = self.get_text(tag)
             elem = Sub if tagname == 'sub' else Sup 
             self.current_para.append(elem(text))
-                    
+                                
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             if tag.has_key('id'):
                 target = self.book.create_text_block(textStyle=self.current_block.textStyle,
@@ -1195,9 +1198,10 @@ class HTMLConverter(object):
                 return
             self.lstrip_toggle = True            
             if tag_css.has_key('text-indent'):
-                indent = Span.unit_convert(tag_css['text-indent'], self.profile.dpi)
+                indent = Span.unit_convert(tag_css['text-indent'], self.profile.dpi, pts=True)
                 if not indent:
-                    indent=0
+                    indent = 0
+                
             else:
                 indent = self.book.defaultTextStyle.attrs['parindent']
             if indent != self.current_block.textStyle.attrs['parindent']:
