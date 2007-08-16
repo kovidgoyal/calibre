@@ -58,6 +58,9 @@ class ArgumentError(ProtocolError):
 
 class PathError(ArgumentError):
     """ When a user supplies an incorrect/invalid path """
+    def __init__(self, msg, path=None):
+        ArgumentError.__init__(self, msg)
+        self.path = path
 
 class ControlError(ProtocolError):
     """ Errors in Command/Response pairs while communicating with the device """

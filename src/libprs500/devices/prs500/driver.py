@@ -679,7 +679,7 @@ class PRS500(Device):
             else:
                 if not replace_file: 
                     raise PathError("Cannot write to " + \
-                                    path + " as it already exists")
+                                    path + " as it already exists", path=path)
                 _file = self.path_properties(path, end_session=False)
                 if _file.file_size > bytes:
                     self.del_file(path, end_session=False)

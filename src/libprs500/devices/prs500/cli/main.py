@@ -22,6 +22,7 @@ import StringIO, sys, time, os
 from optparse import OptionParser
 
 from libprs500 import __version__ as VERSION
+from libprs500.devices.errors import PathError 
 from libprs500.devices.prs500.driver import PRS500
 from libprs500.devices.prs500.cli.terminfo import TerminalController
 from libprs500.devices.errors import ArgumentError, DeviceError, DeviceLocked
@@ -252,6 +253,8 @@ def main():
             "source must point to a file for which you have read permissions\n"+\
             "destination must point to a file or directory for which you have write permissions"
             parser = OptionParser(usage=usage)
+            parser.add_option('-f', '--force', dest='force', action='store_true', default=False,
+                              help='Overwrite the destination file if it exists already.')
             options, args = parser.parse_args(args)
             if len(args) != 2: 
                 parser.print_help()
@@ -277,7 +280,14 @@ def main():
                     print >> sys.stderr, e
                     parser.print_help()
                     return 1
-                dev.put_file(infile, args[1][7:])
+                try:
+                    dev.put_file(infile, args[1][7:])
+                except PathError, err:
+                    if options.force and 'exists' in str(err):
+                        dev.del_file(err.path, False)
+                        dev.put_file(infile, args[1][7:])
+                    else:
+                        raise
                 infile.close()
             else:
                 parser.print_help()
