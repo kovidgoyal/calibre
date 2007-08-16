@@ -299,13 +299,6 @@ class HTMLConverter(object):
                   
                   ]
     
-    class Link(object):
-        def __init__(self, para, tag):
-            self.para = para
-            self.tag = tag
-            
-    processed_files = {} #: Files that have been processed
-    
     def __hasattr__(self, attr):
         if hasattr(self.options, attr):
             return True
@@ -322,9 +315,28 @@ class HTMLConverter(object):
         else:
             object.__setattr__(self, attr, val)
     
-    def __init__(self, book, fonts, path, options, logger, 
-                 link_level=0, is_root=True, 
-                 rotated_images={}, scaled_images={}, images={}, memory=[]):
+    CSS = {
+           'h1'     : {"font-size"   : "xx-large", "font-weight":"bold", 'text-indent':'0pt'},
+           'h2'     : {"font-size"   : "x-large", "font-weight":"bold", 'text-indent':'0pt'},
+           'h3'     : {"font-size"   : "large", "font-weight":"bold", 'text-indent':'0pt'},
+           'h4'     : {"font-size"   : "large", 'text-indent':'0pt'},
+           'h5'     : {"font-weight" : "bold", 'text-indent':'0pt'},
+           'b'      : {"font-weight" : "bold"},
+           'strong' : {"font-weight" : "bold"},
+           'i'      : {"font-style"  : "italic"},
+           'cite'   : {'font-style'  : 'italic'},
+           'em'     : {"font-style"  : "italic"},
+           'small'  : {'font-size'   : 'small'},
+           'pre'    : {'font-family' : 'monospace' },
+           'code'   : {'font-family' : 'monospace' },
+           'tt'     : {'font-family' : 'monospace'},
+           'center' : {'text-align'  : 'center'},
+           'th'     : {'font-size'   : 'large', 'font-weight':'bold'},
+           'big'    : {'font-size'   : 'large', 'font-weight':'bold'},
+           '.libprs500_dropcaps' : {'font-size': 'xx-large'}, 
+           }
+    
+    def __init__(self, book, fonts, options, logger, path):
         '''
         Convert HTML file at C{path} and add it to C{book}. After creating
         the object, you must call L{self.process_links} on it to create the links and
@@ -333,57 +345,43 @@ class HTMLConverter(object):
         @param book: The LRF book 
         @type book:  L{libprs500.lrf.pylrs.Book}
         @param fonts: dict specifying the font families to use
-        @param path: path to the HTML file to process
-        @type path:  C{str}
         '''
         # Defaults for various formatting tags        
         object.__setattr__(self, 'options', options)
-        self.css = dict(
-            h1     = {"font-size"   : "xx-large", "font-weight":"bold", 'text-indent':'0pt'},
-            h2     = {"font-size"   : "x-large", "font-weight":"bold", 'text-indent':'0pt'},
-            h3     = {"font-size"   : "large", "font-weight":"bold", 'text-indent':'0pt'},
-            h4     = {"font-size"   : "large", 'text-indent':'0pt'},
-            h5     = {"font-weight" : "bold", 'text-indent':'0pt'},
-            b      = {"font-weight" : "bold"},
-            strong = {"font-weight" : "bold"},
-            i      = {"font-style"  : "italic"},
-            cite   = {'font-style'  : 'italic'},
-            em     = {"font-style"  : "italic"},
-            small  = {'font-size'   : 'small'},
-            pre    = {'font-family' : 'monospace' },
-            code   = {'font-family' : 'monospace' },
-            tt     = {'font-family' : 'monospace'},
-            center = {'text-align'  : 'center'},
-            th     = {'font-size'   : 'large', 'font-weight':'bold'},
-            big    = {'font-size'   : 'large', 'font-weight':'bold'},
-            )
-        self.css['.libprs500_dropcaps'] = {'font-size': 'xx-large'}
         self.logger = logger        
-        self.fonts = fonts #: dict specifting font families to use
-        self.scaled_images = scaled_images    #: Temporary files with scaled version of images        
-        self.rotated_images = rotated_images  #: Temporary files with rotated version of images        
-        self.link_level  = link_level  #: Current link level
+        self.fonts = fonts #: dict specifying font families to use
+        # Memory 
+        self.scaled_images = {}    #: Temporary files with scaled version of images        
+        self.rotated_images = {}  #: Temporary files with rotated version of images        
+        self.text_styles      = []#: Keep track of already used textstyles
+        self.block_styles     = []#: Keep track of already used blockstyles
+        self.images  = {}     #: Images referenced in the HTML document
+        self.targets = {}         #: <a name=...> and id elements
+        self.links   = {}         #: <a href=...> elements        
+        self.processed_files = []
+        self.link_level  = 0  #: Current link level
+        self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
+        self.tops = {}          #: element representing the top of each HTML file in the LRF file
+        # Styles 
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
-        self.text_styles      = []#: Keep track of already used textstyles
-        self.block_styles     = []#: Keep track of already used blockstyles
-        self.images  = images     #: Images referenced in the HTML document
-        self.targets = {}         #: <a name=...> elements
-        self.links   = []         #: <a href=...> elements        
-        self.files   = {}         #: links that point to other files
-        self.links_processed = False #: Whether links_processed has been called on this object
+        
+                
         # Set by table processing code so that any <a name> within the table 
         # point to the previous element
         self.anchor_to_previous = None 
         self.in_table = False
+        # List processing
         self.list_level = 0
         self.list_indent = 20
         self.list_counter = 1
-        self.memory = memory        #: Used to ensure that duplicate CSS unhandled erros are not reported
+        
         self.book = book            #: The Book object representing a BBeB book
-        self.is_root = is_root           #: Are we converting the root HTML file
         self.lstrip_toggle = False #: If true the next add_text call will do an lstrip
+        self.start_on_file(path, is_root=True)
+        
+    def start_on_file(self, path, is_root=True, link_level=0):
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
@@ -398,20 +396,25 @@ class HTMLConverter(object):
         if self.pdftohtml:
             nmassage.extend(HTMLConverter.PDFTOHTML)
             raw = unicode(raw, 'utf8', 'replace')
-        self.soup = BeautifulSoup(raw, 
+        soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
-        logger.info('\tConverting to BBeB...')
+        self.logger.info('\tConverting to BBeB...')
         sys.stdout.flush()        
         self.current_page = None
         self.current_para = None
         self.current_style = {}
         self.page_break_found = False
-        match = self.PAGE_BREAK_PAT.search(unicode(self.soup))
+        match = self.PAGE_BREAK_PAT.search(unicode(soup))
         if match and not re.match('avoid', match.group(1), re.IGNORECASE):
             self.page_break_found = True
-        self.parse_file()
-        HTMLConverter.processed_files[path] = self
+        self.css = HTMLConverter.CSS.copy()
+        self.target_prefix = path
+        self.links[path] = []
+        self.tops[path] = self.parse_file(soup, is_root)
+        self.processed_files.append(path)
+        self.process_links(is_root, path)
+            
         
     def parse_css(self, style):
         """
@@ -480,7 +483,7 @@ class HTMLConverter(object):
             prop.update(self.parse_style_properties(tag["style"]))    
         return prop
         
-    def parse_file(self):
+    def parse_file(self, soup, is_root):
         def get_valid_block(page):
             for item in page.contents:
                 if isinstance(item, (Canvas, TextBlock, ImageBlock, RuledLine)):
@@ -489,11 +492,11 @@ class HTMLConverter(object):
         self.current_page = self.book.create_page()
         self.current_block = self.book.create_text_block()
         self.current_para = Paragraph()
-        if self.cover and self.is_root:
+        if self.cover and is_root:
             self.add_image_page(self.cover)
-        self.top = self.current_block
+        top = self.current_block
         
-        self.process_children(self.soup, {})
+        self.process_children(soup, {})
         
         if self.current_para and self.current_block:
             self.current_para.append_to(self.current_block)
@@ -502,16 +505,16 @@ class HTMLConverter(object):
         if self.current_page and self.current_page.has_text():
             self.book.append(self.current_page)
         
-        if not self.top.parent:
+        if not top.parent:
             if not previous:
                 try:
                     previous = self.book.pages()[0]
                 except IndexError:                
                     raise ConversionError, self.file_name + ' does not seem to have any content'
-                self.top = get_valid_block(previous)
-                if not self.top or not self.top.parent:
+                top = get_valid_block(previous)
+                if not top or not top.parent:
                     raise ConversionError, self.file_name + ' does not seem to have any content'
-                return
+                return top
                 
             found = False
             for page in self.book.pages():
@@ -519,15 +522,30 @@ class HTMLConverter(object):
                     found = True
                     continue
                 if found:
-                    self.top = get_valid_block(page)
-                    if not self.top:
+                    top = get_valid_block(page)
+                    if not top:
                         continue
                     break
             
-            if not self.top or not self.top.parent:
+            if not top or not top.parent:
                 raise ConversionError, 'Could not parse ' + self.file_name
+        return top
             
-            
+    def create_link(self, para, tag):
+        text = self.get_text(tag, 1000)
+        if not text:
+            text = 'Link'
+            img = tag.find('img')
+            if img:
+                try:
+                    text = img['alt']
+                except KeyError:
+                    pass
+        
+        url = urlparse(tag['href'])
+        return {'para':para, 'text':text, 'url':url}
+        
+    
     def get_text(self, tag, limit=None):
             css = self.tag_css(tag)
             if (css.has_key('display') and css['display'].lower() == 'none') or \
@@ -548,7 +566,7 @@ class HTMLConverter(object):
                     text += self.get_text(c)
             return text
     
-    def process_links(self):
+    def process_links(self, is_root, selfpath, link_level=0):
         def add_toc_entry(text, target):
             # TextBlocks in Canvases have a None parent or an Objects Parent
             if target.parent != None and \
@@ -590,85 +608,39 @@ class HTMLConverter(object):
                 page.contents.remove(bs)
             return ans
         
-        cwd = os.getcwd()        
-        for link in self.links:
-            para, tag = link.para, link.tag
-            text = self.get_text(tag, 1000)
-            # Needed for TOC entries due to bug in LRF
-            ascii_text = text.encode('ascii', 'replace')
-            if not text:
-                text = 'Link'
-                img = tag.find('img')
-                if img:
-                    try:
-                        text = img['alt']
-                    except KeyError:
-                        pass
-            purl = urlparse(link.tag['href'])
-            if purl[1]: # Not a link to a file on the local filesystem
-                continue
-            path, fragment = unquote(purl[2]), purl[5]            
-            if not path or os.path.basename(path) == self.file_name:
-                if fragment in self.targets.keys():
-                    tb = get_target_block(fragment, self.targets)
-                    if self.is_root:
-                        add_toc_entry(ascii_text, tb)                        
-                    sys.stdout.flush()
-                    jb = JumpButton(tb)
-                    self.book.append(jb)
-                    cb = CharButton(jb, text=text)
-                    para.contents = []
-                    para.append(cb)
-            elif self.link_level < self.link_levels:
-                try: # os.access raises Exceptions in path has null bytes
-                    if not os.access(path.encode('utf8', 'replace'), os.R_OK):
-                        continue
-                except Exception:
-                    self.logger.exception('Skipping %s', link)
+        cwd = os.getcwd()
+        for link in self.links[selfpath]:
+            try:
+                para, text, purl = link['para'], link['text'], link['url']
+                # Needed for TOC entries due to bug in LRF
+                ascii_text = text.encode('ascii', 'replace')
+                if purl[1]: # Not a link to a file on the local filesystem
                     continue
-                path = os.path.abspath(path)
-                if not path in HTMLConverter.processed_files.keys():                    
-                    try:                        
-                        self.files[path] = HTMLConverter(
-                                     self.book, self.fonts, path, self.options,
-                                     self.logger,
-                                     link_level = self.link_level+1,
-                                     is_root = False,
-                                     rotated_images=self.rotated_images,
-                                     scaled_images=self.scaled_images,
-                                     images=self.images,
-                                     memory=self.memory)
-                        HTMLConverter.processed_files[path] = self.files[path]
+                basepath, fragment = unquote(purl[2]), purl[5]
+                if not basepath:
+                    basepath = selfpath
+                path = os.path.abspath(basepath)
+                if link_level < self.link_levels and path not in self.processed_files:                
+                    try:
+                        self.start_on_file(path, is_root=False, link_level=link_level+1)
                     except Exception:
                         self.logger.warning('Unable to process %s', path)
                         if self.verbose:
                             self.logger.exception(' ')
                         continue
                     finally:
-                        os.chdir(cwd)
+                        os.chdir(cwd)            
+                if path+fragment in self.targets.keys():
+                    tb = get_target_block(path+fragment, self.targets)
                 else:
-                    self.files[path] = HTMLConverter.processed_files[path]
-                conv = self.files[path]
-                if fragment in conv.targets.keys():
-                    tb = get_target_block(fragment, conv.targets)
-                else:
-                    tb = conv.top
-                if self.is_root:
+                    tb = self.tops[path]
+                if is_root:
                     add_toc_entry(ascii_text, tb)  
                 jb = JumpButton(tb)                
                 self.book.append(jb)
                 cb = CharButton(jb, text=text)
                 para.contents = []
-                para.append(cb)       
-                    
-        self.links_processed = True        
-        
-        for path in self.files.keys():
-            if self.files[path].links_processed:
-                continue
-            try:
-                os.chdir(os.path.dirname(path))
-                self.files[path].process_links()
+                para.append(cb)
             finally:
                 os.chdir(cwd)
             
@@ -704,13 +676,18 @@ class HTMLConverter(object):
     
     def process_children(self, ptag, pcss):
         """ Process the children of ptag """
-        for c in ptag.contents:
+        # Need to make a copy of contents as when
+        # extract is called on a child, it will
+        # mess up the iteration.
+        contents = [i for i in ptag.contents]
+        for c in contents:
             if isinstance(c, HTMLConverter.IGNORED_TAGS):
                 continue
             elif isinstance(c, Tag):
                 self.parse_tag(c, pcss)
             elif isinstance(c, NavigableString):
                 self.add_text(c, pcss)
+        ptag.extract()
                     
     def process_alignment(self, css):
         '''
@@ -991,22 +968,22 @@ class HTMLConverter(object):
                     if not text.strip():
                         text = "Link"
                     self.add_text(text, tag_css)
-                    self.links.append(HTMLConverter.Link(self.current_para.contents[-1], tag))
+                    self.links[self.target_prefix].append(self.create_link(self.current_para.contents[-1], tag))
                     if tag.has_key('id') or tag.has_key('name'):
                         key = 'name' if tag.has_key('name') else 'id'
-                        self.targets[tag[key]] = self.current_block
+                        self.targets[self.target_prefix+tag[key]] = self.current_block
             elif tag.has_key('name') or tag.has_key('id'):
                 key = 'name' if tag.has_key('name') else 'id'
                 if self.anchor_to_previous:
                     self.process_children(tag, tag_css)
                     for c in self.anchor_to_previous.contents:
                         if isinstance(c, (TextBlock, ImageBlock)):
-                            self.targets[tag[key]] = c
+                            self.targets[self.target_prefix+tag[key]] = c
                             return
                     tb = self.book.create_text_block()
                     tb.Paragraph(" ")
                     self.anchor_to_previous.append(tb)
-                    self.targets[tag[key]] = tb                    
+                    self.targets[self.target_prefix+tag[key]] = tb                    
                     return
                 previous = self.current_block
                 self.process_children(tag, tag_css)
@@ -1047,7 +1024,7 @@ class HTMLConverter(object):
                         else:
                             target = BlockSpace()
                             self.current_page.append(target)
-                self.targets[tag[key]] = target            
+                self.targets[self.target_prefix+tag[key]] = target            
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
                 path = os.path.abspath(unquote(tag['src']))
@@ -1202,7 +1179,7 @@ class HTMLConverter(object):
             if tag.has_key('id'):
                 target = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                      blockStyle=self.current_block.blockStyle)
-                self.targets[tag['id']] = target
+                self.targets[self.target_prefix+tag['id']] = target
                 self.end_current_block()
                 self.current_page.append(target)
             src = self.get_text(tag, limit=1000)
@@ -1371,8 +1348,7 @@ def process_file(path, options, logger=None):
             fpba = ['$', '', '$']
         options.force_page_break_attr = [re.compile(fpba[0], re.IGNORECASE), fpba[1],
                                          re.compile(fpba[2], re.IGNORECASE)]
-        conv = HTMLConverter(book, fonts, path, options, logger)
-        conv.process_links()
+        conv = HTMLConverter(book, fonts, options, logger, path)
         oname = options.output
         if not oname:
             suffix = '.lrs' if options.lrs else '.lrf'
@@ -1438,7 +1414,7 @@ def option_parser():
     return lrf_option_parser('''Usage: %prog [options] mybook.html\n\n'''
                     '''%prog converts mybook.html to mybook.lrf''')
 
-def main(args=sys.argv):
+def main(args=sys.argv):    
     try:
         parser = option_parser()
         options, args = parser.parse_args(args)    
@@ -1453,7 +1429,8 @@ def main(args=sys.argv):
             warnings.defaultaction = 'error'
     except Exception, err:
         print >> sys.stderr, err
-        return 1    
+        return 1
+    
     process_file(src, options)
     return 0
 

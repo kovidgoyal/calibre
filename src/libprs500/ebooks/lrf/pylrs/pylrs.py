@@ -484,6 +484,8 @@ class Book(Delegator):
         self.applySettings(settings, testValid=True)
         
         self.allow_new_page = True #: If False L{create_page} raises an exception
+        self.gc_count = 0
+        
 
     def create_text_style(self, **settings):
         ans = TextStyle(**self.defaultTextStyle.attrs.copy())
@@ -1448,7 +1450,7 @@ class TextBlock(LrsObject, LrsContainer):
         self.blockStyle = blockStyle
 
         # create a textStyle with our current text settings (for Span to find)        
-        self.currentTextStyle = textStyle.copy()
+        self.currentTextStyle = textStyle.copy() if self.textSettings else textStyle
         self.currentTextStyle.attrs.update(self.textSettings)
 
 
