@@ -416,7 +416,7 @@ class HTMLConverter(object):
         self.links[path] = []
         self.tops[path] = self.parse_file(soup, is_root)
         self.processed_files.append(path)
-        self.process_links(is_root, path)
+        self.process_links(is_root, path, link_level=link_level)
             
         
     def parse_css(self, style):
@@ -623,6 +623,7 @@ class HTMLConverter(object):
                 if not basepath:
                     basepath = selfpath
                 path = os.path.abspath(basepath)
+                
                 if link_level < self.link_levels and path not in self.processed_files:                
                     try:
                         self.start_on_file(path, is_root=False, link_level=link_level+1)
@@ -636,7 +637,10 @@ class HTMLConverter(object):
                 if path+fragment in self.targets.keys():
                     tb = get_target_block(path+fragment, self.targets)
                 else:
-                    tb = self.tops[path]
+                    try:
+                        tb = self.tops[path]
+                    except KeyError:
+                        return
                 if is_root:
                     add_toc_entry(ascii_text, tb)  
                 jb = JumpButton(tb)                
