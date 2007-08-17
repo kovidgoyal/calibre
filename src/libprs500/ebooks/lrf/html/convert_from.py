@@ -491,6 +491,8 @@ class HTMLConverter(object):
         def get_valid_block(page):
             for item in page.contents:
                 if isinstance(item, (Canvas, TextBlock, ImageBlock, RuledLine)):
+                    if isinstance(item, TextBlock) and not item.contents:
+                        continue
                     return item
         previous = self.book.last_page()
         self.current_page = self.book.create_page()
@@ -509,7 +511,7 @@ class HTMLConverter(object):
         if self.current_page and self.current_page.has_text():
             self.book.append(self.current_page)
         
-        if not top.parent:
+        if not top.parent or not top.contents:
             if not previous:
                 try:
                     previous = self.book.pages()[0]
@@ -651,7 +653,7 @@ class HTMLConverter(object):
                 para.append(cb)
                 try:
                     self.unused_target_blocks.remove(tb)
-                except:
+                except ValueError:
                     pass
             finally:
                 os.chdir(cwd)
@@ -1188,14 +1190,19 @@ class HTMLConverter(object):
             self.current_para.append(elem(text))
                                 
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-            if tag.has_key('id'):                
+            tkey = None
+            if self.anchor_ids and tag.has_key('id'):                
                 target = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                      blockStyle=self.current_block.blockStyle)
                 tkey = self.target_prefix+tag['id']
                 self.targets[tkey] = target
-                self.unused_target_blocks.append(target)
-                self.end_current_block()
-                self.current_page.append(target)
+                
+                if len(self.current_block.contents) > 2:
+                    self.end_current_block()
+                    self.current_page.append(target)
+                    self.unused_target_blocks.append(target)
+                else:
+                    self.targets[tkey] = self.current_block
             src = self.get_text(tag, limit=1000)
             if not self.disable_chapter_detection and tagname.startswith('h'):
                 if self.chapter_regex.search(src):
@@ -1226,6 +1233,7 @@ class HTMLConverter(object):
                     self.text_styles.append(ts)
                 self.current_block = self.book.create_text_block(blockStyle=self.current_block.blockStyle,
                                                                  textStyle=ts)
+                self.targets[tkey] = self.current_block
             self.process_children(tag, tag_css)
             self.end_current_para()
             if tagname.startswith('h') or self.blank_after_para:
@@ -1369,6 +1377,8 @@ def process_file(path, options, logger=None):
             fpba = ['$', '', '$']
         options.force_page_break_attr = [re.compile(fpba[0], re.IGNORECASE), fpba[1],
                                          re.compile(fpba[2], re.IGNORECASE)]
+        if not hasattr(options, 'anchor_ids'):
+            options.anchor_ids = True
         conv = HTMLConverter(book, fonts, options, logger, path)
         oname = options.output
         if not oname:
