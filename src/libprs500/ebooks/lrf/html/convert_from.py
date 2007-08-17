@@ -62,6 +62,10 @@ class Span(_Span):
         Assumes: One em is 10pts
         """
         result = None
+        try:
+            result = int(val)
+        except ValueError:
+            pass
         m = re.match("\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
         if m is not None:
             unit = float(m.group(1))
@@ -81,6 +85,8 @@ class Span(_Span):
                 result =  int(unit * 0.04 * (dpi/72.))
             elif m.group(2)== 'cm':
                 result =  int(unit * 0.4 * (dpi/72.))
+        if result is None:
+            result = 0
         if pts:
             result = int((float(result)/dpi)*720)
         return result
@@ -259,7 +265,9 @@ class Span(_Span):
             attrs.pop('fontfacename')
         for key in attrs:
             if parent_style.has_key(key) and str(parent_style[key]) == str(attrs[key]):
-                attrs.pop(key) 
+                attrs.pop(key)
+        self.text_src = src
+        self.span_needed = bool(attrs)
         _Span.__init__(self, text=src, **attrs)
         
 class HTMLConverter(object):
@@ -544,9 +552,12 @@ class HTMLConverter(object):
     def create_link(self, children, tag):
         para = None
         for i in range(len(children)-1, -1, -1):
-            if not isinstance(children[i], CR):
+            if isinstance(children[i], _Span):
                 para = children[i]
                 break
+        if para is None:
+            print children
+            raise ConversionError('Failed to parse link %s'%(tag,))
         text = self.get_text(tag, 1000)
         if not text:
             text = 'Link'
@@ -710,7 +721,8 @@ class HTMLConverter(object):
                 self.parse_tag(c, pcss)
             elif isinstance(c, NavigableString):
                 self.add_text(c, pcss)
-        ptag.extract()
+        if not self.in_table:
+            ptag.extract()
                     
     def process_alignment(self, css):
         '''
@@ -748,7 +760,7 @@ class HTMLConverter(object):
             return True
         return False
     
-    def add_text(self, tag, css):
+    def add_text(self, tag, css, force_span_use=False):
         '''
         Add text to the current paragraph taking CSS into account.
         @param tag: Either a BeautifulSoup tag or a string
@@ -760,20 +772,29 @@ class HTMLConverter(object):
         if self.process_alignment(css) and collapse_whitespace:
             # Dont want leading blanks in a new paragraph
             src = src.lstrip()
-        args = self.sanctify_css(css), self.memory, self.profile.dpi, self.fonts,\
-                self.logger, self.font_delta, self.current_block.textStyle.attrs
+        def append_text(src):
+            span = Span(src, self.sanctify_css(css), self.memory, self.profile.dpi, 
+                        self.fonts, self.logger, self.font_delta, 
+                        self.current_block.textStyle.attrs)
+            if span.span_needed or force_span_use:
+                self.current_para.append(span)
+            else:
+                if hasattr(span.text_src, 'parent'):
+                    span.text_src.parent.contents = []
+                    span.text_src.parent = None
+                self.current_para.append(span.text_src)
         if collapse_whitespace:
             src = re.sub(r'\s{1,}', ' ', src)
             if len(self.previous_text) != len(self.previous_text.rstrip()):
                 src = src.lstrip()
             if len(src):
                 self.previous_text = src
-                self.current_para.append(Span(src, *args))    
+                append_text(src)    
         else:
             srcs = src.split('\n')
             for src in srcs:
                 if src:
-                    self.current_para.append(Span(src, *args))
+                    append_text(src)
                     if len(srcs) > 1:                
                         self.line_break()
         
@@ -973,7 +994,7 @@ class HTMLConverter(object):
     def process_block(self, tag, tag_css, tkey):
         ''' Ensure padding and text-indent properties are respected '''
         if tag_css.has_key('text-indent'):
-            indent = Span.unit_convert(tag_css['text-indent'], self.profile.dpi, pts=True)
+            indent = Span.unit_convert(str(tag_css['text-indent']), self.profile.dpi, pts=True)
             if not indent:
                 indent = 0
             
@@ -1051,7 +1072,7 @@ class HTMLConverter(object):
                     text = self.get_text(tag, limit=1000)
                     if not text.strip():
                         text = "Link"
-                    self.add_text(text, tag_css)
+                    self.add_text(text, tag_css, force_span_use=True)
                     self.links[self.target_prefix].append(self.create_link(self.current_para.contents, tag))
                     if tag.has_key('id') or tag.has_key('name'):
                         key = 'name' if tag.has_key('name') else 'id'
@@ -1312,9 +1333,12 @@ class HTMLConverter(object):
                 self.process_table(tag, tag_css)
             except Exception, err:
                 self.logger.warning('An error occurred while processing a table: %s', str(err))
+                self.logger.debug('', exc_info=True)
                 self.logger.warning('Ignoring table markup for table:\n%s', str(tag)[:300])
                 self.in_table = False
-                self.process_children(tag, tag_css) 
+                self.process_children(tag, tag_css)
+            finally:                
+                tag.extract()
         else:
             self.process_children(tag, tag_css)        
         if end_page:
@@ -1325,8 +1349,11 @@ class HTMLConverter(object):
         rowpad = 10
         table = Table(self, tag, tag_css, rowpad=rowpad, colpad=10)
         canvases = []
-        for block, xpos, ypos, delta in table.blocks(int(self.current_page.pageStyle.attrs['textwidth'])):
+        ps = self.current_page.pageStyle.attrs
+        for block, xpos, ypos, delta in table.blocks(int(ps['textwidth']), int(ps['textheight'])):
             if not block:
+                if ypos > int(ps['textheight']):
+                    raise Exception, 'Table has cell that is too large' 
                 canvases.append(Canvas(int(self.current_page.pageStyle.attrs['textwidth']), ypos+rowpad,
                         blockrule='block-fixed'))
             else:

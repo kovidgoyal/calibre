@@ -96,8 +96,7 @@ class Cell(object):
             self.colspan = int(tag['colspan']) if tag.has_key('colspan') else 1
             self.rowspan = int(tag['rowspan']) if tag.has_key('rowspan') else 1
         except:
-            if conv.verbose:
-                print >>sys.stderr, "Error reading row/colspan for ", tag
+            pass
                 
         pp = conv.current_page
         conv.book.allow_new_page = False
@@ -219,7 +218,7 @@ class Row(object):
     def __init__(self, conv, row, css, colpad):
         self.cells = []
         self.colpad = colpad
-        cells = row.findAll(re.compile('td|th'))
+        cells = row.findAll(re.compile('td|th', re.IGNORECASE))
         for cell in cells:
             ccss = conv.tag_css(cell, css)
             self.cells.append(Cell(conv, cell, ccss))        
@@ -347,7 +346,7 @@ class Table(object):
             itercount += 1
         return [i+self.colpad for i in widths]
     
-    def blocks(self, maxwidth):       
+    def blocks(self, maxwidth, maxheight):       
         rows, cols = self.number_or_rows(), self.number_of_columns()
         cellmatrix = [[None for c in range(cols)] for r in range(rows)]        
         rowpos = [0 for i in range(rows)]
