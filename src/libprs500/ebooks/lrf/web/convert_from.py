@@ -39,6 +39,10 @@ def option_parser():
     parser.add_option('-u', '--url', dest='url', default=None,  
                       help='The URL to download. You only need to specify this if you are not specifying a website_profile.')
     
+    parser.add_option('--username', dest='username', default=None, 
+                      help='Specify the username to be used while downloading. Only used if the profile supports it.')
+    parser.add_option('--password', dest='password', default=None,
+                      help='Specify the password to be used while downloading. Only used if the profile supports it.')
     parser.add_option('--timeout', help='Timeout in seconds to wait for a response from the server. Default: %default s',
                       default=None, type='int', dest='timeout')
     parser.add_option('-r', '--max-recursions', help='Maximum number of levels to recurse i.e. depth of links to follow. Default %default',
@@ -64,7 +68,7 @@ def fetch_website(options, logger):
     return fetcher.start_fetch(options.url), tdir
     
 def create_lrf(htmlfile, options, logger):
-    if not options.author:
+    if not options.author or options.author.lower() == 'unknown':
         options.author = __appname__
     options.header = True
     if options.output:
@@ -83,9 +87,12 @@ def process_profile(args, options, logger=None):
         if not profiles.has_key(args[1]):
             raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], profiles.keys()))
     profile = profiles[args[1]] if len(args) == 2 else profiles['default']
-    
+    profile['username'] = options.username
+    profile['password'] = options.password
     if profile.has_key('initialize'):
         profile['initialize'](profile)
+    if profile.has_key('browser'):
+        options.browser = profile['browser']
     
     for opt in ('url', 'timeout', 'max_recursions', 'max_files', 'delay', 'no_stylesheets'):
         val = getattr(options, opt)
@@ -104,12 +111,15 @@ def process_profile(args, options, logger=None):
     options.match_regexps += profile['match_regexps']
     options.preprocess_regexps = profile['preprocess_regexps']
     options.filter_regexps += profile['filter_regexps']
+    if len(args) == 2 and args[1] != 'default':
+        options.anchor_ids = False
     
     htmlfile, tdir = fetch_website(options, logger)
     create_lrf(htmlfile, options, logger)
     if profile.has_key('finalize'):
         profile['finalize'](profile)
     shutil.rmtree(tdir)
+    
 
 def main(args=sys.argv, logger=None):
     parser = option_parser()

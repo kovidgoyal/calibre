@@ -17,6 +17,9 @@ import time, re
 
 from libprs500.ebooks.lrf.web.newsweek import initialize as newsweek_initialize
 from libprs500.ebooks.lrf.web.newsweek import finalize as newsweek_finalize
+from libprs500.ebooks.lrf.web.nytimes import initialize as nytimes_initialize
+from libprs500.ebooks.lrf.web.nytimes import finalize as nytimes_finalize
+
 
 profiles = {
             'default' : {
@@ -37,32 +40,25 @@ profiles = {
                        },
                        
             'nytimes' : {
-                         'url'               : 'http://nytimesriver.com',
+                         'initialize'          : nytimes_initialize,
+                         'finalize'            : nytimes_finalize,
+                         'timefmt'             :  ' [%a, %d %b, %Y]',
+                         'max_recursions'      : 2,                         
                          'title'             : 'The New York Times',
-                         'match_regexps'     : 'nytimes.com/'+time.strftime('%Y', time.localtime()),
                          'preprocess_regexps' :
                          [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
                           [
-                           # Remove help link and replace by title
-                           (r'<a .*?alt=.Click here for information about this service.*?</a>', 
-                            lambda match: '<h1>The New York Times</h1>\n<p align="right"><b>%s</b></p>'%(time.strftime('%a %d %b %Y', time.localtime()),)),
-                           # Blank line before categories
-                           (r'<b>\s*NYT', lambda match: '<p></p><b>NYT'),
-                           # Blank line between articles
-                           (r'<p><a href', lambda match : '<br /><p><a href'),
-                           # Remove header on individual articles
-                           (r'<body class=.printerversion..*?<h1><nyt_headline', 
-                            lambda match : '<body class="printerversion">\n<h1><nyt_headline'),
-                           # Remove footer from individiual articles
-                           (r'<nyt_update_bottom.*', lambda match : '</body></html>'),
-                           # Remove TimesSelect garbage
-                           (r'<title>.*?TimesSelect', lambda match : 'Downloading of TimesSelect stories is not supported.<!--'),
+                           # Remove header bar
+                           (r'(<body.*?>).*?<h1', lambda match: match.group(1)+'<h1'),
+                           (r'<div class="articleTools">.*></ul>', lambda match : ''),
+                           # Remove footer bar
+                           (r'<\!--  end \#article -->.*', lambda match : '</body></html>'),
+                           (r'<div id="footer">.*', lambda match : '</body></html>'),
                            ]
                           ],
                          },
                          
             'bbc'     : {
-                         'url'               : 'http://bbcriver.com',
                          'title'             : 'The BBC',
                          'no_stylesheets'    : True,
                          'preprocess_regexps' :
