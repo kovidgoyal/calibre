@@ -362,6 +362,7 @@ class HTMLConverter(object):
         self.targets = {}         #: <a name=...> and id elements
         self.links   = {}         #: <a href=...> elements        
         self.processed_files = []
+        self.unused_target_blocks = [] #: Used to remove extra TextBlocks
         self.link_level  = 0  #: Current link level
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.tops = {}          #: element representing the top of each HTML file in the LRF file
@@ -648,6 +649,10 @@ class HTMLConverter(object):
                 cb = CharButton(jb, text=text)
                 para.contents = []
                 para.append(cb)
+                try:
+                    self.unused_target_blocks.remove(tb)
+                except:
+                    pass
             finally:
                 os.chdir(cwd)
             
@@ -1183,10 +1188,12 @@ class HTMLConverter(object):
             self.current_para.append(elem(text))
                                 
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-            if tag.has_key('id'):
+            if tag.has_key('id'):                
                 target = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                      blockStyle=self.current_block.blockStyle)
-                self.targets[self.target_prefix+tag['id']] = target
+                tkey = self.target_prefix+tag['id']
+                self.targets[tkey] = target
+                self.unused_target_blocks.append(target)
                 self.end_current_block()
                 self.current_page.append(target)
             src = self.get_text(tag, limit=1000)
@@ -1272,7 +1279,13 @@ class HTMLConverter(object):
         self.end_current_block()
         
     
+    def remove_unused_target_blocks(self):
+        for block in self.unused_target_blocks:
+            block.parent.contents.remove(block)
+            block.parent = None
+    
     def writeto(self, path, lrs=False):
+        self.remove_unused_target_blocks()
         self.book.renderLrs(path) if lrs else self.book.renderLrf(path)
         
     def cleanup(self):
