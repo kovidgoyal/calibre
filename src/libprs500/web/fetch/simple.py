@@ -15,12 +15,12 @@
 '''
 Fetch a webpage and its links recursively.
 '''
-import sys, socket, urllib2, os, urlparse, codecs, logging, re, time, copy
+import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2
 from urllib import url2pathname
 from httplib import responses
 from optparse import OptionParser
 
-from libprs500 import __version__, __appname__, __author__, setup_cli_handlers
+from libprs500 import __version__, __appname__, __author__, setup_cli_handlers, browser
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
 class FetchError(Exception):
@@ -57,6 +57,7 @@ class RecursiveFetcher(object):
             os.makedirs(self.base_dir)
         self.default_timeout = socket.getdefaulttimeout()
         socket.setdefaulttimeout(options.timeout)
+        self.browser = options.browser if hasattr(options, 'browser') else browser()
         self.max_recursions = options.max_recursions
         self.match_regexps  = [re.compile(i, re.IGNORECASE) for i in options.match_regexps]
         self.filter_regexps = [re.compile(i, re.IGNORECASE) for i in options.filter_regexps]
@@ -84,9 +85,7 @@ class RecursiveFetcher(object):
         if  delta < self.delay:
             time.sleep(delta)
         try:
-            opener = urllib2.build_opener()
-            opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
-            f = opener.open(url)
+            f = self.browser.open(url)
         except urllib2.URLError, err:
             if hasattr(err, 'code') and responses.has_key(err.code):
                 raise FetchError, responses[err.code]

@@ -233,7 +233,7 @@ setup(
                      'argv_emulation' : True,
                      'iconfile' : 'icons/library.icns',
                      'frameworks': ['libusb.dylib', 'libunrar.dylib'],
-                     'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg'],
+                     'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 'mechanize', 'ClientForm'],
                      'packages' : ['PIL', 'Authorization',],
                      'excludes' : ['pydoc'],
                      'plist'    : { 'CFBundleGetInfoString' : '''libprs500, an E-book management application.'''

@@ -433,7 +433,7 @@ setup(
       options = { 'py2exe' : {'compressed': 1,
                               'optimize'  : 2,
                               'dist_dir'  : PY2EXE_DIR,
-                              'includes'  : ['sip', 'pkg_resources', 'PyQt4.QtSvg'],                                
+                              'includes'  : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 'mechanize', 'ClientForm'],                                
                               'packages'  : ['PIL', 'WmfPlugin'],
                               'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
                                              "_imagingtk", "ImageTk", "FixTk", 
