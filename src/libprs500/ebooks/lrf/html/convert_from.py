@@ -219,13 +219,12 @@ class Span(_Span):
             t['wordspace'] = 50
         return t
     
-    def __init__(self, ns, css, memory, dpi, fonts, logger, font_delta=0, normal_font_size=100):
+    def __init__(self, ns, css, memory, dpi, fonts, logger, font_delta, parent_style,
+                 normal_font_size=100):
         src = ns.string if hasattr(ns, 'string') else ns
-        src = re.sub(r'\s{2,}', ' ', src)  # Remove multiple spaces
         for pat, repl in Span.rules:
             src = pat.sub(repl, src)
-        if not src:
-            raise ConversionError('No point in adding an empty string to a Span')
+        src = src.replace(u'\xa0', ' ') # nbsp is replaced with \xa0 by BeatifulSoup
         attrs = Span.translate_attrs(css, dpi, fonts, logger, font_delta=font_delta, memory=memory)
         if 'fontsize' in attrs.keys():
             normal_font_size = int(attrs['fontsize'])
@@ -258,6 +257,9 @@ class Span(_Span):
             attrs['baselineskip'] = int(attrs['fontsize']) + 20
         if attrs['fontfacename'] == fonts['serif']['normal'][1]:
             attrs.pop('fontfacename')
+        for key in attrs:
+            if parent_style.has_key(key) and str(parent_style[key]) == str(attrs[key]):
+                attrs.pop(key) 
         _Span.__init__(self, text=src, **attrs)
         
 class HTMLConverter(object):
@@ -330,7 +332,7 @@ class HTMLConverter(object):
            'cite'   : {'font-style'  : 'italic'},
            'em'     : {"font-style"  : "italic"},
            'small'  : {'font-size'   : 'small'},
-           'pre'    : {'font-family' : 'monospace' },
+           'pre'    : {'font-family' : 'monospace', 'white-space': 'pre' },
            'code'   : {'font-family' : 'monospace' },
            'tt'     : {'font-family' : 'monospace'},
            'center' : {'text-align'  : 'center'},
@@ -366,6 +368,7 @@ class HTMLConverter(object):
         self.link_level  = 0  #: Current link level
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.tops = {}          #: element representing the top of each HTML file in the LRF file
+        self.previous_text = '' #: Used to figure out when to lstrip
         # Styles 
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
@@ -381,8 +384,7 @@ class HTMLConverter(object):
         self.list_indent = 20
         self.list_counter = 1
         
-        self.book = book            #: The Book object representing a BBeB book
-        self.lstrip_toggle = False #: If true the next add_text call will do an lstrip
+        self.book = book                #: The Book object representing a BBeB book
         self.start_on_file(path, is_root=True)
         
     def start_on_file(self, path, is_root=True, link_level=0):
@@ -415,6 +417,7 @@ class HTMLConverter(object):
         self.css = HTMLConverter.CSS.copy()
         self.target_prefix = path
         self.links[path] = []
+        self.previous_text = '\n'
         self.tops[path] = self.parse_file(soup, is_root)
         self.processed_files.append(path)
         self.process_links(is_root, path, link_level=link_level)
@@ -467,20 +470,21 @@ class HTMLConverter(object):
                 # however we need to as we don't do alignment at a block level.
                 # float is removed by the process_alignment function.
                 if chk.startswith('font') or chk == 'text-align' or \
-                chk == 'float': 
+                chk == 'float' or chk == 'white-space': 
                     temp[key] = pcss[key]
             prop.update(temp)
             
         prop = dict()
+        tagname = tag.name.lower()
         if parent_css:
             merge_parent_css(prop, parent_css)
         if tag.has_key("align"):
             prop["text-align"] = tag["align"]
-        if self.css.has_key(tag.name):
-            prop.update(self.css[tag.name])
+        if self.css.has_key(tagname):
+            prop.update(self.css[tagname])
         if tag.has_key("class"):
             cls = tag["class"].lower()            
-            for classname in ["."+cls, tag.name+"."+cls]:
+            for classname in ["."+cls, tagname+"."+cls]:
                 if self.css.has_key(classname):
                     prop.update(self.css[classname])
         if tag.has_key("style"):
@@ -537,7 +541,12 @@ class HTMLConverter(object):
                 raise ConversionError, 'Could not parse ' + self.file_name
         return top
             
-    def create_link(self, para, tag):
+    def create_link(self, children, tag):
+        para = None
+        for i in range(len(children)-1, -1, -1):
+            if not isinstance(children[i], CR):
+                para = children[i]
+                break
         text = self.get_text(tag, 1000)
         if not text:
             text = 'Link'
@@ -736,30 +745,41 @@ class HTMLConverter(object):
                                 blockStyle=self.current_block.blockStyle,
                                 textStyle=ts)
             self.current_para = Paragraph()
+            return True
+        return False
     
     def add_text(self, tag, css):
         '''
         Add text to the current paragraph taking CSS into account.
         @param tag: Either a BeautifulSoup tag or a string
-        @param css:
-        @type css:
+        @param css: A dict
         '''
         src = tag.string if hasattr(tag, 'string') else tag
-        src = re.sub(r'\s{1,}', ' ', src) 
-        if self.lstrip_toggle:
+        src = src.replace('\r\n', '\n').replace('\r', '\n')
+        collapse_whitespace = not css.has_key('white-space') or css['white-space'] != 'pre'
+        if self.process_alignment(css) and collapse_whitespace:
+            # Dont want leading blanks in a new paragraph
             src = src.lstrip()
-            self.lstrip_toggle = False
-        if not src.strip():
-            self.current_para.append(' ')
+        args = self.sanctify_css(css), self.memory, self.profile.dpi, self.fonts,\
+                self.logger, self.font_delta, self.current_block.textStyle.attrs
+        if collapse_whitespace:
+            src = re.sub(r'\s{1,}', ' ', src)
+            if len(self.previous_text) != len(self.previous_text.rstrip()):
+                src = src.lstrip()
+            if len(src):
+                self.previous_text = src
+                self.current_para.append(Span(src, *args))    
         else:
-            self.process_alignment(css)
-            try:
-                self.current_para.append(Span(src, self.sanctify_css(css), self.memory,
-                                              self.profile.dpi, self.fonts, self.logger, 
-                                              font_delta=self.font_delta))
-                self.current_para.normalize_spaces()
-            except ConversionError:
-                self.logger.exception('Bad text')
+            srcs = src.split('\n')
+            for src in srcs:
+                if src:
+                    self.current_para.append(Span(src, *args))
+                    if len(srcs) > 1:                
+                        self.line_break()
+        
+    def line_break(self):
+        self.current_para.append(CR())
+        self.previous_text = '\n'
         
     def sanctify_css(self, css):
         """ Return a copy of C{css} that is safe for use in a SPAM Xylog tag """
@@ -770,7 +790,7 @@ class HTMLConverter(object):
                'padding' in test or 'border' in test or 'page-break' in test \
                or test.startswith('mso') or test.startswith('background')\
                or test.startswith('line') or test in ['color', 'display', \
-                           'letter-spacing', 'position']:
+                           'letter-spacing', 'position', 'white-space']:
                 css.pop(key)              
         return css
     
@@ -1032,7 +1052,7 @@ class HTMLConverter(object):
                     if not text.strip():
                         text = "Link"
                     self.add_text(text, tag_css)
-                    self.links[self.target_prefix].append(self.create_link(self.current_para.contents[-1], tag))
+                    self.links[self.target_prefix].append(self.create_link(self.current_para.contents, tag))
                     if tag.has_key('id') or tag.has_key('name'):
                         key = 'name' if tag.has_key('name') else 'id'
                         self.targets[self.target_prefix+tag[key]] = self.current_block
@@ -1131,28 +1151,19 @@ class HTMLConverter(object):
             if ncss:
                 update_css(ncss)            
         elif tagname == 'pre':
-            for c in tag.findAll(True):
-                c.replaceWith(self.get_text(c))
             self.end_current_para()
-            self.current_block.append_to(self.current_page)
-            attrs = Span.translate_attrs(tag_css, self.profile.dpi, self.fonts, 
-                                    self.logger, self.font_delta, self.memory)
-            attrs['fontfacename'] = self.fonts['mono']['normal'][1]
-            ts = self.book.create_text_style(**self.unindented_style.attrs)
-            ts.attrs.update(attrs)
-            self.current_block = self.book.create_text_block(
-                                    blockStyle=self.current_block.blockStyle,
-                                    textStyle=ts)
-            src = ''.join([str(i) for i in tag.contents])
-            lines = src.split('\n')
-            for line in lines:
-                try:
-                    self.current_para.append(line)
-                    self.current_para.CR()
-                except ConversionError:
-                    pass
             self.end_current_block()
-            self.current_block = self.book.create_text_block()
+            self.current_block.textStyle = self.current_block.textStyle.copy()
+            self.current_block.textStyle.attrs['parindent'] = '0'
+            if tag.contents:
+                c = tag.contents[0]
+                if isinstance(c, NavigableString):
+                    c = str(c).replace('\r\n', '\n').replace('\r', '\n')
+                    if c.startswith('\n'):
+                        c = c[1:]
+                        tag.contents[0] = NavigableString(c)
+            self.process_children(tag, tag_css)
+            self.end_current_block()
         elif tagname in ['ul', 'ol', 'dl']:
             self.list_level += 1
             if tagname == 'ol':
@@ -1189,9 +1200,10 @@ class HTMLConverter(object):
                                         textStyle=self.unindented_style)
 
             if self.current_para.has_text():
-                self.current_para.append(CR())
+                self.line_break()
                 self.current_block.append(self.current_para)
             self.current_para = Paragraph()
+            self.previous_text = '\n'
             if tagname == 'li':
                 in_ol, parent = True, tag.parent            
                 while parent:                
@@ -1228,6 +1240,7 @@ class HTMLConverter(object):
                 self.block_styles.append(bs)
             self.current_block = self.book.create_text_block(
                                     blockStyle=bs, textStyle=ts)
+            self.previous_text = '\n'
             self.process_children(tag, tag_css)
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
@@ -1262,14 +1275,16 @@ class HTMLConverter(object):
             self.end_current_para()
             if not tag.contents or not src.strip(): # Handle empty <p></p> elements
                 self.current_block.append(CR())
+                self.previous_text = '\n'
                 self.process_children(tag, tag_css)
                 return
-            self.lstrip_toggle = True
+            self.previous_text = '\n'
             self.process_block(tag, tag_css, tkey)
             self.process_children(tag, tag_css)
             self.end_current_para()
             if tagname.startswith('h') or self.blank_after_para:
-                self.current_block.append(CR())            
+                self.current_block.append(CR())
+                self.previous_text = '\n'            
         elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
@@ -1277,16 +1292,19 @@ class HTMLConverter(object):
                 tag_css['font-family'] = tag['face']
             self.process_children(tag, tag_css)
         elif tagname in ['br']:
-            self.current_para.append(CR())
+            self.line_break()
+            self.previous_text = '\n'
         elif tagname in ['hr', 'tr']: # tr needed for nested tables
-            self.end_current_para()            
-            self.current_block.append(CR())
+            self.end_current_para()
+            self.line_break()
             self.end_current_block()
             if tagname == 'hr':
                 self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
+            self.previous_text = '\n'
             self.process_children(tag, tag_css)
         elif tagname == 'td': # Needed for nested tables
             self.current_para.append(' ')
+            self.previous_text = ' '
             self.process_children(tag, tag_css)
         elif tagname == 'table' and not self.ignore_tables and not self.in_table:
             tag_css = self.tag_css(tag) # Table should not inherit CSS
