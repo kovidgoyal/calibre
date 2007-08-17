@@ -12,13 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
 import os, sys, shutil, glob, logging
 from tempfile import mkdtemp
 from subprocess import Popen, PIPE
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_file
-from libprs500 import isosx, __appname__, setup_cli_handlers
+from libprs500 import isosx, __appname__, setup_cli_handlers, iswindows
 CLIT = 'clit'
 if isosx and hasattr(sys, 'frameworks_dir'):
     CLIT = os.path.join(sys.frameworks_dir, CLIT)
@@ -33,10 +34,13 @@ def generate_html(pathtolit, logger):
     if not os.access(pathtolit, os.R_OK):
         raise ConversionError, 'Cannot read from ' + pathtolit
     tdir = mkdtemp(prefix=__appname__+'_')
-    cmd = ' '.join([CLIT, '"'+pathtolit+'"', tdir])
-    p = Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE)
-    ret = p.wait()
+    os.rmdir(tdir)
+    sep = r'\\' if iswindows else os.path.sep
+    cmd = ' '.join([CLIT, '"'+pathtolit+'"', '"%s"'%(tdir+sep,)])
+    logger.debug(cmd)
+    p = Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE)    
     logger.info(p.stdout.read())
+    ret = p.wait()
     if ret != 0:
         shutil.rmtree(tdir)
         err = p.stderr.read()

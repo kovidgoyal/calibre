@@ -18,7 +18,7 @@ from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_file
 from libprs500.ebooks import ConversionError
-from libprs500 import isosx, setup_cli_handlers
+from libprs500 import isosx, setup_cli_handlers, __appname__
 
 UNRTF = 'unrtf'
 if isosx and hasattr(sys, 'frameworks_dir'):
@@ -31,7 +31,7 @@ def option_parser():
         )
 
 def generate_html(rtfpath, logger):
-    tdir = tempfile.mkdtemp(prefix='rtf2lrf_')
+    tdir = tempfile.mkdtemp(prefix=__appname__+'_')
     cwd = os.path.abspath(os.getcwd())
     os.chdir(tdir)
     try:
