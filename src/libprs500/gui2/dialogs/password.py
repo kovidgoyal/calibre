@@ -30,7 +30,7 @@ class PasswordDialog(QDialog, Ui_Dialog):
         un = settings.value(name+': un', QVariant('')).toString()
         pw = settings.value(name+': pw', QVariant('')).toString()
         self.gui_username.setText(un)
-        self.gui_username.setText(pw)
+        self.gui_password.setText(pw)
         self.sname = name 
         self.msg.setText(msg)
         
