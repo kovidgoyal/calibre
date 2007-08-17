@@ -278,7 +278,7 @@ class BookList(_BookList):
         book.datetime = ctime
         self.append(book)
         self.set_next_id(cid+1)
-        if self.prefix: # Playlists only supportted in main memory
+        if self.prefix and info.has_key('tags'): # Playlists only supportted in main memory
             self.set_playlists(book.id, info['tags'])
                 
     
