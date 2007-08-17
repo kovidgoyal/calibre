@@ -950,6 +950,56 @@ class HTMLConverter(object):
                 self.logger.debug('Forcing page break at %s', tagname)
         return end_page
     
+    def process_block(self, tag, tag_css, tkey):
+        ''' Ensure padding and text-indent properties are respected '''
+        if tag_css.has_key('text-indent'):
+            indent = Span.unit_convert(tag_css['text-indent'], self.profile.dpi, pts=True)
+            if not indent:
+                indent = 0
+            
+        else:
+            indent = self.book.defaultTextStyle.attrs['parindent']
+            
+        src = [None for i in range(4)]         
+        if tag_css.has_key('padding'):
+            msrc = tag_css['padding'].split()
+            for i in range(len(msrc)):
+                src[i] = msrc[i]
+        i = 0
+        for c in ('top', 'right', 'bottom', 'left'):
+            if tag_css.has_key('padding-'+c):
+                src[i] = tag_css['padding-'+c]
+            i += 1
+        top, right, bottom, left = src
+        
+        top = Span.unit_convert(top, self.profile.dpi) if top is not None else 0
+        bottom = Span.unit_convert(bottom, self.profile.dpi) if bottom is not None else 0
+        left = Span.unit_convert(left, self.profile.dpi) if left is not None else 0
+        
+        if indent != int(self.current_block.textStyle.attrs['parindent']) or \
+           top    != int(self.current_block.blockStyle.attrs['topskip'])   or \
+           bottom != int(self.current_block.blockStyle.attrs['footskip'])  or \
+           left   != int(self.current_block.blockStyle.attrs['sidemargin']):
+            self.current_block.append_to(self.current_page)
+            ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
+            ts.attrs['parindent'] = indent
+            bs = self.book.create_block_style(**self.current_block.blockStyle.attrs)
+            ba = bs.attrs
+            ba['topskip'], ba['footskip'], ba['sidemargin'] = top, bottom, left            
+            try:
+                index = self.text_styles.index(ts)
+                ts = self.text_styles[index]                
+            except ValueError:
+                self.text_styles.append(ts)
+            try:
+                index = self.block_styles.index(bs)
+                bs = self.block_styles[index]
+            except ValueError:
+                self.block_styles.append(bs)
+            self.current_block = self.book.create_text_block(blockStyle=bs,
+                                                             textStyle=ts)
+            self.targets[tkey] = self.current_block
+    
     def parse_tag(self, tag, parent_css):
         try:
             tagname = tag.name.lower()
@@ -1214,26 +1264,8 @@ class HTMLConverter(object):
                 self.current_block.append(CR())
                 self.process_children(tag, tag_css)
                 return
-            self.lstrip_toggle = True            
-            if tag_css.has_key('text-indent'):
-                indent = Span.unit_convert(tag_css['text-indent'], self.profile.dpi, pts=True)
-                if not indent:
-                    indent = 0
-                
-            else:
-                indent = self.book.defaultTextStyle.attrs['parindent']
-            if indent != self.current_block.textStyle.attrs['parindent']:
-                self.current_block.append_to(self.current_page)
-                ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
-                ts.attrs['parindent'] = indent
-                try:
-                    index = self.text_styles.index(ts)
-                    ts = self.text_styles[index]
-                except ValueError:
-                    self.text_styles.append(ts)
-                self.current_block = self.book.create_text_block(blockStyle=self.current_block.blockStyle,
-                                                                 textStyle=ts)
-                self.targets[tkey] = self.current_block
+            self.lstrip_toggle = True
+            self.process_block(tag, tag_css, tkey)
             self.process_children(tag, tag_css)
             self.end_current_para()
             if tagname.startswith('h') or self.blank_after_para:

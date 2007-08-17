@@ -4,6 +4,7 @@
 .toc { page-break-after: always; text-indent: 0em; }
 .tocpn            {text-align: right; }
 .tocchr           {text-align: right;}
+.hanging_indent   { padding-left:40px; text-indent:-40px }
 </style>
 </head>
   <h1>Demo of <span style='font-family:monospace'>html2lrf</span></h1>  
@@ -18,7 +19,7 @@
     <li><a href='#text'>Text formatting and ruled lines</a></li>
     <li><a href='#images'>Inline images</a></li>
     <li><a href='#fonts'>Embedded Fonts</a></li>
-    <li><a href='#dropcaps'>Dropcaps  and Small-Caps</a></li>
+    <li><a href='#dropcaps'>Paragraph Emphasis</a></li>
     <li><a href='#recursive'>Recursive link following</a></li>
  </ul>
 
@@ -123,13 +124,14 @@
  <hr/>
  <p style='text-indent:30em'>A very indented paragraph</p>
  <p style='text-indent:0em'>An unindented paragraph</p>
- <p>A default indented paragrpah</p>
+ <p>A default indented paragraph</p><br/>
  <hr/>
  <p class='toc'>
  <hr />
  <a href='#toc'>Table of Contents</a>
  </p>
 
+ 
  <h2><a name='images'>Inline images</a></h2>
  <p>
  Here I demonstrate the use of inline images in the midst of text. Here is a  small image <img src='small.jpg' /> embedded in a sentence. Now we have a  slightly larger image that is automatically put in its own block  <img style="text-align:center" src='medium.jpg' /> and finally we have a large image which is put on a page by itself. Try changing sizes from S to M to L and see how the images behave.  <img align='center' src='large.jpg' />
@@ -157,7 +159,7 @@
  <a href='#toc'>Table of Contents</a>
  </p>
  
- <h2><a name='dropcaps'>Dropcaps and Small-Caps</a></h2>
+ <h2><a name='dropcaps'>Paragraph Emphasis</a></h2>
  <br/>
  <p><img class='libprs500_dropcaps' src='a.png' /> beautiful image based dropcaps to emphasize this 
  paragraph. Image based dropcaps are specified by adding the <code>class = 'libprs500_dropcaps'</code>
@@ -171,7 +173,11 @@
  <br/>
  <p><span style="font-variant: small-caps">This is an Example</span> of small-caps.
  It can also be used to highlight the start of a paragraph very effectively.
+ <br/>
  </p>
+ <p class='hanging_indent'>A paragraph with a hanging indent. This is especially 
+ useful for highly structured text like verse, or dialogue. 
+ The world is not all prose!<br/></p>
  <p class='toc'> 
  <hr />
  <a href='#toc'>Table of Contents</a>
