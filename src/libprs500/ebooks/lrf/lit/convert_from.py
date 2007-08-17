@@ -86,7 +86,7 @@ def main(args=sys.argv, logger=None):
         print
         print 'No lit file specified'
         return 1
-    process_file(options, args[1], logger)
+    process_file(args[1], options, logger)
     return 0        
         
             
