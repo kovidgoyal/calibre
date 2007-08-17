@@ -362,7 +362,7 @@ class BooksView(TableView):
         
         
     def migrate_database(self):
-        if self._model.database_needs_migration():
+        if self.model().database_needs_migration():
             print 'Migrating database from pre 0.4.0 version'
             path = os.path.abspath(os.path.expanduser('~/library.db'))
             progress = QProgressDialog('Upgrading database from pre 0.4.0 version.<br>'+\
@@ -554,7 +554,7 @@ class DeviceBooksModel(BooksModel):
                 text = self.db[self.map[row]].title
                 if not text:
                     text = self.unknown
-                return QVariant(BooksView.wrap(text, width=35))
+                return QVariant(text)
             elif col == 1: 
                 au = self.db[self.map[row]].authors
                 if not au:
@@ -565,7 +565,7 @@ class DeviceBooksModel(BooksModel):
                 authors = []
                 for i in au:
                     authors += i.strip().split('&')
-                jau = [ BooksView.wrap(a.strip(), width=30).strip() for a in authors ]
+                jau = [ a.strip() for a in authors ]
                 return QVariant("\n".join(jau))
             elif col == 2:
                 size = self.db[self.map[row]].size

@@ -72,14 +72,10 @@ def option_parser(usage):
     parser = OptionParser(usage=usage, version=__appname__+' '+__version__,
                           epilog='Created by '+__author__)
     metadata = parser.add_option_group('METADATA OPTIONS')
-    metadata.add_option('--header', action='store_true', default=False, dest='header',
-                      help='Add a header to all the pages with title and author.')
-    metadata.add_option('--headerformat', default="%t by %a", dest='headerformat', type='string',
-                        help='Set the format of the header. %a is replaced by the author and %t by the title. Default is %default')
     metadata.add_option("-t", "--title", action="store", type="string", default=None,\
                     dest="title", help="Set the title. Default: filename.")
     metadata.add_option("-a", "--author", action="store", type="string", \
-                    dest="author", help="Set the author. Default: %default", default='Unknown')
+                    dest="author", help="Set the author(s). Multiple authors should be set as a comma separated list. Default: %default", default='Unknown')
     metadata.add_option("--comment", action="store", type="string", \
                     dest="freetext", help="Set the comment.", default='  ')
     metadata.add_option("--category", action="store", type="string", \
@@ -90,14 +86,14 @@ def option_parser(usage):
                       help='Sort key for the author')
     metadata.add_option('--publisher', action='store', default='Unknown', dest='publisher',
                       help='Publisher')
+    metadata.add_option('--cover', action='store', dest='cover', default=None, \
+                        help='Path to file containing image to be used as cover')
     profiles=['prs500'] 
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')
     parser.add_option('--ignore-tables', action='store_true', default=False, dest='ignore_tables',
                       help='Render HTML tables as blocks of text instead of actual tables. This is neccessary if the HTML contains very large or complex tables.')
     laf = parser.add_option_group('LOOK AND FEEL')
-    laf.add_option('--cover', action='store', dest='cover', default=None, \
-                      help='Path to file containing image to be used as cover')
     laf.add_option('--font-delta', action='store', type='float', default=0., \
                       help="""Increase the font size by 2 * FONT_DELTA pts and """
                       '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
@@ -109,12 +105,19 @@ def option_parser(usage):
                    help='Set the space between words in pts. Default is %default')
     laf.add_option('--blank-after-para', action='store_true', default=False,
                    dest='blank_after_para', help='Separate paragraphs by blank lines.')
+    laf.add_option('--header', action='store_true', default=False, dest='header',
+                      help='Add a header to all the pages with title and author.')
+    laf.add_option('--headerformat', default="%t by %a", dest='headerformat', type='string',
+                        help='Set the format of the header. %a is replaced by the author and %t by the title. Default is %default')
+    
     page = parser.add_option_group('PAGE OPTIONS')
     page.add_option('-p', '--profile', default=PRS500_PROFILE, dest='profile', type='choice',
                       choices=profiles, action='callback', callback=profile_from_string,
                       help='''Profile of the target device for which this LRF is '''
-                      '''being generated. Default: ''' + profiles[0] + \
-                      ''' Supported profiles: '''+', '.join(profiles))
+                      '''being generated. The profile determines things like the '''
+                      '''resolution and screen size of the target device. '''
+                      '''Default: ''' + profiles[0] + ''' Supported profiles: '''+\
+                      ', '.join(profiles))
     page.add_option('--left-margin', default=20, dest='left_margin', type='int',
                     help='''Left margin of page. Default is %default px.''')
     page.add_option('--right-margin', default=20, dest='right_margin', type='int',
@@ -134,14 +137,14 @@ def option_parser(usage):
                       '''matches will be ignored. Defaults to %default''')
     chapter = parser.add_option_group('CHAPTER OPTIONS')
     chapter.add_option('--disable-chapter-detection', action='store_false', 
-                      default=True, dest='chapter_detection', 
+                      default=False, dest='disable_chapter_detection', 
                       help='''Prevent html2lrf from automatically inserting page breaks'''
                       ''' before what it thinks are chapters.''')
     chapter.add_option('--chapter-regex', dest='chapter_regex', 
                       default='chapter|book|appendix',
                       help='''The regular expression used to detect chapter titles.'''
                       ''' It is searched for in heading tags. Defaults to %default''')     
-    chapter.add_option('--page-break-before', dest='page_break', default='h[12]',
+    chapter.add_option('--page-break-before-tag', dest='page_break', default='h[12]',
                       help='''If html2lrf does not find any page breaks in the '''
                       '''html file and cannot detect chapter headings, it will '''
                       '''automatically insert page-breaks before the tags whose '''
@@ -151,8 +154,8 @@ def option_parser(usage):
                       '''there are no really long pages as this degrades the page '''
                       '''turn performance of the LRF. Thus this option is ignored '''
                       '''if the current page has only a few elements.''')
-    chapter.add_option('--force-page-break-before', dest='force_page_break',
-                       default='$', help='Like --page-break-before, but page breaks are forced.')
+    chapter.add_option('--force-page-break-before-tag', dest='force_page_break',
+                       default='$', help='Force a page break before tags whoose names match this regular expression.')
     chapter.add_option('--force-page-break-before-attr', dest='force_page_break_attr',
                        default='$,,$', help='Force a page break before an element having the specified attribute. The format for this option is tagname regexp,attribute name,attribute value regexp. For example to match all heading tags that have the attribute class="chapter" you would use "h\d,class,chapter". Default is %default''')
     prepro = parser.add_option_group('PREPROCESSING OPTIONS')

@@ -41,7 +41,7 @@ def error_dialog(parent, title, msg):
     return d
 
 def qstring_to_unicode(q):
-    return unicode(q.toUtf8(), 'utf8')
+    return unicode(q)
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """

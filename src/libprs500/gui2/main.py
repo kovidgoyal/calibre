@@ -12,12 +12,13 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
+from libprs500.gui2.dialogs.password import PasswordDialog
 import os, sys, traceback, StringIO, textwrap
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton
+                        QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
 
 from libprs500 import __version__, __appname__
@@ -37,6 +38,7 @@ from libprs500.gui2.dialogs.metadata_single import MetadataSingleDialog
 from libprs500.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from libprs500.gui2.dialogs.jobs import JobsDialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog 
+from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
 
 
 class Main(QObject, Ui_MainWindow):
@@ -64,7 +66,7 @@ class Main(QObject, Ui_MainWindow):
         self.conversion_jobs = {}
         self.persistent_files = []
         self.default_thumbnail = None
-        self.device_error_dialog = error_dialog(self.window, 'Error communicating with device', ' ')
+        self.device_error_dialog = ConversionErrorDialog(self.window, 'Error communicating with device', ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.device_connected = False
@@ -113,9 +115,18 @@ class Main(QObject, Ui_MainWindow):
         QObject.connect(nm.actions()[2], SIGNAL('triggered(bool)'), self.fetch_news_nytimes)
         self.news_menu = nm
         self.action_news.setMenu(nm)
+        cm = QMenu()
+        cm.addAction('Convert individually')
+        cm.addAction('Bulk convert')
+        self.action_convert.setMenu(cm)
+        QObject.connect(cm.actions()[0], SIGNAL('triggered(bool)'), self.convert_single)
+        QObject.connect(cm.actions()[1], SIGNAL('triggered(bool)'), self.convert_bulk)
+        QObject.connect(self.action_convert, SIGNAL('triggered(bool)'), self.convert_single)        
+        self.convert_menu = cm
         self.tool_bar.widgetForAction(self.action_news).setPopupMode(QToolButton.InstantPopup)
         self.tool_bar.widgetForAction(self.action_edit).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_sync).setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_convert).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)        
         ####################### Library view ########################
         self.library_view.set_database(self.database_path)
@@ -470,10 +481,14 @@ class Main(QObject, Ui_MainWindow):
     
     ############################### Fetch news #################################
     
-    def fetch_news(self, profile, pretty):
+    def fetch_news(self, profile, pretty, username=None, password=None):
         pt = PersistentTemporaryFile(suffix='.lrf')
         pt.close()
         args = ['web2lrf', '-o', pt.name, profile]
+        if username:
+            args.extend(['--username', username])
+        if password:
+            args.extend(['--password', password])
         id = self.job_manager.run_conversion_job(self.news_fetched, web2lrf, args=args,
                                             job_description='Fetch news from '+pretty)
         self.conversion_jobs[id] = (pt, 'lrf')
@@ -497,7 +512,29 @@ class Main(QObject, Ui_MainWindow):
         self.fetch_news('newsweek', 'Newsweek')
     
     def fetch_news_nytimes(self, checked):
-        self.fetch_news('nytimes', 'New York Times')
+        d = PasswordDialog(self.window, 'nytimes info dialog', 
+                           '<p>Please enter your username and password for nytimes.com<br>If you do not have, you can <a href="http://www.nytimes.com/gst/regi.html">register</a> for free.<br>Without a registration, some articles will not be downloaded correctly. Click OK to proceed.')
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            un, pw = d.username(), d.password()
+            self.fetch_news('nytimes', 'New York Times', username=un, password=pw)
+    
+    ############################################################################
+    
+    ############################### Convert ####################################
+    def convert_bulk(self, checked):
+        pass
+    
+    def convert_single(self, checked):
+        rows = self.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self.window, 'Cannot convert', 'No books selected')            
+            d.exec_()
+        
+        for row in rows:
+            d = LRFSingleDialog(self.window, self.library_view.model().db, row)
+            if d.selected_format:
+                d.exec_()
     
     ############################################################################
     def location_selected(self, location):
@@ -519,16 +556,12 @@ class Main(QObject, Ui_MainWindow):
             if self.device_connected:
                 self.action_sync.setEnabled(True)
             self.action_edit.setEnabled(True)
+            self.action_convert.setEnabled(True)
         else:
             self.action_sync.setEnabled(False)
             self.action_edit.setEnabled(False)
+            self.action_convert.setEnabled(False)
                 
-    
-    def wrap_traceback(self, tb):
-        tb = unicode(tb, 'utf8', 'replace')
-        tb = '\n'.join(self.tb_wrapper.wrap(tb))
-        return tb
-    
     def device_job_exception(self, id, description, exception, formatted_traceback):
         '''
         Handle exceptions in threaded jobs.
@@ -541,8 +574,8 @@ class Main(QObject, Ui_MainWindow):
             msg += u'<p>Failed to perform <b>job</b>: '+description
             msg += u'<p>Further device related error messages will not be shown while this message is visible.'
             msg += u'<p>Detailed <b>traceback</b>:<pre>'
-            msg += self.wrap_traceback(formatted_traceback)
-            self.device_error_dialog.setText(msg)
+            msg += formatted_traceback
+            self.device_error_dialog.set_message(msg)
             self.device_error_dialog.show()
             
     def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
@@ -556,7 +589,7 @@ class Main(QObject, Ui_MainWindow):
         msg += formatted_traceback + '</pre>'
         msg += '<p><b>Log:</b></p><pre>'
         msg += log
-        ConversionErrorDialog(self.window, 'Conversion Error', msg)
+        ConversionErrorDialog(self.window, 'Conversion Error', msg, show=True)
         
     
     def read_settings(self):
@@ -604,8 +637,8 @@ class Main(QObject, Ui_MainWindow):
             self.window.close()
             self.window.thread().exit(0)
         msg = '<p><b>' + unicode(str(value), 'utf8', 'replace') + '</b></p>'
-        msg += '<p>Detailed <b>traceback</b>:<pre>'+self.wrap_traceback(fe)+'</pre>'
-        d = error_dialog(self.window, 'ERROR: Unhandled exception', msg)
+        msg += '<p>Detailed <b>traceback</b>:<pre>'+fe+'</pre>'
+        d = ConversionErrorDialog(self.window, 'ERROR: Unhandled exception', msg)
         d.exec_()
 
 def main():    

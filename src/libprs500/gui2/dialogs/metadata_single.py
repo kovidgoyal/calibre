@@ -18,13 +18,12 @@ add/remove formats
 '''
 import os
 
-from PyQt4.QtCore import SIGNAL
-from PyQt4.Qt import QObject, QPixmap, QListWidgetItem, QErrorMessage
+from PyQt4.QtCore import SIGNAL, QObject
+from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 
 from libprs500.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
                            choose_files, pixmap_to_data, BOOK_EXTENSIONS, choose_images
-from libprs500.gui2.dialogs import Dialog
 from libprs500.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 
 class Format(QListWidgetItem):
@@ -34,10 +33,10 @@ class Format(QListWidgetItem):
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext), 
                                  ext.upper(), parent, QListWidgetItem.UserType)
 
-class MetadataSingleDialog(Ui_MetadataSingleDialog, Dialog):
+class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     
     def select_cover(self, checked):
-        files = choose_images(self.window, 'change cover dialog', 
+        files = choose_images(self, 'change cover dialog', 
                              u'Choose cover for ' + qstring_to_unicode(self.title.text()))
         if not files:
             return
@@ -71,7 +70,7 @@ class MetadataSingleDialog(Ui_MetadataSingleDialog, Dialog):
     
     
     def add_format(self, x):
-        files = choose_files(self.window, 'add formats dialog', 
+        files = choose_files(self, 'add formats dialog', 
                              "Choose formats for " + str(self.title.text()),
                              [('Books', BOOK_EXTENSIONS)])
         if not files: 
@@ -120,9 +119,9 @@ class MetadataSingleDialog(Ui_MetadataSingleDialog, Dialog):
                 self.db.remove_format(self.row, ext)
     
     def __init__(self, window, row, db):
-        Ui_MetadataSingleDialog.__init__(self)
-        Dialog.__init__(self, window)
-        self.setupUi(self.dialog)
+        QDialog.__init__(self, window)
+        Ui_MetadataSingleDialog.__init__(self)        
+        self.setupUi(self)
         self.splitter.setStretchFactor(100, 1)
         self.db = db
         self.id = db.id(row)
@@ -138,8 +137,6 @@ class MetadataSingleDialog(Ui_MetadataSingleDialog, Dialog):
                                                     self.add_format)
         QObject.connect(self.remove_format_button, SIGNAL("clicked(bool)"), \
                                                 self.remove_format)
-        QObject.connect(self.button_box, SIGNAL("accepted()"), \
-                                                self.sync)
         
         self.title.setText(db.title(row))
         au = self.db.authors(row)
@@ -190,18 +187,18 @@ class MetadataSingleDialog(Ui_MetadataSingleDialog, Dialog):
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
          
 
-        self.dialog.exec_()
+        self.exec_()
 
     def enable_series_index(self, *args):
         self.series_index.setEnabled(True)
     
-    def sync(self):
+    def accept(self):
         if self.formats_changed:
             self.sync_formats()
         title = qstring_to_unicode(self.title.text())
         self.db.set_title(self.id, title)
         au = qstring_to_unicode(self.authors.text()).split(',')
-        self.db.set_authors(self.id, au)
+        if au: self.db.set_authors(self.id, au)
         self.db.set_rating(self.id, 2*self.rating.value())
         self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.text()))
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','))
@@ -211,6 +208,5 @@ class MetadataSingleDialog(Ui_MetadataSingleDialog, Dialog):
         if self.cover_changed:
             self.db.set_cover(self.id, pixmap_to_data(self.cover.pixmap()))
         self.changed = True
+        QDialog.accept(self)
     
-    def reject(self):
-        self.rejected = True

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>777</width>
+    <width>787</width>
     <height>822</height>
    </rect>
   </property>
@@ -44,7 +44,7 @@
       <item>
        <widget class="LocationView" name="location_view" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+         <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -61,17 +61,29 @@
         <property name="horizontalScrollBarPolicy" >
          <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
-        <property name="dragDropMode" >
-         <enum>QAbstractItemView::DragDrop</enum>
+        <property name="iconSize" >
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+        <property name="movement" >
+         <enum>QListView::Static</enum>
         </property>
         <property name="flow" >
-         <enum>QListView::TopToBottom</enum>
+         <enum>QListView::LeftToRight</enum>
+        </property>
+        <property name="isWrapping" stdset="0" >
+         <bool>false</bool>
         </property>
         <property name="spacing" >
          <number>20</number>
         </property>
         <property name="viewMode" >
          <enum>QListView::IconMode</enum>
+        </property>
+        <property name="uniformItemSizes" >
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -325,6 +337,7 @@
    <addaction name="action_save" />
    <addaction name="separator" />
    <addaction name="action_news" />
+   <addaction name="action_convert" />
   </widget>
   <widget class="QStatusBar" name="statusBar" >
    <property name="mouseTracking" >
@@ -398,6 +411,14 @@
    </property>
    <property name="text" >
     <string>Fetch news</string>
+   </property>
+  </action>
+  <action name="action_convert" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/convert.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Convert E-books</string>
    </property>
   </action>
  </widget>

@@ -18,7 +18,7 @@ __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys, os, logging
+import sys, os, logging, mechanize
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 
@@ -75,3 +75,12 @@ def extract(path, dir):
     if not extractor:
         raise Exception('Unknown archive type')
     extractor(path, dir)
+
+def browser():
+    opener = mechanize.Browser()
+    opener.set_handle_refresh(True)
+    opener.set_handle_robots(False)
+    opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
+    return opener
+
+    

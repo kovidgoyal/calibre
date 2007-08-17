@@ -102,6 +102,7 @@ class DeviceManager(QObject):
         '''Upload books to device'''
         def upload_books(updater, files, names, on_card=False):
             '''Upload books to device: '''
+            self.device.set_progress_reporter(updater)
             return self.device.upload_books(files, names, on_card, end_session=False)
         return upload_books
     

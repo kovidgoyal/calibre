@@ -16,15 +16,15 @@
 '''Dialog to edit metadata in bulk'''
 
 from PyQt4.QtCore import SIGNAL, QObject
+from PyQt4.QtGui import QDialog
 
 from libprs500.gui2 import qstring_to_unicode
-from libprs500.gui2.dialogs import Dialog
 from libprs500.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 
-class MetadataBulkDialog(Ui_MetadataBulkDialog, Dialog):
+class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, db):
+        QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
-        Dialog.__init__(self, window)
         self.setupUi(self.dialog)
         self.db = db
         self.ids = [ db.id(r) for r in rows]

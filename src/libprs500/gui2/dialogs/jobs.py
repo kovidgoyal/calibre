@@ -15,30 +15,23 @@
 '''Display active jobs'''
 
 from PyQt4.QtCore import Qt, QObject, SIGNAL
+from PyQt4.QtGui import QDialog
 
-from libprs500.gui2.dialogs import Dialog
 from libprs500.gui2.dialogs.jobs_ui import Ui_JobsDialog
 from libprs500 import __appname__
 
-class JobsDialog(Ui_JobsDialog, Dialog):
+class JobsDialog(QDialog, Ui_JobsDialog):
     def __init__(self, window, model):
+        QDialog.__init__(self, window)
         Ui_JobsDialog.__init__(self)
-        Dialog.__init__(self, window)
-        self.setupUi(self.dialog)
+        self.setupUi(self)
         self.jobs_view.setModel(model)
         self.model = model
-        self.dialog.setWindowModality(Qt.NonModal)
-        self.dialog.setWindowTitle(__appname__ + ' - Active Jobs')
+        self.setWindowModality(Qt.NonModal)
+        self.setWindowTitle(__appname__ + ' - Active Jobs')
         QObject.connect(self.jobs_view.model(), SIGNAL('modelReset()'), 
                         self.jobs_view.resizeColumnsToContents)
         
-    def show(self):
-        self.dialog.show()
-        self.jobs_view.resizeColumnsToContents()
-        
-    def hide(self):
-        self.dialog.hide()
-        
-    def close_event(self, e):
+    def closeEvent(self, e):
         self.jobs_view.write_settings()
         e.accept()

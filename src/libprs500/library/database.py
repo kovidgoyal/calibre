@@ -13,11 +13,11 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from libprs500 import __appname__
-"""
+'''
 Backend that implements storage of ebooks in an sqlite database.
-"""
+'''
 import sqlite3 as sqlite
-import datetime, re, os
+import datetime, re, os, cPickle
 from zlib import compress, decompress
 
 class Concatenate(object):
@@ -88,12 +88,12 @@ class LibraryDatabase(object):
     def import_old_database(path, conn, progress=None):
         count = 0
         for book, cover, formats in LibraryDatabase.books_in_old_database(path):
-            obj = conn.execute('INSERT INTO books(title, timestamp) VALUES (?,?)', 
-                               (book['title'], book['timestamp']))
-            id = obj.lastrowid
             authors = book['authors']
             if not authors:
                 authors = 'Unknown'
+            obj = conn.execute('INSERT INTO books(title, timestamp, author_sort) VALUES (?,?,?)', 
+                               (book['title'], book['timestamp'], authors))
+            id = obj.lastrowid            
             authors = authors.split('&')
             for a in authors:
                 author = conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
@@ -559,16 +559,83 @@ class LibraryDatabase(object):
         )
         conn.execute('pragma user_version=1')
         conn.commit()
+        
+    @staticmethod
+    def upgrade_version1(conn):
+        conn.executescript(
+'''
+/***** authors_sort table *****/
+        ALTER TABLE books ADD COLUMN author_sort TEXT COLLATE NOCASE;
+        UPDATE books SET author_sort=(SELECT name FROM authors WHERE id=(SELECT author FROM books_authors_link WHERE book=books.id)) WHERE id IN (SELECT id FROM books ORDER BY id); 
+        DROP INDEX authors_idx;
+        DROP TRIGGER authors_insert_trg;
+        DROP TRIGGER authors_update_trg;
+        CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE);
+        
+        CREATE TABLE conversion_options ( id INTEGER PRIMARY KEY,
+                                          format TEXT NOT NULL COLLATE NOCASE,
+                                          book INTEGER,
+                                          data BLOB NOT NULL,
+                                          UNIQUE(format,book)
+                                        );
+        CREATE INDEX conversion_options_idx_a ON conversion_options (format COLLATE NOCASE);
+        CREATE INDEX conversion_options_idx_b ON conversion_options (book);
+        
+        DROP TRIGGER books_delete_trg;
+        CREATE TRIGGER books_delete_trg
+        AFTER DELETE ON books
+        BEGIN
+            DELETE FROM books_authors_link WHERE book=OLD.id;
+            DELETE FROM books_publishers_link WHERE book=OLD.id;
+            DELETE FROM books_ratings_link WHERE book=OLD.id;
+            DELETE FROM books_series_link WHERE book=OLD.id;
+            DELETE FROM books_tags_link WHERE book=OLD.id;
+            DELETE FROM data WHERE book=OLD.id;
+            DELETE FROM covers WHERE book=OLD.id;
+            DELETE FROM comments WHERE book=OLD.id;
+            DELETE FROM conversion_options WHERE book=OLD.id;
+        END;
+        
+        DROP VIEW meta;
+        CREATE VIEW meta AS
+        SELECT id, title,
+               (SELECT concat(name) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=books.id)) authors,
+               (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+               (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+               timestamp,
+               (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+               (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+               (SELECT text FROM comments WHERE book=books.id) comments,
+               (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+               sort,
+               author_sort
+        FROM books;
+        
+        DROP INDEX publishers_idx;
+        CREATE INDEX publishers_idx ON publishers (name COLLATE NOCASE);
+        DROP TRIGGER publishers_insert_trg;
+        DROP TRIGGER publishers_update_trg;
+'''
+                                )
+        conn.execute('pragma user_version=2')
+        conn.commit()
     
     def __init__(self, dbpath):
         self.dbpath = dbpath
         self.conn = _connect(dbpath)
-        self.user_version = self.conn.execute('pragma user_version;').next()[0]
         self.cache = []
         self.data  = []
-        if self.user_version == 0:
+        if self.user_version == 0: # No tables have been created
             LibraryDatabase.create_version1(self.conn)
+        if self.user_version == 1: # Upgrade to 2
+            LibraryDatabase.upgrade_version1(self.conn)
         
+    @apply
+    def user_version():
+        doc = 'The user version of this database'
+        def fget(self):
+            return self.conn.execute('pragma user_version;').next()[0]
+        return property(doc=doc, fget=fget)
             
     def is_empty(self):
         return not self.conn.execute('SELECT id FROM books LIMIT 1').fetchone()
@@ -578,7 +645,7 @@ class LibraryDatabase(object):
         Rebuild self.data and self.cache. Filter results are lost. 
         '''
         FIELDS = {'title'  : 'sort',
-                  'authors':  'authors_sort',
+                  'authors':  'author_sort',
                   'publisher': 'publisher_sort',
                   'size': 'size',
                   'date': 'timestamp',
@@ -631,6 +698,10 @@ class LibraryDatabase(object):
         ''' Authors as a comman separated list or None'''
         return self.data[index][2]
     
+    def author_sort(self, index):
+        id = self.id(index)
+        return self.conn.execute('SELECT author_sort FROM books WHERE id=?', (id,)).fetchone()[0]
+            
     def publisher(self, index):
         return self.data[index][3]
     
@@ -699,6 +770,13 @@ class LibraryDatabase(object):
         return [ (i[0], i[1]) for i in \
                 self.conn.execute('SELECT id, name FROM series').fetchall()]
     
+    def conversion_options(self, id, format):
+        data = self.conn.execute('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper())).fetchone()
+        if data:
+            return cPickle.loads(str(data[0]))
+        return None
+        
+    
     def add_format(self, index, ext, stream):
         '''
         Add the format specified by ext. If it already exists it is replaced.
@@ -749,6 +827,16 @@ class LibraryDatabase(object):
         elif column == 'rating':
             self.set_rating(id, val)
         
+    def set_conversion_options(self, id, format, options):
+        data = sqlite.Binary(cPickle.dumps(options))
+        oid = self.conn.execute('SELECT id FROM conversion_options WHERE book=? AND format=?', (id, format.upper())).fetchone()
+        if oid:
+            self.conn.execute('UPDATE conversion_options SET data=? WHERE id=?', (data, oid[0]))
+        else:
+            self.conn.execute('INSERT INTO conversion_options(book,format,data) VALUES (?,?,?)', (id,format.upper(),data))
+        self.conn.commit()
+                            
+    
     def set_authors(self, id, authors):
         '''
         @param authors: A list of authors.
@@ -764,6 +852,10 @@ class LibraryDatabase(object):
             else:
                 aid = self.conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
             self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
+        self.conn.commit()
+        
+    def set_author_sort(self, id, sort):
+        self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (sort, id))
         self.conn.commit()
         
     def set_title(self, id, title):
@@ -925,5 +1017,4 @@ class LibraryDatabase(object):
                     
 if __name__ == '__main__':
     db = LibraryDatabase('/home/kovid/library1.db')
-    db.refresh('title', True)
-    db.export_to_dir('/tmp/test', range(1, 10))
+    

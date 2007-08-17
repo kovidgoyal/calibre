@@ -1,8 +1,10 @@
 <RCC>
     <qresource prefix="/" >
         <file>images/book.svg</file>
-        <file>images/news.svg</file>
+        <file>images/chapters.svg</file>
         <file>images/clear_left.svg</file>
+        <file>images/config.svg</file>
+        <file>images/convert.svg</file>
         <file>images/dialog_error.svg</file>
         <file>images/dialog_warning.svg</file>
         <file>images/document_open.svg</file>
@@ -11,6 +13,8 @@
         <file>images/jobs.svg</file>
         <file alias="library" >images/library.png</file>
         <file>images/list_remove.svg</file>
+        <file>images/lookfeel.svg</file>
+        <file>images/metadata.svg</file>
         <file>images/mimetypes/bmp.svg</file>
         <file>images/mimetypes/dir.svg</file>
         <file>images/mimetypes/gif.svg</file>
@@ -28,14 +32,16 @@
         <file>images/mimetypes/unknown.svg</file>
         <file>images/mimetypes/zero.svg</file>
         <file>images/mimetypes/zip.svg</file>
+        <file>images/news.svg</file>
+        <file>images/news/bbc.png</file>
+        <file>images/news/newsweek.png</file>
+        <file>images/news/nytimes.png</file>
+        <file>images/page.svg</file>
         <file>images/plus.svg</file>
         <file>images/reader.svg</file>
         <file>images/save.svg</file>
         <file>images/sd.svg</file>
         <file>images/sync.svg</file>
         <file>images/trash.svg</file>
-        <file>images/news/bbc.png</file>
-        <file>images/news/newsweek.png</file>
-        <file>images/news/nytimes.png</file>
     </qresource>
 </RCC>

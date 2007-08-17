@@ -12,23 +12,27 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-''''''
 
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QListWidgetItem
 
-from libprs500.gui2.dialogs.conversion_error_ui import Ui_ConversionErrorDialog
+from libprs500.gui2 import file_icon_provider
+from libprs500.gui2.dialogs.choose_format_ui import Ui_ChooseFormatDialog
 
-class ConversionErrorDialog(QDialog, Ui_ConversionErrorDialog):
+class ChooseFormatDialog(QDialog, Ui_ChooseFormatDialog):
     
-    def __init__(self, window, title, html, show=False):
+    def __init__(self, window, msg, formats):
         QDialog.__init__(self, window)
-        Ui_ConversionErrorDialog.__init__(self)
+        Ui_ChooseFormatDialog.__init__(self)
         self.setupUi(self)
-        self.setWindowTitle(title)
-        self.set_message(html)
-        if show:
-            self.show()
         
-    def set_message(self, html):
-        self.text.setHtml('<html><body>%s</body></html'%(html,))
+        self.msg.setText(msg)
+        for format in formats:
+            self.formats.addItem(QListWidgetItem(file_icon_provider().icon_from_ext(format.lower()),
+                                                 format.upper()))
+        self._formats = formats
+        self.formats.setCurrentRow(0)
+        
+    def format(self):
+        self._formats[self.formats.currentRow()]
+    
     
