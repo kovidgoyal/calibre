@@ -1287,6 +1287,7 @@ class HTMLConverter(object):
                     self.unused_target_blocks.append(target)
                 else:
                     self.targets[tkey] = self.current_block
+                    self.current_block.must_append = True
             src = self.get_text(tag, limit=1000)
             if not self.disable_chapter_detection and tagname.startswith('h'):
                 if self.chapter_regex.search(src):
@@ -1366,7 +1367,7 @@ class HTMLConverter(object):
     
     def remove_unused_target_blocks(self):
         for block in self.unused_target_blocks:
-            block.parent.contents.remove(block)
+            block.parent.contents.remove(block)            
             block.parent = None
     
     def writeto(self, path, lrs=False):
