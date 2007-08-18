@@ -42,7 +42,8 @@ def generate_html(pathtolit, logger):
     logger.info(p.stdout.read())
     ret = p.wait()
     if ret != 0:
-        shutil.rmtree(tdir)
+        if os.path.exists(tdir) and os.path.isdir(tdir):
+            shutil.rmtree(tdir)
         err = p.stderr.read()
         raise ConversionError, err
     return tdir
@@ -76,7 +77,8 @@ def process_file(path, options, logger=None):
         if not options.output:
             ext = '.lrs' if options.lrs else '.lrf'
             options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
-        options.output = os.path.abspath(os.path.expanduser(options.output))  
+        options.output = os.path.abspath(os.path.expanduser(options.output))
+        options.minimum_indent = 100  
         html_process_file(htmlfile, options, logger=logger)
     finally:
         shutil.rmtree(tdir)

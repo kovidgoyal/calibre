@@ -997,6 +997,8 @@ class HTMLConverter(object):
             indent = Span.unit_convert(str(tag_css['text-indent']), self.profile.dpi, pts=True)
             if not indent:
                 indent = 0
+            if hasattr(self, 'minimum_indent') and indent > 0 and indent < self.minimum_indent:
+                indent = self.minimum_indent
             
         else:
             indent = self.book.defaultTextStyle.attrs['parindent']
