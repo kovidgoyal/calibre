@@ -79,46 +79,53 @@ def create_lrf(htmlfile, options, logger):
     process_file(htmlfile, options, logger)
 
 def process_profile(args, options, logger=None):
-    if logger is None:
-        level = logging.DEBUG if options.verbose else logging.INFO
-        logger = logging.getLogger('web2lrf')
-        setup_cli_handlers(logger, level)
-    if len(args) == 2:
-        if not profiles.has_key(args[1]):
-            raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], profiles.keys()))
-    profile = profiles[args[1]] if len(args) == 2 else profiles['default']
-    profile['username'] = options.username
-    profile['password'] = options.password
-    if profile.has_key('initialize'):
-        profile['initialize'](profile)
-    if profile.has_key('browser'):
-        options.browser = profile['browser']
-    
-    for opt in ('url', 'timeout', 'max_recursions', 'max_files', 'delay', 'no_stylesheets'):
-        val = getattr(options, opt)
-        if val is None:
-            setattr(options, opt, profile[opt])
+    tdir = None
+    try:
+        if logger is None:
+            level = logging.DEBUG if options.verbose else logging.INFO
+            logger = logging.getLogger('web2lrf')
+            setup_cli_handlers(logger, level)
+        if len(args) == 2:
+            if not profiles.has_key(args[1]):
+                raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], profiles.keys()))
+        profile = profiles[args[1]] if len(args) == 2 else profiles['default']
+        profile['username'] = options.username
+        profile['password'] = options.password
+        if profile.has_key('initialize'):
+            profile['initialize'](profile)
+        if profile.has_key('browser'):
+            options.browser = profile['browser']
         
-    if not options.url:
-        raise CommandLineError('You must specify the --url option or a profile from one of: %s', available_profiles)
-    
-    if not options.title:
-        title = profile['title']
-        if not title:
-            title = urlsplit(options.url).netloc
-        options.title = title + time.strftime(profile['timefmt'], time.localtime())
-    
-    options.match_regexps += profile['match_regexps']
-    options.preprocess_regexps = profile['preprocess_regexps']
-    options.filter_regexps += profile['filter_regexps']
-    if len(args) == 2 and args[1] != 'default':
-        options.anchor_ids = False
-    
-    htmlfile, tdir = fetch_website(options, logger)
-    create_lrf(htmlfile, options, logger)
-    if profile.has_key('finalize'):
-        profile['finalize'](profile)
-    shutil.rmtree(tdir)
+        for opt in ('url', 'timeout', 'max_recursions', 'max_files', 'delay', 'no_stylesheets'):
+            val = getattr(options, opt)
+            if val is None:
+                setattr(options, opt, profile[opt])
+        
+        if not options.url:
+            options.url = profile['url']            
+        
+        if not options.url:
+            raise CommandLineError('You must specify the --url option or a profile from one of: %s'%(available_profiles,))
+        
+        if not options.title:
+            title = profile['title']
+            if not title:
+                title = urlsplit(options.url).netloc
+            options.title = title + time.strftime(profile['timefmt'], time.localtime())
+        
+        options.match_regexps += profile['match_regexps']
+        options.preprocess_regexps = profile['preprocess_regexps']
+        options.filter_regexps += profile['filter_regexps']
+        if len(args) == 2 and args[1] != 'default':
+            options.anchor_ids = False
+        
+        htmlfile, tdir = fetch_website(options, logger)
+        create_lrf(htmlfile, options, logger)
+    finally:
+        if profile.has_key('finalize'):
+            profile['finalize'](profile)
+        if tdir and os.path.isdir(tdir):
+            shutil.rmtree(tdir)
     
 
 def main(args=sys.argv, logger=None):

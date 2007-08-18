@@ -19,6 +19,8 @@ from libprs500.ebooks.lrf.web.newsweek import initialize as newsweek_initialize
 from libprs500.ebooks.lrf.web.newsweek import finalize as newsweek_finalize
 from libprs500.ebooks.lrf.web.nytimes import initialize as nytimes_initialize
 from libprs500.ebooks.lrf.web.nytimes import finalize as nytimes_finalize
+from libprs500.ebooks.lrf.web.bbc import initialize as bbc_initialize
+from libprs500.ebooks.lrf.web.bbc import finalize as bbc_finalize
 
 
 profiles = {
@@ -42,9 +44,7 @@ profiles = {
             'nytimes' : {
                          'initialize'          : nytimes_initialize,
                          'finalize'            : nytimes_finalize,
-                         'timefmt'             :  ' [%a, %d %b, %Y]',
-                         'max_recursions'      : 2,                         
-                         'title'             : 'The New York Times',
+                         
                          'preprocess_regexps' :
                          [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
                           [
@@ -59,26 +59,24 @@ profiles = {
                          },
                          
             'bbc'     : {
-                         'title'             : 'The BBC',
-                         'no_stylesheets'    : True,
-                         'preprocess_regexps' :
+                          'initialize'          : bbc_initialize,
+                          'finalize'            : bbc_finalize,
+                          'preprocess_regexps' :
                          [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
                           [
-                           # Remove help link and replace by title
-                           (r'<a .*?alt=.Click here for information about this service.*?</a>', 
-                            lambda match: '<h1>The BBC</h1>\n<p align="right"><b>%s</b></p>'%(time.strftime('%a %d %b %Y', time.localtime()),)),
-                           # Blank line before categories
-                           (r'<b>\s*BBC', lambda match: '<p></p><b>BBC'),
                            # Remove footer from individual stories
                            (r'<div class=.footer.>.*?Published', 
                             lambda match : '<p></p><div class="footer">Published'),
                            # Add some style info in place of disabled stylesheet
-                           (r'<link.*?type=.text/css.*?>',
-                            '<style type="text/css">.headline {font-size: x-large;}</style>'),
+                           (r'<link.*?type=.text/css.*?>', lambda match :
+                            '''<style type="text/css">
+                                .headline {font-size: x-large;}
+                                .ibox { padding: 10pt 10pt 10pt 10pt } 
+                                </style>'''),
                            ]
                           ],
-                         },
-                         
+                          },
+            
             'newsweek' : {
                           'initialize'          : newsweek_initialize,
                           'finalize'            : newsweek_finalize,
