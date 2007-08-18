@@ -556,7 +556,6 @@ class HTMLConverter(object):
                 para = children[i]
                 break
         if para is None:
-            print children
             raise ConversionError('Failed to parse link %s'%(tag,))
         text = self.get_text(tag, 1000)
         if not text:
@@ -657,7 +656,7 @@ class HTMLConverter(object):
                         continue
                     finally:
                         os.chdir(cwd)            
-                if path+fragment in self.targets.keys():
+                if path+fragment in self.targets.keys():                    
                     tb = get_target_block(path+fragment, self.targets)
                 else:
                     try:
@@ -1081,6 +1080,7 @@ class HTMLConverter(object):
                         self.targets[self.target_prefix+tag[key]] = self.current_block
             elif tag.has_key('name') or tag.has_key('id'):
                 key = 'name' if tag.has_key('name') else 'id'
+                name = tag[key].replace('#', '')
                 if self.anchor_to_previous:
                     self.process_children(tag, tag_css)
                     for c in self.anchor_to_previous.contents:
@@ -1090,11 +1090,12 @@ class HTMLConverter(object):
                     tb = self.book.create_text_block()
                     tb.Paragraph(" ")
                     self.anchor_to_previous.append(tb)
-                    self.targets[self.target_prefix+tag[key]] = tb                    
+                    self.targets[self.target_prefix+name] = tb                    
                     return
                 previous = self.current_block
                 self.process_children(tag, tag_css)
                 target = None
+                
                 if self.current_block == previous:                    
                     if self.current_para.has_text():
                         self.current_para.append_to(self.current_block)
@@ -1131,7 +1132,7 @@ class HTMLConverter(object):
                         else:
                             target = BlockSpace()
                             self.current_page.append(target)
-                self.targets[self.target_prefix+tag[key]] = target            
+                self.targets[self.target_prefix+name] = target                            
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
                 path = os.path.abspath(unquote(tag['src']))
