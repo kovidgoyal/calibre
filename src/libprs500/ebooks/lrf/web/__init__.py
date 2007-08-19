@@ -86,14 +86,15 @@ def build_index(title, articles, dir):
     src = '''\
     <html>
     <body>
-    <h1>The New York Times</h1>
+    <h1>%(title)S</h1>
     <div style='text-align: right; font-weight: bold'>%(date)s</div>
     <ul>
     %(categories)s
     </ul>
     </body>
     </html>
-    '''%dict(date=time.strftime('%a, %d %B, %Y', time.localtime()), categories=clist)
+    '''%dict(date=time.strftime('%a, %d %B, %Y', time.localtime()), 
+             categories=clist, title=title)
     index = os.path.join(dir, 'index.html')
     open(index, 'wb').write(src.encode('utf-8'))
     return index

@@ -136,7 +136,7 @@ def option_parser(usage):
                       help='''A regular expression. <a> tags whoose href '''
                       '''matches will be ignored. Defaults to %default''')
     chapter = parser.add_option_group('CHAPTER OPTIONS')
-    chapter.add_option('--disable-chapter-detection', action='store_false', 
+    chapter.add_option('--disable-chapter-detection', action='store_true', 
                       default=False, dest='disable_chapter_detection', 
                       help='''Prevent html2lrf from automatically inserting page breaks'''
                       ''' before what it thinks are chapters.''')
