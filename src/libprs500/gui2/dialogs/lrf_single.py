@@ -63,7 +63,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.initialize_metadata()
         formats = self.db.formats(self.row)
         if not formats:
-            d = error_dialog(self, 'No availabla formats', 'Cannot convert as this book has not available formats')
+            d = error_dialog(window, 'No available formats', 'Cannot convert as this book has no available formats')
             d.exec_()
         formats = [i.upper() for i in formats.split(',')]
         self.selected_format = None
@@ -72,12 +72,16 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         except ValueError:
             pass
         if len(formats) > 1:
-            d = ChooseFormatDialog(self, 'Choose the format to convert into LRF', formats)
+            d = ChooseFormatDialog(window, 'Choose the format to convert into LRF', formats)
             d.exec_()
             if d.result() == QDialog.Accepted:
                 self.selected_format = d.format()
         else:
-            self.selected_format = formats[0]
+            if len(formats):
+                self.selected_format = formats[0]
+            else:
+                d = error_dialog(window, 'No suitable formats', 'Cannot convert as this book has no suitable formats.')
+                d.exec_()
         if self.selected_format:
             self.setWindowTitle('Convert %s to LRF'%(self.selected_format,))
 

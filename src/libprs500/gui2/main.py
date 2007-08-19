@@ -276,6 +276,8 @@ class Main(QObject, Ui_MainWindow):
             formats.append(format)
             metadata.append(mi)
             names.append(os.path.basename(book))
+            if not mi.authors:
+                mi.authors = 'Unknown'
             infos.append({'title':mi.title, 'authors':', '.join(mi.authors), 
                           'cover':self.default_thumbnail, 'tags':[]})
         
