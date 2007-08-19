@@ -53,10 +53,9 @@ class Span(_Span):
     
     
     @staticmethod
-    def unit_convert(val, dpi, ref=80, pts=False):
+    def unit_convert(val, dpi, pts=False):
         """
-        Tries to convert html units stored in C{val} to pixels. 
-        @param ref: reference size in pixels for % units.
+        Tries to convert html units stored in C{val} to pixels. Assumes 100% = 10pt 
         @param pts: If True return 10*pts instead of pixels.
         @return: The number of pixels (an int) if successful. Otherwise, returns None.
         Assumes: One em is 10pts
@@ -70,7 +69,8 @@ class Span(_Span):
         if m is not None:
             unit = float(m.group(1))
             if m.group(2) == '%':
-                result = int(unit/100.0*ref)
+                normal = Span.unit_convert('10pt', dpi)
+                result = int((unit/100.0)*normal)
             elif m.group(2) == 'px':
                 result =  int(unit)
             elif m.group(2) == 'in':
@@ -85,14 +85,13 @@ class Span(_Span):
                 result =  int(unit * 0.04 * (dpi/72.))
             elif m.group(2)== 'cm':
                 result =  int(unit * 0.4 * (dpi/72.))
-        if result is None:
-            result = 0
         if pts:
-            result = int((float(result)/dpi)*720)
+            if result is not None:
+                result = int((float(result)/dpi)*720)
         return result
     
     @staticmethod
-    def translate_attrs(d, dpi, fonts, logger, font_delta=0, memory=None):
+    def translate_font_attrs(d, dpi, fonts, logger, font_delta=0, memory=None):
         """
         Receives a dictionary of html attributes and styles and returns
         approximate Xylog equivalents in a new dictionary
@@ -141,16 +140,13 @@ class Span(_Span):
             
         
         def font_size(val):
-            # Assumes a 10 pt font (14 pixels) has fontsize 100
-            ans = None
-            normal = 14
-            unit = Span.unit_convert(val, dpi, normal)            
-            if unit:
-                if unit < 0:
-                    unit = normal + unit
-                    if unit < 0:
-                        unit = normal
-                ans = int(unit * (72./dpi) * 10)
+            normal = 100 #10*pts
+            ans = Span.unit_convert(val, dpi, pts=True)
+            if ans:
+                if ans < 0:
+                    ans += normal
+                    if ans < 0:
+                        ans = normal
             else:
                 if "xx-small" in val:
                     ans = 40
@@ -211,7 +207,7 @@ class Span(_Span):
                 variant = font_variant(val)
                 if variant:
                     t['fontvariant'] = variant
-            else:
+            elif memory is not None:
                 report = True
                 if memory != None:
                     if key in memory:
@@ -221,8 +217,10 @@ class Span(_Span):
                 if report:
                     logger.info('Unhandled/malformed CSS key: %s: %s', key, d[key])
         t['fontfacename'] = (family, font_key(family, style, weight))
-        if t.has_key('fontsize') and int(t['fontsize']) > 120:
-            t['wordspace'] = 50
+        if t.has_key('fontsize'):
+            if int(t['fontsize']) > 120:
+                t['wordspace'] = 50
+            t['baselineskip'] = int(t['fontsize']) + 20
         return t
     
     def __init__(self, ns, css, memory, dpi, fonts, logger, font_delta, parent_style,
@@ -231,7 +229,7 @@ class Span(_Span):
         for pat, repl in Span.rules:
             src = pat.sub(repl, src)
         src = src.replace(u'\xa0', ' ') # nbsp is replaced with \xa0 by BeatifulSoup
-        attrs = Span.translate_attrs(css, dpi, fonts, logger, font_delta=font_delta, memory=memory)
+        attrs = Span.translate_font_attrs(css, dpi, fonts, logger, font_delta=font_delta, memory=memory)
         if 'fontsize' in attrs.keys():
             normal_font_size = int(attrs['fontsize'])
         variant = attrs.pop('fontvariant', None)
@@ -259,13 +257,14 @@ class Span(_Span):
                 attrs['fontweight'] = 700
             if key in ['italic', 'bi']:
                 src = Italic(src)
-        if 'fontsize' in attrs.keys():
-            attrs['baselineskip'] = int(attrs['fontsize']) + 20
         if attrs['fontfacename'] == fonts['serif']['normal'][1]:
             attrs.pop('fontfacename')
+        unneeded = []
         for key in attrs:
             if parent_style.has_key(key) and str(parent_style[key]) == str(attrs[key]):
-                attrs.pop(key)
+                unneeded.append(key)
+        for key in unneeded:
+            attrs.pop(key)
         self.text_src = src
         self.span_needed = bool(attrs)
         _Span.__init__(self, text=src, **attrs)
@@ -395,6 +394,10 @@ class HTMLConverter(object):
         self.book = book                #: The Book object representing a BBeB book
         self.start_on_file(path, is_root=True)
         
+    def is_baen(self, soup):
+        return bool(soup.find('meta', attrs={'name':'Publisher', 
+                        'content':re.compile('Baen', re.IGNORECASE)}))
+    
     def start_on_file(self, path, is_root=True, link_level=0):
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
@@ -413,6 +416,10 @@ class HTMLConverter(object):
         soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
+        if not self.baen and self.is_baen(soup):
+            self.baen = True
+            self.logger.info('Baen file detected. Re-parsing...')
+            return self.start_on_file(path, is_root=is_root, link_level=link_level)
         self.logger.info('\tConverting to BBeB...')
         sys.stdout.flush()        
         self.current_page = None
@@ -990,7 +997,7 @@ class HTMLConverter(object):
                 self.logger.debug('Forcing page break at %s', tagname)
         return end_page
     
-    def process_block(self, tag, tag_css, tkey):
+    def process_block(self, tag, tag_css, tkey):        
         ''' Ensure padding and text-indent properties are respected '''
         if tag_css.has_key('text-indent'):
             indent = Span.unit_convert(str(tag_css['text-indent']), self.profile.dpi, pts=True)
@@ -998,7 +1005,6 @@ class HTMLConverter(object):
                 indent = 0
             if hasattr(self, 'minimum_indent') and indent > 0 and indent < self.minimum_indent:
                 indent = self.minimum_indent
-            
         else:
             indent = self.book.defaultTextStyle.attrs['parindent']
             
@@ -1017,14 +1023,32 @@ class HTMLConverter(object):
         top = Span.unit_convert(top, self.profile.dpi) if top is not None else 0
         bottom = Span.unit_convert(bottom, self.profile.dpi) if bottom is not None else 0
         left = Span.unit_convert(left, self.profile.dpi) if left is not None else 0
-        
-        if indent != int(self.current_block.textStyle.attrs['parindent']) or \
+        fonts = Span.translate_font_attrs(tag_css, self.profile.dpi, self.fonts, 
+                                          self.logger, self.font_delta, None)
+        fonts_changed = False
+        fonts.pop('fontvariant', None)
+        family, key = fonts['fontfacename']
+        if self.fonts[family].has_key(key):
+            fonts['fontfacename'] = self.fonts[family][key][1]
+        else:
+            fonts['fontfacename'] = self.fonts[family]['normal'][1]
+        for key in fonts.keys():
+            if str(self.current_block.textStyle.attrs[key]) != str(fonts[key]):
+                fonts_changed = True
+                break 
+        if fonts_changed or \
+           indent != int(self.current_block.textStyle.attrs['parindent']) or \
            top    != int(self.current_block.blockStyle.attrs['topskip'])   or \
            bottom != int(self.current_block.blockStyle.attrs['footskip'])  or \
            left   != int(self.current_block.blockStyle.attrs['sidemargin']):
+           
             self.current_block.append_to(self.current_page)
             ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
             ts.attrs['parindent'] = indent
+            for key in ('fontfacename', 'fontsize', 'fontwidth', 'wordspace', 'baselineskip'):
+                ts.attrs[key] = self.book.defaultTextStyle.attrs[key]
+            for key in fonts:
+                ts.attrs[key] = fonts[key]
             bs = self.book.create_block_style(**self.current_block.blockStyle.attrs)
             ba = bs.attrs
             ba['topskip'], ba['footskip'], ba['sidemargin'] = top, bottom, left            
@@ -1177,7 +1201,7 @@ class HTMLConverter(object):
         elif tagname == 'pre':
             self.end_current_para()
             self.end_current_block()
-            self.current_block.textStyle = self.current_block.textStyle.copy()
+            self.current_block = self.book.create_text_block()
             self.current_block.textStyle.attrs['parindent'] = '0'
             if tag.contents:
                 c = tag.contents[0]
@@ -1247,14 +1271,14 @@ class HTMLConverter(object):
             self.current_block.append_to(self.current_page)
             pb = self.current_block
             self.current_para = Paragraph()
-            ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
+            ts = self.book.create_text_style()
             ts.attrs['parindent'] = 0
             try:
                 index = self.text_styles.index(ts)
                 ts = self.text_styles[index]
             except ValueError:
                 self.text_styles.append(ts)
-            bs = self.book.create_block_style(**self.current_block.blockStyle.attrs)
+            bs = self.book.create_block_style()
             bs.attrs['sidemargin'], bs.attrs['topskip'], bs.attrs['footskip'] = \
             60, 20, 20
             try:
@@ -1297,19 +1321,25 @@ class HTMLConverter(object):
                     self.logger.debug('Detected chapter %s', src)
                     self.end_page()
                     self.page_break_found = True
-            self.end_current_para()
-            if not tag.contents or not src.strip(): # Handle empty <p></p> elements
+            if not tag.contents:
                 self.current_block.append(CR())
-                self.previous_text = '\n'
-                self.process_children(tag, tag_css)
+                self.current_block.must_append = True
                 return
-            self.previous_text = '\n'
-            self.process_block(tag, tag_css, tkey)
-            self.process_children(tag, tag_css)
-            self.end_current_para()
-            if tagname.startswith('h') or self.blank_after_para:
+            if not self.in_table:
+                self.process_block(tag, tag_css, tkey)
+            if self.current_para.contents:
+                self.current_block.append(self.current_para)            
+            if self.current_block.contents:
                 self.current_block.append(CR())
-                self.previous_text = '\n'            
+            self.previous_text = '\n'
+            self.current_para = Paragraph()
+            
+            self.process_children(tag, tag_css)
+            if self.current_para.contents:
+                self.current_block.append(self.current_para)
+            self.current_para = Paragraph()
+            if tagname.startswith('h') or self.blank_after_para:
+                self.current_block.append(CR())                            
         elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite']:
             self.process_children(tag, tag_css)
         elif tagname == 'font':
@@ -1350,6 +1380,7 @@ class HTMLConverter(object):
                     
     def process_table(self, tag, tag_css):
         self.end_current_block()
+        self.current_block = self.book.create_text_block()
         rowpad = 10
         table = Table(self, tag, tag_css, rowpad=rowpad, colpad=10)
         canvases = []
