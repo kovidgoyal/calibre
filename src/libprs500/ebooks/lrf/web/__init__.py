@@ -86,7 +86,7 @@ def build_index(title, articles, dir):
     src = '''\
     <html>
     <body>
-    <h1>%(title)S</h1>
+    <h1>%(title)s</h1>
     <div style='text-align: right; font-weight: bold'>%(date)s</div>
     <ul>
     %(categories)s
