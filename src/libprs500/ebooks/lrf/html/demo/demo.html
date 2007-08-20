@@ -4,7 +4,9 @@
 .toc { page-break-after: always; text-indent: 0em; }
 .tocpn            {text-align: right; }
 .tocchr           {text-align: right;}
-.hanging_indent   { padding-left:40px; text-indent:-40px }
+.hanging_indent   { padding-left:4em; text-indent:-4em }
+.drop             { text-indent: 0pt}
+.drop:first-letter { font-size:xx-large}
 </style>
 </head>
   <h1>Demo of <span style='font-family:monospace'>html2lrf</span></h1>  
@@ -159,19 +161,18 @@
  paragraph. Image based dropcaps are specified by adding the <code>class = 'libprs500_dropcaps'</code>
  attribute to an <code>&lt;img&gt;</code> tag.<p/>
  <br/>
- <br/>
- <p><big class='libprs500_dropcaps'>T</big>his is a plain text based dropcaps. It
+ 
+ <p class="drop">This is a plain text based dropcaps. It
  is not nearly as dramatic, but easier to code ;-)
  </p>
  <br/>
- <br/>
+ 
  <p><span style="font-variant: small-caps">This is an Example</span> of small-caps.
  It can also be used to highlight the start of a paragraph very effectively.
- <br/>
  </p>
+ <br/>
  <p class='hanging_indent'>A paragraph with a hanging indent. This is especially 
- useful for highly structured text like verse, or dialogue. 
- The world is not all prose!<br/></p>
+ useful for highly structured text like verse, or dialogue.<br/></p>
  <p class='toc'> 
  <hr />
  <a href='#toc'>Table of Contents</a>

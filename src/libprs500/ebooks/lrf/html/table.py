@@ -220,7 +220,7 @@ class Row(object):
         self.colpad = colpad
         cells = row.findAll(re.compile('td|th', re.IGNORECASE))
         for cell in cells:
-            ccss = conv.tag_css(cell, css)
+            ccss = conv.tag_css(cell, css)[0]
             self.cells.append(Cell(conv, cell, ccss))        
             
     def number_of_cells(self):
@@ -285,7 +285,7 @@ class Table(object):
         conv.anchor_to_previous = conv.current_page
         conv.in_table = True
         for row in rows:            
-            rcss = conv.tag_css(row, css)
+            rcss = conv.tag_css(row, css)[0]
             self.rows.append(Row(conv, row, rcss, colpad))
         conv.in_table = False
         conv.anchor_to_previous = None

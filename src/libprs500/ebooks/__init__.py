@@ -20,3 +20,6 @@ from various formats.
 
 class ConversionError(Exception):
     pass
+
+class UnknownFormatError(Exception):
+    pass

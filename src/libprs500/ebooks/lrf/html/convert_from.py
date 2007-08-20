@@ -212,6 +212,7 @@ class HTMLConverter(object):
         if match and not re.match('avoid', match.group(1), re.IGNORECASE):
             self.page_break_found = True
         self.css = HTMLConverter.CSS.copy()
+        self.pseudo_css = {}
         self.target_prefix = path
         self.links[path] = []
         self.previous_text = '\n'
@@ -227,17 +228,27 @@ class HTMLConverter(object):
         @return: A dictionary with one entry per selector where the key is the
         selector name and the value is a dictionary of properties
         """
-        sdict = dict()
+        sdict, pdict = {}, {}
         style = re.sub('/\*.*?\*/', '', style) # Remove /*...*/ comments
         for sel in re.findall(HTMLConverter.SELECTOR_PAT, style):
             for key in sel[0].split(','):
-                key = key.strip().lower()
                 val = self.parse_style_properties(sel[1])
-                if key in sdict:
-                    sdict[key].update(val)
+                key = key.strip().lower()
+                if ':' in key:
+                    key, sep, pseudo = key.partition(':')
+                    if key in pdict:
+                        if pseudo in pdict[key]:
+                            pdict[key][pseudo].update(val)
+                        else:
+                            pdict[key][pseudo] = val
+                    else:
+                        pdict[key] = {pseudo:val}
                 else:
-                    sdict[key] = val
-        return sdict
+                    if key in sdict:
+                        sdict[key].update(val)
+                    else:
+                        sdict[key] = val
+        return sdict, pdict
 
     def parse_style_properties(self, props):
         """
@@ -271,7 +282,7 @@ class HTMLConverter(object):
                     temp[key] = pcss[key]
             prop.update(temp)
             
-        prop = dict()
+        prop, pprop = {}, {}
         tagname = tag.name.lower()
         if parent_css:
             merge_parent_css(prop, parent_css)
@@ -279,14 +290,18 @@ class HTMLConverter(object):
             prop["text-align"] = tag["align"]
         if self.css.has_key(tagname):
             prop.update(self.css[tagname])
+        if self.pseudo_css.has_key(tagname):
+            pprop.update(self.pseudo_css[tagname])
         if tag.has_key("class"):
             cls = tag["class"].lower()            
             for classname in ["."+cls, tagname+"."+cls]:
                 if self.css.has_key(classname):
                     prop.update(self.css[classname])
+                if self.pseudo_css.has_key(classname):
+                    pprop.update(self.pseudo_css[classname])
         if tag.has_key("style"):
-            prop.update(self.parse_style_properties(tag["style"]))    
-        return prop
+            prop.update(self.parse_style_properties(tag["style"]))
+        return prop, pprop
         
     def parse_file(self, soup, is_root):
         def get_valid_block(page):
@@ -303,7 +318,7 @@ class HTMLConverter(object):
             self.add_image_page(self.cover)
         top = self.current_block
         
-        self.process_children(soup, {})
+        self.process_children(soup, {}, {})
         
         if self.current_para and self.current_block:
             self.current_para.append_to(self.current_block)
@@ -361,7 +376,7 @@ class HTMLConverter(object):
         
     
     def get_text(self, tag, limit=None):
-            css = self.tag_css(tag)
+            css = self.tag_css(tag)[0]
             if (css.has_key('display') and css['display'].lower() == 'none') or \
                (css.has_key('visibility') and css['visibility'].lower() == 'hidden'):
                 return ''
@@ -499,7 +514,7 @@ class HTMLConverter(object):
             page.append(ib)
             self.book.append(page)
     
-    def process_children(self, ptag, pcss):
+    def process_children(self, ptag, pcss, ppcss={}):
         """ Process the children of ptag """
         # Need to make a copy of contents as when
         # extract is called on a child, it will
@@ -511,7 +526,7 @@ class HTMLConverter(object):
             elif isinstance(c, Tag):
                 self.parse_tag(c, pcss)
             elif isinstance(c, NavigableString):
-                self.add_text(c, pcss)
+                self.add_text(c, pcss, ppcss)
         if not self.in_table:
             ptag.extract()
                     
@@ -551,7 +566,7 @@ class HTMLConverter(object):
             return True
         return False
     
-    def add_text(self, tag, css, force_span_use=False):
+    def add_text(self, tag, css, pseudo_css, force_span_use=False):
         '''
         Add text to the current paragraph taking CSS into account.
         @param tag: Either a BeautifulSoup tag or a string
@@ -559,6 +574,13 @@ class HTMLConverter(object):
         '''
         src = tag.string if hasattr(tag, 'string') else tag
         src = src.replace('\r\n', '\n').replace('\r', '\n')
+        if pseudo_css.has_key('first-letter'):
+            src = src.lstrip()
+            f = src[0]
+            src = src[1:]
+            ncss = css.copy()
+            ncss.update(pseudo_css.pop('first-letter'))
+            self.add_text(f, ncss, {}, force_span_use)
         collapse_whitespace = not css.has_key('white-space') or css['white-space'] != 'pre'
         if self.process_alignment(css) and collapse_whitespace:
             # Dont want leading blanks in a new paragraph
@@ -1042,9 +1064,9 @@ class HTMLConverter(object):
             tagname = tag.name.lower()
         except AttributeError:
             if not isinstance(tag, HTMLConverter.IGNORED_TAGS):
-                self.add_text(tag, parent_css)
+                self.add_text(tag, parent_css, {})
             return
-        tag_css = self.tag_css(tag, parent_css=parent_css)
+        tag_css, tag_pseudo_css = self.tag_css(tag, parent_css=parent_css)
         try: # Skip element if its display attribute is set to none
             if tag_css['display'].lower() == 'none' or \
                tag_css['visibility'].lower() == 'hidden':
@@ -1068,7 +1090,7 @@ class HTMLConverter(object):
                     text = self.get_text(tag, limit=1000)
                     if not text.strip():
                         text = "Link"
-                    self.add_text(text, tag_css, force_span_use=True)
+                    self.add_text(text, tag_css, {}, force_span_use=True)
                     self.links[self.target_prefix].append(self.create_link(self.current_para.contents, tag))
                     if tag.has_key('id') or tag.has_key('name'):
                         key = 'name' if tag.has_key('name') else 'id'
@@ -1077,7 +1099,7 @@ class HTMLConverter(object):
                 key = 'name' if tag.has_key('name') else 'id'
                 name = tag[key].replace('#', '')
                 if self.anchor_to_previous:
-                    self.process_children(tag, tag_css)
+                    self.process_children(tag, tag_css, tag_pseudo_css)
                     for c in self.anchor_to_previous.contents:
                         if isinstance(c, (TextBlock, ImageBlock)):
                             self.targets[self.target_prefix+tag[key]] = c
@@ -1088,7 +1110,7 @@ class HTMLConverter(object):
                     self.targets[self.target_prefix+name] = tb                    
                     return
                 previous = self.current_block
-                self.process_children(tag, tag_css)
+                self.process_children(tag, tag_css, tag_pseudo_css)
                 target = None
                 
                 if self.current_block == previous:                    
@@ -1142,17 +1164,19 @@ class HTMLConverter(object):
             else:
                 self.logger.debug("Failed to process: %s", str(tag))
         elif tagname in ['style', 'link']:
-            def update_css(ncss):
+            def update_css(ncss, ocss):
                 for key in ncss.keys():
-                    if self.css.has_key(key):
-                        self.css[key].update(ncss[key])
+                    if ocss.has_key(key):
+                        ocss[key].update(ncss[key])
                     else:
-                        self.css[key] = ncss[key]
-            ncss = {}
+                        ocss[key] = ncss[key]
+            ncss, npcss = {}, {}
             if tagname == 'style':
                 for c in tag.contents:
                     if isinstance(c, NavigableString):
-                        ncss.update(self.parse_css(str(c)))
+                        css, pcss = self.parse_css(str(c))
+                        ncss.update(css)
+                        npcss.update(pcss)
             elif tag.has_key('type') and tag['type'] == "text/css" \
                     and tag.has_key('href'):
                 purl = urlparse(tag['href'])
@@ -1164,11 +1188,13 @@ class HTMLConverter(object):
                     match = self.PAGE_BREAK_PAT.search(src) 
                     if match and not re.match('avoid', match.group(1), re.IGNORECASE):
                         self.page_break_found = True
-                    ncss = self.parse_css(src)
+                    ncss, npcss = self.parse_css(src)
                 except IOError:
                     pass
             if ncss:
-                update_css(ncss)            
+                update_css(ncss, self.css)
+            if npcss:
+                update_css(pcss, self.pseudo_css)
         elif tagname == 'pre':
             self.end_current_para()
             self.end_current_block()
@@ -1181,7 +1207,7 @@ class HTMLConverter(object):
                     if c.startswith('\n'):
                         c = c[1:]
                         tag.contents[0] = NavigableString(c)
-            self.process_children(tag, tag_css)
+            self.process_children(tag, tag_css, tag_pseudo_css)
             self.end_current_block()
         elif tagname in ['ul', 'ol', 'dl']:
             self.list_level += 1
@@ -1197,7 +1223,7 @@ class HTMLConverter(object):
             self.current_block = self.book.create_text_block(
                                         blockStyle=bs,
                                         textStyle=self.unindented_style)
-            self.process_children(tag, tag_css)
+            self.process_children(tag, tag_css, tag_pseudo_css)
             self.end_current_block()
             self.current_block.blockStyle = prev_bs
             self.list_level -= 1
@@ -1232,11 +1258,11 @@ class HTMLConverter(object):
                     parent = parent.parent
                 prepend = str(self.list_counter)+'. ' if in_ol else u'\u2022' + ' '
                 self.current_para.append(Span(prepend))
-                self.process_children(tag, tag_css)
+                self.process_children(tag, tag_css, tag_pseudo_css)
                 if in_ol:
                     self.list_counter += 1
             else:
-                self.process_children(tag, tag_css)    
+                self.process_children(tag, tag_css, tag_pseudo_css)    
         elif tagname == 'blockquote':
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
@@ -1260,7 +1286,7 @@ class HTMLConverter(object):
             self.current_block = self.book.create_text_block(
                                     blockStyle=bs, textStyle=ts)
             self.previous_text = '\n'
-            self.process_children(tag, tag_css)
+            self.process_children(tag, tag_css, tag_pseudo_css)
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
             self.current_para = Paragraph()
@@ -1304,18 +1330,18 @@ class HTMLConverter(object):
             self.previous_text = '\n'
             self.current_para = Paragraph()
             
-            self.process_children(tag, tag_css)
+            self.process_children(tag, tag_css, tag_pseudo_css)
             if self.current_para.contents:
                 self.current_block.append(self.current_para)
             self.current_para = Paragraph()
             if tagname.startswith('h') or self.blank_after_para:
                 self.current_block.append(CR())                            
         elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite']:
-            self.process_children(tag, tag_css)
+            self.process_children(tag, tag_css, tag_pseudo_css)
         elif tagname == 'font':
             if tag.has_key('face'):
                 tag_css['font-family'] = tag['face']
-            self.process_children(tag, tag_css)
+            self.process_children(tag, tag_css, tag_pseudo_css)
         elif tagname in ['br']:
             self.line_break()
             self.previous_text = '\n'
@@ -1326,13 +1352,13 @@ class HTMLConverter(object):
             if tagname == 'hr':
                 self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
             self.previous_text = '\n'
-            self.process_children(tag, tag_css)
+            self.process_children(tag, tag_css, tag_pseudo_css)
         elif tagname == 'td': # Needed for nested tables
             self.current_para.append(' ')
             self.previous_text = ' '
-            self.process_children(tag, tag_css)
+            self.process_children(tag, tag_css, tag_pseudo_css)
         elif tagname == 'table' and not self.ignore_tables and not self.in_table:
-            tag_css = self.tag_css(tag) # Table should not inherit CSS
+            tag_css = self.tag_css(tag)[0] # Table should not inherit CSS
             try:
                 self.process_table(tag, tag_css)
             except Exception, err:
@@ -1340,11 +1366,11 @@ class HTMLConverter(object):
                 self.logger.debug('', exc_info=True)
                 self.logger.warning('Ignoring table markup for table:\n%s', str(tag)[:300])
                 self.in_table = False
-                self.process_children(tag, tag_css)
+                self.process_children(tag, tag_css, tag_pseudo_css)
             finally:                
                 tag.extract()
         else:
-            self.process_children(tag, tag_css)        
+            self.process_children(tag, tag_css, tag_pseudo_css)        
         if end_page:
                 self.end_page()
                     

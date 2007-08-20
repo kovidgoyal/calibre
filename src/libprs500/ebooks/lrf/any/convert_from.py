@@ -16,6 +16,7 @@
 
 import sys, os, logging, shutil, tempfile, glob
 
+from libprs500.ebooks import UnknownFormatError
 from libprs500.ebooks.lrf import option_parser
 from libprs500 import __appname__, setup_cli_handlers, extract
 from libprs500.ebooks.lrf.lit.convert_from  import process_file as lit2lrf
@@ -104,11 +105,14 @@ def process_file(path, options, logger=None):
              convertor = rtf2lrf
         elif 'txt' == ext:
              convertor = txt2lrf
+        if not convertor:
+            raise UnknownFormatError('Coverting from %s to LRF is not supported.')
         convertor(path, options, logger)
     finally:
         os.chdir(cwd)
         if tdir and os.path.exists(tdir):
             shutil.rmtree(tdir)
+    return 0
     
 
 def main(args=sys.argv, logger=None):
@@ -126,11 +130,7 @@ ZIP archive.
         print 'No file to convert specified.'
         return 1
     
-    process_file(args[1], options, logger)
-            
-    
-    
-    return 0
+    return process_file(args[1], options, logger)
 
 if __name__ == '__main__':
     sys.exit(main())
