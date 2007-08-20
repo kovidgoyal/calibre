@@ -16,14 +16,14 @@
 import os, time, calendar, operator
 
 from libprs500 import iswindows
-from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
 
 def parse_feeds(feeds, browser, print_version, max_articles_per_feed=10):
     articles = {}
     for title, url in feeds:
         src = browser.open(url).read()
         articles[title] = []
-        soup = BeautifulStoneSoup(src, convertEntities=BeautifulSoup.HTML_ENTITIES)
+        soup = BeautifulStoneSoup(src)
         for item in soup.findAll('item'):
             try:
                 pubdate = item.find('pubdate').string

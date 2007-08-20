@@ -50,10 +50,10 @@ class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
-    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
+    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo']
     patterns = [ re.compile('&'+i+';') for i in replaced_entities ]
     targets  = [ unichr(name2codepoint[i]) for i in replaced_entities ]
-    ENTITY_RULES = zip(patterns, targets)
+    ENTITY_RULES = zip(patterns, targets) + [(re.compile('&apos;'), "'")]
     
      
     MARKUP_MASSAGE   = [
