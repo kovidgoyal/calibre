@@ -71,7 +71,7 @@ profiles = {
                            (r'<link.*?type=.text/css.*?>', lambda match :
                             '''<style type="text/css">
                                 .headline {font-size: x-large;}
-                                .ibox { padding: 10pt 10pt 10pt 10pt } 
+                                .fact { padding-top: 10pt  }
                                 </style>'''),
                            ]
                           ],

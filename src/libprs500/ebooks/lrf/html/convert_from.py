@@ -35,8 +35,8 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
-                LrsError, Sup, Sub
-from libprs500.ebooks.lrf.pylrs.pylrs import Span as _Span
+                LrsError, Sup, Sub, properties_different
+from libprs500.ebooks.lrf.pylrs.pylrs import Span 
 from libprs500.ebooks.lrf import Book
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
@@ -45,234 +45,16 @@ from libprs500 import filename_to_utf8,  setup_cli_handlers, __appname__
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.opf import OPFReader
 
-class Span(_Span):
-    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
-    patterns = [ re.compile('&'+i+';') for i in replaced_entities ]
-    targets  = [ unichr(name2codepoint[i]) for i in replaced_entities ]
-    rules = zip(patterns, targets)
-    
-    
-    @staticmethod
-    def unit_convert(val, dpi, pts=False):
-        """
-        Tries to convert html units stored in C{val} to pixels. Assumes 100% = 10pt 
-        @param pts: If True return 10*pts instead of pixels.
-        @return: The number of pixels (an int) if successful. Otherwise, returns None.
-        Assumes: One em is 10pts
-        """
-        result = None
-        try:
-            result = int(val)
-        except ValueError:
-            pass
-        m = re.match("\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
-        if m is not None:
-            unit = float(m.group(1))
-            if m.group(2) == '%':
-                normal = Span.unit_convert('10pt', dpi)
-                result = int((unit/100.0)*normal)
-            elif m.group(2) == 'px':
-                result =  int(unit)
-            elif m.group(2) == 'in':
-                result =  int(unit * dpi)
-            elif m.group(2) == 'pt':
-                result = int(unit * dpi/72.)
-            elif m.group(2)== 'em':
-                result = int(unit * (dpi/72.) * 10)
-            elif m.group(2)== 'pc':
-                result =  int(unit * (dpi/72.) * 12)
-            elif m.group(2)== 'mm':
-                result =  int(unit * 0.04 * (dpi/72.))
-            elif m.group(2)== 'cm':
-                result =  int(unit * 0.4 * (dpi/72.))
-        if pts:
-            if result is not None:
-                result = int((float(result)/dpi)*720)
-        return result
-    
-    @staticmethod
-    def translate_font_attrs(d, dpi, fonts, logger, font_delta=0, memory=None):
-        """
-        Receives a dictionary of html attributes and styles and returns
-        approximate Xylog equivalents in a new dictionary
-        """
-        def font_weight(val):
-            ans = 0
-            m = re.search("([0-9]+)", val)
-            if m:
-                ans = int(m.group(1))
-            elif val.find("bold") >= 0 or val.find("strong") >= 0:
-                ans = 700
-            return 'bold' if ans >= 700 else 'normal'
-        
-        def font_style(val):
-            ans = 'normal'
-            if 'italic' in val or 'oblique' in val:
-                ans = 'italic'
-            return ans
-        
-        def font_family(val):
-            ans = 'serif'
-            if max(val.find("courier"), val.find("mono"), val.find("fixed"), val.find("typewriter"))>=0:
-                ans = 'mono'
-            elif max(val.find("arial"), val.find("helvetica"), val.find("verdana"), 
-                 val.find("trebuchet"), val.find("sans")) >= 0:
-                ans = 'sans'
-            return ans
-        
-        def font_variant(val):
-            ans = None
-            if 'small-caps' in val.lower():
-                ans = 'small-caps'
-            return ans
-        
-        def font_key(family, style, weight):
-            key = 'normal'
-            if style == 'italic' and weight == 'normal':
-                key = 'italic'
-            elif style == 'normal' and weight == 'bold':
-                key = 'bold'
-            elif style == 'italic' and weight == 'bold':
-                key = 'bi'
-            return key
-        
-        
-            
-        
-        def font_size(val):
-            normal = 100 #10*pts
-            ans = Span.unit_convert(val, dpi, pts=True)
-            if ans:
-                if ans < 0:
-                    ans += normal
-                    if ans < 0:
-                        ans = normal
-            else:
-                if "xx-small" in val:
-                    ans = 40
-                elif "x-small" in val:
-                    ans = 60
-                elif "small" in val:
-                    ans = 80
-                elif "xx-large" in val:
-                    ans = 180
-                elif "x-large" in val:
-                    ans = 140
-                elif "large" in val:
-                    ans = 120
-            if ans is not None: 
-                ans += int(font_delta * 20)
-                ans = str(ans)                
-            return ans
-        
-        t = dict()
-        family, weight, style, variant = 'serif', 'normal', 'normal', None
-        for key in d.keys():
-            val = d[key].lower()
-            if key == 'font':
-                vals = val.split()
-                for val in vals:
-                    family = font_family(val)
-                    if family != 'serif':
-                        break
-                for val in vals:
-                    weight = font_weight(val)
-                    if weight != 'normal':
-                        break
-                for val in vals:
-                    style = font_style(val)
-                    if style != 'normal':
-                        break
-                for val in vals:
-                    sz = font_size(val)
-                    if sz:
-                        t['fontsize'] = sz
-                        break
-                for val in vals:
-                    variant = font_variant(val)
-                    if variant:
-                        t['fontvariant'] = variant
-                        break
-            elif key in ['font-family', 'font-name']:                
-                family = font_family(val) 
-            elif key == "font-size":
-                ans = font_size(val)
-                if ans:
-                    t['fontsize'] = ans
-            elif key == 'font-weight':
-                weight = font_weight(val)                
-            elif key == 'font-style':
-                style = font_style(val)
-            elif key == 'font-variant':
-                variant = font_variant(val)
-                if variant:
-                    t['fontvariant'] = variant
-            elif memory is not None:
-                report = True
-                if memory != None:
-                    if key in memory:
-                        report = False
-                    else:
-                        memory.append(key)
-                if report:
-                    logger.info('Unhandled/malformed CSS key: %s: %s', key, d[key])
-        t['fontfacename'] = (family, font_key(family, style, weight))
-        if t.has_key('fontsize'):
-            if int(t['fontsize']) > 120:
-                t['wordspace'] = 50
-            t['baselineskip'] = int(t['fontsize']) + 20
-        return t
-    
-    def __init__(self, ns, css, memory, dpi, fonts, logger, font_delta, parent_style,
-                 normal_font_size=100):
-        src = ns.string if hasattr(ns, 'string') else ns
-        for pat, repl in Span.rules:
-            src = pat.sub(repl, src)
-        src = src.replace(u'\xa0', ' ') # nbsp is replaced with \xa0 by BeatifulSoup
-        attrs = Span.translate_font_attrs(css, dpi, fonts, logger, font_delta=font_delta, memory=memory)
-        if 'fontsize' in attrs.keys():
-            normal_font_size = int(attrs['fontsize'])
-        variant = attrs.pop('fontvariant', None)
-        if variant == 'small-caps':
-            dump = _Span(fontsize=normal_font_size-30)
-            temp = []
-            for c in src:
-                if c.isupper():
-                    if temp:
-                        dump.append(''.join(temp))
-                        temp = []
-                    dump.append(_Span(c, fontsize=normal_font_size))
-                else:
-                    temp.append(c.upper())
-            src = dump                
-            if temp:
-                src.append(''.join(temp))
-                 
-        family, key = attrs['fontfacename']
-        if fonts[family].has_key(key):
-            attrs['fontfacename'] = fonts[family][key][1]
-        else:
-            attrs['fontfacename'] = fonts[family]['normal'][1]
-            if key in ['bold', 'bi']:
-                attrs['fontweight'] = 700
-            if key in ['italic', 'bi']:
-                src = Italic(src)
-        if attrs['fontfacename'] == fonts['serif']['normal'][1]:
-            attrs.pop('fontfacename')
-        unneeded = []
-        for key in attrs:
-            if parent_style.has_key(key) and str(parent_style[key]) == str(attrs[key]):
-                unneeded.append(key)
-        for key in unneeded:
-            attrs.pop(key)
-        self.text_src = src
-        self.span_needed = bool(attrs)
-        _Span.__init__(self, text=src, **attrs)
         
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
+    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
+    patterns = [ re.compile('&'+i+';') for i in replaced_entities ]
+    targets  = [ unichr(name2codepoint[i]) for i in replaced_entities ]
+    ENTITY_RULES = zip(patterns, targets)
+    
      
     MARKUP_MASSAGE   = [
                         # Close <a /> tags
@@ -559,7 +341,7 @@ class HTMLConverter(object):
     def create_link(self, children, tag):
         para = None
         for i in range(len(children)-1, -1, -1):
-            if isinstance(children[i], _Span):
+            if isinstance(children[i], Span):
                 para = children[i]
                 break
         if para is None:
@@ -778,17 +560,51 @@ class HTMLConverter(object):
         if self.process_alignment(css) and collapse_whitespace:
             # Dont want leading blanks in a new paragraph
             src = src.lstrip()
+        
         def append_text(src):
-            span = Span(src, self.sanctify_css(css), self.memory, self.profile.dpi, 
-                        self.fonts, self.logger, self.font_delta, 
-                        self.current_block.textStyle.attrs)
-            if span.span_needed or force_span_use:
-                self.current_para.append(span)
-            else:
-                if hasattr(span.text_src, 'parent'):
-                    span.text_src.parent.contents = []
-                    span.text_src.parent = None
-                self.current_para.append(span.text_src)
+            fp, key, variant = self.font_properties(css)
+            for pat, repl in self.__class__.ENTITY_RULES:
+                src = pat.sub(repl, src)
+            src = src.replace(u'\xa0', ' ')# nbsp is replaced with \xa0 by BeatifulSoup
+            normal_font_size = int(fp['fontsize'])
+            if variant == 'small-caps':
+                dump = Span(fontsize=normal_font_size-30)
+                temp = []
+                for c in src:
+                    if c.isupper():
+                        if temp:
+                            dump.append(''.join(temp))
+                            temp = []
+                        dump.append(Span(c, fontsize=normal_font_size))
+                    else:
+                        temp.append(c.upper())
+                src = dump                
+                if temp:
+                    src.append(''.join(temp))
+            
+            
+            if key in ['italic', 'bi']:
+                already_italic = False
+                for fonts in self.fonts.values():
+                    it = fonts['italic'][1] if fonts.has_key('italic') else ''
+                    bi = fonts['bi'][1] if fonts.has_key('bi') else ''
+                    if fp['fontfacename'] in (it, bi):
+                        already_italic = True
+                        break
+                if not already_italic:
+                    src = Italic(src)
+            
+            unneeded = []
+            for prop in fp:
+                if fp[prop] == self.current_block.textStyle.attrs[prop]:
+                    unneeded.append(prop)
+            for prop in unneeded:
+                fp.pop(prop)
+                
+            elem = Span(text=src, **fp) if (fp or force_span_use) else src
+            self.current_para.append(elem)
+        
+        
         if collapse_whitespace:
             src = re.sub(r'\s{1,}', ' ', src)
             if len(self.previous_text) != len(self.previous_text.rstrip()):
@@ -808,19 +624,6 @@ class HTMLConverter(object):
         self.current_para.append(CR())
         self.previous_text = '\n'
         
-    def sanctify_css(self, css):
-        """ Return a copy of C{css} that is safe for use in a SPAM Xylog tag """
-        css = copy.copy(css)
-        for key in css.keys():
-            test = key.lower()
-            if test.startswith('margin') or test.startswith('text') or \
-               'padding' in test or 'border' in test or 'page-break' in test \
-               or test.startswith('mso') or test.startswith('background')\
-               or test.startswith('line') or test in ['color', 'display', \
-                           'letter-spacing', 'position', 'white-space']:
-                css.pop(key)              
-        return css
-    
     def end_current_para(self):
         ''' 
         End current paragraph with a paragraph break after it. If the current
@@ -997,17 +800,11 @@ class HTMLConverter(object):
                 self.logger.debug('Forcing page break at %s', tagname)
         return end_page
     
-    def process_block(self, tag, tag_css, tkey):        
-        ''' Ensure padding and text-indent properties are respected '''
-        if tag_css.has_key('text-indent'):
-            indent = Span.unit_convert(str(tag_css['text-indent']), self.profile.dpi, pts=True)
-            if not indent:
-                indent = 0
-            if hasattr(self, 'minimum_indent') and indent > 0 and indent < self.minimum_indent:
-                indent = self.minimum_indent
-        else:
-            indent = self.book.defaultTextStyle.attrs['parindent']
-            
+    def block_properties(self, tag_css):
+        ans = {}
+        for key in ('topskip', 'footskip', 'sidemargin'):
+            ans[key] = self.book.defaultBlockStyle.attrs[key]
+        
         src = [None for i in range(4)]         
         if tag_css.has_key('padding'):
             msrc = tag_css['padding'].split()
@@ -1018,40 +815,211 @@ class HTMLConverter(object):
             if tag_css.has_key('padding-'+c):
                 src[i] = tag_css['padding-'+c]
             i += 1
-        top, right, bottom, left = src
         
-        top = Span.unit_convert(top, self.profile.dpi) if top is not None else 0
-        bottom = Span.unit_convert(bottom, self.profile.dpi) if bottom is not None else 0
-        left = Span.unit_convert(left, self.profile.dpi) if left is not None else 0
-        fonts = Span.translate_font_attrs(tag_css, self.profile.dpi, self.fonts, 
-                                          self.logger, self.font_delta, None)
-        fonts_changed = False
-        fonts.pop('fontvariant', None)
-        family, key = fonts['fontfacename']
+        t = {}
+        t['topskip'], t['footskip'], t['sidemargin'] = src[0], src[2], src[3]
+        for key in ('topskip', 'footskip', 'sidemargin'):
+            if t[key] is not None:
+                ans[key] = self.unit_convert(t[key])
+                
+        return ans
+    
+    def font_properties(self, css):
+        '''
+        Convert the font propertiess in css to the Xylog equivalents. If the CSS
+        does not contain a particular font property, the default from self.book.defaultTextSytle
+        is used. 
+        @return: dict, key, variant. The dict contains the Xlog equivalents. key indicates
+          the font type (i.e. bold, bi, normal) and variant is None or 'small-caps' 
+        '''
+        t = {}
+        for key in ('fontwidth', 'fontsize', 'wordspace', 'fontfacename', 'fontweight', 'baselineskip'):
+            t[key] = self.book.defaultTextStyle.attrs[key]
+        
+        def font_weight(val):
+            ans = 0
+            m = re.search("([0-9]+)", val)
+            if m:
+                ans = int(m.group(1))
+            elif val.find("bold") >= 0 or val.find("strong") >= 0:
+                ans = 700
+            return 'bold' if ans >= 700 else 'normal'
+        
+        def font_style(val):
+            ans = 'normal'
+            if 'italic' in val or 'oblique' in val:
+                ans = 'italic'
+            return ans
+        
+        def font_family(val):
+            ans = 'serif'
+            if max(val.find("courier"), val.find("mono"), val.find("fixed"), val.find("typewriter"))>=0:
+                ans = 'mono'
+            elif max(val.find("arial"), val.find("helvetica"), val.find("verdana"), 
+                 val.find("trebuchet"), val.find("sans")) >= 0:
+                ans = 'sans'
+            return ans
+        
+        def font_variant(val):
+            ans = None
+            if 'small-caps' in val.lower():
+                ans = 'small-caps'
+            return ans
+        
+        def font_key(family, style, weight):
+            key = 'normal'
+            if style == 'italic' and weight == 'normal':
+                key = 'italic'
+            elif style == 'normal' and weight == 'bold':
+                key = 'bold'
+            elif style == 'italic' and weight == 'bold':
+                key = 'bi'
+            return key
+        
+        def font_size(val):
+            normal = 100 #10*pts
+            ans = self.unit_convert(val, pts=True)
+            if ans:
+                if ans < 0:
+                    ans += normal
+                    if ans < 0:
+                        ans = normal
+            else:
+                if "xx-small" in val:
+                    ans = 40
+                elif "x-small" in val:
+                    ans = 60
+                elif "small" in val:
+                    ans = 80
+                elif "xx-large" in val:
+                    ans = 180
+                elif "x-large" in val:
+                    ans = 140
+                elif "large" in val:
+                    ans = 120
+            if ans is not None: 
+                ans += int(self.font_delta * 20)
+                ans = str(ans)                
+            return ans
+        
+        family, weight, style, variant = 'serif', 'normal', 'normal', None
+        for key in css.keys():
+            val = css[key].lower()
+            if key == 'font':
+                vals = val.split()
+                for val in vals:
+                    family = font_family(val)
+                    if family != 'serif':
+                        break
+                for val in vals:
+                    weight = font_weight(val)
+                    if weight != 'normal':
+                        break
+                for val in vals:
+                    style = font_style(val)
+                    if style != 'normal':
+                        break
+                for val in vals:
+                    sz = font_size(val)
+                    if sz:
+                        t['fontsize'] = sz
+                        break
+                for val in vals:
+                    variant = font_variant(val)
+                    if variant:
+                        t['fontvariant'] = variant
+                        break
+            elif key in ['font-family', 'font-name']:                
+                family = font_family(val) 
+            elif key == "font-size":
+                ans = font_size(val)
+                if ans:
+                    t['fontsize'] = ans
+            elif key == 'font-weight':
+                weight = font_weight(val)                
+            elif key == 'font-style':
+                style = font_style(val)
+            elif key == 'font-variant':
+                variant = font_variant(val)
+        
+        key = font_key(family, style, weight)
         if self.fonts[family].has_key(key):
-            fonts['fontfacename'] = self.fonts[family][key][1]
+            t['fontfacename'] = self.fonts[family][key][1]
         else:
-            fonts['fontfacename'] = self.fonts[family]['normal'][1]
-        for key in fonts.keys():
-            if str(self.current_block.textStyle.attrs[key]) != str(fonts[key]):
-                fonts_changed = True
-                break 
-        if fonts_changed or \
-           indent != int(self.current_block.textStyle.attrs['parindent']) or \
-           top    != int(self.current_block.blockStyle.attrs['topskip'])   or \
-           bottom != int(self.current_block.blockStyle.attrs['footskip'])  or \
-           left   != int(self.current_block.blockStyle.attrs['sidemargin']):
-           
+            t['fontfacename'] = self.fonts[family]['normal'][1]
+        if key in ['bold', 'bi']:
+                t['fontweight'] = 700
+        
+        fs = int(t['fontsize']) 
+        if fs > 120:
+            t['wordspace'] = int(fs/4.)
+        t['baselineskip'] = fs + 20
+        return t, key, variant
+        
+    def unit_convert(self, val, pts=False):
+        '''
+        Tries to convert html units in C{val} to pixels.
+        Assumes: 1em = 100% = 10pts  
+        @param pts: If True return 10*pts instead of pixels.
+        @return: The number of pixels (an int) if successful. Otherwise, returns None.        
+        '''
+        dpi = self.profile.dpi
+        result = None
+        try:
+            result = int(val)
+        except ValueError:
+            pass
+        m = re.match("\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
+        if m is not None:
+            unit = float(m.group(1))
+            if m.group(2) == '%':
+                normal = self.unit_convert('10pt')
+                result = int((unit/100.0)*normal)
+            elif m.group(2) == 'px':
+                result =  int(unit)
+            elif m.group(2) == 'in':
+                result =  int(unit * dpi)
+            elif m.group(2) == 'pt':
+                result = int(unit * dpi/72.)
+            elif m.group(2)== 'em':
+                result = int(unit * (dpi/72.) * 10)
+            elif m.group(2)== 'pc':
+                result =  int(unit * (dpi/72.) * 12)
+            elif m.group(2)== 'mm':
+                result =  int(unit * 0.04 * (dpi/72.))
+            elif m.group(2)== 'cm':
+                result =  int(unit * 0.4 * (dpi/72.))
+        if pts:
+            if result is not None:
+                result = int((float(result)/dpi)*720)
+        return result
+        
+    def text_properties(self, tag_css):
+        indent = self.book.defaultTextStyle.attrs['parindent']
+        if tag_css.has_key('text-indent'):
+            indent = self.unit_convert(str(tag_css['text-indent']), pts=True)
+            if not indent:
+                indent = 0
+            if hasattr(self, 'minimum_indent') and indent > 0 and indent < self.minimum_indent:
+                indent = self.minimum_indent
+                
+        fp = self.font_properties(tag_css)[0]
+        fp['parindent'] = indent
+        return fp
+        
+    
+    def process_block(self, tag, tag_css, tkey):        
+        ''' Ensure padding and text-indent properties are respected '''
+        text_properties = self.text_properties(tag_css)
+        block_properties = self.block_properties(tag_css)
+        
+        if properties_different(self.current_block.blockStyle.attrs, block_properties) or \
+           properties_different(self.current_block.textStyle.attrs, text_properties):
+            ts = self.current_block.textStyle.copy()
+            ts.attrs.update(text_properties)
+            bs = self.current_block.blockStyle.copy()
+            bs.attrs.update(block_properties)
             self.current_block.append_to(self.current_page)
-            ts = self.book.create_text_style(**self.current_block.textStyle.attrs)
-            ts.attrs['parindent'] = indent
-            for key in ('fontfacename', 'fontsize', 'fontwidth', 'wordspace', 'baselineskip'):
-                ts.attrs[key] = self.book.defaultTextStyle.attrs[key]
-            for key in fonts:
-                ts.attrs[key] = fonts[key]
-            bs = self.book.create_block_style(**self.current_block.blockStyle.attrs)
-            ba = bs.attrs
-            ba['topskip'], ba['footskip'], ba['sidemargin'] = top, bottom, left            
             try:
                 index = self.text_styles.index(ts)
                 ts = self.text_styles[index]                
@@ -1260,7 +1228,7 @@ class HTMLConverter(object):
                         break
                     parent = parent.parent
                 prepend = str(self.list_counter)+'. ' if in_ol else u'\u2022' + ' '
-                self.current_para.append(_Span(prepend))
+                self.current_para.append(Span(prepend))
                 self.process_children(tag, tag_css)
                 if in_ol:
                     self.list_counter += 1
@@ -1325,8 +1293,7 @@ class HTMLConverter(object):
                 self.current_block.append(CR())
                 self.current_block.must_append = True
                 return
-            if not self.in_table:
-                self.process_block(tag, tag_css, tkey)
+            self.process_block(tag, tag_css, tkey)
             if self.current_para.contents:
                 self.current_block.append(self.current_para)            
             if self.current_block.contents:

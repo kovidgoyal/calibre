@@ -1191,6 +1191,11 @@ class BlockStyle(LrsStyle):
 
     def __init__(self, **overrides):
         LrsStyle.__init__(self, "BlockStyle", self.defaults, **overrides)
+        
+    def copy(self):
+        tb = BlockStyle()
+        tb.attrs = self.attrs.copy()
+        return tb
 
   
         
@@ -2350,3 +2355,8 @@ class Font(LrsContainer):
 
 
 
+def properties_different(attrs1, attrs2):
+    for key in attrs1.keys():
+        if attrs2.has_key(key) and str(attrs1[key]) != str(attrs2[key]):
+                return True
+    return False
