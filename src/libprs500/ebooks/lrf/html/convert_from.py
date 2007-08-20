@@ -378,6 +378,9 @@ class HTMLConverter(object):
                         text += c['alt']
                         return text
                     text += self.get_text(c)
+            if text:
+                for rule, sub in self.__class__.ENTITY_RULES:
+                    text = rule.sub(sub, text)
             return text
     
     def process_links(self, is_root, selfpath, link_level=0):
