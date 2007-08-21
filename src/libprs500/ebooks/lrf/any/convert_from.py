@@ -35,12 +35,17 @@ def largest_file(files):
     return file
 
 def find_htmlfile(dir):
-    for pair in (('*toc*.htm*', '*toc*.xhtm*'), ('*.htm*', '*.xhtm*')):
-        files = glob.glob(os.path.join(dir, pair[0]))
-        files += glob.glob(os.path.join(dir, pair[1]))
-        file = largest_file(files)
-        if file:
-            return file
+    cwd = os.getcwd()
+    try:
+        os.chdir(dir)
+        for pair in (('*toc*.htm*', '*toc*.xhtm*'), ('*.htm*', '*.xhtm*')):
+            files = glob.glob(pair[0])
+            files += glob.glob(pair[1])
+            file = largest_file(files)
+            if file:
+                return os.path.join(dir, file)
+    finally:
+        os.chdir(cwd)
     
 
 def handle_archive(path):

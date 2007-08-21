@@ -22,6 +22,8 @@ from libprs500.gui2.dialogs.choose_format import ChooseFormatDialog
 from libprs500.gui2 import qstring_to_unicode, error_dialog, \
                            pixmap_to_data, choose_images
 from libprs500.ebooks.lrf import option_parser
+from libprs500.ptempfile import PersistentTemporaryFile
+from libprs500 import __appname__
 
 class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     
@@ -51,6 +53,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), self.select_cover)
         self.categoryList.leaveEvent = self.reset_help
         self.reset_help()
+        self.output_format = 'LRF'
+        self.selected_format = None
         self.setup_tooltips()
         self.initialize_options()
         self.db = db
@@ -61,34 +65,31 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.changed = False
         self.read_saved_options()
         self.initialize_metadata()
-        formats = self.db.formats(self.row)
+        formats = [i.upper() for i in self.db.formats(self.row).split(',')]
+        try:
+            formats.remove(self.output_format)
+        except ValueError:
+            pass        
         if not formats:
             d = error_dialog(window, 'No available formats', 'Cannot convert as this book has no available formats')
             d.exec_()
-        formats = [i.upper() for i in formats.split(',')]
-        self.selected_format = None
-        try:
-            formats.remove('LRF')
-        except ValueError:
-            pass
+        
         if len(formats) > 1:
             d = ChooseFormatDialog(window, 'Choose the format to convert into LRF', formats)
             d.exec_()
             if d.result() == QDialog.Accepted:
                 self.selected_format = d.format()
         else:
-            if len(formats):
-                self.selected_format = formats[0]
-            else:
-                d = error_dialog(window, 'No suitable formats', 'Cannot convert as this book has no suitable formats.')
-                d.exec_()
+            self.selected_format = formats[0]
+            
         if self.selected_format:
             self.setWindowTitle('Convert %s to LRF'%(self.selected_format,))
+            
+        
 
         
     def read_saved_options(self):
-        cmdline = self.db.conversion_options(self.id, 'lrf')
-        print 1, cmdline
+        cmdline = self.db.conversion_options(self.id, self.output_format.lower())
         if cmdline:
             for opt in self.options():
                 try:
@@ -236,7 +237,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             args[0].accept()
             
     def build_commandline(self):
-        cmd = []
+        cmd = [__appname__]
         for name in self.option_map.keys():
             opt = self.option_map[name].get_opt_string()
             obj = getattr(self, name)
@@ -256,6 +257,9 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         cmd.extend(['--profile',  qstring_to_unicode(self.gui_profile.currentText())])
         return cmd        
     
+    def title(self):
+        return qstring_to_unicode(self.gui_title.text())
+    
     def write_metadata(self):
         title = qstring_to_unicode(self.gui_title.text())
         self.db.set_title(self.id, title)
@@ -263,7 +267,6 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         if au: self.db.set_authors(self.id, au)
         aus = qstring_to_unicode(self.gui_author_sort.text())
         if aus: self.db.set_author_sort(self.id, aus)
-        print self.db.author_sort(self.row)
         self.db.set_publisher(self.id, qstring_to_unicode(self.gui_publisher.text()))
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','))
         self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()))
@@ -274,8 +277,16 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     
     def accept(self):
         cmdline = self.build_commandline()
-        # TODO: put cover into tempfile
+        self.cover_file = None
         self.write_metadata()
-        self.db.set_conversion_options(self.id, 'lrf', cmdline)
+        cover = self.db.cover(self.row)
+        if cover:
+            self.cover_file = PersistentTemporaryFile(suffix='.jpeg')
+            self.cover_file.write(cover)
+            self.cover_file.close()
+        self.db.set_conversion_options(self.id, self.output_format.lower(), cmdline)
+        if self.cover_file:
+            cmdline.extend(['--cover', self.cover_file.name])
+        self.cmdline = [str(i) for i in cmdline]
         QDialog.accept(self)
     

@@ -25,6 +25,7 @@ from libprs500 import __version__, __appname__
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
+from libprs500.ebooks.lrf.any.convert_from import main as any2lrf
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_TITLE, warning_dialog, choose_files, error_dialog, \
@@ -471,7 +472,7 @@ class Main(QObject, Ui_MainWindow):
             self.current_view().model().save_to_disk(rows, dir)
         else:
             paths = self.current_view().model().paths(rows)
-        self.job_manager.run_device_job(self.books_saved,
+            self.job_manager.run_device_job(self.books_saved,
                                 self.device_manager.save_books_func(), paths, dir)
         
     def books_saved(self, id, description, result, exception, formatted_traceback):
@@ -525,7 +526,8 @@ class Main(QObject, Ui_MainWindow):
     
     ############################### Convert ####################################
     def convert_bulk(self, checked):
-        pass
+        d = error_dialog(self.window, 'Cannot convert', 'Not yet implemented.')            
+        d.exec_()
     
     def convert_single(self, checked):
         rows = self.library_view.selectionModel().selectedRows()
@@ -533,10 +535,42 @@ class Main(QObject, Ui_MainWindow):
             d = error_dialog(self.window, 'Cannot convert', 'No books selected')            
             d.exec_()
         
+        changed = False
         for row in rows:
             d = LRFSingleDialog(self.window, self.library_view.model().db, row)
             if d.selected_format:
                 d.exec_()
+                if d.result() == QDialog.Accepted:
+                    changed = True
+                    cmdline = d.cmdline
+                    data = self.library_view.model().db.format(row.row(), d.selected_format)
+                    pt = PersistentTemporaryFile('.'+d.selected_format.lower())
+                    pt.write(data)
+                    pt.close()
+                    of = PersistentTemporaryFile('.lrf')
+                    of.close()
+                    cmdline.extend(['-o', of.name])
+                    cmdline.append(pt.name)
+                    id = self.job_manager.run_conversion_job(self.book_converted, 
+                                                        any2lrf, args=cmdline,
+                                    job_description='Convert book:'+d.title())
+                    
+                    
+                    self.conversion_jobs[id] = (d.cover_file, pt, of, d.output_format, d.id)
+        if changed:
+            self.library_view.model().resort(reset=False)
+            self.library_view.model().research()
+        
+                    
+    def book_converted(self, id, description, result, exception, formatted_traceback, log):
+        of, fmt, book_id = self.conversion_jobs.pop(id)[2:]
+        if exception:
+            self.conversion_job_exception(id, description, exception, formatted_traceback, log)
+            return
+        data = open(of.name, 'rb')
+        self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
+        data.close()
+        self.status_bar.showMessage(description + ' completed', 2000)
     
     ############################################################################
     def location_selected(self, location):

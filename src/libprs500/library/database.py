@@ -754,9 +754,9 @@ class LibraryDatabase(object):
             return None
         return matches[0][0]
     
-    def formats(self, index):
+    def formats(self, index, index_is_id=False):
         ''' Return available formats as a comma separated list '''
-        id = self.id(index)
+        id = index if index_is_id else self.id(index)
         matches = self.conn.execute('SELECT concat(format) FROM data WHERE data.book=?', (id,)).fetchall()
         if not matches:
             return None
@@ -777,18 +777,21 @@ class LibraryDatabase(object):
         return None
         
     
-    def add_format(self, index, ext, stream):
+    def add_format(self, index, ext, stream, index_is_id=False):
         '''
         Add the format specified by ext. If it already exists it is replaced.
         '''
-        id = self.id(index)
+        id = index if index_is_id else self.id(index)
         stream.seek(0, 2)
         usize = stream.tell()
         stream.seek(0)
         data = sqlite.Binary(compress(stream.read()))
-        exts = self.formats(index)
+        exts = self.formats(index, index_is_id=index_is_id)
         if not exts:
             exts = []
+        if not ext:
+            ext = ''
+        ext = ext.lower()
         if ext in exts:
             self.conn.execute('UPDATE data SET data=? WHERE format=? AND book=?',
                               (data, ext, id))
@@ -996,7 +999,8 @@ class LibraryDatabase(object):
         by_author = {}
         for index in indices:
             id = self.id(index)
-            au = self.conn.execute('SELECT concat(sort) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=?)', (id,)).fetchone()[0]            
+            au = self.conn.execute('SELECT author_sort FROM books WHERE id=?', 
+                                   (id,)).fetchone()[0]            
             if not by_author.has_key(au):
                 by_author[au] = []
             by_author[au].append(index)

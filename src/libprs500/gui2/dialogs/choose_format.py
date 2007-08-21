@@ -33,6 +33,6 @@ class ChooseFormatDialog(QDialog, Ui_ChooseFormatDialog):
         self.formats.setCurrentRow(0)
         
     def format(self):
-        self._formats[self.formats.currentRow()]
+        return self._formats[self.formats.currentRow()]
     
     
