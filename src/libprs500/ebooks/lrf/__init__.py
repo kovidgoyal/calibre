@@ -190,7 +190,7 @@ def option_parser(usage):
                       help='Convert to LRS', default=False)
     return parser
 
-def find_custom_fonts(options):
+def find_custom_fonts(options, logger):
     fonts = {'serif' : None, 'sans' : None, 'mono' : None}
     def find_family(option):
         path, family = option
@@ -206,7 +206,8 @@ def find_custom_fonts(options):
             try:
                 wt, italic = describe.modifiers(f)
             except TTLibError:
-                print >>sys.stderr, 'Could not process', path
+                logger.exception('Could not process fonts in %s', path)
+                wt, italic = 0, 0
             result = (path, name)
             if wt == 400 and italic == 0:
                 results['normal'] = result
@@ -226,7 +227,7 @@ def find_custom_fonts(options):
     return fonts
     
         
-def Book(options, font_delta=0, header=None, 
+def Book(options, logger, font_delta=0, header=None, 
          profile=PRS500_PROFILE, **settings):
     ps = {}
     ps['topmargin'] = options.top_margin
@@ -247,7 +248,7 @@ def Book(options, font_delta=0, header=None,
         ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin'] + ps['headheight'] + profile.fudge)
     fontsize = int(10*profile.font_size+font_delta*20)
     baselineskip = fontsize + 20
-    fonts = find_custom_fonts(options)
+    fonts = find_custom_fonts(options, logger)
     tsd = dict(fontsize=fontsize, 
                parindent=int(10*profile.parindent), 
                linespace=int(10*profile.line_space),
