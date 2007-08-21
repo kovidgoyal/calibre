@@ -249,7 +249,7 @@ class LrsContainer(object):
         self.parent = None
         self.contents = []
         self.validChildren = validChildren
-        self.must_append = False
+        self.must_append = False #: If True even an empty container is appended by append_to
             
     def has_text(self):
         ''' Return True iff this container has non whitespace text '''
@@ -261,7 +261,7 @@ class LrsContainer(object):
                 if child.has_text():
                     return True
         for item in self.contents:
-            if isinstance(item, (Plot, ImageBlock, Canvas)):
+            if isinstance(item, (Plot, ImageBlock, Canvas, CR)):
                 return True
         return False
     
@@ -270,7 +270,7 @@ class LrsContainer(object):
         Append self to C{parent} iff self has non whitespace textual content        
         @type parent: LrsContainer
         '''
-        if self.has_text() or self.must_append:
+        if self.contents or self.must_append:
             parent.append(self)
             
         

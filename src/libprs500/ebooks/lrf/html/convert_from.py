@@ -293,12 +293,13 @@ class HTMLConverter(object):
         if self.pseudo_css.has_key(tagname):
             pprop.update(self.pseudo_css[tagname])
         if tag.has_key("class"):
-            cls = tag["class"].lower()            
-            for classname in ["."+cls, tagname+"."+cls]:
-                if self.css.has_key(classname):
-                    prop.update(self.css[classname])
-                if self.pseudo_css.has_key(classname):
-                    pprop.update(self.pseudo_css[classname])
+            cls = tag["class"].lower()
+            for cls in cls.split():            
+                for classname in ["."+cls, tagname+"."+cls]:
+                    if self.css.has_key(classname):
+                        prop.update(self.css[classname])
+                    if self.pseudo_css.has_key(classname):
+                        pprop.update(self.pseudo_css[classname])
         if tag.has_key("style"):
             prop.update(self.parse_style_properties(tag["style"]))
         return prop, pprop
@@ -625,7 +626,6 @@ class HTMLConverter(object):
                     unneeded.append(prop)
             for prop in unneeded:
                 fp.pop(prop)
-                
             elem = Span(text=src, **fp) if (fp or force_span_use) else src
             self.current_para.append(elem)
         
@@ -651,24 +651,25 @@ class HTMLConverter(object):
         
     def end_current_para(self):
         ''' 
-        End current paragraph with a paragraph break after it. If the current
-        paragraph has no non whitespace text in it do nothing.
+        End current paragraph with a paragraph break after it. 
         '''
-        if not self.current_para.has_text():
-            return
+        if self.current_para.contents:
+            self.current_block.append(self.current_para)
+        self.current_block.append(CR())
+        self.current_para = Paragraph()
+            
+    def end_current_block(self):
+        '''
+        End current TextBlock. Create new TextBlock with the same styles.
+        '''
         if self.current_para.contents:
             self.current_block.append(self.current_para)
             self.current_para = Paragraph()
-        if self.current_block.contents and \
-            not isinstance(self.current_block.contents[-1], CR):
-            self.current_block.append(CR())
-            
-    def end_current_block(self):
-        self.current_para.append_to(self.current_block)
-        self.current_block.append_to(self.current_page)
-        self.current_para = Paragraph()
-        self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
+        if self.current_block.contents or self.current_block.must_append:
+            self.current_page.append(self.current_block)
+            self.current_block = self.book.create_text_block(textStyle=self.current_block.textStyle,
                                                          blockStyle=self.current_block.blockStyle)
+        
     
     def process_image(self, path, tag_css, width=None, height=None, dropcaps=False):
         original_path = path
@@ -1033,7 +1034,7 @@ class HTMLConverter(object):
         return fp
         
     
-    def process_block(self, tag, tag_css, tkey):        
+    def process_block(self, tag, tag_css):        
         ''' Ensure padding and text-indent properties are respected '''
         text_properties = self.text_properties(tag_css)
         block_properties = self.block_properties(tag_css)
@@ -1057,7 +1058,8 @@ class HTMLConverter(object):
                 self.block_styles.append(bs)
             self.current_block = self.book.create_text_block(blockStyle=bs,
                                                              textStyle=ts)
-            self.targets[tkey] = self.current_block
+            return True
+        return False            
     
     def parse_tag(self, tag, parent_css):
         try:
@@ -1298,20 +1300,13 @@ class HTMLConverter(object):
             self.current_para.append(elem(text))
                                 
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-            tkey = None
-            if self.anchor_ids and tag.has_key('id'):                
-                target = self.book.create_text_block(textStyle=self.current_block.textStyle,
-                                                     blockStyle=self.current_block.blockStyle)
+            new_block = self.process_block(tag, tag_css)
+            if self.anchor_ids and tag.has_key('id'):
                 tkey = self.target_prefix+tag['id']
-                self.targets[tkey] = target
-                
-                if len(self.current_block.contents) > 2:
+                if not new_block:
                     self.end_current_block()
-                    self.current_page.append(target)
-                    self.unused_target_blocks.append(target)
-                else:
-                    self.targets[tkey] = self.current_block
-                    self.current_block.must_append = True
+                self.current_block.must_append = True
+                self.targets[tkey] = self.current_block
             src = self.get_text(tag, limit=1000)
             if not self.disable_chapter_detection and tagname.startswith('h'):
                 if self.chapter_regex.search(src):
@@ -1320,18 +1315,16 @@ class HTMLConverter(object):
                     self.page_break_found = True
             if not tag.contents:
                 self.current_block.append(CR())
-                self.current_block.must_append = True
                 return
-            self.process_block(tag, tag_css, tkey)
-            if self.current_para.contents:
-                self.current_block.append(self.current_para)            
+            
+            if self.current_para.has_text():
+                self.current_para.append_to(self.current_block)
             if self.current_block.contents:
                 self.current_block.append(CR())
             self.previous_text = '\n'
             self.current_para = Paragraph()
-            
             self.process_children(tag, tag_css, tag_pseudo_css)
-            if self.current_para.contents:
+            if self.current_para.contents :
                 self.current_block.append(self.current_para)
             self.current_para = Paragraph()
             if tagname.startswith('h') or self.blank_after_para:
@@ -1346,25 +1339,24 @@ class HTMLConverter(object):
             self.line_break()
             self.previous_text = '\n'
         elif tagname in ['hr', 'tr']: # tr needed for nested tables
-            self.end_current_para()
-            self.line_break()
             self.end_current_block()
             if tagname == 'hr':
                 self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
             self.previous_text = '\n'
             self.process_children(tag, tag_css, tag_pseudo_css)
         elif tagname == 'td': # Needed for nested tables
-            self.current_para.append(' ')
-            self.previous_text = ' '
+            if not self.in_table:
+                self.current_para.append(' ')
+                self.previous_text = ' '
             self.process_children(tag, tag_css, tag_pseudo_css)
         elif tagname == 'table' and not self.ignore_tables and not self.in_table:
             tag_css = self.tag_css(tag)[0] # Table should not inherit CSS
             try:
                 self.process_table(tag, tag_css)
             except Exception, err:
-                self.logger.warning('An error occurred while processing a table: %s', str(err))
+                self.logger.warning('An error occurred while processing a table: %s. Ignoring table markup.', str(err))
                 self.logger.debug('', exc_info=True)
-                self.logger.warning('Ignoring table markup for table:\n%s', str(tag)[:300])
+                self.logger.debug('Bad table:\n%s', str(tag)[:300])
                 self.in_table = False
                 self.process_children(tag, tag_css, tag_pseudo_css)
             finally:                
@@ -1468,7 +1460,7 @@ def process_file(path, options, logger=None):
             fheader = re.sub(r'%%a','%a',fheader)
             fheader = re.sub(r'%%t','%t',fheader)                
             header.append(fheader + "  ")            
-        book, fonts = Book(options, header=header, **args)
+        book, fonts = Book(options, logger, header=header, **args)
         le = re.compile(options.link_exclude) if options.link_exclude else \
              re.compile('$')
         pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else \

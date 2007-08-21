@@ -140,7 +140,7 @@ class Cell(object):
         ts = tb.textStyle.attrs
         default_font = get_font(ts['fontfacename'], self.pts_to_pixels(ts['fontsize']))
         parindent = self.pts_to_pixels(ts['parindent'])
-        
+        mwidth = 0
         for token, attrs in tokens(tb):
             font = default_font
             if isinstance(token, int): # Handle para and line breaks        
@@ -155,8 +155,10 @@ class Cell(object):
                 continue
             word = token.split()
             word = word[0] if word else ""
-            width, height = font.getsize(word)            
-            return parindent + width + 2
+            width = font.getsize(word)[0]
+            if width > mwidth:
+                mwidth = width
+        return parindent + mwidth + 2
     
     def text_block_size(self, tb, maxwidth=sys.maxint, debug=False):
         ts = tb.textStyle.attrs
@@ -338,7 +340,7 @@ class Table(object):
                 adjustable_columns.append(i)
                 
         itercount = 0
-        min_widths = [self.minimum_width(i) for i in xrange(cols)]
+        min_widths = [self.minimum_width(i)+10 for i in xrange(cols)]
         while sum(widths) > maxwidth-((len(widths)-1)*self.colpad) and itercount < 100:
             for i in adjustable_columns:
                 widths[i] = ceil((95./100.)*widths[i]) if \
