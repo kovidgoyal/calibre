@@ -52,6 +52,7 @@ from pylrf import (LrfWriter, LrfObject, LrfTag, LrfToc,
 DEFAULT_SOURCE_ENCODING = "cp1252"      # defualt is us-windows character set
 DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 
+from libprs500 import __appname__, __version__
 
 class LrsError(Exception):
     pass
@@ -771,7 +772,7 @@ class DocInfo(object):
         self.language = "en"
         self.creator  = None
         self.creationdate = date.today().isoformat()
-        self.producer = "libprs500"
+        self.producer = "%s v%s"%(__appname__, __version__)
         self.numberofpages = "0"
 
 
