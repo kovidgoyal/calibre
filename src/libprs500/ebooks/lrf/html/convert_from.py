@@ -531,11 +531,7 @@ class HTMLConverter(object):
         if not self.in_table:
             ptag.extract()
                     
-    def process_alignment(self, css):
-        '''
-        Create a new TextBlock only if necessary as indicated by css
-        @type css: dict
-        '''
+    def get_alignment(self, css):
         align = 'head'
         if css.has_key('text-align'):
             val = css['text-align'].lower()             
@@ -550,6 +546,14 @@ class HTMLConverter(object):
             if val == 'right':
                 align = 'foot'
             css.pop('float')
+        return align
+    
+    def process_alignment(self, css):
+        '''
+        Create a new TextBlock only if necessary as indicated by css
+        @type css: dict
+        '''
+        align = self.get_alignment(css)
         if align != self.current_block.textStyle.attrs['align']:
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
@@ -1038,11 +1042,14 @@ class HTMLConverter(object):
         ''' Ensure padding and text-indent properties are respected '''
         text_properties = self.text_properties(tag_css)
         block_properties = self.block_properties(tag_css)
+        align = self.get_alignment(tag_css)
         
         if properties_different(self.current_block.blockStyle.attrs, block_properties) or \
-           properties_different(self.current_block.textStyle.attrs, text_properties):
+           properties_different(self.current_block.textStyle.attrs, text_properties) or\
+           align != self.current_block.textStyle.attrs['align']:
             ts = self.current_block.textStyle.copy()
             ts.attrs.update(text_properties)
+            ts.attrs['align'] = align
             bs = self.current_block.blockStyle.copy()
             bs.attrs.update(block_properties)
             self.current_block.append_to(self.current_page)
