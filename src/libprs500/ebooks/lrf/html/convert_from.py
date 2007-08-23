@@ -1206,7 +1206,7 @@ class HTMLConverter(object):
             if ncss:
                 update_css(ncss, self.css)
             if npcss:
-                update_css(pcss, self.pseudo_css)
+                update_css(npcss, self.pseudo_css)
         elif tagname == 'pre':
             self.end_current_para()
             self.end_current_block()
