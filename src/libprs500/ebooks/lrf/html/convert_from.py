@@ -529,7 +529,10 @@ class HTMLConverter(object):
             elif isinstance(c, NavigableString):
                 self.add_text(c, pcss, ppcss)
         if not self.in_table:
-            ptag.extract()
+            try:
+                ptag.extract()
+            except AttributeError:
+                print ptag, type(ptag)
                     
     def get_alignment(self, css):
         align = 'head'
@@ -1216,6 +1219,7 @@ class HTMLConverter(object):
                     if c.startswith('\n'):
                         c = c[1:]
                         tag.contents[0] = NavigableString(c)
+                        tag.contents[0].setup(tag)
             self.process_children(tag, tag_css, tag_pseudo_css)
             self.end_current_block()
         elif tagname in ['ul', 'ol', 'dl']:
