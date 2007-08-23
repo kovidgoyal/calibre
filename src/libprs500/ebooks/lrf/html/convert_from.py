@@ -44,7 +44,7 @@ from libprs500.ebooks.lrf.html.table import Table
 from libprs500 import filename_to_utf8,  setup_cli_handlers, __appname__
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.opf import OPFReader
-
+from libprs500.devices.interface import Device
         
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
@@ -1429,8 +1429,8 @@ def process_file(path, options, logger=None):
             if not os.path.exists(cpath):
                 cpath = os.path.abspath(os.path.expanduser(options.cover))
             options.cover = cpath
-            if os.access(options.cover, os.R_OK):        
-                from libprs500.devices.prs500.driver import PRS500                
+            if os.access(options.cover, os.R_OK):
+                th = Device.THUMBNAIL_HEIGHT
                 im = PILImage.open(os.path.join(cwd, cpath))
                 cim = im.resize((options.profile.screen_width, 
                                  options.profile.screen_height), 
@@ -1439,7 +1439,7 @@ def process_file(path, options, logger=None):
                 cf.close()                
                 cim.save(cf.name)
                 cpath = cf.name
-                th = PRS500.THUMBNAIL_HEIGHT
+                
                 tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
                 tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
                 tf.close()
