@@ -27,7 +27,7 @@ def get_parser(extension):
     parser = OptionParser(version='libprs500 version: '+VERSION,
                           usage='''%prog [options] myfile.'''+extension)
     parser.add_option("-t", "--title", action="store", type="string", \
-                    dest="title", help="Set the book title")
+                    dest="title", help="Set the book title", default=None)
     parser.add_option("-a", "--authors", action="store", type="string", \
                     dest="authors", help="Set the authors", default=None)
     parser.add_option("-c", "--category", action="store", type="string", \
@@ -62,7 +62,7 @@ class MetaInformation(object):
     def __str__(self):
         ans = ''
         ans += 'Title   : ' + str(self.title) + '\n'
-        ans += 'Author  : ' + str(self.author) + '\n'
+        ans += 'Author  : ' + ', '.join(self.authors) + '\n'
         ans += 'Category: ' + str(self.category) + '\n'
         ans += 'Comments: ' + str(self.comments) + '\n'
         return ans.strip()
