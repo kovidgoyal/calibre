@@ -56,7 +56,7 @@ def set_metadata(path, options):
     return True
 
 def get_metadata_from_file(path, default_mi=None):
-    if not default_mi:
+    if default_mi is None:
         title = os.path.splitext(os.path.basename(path))[0]
         mi = MetaInformation(title, 'Unknown')
     else:

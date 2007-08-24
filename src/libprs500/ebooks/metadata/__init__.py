@@ -68,4 +68,4 @@ class MetaInformation(object):
         return ans.strip()
     
     def __nonzero__(self):
-        return self.title or self.author or self.comments or self.category
+        return bool(self.title or self.author or self.comments or self.category)
