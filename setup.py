@@ -23,6 +23,7 @@ entry_points = {
                              'prs500   = libprs500.devices.prs500.cli.main:main', \
                              'lrf-meta = libprs500.ebooks.lrf.meta:main', \
                              'rtf-meta = libprs500.ebooks.metadata.rtf:main', \
+                             'pdf-meta = libprs500.ebooks.metadata.pdf:main', \
                              'txt2lrf  = libprs500.ebooks.lrf.txt.convert_from:main', \
                              'html2lrf = libprs500.ebooks.lrf.html.convert_from:main',\
                              'markdown = libprs500.ebooks.markdown.markdown:main',\

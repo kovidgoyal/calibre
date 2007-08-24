@@ -79,6 +79,12 @@ class LibraryDelegate(QItemDelegate):
         except Exception, e:
             traceback.print_exc(e)
         painter.restore()
+        
+    def createEditor(self, parent, option, index):
+        sb = QItemDelegate.createEditor(self, parent, option, index)
+        sb.setMinimum(0)
+        sb.setMaximum(5)
+        return sb
 
 class BooksModel(QAbstractTableModel):
     
