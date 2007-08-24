@@ -28,7 +28,7 @@ def get_feeds(browser):
     feeds = []
     for link in soup.findAll('link', attrs={'type':'application/rss+xml'}):
         if link['title'] not in ['NYTimes.com Homepage', 'Obituaries', 'Pogue\'s Posts', 
-                                 'Dining & Wine', 'Home & Garden', 'Magazine',
+                                 'Dining & Wine', 'Home & Garden', 'Multimedia',
                                  'Most E-mailed Articles', 
                                  'Automobiles', 'Fashion & Style', 'Television News',
                                  'Education']:
