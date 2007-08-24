@@ -1215,7 +1215,7 @@ class HTMLConverter(object):
             if tag.contents:
                 c = tag.contents[0]
                 if isinstance(c, NavigableString):
-                    c = str(c).replace('\r\n', '\n').replace('\r', '\n')
+                    c = unicode(c).replace('\r\n', '\n').replace('\r', '\n')
                     if c.startswith('\n'):
                         c = c[1:]
                         tag.contents[0] = NavigableString(c)
