@@ -1213,6 +1213,8 @@ class HTMLConverter(object):
             self.end_current_para()
             self.end_current_block()
             self.current_block = self.book.create_text_block()
+            ts = self.current_block.textStyle.copy()
+            self.current_block.textStyle = ts
             self.current_block.textStyle.attrs['parindent'] = '0'
             if tag.contents:
                 c = tag.contents[0]

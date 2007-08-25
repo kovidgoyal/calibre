@@ -132,7 +132,7 @@ def option_parser(usage):
                       help=r'''The maximum number of levels to recursively process '''
                               '''links. A value of 0 means thats links are not followed. '''
                               '''A negative value means that <a> tags are ignored.''')
-    link.add_option('--link-exclude', dest='link_exclude', default='$',
+    link.add_option('--link-exclude', dest='link_exclude', default='@',
                       help='''A regular expression. <a> tags whoose href '''
                       '''matches will be ignored. Defaults to %default''')
     chapter = parser.add_option_group('CHAPTER OPTIONS')
