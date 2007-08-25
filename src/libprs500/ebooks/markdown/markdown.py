@@ -1257,7 +1257,6 @@ class Markdown:
             #
     
             if inList :
-    
                 start, lines = self._linesUntil(lines, (lambda line:
                                  RE.regExp['ul'].match(line)
                                  or RE.regExp['ol'].match(line)
@@ -1303,8 +1302,8 @@ class Markdown:
                     for item in list :
                         el.appendChild(item)
     
-                if lines:
-                    lines = lines[1:]  # skip the first (blank) line
+            if lines and not lines[0].strip():
+                lines = lines[1:]  # skip the first (blank) line
                 
 
 
