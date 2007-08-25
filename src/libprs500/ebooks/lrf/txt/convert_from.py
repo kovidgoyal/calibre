@@ -31,10 +31,12 @@ def option_parser():
               'the text in mybook.txt. Default is to try to autodetect.'
     parser.add_option('-e', '--encoding', action='store', type='string', \
                       dest='encoding', help=enchelp, default=None)
+    parser.add_option('--debug-html-generation', action='store_true', default=False,
+                      dest='debug_html_generation', help='Print generated HTML to stdout and quit.')
     return parser
     
 
-def generate_html(txtfile, encoding):
+def generate_html(txtfile, encoding, logger):
     '''
     Convert txtfile to html and return a PersistentTemporaryFile object pointing
     to the file with the HTML.
@@ -54,12 +56,14 @@ def generate_html(txtfile, encoding):
             raise ConversionError, 'Could not detect encoding of %s'%(txtfile,)
     else:
         txt = codecs.open(txtfile, 'rb', enc).read()
+    
+    logger.info('Converting text to HTML...')
     md = markdown.Markdown(txt,
-                           extensions=['footnotes', 'tables', 'toc'],
-                           encoding=enc,
-                           safe_mode=False,
-                           )
+                       extensions=['footnotes', 'tables', 'toc'],
+                       safe_mode=False,
+                       )
     html = md.toString()
+    
     p = PersistentTemporaryFile('.html', dir=os.path.dirname(txtfile))
     p.close()
     codecs.open(p.name, 'wb', enc).write(html)
@@ -73,14 +77,19 @@ def process_file(path, options, logger=None):
     txt = os.path.abspath(os.path.expanduser(path))
     if not hasattr(options, 'encoding'):
         options.encoding = None 
-    htmlfile = generate_html(txt, options.encoding)
-    options.force_page_break = 'h2'
-    if not options.output:
-        ext = '.lrs' if options.lrs else '.lrf'
-        options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
-    options.output = os.path.abspath(os.path.expanduser(options.output))                
+    if not hasattr(options, 'debug_html_generation'):
+        options.debug_html_generation = False
+    htmlfile = generate_html(txt, options.encoding, logger)
+    if not options.debug_html_generation:
+        options.force_page_break = 'h2'
+        if not options.output:
+            ext = '.lrs' if options.lrs else '.lrf'
+            options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
+        options.output = os.path.abspath(os.path.expanduser(options.output))                
     
-    html_process_file(htmlfile.name, options, logger)        
+        html_process_file(htmlfile.name, options, logger)
+    else:
+        print open(htmlfile.name, 'rb').read()        
 
 def main(args=sys.argv, logger=None):
     parser = option_parser()    
