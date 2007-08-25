@@ -1005,6 +1005,8 @@ class LibraryDatabase(object):
                 by_author[au] = []
             by_author[au].append(index)
         for au in by_author.keys():
+            if au is None:
+                au = ''
             apath = os.path.join(dir, au)
             if not os.path.exists(apath):
                 os.mkdir(apath)
