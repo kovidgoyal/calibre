@@ -158,6 +158,7 @@ class HTMLConverter(object):
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.tops = {}          #: element representing the top of each HTML file in the LRF file
         self.previous_text = '' #: Used to figure out when to lstrip
+        self.preserve_block_style = False #: Used so that <p> tags in <blockquote> elements are handles properly
         # Styles 
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
@@ -1054,7 +1055,8 @@ class HTMLConverter(object):
             ts.attrs.update(text_properties)
             ts.attrs['align'] = align
             bs = self.current_block.blockStyle.copy()
-            bs.attrs.update(block_properties)
+            if not self.preserve_block_style:
+                bs.attrs.update(block_properties)
             self.current_block.append_to(self.current_page)
             try:
                 index = self.text_styles.index(ts)
@@ -1299,7 +1301,9 @@ class HTMLConverter(object):
             self.current_block = self.book.create_text_block(
                                     blockStyle=bs, textStyle=ts)
             self.previous_text = '\n'
+            self.preserve_block_style = True
             self.process_children(tag, tag_css, tag_pseudo_css)
+            self.preserve_block_style = False
             self.current_para.append_to(self.current_block)
             self.current_block.append_to(self.current_page)
             self.current_para = Paragraph()
