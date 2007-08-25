@@ -46,17 +46,20 @@ def find_htmlfile(dir):
                 return os.path.join(dir, file)
     finally:
         os.chdir(cwd)
-    
+
+def traverse_subdirs(tdir):
+    temp = os.listdir(tdir)
+    if len(temp) == 1 and os.path.isdir(os.path.join(tdir, temp[0])):
+        cdir = os.path.join(tdir, temp[0])
+        return traverse_subdirs(cdir)
+    return tdir
 
 def handle_archive(path):
     tdir = tempfile.mkdtemp(prefix=__appname__+'_')
     extract(path, tdir)
     files = []
-    cdir = tdir
-    temp = os.listdir(tdir)
+    cdir = traverse_subdirs(tdir)
     file = None
-    if len(temp) == 1 and os.path.isdir(os.path.join(tdir, temp[0])):
-        cdir = os.path.join(tdir, temp[0])
     for ext in ('lit', 'rtf', 'pdf', 'txt'):
         pat = os.path.join(cdir, '*.'+ext)
         files.extend(glob.glob(pat))
@@ -93,8 +96,7 @@ def process_file(path, options, logger=None):
         except:
             logger.exception(' ')
         if not newpath:
-            logger.critical('Could not find ebook in archive')
-            return 1
+            raise UnknownFormatError('Could not find ebook in archive')
         path = newpath
         logger.info('Found ebook in archive: %s', path)
     try:
