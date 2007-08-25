@@ -694,9 +694,11 @@ class LibraryDatabase(object):
     def title(self, index):
         return self.data[index][1]
     
-    def authors(self, index):
+    def authors(self, index, index_is_id=False):
         ''' Authors as a comman separated list or None'''
-        return self.data[index][2]
+        if not index_is_id:
+            return self.data[index][2]
+        return self.conn.execute('SELECT authors FROM meta WHERE id=?',(index,)).fetchone()[0]        
     
     def author_sort(self, index):
         id = self.id(index)
@@ -1002,13 +1004,14 @@ class LibraryDatabase(object):
             au = self.conn.execute('SELECT author_sort FROM books WHERE id=?', 
                                    (id,)).fetchone()[0]
             if not au:
-                au = 'Unknown'            
+                au = self.authors(index)
+                if not au:
+                    au = 'Unknown'
+                au = au.split(',')[0]         
             if not by_author.has_key(au):
                 by_author[au] = []
             by_author[au].append(index)
         for au in by_author.keys():
-            if not au:
-                au = 'Unknown'
             apath = os.path.join(dir, au)
             if not os.path.exists(apath):
                 os.mkdir(apath)

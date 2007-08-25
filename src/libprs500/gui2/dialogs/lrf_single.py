@@ -58,7 +58,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.setup_tooltips()
         self.initialize_options()
         self.db = db
-        self.row = row.row()
+        self.row = row
         self.id = self.db.id(self.row)
         self.cover_changed = False
         self.cpixmap = None
@@ -266,7 +266,13 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         au = qstring_to_unicode(self.gui_author.text()).split(',')
         if au: self.db.set_authors(self.id, au)
         aus = qstring_to_unicode(self.gui_author_sort.text())
-        if aus: self.db.set_author_sort(self.id, aus)
+        if not aus:
+            t = self.db.authors(self.id, index_is_id=True)
+            if not t:
+                t = 'Unknown'
+            aus = t.split(',')[0].strip()
+        print aus
+        self.db.set_author_sort(self.id, aus)
         self.db.set_publisher(self.id, qstring_to_unicode(self.gui_publisher.text()))
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','))
         self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()))

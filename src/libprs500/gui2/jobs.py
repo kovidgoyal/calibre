@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import traceback, textwrap, logging, cStringIO
+import traceback, logging, cStringIO
 
 from PyQt4.QtCore import QAbstractTableModel, QMutex, QObject, SIGNAL, Qt, \
                          QVariant, QThread, QModelIndex
@@ -43,6 +43,7 @@ class Job(QThread):
         self.percent_done = 0
         self.logger = logging.getLogger('Job #'+str(id))
         self.logger.setLevel(logging.DEBUG)
+        self.is_locked = False
         self.log_dest = cStringIO.StringIO()
         handler = logging.StreamHandler(self.log_dest)
         handler.setLevel(logging.DEBUG)
@@ -50,6 +51,18 @@ class Job(QThread):
         self.logger.addHandler(handler)
         
         
+    def lock(self):
+        if self.mutex is not None:
+            self.is_locked = True
+            self.mutex.lock()
+            self.is_locked = False
+            
+            
+    def unlock(self):
+        if self.mutex is not None:
+            self.mutex.unlock()
+            self.is_locked = False
+    
     def progress_update(self, val):
         self.percent_done = val
         self.emit(SIGNAL('status_update(int, int)'), self.id, int(val))
@@ -59,8 +72,7 @@ class DeviceJob(Job):
     Jobs that involve communication with the device. Synchronous.
     '''
     def run(self):
-        if self.mutex != None:
-            self.mutex.lock()
+        self.lock()
         last_traceback, exception = None, None
         try:
             try:
@@ -69,15 +81,15 @@ class DeviceJob(Job):
                 exception = err
                 last_traceback = traceback.format_exc()            
         finally:
-            if self.mutex != None:
-                self.mutex.unlock()
+            self.unlock()
             self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
                       self.id, self.description, self.result, exception, last_traceback)
         
     
 class ConversionJob(Job):
-    ''' Jobs that invlove conversion of content. Asynchronous. '''
+    ''' Jobs that invlove conversion of content. Synchronous. '''
     def run(self):
+        self.lock()
         last_traceback, exception = None, None
         try:
             try:
@@ -87,6 +99,7 @@ class ConversionJob(Job):
                 exception = err
                 last_traceback = traceback.format_exc()            
         finally:
+            self.unlock()
             self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
                       self.id, self.description, self.result, exception, last_traceback, self.log_dest.getvalue())
             
@@ -101,6 +114,7 @@ class JobManager(QAbstractTableModel):
         self.job_create_lock = QMutex()
         self.job_remove_lock = QMutex()
         self.device_lock = QMutex()
+        self.conversion_lock = QMutex()
         self.cleanup_lock = QMutex()
         self.cleanup = {}
         self.device_job_icon = QVariant(QIcon(':/images/reader.svg'))
@@ -143,8 +157,16 @@ class JobManager(QAbstractTableModel):
         return len(self.jobs.values()) > 0
     
     def run_conversion_job(self, slot, callable, *args, **kwargs):
+        '''
+        Run a conversion job.
+        @param slot: The function to call with the job result. 
+        @param callable: The function to call to communicate with the device.
+        @param args: The arguments to pass to callable
+        @param kwargs: The keyword arguments to pass to callable
+        '''
         desc = kwargs.pop('job_description', '')
-        job = self.create_job(ConversionJob, desc, None, callable, *args, **kwargs)
+        job = self.create_job(ConversionJob, desc, self.conversion_lock, 
+                              callable, *args, **kwargs)
         QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                         self.job_done)
         if slot:
@@ -156,8 +178,7 @@ class JobManager(QAbstractTableModel):
     def run_device_job(self, slot, callable, *args, **kwargs):
         '''
         Run a job to communicate with the device.
-        @param slot: The function to call with the job result. It is called with
-        the parameters id, result, exception, formatted_traceback
+        @param slot: The function to call with the job result. 
         @param callable: The function to call to communicate with the device.
         @param args: The arguments to pass to callable
         @param kwargs: The keyword arguments to pass to callable
@@ -237,7 +258,7 @@ class JobManager(QAbstractTableModel):
                 return QVariant(job.description)
             if col == 1:
                 status = 'Waiting'
-                if job.isRunning():
+                if job.isRunning() and not job.is_locked:
                     status = 'Working'
                 if job.isFinished():
                     status = 'Done'

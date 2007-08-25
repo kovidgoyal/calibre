@@ -536,14 +536,14 @@ class Main(QObject, Ui_MainWindow):
             d.exec_()
         
         changed = False
-        for row in rows:
+        for row in [r.row() for r in rows]:
             d = LRFSingleDialog(self.window, self.library_view.model().db, row)
             if d.selected_format:
                 d.exec_()
                 if d.result() == QDialog.Accepted:
                     changed = True
                     cmdline = d.cmdline
-                    data = self.library_view.model().db.format(row.row(), d.selected_format)
+                    data = self.library_view.model().db.format(row, d.selected_format)
                     pt = PersistentTemporaryFile('.'+d.selected_format.lower())
                     pt.write(data)
                     pt.close()
@@ -551,6 +551,7 @@ class Main(QObject, Ui_MainWindow):
                     of.close()
                     cmdline.extend(['-o', of.name])
                     cmdline.append(pt.name)
+                    
                     id = self.job_manager.run_conversion_job(self.book_converted, 
                                                         any2lrf, args=cmdline,
                                     job_description='Convert book:'+d.title())
@@ -642,8 +643,9 @@ class Main(QObject, Ui_MainWindow):
         settings.setValue("size", QVariant(self.window.size()))
         settings.endGroup()
         settings.beginGroup('Book Views')
-        for view in (self.library_view, self.memory_view):
-            view.write_settings()
+        self.library_view.write_settings()
+        if self.device_connected:
+            self.memory_view.write_settings()
         settings.endGroup()
     
     def close_event(self, e):
@@ -686,7 +688,7 @@ def main():
     QCoreApplication.setApplicationName(APP_TITLE)
     
     initialize_file_icon_provider()
-    main = Main(window)        
+    main = Main(window)
     sys.excepthook = main.unhandled_exception    
     return app.exec_()
     
