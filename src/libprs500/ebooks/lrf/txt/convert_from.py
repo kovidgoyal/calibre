@@ -85,8 +85,9 @@ def process_file(path, options, logger=None):
         if not options.output:
             ext = '.lrs' if options.lrs else '.lrf'
             options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
-        options.output = os.path.abspath(os.path.expanduser(options.output))                
-    
+        options.output = os.path.abspath(os.path.expanduser(options.output))
+        if not options.title:
+            options.title = os.path.splitext(os.path.basename(path))[0]
         html_process_file(htmlfile.name, options, logger)
     else:
         print open(htmlfile.name, 'rb').read()        
