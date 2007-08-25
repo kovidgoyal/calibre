@@ -1000,13 +1000,15 @@ class LibraryDatabase(object):
         for index in indices:
             id = self.id(index)
             au = self.conn.execute('SELECT author_sort FROM books WHERE id=?', 
-                                   (id,)).fetchone()[0]            
+                                   (id,)).fetchone()[0]
+            if not au:
+                au = 'Unknown'            
             if not by_author.has_key(au):
                 by_author[au] = []
             by_author[au].append(index)
         for au in by_author.keys():
-            if au is None:
-                au = ''
+            if not au:
+                au = 'Unknown'
             apath = os.path.join(dir, au)
             if not os.path.exists(apath):
                 os.mkdir(apath)
