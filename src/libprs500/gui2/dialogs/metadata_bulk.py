@@ -25,7 +25,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, db):
         QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
-        self.setupUi(self.dialog)
+        self.setupUi(self)
         self.db = db
         self.ids = [ db.id(r) for r in rows]
         self.write_series = False
@@ -44,7 +44,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             
         self.series.lineEdit().setText('')
         
-        self.dialog.exec_()
+        self.exec_()
             
         
     def sync(self):
