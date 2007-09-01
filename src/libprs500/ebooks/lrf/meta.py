@@ -387,7 +387,7 @@ class LRFMetaFile(object):
                 if len(src) != self.uncompressed_info_size:          
                     raise LRFException("Decompression of document meta info\
                                         yielded unexpected results")                
-                candidate = unicode(src, 'utf-16')
+                candidate = unicode(src, 'utf-16', 'replace')
                 # LRF files produced with makelrf dont have a correctly
                 # encoded metadata block. 
                 # Decoding using latin1 is the most useful for me since I
