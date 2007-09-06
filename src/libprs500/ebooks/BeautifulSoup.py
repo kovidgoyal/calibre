@@ -1186,6 +1186,8 @@ class BeautifulStoneSoup(Tag, SGMLParser):
         "Handle character references as data."
         if self.convertEntities in [self.HTML_ENTITIES,
                                     self.XML_ENTITIES]:
+            if ref.lower().startswith('x'): # Added by Kovid
+                ref = int(ref[1:], 16)
             data = unichr(int(ref))
         else:
             data = '&#%s;' % ref
