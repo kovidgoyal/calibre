@@ -43,7 +43,7 @@ def generate_html(txtfile, encoding, logger):
     '''
     enc = encoding
     if not encoding:
-        encodings = ['cp1252', 'latin-1', 'iso-8859-1', 'koi8_r', 'koi8_u', 'utf8']
+        encodings = ['cp1252', 'latin-1', 'utf8', 'iso-8859-1', 'koi8_r', 'koi8_u']
         txt, enc = None, None
         for encoding in encodings:
             try:
