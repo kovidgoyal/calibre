@@ -605,6 +605,8 @@ def option_parser():
     parser.add_option("--get-thumbnail", action="store_true", \
                     dest="get_thumbnail", default=False, \
                     help="Extract thumbnail from LRF file")
+    parser.add_option('--bookid', action='store', type='string', default=None,
+                      dest='book_id', help='Set book ID')
     parser.add_option("-p", "--page", action="store", type="string", \
                     dest="page", help="Don't know what this is for")
     
@@ -638,6 +640,8 @@ def main(args=sys.argv):
         f = open(path, "rb")
         lrf.thumbnail = f.read()
         f.close()
+    if options.book_id is not None:
+        lrf.book_id = options.book_id 
     if options.comment:
         path = os.path.expanduser(os.path.expandvars(options.comment))
         lrf.free_text = open(path).read()
