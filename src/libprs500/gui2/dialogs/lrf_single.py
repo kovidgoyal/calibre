@@ -163,12 +163,26 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.tags.setText(tags if tags else '')
         comments = self.db.comments(row)
         self.gui_comment.setPlainText(comments if comments else '')
+        
+        all_series = self.db.all_series()
+        series_id = self.db.series_id(row)
+        idx, c = None, 0
+        for i in all_series:
+            id, name = i
+            if id == series_id:
+                idx = c
+            self.series.addItem(name)
+            c += 1
+        
+        self.series.lineEdit().setText('')
+        if idx is not None:
+            self.series.setCurrentIndex(idx)
         cover = self.db.cover(row)
         if cover:
             pm = QPixmap()
             pm.loadFromData(cover)
             if not pm.isNull(): 
-                self.cover.setPixmap(pm)    
+                self.cover.setPixmap(pm)  
     
     def initialize_options(self):
         '''Initialize non metadata options from the defaults.'''
@@ -271,7 +285,6 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             if not t:
                 t = 'Unknown'
             aus = t.split(',')[0].strip()
-        print aus
         self.db.set_author_sort(self.id, aus)
         self.db.set_publisher(self.id, qstring_to_unicode(self.gui_publisher.text()))
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','))

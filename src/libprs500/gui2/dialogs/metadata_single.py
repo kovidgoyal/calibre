@@ -166,10 +166,6 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     ext = ''
                 Format(self.formats, ext)
             
-        if qstring_to_unicode(self.series.currentText()):
-            self.enable_series_index()
-            
-        
         all_series = self.db.all_series()
         series_id = self.db.series_id(row)
         idx, c = None, 0
@@ -183,6 +179,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.series.lineEdit().setText('')
         if idx is not None:
             self.series.setCurrentIndex(idx)
+            self.enable_series_index()
             
         self.series_index.setValue(self.db.series_index(row))
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)

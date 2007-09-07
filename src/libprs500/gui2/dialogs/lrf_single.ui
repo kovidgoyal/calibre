@@ -283,9 +283,6 @@
           </item>
           <item row="4" column="2" colspan="3" >
            <widget class="QSpinBox" name="series_index" >
-            <property name="enabled" >
-             <bool>false</bool>
-            </property>
             <property name="toolTip" >
              <string>Series index.</string>
             </property>
