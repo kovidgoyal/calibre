@@ -141,6 +141,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.title.setText(db.title(row))
         au = self.db.authors(row)
         self.authors.setText(au if au else '')
+        aus = self.db.author_sort(row)
+        self.author_sort.setText(aus)
         pub = self.db.publisher(row)
         self.publisher.setText(pub if pub else '')
         tags = self.db.tags(row)
@@ -199,6 +201,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.db.set_title(self.id, title)
         au = qstring_to_unicode(self.authors.text()).split(',')
         if au: self.db.set_authors(self.id, au)
+        aus = qstring_to_unicode(self.author_sort.text())
+        if aus:
+            self.db.set_author_sort(self.id, aus)
         self.db.set_rating(self.id, 2*self.rating.value())
         self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.text()))
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','))

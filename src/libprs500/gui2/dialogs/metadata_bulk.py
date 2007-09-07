@@ -53,6 +53,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if au:
                 au = au.split(',')
                 self.db.set_authors(id, au)
+            aus = qstring_to_unicode(self.author_sort.text())
+            if aus:
+                self.db.set_author_sort(id, aus)
             if self.write_rating:
                 self.db.set_rating(id, 2*self.rating.value())
             pub = qstring_to_unicode(self.publisher.text())
