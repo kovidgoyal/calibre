@@ -962,6 +962,8 @@ class LibraryDatabase(object):
             for a in temp:
                 authors += a.split('&')
             self.set_authors(id, authors)
+            if mi.author_sort:
+                self.set_author_sort(id, mi.author_sort)
             if mi.publisher:
                 self.set_publisher(id, mi.publisher)
             if mi.rating:
