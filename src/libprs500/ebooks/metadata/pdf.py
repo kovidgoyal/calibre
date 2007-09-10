@@ -27,18 +27,21 @@ def get_metadata(stream):
         title = 'Unknown'
     mi = MetaInformation(title, 'Unknown')
     stream.seek(0)
-    info = PdfFileReader(stream).getDocumentInfo()
-    if info.title:
-        mi.title = title
-    if info.author:
-        src = info.author.split('&')
-        authors = []
-        for au in src:
-            authors += au.split(',')
-        mi.authors = authors
-        mi.author = info.author
-    if info.subject:
-        mi.category = info.subject
+    try:
+        info = PdfFileReader(stream).getDocumentInfo()
+        if info.title:
+            mi.title = title
+        if info.author:
+            src = info.author.split('&')
+            authors = []
+            for au in src:
+                authors += au.split(',')
+            mi.authors = authors
+            mi.author = info.author
+        if info.subject:
+            mi.category = info.subject
+    except Exception, err:
+        print >>sys.stderr, 'Couldn\'t read metadata from pdf: % with error %s'%(mi.title, str(err))
     return mi
         
             
