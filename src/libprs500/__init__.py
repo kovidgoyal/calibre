@@ -21,6 +21,7 @@ __appname__   = 'libprs500'
 import sys, os, logging, mechanize
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
+islinux   = not(iswindows or isosx) 
 
 if iswindows:
     try:

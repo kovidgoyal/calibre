@@ -21,7 +21,7 @@ from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
 
-from libprs500 import __version__, __appname__
+from libprs500 import __version__, __appname__, islinux
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
@@ -679,18 +679,21 @@ class Main(QObject, Ui_MainWindow):
         d = ConversionErrorDialog(self.window, 'ERROR: Unhandled exception', msg)
         d.exec_()
 
-def main():    
+def main(args=sys.argv): 
     from PyQt4.Qt import QApplication, QMainWindow
-    app = QApplication(sys.argv)    
-    window = QMainWindow()
-    window.setWindowTitle(APP_TITLE)
-    QCoreApplication.setOrganizationName("KovidsBrain")
-    QCoreApplication.setApplicationName(APP_TITLE)
-    
-    initialize_file_icon_provider()
-    main = Main(window)
-    sys.excepthook = main.unhandled_exception    
-    return app.exec_()
+    pid = os.fork() if islinux else -1
+    if pid <= 0:
+        app = QApplication(args)    
+        window = QMainWindow()
+        window.setWindowTitle(APP_TITLE)
+        QCoreApplication.setOrganizationName("KovidsBrain")
+        QCoreApplication.setApplicationName(APP_TITLE)
+        
+        initialize_file_icon_provider()
+        main = Main(window)
+        sys.excepthook = main.unhandled_exception    
+        return app.exec_()
+    return 0
     
         
 if __name__ == '__main__':
