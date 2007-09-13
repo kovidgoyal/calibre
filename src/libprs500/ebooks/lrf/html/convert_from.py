@@ -1073,6 +1073,53 @@ class HTMLConverter(object):
             return True
         return False            
     
+    def process_anchor(self, tag, tag_css, tag_pseudo_css):
+        key = 'name' if tag.has_key('name') else 'id'
+        name = tag[key].replace('#', '')
+        if self.anchor_to_previous:
+            self.process_children(tag, tag_css, tag_pseudo_css)
+            for c in self.anchor_to_previous.contents:
+                if isinstance(c, (TextBlock, ImageBlock)):
+                    self.targets[self.target_prefix+tag[key]] = c
+                    return
+            tb = self.book.create_text_block()
+            tb.Paragraph(" ")
+            self.anchor_to_previous.append(tb)
+            self.targets[self.target_prefix+name] = tb                    
+            return
+        previous = self.current_block
+        self.process_children(tag, tag_css, tag_pseudo_css)
+        target = None
+        
+        if self.current_block == previous:
+            self.current_block.must_append = True
+            target = self.current_block
+        else:
+            found = False
+            for item in self.current_page.contents:
+                if item == previous:
+                    found = True
+                    continue
+                if found:
+                    target = item
+                    break
+            if target and not isinstance(target, (TextBlock, ImageBlock)):
+                if isinstance(target, RuledLine):
+                    target = self.book.create_text_block(textStyle=self.current_block.textStyle,
+                                                 blockStyle=self.current_block.blockStyle)
+                    target.Paragraph(' ')
+                    self.current_page.append(target)
+                else:
+                    target = BlockSpace()
+                    self.current_page.append(target)
+            if target == None:
+                if self.current_block.has_text():
+                    target = self.current_block
+                else:
+                    target = BlockSpace()
+                    self.current_page.append(target)
+        self.targets[self.target_prefix+name] = target
+
     def parse_tag(self, tag, parent_css):
         try:
             tagname = tag.name.lower()
@@ -1110,60 +1157,7 @@ class HTMLConverter(object):
                         key = 'name' if tag.has_key('name') else 'id'
                         self.targets[self.target_prefix+tag[key]] = self.current_block
             elif tag.has_key('name') or tag.has_key('id'):
-                key = 'name' if tag.has_key('name') else 'id'
-                name = tag[key].replace('#', '')
-                if self.anchor_to_previous:
-                    self.process_children(tag, tag_css, tag_pseudo_css)
-                    for c in self.anchor_to_previous.contents:
-                        if isinstance(c, (TextBlock, ImageBlock)):
-                            self.targets[self.target_prefix+tag[key]] = c
-                            return
-                    tb = self.book.create_text_block()
-                    tb.Paragraph(" ")
-                    self.anchor_to_previous.append(tb)
-                    self.targets[self.target_prefix+name] = tb                    
-                    return
-                previous = self.current_block
-                self.process_children(tag, tag_css, tag_pseudo_css)
-                target = None
-                
-                if self.current_block == previous:                    
-                    if self.current_para.has_text():
-                        self.current_para.append_to(self.current_block)
-                        self.current_para = Paragraph()
-                        target = self.current_block                 
-                    else: # Empty <a> element
-                        self.current_page.append(self.current_block)                        
-                        self.current_block = self.book.create_text_block(
-                                textStyle=self.current_block.textStyle,
-                                blockStyle=self.current_block.blockStyle)
-                        target = self.book.create_text_block()
-                        self.current_page.append(target)
-                else:
-                    found = False
-                    for item in self.current_page.contents:
-                        if item == previous:
-                            found = True
-                            continue
-                        if found:
-                            target = item
-                            break
-                    if target and not isinstance(target, (TextBlock, ImageBlock)):
-                        if isinstance(target, RuledLine):
-                            target = self.book.create_text_block(textStyle=self.current_block.textStyle,
-                                                         blockStyle=self.current_block.blockStyle)
-                            target.Paragraph(' ')
-                            self.current_page.append(target)
-                        else:
-                            target = BlockSpace()
-                            self.current_page.append(target)
-                    if target == None:
-                        if self.current_block.has_text():
-                            target = self.current_block
-                        else:
-                            target = BlockSpace()
-                            self.current_page.append(target)
-                self.targets[self.target_prefix+name] = target                            
+                self.process_anchor(tag, tag_css, tag_pseudo_css)                            
         elif tagname == 'img':
             if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
                 path = os.path.abspath(unquote(tag['src']))
