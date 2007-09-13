@@ -664,8 +664,8 @@ class TableOfContents(object):
             raise LrsError, "TOC destination must be appended to a container with an objID"
 
         for tl in self.tocEntries:
-            if tl.label == tocLabel:
-                return
+            if tl.label == tocLabel and tl.textBlock == textBlock:
+                return 
         
         self.tocEntries.append(TocLabel(tocLabel, textBlock))
         textBlock.tocLabel = tocLabel
