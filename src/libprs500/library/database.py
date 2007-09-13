@@ -1025,7 +1025,7 @@ class LibraryDatabase(object):
                     os.mkdir(tpath)
                 for fmt in self.formats(idx).split(','):
                     data = self.format(idx, fmt)
-                    f = open(os.path.join(tpath, __appname__+'_'+id+'.'+fmt.lower()), 'wb')
+                    f = open(os.path.join(tpath, title + ' - ' + au +'_'+id+'.'+fmt.lower()), 'wb')
                     f.write(data)
                     
 if __name__ == '__main__':
