@@ -19,7 +19,7 @@ from PyQt4.QtCore import QVariant, QSettings, QFileInfo, QObject, SIGNAL, QBuffe
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView
 from libprs500 import __appname__ as APP_TITLE
-from libprs500 import __author__
+from libprs500 import __author__, islinux
 NONE = QVariant() #: Null value to return from the data function of item models
 
 BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 
@@ -182,43 +182,77 @@ class FileDialog(QObject):
                        ):
         QObject.__init__(self)
         initialize_file_icon_provider()
-        self.fd = QFileDialog(parent)      
-        self.fd.setFileMode(mode)  
-        self.fd.setIconProvider(_file_icon_provider)
-        self.fd.setModal(modal)
-        settings = QSettings()
-        state = settings.value(name, QVariant()).toByteArray()
-        if not self.fd.restoreState(state):
-            self.fd.setDirectory(os.path.expanduser('~'))
-        self.dialog_name = name
         ftext = ''
         if filters:
             for filter in filters:
                 text, extensions = filter
                 extensions = ['*.'+i if not i.startswith('.') else i for i in extensions]
-                ftext += '%s (%s);;'%(text, ' '.join(extensions)) 
+                ftext += '%s (%s);;'%(text, ' '.join(extensions))
         if add_all_files_filter or not ftext:
             ftext += 'All files (*)'
-        self.fd.setFilter(ftext)
-        self.fd.setWindowTitle(title)
-        QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
-        self.exec_ = self.fd.exec_
-        self.show = self.fd.show
+        
+        settings = QSettings()
+        self.dialog_name = name if name else 'dialog_' + title
+        self.selected_files = None
+        self.fd = None
+        if islinux:
+            self.fd = QFileDialog(parent)
+            self.fd.setFileMode(mode)  
+            self.fd.setIconProvider(_file_icon_provider)
+            self.fd.setModal(modal)            
+            self.fd.setFilter(ftext)
+            self.fd.setWindowTitle(title)
+            state = settings.value(name, QVariant()).toByteArray()
+            if not self.fd.restoreState(state):
+                self.fd.setDirectory(os.path.expanduser('~'))
+            QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
+            self.accepted = self.fd.exec_() == QFileDialog.Accepted
+        else:
+            dir = settings.value(self.dialog_name, QVariant(os.path.expanduser('~'))).toString()
+            self.selected_files = []
+            if mode == QFileDialog.AnyFile:
+                f = qstring_to_unicode(
+                    QFileDialog.getSaveFileName(parent, title, dir, ftext, ""))
+                if os.path.exists(f):
+                    self.selected_files.append(f)                
+            elif mode == QFileDialog.ExistingFile:
+                f = qstring_to_unicode(
+                    QFileDialog.getOpenFileName(parent, title, dir, ftext, ""))
+                if os.path.exists(f):
+                    self.selected_files.append(f)
+            elif mode == QFileDialog.ExistingFiles:
+                fs = QFileDialog.getOpenFileNames(parent, title, dir, ftext, "")
+                for f in fs:
+                    if os.path.exists(qstring_to_unicode(f)):
+                        self.selected_files.append(f)
+            else:
+                opts = QFileDialog.ShowDirsOnly if mode == QFileDialog.DirectoryOnly else QFileDialog.Option()
+                f = qstring_to_unicode(
+                        QFileDialog.getExistingDirectory(parent, title, dir, opts))
+                if os.path.exists(f):
+                    self.selected_files.append(f)
+            if self.selected_files:
+                settings.setValue(self.dialog_name, QVariant(os.path.dirname(self.selected_files[0])))
+            self.accepted = bool(self.selected_files)        
+        
+        
     
-    def get_files(self):        
-        return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.fd.selectedFiles())
+    def get_files(self): 
+        if self.selected_files is None:       
+            return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.fd.selectedFiles())
+        return tuple(self.selected_files)
     
     def save_dir(self):
-         settings = QSettings()
-         settings.setValue(self.dialog_name, QVariant(self.fd.saveState()))
+        if self.fd:
+            settings = QSettings()
+            settings.setValue(self.dialog_name, QVariant(self.fd.saveState()))
         
 
 def choose_dir(window, name, title):
-    settings = QSettings()
-    dir = settings.value(name, QVariant(os.path.expanduser('~'))).toString()
-    dir = qstring_to_unicode(QFileDialog.getExistingDirectory(window, title, dir))
-    if os.path.exists(dir):
-        return dir
+    fd = FileDialog(title, [], False, window, mode=QFileDialog.DirectoryOnly)
+    dir = fd.get_files()
+    if dir:
+        return dir[0]
 
 def choose_files(window, name, title,  
                  filters=[], all_files=True, select_only_single_file=False):
@@ -237,7 +271,7 @@ def choose_files(window, name, title,
     fd = FileDialog(title=title, name=name, filters=filters, 
                     parent=window, add_all_files_filter=all_files, mode=mode,
                     )
-    if fd.exec_() == QFileDialog.Accepted:
+    if fd.accepted:
         return fd.get_files()
     return None
 
@@ -247,7 +281,7 @@ def choose_images(window, name, title, select_only_single_file=True):
                     filters=[('Images', ['png', 'gif', 'jpeg', 'jpg', 'svg'])], 
                     parent=window, add_all_files_filter=False, mode=mode,
                     )
-    if fd.exec_() == QFileDialog.Accepted:
+    if fd.accepted:
         return fd.get_files()
     return None
 
