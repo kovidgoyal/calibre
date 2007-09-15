@@ -21,7 +21,6 @@ from base64 import b64decode as decode
 from base64 import b64encode as encode
 import time, re
 
-from libprs500.devices.errors import ProtocolError
 from libprs500.devices.interface import BookList as _BookList
 
 MIME_MAP   = { \

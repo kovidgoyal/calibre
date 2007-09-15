@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Profiles for known websites.'''
-import time, re
+import re
 
 from libprs500.ebooks.lrf.web.newsweek import initialize as newsweek_initialize
 from libprs500.ebooks.lrf.web.newsweek import finalize as newsweek_finalize
@@ -21,6 +21,8 @@ from libprs500.ebooks.lrf.web.nytimes import initialize as nytimes_initialize
 from libprs500.ebooks.lrf.web.nytimes import finalize as nytimes_finalize
 from libprs500.ebooks.lrf.web.bbc import initialize as bbc_initialize
 from libprs500.ebooks.lrf.web.bbc import finalize as bbc_finalize
+from libprs500.ebooks.lrf.web.economist import initialize as economist_initialize
+from libprs500.ebooks.lrf.web.economist import finalize as economist_finalize
 
 
 profiles = {
@@ -105,7 +107,19 @@ profiles = {
                             ),
                            ]
                           ],
-                          },                                    
+                          }, 
+                          
+            'economist' : {
+                           'initialize'          : economist_initialize,
+                           'finalize'            : economist_finalize,
+                           'preprocess_regexps' :
+                           [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
+                            [
+                             # Remove advert
+                             (r'<noscript.*?</noscript>', lambda match: ''),
+                             ]
+                            ], 
+                           },                                   
             }
 
 for key in profiles.keys():

@@ -142,7 +142,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         au = self.db.authors(row)
         self.authors.setText(au if au else '')
         aus = self.db.author_sort(row)
-        self.author_sort.setText(aus)
+        self.author_sort.setText(aus if aus else '')
         pub = self.db.publisher(row)
         self.publisher.setText(pub if pub else '')
         tags = self.db.tags(row)

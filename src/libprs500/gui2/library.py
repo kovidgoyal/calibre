@@ -182,7 +182,7 @@ class BooksModel(QAbstractTableModel):
         if tags:
             tags = tags.replace(',', ', ')
         else:
-             tags = 'None'
+            tags = 'None'
         data['Tags'] = tags
         formats = self.db.formats(idx)
         if formats:

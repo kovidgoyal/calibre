@@ -174,6 +174,7 @@ def setup_udev_rules():
     udev = open('/etc/udev/rules.d/95-libprs500.rules', 'w')
     udev.write('''# Sony Reader PRS-500\n'''
              '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="plugdev"\n'''
+             '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="usb"\n'''
              )
     udev.close()
     try:

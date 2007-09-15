@@ -25,7 +25,7 @@ def get_metadata(stream):
         title = os.path.splitext(os.path.basename(stream.name))[0]
     else:
         title = 'Unknown'
-    mi = MetaInformation(title, 'Unknown')
+    mi = MetaInformation(title, ['Unknown'])
     stream.seek(0)
     try:
         info = PdfFileReader(stream).getDocumentInfo()
@@ -41,6 +41,7 @@ def get_metadata(stream):
         if info.subject:
             mi.category = info.subject
     except Exception, err:
+        raise
         print >>sys.stderr, 'Couldn\'t read metadata from pdf: %s with error %s'%(mi.title, str(err))
     return mi
         
