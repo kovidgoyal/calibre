@@ -49,7 +49,9 @@ class book_metadata_field(object):
     def __set__(self, obj, val):
         """ Set the attribute """
         val = self.setter(val) if self.setter else val
-        obj.elem.setAttribute(self.attr, str(val))
+        if not isinstance(val, unicode):
+            val = unicode(val, 'utf8', 'replace')
+        obj.elem.setAttribute(self.attr, val)
 
 class Book(object):
     """ Provides a view onto the XML element that represents a book """
