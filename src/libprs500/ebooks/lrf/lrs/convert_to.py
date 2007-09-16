@@ -821,6 +821,8 @@ class LRFTextContent:
        0xF5BE: ['', 'doSimpleTag', u'</EmpDots>'],
        0xF5C1: ['', 'doBeginEL'],
        0xF5C2: ['', 'doEndEL'],
+       0xF5C3: ['', 'doBeginDrawChar'],
+       0xF5C4: ['', 'doSimpleTag', '</DrawChar>'],
        0xF5C6: ['', 'doBeginBox'],
        0xF5C7: ['', 'doSimpleTag', '</Box>'],
        0xF5CA: ['', 'doSpace'],
@@ -895,6 +897,11 @@ class LRFTextContent:
        pars = struct.unpack("<HHII",tag.params)
        self.xml += u'<Plot xsize="%d" ysize="%d" refobj="%d"'%pars[:3]
        self.xml += u' adjustment="%s"/>'%self.mapadjustment[pars[3]]
+       
+   def doBeginDrawChar(self, tag, f):
+       self.closeSpan()
+       self.doOpenTag(tag, f, u'DrawChar line="%d"'%(tag.paramWord()))
+              
 
    def doOpenTag(self, tag, f, name):
        if self.inSpanBegin:
