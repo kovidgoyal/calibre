@@ -43,14 +43,14 @@ def option_parser():
                       help='Specify the username to be used while downloading. Only used if the profile supports it.')
     parser.add_option('--password', dest='password', default=None,
                       help='Specify the password to be used while downloading. Only used if the profile supports it.')
-    parser.add_option('--timeout', help='Timeout in seconds to wait for a response from the server. Default: %default s',
+    parser.add_option('--timeout', help='Timeout in seconds to wait for a response from the server. Default: %(timeout)s s'%profiles['default'],
                       default=None, type='int', dest='timeout')
-    parser.add_option('-r', '--max-recursions', help='Maximum number of levels to recurse i.e. depth of links to follow. Default %default',
+    parser.add_option('-r', '--max-recursions', help='Maximum number of levels to recurse i.e. depth of links to follow. Default %(max_recursions)s'%profiles['default'],
                       default=None, type='int', dest='max_recursions')
     parser.add_option('-n', '--max-files', default=None, type='int', dest='max_files',
-                      help='The maximum number of files to download. This only applies to files from <a href> tags. Default is %default')
+                      help='The maximum number of files to download. This only applies to files from <a href> tags. Default is %(max_files)s'%profiles['default'])
     parser.add_option('--delay', default=None, dest='delay', type='int',
-                      help='Minimum interval in seconds between consecutive fetches. Default is %default s')
+                      help='Minimum interval in seconds between consecutive fetches. Default is %(delay)s s'%profiles['default'])
     parser.add_option('--dont-download-stylesheets', action='store_true', default=None,
                       help='Do not download CSS stylesheets.', dest='no_stylesheets')    
     
