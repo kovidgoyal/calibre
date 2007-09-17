@@ -31,6 +31,9 @@ from libprs500 import iswindows
 
 __docformat__ = "epytext"
 
+class LRFParseError(Exception):
+    pass
+
 
 class PRS500_PROFILE(object):
     screen_width  = 600

@@ -297,7 +297,7 @@ class LRFMetaFile(object):
     version                  = field(fmt=WORD, start=0x8)
     xor_key                  = field(fmt=WORD, start=0xa)
     root_object_id           = field(fmt=DWORD, start=0xc)
-    number_of_objets         = field(fmt=QWORD, start=0x10)
+    number_of_objects        = field(fmt=QWORD, start=0x10)
     object_index_offset      = field(fmt=QWORD, start=0x18)
     binding                  = field(fmt=BYTE, start=0x24)
     dpi                      = field(fmt=WORD, start=0x26)
@@ -329,7 +329,7 @@ class LRFMetaFile(object):
     # Format is %Y-%m-%d
     creation_date         = xml_field("CreationDate", parent="DocInfo") 
     producer              = xml_field("Producer", parent="DocInfo")
-    page                  = xml_field("Page", parent="DocInfo")
+    page                  = xml_field("SumPage", parent="DocInfo")
     
     def safe(func):
         """ 
@@ -547,7 +547,7 @@ class LRFMetaFile(object):
         elif ttype == 0x12:
             ext = "png"
         elif ttype == 0x13:
-            ext = "bm"
+            ext = "bmp"
         return ext
         
     def fix_thumbnail_type(self):

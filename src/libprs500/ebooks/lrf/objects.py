@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import struct, array, zlib
+import struct, array, zlib, cStringIO
 
 from libprs500.ebooks.lrf import LRFParseError
 from libprs500.ebooks.lrf.tags import Tag
@@ -47,10 +47,32 @@ class LRFObject(object):
     @classmethod
     def parse_empdots(self, tag, f):
         self.refEmpDotsFont, self.empDotsFontName, self.empDotsCode = tag.contents
-    
-    def __init__(self, stream, id, scramble_key, boundary):
-        self._scramble_key = scramble_key
         
+    @staticmethod
+    def tag_to_val(h, obj, tag, stream):
+        if h[1] == 'D':
+            val = tag.dword
+        elif h[1] == 'W':
+            val = tag.word
+        elif h[1] == 'w':
+            val = tag.word
+            if val > 0x8000: 
+                val -= 0x10000
+        elif h[1] == 'B':
+            val = tag.byte
+        elif h[1] == 'P':
+            val = tag.contents
+        elif h[1] != '':
+            val = getattr(obj, h[1])(tag, stream)
+        if len(h) > 2:
+            val = h[2](val) if callable(h[2]) else h[2][val]
+        return val
+    
+    def __init__(self, document, stream, id, scramble_key, boundary):
+        self._scramble_key = scramble_key
+        self._document = document
+        self.id = id
+                
         while stream.tell() < boundary:
             tag = Tag(stream)
             self.handle_tag(tag, stream)
@@ -60,31 +82,68 @@ class LRFObject(object):
     
     def handle_tag(self, tag, stream, tag_map=None):
         if tag_map is None:
-            tag_map = self.__class__.tag_map
+            tag_map = self.__class__.tag_map             
         if tag.id in tag_map:
             h = tag_map[tag.id]
-            if h[1] == 'D':
-                val = tag.dword
-            elif h[1] == 'W':
-                val = tag.word
-            elif h[1] == 'w':
-                val = tag.word
-                if val > 0x8000: 
-                    val -= 0x10000
-            elif h[1] == 'B':
-                val = tag.paramByte()
-            elif h[1] == 'P':
-                val = tag.contents
-            elif h[1] != '':
-                val = getattr(self, h[1])(tag, stream)
-    
+            val = LRFObject.tag_to_val(h, self, tag, stream)
             if h[1] != '' and h[0] != '':
-                if len(h) > 2:
-                    val = h[2][val]
                 setattr(self, h[0], val)
         else:    
             raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, str(tag)))
         
+    def __iter__(self):
+        for i in range(0):
+            yield i
+        
+    def __unicode__(self):
+        return unicode(self.__class__.__name__)
+        
+    def __str__(self):
+        return unicode(self)
+
+class LRFContentObject(LRFObject):
+    
+    tag_map = {}
+    
+    def __init__(self, bytes, objects):
+        self.stream = bytes if hasattr(bytes, 'read') else cStringIO.StringIO(bytes)
+        length = self.stream_size()
+        self.objects = objects
+        self._contents = []
+        self.current = 0
+        self.in_container = True
+        self.parse_stream(length)
+        
+    def parse_stream(self, length):    
+        while self.in_container and self.stream.tell() < length:
+            tag = Tag(self.stream)
+            self.handle_tag(tag)
+            
+    def stream_size(self):
+        pos = self.stream.tell()
+        self.stream.seek(0, 2)
+        size = self.stream.tell()
+        self.stream.seek(pos)
+        return size
+            
+    def handle_tag(self, tag):
+        if tag.id in self.tag_map:
+            action = self.tag_map[tag.id]
+            if isinstance(action, basestring):
+                func, args = action, tuple([])
+            else:
+                func, args = action[0], (action[1],)
+            getattr(self, func)(tag, *args)
+        else:
+            raise LRFParseError("Unknown tag in %s: %s" % (self.__class__.__name__, str(tag)))
+        
+    def __iter__(self):
+        for i in self._contents:
+            yield i
+        
+    
+
+    
 class LRFStream(LRFObject):
     tag_map = {
         0xF504: ['', 'read_stream_size'],
@@ -94,11 +153,11 @@ class LRFStream(LRFObject):
       }
     tag_map.update(LRFObject.tag_map)
     
-    def __init__(self, stream, id, scramble_key, boundary):
+    def __init__(self, document, stream, id, scramble_key, boundary):
         self.stream = ''
         self.stream_size = 0
         self.stream_read = False
-        LRFObject.__init__(self, stream, id, scramble_key, boundary)
+        LRFObject.__init__(self, document, stream, id, scramble_key, boundary)
         
     def read_stream_size(self, tag, stream):
         self.stream_size = tag.dword
@@ -130,12 +189,26 @@ class LRFStream(LRFObject):
 
 class PageTree(LRFObject):
     tag_map = {
-        0xF55C: ['pageList', 'P'],
+        0xF55C: ['_contents', 'P'],
       }
     tag_map.update(LRFObject.tag_map)
     
+    def __iter__(self):
+        for id in self._contents:
+            yield self._document.objects[id]
 
-class PageAttr(LRFObject):
+class StyleObject(object):
+    
+    def __unicode__(self):
+        s = '<%s objid="%s" stylelabel="%s" '%(self.__class__.__name__.replace('Attr', 'Style'), self.id, self.id)
+        for h in self.tag_map.values():
+            attr = h[0]
+            if hasattr(self, attr):
+                s += '%s="%s" '%(attr, getattr(self, attr))
+        s += '/>\n'
+        return s
+
+class PageAttr(StyleObject, LRFObject):
     tag_map = {
         0xF507: ['oddheaderid', 'D'],
         0xF508: ['evenheaderid', 'D'],
@@ -159,26 +232,180 @@ class PageAttr(LRFObject):
     tag_map.update(LRFObject.tag_map)
 
 
+class Color(object):
+    def __init__(self, val):
+        self.b, self.g, self.r, self.a = val & 0xFF, (val>>8)&0xFF, (val>>16)&0xFF, (val>>24)&0xFF
+        
+    def __unicode__(self):
+        return u'0x%02x%02x%02x%02x'%(self.a, self.r, self.g, self.b)
+    
+    def __str__(self):
+        return unicode(self)
+
+class EmptyPageElement(object):
+    def __iter__(self):
+        for i in range(0):
+            yield i
+        
+    def __str__(self):
+        return unicode(self)
+
+class PageDiv(EmptyPageElement):
+    
+    def __init__(self, pain, spacesize, linewidth, linecolor):
+        self.pain, self.spacesize, self.linewidth = pain, spacesize, linewidth
+        self.linecolor = Color(linecolor)
+        
+    def __unicode__(self):
+        return u'\n<PageDiv pain="%s" spacesize="%s" linewidth="%s" linecolor="%s" />\n'%\
+                (self.pain, self.spacesize, self.linewidth, self.color)
+        
+        
+class RuledLine(EmptyPageElement):
+    
+    linetype_map = {0x00: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted', 0x13: 'unknown13'}
+    
+    def __init__(self, linelength, linetype, linewidth, linecolor):
+        self.linelength, self.linewidth = linelength, linewidth
+        self.linetype = self.linetype_map[linetype]
+        self.linecolor = Color(linecolor)
+        
+    def __unicode__(self):
+        return u'\n<RuledLine linelength="%s" linetype="%s" linewidth="%s" linecolor="%s" />\n'%\
+                (self.linelength, self.linetype, self.linewidth, self.linecolor)
+                
+class Wait(EmptyPageElement):
+    
+    def __init__(self, time):
+        self.time = time
+        
+    def __unicode__(self):
+        return u'\n<Wait time="%d" />\n'%(self.time)
+        
+class Locate(EmptyPageElement):
+    
+    pos_map = {1:'bottomleft', 2:'bottomright',3:'topright',4:'topleft', 5:'base'}
+    
+    def __init__(self, pos):
+        self.pos = self.pos_map[pos]
+        
+    def __unicode__(self):
+        return u'\n<Locate pos="%s" />\n'%(self.pos)
+        
+class BlockSpace(EmptyPageElement):
+    
+    def __init__(self, xspace, yspace):
+        self.xsace, self.yspace = xspace, yspace
+        
+    def __unicode__(self):
+        return u'\n<BlockSpace xspace="%d" yspace="%d" />\n'%\
+                (self.xspace, self.ysapce)
+
 class Page(LRFStream):
     tag_map = {
-        0xF503: ['pageStyle', 'D'],
-        0xF50B: ['contents', 'P'],
+        0xF503: ['style_id', 'D'],
+        0xF50B: ['obj_list', 'P'],
         0xF571: ['', ''],
-        0xF57C: ['parentPageTree','D'],
+        0xF57C: ['parent_page_tree','D'],
       }
     tag_map.update(PageAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
     
+    class Content(LRFContentObject):
+        tag_map = {
+           0xF503: 'link',
+           0xF54E: 'page_div',
+           0xF547: 'x_space',
+           0xF546: 'y_space',
+           0xF548: 'pos',
+           0xF573: 'ruled_line',
+           0xF5D4: 'wait',
+           0xF5D6: 'sound_stop',
+          }
+        
+        def __init__(self, bytes, objects):
+            self.in_blockspace = False
+            LRFContentObject.__init__(self, bytes, objects)
+        
+        def link(self, tag):
+            self.close_blockspace()
+            self._contents.append(self.objects[tag.dword])
+            
+        def page_div(self, tag):
+            self.close_blockspace()
+            pars = struct.unpack("<HIHI", tag.contents)
+            self._contents.append(PageDiv(*pars))
+            
+        def x_space(self, tag):
+            self.xspace = tag.word
+            self.in_blockspace = True
+            
+        def y_space(self, tag):
+            self.yspace = tag.word
+            self.in_blockspace = True
+            
+        def pos(self, tag):
+            self.pos = tag.wordself.pos_map[tag.word]
+            self.in_blockspace = True
+            
+        def ruled_line(self, tag):
+            self.close_blockspace()
+            pars = struct.unpack("<HHHI", tag.contents)
+            self._contents.append(RuledLine(*pars))
+            
+        def wait(self, tag):
+            self.close_blockspace()
+            self._contents.append(Wait(tag.word))
+            
+        def sound_stop(self, tag):
+            self.close_blockspace()
+            
+        def close_blockspace(self):
+            if self.in_blockspace:
+                if hasattr(self, 'pos'):
+                    self._contents.append(Locate(self.pos))
+                    delattr(self, 'pos')
+                else:
+                    xspace = self.xspace if hasattr(self, 'xspace') else 0
+                    yspace = self.yspace if hasattr(self, 'yspace') else 0
+                    self._contents.append(BlockSpace(xspace, yspace))
+                    if hasattr(self, 'xspace'): delattr(self, 'xspace')
+                    if hasattr(self, 'yspace'): delattr(self, 'yspace')
+    
+    @apply
+    def style():
+        def fget(self):
+            return self._document.objects[self.style_id]
+        return property(fget=fget)
+    
+    def initialize(self):
+        self.content = Page.Content(self.stream, self._document.objects)
+    
+    def __iter__(self):
+        for i in self.content:
+            yield i
+        
+    def __unicode__(self):
+        s = u'\n<Page pagestyle="%d" objid="%d">\n'%(self.style_id, self.id)
+        for i in self:
+            s += unicode(i)
+        s += '\n</Page>\n'
+        return s
+    
+    def __str__(self):
+        return unicode(self)
+    
+    
 
-class BlockAttr(LRFObject):
+class BlockAttr(StyleObject, LRFObject):
     tag_map = {
         0xF531: ['blockwidth', 'W'],
         0xF532: ['blockheight', 'W'],
         0xF533: ['blockrule', 'W', {0x14: "horz-fixed", 0x12: "horz-adjustable", 0x41: "vert-fixed", 0x21: "vert-adjustable", 0x44: "block-fixed", 0x22: "block-adjustable"}],
-        0xF534: ['bgcolor', 'D'],
+        0xF534: ['bgcolor', 'D', Color],
         0xF535: ['layout', 'W', {0x41: 'TbRl', 0x34: 'LrTb'}],
         0xF536: ['framewidth', 'W'],
-        0xF537: ['framecolor', 'D'],
+        0xF537: ['framecolor', 'D', Color],
         0xF52E: ['framemode', 'W', {0: 'none', 2: 'curve', 1:'square'}],
         0xF538: ['topskip', 'W'],
         0xF539: ['sidemargin', 'W'],
@@ -187,25 +414,7 @@ class BlockAttr(LRFObject):
       }
     tag_map.update(LRFObject.tag_map)
 
-class Block(LRFStream):
-    tag_map = {
-        0xF503: ['atrId', 'D'],
-      }
-    tag_map.update(BlockAttr.tag_map)
-    tag_map.update(LRFStream.tag_map)
-
-class Header(LRFStream):
-    tag_map = {}
-    tag_map.update(LRFStream.tag_map)
-    tag_map.update(BlockAttr.tag_map)
-
-class Footer(Header):
-    pass
-
-class MiniPage(LRFObject):
-    pass
-
-class TextAttr(LRFObject):
+class TextAttr(StyleObject, LRFObject):
     tag_map = {
         0xF511: ['fontsize', 'w'],
         0xF512: ['fontwidth', 'w'],
@@ -213,8 +422,8 @@ class TextAttr(LRFObject):
         0xF514: ['fontorientation', 'w'],
         0xF515: ['fontweight', 'W'],
         0xF516: ['fontfacename', 'P'],
-        0xF517: ['textcolor', 'D'],
-        0xF518: ['textbgcolor', 'D'],
+        0xF517: ['textcolor', 'D', Color],
+        0xF518: ['textbgcolor', 'D', Color],
         0xF519: ['wordspace', 'w'],
         0xF51A: ['letterspace', 'w'],
         0xF51B: ['baselineskip', 'w'],
@@ -226,45 +435,384 @@ class TextAttr(LRFObject):
         0xF53E: ['columnsep', 'W'],
         0xF5DD: ['charspace', 'w'],
         0xF5F1: ['textlinewidth', 'W'],
-        0xF5F2: ['linecolor', 'D'],
+        0xF5F2: ['linecolor', 'D', Color],
       }
     tag_map.update(LRFObject.tag_map)
 
+
+class Block(LRFStream):
+    tag_map = {
+        0xF503: ['style_id', 'D'],
+      }
+    tag_map.update(BlockAttr.tag_map)
+    tag_map.update(TextAttr.tag_map)
+    tag_map.update(LRFStream.tag_map)
+    extra_attrs = [i[0] for i in BlockAttr.tag_map.values()]
+    extra_attrs.extend([i[0] for i in TextAttr.tag_map.values()])
+    
+    @apply
+    def style():
+        def fget(self):
+            return self._document.objects[self.style_id]
+        return property(fget=fget)
+    
+    @apply
+    def textstyle():
+        def fget(self):
+            return self._document.objects[self.textstyle_id]
+        return property(fget=fget)
+    
+    def initialize(self):
+        self.attrs = {}
+        stream = cStringIO.StringIO(self.stream)
+        tag = Tag(stream)
+        if tag.id != 0xF503:
+            raise LRFParseError("Bad block content")
+        obj = self._document.objects[tag.dword]
+        if isinstance(obj, SimpleText):
+            self.name = 'SimpleTextBlock'
+            self.textstyle_id = obj.style_id
+        elif isinstance(obj, Text):
+            self.name = 'TextBlock'
+            self.textstyle_id = obj.style_id 
+        elif isinstance(obj, Image):
+            self.name = 'ImageBlock'
+            for attr in ('x0', 'x1', 'y0', 'y1', 'xsize', 'ysize', 'refstream'):
+                self.attrs[attr] = getattr(obj, attr)
+        elif isinstance(obj, Button):
+            self.name = 'ButtonBlock'
+        else:
+            raise LRFParseError("Unexpected block type: "+obj.__class__.__name__)
+            
+        self.content = obj
+        
+        
+        for attr in self.extra_attrs:
+            if hasattr(self, attr):
+                self.attrs[attr] = getattr(self, attr)
+        
+    def __iter__(self):
+        try:
+            for i in iter(self.content):
+                yield i
+        except TypeError:
+            yield self.content
+        
+    def __unicode__(self):
+        s = u'\n<%s objid="%d" blockstyle="%d" '%(self.name, self.id, self.style_id)
+        if hasattr(self, 'textstyle_id'):
+            s += 'textstyle="%d" '%(self.textstyle_id,)
+        for attr in self.attrs:
+            s += '%s="%s" '%(attr, self.attrs[attr])
+        s = s.rstrip()+'>\n'
+        if self.name != 'ImageBlock':
+            for i in self:
+                s += unicode(i)
+        s += '</%s>\n'%(self.name,)
+        return s
+        
+
+class MiniPage(LRFStream):
+    tag_map = {
+        0xF541: ['minipagewidth', 'W'],
+        0xF542: ['minipageheight', 'W'],
+      }
+    tag_map.update(LRFStream.tag_map)
+    tag_map.update(BlockAttr.tag_map)
+
 class Text(LRFStream):
     tag_map = {
-        0xF503: ['atrId', 'D'],
+        0xF503: ['style_id', 'D'],
       }
     tag_map.update(TextAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
+    
+    @apply
+    def style():
+        def fget(self):
+            return self._document.objects[self.style_id]
+        return property(fget=fget)
+    
+    class Content(LRFContentObject):
+        tag_map = {
+           0xF581: ['simple_container', 'Italic'],
+           0xF582: 'end_container',
+           0xF5B1: ['simple_container', 'Yoko'],
+           0xF5B2: 'end_container',
+           0xF5B3: ['simple_container', 'Tate'],
+           0xF5B4: 'end_container',
+           0xF5B5: ['simple_container', 'Nekase'],
+           0xF5B6: 'end_container',
+           0xF5A1: 'start_para',
+           0xF5A2: 'end_para',
+           0xF5A7: 'char_button',
+           0xF5A8: 'end_container',
+           0xF5A9: ['simple_container', 'Rubi'],
+           0xF5AA: 'end_container',
+           0xF5AB: ['simple_container', 'Oyamoji'],
+           0xF5AC: 'end_container',
+           0xF5AD: ['simple_container', 'Rubimoji'],
+           0xF5AE: 'end_container',
+           0xF5B7: ['simple_container', 'Sup'],
+           0xF5B8: 'end_container',
+           0xF5B9: ['simple_container', 'Sub'],
+           0xF5BA: 'end_container',
+           0xF5BB: ['simple_container', 'NoBR'],
+           0xF5BC: 'end_container',
+           0xF5BD: ['simple_container', 'EmpDots'],
+           0xF5BE: 'end_container',
+           0xF5C1: ['simple_container', 'EmpLine'],
+           0xF5C2: 'end_container',
+           0xF5C3: 'draw_char',
+           0xF5C4: 'end_container',
+           0xF5C6: 'box',
+           0xF5C7: 'end_container',
+           0xF5CA: 'space',
+           0xF5CC: 'string',
+           0xF5D1: 'plot',
+           0xF5D2: 'cr',
+        }
+        
+        text_map = { 0x22: u'&quot;', 0x26: u'&amp;', 0x27: u'&apos;', 0x3c: u'&lt;', 0x3e: u'&gt;' }
+        linetype_map = {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}
+        adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
+        
+        def __init__(self, bytes, objects, parent=None, name=None, attrs={}):
+            self.parent = parent
+            self.name = name
+            self.attrs = attrs
+            LRFContentObject.__init__(self, bytes, objects)
+            
+        def parse_stream(self, length):
+            offset = self.stream.tell()
+            while self.in_container and offset < length:
+                buf = self.stream.getvalue()[offset:]
+                pos = buf.find('\xf5') - 1
+                if pos > 0:
+                    self.stream.seek(offset+pos)
+                    self.add_text(buf[:pos])
+                self.handle_tag(Tag(self.stream))
+                offset = self.stream.tell()
+            
+        def handle_tag(self, tag):
+            if tag.id in self.tag_map:
+                action = self.tag_map[tag.id]
+                if isinstance(action, basestring):
+                    func, args = action, tuple([])  
+                else:
+                    func, args = action[0], (action[1],)
+                getattr(self, func)(tag, *args)
+            elif tag.id in TextAttr.tag_map:
+                h = TextAttr.tag_map[tag.id]
+                val = LRFObject.tag_to_val(h, None, tag, self.stream)
+                if self.name == 'Span':
+                    if h[0] not in self.attrs:
+                        self.attrs[h[0]] = val
+                    elif val != self.attrs[h[0]]:
+                        if self._contents: self.parent._contents.append(self)
+                        Text.Content(self.stream, self.objects, self.parent, 
+                                            'Span', {h[0]: val})
+                        
+                        
+                else:
+                    Text.Content(self.stream, self.objects, self, 
+                                        'Span', {h[0]: val})
+                    
+            else:
+                raise LRFParseError('Unknown tag in text stream %s'&(tag,))
+                
+            
+        def simple_container(self, tag, name):
+            cont = Text.Content(self.stream, self.objects, parent=self, name=name)            
+            self._contents.append(cont)
+            
+        def end_container(self, *args):
+            self.in_container = False
+            if self.name == 'Span' and self._contents:
+                self.parent._contents.append(self)
+            
+        def end_to_root(self):
+            parent = self
+            while parent:
+                parent.end_container()
+                parent = parent.parent
+                
+        def root(self):
+            root = self
+            while root.parent:
+                root = root.parent
+            return root
+                
+        def start_para(self, tag):
+            self.end_to_root()
+            root = self.root()
+            root.in_container = True
+            
+            p = Text.Content(self.stream, self.objects, parent=root, name='P')
+            root._contents.append(p)
+            
+        def end_para(self, tag):
+            self.end_to_root()
+            root = self.root()
+            root.in_container = True
+            
+        def cr(self, tag):
+            self._contents.append(Text.Content('', self.objects, parent=self, name='CR'))
+            
+        def char_button(self, tag):
+            self._contents.append(Text.Content(self.stream, self.objects, parent=self, 
+                                    name='CharButton', attrs={'refobj':tag.dword}))
+        
+        def space(self, tag):
+            self._contents.append(Text.Content('', self.objects, parent=self, 
+                                name='Space', attrs={'xsize':tag.sword}))
+            
+        def string(self, tag):
+            strlen = tag.word
+            self.add_text(self.stream.read(strlen))
+            
+        def add_text(self, text):
+            s = unicode(text, "utf-16-le")
+            self._contents.append(s.translate(self.text_map))
+            
+        def plot(self, tag):
+            xsize, ysize, refobj, adjustment = struct.unpack("<HHII", tag.contents)
+            self._contents.append(Text.Content('', self.objects, self, 'Plot',
+                {'xsize': xsize, 'ysize': ysize, 'refobj':refobj, 
+                 'adjustment':self.adjustment_map[adjustment]}))
+                        
+        def draw_char(self, tag):
+            self._contents.append(Text.Content(self.stream, self.objects, self, 
+                                        'DrawChar', {'line':tag.word}))
+            
+        def box(self, tag):
+            self._contents.append(Text.Content(self.stream, self.objects, self, 
+                                        'Box', {'linetype':self.linetype_map[tag.word]}))
+            
+        def __iter__(self):
+            for i in self._contents:
+                yield i
+            
+        def __unicode__(self):
+            if self.name == 'CR': return u'<CR/>'
+            s = u''
+            if self.name is not None:
+                s += u'<'+self.name+u' '
+                for attr in self.attrs:
+                    s += u'%s="%s" '%(attr, self.attrs[attr])
+                s = s.rstrip() + u'>'
+            for i in self:
+                s += unicode(i)
+            if self.name is not None:
+                s += u'</%s>'%(self.name,)
+                if self.name in ['P', "CR"]:
+                    s += '\n'
+            return s
+        
+        def __str__(self):
+            return unicode(self)
+    
+    def initialize(self):
+        self.content = Text.Content(self.stream, self._document.objects)
+                
+    def __iter__(self):
+        for i in self.content:
+            yield i
+        
+    def __str__(self):
+        return unicode(self.content)
 
 
 class Image(LRFObject):
     tag_map = {
         0xF54A: ['', 'parse_image_rect'],
         0xF54B: ['', 'parse_image_size'],
-        0xF54C: ['ref_object_id', 'D'],      #imagestream or import
+        0xF54C: ['refstream', 'D'],      
         0xF555: ['comment', 'P'],
       }
     
     def parse_image_rect(self, tag, f):
-        self.image_rect = struct.unpack("<HHHH", tag.contents)
+        self.x0, self.y0, self.x1, self.y1 = struct.unpack("<HHHH", tag.contents)
         
     def parse_image_size(self, tag, f):
-        self.image_size = struct.unpack("<HH", tag.contents)
+        self.xsize, self.ysize = struct.unpack("<HH", tag.contents)
+        
+    @apply
+    def encoding():
+        def fget(self):
+            return self._document.objects[self.refstream].encoding
+        return property(fget=fget)
+    
+    @apply
+    def data():
+        def fget(self):
+            return self._document.objects[self.refstream].stream
+        return property(fget=fget)
+    
+    def __unicode__(self):
+        return u'<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
+        (self.id, self.x0, self.y0, self.x1, self.y1, self.xsize, self.ysize, self.refstream)
+
+class PutObj(EmptyPageElement):
+    
+    def __init__(self, x, y, refobj):
+        self.x, self.y, self.refobj = x, y, refobj
+        
+    def __unicode__(self):
+        return u'<PutObj x="%d" y="%d" refobj="%d" />'%(self.x, self.y, self.refobj)
 
 class Canvas(LRFStream):
     tag_map = {
         0xF551: ['canvaswidth', 'W'],
         0xF552: ['canvasheight', 'W'],
         0xF5DA: ['', 'parse_waits'],
+        0xF533: ['blockrule', 'W', {0x44: "block-fixed", 0x22: "block-adjustable"}],
+        0xF534: ['bgcolor', 'D', Color],
+        0xF535: ['layout', 'W', {0x41: 'TbRl', 0x34: 'LrTb'}],
+        0xF536: ['framewidth', 'W'],
+        0xF537: ['framecolor', 'D', Color],
+        0xF52E: ['framemode', 'W', {0: 'none', 2: 'curve', 1:'square'}],
       }
-    tag_map.update(BlockAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
+    extra_attrs = ['canvaswidth', 'canvasheight', 'blockrule', 'layout', 
+                   'framewidth', 'framecolor', 'framemode']
     
     def parse_waits(self, tag, f):
         val = tag.word
         self.setwaitprop = val&0xF
         self.setwaitsync = val&0xF0
+        
+    def initialize(self):
+        self.attrs = {}
+        for attr in self.extra_attrs:
+            if hasattr(self, attr):
+                self.attrs[attr] = getattr(self, attr)
+        self._contents = []
+        stream = cStringIO.StringIO(self.stream)
+        while stream.tell() < len(self.stream):
+            tag = Tag(stream)
+            self._contents.append(PutObj(*struct.unpack("<HHI", tag.contents)))
+            
+    def __unicode__(self):
+        s = '\n<%s objid="%s" '%(self.__class__.__name__, self.id,)
+        for attr in self.attrs:
+            s += '%s="%s" '%(attr, self.attrs[attr])
+        s = s.rstrip() + '>\n'
+        for po in self:
+            s += unicode(po) + '\n'
+        s += '</%s>\n'%(self.__class__.__name__,)
+        return s
+    
+    def __iter__(self):
+        for i in self._contents:
+            yield i
+        
+class Header(Canvas):
+    pass
+
+class Footer(Canvas):
+    pass
+
 
 class ESound(LRFObject):
     pass
@@ -273,9 +821,26 @@ class ImageStream(LRFStream):
     tag_map = {
         0xF555: ['comment', 'P'],
       }
+    imgext = {0x11: 'jpeg', 0x12: 'png', 0x13: 'bmp', 0x14: 'gif'}
+    
     tag_map.update(LRFStream.tag_map)
+    
+    @apply
+    def encoding():
+        def fget(self):
+            return self.imgext[self.stream_flags & 0xFF].upper()
+        return property(fget=fget)
+    
+    def end_stream(self, *args):
+        LRFStream.end_stream(self, *args)
+        self.file = str(self.id) + '.' + self.encoding.lower()
+        self._document.image_map[self.id] = self
+        
+    def __unicode__(self):
+        return u'<ImageStream objid="%s" encoding="%s" file="%s" />\n'%\
+            (self.id, self.encoding, self.file)
 
-class Import(LRFObject):
+class Import(LRFStream):
     pass
 
 class Button(LRFObject):
@@ -300,12 +865,12 @@ class Button(LRFObject):
       }
     tag_map.update(LRFObject.tag_map)
     
-    def __init__(self, stream, id, scramble_key, boundary):
+    def __init__(self, document, stream, id, scramble_key, boundary):
         self.xml = u''
         self.refimage = {}
         self.actions = {}
         self.to_dump = True
-        LRFObject.__init__(self, stream, id, scramble_key, boundary)
+        LRFObject.__init__(self, document, stream, id, scramble_key, boundary)
     
     def do_ref_image(self, tag, f):
         self.refimage[self.button_yype] = tag.dword
@@ -341,6 +906,38 @@ class Button(LRFObject):
     
     def parse_run(self, tag, f):
         self.actions[self.button_type].append((5, struct.unpack("<HI", tag.contents)))
+        
+    def jump_action(self, button_type):
+        for i in self.actions[button_type]:
+            if i[0] == 1:
+                return i[1:][0]
+    
+    def __unicode__(self):
+        s = u'<Button objid="%s">\n'%(self.id,)
+        if self.button_flags & 0x10 != 0:
+            s += '<PushButton '
+            if 2 in self.refimage:
+                s += 'refimage="%s" '%(self.refimage[2],)
+            s = s.rstrip() + '>\n'
+            s += '<JumpTo refpage="%s" refobj="%s" />\n'% self.jump_action(2)
+            s += '</PushButton>\n'
+        else:
+            raise LRFParseError('Unsupported button type')
+        s += '</Button>\n'
+        return s
+    
+    @apply
+    def refpage():
+        def fget(self):
+            return self.jump_action(2)[0]
+        return property(fget=fget)
+    
+    @apply
+    def refobject():
+        def fget(self):
+            return self.jump_action(2)[1]
+        return property(fget=fget)
+
 
 class Window(LRFObject):
     pass
@@ -356,35 +953,87 @@ class SoundStream(LRFObject):
 
 class Font(LRFStream):
     tag_map = {
-        0xF559: ['fontFilename', 'P'],
-        0xF55D: ['fontFacename', 'P'],
+        0xF559: ['fontfilename', 'P'],
+        0xF55D: ['fontfacename', 'P'],
       }
     tag_map.update(LRFStream.tag_map)
+    
+    def end_stream(self, *args):
+        LRFStream.end_stream(self, *args)
+        self._document.font_map[self.fontfacename] = self
+        self.file = self.fontfacename + '.ttf'
+    
+    def __unicode__(self):
+        s = '<RegistFont objid="%s" fontfilename="%s" fontfacename="%s" encoding="TTF" file="%s" />\n'%\
+            (self.id, self.fontfilename, self.fontfacename, self.file)
+        return s
 
 class ObjectInfo(LRFObject):
     pass
 
 
-class BookAttr(LRFObject):
+class BookAttr(StyleObject, LRFObject):
     tag_map = {
-        0xF57B: ['pageTreeId', 'D'],
+        0xF57B: ['page_tree_id', 'D'],
         0xF5D8: ['', 'add_font'],
         0xF5DA: ['setwaitprop', 'W', {1: 'replay', 2: 'noreplay'}],
       }
     tag_map.update(LRFObject.tag_map)
+    binding_map = {1: 'Lr', 16 : 'Rl'}
     
-    def __init__(self, stream, id, scramble_key, boundary):
+    def __init__(self, document, stream, id, scramble_key, boundary):
         self.font_link_list = []
-        LRFObject.__init__(self, stream, id, scramble_key, boundary)
+        LRFObject.__init__(self, document, stream, id, scramble_key, boundary)
         
     def add_font(self, tag, f):
         self.font_link_list.append(tag.dword)
+        
+    def __unicode__(self):
+        s = u'<BookStyle objid="%s" stylelabel="%s">\n'%(self.id, self.id)
+        doc = self._document
+        s += u'<BookSetting bindingdirection="%s" dpi="%s" screenwidth="%s" screenheight="%s" colordepth="%s" />\n'%\
+        (self.binding_map[doc.binding], doc.dpi, doc.width, doc.height, doc.color_depth) 
+        for font in self._document.font_map.values():
+            s += unicode(font)
+        s += '</BookStyle>\n'
+        return s
 
-class SimpleText(LRFObject):
+class SimpleText(Text):
     pass
+
+class TocLabel(object):
+    
+    def __init__(self, refpage, refobject, label):
+        self.refpage, self.refobject, self.label = refpage, refobject, label
+        
+    def __unicode__(self):
+        return u'<TocLabel refpage="%s" refobj="%s">%s</TocLabel>\n'%(self.refpage, self.refobject, self.label)
 
 class TOCObject(LRFStream):
-    pass
+    
+    def initialize(self):
+        stream = cStringIO.StringIO(self.stream)
+        c = struct.unpack("<H", stream.read(2))[0]
+        stream.seek(4*(c+1))
+        self._contents = []
+        while c > 0:
+            refpage = struct.unpack("<I", stream.read(4))[0]
+            refobj  = struct.unpack("<I", stream.read(4))[0]
+            cnt = struct.unpack("<H", stream.read(2))[0]
+            label = unicode(stream.read(cnt), "utf_16")
+            self._contents.append(TocLabel(refpage, refobj, label))
+            c -= 1
+            
+    def __iter__(self):
+        for i in self._contents:
+            yield i
+        
+    def __unicode__(self):
+        s = u'<TOC>\n'
+        for i in self:
+            s += unicode(i)
+        return s + '</TOC>\n'
+            
 
 object_map = [
     None,       #00
@@ -421,14 +1070,14 @@ object_map = [
 ]
 
 
-def get_object(stream, id, offset, size, scramble_key):
+def get_object(document, stream, id, offset, size, scramble_key):
     stream.seek(offset)
     start_tag = Tag(stream)
     if start_tag.id != 0xF500:
         raise LRFParseError('Bad object start')
     obj_id, obj_type = struct.unpack("<IH", start_tag.contents)
     if obj_type < len(object_map) and object_map[obj_type] is not None:
-        return object_map[obj_type](stream, obj_id, scramble_key, offset+size-8)
+        return object_map[obj_type](document, stream, obj_id, scramble_key, offset+size-Tag.tags[0][0])
     
     raise LRFParseError("Unknown object type: %02X!" % obj_type)
 

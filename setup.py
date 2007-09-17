@@ -33,7 +33,7 @@ entry_points = {
                              'web2lrf  = libprs500.ebooks.lrf.web.convert_from:main',\
                              'pdf2lrf  = libprs500.ebooks.lrf.pdf.convert_from:main',\
                              'any2lrf  = libprs500.ebooks.lrf.any.convert_from:main',\
-                             'lrf2lrs  = libprs500.ebooks.lrf.lrs.convert_to:main',\
+                             'lrf2lrs  = libprs500.ebooks.lrf.parser:main',\
                              'libprs500-beta = libprs500.gui2.main:main',\
                            ], 
         'gui_scripts'    : [ APPNAME+' = libprs500.gui.main:main']
