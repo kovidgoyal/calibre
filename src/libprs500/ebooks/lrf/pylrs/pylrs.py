@@ -1654,7 +1654,10 @@ class Text(LrsContainer):
 
     def toLrfContainer(self, lrfWriter, parent):
         if self.text:
-            parent.appendLrfTag(LrfTag("rawtext", self.text))
+            if isinstance(self.text, str):
+                parent.appendLrfTag(LrfTag("rawtext", self.text))
+            else:
+                parent.appendLrfTag(LrfTag("textstring", self.text))
 
 
 class CR(LrsSimpleChar1, LrsContainer):
