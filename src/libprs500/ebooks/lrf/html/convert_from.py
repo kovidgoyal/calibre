@@ -1466,10 +1466,10 @@ def process_file(path, options, logger=None):
         if options.header:
             header = Paragraph()            
             fheader = options.headerformat
-            fheader = re.sub(r'([^%]|^)%t','\1' + options.title, fheader)
-            fheader = re.sub(r'([^%]|^)%a','\1' + options.author, fheader)
+            fheader = re.sub(r'([^%]|^)%t', r'\1' + options.title, fheader)
+            fheader = re.sub(r'([^%]|^)%a', r'\1' + options.author, fheader)
             fheader = re.sub(r'%%a','%a',fheader)
-            fheader = re.sub(r'%%t','%t',fheader)                
+            fheader = re.sub(r'%%t','%t',fheader)
             header.append(fheader + "  ")            
         book, fonts = Book(options, logger, header=header, **args)
         le = re.compile(options.link_exclude) if options.link_exclude else \
