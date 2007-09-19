@@ -18,7 +18,9 @@ from PyQt4.QtCore import QVariant, QSettings, QFileInfo, QObject, SIGNAL, QBuffe
                          QByteArray
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView
-from libprs500 import __appname__ as APP_TITLE
+
+ORG_NAME = 'KovidsBrain'
+APP_UID  = 'libprs500'
 from libprs500 import __author__, islinux
 NONE = QVariant() #: Null value to return from the data function of item models
 

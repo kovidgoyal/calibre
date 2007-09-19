@@ -12,8 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.ebooks.lrf.fonts.prs500 import tt0419m_
-from libprs500.ebooks.lrf.fonts.prs500 import tt0011m_
 import sys, os
 from libprs500 import iswindows
 from libprs500.ptempfile import PersistentTemporaryFile

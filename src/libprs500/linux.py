@@ -73,7 +73,7 @@ def setup_completion():
         from libprs500.ebooks.lrf.html.convert_from import option_parser as htmlop
         from libprs500.ebooks.lrf.txt.convert_from import option_parser as txtop
         from libprs500.ebooks.lrf.meta import option_parser as metaop
-        from libprs500.ebooks.lrf.lrs.convert_to import option_parser as lrf2lrsop
+        from libprs500.ebooks.lrf.parser import option_parser as lrf2lrsop
         f = open('/etc/bash_completion.d/libprs500', 'wb')
         f.write('# libprs500 Bash Shell Completion\n')
         f.write(opts_and_exts('html2lrf', htmlop, 
@@ -171,10 +171,11 @@ complete -o nospace  -F _prs500 prs500
 def setup_udev_rules():
     print 'Trying to setup udev rules...',
     sys.stdout.flush()
+    groups = open('/etc/group', 'rb').read()
+    group = 'plugdev' if 'plugdev' in groups else 'usb'
     udev = open('/etc/udev/rules.d/95-libprs500.rules', 'w')
     udev.write('''# Sony Reader PRS-500\n'''
-             '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="plugdev"\n'''
-             '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="usb"\n'''
+             '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
              )
     udev.close()
     try:
@@ -185,7 +186,7 @@ def setup_udev_rules():
             check_call('/etc/init.d/udev reload', shell=True)
             print 'success'
         except:
-          print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
+            print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
 
 def post_install():
     if os.geteuid() != 0:

@@ -293,8 +293,8 @@ def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com
                       default='.', type='string', dest='dir')
     parser.add_option('-t', '--timeout', help='Timeout in seconds to wait for a response from the server. Default: %default s',
                       default=10, type='int', dest='timeout')
-    parser.add_option('-r', '--max-recursions', help='Maximum number of levels to recurse i.e. depth of links to follow. Default %default',
-                      default=1, type='int', dest='max_recursions')
+    parser.add_option('-r', '--max-recursions', default=1, help='Maximum number of levels to recurse i.e. depth of links to follow. Default %default',
+                      type='int', dest='max_recursions')
     parser.add_option('-n', '--max-files', default=sys.maxint, type='int', dest='max_files',
                       help='The maximum number of files to download. This only applies to files from <a href> tags. Default is %default')
     parser.add_option('--delay', default=0, dest='delay', type='int',

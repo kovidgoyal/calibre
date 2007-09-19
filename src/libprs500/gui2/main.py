@@ -12,7 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-from libprs500.gui2.dialogs.password import PasswordDialog
 import os, sys, traceback, StringIO, textwrap
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
@@ -28,9 +27,9 @@ from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
 from libprs500.ebooks.lrf.any.convert_from import main as any2lrf
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
-from libprs500.gui2 import APP_TITLE, warning_dialog, choose_files, error_dialog, \
+from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, BOOK_EXTENSIONS, \
-                           pixmap_to_data, choose_dir
+                           pixmap_to_data, choose_dir, ORG_NAME
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
@@ -40,7 +39,7 @@ from libprs500.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from libprs500.gui2.dialogs.jobs import JobsDialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog 
 from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
-
+from libprs500.gui2.dialogs.password import PasswordDialog
 
 class Main(QObject, Ui_MainWindow):
     
@@ -671,9 +670,6 @@ class Main(QObject, Ui_MainWindow):
         traceback.print_exception(type, value, tb, file=sio)
         fe = sio.getvalue()
         print >>sys.stderr, fe
-        if type == KeyboardInterrupt:
-            self.window.close()
-            self.window.thread().exit(0)
         msg = '<p><b>' + unicode(str(value), 'utf8', 'replace') + '</b></p>'
         msg += '<p>Detailed <b>traceback</b>:<pre>'+fe+'</pre>'
         d = ConversionErrorDialog(self.window, 'ERROR: Unhandled exception', msg)
@@ -685,13 +681,13 @@ def main(args=sys.argv):
     if pid <= 0:
         app = QApplication(args)    
         window = QMainWindow()
-        window.setWindowTitle(APP_TITLE)
-        QCoreApplication.setOrganizationName("KovidsBrain")
-        QCoreApplication.setApplicationName(APP_TITLE)
-        
+        window.setWindowTitle(__appname__)
+        QCoreApplication.setOrganizationName(ORG_NAME)
+        QCoreApplication.setApplicationName(APP_UID)
         initialize_file_icon_provider()
         main = Main(window)
-        sys.excepthook = main.unhandled_exception    
+        sys.excepthook = main.unhandled_exception
+        QObject.connect(app, SIGNAL('lastWindowClosed()'), app.quit)    
         return app.exec_()
     return 0
     

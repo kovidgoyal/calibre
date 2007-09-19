@@ -1151,11 +1151,11 @@ class TextStyle(LrsStyle):
             fontfacename="Dutch801 Rm BT Roman",
             textcolor="0x00000000", wordspace="25", letterspace="0",
             baselineskip="120", linespace="10", parindent="0", parskip="0",
-            textbgcolor="0xFF000000", emplinetype="solid", emplineposition="after")
+            textbgcolor="0xFF000000")
 
     alsoAllow = ["empdotscode", "empdotsfontname", "refempdotsfont",
                  "rubyadjust", "rubyalign", "rubyoverhang",
-                 "empdotsposition"]
+                 "empdotsposition", 'emplinetype', 'emplineposition']
 
     validSettings = baseDefaults.keys() + alsoAllow
 
