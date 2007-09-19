@@ -14,6 +14,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.ebooks.lrf.pylrs.pylrs import EmpLine
 """ 
 Code to convert HTML ebooks into LRF ebooks.
 
@@ -127,7 +128,8 @@ class HTMLConverter(object):
            'center' : {'text-align'  : 'center'},
            'th'     : {'font-size'   : 'large', 'font-weight':'bold'},
            'big'    : {'font-size'   : 'large', 'font-weight':'bold'},
-           '.libprs500_dropcaps' : {'font-size': 'xx-large'}, 
+           '.libprs500_dropcaps' : {'font-size': 'xx-large'},
+           'u'      : {'text-decoration': 'underline'}, 
            }
     
     def __init__(self, book, fonts, options, logger, path):
@@ -635,6 +637,11 @@ class HTMLConverter(object):
             for prop in unneeded:
                 fp.pop(prop)
             elem = Span(text=src, **fp) if (fp or force_span_use) else src
+            if css.has_key('text-decoration'):
+                dec = css['text-decoration'].lower()
+                linepos = 'after' if dec == 'underline' else 'before' if dec == 'overline' else None
+                if linepos is not None:
+                    elem = EmpLine(elem, lineposition=linepos)
             self.current_para.append(elem)
         
         

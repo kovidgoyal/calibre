@@ -102,8 +102,7 @@ def writeIdList(f, idList):
 
 def writeColor(f, color):
     # TODO: allow color names, web format
-    color = int(color, 0)
-    f.write(struct.pack(">I", color))
+    f.write(struct.pack(">I", int(color, 0)))
 
 def writeLineWidth(f, width):
     writeWord(f, int(width)//5)
@@ -147,7 +146,7 @@ def writeRuledLine(f, lineInfo):
     writeWord(f, LINE_TYPE_ENCODING[lineType])
     writeWord(f, lineWidth)
     writeColor(f, lineColor)
-
+    
 
 LRF_SIGNATURE = "L\x00R\x00F\x00\x00\x00"
 

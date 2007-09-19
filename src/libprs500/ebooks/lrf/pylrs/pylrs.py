@@ -525,15 +525,17 @@ class Book(Delegator):
         method(content)
 
 
-    def renderLrs(self, lrsFilename):
-        lrsFile = codecs.open(lrsFilename, "wb", encoding="utf-16")
+    def renderLrs(self, lrsFile):
+        if isinstance(lrsFile, basestring): 
+            lrsFile = codecs.open(lrsFile, "wb", encoding="utf-16")
         self.render(lrsFile)
         lrsFile.close()
 
 
-    def renderLrf(self, lrfFilename):
+    def renderLrf(self, lrfFile):
         self.appendReferencedObjects(self)
-        lrfFile = file(lrfFilename, "wb")
+        if isinstance(lrfFile, basestring):
+            lrfFile = file(lrfFile, "wb")
         lrfWriter = LrfWriter(self.sourceencoding)
 
         lrfWriter.optimizeTags = self.optimizeTags
@@ -1045,7 +1047,7 @@ class StyleDefault(LrsAttributes):
     defaults = dict(rubyalign="start", rubyadjust="none", 
                 rubyoverhang="none", empdotsposition="before",
                 empdotsfontname="Dutch801 Rm BT Roman",
-                empdotscode="0x002e", emplineposition="before",
+                empdotscode="0x002e", emplineposition="after",
                 emplinetype = "solid", setwaitprop="noreplay")
 
     alsoAllow = ["refempdotsfont"]
@@ -1143,17 +1145,17 @@ class TextStyle(LrsStyle):
     """
     baseDefaults = dict(
             columnsep="0", charspace="0",
-            textlinewidth="0", align="head", linecolor="0x00000000",
+            textlinewidth="10", align="head", linecolor="0x00000000",
             column="1", fontsize="100", fontwidth="-10", fontescapement="0",
             fontorientation="0", fontweight="400",
             fontfacename="Dutch801 Rm BT Roman",
             textcolor="0x00000000", wordspace="25", letterspace="0",
             baselineskip="120", linespace="10", parindent="0", parskip="0",
-            textbgcolor="0xFF000000")
+            textbgcolor="0xFF000000", emplinetype="solid", emplineposition="after")
 
     alsoAllow = ["empdotscode", "empdotsfontname", "refempdotsfont",
                  "rubyadjust", "rubyalign", "rubyoverhang",
-                 "empdotsposition", "emplineposition", "emplinetype"]
+                 "empdotsposition"]
 
     validSettings = baseDefaults.keys() + alsoAllow
 
@@ -1682,9 +1684,6 @@ class Italic(LrsSimpleChar1, LrsTextTag):
     def __init__(self, text=None):
         LrsTextTag.__init__(self, text, [LrsSimpleChar1])
 
-
-
-
 class Sub(LrsSimpleChar1, LrsTextTag):
     def __init__(self, text=None):
         LrsTextTag.__init__(self, text, [])
@@ -1797,13 +1796,43 @@ class Span(LrsSimpleChar1, LrsContainer):
 
 
     def toElement(self, se):
-        element = Element("Span")
+        element = Element('Span')
         for (key, value) in self.attrs.items():
             element.set(key, str(value))
 
         appendTextElements(element, self.contents, se)
         return element
 
+class EmpLine(LrsTextTag, LrsSimpleChar1):
+    linetypes = ['none', 'solid', 'dotted', 'dashed', 'double']
+    linepositions = ['before', 'after']
+    
+    def __init__(self, text=None, lineposition='before', linetype='solid'):
+        LrsTextTag.__init__(self, text, [LrsSimpleChar1])
+        if lineposition not in self.__class__.linepositions:
+            raise LrsError('lineposition for an EmpLine must be one of: '+str(self.__class__.linepositions))
+        if linetype not in self.__class__.linetypes:
+            raise LrsError('linetype for an EmpLine must be one of: '+str(self.__class__.linetypes))
+        
+        self.emplinetype=linetype
+        self.emplineposition=lineposition
+        
+    def toLrfContainer(self, lrfWriter, parent):
+        parent.appendLrfTag(LrfTag(self.__class__.__name__, (self.emplineposition, self.emplinetype)))
+        parent.appendLrfTag(LrfTag('emplineposition', self.emplineposition))
+        parent.appendLrfTag(LrfTag('emplinetype', self.emplinetype))
+        for content in self.contents:
+            content.toLrfContainer(lrfWriter, parent)
+
+        parent.appendLrfTag(LrfTag(self.__class__.__name__ + "End"))
+        
+    def toElement(self, se):
+        element = Element(self.__class__.__name__)
+        element.set('emplineposition', self.emplineposition)
+        element.set('emplinetype', self.emplinetype)
+
+        appendTextElements(element, self.contents, se)
+        return element
 
 class Bold(Span):
     """ 
