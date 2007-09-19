@@ -20,23 +20,23 @@ from libprs500 import __appname__ as APPNAME
 
 entry_points = {
         'console_scripts': [ \
-                             'prs500   = libprs500.devices.prs500.cli.main:main', \
-                             'lrf-meta = libprs500.ebooks.lrf.meta:main', \
-                             'rtf-meta = libprs500.ebooks.metadata.rtf:main', \
-                             'pdf-meta = libprs500.ebooks.metadata.pdf:main', \
-                             'txt2lrf  = libprs500.ebooks.lrf.txt.convert_from:main', \
-                             'html2lrf = libprs500.ebooks.lrf.html.convert_from:main',\
-                             'markdown = libprs500.ebooks.markdown.markdown:main',\
-                             'lit2lrf  = libprs500.ebooks.lrf.lit.convert_from:main',\
-                             'rtf2lrf  = libprs500.ebooks.lrf.rtf.convert_from:main',\
-                             'web2disk = libprs500.web.fetch.simple:main',\
-                             'web2lrf  = libprs500.ebooks.lrf.web.convert_from:main',\
-                             'pdf2lrf  = libprs500.ebooks.lrf.pdf.convert_from:main',\
-                             'any2lrf  = libprs500.ebooks.lrf.any.convert_from:main',\
-                             'lrf2lrs  = libprs500.ebooks.lrf.parser:main',\
-                             'libprs500-beta = libprs500.gui2.main:main',\
+                             'prs500    = libprs500.devices.prs500.cli.main:main', 
+                             'lrf-meta  = libprs500.ebooks.lrf.meta:main', 
+                             'rtf-meta  = libprs500.ebooks.metadata.rtf:main', 
+                             'pdf-meta  = libprs500.ebooks.metadata.pdf:main', 
+                             'txt2lrf   = libprs500.ebooks.lrf.txt.convert_from:main', 
+                             'html2lrf  = libprs500.ebooks.lrf.html.convert_from:main',
+                             'markdown  = libprs500.ebooks.markdown.markdown:main',
+                             'lit2lrf   = libprs500.ebooks.lrf.lit.convert_from:main',
+                             'rtf2lrf   = libprs500.ebooks.lrf.rtf.convert_from:main',
+                             'web2disk  = libprs500.web.fetch.simple:main',
+                             'web2lrf   = libprs500.ebooks.lrf.web.convert_from:main',
+                             'pdf2lrf   = libprs500.ebooks.lrf.pdf.convert_from:main',
+                             'any2lrf   = libprs500.ebooks.lrf.any.convert_from:main',
+                             'lrf2lrs   = libprs500.ebooks.lrf.parser:main',
+                             'lrfviewer = libprs500.gui2.lrf_renderer.main:main',
                            ], 
-        'gui_scripts'    : [ APPNAME+' = libprs500.gui.main:main']
+        'gui_scripts'    : [ APPNAME+' = libprs500.gui2.main:main']
       }
 
 def _ep_to_script(ep, base='src'):

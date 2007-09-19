@@ -19,10 +19,12 @@ import sys, array, os, re, codecs, logging
 from libprs500 import __author__, __appname__, __version__, setup_cli_handlers 
 from libprs500.ebooks.lrf.meta import LRFMetaFile
 from libprs500.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
-                                         Font, Text, TOCObject
+                                         Font, Text, TOCObject, BookAttr, ruby_tags
                                          
 
 class LRFDocument(LRFMetaFile):
+    
+    class temp(object): pass
     
     def __init__(self, stream):
         LRFMetaFile.__init__(self, stream)
@@ -32,6 +34,17 @@ class LRFDocument(LRFMetaFile):
         self.image_map = {}
         self._parse_objects()
         self.toc = None
+        self.metadata = LRFDocument.temp()
+        for a in ('title', 'title_reading', 'author', 'author_reading', 'book_id', 
+                  'classification', 'free_text', 'publisher', 'label', 'category'):
+            setattr(self.metadata, a, getattr(self, a))
+        self.doc_info = LRFDocument.temp()
+        for a in ('thumbnail', 'language', 'creator', 'producer', 'page'):
+            setattr(self.doc_info, a, getattr(self, a))
+        self.doc_info.thumbnail_extension = self.thumbail_extension()
+        self.device_info = LRFDocument.temp()
+        for a in ('dpi', 'width', 'height'):
+            setattr(self.device_info, a, getattr(self, a))
         
     def _parse_objects(self):
         self.objects = {}
@@ -53,6 +66,12 @@ class LRFDocument(LRFMetaFile):
             self.page_trees.append(obj)
         elif isinstance(obj, TOCObject):
             self.toc = obj
+        elif isinstance(obj, BookAttr):
+            self.ruby_tags = {}
+            for h in ruby_tags.values():
+                attr = h[0]
+                if hasattr(obj, attr):
+                    self.ruby_tags[attr] = getattr(obj, attr)
     
     def __iter__(self):
         for pt in self.page_trees:
@@ -64,22 +83,22 @@ class LRFDocument(LRFMetaFile):
         
     def to_xml(self):
         bookinfo = u'<BookInformation>\n<Info version="1.1">\n<BookInfo>\n'
-        bookinfo += u'<Title reading="%s">%s</Title>\n'%(self.title_reading, self.title)
-        bookinfo += u'<Author reading="%s">%s</Author>\n'%(self.author_reading, self.author)
-        bookinfo += u'<BookID>%s</BookID>\n'%(self.book_id,)
-        bookinfo += u'<Publisher reading="">%s</Publisher>\n'%(self.publisher,)
-        bookinfo += u'<Label reading="">%s</Label>\n'%(self.label,)
-        bookinfo += u'<Category reading="">%s</Category>\n'%(self.category,)
-        bookinfo += u'<Classification reading="">%s</Classification>\n'%(self.classification,)
-        bookinfo += u'<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.free_text,)
-        th = self.thumbnail
+        bookinfo += u'<Title reading="%s">%s</Title>\n'%(self.metadata.title_reading, self.metadata.title)
+        bookinfo += u'<Author reading="%s">%s</Author>\n'%(self.metadata.author_reading, self.metadata.author)
+        bookinfo += u'<BookID>%s</BookID>\n'%(self.metadata.book_id,)
+        bookinfo += u'<Publisher reading="">%s</Publisher>\n'%(self.metadata.publisher,)
+        bookinfo += u'<Label reading="">%s</Label>\n'%(self.metadata.label,)
+        bookinfo += u'<Category reading="">%s</Category>\n'%(self.metadata.category,)
+        bookinfo += u'<Classification reading="">%s</Classification>\n'%(self.metadata.classification,)
+        bookinfo += u'<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
+        th = self.doc_info.thumbnail
         if th:
-            bookinfo += u'<CThumbnail file="%s" />\n'%(self.title+'_thumbnail.'+self.thumbail_extension(),)
-            open(self.title+'_thumbnail.'+self.thumbail_extension(), 'wb').write(th)
-        bookinfo += u'<Language reading="">%s</Language>\n'%(self.language,)
-        bookinfo += u'<Creator reading="">%s</Creator>\n'%(self.creator,)
-        bookinfo += u'<Producer reading="">%s</Producer>\n'%(self.producer,)
-        bookinfo += u'<SumPage>%s</SumPage>\n</DocInfo>\n</Info>\n</BookInformation>\n'%(self.page,)
+            bookinfo += u'<CThumbnail file="%s" />\n'%(self.metadata.title+'_thumbnail.'+self.doc_info.thumbail_extension(),)
+            open(self.metadata.title+'_thumbnail.'+self.doc_info.thumbail_extension(), 'wb').write(th)
+        bookinfo += u'<Language reading="">%s</Language>\n'%(self.doc_info.language,)
+        bookinfo += u'<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
+        bookinfo += u'<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)
+        bookinfo += u'<SumPage>%s</SumPage>\n</DocInfo>\n</Info>\n</BookInformation>\n'%(self.doc_info.page,)
         pages = u''
         done_main = False
         pt_id = -1
@@ -112,13 +131,16 @@ class LRFDocument(LRFMetaFile):
         self.write_files()
         return '<BBeBXylog version="1.0">\n' + bookinfo + pages + styles + objects + '</BBeBXylog>'
         
-    
-def main(args=sys.argv, logger=None):
+def option_parser():
     from optparse import OptionParser
     parser = OptionParser(usage='%prog book.lrf', epilog='Created by '+__author__,
                           version=__appname__ + ' ' + __version__)
     parser.add_option('--output', '-o', default=None, help='Output LRS file', dest='out')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
+    return parser
+    
+def main(args=sys.argv, logger=None):
+    parser = option_parser()
     opts, args = parser.parse_args(args)
     if logger is None:
         level = logging.DEBUG if opts.verbose else logging.INFO

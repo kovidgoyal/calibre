@@ -17,21 +17,21 @@ import struct, array, zlib, cStringIO
 from libprs500.ebooks.lrf import LRFParseError
 from libprs500.ebooks.lrf.tags import Tag
 
-class LRFObject(object):
-    
-    tag_map = {
-        0xF500: ['', ''],
-        0xF502: ['infoLink', 'D'],
-        0xF501: ['', ''],
-        
-        # Ruby tags
+ruby_tags = {
         0xF575: ['rubyAlignAndAdjust', 'W'],
         0xF576: ['rubyoverhang', 'W', {0: 'none', 1:'auto'}],
         0xF577: ['empdotsposition', 'W', {1: 'before', 2:'after'}],
         0xF578: ['','parse_empdots'],
         0xF579: ['emplineposition', 'W', {1: 'before', 2:'after'}],
         0xF57A: ['emplinetype', 'W', {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}]
+}
 
+class LRFObject(object):
+    
+    tag_map = {
+        0xF500: ['', ''],
+        0xF502: ['infoLink', 'D'],
+        0xF501: ['', ''],
     }
     
     @classmethod
@@ -99,7 +99,7 @@ class LRFObject(object):
         return unicode(self.__class__.__name__)
         
     def __str__(self):
-        return unicode(self)
+        return unicode(self).encode('utf-8')
 
 class LRFContentObject(LRFObject):
     
@@ -199,14 +199,27 @@ class PageTree(LRFObject):
 
 class StyleObject(object):
     
-    def __unicode__(self):
-        s = '<%s objid="%s" stylelabel="%s" '%(self.__class__.__name__.replace('Attr', 'Style'), self.id, self.id)
+    def _tags_to_xml(self):
+        s = u''
         for h in self.tag_map.values():
             attr = h[0]
             if hasattr(self, attr):
-                s += '%s="%s" '%(attr, getattr(self, attr))
-        s += '/>\n'
+                s += u'%s="%s" '%(attr, getattr(self, attr))
         return s
+    
+    def __unicode__(self):
+        s = u'<%s objid="%s" stylelabel="%s" '%(self.__class__.__name__.replace('Attr', 'Style'), self.id, self.id)
+        s += self._tags_to_xml()
+        s += u'/>\n'
+        return s
+    
+    def as_dict(self):
+        d = {}
+        for h in self.tag_map.values():
+            attr = h[0]
+            if hasattr(self, attr):
+                d[attr] = getattr(self, attr)
+        return d
 
 class PageAttr(StyleObject, LRFObject):
     tag_map = {
@@ -234,13 +247,20 @@ class PageAttr(StyleObject, LRFObject):
 
 class Color(object):
     def __init__(self, val):
-        self.b, self.g, self.r, self.a = val & 0xFF, (val>>8)&0xFF, (val>>16)&0xFF, (val>>24)&0xFF
+        self.a, self.r, self.g, self.b = val & 0xFF, (val>>8)&0xFF, (val>>16)&0xFF, (val>>24)&0xFF
         
     def __unicode__(self):
         return u'0x%02x%02x%02x%02x'%(self.a, self.r, self.g, self.b)
     
     def __str__(self):
         return unicode(self)
+    
+    def __len__(self): 
+        return 4
+    
+    def __getitem__(self, i): # Qt compatible ordering and values
+        return (self.r, self.g, self.b, 0xff-self.a)[i] # In Qt 0xff is opaque while in LRS 0x00 is opaque
+    
 
 class EmptyPageElement(object):
     def __iter__(self):
@@ -310,6 +330,11 @@ class Page(LRFStream):
       }
     tag_map.update(PageAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
+    style = property(fget=lambda self : self._document.objects[self.style_id])
+    evenheader = property(fget=lambda self : self._document.objects[self.style.evenheaderid])
+    evenfooter = property(fget=lambda self : self._document.objects[self.style.evenfooterid])
+    oddheader  = property(fget=lambda self : self._document.objects[self.style.oddheaderid])
+    oddfooter  = property(fget=lambda self : self._document.objects[self.style.oddfooterid])
     
     class Content(LRFContentObject):
         tag_map = {
@@ -372,11 +397,13 @@ class Page(LRFStream):
                     if hasattr(self, 'xspace'): delattr(self, 'xspace')
                     if hasattr(self, 'yspace'): delattr(self, 'yspace')
     
-    @apply
-    def style():
-        def fget(self):
-            return self._document.objects[self.style_id]
-        return property(fget=fget)
+    def header(self, odd):
+        id = self._document.objects[self.style_id].oddheaderid if odd else self._document.objects[self.style_id].evenheaderid
+        return self._document.objects[id]
+    
+    def footer(self, odd):
+        id = self._document.objects[self.style_id].oddfooterid if odd else self._document.objects[self.style_id].evenfooterid
+        return self._document.objects[id]
     
     def initialize(self):
         self.content = Page.Content(self.stream, self._document.objects)
@@ -437,6 +464,7 @@ class TextAttr(StyleObject, LRFObject):
         0xF5F1: ['textlinewidth', 'W'],
         0xF5F2: ['linecolor', 'D', Color],
       }
+    tag_map.update(ruby_tags)
     tag_map.update(LRFObject.tag_map)
 
 
@@ -450,17 +478,8 @@ class Block(LRFStream):
     extra_attrs = [i[0] for i in BlockAttr.tag_map.values()]
     extra_attrs.extend([i[0] for i in TextAttr.tag_map.values()])
     
-    @apply
-    def style():
-        def fget(self):
-            return self._document.objects[self.style_id]
-        return property(fget=fget)
-    
-    @apply
-    def textstyle():
-        def fget(self):
-            return self._document.objects[self.textstyle_id]
-        return property(fget=fget)
+    style = property(fget=lambda self : self._document.objects[self.style_id])
+    textstyle = property(fget=lambda self : self._document.objects[self.textstyle_id])
     
     def initialize(self):
         self.attrs = {}
@@ -527,11 +546,7 @@ class Text(LRFStream):
     tag_map.update(TextAttr.tag_map)
     tag_map.update(LRFStream.tag_map)
     
-    @apply
-    def style():
-        def fget(self):
-            return self._document.objects[self.style_id]
-        return property(fget=fget)
+    style = property(fget=lambda self : self._document.objects[self.style_id])
     
     class Content(LRFContentObject):
         tag_map = {
@@ -561,7 +576,7 @@ class Text(LRFStream):
            0xF5BC: 'end_container',
            0xF5BD: ['simple_container', 'EmpDots'],
            0xF5BE: 'end_container',
-           0xF5C1: ['simple_container', 'EmpLine'],
+           0xF5C1: 'empline',
            0xF5C2: 'end_container',
            0xF5C3: 'draw_char',
            0xF5C4: 'end_container',
@@ -576,6 +591,7 @@ class Text(LRFStream):
         text_map = { 0x22: u'&quot;', 0x26: u'&amp;', 0x27: u'&apos;', 0x3c: u'&lt;', 0x3e: u'&gt;' }
         linetype_map = {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}
         adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
+        lineposition_map = {1:'before', 2:'after'}
         
         def __init__(self, bytes, objects, parent=None, name=None, attrs={}):
             self.parent = parent
@@ -663,6 +679,37 @@ class Text(LRFStream):
             self._contents.append(Text.Content(self.stream, self.objects, parent=self, 
                                     name='CharButton', attrs={'refobj':tag.dword}))
         
+        def empline(self, tag):
+            
+            def invalid(op):
+                self.stream.seek(op)
+                self.simple_container('EmpLine')
+                
+            oldpos = self.stream.tell()
+            try:
+                t = Tag(self.stream)
+                if t.id not in [0xF579, 0xF57A]:
+                    raise LRFParseError
+            except LRFParseError:
+                invalid(oldpos)
+                return
+            h = TextAttr.tag_map[t.id]
+            attrs = {}
+            attrs[h[0]] = TextAttr.tag_to_val(h, None, t, None)
+            oldpos = self.stream.tell() 
+            try:
+                t = Tag(self.stream)
+                if t.id not in [0xF579, 0xF57A]:
+                    raise LRFParseError
+                h = TextAttr.tag_map[t.id]
+                attrs[h[0]] = TextAttr.tag_to_val(h, None, t, None)
+            except LRFParseError:
+                self.stream.seek(oldpos)
+            
+            cont = Text.Content(self.stream, self.objects, parent=self, 
+                                name='EmpLine', attrs=attrs)
+            self._contents.append(cont)
+                    
         def space(self, tag):
             self._contents.append(Text.Content('', self.objects, parent=self, 
                                 name='Space', attrs={'xsize':tag.sword}))
@@ -737,17 +784,9 @@ class Image(LRFObject):
     def parse_image_size(self, tag, f):
         self.xsize, self.ysize = struct.unpack("<HH", tag.contents)
         
-    @apply
-    def encoding():
-        def fget(self):
-            return self._document.objects[self.refstream].encoding
-        return property(fget=fget)
+    encoding = property(fget=lambda self : self._document.objects[self.refstream].encoding)
+    data = property(fget=lambda self : self._document.objects[self.refstream].stream)
     
-    @apply
-    def data():
-        def fget(self):
-            return self._document.objects[self.refstream].stream
-        return property(fget=fget)
     
     def __unicode__(self):
         return u'<Image objid="%s" x0="%d" y0="%d" x1="%d" y1="%d" xsize="%d" ysize="%d" refstream="%d" />\n'%\
@@ -755,8 +794,9 @@ class Image(LRFObject):
 
 class PutObj(EmptyPageElement):
     
-    def __init__(self, x, y, refobj):
+    def __init__(self, objects, x, y, refobj):
         self.x, self.y, self.refobj = x, y, refobj
+        self.object = objects[refobj]
         
     def __unicode__(self):
         return u'<PutObj x="%d" y="%d" refobj="%d" />'%(self.x, self.y, self.refobj)
@@ -791,7 +831,7 @@ class Canvas(LRFStream):
         stream = cStringIO.StringIO(self.stream)
         while stream.tell() < len(self.stream):
             tag = Tag(stream)
-            self._contents.append(PutObj(*struct.unpack("<HHI", tag.contents)))
+            self._contents.append(PutObj(self._document.objects, *struct.unpack("<HHI", tag.contents)))
             
     def __unicode__(self):
         s = '\n<%s objid="%s" '%(self.__class__.__name__, self.id,)
@@ -825,12 +865,8 @@ class ImageStream(LRFStream):
     
     tag_map.update(LRFStream.tag_map)
     
-    @apply
-    def encoding():
-        def fget(self):
-            return self.imgext[self.stream_flags & 0xFF].upper()
-        return property(fget=fget)
-    
+    encoding = property(fget=lambda self : self.imgext[self.stream_flags & 0xFF].upper())
+        
     def end_stream(self, *args):
         LRFStream.end_stream(self, *args)
         self.file = str(self.id) + '.' + self.encoding.lower()
@@ -926,18 +962,9 @@ class Button(LRFObject):
         s += '</Button>\n'
         return s
     
-    @apply
-    def refpage():
-        def fget(self):
-            return self.jump_action(2)[0]
-        return property(fget=fget)
+    refpage = property(fget=lambda self : self.jump_action(2)[0])
+    refobject = property(fget=lambda self : self.jump_action(2)[1])
     
-    @apply
-    def refobject():
-        def fget(self):
-            return self.jump_action(2)[1]
-        return property(fget=fget)
-
 
 class Window(LRFObject):
     pass
@@ -957,6 +984,7 @@ class Font(LRFStream):
         0xF55D: ['fontfacename', 'P'],
       }
     tag_map.update(LRFStream.tag_map)
+    data = property(fget=lambda self: self.stream)
     
     def end_stream(self, *args):
         LRFStream.end_stream(self, *args)
@@ -978,6 +1006,7 @@ class BookAttr(StyleObject, LRFObject):
         0xF5D8: ['', 'add_font'],
         0xF5DA: ['setwaitprop', 'W', {1: 'replay', 2: 'noreplay'}],
       }
+    tag_map.update(ruby_tags)
     tag_map.update(LRFObject.tag_map)
     binding_map = {1: 'Lr', 16 : 'Rl'}
     
@@ -990,6 +1019,7 @@ class BookAttr(StyleObject, LRFObject):
         
     def __unicode__(self):
         s = u'<BookStyle objid="%s" stylelabel="%s">\n'%(self.id, self.id)
+        s += u'<SetDefault %s />\n'%(self._tags_to_xml(),)
         doc = self._document
         s += u'<BookSetting bindingdirection="%s" dpi="%s" screenwidth="%s" screenheight="%s" colordepth="%s" />\n'%\
         (self.binding_map[doc.binding], doc.dpi, doc.width, doc.height, doc.color_depth) 
