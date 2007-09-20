@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''' E-book management software'''
-__version__   = "0.3.110"
+__version__   = "0.4.0"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
@@ -22,12 +22,6 @@ import sys, os, logging, mechanize
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx) 
-
-if iswindows:
-    try:
-        import WmfPlugin
-    except:
-        pass
 
 class CommandLineError(Exception):
     pass

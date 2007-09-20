@@ -234,6 +234,7 @@ class FileDialog(QObject):
                 if os.path.exists(f):
                     self.selected_files.append(f)
             if self.selected_files:
+                self.selected_files = [qstring_to_unicode(q) for q in self.selected_files]
                 settings.setValue(self.dialog_name, QVariant(os.path.dirname(self.selected_files[0])))
             self.accepted = bool(self.selected_files)        
         
