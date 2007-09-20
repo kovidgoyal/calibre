@@ -32,11 +32,14 @@
 Implementation of generic PDF objects (dictionary, number, string, and so on)
 """
 __author__ = "Mathieu Fenniak"
-__author_email__ = "mfenniak@pobox.com"
+__author_email__ = "biziqe@mathieu.fenniak.net"
 
 import re
 from utils import readNonWhitespace, RC4_encrypt
 import filters
+import utils
+import decimal
+import codecs
 
 def readObject(stream, pdf):
     tok = stream.read(1)
@@ -46,7 +49,7 @@ def readObject(stream, pdf):
         return BooleanObject.readFromStream(stream)
     elif tok == '(':
         # string object
-        return StringObject.readFromStream(stream)
+        return readStringFromStream(stream)
     elif tok == '/':
         # name object
         return NameObject.readFromStream(stream)
@@ -63,7 +66,7 @@ def readObject(stream, pdf):
         if peek == '<<':
             return DictionaryObject.readFromStream(stream, pdf)
         else:
-            return StringObject.readHexStringFromStream(stream)
+            return readHexStringFromStream(stream)
     elif tok == '%':
         # comment
         while tok not in ('\r', '\n'):
@@ -94,7 +97,9 @@ class NullObject(PdfObject):
         stream.write("null")
 
     def readFromStream(stream):
-        assert stream.read(4) == "null"
+        nulltxt = stream.read(4)
+        if nulltxt != "null":
+            raise utils.PdfReadError, "error reading null object"
         return NullObject()
     readFromStream = staticmethod(readFromStream)
 
@@ -130,7 +135,9 @@ class ArrayObject(list, PdfObject):
 
     def readFromStream(stream, pdf):
         arr = ArrayObject()
-        assert stream.read(1) == "["
+        tmp = stream.read(1)
+        if tmp != "[":
+            raise utils.PdfReadError, "error reading array"
         while True:
             # skip leading whitespace
             tok = stream.read(1)
@@ -189,18 +196,15 @@ class IndirectObject(PdfObject):
                 break
             generation += tok
         r = stream.read(1)
-        #if r != "R":
-        #    stream.seek(-20, 1)
-        #    print idnum, generation
-        #    print repr(stream.read(40))
-        assert r == "R"
+        if r != "R":
+            raise utils.PdfReadError("error reading indirect object reference")
         return IndirectObject(int(idnum), int(generation), pdf)
     readFromStream = staticmethod(readFromStream)
 
 
-class FloatObject(float, PdfObject):
+class FloatObject(decimal.Decimal, PdfObject):
     def writeToStream(self, stream, encryption_key):
-        stream.write(repr(self))
+        stream.write(str(self))
 
 
 class NumberObject(int, PdfObject):
@@ -225,74 +229,170 @@ class NumberObject(int, PdfObject):
     readFromStream = staticmethod(readFromStream)
 
 
-class StringObject(str, PdfObject):
-    def writeToStream(self, stream, encryption_key):
-        string = self
-        if encryption_key:
-            string = RC4_encrypt(encryption_key, string)
-        stream.write("(")
-        for c in string:
-            if not c.isalnum() and not c.isspace():
-                stream.write("\\%03o" % ord(c))
-            else:
-                stream.write(c)
-        stream.write(")")
+##
+# Given a string (either a "str" or "unicode"), create a ByteStringObject or a
+# TextStringObject to represent the string.
+def createStringObject(string):
+    if isinstance(string, unicode):
+        return TextStringObject(string)
+    elif isinstance(string, str):
+        if string.startswith(codecs.BOM_UTF16_BE):
+            retval = TextStringObject(string.decode("utf-16"))
+            retval.autodetect_utf16 = True
+            return retval
+        else:
+            # This is probably a big performance hit here, but we need to
+            # convert string objects into the text/unicode-aware version if
+            # possible... and the only way to check if that's possible is
+            # to try.  Some strings are strings, some are just byte arrays.
+            try:
+                retval = TextStringObject(decode_pdfdocencoding(string))
+                retval.autodetect_pdfdocencoding = True
+                return retval
+            except UnicodeDecodeError:
+                return ByteStringObject(string)
+    else:
+        raise TypeError("createStringObject should have str or unicode arg")
 
-    def readHexStringFromStream(stream):
-        stream.read(1)
-        txt = ""
-        x = ""
-        while True:
-            tok = readNonWhitespace(stream)
-            if tok == ">":
-                break
-            x += tok
-            if len(x) == 2:
-                txt += chr(int(x, base=16))
-                x = ""
-        if len(x) == 1:
-            x += "0"
+
+def readHexStringFromStream(stream):
+    stream.read(1)
+    txt = ""
+    x = ""
+    while True:
+        tok = readNonWhitespace(stream)
+        if tok == ">":
+            break
+        x += tok
         if len(x) == 2:
             txt += chr(int(x, base=16))
-        return StringObject(txt)
-    readHexStringFromStream = staticmethod(readHexStringFromStream)
+            x = ""
+    if len(x) == 1:
+        x += "0"
+    if len(x) == 2:
+        txt += chr(int(x, base=16))
+    return createStringObject(txt)
 
-    def readFromStream(stream):
+
+def readStringFromStream(stream):
+    tok = stream.read(1)
+    parens = 1
+    txt = ""
+    while True:
         tok = stream.read(1)
-        parens = 1
-        txt = ""
-        while True:
+        if tok == "(":
+            parens += 1
+        elif tok == ")":
+            parens -= 1
+            if parens == 0:
+                break
+        elif tok == "\\":
             tok = stream.read(1)
-            if tok == "(":
-                parens += 1
+            if tok == "n":
+                tok = "\n"
+            elif tok == "r":
+                tok = "\r"
+            elif tok == "t":
+                tok = "\t"
+            elif tok == "b":
+                tok == "\b"
+            elif tok == "f":
+                tok = "\f"
+            elif tok == "(":
+                tok = "("
             elif tok == ")":
-                parens -= 1
-                if parens == 0:
-                    break
+                tok = ")"
             elif tok == "\\":
+                tok = "\\"
+            elif tok.isdigit():
+                tok += stream.read(2)
+                tok = chr(int(tok, base=8))
+            elif tok in "\n\r":
+                # This case is  hit when a backslash followed by a line
+                # break occurs.  If it's a multi-char EOL, consume the
+                # second character:
                 tok = stream.read(1)
-                if tok == "n":
-                    tok = "\n"
-                elif tok == "r":
-                    tok = "\r"
-                elif tok == "t":
-                    tok = "\t"
-                elif tok == "b":
-                    tok == "\b"
-                elif tok == "f":
-                    tok = "\f"
-                elif tok == "(":
-                    tok = "("
-                elif tok == ")":
-                    tok = ")"
-                elif tok == "\\":
-                    tok = "\\"
-                elif tok.isdigit():
-                    tok += stream.read(2)
-                    tok = chr(int(tok, base=8))
-            txt += tok
-        return StringObject(txt)
-    readFromStream = staticmethod(readFromStream)
+                if not tok in "\n\r":
+                    stream.seek(-1, 1)
+                # Then don't add anything to the actual string, since this
+                # line break was escaped:
+                tok = ''
+            else:
+                raise utils.PdfReadError("Unexpected escaped string")
+        txt += tok
+    return createStringObject(txt)
+
+
+##
+# Represents a string object where the text encoding could not be determined.
+# This occurs quite often, as the PDF spec doesn't provide an alternate way to
+# represent strings -- for example, the encryption data stored in files (like
+# /O) is clearly not text, but is still stored in a "String" object.
+class ByteStringObject(str, PdfObject):
+
+    ##
+    # For compatibility with TextStringObject.original_bytes.  This method
+    # returns self.
+    original_bytes = property(lambda self: self)
+
+    def writeToStream(self, stream, encryption_key):
+        bytearr = self
+        if encryption_key:
+            bytearr = RC4_encrypt(encryption_key, bytearr)
+        stream.write("<")
+        stream.write(bytearr.encode("hex"))
+        stream.write(">")
+
+
+##
+# Represents a string object that has been decoded into a real unicode string.
+# If read from a PDF document, this string appeared to match the
+# PDFDocEncoding, or contained a UTF-16BE BOM mark to cause UTF-16 decoding to
+# occur.
+class TextStringObject(unicode, PdfObject):
+    autodetect_pdfdocencoding = False
+    autodetect_utf16 = False
+
+    ##
+    # It is occasionally possible that a text string object gets created where
+    # a byte string object was expected due to the autodetection mechanism --
+    # if that occurs, this "original_bytes" property can be used to
+    # back-calculate what the original encoded bytes were.
+    original_bytes = property(lambda self: self.get_original_bytes())
+
+    def get_original_bytes(self):
+        # We're a text string object, but the library is trying to get our raw
+        # bytes.  This can happen if we auto-detected this string as text, but
+        # we were wrong.  It's pretty common.  Return the original bytes that
+        # would have been used to create this object, based upon the autodetect
+        # method.
+        if self.autodetect_utf16:
+            return codecs.BOM_UTF16_BE + self.encode("utf-16be")
+        elif self.autodetect_pdfdocencoding:
+            return encode_pdfdocencoding(self)
+        else:
+            raise Exception("no information about original bytes")
+
+    def writeToStream(self, stream, encryption_key):
+        # Try to write the string out as a PDFDocEncoding encoded string.  It's
+        # nicer to look at in the PDF file.  Sadly, we take a performance hit
+        # here for trying...
+        try:
+            bytearr = encode_pdfdocencoding(self)
+        except UnicodeEncodeError:
+            bytearr = codecs.BOM_UTF16_BE + self.encode("utf-16be")
+        if encryption_key:
+            bytearr = RC4_encrypt(encryption_key, bytearr)
+            obj = ByteStringObject(bytearr)
+            obj.writeToStream(stream, None)
+        else:
+            stream.write("(")
+            for c in bytearr:
+                if not c.isalnum() and c != ' ':
+                    stream.write("\\%03o" % ord(c))
+                else:
+                    stream.write(c)
+            stream.write(")")
 
 
 class NameObject(str, PdfObject):
@@ -306,7 +406,8 @@ class NameObject(str, PdfObject):
 
     def readFromStream(stream):
         name = stream.read(1)
-        assert name == "/"
+        if name != "/":
+            raise utils.PdfReadError, "name read error"
         while True:
             tok = stream.read(1)
             if tok.isspace() or tok in NameObject.delimiterCharacters:
@@ -331,7 +432,9 @@ class DictionaryObject(dict, PdfObject):
         stream.write(">>")
 
     def readFromStream(stream, pdf):
-        assert stream.read(2) == "<<"
+        tmp = stream.read(2)
+        if tmp != "<<":
+            raise utils.PdfReadError, "dictionary read error"
         data = {}
         while True:
             tok = readNonWhitespace(stream)
@@ -345,7 +448,7 @@ class DictionaryObject(dict, PdfObject):
             value = readObject(stream, pdf)
             if data.has_key(key):
                 # multiple definitions of key not permitted
-                assert False
+                raise utils.PdfReadError, "multiple definitions in dictionary"
             data[key] = value
         pos = stream.tell()
         s = readNonWhitespace(stream)
@@ -384,7 +487,7 @@ class DictionaryObject(dict, PdfObject):
                     data["__streamdata__"] = data["__streamdata__"][:-1]
                 else:
                     stream.seek(pos, 0)
-                    raise "Unable to find 'endstream' marker after stream."
+                    raise utils.PdfReadError, "Unable to find 'endstream' marker after stream."
         else:
             stream.seek(pos, 0)
         if data.has_key("__streamdata__"):
@@ -469,7 +572,7 @@ class EncodedStreamObject(StreamObject):
             return decoded._data
 
     def setData(self, data):
-        raise "Creating EncodedStreamObject is not currently supported"
+        raise utils.PdfReadError, "Creating EncodedStreamObject is not currently supported"
 
 
 class RectangleObject(ArrayObject):
@@ -539,4 +642,70 @@ class RectangleObject(ArrayObject):
     lowerRight = property(getLowerRight, setLowerRight, None, None)
     upperLeft = property(getUpperLeft, setUpperLeft, None, None)
     upperRight = property(getUpperRight, setUpperRight, None, None)
+
+
+def encode_pdfdocencoding(unicode_string):
+    retval = ''
+    for c in unicode_string:
+        try:
+            retval += chr(_pdfDocEncoding_rev[c])
+        except KeyError:
+            raise UnicodeEncodeError("pdfdocencoding", c, -1, -1,
+                    "does not exist in translation table")
+    return retval
+
+def decode_pdfdocencoding(byte_array):
+    retval = u''
+    for b in byte_array:
+        c = _pdfDocEncoding[ord(b)]
+        if c == u'\u0000':
+            raise UnicodeDecodeError("pdfdocencoding", b, -1, -1,
+                    "does not exist in translation table")
+        retval += c
+    return retval
+
+_pdfDocEncoding = (
+  u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000',
+  u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000',
+  u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000', u'\u0000',
+  u'\u02d8', u'\u02c7', u'\u02c6', u'\u02d9', u'\u02dd', u'\u02db', u'\u02da', u'\u02dc',
+  u'\u0020', u'\u0021', u'\u0022', u'\u0023', u'\u0024', u'\u0025', u'\u0026', u'\u0027',
+  u'\u0028', u'\u0029', u'\u002a', u'\u002b', u'\u002c', u'\u002d', u'\u002e', u'\u002f',
+  u'\u0030', u'\u0031', u'\u0032', u'\u0033', u'\u0034', u'\u0035', u'\u0036', u'\u0037',
+  u'\u0038', u'\u0039', u'\u003a', u'\u003b', u'\u003c', u'\u003d', u'\u003e', u'\u003f',
+  u'\u0040', u'\u0041', u'\u0042', u'\u0043', u'\u0044', u'\u0045', u'\u0046', u'\u0047',
+  u'\u0048', u'\u0049', u'\u004a', u'\u004b', u'\u004c', u'\u004d', u'\u004e', u'\u004f',
+  u'\u0050', u'\u0051', u'\u0052', u'\u0053', u'\u0054', u'\u0055', u'\u0056', u'\u0057',
+  u'\u0058', u'\u0059', u'\u005a', u'\u005b', u'\u005c', u'\u005d', u'\u005e', u'\u005f',
+  u'\u0060', u'\u0061', u'\u0062', u'\u0063', u'\u0064', u'\u0065', u'\u0066', u'\u0067',
+  u'\u0068', u'\u0069', u'\u006a', u'\u006b', u'\u006c', u'\u006d', u'\u006e', u'\u006f',
+  u'\u0070', u'\u0071', u'\u0072', u'\u0073', u'\u0074', u'\u0075', u'\u0076', u'\u0077',
+  u'\u0078', u'\u0079', u'\u007a', u'\u007b', u'\u007c', u'\u007d', u'\u007e', u'\u0000',
+  u'\u2022', u'\u2020', u'\u2021', u'\u2026', u'\u2014', u'\u2013', u'\u0192', u'\u2044',
+  u'\u2039', u'\u203a', u'\u2212', u'\u2030', u'\u201e', u'\u201c', u'\u201d', u'\u2018',
+  u'\u2019', u'\u201a', u'\u2122', u'\ufb01', u'\ufb02', u'\u0141', u'\u0152', u'\u0160',
+  u'\u0178', u'\u017d', u'\u0131', u'\u0142', u'\u0153', u'\u0161', u'\u017e', u'\u0000',
+  u'\u20ac', u'\u00a1', u'\u00a2', u'\u00a3', u'\u00a4', u'\u00a5', u'\u00a6', u'\u00a7',
+  u'\u00a8', u'\u00a9', u'\u00aa', u'\u00ab', u'\u00ac', u'\u0000', u'\u00ae', u'\u00af',
+  u'\u00b0', u'\u00b1', u'\u00b2', u'\u00b3', u'\u00b4', u'\u00b5', u'\u00b6', u'\u00b7',
+  u'\u00b8', u'\u00b9', u'\u00ba', u'\u00bb', u'\u00bc', u'\u00bd', u'\u00be', u'\u00bf',
+  u'\u00c0', u'\u00c1', u'\u00c2', u'\u00c3', u'\u00c4', u'\u00c5', u'\u00c6', u'\u00c7',
+  u'\u00c8', u'\u00c9', u'\u00ca', u'\u00cb', u'\u00cc', u'\u00cd', u'\u00ce', u'\u00cf',
+  u'\u00d0', u'\u00d1', u'\u00d2', u'\u00d3', u'\u00d4', u'\u00d5', u'\u00d6', u'\u00d7',
+  u'\u00d8', u'\u00d9', u'\u00da', u'\u00db', u'\u00dc', u'\u00dd', u'\u00de', u'\u00df',
+  u'\u00e0', u'\u00e1', u'\u00e2', u'\u00e3', u'\u00e4', u'\u00e5', u'\u00e6', u'\u00e7',
+  u'\u00e8', u'\u00e9', u'\u00ea', u'\u00eb', u'\u00ec', u'\u00ed', u'\u00ee', u'\u00ef',
+  u'\u00f0', u'\u00f1', u'\u00f2', u'\u00f3', u'\u00f4', u'\u00f5', u'\u00f6', u'\u00f7',
+  u'\u00f8', u'\u00f9', u'\u00fa', u'\u00fb', u'\u00fc', u'\u00fd', u'\u00fe', u'\u00ff'
+)
+
+assert len(_pdfDocEncoding) == 256
+
+_pdfDocEncoding_rev = {}
+for i in xrange(256):
+    char = _pdfDocEncoding[i]
+    if char == u"\u0000":
+        continue
+    assert char not in _pdfDocEncoding_rev
+    _pdfDocEncoding_rev[char] = i
 

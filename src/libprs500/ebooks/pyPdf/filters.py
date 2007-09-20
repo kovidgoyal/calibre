@@ -32,9 +32,8 @@
 Implementation of stream filters for PDF.
 """
 __author__ = "Mathieu Fenniak"
-__author_email__ = "mfenniak@pobox.com"
+__author_email__ = "biziqe@mathieu.fenniak.net"
 
-from generic import NameObject
 
 try:
     import zlib
@@ -208,6 +207,7 @@ class ASCII85Decode(object):
     decode = staticmethod(decode)
 
 def decodeStreamData(stream):
+    from generic import NameObject
     filters = stream.get("/Filter", ())
     if len(filters) and not isinstance(filters[0], NameObject):
         # we have a single filter instance

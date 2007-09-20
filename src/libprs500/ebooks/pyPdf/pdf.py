@@ -1,6 +1,8 @@
 # vim: sw=4:expandtab:foldmethod=marker
 #
 # Copyright (c) 2006, Mathieu Fenniak
+# Copyright (c) 2007, Ashish Kulkarni <kulkarni.ashish@gmail.com>
+#
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,7 +36,7 @@ be able to split and merge PDF files by page, and that's about all it can do.
 It may be a solid base for future PDF file work in Python.
 """
 __author__ = "Mathieu Fenniak"
-__author_email__ = "mfenniak@pobox.com"
+__author_email__ = "biziqe@mathieu.fenniak.net"
 
 import struct
 try:
@@ -44,6 +46,7 @@ except ImportError:
 
 import filters
 import utils
+import warnings
 from generic import *
 from utils import readNonWhitespace, readUntilWhitespace, ConvertFunctionsToVirtualList
 from sets import ImmutableSet
@@ -68,7 +71,7 @@ class PdfFileWriter(object):
         # info object
         info = DictionaryObject()
         info.update({
-                NameObject("/Producer"): StringObject("Python PDF Library - http://pybrary.net/pyPdf/")
+                NameObject("/Producer"): createStringObject(u"Python PDF Library - http://pybrary.net/pyPdf/")
                 })
         self._info = self._addObject(info)
 
@@ -128,10 +131,10 @@ class PdfFileWriter(object):
             keylen = 40 / 8
         # permit everything:
         P = -1
-        O = StringObject(_alg33(owner_pwd, user_pwd, rev, keylen))
+        O = ByteStringObject(_alg33(owner_pwd, user_pwd, rev, keylen))
         ID_1 = md5.new(repr(time.time())).digest()
         ID_2 = md5.new(repr(random.random())).digest()
-        self._ID = ArrayObject((StringObject(ID_1), StringObject(ID_2)))
+        self._ID = ArrayObject((ByteStringObject(ID_1), ByteStringObject(ID_2)))
         if rev == 2:
             U, key = _alg34(user_pwd, O, P, ID_1)
         else:
@@ -143,8 +146,8 @@ class PdfFileWriter(object):
         if V == 2:
             encrypt[NameObject("/Length")] = NumberObject(keylen * 8)
         encrypt[NameObject("/R")] = NumberObject(rev)
-        encrypt[NameObject("/O")] = StringObject(O)
-        encrypt[NameObject("/U")] = StringObject(U)
+        encrypt[NameObject("/O")] = ByteStringObject(O)
+        encrypt[NameObject("/U")] = ByteStringObject(U)
         encrypt[NameObject("/P")] = NumberObject(P)
         self._encrypt = self._addObject(encrypt)
         self._encrypt_key = key
@@ -212,8 +215,6 @@ class PdfFileWriter(object):
             for key, value in data.items():
                 origvalue = value
                 value = self._sweepIndirectReferences(externMap, value)
-                if value == None:
-                    print objects, value, origvalue
                 if isinstance(value, StreamObject):
                     # a dictionary value is a stream.  streams must be indirect
                     # objects, so we need to change this value.
@@ -271,6 +272,7 @@ class PdfFileWriter(object):
 class PdfFileReader(object):
     def __init__(self, stream):
         self.flattenedPages = None
+        self.pageNumbers = {}
         self.resolvedObjects = {}
         self.read(stream)
         self.stream = stream
@@ -330,6 +332,144 @@ class PdfFileReader(object):
         return self.flattenedPages[pageNumber]
 
     ##
+    # Read-only property that accesses the 
+    # {@link #PdfFileReader.getNamedDestinations 
+    # getNamedDestinations} function.
+    # <p>
+    # Stability: Added in v1.10, will exist for all future v1.x releases.
+    namedDestinations = property(lambda self:
+                                  self.getNamedDestinations(), None, None)
+
+    ##
+    # Retrieves the named destinations present in the document.
+    # <p>
+    # Stability: Added in v1.10, will exist for all future v1.x releases.
+    # @return Returns a dict which maps names to {@link #Destination
+    # destinations}.
+    def getNamedDestinations(self, tree = None, map = None):
+        if self.flattenedPages == None:
+            self._flatten()
+        
+        get = self.safeGetObject
+        if map == None:
+            map = {}
+            catalog = get(self.trailer["/Root"])
+            
+            # get the name tree
+            if catalog.has_key("/Dests"):
+                tree = get(catalog["/Dests"])
+            elif catalog.has_key("/Names"):
+                names = get(catalog['/Names'])
+                if names.has_key("/Dests"):
+                    tree = get(names['/Dests'])
+        
+        if tree == None:
+            return map
+
+        if tree.has_key("/Kids"):
+            # recurse down the tree
+            for kid in get(tree["/Kids"]):
+                self.getNamedDestinations(get(kid), map)
+
+        if tree.has_key("/Names"):
+            names = get(tree["/Names"])
+            for i in range(0, len(names), 2):
+                key = get(names[i])
+                val = get(names[i+1])
+                if isinstance(val, DictionaryObject) and val.has_key('/D'):
+                    val = get(val['/D'])
+                dest = self._buildDestination(val, key)
+                if dest != None:
+                    map[key] = dest
+
+        return map
+
+    ##
+    # Read-only property that accesses the {@link #PdfFileReader.getOutlines
+    # getOutlines} function.
+    # <p>
+    # Stability: Added in v1.10, will exist for all future v1.x releases.
+    outlines = property(lambda self: self.getOutlines(), None, None)
+
+    ##
+    # Retrieves the document outline present in the document.
+    # <p>
+    # Stability: Added in v1.10, will exist for all future v1.x releases.
+    # @return Returns a nested list of {@link #Destination destinations}.
+    def getOutlines(self, node = None, outlines = None):
+        if self.flattenedPages == None:
+            self._flatten()
+        
+        get = self.safeGetObject
+        if outlines == None:
+            outlines = []
+            catalog = get(self.trailer["/Root"])
+            
+            # get the outline dictionary and named destinations
+            if catalog.has_key("/Outlines"):
+                lines = get(catalog["/Outlines"])
+                if lines.has_key("/First"):
+                    node = get(lines["/First"])
+            self._namedDests = self.getNamedDestinations()
+            
+        if node == None:
+          return outlines
+          
+        # see if there are any more outlines
+        while 1:
+            outline = self._buildOutline(node)
+            if outline:
+                outlines.append(outline)
+
+            # check for sub-outlines
+            if node.has_key("/First"):
+                subOutlines = []
+                self.getOutlines(get(node["/First"]), subOutlines)
+                if subOutlines:
+                    outlines.append(subOutlines)
+
+            if not node.has_key("/Next"):
+                break
+            node = get(node["/Next"])
+
+        return outlines
+
+    def _buildDestination(self, array, title):
+        if not (isinstance(array, ArrayObject) and len(array) >= 2 and \
+                isinstance(array[0], IndirectObject)):
+            return None
+            
+        pageKey = (array[0].generation, array[0].idnum)
+        if not self.pageNumbers.has_key(pageKey):
+            return None
+
+        pageNum = self.pageNumbers[pageKey]
+        return Destination(*([title, pageNum]+array[1:]))
+          
+    def _buildOutline(self, node):
+        dest, title, outline = None, None, None
+        
+        if node.has_key("/A") and node.has_key("/Title"):
+            # Action, section 8.5 (only type GoTo supported)
+            title  = self.safeGetObject(node["/Title"])
+            action = self.safeGetObject(node["/A"])
+            if action["/S"] == "/GoTo":
+                dest = self.safeGetObject(action["/D"])
+        elif node.has_key("/Dest") and node.has_key("/Title"):
+            # Destination, section 8.2.1
+            title = self.safeGetObject(node["/Title"])
+            dest  = self.safeGetObject(node["/Dest"])
+
+        # if destination found, then create outline
+        if dest:
+            if isinstance(dest, ArrayObject):
+                outline = self._buildDestination(dest, title)
+            elif isinstance(dest, str) and self._namedDests.has_key(dest):
+                outline = self._namedDests[dest]
+                outline.title = title
+        return outline
+
+    ##
     # Read-only property that emulates a list based upon the {@link
     # #PdfFileReader.getNumPages getNumPages} and {@link #PdfFileReader.getPage
     # getPage} functions.
@@ -349,14 +489,16 @@ class PdfFileReader(object):
             self.flattenedPages = []
             catalog = self.getObject(self.trailer["/Root"])
             pages = self.getObject(catalog["/Pages"])
+        indirectReference = None
         if isinstance(pages, IndirectObject):
+            indirectReference = pages
             pages = self.getObject(pages)
         t = pages["/Type"]
         if t == "/Pages":
             for attr in inheritablePageAttributes:
                 if pages.has_key(attr):
                     inherit[attr] = pages[attr]
-            for page in pages["/Kids"]:
+            for page in self.safeGetObject(pages["/Kids"]):
                 self._flatten(page, inherit)
         elif t == "/Page":
             for attr,value in inherit.items():
@@ -364,8 +506,11 @@ class PdfFileReader(object):
                 # parent's value:
                 if not pages.has_key(attr):
                     pages[attr] = value
-            pageObj = PageObject(self)
+            pageObj = PageObject(self, indirectReference)
             pageObj.update(pages)
+            if indirectReference:
+                key = (indirectReference.generation, indirectReference.idnum)
+                self.pageNumbers[key] = len(self.flattenedPages)
             self.flattenedPages.append(pageObj)
 
     def safeGetObject(self, obj):
@@ -425,8 +570,8 @@ class PdfFileReader(object):
         return retval
 
     def _decryptObject(self, obj, key):
-        if isinstance(obj, StringObject):
-            obj = StringObject(utils.RC4_encrypt(key, obj))
+        if isinstance(obj, ByteStringObject) or isinstance(obj, TextStringObject):
+            obj = createStringObject(utils.RC4_encrypt(key, obj.original_bytes))
         elif isinstance(obj, StreamObject):
             obj._data = utils.RC4_encrypt(key, obj._data)
         elif isinstance(obj, DictionaryObject):
@@ -438,6 +583,11 @@ class PdfFileReader(object):
         return obj
 
     def readObjectHeader(self, stream):
+        # Should never be necessary to read out whitespace, since the
+        # cross-reference table should put us in the right spot to read the
+        # object header.  In reality... some files have stupid cross reference
+        # tables that are off by whitespace bytes.
+        readNonWhitespace(stream); stream.seek(-1, 1)
         idnum = readUntilWhitespace(stream)
         generation = readUntilWhitespace(stream)
         obj = stream.read(3)
@@ -456,13 +606,15 @@ class PdfFileReader(object):
         line = ''
         while not line:
             line = self.readNextEndLine(stream)
-        assert line[:5] == "%%EOF"
+        if line[:5] != "%%EOF":
+            raise utils.PdfReadError, "EOF marker not found"
 
         # find startxref entry - the location of the xref table
         line = self.readNextEndLine(stream)
         startxref = int(line)
         line = self.readNextEndLine(stream)
-        assert line[:9] == "startxref"
+        if line[:9] != "startxref":
+            raise utils.PdfReadError, "startxref not found"
 
         # read all cross reference tables and their trailers
         self.xref = {}
@@ -475,7 +627,8 @@ class PdfFileReader(object):
             if x == "x":
                 # standard cross-reference table
                 ref = stream.read(4)
-                assert ref[:3] == "ref"
+                if ref[:3] != "ref":
+                    raise utils.PdfReadError, "xref table read error"
                 readNonWhitespace(stream)
                 stream.seek(-1, 1)
                 while 1:
@@ -661,7 +814,7 @@ class PdfFileReader(object):
     def _authenticateUserPassword(self, password):
         encrypt = self.safeGetObject(self.trailer['/Encrypt'])
         rev = self.safeGetObject(encrypt['/R'])
-        owner_entry = self.safeGetObject(encrypt['/O'])
+        owner_entry = self.safeGetObject(encrypt['/O']).original_bytes
         p_entry = self.safeGetObject(encrypt['/P'])
         id_entry = self.safeGetObject(self.trailer['/ID'])
         id1_entry = self.safeGetObject(id_entry[0])
@@ -672,7 +825,7 @@ class PdfFileReader(object):
                     self.safeGetObject(encrypt["/Length"]) / 8, owner_entry,
                     p_entry, id1_entry,
                     self.safeGetObject(encrypt.get("/EncryptMetadata", False)))
-        real_U = self.safeGetObject(encrypt['/U'])
+        real_U = self.safeGetObject(encrypt['/U']).original_bytes
         return U == real_U, key
 
     def getIsEncrypted(self):
@@ -721,9 +874,10 @@ def createRectangleAccessor(name, fallback):
 # will be created by accessing the {@link #PdfFileReader.getPage getPage}
 # function of the {@link #PdfFileReader PdfFileReader} class.
 class PageObject(DictionaryObject):
-    def __init__(self, pdf):
+    def __init__(self, pdf, indirectReference = None):
         DictionaryObject.__init__(self)
         self.pdf = pdf
+        self.indirectReference = indirectReference
 
     ##
     # Rotates a page clockwise by increments of 90 degrees.
@@ -856,26 +1010,35 @@ class PageObject(DictionaryObject):
     # <p>
     # Stability: Added in v1.7, will exist for all future v1.x releases.  May
     # be overhauled to provide more ordered text in the future.
-    # @return a string object
+    # @return a unicode string object
     def extractText(self):
-        text = ""
+        text = u""
         content = self["/Contents"].getObject()
         if not isinstance(content, ContentStream):
             content = ContentStream(content, self.pdf)
+        # Note: we check all strings are TextStringObjects.  ByteStringObjects
+        # are strings where the byte->string encoding was unknown, so adding
+        # them to the text here would be gibberish.
         for operands,operator in content.operations:
             if operator == "Tj":
-                text += operands[0]
+                _text = operands[0]
+                if isinstance(_text, TextStringObject):
+                    text += _text
             elif operator == "T*":
                 text += "\n"
             elif operator == "'":
                 text += "\n"
-                text += operands[0]
-            elif operator == "\"":
-                text += "\n"
-                text += operands[2]
+                _text = operands[0]
+                if isinstance(_text, TextStringObject):
+                    text += operands[0]
+            elif operator == '"':
+                _text = operands[2]
+                if isinstance(_text, TextStringObject):
+                    text += "\n"
+                    text += _text
             elif operator == "TJ":
                 for i in operands[0]:
-                    if isinstance(i, StringObject):
+                    if isinstance(i, TextStringObject):
                         text += i
         return text
 
@@ -946,7 +1109,7 @@ class ContentStream(DecodedStreamObject):
             if peek == '':
                 break
             stream.seek(-1, 1)
-            if peek.isalpha() or peek == "'" or peek == "\"":
+            if peek.isalpha() or peek == "'" or peek == '"':
                 operator = readUntilWhitespace(stream, maxchars=2)
                 if operator == "BI":
                     # begin inline image - a completely different parsing
@@ -1021,43 +1184,139 @@ class ContentStream(DecodedStreamObject):
 
 ##
 # A class representing the basic document metadata provided in a PDF File.
+# <p>
+# As of pyPdf v1.10, all text properties of the document metadata have two
+# properties, eg. author and author_raw.  The non-raw property will always
+# return a TextStringObject, making it ideal for a case where the metadata is
+# being displayed.  The raw property can sometimes return a ByteStringObject,
+# if pyPdf was unable to decode the string's text encoding; this requires
+# additional safety in the caller and therefore is not as commonly accessed.
 class DocumentInformation(DictionaryObject):
     def __init__(self):
         DictionaryObject.__init__(self)
 
+    def getText(self, key):
+        retval = self.get(key, None)
+        if isinstance(retval, TextStringObject):
+            return retval
+        return None
+
     ##
     # Read-only property accessing the document's title.  Added in v1.6, will
-    # exist for all future v1.x releases.
-    # @return A string, or None if the title is not provided.
-    title = property(lambda self: self.get("/Title", None), None, None)
+    # exist for all future v1.x releases.  Modified in v1.10 to always return a
+    # unicode string (TextStringObject).
+    # @return A unicode string, or None if the title is not provided.
+    title = property(lambda self: self.getText("/Title"))
+    title_raw = property(lambda self: self.get("/Title"))
 
     ##
     # Read-only property accessing the document's author.  Added in v1.6, will
-    # exist for all future v1.x releases.
-    # @return A string, or None if the author is not provided.
-    author = property(lambda self: self.get("/Author", None), None, None)
+    # exist for all future v1.x releases.  Modified in v1.10 to always return a
+    # unicode string (TextStringObject).
+    # @return A unicode string, or None if the author is not provided.
+    author = property(lambda self: self.getText("/Author"))
+    author_raw = property(lambda self: self.get("/Author"))
 
     ##
     # Read-only property accessing the subject of the document.  Added in v1.6,
-    # will exist for all future v1.x releases.
-    # @return A string, or None if the subject is not provided.
-    subject = property(lambda self: self.get("/Subject", None), None, None)
+    # will exist for all future v1.x releases.  Modified in v1.10 to always
+    # return a unicode string (TextStringObject).
+    # @return A unicode string, or None if the subject is not provided.
+    subject = property(lambda self: self.getText("/Subject"))
+    subject_raw = property(lambda self: self.get("/Subject"))
 
     ##
     # Read-only property accessing the document's creator.  If the document was
     # converted to PDF from another format, the name of the application (for
     # example, OpenOffice) that created the original document from which it was
     # converted.  Added in v1.6, will exist for all future v1.x releases.
-    # @return A string, or None if the creator is not provided.
-    creator = property(lambda self: self.get("/Creator", None), None, None)
+    # Modified in v1.10 to always return a unicode string (TextStringObject).
+    # @return A unicode string, or None if the creator is not provided.
+    creator = property(lambda self: self.getText("/Creator"))
+    creator_raw = property(lambda self: self.get("/Creator"))
 
     ##
     # Read-only property accessing the document's producer.  If the document
     # was converted to PDF from another format, the name of the application
     # (for example, OSX Quartz) that converted it to PDF.  Added in v1.6, will
-    # exist for all future v1.x releases.
-    # @return A string, or None if the producer is not provided.
-    producer = property(lambda self: self.get("/Producer", None), None, None)
+    # exist for all future v1.x releases.  Modified in v1.10 to always return a
+    # unicode string (TextStringObject).
+    # @return A unicode string, or None if the producer is not provided.
+    producer = property(lambda self: self.getText("/Producer"))
+    producer_raw = property(lambda self: self.get("/Producer"))
+
+
+##
+# A class representing a destination within a PDF file.
+# See section 8.2.1 of the PDF 1.6 reference.
+# Stability: Added in v1.10, will exist for all v1.x releases.
+class Destination(DictionaryObject):
+    def __init__(self, *args):
+        DictionaryObject.__init__(self)
+        self.title = args[0]
+        self["/Page"], self["/Type"] = args[1], args[2]
+        
+        # from table 8.2 of the PDF 1.6 reference.
+        mapNull = lambda x: {True: None, False: x}[isinstance(x, NullObject)]
+        params = map(mapNull, args[3:])
+        type = self["/Type"]
+
+        if type == "/XYZ":
+            self["/Left"], self["/Top"], self["/Zoom"] = params
+        elif type == "/FitR":
+            self["/Left"], self["/Bottom"], \
+                self["/Right"], self["/Top"] = params
+        elif type in ["/FitH", "FitBH"]:
+            self["/Top"], = params
+        elif type in ["/FitV", "FitBV"]:
+            self["/Left"], = params
+        elif type in ["/Fit", "FitB"]:
+            pass
+        else:
+            raise utils.PdfReadError, "Unknown Destination Type: " + type
+          
+    def setTitle(self, title):
+        self["/Title"] = title.strip()
+
+    ##
+    # Read-write property accessing the destination title.
+    # @return A string.
+    title = property(lambda self: self.get("/Title"), setTitle, None)
+
+    ##
+    # Read-only property accessing the destination page.
+    # @return An integer.
+    page = property(lambda self: self.get("/Page"), None, None)
+
+    ##
+    # Read-only property accessing the destination type.
+    # @return A string.
+    type = property(lambda self: self.get("/Type"), None, None)
+
+    ##
+    # Read-only property accessing the zoom factor.
+    # @return A number, or None if not available.
+    zoom = property(lambda self: self.get("/Zoom", None), None, None)
+
+    ##
+    # Read-only property accessing the left horizontal coordinate.
+    # @return A number, or None if not available.
+    left = property(lambda self: self.get("/Left", None), None, None)
+
+    ##
+    # Read-only property accessing the right horizontal coordinate.
+    # @return A number, or None if not available.
+    right = property(lambda self: self.get("/Right", None), None, None)
+
+    ##
+    # Read-only property accessing the top vertical coordinate.
+    # @return A number, or None if not available.
+    top = property(lambda self: self.get("/Top", None), None, None)
+
+    ##
+    # Read-only property accessing the bottom vertical coordinate.
+    # @return A number, or None if not available.
+    bottom = property(lambda self: self.get("/Bottom", None), None, None)
 
 
 def convertToInt(d, size):
@@ -1078,65 +1337,150 @@ _encryption_padding = '\x28\xbf\x4e\x5e\x4e\x75\x8a\x41\x64\x00\x4e\x56' + \
         '\xff\xfa\x01\x08\x2e\x2e\x00\xb6\xd0\x68\x3e\x80\x2f\x0c' + \
         '\xa9\xfe\x64\x53\x69\x7a'
 
+# Implementation of algorithm 3.2 of the PDF standard security handler,
+# section 3.5.2 of the PDF 1.6 reference.
 def _alg32(password, rev, keylen, owner_entry, p_entry, id1_entry, metadata_encrypt=True):
-    import md5, struct
-    m = md5.new()
+    # 1. Pad or truncate the password string to exactly 32 bytes.  If the
+    # password string is more than 32 bytes long, use only its first 32 bytes;
+    # if it is less than 32 bytes long, pad it by appending the required number
+    # of additional bytes from the beginning of the padding string
+    # (_encryption_padding).
     password = (password + _encryption_padding)[:32]
-    m.update(password)
+    # 2. Initialize the MD5 hash function and pass the result of step 1 as
+    # input to this function.
+    import md5, struct
+    m = md5.new(password)
+    # 3. Pass the value of the encryption dictionary's /O entry to the MD5 hash
+    # function.
     m.update(owner_entry)
+    # 4. Treat the value of the /P entry as an unsigned 4-byte integer and pass
+    # these bytes to the MD5 hash function, low-order byte first.
     p_entry = struct.pack('<i', p_entry)
     m.update(p_entry)
+    # 5. Pass the first element of the file's file identifier array to the MD5
+    # hash function.
     m.update(id1_entry)
+    # 6. (Revision 3 or greater) If document metadata is not being encrypted,
+    # pass 4 bytes with the value 0xFFFFFFFF to the MD5 hash function.
     if rev >= 3 and not metadata_encrypt:
         m.update("\xff\xff\xff\xff")
+    # 7. Finish the hash.
     md5_hash = m.digest()
+    # 8. (Revision 3 or greater) Do the following 50 times: Take the output
+    # from the previous MD5 hash and pass the first n bytes of the output as
+    # input into a new MD5 hash, where n is the number of bytes of the
+    # encryption key as defined by the value of the encryption dictionary's
+    # /Length entry.
     if rev >= 3:
         for i in range(50):
             md5_hash = md5.new(md5_hash[:keylen]).digest()
+    # 9. Set the encryption key to the first n bytes of the output from the
+    # final MD5 hash, where n is always 5 for revision 2 but, for revision 3 or
+    # greater, depends on the value of the encryption dictionary's /Length
+    # entry.
     return md5_hash[:keylen]
 
+# Implementation of algorithm 3.3 of the PDF standard security handler,
+# section 3.5.2 of the PDF 1.6 reference.
 def _alg33(owner_pwd, user_pwd, rev, keylen):
+    # steps 1 - 4
     key = _alg33_1(owner_pwd, rev, keylen)
+    # 5. Pad or truncate the user password string as described in step 1 of
+    # algorithm 3.2.
     user_pwd = (user_pwd + _encryption_padding)[:32]
+    # 6. Encrypt the result of step 5, using an RC4 encryption function with
+    # the encryption key obtained in step 4.
     val = utils.RC4_encrypt(key, user_pwd)
+    # 7. (Revision 3 or greater) Do the following 19 times: Take the output
+    # from the previous invocation of the RC4 function and pass it as input to
+    # a new invocation of the function; use an encryption key generated by
+    # taking each byte of the encryption key obtained in step 4 and performing
+    # an XOR operation between that byte and the single-byte value of the
+    # iteration counter (from 1 to 19).
     if rev >= 3:
         for i in range(1, 20):
             new_key = ''
             for l in range(len(key)):
                 new_key += chr(ord(key[l]) ^ i)
             val = utils.RC4_encrypt(new_key, val)
+    # 8. Store the output from the final invocation of the RC4 as the value of
+    # the /O entry in the encryption dictionary.
     return val
 
+# Steps 1-4 of algorithm 3.3
 def _alg33_1(password, rev, keylen):
-    import md5
-    m = md5.new()
+    # 1. Pad or truncate the owner password string as described in step 1 of
+    # algorithm 3.2.  If there is no owner password, use the user password
+    # instead.
     password = (password + _encryption_padding)[:32]
-    m.update(password)
+    # 2. Initialize the MD5 hash function and pass the result of step 1 as
+    # input to this function.
+    import md5
+    m = md5.new(password)
+    # 3. (Revision 3 or greater) Do the following 50 times: Take the output
+    # from the previous MD5 hash and pass it as input into a new MD5 hash.
     md5_hash = m.digest()
     if rev >= 3:
         for i in range(50):
             md5_hash = md5.new(md5_hash).digest()
+    # 4. Create an RC4 encryption key using the first n bytes of the output
+    # from the final MD5 hash, where n is always 5 for revision 2 but, for
+    # revision 3 or greater, depends on the value of the encryption
+    # dictionary's /Length entry.
     key = md5_hash[:keylen]
     return key
 
+# Implementation of algorithm 3.4 of the PDF standard security handler,
+# section 3.5.2 of the PDF 1.6 reference.
 def _alg34(password, owner_entry, p_entry, id1_entry):
+    # 1. Create an encryption key based on the user password string, as
+    # described in algorithm 3.2.
     key = _alg32(password, 2, 5, owner_entry, p_entry, id1_entry)
+    # 2. Encrypt the 32-byte padding string shown in step 1 of algorithm 3.2,
+    # using an RC4 encryption function with the encryption key from the
+    # preceding step.
     U = utils.RC4_encrypt(key, _encryption_padding)
+    # 3. Store the result of step 2 as the value of the /U entry in the
+    # encryption dictionary.
     return U, key
 
+# Implementation of algorithm 3.4 of the PDF standard security handler,
+# section 3.5.2 of the PDF 1.6 reference.
 def _alg35(password, rev, keylen, owner_entry, p_entry, id1_entry, metadata_encrypt):
+    # 1. Create an encryption key based on the user password string, as
+    # described in Algorithm 3.2.
+    key = _alg32(password, rev, keylen, owner_entry, p_entry, id1_entry)
+    # 2. Initialize the MD5 hash function and pass the 32-byte padding string
+    # shown in step 1 of Algorithm 3.2 as input to this function. 
     import md5
     m = md5.new()
     m.update(_encryption_padding)
+    # 3. Pass the first element of the file's file identifier array (the value
+    # of the ID entry in the document's trailer dictionary; see Table 3.13 on
+    # page 73) to the hash function and finish the hash.  (See implementation
+    # note 25 in Appendix H.) 
     m.update(id1_entry)
     md5_hash = m.digest()
-    key = _alg32(password, rev, keylen, owner_entry, p_entry, id1_entry)
+    # 4. Encrypt the 16-byte result of the hash, using an RC4 encryption
+    # function with the encryption key from step 1. 
     val = utils.RC4_encrypt(key, md5_hash)
+    # 5. Do the following 19 times: Take the output from the previous
+    # invocation of the RC4 function and pass it as input to a new invocation
+    # of the function; use an encryption key generated by taking each byte of
+    # the original encryption key (obtained in step 2) and performing an XOR
+    # operation between that byte and the single-byte value of the iteration
+    # counter (from 1 to 19). 
     for i in range(1, 20):
         new_key = ''
         for l in range(len(key)):
             new_key += chr(ord(key[l]) ^ i)
         val = utils.RC4_encrypt(new_key, val)
+    # 6. Append 16 bytes of arbitrary padding to the output from the final
+    # invocation of the RC4 function and store the 32-byte result as the value
+    # of the U entry in the encryption dictionary. 
+    # (implementator note: I don't know what "arbitrary padding" is supposed to
+    # mean, so I have used null bytes.  This seems to match a few other
+    # people's implementations)
     return val + ('\x00' * 16), key
 
 #if __name__ == "__main__":
