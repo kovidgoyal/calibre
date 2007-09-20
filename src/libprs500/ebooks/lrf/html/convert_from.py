@@ -14,7 +14,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.ebooks.lrf.pylrs.pylrs import EmpLine
 """ 
 Code to convert HTML ebooks into LRF ebooks.
 
@@ -36,7 +35,7 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
-                LrsError, Sup, Sub, properties_different
+                LrsError, Sup, Sub, properties_different, EmpLine
 from libprs500.ebooks.lrf.pylrs.pylrs import Span 
 from libprs500.ebooks.lrf import Book
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
