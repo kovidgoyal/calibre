@@ -267,8 +267,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                     
         text = qstring_to_unicode(self.preprocess.currentText())
         if text != 'No preprocessing':
-            cmd.append('--'+text)
-        cmd.extend(['--profile',  qstring_to_unicode(self.gui_profile.currentText())])
+            cmd.append(u'--'+text)
+        cmd.extend([u'--profile',  qstring_to_unicode(self.gui_profile.currentText())])
         return cmd        
     
     def title(self):
@@ -305,7 +305,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             self.cover_file.close()
         self.db.set_conversion_options(self.id, self.output_format.lower(), cmdline)
         if self.cover_file:
-            cmdline.extend(['--cover', self.cover_file.name])
-        self.cmdline = [str(i) for i in cmdline]
+            cmdline.extend([u'--cover', self.cover_file.name])
+        self.cmdline = [unicode(i) for i in cmdline]
         QDialog.accept(self)
     
