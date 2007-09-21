@@ -646,7 +646,7 @@ class LibraryDatabase(object):
         '''
         FIELDS = {'title'  : 'sort',
                   'authors':  'author_sort',
-                  'publisher': 'publisher_sort',
+                  'publisher': 'publisher',
                   'size': 'size',
                   'date': 'timestamp',
                   'rating': 'rating'
