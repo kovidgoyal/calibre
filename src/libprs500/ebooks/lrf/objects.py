@@ -289,6 +289,7 @@ class RuledLine(EmptyPageElement):
         self.linelength, self.linewidth = linelength, linewidth
         self.linetype = self.linetype_map[linetype]
         self.linecolor = Color(linecolor)
+        self.id = -1
         
     def __unicode__(self):
         return u'\n<RuledLine linelength="%s" linetype="%s" linewidth="%s" linecolor="%s" />\n'%\
@@ -498,6 +499,7 @@ class Block(LRFStream):
             self.name = 'ImageBlock'
             for attr in ('x0', 'x1', 'y0', 'y1', 'xsize', 'ysize', 'refstream'):
                 self.attrs[attr] = getattr(obj, attr)
+            self.refstream = self._document.objects[self.attrs['refstream']]
         elif isinstance(obj, Button):
             self.name = 'ButtonBlock'
         else:
@@ -588,7 +590,7 @@ class Text(LRFStream):
            0xF5D2: 'cr',
         }
         
-        text_map = { 0x22: u'&quot;', 0x26: u'&amp;', 0x27: u'&apos;', 0x3c: u'&lt;', 0x3e: u'&gt;' }
+        text_map = { 0x22: u'&quot;', 0x26: u'&amp;', 0x27: u'&squot;', 0x3c: u'&lt;', 0x3e: u'&gt;' }
         linetype_map = {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}
         adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
         lineposition_map = {1:'before', 2:'after'}
@@ -625,7 +627,8 @@ class Text(LRFStream):
                     if h[0] not in self.attrs:
                         self.attrs[h[0]] = val
                     elif val != self.attrs[h[0]]:
-                        if self._contents: self.parent._contents.append(self)
+                        if self._contents: 
+                            self.parent._contents.append(self)
                         Text.Content(self.stream, self.objects, self.parent, 
                                             'Span', {h[0]: val})
                         
@@ -644,7 +647,7 @@ class Text(LRFStream):
             
         def end_container(self, *args):
             self.in_container = False
-            if self.name == 'Span' and self._contents:
+            if self.name == 'Span' and self._contents and self not in self.parent._contents:
                 self.parent._contents.append(self)
             
         def end_to_root(self):
@@ -724,9 +727,11 @@ class Text(LRFStream):
             
         def plot(self, tag):
             xsize, ysize, refobj, adjustment = struct.unpack("<HHII", tag.contents)
-            self._contents.append(Text.Content('', self.objects, self, 'Plot',
+            plot = Text.Content('', self.objects, self, 'Plot',
                 {'xsize': xsize, 'ysize': ysize, 'refobj':refobj, 
-                 'adjustment':self.adjustment_map[adjustment]}))
+                 'adjustment':self.adjustment_map[adjustment]})
+            plot.refobj = self.objects[refobj]
+            self._contents.append(plot)
                         
         def draw_char(self, tag):
             self._contents.append(Text.Content(self.stream, self.objects, self, 
@@ -741,23 +746,23 @@ class Text(LRFStream):
                 yield i
             
         def __unicode__(self):
-            if self.name == 'CR': return u'<CR/>'
             s = u''
             if self.name is not None:
                 s += u'<'+self.name+u' '
                 for attr in self.attrs:
                     s += u'%s="%s" '%(attr, self.attrs[attr])
-                s = s.rstrip() + u'>'
+                s = s.rstrip()
+            children = u''
             for i in self:
-                s += unicode(i)
-            if self.name is not None:
-                s += u'</%s>'%(self.name,)
-                if self.name in ['P', "CR"]:
-                    s += '\n'
-            return s
+                children += unicode(i)
+            if len(children) == 0:
+                return s + u' />'
+            if self.name is None:
+                return children
+            return s + u'>' + children + '</%s>'%(self.name,) + ('\n' if self.name == 'P' else '')
         
         def __str__(self):
-            return unicode(self)
+            return unicode(self).encode('utf-8')
     
     def initialize(self):
         self.content = Text.Content(self.stream, self._document.objects)
@@ -963,7 +968,7 @@ class Button(LRFObject):
         return s
     
     refpage = property(fget=lambda self : self.jump_action(2)[0])
-    refobject = property(fget=lambda self : self.jump_action(2)[1])
+    refobj = property(fget=lambda self : self.jump_action(2)[1])
     
 
 class Window(LRFObject):
