@@ -308,6 +308,7 @@ class Locate(EmptyPageElement):
     pos_map = {1:'bottomleft', 2:'bottomright',3:'topright',4:'topleft', 5:'base'}
     
     def __init__(self, pos):
+        print pos
         self.pos = self.pos_map[pos]
         
     def __unicode__(self):
@@ -316,11 +317,11 @@ class Locate(EmptyPageElement):
 class BlockSpace(EmptyPageElement):
     
     def __init__(self, xspace, yspace):
-        self.xsace, self.yspace = xspace, yspace
+        self.xspace, self.yspace = xspace, yspace
         
     def __unicode__(self):
         return u'\n<BlockSpace xspace="%d" yspace="%d" />\n'%\
-                (self.xspace, self.ysapce)
+                (self.xspace, self.yspace)
 
 class Page(LRFStream):
     tag_map = {
@@ -343,7 +344,7 @@ class Page(LRFStream):
            0xF54E: 'page_div',
            0xF547: 'x_space',
            0xF546: 'y_space',
-           0xF548: 'pos',
+           0xF548: 'do_pos',
            0xF573: 'ruled_line',
            0xF5D4: 'wait',
            0xF5D6: 'sound_stop',
@@ -370,7 +371,7 @@ class Page(LRFStream):
             self.yspace = tag.word
             self.in_blockspace = True
             
-        def pos(self, tag):
+        def do_pos(self, tag):
             self.pos = tag.wordself.pos_map[tag.word]
             self.in_blockspace = True
             
@@ -647,7 +648,7 @@ class Text(LRFStream):
         
         def invalid(op):
             stream.seek(op)
-            self.simple_container('EmpLine')
+            self.simple_container(None, 'EmpLine')
             
         oldpos = stream.tell()
         try:
@@ -731,7 +732,8 @@ class Text(LRFStream):
                     else:
                         self.containers.append(self.__class__.Span('Span', {name:val}))
                     current_style[name] = val
-                        
+        if self.containers:
+            self.empty_containers()        
         self.stream = None
              
     def __unicode__(self):
@@ -741,9 +743,10 @@ class Text(LRFStream):
             if isinstance(c, basestring):
                 s += c
             elif c is None:
-                p = open_containers.pop()
-                nl = u'\n' if p.name == 'P' else u''
-                s += nl + u'</%s>'%(p.name,) + nl 
+                if len(open_containers) > 0: #for malformed text streams like those produced by BookDesigner 
+                    p = open_containers.pop()
+                    nl = u'\n' if p.name == 'P' else u''
+                    s += nl + u'</%s>'%(p.name,) + nl 
             else:
                 s += unicode(c)
                 if not c.self_closing: 

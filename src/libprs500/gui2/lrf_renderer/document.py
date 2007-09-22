@@ -76,10 +76,10 @@ class FontLoader(object):
             rfont.setBold(wt>=69)
             self.cache[font] = rfont
         qfont = rfont
-        if text_style.underline or text_style.overline:
+        if text_style.emplinetype != 'none':
             qfont = QFont(rfont)            
-            qfont.setOverline(text_style.overline)
-            qfont.setUnderline(text_style.underline)        
+            qfont.setOverline(text_style.emplineposition == 'before')
+            qfont.setUnderline(text_style.emplineposition == 'after')
         return qfont
         
 class ParSkip(object):
@@ -208,7 +208,9 @@ class Line(QGraphicsRectItem):
         tcf.setFont(ts.font)
         tcf.setVerticalAlignment(ts.valign)
         tcf.setForeground(ts.textcolor)
-        tcf.setUnderlineStyle(self.line_map[ts.line_style])
+        tcf.setUnderlineColor(ts.linecolor)
+        if ts.emplineposition == 'after':
+            tcf.setUnderlineStyle(self.line_map[ts.emplinetype])
         return tcf
     
     def populate(self, phrase, ts, wordspace, in_link):
@@ -362,13 +364,11 @@ class TextStyle(Style):
     def __init__(self, style, font_loader, ruby_tags):
         self.font_loader = font_loader
         self.fontstyle   = QFont.StyleNormal
-        self.valign      = QTextCharFormat.AlignBottom 
-        self.underline   = False
-        self.overline    = False
-        self.line_style  = 'none'
-        Style.__init__(self, style, font_loader.dpi)
+        self.valign      = QTextCharFormat.AlignBottom
         for attr in ruby_tags:
             setattr(self, attr, ruby_tags[attr])
+        Style.__init__(self, style, font_loader.dpi)
+        self.emplinetype = 'none'
         self.font = self.font_loader.font(self)
         
         
@@ -490,12 +490,9 @@ class TextBlock(ContentObject):
                 open_containers.append((('current_style', self.current_style.copy()),))
                 self.current_style.valign=QTextCharFormat.AlignSubScript
             elif i.name == 'EmpLine':
-                open_containers.append((('current_style', self.current_style.copy()),))
-                if i.attrs['emplineposition'] == 'before':
-                    self.current_style.overline = True
-                if i.attrs['emplineposition'] == 'after':
-                    self.current_style.underline = True
-                self.current_style.update(line_type=i.attrs['emplinetype'])
+                if i.attrs:
+                    open_containers.append((('current_style', self.current_style.copy()),))
+                    self.current_style.update(i.attrs)
             else:
                 self.logger.warning('Unhandled TextTag %s'%(i.name,))
                 if not i.self_closing:
@@ -715,9 +712,15 @@ class Screen(_Canvas):
             self.setPen(QPen(Qt.red, 1, Qt.SolidLine))
         header = footer = None
         if page_style.headheight > 0:
-            header = chapter.oddheader if odd else chapter.evenheader
+            try:
+                header = chapter.oddheader if odd else chapter.evenheader
+            except AttributeError:
+                pass
         if page_style.footheight > 0:
-            footer = chapter.oddfooter if odd else chapter.evenfooter
+            try:
+                footer = chapter.oddfooter if odd else chapter.evenfooter
+            except AttributeError:
+                pass
         if header:
             header = Header(font_loader, header, page_style, logger, opts, ruby_tags, link_activated)
             self.layout_canvas(header, self.content_x, self.header_y)
