@@ -595,6 +595,9 @@ class Text(LRFStream):
             for name, val in self.attrs.items():
                 s += '%s="%s" '%(name, val)
             return s.rstrip() + (u' />' if self.self_closing else u'>') + (u'\n' if self.name in ('P', 'CR') else u'')
+        
+    class Span(TextTag):
+        pass
     
     linetype_map = {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}
     adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
@@ -608,6 +611,8 @@ class Text(LRFStream):
     
     def empty_containers(self):
         open_containers = 0
+        if len(self.containers) > 0 and isinstance(self.containers[-1], self.__class__.Span):
+            self.containers.pop() 
         while len(self.containers) > 0:
             c = self.containers.popleft()
             self.content.append(c)
@@ -615,9 +620,8 @@ class Text(LRFStream):
                 open_containers -= 1
             elif isinstance(c, self.__class__.TextTag) and not c.self_closing:
                 open_containers += 1
-        while open_containers > 0:
-            self.content.append(None)
-            open_containers -= 1
+        self.content.extend(None for i in range(open_containers))
+        
                 
     def end_container(self, tag, stream):
         self.containers.append(None)
@@ -694,7 +698,8 @@ class Text(LRFStream):
         self.containers = collections.deque()
         stream = cStringIO.StringIO(self.stream)
         length = len(self.stream)
-        previous_span = None
+        style = self.style.as_dict()
+        current_style = style.copy()
         
         while stream.tell() < length:
         
@@ -717,25 +722,15 @@ class Text(LRFStream):
             elif tag.id in TextAttr.tag_map: # A Span attribute
                 action = TextAttr.tag_map[tag.id]
                 if len(self.containers) == 0:
-                    previous_span = None
+                    current_style = style.copy()
                 name, val = action[0], LRFObject.tag_to_val(action, None, tag, None)
-                if previous_span is None:
-                    # No existing Span so start a new one
-                    previous_span = self.__class__.TextTag('Span', {name:val})
-                    self.containers.append(previous_span)
-                else:
-                    # Already in a Span
-                    if name in previous_span.attrs:
-                        # Start new Span
-                        if hasattr(self.containers[-1], 'name') and self.containers[-1].name == 'Span':
-                            self.containers.pop()
-                        else:
-                            self.empty_containers()
-                        previous_span = self.__class__.TextTag('Span', {name:val})
-                        self.containers.append(previous_span)
+                if current_style[name] != val:
+                    # No existing Span
+                    if len(self.containers) > 0 and isinstance(self.containers[-1], self.__class__.Span):
+                        self.containers[-1].attrs[name] = val
                     else:
-                        # Add attribute to current span
-                        previous_span.attrs[name] = val
+                        self.containers.append(self.__class__.Span('Span', {name:val}))
+                    current_style[name] = val
                         
         self.stream = None
              
@@ -747,14 +742,15 @@ class Text(LRFStream):
                 s += c
             elif c is None:
                 p = open_containers.pop()
-                s += u'</%s>'%(p.name,)
+                nl = u'\n' if p.name == 'P' else u''
+                s += nl + u'</%s>'%(p.name,) + nl 
             else:
                 s += unicode(c)
                 if not c.self_closing: 
                     open_containers.append(c)
         
         if len(open_containers) > 0:
-            raise LRFParseError('Malformed text stream') 
+            raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],)) 
         return s
 
 
