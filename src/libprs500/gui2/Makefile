@@ -4,7 +4,8 @@ UI = main_ui.py dialogs/metadata_single_ui.py dialogs/metadata_bulk_ui.py dialog
 RC = images_rc.pyc
 
 %_ui.py : %.ui
-	pyuic4 $< | sed "s/import images_rc/from libprs500.gui2 import images_rc/" > $@
+	pyuic4 $< | sed "s/import images_rc/from libprs500.gui2 import images_rc/" | \
+		    sed "s/from library import/from libprs500.gui2.library import/"> $@
 
 %_rc.pyc : %.qrc %
 	pyrcc4 $< > $*_rc.py

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/" >
+        <file>images/back.svg</file>
         <file>images/book.svg</file>
         <file>images/chapters.svg</file>
         <file>images/clear_left.svg</file>
@@ -9,6 +10,7 @@
         <file>images/dialog_warning.svg</file>
         <file>images/document_open.svg</file>
         <file>images/edit_input.svg</file>
+        <file>images/forward.svg</file>
         <file>images/jobs-animated.mng</file>
         <file>images/jobs.svg</file>
         <file alias="library" >images/library.png</file>
@@ -36,8 +38,10 @@
         <file>images/news/bbc.png</file>
         <file>images/news/newsweek.png</file>
         <file>images/news/nytimes.png</file>
+        <file>images/next.svg</file>
         <file>images/page.svg</file>
         <file>images/plus.svg</file>
+        <file>images/previous.svg</file>
         <file>images/reader.svg</file>
         <file>images/save.svg</file>
         <file>images/sd.svg</file>

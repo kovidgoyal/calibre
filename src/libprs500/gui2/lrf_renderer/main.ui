@@ -5,46 +5,254 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>858</width>
-    <height>854</height>
+    <width>614</width>
+    <height>832</height>
    </rect>
   </property>
   <property name="sizePolicy" >
-   <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+   <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="windowTitle" >
-   <string>MainWindow</string>
+   <string>LRF Viewer</string>
   </property>
-  <widget class="QWidget" name="centralwidget" >
-   <widget class="QGraphicsView" name="graphics_view" >
-    <property name="geometry" >
-     <rect>
-      <x>0</x>
-      <y>10</y>
-      <width>281</width>
-      <height>321</height>
-     </rect>
+  <property name="windowIcon" >
+   <iconset resource="../images.qrc" >:/library</iconset>
+  </property>
+  <widget class="QWidget" name="central_widget" >
+   <layout class="QVBoxLayout" >
+    <property name="leftMargin" >
+     <number>0</number>
     </property>
-    <property name="mouseTracking" >
-     <bool>true</bool>
+    <property name="topMargin" >
+     <number>0</number>
     </property>
-   </widget>
+    <property name="rightMargin" >
+     <number>0</number>
+    </property>
+    <property name="bottomMargin" >
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QStackedWidget" name="stack" >
+      <property name="currentIndex" >
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="page" >
+       <layout class="QGridLayout" >
+        <property name="leftMargin" >
+         <number>0</number>
+        </property>
+        <property name="topMargin" >
+         <number>0</number>
+        </property>
+        <property name="rightMargin" >
+         <number>0</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>0</number>
+        </property>
+        <item row="0" column="0" >
+         <widget class="QGraphicsView" name="graphics_view" >
+          <property name="mouseTracking" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QFrame" name="frame" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QHBoxLayout" >
+           <property name="leftMargin" >
+            <number>0</number>
+           </property>
+           <property name="topMargin" >
+            <number>0</number>
+           </property>
+           <property name="rightMargin" >
+            <number>0</number>
+           </property>
+           <property name="bottomMargin" >
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QToolButton" name="back_button" >
+             <property name="text" >
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="forward_button" >
+             <property name="text" >
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="slider" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="previous_button" >
+             <property name="text" >
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spin_box" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="next_button" >
+             <property name="text" >
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="SearchBox" name="search" />
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_2" >
+       <layout class="QVBoxLayout" >
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame_2" >
+          <property name="frameShape" >
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow" >
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" >
+           <item>
+            <widget class="QProgressBar" name="progress_bar" >
+             <property name="maximum" >
+              <number>0</number>
+             </property>
+             <property name="value" >
+              <number>-1</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="progress_label" >
+             <property name="font" >
+              <font>
+               <pointsize>11</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="text" >
+              <string>Parsing LRF file</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer>
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" >
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>858</width>
-     <height>29</height>
-    </rect>
+  <action name="action_next_page" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >:/images/next.svg</iconset>
    </property>
-  </widget>
-  <widget class="QStatusBar" name="statusbar" />
+   <property name="text" >
+    <string>Next Page</string>
+   </property>
+  </action>
+  <action name="action_previous_page" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >:/images/previous.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Previous Page</string>
+   </property>
+  </action>
+  <action name="action_back" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >:/images/back.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Back</string>
+   </property>
+  </action>
+  <action name="action_forward" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >:/images/forward.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Forward</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>SearchBox</class>
+   <extends>QLineEdit</extends>
+   <header>library.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../images.qrc" />
+ </resources>
  <connections/>
 </ui>

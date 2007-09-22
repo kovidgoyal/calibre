@@ -93,8 +93,8 @@ class LRFDocument(LRFMetaFile):
         bookinfo += u'<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
         th = self.doc_info.thumbnail
         if th:
-            bookinfo += u'<CThumbnail file="%s" />\n'%(self.metadata.title+'_thumbnail.'+self.doc_info.thumbail_extension(),)
-            open(self.metadata.title+'_thumbnail.'+self.doc_info.thumbail_extension(), 'wb').write(th)
+            bookinfo += u'<CThumbnail file="%s" />\n'%(self.metadata.title+'_thumbnail.'+self.doc_info.thumbnail_extension,)
+            open(self.metadata.title+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)
         bookinfo += u'<Language reading="">%s</Language>\n'%(self.doc_info.language,)
         bookinfo += u'<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
         bookinfo += u'<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)

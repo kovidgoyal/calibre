@@ -14,19 +14,40 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''''''
 
-import sys, logging, os
+import sys, logging, os, traceback
 
-from PyQt4.Qt import QApplication, QCoreApplication
-from PyQt4.QtCore import Qt, QObject
+from PyQt4.QtGui import QApplication, QKeySequence, QPainter
+from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
 
 from libprs500 import __appname__, __version__, __author__, setup_cli_handlers, islinux
 from libprs500.ebooks.lrf.parser import LRFDocument
 
 from libprs500.gui2 import ORG_NAME, APP_UID
+from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog
 from libprs500.gui2.lrf_renderer.main_ui import Ui_MainWindow
+from libprs500.gui2.main_window import MainWindow
 from libprs500.gui2.lrf_renderer.document import Document
 
-class Main(QObject, Ui_MainWindow):
+class RenderWorker(QThread):
+    
+    def __init__(self, parent, lrf_stream, logger, opts):
+        QThread.__init__(self, parent)
+        self.stream, self.logger, self.opts = lrf_stream, logger, opts
+        self.lrf = None
+        self.document = None
+        self.exception = None
+        
+    def run(self):
+        try:
+            self.lrf = LRFDocument(self.stream)
+            self.stream.close()
+            self.stream = None            
+        except Exception, err:
+            self.exception = err
+            self.formatted_traceback = traceback.format_exc()
+        self.emit(SIGNAL('parsed()'))
+        
+class Main(QObject, Ui_MainWindow, MainWindow):
     def __init__(self, window, stream, logger, opts):
         QObject.__init__(self)
         Ui_MainWindow.__init__(self)        
@@ -34,28 +55,95 @@ class Main(QObject, Ui_MainWindow):
         self.window = window
         self.logger = logger
         self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
-        self.stream = stream
         self.opts = opts
+        self.document = None
+        self.renderer = RenderWorker(self, stream, logger, opts)
+        QObject.connect(self.renderer, SIGNAL('parsed()'), self.parsed, Qt.QueuedConnection)
+        self.document = Document(self.logger, self.opts)
+        QObject.connect(self.document, SIGNAL('chapter_rendered(int)'), self.chapter_rendered)
+        QObject.connect(self.document, SIGNAL('page_changed(PyQt_PyObject)'), self.page_changed)
         
+        self.search.help_text = 'Search'
+        self.search.clear_to_help()
+        
+        self.action_next_page.setShortcuts(QKeySequence.MoveToNextPage)
+        self.action_previous_page.setShortcuts(QKeySequence.MoveToPreviousPage)
+        QObject.connect(self.action_next_page, SIGNAL('triggered(bool)'), self.next) 
+        QObject.connect(self.action_previous_page, SIGNAL('triggered(bool)'), self.previous)
+        QObject.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
+        QObject.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
+        QObject.connect(self.spin_box, SIGNAL('valueChanged(int)'), self.go_to_page)
+        QObject.connect(self.slider, SIGNAL('valueChanged(int)'), self.go_to_page)
+        self.next_button.setDefaultAction(self.action_next_page)
+        self.previous_button.setDefaultAction(self.action_previous_page)
+        self.back_button.setDefaultAction(self.action_back)
+        self.forward_button.setDefaultAction(self.action_forward)
+        
+        self.graphics_view.setRenderHint(QPainter.Antialiasing, True)
+        self.graphics_view.setRenderHint(QPainter.TextAntialiasing, True)
+        self.graphics_view.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        
+    def page_changed(self, num):
+        self.slider.setValue(num)
+        self.spin_box.setValue(num)
+    
     def render(self):
-        self.window.show()
-        self.statusbar.showMessage('Parsing LRF file '+self.file_name)
-        QCoreApplication.instance().processEvents()
-        self.lrf = LRFDocument(self.stream)
-        self.stream.close()
-        self.stream = None
-        self.graphics_view.resize(self.lrf.device_info.width+15, self.lrf.device_info.height)
-        self.window.setWindowTitle(self.lrf.metadata.title + ' - ' + __appname__)
-        self.statusbar.showMessage('Building graphical representation')
-        QCoreApplication.instance().processEvents()
+        self.stack.setCurrentIndex(1)
+        self.renderer.start()
+    
+    
+    def parsed(self, *args):
+        if self.renderer.lrf is not None:
+            self.graphics_view.setMinimumSize(self.renderer.lrf.device_info.width+5, 
+                                              self.renderer.lrf.device_info.height)
+            self.window.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)
+            self.document_title = self.renderer.lrf.metadata.title
+            self.document.render(self.renderer.lrf)
+            self.renderer.lrf = None
+            self.graphics_view.setScene(self.document)
+            self.graphics_view.show()
+            self.spin_box.setRange(1, self.document.num_of_pages)
+            self.slider.setRange(1, self.document.num_of_pages)
+            self.spin_box.setSuffix(' of %d'%(self.document.num_of_pages,))
+            self.spin_box.updateGeometry()
+            self.stack.setCurrentIndex(0)
+        else:
+            exception = self.renderer.exception
+            print >>sys.stderr, 'Error rendering document'
+            print >>sys.stderr, exception
+            print >>sys.stderr, self.renderer.formatted_traceback
+            msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
+            msg += u'<p>Failed to render document</p>'
+            msg += u'<p>Detailed <b>traceback</b>:<pre>'
+            msg += self.renderer.formatted_traceback + '</pre>'            
+            d = ConversionErrorDialog(self.window, 'Error while rendering file', msg)
+            d.exec_()
+            
+    def chapter_rendered(self, num):
+        if num > 0:
+            self.progress_bar.setMinimum(0)
+            self.progress_bar.setMaximum(num)
+            self.progress_bar.setValue(0)
+            self.progress_label.setText('Rendering '+ self.document_title)
+        else:
+            self.progress_bar.setValue(self.progress_bar.value()+1)
+        QCoreApplication.processEvents()
+    
+    def next(self, triggered):
+        self.document.next()
         
+    def previous(self, triggered):
+        self.document.previous()
         
-        self.document = Document(self.lrf, self.logger, self.opts)
-        self.graphics_view.setScene(self.document)
-        self.graphics_view.show()
-        self.statusbar.clearMessage()
-        QCoreApplication.instance().processEvents()
-        self.document.next() 
+    def go_to_page(self, num):
+        self.document.show_page(num)
+        
+    def forward(self, triggered):
+        self.document.forward()
+    
+    def back(self, triggered):
+        self.document.back()
+
 
 def file_renderer(stream, logger, opts):
     from PyQt4.Qt import QMainWindow
@@ -93,9 +181,13 @@ def main(args=sys.argv, logger=None):
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         main = file_renderer(open(args[1], 'rb'), logger, opts)
+        sys.excepthook = main.unhandled_exception
+        main.window.show()
         main.render()
         return app.exec_()        
     return 0
 
 if __name__ == '__main__':
     sys.exit(main())
+    
+    

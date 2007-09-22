@@ -813,9 +813,9 @@ class HTMLConverter(object):
                                             height=height))
             left = int(floor((pwidth - width)/2.))
             self.current_page.contents[-1].put_object(
-                            ImageBlock(self.images[path], xsize=pwidth,
-                                       ysize=pheight, x1=pwidth, y1=pheight,
-                                       blockwidth=pwidth, blockheight=pheight),
+                            ImageBlock(self.images[path], xsize=width,
+                                       ysize=height, x1=width, y1=height,
+                                       blockwidth=width, blockheight=height),
                             left, 0)
     
     def process_page_breaks(self, tag, tagname, tag_css):

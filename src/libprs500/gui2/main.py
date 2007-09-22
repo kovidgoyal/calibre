@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import os, sys, traceback, StringIO, textwrap
+import os, sys, textwrap
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
@@ -30,6 +30,7 @@ from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, BOOK_EXTENSIONS, \
                            pixmap_to_data, choose_dir, ORG_NAME
+from libprs500.gui2.main_window import MainWindow
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
@@ -41,7 +42,7 @@ from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog
 from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
 from libprs500.gui2.dialogs.password import PasswordDialog
 
-class Main(QObject, Ui_MainWindow):
+class Main(QObject, Ui_MainWindow, MainWindow):
     
     def set_default_thumbnail(self, height):
         r = QSvgRenderer(':/images/book.svg')
@@ -665,15 +666,7 @@ class Main(QObject, Ui_MainWindow):
         e.accept()
         
                 
-    def unhandled_exception(self, type, value, tb):
-        sio = StringIO.StringIO()
-        traceback.print_exception(type, value, tb, file=sio)
-        fe = sio.getvalue()
-        print >>sys.stderr, fe
-        msg = '<p><b>' + unicode(str(value), 'utf8', 'replace') + '</b></p>'
-        msg += '<p>Detailed <b>traceback</b>:<pre>'+fe+'</pre>'
-        d = ConversionErrorDialog(self.window, 'ERROR: Unhandled exception', msg)
-        d.exec_()
+    
 
 def main(args=sys.argv): 
     from PyQt4.Qt import QApplication, QMainWindow
