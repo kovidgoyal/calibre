@@ -98,7 +98,13 @@ class Main(QObject, Ui_MainWindow, MainWindow):
                                               self.renderer.lrf.device_info.height)
             self.window.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)
             self.document_title = self.renderer.lrf.metadata.title
-            self.document.render(self.renderer.lrf)
+            if self.opts.profile:
+                import cProfile
+                render, lrf = self.document.render, self.renderer.lrf
+                cProfile.runctx('render(lrf)', globals(), locals(), lrf.metadata.title+'.stats')
+                print 'Stats written to', self.renderer.lrf.metadata.title+'.stats'
+            else:
+                self.document.render(self.renderer.lrf)
             self.renderer.lrf = None
             self.graphics_view.setScene(self.document)
             self.graphics_view.show()
@@ -163,6 +169,8 @@ def option_parser():
                       default=False, action='store_true', dest='visual_debug')
     parser.add_option('--disable-hyphenation', dest='hyphenate', default=True, action='store_false',
                       help='Disable hyphenation. Should significantly speed up rendering.')
+    parser.add_option('--profile', dest='profile', default='False', action='store_true',
+                      help='Profile the LRf renderer')
     return parser
 
 def main(args=sys.argv, logger=None):

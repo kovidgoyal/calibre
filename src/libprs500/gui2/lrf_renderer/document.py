@@ -856,39 +856,40 @@ class Document(QGraphicsScene):
             self.show_page(page)
             
     
-    def load_fonts(self, lrf):
+    def load_fonts(self, lrf, load_substitutions=True):
         font_map = {}
+        
         for font in lrf.font_map:
             fdata = QByteArray(lrf.font_map[font].data)
             id = QFontDatabase.addApplicationFontFromData(fdata)
             font_map[font] = [str(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
         
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_BoldItalic.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationMono_Italic
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Italic.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationSerif_Bold
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Bold.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationSans_BoldItalic
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_BoldItalic.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationMono_Regular
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Regular.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationSans_Italic
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Italic.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationSerif_Regular
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Regular.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationSerif_Italic
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Italic.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationSans_Bold
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Bold.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationMono_Bold
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Bold.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationSerif_BoldItalic
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_BoldItalic.font_data))
-        from libprs500.ebooks.lrf.fonts.liberation import LiberationSans_Regular
-        QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Regular.font_data))
+        if load_substitutions:
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_BoldItalic.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationMono_Italic
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Italic.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationSerif_Bold
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Bold.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationSans_BoldItalic
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_BoldItalic.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationMono_Regular
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Regular.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationSans_Italic
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Italic.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationSerif_Regular
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Regular.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationSerif_Italic
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_Italic.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationSans_Bold
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Bold.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationMono_Bold
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_Bold.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationSerif_BoldItalic
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSerif_BoldItalic.font_data))
+            from libprs500.ebooks.lrf.fonts.liberation import LiberationSans_Regular
+            QFontDatabase.addApplicationFontFromData(QByteArray(LiberationSans_Regular.font_data))
         
-            
         self.font_loader = FontLoader(font_map, self.dpi)
     
     
@@ -916,10 +917,10 @@ class Document(QGraphicsScene):
         self.chapter_map[chapter.id] = len(self.chapters)-1    
             
     
-    def render(self, lrf):
+    def render(self, lrf, load_substitutions=True):
         self.dpi = lrf.device_info.dpi/10.
         self.ruby_tags = dict(**lrf.ruby_tags)
-        self.load_fonts(lrf)
+        self.load_fonts(lrf, load_substitutions)
         self.objects = lrf.objects
         
         num_chaps = 0
@@ -931,6 +932,7 @@ class Document(QGraphicsScene):
         for pt in lrf.page_trees:
             for chapter in pt:
                 self.render_chapter(chapter, lrf)
+                
                 self.emit(SIGNAL('chapter_rendered(int)'), -1)
         self.chapter_layout = [i.num_of_pages for i in self.chapters]
         self.objects = None
@@ -975,4 +977,3 @@ class Document(QGraphicsScene):
     def show_page_at_percent(self, p):
         num = self.num_of_pages*(p/100.)
         self.show_page(num)
-        
