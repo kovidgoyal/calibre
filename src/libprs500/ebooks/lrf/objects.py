@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import struct, array, zlib, cStringIO
+import struct, array, zlib, cStringIO, collections
 
 from libprs500.ebooks.lrf import LRFParseError
 from libprs500.ebooks.lrf.tags import Tag
@@ -512,13 +512,6 @@ class Block(LRFStream):
             if hasattr(self, attr):
                 self.attrs[attr] = getattr(self, attr)
         
-    def __iter__(self):
-        try:
-            for i in iter(self.content):
-                yield i
-        except TypeError:
-            yield self.content
-        
     def __unicode__(self):
         s = u'\n<%s objid="%d" blockstyle="%d" '%(self.name, self.id, self.style_id)
         if hasattr(self, 'textstyle_id'):
@@ -526,9 +519,7 @@ class Block(LRFStream):
         for attr in self.attrs:
             s += '%s="%s" '%(attr, self.attrs[attr])
         s = s.rstrip()+'>\n'
-        if self.name != 'ImageBlock':
-            for i in self:
-                s += unicode(i)
+        s += unicode(self.content)
         s += '</%s>\n'%(self.name,)
         return s
         
@@ -541,6 +532,8 @@ class MiniPage(LRFStream):
     tag_map.update(LRFStream.tag_map)
     tag_map.update(BlockAttr.tag_map)
 
+
+
 class Text(LRFStream):
     tag_map = {
         0xF503: ['style_id', 'D'],
@@ -550,8 +543,9 @@ class Text(LRFStream):
     
     style = property(fget=lambda self : self._document.objects[self.style_id])
     
-    class Content(LRFContentObject):
-        tag_map = {
+    text_map = { 0x22: u'&quot;', 0x26: u'&amp;', 0x27: u'&squot;', 0x3c: u'&lt;', 0x3e: u'&gt;' }
+    
+    text_tags = {
            0xF581: ['simple_container', 'Italic'],
            0xF582: 'end_container',
            0xF5B1: ['simple_container', 'Yoko'],
@@ -585,194 +579,183 @@ class Text(LRFStream):
            0xF5C6: 'box',
            0xF5C7: 'end_container',
            0xF5CA: 'space',
-           0xF5CC: 'string',
            0xF5D1: 'plot',
            0xF5D2: 'cr',
         }
+    
+    class TextTag(object):
         
-        text_map = { 0x22: u'&quot;', 0x26: u'&amp;', 0x27: u'&squot;', 0x3c: u'&lt;', 0x3e: u'&gt;' }
-        linetype_map = {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}
-        adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
-        lineposition_map = {1:'before', 2:'after'}
-        
-        def __init__(self, bytes, objects, parent=None, name=None, attrs={}):
-            self.parent = parent
+        def __init__(self, name, attrs={}, self_closing=False):
             self.name = name
             self.attrs = attrs
-            LRFContentObject.__init__(self, bytes, objects)
-            
-        def parse_stream(self, length):
-            offset = self.stream.tell()
-            while self.in_container and offset < length:
-                buf = self.stream.getvalue()[offset:]
-                pos = buf.find('\xf5') - 1
-                if pos > 0:
-                    self.stream.seek(offset+pos)
-                    self.add_text(buf[:pos])
-                self.handle_tag(Tag(self.stream))
-                offset = self.stream.tell()
-            
-        def handle_tag(self, tag):
-            if tag.id in self.tag_map:
-                action = self.tag_map[tag.id]
-                if isinstance(action, basestring):
-                    func, args = action, tuple([])  
-                else:
-                    func, args = action[0], (action[1],)
-                getattr(self, func)(tag, *args)
-            elif tag.id in TextAttr.tag_map:
-                h = TextAttr.tag_map[tag.id]
-                val = LRFObject.tag_to_val(h, None, tag, self.stream)
-                if self.name == 'Span':
-                    if h[0] not in self.attrs:
-                        self.attrs[h[0]] = val
-                    elif val != self.attrs[h[0]]:
-                        if self._contents: 
-                            self.parent._contents.append(self)
-                        Text.Content(self.stream, self.objects, self.parent, 
-                                            'Span', {h[0]: val})
-                        
-                        
-                else:
-                    Text.Content(self.stream, self.objects, self, 
-                                        'Span', {h[0]: val})
-                    
-            else:
-                raise LRFParseError('Unknown tag in text stream %s'&(tag,))
-                
-            
-        def simple_container(self, tag, name):
-            cont = Text.Content(self.stream, self.objects, parent=self, name=name)            
-            self._contents.append(cont)
-            
-        def end_container(self, *args):
-            self.in_container = False
-            if self.name == 'Span' and self._contents and self not in self.parent._contents:
-                self.parent._contents.append(self)
-            
-        def end_to_root(self):
-            parent = self
-            while parent:
-                parent.end_container()
-                parent = parent.parent
-                
-        def root(self):
-            root = self
-            while root.parent:
-                root = root.parent
-            return root
-                
-        def start_para(self, tag):
-            self.end_to_root()
-            root = self.root()
-            root.in_container = True
-            
-            p = Text.Content(self.stream, self.objects, parent=root, name='P')
-            root._contents.append(p)
-            
-        def end_para(self, tag):
-            self.end_to_root()
-            root = self.root()
-            root.in_container = True
-            
-        def cr(self, tag):
-            self._contents.append(Text.Content('', self.objects, parent=self, name='CR'))
-            
-        def char_button(self, tag):
-            self._contents.append(Text.Content(self.stream, self.objects, parent=self, 
-                                    name='CharButton', attrs={'refobj':tag.dword}))
-        
-        def empline(self, tag):
-            
-            def invalid(op):
-                self.stream.seek(op)
-                self.simple_container('EmpLine')
-                
-            oldpos = self.stream.tell()
-            try:
-                t = Tag(self.stream)
-                if t.id not in [0xF579, 0xF57A]:
-                    raise LRFParseError
-            except LRFParseError:
-                invalid(oldpos)
-                return
-            h = TextAttr.tag_map[t.id]
-            attrs = {}
-            attrs[h[0]] = TextAttr.tag_to_val(h, None, t, None)
-            oldpos = self.stream.tell() 
-            try:
-                t = Tag(self.stream)
-                if t.id not in [0xF579, 0xF57A]:
-                    raise LRFParseError
-                h = TextAttr.tag_map[t.id]
-                attrs[h[0]] = TextAttr.tag_to_val(h, None, t, None)
-            except LRFParseError:
-                self.stream.seek(oldpos)
-            
-            cont = Text.Content(self.stream, self.objects, parent=self, 
-                                name='EmpLine', attrs=attrs)
-            self._contents.append(cont)
-                    
-        def space(self, tag):
-            self._contents.append(Text.Content('', self.objects, parent=self, 
-                                name='Space', attrs={'xsize':tag.sword}))
-            
-        def string(self, tag):
-            strlen = tag.word
-            self.add_text(self.stream.read(strlen))
-            
-        def add_text(self, text):
-            s = unicode(text, "utf-16-le")
-            self._contents.append(s.translate(self.text_map))
-            
-        def plot(self, tag):
-            xsize, ysize, refobj, adjustment = struct.unpack("<HHII", tag.contents)
-            plot = Text.Content('', self.objects, self, 'Plot',
-                {'xsize': xsize, 'ysize': ysize, 'refobj':refobj, 
-                 'adjustment':self.adjustment_map[adjustment]})
-            plot.refobj = self.objects[refobj]
-            self._contents.append(plot)
-                        
-        def draw_char(self, tag):
-            self._contents.append(Text.Content(self.stream, self.objects, self, 
-                                        'DrawChar', {'line':tag.word}))
-            
-        def box(self, tag):
-            self._contents.append(Text.Content(self.stream, self.objects, self, 
-                                        'Box', {'linetype':self.linetype_map[tag.word]}))
-            
-        def __iter__(self):
-            for i in self._contents:
-                yield i
+            self.self_closing = self_closing
             
         def __unicode__(self):
-            s = u''
-            if self.name is not None:
-                s += u'<'+self.name+u' '
-                for attr in self.attrs:
-                    s += u'%s="%s" '%(attr, self.attrs[attr])
-                s = s.rstrip()
-            children = u''
-            for i in self:
-                children += unicode(i)
-            if len(children) == 0:
-                return s + u' />'
-            if self.name is None:
-                return children
-            return s + u'>' + children + '</%s>'%(self.name,) + ('\n' if self.name == 'P' else '')
+            s = u'<%s '%(self.name,)
+            for name, val in self.attrs.items():
+                s += '%s="%s" '%(name, val)
+            return s.rstrip() + (u' />' if self.self_closing else u'>') + (u'\n' if self.name in ('P', 'CR') else u'')
+    
+    linetype_map = {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}
+    adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
+    lineposition_map = {1:'before', 2:'after'}
+    
+    
+    def add_text(self, text):
+        s = unicode(text, "utf-16-le")
+        if s:
+            self.containers.append(s.translate(self.text_map))
+    
+    def empty_containers(self):
+        open_containers = 0
+        while len(self.containers) > 0:
+            c = self.containers.popleft()
+            self.content.append(c)
+            if c is None:
+                open_containers -= 1
+            elif isinstance(c, self.__class__.TextTag) and not c.self_closing:
+                open_containers += 1
+        while open_containers > 0:
+            self.content.append(None)
+            open_containers -= 1
+                
+    def end_container(self, tag, stream):
+        self.containers.append(None)
+    
+    def start_para(self, tag, stream):
+        self.empty_containers()
+        self.containers.append(self.__class__.TextTag('P'))
         
-        def __str__(self):
-            return unicode(self).encode('utf-8')
+    def end_para(self, tag, stream):
+        self.empty_containers()
+        
+    def cr(self, tag, stream):
+        self.containers.append(self.__class__.TextTag('CR', self_closing=True))
+        
+    def char_button(self, tag, stream):
+        self.containers.append(self.__class__.TextTag( 
+                                'CharButton', attrs={'refobj':tag.dword}))
+        
+    def simple_container(self, tag, name):
+        self.containers.append(self.__class__.TextTag(name))
+    
+    def empline(self, tag, stream):
+        
+        def invalid(op):
+            stream.seek(op)
+            self.simple_container('EmpLine')
+            
+        oldpos = stream.tell()
+        try:
+            t = Tag(stream)
+            if t.id not in [0xF579, 0xF57A]:
+                raise LRFParseError
+        except LRFParseError:
+            invalid(oldpos)
+            return
+        h = TextAttr.tag_map[t.id]
+        attrs = {}
+        attrs[h[0]] = TextAttr.tag_to_val(h, None, t, None)
+        oldpos = stream.tell() 
+        try:
+            t = Tag(stream)
+            if t.id not in [0xF579, 0xF57A]:
+                raise LRFParseError
+            h = TextAttr.tag_map[t.id]
+            attrs[h[0]] = TextAttr.tag_to_val(h, None, t, None)
+        except LRFParseError:
+            stream.seek(oldpos)
+        
+        self.containers.append(self.__class__.TextTag( 
+                            'EmpLine', attrs=attrs))
+                
+    def space(self, tag, stream):
+        self.containers.append(self.__class__.TextTag('Space', 
+                                        attrs={'xsize':tag.sword}, 
+                                        self_closing=True))        
+        
+    def plot(self, tag, stream):
+        xsize, ysize, refobj, adjustment = struct.unpack("<HHII", tag.contents)
+        plot = self.__class__.TextTag('Plot',
+            {'xsize': xsize, 'ysize': ysize, 'refobj':refobj, 
+             'adjustment':self.adjustment_map[adjustment]}, self_closing=True)
+        plot.refobj = self._document.objects[refobj]
+        self.containers.append(plot)
+                    
+    def draw_char(self, tag, stream):
+        self.containers.append(self.__class__.TextTag('DrawChar', {'line':tag.word}))
+        
+    def box(self, tag, stream):
+        self.containers.append(self.__class__.TextTag('Box',
+                                     {'linetype':self.linetype_map[tag.word]}))
     
     def initialize(self):
-        self.content = Text.Content(self.stream, self._document.objects)
-                
-    def __iter__(self):
-        for i in self.content:
-            yield i
+        self.content    = collections.deque()
+        self.containers = collections.deque()
+        stream = cStringIO.StringIO(self.stream)
+        length = len(self.stream)
+        previous_span = None
         
-    def __str__(self):
-        return unicode(self.content)
+        while stream.tell() < length:
+        
+            # Is there some text beofre a tag?
+            pos = self.stream.find('\xf5', stream.tell()) - 1
+            if pos > 0:
+                self.add_text(self.stream[stream.tell():pos])
+                stream.seek(pos)
+            
+            tag = Tag(stream)
+            
+            if tag.id == 0xF5CC:
+                self.add_text(stream.read(tag.word))
+            elif tag.id in self.__class__.text_tags: # A Text tag
+                action = self.__class__.text_tags[tag.id]
+                if isinstance(action, basestring):
+                    getattr(self, action)(tag, stream)
+                else:
+                    getattr(self, action[0])(tag, action[1])
+            elif tag.id in TextAttr.tag_map: # A Span attribute
+                action = TextAttr.tag_map[tag.id]
+                if len(self.containers) == 0:
+                    previous_span = None
+                name, val = action[0], LRFObject.tag_to_val(action, None, tag, None)
+                if previous_span is None:
+                    # No existing Span so start a new one
+                    previous_span = self.__class__.TextTag('Span', {name:val})
+                    self.containers.append(previous_span)
+                else:
+                    # Already in a Span
+                    if name in previous_span.attrs:
+                        # Start new Span
+                        if hasattr(self.containers[-1], 'name') and self.containers[-1].name == 'Span':
+                            self.containers.pop()
+                        else:
+                            self.empty_containers()
+                        previous_span = self.__class__.TextTag('Span', {name:val})
+                        self.containers.append(previous_span)
+                    else:
+                        # Add attribute to current span
+                        previous_span.attrs[name] = val
+                        
+        self.stream = None
+             
+    def __unicode__(self):
+        s = u''
+        open_containers = collections.deque()
+        for c in self.content:
+            if isinstance(c, basestring):
+                s += c
+            elif c is None:
+                p = open_containers.pop()
+                s += u'</%s>'%(p.name,)
+            else:
+                s += unicode(c)
+                if not c.self_closing: 
+                    open_containers.append(c)
+        
+        if len(open_containers) > 0:
+            raise LRFParseError('Malformed text stream') 
+        return s
 
 
 class Image(LRFObject):
