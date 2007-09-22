@@ -608,41 +608,45 @@ class Text(LRFStream):
     def add_text(self, text):
         s = unicode(text, "utf-16-le")
         if s:
-            self.containers.append(s.translate(self.text_map))
+            self.content.append(s.translate(self.text_map))
     
-    def empty_containers(self):
+    def end_container(self, tag, stream):
+        self.content.append(None)
+    
+    def start_para(self, tag, stream):
+        self.content.append(self.__class__.TextTag('P'))
+        
+    def close_containers(self, start=0):
         open_containers = 0
-        if len(self.containers) > 0 and isinstance(self.containers[-1], self.__class__.Span):
-            self.containers.pop() 
-        while len(self.containers) > 0:
-            c = self.containers.popleft()
-            self.content.append(c)
+        if len(self.content) > 0 and isinstance(self.content[-1], self.__class__.Span):
+            self.content.pop()
+        while start < len(self.content):
+            c = self.content[start]
             if c is None:
                 open_containers -= 1
             elif isinstance(c, self.__class__.TextTag) and not c.self_closing:
                 open_containers += 1
+            start += 1
         self.content.extend(None for i in range(open_containers))
         
-                
-    def end_container(self, tag, stream):
-        self.containers.append(None)
     
-    def start_para(self, tag, stream):
-        self.empty_containers()
-        self.containers.append(self.__class__.TextTag('P'))
-        
     def end_para(self, tag, stream):
-        self.empty_containers()
+        i = len(self.content)-1
+        while i > -1:
+            if isinstance(self.content[i], Text.TextTag) and self.content[i].name == 'P':
+                break
+            i -= 1
+        self.close_containers(start=i)
         
     def cr(self, tag, stream):
-        self.containers.append(self.__class__.TextTag('CR', self_closing=True))
+        self.content.append(self.__class__.TextTag('CR', self_closing=True))
         
     def char_button(self, tag, stream):
-        self.containers.append(self.__class__.TextTag( 
+        self.content.append(self.__class__.TextTag( 
                                 'CharButton', attrs={'refobj':tag.dword}))
         
     def simple_container(self, tag, name):
-        self.containers.append(self.__class__.TextTag(name))
+        self.content.append(self.__class__.TextTag(name))
     
     def empline(self, tag, stream):
         
@@ -671,11 +675,11 @@ class Text(LRFStream):
         except LRFParseError:
             stream.seek(oldpos)
         
-        self.containers.append(self.__class__.TextTag( 
+        self.content.append(self.__class__.TextTag( 
                             'EmpLine', attrs=attrs))
                 
     def space(self, tag, stream):
-        self.containers.append(self.__class__.TextTag('Space', 
+        self.content.append(self.__class__.TextTag('Space', 
                                         attrs={'xsize':tag.sword}, 
                                         self_closing=True))        
         
@@ -685,18 +689,17 @@ class Text(LRFStream):
             {'xsize': xsize, 'ysize': ysize, 'refobj':refobj, 
              'adjustment':self.adjustment_map[adjustment]}, self_closing=True)
         plot.refobj = self._document.objects[refobj]
-        self.containers.append(plot)
+        self.content.append(plot)
                     
     def draw_char(self, tag, stream):
-        self.containers.append(self.__class__.TextTag('DrawChar', {'line':tag.word}))
+        self.content.append(self.__class__.TextTag('DrawChar', {'line':tag.word}))
         
     def box(self, tag, stream):
-        self.containers.append(self.__class__.TextTag('Box',
+        self.content.append(self.__class__.TextTag('Box',
                                      {'linetype':self.linetype_map[tag.word]}))
     
     def initialize(self):
-        self.content    = collections.deque()
-        self.containers = collections.deque()
+        self.content = collections.deque()
         stream = cStringIO.StringIO(self.stream)
         length = len(self.stream)
         style = self.style.as_dict()
@@ -722,18 +725,18 @@ class Text(LRFStream):
                     getattr(self, action[0])(tag, action[1])
             elif tag.id in TextAttr.tag_map: # A Span attribute
                 action = TextAttr.tag_map[tag.id]
-                if len(self.containers) == 0:
+                if len(self.content) == 0:
                     current_style = style.copy()
                 name, val = action[0], LRFObject.tag_to_val(action, None, tag, None)
                 if current_style[name] != val:
                     # No existing Span
-                    if len(self.containers) > 0 and isinstance(self.containers[-1], self.__class__.Span):
-                        self.containers[-1].attrs[name] = val
+                    if len(self.content) > 0 and isinstance(self.content[-1], self.__class__.Span):
+                        self.content[-1].attrs[name] = val
                     else:
-                        self.containers.append(self.__class__.Span('Span', {name:val}))
+                        self.content.append(self.__class__.Span('Span', {name:val}))
                     current_style[name] = val
-        if self.containers:
-            self.empty_containers()        
+        if len(self.content) > 0:
+            self.close_containers()        
         self.stream = None
              
     def __unicode__(self):
@@ -743,10 +746,9 @@ class Text(LRFStream):
             if isinstance(c, basestring):
                 s += c
             elif c is None:
-                if len(open_containers) > 0: #for malformed text streams like those produced by BookDesigner 
-                    p = open_containers.pop()
-                    nl = u'\n' if p.name == 'P' else u''
-                    s += nl + u'</%s>'%(p.name,) + nl 
+                p = open_containers.pop()
+                nl = u'\n' if p.name == 'P' else u''
+                s += nl + u'</%s>'%(p.name,) + nl 
             else:
                 s += unicode(c)
                 if not c.self_closing: 
