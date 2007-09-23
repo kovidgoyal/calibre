@@ -73,9 +73,11 @@ class LibraryDelegate(QItemDelegate):
             painter.setPen(self.PEN)      
             painter.setBrush(self.brush)      
             painter.translate(x, y)
-            for i in range(num):
+            i = 0
+            while i < num:
                 draw_star()
                 painter.translate(-self.SIZE, 0)
+                i += 1
         except Exception, e:
             traceback.print_exc(e)
         painter.restore()
@@ -87,9 +89,21 @@ class LibraryDelegate(QItemDelegate):
         return sb
 
 class BooksModel(QAbstractTableModel):
-    
-    ROMAN = ['0', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']
-    
+    coding = zip(
+    [1000,900,500,400,100,90,50,40,10,9,5,4,1],
+    ["M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"]
+    )
+    @classmethod
+    def roman(cls, num):
+        if num <= 0 or num >= 4000 or int(num) != num:
+            return str(num)
+        result = []
+        for d, r in cls.coding:
+            while num >= d:
+                result.append(r)
+                num -= d
+        return ''.join(result)
+
     def __init__(self, parent):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
@@ -197,7 +211,7 @@ class BooksModel(QAbstractTableModel):
         series = self.db.series(idx)
         if series:
             sidx = self.db.series_index(idx)
-            sidx = self.__class__.ROMAN[sidx] if sidx < len(self.__class__.ROMAN) else str(sidx)
+            sidx = self.__class__.roman(sidx)
             data['Series'] = 'Book <font face="serif">%s</font> of %s.'%(sidx, series)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
     
