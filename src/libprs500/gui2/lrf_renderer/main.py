@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''''''
 
-import sys, logging, os, traceback
+import sys, logging, os, traceback, time
 
 from PyQt4.QtGui import QApplication, QKeySequence, QPainter
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
@@ -104,7 +104,9 @@ class Main(QObject, Ui_MainWindow, MainWindow):
                 cProfile.runctx('render(lrf)', globals(), locals(), lrf.metadata.title+'.stats')
                 print 'Stats written to', self.renderer.lrf.metadata.title+'.stats'
             else:
+                start = time.time()
                 self.document.render(self.renderer.lrf)
+                print 'Rendering time:', time.time()-start, 'seconds'
             self.renderer.lrf = None
             self.graphics_view.setScene(self.document)
             self.graphics_view.show()
