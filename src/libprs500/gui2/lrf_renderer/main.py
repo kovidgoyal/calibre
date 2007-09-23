@@ -169,8 +169,8 @@ def option_parser():
                       default=False, action='store_true', dest='visual_debug')
     parser.add_option('--disable-hyphenation', dest='hyphenate', default=True, action='store_false',
                       help='Disable hyphenation. Should significantly speed up rendering.')
-    parser.add_option('--profile', dest='profile', default='False', action='store_true',
-                      help='Profile the LRf renderer')
+    parser.add_option('--profile', dest='profile', default=False, action='store_true',
+                      help='Profile the LRF renderer')
     return parser
 
 def main(args=sys.argv, logger=None):

@@ -22,7 +22,7 @@ from PyQt4.QtGui import QGraphicsRectItem, QGraphicsScene, QPen, \
                         QFont, QGraphicsItem, QGraphicsLineItem, QPixmap, \
                         QGraphicsPixmapItem, QTextCharFormat, QTextFrameFormat, \
                         QTextBlockFormat, QTextCursor, QTextImageFormat, \
-                        QTextDocument
+                        QTextDocument, QTextOption
 
 from libprs500.ebooks.lrf.fonts import FONT_MAP
 from libprs500.gui2 import qstring_to_unicode
@@ -126,7 +126,7 @@ class Line(QGraphicsRectItem):
                 'dashed' : QTextCharFormat.DashUnderline,
                 'double' : QTextCharFormat.WaveUnderline,
                 }
-    
+    dto = QTextOption(Qt.AlignJustify)
     
     def __init__(self, offset, linespace, linelength, align, hyphenate, ts, block_id):
         QGraphicsRectItem.__init__(self, 0, 0, 0, 0)
@@ -187,7 +187,9 @@ class Line(QGraphicsRectItem):
     
     def create_text_item(self, ts):
         self.item = QGraphicsTextItem(self)
-        self.cursor = QTextCursor(self.item.document())
+        doc = self.item.document()
+        doc.setDefaultTextOption(self.__class__.dto)
+        self.cursor = QTextCursor(doc)
         f = self.cursor.currentFrame()
         ff = QTextFrameFormat()
         ff.setBorder(0)
