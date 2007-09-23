@@ -99,7 +99,7 @@ class BooksModel(QAbstractTableModel):
             
     def set_database(self, db):
         if isinstance(db, (QString, basestring)):
-            db = LibraryDatabase(os.path.expanduser(str(db)))
+            db = LibraryDatabase(os.path.expanduser(qstring_to_unicode(db)))
         self.db = db
         
     def add_books(self, paths, formats, metadata, uris=[]):
@@ -477,8 +477,6 @@ class DeviceBooksModel(BooksModel):
         self.last_search = text
     
     def sort(self, col, order, reset=True):
-        if not self.db:
-            return
         descending = order != Qt.AscendingOrder
         def strcmp(attr):
             ag = attrgetter(attr)

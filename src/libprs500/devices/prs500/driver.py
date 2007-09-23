@@ -933,8 +933,6 @@ class PRS500(Device):
 
     @safe
     def upload_book_list(self, booklist, end_session=True):
-        if not len(booklist): 
-            raise ArgumentError("booklist is empty")
         path = self.MEDIA_XML
         if not booklist.prefix:
             card = self.card(end_session=True)
