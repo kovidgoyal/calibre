@@ -644,6 +644,13 @@ class _Canvas(QGraphicsRectItem):
             self.is_full = True
         else:
             br = ib.boundingRect()
+            max_height = min(br.height(), self.max_y-y)
+            max_width  = min(br.width(), self.max_x-x)
+            if br.height() > max_height or br.width() > max_width:
+                p = ib.pixmap()
+                ib.setPixmap(p.scaled(max_width, max_height, Qt.IgnoreAspectRatio,
+                                      Qt.SmoothTransformation))
+                br = ib.boundingRect()
             ib.setParentItem(self)
             ib.setPos(x, y)
             self.current_y = y + br.height()
