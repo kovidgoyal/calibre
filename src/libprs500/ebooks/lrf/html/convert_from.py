@@ -196,10 +196,18 @@ class HTMLConverter(object):
         raw = open(self.file_name, 'rb').read()
         if self.pdftohtml:
             nmassage.extend(HTMLConverter.PDFTOHTML)
-            raw = unicode(raw, 'utf8', 'replace')
-        soup = BeautifulSoup(raw, 
+            #raw = unicode(raw, 'utf8', 'replace')
+        try:
+            soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
+        except ConversionError, err:
+            if 'Failed to coerce to unicode' in str(err):
+                raw = unicode(raw, 'utf8', 'replace')
+                soup = BeautifulSoup(raw, 
+                         convertEntities=BeautifulSoup.HTML_ENTITIES,
+                         markupMassage=nmassage)
+                
         if not self.baen and self.is_baen(soup):
             self.baen = True
             self.logger.info('Baen file detected. Re-parsing...')
