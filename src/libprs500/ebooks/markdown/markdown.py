@@ -1797,9 +1797,7 @@ def parse_options() :
             'extensions' : options.extensions,
             'encoding' : options.encoding }
 
-if __name__ == '__main__':
-    """ Run Markdown from the command line. """
-
+def main():
     options = parse_options()
 
     #if os.access(inFile, os.R_OK):
@@ -1808,7 +1806,15 @@ if __name__ == '__main__':
         sys.exit(0)
     
     markdownFromFile(**options)
+    
+    return 0
 
+
+if __name__ == '__main__':
+    """ Run Markdown from the command line. """
+    sys.exit(main())
+
+    
 
 
 
