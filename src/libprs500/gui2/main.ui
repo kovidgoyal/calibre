@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>787</width>
+    <width>865</width>
     <height>822</height>
    </rect>
   </property>
@@ -316,8 +316,8 @@
    </property>
    <property name="iconSize" >
     <size>
-     <width>64</width>
-     <height>64</height>
+     <width>48</width>
+     <height>48</height>
     </size>
    </property>
    <property name="toolButtonStyle" >
@@ -338,6 +338,7 @@
    <addaction name="separator" />
    <addaction name="action_news" />
    <addaction name="action_convert" />
+   <addaction name="action_view" />
   </widget>
   <widget class="QStatusBar" name="statusBar" >
    <property name="mouseTracking" >
@@ -419,6 +420,14 @@
    </property>
    <property name="text" >
     <string>Convert E-books</string>
+   </property>
+  </action>
+  <action name="action_view" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >:/images/view.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>View</string>
    </property>
   </action>
  </widget>

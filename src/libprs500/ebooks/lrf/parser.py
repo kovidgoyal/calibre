@@ -32,6 +32,9 @@ class LRFDocument(LRFMetaFile):
         self.page_trees = []
         self.font_map = {}
         self.image_map = {}
+        self.keep_parsing = True
+        
+    def parse(self):
         self._parse_objects()
         self.toc = None
         self.metadata = LRFDocument.temp()
@@ -53,9 +56,13 @@ class LRFDocument(LRFMetaFile):
         if ord(array.array("i",[1]).tostring()[0])==0: #big-endian
             obj_array.byteswap()
         for i in range(self.number_of_objects):
+            if not self.keep_parsing:
+                break
             objid, objoff, objsize = obj_array[i*4:i*4+3]
             self._parse_object(objid, objoff, objsize)
         for obj in self.objects.values():
+            if not self.keep_parsing:
+                break
             if hasattr(obj, 'initialize'):
                 obj.initialize()
                     
@@ -155,6 +162,7 @@ def main(args=sys.argv, logger=None):
     o.write(u'<?xml version="1.0" encoding="UTF-8"?>\n')
     logger.info('Parsing LRF...')
     d = LRFDocument(open(args[1], 'rb'))
+    d.parse()
     logger.info('Creating XML...')
     o.write(d.to_xml())
     logger.info('LRS written to '+opts.out)

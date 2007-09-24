@@ -33,6 +33,7 @@ class RenderWorker(QThread):
     def __init__(self, parent, lrf_stream, logger, opts):
         QThread.__init__(self, parent)
         self.stream, self.logger, self.opts = lrf_stream, logger, opts
+        self.aborted = False
         self.lrf = None
         self.document = None
         self.exception = None
@@ -40,25 +41,36 @@ class RenderWorker(QThread):
     def run(self):
         try:
             self.lrf = LRFDocument(self.stream)
+            self.lrf.parse()
             self.stream.close()
-            self.stream = None            
+            self.stream = None
+            if self.aborted:
+                self.lrf = None            
         except Exception, err:
+            self.lrf, self.stream = None, None
             self.exception = err
             self.formatted_traceback = traceback.format_exc()
-        self.emit(SIGNAL('parsed()'))
+            
+    def abort(self):
+        if self.lrf is not None:
+            self.aborted = True
+            self.lrf.keep_parsing = False
         
-class Main(QObject, Ui_MainWindow, MainWindow):
-    def __init__(self, window, stream, logger, opts):
-        QObject.__init__(self)
+class Main(MainWindow, Ui_MainWindow):
+    
+    def __init__(self, stream, logger, opts, parent=None):
+        MainWindow.__init__(self, parent)
         Ui_MainWindow.__init__(self)        
-        self.setupUi(window)
-        self.window = window
+        self.setupUi(self)
+        self.setAttribute(Qt.WA_DeleteOnClose)
+        self.setWindowTitle(__appname__ + ' - LRF Viewer')
+    
         self.logger = logger
         self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
         self.opts = opts
         self.document = None
         self.renderer = RenderWorker(self, stream, logger, opts)
-        QObject.connect(self.renderer, SIGNAL('parsed()'), self.parsed, Qt.QueuedConnection)
+        QObject.connect(self.renderer, SIGNAL('finished()'), self.parsed, Qt.QueuedConnection)
         self.document = Document(self.logger, self.opts)
         QObject.connect(self.document, SIGNAL('chapter_rendered(int)'), self.chapter_rendered)
         QObject.connect(self.document, SIGNAL('page_changed(PyQt_PyObject)'), self.page_changed)
@@ -85,6 +97,9 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         self.graphics_view.setRenderHint(QPainter.TextAntialiasing, True)
         self.graphics_view.setRenderHint(QPainter.SmoothPixmapTransform, True)
         
+        self.closed = False
+        
+        
     def page_changed(self, num):
         self.slider.setValue(num)
         self.spin_box.setValue(num)
@@ -98,13 +113,13 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         try:
             self.document.search(search)
         except StopIteration:
-            error_dialog(self.window, 'No matches found', '<b>No matches</b> for the search phrase <i>%s</i> were found.'%(search,)).exec_()
+            error_dialog(self, 'No matches found', '<b>No matches</b> for the search phrase <i>%s</i> were found.'%(search,)).exec_()
     
-    def parsed(self, *args):
-        if self.renderer.lrf is not None:
+    def parsed(self):
+        if not self.renderer.aborted and self.renderer.lrf is not None:
             self.graphics_view.setMinimumSize(self.renderer.lrf.device_info.width+5, 
                                               self.renderer.lrf.device_info.height)
-            self.window.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)
+            self.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)
             self.document_title = self.renderer.lrf.metadata.title
             if self.opts.profile:
                 import cProfile
@@ -123,7 +138,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
             self.spin_box.setSuffix(' of %d'%(self.document.num_of_pages,))
             self.spin_box.updateGeometry()
             self.stack.setCurrentIndex(0)
-        else:
+        elif self.renderer.exception is not None:
             exception = self.renderer.exception
             print >>sys.stderr, 'Error rendering document'
             print >>sys.stderr, exception
@@ -132,7 +147,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
             msg += u'<p>Failed to render document</p>'
             msg += u'<p>Detailed <b>traceback</b>:<pre>'
             msg += self.renderer.formatted_traceback + '</pre>'            
-            d = ConversionErrorDialog(self.window, 'Error while rendering file', msg)
+            d = ConversionErrorDialog(self, 'Error while rendering file', msg)
             d.exec_()
             
     def chapter_rendered(self, num):
@@ -159,14 +174,22 @@ class Main(QObject, Ui_MainWindow, MainWindow):
     
     def back(self, triggered):
         self.document.back()
+        
+    def closeEvent(self, event):
+        if self.renderer.isRunning():
+            self.renderer.abort()
+            self.renderer.wait()
+        self.emit(SIGNAL('viewer_closed(PyQt_PyObject)'), self)
+        event.accept()
 
 
-def file_renderer(stream, logger, opts):
-    from PyQt4.Qt import QMainWindow
-    window = QMainWindow()
-    window.setAttribute(Qt.WA_DeleteOnClose)
-    window.setWindowTitle(__appname__ + ' - LRF Viewer')
-    return Main(window, stream, logger, opts)
+def file_renderer(stream, opts, parent=None, logger=None):
+    if logger is None:
+        level = logging.DEBUG if opts.verbose else logging.INFO
+        logger = logging.getLogger('lrfviewer')
+        setup_cli_handlers(logger, level)
+    
+    return Main(stream, logger, opts, parent=parent)
     
 
 def option_parser():
@@ -191,18 +214,14 @@ def main(args=sys.argv, logger=None):
     if len(args) != 2:
         parser.print_help()
         return 1
-    if logger is None:
-        level = logging.DEBUG if opts.verbose else logging.INFO
-        logger = logging.getLogger('lrf2lrs')
-        setup_cli_handlers(logger, level)
-    pid = os.fork() if False and islinux else -1
+    pid = os.fork() if islinux else -1
     if pid <= 0:
         app = QApplication(args)
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
-        main = file_renderer(open(args[1], 'rb'), logger, opts)
+        main = file_renderer(open(args[1], 'rb'), opts, logger=logger)
         sys.excepthook = main.unhandled_exception
-        main.window.show()
+        main.show()
         main.render()
         return app.exec_()        
     return 0

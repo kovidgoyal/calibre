@@ -15,9 +15,13 @@
 
 import StringIO, traceback, sys
 
+from PyQt4.QtGui import QMainWindow
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog
 
-class MainWindow(object):
+class MainWindow(QMainWindow):
+    
+    def __init__(self, parent=None):
+        QMainWindow.__init__(self, parent)
     
     def unhandled_exception(self, type, value, tb):
         sio = StringIO.StringIO()
@@ -26,5 +30,5 @@ class MainWindow(object):
         print >>sys.stderr, fe
         msg = '<p><b>' + unicode(str(value), 'utf8', 'replace') + '</b></p>'
         msg += '<p>Detailed <b>traceback</b>:<pre>'+fe+'</pre>'
-        d = ConversionErrorDialog(self.window, 'ERROR: Unhandled exception', msg)
+        d = ConversionErrorDialog(self, 'ERROR: Unhandled exception', msg)
         d.exec_()

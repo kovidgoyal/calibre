@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import os, sys, textwrap
+import os, sys, textwrap, cStringIO, collections
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
@@ -41,8 +41,10 @@ from libprs500.gui2.dialogs.jobs import JobsDialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog 
 from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
 from libprs500.gui2.dialogs.password import PasswordDialog
+from libprs500.gui2.lrf_renderer.main import file_renderer
+from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
 
-class Main(QObject, Ui_MainWindow, MainWindow):
+class Main(MainWindow, Ui_MainWindow):
     
     def set_default_thumbnail(self, height):
         r = QSvgRenderer(':/images/book.svg')
@@ -53,24 +55,25 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         p.end()
         self.default_thumbnail = (pixmap.width(), pixmap.height(), pixmap_to_data(pixmap))
     
-    def __init__(self, window):
-        QObject.__init__(self)
+    def __init__(self, parent=None):
+        MainWindow.__init__(self, parent)
         Ui_MainWindow.__init__(self)
-        self.window = window
-        self.setupUi(window)
+        self.setupUi(self)
+        self.setWindowTitle(__appname__)
         self.read_settings()
         self.job_manager = JobManager()
-        self.jobs_dialog = JobsDialog(self.window, self.job_manager)
+        self.jobs_dialog = JobsDialog(self, self.job_manager)
         self.device_manager = None
         self.upload_memory = {}
         self.delete_memory = {}
         self.conversion_jobs = {}
         self.persistent_files = []
         self.default_thumbnail = None
-        self.device_error_dialog = ConversionErrorDialog(self.window, 'Error communicating with device', ' ')
+        self.device_error_dialog = ConversionErrorDialog(self, 'Error communicating with device', ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.device_connected = False
+        self.viewers = collections.deque()
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -83,7 +86,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         
         ####################### Status Bar #####################
         self.status_bar = StatusBar(self.jobs_dialog)
-        self.window.setStatusBar(self.status_bar)
+        self.setStatusBar(self.status_bar)
         QObject.connect(self.job_manager, SIGNAL('job_added(int)'), self.status_bar.job_added)
         QObject.connect(self.job_manager, SIGNAL('job_done(int)'), self.status_bar.job_done)
         
@@ -105,6 +108,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
         QObject.connect(sm.actions()[1], SIGNAL('triggered(bool)'), self.sync_to_card)
         QObject.connect(self.action_save, SIGNAL("triggered(bool)"), self.save_to_disk)
+        QObject.connect(self.action_view, SIGNAL("triggered(bool)"), self.view_book)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
         nm = QMenu()
@@ -141,8 +145,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         self.memory_view.connect_dirtied_signal(self.upload_booklists)
         self.card_view.connect_dirtied_signal(self.upload_booklists)
         
-        window.closeEvent = self.close_event
-        window.show()
+        self.show()
         self.stack.setCurrentIndex(0)
         self.library_view.migrate_database()
         self.library_view.sortByColumn(3, Qt.DescendingOrder)
@@ -254,7 +257,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         '''
         Add books from the local filesystem to either the library or the device.
         '''
-        books = choose_files(self.window, 'add books dialog dir', 'Select books',
+        books = choose_files(self, 'add books dialog dir', 'Select books',
                              filters=[('Books', BOOK_EXTENSIONS)])
         if not books:
             return
@@ -312,7 +315,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
             if isinstance(exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
                 titles = '\n'.join(['<li>'+mi['title']+'</li>' for mi in metadata])
-                d = error_dialog(self.window, 'No space on device',
+                d = error_dialog(self, 'No space on device',
                                  '<p>Cannot upload books to device there is no more free space available '+where+
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()                
@@ -380,12 +383,12 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         '''
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self.window, 'Cannot edit metadata', 'No books selected')
+            d = error_dialog(self, 'Cannot edit metadata', 'No books selected')
             d.exec_()
             return
         changed = False
         for row in rows:
-            if MetadataSingleDialog(self.window, row.row(), 
+            if MetadataSingleDialog(self, row.row(), 
                                     self.library_view.model().db).changed:
                 changed = True                        
         
@@ -399,10 +402,10 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         '''
         rows = [r.row() for r in self.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
-            d = error_dialog(self.window, 'Cannot edit metadata', 'No books selected')
+            d = error_dialog(self, 'Cannot edit metadata', 'No books selected')
             d.exec_()
             return
-        if MetadataBulkDialog(self.window, rows, self.library_view.model().db).changed:
+        if MetadataBulkDialog(self, rows, self.library_view.model().db).changed:
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
             
@@ -451,7 +454,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         self.status_bar.showMessage('Sending books to device.', 5000)
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
-            d = warning_dialog(self.window, 'No suitable formats', 
+            d = warning_dialog(self, 'No suitable formats', 
                     'Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>'%(bad,))
             d.exec_()
                 
@@ -462,10 +465,10 @@ class Main(QObject, Ui_MainWindow, MainWindow):
     def save_to_disk(self, checked):
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self.window, 'Cannot save to disk', 'No books selected')
+            d = error_dialog(self, 'Cannot save to disk', 'No books selected')
             d.exec_()
             return
-        dir = choose_dir(self.window, 'save to disk dialog', 'Choose destination directory')
+        dir = choose_dir(self, 'save to disk dialog', 'Choose destination directory')
         if not dir:
             return
         if self.current_view() == self.library_view:
@@ -515,7 +518,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         self.fetch_news('newsweek', 'Newsweek')
     
     def fetch_news_nytimes(self, checked):
-        d = PasswordDialog(self.window, 'nytimes info dialog', 
+        d = PasswordDialog(self, 'nytimes info dialog', 
                            '<p>Please enter your username and password for nytimes.com<br>If you do not have, you can <a href="http://www.nytimes.com/gst/regi.html">register</a> for free.<br>Without a registration, some articles will not be downloaded correctly. Click OK to proceed.')
         d.exec_()
         if d.result() == QDialog.Accepted:
@@ -526,18 +529,18 @@ class Main(QObject, Ui_MainWindow, MainWindow):
     
     ############################### Convert ####################################
     def convert_bulk(self, checked):
-        d = error_dialog(self.window, 'Cannot convert', 'Not yet implemented.')            
+        d = error_dialog(self, 'Cannot convert', 'Not yet implemented.')            
         d.exec_()
     
     def convert_single(self, checked):
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self.window, 'Cannot convert', 'No books selected')            
+            d = error_dialog(self, 'Cannot convert', 'No books selected')            
             d.exec_()
         
         changed = False
         for row in [r.row() for r in rows]:
-            d = LRFSingleDialog(self.window, self.library_view.model().db, row)
+            d = LRFSingleDialog(self, self.library_view.model().db, row)
             if d.selected_format:
                 d.exec_()
                 if d.result() == QDialog.Accepted:
@@ -572,6 +575,40 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
         data.close()
         self.status_bar.showMessage(description + ' completed', 2000)
+    
+    #############################View book######################################
+    
+    def view_book(self, triggered):
+        rows = self.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, 'Cannot view', 'No book selected')            
+            d.exec_()
+            return
+        
+        row = rows[0].row()
+        formats = self.library_view.model().db.formats(row)
+        title   = self.library_view.model().db.title(row)
+        id      = self.library_view.model().db.id(row) 
+        if 'LRF' not in formats.upper():
+            d = error_dialog(self, 'Cannot view', '%s is not available in LRF format. Please convert it first.'%(title,))            
+            d.exec_()
+            return
+        
+        data = cStringIO.StringIO(self.library_view.model().db.format(row, 'LRF'))
+        parser = lrfviewerop()
+        opts   = parser.parse_args(['lrfviewer'])[0]
+        
+        viewer = file_renderer(data, opts)
+        viewer.libprs500_db_id = id
+        viewer.show()
+        viewer.render()
+        self.viewers.append(viewer)
+        QObject.connect(viewer, SIGNAL('viewer_closed(PyQt_PyObject)'), self.viewer_closed)
+        
+    def viewer_closed(self, viewer):
+        self.viewers.remove(viewer)
+    
+    ############################################################################
     
     ############################################################################
     def location_selected(self, location):
@@ -626,13 +663,13 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         msg += formatted_traceback + '</pre>'
         msg += '<p><b>Log:</b></p><pre>'
         msg += log
-        ConversionErrorDialog(self.window, 'Conversion Error', msg, show=True)
+        ConversionErrorDialog(self, 'Conversion Error', msg, show=True)
         
     
     def read_settings(self):
         settings = QSettings()
         settings.beginGroup("Main Window")
-        self.window.resize(settings.value("size", QVariant(QSize(800, 600))).toSize())
+        self.resize(settings.value("size", QVariant(QSize(800, 600))).toSize())
         settings.endGroup()
         self.database_path = settings.value("database path", 
                 QVariant(os.path.join(os.path.expanduser('~'),'library1.db'))).toString()
@@ -640,7 +677,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
     def write_settings(self):
         settings = QSettings()
         settings.beginGroup("Main Window")
-        settings.setValue("size", QVariant(self.window.size()))
+        settings.setValue("size", QVariant(self.size()))
         settings.endGroup()
         settings.beginGroup('Book Views')
         self.library_view.write_settings()
@@ -648,7 +685,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
             self.memory_view.write_settings()
         settings.endGroup()
     
-    def close_event(self, e):
+    def closeEvent(self, e):
         msg = 'There are active jobs. Are you sure you want to quit?'
         if self.job_manager.has_device_jobs():
             msg = '<p>'+__appname__ + ' is communicating with the device!<br>'+\
@@ -656,7 +693,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
                   'Are you sure you want to quit?'
         if self.job_manager.has_jobs():
             d = QMessageBox(QMessageBox.Warning, 'WARNING: Active jobs', msg,
-                            QMessageBox.Yes|QMessageBox.No, self.window)
+                            QMessageBox.Yes|QMessageBox.No, self)
             d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
             d.setDefaultButton(QMessageBox.No)
             if d.exec_() != QMessageBox.Yes:
@@ -669,18 +706,15 @@ class Main(QObject, Ui_MainWindow, MainWindow):
     
 
 def main(args=sys.argv): 
-    from PyQt4.Qt import QApplication, QMainWindow
+    from PyQt4.Qt import QApplication
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = QApplication(args)    
-        window = QMainWindow()
-        window.setWindowTitle(__appname__)
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         initialize_file_icon_provider()
-        main = Main(window)
-        sys.excepthook = main.unhandled_exception
-        QObject.connect(app, SIGNAL('lastWindowClosed()'), app.quit)    
+        main = Main()
+        sys.excepthook = main.unhandled_exception    
         return app.exec_()
     return 0
     

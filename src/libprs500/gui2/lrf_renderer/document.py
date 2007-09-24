@@ -108,12 +108,9 @@ class _Canvas(QGraphicsRectItem):
         canvas.setParentItem(self)
         canvas.setPos(x, y)
         canvas.has_content = False
-        oy = self.current_y
-        for block, x, y in canvas.items:
-            self.layout_block(block, x, oy+y)
-        self.current_y = oy + canvas.max_y
-        
-    
+        canvas.put_objects()
+        self.current_y += canvas.max_y
+            
     def layout_text_block(self, block, x, y):
         textwidth = block.bs.blockwidth - block.bs.sidemargin
         if block.max_y == 0 or not block.lines: # Empty block skipping
@@ -148,7 +145,11 @@ class _Canvas(QGraphicsRectItem):
         rl.has_content = False 
              
     def layout_image_block(self, ib, x, y):
-        if self.current_y + ib.height > self.max_y-y and self.current_y < 5:
+        mw, mh = self.max_x - x, self.max_y - y
+        print self, mw, mh
+        if ib.width > mw or ib.height > mh:
+            ib.resize(mw, mh)
+        if self.current_y + ib.height > self.max_y-y and self.current_y > 5:
             self.is_full = True
         else:
             br = ib.boundingRect()
@@ -201,6 +202,10 @@ class Canvas(_Canvas, ContentObject):
             if item:
                 self.items.append((item, po.x, po.y))
                 
+    def put_objects(self):
+        for block, x, y in self.items:
+            self.layout_block(block, x, y)
+    
     def layout_block(self, block, x, y):
         block.reset()
         _Canvas.layout_block(self, block, x, y)

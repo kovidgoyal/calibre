@@ -42,6 +42,11 @@ class PixmapItem(QGraphicsPixmapItem):
         self.height, self.width = ysize, xsize
         self.setTransformationMode(Qt.SmoothTransformation)
         self.setShapeMode(QGraphicsPixmapItem.BoundingRectShape)
+        
+    def resize(self, width, height):
+        p = self.pixmap()
+        self.setPixmap(p.scaled(width, height, Qt.IgnoreAspectRatio, Qt.SmoothTransformation))
+        self.width, self.height = width, height
 
 
 class Plot(PixmapItem):
@@ -213,7 +218,10 @@ class TextBlock(object):
     def end_link(self):
         if self.current_line is not None:
             self.current_line.end_link()
-        
+    
+    def close_valign(self):
+        if self.current_line is not None:
+            self.current_line.valign = None
     
     def populate(self, tb):
         self.create_line()
@@ -260,10 +268,13 @@ class TextBlock(object):
                     self.end_line()
                     self.create_line()
                 self.current_line.add_plot(plot)
-            elif i.name == 'Sup':
-                open_containers.append((('current_style', self.current_style.copy()),))
-            elif i.name == 'Sub':
-                open_containers.append((('current_style', self.current_style.copy()),))
+            elif i.name in ['Sup', 'Sub']:
+                if self.current_line is None:
+                    self.create_line()
+                self.current_line.valign = i.name
+                open_containers.append(((self.close_valign, []),))            
+            elif i.name == 'Space':
+                self.current_line.add_space(i.attrs['xsize'])
             elif i.name == 'EmpLine':
                 if i.attrs:
                     open_containers.append((('current_style', self.current_style.copy()),))
@@ -356,6 +367,7 @@ class Line(QGraphicsItem):
         self.height, self.descent = 0, 0
         self.links = collections.deque()
         self.current_link = None
+        self.valign = None
         
     def start_link(self, refobj, slot):
         self.current_link = [self.current_width, sys.maxint, refobj, slot]
@@ -380,6 +392,8 @@ class Line(QGraphicsItem):
         processed = False
         matches = self.__class__.whitespace.finditer(phrase)
         font = QFont(ts.font)
+        if self.valign is not None:
+            font.setPixelSize(font.pixelSize()/1.5)
         fm = QFontMetrics(font)
         single_space_width = fm.width(' ')
         height, descent = fm.height(), fm.descent()
@@ -423,7 +437,7 @@ class Line(QGraphicsItem):
         return phrase_pos, False
     
     def commit(self, word, width, height, descent, ts, font):
-        self.tokens.append(Word(word, width, height, ts, font))
+        self.tokens.append(Word(word, width, height, ts, font, self.valign))
         self.current_width += width
         self.height = max(self.height, height)
         self.descent = max(self.descent, descent)
@@ -483,7 +497,6 @@ class Line(QGraphicsItem):
                 x += tok
             elif isinstance(tok, Word):
                 painter.setFont(tok.font)
-                p = painter.pen()
                 if tok.highlight:
                     painter.save()
                     painter.setPen(QPen(Qt.NoPen))
@@ -491,8 +504,12 @@ class Line(QGraphicsItem):
                     painter.drawRect(x, 0, tok.width, tok.height)
                     painter.restore()
                 painter.setPen(QPen(tok.text_color))
-                painter.drawText(x, y, tok.string)
-                painter.setPen(p)
+                if tok.valign is None:
+                    painter.drawText(x, y, tok.string)
+                elif tok.valign == 'Sub':
+                    painter.drawText(x+1, y+self.descent/1.5, tok.string)
+                elif tok.valign == 'Sup':
+                    painter.drawText(x+1, y-2.*self.descent, tok.string)
                 x += tok.width
             else:
                 painter.drawPixmap(x, 0, tok.pixmap())
@@ -546,11 +563,12 @@ class Line(QGraphicsItem):
 
 class Word(object):
     
-    def __init__(self, string, width, height, ts, font):
+    def __init__(self, string, width, height, ts, font, valign):
         self.string, self.width, self.height = QString(string), width, height
         self.font = font
         self.text_color = ts.textcolor
         self.highlight = False
+        self.valign = valign
         
 def main(args=sys.argv):
     return 0

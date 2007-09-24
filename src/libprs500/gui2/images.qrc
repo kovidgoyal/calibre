@@ -47,5 +47,6 @@
         <file>images/sd.svg</file>
         <file>images/sync.svg</file>
         <file>images/trash.svg</file>
+        <file>images/view.svg</file>
     </qresource>
 </RCC>
