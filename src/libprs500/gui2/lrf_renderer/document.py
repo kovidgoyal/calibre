@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''''''
 
-import collections
+import collections, itertools
 
 from PyQt4.QtCore import Qt, QByteArray, SIGNAL
 from PyQt4.QtGui import QGraphicsRectItem, QGraphicsScene, QPen, \
@@ -127,7 +127,7 @@ class _Canvas(QGraphicsRectItem):
             if isinstance(line, QGraphicsItem):
                 line.setParentItem(self)
                 line.setPos(x + line.getx(textwidth), y)
-                y += line.height
+                y += line.height + line.line_space
             else:
                 y += line.height
             if not block.has_content:
@@ -165,6 +165,18 @@ class _Canvas(QGraphicsRectItem):
             self.is_full = y > self.max_y-5
             ib.has_content = False
             
+    def search(self, phrase):
+        matches = []
+        for child in self.children():
+            if hasattr(child, 'search'):
+                res = child.search(phrase)
+                if res:
+                    if isinstance(res, list):
+                        matches += res
+                    else:
+                        matches.append(res)
+        return matches
+                
             
     
 class Canvas(_Canvas, ContentObject):
@@ -273,6 +285,7 @@ class Page(_Canvas):
         
     def add_block(self, block):
         self.layout_block(block, 0, self.current_y)
+    
         
     
 class Chapter(object):
@@ -291,6 +304,15 @@ class Chapter(object):
     
     def screen(self, odd):
         return self.oddscreen if odd else self.evenscreen
+    
+    def search(self, phrase):
+        pages = []
+        for i in range(len(self.pages)):
+            matches = self.pages[i].search(phrase)
+            if matches:
+                pages.append([i, matches])
+        return pages
+            
 
 class History(collections.deque):
     
@@ -331,6 +353,9 @@ class Document(QGraphicsScene):
         self.link_map = {}
         self.chapter_map = {}
         self.history = History()
+        self.last_search = iter([])
+        if not opts.white_background:
+            self.setBackgroundBrush(QBrush(QColor(0xee, 0xee, 0xee)))
     
     def page_of(self, oid):
         for chapter in self.chapters:
@@ -492,3 +517,22 @@ class Document(QGraphicsScene):
     def show_page_at_percent(self, p):
         num = self.num_of_pages*(p/100.)
         self.show_page(num)
+        
+    def search(self, phrase):
+        if not phrase:
+            return
+        matches = []
+        for i in range(len(self.chapters)):
+            cmatches = self.chapters[i].search(phrase)
+            for match in cmatches:
+                match[0] += sum(self.chapter_layout[:i])+1
+            matches += cmatches
+        self.last_search = itertools.cycle(matches)
+        self.next_match()
+        
+    def next_match(self):
+        page_num = self.last_search.next()[0]
+        if self.current_page == page_num:
+            self.update()
+        self.show_page(page_num)
+        

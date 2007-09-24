@@ -22,7 +22,7 @@ from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
 from libprs500 import __appname__, __version__, __author__, setup_cli_handlers, islinux
 from libprs500.ebooks.lrf.parser import LRFDocument
 
-from libprs500.gui2 import ORG_NAME, APP_UID
+from libprs500.gui2 import ORG_NAME, APP_UID, error_dialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog
 from libprs500.gui2.lrf_renderer.main_ui import Ui_MainWindow
 from libprs500.gui2.main_window import MainWindow
@@ -65,6 +65,8 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         
         self.search.help_text = 'Search'
         self.search.clear_to_help()
+        QObject.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), self.find)
+        self.last_search = None
         
         self.action_next_page.setShortcuts(QKeySequence.MoveToNextPage)
         self.action_previous_page.setShortcuts(QKeySequence.MoveToPreviousPage)
@@ -91,6 +93,12 @@ class Main(QObject, Ui_MainWindow, MainWindow):
         self.stack.setCurrentIndex(1)
         self.renderer.start()
     
+    def find(self, search, refinement):
+        self.last_search = search
+        try:
+            self.document.search(search)
+        except StopIteration:
+            error_dialog(self.window, 'No matches found', '<b>No matches</b> for the search phrase <i>%s</i> were found.'%(search,)).exec_()
     
     def parsed(self, *args):
         if self.renderer.lrf is not None:
@@ -100,13 +108,13 @@ class Main(QObject, Ui_MainWindow, MainWindow):
             self.document_title = self.renderer.lrf.metadata.title
             if self.opts.profile:
                 import cProfile
-                render, lrf = self.document.render, self.renderer.lrf
-                cProfile.runctx('render(lrf)', globals(), locals(), lrf.metadata.title+'.stats')
+                lrf = self.renderer.lrf
+                cProfile.runctx('self.document.render(lrf)', globals(), locals(), lrf.metadata.title+'.stats')
                 print 'Stats written to', self.renderer.lrf.metadata.title+'.stats'
             else:
                 start = time.time()
                 self.document.render(self.renderer.lrf)
-                print 'Rendering time:', time.time()-start, 'seconds'
+                print 'Layout time:', time.time()-start, 'seconds'
             self.renderer.lrf = None
             self.graphics_view.setScene(self.document)
             self.graphics_view.show()
@@ -132,7 +140,7 @@ class Main(QObject, Ui_MainWindow, MainWindow):
             self.progress_bar.setMinimum(0)
             self.progress_bar.setMaximum(num)
             self.progress_bar.setValue(0)
-            self.progress_label.setText('Rendering '+ self.document_title)
+            self.progress_label.setText('Laying out '+ self.document_title)
         else:
             self.progress_bar.setValue(self.progress_bar.value()+1)
         QCoreApplication.processEvents()
@@ -171,6 +179,8 @@ def option_parser():
                       default=False, action='store_true', dest='visual_debug')
     parser.add_option('--disable-hyphenation', dest='hyphenate', default=True, action='store_false',
                       help='Disable hyphenation. Should significantly speed up rendering.')
+    parser.add_option('--white-background', dest='white_background', default=False, action='store_true',
+                      help='By default the background is off white as I find this easier on the eyes. Use this option to make the background pure white.')
     parser.add_option('--profile', dest='profile', default=False, action='store_true',
                       help='Profile the LRF renderer')
     return parser

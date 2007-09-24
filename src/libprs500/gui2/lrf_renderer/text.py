@@ -317,23 +317,25 @@ class TextBlock(object):
         return s
 
 class Link(QGraphicsRectItem):
-    inactive_brush = QBrush(QColor(0x00, 0x00, 0x00, 0x09))
+    inactive_brush = QBrush(QColor(0xff, 0xff, 0xff, 0xff))
     active_brush   = QBrush(QColor(0x00, 0x00, 0x00, 0x59))
     
     def __init__(self, parent, start, stop, refobj, slot):
         QGraphicsRectItem.__init__(self, start, 0, stop-start, parent.height, parent)
         self.refobj = refobj
         self.slot = slot
-        self.setBrush(self.__class__.inactive_brush)
+        self.brush = self.__class__.inactive_brush
         self.setPen(QPen(Qt.NoPen))
         self.setCursor(Qt.PointingHandCursor)
         self.setAcceptsHoverEvents(True)
         
     def hoverEnterEvent(self, event):
-        self.setBrush(self.__class__.active_brush)
+        self.brush = self.__class__.active_brush
+        self.parentItem().update()
         
     def hoverLeaveEvent(self, event):
-        self.setBrush(self.__class__.inactive_brush)
+        self.brush = self.__class__.inactive_brush
+        self.parentItem().update()
         
     def mousePressEvent(self, event):
         self.hoverLeaveEvent(None)
@@ -371,6 +373,7 @@ class Line(QGraphicsItem):
         self.tokens.append(plot)
         self.current_width += plot.width
         self.height = max(self.height, plot.height)
+        self.add_space(6)
     
     def populate(self, phrase, ts, process_space=True):
         phrase_pos = 0
@@ -446,7 +449,6 @@ class Line(QGraphicsItem):
         self.width = float(self.current_width)
         if self.height == 0:
             self.height = baselineskip
-        self.height += linespace
         self.height = float(self.height)
         
         self.vdebug = vdebug
@@ -470,12 +472,24 @@ class Line(QGraphicsItem):
             painter.drawRect(self.boundingRect())
             painter.restore()
         painter.save()
+        painter.setPen(QPen(Qt.NoPen))
+        for c in self.children():
+            painter.setBrush(c.brush)
+            painter.drawRect(c.boundingRect())
+        painter.restore()
+        painter.save()
         for tok in self.tokens:
             if isinstance(tok, (int, float)):
                 x += tok
             elif isinstance(tok, Word):
                 painter.setFont(tok.font)
                 p = painter.pen()
+                if tok.highlight:
+                    painter.save()
+                    painter.setPen(QPen(Qt.NoPen))
+                    painter.setBrush(QBrush(Qt.yellow))
+                    painter.drawRect(x, 0, tok.width, tok.height)
+                    painter.restore()
                 painter.setPen(QPen(tok.text_color))
                 painter.drawText(x, y, tok.string)
                 painter.setPen(p)
@@ -484,6 +498,30 @@ class Line(QGraphicsItem):
                 painter.drawPixmap(x, 0, tok.pixmap())
                 x += tok.width
         painter.restore()
+        
+    def search(self, phrase):
+        tokens = phrase.lower().split()
+        if len(tokens) < 1: return None
+        for i in range(len(self.tokens)):
+            if not isinstance(self.tokens[i], Word):
+                continue
+            src = qstring_to_unicode(self.tokens[i].string).lower()
+            self.tokens[i].highlight = False
+            if tokens[0] in src:
+                if len(tokens) == 1:
+                    self.tokens[i].highlight = True
+                    return self
+                else:
+                    match = True
+                    for j in range(len(tokens)):
+                        if i+j >= len(self.tokens) or tokens[j].lower() != qstring_to_unicode(self.tokens[i+j].string).lower():
+                            match = False
+                            break
+                        self.tokens[i+j].highlight = True
+                    if match:
+                        return self
+        return None
+        
         
     def getx(self, textwidth):
         if self.align == 'head':
@@ -497,7 +535,7 @@ class Line(QGraphicsItem):
         s = u''
         for tok in self.tokens:
             if isinstance(tok, (int, float)):
-                s += ' :%.1f: '%(tok,)
+                s += ' '
             elif isinstance(tok, Word):
                 s += qstring_to_unicode(tok.string)
         return s 
@@ -512,6 +550,7 @@ class Word(object):
         self.string, self.width, self.height = QString(string), width, height
         self.font = font
         self.text_color = ts.textcolor
+        self.highlight = False
         
 def main(args=sys.argv):
     return 0
