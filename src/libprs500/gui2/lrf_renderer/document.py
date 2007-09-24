@@ -534,5 +534,7 @@ class Document(QGraphicsScene):
         page_num = self.last_search.next()[0]
         if self.current_page == page_num:
             self.update()
-        self.show_page(page_num)
+        else:
+            self.add_to_history()
+            self.show_page(page_num)
         
