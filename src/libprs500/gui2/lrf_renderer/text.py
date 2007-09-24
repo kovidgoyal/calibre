@@ -75,10 +75,13 @@ class FontLoader(object):
             
     def font(self, text_style):
         device_font = text_style.fontfacename in FONT_MAP
-        if device_font:
-            face = self.font_map[text_style.fontfacename]
-        else:
-            face = self.face_map[text_style.fontfacename]
+        try:
+            if device_font:
+                face = self.font_map[text_style.fontfacename]
+            else:
+                face = self.face_map[text_style.fontfacename]
+        except KeyError: # Bad fontfacename field in LRF
+            face = self.font_map['Dutch801 Rm BT Roman']
         
         sz = text_style.fontsize
         wt = text_style.fontweight

@@ -128,7 +128,10 @@ class _Canvas(QGraphicsRectItem):
             else:
                 y += line.height
             if not block.has_content:
-                y += block.bs.footskip
+                try:
+                    y += block.bs.footskip
+                except AttributeError: # makelrf generates BlockStyles without footskip
+                    pass
                 block_consumed = True
                 break
             else:

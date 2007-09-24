@@ -985,7 +985,7 @@ class Font(LRFStream):
             (self.id, self.fontfilename, self.fontfacename, self.file)
         return s
 
-class ObjectInfo(LRFObject):
+class ObjectInfo(LRFStream):
     pass
 
 
