@@ -47,15 +47,26 @@ class PRS500_PROFILE(object):
     header_font_size = 6  #: In pt
     header_height    = 30 #: In px
     default_fonts    = { 'sans': "Swis721 BT Roman", 'mono': "Courier10 BT Roman",
-                         'serif': "Dutch801 Rm BT Roman"} 
+                         'serif': "Dutch801 Rm BT Roman"}
+    
+    name = 'prs500' 
+    
+class PRS500_PROFILE_UNSAFE(PRS500_PROFILE):
+    fudge = 0
+    name = 'prs500-unsafe'
     
     
+profile_map = {
+               PRS500_PROFILE.name : PRS500_PROFILE,
+               PRS500_PROFILE_UNSAFE.name : PRS500_PROFILE_UNSAFE,
+               }
     
 def profile_from_string(option, opt_str, value, parser):
-    if value == 'prs500':
-        setattr(parser.values, option.dest, PRS500_PROFILE)
-    else:
-        raise OptionValueError('Profile: '+value+' is not implemented')
+    try:
+        profile = profile_map[value]
+        setattr(parser.values, option.dest, profile)
+    except KeyError:
+        raise OptionValueError('Profile: '+value+' is not implemented. Implemented profiles: %s'%(profile_map.keys()))
     
 def font_family(option, opt_str, value, parser):
     if value:
@@ -91,7 +102,7 @@ def option_parser(usage):
                       help='Publisher')
     metadata.add_option('--cover', action='store', dest='cover', default=None, \
                         help='Path to file containing image to be used as cover')
-    profiles=['prs500'] 
+     
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')
     parser.add_option('--ignore-tables', action='store_true', default=False, dest='ignore_tables',
@@ -114,12 +125,13 @@ def option_parser(usage):
                         help='Set the format of the header. %a is replaced by the author and %t by the title. Default is %default')
     
     page = parser.add_option_group('PAGE OPTIONS')
+    profiles = profile_map.keys()
     page.add_option('-p', '--profile', default=PRS500_PROFILE, dest='profile', type='choice',
                       choices=profiles, action='callback', callback=profile_from_string,
                       help='''Profile of the target device for which this LRF is '''
                       '''being generated. The profile determines things like the '''
                       '''resolution and screen size of the target device. '''
-                      '''Default: ''' + profiles[0] + ''' Supported profiles: '''+\
+                      '''Default: %s Supported profiles: '''%(PRS500_PROFILE.name,)+\
                       ', '.join(profiles))
     page.add_option('--left-margin', default=20, dest='left_margin', type='int',
                     help='''Left margin of page. Default is %default px.''')
