@@ -65,7 +65,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.changed = False
         self.read_saved_options()
         self.initialize_metadata()
-        formats = [i.upper() for i in self.db.formats(self.row).split(',')]
+        formats = self.db.formats(self.row)
+        formats = [i.upper() for i in formats.split(',')] if formats else []
         try:
             formats.remove(self.output_format)
         except ValueError:
