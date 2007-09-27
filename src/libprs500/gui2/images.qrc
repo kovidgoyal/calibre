@@ -48,5 +48,6 @@
         <file>images/sync.svg</file>
         <file>images/trash.svg</file>
         <file>images/view.svg</file>
+        <file>images/viewer.svg</file>
     </qresource>
 </RCC>

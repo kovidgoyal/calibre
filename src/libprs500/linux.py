@@ -12,9 +12,11 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
+import shutil
 ''' Post installation script for linux '''
 import sys, os
 from subprocess import check_call
+from libprs500 import __version__
 
 def options(option_parser):
     parser = option_parser() 
@@ -171,7 +173,7 @@ complete -o nospace  -F _prs500 prs500
         traceback.print_exc()
         
 def setup_udev_rules():
-    print 'Trying to setup udev rules...',
+    print 'Trying to setup udev rules...'
     sys.stdout.flush()
     groups = open('/etc/group', 'rb').read()
     group = 'plugdev' if 'plugdev' in groups else 'usb'
@@ -182,11 +184,9 @@ def setup_udev_rules():
     udev.close()
     try:
         check_call('udevstart', shell=True)
-        print 'success'
     except:
         try:
             check_call('/etc/init.d/udev reload', shell=True)
-            print 'success'
         except:
             print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
 
@@ -197,6 +197,85 @@ def post_install():
         
     setup_udev_rules()
     setup_completion()
+    setup_desktop_integration()
+    
+
+    
+VIEWER = '''\
+[Desktop Entry]
+Version=%s
+Type=Application
+Name=LRF Viewer
+Comment=Viewer for LRF files (SONY ebook format files)
+TryExec=lrfviewer
+Exec=lrfviewer %%F
+Icon=libprs500-viewer
+MimeType=application/lrf;
+Categories=Graphics;Viewer;
+'''%(__version__,)
+
+GUI = '''\
+[Desktop Entry]
+Version=%s
+Type=Application
+Name=Libprs500
+Comment=E-book library management
+TryExec=libprs500
+Exec=libprs500
+Icon=libprs500-gui
+Categories=Office;
+'''%(__version__,)
+
+MIME = '''\
+<?xml version="1.0"?>
+<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
+    <mime-type type="application/lrf">
+        <comment>SONY E-book compiled format</comment>
+        <glob pattern="*.lrf"/>
+    </mime-type>
+    <mime-type type="text/lrs">
+        <comment>SONY E-book source format</comment>
+        <glob pattern="*.lrs"/>
+    </mime-type>
+</mime-info>
+'''
+
+def setup_desktop_integration():
+    from PyQt4.QtGui import QApplication, QPixmap  
+    from PyQt4.QtCore import Qt
+    from libprs500.gui2 import images_rc
+    from tempfile import mkdtemp
+    
+    print 'Setting up desktop integration...'
+    
+    app = QApplication([])
+    svg = QPixmap(':/images/mimetypes/lrf.svg').scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    gui = QPixmap(':library').scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    viewer = QPixmap(':/images/viewer.svg').scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)  
+    tdir = mkdtemp()
+    try:
+        os.chdir(tdir)
+        svg.save(os.path.join(tdir, 'libprs500-lrf.png'), 'PNG')
+        gui.save(os.path.join(tdir, 'libprs500-gui.png'), 'PNG')
+        viewer.save(os.path.join(tdir, 'libprs500-viewer.png'), 'PNG')
+        check_call('xdg-icon-resource install --context mimetypes --size 128 libprs500-lrf.png application-lrf', shell=True)
+        check_call('xdg-icon-resource install --context mimetypes --size 128 libprs500-lrf.png text-lrs', shell=True)
+        check_call('xdg-icon-resource install --size 128 libprs500-gui.png libprs500-gui', shell=True)
+        check_call('xdg-icon-resource install --size 128 libprs500-gui.png libprs500-gui', shell=True)
+        f = open('libprs500-lrfviewer.desktop', 'wb')
+        f.write(VIEWER)
+        f.close()
+        f = open('libprs500-gui.desktop', 'wb')
+        f.write(GUI)
+        f.close()
+        check_call('xdg-desktop-menu install ./libprs500-gui.desktop ./libprs500-lrfviewer.desktop', shell=True)
+        f = open('libprs500-mimetypes', 'wb')
+        f.write(MIME)
+        f.close()
+        check_call('xdg-mime install libprs500-mimetypes', shell=True)
+    finally:
+        shutil.rmtree(tdir)
+ 
          
 if __name__ == '__main__':
     post_install()           

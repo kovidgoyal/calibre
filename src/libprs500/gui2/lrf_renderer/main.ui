@@ -19,7 +19,7 @@
    <string>LRF Viewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/library</iconset>
+   <iconset resource="../images.qrc" >:/images/viewer.svg</iconset>
   </property>
   <widget class="QWidget" name="central_widget" >
    <layout class="QVBoxLayout" >
