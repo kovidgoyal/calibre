@@ -82,12 +82,16 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.action_next_page.setShortcuts(QKeySequence.MoveToNextPage)
         self.action_previous_page.setShortcuts(QKeySequence.MoveToPreviousPage)
+        self.action_next_match.setShortcuts(QKeySequence.FindNext)
+        self.addAction(self.action_next_match)
         QObject.connect(self.action_next_page, SIGNAL('triggered(bool)'), self.next) 
         QObject.connect(self.action_previous_page, SIGNAL('triggered(bool)'), self.previous)
         QObject.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
         QObject.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
+        QObject.connect(self.action_next_match, SIGNAL('triggered(bool)'), self.next_match)
         QObject.connect(self.spin_box, SIGNAL('valueChanged(int)'), self.go_to_page)
         QObject.connect(self.slider, SIGNAL('valueChanged(int)'), self.go_to_page)
+        
         self.next_button.setDefaultAction(self.action_next_page)
         self.previous_button.setDefaultAction(self.action_previous_page)
         self.back_button.setDefaultAction(self.action_back)
@@ -162,6 +166,12 @@ class Main(MainWindow, Ui_MainWindow):
     
     def next(self, triggered):
         self.document.next()
+
+    def next_match(self, triggered):
+        try:
+            self.document.next_match()
+        except StopIteration:
+            pass
         
     def previous(self, triggered):
         self.document.previous()

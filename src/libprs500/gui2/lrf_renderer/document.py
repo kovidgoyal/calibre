@@ -149,7 +149,6 @@ class _Canvas(QGraphicsRectItem):
              
     def layout_image_block(self, ib, x, y):
         mw, mh = self.max_x - x, self.max_y - y
-        print self, mw, mh
         if ib.width > mw or ib.height > mh:
             ib.resize(mw, mh)
         if self.current_y + ib.height > self.max_y-y and self.current_y > 5:

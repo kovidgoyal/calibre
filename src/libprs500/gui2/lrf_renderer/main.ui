@@ -134,7 +134,14 @@
             </widget>
            </item>
            <item>
-            <widget class="SearchBox" name="search" />
+            <widget class="SearchBox" name="search" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Minimum" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -241,6 +248,11 @@
    </property>
    <property name="text" >
     <string>Forward</string>
+   </property>
+  </action>
+  <action name="action_next_match" >
+   <property name="text" >
+    <string>Next match</string>
    </property>
   </action>
  </widget>

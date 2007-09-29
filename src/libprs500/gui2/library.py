@@ -654,7 +654,7 @@ class SearchBox(QLineEdit):
         self.initial_state = True
         self.default_palette = QApplication.palette(self)
         self.gray = QPalette(self.default_palette)
-        self.gray.setBrush(QPalette.Text, QBrush(QColor('lightgray')))
+        self.gray.setBrush(QPalette.Text, QBrush(QColor('gray')))
         self.prev_search = ''
         self.timer = None
         self.clear_to_help()
@@ -666,9 +666,9 @@ class SearchBox(QLineEdit):
         self.setPalette(self.default_palette)
         
     def clear_to_help(self):
-        self.setText(self.help_text)
-        self.home(False)
         self.setPalette(self.gray)
+        self.setText(self.help_text)
+        self.home(False)        
         self.initial_state = True
         
     def keyPressEvent(self, event):
