@@ -24,7 +24,7 @@ to get and set meta information. For example:
 >>> lrf.category = "History"
 """
 
-import struct, zlib, sys
+import struct, zlib, sys, re
 from shutil import copyfileobj
 from cStringIO import StringIO
 import xml.dom.minidom as dom
@@ -392,6 +392,8 @@ class LRFMetaFile(object):
                 # encoded metadata block. 
                 # Decoding using latin1 is the most useful for me since I
                 # occassionally read french books.
+                # pdflrf creates invalif metadata blocks
+                candidate = re.compile(u'</Info>.*', re.DOTALL).sub(u'</Info>', candidate)
                 if not u"Info" in candidate: 
                     candidate = unicode(src, 'latin1', errors='ignore')
                     if candidate[-1:] == '\0':
