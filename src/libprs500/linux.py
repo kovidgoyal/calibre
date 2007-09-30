@@ -197,7 +197,10 @@ def post_install():
         
     setup_udev_rules()
     setup_completion()
-    setup_desktop_integration()
+    try:
+        setup_desktop_integration()
+    except:
+        print >>sys.stderr, 'You do not have the Portland Desktop Utilities installed, skipping installation of desktop integration'
     
 
     
