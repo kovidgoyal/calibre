@@ -113,6 +113,8 @@ class BooksModel(QAbstractTableModel):
             
     def set_database(self, db):
         if isinstance(db, (QString, basestring)):
+            if isinstance(db, QString):
+                db = qstring_to_unicode(db)    
             db = LibraryDatabase(os.path.expanduser(qstring_to_unicode(db)))
         self.db = db
         

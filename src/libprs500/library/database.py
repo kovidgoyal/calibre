@@ -954,11 +954,10 @@ class LibraryDatabase(object):
                               (mi.title, uri, mi.series_index))
             id = obj.lastrowid
             self.conn.commit()
-            if not mi.author:
-                mi.author = 'Unknown'
-            temp = mi.author.split(',')
+            if not mi.authors:
+                mi.authors = ['Unknown']
             authors = []
-            for a in temp:
+            for a in mi.authors:
                 authors += a.split('&')
             self.set_authors(id, authors)
             if mi.author_sort:
