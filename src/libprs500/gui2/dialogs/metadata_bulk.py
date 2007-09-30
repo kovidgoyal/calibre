@@ -61,9 +61,9 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             pub = qstring_to_unicode(self.publisher.text())
             if pub:
                 self.db.set_publisher(id, pub)
-            tags = qstring_to_unicode(self.tags.text())
+            tags = qstring_to_unicode(self.tags.text()).strip()
             if tags:
-                tags = tags.split(tags)
+                tags = tags.split(',')
                 self.db.set_tags(id, tags, append=True)
             if self.write_series:
                 self.db.set_series(id, qstring_to_unicode(self.series.currentText()))
