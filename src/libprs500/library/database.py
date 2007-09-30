@@ -891,15 +891,18 @@ class LibraryDatabase(object):
         '''
         if not append:
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
-        tag = set(tags)
-        for tag in tags:
-            t = self.conn.execute('SELECT id from tags WHERE name=?', (tag,)).fetchone()
+        for tag in set(tags):
+            tag = tag.strip()
+            if not tag:
+                continue
+            t = self.conn.execute('SELECT id FROM tags WHERE name=?', (tag,)).fetchone()
             if t:
                 tid = t[0]
             else:
                 tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
-            if (append and not self.conn.execute('SELECT book FROM books_tags_link WHERE book=? AND tag=?',
-                                        (id, tid)).fetchone()) or not append:
+            
+            if not self.conn.execute('SELECT book FROM books_tags_link WHERE book=? AND tag=?',
+                                        (id, tid)).fetchone():
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
         self.conn.commit()

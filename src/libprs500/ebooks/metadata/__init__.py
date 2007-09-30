@@ -62,7 +62,7 @@ class MetaInformation(object):
     def __str__(self):
         ans = ''
         ans += 'Title   : ' + str(self.title) + '\n'
-        ans += 'Author  : ' + ', '.join(self.authors) + '\n'
+        ans += 'Author  : ' + (', '.join(self.authors) if self.authors is not None else 'None') + '\n'
         ans += 'Category: ' + str(self.category) + '\n'
         ans += 'Comments: ' + str(self.comments) + '\n'
         return ans.strip()

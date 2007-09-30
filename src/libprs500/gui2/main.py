@@ -269,7 +269,7 @@ class Main(MainWindow, Ui_MainWindow):
     def _add_books(self, paths, to_device):
         on_card = False if self.stack.currentIndex() != 2 else True
         # Get format and metadata information
-        formats, metadata, names, infos = [], [], [], []        
+        formats, metadata, names, infos = [], [], [], []
         for book in paths:
             format = os.path.splitext(book)[1]
             format = format[1:] if format else None
@@ -281,7 +281,7 @@ class Main(MainWindow, Ui_MainWindow):
             metadata.append(mi)
             names.append(os.path.basename(book))
             if not mi.authors:
-                mi.authors = 'Unknown'
+                mi.authors = ['Unknown']
             infos.append({'title':mi.title, 'authors':', '.join(mi.authors), 
                           'cover':self.default_thumbnail, 'tags':[]})
         
