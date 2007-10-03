@@ -178,6 +178,9 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.series.lineEdit().setText('')
         if idx is not None:
             self.series.setCurrentIndex(idx)
+        
+        self.series_index.setValue(self.db.series_index(row))
+        
         cover = self.db.cover(row)
         if cover:
             pm = QPixmap()
