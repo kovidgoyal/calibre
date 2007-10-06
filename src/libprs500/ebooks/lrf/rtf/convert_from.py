@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import os, sys, tempfile, subprocess, shutil, logging
+import os, sys, tempfile, subprocess, shutil, logging, glob
 
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks.metadata.meta import get_metadata
@@ -20,15 +20,30 @@ from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_
 from libprs500.ebooks import ConversionError
 from libprs500 import isosx, setup_cli_handlers, __appname__
 
-UNRTF = 'unrtf'
+UNRTF   = 'unrtf'
+CONVERT = 'convert'
 if isosx and hasattr(sys, 'frameworks_dir'):
-    UNRTF = os.path.join(sys.frameworks_dir, UNRTF)
+    UNRTF   = os.path.join(sys.frameworks_dir, UNRTF)
+    CONVERT = os.path.join(sys.frameworks_dir, CONVERT)
+
 
 def option_parser():
     return lrf_option_parser(
         '''Usage: %prog [options] mybook.rtf\n\n'''
         '''%prog converts mybook.rtf to mybook.lrf'''
         )
+
+def convert_images(html, logger):
+    wmfs = glob.glob('*.wmf') + glob.glob('*.WMF')
+    for wmf in wmfs:
+        target = os.path.join(os.path.dirname(wmf), os.path.splitext(os.path.basename(wmf))[0]+'.jpg')
+        try:
+            subprocess.check_call(CONVERT + ' ' + wmf + ' ' + target, shell=True)
+            html = html.replace(os.path.basename(wmf), os.path.basename(target))
+        except Exception, err:
+            logger.warning(u'Unable to convert image %s with error: %s'%(wmf, unicode(err)))
+            continue
+    return html
 
 def generate_html(rtfpath, logger):
     tdir = tempfile.mkdtemp(prefix=__appname__+'_')
@@ -42,7 +57,7 @@ def generate_html(rtfpath, logger):
         cmd = ' '.join([UNRTF, '"'+rtfpath+'"'])
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        file.write(p.stdout.read())
+        file.write(convert_images(p.stdout.read(), logger))
         ret = p.wait()
         if ret != 0:
             if isosx and ret == -11: #unrtf segfaults on OSX but seems to convert most of the file.
