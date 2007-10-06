@@ -207,6 +207,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         ph = 'Preprocess the file before converting to LRF. This is useful if you know that the file is from a specific source. Known sources:'
         ph += '<ol><li><b>baen</b> - Books from BAEN Publishers</li>'
         ph += '<li><b>pdftohtml</b> - HTML files that are the output of the program pdftohtml</li>'
+        ph += '<li><b>book-designer</b> - HTML0 files from Book Designer</li>'
         self.preprocess.setToolTip(ph)
         self.preprocess.setWhatsThis(ph)
         for profile in self.PARSER.get_option('--profile').choices:

@@ -93,6 +93,19 @@ class HTMLConverter(object):
                   
                   ]
     
+    # Fix Book Designer markup
+    BOOK_DESIGNER = [
+                     # Create header tags
+                     (re.compile('<h2.*?id=BookTitle.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                      lambda match : '<h1 align="center">%s</h1>'%(match.group(1),)),
+                     (re.compile('<h2.*?id=BookAuthor.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                      lambda match : '<h2 align="right">%s</h2>'%(match.group(1),)),
+                     (re.compile('<span.*?id=title.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                      lambda match : '<h2>%s</h2>'%(match.group(1),)),
+                     (re.compile('<span.*?id=subtitle.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                      lambda match : '<h3>%s</h3>'%(match.group(1),)), 
+                     ]
+    
     def __hasattr__(self, attr):
         if hasattr(self.options, attr):
             return True
