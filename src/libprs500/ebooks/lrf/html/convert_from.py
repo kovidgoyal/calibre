@@ -1500,8 +1500,16 @@ def process_file(path, options, logger=None):
                     
         if not options.title:
             options.title = default_title
+        
+        for prop in ('author', 'author_sort', 'title', 'title_sort', 'publisher', 'freetext'):
+            val = getattr(options, prop)
+            if val and not isinstance(val, unicode):
+                soup = BeautifulSoup(val)
+                setattr(options, prop, unicode(soup))
+        
         title = (options.title, options.title_sort)
         author = (options.author, options.author_sort)
+        
         args = dict(font_delta=options.font_delta, title=title, \
                     author=author, sourceencoding='utf8',\
                     freetext=options.freetext, category=options.category,
