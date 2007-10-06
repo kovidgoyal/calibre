@@ -45,6 +45,7 @@ from libprs500 import filename_to_utf8,  setup_cli_handlers, __appname__
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.opf import OPFReader
 from libprs500.devices.interface import Device
+from libprs500.ebooks.lrf.html.color_map import lrs_color
         
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
@@ -96,14 +97,20 @@ class HTMLConverter(object):
     # Fix Book Designer markup
     BOOK_DESIGNER = [
                      # Create header tags
-                     (re.compile('<h2.*?id=BookTitle.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-                      lambda match : '<h1 align="center">%s</h1>'%(match.group(1),)),
-                     (re.compile('<h2.*?id=BookAuthor.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-                      lambda match : '<h2 align="right">%s</h2>'%(match.group(1),)),
+                     (re.compile('<h2.*?id=BookTitle.*?(align=)*(?(1)(\w+))*.*?>(.*?)</h2>', re.IGNORECASE|re.DOTALL),
+                      lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
+                     (re.compile('<h2.*?id=BookAuthor.*?(align=)*(?(1)(\w+))*.*?>(.*?)</h2>', re.IGNORECASE|re.DOTALL),
+                      lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
                      (re.compile('<span.*?id=title.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h2>%s</h2>'%(match.group(1),)),
                      (re.compile('<span.*?id=subtitle.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-                      lambda match : '<h3>%s</h3>'%(match.group(1),)), 
+                      lambda match : '<h3>%s</h3>'%(match.group(1),)),
+                     # Blank lines
+                     (re.compile('<div.*?>(&nbsp;){4}</div>', re.IGNORECASE),
+                      lambda match : '<p></p>'), 
+                     # HR
+                     (re.compile('<hr>', re.IGNORECASE),
+                      lambda match : '<span style="page-break-after:always"> </span>'),
                      ]
     
     def __hasattr__(self, attr):
@@ -196,6 +203,8 @@ class HTMLConverter(object):
                         'content':re.compile('Baen', re.IGNORECASE)}))
     
     def start_on_file(self, path, is_root=True, link_level=0):
+        self.css = HTMLConverter.CSS.copy()
+        self.pseudo_css = {}
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
@@ -210,6 +219,8 @@ class HTMLConverter(object):
         if self.pdftohtml:
             nmassage.extend(HTMLConverter.PDFTOHTML)
             #raw = unicode(raw, 'utf8', 'replace')
+        if self.book_designer:
+            nmassage.extend(HTMLConverter.BOOK_DESIGNER)
         try:
             soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
@@ -225,6 +236,13 @@ class HTMLConverter(object):
             self.baen = True
             self.logger.info('Baen file detected. Re-parsing...')
             return self.start_on_file(path, is_root=is_root, link_level=link_level)
+        if self.book_designer:
+            t = soup.find(id='BookTitle')
+            if t:
+                self.book.set_title(self.get_text(t))
+            a = soup.find(id='BookAuthor')
+            if a:
+                self.book.set_author(self.get_text(a))
         self.logger.info('\tConverting to BBeB...')
         sys.stdout.flush()        
         self.current_page = None
@@ -234,8 +252,6 @@ class HTMLConverter(object):
         match = self.PAGE_BREAK_PAT.search(unicode(soup))
         if match and not re.match('avoid', match.group(1), re.IGNORECASE):
             self.page_break_found = True
-        self.css = HTMLConverter.CSS.copy()
-        self.pseudo_css = {}
         self.target_prefix = path
         self.links[path] = []
         self.previous_text = '\n'
@@ -278,7 +294,7 @@ class HTMLConverter(object):
         Parses a style attribute. The code within a CSS selector block or in
         the style attribute of an HTML element.
         @return: A dictionary with one entry for each property where the key 
-                 is the property name and the value is the property value.
+                is the property name and the value is the property value.
         """
         prop = dict()
         for s in props.split(';'):
@@ -301,7 +317,7 @@ class HTMLConverter(object):
                 # however we need to as we don't do alignment at a block level.
                 # float is removed by the process_alignment function.
                 if chk.startswith('font') or chk == 'text-align' or \
-                chk == 'float' or chk == 'white-space': 
+                chk == 'float' or chk == 'white-space' or chk == 'color':
                     temp[key] = pcss[key]
             prop.update(temp)
             
@@ -656,7 +672,11 @@ class HTMLConverter(object):
                     unneeded.append(prop)
             for prop in unneeded:
                 fp.pop(prop)
-            elem = Span(text=src, **fp) if (fp or force_span_use) else src
+            attrs = {}
+            if 'color' in css:
+                attrs['textcolor'] = lrs_color(css['color'])
+            attrs.update(fp)
+            elem = Span(text=src, **attrs) if (attrs or force_span_use) else src
             if css.has_key('text-decoration'):
                 dec = css['text-decoration'].lower()
                 linepos = 'after' if dec == 'underline' else 'before' if dec == 'overline' else None
@@ -1372,6 +1392,8 @@ class HTMLConverter(object):
         elif tagname == 'font':
             if tag.has_key('face'):
                 tag_css['font-family'] = tag['face']
+            if tag.has_key('color'):
+                tag_css['color'] = tag['color']
             self.process_children(tag, tag_css, tag_pseudo_css)
         elif tagname in ['br']:
             self.line_break()

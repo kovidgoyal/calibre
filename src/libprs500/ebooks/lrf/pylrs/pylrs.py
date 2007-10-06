@@ -442,6 +442,14 @@ class Book(Delegator):
         self.gc_count = 0
         
 
+    def set_title(self, title):
+        ot = self.delegates[0].delegates[0].delegates[0].title
+        self.delegates[0].delegates[0].delegates[0].title = (title, ot[1])
+        
+    def set_author(self, author):
+        ot = self.delegates[0].delegates[0].delegates[0].author
+        self.delegates[0].delegates[0].delegates[0].author = (author, ot[1])
+    
     def create_text_style(self, **settings):
         ans = TextStyle(**self.defaultTextStyle.attrs.copy())
         ans.update(settings)
