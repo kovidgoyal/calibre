@@ -13,12 +13,32 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import os, time, calendar, operator
+import os, time, calendar, operator, re
 
 from libprs500 import iswindows
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
+from htmlentitydefs import name2codepoint
 
-def parse_feeds(feeds, browser, print_version, max_articles_per_feed=10):
+def process_html_description(tag):
+        src = '\n'.join(tag.contents)
+        replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
+        for e in replaced_entities:
+            ent = '&'+e+';'
+            src = src.replace(ent, unichr(name2codepoint[e]))
+        return re.compile(r'<a.*?</a>', re.IGNORECASE|re.DOTALL).sub('', src)
+
+def parse_feeds(feeds, browser, print_version, 
+                max_articles_per_feed=10, 
+                html_description=False,
+                oldest_article=7):
+    '''
+    @param print_version: Callable that takes a url string and returns the url to 
+                          printable version of the article pointed to by the original url.
+    @param max_articles_per_feed: Maximum number of articles to download from each feed
+    @param html_description: If true the atricles descriptions are processed as HTML
+    @param oldest_article: A number in days. No articles older than now - oldest_aticle 
+                           will be downloaded.  
+    '''
     articles = {}
     for title, url in feeds:
         src = browser.open(url).read()
@@ -37,10 +57,14 @@ def parse_feeds(feeds, browser, print_version, max_articles_per_feed=10):
                                                     '%a, %d %b %Y %H:%M:%S %Z')),
                     'date'     : pubdate
                     }
+                delta = time.time() - d['timestamp']
+                if delta > oldest_article*3600*24:
+                    continue 
             except:
                 continue
             try:
-                d['description'] = item.find('description').string
+                desc = item.find('description')
+                d['description'] = process_html_description(desc) if  html_description else desc.string                    
             except:
                 d['description'] = ''
             articles[title].append(d)

@@ -76,7 +76,6 @@ def initialize(profile):
     profile.pop('browser') # Needed as for some reason using the same browser instance causes timeouts
         
 def finalize(profile):
-    return
     if os.path.isdir(profile['temp dir']):
         shutil.rmtree(profile['temp dir'])
     

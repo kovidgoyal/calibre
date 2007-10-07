@@ -32,7 +32,7 @@ profiles = {
                          'max_recursions'    : 1,     # Number of levels of links to follow
                          'max_files'         : 1000,  # Maximum number of files to download
                          'delay'             : 0,     # Delay between consecutive downloads
-                         'timeout'           : 10,    # Timeout for fetching files from server
+                         'timeout'           : 10,    # Timeout for fetching files from server in seconds
                          'timefmt'           : ' [%a %d %b %Y]',
                          'no_stylesheets'    : False, # Download stylesheets 
                          'match_regexps'     : [],    # List of regular expressions that determines which links to follow
@@ -82,10 +82,7 @@ profiles = {
             'newsweek' : {
                           'initialize'          : newsweek_initialize,
                           'finalize'            : newsweek_finalize,
-                          'title'               : 'Newsweek',
-                          'timefmt'             :  ' [%d %b %Y]',
                           'no_stylesheets'      : True,
-                          'max_recursions'      : 2,
                           'preprocess_regexps'  :
                          [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
                           [

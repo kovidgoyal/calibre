@@ -16,9 +16,8 @@
 
 import sys, urllib2, time, re, tempfile, os, shutil
 
-from libprs500 import __appname__, iswindows
-from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
-from htmlentitydefs import name2codepoint
+from libprs500.ebooks.lrf.web import build_index, parse_feeds
+from libprs500 import __appname__, iswindows, browser
 
 RSS_FEEDS = [
              ('Cover Story', 'http://feeds.newsweek.com/CoverStory'),
@@ -34,110 +33,24 @@ RSS_FEEDS = [
              ('Tip Sheet', 'http://feeds.newsweek.com/newsweek/TipSheet/Highlights'),
              ]
 
-BASE_TEMPLATE=\
-u'''
-<html>
-<body>
-<h1>Newsweek</h1>
-<b align="right">%(date)s</b>
-<p></p>
-<h2>Table of Contents</h2>
-<ul>
-%(toc)s
-</ul>
-<br />
-<hr />
-</body>
-</html>
-'''
 
-SECTION_TEMPLATE=\
-u'''
-<html>
-<body>
-<h2>%(title)s</h2>
-<p></p>
-<h2>Table of Contents</h2>
-<ul>
-%(toc)s
-</ul>
-<br />
-<hr />
-</body>
-</html>
-'''
-
-_tdir = None
-def create_aggregator(sections):
-    '''Return aggregator HTML encoded in utf8'''
-    toc, sec = u'', 0
-    global _tdir
-    _tdir = tempfile.mkdtemp(prefix=__appname__)
-    for section in sections:
-        sec += 1
-        secfile = os.path.join(_tdir, 'sec%d.html'%(sec,))
-        title, contents = section
-        fix = 'file:' if iswindows else ''
-        toc += '<li><a href="%s">%s</a></li>\n'%(fix+secfile, title,)
-        stoc = u''
-        for item in contents:
-            desc = item['description'].strip() 
-            stoc += '<li><a href="%(link)s">%(title)s</a><br />'%dict(link=item['link'], title=item['title'])
-            if desc:
-                stoc += '<div style="font-size:small; font-family:sans">%s</div>\n'%(desc,)
-            stoc += '</li>\n'
-        section = SECTION_TEMPLATE%dict(title=title, toc=stoc)
-        open(secfile, 'w').write(section.encode('utf8'))
-    index = os.path.join(_tdir, 'index.html')
-    src = BASE_TEMPLATE % dict(toc=toc, date=time.strftime('%d %B, %Y', time.localtime()))
-    open(index, 'w').write(src.encode('utf8'))
-    return index
-
-def get_contents():
-    ''' Parse Newsweek RSS feeds to get links to all articles'''
-    
-    def nstounicode(ns):
-        return unicode(str(ns), 'utf8')
-    
-    def fix_link(link):
-        if '?' in link:
-            link = link[:link.index('?')]
-        return link + 'print/1/displaymode/1098/'
-    
-    def process_description(tag):
-        src = '\n'.join(tag.contents)
-        replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
-        for e in replaced_entities:
-            ent = '&'+e+';'
-            src = src.replace(ent, unichr(name2codepoint[e]))
-        return re.compile(r'<a.*?</a>', re.IGNORECASE|re.DOTALL).sub('', src)
-    
-    pages = []
-    for title, url in RSS_FEEDS:
-        soup = BeautifulStoneSoup(urllib2.urlopen(url))
-        contents = []
-        for item in soup.findAll('item'):
-            d = { 
-                 'title' : nstounicode(item.title.contents[0]),
-                 'description': process_description(item.description),
-                 'link': fix_link(nstounicode(item.guid.contents[0]))
-                 }
-            if '&lt;' in d['description']:
-                d['description'] = d['description'][:d['description'].index('&lt;')]
-            contents.append(d)
-        pages.append((title, contents))
-    return pages
-
+def print_version(url):
+    if '?' in url:
+        url = url[:url.index('?')]
+    return url + 'print/1/displaymode/1098/'
 
 def initialize(profile):
-    print 'Fetching feeds...',
-    sys.stdout.flush()
-    contents = get_contents()
-    print 'done'
-    index = create_aggregator(contents)
-     
+    profile['temp dir'] = tempfile.mkdtemp(prefix=__appname__+'_')
+    profile['browser'] = browser()
+    articles = parse_feeds(RSS_FEEDS, profile['browser'], print_version, 
+                           max_articles_per_feed=20, html_description=True)
+    index = build_index('Newsweek', articles, profile['temp dir'])
+    profile['url'] = 'file:'+ ('' if iswindows else '//') + index
+    profile['timefmt'] = ' [%d %b %Y]'
+    profile['max_recursions'] =  2
+    profile['title']          = 'Newsweek'
     profile['url'] = 'file:'+ ('' if iswindows else '//') +index
 
 def finalize(profile):
-    global _tdir
-    shutil.rmtree(_tdir)
+    if os.path.isdir(profile['temp dir']):
+        shutil.rmtree(profile['temp dir'])
