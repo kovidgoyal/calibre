@@ -13,6 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from libprs500.gui2 import qstring_to_unicode
+import htmlentitydefs
 ''''''
 
 import sys, collections, operator, copy, re
@@ -175,6 +176,7 @@ class TextBlock(object):
     has_content = property(fget=lambda self: self.peek_index < len(self.lines)-1)
     XML_ENTITIES = dict(zip(Tag.XML_SPECIAL_CHARS_TO_ENTITIES.values(), Tag.XML_SPECIAL_CHARS_TO_ENTITIES.keys())) 
     XML_ENTITIES["quot"] = '"'
+    ENTITY_PATTERN = re.compile('&(\S+);')
     
     def __init__(self, tb, font_loader, respect_max_y, text_width, logger, 
                  opts, ruby_tags, link_activated):
@@ -309,9 +311,18 @@ class TextBlock(object):
                                  self.opts.hyphenate, self.block_id)
         self.first_line = False
     
+    def handle_entity(self, match):
+        ent = match.group(1)
+        if ent.startswith(u'#x'):
+            return unichr(int(ent[2:], 16))
+        if ent.startswith(u'#'):
+            return unichr(int(ent[1:]))
+        return unichr(htmlentitydefs.name2codepoint[ent])
+    
     def process_text(self, raw):
         for ent, rep in TextBlock.XML_ENTITIES.items():
             raw = raw.replace(u'&%s;'%ent, rep)
+        raw = self.__class__.ENTITY_PATTERN.sub(self.handle_entity, raw)
         while len(raw) > 0:
             if self.current_line is None:
                 self.create_line()
