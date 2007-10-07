@@ -693,7 +693,7 @@ class SearchBox(QLineEdit):
     def timerEvent(self, event):
         self.killTimer(event.timerId())
         if event.timerId() == self.timer:
-            text = str(self.text())
+            text = qstring_to_unicode(self.text())
             refinement = text.startswith(self.prev_search)
             self.prev_search = text
             self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
