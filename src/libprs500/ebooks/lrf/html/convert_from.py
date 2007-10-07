@@ -1482,7 +1482,7 @@ def process_file(path, options, logger=None):
                 th = Device.THUMBNAIL_HEIGHT
                 im = PILImage.open(os.path.join(cwd, cpath))
                 cim = im.resize((options.profile.screen_width, 
-                                 options.profile.screen_height), 
+                                 options.profile.screen_height - options.profile.fudge), 
                                 PILImage.BICUBIC).convert('RGB')
                 cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
                 cf.close()                
