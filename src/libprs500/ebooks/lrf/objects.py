@@ -12,7 +12,8 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import struct, array, zlib, cStringIO, collections
+import struct, array, zlib, cStringIO, collections, re
+from htmlentitydefs import name2codepoint
 
 from libprs500.ebooks.lrf import LRFParseError
 from libprs500.ebooks.lrf.tags import Tag
@@ -545,6 +546,7 @@ class Text(LRFStream):
     style = property(fget=lambda self : self._document.objects[self.style_id])
     
     text_map = { 0x22: u'&quot;', 0x26: u'&amp;', 0x27: u'&squot;', 0x3c: u'&lt;', 0x3e: u'&gt;' }
+    entity_pattern = re.compile(r'&amp;(\S+?);')
     
     text_tags = {
            0xF581: ['simple_container', 'Italic'],
@@ -605,10 +607,19 @@ class Text(LRFStream):
     lineposition_map = {1:'before', 2:'after'}
     
     
+    def handle_entity(self, match):
+        ent = match.group(1)
+        if ent.startswith(u'#x'):
+            return unichr(int(ent[2:], 16))
+        if ent.startswith(u'#'):
+            return unichr(int(ent[1:]))
+        return unichr(name2codepoint[ent])
+    
     def add_text(self, text):
         s = unicode(text, "utf-16-le")
         if s:
-            self.content.append(s.translate(self.text_map))
+            s = s.translate(self.text_map)            
+            self.content.append(self.entity_pattern.sub(self.handle_entity, s))
     
     def end_container(self, tag, stream):
         self.content.append(None)
