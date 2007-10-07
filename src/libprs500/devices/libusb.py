@@ -137,11 +137,12 @@ class Device(Structure):
 class Bus(Structure):
     @apply
     def device_list():
-        doc = """ 
-              Flat list of devices on this bus. 
-              Note: children are not explored 
-              TODO: Check if exploring children is neccessary (e.g. with an external hub)
-              """
+        doc = \
+        """ 
+        Flat list of devices on this bus. 
+        Note: children are not explored 
+        TODO: Check if exploring children is neccessary (e.g. with an external hub)
+        """
         def fget(self):
             if _libusb.usb_find_devices() < 0:
                 raise Error('Unable to search for USB devices')
