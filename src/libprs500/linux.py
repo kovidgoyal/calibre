@@ -201,6 +201,13 @@ def post_install():
         setup_desktop_integration()
     except:
         print >>sys.stderr, 'You do not have the Portland Desktop Utilities installed, skipping installation of desktop integration'
+        
+    try:
+        from PyQt4 import Qt
+        if Qt.PYQT_VERSION < int('0x40301', 16):
+            print 'WARNING: You need PyQt >= 4.3.1 for the GUI to work. You have', Qt.PYQT_VERSION_STR
+    except ImportError:
+        print 'WARNING: You do not have PyQt4 installed. The GUI will not work.'
     
 
     
@@ -264,7 +271,7 @@ def setup_desktop_integration():
         check_call('xdg-icon-resource install --context mimetypes --size 128 libprs500-lrf.png application-lrf', shell=True)
         check_call('xdg-icon-resource install --context mimetypes --size 128 libprs500-lrf.png text-lrs', shell=True)
         check_call('xdg-icon-resource install --size 128 libprs500-gui.png libprs500-gui', shell=True)
-        check_call('xdg-icon-resource install --size 128 libprs500-gui.png libprs500-gui', shell=True)
+        check_call('xdg-icon-resource install --size 128 libprs500-viewer.png libprs500-viewer', shell=True)
         f = open('libprs500-lrfviewer.desktop', 'wb')
         f.write(VIEWER)
         f.close()
