@@ -3,8 +3,10 @@ UI = main_ui.py dialogs/metadata_single_ui.py dialogs/metadata_bulk_ui.py dialog
      dialogs/password_ui.py lrf_renderer/main_ui.py lrf_renderer/config_ui.py
 RC = images_rc.pyc
 
+PYUIC = $(shell which pyuic4)
+
 %_ui.py : %.ui
-	pyuic4 $< | sed "s/import images_rc/from libprs500.gui2 import images_rc/" | \
+	${PYUIC} $< | sed "s/import images_rc/from libprs500.gui2 import images_rc/" | \
 		    sed "s/from library import/from libprs500.gui2.library import/"> $@
 
 %_rc.pyc : %.qrc %
