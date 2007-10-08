@@ -246,7 +246,7 @@ def file_renderer(stream, opts, parent=None, logger=None):
         logger = logging.getLogger('lrfviewer')
         setup_cli_handlers(logger, level)
     if islinux:
-        try:
+        try: # Set lrfviewer as the default for LRF files for this user
             from subprocess import call
             call('xdg-mime default libprs500-lrfviewer.desktop application/lrf', shell=True)
         except:
