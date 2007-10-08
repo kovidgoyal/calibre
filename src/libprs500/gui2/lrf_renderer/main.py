@@ -12,12 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.gui2 import choose_files
 ''''''
 
-import sys, logging, os, traceback, time
+import sys, logging, os, traceback, time, cPickle, copy
 
-from PyQt4.QtGui import QApplication, QKeySequence, QPainter
-from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
+from PyQt4.QtGui import QApplication, QKeySequence, QPainter, QDialog
+from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread, \
+                         QSettings, QVariant
 
 from libprs500 import __appname__, __version__, __author__, setup_cli_handlers, islinux
 from libprs500.ebooks.lrf.parser import LRFDocument
@@ -25,6 +27,7 @@ from libprs500.ebooks.lrf.parser import LRFDocument
 from libprs500.gui2 import ORG_NAME, APP_UID, error_dialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog
 from libprs500.gui2.lrf_renderer.main_ui import Ui_MainWindow
+from libprs500.gui2.lrf_renderer.config_ui import Ui_ViewerConfig
 from libprs500.gui2.main_window import MainWindow
 from libprs500.gui2.lrf_renderer.document import Document
 
@@ -56,9 +59,18 @@ class RenderWorker(QThread):
             self.aborted = True
             self.lrf.keep_parsing = False
         
+class Config(QDialog, Ui_ViewerConfig):
+    
+    def __init__(self, parent, opts):
+        QDialog.__init__(self, parent)
+        Ui_ViewerConfig.__init__(self)
+        self.setupUi(self)
+        self.white_background.setChecked(opts.white_background)
+        self.hyphenate.setChecked(opts.hyphenate)
+        
 class Main(MainWindow, Ui_MainWindow):
     
-    def __init__(self, stream, logger, opts, parent=None):
+    def __init__(self, logger, opts, parent=None):
         MainWindow.__init__(self, parent)
         Ui_MainWindow.__init__(self)        
         self.setupUi(self)
@@ -66,19 +78,13 @@ class Main(MainWindow, Ui_MainWindow):
         self.setWindowTitle(__appname__ + ' - LRF Viewer')
     
         self.logger = logger
-        self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
         self.opts = opts
         self.document = None
-        self.renderer = RenderWorker(self, stream, logger, opts)
-        QObject.connect(self.renderer, SIGNAL('finished()'), self.parsed, Qt.QueuedConnection)
         self.document = Document(self.logger, self.opts)
         QObject.connect(self.document, SIGNAL('chapter_rendered(int)'), self.chapter_rendered)
         QObject.connect(self.document, SIGNAL('page_changed(PyQt_PyObject)'), self.page_changed)
         
-        self.search.help_text = 'Search'
-        self.search.clear_to_help()
         QObject.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), self.find)
-        self.last_search = None
         
         self.action_next_page.setShortcuts(QKeySequence.MoveToNextPage)
         self.action_previous_page.setShortcuts(QKeySequence.MoveToPreviousPage)
@@ -89,6 +95,8 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
         QObject.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
         QObject.connect(self.action_next_match, SIGNAL('triggered(bool)'), self.next_match)
+        QObject.connect(self.action_open_ebook, SIGNAL('triggered(bool)'), self.open_ebook)
+        QObject.connect(self.action_configure, SIGNAL('triggered(bool)'), self.configure)
         QObject.connect(self.spin_box, SIGNAL('valueChanged(int)'), self.go_to_page)
         QObject.connect(self.slider, SIGNAL('valueChanged(int)'), self.go_to_page)
         
@@ -96,6 +104,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.previous_button.setDefaultAction(self.action_previous_page)
         self.back_button.setDefaultAction(self.action_back)
         self.forward_button.setDefaultAction(self.action_forward)
+        self.open_button.setDefaultAction(self.action_open_ebook)
+        self.configure_button.setDefaultAction(self.action_configure)
         
         self.graphics_view.setRenderHint(QPainter.Antialiasing, True)
         self.graphics_view.setRenderHint(QPainter.TextAntialiasing, True)
@@ -104,13 +114,50 @@ class Main(MainWindow, Ui_MainWindow):
         self.closed = False
         
         
+    def configure(self, triggered):
+        opts = cPickle.loads(str(QSettings().value('ebook viewer options', QVariant(cPickle.dumps(self.opts))).toString()))
+        d = Config(self, opts)
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            opts.white_background = bool(d.white_background.isChecked())
+            opts.hyphenate = bool(d.hyphenate.isChecked())
+            QSettings().setValue('ebook viewer options', QVariant(cPickle.dumps(opts)))
+    
+    def set_ebook(self, stream):
+        self.progress_bar.setMinimum(0)
+        self.progress_bar.setMaximum(0)
+        self.progress_bar.setValue(0)
+            
+        if stream is not None:
+            self.file_name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
+            self.progress_label.setText('Parsing '+ self.file_name)
+            self.renderer = RenderWorker(self, stream, self.logger, self.opts)
+            QObject.connect(self.renderer, SIGNAL('finished()'), self.parsed, Qt.QueuedConnection)
+            self.search.help_text = 'Search'
+            self.search.clear_to_help()
+            self.last_search = None
+        else:
+            self.stack.setCurrentIndex(0)
+            self.renderer = None
+        
+    def open_ebook(self, triggered):
+        files = choose_files(self, 'open ebook dialog', 'Choose ebook', 
+                             [('Ebooks', ['lrf'])], all_files=False, 
+                             select_only_single_file=True)
+        if files:
+            file = files[0]
+            self.set_ebook(open(file, 'rb'))
+            self.render()
+            
+    
     def page_changed(self, num):
         self.slider.setValue(num)
         self.spin_box.setValue(num)
     
     def render(self):
-        self.stack.setCurrentIndex(1)
-        self.renderer.start()
+        if self.renderer is not None:
+            self.stack.setCurrentIndex(1)
+            self.renderer.start()
     
     def find(self, search, refinement):
         self.last_search = search
@@ -186,7 +233,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.document.back()
         
     def closeEvent(self, event):
-        if self.renderer.isRunning():
+        if self.renderer is not None and self.renderer.isRunning():
             self.renderer.abort()
             self.renderer.wait()
         self.emit(SIGNAL('viewer_closed(PyQt_PyObject)'), self)
@@ -204,7 +251,9 @@ def file_renderer(stream, opts, parent=None, logger=None):
             call('xdg-mime default libprs500-lrfviewer.desktop application/lrf', shell=True)
         except:
             pass
-    return Main(stream, logger, opts, parent=parent)
+    m = Main(logger, opts, parent=parent)
+    m.set_ebook(stream)
+    return m
     
 
 def option_parser():
@@ -223,10 +272,22 @@ def option_parser():
                       help='Profile the LRF renderer')
     return parser
 
+def normalize_settings(parser, opts):
+    settings = QSettings()
+    saved_opts = cPickle.loads(str(settings.value('ebook viewer options', QVariant(cPickle.dumps(opts))).toString()))
+    for opt in parser.option_list:
+        if not opt.dest:
+            continue
+        if getattr(opts, opt.dest) == opt.default:
+            continue
+        setattr(saved_opts, opt.dest, getattr(opts, opt.dest))
+    return saved_opts
+    
+
 def main(args=sys.argv, logger=None):
     parser = option_parser()
     opts, args = parser.parse_args(args)
-    if len(args) != 2:
+    if hasattr(opts, 'help'):
         parser.print_help()
         return 1
     pid = os.fork() if islinux else -1
@@ -234,7 +295,9 @@ def main(args=sys.argv, logger=None):
         app = QApplication(args)
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
-        main = file_renderer(open(args[1], 'rb'), opts, logger=logger)
+        opts = normalize_settings(parser, opts)
+        stream = open(args[1], 'rb') if len(args) > 1 else None        
+        main = file_renderer(stream, opts, logger=logger)
         sys.excepthook = main.unhandled_exception
         main.show()
         main.render()

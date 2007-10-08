@@ -103,6 +103,20 @@
             </widget>
            </item>
            <item>
+            <widget class="QToolButton" name="open_button" >
+             <property name="text" >
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="configure_button" >
+             <property name="text" >
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <widget class="QSlider" name="slider" >
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
@@ -253,6 +267,22 @@
   <action name="action_next_match" >
    <property name="text" >
     <string>Next match</string>
+   </property>
+  </action>
+  <action name="action_open_ebook" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >:/images/document_open.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Open ebook</string>
+   </property>
+  </action>
+  <action name="action_configure" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >:/images/config.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Configure</string>
    </property>
   </action>
  </widget>
