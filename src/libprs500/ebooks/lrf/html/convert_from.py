@@ -101,9 +101,9 @@ class HTMLConverter(object):
                       lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
                      (re.compile('<h2.*?id=BookAuthor.*?(align=)*(?(1)(\w+))*.*?>(.*?)</h2>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
-                     (re.compile('<span.*?id=title.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                     (re.compile('<span\s+id=title.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h2>%s</h2>'%(match.group(1),)),
-                     (re.compile('<span.*?id=subtitle.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                     (re.compile('<span\s+id=subtitle.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3>%s</h3>'%(match.group(1),)),
                      # Blank lines
                      (re.compile('<div.*?>(&nbsp;){4}</div>', re.IGNORECASE),
@@ -231,7 +231,7 @@ class HTMLConverter(object):
                 soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.HTML_ENTITIES,
                          markupMassage=nmassage)
-                
+        
         if not self.baen and self.is_baen(soup):
             self.baen = True
             self.logger.info('Baen file detected. Re-parsing...')
