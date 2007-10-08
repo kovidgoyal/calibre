@@ -38,7 +38,7 @@
         </property>
         <property name="maximumSize" >
          <size>
-          <width>154</width>
+          <width>172</width>
           <height>16777215</height>
          </size>
         </property>
@@ -50,6 +50,12 @@
         </property>
         <property name="mouseTracking" >
          <bool>true</bool>
+        </property>
+        <property name="verticalScrollBarPolicy" >
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy" >
+         <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
         <property name="showDropIndicator" stdset="0" >
          <bool>false</bool>
@@ -75,7 +81,7 @@
         <property name="gridSize" >
          <size>
           <width>150</width>
-          <height>119</height>
+          <height>100</height>
          </size>
         </property>
         <property name="viewMode" >
