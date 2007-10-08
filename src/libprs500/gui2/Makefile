@@ -1,6 +1,6 @@
 UI = main_ui.py dialogs/metadata_single_ui.py dialogs/metadata_bulk_ui.py dialogs/jobs_ui.py \
      dialogs/conversion_error_ui.py dialogs/lrf_single_ui.py dialogs/choose_format_ui.py     \
-     dialogs/password_ui.py lrf_renderer/main_ui.py
+     dialogs/password_ui.py lrf_renderer/main_ui.py lrf_renderer/config_ui.py
 RC = images_rc.pyc
 
 %_ui.py : %.ui
