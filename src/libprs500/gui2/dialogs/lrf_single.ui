@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>789</width>
+    <width>866</width>
     <height>570</height>
    </rect>
   </property>
@@ -78,11 +78,8 @@
         <property name="movement" >
          <enum>QListView::Static</enum>
         </property>
-        <property name="gridSize" >
-         <size>
-          <width>150</width>
-          <height>100</height>
-         </size>
+        <property name="spacing" >
+         <number>10</number>
         </property>
         <property name="viewMode" >
          <enum>QListView::IconMode</enum>

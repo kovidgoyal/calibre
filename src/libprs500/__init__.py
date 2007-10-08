@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''' E-book management software'''
-__version__   = "0.4.7"
+__version__   = "0.4.8"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
@@ -49,7 +49,7 @@ def load_library(name, cdll):
     if isosx:
         name += '.dylib'
         if hasattr(sys, 'frameworks_dir'):
-            return cdll.LoadLibrary(os.path.join(sys.frameworks_dir, name))
+            return cdll.LoadLibrary(os.path.join(getattr(sys, 'frameworks_dir'), name))
         return cdll.LoadLibrary(name)
     return cdll.LoadLibrary(name+'.so')
 
