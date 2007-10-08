@@ -19,13 +19,11 @@ from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_file
 from libprs500.ebooks import ConversionError
 from libprs500 import isosx, setup_cli_handlers, __appname__
+from libprs500.libwand import convert, WandException
 
 UNRTF   = 'unrtf'
-CONVERT = 'convert'
 if isosx and hasattr(sys, 'frameworks_dir'):
-    UNRTF   = os.path.join(sys.frameworks_dir, UNRTF)
-    CONVERT = os.path.join(sys.frameworks_dir, CONVERT)
-
+    UNRTF   = os.path.join(getattr(sys, 'frameworks_dir'), UNRTF)
 
 def option_parser():
     return lrf_option_parser(
@@ -38,9 +36,9 @@ def convert_images(html, logger):
     for wmf in wmfs:
         target = os.path.join(os.path.dirname(wmf), os.path.splitext(os.path.basename(wmf))[0]+'.jpg')
         try:
-            subprocess.check_call(CONVERT + ' ' + wmf + ' ' + target, shell=True)
+            convert(wmf, target)
             html = html.replace(os.path.basename(wmf), os.path.basename(target))
-        except Exception, err:
+        except WandException, err:
             logger.warning(u'Unable to convert image %s with error: %s'%(wmf, unicode(err)))
             continue
     return html
@@ -57,15 +55,16 @@ def generate_html(rtfpath, logger):
         cmd = ' '.join([UNRTF, '"'+rtfpath+'"'])
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE)
-        file.write(convert_images(p.stdout.read(), logger))
+        raw = p.stdout.read()
         ret = p.wait()
         if ret != 0:
-            if isosx and ret == -11: #unrtf segfaults on OSX but seems to convert most of the file.
-                file.write('</body>\n</html>')
+            if len(raw) > 1000: #unrtf crashes occassionally on OSX and windows but still convert correctly
+                raw += '</body>\n</html>'
             else:
                 logger.critical(p.stderr.read())
                 raise ConversionError, 'unrtf failed with error code: %d'%(ret,)
-        file.close()
+        file.write(convert_images(raw, logger))
+        file.close()        
         return path        
     finally:
         os.chdir(cwd)
@@ -86,18 +85,16 @@ def process_file(path, options, logger=None):
             ext = '.lrs' if options.lrs else '.lrf'
             options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
         options.output = os.path.abspath(os.path.expanduser(options.output))
-        if (not options.title or options.title == 'Unknown') and mi.title:
-            sys.argv.append('-t')
-            sys.argv.append('"'+mi.title+'"')
+        if not mi.title:
+            mi.title = os.path.splitext(os.path.basename(rtf))[0]
+        if (not options.title or options.title == 'Unknown'):
+            options.title = mi.title
         if (not options.author or options.author == 'Unknown') and mi.author:
-            sys.argv.append('-a')
-            sys.argv.append('"'+mi.author+'"')
+            options.author = mi.author
         if (not options.category or options.category == 'Unknown') and mi.category:
-            sys.argv.append('--category')
-            sys.argv.append('"'+mi.category+'"')
+            options.category = mi.category
         if (not options.freetext or options.freetext == 'Unknown') and mi.comments:
-            sys.argv.append('--comment')
-            sys.argv.append('"'+mi.comments+'"')
+            options.freetext = mi.comments
         html_process_file(html, options, logger)
     finally:
         shutil.rmtree(tdir)

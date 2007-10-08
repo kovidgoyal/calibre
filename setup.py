@@ -12,11 +12,11 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#!/usr/bin/env python
 import sys, re, os, shutil
 sys.path.append('src')
 from libprs500 import __version__ as VERSION
 from libprs500 import __appname__ as APPNAME
+from libprs500 import islinux
 
 entry_points = {
         'console_scripts': [ \
@@ -33,10 +33,12 @@ entry_points = {
                              'web2lrf   = libprs500.ebooks.lrf.web.convert_from:main',
                              'pdf2lrf   = libprs500.ebooks.lrf.pdf.convert_from:main',
                              'any2lrf   = libprs500.ebooks.lrf.any.convert_from:main',
-                             'lrf2lrs   = libprs500.ebooks.lrf.parser:main',
-                             'lrfviewer = libprs500.gui2.lrf_renderer.main:main',
+                             'lrf2lrs   = libprs500.ebooks.lrf.parser:main',                             
                            ], 
-        'gui_scripts'    : [ APPNAME+' = libprs500.gui2.main:main']
+        'gui_scripts'    : [ 
+                            APPNAME+' = libprs500.gui2.main:main',
+                            'lrfviewer = libprs500.gui2.lrf_renderer.main:main',
+                            ],
       }
 
 def _ep_to_script(ep, base='src'):
@@ -125,5 +127,5 @@ if __name__ == '__main__':
             ]
          )
     
-    if 'develop' in ' '.join(sys.argv):
+    if 'develop' in ' '.join(sys.argv) and islinux:
         subprocess.check_call('libprs500_postinstall', shell=True)

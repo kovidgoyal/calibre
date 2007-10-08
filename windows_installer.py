@@ -59,6 +59,7 @@ Var MUI_TEMP
 !define CLIT         "C:\clit\clit.exe"
 !define UNRTF        "C:\unrtf\unrtf.exe"
 !define PDFTOHTML    "C:\pdftohtml\pdftohtml.exe"
+!define IMAGEMAGICK  "C:\ImageMagick"
 
 ;------------------------------------------------------------------------------------------------------
 ;General
@@ -129,6 +130,10 @@ Section "Main" "secmain"
   File "${CLIT}"
   File "${UNRTF}"
   File "${PDFTOHTML}"
+  
+  SetOutPath "$INSTDIR\ImageMagick"
+  File /r "${IMAGEMAGICK}\*"
+  
     
   SetOutPath "$SYSDIR"
   File "${LIBUNRAR_DIR}\unrar.dll"
@@ -151,6 +156,7 @@ Section "Main" "secmain"
     WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${WEBSITE}"
     CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\libprs500.lnk" "$INSTDIR\${PRODUCT_NAME}.exe"
+    CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\lrfviewer.lnk" "$INSTDIR\lrfviewer.exe"
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
     CreateShortCut  "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\libprs500.exe"
@@ -424,17 +430,24 @@ console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i])
 
 setup(
       cmdclass = {'py2exe': BuildEXE},
-      windows = [{'script'          : scripts['gui'][0], 
+      windows = [
+                 {'script'          : scripts['gui'][0], 
                   'dest_base'       : APPNAME,
                   'icon_resources'  : [(1, 'icons/library.ico')],
                   'other_resources' : [BuildEXE.manifest(APPNAME)],
-                  },],
+                  },
+                  {'script'         : scripts['gui'][1], 
+                  'dest_base'       : 'lrfviewer',
+                  'icon_resources'  : [(1, 'icons/viewer.ico')],
+                  'other_resources' : [BuildEXE.manifest('lrfviewer')],
+                  },
+                  ],
       console = console,
       options = { 'py2exe' : {'compressed': 1,
                               'optimize'  : 2,
                               'dist_dir'  : PY2EXE_DIR,
                               'includes'  : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 'mechanize', 'ClientForm'],                                
-                              'packages'  : ['PIL', 'WmfPlugin'],
+                              'packages'  : ['PIL'],
                               'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
                                              "_imagingtk", "ImageTk", "FixTk", 
                                              'pydoc'],
