@@ -70,7 +70,7 @@ class HTMLConverter(object):
                         (re.compile(r'<a.*?>(.*?)</a\s*>', re.DOTALL|re.IGNORECASE),
                          lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
                         # Workaround bug in BeautifulSoup &nbsp; handling
-                        (re.compile(r'&nbsp;', re.IGNORECASE), lambda match : u'\uffff')
+                        (re.compile(u'&nbsp;|&#160;|&#xa0;|\xa0', re.IGNORECASE), lambda match : u'\uffff')
                          ]
     # Fix Baen markup
     BAEN = [ 
