@@ -14,6 +14,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import tempfile
 """ 
 Code to convert HTML ebooks into LRF ebooks.
 
@@ -96,6 +97,9 @@ class HTMLConverter(object):
     
     # Fix Book Designer markup
     BOOK_DESIGNER = [
+                     # HR
+                     (re.compile('<hr>', re.IGNORECASE),
+                      lambda match : '<span style="page-break-after:always"> </span>'),
                      # Create header tags
                      (re.compile('<h2.*?id=BookTitle.*?(align=)*(?(1)(\w+))*.*?>(.*?)</h2>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
@@ -107,10 +111,7 @@ class HTMLConverter(object):
                       lambda match : '<h3>%s</h3>'%(match.group(1),)),
                      # Blank lines
                      (re.compile('<div.*?>(&nbsp;){4}</div>', re.IGNORECASE),
-                      lambda match : '<p></p>'), 
-                     # HR
-                     (re.compile('<hr>', re.IGNORECASE),
-                      lambda match : '<span style="page-break-after:always"> </span>'),
+                      lambda match : '<p></p>'),
                      ]
     
     def __hasattr__(self, attr):
@@ -243,6 +244,12 @@ class HTMLConverter(object):
             a = soup.find(id='BookAuthor')
             if a:
                 self.book.set_author(self.get_text(a))
+        if self.verbose:
+            tdir = tempfile.gettempdir()
+            dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
+            dump.write(str(soup))
+            self.logger.info('Written preprocessed HTML to '+dump.name)
+            dump.close()
         self.logger.info('\tConverting to BBeB...')
         sys.stdout.flush()        
         self.current_page = None
@@ -326,7 +333,9 @@ class HTMLConverter(object):
         if parent_css:
             merge_parent_css(prop, parent_css)
         if tag.has_key("align"):
-            prop["text-align"] = tag["align"]
+            al = tag['align'].lower()
+            if al in ('left', 'right', 'center', 'justify'):
+                prop["text-align"] = al
         if self.css.has_key(tagname):
             prop.update(self.css[tagname])
         if self.pseudo_css.has_key(tagname):
@@ -574,9 +583,9 @@ class HTMLConverter(object):
                 print ptag, type(ptag)
                     
     def get_alignment(self, css):
+        val = css['text-align'].lower() if css.has_key('text-align') else None 
         align = 'head'
-        if css.has_key('text-align'):
-            val = css['text-align'].lower()             
+        if val is not None:             
             if val in ["right", "foot"]:
                 align = "foot"
             elif val == "center":
@@ -857,7 +866,7 @@ class HTMLConverter(object):
                             ImageBlock(self.images[path], xsize=width,
                                        ysize=height, x1=width, y1=height,
                                        blockwidth=width, blockheight=height),
-                            left, 0)
+                            left, 0)        
     
     def process_page_breaks(self, tag, tagname, tag_css):
         if 'page-break-before' in tag_css.keys():
