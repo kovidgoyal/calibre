@@ -69,6 +69,8 @@ class HTMLConverter(object):
                          # remove <p> tags from within <a> tags
                         (re.compile(r'<a.*?>(.*?)</a\s*>', re.DOTALL|re.IGNORECASE),
                          lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
+                        # Workaround bug in BeautifulSoup &nbsp; handling
+                        (re.compile(r'&nbsp;', re.IGNORECASE), lambda match : u'\uffff')
                          ]
     # Fix Baen markup
     BAEN = [ 
@@ -219,7 +221,6 @@ class HTMLConverter(object):
         raw = open(self.file_name, 'rb').read()
         if self.pdftohtml:
             nmassage.extend(HTMLConverter.PDFTOHTML)
-            #raw = unicode(raw, 'utf8', 'replace')
         if self.book_designer:
             nmassage.extend(HTMLConverter.BOOK_DESIGNER)
         try:
@@ -247,7 +248,7 @@ class HTMLConverter(object):
         if self.verbose:
             tdir = tempfile.gettempdir()
             dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
-            dump.write(str(soup))
+            dump.write(unicode(soup).encode('utf-8'))
             self.logger.info('Written preprocessed HTML to '+dump.name)
             dump.close()
         self.logger.info('\tConverting to BBeB...')
@@ -653,7 +654,7 @@ class HTMLConverter(object):
             fp, key, variant = self.font_properties(css)
             for pat, repl in self.__class__.ENTITY_RULES:
                 src = pat.sub(repl, src)
-            src = src.replace(u'\xa0', ' ')# nbsp is replaced with \xa0 by BeatifulSoup
+            src = src.replace(u'\uffff', ' ') # &nbsp; becomes u'\uffff'
             normal_font_size = int(fp['fontsize'])
             if variant == 'small-caps':
                 dump = Span(fontsize=normal_font_size-30)
@@ -1375,29 +1376,37 @@ class HTMLConverter(object):
                                 
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             new_block = self.process_block(tag, tag_css)
+            
             if self.anchor_ids and tag.has_key('id'):
                 tkey = self.target_prefix+tag['id']
                 if not new_block:
                     self.end_current_block()
                 self.current_block.must_append = True
                 self.targets[tkey] = self.current_block
+            
             src = self.get_text(tag, limit=1000)
+            
             if not self.disable_chapter_detection and tagname.startswith('h'):
                 if self.chapter_regex.search(src):
                     self.logger.debug('Detected chapter %s', src)
                     self.end_page()
                     self.page_break_found = True
+            
+            if self.current_para.has_text():
+                self.current_para.append_to(self.current_block)
+            self.current_para = Paragraph()
+            
+            self.previous_text = '\n'
+            
             if not tag.contents:
                 self.current_block.append(CR())
                 return
             
-            if self.current_para.has_text():
-                self.current_para.append_to(self.current_block)
             if self.current_block.contents:
                 self.current_block.append(CR())
-            self.previous_text = '\n'
-            self.current_para = Paragraph()
+            
             self.process_children(tag, tag_css, tag_pseudo_css)
+            
             if self.current_para.contents :
                 self.current_block.append(self.current_para)
             self.current_para = Paragraph()
