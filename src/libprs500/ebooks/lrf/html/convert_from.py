@@ -630,13 +630,20 @@ class HTMLConverter(object):
         '''
         src = tag.string if hasattr(tag, 'string') else tag
         src = src.replace('\r\n', '\n').replace('\r', '\n')
-        if pseudo_css.has_key('first-letter'):
+        if pseudo_css.has_key('first-letter') and len(src) > 1:
             src = src.lstrip()
             f = src[0]
-            src = src[1:]
+            next = 1
+            if f in ("'", '"', u'\x8222', u'\x8216', u'\x8221', u'\x8217'):
+                if len(src) >= 2:
+                    next = 2
+                    f = src[:2]                 
+            src = src[next:]
             ncss = css.copy()
             ncss.update(pseudo_css.pop('first-letter'))
             self.add_text(f, ncss, {}, force_span_use)
+            
+            
         collapse_whitespace = not css.has_key('white-space') or css['white-space'] != 'pre'
         if self.process_alignment(css) and collapse_whitespace:
             # Dont want leading blanks in a new paragraph
