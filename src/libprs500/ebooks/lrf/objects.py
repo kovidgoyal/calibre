@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.ebooks.lrf import entity_to_unicode
 import struct, array, zlib, cStringIO, collections, re
 from htmlentitydefs import name2codepoint
 
@@ -606,20 +607,11 @@ class Text(LRFStream):
     adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
     lineposition_map = {1:'before', 2:'after'}
     
-    
-    def handle_entity(self, match):
-        ent = match.group(1)
-        if ent.startswith(u'#x'):
-            return unichr(int(ent[2:], 16))
-        if ent.startswith(u'#'):
-            return unichr(int(ent[1:]))
-        return unichr(name2codepoint[ent])
-    
     def add_text(self, text):
         s = unicode(text, "utf-16-le")
         if s:
             s = s.translate(self.text_map)            
-            self.content.append(self.entity_pattern.sub(self.handle_entity, s))
+            self.content.append(self.entity_pattern.sub(entity_to_unicode, s))
     
     def end_container(self, tag, stream):
         self.content.append(None)

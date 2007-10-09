@@ -18,6 +18,8 @@ The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfForma
 """
 import sys, os
 from optparse import OptionParser, OptionValueError
+from htmlentitydefs import name2codepoint
+
 from ttfquery import describe, findsystem
 from fontTools.ttLib import TTLibError
 
@@ -289,3 +291,11 @@ def Book(options, logger, font_delta=0, header=None,
         elif not fonts[family].has_key('normal'):
             raise ConversionError, 'Could not find the normal version of the ' + family + ' font'
     return book, fonts
+
+def entity_to_unicode(self, match):
+    ent = match.group(1)
+    if ent.startswith(u'#x'):
+        return unichr(int(ent[2:], 16))
+    if ent.startswith(u'#'):
+        return unichr(int(ent[1:]))
+    return unichr(name2codepoint[ent])

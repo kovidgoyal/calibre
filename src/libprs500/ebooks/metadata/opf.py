@@ -14,12 +14,15 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Read/Write metadata from Open Packaging Format (.opf) files.'''
 
-import sys
+import sys, re
 
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
+from libprs500.ebooks.lrf import entity_to_unicode
 
 class OPFReader(MetaInformation):
+    
+    ENTITY_PATTERN = re.compile(r'&(\S+);')
     
     def __init__(self, stream):
         self.default_title = stream.name if hasattr(stream, 'name') else 'Unknown' 
@@ -34,7 +37,7 @@ class OPFReader(MetaInformation):
         def fget(self):
             title = self.soup.package.metadata.find('dc:title')
             if title:
-                return title.string
+                return self.ENTITY_PATTERN.sub(entity_to_unicode, title.string)
             return self.default_title
         return property(doc=doc, fget=fget)
     
@@ -52,7 +55,7 @@ class OPFReader(MetaInformation):
                     ans = []
                     for i in au:
                         ans.extend(i.split('&'))
-                    return ans
+                    return self.ENTITY_PATTERN.sub(entity_to_unicode, ans)
             return None
         return property(doc=doc, fget=fget)
     
@@ -67,7 +70,7 @@ class OPFReader(MetaInformation):
                     role = elem.get('opf:role')
                 if role == 'aut':
                     fa = elem.get('file-as')
-                    return fa if fa else None
+                    return self.ENTITY_PATTERN.sub(entity_to_unicode, fa) if fa else None
         return property(doc=doc, fget=fget)
         
     @apply
@@ -83,7 +86,7 @@ class OPFReader(MetaInformation):
         def fget(self):
             comments = self.soup.find('dc:description')
             if comments:
-                return comments.string
+                return self.ENTITY_PATTERN.sub(entity_to_unicode, comments.string)
             return None
         return property(doc=doc, fget=fget)
     
@@ -93,7 +96,7 @@ class OPFReader(MetaInformation):
         def fget(self):
             category = self.soup.find('dc:type')
             if category:
-                return category.string
+                return self.ENTITY_PATTERN.sub(entity_to_unicode, category.string)
             return None
         return property(doc=doc, fget=fget)
     
@@ -103,7 +106,7 @@ class OPFReader(MetaInformation):
         def fget(self):
             publisher = self.soup.find('dc:publisher')
             if publisher:
-                return publisher.string
+                return self.ENTITY_PATTERN.sub(entity_to_unicode, publisher.string)
             return None
         return property(doc=doc, fget=fget)
     
