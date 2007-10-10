@@ -229,12 +229,19 @@ class HTMLConverter(object):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
                         'content':re.compile('Baen', re.IGNORECASE)}))
         
-    def is_book_designer(self, soup):
-        return bool(soup.find('h2', attrs={'id':'BookTitle'}))
+    def is_book_designer(self, raw):
+        return bool(re.search('<H2[^><]*id=BookTitle', raw))
     
     def preprocess(self, raw):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
+        
+        if not self.book_designer and self.is_book_designer(raw):
+            self.book_designer = True
+            self.logger.info('\tBook Designer file detected.')
+        
+        self.logger.info('\tParsing HTML...')
+        
         if self.baen:
             nmassage.extend(HTMLConverter.BAEN)
             
@@ -255,12 +262,8 @@ class HTMLConverter(object):
         
         if not self.baen and self.is_baen(soup):
             self.baen = True
-            self.logger.info('Baen file detected. Re-parsing...')
+            self.logger.info('\tBaen file detected. Re-parsing...')
             return self.preprocess(raw)
-        if not self.book_designer and self.is_book_designer(soup):
-            self.book_designer = True
-            self.logger.info('Book Designer file detected. Re-parsing...')
-            return self.preprocess(raw)        
         if self.book_designer:
             t = soup.find(id='BookTitle')
             if t:
@@ -286,7 +289,7 @@ class HTMLConverter(object):
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
-        self.logger.info('Processing %s\n\tParsing HTML...', self.file_name)
+        self.logger.info('Processing %s', self.file_name)
         sys.stdout.flush()
         soup = self.preprocess(open(self.file_name, 'rb').read())
         self.logger.info('\tConverting to BBeB...')
