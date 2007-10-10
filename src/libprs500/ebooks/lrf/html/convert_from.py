@@ -228,6 +228,9 @@ class HTMLConverter(object):
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
                         'content':re.compile('Baen', re.IGNORECASE)}))
+        
+    def is_book_designer(self, soup):
+        return bool(soup.find('h2', attrs={'id':'BookTitle'}))
     
     def preprocess(self, raw):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
@@ -254,6 +257,10 @@ class HTMLConverter(object):
             self.baen = True
             self.logger.info('Baen file detected. Re-parsing...')
             return self.preprocess(raw)
+        if not self.book_designer and self.is_book_designer(soup):
+            self.book_designer = True
+            self.logger.info('Book Designer file detected. Re-parsing...')
+            return self.preprocess(raw)        
         if self.book_designer:
             t = soup.find(id='BookTitle')
             if t:
@@ -268,7 +275,7 @@ class HTMLConverter(object):
             self.logger.info('Written preprocessed HTML to '+dump.name)
             dump.close()
             
-        print soup
+        #print soup
         return soup
     
     def start_on_file(self, path, is_root=True, link_level=0):
