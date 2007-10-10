@@ -110,16 +110,16 @@ class HTMLConverter(object):
                      (re.compile('<hr>', re.IGNORECASE),
                       lambda match : '<span style="page-break-after:always"> </span>'),
                      # Create header tags
-                     (re.compile('<h2.*?id=BookTitle.*?(align=)*(?(1)(\w+))*.*?>(.*?)</h2>', re.IGNORECASE|re.DOTALL),
+                     (re.compile('<h2[^><]*?id=BookTitle[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
                       lambda match : '<h1 id="BookTitle" align="%s">%s</h1>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
-                     (re.compile('<h2.*?id=BookAuthor.*?(align=)*(?(1)(\w+))*.*?>(.*?)</h2>', re.IGNORECASE|re.DOTALL),
+                     (re.compile('<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
                       lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
-                     (re.compile('<span\s+id=title.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                     (re.compile('<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h2>%s</h2>'%(match.group(1),)),
-                     (re.compile('<span\s+id=subtitle.*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
+                     (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
                       lambda match : '<h3>%s</h3>'%(match.group(1),)),
                      # Blank lines
-                     (re.compile('<div.*?>(&nbsp;){4}</div>', re.IGNORECASE),
+                     (re.compile('<div[^><]*?>(&nbsp;){4}</div>', re.IGNORECASE),
                       lambda match : '<p></p>'),
                      ]
     
@@ -229,22 +229,12 @@ class HTMLConverter(object):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
                         'content':re.compile('Baen', re.IGNORECASE)}))
     
-    def start_on_file(self, path, is_root=True, link_level=0):
-        self.css = HTMLConverter.CSS.copy()
-        self.pseudo_css = self.override_pcss.copy()
-        self.css.update(self.override_css)
-        
-        path = os.path.abspath(path)
-        os.chdir(os.path.dirname(path))
-        self.file_name = os.path.basename(path)
-        self.logger.info('Processing %s\n\tParsing HTML...', self.file_name)
-        sys.stdout.flush()
+    def preprocess(self, raw):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(HTMLConverter.MARKUP_MASSAGE)
         if self.baen:
             nmassage.extend(HTMLConverter.BAEN)
             
-        raw = open(self.file_name, 'rb').read()
         if self.pdftohtml:
             nmassage.extend(HTMLConverter.PDFTOHTML)
         if self.book_designer:
@@ -263,7 +253,7 @@ class HTMLConverter(object):
         if not self.baen and self.is_baen(soup):
             self.baen = True
             self.logger.info('Baen file detected. Re-parsing...')
-            return self.start_on_file(path, is_root=is_root, link_level=link_level)
+            return self.preprocess(raw)
         if self.book_designer:
             t = soup.find(id='BookTitle')
             if t:
@@ -277,6 +267,21 @@ class HTMLConverter(object):
             dump.write(unicode(soup).encode('utf-8'))
             self.logger.info('Written preprocessed HTML to '+dump.name)
             dump.close()
+            
+        print soup
+        return soup
+    
+    def start_on_file(self, path, is_root=True, link_level=0):
+        self.css = HTMLConverter.CSS.copy()
+        self.pseudo_css = self.override_pcss.copy()
+        self.css.update(self.override_css)
+        
+        path = os.path.abspath(path)
+        os.chdir(os.path.dirname(path))
+        self.file_name = os.path.basename(path)
+        self.logger.info('Processing %s\n\tParsing HTML...', self.file_name)
+        sys.stdout.flush()
+        soup = self.preprocess(open(self.file_name, 'rb').read())
         self.logger.info('\tConverting to BBeB...')
         sys.stdout.flush()        
         self.current_page = None
