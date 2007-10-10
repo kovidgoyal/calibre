@@ -231,7 +231,9 @@ class HTMLConverter(object):
     
     def start_on_file(self, path, is_root=True, link_level=0):
         self.css = HTMLConverter.CSS.copy()
-        self.pseudo_css = {}
+        self.pseudo_css = self.override_pcss.copy()
+        self.css.update(self.override_css)
+        
         path = os.path.abspath(path)
         os.chdir(os.path.dirname(path))
         self.file_name = os.path.basename(path)
