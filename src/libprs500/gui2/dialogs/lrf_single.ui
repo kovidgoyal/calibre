@@ -468,7 +468,7 @@
                 </property>
                </widget>
               </item>
-              <item row="0" column="3" >
+              <item row="0" column="2" >
                <widget class="QDoubleSpinBox" name="gui_font_delta" >
                 <property name="buttonSymbols" >
                  <enum>QAbstractSpinBox::PlusMinus</enum>
@@ -503,7 +503,7 @@
                 </property>
                </widget>
               </item>
-              <item row="1" column="3" >
+              <item row="1" column="2" >
                <widget class="QDoubleSpinBox" name="gui_wordspace" >
                 <property name="buttonSymbols" >
                  <enum>QAbstractSpinBox::PlusMinus</enum>
@@ -538,7 +538,7 @@
                 </property>
                </widget>
               </item>
-              <item row="2" column="2" colspan="2" >
+              <item row="2" column="1" colspan="2" >
                <widget class="QComboBox" name="preprocess" />
               </item>
               <item row="3" column="0" colspan="4" >
@@ -597,18 +597,15 @@
                 </property>
                </widget>
               </item>
+              <item row="7" column="0" >
+               <widget class="QLabel" name="label_21" >
+                <property name="text" >
+                 <string>Override&lt;br>CSS</string>
+                </property>
+               </widget>
+              </item>
               <item row="7" column="1" >
-               <spacer>
-                <property name="orientation" >
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" >
-                 <size>
-                  <width>20</width>
-                  <height>41</height>
-                 </size>
-                </property>
-               </spacer>
+               <widget class="QTextEdit" name="gui_override_css" />
               </item>
              </layout>
             </widget>

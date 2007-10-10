@@ -15,7 +15,8 @@
 import os
 
 from PyQt4.QtCore import QObject, SIGNAL, Qt
-from PyQt4.QtGui import QAbstractSpinBox, QLineEdit, QCheckBox, QDialog, QPixmap
+from PyQt4.QtGui import QAbstractSpinBox, QLineEdit, QCheckBox, QDialog, \
+                        QPixmap, QTextEdit
 
 from libprs500.gui2.dialogs.lrf_single_ui import Ui_LRFSingleDialog
 from libprs500.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -108,6 +109,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                     obj.setValue(cmdline[i+1])
                 elif isinstance(obj, QLineEdit):
                     obj.setText(cmdline[i+1])
+                elif isinstance(obj, QTextEdit):
+                    obj.setPlainText(cmdline[i+1])
             profile = cmdline[cmdline.index('--profile')+1]            
             self.gui_profile.setCurrentIndex(self.gui_profile.findText(profile))
             for prepro in self.PREPROCESS_OPTIONS:
@@ -197,6 +200,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 obj.setValue(default)
             elif isinstance(obj, QLineEdit) and default:
                 obj.setText(default)
+            elif isinstance(obj, QTextEdit) and default:
+                obj.setPlainText(default)
             elif isinstance(obj, QCheckBox):
                 state = Qt.Checked if default else Qt.Unchecked
                 obj.setCheckState(state)
@@ -264,6 +269,10 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 cmd.extend([opt, obj.value()])
             elif isinstance(obj, QLineEdit):
                 val = qstring_to_unicode(obj.text())
+                if val:
+                    cmd.extend([opt, val])
+            elif isinstance(obj, QTextEdit):
+                val = qstring_to_unicode(obj.toPlainText())
                 if val:
                     cmd.extend([opt, val])
             elif isinstance(obj, QCheckBox):

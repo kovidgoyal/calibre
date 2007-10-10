@@ -47,7 +47,14 @@ from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.opf import OPFReader
 from libprs500.devices.interface import Device
 from libprs500.ebooks.lrf.html.color_map import lrs_color
-        
+
+def update_css(ncss, ocss):
+    for key in ncss.keys():
+        if ocss.has_key(key):
+            ocss[key].update(ncss[key])
+        else:
+            ocss[key] = ncss[key]
+
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
@@ -199,6 +206,23 @@ class HTMLConverter(object):
         self.list_counter = 1
         
         self.book = book                #: The Book object representing a BBeB book
+        
+        self.override_css = {}
+        self.override_pcss = {}
+        if self._override_css is not None:
+            if os.access(self._override_css, os.R_OK):
+                src = open(self._override_css, 'rb').read()
+            else:
+                src = self._override_css
+            match = self.PAGE_BREAK_PAT.search(src) 
+            if match and not re.match('avoid', match.group(1), re.IGNORECASE):
+                self.page_break_found = True
+            ncss, npcss = self.parse_css(src)
+            if ncss:
+                update_css(ncss, self.override_css)
+            if npcss:
+                update_css(npcss, self.override_pcss)
+        
         self.start_on_file(path, is_root=True)
         
     def is_baen(self, soup):
@@ -1236,12 +1260,6 @@ class HTMLConverter(object):
             else:
                 self.logger.debug("Failed to process: %s", str(tag))
         elif tagname in ['style', 'link']:
-            def update_css(ncss, ocss):
-                for key in ncss.keys():
-                    if ocss.has_key(key):
-                        ocss[key].update(ncss[key])
-                    else:
-                        ocss[key] = ncss[key]
             ncss, npcss = {}, {}
             if tagname == 'style':
                 for c in tag.contents:
@@ -1265,8 +1283,10 @@ class HTMLConverter(object):
                     pass
             if ncss:
                 update_css(ncss, self.css)
+                self.css.update(self.override_css)
             if npcss:
                 update_css(npcss, self.pseudo_css)
+                self.pseudo_css.update(self.override_pcss)
         elif tagname == 'pre':
             self.end_current_para()
             self.end_current_block()

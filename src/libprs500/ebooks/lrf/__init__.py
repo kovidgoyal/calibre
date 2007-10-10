@@ -125,6 +125,8 @@ def option_parser(usage):
                       help='Add a header to all the pages with title and author.')
     laf.add_option('--headerformat', default="%t by %a", dest='headerformat', type='string',
                         help='Set the format of the header. %a is replaced by the author and %t by the title. Default is %default')
+    laf.add_option('--override-css', default=None, dest='_override_css', type='string',
+                   help='Override the CSS. Can be either a path to a CSS stylesheet or a string. If it is a string it is interpreted as CSS.')
     
     page = parser.add_option_group('PAGE OPTIONS')
     profiles = profile_map.keys()
