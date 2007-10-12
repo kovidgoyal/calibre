@@ -162,7 +162,7 @@ def option_parser(usage):
     chapter.add_option('--chapter-regex', dest='chapter_regex', 
                       default='chapter|book|appendix',
                       help='''The regular expression used to detect chapter titles.'''
-                      ''' It is searched for in heading tags. Defaults to %default''')     
+                      ''' It is searched for in heading tags (h1-h6). Defaults to %default''')     
     chapter.add_option('--page-break-before-tag', dest='page_break', default='h[12]',
                       help='''If html2lrf does not find any page breaks in the '''
                       '''html file and cannot detect chapter headings, it will '''
