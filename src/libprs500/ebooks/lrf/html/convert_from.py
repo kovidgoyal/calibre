@@ -14,14 +14,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import tempfile
 """ 
 Code to convert HTML ebooks into LRF ebooks.
 
 I am indebted to esperanc for the initial CSS->Xylog Style conversion code
 and to Falstaff for pylrs.
 """
-import os, re, sys, copy, glob, logging
+import os, re, sys, copy, glob, logging, tempfile
+from collections import deque
 from htmlentitydefs import name2codepoint
 from urllib import unquote
 from urlparse import urlparse
@@ -54,6 +54,15 @@ def update_css(ncss, ocss):
             ocss[key].update(ncss[key])
         else:
             ocss[key] = ncss[key]
+            
+def munge_paths(basepath, url):
+    purl = urlparse(url,)
+    path, fragment = purl[2], purl[5]
+    if not path:
+        path = basepath
+    elif not os.path.isabs(path):
+        path = os.path.join(os.path.dirname(basepath), path)
+    return os.path.normpath(path), fragment
 
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
@@ -161,11 +170,10 @@ class HTMLConverter(object):
            'u'      : {'text-decoration': 'underline'}, 
            }
     
-    def __init__(self, book, fonts, options, logger, path):
+    def __init__(self, book, fonts, options, logger, paths):
         '''
-        Convert HTML file at C{path} and add it to C{book}. After creating
-        the object, you must call L{self.process_links} on it to create the links and
-        then L{self.writeto} to output the LRF/S file.
+        Convert HTML files at C{paths} and add to C{book}. After creating
+        the object, you must call L{self.writeto} to output the LRF/S file.
         
         @param book: The LRF book 
         @type book:  L{libprs500.lrf.pylrs.Book}
@@ -180,12 +188,12 @@ class HTMLConverter(object):
         self.rotated_images = {}  #: Temporary files with rotated version of images        
         self.text_styles      = []#: Keep track of already used textstyles
         self.block_styles     = []#: Keep track of already used blockstyles
-        self.images  = {}     #: Images referenced in the HTML document
-        self.targets = {}         #: <a name=...> and id elements
-        self.links   = {}         #: <a href=...> elements        
+        self.images  = {}      #: Images referenced in the HTML document
+        self.targets = {}      #: <a name=...> and id elements
+        self.links   = deque() #: <a href=...> elements        
         self.processed_files = []
         self.unused_target_blocks = [] #: Used to remove extra TextBlocks
-        self.link_level  = 0  #: Current link level
+        self.link_level  = 0    #: Current link level
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.tops = {}          #: element representing the top of each HTML file in the LRF file
         self.previous_text = '' #: Used to figure out when to lstrip
@@ -209,6 +217,7 @@ class HTMLConverter(object):
         
         self.override_css = {}
         self.override_pcss = {}
+         
         if self._override_css is not None:
             if os.access(self._override_css, os.R_OK):
                 src = open(self._override_css, 'rb').read()
@@ -223,7 +232,16 @@ class HTMLConverter(object):
             if npcss:
                 update_css(npcss, self.override_pcss)
         
-        self.start_on_file(path, is_root=True)
+        paths = [os.path.normpath(os.path.abspath(path)) for path in paths]
+        self.base_files = copy.copy(paths)
+        while len(paths) > 0 and self.link_level <= self.link_levels:
+            for path in paths:
+                self.add_file(path)
+            self.links = self.process_links()
+            self.link_level += 1
+            paths = [link['path'] for link in self.links]
+        
+        
         
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
@@ -281,33 +299,25 @@ class HTMLConverter(object):
         #print soup
         return soup
     
-    def start_on_file(self, path, is_root=True, link_level=0):
+    def add_file(self, path):
         self.css = HTMLConverter.CSS.copy()
         self.pseudo_css = self.override_pcss.copy()
         self.css.update(self.override_css)
         
-        path = os.path.abspath(path)
-        os.chdir(os.path.dirname(path))
+        path = os.path.normpath(os.path.abspath(path))
         self.file_name = os.path.basename(path)
         self.logger.info('Processing %s', self.file_name)
-        sys.stdout.flush()
-        soup = self.preprocess(open(self.file_name, 'rb').read())
+        raw = open(path, 'rb').read()
+        soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')
-        sys.stdout.flush()        
         self.current_page = None
         self.current_para = None
         self.current_style = {}
         self.page_break_found = False
-        match = self.PAGE_BREAK_PAT.search(unicode(soup))
-        if match and not re.match('avoid', match.group(1), re.IGNORECASE):
-            self.page_break_found = True
         self.target_prefix = path
-        self.links[path] = []
         self.previous_text = '\n'
-        self.tops[path] = self.parse_file(soup, is_root)
-        self.processed_files.append(path)
-        self.process_links(is_root, path, link_level=link_level)
-            
+        self.tops[path] = self.parse_file(soup)
+        self.processed_files.append(path)            
         
     def parse_css(self, style):
         """
@@ -394,7 +404,7 @@ class HTMLConverter(object):
             prop.update(self.parse_style_properties(tag["style"]))
         return prop, pprop
         
-    def parse_file(self, soup, is_root):
+    def parse_file(self, soup):
         def get_valid_block(page):
             for item in page.contents:
                 if isinstance(item, (Canvas, TextBlock, ImageBlock, RuledLine)):
@@ -405,8 +415,9 @@ class HTMLConverter(object):
         self.current_page = self.book.create_page()
         self.current_block = self.book.create_text_block()
         self.current_para = Paragraph()
-        if self.cover and is_root:
+        if self.cover:
             self.add_image_page(self.cover)
+            self.cover = None
         top = self.current_block
         
         self.process_children(soup, {}, {})
@@ -462,8 +473,9 @@ class HTMLConverter(object):
                 except KeyError:
                     pass
         
-        url = urlparse(tag['href'])
-        return {'para':para, 'text':text, 'url':url}
+        path, fragment = munge_paths(self.target_prefix, tag['href'])
+        return {'para':para, 'text':text, 'path':os.path.normpath(path), 
+                'fragment':fragment}
         
     
     def get_text(self, tag, limit=None):
@@ -489,7 +501,7 @@ class HTMLConverter(object):
                     text = rule.sub(sub, text)
             return text
     
-    def process_links(self, is_root, selfpath, link_level=0):
+    def process_links(self):
         def add_toc_entry(text, target):
             # TextBlocks in Canvases have a None parent or an Objects Parent
             if target.parent != None and \
@@ -531,37 +543,19 @@ class HTMLConverter(object):
                 page.contents.remove(bs)
             return ans
         
-        cwd = os.getcwd()
-        for link in self.links[selfpath]:
-            try:
-                para, text, purl = link['para'], link['text'], link['url']
-                # Needed for TOC entries due to bug in LRF
-                ascii_text = text.encode('ascii', 'replace')
-                if purl[1]: # Not a link to a file on the local filesystem
-                    continue
-                basepath, fragment = unquote(purl[2]), purl[5]
-                if not basepath:
-                    basepath = selfpath
-                path = os.path.abspath(basepath)
-                
-                if link_level < self.link_levels and path not in self.processed_files:                
-                    try:
-                        self.start_on_file(path, is_root=False, link_level=link_level+1)
-                    except Exception:
-                        self.logger.warning('Unable to process %s', path)
-                        if self.verbose:
-                            self.logger.exception(' ')
-                        continue
-                    finally:
-                        os.chdir(cwd)            
+        outside_links = deque() 
+        while len(self.links) > 0:
+            link = self.links.popleft()
+            para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
+            # Needed for TOC entries due to bug in LRF
+            ascii_text = text.encode('ascii', 'ignore')
+            
+            if path in self.processed_files:
                 if path+fragment in self.targets.keys():                    
                     tb = get_target_block(path+fragment, self.targets)
                 else:
-                    try:
-                        tb = self.tops[path]
-                    except KeyError:
-                        return
-                if is_root:
+                    tb = self.tops[path]
+                if self.link_level == 0 and len(self.base_files) == 1:
                     add_toc_entry(ascii_text, tb)  
                 jb = JumpButton(tb)                
                 self.book.append(jb)
@@ -572,8 +566,11 @@ class HTMLConverter(object):
                     self.unused_target_blocks.remove(tb)
                 except ValueError:
                     pass
-            finally:
-                os.chdir(cwd)
+            else:
+                outside_links.append(link)
+        
+        return outside_links
+            
             
     def end_page(self):
         """
@@ -785,6 +782,12 @@ class HTMLConverter(object):
         
     
     def process_image(self, path, tag_css, width=None, height=None, dropcaps=False):
+        def detect_encoding(im):
+            fmt = im.format
+            if fmt == 'JPG':
+                fmt = 'JPEG'
+            return fmt
+            
         original_path = path
         if self.rotated_images.has_key(path):
             path = self.rotated_images[path].name
@@ -793,28 +796,22 @@ class HTMLConverter(object):
         
         try:
             im = PILImage.open(path)
-            encoding = im.format
-            if encoding:
-                encoding = encoding.upper()
-                if encoding == 'JPG':
-                    encoding = 'JPEG'
         except IOError, err:
             self.logger.warning('Unable to process image: %s\n%s', original_path, err)
             return
+        encoding = detect_encoding(im)
 
-        
         if width == None or height == None:            
             width, height = im.size
             
         factor = 720./self.profile.dpi
         
         def scale_image(width, height):
-            pt = PersistentTemporaryFile(suffix='.jpeg')
+            pt = PersistentTemporaryFile(suffix='.'+encoding.lower())
             try:
-                im.resize((int(width), int(height)), PILImage.ANTIALIAS).convert('RGB').save(pt, 'JPEG')
+                im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, encoding)
                 pt.close()
                 self.scaled_images[path] = pt
-                encoding = 'JPEG'
                 return pt.name
             except IOError: # PIL chokes on interlaced PNG images
                 self.logger.warning('Unable to process interlaced PNG %s', path)
@@ -847,12 +844,11 @@ class HTMLConverter(object):
             return
             
         if not self.disable_autorotation and width > pwidth and width > height:
-            pt = PersistentTemporaryFile(suffix='.jpeg')
+            pt = PersistentTemporaryFile(suffix='.'+encoding.lower())
             try:
                 im = im.rotate(90)
-                im.convert('RGB').save(pt, 'JPEG')
+                im.save(pt, encoding)
                 path = pt.name
-                encoding = 'JPEG'
                 self.rotated_images[path] = pt
                 width, height = im.size
             except IOError: # PIL chokes on interlaced PNG files and since auto-rotation is not critical we ignore the error
@@ -1245,35 +1241,39 @@ class HTMLConverter(object):
             pass
         elif tagname == 'a' and self.link_levels >= 0:
             if tag.has_key('href') and not self.link_exclude.match(tag['href']):
-                purl = urlparse(tag['href'])
-                path = unquote(purl[2])
+                path = munge_paths(self.target_prefix, tag['href'])[0]
                 ext = os.path.splitext(path)[1]
                 if ext: ext = ext[1:].lower()
-                if path and os.access(path, os.R_OK) and ext and \
-                                        ext in ['png', 'jpg', 'bmp', 'jpeg']:
-                    self.process_image(path, tag_css)
+                if os.access(path, os.R_OK):
+                    if ext in ['png', 'jpg', 'bmp', 'jpeg']:
+                        self.process_image(path, tag_css)
+                    else:
+                        text = self.get_text(tag, limit=1000)
+                        if not text.strip():
+                            text = "Link"
+                        self.add_text(text, tag_css, {}, force_span_use=True)
+                        self.links.append(self.create_link(self.current_para.contents, tag))
+                        if tag.has_key('id') or tag.has_key('name'):
+                            key = 'name' if tag.has_key('name') else 'id'
+                            self.targets[self.target_prefix+tag[key]] = self.current_block
                 else:
-                    text = self.get_text(tag, limit=1000)
-                    if not text.strip():
-                        text = "Link"
-                    self.add_text(text, tag_css, {}, force_span_use=True)
-                    self.links[self.target_prefix].append(self.create_link(self.current_para.contents, tag))
-                    if tag.has_key('id') or tag.has_key('name'):
-                        key = 'name' if tag.has_key('name') else 'id'
-                        self.targets[self.target_prefix+tag[key]] = self.current_block
+                    self.logger.warn('Could not follow link to '+tag['href'])
             elif tag.has_key('name') or tag.has_key('id'):
                 self.process_anchor(tag, tag_css, tag_pseudo_css)                            
         elif tagname == 'img':
-            if tag.has_key('src') and os.access(unquote(tag['src']), os.R_OK):
-                path = os.path.abspath(unquote(tag['src']))
-                width, height = None, None
-                try:
-                    width = int(tag['width'])
-                    height = int(tag['height'])
-                except:
-                    pass
-                dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
-                self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
+            if tag.has_key('src'):
+                path = munge_paths(self.target_prefix, tag['src'])[0]
+                if os.access(path, os.R_OK):
+                    width, height = None, None
+                    try:
+                        width = int(tag['width'])
+                        height = int(tag['height'])
+                    except:
+                        pass
+                    dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
+                    self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
+                else:
+                    self.logger.warn('Could not find image: '+tag['src'])
             else:
                 self.logger.debug("Failed to process: %s", str(tag))
         elif tagname in ['style', 'link']:
@@ -1286,8 +1286,7 @@ class HTMLConverter(object):
                         npcss.update(pcss)
             elif tag.has_key('type') and tag['type'] == "text/css" \
                     and tag.has_key('href'):
-                purl = urlparse(tag['href'])
-                path = unquote(purl[2])                
+                path = munge_paths(self.target_prefix, tag['href'])[0]           
                 try:
                     f = open(path, 'rb')
                     src = f.read()
@@ -1297,7 +1296,7 @@ class HTMLConverter(object):
                         self.page_break_found = True
                     ncss, npcss = self.parse_css(src)
                 except IOError:
-                    pass
+                    self.logger.warn('Could not read stylesheet: '+tag['href'])
             if ncss:
                 update_css(ncss, self.css)
                 self.css.update(self.override_css)
@@ -1609,7 +1608,7 @@ def process_file(path, options, logger=None):
                                          re.compile(fpba[2], re.IGNORECASE)]
         if not hasattr(options, 'anchor_ids'):
             options.anchor_ids = True
-        conv = HTMLConverter(book, fonts, options, logger, path)
+        conv = HTMLConverter(book, fonts, options, logger, [path])
         oname = options.output
         if not oname:
             suffix = '.lrs' if options.lrs else '.lrf'
