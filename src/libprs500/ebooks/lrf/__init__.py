@@ -127,6 +127,8 @@ def option_parser(usage):
                         help='Set the format of the header. %a is replaced by the author and %t by the title. Default is %default')
     laf.add_option('--override-css', default=None, dest='_override_css', type='string',
                    help='Override the CSS. Can be either a path to a CSS stylesheet or a string. If it is a string it is interpreted as CSS.')
+    laf.add_option('--use-spine', default=False, dest='use_spine', action='store_true',
+                   help='Use the <spine> element from the OPF file to determine the order in which the HTML files are appended to the LRF. The .opf file must be in the same directory as the base HTML file.')
     
     page = parser.add_option_group('PAGE OPTIONS')
     profiles = profile_map.keys()

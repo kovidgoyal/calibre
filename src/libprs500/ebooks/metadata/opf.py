@@ -19,7 +19,7 @@ from urllib import unquote
 from urlparse import urlparse
 
 from libprs500.ebooks.metadata import MetaInformation
-from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup, NavigableString
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 from libprs500.ebooks.lrf import entity_to_unicode
 
 class ManifestItem(object):

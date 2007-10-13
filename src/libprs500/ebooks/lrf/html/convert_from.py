@@ -56,7 +56,7 @@ def update_css(ncss, ocss):
             ocss[key] = ncss[key]
             
 def munge_paths(basepath, url):
-    purl = urlparse(url,)
+    purl = urlparse(unquote(url),)
     path, fragment = purl[2], purl[5]
     if not path:
         path = basepath
@@ -547,15 +547,14 @@ class HTMLConverter(object):
         while len(self.links) > 0:
             link = self.links.popleft()
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
-            # Needed for TOC entries due to bug in LRF
-            ascii_text = text.encode('ascii', 'ignore')
+            ascii_text = text.encode('ascii', 'ignore') # Needed for TOC entries due to bug in SONY LRF renderer
             
             if path in self.processed_files:
                 if path+fragment in self.targets.keys():                    
                     tb = get_target_block(path+fragment, self.targets)
                 else:
                     tb = self.tops[path]
-                if self.link_level == 0 and len(self.base_files) == 1:
+                if self.link_level == 0 and self.use_spine:
                     add_toc_entry(ascii_text, tb)  
                 jb = JumpButton(tb)                
                 self.book.append(jb)
@@ -571,7 +570,12 @@ class HTMLConverter(object):
         
         return outside_links
             
-            
+    def create_toc(self, toc):
+        for (path, txt) in toc:
+            if path in self.tops:
+                ascii_text = txt.encode('ascii', 'ignore') # Bug in SONY LRF renderer
+                self.book.addTocEntry(ascii_text, self.tops[path])
+    
     def end_page(self):
         """
         End the current page, ensuring that any further content is displayed
@@ -1608,7 +1612,10 @@ def process_file(path, options, logger=None):
                                          re.compile(fpba[2], re.IGNORECASE)]
         if not hasattr(options, 'anchor_ids'):
             options.anchor_ids = True
-        conv = HTMLConverter(book, fonts, options, logger, [path])
+        files = options.spine if options.use_spine else [path]
+        conv = HTMLConverter(book, fonts, options, logger, files)
+        if options.use_spine:
+            conv.create_toc(options.toc)
         oname = options.output
         if not oname:
             suffix = '.lrs' if options.lrs else '.lrf'
@@ -1627,7 +1634,7 @@ def try_opf(path, options, logger):
         opf = glob.glob(os.path.join(os.path.dirname(path),'*.opf'))[0]
     except IndexError:
         return
-    opf = OPFReader(open(opf, 'rb'))    
+    opf = OPFReader(open(opf, 'rb'), os.path.dirname(os.path.abspath(opf)))    
     try:
         title = opf.title        
         if title and not options.title:
@@ -1667,8 +1674,12 @@ def try_opf(path, options, logger):
                         break
                     except:
                         continue        
+        options.spine     = [i.href for i in opf.spine.items()]
+        options.toc   = opf.toc
     except Exception:
         logger.exception('Failed to process opf file')
+    
+    
                 
 def option_parser():
     return lrf_option_parser('''Usage: %prog [options] mybook.html\n\n'''
