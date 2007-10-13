@@ -41,7 +41,8 @@ def initialize(profile):
     profile['temp dir'] = tempfile.mkdtemp(prefix=__appname__+'_')
     profile['browser'] = login(profile)
     feeds = get_feeds(profile['browser'])
-    articles = parse_feeds(feeds, profile['browser'], lambda x: x + '?&pagewanted=print')
+    articles = parse_feeds(feeds, profile['browser'], lambda x: x + '?&pagewanted=print',
+                           oldest_article=2)
     index = build_index('The New York Times', articles, profile['temp dir'])
     profile['url'] = 'file:'+ ('' if iswindows else '//') + index
     profile['timefmt'] = ' [%a, %d %b, %Y]'
