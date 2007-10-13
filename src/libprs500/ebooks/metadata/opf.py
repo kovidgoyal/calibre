@@ -64,6 +64,7 @@ class Spine(list):
 class TOC(list):
     
     def __init__(self, opfreader, cwd):
+        self.toc = toc = None
         try:
             toc = opfreader.soup.find('guide').find('reference', attrs={'type':'toc'})['href']
         except:
@@ -71,19 +72,21 @@ class TOC(list):
                 if 'toc' in item.href.lower():
                     toc = item.href
                     break
-        toc = urlparse(unquote(toc))[2]
-        if not os.path.isabs(toc):
-            toc = os.path.join(cwd, toc)
-        self.toc = toc
-        soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
-        for a in soup.findAll('a'):
-            if not a.has_key('href'):
-                continue
-            href = urlparse(unquote(a['href']))[2]
-            if not os.path.isabs(href):
-                href = os.path.join(cwd, href)
-            txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
-            self.append((href, txt))
+        if toc is not None:
+            toc = urlparse(unquote(toc))[2]
+            if not os.path.isabs(toc):
+                toc = os.path.join(cwd, toc)
+            self.toc = toc
+    
+            soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
+            for a in soup.findAll('a'):
+                if not a.has_key('href'):
+                    continue
+                href = urlparse(unquote(a['href']))[2]
+                if not os.path.isabs(href):
+                    href = os.path.join(cwd, href)
+                txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
+                self.append((href, txt))
             
 
 class OPFReader(MetaInformation):
