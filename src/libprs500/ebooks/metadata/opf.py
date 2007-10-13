@@ -14,22 +14,91 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Read/Write metadata from Open Packaging Format (.opf) files.'''
 
-import sys, re
+import sys, re, os
+from urllib import unquote
+from urlparse import urlparse
 
 from libprs500.ebooks.metadata import MetaInformation
-from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup, NavigableString
 from libprs500.ebooks.lrf import entity_to_unicode
+
+class ManifestItem(object):
+    def __init__(self, item, cwd):
+        self.id = item['id'] if item.has_key('id') else ''
+        self.href = urlparse(unquote(item['href']))[2] if item.has_key('href') else ''
+        if not os.path.isabs(self.href):
+            self.href = os.path.join(cwd, self.href)
+        self.href = os.path.normpath(self.href)
+        self.media_type = item['media-type'] if item.has_key('media-type') else ''
+        
+    def __unicode__(self):
+        return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href, self.media_type)
+
+class Manifest(list):
+    
+    def __init__(self, soup, dir):
+        manifest = soup.find('manifest')
+        if manifest is not None:
+            for item in manifest.findAll('item'):
+                self.append(ManifestItem(item, dir))
+                
+    def item(self, id):
+        for i in self:
+            if i.id == id:
+                return i    
+
+class Spine(list):
+    
+    def __init__(self, soup, manifest):
+        self.manifest = manifest
+        spine = soup.find('spine')
+        if spine is not None:
+            for itemref in spine.findAll('itemref'):
+                if itemref.has_key('idref'):
+                    self.append(itemref['idref'])
+                    
+    def items(self):
+        for i in self:
+            yield  self.manifest.item(i)
+
+class TOC(list):
+    
+    def __init__(self, opfreader, cwd):
+        try:
+            toc = opfreader.soup.find('guide').find('reference', attrs={'type':'toc'})['href']
+        except:
+            for item in opfreader.manifest:
+                if 'toc' in item.href.lower():
+                    toc = item.href
+                    break
+        toc = urlparse(unquote(toc))[2]
+        if not os.path.isabs(toc):
+            toc = os.path.join(cwd, toc)
+        self.toc = toc
+        soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
+        for a in soup.findAll('a'):
+            if not a.has_key('href'):
+                continue
+            href = urlparse(unquote(a['href']))[2]
+            if not os.path.isabs(href):
+                href = os.path.join(cwd, href)
+            txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
+            self.append((href, txt))
+            
 
 class OPFReader(MetaInformation):
     
     ENTITY_PATTERN = re.compile(r'&(\S+);')
     
-    def __init__(self, stream):
+    def __init__(self, stream, dir=os.getcwd()):
         self.default_title = stream.name if hasattr(stream, 'name') else 'Unknown' 
         if hasattr(stream, 'seek'):
             stream.seek(0)
         self.soup = BeautifulStoneSoup(stream.read())
         self.series = self.series_index = self.rating = None
+        self.manifest = Manifest(self.soup, dir)
+        self.spine = Spine(self.soup, self.manifest)
+        self.toc = TOC(self, dir)
         
     @apply
     def title():
@@ -153,6 +222,7 @@ class OPFReader(MetaInformation):
     
     
 def main(args=sys.argv):
+    r = OPFReader(open(args[1], 'rb'))
     return 0
 
 if __name__ == '__main__':
