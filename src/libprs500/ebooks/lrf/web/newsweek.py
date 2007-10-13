@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Logic to create a Newsweek HTML aggregator from RSS feeds'''
 
-import sys, urllib2, time, re, tempfile, os, shutil
+import tempfile, os, shutil
 
 from libprs500.ebooks.lrf.web import build_index, parse_feeds
 from libprs500 import __appname__, iswindows, browser
