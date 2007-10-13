@@ -53,7 +53,7 @@ class Plot(PixmapItem):
     
     def __init__(self, plot, dpi):
         img = plot.refobj
-        xsize, ysize = dpi*plot.attrs['xsize']/720., dpi*plot.attrs['xsize']/720.
+        xsize, ysize = dpi*plot.attrs['xsize']/720., dpi*plot.attrs['ysize']/720.
         x0, y0, x1, y1 = img.x0, img.y0, img.x1, img.y1
         data, encoding = img.data, img.encoding
         PixmapItem.__init__(self, data, encoding, x0, y0, x1, y1, xsize, ysize)
