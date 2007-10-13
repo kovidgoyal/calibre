@@ -302,4 +302,7 @@ def entity_to_unicode(match):
         return unichr(int(ent[2:], 16))
     if ent.startswith(u'#'):
         return unichr(int(ent[1:]))
-    return unichr(name2codepoint[ent])
+    try:
+        return unichr(name2codepoint[ent])
+    except KeyError:
+        return ent
