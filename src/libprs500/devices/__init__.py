@@ -15,3 +15,22 @@
 '''
 Device drivers.
 '''
+import time
+
+DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
+MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12) 
+INVERSE_DAY_MAP = dict(zip(DAY_MAP.values(), DAY_MAP.keys()))
+INVERSE_MONTH_MAP = dict(zip(MONTH_MAP.values(), MONTH_MAP.keys()))
+
+def strptime(src):
+    src = src.strip()
+    src = src.split()
+    src[0] = str(DAY_MAP[src[0][:-1]])+','
+    src[2] = str(MONTH_MAP[src[2]])
+    return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
+
+def strftime(epoch):
+    src = time.strftime("%w, %d %m %Y %H:%M:%S GMT", time.gmtime(epoch)).split()
+    src[0] = INVERSE_DAY_MAP[int(src[0][:-1])]+','
+    src[2] = INVERSE_MONTH_MAP[int(src[2])]
+    return ' '.join(src)

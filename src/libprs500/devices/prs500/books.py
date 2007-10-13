@@ -19,9 +19,10 @@ in the reader cache.
 import xml.dom.minidom as dom
 from base64 import b64decode as decode
 from base64 import b64encode as encode
-import time, re
+import re
 
 from libprs500.devices.interface import BookList as _BookList
+from libprs500.devices import strftime, strptime
 
 MIME_MAP   = { \
                         "lrf":"application/x-sony-bbeb", \
@@ -54,6 +55,7 @@ class book_metadata_field(object):
 
 class Book(object):
     """ Provides a view onto the XML element that represents a book """
+    
     title        = book_metadata_field("title")
     authors      = book_metadata_field("author", \
                             formatter=lambda x: x if x and x.strip() else "Unknown")
@@ -63,9 +65,7 @@ class Book(object):
     sourceid     = book_metadata_field("sourceid", formatter=int)
     size         = book_metadata_field("size", formatter=int)
     # When setting this attribute you must use an epoch
-    datetime     = book_metadata_field("date", \
-                           formatter=lambda x:  time.strptime(x.strip(), "%a, %d %b %Y %H:%M:%S %Z"), 
-                           setter=lambda x: time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(x)))
+    datetime     = book_metadata_field("date", formatter=strptime, setter=strftime)
     @apply
     def title_sorter():
         doc = '''String to sort the title. If absent, title is returned'''
