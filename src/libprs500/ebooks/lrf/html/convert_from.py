@@ -241,8 +241,6 @@ class HTMLConverter(object):
             self.link_level += 1
             paths = [link['path'] for link in self.links]
         
-        
-        
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
                         'content':re.compile('Baen', re.IGNORECASE)}))
@@ -791,7 +789,7 @@ class HTMLConverter(object):
             if fmt == 'JPG':
                 fmt = 'JPEG'
             return fmt
-            
+        
         original_path = path
         if self.rotated_images.has_key(path):
             path = self.rotated_images[path].name
@@ -807,7 +805,7 @@ class HTMLConverter(object):
 
         if width == None or height == None:            
             width, height = im.size
-            
+        
         factor = 720./self.profile.dpi
         
         def scale_image(width, height):
@@ -846,7 +844,7 @@ class HTMLConverter(object):
             dc.append(Plot(im, xsize=ceil(width*factor), ysize=ceil(height*factor)))
             self.current_para.append(dc)            
             return
-            
+        
         if not self.disable_autorotation and width > pwidth and width > height:
             pt = PersistentTemporaryFile(suffix='.'+encoding.lower())
             try:
@@ -1248,7 +1246,7 @@ class HTMLConverter(object):
                 path = munge_paths(self.target_prefix, tag['href'])[0]
                 ext = os.path.splitext(path)[1]
                 if ext: ext = ext[1:].lower()
-                if os.access(path, os.R_OK):
+                if os.access(path, os.R_OK) and os.path.isfile(path):
                     if ext in ['png', 'jpg', 'bmp', 'jpeg']:
                         self.process_image(path, tag_css)
                     else:
@@ -1260,14 +1258,14 @@ class HTMLConverter(object):
                         if tag.has_key('id') or tag.has_key('name'):
                             key = 'name' if tag.has_key('name') else 'id'
                             self.targets[self.target_prefix+tag[key]] = self.current_block
-                else:
+                elif not urlparse(tag['href'])[0]:
                     self.logger.warn('Could not follow link to '+tag['href'])
             elif tag.has_key('name') or tag.has_key('id'):
                 self.process_anchor(tag, tag_css, tag_pseudo_css)                            
         elif tagname == 'img':
             if tag.has_key('src'):
                 path = munge_paths(self.target_prefix, tag['src'])[0]
-                if os.access(path, os.R_OK):
+                if os.access(path, os.R_OK) and os.path.isfile(path):
                     width, height = None, None
                     try:
                         width = int(tag['width'])
@@ -1276,7 +1274,7 @@ class HTMLConverter(object):
                         pass
                     dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
                     self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
-                else:
+                elif not urlparse(tag['src'])[0]:
                     self.logger.warn('Could not find image: '+tag['src'])
             else:
                 self.logger.debug("Failed to process: %s", str(tag))
@@ -1532,109 +1530,105 @@ def process_file(path, options, logger=None):
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('html2lrf')
         setup_cli_handlers(logger, level)
-    cwd = os.getcwd()
+    path = os.path.normpath(os.path.abspath(path))
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
     dirpath = os.path.dirname(path)
-    try:
-        cpath, tpath = '', '' 
-        try_opf(path, options, logger)
-        if options.cover:            
-            cpath = os.path.join(dirpath, os.path.basename(options.cover))
-            if not os.path.exists(cpath):
-                cpath = os.path.abspath(os.path.expanduser(options.cover))
-            options.cover = cpath
-            if os.access(options.cover, os.R_OK):
-                th = Device.THUMBNAIL_HEIGHT
-                im = PILImage.open(os.path.join(cwd, cpath))
-                cim = im.resize((options.profile.screen_width, 
-                                 options.profile.screen_height - options.profile.fudge), 
-                                PILImage.BICUBIC).convert('RGB')
-                cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
-                cf.close()                
-                cim.save(cf.name)
-                cpath = cf.name
+    
+    tpath = '' 
+    try_opf(path, options, logger)
+    if options.cover:
+        options.cover = os.path.expanduser(options.cover)            
+        if not os.path.isabs(options.cover):
+            options.cover = os.path.join(dirpath, options.cover)
+        if os.access(options.cover, os.R_OK):
+            th = Device.THUMBNAIL_HEIGHT
+            im = PILImage.open(options.cover)
+            cim = im.resize((options.profile.screen_width, 
+                             options.profile.screen_height - options.profile.fudge), 
+                            PILImage.BICUBIC).convert('RGB')
+            cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
+            cf.close()                
+            cim.save(cf.name)
+            
+            tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
+            tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
+            tf.close()
+            tim.save(tf.name)
+            tpath = tf.name
+        else:
+            raise ConversionError, 'Cannot read from: %s'% (options.cover,)
+    
                 
-                tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
-                tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
-                tf.close()
-                tim.save(tf.name)
-                tpath = tf.name
-            else:
-                raise ConversionError, 'Cannot read from: %s'% (options.cover,)
-        
-                    
-        if not options.title:
-            options.title = default_title
-        
-        for prop in ('author', 'author_sort', 'title', 'title_sort', 'publisher', 'freetext'):
-            val = getattr(options, prop)
-            if val and not isinstance(val, unicode):
-                soup = BeautifulSoup(val)
-                setattr(options, prop, unicode(soup))
-        
-        title = (options.title, options.title_sort)
-        author = (options.author, options.author_sort)
-        
-        args = dict(font_delta=options.font_delta, title=title, \
-                    author=author, sourceencoding='utf8',\
-                    freetext=options.freetext, category=options.category,
-                    publisher=options.publisher,
-                    booksetting=BookSetting(dpi=10*options.profile.dpi,
-                                            screenheight=options.profile.screen_height,
-                                            screenwidth=options.profile.screen_width))
-        if tpath:
-            args['thumbnail'] = tpath
-        header = None
-        if options.header:
-            header = Paragraph()            
-            fheader = options.headerformat
-            fheader = re.sub(r'([^%]|^)%t', r'\1' + options.title, fheader)
-            fheader = re.sub(r'([^%]|^)%a', r'\1' + options.author, fheader)
-            fheader = re.sub(r'%%a','%a',fheader)
-            fheader = re.sub(r'%%t','%t',fheader)
-            header.append(fheader + "  ")            
-        book, fonts = Book(options, logger, header=header, **args)
-        le = re.compile(options.link_exclude) if options.link_exclude else \
-             re.compile('$')
-        pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else \
-             re.compile('$')
-        fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
-             re.compile('$')
-        options.cover = cpath
-        options.force_page_break = fpb
-        options.link_exclude = le
-        options.page_break = pb
-        options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
-        fpba = options.force_page_break_attr.split(',')
-        if len(fpba) != 3:
-            fpba = ['$', '', '$']
-        options.force_page_break_attr = [re.compile(fpba[0], re.IGNORECASE), fpba[1],
-                                         re.compile(fpba[2], re.IGNORECASE)]
-        if not hasattr(options, 'anchor_ids'):
-            options.anchor_ids = True
-        files = options.spine if options.use_spine else [path]
-        conv = HTMLConverter(book, fonts, options, logger, files)
-        if options.use_spine:
-            conv.create_toc(options.toc)
-        oname = options.output
-        if not oname:
-            suffix = '.lrs' if options.lrs else '.lrf'
-            name = os.path.splitext(os.path.basename(path))[0] + suffix
-            oname = os.path.join(cwd,name)
-        oname = os.path.abspath(os.path.expanduser(oname))
-        conv.writeto(oname, lrs=options.lrs)
-        logger.info('Output written to %s', oname)
-        conv.cleanup()
-        return oname
-    finally:
-        os.chdir(cwd)
-
+    if not options.title:
+        options.title = default_title
+    
+    for prop in ('author', 'author_sort', 'title', 'title_sort', 'publisher', 'freetext'):
+        val = getattr(options, prop)
+        if val and not isinstance(val, unicode):
+            soup = BeautifulSoup(val)
+            setattr(options, prop, unicode(soup))
+    
+    title = (options.title, options.title_sort)
+    author = (options.author, options.author_sort)
+    
+    args = dict(font_delta=options.font_delta, title=title, \
+                author=author, sourceencoding='utf8',\
+                freetext=options.freetext, category=options.category,
+                publisher=options.publisher,
+                booksetting=BookSetting(dpi=10*options.profile.dpi,
+                                        screenheight=options.profile.screen_height,
+                                        screenwidth=options.profile.screen_width))
+    if tpath:
+        args['thumbnail'] = tpath
+    header = None
+    if options.header:
+        header = Paragraph()            
+        fheader = options.headerformat
+        fheader = re.sub(r'([^%]|^)%t', r'\1' + options.title, fheader)
+        fheader = re.sub(r'([^%]|^)%a', r'\1' + options.author, fheader)
+        fheader = re.sub(r'%%a','%a',fheader)
+        fheader = re.sub(r'%%t','%t',fheader)
+        header.append(fheader + "  ")            
+    book, fonts = Book(options, logger, header=header, **args)
+    le = re.compile(options.link_exclude) if options.link_exclude else \
+         re.compile('$')
+    pb = re.compile(options.page_break, re.IGNORECASE) if options.page_break else \
+         re.compile('$')
+    fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
+         re.compile('$')
+    options.force_page_break = fpb
+    options.link_exclude = le
+    options.page_break = pb
+    options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
+    fpba = options.force_page_break_attr.split(',')
+    if len(fpba) != 3:
+        fpba = ['$', '', '$']
+    options.force_page_break_attr = [re.compile(fpba[0], re.IGNORECASE), fpba[1],
+                                     re.compile(fpba[2], re.IGNORECASE)]
+    if not hasattr(options, 'anchor_ids'):
+        options.anchor_ids = True
+    files = options.spine if options.use_spine else [path]
+    conv = HTMLConverter(book, fonts, options, logger, files)
+    if options.use_spine:
+        conv.create_toc(options.toc)
+    oname = options.output
+    if not oname:
+        suffix = '.lrs' if options.lrs else '.lrf'
+        name = os.path.splitext(os.path.basename(path))[0] + suffix
+        oname = os.path.join(os.getcwd(), name)
+    oname = os.path.abspath(os.path.expanduser(oname))
+    conv.writeto(oname, lrs=options.lrs)
+    logger.info('Output written to %s', oname)
+    conv.cleanup()
+    return oname
+    
 def try_opf(path, options, logger):
     try:
         opf = glob.glob(os.path.join(os.path.dirname(path),'*.opf'))[0]
     except IndexError:
         return
-    opf = OPFReader(open(opf, 'rb'), os.path.dirname(os.path.abspath(opf)))    
+    dirpath = os.path.dirname(os.path.abspath(opf))
+    opf = OPFReader(open(opf, 'rb'), dirpath)    
     try:
         title = opf.title        
         if title and not options.title:
@@ -1655,7 +1649,8 @@ def try_opf(path, options, logger):
         if not options.cover:
             cover = opf.cover            
             if cover:
-                cover = os.path.join(os.path.dirname(path), cover)
+                if not os.path.isabs(cover):
+                    cover = os.path.join(dirpath, cover)
                 if os.access(cover, os.R_OK):
                     try:
                         PILImage.open(cover)
@@ -1674,7 +1669,7 @@ def try_opf(path, options, logger):
                         break
                     except:
                         continue        
-        options.spine     = [i.href for i in opf.spine.items()]
+        options.spine = [i.href for i in opf.spine.items()]
         options.toc   = opf.toc
     except Exception:
         logger.exception('Failed to process opf file')
