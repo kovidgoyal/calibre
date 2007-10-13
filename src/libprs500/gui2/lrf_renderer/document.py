@@ -105,7 +105,7 @@ class _Canvas(QGraphicsRectItem):
             self.layout_canvas(block, x, y)
             
     def layout_canvas(self, canvas, x, y):
-        if canvas.max_y + y > self.max_y:
+        if canvas.max_y + y > self.max_y and y > 0:
             self.is_full = True
             return 
         canvas.setParentItem(self)
