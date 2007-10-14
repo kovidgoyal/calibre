@@ -239,6 +239,8 @@ class HTMLConverter(object):
                 try:
                     self.add_file(path)
                 except:
+                    if self.link_level == 0: # Die on errors in the first level
+                        raise
                     for link in self.links:
                         if link['path'] == path:
                             self.links.remove(link)
@@ -1560,6 +1562,7 @@ def process_file(path, options, logger=None):
             cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
             cf.close()                
             cim.save(cf.name)
+            options.cover = cf.name
             
             tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
             tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
