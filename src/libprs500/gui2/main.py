@@ -631,10 +631,12 @@ class Main(MainWindow, Ui_MainWindow):
                 self.action_sync.setEnabled(True)
             self.action_edit.setEnabled(True)
             self.action_convert.setEnabled(True)
+            self.action_view.setEnabled(True)
         else:
             self.action_sync.setEnabled(False)
             self.action_edit.setEnabled(False)
             self.action_convert.setEnabled(False)
+            self.action_view.setEnabled(False)
                 
     def device_job_exception(self, id, description, exception, formatted_traceback):
         '''
