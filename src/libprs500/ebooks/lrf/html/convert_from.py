@@ -236,7 +236,16 @@ class HTMLConverter(object):
         self.base_files = copy.copy(paths)
         while len(paths) > 0 and self.link_level <= self.link_levels:
             for path in paths:
-                self.add_file(path)
+                try:
+                    self.add_file(path)
+                except:
+                    for link in self.links:
+                        if link['path'] == path:
+                            self.links.remove(link)
+                            break
+                    self.logger.warn('Could not process '+path)
+                    if self.verbose:
+                        self.logger.exception(' ')
             self.links = self.process_links()
             self.link_level += 1
             paths = [link['path'] for link in self.links]
@@ -549,11 +558,12 @@ class HTMLConverter(object):
             
             if path in self.processed_files:
                 if path+fragment in self.targets.keys():                    
-                    tb = get_target_block(path+fragment, self.targets)
+                    tb = get_target_block(path+fragment, self.targets)                    
                 else:
                     tb = self.tops[path]
                 if self.link_level == 0 and self.use_spine:
-                    add_toc_entry(ascii_text, tb)  
+                    add_toc_entry(ascii_text, tb) 
+                 
                 jb = JumpButton(tb)                
                 self.book.append(jb)
                 cb = CharButton(jb, text=text)
@@ -1258,6 +1268,7 @@ class HTMLConverter(object):
                         if tag.has_key('id') or tag.has_key('name'):
                             key = 'name' if tag.has_key('name') else 'id'
                             self.targets[self.target_prefix+tag[key]] = self.current_block
+                            self.current_block.must_append = True
                 elif not urlparse(tag['href'])[0]:
                     self.logger.warn('Could not follow link to '+tag['href'])
             elif tag.has_key('name') or tag.has_key('id'):
