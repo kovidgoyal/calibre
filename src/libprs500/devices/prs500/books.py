@@ -75,7 +75,7 @@ class Book(object):
                 src = self.title
             return src
         def fset(self, val):
-            self.elem.setAttribute('titleSorter', sortable_title(str(val)))
+            self.elem.setAttribute('titleSorter', sortable_title(unicode(val)))
         return property(doc=doc, fget=fget, fset=fset)
     
     @apply
