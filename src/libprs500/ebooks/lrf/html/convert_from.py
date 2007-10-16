@@ -64,6 +64,20 @@ def munge_paths(basepath, url):
         path = os.path.join(os.path.dirname(basepath), path)
     return os.path.normpath(path), fragment
 
+def fit_image(width, height, pwidth, pheight):
+    scaled = height > pheight or width > pwidth
+    if height > pheight:
+        corrf = pheight/float(height)
+        width, height = floor(corrf*width), pheight                        
+    if width > pwidth:
+        corrf = (pwidth)/float(width)
+        width, height = pwidth, floor(corrf*height)
+    if height > pheight:
+        corrf = pheight/float(height)
+        width, height = floor(corrf*width), pheight                        
+    return scaled, int(width), int(height)                                    
+        
+
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
@@ -603,17 +617,23 @@ class HTMLConverter(object):
     def add_image_page(self, path):
         if os.access(path, os.R_OK):
             self.end_page()            
+            pwidth, pheight = self.profile.screen_width, self.profile.screen_height - \
+                              self.profile.fudge
             page = self.book.create_page(evensidemargin=0, oddsidemargin=0, 
-                                         topmargin=0, textwidth=self.profile.screen_width,
+                                         topmargin=0, textwidth=pwidth,
                                          headheight=0, headsep=0, footspace=0,
                                          footheight=0, 
-                                         textheight=self.profile.screen_height)
+                                         textheight=pheight)
             if not self.images.has_key(path):
                 self.images[path] = ImageStream(path)
-            ib = ImageBlock(self.images[path], x1=self.profile.screen_width,
-                            y1=self.profile.screen_height, blockwidth=self.profile.screen_width,
-                            blockheight=self.profile.screen_height)
-            page.append(ib)
+            im = PILImage.open(path)
+            width, height = im.size
+            canvas = Canvas(pwidth, pheight)
+            ib = ImageBlock(self.images[path], x1=width,
+                            y1=height, xsize=width, ysize=height, 
+                            blockwidth=width, blockheight=height)
+            canvas.put_object(ib, int((pwidth-width)/2.), int((pheight-height)/2.))
+            page.append(canvas)
             self.book.append(page)
     
     def process_children(self, ptag, pcss, ppcss={}):
@@ -870,22 +890,10 @@ class HTMLConverter(object):
             finally:
                 pt.close()
         
-        if height > pheight:
-            corrf = pheight/(1.*height)
-            width, height = floor(corrf*width), pheight-1                        
-            if width > pwidth:
-                corrf = (pwidth)/(1.*width)
-                width, height = pwidth-1, floor(corrf*height)
+        scaled, width, height = fit_image(width, height, pwidth, pheight)
+        if scaled:
             path = scale_image(width, height)
-        if width > pwidth:
-            corrf = pwidth/(1.*width)
-            width, height = pwidth-1, floor(corrf*height)
-            if height > pheight:
-                corrf = (pheight)/(1.*height)
-                width, height = floor(corrf*width), pheight-1                        
-            path = scale_image(width, height)
-        width, height = int(width), int(height)
-        
+            
         if not path:
             return        
         
@@ -1556,16 +1564,23 @@ def process_file(path, options, logger=None):
         if os.access(options.cover, os.R_OK):
             th = Device.THUMBNAIL_HEIGHT
             im = PILImage.open(options.cover)
-            cim = im.resize((options.profile.screen_width, 
-                             options.profile.screen_height - options.profile.fudge), 
-                            PILImage.BICUBIC).convert('RGB')
+            pwidth, pheight = options.profile.screen_width, \
+                              options.profile.screen_height - options.profile.fudge
+            width, height = im.size
+            if width < pwidth:
+                corrf = float(pwidth)/width
+                width, height = pwidth, int(corrf*height)
+            
+            scaled, width, height = fit_image(width, height, pwidth, pheight)
+            cim = im.resize((width, height), PILImage.BICUBIC).convert('RGB') if \
+                  scaled else im
             cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
             cf.close()                
             cim.save(cf.name)
             options.cover = cf.name
             
             tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
-            tf = PersistentTemporaryFile(prefix="html2lrf_", suffix=".jpg")
+            tf = PersistentTemporaryFile(prefix=__appname__+'_', suffix=".jpg")
             tf.close()
             tim.save(tf.name)
             tpath = tf.name
