@@ -43,8 +43,8 @@ def generate_html(pathtopdf, logger):
         os.chdir(os.path.dirname(pf.name)) 
         p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, 
                              stdout=subprocess.PIPE)
-        ret = p.wait()
         logger.info(p.stdout.read())
+        ret = p.wait()
         if ret != 0:
             err = p.stderr.read()
             raise ConversionError, err
