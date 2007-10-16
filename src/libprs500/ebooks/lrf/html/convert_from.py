@@ -632,7 +632,7 @@ class HTMLConverter(object):
             ib = ImageBlock(self.images[path], x1=width,
                             y1=height, xsize=width, ysize=height, 
                             blockwidth=width, blockheight=height)
-            canvas.put_object(ib, int((pwidth-width)/2.), int((pheight-height)/2.))
+            canvas.put_object(ib, int(5+(pwidth-width)/2.), int((pheight-height)/2.))
             page.append(canvas)
             self.book.append(page)
     
