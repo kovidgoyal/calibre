@@ -230,7 +230,7 @@ GUI = '''\
 [Desktop Entry]
 Version=%s
 Type=Application
-Name=Libprs500
+Name=Libprs500 - Ebook library management
 Comment=E-book library management
 TryExec=libprs500
 Exec=libprs500
