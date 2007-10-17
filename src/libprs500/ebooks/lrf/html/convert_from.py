@@ -595,10 +595,16 @@ class HTMLConverter(object):
         return outside_links
             
     def create_toc(self, toc):
-        for (path, txt) in toc:
-            if path in self.tops:
-                ascii_text = txt.encode('ascii', 'ignore') # Bug in SONY LRF renderer
+        for (path, fragment, txt) in toc:
+            ascii_text = txt.encode('ascii', 'ignore') # Bug in SONY LRF renderer
+            if not fragment and path in self.tops:
                 self.book.addTocEntry(ascii_text, self.tops[path])
+            else:
+                url = path+fragment
+                if url in self.targets:
+                    print url
+                    self.book.addTocEntry(ascii_text, self.targets[url])
+                    
     
     def end_page(self):
         """
@@ -632,7 +638,7 @@ class HTMLConverter(object):
             ib = ImageBlock(self.images[path], x1=width,
                             y1=height, xsize=width, ysize=height, 
                             blockwidth=width, blockheight=height)
-            canvas.put_object(ib, int(5+(pwidth-width)/2.), int((pheight-height)/2.))
+            canvas.put_object(ib, int((pwidth-width)/2.), int((pheight-height)/2.))
             page.append(canvas)
             self.book.append(page)
     

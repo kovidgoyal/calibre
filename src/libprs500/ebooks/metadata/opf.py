@@ -82,11 +82,12 @@ class TOC(list):
             for a in soup.findAll('a'):
                 if not a.has_key('href'):
                     continue
-                href = urlparse(unquote(a['href']))[2]
+                purl = urlparse(unquote(a['href']))
+                href, fragment = purl[2], purl[5]
                 if not os.path.isabs(href):
                     href = os.path.join(cwd, href)
                 txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
-                self.append((href, txt))
+                self.append((href, fragment, txt))
             
 
 class OPFReader(MetaInformation):
