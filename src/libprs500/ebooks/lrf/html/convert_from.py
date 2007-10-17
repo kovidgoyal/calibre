@@ -602,7 +602,6 @@ class HTMLConverter(object):
             else:
                 url = path+fragment
                 if url in self.targets:
-                    print url
                     self.book.addTocEntry(ascii_text, self.targets[url])
                     
     
