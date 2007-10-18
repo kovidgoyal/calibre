@@ -12,12 +12,12 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.devices.prs500.books import BookList
 import shutil
 ''''''
 
 from libprs500.devices.interface import Device
-from libprs500.devices.errors import DeviceError
+from libprs500.devices.errors import DeviceError, FreeSpaceError
+from libprs500.devices.prs500.books import BookList
 
 from libprs500 import islinux, iswindows
 
@@ -85,7 +85,7 @@ class PRS505(Device):
                 return str(mount_point)
             mmo.Mount(label, fstype, ['umask=077', 'uid='+str(os.getuid())],# 'gid='+str(os.getgid())], 
                       dbus_interface='org.freedesktop.Hal.Device.Volume')
-            return label+os.sep
+            return os.path.normpath('/media/'+label)+'/'
         
         self._main_prefix = conditional_mount(mm)+os.sep
         self._card_prefix = None
@@ -145,8 +145,8 @@ class PRS505(Device):
     def munge_path(self, path):
         if path.startswith('/') and not path.startswith(self._main_prefix):
             path = self._main_prefix + path[1:]
-        elif path.startswith('card:/'):
-            path = path.replace('card:/', self._card_prefix)
+        elif path.startswith('card:'):
+            path = path.replace('card:', self._card_prefix[:-1])
         return path
             
     def mkdir(self, path, end_session=True):
@@ -154,15 +154,16 @@ class PRS505(Device):
         path = self.munge_path(path)
         os.mkdir(path)
         
-    def list(self, path, recurse=False, end_session=True):
-        path = self.munge_path(path)        
+    def list(self, path, recurse=False, end_session=True, munge=True):
+        if munge:
+            path = self.munge_path(path)
         if os.path.isfile(path):
             return [(os.path.dirname(path), [File(path)])]
         entries = [File(os.path.join(path, f)) for f in os.listdir(path)]
         dirs = [(path, entries)]
         for _file in entries:
             if recurse and _file.is_dir:
-                dirs[len(dirs):] = self.list(_file.path, recurse=True, end_session=False)
+                dirs[len(dirs):] = self.list(_file.path, recurse=True, munge=False)
         return dirs
     
     def get_file(self, path, outfile, end_session=True):
@@ -187,6 +188,35 @@ class PRS505(Device):
             open(path, 'w').close()
         if not os.path.isdir(path):
             os.utime(path, None)
+            
+    def upload_books(self, files, names, on_card=False, end_session=True):
+        path = os.path.join(self._card_prefix, self.CARD_PATH_PREFIX) if on_card \
+               else os.path.join(self._main_prefix, 'database/media/books')
+        infiles = [file if hasattr(file, 'read') else open(file, 'rb') for file in files]
+        for f in infiles: f.seek(0, 2)
+        sizes = [f.tell() for f in infiles]
+        size = sum(sizes)
+        space = self.free_space()
+        mspace = space[0]
+        cspace = space[2]
+        if on_card and size > cspace - 1024*1024: 
+            raise FreeSpaceError("There is insufficient free space "+\
+                                          "on the storage card")
+        if not on_card and size > mspace - 2*1024*1024: 
+            raise FreeSpaceError("There is insufficient free space " +\
+                                         "in main memory")
+            
+        paths, ctimes = [], []
+        
+        for infile in infiles:
+            infile.seek(0)            
+            name = names.next()
+            paths.append(os.path.join(path, name))
+            self.put_file(infile, paths[-1], replace_file=True)
+            ctimes.append(os.path.getctime(paths[-1]))
+        return zip(paths, sizes, ctimes)
+    
+     
 
 def main(args=sys.argv):
     return 0
