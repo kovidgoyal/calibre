@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
 import shutil
 ''' Post installation script for linux '''
-import sys, os
+import sys, os, stat
 from subprocess import check_call
 from libprs500 import __version__
 
@@ -178,14 +178,44 @@ def setup_udev_rules():
     groups = open('/etc/group', 'rb').read()
     group = 'plugdev' if 'plugdev' in groups else 'usb'
     udev = open('/etc/udev/rules.d/95-libprs500.rules', 'w')
-    udev.write(('''# Sony Reader PRS-500\n'''
-             '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%(group)s"\n'''
-             '''# Sony Reader PRS-505\n''' 
-             '''BUS=="usb", SYSFS{idProduct}=="031e", SYSFS{idVendor}=="054c", MODE="660", GROUP="%(group)s"\n''')%dict(group=group,)
+    udev.write('''# Sony Reader PRS-500\n'''
+               '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
              )
     udev.close()
+    open('/usr/share/hal/fdi/policy/20thirdparty/10-libprs500.fdi', 'w').write(
+'''\
+<?xml version="1.0" encoding="UTF-8"?>
+
+<deviceinfo version="0.2">
+  <device>
+      <match key="info.category" string="volume">
+          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="0x054c">
+              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="0x031e">
+                  <match key="volume.is_partition" bool="false">
+                      <merge key="volume.label" type="string">Sony Reader Main Memory</merge>
+                  </match>
+              </match>
+          </match>
+      </match>
+  </device>
+  <device>
+      <match key="info.category" string="volume">
+          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="0x054c">
+              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="0x031e">
+                  <match key="volume.is_partition" bool="true">
+                      <merge key="volume.label" type="string">Sony Reader Storage Card</merge>
+                  </match>
+              </match>
+          </match>
+      </match>
+  </device>
+
+</deviceinfo>
+''')
+    check_call('/etc/init.d/hald restart', shell=True)
+    
     try:
-        check_call('udevstart', shell=True)
+        check_call('udevcontrol reload_rules', shell=True)
     except:
         try:
             check_call('/etc/init.d/udev reload', shell=True)

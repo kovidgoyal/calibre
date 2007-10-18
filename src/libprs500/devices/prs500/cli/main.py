@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.devices.prs505.driver import PRS505
 """
 Provides a command-line and optional graphical interface to the SONY Reader PRS-500.
 
@@ -136,7 +137,7 @@ def ls(dev, path, term, recurse=False, color=False, human_readable_size=False, l
         return rowwidths
     
     output = StringIO.StringIO()    
-    if path.endswith("/"): path = path[:-1]
+    if path.endswith("/") and len(path) > 1: path = path[:-1]
     dirs = dev.list(path, recurse)
     for dir in dirs:
         if recurse: print >>output, dir[0] + ":" 
@@ -197,8 +198,6 @@ def main():
     parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
     dest="log_packets", action="store_true", default=False)
-    parser.add_option("--unlock", help="Unlock device with KEY. For e.g. --unlock=1234", \
-                      dest='key', default='-1')
     parser.remove_option("-h")
     parser.disable_interspersed_args() # Allow unrecognized options
     options, args = parser.parse_args()
@@ -209,8 +208,12 @@ def main():
     
     command = args[0]
     args = args[1:]
-    dev = PRS500(key=options.key, log_packets=options.log_packets)
+    dev = PRS500(log_packets=options.log_packets)
+    if not dev.is_connected():
+        dev = PRS505()
+        
     try:
+        dev.open()
         if command == "df":
             total = dev.total_space(end_session=False)
             free = dev.free_space()
@@ -226,13 +229,13 @@ def main():
             print "\nBooks on storage card:"
             for book in dev.books(oncard=True): print book      
         elif command == "mkdir":
-            parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a directory on the device\n\npath must begin with /,a:/ or b:/")
+            parser = OptionParser(usage="usage: %prog mkdir [options] path\nCreate a directory on the device\n\npath must begin with / or card:/")
             if len(args) != 1:
                 parser.print_help()
                 sys.exit(1)
             dev.mkdir(args[0])
         elif command == "ls":
-            parser = OptionParser(usage="usage: %prog ls [options] path\nList files on the device\n\npath must begin with /,a:/ or b:/")
+            parser = OptionParser(usage="usage: %prog ls [options] path\nList files on the device\n\npath must begin with / or card:/")
             parser.add_option("--color", help="show ls output in color", dest="color", action="store_true", default=False)
             parser.add_option("-l", help="In addition to the name of each file, print the file type, permissions, and  timestamp  (the  modification time, in the local timezone). Times are local.", dest="ll", action="store_true", default=False)
             parser.add_option("-R", help="Recursively list subdirectories encountered. /dev and /proc are omitted", dest="recurse", action="store_true", default=False)
@@ -249,7 +252,7 @@ def main():
             usage="usage: %prog cp [options] source destination\nCopy files to/from the device\n\n"+\
             "One of source or destination must be a path on the device. \n\nDevice paths have the form\n"+\
             "prs500:mountpoint/my/path\n"+\
-            "where mountpoint is one of /, a: or b:\n\n"+\
+            "where mountpoint is one of / or card:/\n\n"+\
             "source must point to a file for which you have read permissions\n"+\
             "destination must point to a file or directory for which you have write permissions"
             parser = OptionParser(usage=usage)
@@ -305,7 +308,7 @@ def main():
             dev.get_file(path, outfile)
         elif command == "rm":
             parser = OptionParser(usage="usage: %prog rm path\nDelete files from the device\n\npath should point to a file or empty directory on the device "+\
-                                  "and must begin with /,a:/ or b:/\n\n"+\
+                                  "and must begin with / or card:/\n\n"+\
                                   "rm will DELETE the file. Be very CAREFUL")
             options, args = parser.parse_args(args)
             if len(args) != 1: 

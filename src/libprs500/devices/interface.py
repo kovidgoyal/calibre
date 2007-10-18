@@ -75,9 +75,9 @@ class Device(object):
     def total_space(self, end_session=True):
         """ 
         Get total space available on the mountpoints:
-          1. Main memory
-          2. Memory Stick
-          3. SD Card
+            1. Main memory
+            2. Memory Stick
+            3. SD Card
 
         @return: A 3 element list with total space in bytes of (1, 2, 3). If a
         particular device doesn't have any of these locations it should return 0.
@@ -99,9 +99,9 @@ class Device(object):
     def books(self, oncard=False, end_session=True):
         """ 
         Return a list of ebooks on the device.
-        @param oncard: If True return a list of ebooks on the storage card, 
-                       otherwise return list of ebooks in main memory of device.
-                       If True and no books on card return empty list. 
+        @param oncard:  If True return a list of ebooks on the storage card, 
+                        otherwise return list of ebooks in main memory of device.
+                        If True and no books on card return empty list. 
         @return: A BookList. 
         """    
         raise NotImplementedError()

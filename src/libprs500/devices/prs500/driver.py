@@ -12,7 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from StringIO import StringIO
 
 ### End point description for PRS-500 procductId=667
 ### Endpoint Descriptor:
@@ -51,6 +50,7 @@ import sys, os
 from tempfile import TemporaryFile
 from array import array
 from functools import wraps
+from StringIO import StringIO
 
 from libprs500.devices.interface import Device
 from libprs500.devices.libusb import Error as USBError
@@ -58,7 +58,7 @@ from libprs500.devices.libusb import get_device_by_id
 from libprs500.devices.prs500.prstypes import *
 from libprs500.devices.errors import *
 from libprs500.devices.prs500.books import BookList, fix_ids
-from libprs500 import __author__, __appname__
+from libprs500 import __author__
 
 # Protocol versions libprs500 has been tested with
 KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L] 
@@ -459,6 +459,7 @@ class PRS500(Device):
         """
         if path.endswith("/"): 
             path = path[:-1] # We only copy files
+        path = path.replace('card:/', self.card_prefix(False))
         _file = self.path_properties(path, end_session=False)
         if _file.is_dir: 
             raise PathError("Cannot read as " + path + " is a directory")
@@ -520,6 +521,7 @@ class PRS500(Device):
             """ Do a non recursive listsing of path """
             if not path.endswith("/"): 
                 path += "/" # Initially assume path is a directory
+            path = path.replace('card:/', self.card_prefix(False))
             files = []
             candidate = self.path_properties(path, end_session=False)
             if not candidate.is_dir: 
@@ -643,6 +645,7 @@ class PRS500(Device):
         @todo: Update file modification time if it exists. 
         Opening the file in write mode and then closing it doesn't work.
         """
+        path = path.replace('card:/', self.card_prefix(False))
         if path.endswith("/") and len(path) > 1: 
             path = path[:-1]
         exists, _file = self._exists(path)
@@ -669,6 +672,7 @@ class PRS500(Device):
         bytes = infile.tell() - pos
         start_pos = pos
         infile.seek(pos)
+        path = path.replace('card:/', self.card_prefix(False))
         exists, dest = self._exists(path)
         if exists:
             if dest.is_dir:
@@ -737,6 +741,8 @@ class PRS500(Device):
     @safe
     def mkdir(self, path, end_session=True):
         """ Make directory """
+        if path.startswith('card:/'):
+            path = path.replace('card:/', self.card_prefix(False))
         if not path.endswith("/"): 
             path += "/"
         error_prefix = "Cannot create directory " + path
@@ -754,6 +760,7 @@ class PRS500(Device):
     @safe
     def rm(self, path, end_session=True):
         """ Delete path from device if it is a file or an empty directory """
+        path = path.replace('card:/', self.card_prefix(False))
         dir = self.path_properties(path, end_session=False)
         if not dir.is_dir:
             self.del_file(path, end_session=False)
@@ -945,4 +952,3 @@ class PRS500(Device):
         f.seek(0)
         self.put_file(f, path, replace_file=True, end_session=False)
         f.close()   
-        
