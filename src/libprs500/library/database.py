@@ -35,9 +35,42 @@ class Concatenate(object):
             return self.ans[:-len(self.sep)]
         return self.ans
 
+_lock_file = None
+class DatabaseLocked(Exception):
+    pass
+
+def _lock(path):
+    path = os.path.join(os.path.dirname(path), '.'+os.path.basename(path)+'.lock')
+    global _lock_file
+    if _lock_file is not None:
+        raise DatabaseLocked('Database already locked in this instance.')
+    try:
+        _lock_file = open(path, 'wb')
+    except IOError:
+        raise DatabaseLocked('Database in use by another instance')
+    try:
+        import fcntl, errno
+        try:
+            fcntl.lockf(_lock_file.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
+        except IOError, err:
+            _lock_file = None
+            if err.errno in (errno.EACCES, errno.EAGAIN):
+                raise DatabaseLocked('Database in use by another instance')
+    except ImportError:
+        try:
+            import msvcrt
+            try:
+                msvcrt.locking(_lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+            except IOError:
+                _lock_file = None
+                raise DatabaseLocked('Database in use by another instance')
+        except ImportError:
+            pass
+
 def _connect(path):
     if isinstance(path, unicode):
         path = path.encode('utf-8')
+    _lock(path)
     conn =  sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row : list(row)
     conn.create_aggregate('concat', 1, Concatenate)
@@ -620,6 +653,12 @@ class LibraryDatabase(object):
                                 )
         conn.execute('pragma user_version=2')
         conn.commit()
+    
+    def __del__(self):
+        global _lock_file
+        import os
+        if _lock_file is not None and os.path.exists(_lock_file):
+            os.unlink(_lock_file) 
     
     def __init__(self, dbpath):
         self.dbpath = dbpath

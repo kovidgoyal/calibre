@@ -43,6 +43,8 @@ from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
 from libprs500.gui2.dialogs.password import PasswordDialog
 from libprs500.gui2.lrf_renderer.main import file_renderer
 from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
+from libprs500.library.database import DatabaseLocked
+
 
 class Main(MainWindow, Ui_MainWindow):
     
@@ -715,7 +717,12 @@ def main(args=sys.argv):
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         initialize_file_icon_provider()
-        main = Main()
+        try:
+            main = Main()
+        except DatabaseLocked, err:
+            QMessageBox.critical(None, 'Cannot Start '+__appname__, 
+            'Another program is using the database. Perhaps %s is already running?'%(__appname__,))
+            return 1
         sys.excepthook = main.unhandled_exception    
         return app.exec_()
     return 0
