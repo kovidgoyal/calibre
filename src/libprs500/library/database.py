@@ -1060,7 +1060,7 @@ class LibraryDatabase(object):
             if not os.path.exists(apath):
                 os.mkdir(apath)
             for idx in by_author[au]:
-                title = self.title(idx)
+                title = re.sub(r'\s', ' ', self.title(idx))
                 tpath = os.path.join(apath, title)
                 id = str(self.id(idx))
                 if not os.path.exists(tpath):
