@@ -14,9 +14,15 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
 import shutil
 ''' Post installation script for linux '''
-import sys, os, stat
+import sys, os
+
 from subprocess import check_call
-from libprs500 import __version__
+from libprs500 import __version__, __appname__
+
+from libprs500.devices.prs500.driver import PRS500 
+from libprs500.devices.prs505.driver import PRS505
+
+DEVICES = (PRS500, PRS505)
 
 def options(option_parser):
     parser = option_parser() 
@@ -182,36 +188,24 @@ def setup_udev_rules():
                '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
              )
     udev.close()
-    open('/usr/share/hal/fdi/policy/20thirdparty/10-libprs500.fdi', 'w').write(
-'''\
-<?xml version="1.0" encoding="UTF-8"?>
-
-<deviceinfo version="0.2">
+    fdi = open('/usr/share/hal/fdi/policy/20thirdparty/10-libprs500.fdi', 'w')
+    fdi.write('<?xml version="1.0" encoding="UTF-8"?>\n\n<deviceinfo version="0.2">\n')
+    for cls in DEVICES:
+        fdi.write(\
+'''
   <device>
-      <match key="info.category" string="volume">
-          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="0x054c">
-              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="0x031e">
-                  <match key="volume.is_partition" bool="false">
-                      <merge key="volume.label" type="string">Sony Reader Main Memory</merge>
-                  </match>
-              </match>
+      <match key="usb_device.vendor_id" int="%(vendor_id)s">
+          <match key="usb_device.product_id" int="%(product_id)s">
+              <merge  key="libprs500.deviceclass" type="string">%(cls)s</merge>
+              <append key="info.callouts.add" type="strlist">%(prog)s</merge>
           </match>
       </match>
   </device>
-  <device>
-      <match key="info.category" string="volume">
-          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="0x054c">
-              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="0x031e">
-                  <match key="volume.is_partition" bool="true">
-                      <merge key="volume.label" type="string">Sony Reader Storage Card</merge>
-                  </match>
-              </match>
-          </match>
-      </match>
-  </device>
-
-</deviceinfo>
-''')
+'''%dict(cls=cls.__name__, vendor_id=cls.VENDOR_ID, product_id=cls.PRODUCT_ID,
+         prog=__appname__))
+        fdi.write('\n'+cls.get_fdi())
+    fdi.write('\n</deviceinfo>\n')
+    fdi.close()
     check_call('/etc/init.d/hald restart', shell=True)
     
     try:

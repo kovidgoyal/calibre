@@ -32,9 +32,10 @@ class TimeoutError(ProtocolError):
 
 class DeviceError(ProtocolError):
     """ Raised when device is not found """
-    def __init__(self):
-        ProtocolError.__init__(self, \
-        "Unable to find SONY Reader. Is it connected?")
+    def __init__(self, msg=None):
+        if msg is None:
+            msg = "Unable to find SONY Reader. Is it connected?" 
+        ProtocolError.__init__(self, msg)
 
 class DeviceBusy(ProtocolError):
     """ Raised when device is busy """

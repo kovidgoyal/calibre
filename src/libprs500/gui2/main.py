@@ -709,7 +709,7 @@ class Main(MainWindow, Ui_MainWindow):
                 
     
 
-def main(args=sys.argv): 
+def main(args=sys.argv):
     from PyQt4.Qt import QApplication
     pid = os.fork() if islinux else -1
     if pid <= 0:

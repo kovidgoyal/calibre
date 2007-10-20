@@ -18,10 +18,17 @@ import shutil
 from libprs500.devices.interface import Device
 from libprs500.devices.errors import DeviceError, FreeSpaceError
 from libprs500.devices.prs500.books import BookList
+from libprs500 import iswindows, islinux, isosx
+if not iswindows:
+    from libprs500.devices.libusb import get_device_by_id
 
-from libprs500 import islinux, iswindows
 
 import sys, os
+
+try:
+    import _winreg
+except ImportError:
+    pass
 
 class File(object):
     def __init__(self, path):
@@ -40,43 +47,117 @@ class File(object):
 class PRS505(Device):
     VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x031e #: Product Id for the PRS-505
-    PRODUCT_NAME = 'Sony Portable Reader System'
+    PRODUCT_NAME = 'PRS-505'
+    VENDOR_NAME  = 'SONY'
     
     MEDIA_XML    = 'database/cache/media.xml'
     CACHE_XML    = 'Sony Reader/database/cache.xml'
     
-    LINUX_DEVICE_NODE   = 'sony_prs_505'
-    LINUX_DEVICE_PATH   = os.path.join('/dev', LINUX_DEVICE_NODE)
+    MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
+    STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card' 
+    
+    FDI_TEMPLATE = \
+'''
+  <device>
+      <match key="info.category" string="volume">
+          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
+              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
+                  <match key="volume.is_partition" bool="false">
+                      <merge key="volume.label" type="string">%(main_memory)s</merge>
+                      <merge key="libprs500.mainvolume" type="string">%(deviceclass)s</merge>
+                  </match>
+              </match>
+          </match>
+      </match>
+  </device>
+  <device>
+      <match key="info.category" string="volume">
+          <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
+              <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
+                  <match key="volume.is_partition" bool="true">
+                      <merge key="volume.label" type="string">%(storage_card)s</merge>
+                      <merge key="libprs500.cardvolume" type="string">%(deviceclass)s</merge>
+                  </match>
+              </match>
+          </match>
+      </match>
+  </device>
+'''
+    
     
     def __init__(self):
         self._main_prefix = self._card_prefix = None
-        self.hm = None
-        if islinux:
-            import dbus
-            self.bus = dbus.SystemBus() 
-            self.hm  = dbus.Interface(self.bus.get_object("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager"), "org.freedesktop.Hal.Manager")
+        
+    @classmethod
+    def get_fdi(cls):
+        return cls.FDI_TEMPLATE%dict(
+                                     deviceclass=cls.__name__,
+                                     vendor_id=hex(cls.VENDOR_ID),
+                                     product_id=hex(cls.PRODUCT_ID),
+                                     main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
+                                     storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
+                                     )
     
-    def is_connected(self):
-        if self.hm is not None: # linux
-            devs = self.hm.FindDeviceStringMatch('info.product', 'Sony Portable Reader System')
-            for dev in devs:
-                obj = self.bus.get_object("org.freedesktop.Hal", dev)
-                if obj.GetPropertyInteger('usb_device.product_id', dbus_interface='org.freedesktop.Hal.Device') == self.__class__.PRODUCT_ID:
-                    return True
+    @classmethod
+    def is_device(cls, device_id):
+        if 'VEN_'+cls.VENDOR_NAME in device_id.upper() and \
+               'PROD_'+cls.PRODUCT_NAME in device_id.upper():
+            return True
+        vid, pid = hex(cls.VENDOR_ID)[2:], hex(cls.PRODUCT_ID)[2:]
+        if len(vid) < 4: vid = '0'+vid
+        if len(pid) < 4: pid = '0'+pid
+        if 'VID_'+vid in device_id.upper() and \
+               'PID_'+pid in device_id.upper():
+            return True
         return False
     
+    @classmethod
+    def is_connected(cls, helper=None):
+        if iswindows:
+            for c in helper.USBControllerDevice():
+                if cls.is_device(c.Dependent.DeviceID):
+                    return True
+            return False
+        else:
+            return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None                
+        
+    
+    def open_windows(self):
+        import wmi
+        c = wmi.WMI()
+        for drive in c.Win32_DiskDrive():
+            if self.__class__.is_device(drive.PNPDeviceID):
+                if drive.Partitions == 0:
+                    continue
+                try:
+                    partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
+                except IndexError:
+                    continue
+                logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
+                prefix = logical_disk.DeviceID+os.sep
+                if drive.Index == 1:
+                    self._main_prefix = prefix
+                else:
+                    self._card_prefix = prefix
+        if self._main_prefix is None:
+            raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
+            
+    
     def open_linux(self):
+        import dbus
+        bus = dbus.SystemBus() 
+        hm  = dbus.Interface(self.bus.get_object("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager"), "org.freedesktop.Hal.Manager")
         try:
-            mm = self.hm.FindDeviceStringMatch('volume.label', 'Sony Reader Main Memory')[0]
+            mm = hm.FindDeviceStringMatch('libprs500.mainvolume', self.__class__.__name__)[0]
         except:
             raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
         try:
-            sc = self.hm.FindDeviceStringMatch('volume.label', 'Sony Reader Storage Card')[0]
+            sc = hm.FindDeviceStringMatch('libprs500.cardvolume', self.__class__.__name__)[0]
         except:
             sc = None
         
         def conditional_mount(dev):
-            mmo = self.bus.get_object("org.freedesktop.Hal", dev)
+            mmo = bus.get_object("org.freedesktop.Hal", dev)
             label = mmo.GetPropertyString('volume.label', dbus_interface='org.freedesktop.Hal.Device')
             is_mounted = mmo.GetPropertyString('volume.is_mounted', dbus_interface='org.freedesktop.Hal.Device')
             mount_point = mmo.GetPropertyString('volume.mount_point', dbus_interface='org.freedesktop.Hal.Device')
@@ -93,8 +174,10 @@ class PRS505(Device):
             self._card_prefix = conditional_mount(sc)+os.sep
     
     def open(self):
-        if self.hm is not None: # linux
+        if islinux:
             self.open_linux()
+        if iswindows:
+            self.open_windows()
             
     def set_progress_reporter(self, pr):
         self.report_progress = pr
@@ -105,29 +188,43 @@ class PRS505(Device):
     def card_prefix(self, end_session=True):
         return self._card_prefix
     
+    @classmethod
+    def _windows_space(cls, prefix):
+        if prefix is None:
+            return 0, 0
+        import win32file
+        sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
+                win32file.GetDiskFreeSpace(prefix[:-1])
+        mult = sectors_per_cluster * bytes_per_sector
+        return total_clusters * mult, free_clusters * mult
+    
     def total_space(self, end_session=True):
+        msz = csz = 0
         if not iswindows:
-            msz = 0
             if self._main_prefix is not None:
                 stats = os.statvfs(self._main_prefix)
                 msz = stats.f_frsize * (stats.f_blocks + stats.f_bavail - stats.f_bfree)
-            csz = 0
             if self._card_prefix is not None:
                 stats = os.statvfs(self._card_prefix)
                 csz = stats.f_frsize * (stats.f_blocks + stats.f_bavail - stats.f_bfree)
+        else:
+            msz = self._windows_space(self._main_prefix)[0]
+            csz = self._windows_space(self._card_prefix)[0]
                 
         return (msz, 0, csz)
     
     def free_space(self, end_session=True):
+        msz = csz = 0
         if not iswindows:
-            msz = 0
             if self._main_prefix is not None:
                 stats = os.statvfs(self._main_prefix)
                 msz = stats.f_bsize * stats.f_bavail
-            csz = 0
             if self._card_prefix is not None:
                 stats = os.statvfs(self._card_prefix)
                 csz = stats.f_bsize * stats.f_bavail
+        else:
+            msz = self._windows_space(self._main_prefix)[1]
+            csz = self._windows_space(self._card_prefix)[1]
                 
         return (msz, 0, csz)
                 
