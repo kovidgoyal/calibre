@@ -138,9 +138,9 @@ class HTMLConverter(object):
                      (re.compile('<h2[^><]*?id=BookAuthor[^><]*?(align=)*(?(1)(\w+))*[^><]*?>[^><]*?</h2>', re.IGNORECASE),
                       lambda match : '<h2 id="BookAuthor" align="%s">%s</h2>'%(match.group(2) if match.group(2) else 'center', match.group(3))),
                      (re.compile('<span[^><]*?id=title[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-                      lambda match : '<h2>%s</h2>'%(match.group(1),)),
+                      lambda match : '<h2 class="title">%s</h2>'%(match.group(1),)),
                      (re.compile('<span[^><]*?id=subtitle[^><]*?>(.*?)</span>', re.IGNORECASE|re.DOTALL),
-                      lambda match : '<h3>%s</h3>'%(match.group(1),)),
+                      lambda match : '<h3 class="subtitle">%s</h3>'%(match.group(1),)),
                      # Blank lines
                      (re.compile('<div[^><]*?>(&nbsp;){4}</div>', re.IGNORECASE),
                       lambda match : '<p></p>'),
@@ -206,6 +206,8 @@ class HTMLConverter(object):
         self.targets = {}      #: <a name=...> and id elements
         self.links   = deque() #: <a href=...> elements        
         self.processed_files = []
+        self.extra_toc_entries = [] #: TOC entries gleaned from semantic information
+        self.id_counter = 0
         self.unused_target_blocks = [] #: Used to remove extra TextBlocks
         self.link_level  = 0    #: Current link level
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
@@ -265,6 +267,10 @@ class HTMLConverter(object):
             self.links = self.process_links()
             self.link_level += 1
             paths = [link['path'] for link in self.links]
+            
+        for text, tb in self.extra_toc_entries:
+            ascii_text = text.encode('ascii', 'ignore')
+            self.book.addTocEntry(ascii_text, tb)
         
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
@@ -1441,12 +1447,19 @@ class HTMLConverter(object):
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             new_block = self.process_block(tag, tag_css)
             
-            if self.anchor_ids and tag.has_key('id'):
+            if (self.anchor_ids and tag.has_key('id')) or \
+               (self.book_designer and tag.has_key('class') and tag['class']=='title'):
+                if not tag.has_key('id'):
+                    tag['id'] = 'libprs500_id_'+str(self.id_counter)
+                    self.id_counter += 1 
+        
                 tkey = self.target_prefix+tag['id']
                 if not new_block:
                     self.end_current_block()
                 self.current_block.must_append = True
                 self.targets[tkey] = self.current_block
+                if (self.book_designer and tag.has_key('class') and tag['class']=='title'):
+                    self.extra_toc_entries.append((self.get_text(tag, 100), self.current_block))
             
             src = self.get_text(tag, limit=1000)
             
