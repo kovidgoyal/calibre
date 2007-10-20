@@ -196,8 +196,7 @@ def setup_udev_rules():
   <device>
       <match key="usb_device.vendor_id" int="%(vendor_id)s">
           <match key="usb_device.product_id" int="%(product_id)s">
-              <merge  key="libprs500.deviceclass" type="string">%(cls)s</merge>
-              <append key="info.callouts.add" type="strlist">%(prog)s</merge>
+              <merge key="libprs500.deviceclass" type="string">%(cls)s</merge>
           </match>
       </match>
   </device>

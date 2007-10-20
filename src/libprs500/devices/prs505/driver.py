@@ -146,7 +146,7 @@ class PRS505(Device):
     def open_linux(self):
         import dbus
         bus = dbus.SystemBus() 
-        hm  = dbus.Interface(self.bus.get_object("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager"), "org.freedesktop.Hal.Manager")
+        hm  = dbus.Interface(bus.get_object("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager"), "org.freedesktop.Hal.Manager")
         try:
             mm = hm.FindDeviceStringMatch('libprs500.mainvolume', self.__class__.__name__)[0]
         except:
