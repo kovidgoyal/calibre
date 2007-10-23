@@ -19,10 +19,9 @@ import sys, os
 from subprocess import check_call
 from libprs500 import __version__, __appname__
 
-from libprs500.devices.prs500.driver import PRS500 
-from libprs500.devices.prs505.driver import PRS505
+from libprs500.devices import devices
 
-DEVICES = (PRS500, PRS505)
+DEVICES = devices()
 
 def options(option_parser):
     parser = option_parser() 
