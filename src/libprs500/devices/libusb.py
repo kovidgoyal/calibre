@@ -29,11 +29,12 @@ if iswindows:
     _libusb_name = 'libusb0'
 
 try:
-    _libusb = load_library(_libusb_name, cdll)
-except OSError:
-    if iswindows or isosx:
-        raise
-    _libusb = cdll.LoadLibrary('libusb-0.1.so.4')
+    try:
+        _libusb = load_library(_libusb_name, cdll)
+    except OSError:
+        _libusb = cdll.LoadLibrary('libusb-0.1.so.4')
+except:
+    _libusb = None
 
 class DeviceDescriptor(Structure):
     _fields_ = [\
@@ -308,25 +309,30 @@ Device._fields_ = [ \
                 ('children', POINTER(POINTER(Device)))
                ] 
 
-_libusb.usb_get_busses.restype = POINTER(Bus)
-_libusb.usb_open.restype = POINTER(DeviceHandle)
-_libusb.usb_open.argtypes = [POINTER(Device)]
-_libusb.usb_close.argtypes = [POINTER(DeviceHandle)]
-_libusb.usb_claim_interface.argtypes = [POINTER(DeviceHandle), c_int]
-_libusb.usb_claim_interface.restype = c_int
-_libusb.usb_release_interface.argtypes = [POINTER(DeviceHandle), c_int]
-_libusb.usb_release_interface.restype = c_int
-_libusb.usb_reset.argtypes = [POINTER(DeviceHandle)]
-_libusb.usb_reset.restype = c_int
-_libusb.usb_control_msg.restype = c_int
-_libusb.usb_bulk_read.restype = c_int
-_libusb.usb_bulk_write.restype = c_int
-_libusb.usb_set_configuration.argtypes = [POINTER(DeviceHandle), c_int]
-_libusb.usb_set_configuration.restype = c_int
-_libusb.usb_init()
+if _libusb is not None:
+    _libusb.usb_get_busses.restype = POINTER(Bus)
+    _libusb.usb_open.restype = POINTER(DeviceHandle)
+    _libusb.usb_open.argtypes = [POINTER(Device)]
+    _libusb.usb_close.argtypes = [POINTER(DeviceHandle)]
+    _libusb.usb_claim_interface.argtypes = [POINTER(DeviceHandle), c_int]
+    _libusb.usb_claim_interface.restype = c_int
+    _libusb.usb_release_interface.argtypes = [POINTER(DeviceHandle), c_int]
+    _libusb.usb_release_interface.restype = c_int
+    _libusb.usb_reset.argtypes = [POINTER(DeviceHandle)]
+    _libusb.usb_reset.restype = c_int
+    _libusb.usb_control_msg.restype = c_int
+    _libusb.usb_bulk_read.restype = c_int
+    _libusb.usb_bulk_write.restype = c_int
+    _libusb.usb_set_configuration.argtypes = [POINTER(DeviceHandle), c_int]
+    _libusb.usb_set_configuration.restype = c_int
+    _libusb.usb_init()
+
+
 
 def busses():
     """ Get list of USB busses present on system """
+    if _libusb is None:
+        raise Error('Could not find libusb.')
     if _libusb.usb_find_busses() < 0:
         raise Error('Unable to search for USB busses')
     if _libusb.usb_find_devices() < 0:

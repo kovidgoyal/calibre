@@ -12,23 +12,19 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import shutil
-''''''
+'''
+Device driver for the SONY PRS-505
+'''
+import sys, os, shutil, time
+from itertools import cycle
 
 from libprs500.devices.interface import Device
 from libprs500.devices.errors import DeviceError, FreeSpaceError
-from libprs500.devices.prs500.books import BookList
+from libprs500.devices.prs500.books import BookList, fix_ids
 from libprs500 import iswindows, islinux, isosx
-if not iswindows:
-    from libprs500.devices.libusb import get_device_by_id
-
-
-import sys, os
-
-try:
-    import _winreg
-except ImportError:
-    pass
+from libprs500.devices.libusb import get_device_by_id
+from libprs500.devices import libusb
+from libprs500.devices.errors import PathError
 
 class File(object):
     def __init__(self, path):
@@ -85,7 +81,7 @@ class PRS505(Device):
 '''
     
     
-    def __init__(self):
+    def __init__(self, log_packets=False):
         self._main_prefix = self._card_prefix = None
         
     @classmethod
@@ -119,7 +115,10 @@ class PRS505(Device):
                     return True
             return False
         else:
-            return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None                
+            try:
+                return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None
+            except libusb.Error:
+                return False                
         
     
     def open_windows(self):
@@ -174,10 +173,14 @@ class PRS505(Device):
             self._card_prefix = conditional_mount(sc)+os.sep
     
     def open(self):
-        if islinux:
-            self.open_linux()
-        if iswindows:
-            self.open_windows()
+        try:
+            if islinux:
+                self.open_linux()
+            if iswindows:
+                self.open_windows()
+        except DeviceError:
+            time.sleep(4)
+            return self.open()
             
     def set_progress_reporter(self, pr):
         self.report_progress = pr
@@ -229,10 +232,12 @@ class PRS505(Device):
         return (msz, 0, csz)
                 
     def books(self, oncard=False, end_session=True):
+        if oncard and self._card_prefix is None:
+            return []
         db = self.__class__.CACHE_XML if oncard else self.__class__.MEDIA_XML
         prefix = self._card_prefix if oncard else self._main_prefix
         f = open(prefix + db, 'rb')
-        bl = BookList(root='', sfile=f)
+        bl = BookList(root=self._card_prefix if oncard else self._main_prefix, sfile=f)
         paths = bl.purge_corrupted_files()
         for path in paths:
             if os.path.exists(path):
@@ -268,10 +273,12 @@ class PRS505(Device):
         src = open(path, 'rb')
         shutil.copyfileobj(src, outfile, 10*1024*1024)
                  
-    def put_file(self, infile, path, end_session=True):
+    def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
         if os.path.isdir(path):
             path = os.path.join(path, infile.name)
+        if not replace_file and os.path.exists(path):
+            raise PathError('File already exists: '+path)
         dest = open(path, 'wb')
         shutil.copyfileobj(infile, dest, 10*1024*1024)
         
@@ -305,13 +312,49 @@ class PRS505(Device):
             
         paths, ctimes = [], []
         
+        names = iter(names)
         for infile in infiles:
             infile.seek(0)            
             name = names.next()
             paths.append(os.path.join(path, name))
             self.put_file(infile, paths[-1], replace_file=True)
             ctimes.append(os.path.getctime(paths[-1]))
-        return zip(paths, sizes, ctimes)
+        return zip(paths, sizes, ctimes, cycle([on_card]))
+    
+    @classmethod
+    def add_books_to_metadata(cls, locations, metadata, booklists):
+        metadata = iter(metadata)
+        for location in locations:
+            info = metadata.next()
+            path = location[0]
+            on_card = 1 if location[3] else 0
+            name = path.rpartition('/')[2]
+            name = (cls.CARD_PATH_PREFIX+'/' if on_card else 'books/') + name
+            booklists[on_card].add_book(info, name, *location[1:-1])
+        fix_ids(*booklists)
+        
+    def delete_books(self, paths, end_session=True):
+        for path in paths:
+            print path
+            os.unlink(path)
+            
+    @classmethod
+    def remove_books_from_metadata(cls, paths, booklists):
+        for path in paths:
+            for bl in booklists:
+                bl.remove_book(path)
+        fix_ids(*booklists)
+        
+    def sync_booklists(self, booklists, end_session=True):
+        fix_ids(*booklists)
+        f = open(self._main_prefix + self.__class__.MEDIA_XML, 'wb')
+        booklists[0].write(f)
+        f.close()
+        if self._card_prefix is not None and hasattr(booklists[1], 'write'):
+            f = open(self._card_prefix + self.__class__.CACHE_XML, 'wb')
+            booklists[1].write(f)
+            f.close()
+            
     
      
 

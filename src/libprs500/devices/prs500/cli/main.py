@@ -13,6 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from libprs500.devices.prs505.driver import PRS505
+from libprs500.devices import devices
 """
 Provides a command-line and optional graphical interface to the SONY Reader PRS-500.
 
@@ -208,9 +209,13 @@ def main():
     
     command = args[0]
     args = args[1:]
-    dev = PRS500(log_packets=options.log_packets)
-    if not dev.is_connected():
-        dev = PRS505()
+    dev = None
+    for d in devices():
+        if d.is_connected():
+            dev = d(log_packets=options.log_packets)
+    
+    if dev is None:
+        print >>sys.stderr, 'Unable to find a connected ebook reader.'
         
     try:
         dev.open()

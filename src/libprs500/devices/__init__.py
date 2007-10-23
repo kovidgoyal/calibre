@@ -15,6 +15,12 @@
 '''
 Device drivers.
 '''
+
+def devices():
+    from libprs500.devices.prs500.driver import PRS500
+    from libprs500.devices.prs505.driver import PRS505
+    return (PRS500, PRS505)
+
 import time
 
 DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)

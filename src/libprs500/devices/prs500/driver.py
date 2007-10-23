@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.devices import libusb
 
 ### End point description for PRS-500 procductId=667
 ### Endpoint Descriptor:
@@ -224,7 +225,10 @@ class PRS500(Device):
         software connection. You may need to call L{reconnect} if you keep
         getting L{DeviceError}.
         """
-        return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None
+        try:
+            return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None
+        except libusb.Error:
+            return False
 
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
