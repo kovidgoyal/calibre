@@ -335,7 +335,6 @@ class PRS505(Device):
         
     def delete_books(self, paths, end_session=True):
         for path in paths:
-            print path
             os.unlink(path)
             
     @classmethod

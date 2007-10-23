@@ -78,7 +78,7 @@ class Device(object):
     
     def card_prefix(self, end_session=True):
         '''
-        Return prefix to paths on the card or None if no cards present.
+        Return prefix to paths on the card or '' if no cards present.
         '''
         raise NotImplementedError()
     

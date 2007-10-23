@@ -218,7 +218,7 @@ class PRS500(Device):
         self.handle = None
 
     @classmethod
-    def is_connected(cls):
+    def is_connected(cls, helper=None):
         """ 
         This method checks to see whether the device is physically connected. 
         It does not return any information about the validity of the 
@@ -463,7 +463,8 @@ class PRS500(Device):
         """
         if path.endswith("/"): 
             path = path[:-1] # We only copy files
-        path = path.replace('card:/', self.card_prefix(False))
+        cp = self.card_prefix(False)
+        path = path.replace('card:/', cp if cp else '')
         _file = self.path_properties(path, end_session=False)
         if _file.is_dir: 
             raise PathError("Cannot read as " + path + " is a directory")
@@ -525,7 +526,8 @@ class PRS500(Device):
             """ Do a non recursive listsing of path """
             if not path.endswith("/"): 
                 path += "/" # Initially assume path is a directory
-            path = path.replace('card:/', self.card_prefix(False))
+            cp = self.card_prefix(False)
+            path = path.replace('card:/', cp if cp else '')
             files = []
             candidate = self.path_properties(path, end_session=False)
             if not candidate.is_dir: 
@@ -597,7 +599,6 @@ class PRS500(Device):
 
     @safe
     def card_prefix(self, end_session=True):
-        '''Return prefix of path to card or None if no cards present'''
         try:
             path = 'a:/'
             self.path_properties(path, end_session=False)
@@ -649,7 +650,8 @@ class PRS500(Device):
         @todo: Update file modification time if it exists. 
         Opening the file in write mode and then closing it doesn't work.
         """
-        path = path.replace('card:/', self.card_prefix(False))
+        cp = self.card_prefix(False)
+        path = path.replace('card:/', cp if cp else '')
         if path.endswith("/") and len(path) > 1: 
             path = path[:-1]
         exists, _file = self._exists(path)
@@ -676,7 +678,8 @@ class PRS500(Device):
         bytes = infile.tell() - pos
         start_pos = pos
         infile.seek(pos)
-        path = path.replace('card:/', self.card_prefix(False))
+        cp = self.card_prefix(False)
+        path = path.replace('card:/', cp if cp else '')
         exists, dest = self._exists(path)
         if exists:
             if dest.is_dir:
@@ -746,7 +749,8 @@ class PRS500(Device):
     def mkdir(self, path, end_session=True):
         """ Make directory """
         if path.startswith('card:/'):
-            path = path.replace('card:/', self.card_prefix(False))
+            cp = self.card_prefix(False)
+            path = path.replace('card:/', cp if cp else '')
         if not path.endswith("/"): 
             path += "/"
         error_prefix = "Cannot create directory " + path
@@ -764,7 +768,8 @@ class PRS500(Device):
     @safe
     def rm(self, path, end_session=True):
         """ Delete path from device if it is a file or an empty directory """
-        path = path.replace('card:/', self.card_prefix(False))
+        cp = self.card_prefix(False)
+        path = path.replace('card:/', cp if cp else '')
         dir = self.path_properties(path, end_session=False)
         if not dir.is_dir:
             self.del_file(path, end_session=False)

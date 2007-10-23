@@ -12,17 +12,12 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-from libprs500 import iswindows
-import sys, os
+import os
 
 from PyQt4.QtCore import QThread, SIGNAL, QObject
 
-_libusb_available = False
-try:
-    from libprs500.devices.prs500.driver import PRS500
-    _libusb_available = True
-except OSError, err: #libusb not availabe
-    print >>sys.stderr, err
+from libprs500 import iswindows
+from libprs500.devices import devices
 
 class DeviceDetector(QThread):
     '''
@@ -35,10 +30,7 @@ class DeviceDetector(QThread):
         @param sleep_time: Time to sleep between device probes in millisecs
         @type sleep_time: integer
         '''
-        self.devices = []
-        if _libusb_available:
-            for dclass in (PRS500,):
-                self.devices.append([dclass, False])
+        self.devices = [[d, False] for d in devices()]
         self.sleep_time = sleep_time
         QThread.__init__(self)
         
@@ -53,6 +45,7 @@ class DeviceDetector(QThread):
                 try:
                     connected = device[0].is_connected(helper=helper)
                 except:
+                    raise
                     connected = False
                 if connected and not device[1]:
                     self.emit(SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), device[0], True)
@@ -69,6 +62,7 @@ class DeviceManager(QObject):
         QObject.__init__(self)
         self.device_class = device_class
         self.device = device_class()
+        self.device.open()
         
     def device_removed(self):
         self.device = None
