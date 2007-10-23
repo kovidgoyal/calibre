@@ -50,21 +50,24 @@ class MetaInformation(object):
         #: List of strings or []
         self.authors = authors
         #: Sort text for author
-        self.author_sort = None
-        self.title_sort = None
-        self.comments = None
-        self.category = None
-        self.publisher = None
-        self.series    = None
+        self.author_sort  = None
+        self.title_sort   = None
+        self.comments     = None
+        self.category     = None
+        self.publisher    = None
+        self.series       = None
         self.series_index = None
         self.rating       = None
+        self.isbn         = None
         
     def __str__(self):
         ans = ''
-        ans += 'Title   : ' + str(self.title) + '\n'
-        ans += 'Author  : ' + (', '.join(self.authors) if self.authors is not None else 'None') + '\n'
-        ans += 'Category: ' + str(self.category) + '\n'
-        ans += 'Comments: ' + str(self.comments) + '\n'
+        ans += 'Title   : ' + unicode(self.title) + '\n'
+        ans += 'Author  : ' + (', '.join(self.authors) if self.authors is not None else 'None')
+        ans += ((' (' + self.author_sort + ')') if self.author_sort else '') + '\n' 
+        ans += 'Category: ' + unicode(self.category) + '\n'
+        ans += 'Comments: ' + unicode(self.comments) + '\n'
+        ans += 'ISBN    : '     + unicode(self.isbn) + '\n'
         return ans.strip()
     
     def __nonzero__(self):

@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
-Interface to isbndb.com
+Interface to isbndb.com. My key HLLXQX2A.
 '''
 
 import sys, logging, re
@@ -21,11 +21,51 @@ from urllib import urlopen, quote
 from optparse import OptionParser
 
 from libprs500 import __appname__, __version__, __author__, setup_cli_handlers
+from libprs500.ebooks.metadata import MetaInformation
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
 
-BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&results=subjects,authors&'
+BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&page_number=1&results=subjects,authors&'
 
-class ISNDBError(Exception):
+class ISBNDBError(Exception):
     pass
+
+def fetch_metadata(url, max=100):
+    books = []
+    page_number = 1
+    total_results = sys.maxint
+    while len(books) < total_results and max > 0:
+        try:
+            raw = urlopen(url).read()
+        except Exception, err:
+            raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
+        soup = BeautifulStoneSoup(raw)
+        book_list = soup.find('booklist')
+        total_results = int(book_list['total_results'])
+        np = '&page_number=%s&'%(page_number+1)
+        url = re.sub(r'\&page_number=\d+\&', np, url)
+        books.extend(book_list.findAll('bookdata'))
+        max -= 1
+    return books
+    
+
+class ISBNDBMetadata(MetaInformation):
+    def __init__(self, book):
+        MetaInformation.__init__(self, None, [])
+        
+        self.isbn = book['isbn']
+        self.title = book.find('titlelong').string
+        if not self.title:
+            self.title = book.find('title').string
+        self.title = self.title.strip
+        au = book.find('authorstext').string
+        temp = au.split(',')
+        self.authors = []
+        for au in temp:
+            self.authors.extend([a.strip() for a in au.split('&amp;')])
+            
+        self.author_sort = book.find('authors').find('person').string
+        self.publisher = book.find('publishertext').string
+        
 
 def build_isbn(base_url, opts):
     return base_url + 'index1=isbn&value1='+opts.isbn
@@ -37,9 +77,9 @@ def build_combined(base_url, opts):
             query += ' ' + e
     query = query.strip()
     if len(query) == 0:
-        raise ISNDBError('You must specify at least one of --author, --title or --publisher')
+        raise ISBNDBError('You must specify at least one of --author, --title or --publisher')
     
-    query = re.sub('\s+', '+', query)  
+    query = re.sub(r'\s+', '+', query)  
     return base_url+'index1=combined&value1='+quote(query, '+')    
 
 
@@ -68,14 +108,8 @@ key is the account key you generate after signing up for a free account from isb
     
     return parser
     
-    
-def main(args=sys.argv, logger=None):
-    parser = option_parser()
-    opts, args = parser.parse_args(args)
-    if len(args) != 2:
-        parser.print_help()
-        print('You must supply the isbndb.com key')
-        return 1
+
+def create_books(opts, args, logger=None):
     if logger is None:
         level = logging.DEBUG if opts.verbose else logging.INFO
         logger = logging.getLogger('isbndb')
@@ -88,8 +122,20 @@ def main(args=sys.argv, logger=None):
         url = build_combined(base_url, opts)
         
     logger.info('ISBNDB query: '+url)
-        
-        
+    
+    return [ISBNDBMetadata(book) for book in fetch_metadata(url)]
+
+def main(args=sys.argv):
+    parser = option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 2:
+        parser.print_help()
+        print('You must supply the isbndb.com key')
+        return 1
+    
+    for book in create_books(opts, args):
+        print book
+            
     return 0
 
 if __name__ == '__main__':
