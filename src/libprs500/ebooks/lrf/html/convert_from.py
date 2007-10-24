@@ -504,7 +504,7 @@ class HTMLConverter(object):
         
         path, fragment = munge_paths(self.target_prefix, tag['href'])
         return {'para':para, 'text':text, 'path':os.path.normpath(path), 
-                'fragment':fragment}
+                'fragment':fragment, 'in toc': (self.link_level == 0 and not self.use_spine)}
         
     
     def get_text(self, tag, limit=None):
@@ -572,7 +572,7 @@ class HTMLConverter(object):
                 page.contents.remove(bs)
             return ans
         
-        outside_links = deque() 
+        outside_links = deque()
         while len(self.links) > 0:
             link = self.links.popleft()
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
@@ -583,7 +583,7 @@ class HTMLConverter(object):
                     tb = get_target_block(path+fragment, self.targets)                    
                 else:
                     tb = self.tops[path]
-                if self.link_level == 0 and self.use_spine:
+                if link['in toc']:
                     add_toc_entry(ascii_text, tb) 
                  
                 jb = JumpButton(tb)                
