@@ -21,7 +21,7 @@
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QWidget" name="" >
+     <widget class="QWidget" name="layoutWidget" >
       <layout class="QVBoxLayout" >
        <item>
         <widget class="QGroupBox" name="groupBox" >
@@ -96,6 +96,9 @@
             </property>
             <property name="alignment" >
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>rating</cstring>
             </property>
            </widget>
           </item>

@@ -577,9 +577,9 @@
                </widget>
               </item>
               <item row="4" column="0" colspan="3" >
-               <widget class="QCheckBox" name="gui_disable_autorotation" >
+               <widget class="QCheckBox" name="gui_autorotation" >
                 <property name="text" >
-                 <string>Disable auto &amp;rotation of images</string>
+                 <string>Enable auto &amp;rotation of images</string>
                 </property>
                </widget>
               </item>
