@@ -115,8 +115,9 @@ def option_parser(usage):
                       '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
                       """If FONT_DELTA is negative, the font size is decreased.""",
                       dest='font_delta')
-    laf.add_option('--disable-autorotation', action='store_true', default=False, 
-                   help='Disable autorotation of images.', dest='disable_autorotation')
+    laf.add_option('--enable-autorotation', action='store_true', default=False, 
+                   help='Enable autorotation of images that are wider than the screen width.', 
+                   dest='autorotation')
     laf.add_option('--wordspace', dest='wordspace', default=2.5, type='float',
                    help='Set the space between words in pts. Default is %default')
     laf.add_option('--blank-after-para', action='store_true', default=False,

@@ -888,7 +888,7 @@ class HTMLConverter(object):
             self.current_para.append(dc)            
             return
         
-        if not self.disable_autorotation and width > pwidth and width > height:
+        if self.autorotation and width > pwidth and width > height:
             pt = PersistentTemporaryFile(suffix='.'+encoding.lower())
             try:
                 im = im.rotate(90)
