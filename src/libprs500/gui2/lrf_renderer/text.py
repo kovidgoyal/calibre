@@ -460,7 +460,13 @@ class Line(QGraphicsItem):
             self.current_width = self.line_length
     
     def finalize(self, baselineskip, linespace, vdebug):
-        if self.current_width >= 0.85 * self.line_length:
+        if self.current_link is not None:
+            self.end_link()
+        
+        # We justify is line is small and it doesn't have links in it
+        # If it has links, justification would cause the boundingrect of the link to 
+        # be too small
+        if self.current_width >= 0.85 * self.line_length and len(self.links) == 0:
             self.justify()
             
         self.width = float(self.current_width)
@@ -470,8 +476,6 @@ class Line(QGraphicsItem):
         
         self.vdebug = vdebug
         
-        if self.current_link is not None:
-            self.end_link()
         for link in self.links:
             Link(self, *link)
             
