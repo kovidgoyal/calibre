@@ -281,6 +281,8 @@ class PRS505(Device):
             raise PathError('File already exists: '+path)
         dest = open(path, 'wb')
         shutil.copyfileobj(infile, dest, 10*1024*1024)
+        dest.flush()
+        dest.close()
         
     def rm(self, path, end_session=True):
         path = self.munge_path(path)
