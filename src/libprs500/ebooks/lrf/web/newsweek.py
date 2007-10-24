@@ -20,30 +20,33 @@ from libprs500.ebooks.lrf.web import build_index, parse_feeds
 from libprs500 import __appname__, iswindows, browser
 
 RSS_FEEDS = [
-             ('Cover Story', 'http://feeds.newsweek.com/CoverStory'),
+             ('Top News', 'http://feeds.newsweek.com/newsweek/TopNews',),
              ('Periscope', 'http://feeds.newsweek.com/newsweek/periscope'),
+             ('Politics', 'http://feeds.newsweek.com/headlines/politics'),
+             ('Health', 'http://feeds.newsweek.com/headlines/health'),
+             ('Business', 'http://feeds.newsweek.com/headlines/business'),
+             ('Science and Technology', 'http://feeds.newsweek.com/headlines/technology/science'),
              ('National News', 'http://feeds.newsweek.com/newsweek/NationalNews'),
              ('World News', 'http://feeds.newsweek.com/newsweek/WorldNews'),
              ('Iraq', 'http://feeds.newsweek.com/newsweek/iraq'),
-             ('Health', 'http://feeds.newsweek.com/sections/health'),
              ('Society', 'http://feeds.newsweek.com/newsweek/society'),
-             ('Business', 'http://feeds.newsweek.com/newsweek/business'),
-             ('Science and Technology', 'http://feeds.newsweek.com/newsweek/TechnologyScience'),
              ('Entertainment', 'http://feeds.newsweek.com/newsweek/entertainment'),
-             ('Tip Sheet', 'http://feeds.newsweek.com/newsweek/TipSheet/Highlights'),
              ]
 
 
 def print_version(url):
     if '?' in url:
         url = url[:url.index('?')]
-    return url + 'print/1/displaymode/1098/'
+    if not url.endswith('/'):
+        url += '/'
+    return url + 'output/print'
 
 def initialize(profile):
     profile['temp dir'] = tempfile.mkdtemp(prefix=__appname__+'_')
     profile['browser'] = browser()
     articles = parse_feeds(RSS_FEEDS, profile['browser'], print_version, 
-                           max_articles_per_feed=20, html_description=True)
+                           max_articles_per_feed=20, oldest_article=15, 
+                           html_description=True)
     index = build_index('Newsweek', articles, profile['temp dir'])
     profile['url'] = 'file:'+ ('' if iswindows else '//') + index
     profile['timefmt'] = ' [%d %b %Y]'

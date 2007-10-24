@@ -82,7 +82,6 @@ profiles = {
             'newsweek' : {
                           'initialize'          : newsweek_initialize,
                           'finalize'            : newsweek_finalize,
-                          'no_stylesheets'      : True,
                           'preprocess_regexps'  :
                          [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
                           [

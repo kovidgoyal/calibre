@@ -19,6 +19,21 @@ from libprs500 import iswindows
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
 from htmlentitydefs import name2codepoint
 
+DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
+MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
+FULL_MONTH_MAP = dict(January=1, February=2, March=3, April=4, May=5, June=6, 
+                      July=7, August=8, September=9, October=10, 
+                      November=11, December=12)
+
+def strptime(src):
+    src = src.strip().split()
+    src[0] = str(DAY_MAP[src[0][:-1]])+','
+    try:
+        src[2] = str(MONTH_MAP[src[2]])
+    except KeyError:
+        src[2] = str(FULL_MONTH_MAP[src[2]])
+    return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
+
 def process_html_description(tag):
         src = '\n'.join(tag.contents)
         replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
@@ -41,7 +56,12 @@ def parse_feeds(feeds, browser, print_version,
     '''
     articles = {}
     for title, url in feeds:
-        src = browser.open(url).read()
+        try:
+            src = browser.open(url).read()
+        except Exception, err:
+            print 'Could not fetch feed: %s\nError: %s'%(url, err)
+            continue
+        
         articles[title] = []
         soup = BeautifulStoneSoup(src)
         for item in soup.findAll('item'):
@@ -53,14 +73,14 @@ def parse_feeds(feeds, browser, print_version,
                 d = { 
                     'title'    : item.find('title').string,                 
                     'url'      : print_version(item.find('guid').string),
-                    'timestamp': calendar.timegm(time.strptime(pubdate, 
-                                                    '%a, %d %b %Y %H:%M:%S %Z')),
+                    'timestamp': calendar.timegm(strptime(pubdate)),
                     'date'     : pubdate
                     }
                 delta = time.time() - d['timestamp']
                 if delta > oldest_article*3600*24:
-                    continue 
-            except:
+                    continue
+                 
+            except Exception, err:
                 continue
             try:
                 desc = item.find('description')
@@ -72,6 +92,8 @@ def parse_feeds(feeds, browser, print_version,
         articles[title][max_articles_per_feed:] = []
         for item in articles[title]:
             item.pop('timestamp')
+        if not articles[title]:
+            articles.pop(title)
     return articles
 
 
