@@ -163,7 +163,7 @@ class PRS505(Device):
             fstype = mmo.GetPropertyString('volume.fstype', dbus_interface='org.freedesktop.Hal.Device')
             if is_mounted:
                 return str(mount_point)
-            mmo.Mount(label, fstype, ['umask=077', 'uid='+str(os.getuid())],# 'gid='+str(os.getgid())], 
+            mmo.Mount(label, fstype, ['umask=077', 'uid='+str(os.getuid()), 'sync'], 
                       dbus_interface='org.freedesktop.Hal.Device.Volume')
             return os.path.normpath('/media/'+label)+'/'
         
