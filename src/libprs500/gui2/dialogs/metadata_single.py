@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.gui2.dialogs.fetch_metadata import FetchMetadata
 ''' 
 The dialog used to edit meta information for a book as well as 
 add/remove formats
@@ -137,8 +138,14 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                                                     self.add_format)
         QObject.connect(self.remove_format_button, SIGNAL("clicked(bool)"), \
                                                 self.remove_format)
+        QObject.connect(self.fetch_metadata_button, SIGNAL('clicked()'), 
+                        self.fetch_metadata)
         
         self.title.setText(db.title(row))
+        isbn = db.isbn(self.id)
+        if not isbn:
+            isbn = ''
+        self.isbn.setText(isbn)
         au = self.db.authors(row)
         self.authors.setText(au if au else '')
         aus = self.db.author_sort(row)
@@ -188,6 +195,25 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
 
         self.exec_()
 
+    def fetch_metadata(self):
+        isbn   = qstring_to_unicode(self.isbn.text())
+        title  = qstring_to_unicode(self.title.text())
+        author = qstring_to_unicode(self.authors.text()).split(',')[0]
+        publisher = qstring_to_unicode(self.publisher.text()) 
+        if isbn or title or author or publisher:
+            d = FetchMetadata(self, isbn, title, author, publisher)
+            d.exec_()
+            if d.result() == QDialog.Accepted:
+                book = d.selected_book()
+                if book:
+                    self.title.setText(book.title)
+                    self.authors.setText(', '.join(book.authors))
+                    if book.author_sort: self.author_sort.setText(book.author_sort)
+                    self.publisher.setText(book.publisher)
+                    self.isbn.setText(book.isbn)
+        else:
+            error_dialog(self, 'Cannot fetch metadata', 'You must specify at least one of ISBN, Title, Authors or Publisher')
+             
     def enable_series_index(self, *args):
         self.series_index.setEnabled(True)
     
@@ -201,6 +227,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         aus = qstring_to_unicode(self.author_sort.text())
         if aus:
             self.db.set_author_sort(self.id, aus)
+        self.db.set_isbn(self.id, qstring_to_unicode(self.isbn.text()))
         self.db.set_rating(self.id, 2*self.rating.value())
         self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.text()))
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','))

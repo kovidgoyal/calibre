@@ -56,14 +56,18 @@ class ISBNDBMetadata(MetaInformation):
         self.title = book.find('titlelong').string
         if not self.title:
             self.title = book.find('title').string
-        self.title = self.title.strip
-        au = book.find('authorstext').string
+        self.title = unicode(self.title).strip()
+        au = unicode(book.find('authorstext').string).strip()
         temp = au.split(',')
         self.authors = []
         for au in temp:
+            if not au: continue
             self.authors.extend([a.strip() for a in au.split('&amp;')])
             
-        self.author_sort = book.find('authors').find('person').string
+        try:
+            self.author_sort = book.find('authors').find('person').string
+        except:
+            pass
         self.publisher = book.find('publishertext').string
         
 

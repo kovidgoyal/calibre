@@ -62,12 +62,13 @@ class MetaInformation(object):
         
     def __str__(self):
         ans = ''
-        ans += 'Title   : ' + unicode(self.title) + '\n'
-        ans += 'Author  : ' + (', '.join(self.authors) if self.authors is not None else 'None')
-        ans += ((' (' + self.author_sort + ')') if self.author_sort else '') + '\n' 
-        ans += 'Category: ' + unicode(self.category) + '\n'
-        ans += 'Comments: ' + unicode(self.comments) + '\n'
-        ans += 'ISBN    : '     + unicode(self.isbn) + '\n'
+        ans += 'Title    : ' + unicode(self.title) + '\n'
+        ans += 'Author   : ' + (', '.join(self.authors) if self.authors is not None else 'None')
+        ans += ((' (' + self.author_sort + ')') if self.author_sort else '') + '\n'
+        ans += 'Publisher: '+ unicode(self.publisher) + '\n' 
+        ans += 'Category : ' + unicode(self.category) + '\n'
+        ans += 'Comments : ' + unicode(self.comments) + '\n'
+        ans += 'ISBN     : '     + unicode(self.isbn) + '\n'
         return ans.strip()
     
     def __nonzero__(self):

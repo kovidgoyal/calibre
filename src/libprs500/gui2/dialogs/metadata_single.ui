@@ -218,6 +218,22 @@
             </property>
            </widget>
           </item>
+          <item row="8" column="1" >
+           <widget class="QLineEdit" name="isbn" />
+          </item>
+          <item row="8" column="0" >
+           <widget class="QLabel" name="label_9" >
+            <property name="text" >
+             <string>IS&amp;BN:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>isbn</cstring>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -231,6 +247,13 @@
            <widget class="QTextEdit" name="comments" />
           </item>
          </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="fetch_metadata_button" >
+         <property name="text" >
+          <string>Fetch metadata from server</string>
+         </property>
         </widget>
        </item>
       </layout>
@@ -503,8 +526,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>248</x>
-     <y>254</y>
+     <x>257</x>
+     <y>646</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -519,8 +542,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
+     <x>325</x>
+     <y>646</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>

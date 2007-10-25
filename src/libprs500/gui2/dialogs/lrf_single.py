@@ -73,7 +73,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         except ValueError:
             pass        
         if not formats:
-            d = error_dialog(window, 'No available formats', 'Cannot convert %s as this book has no supported formats'%(self.gui_title.text()))
+            d = error_dialog(window, 'No available formats', 
+                    'Cannot convert %s as this book has no supported formats'%(self.gui_title.text()))
             d.exec_()
         
         if len(formats) > 1:

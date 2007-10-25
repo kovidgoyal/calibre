@@ -653,7 +653,17 @@ class LibraryDatabase(object):
                                 )
         conn.execute('pragma user_version=2')
         conn.commit()
-    
+
+    @staticmethod
+    def upgrade_version2(conn):
+        conn.executescript(
+'''
+/***** Add ISBN column ******/
+ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
+''')
+        conn.execute('pragma user_version=3')
+        conn.commit()
+
     def __del__(self):
         global _lock_file
         import os
@@ -669,6 +679,8 @@ class LibraryDatabase(object):
             LibraryDatabase.create_version1(self.conn)
         if self.user_version == 1: # Upgrade to 2
             LibraryDatabase.upgrade_version1(self.conn)
+        if self.user_version == 2: # Upgrade to 3
+            LibraryDatabase.upgrade_version2(self.conn)
         
     @apply
     def user_version():
@@ -739,6 +751,9 @@ class LibraryDatabase(object):
         if not index_is_id:
             return self.data[index][2]
         return self.conn.execute('SELECT authors FROM meta WHERE id=?',(index,)).fetchone()[0]        
+    
+    def isbn(self, id):
+        return self.conn.execute('SELECT isbn FROM books WHERE id=?',(id,)).fetchone()[0]
     
     def author_sort(self, index):
         id = self.id(index)
@@ -907,6 +922,10 @@ class LibraryDatabase(object):
         if not title:
             return
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
+        self.conn.commit()
+        
+    def set_isbn(self, id, isbn):
+        self.conn.execute('UPDATE books SET isbn=? WHERE id=?', (isbn, id))
         self.conn.commit()
         
     def set_publisher(self, id, publisher):
