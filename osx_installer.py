@@ -103,7 +103,7 @@ _check_symlinks_prescript()
         else:
             debug = 0
         return find_modules(
-            scripts=scripts['console'] + scripts['gui'][1:],
+            scripts=scripts['console'] + scripts['gui'],
             includes=list(self.includes) + main_modules['console'],
             packages=self.packages,
             excludes=self.excludes,
