@@ -384,6 +384,8 @@ class Main(MainWindow, Ui_MainWindow):
         Edit metadata of selected books in library individually.
         '''
         rows = self.library_view.selectionModel().selectedRows()
+        if len(rows) > 1:
+            return self.edit_bulk_metadata(checked)
         if not rows or len(rows) == 0:
             d = error_dialog(self, 'Cannot edit metadata', 'No books selected')
             d.exec_()
