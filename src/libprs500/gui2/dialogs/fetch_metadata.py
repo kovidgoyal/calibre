@@ -16,6 +16,8 @@
 GUI for fetching metadata from servers.
 '''
 
+import logging, cStringIO
+
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QSettings, QVariant, \
                          QAbstractTableModel, QCoreApplication
 from PyQt4.QtGui import QDialog, QItemSelectionModel
@@ -86,7 +88,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.tlabel.setText(self.tlabel.text().arg(title if title else 'Unknown'))
         self.isbn = isbn
         self.title = title
-        self.author = author
+        self.author = author.strip()
         self.publisher = publisher
         
     def fetch_metadata(self):
@@ -103,7 +105,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             args.extend(('--isbn', self.isbn))
         if self.title:
             args.extend(('--title', self.title))
-        if self.author:
+        if self.author and not self.author == 'Unknown':
             args.extend(('--author', self.author))
         #if self.publisher:
         #    args.extend(('--publisher', self.publisher))
@@ -116,7 +118,15 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         parser = option_parser()
         opts, args = parser.parse_args(args)
         
-        books = create_books(opts, args)
+        self.logger = logging.getLogger('Job #'+str(id))
+        self.logger.setLevel(logging.DEBUG)
+        self.log_dest = cStringIO.StringIO()
+        handler = logging.StreamHandler(self.log_dest)
+        handler.setLevel(logging.DEBUG)
+        handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
+        self.logger.addHandler(handler)
+        
+        books = create_books(opts, args, self.logger)
         
         self.model = Matches(books)
         
@@ -124,12 +134,15 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.model.reset()
         self.matches.selectionModel().select(self.model.index(0, 0), 
                               QItemSelectionModel.Select | QItemSelectionModel.Rows)
+        self.matches.setCurrentIndex(self.model.index(0, 0))
         self.fetch.setEnabled(True)
         self.unsetCursor()
+        self.matches.resizeColumnsToContents()
 
 
     def selected_book(self):
         try:
+            print self.matches.currentIndex().row()
             return self.matches.model().matches[self.matches.currentIndex().row()]
         except:
             return None
