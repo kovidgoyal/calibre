@@ -109,7 +109,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         #    args.extend(('--publisher', self.publisher))
         
         self.fetch.setEnabled(False)
-        
+        self.setCursor(Qt.WaitCursor)
         QCoreApplication.instance().processEvents()
         
         args.append(key)
@@ -125,7 +125,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.matches.selectionModel().select(self.model.index(0, 0), 
                               QItemSelectionModel.Select | QItemSelectionModel.Rows)
         self.fetch.setEnabled(True)
-        
+        self.unsetCursor()
 
 
     def selected_book(self):

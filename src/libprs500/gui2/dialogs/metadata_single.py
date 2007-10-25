@@ -18,7 +18,7 @@ add/remove formats
 '''
 import os, urllib
 
-from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication
+from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 
@@ -204,6 +204,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         isbn   = qstring_to_unicode(self.isbn.text())
         if isbn:
             self.fetch_cover_button.setEnabled(False)
+            self.setCursor(Qt.WaitCursor)
             QCoreApplication.instance().processEvents()
             try:
                 src = urllib.urlopen('http://www.librarything.com/isbn/'+isbn).read()
@@ -222,6 +223,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 error_dialog(self, 'Could not fetch cover', 'Could not fetch cover. Error %s'%(err,)).exec_()
             finally:
                 self.fetch_cover_button.setEnabled(True)
+                self.unsetCursor()
         else:
             error_dialog(self, 'Cannot fetch cover', 'You must specify the ISBN identifier for this book.').exec_()
                 
