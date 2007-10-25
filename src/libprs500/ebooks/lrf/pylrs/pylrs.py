@@ -1294,8 +1294,7 @@ class Page(LrsObject, LrsContainer):
                     settingName not in PageStyle.alsoAllow:
                 raise LrsError, "setting %s not allowed on Page" % settingName
 
-        # TODO: should these be copied?
-        self.settings = settings
+        self.settings = settings.copy()
 
 
     def appendReferencedObjects(self, parent):
@@ -1708,8 +1707,6 @@ class NoBR(LrsSimpleChar1, LrsTextTag):
     def __init__(self, text=None):
         LrsTextTag.__init__(self, text, [LrsSimpleChar1])
 
-
-# TODO: Plot, Image
 
 class Space(LrsSimpleChar1, LrsContainer):
     def __init__(self, xsize=0, x=0):
