@@ -12,20 +12,21 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.gui2.dialogs.fetch_metadata import FetchMetadata
 ''' 
 The dialog used to edit meta information for a book as well as 
 add/remove formats
 '''
-import os
+import os, urllib
 
-from PyQt4.QtCore import SIGNAL, QObject
+from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 
 from libprs500.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
                            choose_files, pixmap_to_data, BOOK_EXTENSIONS, choose_images
 from libprs500.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
+from libprs500.gui2.dialogs.fetch_metadata import FetchMetadata
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, path=None):
@@ -141,6 +142,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.fetch_metadata_button, SIGNAL('clicked()'), 
                         self.fetch_metadata)
         
+        QObject.connect(self.fetch_cover_button, SIGNAL('clicked()'), 
+                        self.fetch_cover)
+        
         self.title.setText(db.title(row))
         isbn = db.isbn(self.id)
         if not isbn:
@@ -195,6 +199,33 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
 
         self.exec_()
 
+    
+    def fetch_cover(self):
+        isbn   = qstring_to_unicode(self.isbn.text())
+        if isbn:
+            self.fetch_cover_button.setEnabled(False)
+            QCoreApplication.instance().processEvents()
+            try:
+                src = urllib.urlopen('http://www.librarything.com/isbn/'+isbn).read()
+                s = BeautifulSoup(src)
+                url = s.find('td', attrs={'class':'left'}).find('img')['src']
+                cover = urllib.urlopen(url).read()
+                pix = QPixmap()
+                pix.loadFromData(cover)
+                if pix.isNull():
+                    error_dialog(self.window, url + " is not a valid picture").exec_()
+                else:
+                    self.cover.setPixmap(pix)
+                    self.cover_changed = True
+                    self.cpixmap = pix   
+            except Exception, err:
+                error_dialog(self, 'Could not fetch cover', 'Could not fetch cover. Error %s'%(err,)).exec_()
+            finally:
+                self.fetch_cover_button.setEnabled(True)
+        else:
+            error_dialog(self, 'Cannot fetch cover', 'You must specify the ISBN identifier for this book.').exec_()
+                
+    
     def fetch_metadata(self):
         isbn   = qstring_to_unicode(self.isbn.text())
         title  = qstring_to_unicode(self.title.text())
