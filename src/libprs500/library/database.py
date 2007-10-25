@@ -1060,7 +1060,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
         
-    def export_to_dir(self, dir, indices):
+    def export_to_dir(self, dir, indices, byauthor=False):
         by_author = {}
         for index in indices:
             id = self.id(index)
@@ -1086,7 +1086,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     os.mkdir(tpath)
                 for fmt in self.formats(idx).split(','):
                     data = self.format(idx, fmt)
-                    f = open(os.path.join(tpath, title + ' - ' + au +'_'+id+'.'+fmt.lower()), 'wb')
+                    name = au + ' - ' + title if byauthor else title + ' - ' + au
+                    f = open(os.path.join(tpath, name +'_'+id+'.'+fmt.lower()), 'wb')
                     f.write(data)
                     
 if __name__ == '__main__':

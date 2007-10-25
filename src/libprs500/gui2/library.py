@@ -127,7 +127,7 @@ class BooksModel(QAbstractTableModel):
         
     def save_to_disk(self, rows, path):
         rows = [row.row() for row in rows]
-        self.db.export_to_dir(path, rows)
+        self.db.export_to_dir(path, rows, self.sorted_on[0] == 1)
         
     def delete_books(self, indices):
         ids = [ self.id(i) for i in indices ]
