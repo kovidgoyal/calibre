@@ -173,6 +173,7 @@ class PRS505(Device):
             self._card_prefix = conditional_mount(sc)+os.sep
     
     def open(self):
+        time.sleep(2)
         try:
             if islinux:
                 self.open_linux()
