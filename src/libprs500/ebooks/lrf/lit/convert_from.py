@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.ebooks.metadata.opf import OPFReader
 
 import os, sys, shutil, glob, logging
 from tempfile import mkdtemp
@@ -56,30 +57,39 @@ def process_file(path, options, logger=None):
     lit = os.path.abspath(os.path.expanduser(path))
     tdir = generate_html(lit, logger)
     try:
-        l = glob.glob(os.path.join(tdir, '*toc*.htm*'))
-        if not l:
-            l = glob.glob(os.path.join(tdir, '*top*.htm*'))
-        if not l:
-            l = glob.glob(os.path.join(tdir, '*contents*.htm*'))
-        if not l:
-            l = glob.glob(os.path.join(tdir, '*.htm*'))
+        opf = glob.glob(os.path.join(tdir, '*.opf'))
+        if opf:
+            path = opf[0]
+            opf = OPFReader(path)
+            htmlfile = opf.spine.items().next().href
+            print htmlfile
+            options.opf = path
+        else:    
+            l = glob.glob(os.path.join(tdir, '*toc*.htm*'))
             if not l:
-                l = glob.glob(os.path.join(tdir, '*.txt*')) # Some lit file apparently have .txt files in them
+                l = glob.glob(os.path.join(tdir, '*top*.htm*'))
+            if not l:
+                l = glob.glob(os.path.join(tdir, '*contents*.htm*'))
+            if not l:
+                l = glob.glob(os.path.join(tdir, '*.htm*'))
                 if not l:
-                    raise ConversionError('Conversion of lit to html failed. Cannot find html file.')
-            maxsize, htmlfile = 0, None
-            for c in l:
-                sz = os.path.getsize(c)
-                if sz > maxsize:
-                    maxsize, htmlfile = sz, c
-        else:
-            htmlfile = l[0]
+                    l = glob.glob(os.path.join(tdir, '*.txt*')) # Some lit file apparently have .txt files in them
+                    if not l:
+                        raise ConversionError('Conversion of lit to html failed. Cannot find html file.')
+                maxsize, htmlfile = 0, None
+                for c in l:
+                    sz = os.path.getsize(c)
+                    if sz > maxsize:
+                        maxsize, htmlfile = sz, c
+            else:
+                htmlfile = l[0]
         if not options.output:
             ext = '.lrs' if options.lrs else '.lrf'
             options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
         options.output = os.path.abspath(os.path.expanduser(options.output))
         options.minimum_indent = 100
         options.use_spine = True
+        
         html_process_file(htmlfile, options, logger=logger)
     finally:
         shutil.rmtree(tdir)

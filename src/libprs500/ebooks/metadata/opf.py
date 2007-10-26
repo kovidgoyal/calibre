@@ -95,10 +95,17 @@ class OPFReader(MetaInformation):
     ENTITY_PATTERN = re.compile(r'&(\S+);')
     
     def __init__(self, stream, dir=os.getcwd()):
+        manage = False
+        if not hasattr(stream, 'read'):
+            manage = True
+            dir = os.path.dirname(stream)
+            stream = open(stream, 'rb')
         self.default_title = stream.name if hasattr(stream, 'name') else 'Unknown' 
         if hasattr(stream, 'seek'):
             stream.seek(0)
         self.soup = BeautifulStoneSoup(stream.read())
+        if manage:
+            stream.close()
         self.series = self.series_index = self.rating = None
         self.manifest = Manifest(self.soup, dir)
         self.spine = Spine(self.soup, self.manifest)

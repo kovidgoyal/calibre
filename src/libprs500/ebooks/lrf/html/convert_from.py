@@ -1650,7 +1650,6 @@ def process_file(path, options, logger=None):
                                      re.compile(fpba[2], re.IGNORECASE)]
     if not hasattr(options, 'anchor_ids'):
         options.anchor_ids = True
-    options.use_spine = options.use_spine and options.toc.toc is not None
     files = options.spine if options.use_spine else [path]
     conv = HTMLConverter(book, fonts, options, logger, files)
     if options.use_spine:
@@ -1667,10 +1666,13 @@ def process_file(path, options, logger=None):
     return oname
     
 def try_opf(path, options, logger):
-    try:
-        opf = glob.glob(os.path.join(os.path.dirname(path),'*.opf'))[0]
-    except IndexError:
-        return
+    if hasattr(options, 'opf'):
+        opf = options.opf
+    else:
+        try:
+            opf = glob.glob(os.path.join(os.path.dirname(path),'*.opf'))[0]
+        except IndexError:
+            return
     dirpath = os.path.dirname(os.path.abspath(opf))
     opf = OPFReader(open(opf, 'rb'), dirpath)    
     try:
