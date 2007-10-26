@@ -327,28 +327,22 @@ class Table(object):
                 except IndexError:
                     continue                 
             widths[c] = max(cellwidths)
-        adjustable_columns, psum = [], 0.
+        
         min_widths = [self.minimum_width(i)+10 for i in xrange(cols)]
         for i in xrange(len(widths)):
             wp = self.width_percent(i)
             if wp >= 0.:
-                psum += wp
-                if psum > 100:
-                    adjustable_columns.append(i)
-                else:
-                    widths[i] = ceil((wp/100.) * (maxwidth - (cols-1)*self.colpad))
-                    if widths[i] < min_widths[i]:
-                        widths[i] = min_widths[i]
-            else:
-                adjustable_columns.append(i)
+                widths[i] = max(min_widths[i], ceil((wp/100.) * (maxwidth - (cols-1)*self.colpad)))
+            
                 
         itercount = 0
         
         while sum(widths) > maxwidth-((len(widths)-1)*self.colpad) and itercount < 100:
-            for i in adjustable_columns:
+            for i in range(cols):
                 widths[i] = ceil((95./100.)*widths[i]) if \
                     ceil((95./100.)*widths[i]) >= min_widths[i] else widths[i]
             itercount += 1
+        
         return [i+self.colpad for i in widths]
     
     def blocks(self, maxwidth, maxheight):       
