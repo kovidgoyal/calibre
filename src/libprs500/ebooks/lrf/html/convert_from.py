@@ -70,11 +70,12 @@ def fit_image(width, height, pwidth, pheight):
         corrf = pheight/float(height)
         width, height = floor(corrf*width), pheight                        
     if width > pwidth:
-        corrf = (pwidth)/float(width)
+        corrf = pwidth/float(width)
         width, height = pwidth, floor(corrf*height)
     if height > pheight:
         corrf = pheight/float(height)
-        width, height = floor(corrf*width), pheight                        
+        width, height = floor(corrf*width), pheight
+                            
     return scaled, int(width), int(height)                                    
         
 
@@ -207,6 +208,7 @@ class HTMLConverter(object):
         self.links   = deque() #: <a href=...> elements        
         self.processed_files = []
         self.extra_toc_entries = [] #: TOC entries gleaned from semantic information
+        self.image_memory = []
         self.id_counter = 0
         self.unused_target_blocks = [] #: Used to remove extra TextBlocks
         self.link_level  = 0    #: Current link level
@@ -834,7 +836,6 @@ class HTMLConverter(object):
             if fmt == 'JPG':
                 fmt = 'JPEG'
             return fmt
-        
         original_path = path
         if self.rotated_images.has_key(path):
             path = self.rotated_images[path].name
@@ -855,6 +856,7 @@ class HTMLConverter(object):
         
         def scale_image(width, height):
             pt = PersistentTemporaryFile(suffix='.'+encoding.lower())
+            self.image_memory.append(pt) # Neccessary, trust me ;-)
             try:
                 im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, encoding)
                 pt.close()
