@@ -328,6 +328,7 @@ class Table(object):
                     continue                 
             widths[c] = max(cellwidths)
         adjustable_columns, psum = [], 0.
+        min_widths = [self.minimum_width(i)+10 for i in xrange(cols)]
         for i in xrange(len(widths)):
             wp = self.width_percent(i)
             if wp >= 0.:
@@ -336,11 +337,13 @@ class Table(object):
                     adjustable_columns.append(i)
                 else:
                     widths[i] = ceil((wp/100.) * (maxwidth - (cols-1)*self.colpad))
+                    if widths[i] < min_widths[i]:
+                        widths[i] = min_widths[i]
             else:
                 adjustable_columns.append(i)
                 
         itercount = 0
-        min_widths = [self.minimum_width(i)+10 for i in xrange(cols)]
+        
         while sum(widths) > maxwidth-((len(widths)-1)*self.colpad) and itercount < 100:
             for i in adjustable_columns:
                 widths[i] = ceil((95./100.)*widths[i]) if \
