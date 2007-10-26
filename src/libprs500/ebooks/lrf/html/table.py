@@ -221,9 +221,15 @@ class Row(object):
         self.cells = []
         self.colpad = colpad
         cells = row.findAll(re.compile('td|th', re.IGNORECASE))
+        self.targets = []
         for cell in cells:
             ccss = conv.tag_css(cell, css)[0]
-            self.cells.append(Cell(conv, cell, ccss))        
+            self.cells.append(Cell(conv, cell, ccss))
+        for a in row.findAll('a'):
+            name = a['name'] if a.has_key('name') else a['id'] if a.has_key('id') else None
+            if name is not None:
+                self.targets.append(name.replace('#', ''))
+                                        
             
     def number_of_cells(self):
         '''Number of cells in this row. Respects colspan'''
@@ -284,14 +290,11 @@ class Table(object):
         self.rowpad = rowpad
         self.colpad = colpad
         rows = table.findAll('tr')
-        conv.anchor_to_previous = conv.current_page
         conv.in_table = True
         for row in rows:            
             rcss = conv.tag_css(row, css)[0]
             self.rows.append(Row(conv, row, rcss, colpad))
         conv.in_table = False
-        conv.anchor_to_previous = None
-        
             
     def number_of_columns(self):
         max = 0
@@ -373,7 +376,7 @@ class Table(object):
         if delta < 0: 
             delta = 0
         for r in range(len(cellmatrix)):
-            yield None, 0, heights[r], 0
+            yield None, 0, heights[r], 0, self.rows[r].targets
             for c in range(len(cellmatrix[r])):
                 cell = cellmatrix[r][c]
                 if not cell:
@@ -386,7 +389,7 @@ class Table(object):
                                     blockheight=cell.text_block_size(tb, width)[1],
                                     blockrule='horz-fixed')
                     
-                    yield tb, xpos[c], sypos, delta
+                    yield tb, xpos[c], sypos, delta, None
                     sypos += tb.blockStyle.attrs['blockheight']
                     
             

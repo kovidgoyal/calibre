@@ -220,9 +220,6 @@ class HTMLConverter(object):
         self.unindented_style = book.create_text_style(parindent=0)
         
                 
-        # Set by table processing code so that any <a name> within the table 
-        # point to the previous element
-        self.anchor_to_previous = None 
         self.in_table = False
         # List processing
         self.list_level = 0
@@ -1213,51 +1210,43 @@ class HTMLConverter(object):
         return False            
     
     def process_anchor(self, tag, tag_css, tag_pseudo_css):
-        key = 'name' if tag.has_key('name') else 'id'
-        name = tag[key].replace('#', '')
-        if self.anchor_to_previous:
+        if not self.in_table: # Anchors in tables are handled separately
+            key = 'name' if tag.has_key('name') else 'id'
+            name = tag[key].replace('#', '')
+            previous = self.current_block
             self.process_children(tag, tag_css, tag_pseudo_css)
-            for c in self.anchor_to_previous.contents:
-                if isinstance(c, (TextBlock, ImageBlock)):
-                    self.targets[self.target_prefix+tag[key]] = c
-                    return
-            tb = self.book.create_text_block()
-            tb.Paragraph(" ")
-            self.anchor_to_previous.append(tb)
-            self.targets[self.target_prefix+name] = tb                    
-            return
-        previous = self.current_block
-        self.process_children(tag, tag_css, tag_pseudo_css)
-        target = None
-        
-        if self.current_block == previous:
-            self.current_block.must_append = True
-            target = self.current_block
+            target = None
+            
+            if self.current_block == previous:
+                self.current_block.must_append = True
+                target = self.current_block
+            else:
+                found = False
+                for item in self.current_page.contents:
+                    if item == previous:
+                        found = True
+                        continue
+                    if found:
+                        target = item
+                        break
+                if target and not isinstance(target, (TextBlock, ImageBlock)):
+                    if isinstance(target, RuledLine):
+                        target = self.book.create_text_block(textStyle=self.current_block.textStyle,
+                                                     blockStyle=self.current_block.blockStyle)
+                        target.Paragraph(' ')
+                        self.current_page.append(target)
+                    else:
+                        target = BlockSpace()
+                        self.current_page.append(target)
+                if target == None:
+                    if self.current_block.has_text():
+                        target = self.current_block
+                    else:
+                        target = BlockSpace()
+                        self.current_page.append(target)
+            self.targets[self.target_prefix+name] = target
         else:
-            found = False
-            for item in self.current_page.contents:
-                if item == previous:
-                    found = True
-                    continue
-                if found:
-                    target = item
-                    break
-            if target and not isinstance(target, (TextBlock, ImageBlock)):
-                if isinstance(target, RuledLine):
-                    target = self.book.create_text_block(textStyle=self.current_block.textStyle,
-                                                 blockStyle=self.current_block.blockStyle)
-                    target.Paragraph(' ')
-                    self.current_page.append(target)
-                else:
-                    target = BlockSpace()
-                    self.current_page.append(target)
-            if target == None:
-                if self.current_block.has_text():
-                    target = self.current_block
-                else:
-                    target = BlockSpace()
-                    self.current_page.append(target)
-        self.targets[self.target_prefix+name] = target
+            self.process_children(tag, tag_css, tag_pseudo_css)
 
     def parse_tag(self, tag, parent_css):
         try:
@@ -1540,12 +1529,14 @@ class HTMLConverter(object):
         table = Table(self, tag, tag_css, rowpad=rowpad, colpad=10)
         canvases = []
         ps = self.current_page.pageStyle.attrs
-        for block, xpos, ypos, delta in table.blocks(int(ps['textwidth']), int(ps['textheight'])):
+        for block, xpos, ypos, delta, targets in table.blocks(int(ps['textwidth']), int(ps['textheight'])):
             if not block:
                 if ypos > int(ps['textheight']):
-                    raise Exception, 'Table has cell that is too large' 
+                    raise Exception, 'Table has cell that is too large'
                 canvases.append(Canvas(int(self.current_page.pageStyle.attrs['textwidth']), ypos+rowpad,
                         blockrule='block-fixed'))
+                for name in targets:
+                    self.targets[self.target_prefix+name] = canvases[-1]
             else:
                 canvases[-1].put_object(block, xpos + int(delta/2.), ypos)
             
