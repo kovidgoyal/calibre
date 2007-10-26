@@ -249,11 +249,16 @@ class HTMLConverter(object):
                 update_css(npcss, self.override_pcss)
         
         paths = [os.path.normpath(os.path.abspath(path)) for path in paths]
-        self.base_files = copy.copy(paths)
+        
+        
         while len(paths) > 0 and self.link_level <= self.link_levels:
             for path in paths:
+                if path in self.processed_files:
+                    continue
                 try:
                     self.add_file(path)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     if self.link_level == 0: # Die on errors in the first level
                         raise
@@ -487,11 +492,11 @@ class HTMLConverter(object):
     def create_link(self, children, tag):
         para = None
         for i in range(len(children)-1, -1, -1):
-            if isinstance(children[i], Span):
+            if isinstance(children[i], (Span, EmpLine)):
                 para = children[i]
                 break
         if para is None:
-            raise ConversionError('Failed to parse link %s'%(tag,))
+            raise ConversionError('Failed to parse link %s %s'%(tag, children))
         text = self.get_text(tag, 1000)
         if not text:
             text = 'Link'
