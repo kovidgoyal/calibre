@@ -620,6 +620,8 @@ class Text(LRFStream):
         self.content.append(self.__class__.TextTag('P'))
         
     def close_containers(self, start=0):
+        if len(self.content) == 0:
+            return
         open_containers = 0
         if len(self.content) > 0 and isinstance(self.content[-1], self.__class__.Span):
             self.content.pop()
