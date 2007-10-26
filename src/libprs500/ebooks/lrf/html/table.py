@@ -225,7 +225,7 @@ class Row(object):
         for cell in cells:
             ccss = conv.tag_css(cell, css)[0]
             self.cells.append(Cell(conv, cell, ccss))
-        for a in row.findAll('a'):
+        for a in row.findAll(id=True) + row.findAll(name=True):
             name = a['name'] if a.has_key('name') else a['id'] if a.has_key('id') else None
             if name is not None:
                 self.targets.append(name.replace('#', ''))
