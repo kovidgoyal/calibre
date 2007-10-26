@@ -48,11 +48,11 @@ __version__ = "3.0.4"
 __copyright__ = "Copyright (c) 2004-2007 Leonard Richardson"
 __license__ = "PSF"
 
-from sgmllib import SGMLParser, SGMLParseError
+from libprs500.ebooks.sgmllib import SGMLParser, SGMLParseError
 import codecs
 import types
 import re
-import sgmllib
+import libprs500.ebooks.sgmllib as sgmllib
 try:
   from htmlentitydefs import name2codepoint
 except ImportError:
