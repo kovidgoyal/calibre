@@ -992,7 +992,9 @@ class HTMLConverter(object):
         t['topskip'], t['footskip'], t['sidemargin'] = src[0], src[2], src[3]
         for key in ('topskip', 'footskip', 'sidemargin'):
             if t[key] is not None:
-                ans[key] = self.unit_convert(t[key])
+                val = self.unit_convert(t[key])
+                if val is not None:
+                    ans[key] = val
                 
         return ans
     
