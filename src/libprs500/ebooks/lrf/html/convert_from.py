@@ -409,7 +409,8 @@ class HTMLConverter(object):
                 # however we need to as we don't do alignment at a block level.
                 # float is removed by the process_alignment function.
                 if chk.startswith('font') or chk == 'text-align' or \
-                chk == 'float' or chk == 'white-space' or chk == 'color':
+                chk == 'float' or chk == 'white-space' or chk == 'color' or \
+                chk == 'line-height':
                     temp[key] = pcss[key]
             prop.update(temp)
             
@@ -995,7 +996,7 @@ class HTMLConverter(object):
                 val = self.unit_convert(t[key])
                 if val is not None:
                     ans[key] = val
-                
+        
         return ans
     
     def font_properties(self, css):
@@ -1130,7 +1131,7 @@ class HTMLConverter(object):
         t['baselineskip'] = fs + 20
         return t, key, variant
         
-    def unit_convert(self, val, pts=False):
+    def unit_convert(self, val, pts=False, base_length='10pt'):
         '''
         Tries to convert html units in C{val} to pixels.
         Assumes: 1em = 100% = 10pts  
@@ -1147,7 +1148,7 @@ class HTMLConverter(object):
         if m is not None:
             unit = float(m.group(1))
             if m.group(2) == '%':
-                normal = self.unit_convert('10pt')
+                normal = self.unit_convert(base_length)
                 result = int((unit/100.0)*normal)
             elif m.group(2) == 'px':
                 result =  int(unit)
@@ -1179,6 +1180,12 @@ class HTMLConverter(object):
                 
         fp = self.font_properties(tag_css)[0]
         fp['parindent'] = indent
+        
+        if tag_css.has_key('line-height'):
+            val = self.unit_convert(tag_css['line-height'], pts=True, base_length='1pt')
+            if val is not None:
+                fp['linespace'] = val        
+        
         return fp
         
     
