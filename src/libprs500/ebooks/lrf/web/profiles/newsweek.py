@@ -12,14 +12,27 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-'''Logic to create a Newsweek HTML aggregator from RSS feeds'''
+'''
+Profile to download Newsweek
+'''
+from libprs500.ebooks.lrf.web.profiles import DefaultProfile
 
-import tempfile, os, shutil
-
-from libprs500.ebooks.lrf.web import build_index, parse_feeds
-from libprs500 import __appname__, iswindows, browser
-
-RSS_FEEDS = [
+class Newsweek(DefaultProfile):
+    
+    title = 'Newsweek'
+    max_recursions = 2
+    timefmt  = ' [%d %b %Y]'
+    html_description = True
+    oldest_article        = 15
+    
+        
+    def print_version(self, url):
+        if not url.endswith('/'):
+            url += '/'
+        return url + 'output/print'
+    
+    def get_feeds(self):
+        return [
              ('Top News', 'http://feeds.newsweek.com/newsweek/TopNews',),
              ('Periscope', 'http://feeds.newsweek.com/newsweek/periscope'),
              ('Politics', 'http://feeds.newsweek.com/headlines/politics'),
@@ -32,28 +45,5 @@ RSS_FEEDS = [
              ('Society', 'http://feeds.newsweek.com/newsweek/society'),
              ('Entertainment', 'http://feeds.newsweek.com/newsweek/entertainment'),
              ]
-
-
-def print_version(url):
-    if '?' in url:
-        url = url[:url.index('?')]
-    if not url.endswith('/'):
-        url += '/'
-    return url + 'output/print'
-
-def initialize(profile):
-    profile['temp dir'] = tempfile.mkdtemp(prefix=__appname__+'_')
-    profile['browser'] = browser()
-    articles = parse_feeds(RSS_FEEDS, profile['browser'], print_version, 
-                           max_articles_per_feed=20, oldest_article=15, 
-                           html_description=True)
-    index = build_index('Newsweek', articles, profile['temp dir'])
-    profile['url'] = 'file:'+ ('' if iswindows else '//') + index
-    profile['timefmt'] = ' [%d %b %Y]'
-    profile['max_recursions'] =  2
-    profile['title']          = 'Newsweek'
-    profile['url'] = 'file:'+ ('' if iswindows else '//') +index
-
-def finalize(profile):
-    if os.path.isdir(profile['temp dir']):
-        shutil.rmtree(profile['temp dir'])
+        
+        

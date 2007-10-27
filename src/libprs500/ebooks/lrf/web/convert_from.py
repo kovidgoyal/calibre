@@ -14,43 +14,48 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Convert known websites into LRF files.'''
 
-import sys, time, tempfile, shutil, os, logging
+import sys, time, tempfile, shutil, os, logging, imp, inspect
 from urlparse import urlsplit
 
 from libprs500 import __appname__, setup_cli_handlers, CommandLineError
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks.lrf.html.convert_from import process_file
-from libprs500.ebooks.lrf.web.profiles import profiles
+
 from libprs500.web.fetch.simple import create_fetcher
 
-available_profiles = profiles.keys()
-available_profiles.remove('default')
-available_profiles = ' '.join(available_profiles)
+from libprs500.ebooks.lrf.web.profiles import DefaultProfile
+from libprs500.ebooks.lrf.web.profiles.nytimes import NYTimes
+from libprs500.ebooks.lrf.web.profiles.bbc import BBC
+from libprs500.ebooks.lrf.web.profiles.newsweek import Newsweek
+
+builtin_profiles   = [NYTimes, BBC, Newsweek]
+available_profiles = [i.__module__.rpartition('.')[2] for i in builtin_profiles] 
 
 def option_parser():
     parser = lrf_option_parser(usage='''%prog [options] website_profile\n\n'''
                           '''%prog downloads a site from the web and converts it '''
                           '''into a LRF file for use with the SONY Reader. '''
-                          '''website_profile is one of '''+available_profiles+\
+                          '''website_profile is one of '''+str(available_profiles)+\
                           ''' If you specify a website_profile of default or do not specify '''
                           '''it, you must specify the --url option.'''
                           )
     
     parser.add_option('-u', '--url', dest='url', default=None,  
                       help='The URL to download. You only need to specify this if you are not specifying a website_profile.')
-    
+    parser.add_option('--user-profile', default=None,
+                      help='Path to a python file containing a user created profile.')
     parser.add_option('--username', dest='username', default=None, 
                       help='Specify the username to be used while downloading. Only used if the profile supports it.')
     parser.add_option('--password', dest='password', default=None,
                       help='Specify the password to be used while downloading. Only used if the profile supports it.')
-    parser.add_option('--timeout', help='Timeout in seconds to wait for a response from the server. Default: %(timeout)s s'%profiles['default'],
+    parser.add_option('--timeout', help='Timeout in seconds to wait for a response from the server. Default: %d s'%DefaultProfile.timeout,
                       default=None, type='int', dest='timeout')
-    parser.add_option('-r', '--max-recursions', help='Maximum number of levels to recurse i.e. depth of links to follow. Default %(max_recursions)s'%profiles['default'],
+    parser.add_option('-r', '--max-recursions', help='Maximum number of levels to recurse i.e. depth of links to follow. Default %d'%DefaultProfile.timeout,
                       default=None, type='int', dest='max_recursions')
     parser.add_option('-n', '--max-files', default=None, type='int', dest='max_files',
-                      help='The maximum number of files to download. This only applies to files from <a href> tags. Default is %(max_files)s'%profiles['default'])
+                      help='The maximum number of files to download. This only applies to files from <a href> tags. Default is %d'%DefaultProfile.timeout)
     parser.add_option('--delay', default=None, dest='delay', type='int',
-                      help='Minimum interval in seconds between consecutive fetches. Default is %(delay)s s'%profiles['default'])
+                      help='Minimum interval in seconds between consecutive fetches. Default is %d s'%DefaultProfile.timeout)
     parser.add_option('--dont-download-stylesheets', action='store_true', default=None,
                       help='Do not download CSS stylesheets.', dest='no_stylesheets')    
     
@@ -85,45 +90,58 @@ def process_profile(args, options, logger=None):
             level = logging.DEBUG if options.verbose else logging.INFO
             logger = logging.getLogger('web2lrf')
             setup_cli_handlers(logger, level)
+        index = -1
+        if options.user_profile is not None:
+            path = os.path.abspath(options.user_profile)
+            name = os.path.splitext(os.path.basename(path))[0]
+            res = imp.find_module(name, [os.path.dirname(path)])
+            module =  imp.load_module(name, *res)
+            classes = inspect.getmembers(module, 
+                lambda x : inspect.isclass(x) and issubclass(x, DefaultProfile)\
+                           and x is not DefaultProfile)
+            if not classes:
+                raise CommandLineError('Invalid user profile '+path)
+            builtin_profiles.append(classes[0][1])
+            available_profiles.append(name)
+            if len(args) < 2:
+                args.append('')
+            args[1] = name
         if len(args) == 2:
-            if not profiles.has_key(args[1]):
-                raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], profiles.keys()))
-        profile = profiles[args[1]] if len(args) == 2 else profiles['default']
-        profile['username'] = options.username
-        profile['password'] = options.password
-        if profile.has_key('initialize'):
-            profile['initialize'](profile)
-        if profile.has_key('browser'):
-            options.browser = profile['browser']
+            try:
+                index = available_profiles.index(args[1])
+            except ValueError:
+                raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], available_profiles))
+        profile = DefaultProfile if index == -1 else builtin_profiles[index]
+        profile = profile(options.username, options.password)
+        if profile.browser is not None:
+            options.browser = profile.browser
         
         for opt in ('url', 'timeout', 'max_recursions', 'max_files', 'delay', 'no_stylesheets'):
             val = getattr(options, opt)
             if val is None:
-                setattr(options, opt, profile[opt])
+                setattr(options, opt, getattr(profile, opt))
         
         if not options.url:
-            options.url = profile['url']            
+            options.url = profile.url            
         
         if not options.url:
             raise CommandLineError('You must specify the --url option or a profile from one of: %s'%(available_profiles,))
         
         if not options.title:
-            title = profile['title']
+            title = profile.title
             if not title:
                 title = urlsplit(options.url).netloc
-            options.title = title + time.strftime(profile['timefmt'], time.localtime())
+            options.title = title + time.strftime(profile.timefmt, time.localtime())
         
-        options.match_regexps += profile['match_regexps']
-        options.preprocess_regexps = profile['preprocess_regexps']
-        options.filter_regexps += profile['filter_regexps']
+        options.match_regexps += profile.match_regexps
+        options.preprocess_regexps = profile.preprocess_regexps
+        options.filter_regexps += profile.filter_regexps
         if len(args) == 2 and args[1] != 'default':
             options.anchor_ids = False
         
         htmlfile, tdir = fetch_website(options, logger)
         create_lrf(htmlfile, options, logger)
     finally:
-        if profile.has_key('finalize'):
-            profile['finalize'](profile)
         if tdir and os.path.isdir(tdir):
             shutil.rmtree(tdir)
     
