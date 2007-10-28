@@ -71,6 +71,7 @@ class Distribution(object):
         self.os = os
         self.img = os
         self.title = self.TITLEMAP[os]
+        self.app = __appname__
         self.is_generic = os == 'generic'
         offset = 0
         if not self.is_generic:
@@ -81,7 +82,7 @@ class Distribution(object):
             prefix = '' 
             if not self.as_root: prefix =  'sudo '
             cmd = prefix + self.INSTALLERS[index-2]
-            pre = ' \\\n '.ljust(len(cmd)+3)
+            pre = ' \\\n '.ljust(len(cmd)+4)
             for dep in self.DEPENDENCIES:
                 if len(cmd) > 70+offset:
                     offset += 70
@@ -169,7 +170,7 @@ class Download(Component):
             installer_name='Windows installer', 
             title='Download %s for windows'%(__appname__),
             compatibility='%s works on Windows XP and Windows Vista.'%(__appname__,),
-            path='/downloads/'+file,
+            path='/downloads/'+file, app=__appname__,
             note=Markup(\
 '''
 <p>If you are using the <b>SONY PRS-500</b> and %(appname)s does not detect your reader, read on:</p>
@@ -203,7 +204,7 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
             installer_name='OS X universal dmg', 
             title='Download %s for OS X'%(__appname__),
             compatibility='%s works on OS X Tiger and above.'%(__appname__,),
-            path='/downloads/'+file,
+            path='/downloads/'+file, app=__appname__,
             note=Markup(\
 '''
 <ol>
