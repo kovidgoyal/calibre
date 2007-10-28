@@ -43,7 +43,7 @@ def option_parser():
     parser.add_option('-u', '--url', dest='url', default=None,  
                       help='The URL to download. You only need to specify this if you are not specifying a website_profile.')
     parser.add_option('--user-profile', default=None,
-                      help='Path to a python file containing a user created profile.')
+                      help='Path to a python file containing a user created profile. For help visit http://libprs500.kovidgoyal.net/wiki/UserProfiles')
     parser.add_option('--username', dest='username', default=None, 
                       help='Specify the username to be used while downloading. Only used if the profile supports it.')
     parser.add_option('--password', dest='password', default=None,
