@@ -1,0 +1,24 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title>$title</title>
+  </head>
+
+  <body>
+    <div id="ctxtnav" class="nav"></div>
+
+    <div id="content" class="binary">
+      <h1>$title</h1>
+      <p>$compatibility</p>
+      <p><a style="border: 0px" href="$path">
+      <img width="50" height="50" style="border:1px red solid" src="${href.chrome('/dl/images/%s_logo.png'%(name,))}" /> $installer_name</a> (Version: $version)</p>
+      <h2>Note</h2>
+      <div class="note">$note</div>
+    </div>
+  </body>
+</html>

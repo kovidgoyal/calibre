@@ -1,0 +1,47 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="layout.html" />
+  <head>
+    <title>$title</title>
+  </head>
+
+  <body>
+    <div id="ctxtnav" class="nav"></div>
+
+    <div id="content" class="download">
+      <h1>$title</h1>
+      <div py:if="not distro.is_generic">
+        First verify that you have a sufficiently new installation of python
+        <pre class="wiki">python --version</pre> should return at least 2.5.1<br />
+        <br />
+        Run the following commands in a terminal <span py:if="distro.as_root">as root</span>
+        <span py:if="not distro.as_root">prefixed by <code>sudo</code></span>
+        <pre class="wiki">${distro.command}</pre>
+        <div py:if="distro.manual">
+            <h2>Manual steps</h2>
+            <ul>
+                ${distro.manual}
+            </ul>
+        </div>
+      </div>
+      <div py:if="distro.is_generic">
+        <ol>
+            <li>Make sure that your system has <code>python >= 2.5</code></li>
+            <li>Install the various dependencies listed below: Make sure that any python packages are installed into python2.5 (e.g. setuptools, python-imaging, PyQt4, fonttools, etc)</li>
+            <li>As root run the command <pre class="wiki">easy_install-2.5 -U TTFQuery libprs500 &amp;&amp; libprs500_postinstall</pre></li>
+        </ol>
+        <h2>Dependencies</h2>
+        <table border="1" cellpadding="10">
+            <tr><th style="font-weight:bold">Name</th><th style="font-weight:bold">Minimum version</th></tr>
+            <tr py:for="dep in distro.DEPENDENCIES">
+                <td>${dep[0]}</td><td>${dep[1]}</td>
+            </tr>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>
