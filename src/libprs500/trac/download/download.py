@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import re
+import re, glob
 from pkg_resources import resource_filename
 
 from trac.core import Component, implements
@@ -22,6 +22,9 @@ from trac.util import Markup
 
 
 __appname__ = 'libprs500'
+DOWNLOAD_DIR = '/var/www/vhosts/kovidgoyal.net/subdomains/libprs500/httpdocs/downloads'
+
+
 
 class OS(dict):
     """Dictionary with a default value for unknown keys."""
@@ -66,6 +69,7 @@ class Distribution(object):
     
     def __init__(self, os):
         self.os = os
+        self.img = os
         self.title = self.TITLEMAP[os]
         self.is_generic = os == 'generic'
         offset = 0
@@ -73,7 +77,7 @@ class Distribution(object):
             index = self.DISTRO_MAP[self.os]
             if os == 'debian':
                 self.as_root = True  
-            else: self.AS_ROOT[index-2]
+            else: self.as_root = self.AS_ROOT[index-2]
             prefix = '' 
             if not self.as_root: prefix =  'sudo '
             cmd = prefix + self.INSTALLERS[index-2]
@@ -92,6 +96,8 @@ class Distribution(object):
                 self.manual = Markup(self.MANUAL_MAP[os])
             except KeyError:
                 self.manual = None
+        else:
+            self.img = 'linux'
             
     
 class Download(Component):
@@ -149,17 +155,21 @@ class Download(Component):
                     font_size='xx-large')
         return 'download.html', data, None
     
-    def version_from_filename(self, file):
-        return re.search(r'\S+-(\d+\.\d+\.\d+)\.', file).group(1)
+    def version_from_filename(self):
+        try:
+            file = glob.glob(DOWNLOAD_DIR+'/*.exe')[0]
+            return re.search(r'\S+-(\d+\.\d+\.\d+)\.', file).group(1)
+        except:
+            return '0.0.0'
     
     def windows(self, req):
-        file = 'libprs500-0.4.14.exe'
-        version = self.version_from_filename(file) 
+        version = self.version_from_filename()
+        file = 'libprs500-%s.exe'%(version,)         
         data = dict(version = version, name='windows',
             installer_name='Windows installer', 
             title='Download %s for windows'%(__appname__),
             compatibility='%s works on Windows XP and Windows Vista.'%(__appname__,),
-            path='downloads/'+file,
+            path='/downloads/'+file,
             note=Markup(\
 '''
 <p>If you are using the <b>SONY PRS-500</b> and %(appname)s does not detect your reader, read on:</p>
@@ -187,13 +197,13 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
         return 'binary.html', data, None
     
     def osx(self, req):
-        file = 'libprs500-0.4.14.dmg'
-        version = self.version_from_filename(file) 
+        version = self.version_from_filename()
+        file = 'libprs500-%s.dmg'%(version,) 
         data = dict(version = version, name='osx',
             installer_name='OS X universal dmg', 
             title='Download %s for OS X'%(__appname__),
             compatibility='%s works on OS X Tiger and above.'%(__appname__,),
-            path='downloads/'+file,
+            path='/downloads/'+file,
             note=Markup(\
 '''
 <ol>

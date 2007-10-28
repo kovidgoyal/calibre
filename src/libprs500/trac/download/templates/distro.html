@@ -13,7 +13,7 @@
     <div id="ctxtnav" class="nav"></div>
 
     <div id="content" class="download">
-      <h1>$title</h1>
+      <h1><img src="${href.chrome('/dl/images/%s_logo.png'%(distro.img,))}" valign="middle" width="60" height="80"/> $title</h1>
       <div py:if="not distro.is_generic">
         First verify that you have a sufficiently new installation of python
         <pre class="wiki">python --version</pre> should return at least 2.5.1<br />
@@ -42,6 +42,15 @@
             </tr>
         </table>
       </div>
+      <h2>Linux post-installation</h2>
+      Connect the SONY Reader to the USB port. As root, test your installation by 
+      <pre class="wiki">prs500 info</pre>
+      <p>
+        This should return some miscellaneous information about your reader. If it works you're all set. 
+        On some distributions, you have to give non-root users access to the SONY Reader devices. Add yourself to the plugdev group (as root)
+        <pre class="wiki">gpasswd -a username plugdev</pre>
+      </p>
+      Now reboot and you're done!
     </div>
   </body>
 </html>
