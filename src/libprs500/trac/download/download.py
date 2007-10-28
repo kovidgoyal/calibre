@@ -23,6 +23,13 @@ from trac.util import Markup
 
 __appname__ = 'libprs500'
 
+class OS(dict):
+    """Dictionary with a default value for unknown keys."""
+    def __init__(self, dict):
+        self.update(dict)
+        if not dict.has_key('img'):
+            self['img'] = self['name']
+
 class Distribution(object):
     
     DEPENDENCIES = [
@@ -133,9 +140,9 @@ class Download(Component):
     
     def top_level(self, req):
         operating_systems = [
-            {'name' : 'windows', 'title' : 'Windows'},
-            {'name' : 'osx', 'title' : 'OS X'},
-            {'name' : 'linux', 'title' : 'Linux'},
+            OS({'name' : 'windows', 'title' : 'Windows'}),
+            OS({'name' : 'osx', 'title' : 'OS X'}),
+            OS({'name' : 'linux', 'title' : 'Linux'}),
         ]
         data = dict(title='Get ' + __appname__, 
                     operating_systems=operating_systems, width=200,
@@ -199,11 +206,11 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
     
     def linux(self, req):
         operating_systems = [
-            {'name' : 'gentoo', 'title': 'Gentoo'},
-            {'name' : 'ubuntu', 'title': 'Ubuntu'},
-            {'name' : 'fedora', 'title': 'Fedora'},
-            {'name' : 'debian', 'title': 'Debian'},
-            {'name' : 'generic','title': 'Generic', 'img':'linux'},
+            OS({'name' : 'gentoo', 'title': 'Gentoo'}),
+            OS({'name' : 'ubuntu', 'title': 'Ubuntu'}),
+            OS({'name' : 'fedora', 'title': 'Fedora'}),
+            OS({'name' : 'debian', 'title': 'Debian'}),
+            OS({'name' : 'generic','title': 'Generic', 'img':'linux'}),
                              ]
         data = dict(title='Choose linux distribution', width=100,
                     operating_systems=operating_systems, font_size='x-large')
