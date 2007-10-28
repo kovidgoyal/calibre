@@ -1638,8 +1638,8 @@ def process_file(path, options, logger=None):
     if options.header:
         header = Paragraph()            
         fheader = options.headerformat
-        fheader = re.sub(r'([^%]|^)%t', r'\1' + options.title, fheader)
-        fheader = re.sub(r'([^%]|^)%a', r'\1' + options.author, fheader)
+        fheader = re.sub(r'(?<!%)%t', options.title, fheader)
+        fheader = re.sub(r'(?<!%)%a', options.author, fheader)
         fheader = re.sub(r'%%a','%a',fheader)
         fheader = re.sub(r'%%t','%t',fheader)
         header.append(fheader + "  ")            
