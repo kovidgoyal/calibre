@@ -78,9 +78,11 @@ class DefaultProfile(object):
     ########################################################################
     
     
-    def __init__(self, username=None, password=None):
+    def __init__(self, logger, verbose=False, username=None, password=None):
+        self.logger = logger
         self.username = username
         self.password = password
+        self.verbose  = verbose
         self.temp_dir = tempfile.mkdtemp(prefix=__appname__+'_')
         self.browser = self.get_browser()
         self.url = 'file:'+ ('' if iswindows else '//') + self.build_index()
@@ -149,7 +151,9 @@ class DefaultProfile(object):
             try:
                 src = self.browser.open(url).read()
             except Exception, err:
-                print 'Could not fetch feed: %s\nError: %s'%(url, err)
+                self.logger.error('Could not fetch feed: %s\nError: %s'%(url, err))
+                if self.verbose:
+                    self.logger.exception(' ')
                 continue
             
             articles[title] = []
@@ -163,7 +167,7 @@ class DefaultProfile(object):
                     d = { 
                         'title'    : item.find('title').string,                 
                         'url'      : self.print_version(item.find('guid').string),
-                        'timestamp': calendar.timegm(self.strptime(pubdate)),
+                        'timestamp': self.strptime(pubdate),
                         'date'     : pubdate
                         }
                     delta = time.time() - d['timestamp']
@@ -171,6 +175,8 @@ class DefaultProfile(object):
                         continue
                      
                 except Exception, err:
+                    if self.verbose:
+                        self.logger.exception('Error parsing article:\n%s'%(item,))
                     continue
                 try:
                     desc = item.find('description')
@@ -205,13 +211,25 @@ class DefaultProfile(object):
         
     @classmethod
     def strptime(cls, src):
-        src = src.strip().split()
+        src = src.replace('GMT', '').replace('UTC', '').strip()
+        src = src.split()
         src[0] = str(cls.DAY_MAP[src[0][:-1]])+','
         try:
             src[2] = str(cls.MONTH_MAP[src[2]])
         except KeyError:
             src[2] = str(cls.FULL_MONTH_MAP[src[2]])
-        return time.strptime(' '.join(src), '%w, %d %m %Y %H:%M:%S %Z')
+        fmt = '%w, %d %m %Y %H:%M:%S'
+        delta = 0
+        if src[-1].startswith('+') or src[-1].startswith('-'):
+            delta = src[-1]
+            src = src[:-1]
+            hrs, mins = int(delta[1:3]), int(delta[3:5])
+            delta = 60*(hrs*60 + mins) * (-1 if delta.startswith('-') else 1)
+        try:
+            time_t = time.strptime(' '.join(src), fmt)
+        except ValueError:
+            time_t = time.strptime(' '.join(src), fmt.replace('%Y', '%y'))
+        return calendar.timegm(time_t)-delta
     
     def command_line_options(self):
         args = []

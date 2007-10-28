@@ -112,7 +112,7 @@ def process_profile(args, options, logger=None):
             except ValueError:
                 raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], available_profiles))
         profile = DefaultProfile if index == -1 else builtin_profiles[index]
-        profile = profile(options.username, options.password)
+        profile = profile(logger, options.verbose, options.username, options.password)
         if profile.browser is not None:
             options.browser = profile.browser
         
