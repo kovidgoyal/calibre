@@ -64,7 +64,9 @@ class Distribution(object):
         offset = 0
         if not self.is_generic:
             index = self.DISTRO_MAP[self.os]
-            self.as_root = True if os == 'debian' else self.AS_ROOT[index-2]
+            if os == 'debian':
+                self.as_root = True  
+            else: self.AS_ROOT[index-2]
             prefix = '' if self.as_root else 'sudo '
             cmd = prefix + self.INSTALLERS[index-2]
             pre = ' \\\n '.ljust(len(cmd)+3)
@@ -72,7 +74,8 @@ class Distribution(object):
                 if len(cmd) > 70+offset:
                     offset += 70
                     cmd += pre 
-                cmd += ' ' + dep[index] if dep[index] else ''
+                cmd += ' ' 
+                if dep[index]: cmd += dep[index]
             self.command = cmd.strip()
             if os == 'debian':
                 self.command += '\n'+prefix + 'cp -R /usr/share/pycentral/fonttools/site-packages/FontTools* /usr/lib/python2.5/site-packages/'
