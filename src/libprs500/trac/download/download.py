@@ -67,7 +67,8 @@ class Distribution(object):
             if os == 'debian':
                 self.as_root = True  
             else: self.AS_ROOT[index-2]
-            prefix = '' if self.as_root else 'sudo '
+            prefix = '' 
+            if not self.as_root: prefix =  'sudo '
             cmd = prefix + self.INSTALLERS[index-2]
             pre = ' \\\n '.ljust(len(cmd)+3)
             for dep in self.DEPENDENCIES:
