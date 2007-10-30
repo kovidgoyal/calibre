@@ -53,7 +53,7 @@ class Economist(DefaultProfile):
              ]
             ]
     
-    def __init__(self, username=None, password=None):
+    def __init__(self, logger, verbose=False, username=None, password=None):
         DefaultProfile.__init__(self, username, password)
         self.browser = None # Needed as otherwise there are timeouts while fetching actual articles
     
