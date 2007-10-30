@@ -1182,9 +1182,17 @@ class HTMLConverter(object):
         fp['parindent'] = indent
         
         if tag_css.has_key('line-height'):
-            val = self.unit_convert(tag_css['line-height'], pts=True, base_length='1pt')
+            bls, ls = int(self.current_block.textStyle.attrs['baselineskip']), \
+                      int(self.current_block.textStyle.attrs['linespace'])              
+            try: # See if line-height is a unitless number
+                val = int(float(tag_css['line-height'].strip()) * (bls+ls))
+                fp['linespace'] = val
+            except ValueError:
+                val = self.unit_convert(tag_css['line-height'], pts=True, base_length='1pt')
             if val is not None:
-                fp['linespace'] = val        
+                val -= bls
+                if val >= 0:
+                    fp['linespace'] = val        
         
         return fp
         
