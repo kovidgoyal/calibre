@@ -204,7 +204,10 @@ def setup_udev_rules():
         fdi.write('\n'+cls.get_fdi())
     fdi.write('\n</deviceinfo>\n')
     fdi.close()
-    check_call('/etc/init.d/hald restart', shell=True)
+    try:
+        check_call('/etc/init.d/hald restart', shell=True)
+    except:
+        check_call('/etc/init.d/hal restart', shell=True)
     
     try:
         check_call('udevcontrol reload_rules', shell=True)
@@ -229,7 +232,7 @@ def post_install():
     try:
         from PyQt4 import Qt
         if Qt.PYQT_VERSION < int('0x40301', 16):
-            print 'WARNING: You need PyQt >= 4.3.1 for the GUI to work. You have', Qt.PYQT_VERSION_STR
+            print 'WARNING: You need PyQt >= 4.3.1 for the GUI. You have', Qt.PYQT_VERSION_STR, '\nYou may experience crashes or other strange behavior.'
     except ImportError:
         print 'WARNING: You do not have PyQt4 installed. The GUI will not work.'
     
