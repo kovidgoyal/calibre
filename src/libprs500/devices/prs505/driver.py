@@ -23,7 +23,7 @@ from libprs500.devices.errors import DeviceError, FreeSpaceError
 from libprs500.devices.prs500.books import BookList, fix_ids
 from libprs500 import iswindows, islinux, isosx
 from libprs500.devices.libusb import get_device_by_id
-from libprs500.devices import libusb
+from libprs500.devices.libusb import Error as USBError
 from libprs500.devices.errors import PathError
 
 class File(object):
@@ -117,7 +117,7 @@ class PRS505(Device):
         else:
             try:
                 return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None
-            except libusb.Error:
+            except USBError:
                 return False                
         
     
