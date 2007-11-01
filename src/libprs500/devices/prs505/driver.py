@@ -118,7 +118,8 @@ class PRS505(Device):
             try:
                 return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None
             except USBError:
-                return False                
+                return False
+        return False                
         
     
     def open_windows(self):

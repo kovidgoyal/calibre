@@ -12,8 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.devices.prs505.driver import PRS505
-from libprs500.devices import devices
 """
 Provides a command-line and optional graphical interface to the SONY Reader PRS-500.
 
@@ -23,12 +21,11 @@ For usage information run the script.
 import StringIO, sys, time, os
 from optparse import OptionParser
 
-from libprs500 import __version__ as VERSION
+from libprs500 import __version__, iswindows
 from libprs500.devices.errors import PathError 
-from libprs500.devices.prs500.driver import PRS500
 from libprs500.devices.prs500.cli.terminfo import TerminalController
 from libprs500.devices.errors import ArgumentError, DeviceError, DeviceLocked
-
+from libprs500.devices import devices
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 
@@ -195,7 +192,7 @@ def main():
         cols = 80
     
     parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, books, df, ls, cp, mkdir, touch, cat, rm\n\n"+
-    "For help on a particular command: %prog command", version="libprs500 version: " + VERSION)
+    "For help on a particular command: %prog command", version="libprs500 version: " + __version__)
     parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
     dest="log_packets", action="store_true", default=False)
@@ -210,12 +207,18 @@ def main():
     command = args[0]
     args = args[1:]
     dev = None
+    helper = None
+    if iswindows:
+        import wmi, pythoncom
+        pythoncom.CoInitialize()
+        helper = wmi.WMI()
     for d in devices():
-        if d.is_connected():
+        if d.is_connected(helper):
             dev = d(log_packets=options.log_packets)
     
     if dev is None:
         print >>sys.stderr, 'Unable to find a connected ebook reader.'
+        return 1
         
     try:
         dev.open()
