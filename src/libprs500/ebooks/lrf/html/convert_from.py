@@ -717,7 +717,14 @@ class HTMLConverter(object):
         @param css: A dict
         '''
         src = tag.string if hasattr(tag, 'string') else tag
+        if len(src) > 32767:
+            pos = 0
+            while pos < len(src):
+                self.add_text(src[pos:pos+32767], css, pseudo_css, force_span_use)
+                pos += 32767
+            return
         src = src.replace('\r\n', '\n').replace('\r', '\n')
+        
         if pseudo_css.has_key('first-letter') and len(src) > 1:
             src = src.lstrip()
             f = src[0]

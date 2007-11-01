@@ -69,10 +69,15 @@ PYLRF_VERSION = "1.0"
 #   anyway.
 #
 
+class LrfError(Exception):
+    pass
+
 def writeByte(f, byte):
     f.write(struct.pack("<B", byte))
 
 def writeWord(f, word):
+    if int(word) > 65535:
+        raise LrfError('Cannot encode a number greater than 65535 in a word.')
     f.write(struct.pack("<H", int(word)))
 
 def writeSignedWord(f, sword):
@@ -112,7 +117,10 @@ def writeUnicode(f, string, encoding):
         string = string.decode(encoding)
 
     string = string.encode("utf-16-le")
-    writeWord(f, len(string))
+    length = len(string)
+    if length > 65535:
+        raise LrfError('Cannot write strings longer than 65535 characters.')
+    writeWord(f, length)
     writeString(f, string)
 
 def writeRaw(f, string, encoding):   
@@ -324,11 +332,6 @@ TAG_INFO = dict(
         textlinewidth   = (0xF5F1, writeLineWidth),
         linecolor       = (0xF5F2, writeColor)
     )
-
-
-
-class LrfError(Exception):
-    pass
 
 
 
