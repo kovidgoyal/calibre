@@ -247,7 +247,7 @@ class HTMLConverter(object):
             if npcss:
                 update_css(npcss, self.override_pcss)
         
-        paths = [os.path.normpath(os.path.abspath(path)) for path in paths]
+        paths = [os.path.abspath(path) for path in paths]
         
         
         while len(paths) > 0 and self.link_level <= self.link_levels:
@@ -337,7 +337,6 @@ class HTMLConverter(object):
         self.pseudo_css = self.override_pcss.copy()
         self.css.update(self.override_css)
         
-        path = os.path.normpath(os.path.abspath(path))
         self.file_name = os.path.basename(path)
         self.logger.info('Processing %s', self.file_name)
         raw = open(path, 'rb').read()
@@ -508,7 +507,7 @@ class HTMLConverter(object):
                     pass
         
         path, fragment = munge_paths(self.target_prefix, tag['href'])
-        return {'para':para, 'text':text, 'path':os.path.normpath(path), 
+        return {'para':para, 'text':text, 'path':os.path.abspath(path), 
                 'fragment':fragment, 'in toc': (self.link_level == 0 and not self.use_spine)}
         
     
@@ -1584,7 +1583,7 @@ def process_file(path, options, logger=None):
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('html2lrf')
         setup_cli_handlers(logger, level)
-    path = os.path.normpath(os.path.abspath(path))
+    path = os.path.abspath(path)
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
     dirpath = os.path.dirname(path)
     
