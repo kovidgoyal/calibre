@@ -19,6 +19,7 @@ The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfForma
 import sys, os
 from optparse import OptionParser, OptionValueError
 from htmlentitydefs import name2codepoint
+from uuid import uuid4
 
 from ttfquery import describe, findsystem
 from fontTools.ttLib import TTLibError
@@ -266,8 +267,8 @@ def Book(options, logger, font_delta=0, header=None,
         hb.append(header)
         hdr.PutObj(hb)
         ps['headheight'] = profile.header_height
-        ps['header'] = hdr
-        ps['topmargin'] = 0
+        ps['header']     = hdr
+        ps['topmargin']  = 0
         ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin'] + ps['headheight'] + profile.fudge)
     fontsize = int(10*profile.font_size+font_delta*20)
     baselineskip = fontsize + 20
@@ -283,6 +284,7 @@ def Book(options, logger, font_delta=0, header=None,
     book = _Book(textstyledefault=tsd, 
                 pagestyledefault=ps, 
                 blockstyledefault=dict(blockwidth=ps['textwidth']),
+                bookid=uuid4().hex,
                 **settings)
     for family in fonts.keys():
         if fonts[family]:
