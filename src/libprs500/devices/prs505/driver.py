@@ -15,7 +15,7 @@
 '''
 Device driver for the SONY PRS-505
 '''
-import sys, os, shutil, time
+import sys, os, shutil, time, subprocess, re
 from itertools import cycle
 
 from libprs500.devices.interface import Device
@@ -50,7 +50,11 @@ class PRS505(Device):
     CACHE_XML    = 'Sony Reader/database/cache.xml'
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
-    STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card' 
+    STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
+    
+    OSX_MAIN_NAME            = 'Sony PRS-505/UC Media'
+    OSX_SD_NAME               = 'Sony PRS-505/UC:SD Media'
+    OSX_MS_NAME               = 'Sony PRS-505/UC:MS Media'
     
     FDI_TEMPLATE = \
 '''
@@ -122,6 +126,31 @@ class PRS505(Device):
         return False                
         
     
+    def open_osx(self):
+        mount = subprocess.Popen('mount', shell=True, 
+                                 stdout=subprocess.PIPE).stdout.read()
+        src = subprocess.Popen('ioreg -n "%s"'%(self.OSX_MAIN_NAME,), 
+                               shell=True, stdout=subprocess.PIPE).stdout.read()
+        try:
+            devname = re.search(r'BSD Name.*=\s+"(\S+)"', src).group(1)
+            self._main_prefix = re.search('/dev/%s(\w*)\s+on\s+([^\(]+)\s+'%(devname,), mount).group(2) + os.sep
+        except:
+            raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
+        try:
+            src = subprocess.Popen('ioreg -n "%s"'%(self.OSX_SD_NAME,), 
+                               shell=True, stdout=subprocess.PIPE).stdout.read()
+            devname = re.search(r'BSD Name.*=\s+"(\S+)"', src).group(1)
+        except:
+            try:
+                src = subprocess.Popen('ioreg -n "%s"'%(self.OSX_MS_NAME,), 
+                                   shell=True, stdout=subprocess.PIPE).stdout.read()
+                devname = re.search(r'BSD Name.*=\s+"(\S+)"', src).group(1)
+            except:
+                devname = None
+        if devname is not None:
+            self._card_prefix = re.search('/dev/%s(\w*)\s+on\s+([^\(]+)\s+'%(devname,), mount).group(2) + os.sep
+            
+    
     def open_windows(self):
         import wmi
         c = wmi.WMI()
@@ -175,11 +204,14 @@ class PRS505(Device):
     
     def open(self):
         time.sleep(2)
+        self._main_prefix = self._card_prefix = None
         try:
             if islinux:
                 self.open_linux()
             if iswindows:
                 self.open_windows()
+            if isosx:
+                self.open_osx()
         except DeviceError:
             time.sleep(4)
             return self.open()
