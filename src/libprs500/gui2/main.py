@@ -647,7 +647,7 @@ class Main(MainWindow, Ui_MainWindow):
         Handle exceptions in threaded jobs.
         '''
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
-        print >>sys.stderr, exception.encode('utf8')
+        print >>sys.stderr, exception
         print >>sys.stderr, formatted_traceback.encode('utf8')
         if not self.device_error_dialog.isVisible():
             msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
@@ -661,7 +661,7 @@ class Main(MainWindow, Ui_MainWindow):
     def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
         print >>sys.stderr, log.encode('utf8')
-        print >>sys.stderr, exception.encode('utf8')
+        print >>sys.stderr, exception
         print >>sys.stderr, formatted_traceback.encode('utf8')
         msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
         msg += u'<p>Failed to perform <b>job</b>: '+description
