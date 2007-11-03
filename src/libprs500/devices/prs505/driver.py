@@ -365,7 +365,7 @@ class PRS505(Device):
             path = location[0]
             on_card = 1 if location[3] else 0
             name = path.rpartition('/')[2]
-            name = (cls.CARD_PATH_PREFIX+'/' if on_card else 'books/') + name
+            name = (cls.CARD_PATH_PREFIX+'/' if on_card else 'database/media/books/') + name
             booklists[on_card].add_book(info, name, *location[1:-1])
         fix_ids(*booklists)
         
