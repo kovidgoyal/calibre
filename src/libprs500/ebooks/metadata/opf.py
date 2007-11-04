@@ -92,7 +92,7 @@ class TOC(list):
 
 class OPFReader(MetaInformation):
     
-    ENTITY_PATTERN = re.compile(r'&(\S+);')
+    ENTITY_PATTERN = re.compile(r'&(\S+?);')
     
     def __init__(self, stream, dir=os.getcwd()):
         manage = False
