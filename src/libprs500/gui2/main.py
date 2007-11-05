@@ -523,7 +523,7 @@ class Main(MainWindow, Ui_MainWindow):
     
     def fetch_news_nytimes(self, checked):
         d = PasswordDialog(self, 'nytimes info dialog', 
-                           '<p>Please enter your username and password for nytimes.com<br>If you do not have, you can <a href="http://www.nytimes.com/gst/regi.html">register</a> for free.<br>Without a registration, some articles will not be downloaded correctly. Click OK to proceed.')
+                           '<p>Please enter your username and password for nytimes.com<br>If you do not have an account, you can <a href="http://www.nytimes.com/gst/regi.html">register</a> for free.<br>Without a registration, some articles will not be downloaded correctly. Click OK to proceed.')
         d.exec_()
         if d.result() == QDialog.Accepted:
             un, pw = d.username(), d.password()
