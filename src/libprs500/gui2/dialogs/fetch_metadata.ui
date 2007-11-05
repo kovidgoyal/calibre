@@ -32,7 +32,7 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>Sign up for a free account from &lt;a href="http://www.isndb.com">isndb.com&lt;/a> to get an access key.</string>
+      <string>Sign up for a free account from &lt;a href="http://www.isbndb.com">ISBNdb.com&lt;/a> to get an access key.</string>
      </property>
      <property name="alignment" >
       <set>Qt::AlignCenter</set>
