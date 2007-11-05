@@ -247,7 +247,7 @@ Comment=Viewer for LRF files (SONY ebook format files)
 TryExec=lrfviewer
 Exec=lrfviewer %%F
 Icon=libprs500-viewer
-MimeType=application/lrf;
+MimeType=application/x-sony-bbeb;
 Categories=Graphics;Viewer;
 '''%(__version__,)
 
@@ -266,7 +266,7 @@ Categories=Office;
 MIME = '''\
 <?xml version="1.0"?>
 <mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>
-    <mime-type type="application/lrf">
+    <mime-type type="application/x-sony-bbeb">
         <comment>SONY E-book compiled format</comment>
         <glob pattern="*.lrf"/>
     </mime-type>
