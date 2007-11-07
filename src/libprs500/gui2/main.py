@@ -644,8 +644,12 @@ class Main(MainWindow, Ui_MainWindow):
                 
     def device_job_exception(self, id, description, exception, formatted_traceback):
         '''
-        Handle exceptions in threaded jobs.
+        Handle exceptions in threaded device jobs.
         '''
+        if 'Could not read 32 bytes on the control bus.' in str(exception):
+            error_dialog(self, 'Error talking to device', 
+                         'There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot.').show()
+            return
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
         print >>sys.stderr, exception
         print >>sys.stderr, formatted_traceback.encode('utf8')
