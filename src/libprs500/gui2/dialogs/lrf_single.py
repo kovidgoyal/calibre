@@ -89,8 +89,6 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             self.setWindowTitle('Convert %s to LRF'%(self.selected_format,))
             
         
-
-        
     def read_saved_options(self):
         cmdline = self.db.conversion_options(self.id, self.output_format.lower())
         if cmdline:
@@ -207,6 +205,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 state = Qt.Checked if default else Qt.Unchecked
                 obj.setCheckState(state)
         self.gui_headerformat.setDisabled(True)
+        self.gui_use_metadata_cover.setCheckState(Qt.Checked)
         self.preprocess.addItem('No preprocessing')
         for opt in self.PREPROCESS_OPTIONS:
             self.preprocess.addItem(opt.get_opt_string()[2:])

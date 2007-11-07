@@ -105,6 +105,8 @@ def option_parser(usage):
                       help='Publisher')
     metadata.add_option('--cover', action='store', dest='cover', default=None, \
                         help='Path to file containing image to be used as cover')
+    metadata.add_option('--use-metadata-cover', action='store_true', default=False, 
+                        help='If there is a cover graphic detected in the source file, use that instead of the specified cover.')
      
     parser.add_option('-o', '--output', action='store', default=None, \
                       help='Output file name. Default is derived from input filename')

@@ -1717,7 +1717,9 @@ def try_opf(path, options, logger):
             category = opf.category
             if category:
                 options.category = category
-        if not options.cover:
+        if not options.cover or options.use_metadata_cover:
+            orig_cover = options.cover
+            options.cover = None
             cover = opf.cover            
             if cover:
                 if not os.path.isabs(cover):
@@ -1727,19 +1729,19 @@ def try_opf(path, options, logger):
                         PILImage.open(cover)
                         options.cover = cover
                     except:
-                        pass
-        if not options.cover:
-            for prefix in opf.possible_cover_prefixes():
-                if options.cover:
-                    break
-                for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
-                    cpath = os.path.join(os.path.dirname(path), prefix+suffix)
-                    try:
-                        PILImage.open(cpath)
-                        options.cover = cpath
-                        break
-                    except:
-                        continue        
+                        for prefix in opf.possible_cover_prefixes():
+                            if options.cover:
+                                break
+                            for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
+                                cpath = os.path.join(os.path.dirname(path), prefix+suffix)
+                                try:
+                                    PILImage.open(cpath)
+                                    options.cover = cpath
+                                    break
+                                except:
+                                    continue
+            if not options.cover and orig_cover is not None:
+                options.cover = orig_cover        
         options.spine = [i.href for i in opf.spine.items()]
         options.toc   = opf.toc
     except Exception:

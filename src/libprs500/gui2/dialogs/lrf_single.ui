@@ -256,6 +256,13 @@
                    </item>
                   </layout>
                  </item>
+                 <item row="2" column="0" >
+                  <widget class="QCheckBox" name="gui_use_metadata_cover" >
+                   <property name="text" >
+                    <string>Use &amp;metadata cover</string>
+                   </property>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
