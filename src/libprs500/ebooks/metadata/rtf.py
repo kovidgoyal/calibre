@@ -174,9 +174,6 @@ def set_metadata(stream, options):
     
 
 def main(args=sys.argv):
-    from libprs500 import set_translator
-    set_translator()
-    
     parser = get_parser('rtf')
     options, args = parser.parse_args(args)
     if len(args) != 2:

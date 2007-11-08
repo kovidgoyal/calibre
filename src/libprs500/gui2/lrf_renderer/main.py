@@ -282,8 +282,6 @@ def normalize_settings(parser, opts):
     
 
 def main(args=sys.argv, logger=None):
-    from libprs500 import set_translator
-    set_translator()
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if hasattr(opts, 'help'):

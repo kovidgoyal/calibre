@@ -596,13 +596,13 @@ def option_parser():
     parser.add_option('--author-sort', action='store', type='string', default=None,
                       dest='author_reading', help=_('Set sort key for the author'))
     parser.add_option("-c", "--category", action="store", type="string", \
-                    dest="category", help=_("The category this book belongs"+\
+                    dest="category", help=_("The category this book belongs"
                     " to. E.g.: History"))
     parser.add_option("--thumbnail", action="store", type="string", \
-                    dest="thumbnail", help=_("Path to a graphic that will be"+\
+                    dest="thumbnail", help=_("Path to a graphic that will be"
                     " set as this files' thumbnail"))
     parser.add_option("--comment", action="store", type="string", \
-                    dest="comment", help=_("Path to a txt file containing the "+\
+                    dest="comment", help=_("Path to a txt file containing the "
                     "comment to be stored in the lrf file."))
     parser.add_option("--get-thumbnail", action="store_true", \
                     dest="get_thumbnail", default=False, \
@@ -616,9 +616,6 @@ def option_parser():
 
 
 def main(args=sys.argv):
-    from libprs500 import set_translator
-    set_translator()
-    
     import os.path
     parser = option_parser()
     options, args = parser.parse_args(args)

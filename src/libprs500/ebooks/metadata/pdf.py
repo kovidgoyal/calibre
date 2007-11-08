@@ -46,9 +46,6 @@ def get_metadata(stream):
         
             
 def main(args=sys.argv):
-    from libprs500 import set_translator
-    set_translator()
-    
     if len(args) != 2:
         print >>sys.stderr, 'Usage: pdf-meta file.pdf'
         print >>sys.stderr, 'No filename specified.'

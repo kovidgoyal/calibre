@@ -96,4 +96,4 @@ def set_translator():
             t = GNUTranslations(buf)
             t.install(unicode=True)
         
-    
+set_translator()   
