@@ -1753,7 +1753,9 @@ def option_parser():
     return lrf_option_parser('''Usage: %prog [options] mybook.html\n\n'''
                     '''%prog converts mybook.html to mybook.lrf''')
 
-def main(args=sys.argv):    
+def main(args=sys.argv):
+    from libprs500 import set_translator
+    set_translator()        
     try:
         parser = option_parser()
         options, args = parser.parse_args(args)    

@@ -12,10 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.gui2 import choose_files
-''''''
-
-import sys, logging, os, traceback, time, cPickle, copy
+import sys, logging, os, traceback, time, cPickle
 
 from PyQt4.QtGui import QApplication, QKeySequence, QPainter, QDialog
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread, \
@@ -24,7 +21,7 @@ from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread, \
 from libprs500 import __appname__, __version__, __author__, setup_cli_handlers, islinux
 from libprs500.ebooks.lrf.parser import LRFDocument
 
-from libprs500.gui2 import ORG_NAME, APP_UID, error_dialog
+from libprs500.gui2 import ORG_NAME, APP_UID, error_dialog, choose_files
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog
 from libprs500.gui2.lrf_renderer.main_ui import Ui_MainWindow
 from libprs500.gui2.lrf_renderer.config_ui import Ui_ViewerConfig
@@ -285,6 +282,8 @@ def normalize_settings(parser, opts):
     
 
 def main(args=sys.argv, logger=None):
+    from libprs500 import set_translator
+    set_translator()
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if hasattr(opts, 'help'):

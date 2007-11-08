@@ -16,7 +16,7 @@
 Manage the PyQt build system pyrcc4, pylupdate4, lrelease and friends.
 '''
 
-import sys, os, subprocess, cStringIO, compiler
+import sys, os, subprocess, cStringIO, compiler, re
 from functools import partial
 
 from PyQt4.uic import compileUi
@@ -45,11 +45,13 @@ def build_forms(forms):
             dat = buf.getvalue()
             dat = dat.replace('import images_rc', 'from libprs500.gui2 import images_rc')
             dat = dat.replace('from library import', 'from libprs500.gui2.library import')
+            dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             open(compiled_form, 'wb').write(dat)
+            
                 
 def build_images():
     newest = 0
-    for root, dirs, files in os.walk('./images'):
+    for root, dirs, files in os.walk(os.path.join('.', 'images')):
         for name in files:
             newest = max(os.stat(os.path.join(root, name)).st_mtime, newest)
     
@@ -62,7 +64,6 @@ def build_images():
         os.utime('images_rc.py', None)
         os.utime('images_rc.pyc', None)
             
-
 def build(forms):
     build_forms(forms)
     build_images()
@@ -86,7 +87,7 @@ def main(args=sys.argv):
     if len(args) == 1:
         args.append('all')
     
-    if args[1] == 'all':
+    if   args[1] == 'all':
         build(forms)
     elif args[1] == 'clean':
         clean(forms)
@@ -95,7 +96,7 @@ def main(args=sys.argv):
         print 'Running main.py'
         subprocess.call('python main.py', shell=True)
     else:
-        print 'Usage: %s [clean|test|all]'%(args[0])
+        print 'Usage: %s [all|clean|test]'%(args[0])
         return 1 
     
     return 0

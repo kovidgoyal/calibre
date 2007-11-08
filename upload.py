@@ -95,6 +95,7 @@ def main():
     shutil.rmtree('docs')
     os.mkdir('docs')
     check_call("sudo python setup.py develop", shell=True)
+    check_call('make', shell=True)
     upload_demo()
     print 'Building OSX installer...'
     dmg = build_osx()

@@ -30,8 +30,8 @@ def largest_file(files):
     for f in files:
         size = os.stat(f).st_size
         if size > maxsize:
-           maxsize = size
-           file = f
+            maxsize = size
+            file = f
     return file
 
 def find_htmlfile(dir):
@@ -105,13 +105,13 @@ def process_file(path, options, logger=None):
         if 'htm' in ext:
             convertor = html2lrf
         elif 'lit' == ext:
-             convertor = lit2lrf
+            convertor = lit2lrf
         elif 'pdf' == ext:
-             convertor = pdf2lrf
+            convertor = pdf2lrf
         elif 'rtf' == ext:
-             convertor = rtf2lrf
+            convertor = rtf2lrf
         elif 'txt' == ext:
-             convertor = txt2lrf
+            convertor = txt2lrf
         if not convertor:
             raise UnknownFormatError('Coverting from %s to LRF is not supported.')
         convertor(path, options, logger)
@@ -123,6 +123,9 @@ def process_file(path, options, logger=None):
     
 
 def main(args=sys.argv, logger=None):
+    from libprs500 import set_translator
+    set_translator()
+    
     parser = option_parser('''\
 any2lrf myfile
 

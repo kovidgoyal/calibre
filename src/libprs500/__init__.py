@@ -18,10 +18,16 @@ __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys, os, logging, mechanize
+import sys, os, logging, mechanize, locale, cStringIO
+from gettext import GNUTranslations
+
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx) 
+
+# Default translation is NOOP
+import __builtin__
+__builtin__.__dict__['_'] = lambda s: s
 
 class CommandLineError(Exception):
     pass
@@ -62,12 +68,12 @@ def extract(path, dir):
     ext = os.path.splitext(path)[1][1:].lower()
     extractor = None
     if ext == 'zip':
-        from libprs500.libunzip import extract
-        extractor = extract
+        from libprs500.libunzip import extract as zipextract
+        extractor = zipextract
     elif ext == 'rar':
-        from libprs500.libunrar import extract # In case the dll is not found
-        extractor = extract
-    if not extractor:
+        from libprs500.libunrar import extract as rarextract
+        extractor = rarextract
+    if extractor is None:
         raise Exception('Unknown archive type')
     extractor(path, dir)
 
@@ -78,4 +84,16 @@ def browser():
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
     return opener
 
+def set_translator():
+    # To test different translations invoke as
+    # LC_ALL=de_DE.utf8 program
+    from libprs500.translations.data import translations
+    lang = locale.getdefaultlocale()[0]
+    if lang:
+        lang = lang[:2]
+        if translations.has_key(lang):
+            buf = cStringIO.StringIO(translations[lang])
+            t = GNUTranslations(buf)
+            t.install(unicode=True)
+        
     

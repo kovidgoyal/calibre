@@ -130,6 +130,9 @@ def create_books(opts, args, logger=None):
     return [ISBNDBMetadata(book) for book in fetch_metadata(url)]
 
 def main(args=sys.argv):
+    from libprs500 import set_translator
+    set_translator()
+    
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if len(args) != 2:

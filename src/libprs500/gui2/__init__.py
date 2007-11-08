@@ -15,13 +15,14 @@
 """ The GUI for libprs500. """
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant, QSettings, QFileInfo, QObject, SIGNAL, QBuffer, \
-                         QByteArray
+                         QByteArray, QLocale, QTranslator
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
 from libprs500 import __author__, islinux
+from libprs500.gui2.translations import translations
 NONE = QVariant() #: Null value to return from the data function of item models
 
 BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 
@@ -297,4 +298,17 @@ def pixmap_to_data(pixmap, format='JPEG'):
     buf.open(QBuffer.WriteOnly)
     pixmap.save(buf, format)
     return str(ba.data())
+
+def set_translator(app):
+    locale = QLocale.system().language()
+    locale = 'test'
+    if translations.has_key(locale):
+        data = translations[locale]
+        t = QTranslator()
+        open('yay.qm', 'wb').write(data)
+        t.load('yay.qm')
+        print t.isEmpty()
+        app.installTranslator(t)
+        os.unlink('yay.qm')
+    
             

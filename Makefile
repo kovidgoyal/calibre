@@ -1,7 +1,11 @@
-all : gui2
+all : gui2 translations
 
 clean : 
-	${MAKE} -C src/libprs500/gui2 clean
+	cd src/libprs500/gui2 && python make.py clean
 
 gui2 :
-	${MAKE} -C src/libprs500/gui2
+	 cd src/libprs500/gui2 && python make.py
+
+translations :
+	cd src/libprs500 && python translations/__init__.py
+    

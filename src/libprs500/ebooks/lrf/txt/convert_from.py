@@ -93,6 +93,9 @@ def process_file(path, options, logger=None):
         print open(htmlfile.name, 'rb').read()        
 
 def main(args=sys.argv, logger=None):
+    from libprs500 import set_translator
+    set_translator()
+    
     parser = option_parser()    
     options, args = parser.parse_args(args)
     if len(args) != 2:

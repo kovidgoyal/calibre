@@ -20,7 +20,7 @@ from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
 
-from libprs500 import __version__, __appname__, islinux
+from libprs500 import __version__, __appname__, islinux, set_translator
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
@@ -716,12 +716,13 @@ class Main(MainWindow, Ui_MainWindow):
     
 
 def main(args=sys.argv):
+    set_translator()
     from PyQt4.Qt import QApplication
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = QApplication(args)    
         QCoreApplication.setOrganizationName(ORG_NAME)
-        QCoreApplication.setApplicationName(APP_UID)
+        QCoreApplication.setApplicationName(APP_UID)        
         initialize_file_icon_provider()
         try:
             main = Main()
