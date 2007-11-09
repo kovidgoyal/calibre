@@ -20,7 +20,7 @@ from itertools import cycle
 
 from libprs500.devices.interface import Device
 from libprs500.devices.errors import DeviceError, FreeSpaceError
-from libprs500.devices.prs500.books import BookList, fix_ids
+from libprs500.devices.prs505.books import BookList, fix_ids
 from libprs500 import iswindows, islinux, isosx
 from libprs500.devices.libusb import get_device_by_id
 from libprs500.devices.libusb import Error as USBError
@@ -270,10 +270,10 @@ class PRS505(Device):
             return []
         db = self.__class__.CACHE_XML if oncard else self.__class__.MEDIA_XML
         prefix = self._card_prefix if oncard else self._main_prefix
-        f = open(prefix + db, 'rb')
-        bl = BookList(root=self._card_prefix if oncard else self._main_prefix, sfile=f)
+        bl = BookList(open(prefix + db, 'rb'), prefix)
         paths = bl.purge_corrupted_files()
         for path in paths:
+            path = os.path.join(self._card_prefix if oncard else self._main_prefix, path)
             if os.path.exists(path):
                 os.unlink(path)
         return bl
@@ -366,6 +366,7 @@ class PRS505(Device):
             on_card = 1 if location[3] else 0
             name = path.rpartition('/')[2]
             name = (cls.CARD_PATH_PREFIX+'/' if on_card else 'database/media/books/') + name
+            name = name.replace('//', '/')
             booklists[on_card].add_book(info, name, *location[1:-1])
         fix_ids(*booklists)
         
@@ -377,7 +378,8 @@ class PRS505(Device):
     def remove_books_from_metadata(cls, paths, booklists):
         for path in paths:
             for bl in booklists:
-                bl.remove_book(path)
+                if hasattr(bl, 'remove_book'):
+                    bl.remove_book(path)
         fix_ids(*booklists)
         
     def sync_booklists(self, booklists, end_session=True):

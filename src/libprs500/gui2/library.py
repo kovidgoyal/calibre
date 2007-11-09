@@ -638,6 +638,7 @@ class DeviceBooksModel(BooksModel):
                 self.db[idx].authors = val
             elif col == 4:
                 tags = [i.strip() for i in val.split(',')]
+                tags = [t for t in tags if t]
                 self.db.set_tags(self.db[idx], tags)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), index, index)
             self.emit(SIGNAL('booklist_dirtied()'))

@@ -373,8 +373,8 @@ class Main(MainWindow, Ui_MainWindow):
         if self.delete_memory.has_key(id):
             paths, model = self.delete_memory.pop(id)
             self.device_manager.remove_books_from_metadata(paths, self.booklists())
-            self.upload_booklists()
             model.paths_deleted(paths)
+            self.upload_booklists()            
             
     ############################################################################
     

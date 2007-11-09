@@ -193,8 +193,8 @@ class BookList(list):
       7. tags (a list of strings, can be empty). 
     '''
     
-    def __init__(self):
-        list.__init__(self)
+    __getslice__ = None
+    __setslice__ = None
     
     def supports_tags(self):
         ''' Return True if the the device supports tags (collections) for this book list. '''
