@@ -38,8 +38,8 @@ class NYTimes(DefaultProfile):
                ]
               ]
               
-    def browser(self):
-        br = DefaultProfile.browser(self)
+    def get_browser(self):
+        br = DefaultProfile.get_browser()
         if self.username is not None and self.password is not None:
             br.open('http://www.nytimes.com/auth/login')
             br.select_form(name='login')
