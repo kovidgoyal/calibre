@@ -32,6 +32,10 @@ if os.path.exists(PY2EXE_DIR):
 
 class NSISInstaller(object):
     TEMPLATE = r'''
+; Do a Cyclic Redundancy Check to make sure the installer
+; was not corrupted by the download.  
+CRCCheck on
+
 SetCompressor     lzma
 ShowInstDetails   show
 ShowUnInstDetails show
@@ -98,6 +102,9 @@ Var MUI_TEMP
   
   !insertmacro MUI_PAGE_STARTMENU Application $STARTMENU_FOLDER
   !insertmacro MUI_PAGE_INSTFILES
+  !define MUI_FINISHPAGE_RUN "$INSTDIR\${PRODUCT_NAME}.exe"
+  !define MUI_FINISHPAGE_NOAUTOCLOSE
+  !insertmacro MUI_PAGE_FINISH
   
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES
@@ -209,7 +216,7 @@ SectionEnd
 
   ;Language strings
   LangString DESC_secmain ${LANG_ENGLISH} "The GUI and command-line tools for working with ebooks."
-  LangString DESC_secdd   ${LANG_ENGLISH} "The device drivers to talk to the ebook reader. If you want to use the device through the SONY Connect software then uncheck this. If you uncheck this you will not be able to transfer books to your reader using ${PRODUCT_NAME}."
+  LangString DESC_secdd   ${LANG_ENGLISH} "The device drivers to talk to the Sony PRS500. You only need this if you plan to transfer books to the Sony PRS500 with ${PRODUCT_NAME}. It is not required for the PRS 505."
 
   ;Assign language strings to sections
   !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
