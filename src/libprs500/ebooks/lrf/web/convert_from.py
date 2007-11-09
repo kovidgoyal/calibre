@@ -140,7 +140,12 @@ def process_profile(args, options, logger=None):
             options.anchor_ids = False
         
         htmlfile, tdir = fetch_website(options, logger)
-        create_lrf(htmlfile, options, logger)
+        cwd = os.getcwdu()
+        try:
+            os.chdir(os.path.dirname(htmlfile))
+            create_lrf(os.path.basename(htmlfile), options, logger)
+        finally:
+            os.chdir(cwd)
     finally:
         if tdir and os.path.isdir(tdir):
             shutil.rmtree(tdir)
