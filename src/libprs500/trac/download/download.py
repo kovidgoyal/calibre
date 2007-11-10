@@ -211,6 +211,22 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
 <li>Before trying to use the command line tools, you must run the app at least once. This will ask you for you password and then setup the symbolic links for the command line tools.</li>
 <li>The app cannot be run from within the dmg. You must drag it to a folder on your filesystem (The Desktop, Applications, wherever).</li> 
 <li>In order for the conversion of RTF to LRF to support WMF images (common in older RTF files) you need to install ImageMagick.</li>
+<li>In order for localization of the user interface in your language you must create the file <code>~/.MacOSX/environment.plist</code> as shown below:
+<pre class="wiki">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>LANG</key>
+        <string>de_DE</string>
+</dict>
+</plist>
+</pre>
+The example above is for the German language. Substitute the language code you need. 
+After creating the file you need to log out and log in again for the changes to become
+active. Of course, this will only work if libprs500 has been translated for your language.
+If not, head over to [wiki:Development#Translations] to see how you can translate it.
+</li>
 </ol>
 '''))
         return 'binary.html', data, None

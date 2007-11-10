@@ -89,6 +89,11 @@ def set_translator():
     # LC_ALL=de_DE.utf8 program
     from libprs500.translations.data import translations
     lang = locale.getdefaultlocale()[0]
+    if lang is None and os.environ.has_key('LANG'): # Needed for OS X
+        try:
+            lang = os.environ['LANG'][:2]
+        except:
+            pass 
     if lang:
         lang = lang[:2]
         if translations.has_key(lang):
