@@ -225,7 +225,7 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
 The example above is for the German language. Substitute the language code you need. 
 After creating the file you need to log out and log in again for the changes to become
 active. Of course, this will only work if libprs500 has been translated for your language.
-If not, head over to [wiki:Development#Translations] to see how you can translate it.
+If not, head over to <a href="https://libprs500.kovidgoyal.net/wiki/Development#Translations">Translations</a> to see how you can translate it.
 </li>
 </ol>
 '''))
