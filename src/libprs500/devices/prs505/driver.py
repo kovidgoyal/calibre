@@ -152,6 +152,7 @@ class PRS505(Device):
             
     
     def open_windows(self):
+        drives = []
         import wmi
         c = wmi.WMI()
         for drive in c.Win32_DiskDrive():
@@ -164,12 +165,15 @@ class PRS505(Device):
                     continue
                 logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
                 prefix = logical_disk.DeviceID+os.sep
-                if drive.Index == 1:
-                    self._main_prefix = prefix
-                else:
-                    self._card_prefix = prefix
-        if self._main_prefix is None:
+                drives.append((drive.Index, prefix))
+                
+        if not drives:
             raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
+        
+        drives.sort(cmp=lambda a, b: cmp(a[0], b[0]))
+        self._main_prefix = drives[0][1]
+        if len(drives) > 1:
+            self._card_prefix = drives[1][1]
             
     
     def open_linux(self):
@@ -203,18 +207,26 @@ class PRS505(Device):
             self._card_prefix = conditional_mount(sc)+os.sep
     
     def open(self):
-        time.sleep(2)
+        time.sleep(5)
         self._main_prefix = self._card_prefix = None
-        try:
-            if islinux:
+        if islinux:
+            try:
                 self.open_linux()
-            if iswindows:
+            except DeviceError:
+                time.sleep(3)
+                self.open_linux()
+        if iswindows:
+            try:
                 self.open_windows()
-            if isosx:
+            except DeviceError:
+                time.sleep(3)
+                self.open_windows()
+        if isosx:
+            try:
                 self.open_osx()
-        except DeviceError:
-            time.sleep(4)
-            return self.open()
+            except DeviceError:
+                time.sleep(3)
+                self.open_osx()
             
     def set_progress_reporter(self, pr):
         self.report_progress = pr
