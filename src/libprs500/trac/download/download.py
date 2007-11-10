@@ -213,14 +213,14 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
 <li>In order for the conversion of RTF to LRF to support WMF images (common in older RTF files) you need to install ImageMagick.</li>
 <li>In order for localization of the user interface in your language you must create the file <code>~/.MacOSX/environment.plist</code> as shown below:
 <pre class="wiki">
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-        <key>LANG</key>
-        <string>de_DE</string>
-</dict>
-</plist>
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+        &lt;key&gt;LANG&lt;/key&gt;
+        &lt;string&gt;de_DE&lt;/string&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
 </pre>
 The example above is for the German language. Substitute the language code you need. 
 After creating the file you need to log out and log in again for the changes to become
