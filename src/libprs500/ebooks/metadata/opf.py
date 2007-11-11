@@ -76,18 +76,20 @@ class TOC(list):
             toc = urlparse(unquote(toc))[2]
             if not os.path.isabs(toc):
                 toc = os.path.join(cwd, toc)
-            self.toc = toc
-    
-            soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
-            for a in soup.findAll('a'):
-                if not a.has_key('href'):
-                    continue
-                purl = urlparse(unquote(a['href']))
-                href, fragment = purl[2], purl[5]
-                if not os.path.isabs(href):
-                    href = os.path.join(cwd, href)
-                txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
-                self.append((href, fragment, txt))
+            try:
+                soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
+                for a in soup.findAll('a'):
+                    if not a.has_key('href'):
+                        continue
+                    purl = urlparse(unquote(a['href']))
+                    href, fragment = purl[2], purl[5]
+                    if not os.path.isabs(href):
+                        href = os.path.join(cwd, href)
+                    txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
+                    self.append((href, fragment, txt))
+                self.toc = toc
+            except:
+                pass
             
 
 class OPFReader(MetaInformation):

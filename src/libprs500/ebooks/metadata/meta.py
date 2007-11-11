@@ -16,6 +16,7 @@
 from libprs500.ebooks.metadata.rtf import get_metadata as rtf_metadata
 from libprs500.ebooks.lrf.meta import get_metadata as lrf_metadata
 from libprs500.ebooks.metadata.pdf import get_metadata as pdf_metadata
+from libprs500.ebooks.metadata.lit import get_metadata as lit_metadata
 from libprs500.ebooks.metadata import MetaInformation
 
 def get_metadata(stream, stream_type='lrf'):
@@ -25,5 +26,7 @@ def get_metadata(stream, stream_type='lrf'):
         return lrf_metadata(stream)
     if stream_type == 'pdf':
         return pdf_metadata(stream)
+    if stream_type == 'lit':
+        return lit_metadata(stream)
     return MetaInformation(None, None)
     

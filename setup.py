@@ -24,6 +24,7 @@ entry_points = {
                              'lrf-meta  = libprs500.ebooks.lrf.meta:main', 
                              'rtf-meta  = libprs500.ebooks.metadata.rtf:main', 
                              'pdf-meta  = libprs500.ebooks.metadata.pdf:main', 
+                             'lit-meta  = libprs500.ebooks.metadata.lit:main',
                              'txt2lrf   = libprs500.ebooks.lrf.txt.convert_from:main', 
                              'html2lrf  = libprs500.ebooks.lrf.html.convert_from:main',
                              'markdown-libprs500  = libprs500.ebooks.markdown.markdown:main',
