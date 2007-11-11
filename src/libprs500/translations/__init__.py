@@ -53,11 +53,7 @@ def main(args=sys.argv):
             open(po, 'wb').write(src.replace('LANGUAGE', tr))
         else:
             print 'Merging', os.path.basename(po)
-            p = subprocess.Popen('msgmerge -q '+po + ' ' + template.name, shell=True, stdout=subprocess.PIPE)
-            up = p.stdout.read()
-            if p.wait():
-                raise Exception('msgmerge failed with error code: %d'%(p.wait(),))
-            open(po, 'wb').write(up)
+            check_call('msgmerge -v -U --backup=none '+po + ' ' + template.name)
         buf = cStringIO.StringIO()
         print 'Compiling translations'
         msgfmt(buf, [po])
