@@ -245,10 +245,10 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     def show_category_help(self, item):
         text = qstring_to_unicode(item.text())
         help = {
-                u'Metadata'    : 'Specify metadata such as title and author for the book.<p>Metadata will be updated in the database as well as the generated LRF file.',
-                u'Look & Feel' : 'Adjust the look of the generated LRF file by specifying things like font sizes and the spacing between words.',
-                u'Page Setup'  : 'Specify the page settings like margins and the screen size of the target device.',
-                u'Chapter Detection' : 'Fine tune the detection of chapter and section headings.',                  
+                _('Metadata')          : _('Specify metadata such as title and author for the book.<p>Metadata will be updated in the database as well as the generated LRF file.'),
+                _('Look & Feel')       : _('Adjust the look of the generated LRF file by specifying things like font sizes and the spacing between words.'),
+                _('Page Setup')        : _('Specify the page settings like margins and the screen size of the target device.'),
+                _('Chapter Detection') : _('Fine tune the detection of chapter and section headings.'),                  
                 }
         self.set_help(help[text])
         
