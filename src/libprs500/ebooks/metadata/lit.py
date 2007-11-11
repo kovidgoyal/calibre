@@ -693,7 +693,6 @@ def get_metadata(stream):
         litfile = LitFile(stream)
         mi = OPFReader(cStringIO.StringIO(litfile.meta))        
     except:
-        raise
         title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
         mi = MetaInformation(title, ['Unknown'])
     return mi
