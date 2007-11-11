@@ -203,17 +203,20 @@ class DefaultProfile(object):
         return re.compile(r'<a.*?</a>', re.IGNORECASE|re.DOTALL).sub('', src)
 
     
-    DAY_MAP   = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
-    MONTH_MAP = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
+    DAY_MAP        = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
+    FULL_DAY_MAP   = dict(Sunday=0, Monday=1, Tueday=2, Wednesday=3, Thursday=4, Friday=5, Saturday=6) 
+    MONTH_MAP      = dict(Jan=1, Feb=2, Mar=3, Apr=4, May=5, Jun=6, Jul=7, Aug=8, Sep=9, Oct=10, Nov=11, Dec=12)
     FULL_MONTH_MAP = dict(January=1, February=2, March=3, April=4, May=5, June=6, 
                       July=7, August=8, September=9, October=10, 
                       November=11, December=12)
         
     @classmethod
     def strptime(cls, src):
-        src = src.replace('GMT', '').replace('UTC', '').strip()
-        src = src.split()
-        src[0] = str(cls.DAY_MAP[src[0][:-1]])+','
+        src = src.strip().split()
+        try:
+            src[0] = str(cls.DAY_MAP[src[0][:-1]])+','
+        except KeyError:
+            src[0] = str(cls.FULL_DAY_MAP[src[0][:-1]])+','
         try:
             src[2] = str(cls.MONTH_MAP[src[2]])
         except KeyError:
@@ -222,9 +225,9 @@ class DefaultProfile(object):
         delta = 0
         if src[-1].startswith('+') or src[-1].startswith('-'):
             delta = src[-1]
-            src = src[:-1]
             hrs, mins = int(delta[1:3]), int(delta[3:5])
             delta = 60*(hrs*60 + mins) * (-1 if delta.startswith('-') else 1)
+        src = src[:-1] # Discard timezone information
         try:
             time_t = time.strptime(' '.join(src), fmt)
         except ValueError:

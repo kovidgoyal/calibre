@@ -136,11 +136,13 @@ def process_profile(args, options, logger=None):
         options.match_regexps += profile.match_regexps
         options.preprocess_regexps = profile.preprocess_regexps
         options.filter_regexps += profile.filter_regexps
+        
         if len(args) == 2 and args[1] != 'default':
             options.anchor_ids = False
         
         htmlfile, tdir = fetch_website(options, logger)
         cwd = os.getcwdu()
+        options.output = os.path.join(cwd, options.title+('.lrs' if options.lrs else '.lrf'))
         try:
             os.chdir(os.path.dirname(htmlfile))
             create_lrf(os.path.basename(htmlfile), options, logger)
