@@ -641,4 +641,4 @@ def main(outfile, args=sys.argv[1:]):
     eater.write(outfile)    
 
 if __name__ == '__main__':
-    main()
+    main(sys.stdout)

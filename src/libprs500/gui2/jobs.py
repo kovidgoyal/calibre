@@ -239,10 +239,10 @@ class JobManager(QAbstractTableModel):
         if role != Qt.DisplayRole:
             return NONE
         if orientation == Qt.Horizontal:      
-            if   section == 0: text = "Job"
-            elif section == 1: text = "Status"
-            elif section == 2: text = "Progress"
-            return QVariant(self.trUtf8(text))
+            if   section == 0: text = _("Job")
+            elif section == 1: text = _("Status")
+            elif section == 2: text = _("Progress")
+            return QVariant(text)
         else: 
             return QVariant(section+1)
         
@@ -257,14 +257,14 @@ class JobManager(QAbstractTableModel):
             if col == 0:
                 return QVariant(job.description)
             if col == 1:
-                status = 'Waiting'
+                status = _('Waiting')
                 if job.isRunning() and not job.is_locked:
-                    status = 'Working'
+                    status = _('Working')
                 if job.isFinished():
-                    status = 'Done'
+                    status = _('Done')
                 return QVariant(status)
             if col == 2:
-                p = str(job.percent_done) + r'%' if job.percent_done > 0 else 'Unavailable'
+                p = str(job.percent_done) + r'%' if job.percent_done > 0 else _('Unavailable')
                 return QVariant(p)
         if role == Qt.DecorationRole and col == 0:
             return self.device_job_icon if isinstance(job, DeviceJob) else self.job_icon

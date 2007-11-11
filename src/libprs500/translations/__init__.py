@@ -40,16 +40,26 @@ def main(args=sys.argv):
     tdir = os.path.dirname(__file__)
     files = source_files()
     buf = cStringIO.StringIO()
+    print 'Creating translations template'
     pygettext(buf, ['-p', tdir]+files)
     src = buf.getvalue()
     template = tempfile.NamedTemporaryFile(suffix='.pot')
     template.write(src)
+    template.flush()
     translations = {}
     for tr in TRANSLATIONS:
         po = os.path.join(tdir, tr+'.po')
         if not os.path.exists(po):
             open(po, 'wb').write(src.replace('LANGUAGE', tr))
+        else:
+            print 'Merging', os.path.basename(po)
+            p = subprocess.Popen('msgmerge -q '+po + ' ' + template.name, shell=True, stdout=subprocess.PIPE)
+            up = p.stdout.read()
+            if p.wait():
+                raise Exception('msgmerge failed with error code: %d'%(p.wait(),))
+            open(po, 'wb').write(up)
         buf = cStringIO.StringIO()
+        print 'Compiling translations'
         msgfmt(buf, [po])
         translations[tr] = buf.getvalue()
     open(os.path.join(tdir, 'data.py'), 'wb').write('translations = '+repr(translations))

@@ -84,7 +84,7 @@ class MovieButton(QFrame):
         self.movie_widget.setMovie(movie)
         self.movie = movie        
         self.layout().addWidget(self.movie_widget)
-        self.jobs = QLabel('<b>Jobs: 0')
+        self.jobs = QLabel('<b>'+_('Jobs:')+' 0')
         self.jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)  
         self.layout().addWidget(self.jobs)
         self.layout().setAlignment(self.jobs, Qt.AlignHCenter)

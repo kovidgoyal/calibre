@@ -309,13 +309,13 @@ class BooksModel(QAbstractTableModel):
             return NONE
         text = ""
         if orientation == Qt.Horizontal:      
-            if   section == 0: text = "Title"
-            elif section == 1: text = "Author(s)"
-            elif section == 2: text = "Size (MB)"
-            elif section == 3: text = "Date"
-            elif section == 4: text = "Rating"
-            elif section == 5: text = "Publisher"
-            return QVariant(self.trUtf8(text))
+            if   section == 0: text = _("Title")
+            elif section == 1: text = _("Author(s)")
+            elif section == 2: text = _("Size (MB)")
+            elif section == 3: text = _("Date")
+            elif section == 4: text = _("Rating")
+            elif section == 5: text = _("Publisher")
+            return QVariant(text)
         else: 
             return QVariant(section+1)
         
@@ -614,12 +614,12 @@ class DeviceBooksModel(BooksModel):
             return NONE
         text = ""
         if orientation == Qt.Horizontal:      
-            if   section == 0: text = "Title"
-            elif section == 1: text = "Author(s)"
-            elif section == 2: text = "Size (MB)"
-            elif section == 3: text = "Date"
-            elif section == 4: text = "Tags"
-            return QVariant(self.trUtf8(text))
+            if   section == 0: text = _("Title")
+            elif section == 1: text = _("Author(s)")
+            elif section == 2: text = _("Size (MB)")
+            elif section == 3: text = _("Date")
+            elif section == 4: text = _("Tags")
+            return QVariant(text)
         else: 
             return QVariant(section+1)
     
@@ -653,7 +653,7 @@ class SearchBox(QLineEdit):
     
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
-        self.help_text = 'Search by title, author, publisher, tags, series and comments'
+        self.help_text = _('Search by title, author, publisher, tags, series and comments')
         self.initial_state = True
         self.default_palette = QApplication.palette(self)
         self.gray = QPalette(self.default_palette)
