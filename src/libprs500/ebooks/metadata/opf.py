@@ -130,6 +130,8 @@ class OPFReader(MetaInformation):
                 role = elem.get('role')
                 if not role:
                     role = elem.get('opf:role')
+                if not role:
+                    role = 'aut'
                 if role == 'aut':
                     raw = self.ENTITY_PATTERN.sub(entity_to_unicode, elem.string)
                     au = raw.split(',')
