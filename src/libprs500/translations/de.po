@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2007-11-11 08:02+PST\n"
-"PO-Revision-Date: 2007-11-10 23:39+0100\n"
+"POT-Creation-Date: 2007-11-11 11:18+PST\n"
+"PO-Revision-Date: 2007-11-11 18:12+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
 "MIME-Version: 1.0\n"
@@ -170,7 +170,7 @@ msgid ""
 msgstr ""
 "Höchstzahl der rekursiven Verknüpfungen (Hyperlinks). Der Wert 0 bedeutet, "
 "dass Verknüpfungen ignoriert werden. Ein negativer Wert bedeutet, dass alle "
-"<a> tags ignoriert werden. "
+"<a> Elemente ignoriert werden. "
 
 # ???
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:162
@@ -232,8 +232,8 @@ msgstr ""
 "Seitenumbruch vor einem Element mit dem angegebenen Attribut erzwingen. Das "
 "Format dieser Einstellung ist tagname regexp,attribute name,attribute value "
 "regexp. Um zum Beispiel alle \"heading\" Elemente, die das Attribut class="
-"\"chapter\" anzupassen, würden Sie \"h\\d,class,chapter\" verwenden. "
-"Voreinstellung ist %default"
+"\"chapter\" anzupassen, verwenden Sie \"h\\d,class,chapter\". Voreinstellung "
+"ist %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:189
 msgid "Preprocess Baen HTML files to improve generated LRF."
@@ -275,14 +275,13 @@ msgstr "Serife Schriftartfamilie einbetten"
 msgid "The sans-serif family of fonts to embed"
 msgstr "Serifenlose Schriftartfamilie einbetten"
 
-# ? Wo steht das ?
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:211
 msgid "The monospace family of fonts to embed"
 msgstr "Nichtproportionale Schriftartfamilie einbetten"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:591
 msgid "Set the book title"
-msgstr ""
+msgstr "Geben Sie den Buchtitel an"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:593
 msgid "Set sort key for the title"
@@ -290,7 +289,7 @@ msgstr "Sortierung nach Titel"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:595
 msgid "Set the author"
-msgstr ""
+msgstr "Geben Sie den Autor an"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:597
 msgid "Set sort key for the author"
@@ -298,33 +297,36 @@ msgstr "Sortierung nach Autor"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:599
 msgid "The category this book belongs to. E.g.: History"
-msgstr ""
+msgstr "Die Kategorie dieses Buches ... (Z. B.: Geschichte)"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:602
 msgid "Path to a graphic that will be set as this files' thumbnail"
 msgstr ""
+"Pfad zu einer Grafik, die als Thumbnail für diese Datei verwendet werden "
+"soll "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:605
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
 msgstr ""
+"Pfad zu einer Text Datei, deren Inhalt als Bemerkung in der LRF Datei "
+"gespeichert wird"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:609
 msgid "Extract thumbnail from LRF file"
-msgstr ""
+msgstr "Thumbnail von LRF Datei extrahieren"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:611
 msgid "Set book ID"
-msgstr ""
+msgstr "Geben Sie die Buch ID an"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:613
 msgid "Don't know what this is for"
-msgstr ""
+msgstr "Was weiß ich, für was das ist"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/choose_format_ui.py:42
 msgid "Choose Format"
 msgstr "Format wählen"
 
-# ???
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/choose_format_ui.py:43
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/password_ui.py:58
 msgid "TextLabel"
@@ -372,6 +374,48 @@ msgstr ""
 msgid "Active Jobs"
 msgstr "Aktive Aufträge"
 
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:248
+msgid ""
+"Specify metadata such as title and author for the book.<p>Metadata will be "
+"updated in the database as well as the generated LRF file."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:248
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:515
+msgid "Metadata"
+msgstr "Meta-Daten"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:249
+msgid ""
+"Adjust the look of the generated LRF file by specifying things like font "
+"sizes and the spacing between words."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:249
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:519
+msgid "Look & Feel"
+msgstr "Look & Feel"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:250
+msgid ""
+"Specify the page settings like margins and the screen size of the target "
+"device."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:250
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:523
+msgid "Page Setup"
+msgstr "Seiteneinrichtung"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:251
+msgid "Fine tune the detection of chapter and section headings."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:251
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:527
+msgid "Chapter Detection"
+msgstr "Ermittlung der Kapitel"
+
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:510
 msgid "Convert to LRF"
 msgstr "Zu LRF konvertieren"
@@ -379,22 +423,6 @@ msgstr "Zu LRF konvertieren"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:511
 msgid "Category"
 msgstr "Kategorie"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:515
-msgid "Metadata"
-msgstr "Meta-Daten"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:519
-msgid "Look & Feel"
-msgstr "Look & Feel"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:523
-msgid "Page Setup"
-msgstr "Seiteneinrichtung"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:527
-msgid "Chapter Detection"
-msgstr "Ermittlung der Kapitel"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:529
 msgid "Options"
@@ -524,10 +552,9 @@ msgstr "Buch"
 msgid "Comments"
 msgstr "Bemerkung"
 
-# ???
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:552
 msgid "&Font delta:"
-msgstr ""
+msgstr "&Schrift Dreieck:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:553
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:555
@@ -735,31 +762,31 @@ msgstr "&Password:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:242
 msgid "Job"
-msgstr ""
+msgstr "Auftrag"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:243
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:244
 msgid "Progress"
-msgstr ""
+msgstr "Fortschritt"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:260
 msgid "Waiting"
-msgstr ""
+msgstr "Abwarten und Tee trinken"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:262
 msgid "Working"
-msgstr ""
+msgstr "Bei der Arbeit..."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:264
 msgid "Done"
-msgstr ""
+msgstr "Erledigt!"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:267
 msgid "Unavailable"
-msgstr ""
+msgstr "Nicht verfügbar"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:312
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:617
@@ -769,17 +796,17 @@ msgstr "Titel"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:313
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:618
 msgid "Author(s)"
-msgstr "Autor(s)"
+msgstr "Autor(en)"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:314
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:619
 msgid "Size (MB)"
-msgstr ""
+msgstr "Größe (MB)"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:315
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:620
 msgid "Date"
-msgstr ""
+msgstr "Datum"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:316
 msgid "Rating"
@@ -792,6 +819,8 @@ msgstr "Etiketten"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:656
 msgid "Search by title, author, publisher, tags, series and comments"
 msgstr ""
+"Liste der Bücher nach Titel, Autor, Herausgeber, Etiketten und Bemerkungen "
+"durchsuchen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/config_ui.py:51
 msgid "Configure Viewer"
@@ -844,6 +873,30 @@ msgstr "eBook öffnen"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:198
 msgid "Configure"
 msgstr "Konfigurieren"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:97
+msgid "Send to main memory"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:98
+msgid "Send to storage card"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:101
+msgid "Edit metadata individually"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:102
+msgid "Edit metadata in bulk"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:126
+msgid "Convert individually"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:127
+msgid "Bulk convert"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:241
 msgid "libprs500"
@@ -949,4 +1002,20 @@ msgstr "Vorschau"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/status.py:87
 msgid "Jobs:"
+msgstr "Aufträge:"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:29
+msgid "Library"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:30
+msgid ""
+"Reader\n"
+"%s available"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:31
+msgid ""
+"Card\n"
+"%s available"
 msgstr ""

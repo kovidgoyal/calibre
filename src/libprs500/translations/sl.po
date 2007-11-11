@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2007-11-11 08:02+PST\n"
+"POT-Creation-Date: 2007-11-11 11:18+PST\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -308,28 +308,54 @@ msgstr ""
 msgid "Active Jobs"
 msgstr ""
 
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:248
+msgid ""
+"Specify metadata such as title and author for the book.<p>Metadata will be "
+"updated in the database as well as the generated LRF file."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:248
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:515
+msgid "Metadata"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:249
+msgid ""
+"Adjust the look of the generated LRF file by specifying things like font "
+"sizes and the spacing between words."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:249
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:519
+msgid "Look & Feel"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:250
+msgid ""
+"Specify the page settings like margins and the screen size of the target "
+"device."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:250
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:523
+msgid "Page Setup"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:251
+msgid "Fine tune the detection of chapter and section headings."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:251
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:527
+msgid "Chapter Detection"
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:510
 msgid "Convert to LRF"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:511
 msgid "Category"
-msgstr ""
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:515
-msgid "Metadata"
-msgstr ""
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:519
-msgid "Look & Feel"
-msgstr ""
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:523
-msgid "Page Setup"
-msgstr ""
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:527
-msgid "Chapter Detection"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:529
@@ -765,6 +791,30 @@ msgstr ""
 msgid "Configure"
 msgstr ""
 
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:97
+msgid "Send to main memory"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:98
+msgid "Send to storage card"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:101
+msgid "Edit metadata individually"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:102
+msgid "Edit metadata in bulk"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:126
+msgid "Convert individually"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:127
+msgid "Bulk convert"
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:241
 msgid "libprs500"
 msgstr ""
@@ -852,4 +902,20 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/status.py:87
 msgid "Jobs:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:29
+msgid "Library"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:30
+msgid ""
+"Reader\n"
+"%s available"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:31
+msgid ""
+"Card\n"
+"%s available"
 msgstr ""

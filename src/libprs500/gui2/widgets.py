@@ -26,9 +26,9 @@ class LocationModel(QAbstractListModel):
         self.icons = [QVariant(QIcon(':/library')),
                       QVariant(QIcon(':/images/reader.svg')),
                       QVariant(QIcon(':/images/sd.svg'))]
-        self.text = ['Library',
-                     'Reader\n%s available',
-                     'Card\n%s available']
+        self.text = [_('Library'),
+                     _('Reader\n%s available'),
+                     _('Card\n%s available')]
         self.free = [-1, -1]
         self.highlight_row = 0            
         

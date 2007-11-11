@@ -53,7 +53,7 @@ def main(args=sys.argv):
             open(po, 'wb').write(src.replace('LANGUAGE', tr))
         else:
             print 'Merging', os.path.basename(po)
-            check_call('msgmerge -v -U --backup=none '+po + ' ' + template.name)
+            check_call('msgmerge -v -U -N --backup=none '+po + ' ' + template.name)
         buf = cStringIO.StringIO()
         print 'Compiling translations'
         msgfmt(buf, [po])

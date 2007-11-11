@@ -94,12 +94,12 @@ class Main(MainWindow, Ui_MainWindow):
         
         ####################### Setup Toolbar #####################
         sm = QMenu()
-        sm.addAction(QIcon(':/images/reader.svg'), 'Send to main memory')
-        sm.addAction(QIcon(':/images/sd.svg'), 'Send to storage card')
+        sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory'))
+        sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card'))
         self.sync_menu = sm # Needed
         md = QMenu()
-        md.addAction('Edit metadata individually')
-        md.addAction('Edit metadata in bulk')
+        md.addAction(_('Edit metadata individually'))
+        md.addAction(_('Edit metadata in bulk'))
         self.metadata_menu = md
         QObject.connect(self.action_add, SIGNAL("triggered(bool)"), self.add_books)
         QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete_books)
@@ -123,8 +123,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.news_menu = nm
         self.action_news.setMenu(nm)
         cm = QMenu()
-        cm.addAction('Convert individually')
-        cm.addAction('Bulk convert')
+        cm.addAction(_('Convert individually'))
+        cm.addAction(_('Bulk convert'))
         self.action_convert.setMenu(cm)
         QObject.connect(cm.actions()[0], SIGNAL('triggered(bool)'), self.convert_single)
         QObject.connect(cm.actions()[1], SIGNAL('triggered(bool)'), self.convert_bulk)
