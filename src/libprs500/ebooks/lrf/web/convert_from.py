@@ -142,7 +142,10 @@ def process_profile(args, options, logger=None):
         
         htmlfile, tdir = fetch_website(options, logger)
         cwd = os.getcwdu()
-        options.output = os.path.join(cwd, options.title+('.lrs' if options.lrs else '.lrf'))
+        if not options.output:
+            options.output = os.path.join(cwd, options.title+('.lrs' if options.lrs else '.lrf'))
+        if not os.path.isabs(options.output):
+            options.output = os.path.join(cwd, options.output)
         try:
             os.chdir(os.path.dirname(htmlfile))
             create_lrf(os.path.basename(htmlfile), options, logger)
