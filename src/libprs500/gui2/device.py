@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import os
+import os, sys, traceback
 
 from PyQt4.QtCore import QThread, SIGNAL, QObject
 
@@ -45,11 +45,17 @@ class DeviceDetector(QThread):
                 try:
                     connected = device[0].is_connected(helper=helper)
                 except:
-                    raise
                     connected = False
                 if connected and not device[1]:
-                    self.emit(SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), device[0], True)
-                    device[1] ^= True
+                    try:
+                        dev = device[0]()
+                        dev.open()
+                        self.emit(SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), dev, True)
+                    except:
+                        print 'Unable to open device'
+                        traceback.print_exc()
+                    finally:                        
+                        device[1] = True                    
                 elif not connected and device[1]:
                     self.emit(SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), device[0], False)
                     device[1] ^= True
@@ -58,11 +64,10 @@ class DeviceDetector(QThread):
         
         
 class DeviceManager(QObject):
-    def __init__(self, device_class):
+    def __init__(self, device):
         QObject.__init__(self)
-        self.device_class = device_class
-        self.device = device_class()
-        self.device.open()
+        self.device_class = device.__class__
+        self.device = device
         
     def device_removed(self):
         self.device = None

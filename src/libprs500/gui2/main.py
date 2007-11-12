@@ -179,16 +179,16 @@ class Main(MainWindow, Ui_MainWindow):
         
     
     ########################## Connect to device ##############################
-    def device_detected(self, cls, connected):
+    def device_detected(self, device, connected):
         '''
         Called when a device is connected to the computer.
         '''
         if connected:    
-            self.device_manager = DeviceManager(cls)
+            self.device_manager = DeviceManager(device)
             func = self.device_manager.info_func()
             self.job_manager.run_device_job(self.info_read, func)
-            self.set_default_thumbnail(cls.THUMBNAIL_HEIGHT)
-            self.status_bar.showMessage('Device: '+cls.__name__+' detected.', 3000)
+            self.set_default_thumbnail(device.THUMBNAIL_HEIGHT)
+            self.status_bar.showMessage('Device: '+device.__class__.__name__+' detected.', 3000)
             self.action_sync.setEnabled(True)
             self.device_connected = True
         else:
