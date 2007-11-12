@@ -178,6 +178,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 Format(self.formats, ext)
             
         all_series = self.db.all_series()
+        all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         series_id = self.db.series_id(row)
         idx, c = None, 0
         for i in all_series:
