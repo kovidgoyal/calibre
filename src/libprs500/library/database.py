@@ -799,9 +799,32 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if ans:
             return ans[0]
         
-    def series_index(self, index):
-        id = self.id(index)
-        return self.conn.execute('SELECT series_index FROM books WHERE id=?', (id,)).fetchone()[0]
+    def series_index(self, index, index_is_id=False):
+        if not index_is_id:
+            index = self.id(index)
+        return self.conn.execute('SELECT series_index FROM books WHERE id=?', (index,)).fetchone()[0]
+    
+    def books_in_series(self, series_id):
+        '''
+        Return an ordered list of all books in the series.
+        The list contains book ids.
+        '''
+        ans = self.conn.execute('SELECT book from books_series_link WHERE series=?',
+                                (series_id,)).fetchall()
+        if not ans:
+            return []
+        ans = [id[0] for id in ans]
+        ans.sort(cmp = lambda x, y: cmp(self.series_index(x, True), self.series_index(y, True)))
+        return ans
+    
+    def books_in_series_of(self, index):
+        '''
+        Return an ordered list of all books in the series that the book indetified by index belongs to.
+        If the book does not belong to a series return an empty list. The list contains book ids.
+        '''
+        series_id = self.series_id(index)
+        return self.books_in_series(series_id)
+        
     
     def comments(self, index):
         '''Comments as string or None'''
