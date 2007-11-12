@@ -149,8 +149,8 @@
              <number>0</number>
             </property>
             <widget class="QWidget" name="metadata_page" >
-             <layout class="QGridLayout" >
-              <item rowspan="2" row="0" column="0" >
+             <layout class="QHBoxLayout" >
+              <item>
                <widget class="QGroupBox" name="groupBox_4" >
                 <property name="title" >
                  <string>Book Cover</string>
@@ -159,19 +159,7 @@
                  <item row="0" column="0" >
                   <layout class="QHBoxLayout" >
                    <item>
-                    <widget class="QLabel" name="cover" >
-                     <property name="sizePolicy" >
-                      <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="maximumSize" >
-                      <size>
-                       <width>250</width>
-                       <height>180</height>
-                      </size>
-                     </property>
+                    <widget class="ImageView" name="cover" >
                      <property name="text" >
                       <string/>
                      </property>
@@ -266,200 +254,216 @@
                 </layout>
                </widget>
               </item>
-              <item row="0" column="1" >
-               <layout class="QGridLayout" >
-                <item row="0" column="0" >
-                 <widget class="QLabel" name="label" >
-                  <property name="text" >
-                   <string>&amp;Title: </string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="buddy" >
-                   <cstring>gui_title</cstring>
-                  </property>
-                 </widget>
+              <item>
+               <layout class="QVBoxLayout" >
+                <item>
+                 <layout class="QGridLayout" >
+                  <item row="0" column="0" >
+                   <widget class="QLabel" name="label" >
+                    <property name="text" >
+                     <string>&amp;Title: </string>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy" >
+                     <cstring>gui_title</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1" >
+                   <widget class="QLineEdit" name="gui_title" >
+                    <property name="toolTip" >
+                     <string>Change the title of this book</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0" >
+                   <widget class="QLabel" name="label_2" >
+                    <property name="text" >
+                     <string>&amp;Author(s): </string>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy" >
+                     <cstring>gui_author</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1" >
+                   <widget class="QLineEdit" name="gui_author" >
+                    <property name="sizePolicy" >
+                     <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                      <horstretch>1</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip" >
+                     <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0" >
+                   <widget class="QLabel" name="label_6" >
+                    <property name="text" >
+                     <string>Author So&amp;rt:</string>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy" >
+                     <cstring>gui_author_sort</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1" >
+                   <widget class="QLineEdit" name="gui_author_sort" >
+                    <property name="sizePolicy" >
+                     <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip" >
+                     <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="0" >
+                   <widget class="QLabel" name="label_3" >
+                    <property name="text" >
+                     <string>&amp;Publisher: </string>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy" >
+                     <cstring>gui_publisher</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="3" column="1" >
+                   <widget class="QLineEdit" name="gui_publisher" >
+                    <property name="toolTip" >
+                     <string>Change the publisher of this book</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="0" >
+                   <widget class="QLabel" name="label_4" >
+                    <property name="text" >
+                     <string>Ta&amp;gs: </string>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy" >
+                     <cstring>tags</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="4" column="1" >
+                   <widget class="QLineEdit" name="tags" >
+                    <property name="toolTip" >
+                     <string>Tags categorize the book. This is particularly useful while searching. &lt;br>&lt;br>They can be any words or phrases, separated by commas.</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="0" >
+                   <widget class="QLabel" name="label_7" >
+                    <property name="text" >
+                     <string>&amp;Series:</string>
+                    </property>
+                    <property name="textFormat" >
+                     <enum>Qt::PlainText</enum>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="buddy" >
+                     <cstring>series</cstring>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="5" column="1" >
+                   <widget class="QComboBox" name="series" >
+                    <property name="sizePolicy" >
+                     <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+                      <horstretch>10</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip" >
+                     <string>List of known series. You can add new series.</string>
+                    </property>
+                    <property name="whatsThis" >
+                     <string>List of known series. You can add new series.</string>
+                    </property>
+                    <property name="editable" >
+                     <bool>true</bool>
+                    </property>
+                    <property name="insertPolicy" >
+                     <enum>QComboBox::InsertAlphabetically</enum>
+                    </property>
+                    <property name="sizeAdjustPolicy" >
+                     <enum>QComboBox::AdjustToContents</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="6" column="1" >
+                   <widget class="QSpinBox" name="series_index" >
+                    <property name="toolTip" >
+                     <string>Series index.</string>
+                    </property>
+                    <property name="whatsThis" >
+                     <string>Series index.</string>
+                    </property>
+                    <property name="prefix" >
+                     <string>Book </string>
+                    </property>
+                    <property name="minimum" >
+                     <number>1</number>
+                    </property>
+                    <property name="maximum" >
+                     <number>10000</number>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
-                <item row="0" column="1" >
-                 <widget class="QLineEdit" name="gui_title" >
-                  <property name="toolTip" >
-                   <string>Change the title of this book</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0" >
-                 <widget class="QLabel" name="label_2" >
-                  <property name="text" >
-                   <string>&amp;Author(s): </string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="buddy" >
-                   <cstring>gui_author</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1" >
-                 <widget class="QLineEdit" name="gui_author" >
+                <item>
+                 <widget class="QGroupBox" name="groupBox_2" >
                   <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-                    <horstretch>1</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="toolTip" >
-                   <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0" >
-                 <widget class="QLabel" name="label_6" >
-                  <property name="text" >
-                   <string>Author So&amp;rt:</string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="buddy" >
-                   <cstring>gui_author_sort</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1" >
-                 <widget class="QLineEdit" name="gui_author_sort" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                   <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                  <property name="toolTip" >
-                   <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>16777215</width>
+                    <height>110</height>
+                   </size>
                   </property>
-                 </widget>
-                </item>
-                <item row="3" column="0" >
-                 <widget class="QLabel" name="label_3" >
-                  <property name="text" >
-                   <string>&amp;Publisher: </string>
+                  <property name="title" >
+                   <string>Comments</string>
                   </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="buddy" >
-                   <cstring>gui_publisher</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="1" >
-                 <widget class="QLineEdit" name="gui_publisher" >
-                  <property name="toolTip" >
-                   <string>Change the publisher of this book</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="0" >
-                 <widget class="QLabel" name="label_4" >
-                  <property name="text" >
-                   <string>Ta&amp;gs: </string>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="buddy" >
-                   <cstring>tags</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="4" column="1" >
-                 <widget class="QLineEdit" name="tags" >
-                  <property name="toolTip" >
-                   <string>Tags categorize the book. This is particularly useful while searching. &lt;br>&lt;br>They can be any words or phrases, separated by commas.</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="0" >
-                 <widget class="QLabel" name="label_7" >
-                  <property name="text" >
-                   <string>&amp;Series:</string>
-                  </property>
-                  <property name="textFormat" >
-                   <enum>Qt::PlainText</enum>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="buddy" >
-                   <cstring>series</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item row="5" column="1" >
-                 <widget class="QComboBox" name="series" >
-                  <property name="sizePolicy" >
-                   <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
-                    <horstretch>10</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="toolTip" >
-                   <string>List of known series. You can add new series.</string>
-                  </property>
-                  <property name="whatsThis" >
-                   <string>List of known series. You can add new series.</string>
-                  </property>
-                  <property name="editable" >
-                   <bool>true</bool>
-                  </property>
-                  <property name="insertPolicy" >
-                   <enum>QComboBox::InsertAlphabetically</enum>
-                  </property>
-                  <property name="sizeAdjustPolicy" >
-                   <enum>QComboBox::AdjustToContents</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="1" >
-                 <widget class="QSpinBox" name="series_index" >
-                  <property name="toolTip" >
-                   <string>Series index.</string>
-                  </property>
-                  <property name="whatsThis" >
-                   <string>Series index.</string>
-                  </property>
-                  <property name="prefix" >
-                   <string>Book </string>
-                  </property>
-                  <property name="minimum" >
-                   <number>1</number>
-                  </property>
-                  <property name="maximum" >
-                   <number>10000</number>
-                  </property>
+                  <layout class="QGridLayout" >
+                   <item row="0" column="0" >
+                    <widget class="QTextEdit" name="gui_comment" >
+                     <property name="maximumSize" >
+                      <size>
+                       <width>16777215</width>
+                       <height>60</height>
+                      </size>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
                  </widget>
                 </item>
                </layout>
-              </item>
-              <item rowspan="2" row="1" column="1" >
-               <widget class="QGroupBox" name="groupBox_2" >
-                <property name="title" >
-                 <string>Comments</string>
-                </property>
-                <layout class="QGridLayout" >
-                 <item row="0" column="0" >
-                  <widget class="QTextEdit" name="gui_comment" >
-                   <property name="maximumSize" >
-                    <size>
-                     <width>16777215</width>
-                     <height>60</height>
-                    </size>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
               </item>
              </layout>
             </widget>
@@ -816,6 +820,19 @@
             <widget class="QWidget" name="page_5" />
            </widget>
           </item>
+          <item row="1" column="0" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
          </layout>
         </widget>
        </item>
@@ -875,6 +892,13 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ImageView</class>
+   <extends>QLabel</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../images.qrc" />
  </resources>

@@ -45,6 +45,7 @@ def build_forms(forms):
             dat = buf.getvalue()
             dat = dat.replace('import images_rc', 'from libprs500.gui2 import images_rc')
             dat = dat.replace('from library import', 'from libprs500.gui2.library import')
+            dat = dat.replace('from widgets import', 'from libprs500.gui2.widgets import')
             dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             open(compiled_form, 'wb').write(dat)
             

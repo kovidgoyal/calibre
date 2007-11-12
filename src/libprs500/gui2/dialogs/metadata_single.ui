@@ -396,12 +396,6 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="maximumSize" >
-               <size>
-                <width>250</width>
-                <height>180</height>
-               </size>
-              </property>
               <property name="text" >
                <string/>
               </property>

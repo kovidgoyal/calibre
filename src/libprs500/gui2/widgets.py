@@ -15,10 +15,17 @@
 '''
 Miscellanous widgets used in the GUI
 '''
-from PyQt4.QtGui import QListView, QIcon, QFont
+from PyQt4.QtGui import QListView, QIcon, QFont, QLabel
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, QObject
 
 from libprs500.gui2 import human_readable, NONE
+
+class ImageView(QLabel):
+    
+    def setPixmap(self, pixmap):
+        QLabel.setPixmap(self, pixmap)
+        self.setMaximumWidth(pixmap.width())
+        self.setMaximumHeight(pixmap.height()) 
 
 class LocationModel(QAbstractListModel):
     def __init__(self, parent):

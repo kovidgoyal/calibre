@@ -30,8 +30,14 @@ class BookInfoDisplay(QFrame):
                                                             Qt.IgnoreAspectRatio,
                                                             Qt.SmoothTransformation)
             self.setPixmap(self.default_pixmap)
-            self.setMaximumSize(QSize(self.WIDTH, self.HEIGHT))
+            self.setMaximumHeight(self.HEIGHT)
+            self.setMaximumWidth(self.WIDTH)
             self.setScaledContents(True)
+        
+        def setPixmap(self, pixmap):
+            QLabel.setPixmap(self, pixmap)
+            aspect_ratio = pixmap.width()/float(pixmap.height())
+            self.setMaximumWidth(int(aspect_ratio*self.HEIGHT))
         
         def sizeHint(self):
             return QSize(self.__class__.WIDTH, self.__class__.HEIGHT)
