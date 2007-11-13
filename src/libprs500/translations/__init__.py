@@ -24,7 +24,8 @@ from libprs500.translations.msgfmt import main as msgfmt
 
 TRANSLATIONS = [
                 'sl',
-                'de'
+                'de',
+                'ca'
                 ]
 
 def source_files():

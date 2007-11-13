@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2007-11-11 21:02+PST\n"
+"POT-Creation-Date: 2007-11-13 08:52+PST\n"
 "PO-Revision-Date: 2007-11-11 18:12+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
@@ -51,7 +51,7 @@ msgid "Sort key for the author"
 msgstr "Sortierung nach Autor"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:106
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:317
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:322
 msgid "Publisher"
 msgstr "Herausgeber"
 
@@ -788,35 +788,35 @@ msgstr "Erledigt!"
 msgid "Unavailable"
 msgstr "Nicht verfügbar"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:312
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:617
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:317
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:622
 msgid "Title"
 msgstr "Titel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:313
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:618
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:318
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:623
 msgid "Author(s)"
 msgstr "Autor(en)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:314
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:619
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:319
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:624
 msgid "Size (MB)"
 msgstr "Größe (MB)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:315
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:620
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:320
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:625
 msgid "Date"
 msgstr "Datum"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:316
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:321
 msgid "Rating"
 msgstr "Bewertung"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:621
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:626
 msgid "Tags"
 msgstr "Etiketten"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:656
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:661
 msgid "Search by title, author, publisher, tags, series and comments"
 msgstr ""
 "Liste der Bücher nach Titel, Autor, Herausgeber, Etiketten und Bemerkungen "
@@ -1000,7 +1000,7 @@ msgstr "In eBooks umwandeln"
 msgid "View"
 msgstr "Vorschau"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/status.py:93
+#: /home/kovid/work/libprs500/src/libprs500/gui2/status.py:98
 msgid "Jobs:"
 msgstr "Aufträge:"
 
