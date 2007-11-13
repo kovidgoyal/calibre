@@ -142,6 +142,9 @@ class Device(object):
         element can be None or a three element tuple (width, height, data)
         where data is the image data in JPEG format as a string. C{tags} must be
         a possibly empty list of strings. C{authors} must be a string.
+        The dictionary can also have an optional key "tag order" which should be
+        another dictionary that maps tag names to lists of book ids. The ids are
+        ids from the book database.
         @param booklists: A tuple containing the result of calls to 
                                 (L{books}(oncard=False), L{books}(oncard=True)).
         '''
