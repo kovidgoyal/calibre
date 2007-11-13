@@ -18,7 +18,7 @@ Miscellanous widgets used in the GUI
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, QObject
 
-from libprs500.gui2 import human_readable, NONE
+from libprs500.gui2 import human_readable, NONE, TableView
 from libprs500 import fit_image
 
 class ImageView(QLabel):
@@ -96,4 +96,7 @@ class LocationView(QListView):
         if 0 <= row and row <= 2:
             self.model().location_changed(row)
                         
+class JobsView(TableView):
+    pass
+
 

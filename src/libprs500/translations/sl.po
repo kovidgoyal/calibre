@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2007-11-13 08:52+PST\n"
+"POT-Creation-Date: 2007-11-13 10:21+PST\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -904,17 +904,17 @@ msgstr ""
 msgid "Jobs:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:36
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:41
 msgid "Library"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:37
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:42
 msgid ""
 "Reader\n"
 "%s available"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:38
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:43
 msgid ""
 "Card\n"
 "%s available"
