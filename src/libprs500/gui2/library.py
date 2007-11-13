@@ -236,12 +236,17 @@ class BooksModel(QAbstractTableModel):
                 tags = []
             else:
                 tags = tags.split(',')
+            series = self.db.series(row)
+            if series is not None:
+                tags.append(series)
             mi = {
                   'title'   : self.db.title(row),
                   'authors' : au,
                   'cover'   : self.db.cover(row),
                   'tags'    : tags,
-                  } 
+                  }
+            if series is not None:
+                mi['tag order'] = {series:self.db.books_in_series_of(row)} 
             
             metadata.append(mi)
         return metadata

@@ -113,6 +113,15 @@ class Book(object):
             return self.mountpath + self.rpath
         return property(fget=fget, doc=doc)
     
+    @apply
+    def db_id():
+        doc = '''The database id in the application database that this file corresponds to'''
+        def fget(self):
+            match = re.search(r'_(\d+)$', self.rpath.rpartition('.')[0])
+            if match:
+                return int(match.group(1))
+        return property(fget=fget, doc=doc)
+    
     def __init__(self, node, mountpath, tags, prefix=""):
         self.elem      = node
         self.prefix    = prefix
@@ -134,6 +143,7 @@ class BookList(_BookList):
         self.root_element = self.document.documentElement
         self.mountpath = mountpath
         records = self.root_element.getElementsByTagName('records')
+        self.tag_order = {}
 
         if records:
             self.prefix = 'xs1:'
@@ -202,6 +212,8 @@ class BookList(_BookList):
         book.datetime = ctime
         self.append(book)
         if info.has_key('tags'):
+            if info.has_key('tag order'):
+                self.tag_order.update(info['tag order'])
             self.set_tags(book, info['tags'])
         
     def _delete_book(self, node):
@@ -329,6 +341,35 @@ class BookList(_BookList):
         src = self.document.toxml('utf-8') + '\n'
         stream.write(src.replace("'", '&apos;'))
         
+    def book_by_id(self, id):
+        for book in self:
+            if str(book.id) == str(id):
+                return book
+    
+    def reorder_playlists(self):
+        for title in self.tag_order.keys():
+            pl = self.playlist_by_title(title)
+            if not pl:
+                continue
+            db_ids = [i.getAttribute('id') for i in pl.childNodes]
+            pl_book_ids = [self.book_by_id(i.getAttribute('id')).db_id for i in pl.childNodes]
+            map = {}
+            for i, j in zip(pl_book_ids, db_ids):
+                map[i] = j
+            pl_book_ids = [i for i in pl_book_ids if i is not None]
+            ordered_ids = [i for i in self.tag_order[title] if i in pl_book_ids]
+            
+            if len(ordered_ids) < len(pl.childNodes):
+                continue
+            children = [i for i in pl.childNodes]
+            for child in children:
+                pl.removeChild(child)
+                child.unlink()
+            for id in ordered_ids:
+                item = self.document.createElement(self.prefix+'item')
+                item.setAttribute('id', str(map[id]))
+                pl.appendChild(item)
+        
 def fix_ids(main, card):
     '''
     Adjust ids the XML databases.
@@ -358,6 +399,8 @@ def fix_ids(main, card):
             except KeyError:
                 item.parentNode.removeChild(item)
                 item.unlink()
+                
+        db.reorder_playlists()
     
     regen_ids(main)
     regen_ids(card)
