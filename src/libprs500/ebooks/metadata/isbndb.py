@@ -40,6 +40,9 @@ def fetch_metadata(url, max=100):
             raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
         soup = BeautifulStoneSoup(raw)
         book_list = soup.find('booklist')
+        if book_list is None:
+            errmsg = soup.find('errormessage').string
+            raise ISBNDBError('Error fetching metadata: '+errmsg)
         total_results = int(book_list['total_results'])
         np = '&page_number=%s&'%(page_number+1)
         url = re.sub(r'\&page_number=\d+\&', np, url)
