@@ -19,13 +19,18 @@ from PyQt4.QtGui import QListView, QIcon, QFont, QLabel
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, QObject
 
 from libprs500.gui2 import human_readable, NONE
+from libprs500 import fit_image
 
 class ImageView(QLabel):
     
+    MAX_WIDTH  = 400
+    MAX_HEIGHT = 300
+    
     def setPixmap(self, pixmap):
         QLabel.setPixmap(self, pixmap)
-        self.setMaximumWidth(pixmap.width())
-        self.setMaximumHeight(pixmap.height()) 
+        width, height = fit_image(pixmap.width(), pixmap.height(), self.MAX_WIDTH, self.MAX_HEIGHT)[1:]
+        self.setMaximumWidth(width)
+        self.setMaximumHeight(height) 
 
 class LocationModel(QAbstractListModel):
     def __init__(self, parent):

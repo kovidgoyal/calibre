@@ -20,6 +20,7 @@ __appname__   = 'libprs500'
 
 import sys, os, logging, mechanize, locale, cStringIO
 from gettext import GNUTranslations
+from math import floor
 
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
@@ -83,6 +84,28 @@ def browser():
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
     return opener
+
+def fit_image(width, height, pwidth, pheight):
+    '''
+    Fit image in box of width pwidth and height pheight. 
+    @param width: Width of image
+    @param height: Height of image
+    @param pwidth: Width of box 
+    @param pheight: Height of box
+    @return: scaled, new_width, new_height. scaled is True iff new_widdth and/or new_height is different from width or height.  
+    '''
+    scaled = height > pheight or width > pwidth
+    if height > pheight:
+        corrf = pheight/float(height)
+        width, height = floor(corrf*width), pheight                        
+    if width > pwidth:
+        corrf = pwidth/float(width)
+        width, height = pwidth, floor(corrf*height)
+    if height > pheight:
+        corrf = pheight/float(height)
+        width, height = floor(corrf*width), pheight
+                            
+    return scaled, int(width), int(height)      
 
 def set_translator():
     # To test different translations invoke as

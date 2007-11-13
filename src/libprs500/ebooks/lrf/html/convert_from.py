@@ -42,7 +42,7 @@ from libprs500.ebooks.lrf import Book
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.table import Table 
-from libprs500 import filename_to_utf8,  setup_cli_handlers, __appname__
+from libprs500 import filename_to_utf8,  setup_cli_handlers, __appname__, fit_image
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.opf import OPFReader
 from libprs500.devices.interface import Device
@@ -64,19 +64,7 @@ def munge_paths(basepath, url):
         path = os.path.join(os.path.dirname(basepath), path)
     return os.path.normpath(path), fragment
 
-def fit_image(width, height, pwidth, pheight):
-    scaled = height > pheight or width > pwidth
-    if height > pheight:
-        corrf = pheight/float(height)
-        width, height = floor(corrf*width), pheight                        
-    if width > pwidth:
-        corrf = pwidth/float(width)
-        width, height = pwidth, floor(corrf*height)
-    if height > pheight:
-        corrf = pheight/float(height)
-        width, height = floor(corrf*width), pheight
-                            
-    return scaled, int(width), int(height)                                    
+                              
         
 
 class HTMLConverter(object):

@@ -17,6 +17,7 @@ import textwrap
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy
 from PyQt4.QtCore import Qt, QSize
+from libprs500 import fit_image
 from libprs500.gui2 import qstring_to_unicode
 
 class BookInfoDisplay(QFrame):
@@ -29,13 +30,17 @@ class BookInfoDisplay(QFrame):
                                                             self.__class__.HEIGHT,
                                                             Qt.IgnoreAspectRatio,
                                                             Qt.SmoothTransformation)
-            self.setPixmap(self.default_pixmap)
-            self.setMaximumHeight(self.HEIGHT)
-            self.setMaximumWidth(self.WIDTH)
             self.setScaledContents(True)
+            self.setPixmap(self.default_pixmap)
+            
         
         def setPixmap(self, pixmap):
+            width, height = fit_image(pixmap.width(), pixmap.height(),
+                                              self.WIDTH, self.HEIGHT)[1:]
+            self.setMaximumHeight(height)
+            self.setMaximumWidth(width)
             QLabel.setPixmap(self, pixmap)
+             
             aspect_ratio = pixmap.width()/float(pixmap.height())
             self.setMaximumWidth(int(aspect_ratio*self.HEIGHT))
         
