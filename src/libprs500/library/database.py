@@ -1084,6 +1084,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
         
     def export_to_dir(self, dir, indices, byauthor=False):
+        if not os.path.exists(dir):
+            raise IOError('Target directory does not exist: '+dir)
         by_author = {}
         for index in indices:
             id = self.id(index)
@@ -1110,9 +1112,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 for fmt in self.formats(idx).split(','):
                     data = self.format(idx, fmt)
                     name = au + ' - ' + title if byauthor else title + ' - ' + au
-                    f = open(os.path.join(tpath, name +'_'+id+'.'+fmt.lower()), 'wb')
+                    fname = name +'_'+id+'.'+fmt.lower()
+                    f = open(os.path.join(tpath, fname.replace(os.sep, '_')), 'wb')
                     f.write(data)
-                    
+
+                
 if __name__ == '__main__':
     db = LibraryDatabase('/home/kovid/library1.db')
     
