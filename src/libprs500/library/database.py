@@ -1100,12 +1100,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 by_author[au] = []
             by_author[au].append(index)
         for au in by_author.keys():
-            apath = os.path.join(dir, au)
+            apath = os.path.join(dir, au.replace(os.sep, '_').strip())
             if not os.path.exists(apath):
                 os.mkdir(apath)
             for idx in by_author[au]:
                 title = re.sub(r'\s', ' ', self.title(idx))
-                tpath = os.path.join(apath, title)
+                tpath = os.path.join(apath, title.replace(os.sep, '_').strip())
                 id = str(self.id(idx))
                 if not os.path.exists(tpath):
                     os.mkdir(tpath)
@@ -1113,7 +1113,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     data = self.format(idx, fmt)
                     name = au + ' - ' + title if byauthor else title + ' - ' + au
                     fname = name +'_'+id+'.'+fmt.lower()
-                    f = open(os.path.join(tpath, fname.replace(os.sep, '_')), 'wb')
+                    f = open(os.path.join(tpath, fname.replace(os.sep, '_').strip()), 'wb')
                     f.write(data)
 
                 
