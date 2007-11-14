@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>614</width>
-    <height>832</height>
+    <height>702</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -55,7 +55,7 @@
          <number>0</number>
         </property>
         <item row="0" column="0" >
-         <widget class="QGraphicsView" name="graphics_view" >
+         <widget class="BookView" name="graphics_view" >
           <property name="mouseTracking" >
            <bool>true</bool>
           </property>
@@ -291,6 +291,11 @@
    <class>SearchBox</class>
    <extends>QLineEdit</extends>
    <header>library.h</header>
+  </customwidget>
+  <customwidget>
+   <class>BookView</class>
+   <extends>QGraphicsView</extends>
+   <header>bookview.h</header>
   </customwidget>
  </customwidgets>
  <resources>

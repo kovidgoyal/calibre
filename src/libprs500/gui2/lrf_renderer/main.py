@@ -110,7 +110,6 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.closed = False
         
-        
     def configure(self, triggered):
         opts = cPickle.loads(str(QSettings().value('ebook viewer options', QVariant(cPickle.dumps(self.opts))).toString()))
         d = Config(self, opts)
@@ -165,8 +164,13 @@ class Main(MainWindow, Ui_MainWindow):
     
     def parsed(self):
         if not self.renderer.aborted and self.renderer.lrf is not None:
-            self.graphics_view.setMinimumSize(self.renderer.lrf.device_info.width+5, 
-                                              self.renderer.lrf.device_info.height)
+            width, height =  self.renderer.lrf.device_info.width, \
+                                            self.renderer.lrf.device_info.height
+            self.graphics_view.resize_for(width, height)
+            desktop = QCoreApplication.instance().desktop()
+            screen_height = desktop.availableGeometry().height()
+            height = min(screen_height, height+50)
+            self.resize(self.size().width(), height) 
             self.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)
             self.document_title = self.renderer.lrf.metadata.title
             if self.opts.profile:
