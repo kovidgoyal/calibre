@@ -46,7 +46,7 @@ class Distribution(object):
         ('fonttools', '2.0-beta1', 'fonttools', 'fonttools', 'fonttools'),
         ('unrtf', '0.20.1', 'unrtf', 'unrtf', 'unrtf'),
         ('mechanize for python', '0.1.7b', 'dev-python/mechanize', 'python-mechanize', 'python-mechanize'),
-        ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'imagemagick'),
+        ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('convertlit', '1.8', 'convertlit', None, None)
