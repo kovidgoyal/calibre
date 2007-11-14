@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-13 10:21+PST\n"
+"POT-Creation-Date: 2007-11-14 13:04+PST\n"
 "PO-Revision-Date: 2007-11-13 14:36+0100\n"
 "Last-Translator: RaÃÂ¼l Utrera <>\n"
 "Language-Team: Catalan <ca@dodds.net>\n"
@@ -864,27 +864,27 @@ msgstr "Obre l'eBook"
 msgid "Configure"
 msgstr "Configura"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:97
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:99
 msgid "Send to main memory"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:98
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:100
 msgid "Send to storage card"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:101
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:103
 msgid "Edit metadata individually"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:102
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:104
 msgid "Edit metadata in bulk"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:126
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:128
 msgid "Convert individually"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:127
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:129
 msgid "Bulk convert"
 msgstr ""
 
