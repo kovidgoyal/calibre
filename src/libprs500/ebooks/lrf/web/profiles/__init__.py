@@ -85,7 +85,10 @@ class DefaultProfile(object):
         self.verbose  = verbose
         self.temp_dir = tempfile.mkdtemp(prefix=__appname__+'_')
         self.browser = self.get_browser()
-        self.url = 'file:'+ ('' if iswindows else '//') + self.build_index()
+        try:
+            self.url = 'file:'+ ('' if iswindows else '//') + self.build_index()
+        except NotImplementedError:
+            self.url = None
     
     def __del__(self):
         import os, shutil
