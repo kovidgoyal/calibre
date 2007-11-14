@@ -43,6 +43,7 @@ Answers are organized as follows: G{classtree Answer}
 
 import struct
 import time
+from datetime import datetime
 
 from libprs500.devices.errors import PacketError
 
@@ -347,7 +348,8 @@ class SetTime(Command):
         self.number = SetTime.NUMBER
         self.type = 0x01
         self.length = 0x1c
-        tz = -int(time.timezone/60. -(60 if time.daylight else 0) )
+        td = datetime.now() - datetime.utcnow()
+        tz = int((td.days*24*3600 + td.seconds)/60.)
         self.timezone = tz if tz > 0 else 0xffffffff +1 + tz
         if not t: t = time.time()
         t = time.gmtime(t)
