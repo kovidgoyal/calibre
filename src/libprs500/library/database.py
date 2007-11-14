@@ -16,8 +16,11 @@
 Backend that implements storage of ebooks in an sqlite database.
 '''
 import sqlite3 as sqlite
-import datetime, re, os, cPickle
+import datetime, re, os, cPickle, traceback
 from zlib import compress, decompress
+
+from libprs500.ebooks.metadata.meta import set_metadata
+from libprs500.ebooks.metadata import MetaInformation
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -1113,8 +1116,18 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     data = self.format(idx, fmt)
                     name = au + ' - ' + title if byauthor else title + ' - ' + au
                     fname = name +'_'+id+'.'+fmt.lower()
-                    f = open(os.path.join(tpath, fname.replace(os.sep, '_').strip()), 'wb')
+                    f = open(os.path.join(tpath, fname.replace(os.sep, '_').strip()), 'w+b')
                     f.write(data)
+                    f.flush()
+                    aum = self.authors(idx)
+                    if aum: aum = aum.split(',')
+                    mi = MetaInformation(self.title(idx), aum)
+                    mi.author_sort = self.author_sort(idx)
+                    try:
+                        set_metadata(f, mi, fmt.lower())
+                    except:
+                        print 'Error setting metadata for book:', mi.title
+                        traceback.print_exc()
 
                 
 if __name__ == '__main__':

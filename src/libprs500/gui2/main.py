@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import os, sys, textwrap, cStringIO, collections
+import os, sys, textwrap, cStringIO, collections, copy, traceback
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
@@ -44,6 +44,8 @@ from libprs500.gui2.dialogs.password import PasswordDialog
 from libprs500.gui2.lrf_renderer.main import file_renderer
 from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
 from libprs500.library.database import DatabaseLocked
+from libprs500.ebooks.metadata.meta import set_metadata
+from libprs500.ebooks.metadata import MetaInformation
 
 
 class Main(MainWindow, Ui_MainWindow):
@@ -451,6 +453,14 @@ class Main(MainWindow, Ui_MainWindow):
             if f is None:
                 bad.append(mi['title'])
             else:
+                aus = mi['authors'].split(',')
+                for a in copy.copy(aus):
+                    aus += a.split('&')
+                try:
+                    set_metadata(f, MetaInformation(mi['title'], aus), f.name.rpartition('.')[2])
+                except:
+                    print 'Error setting metadata in book:', mi['title']
+                    traceback.print_exc()
                 good.append(mi)
                 gf.append(f)
                 names.append('%s_%d%s'%(__appname__, id, os.path.splitext(f.name)[1]))

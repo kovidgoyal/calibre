@@ -14,12 +14,16 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from libprs500.ebooks.metadata.rtf import get_metadata as rtf_metadata
-from libprs500.ebooks.lrf.meta import get_metadata as lrf_metadata
+from libprs500.ebooks.lrf.meta     import get_metadata as lrf_metadata
 from libprs500.ebooks.metadata.pdf import get_metadata as pdf_metadata
 from libprs500.ebooks.metadata.lit import get_metadata as lit_metadata
+from libprs500.ebooks.metadata.rtf import set_metadata as set_rtf_metadata
+from libprs500.ebooks.lrf.meta     import set_metadata as set_lrf_metadata
+
 from libprs500.ebooks.metadata import MetaInformation
 
 def get_metadata(stream, stream_type='lrf'):
+    if stream_type: stream_type = stream_type.lower()
     if stream_type == 'rtf':
         return rtf_metadata(stream)
     if stream_type == 'lrf':
@@ -29,4 +33,11 @@ def get_metadata(stream, stream_type='lrf'):
     if stream_type == 'lit':
         return lit_metadata(stream)
     return MetaInformation(None, None)
+
+def set_metadata(stream, mi, stream_type='lrf'):
+    if stream_type: stream_type = stream_type.lower()
+    if stream_type == 'lrf':
+        set_lrf_metadata(stream, mi)
+    elif stream_type == 'rtf':
+        set_rtf_metadata(stream, mi)
     

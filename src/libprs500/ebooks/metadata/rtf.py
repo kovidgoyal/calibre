@@ -15,7 +15,7 @@
 """
 Edit metadata in RTF files.
 """
-import re, cStringIO, sys
+import re, cStringIO, sys, copy
 
 from libprs500.ebooks.metadata import MetaInformation, get_parser
 
@@ -99,16 +99,16 @@ def get_metadata(stream):
 def create_metadata(stream, options):
     md = r'{\info'
     if options.title:
-        title = options.title.encode('ascii', 'replace')
+        title = options.title.encode('ascii', 'ignore')
         md += r'{\title %s}'%(title,)
     if options.authors:
-        author = options.authors.encode('ascii', 'replace')
+        author = options.authors.encode('ascii', 'ignore')
         md += r'{\author %s}'%(author,)
     if options.category:
-        category = options.category.encode('ascii', 'replace')
+        category = options.category.encode('ascii', 'ignore')
         md += r'{\category %s}'%(category,)
     if options.comment:
-        comment = options.comment.encode('ascii', 'replace')
+        comment = options.comment.encode('ascii', 'ignore')
         md += r'{\subject %s}'%(comment,)
     if len(md) > 6:
         md += '}'
@@ -118,7 +118,13 @@ def create_metadata(stream, options):
         stream.seek(0)
         stream.write(ans)
 
-def set_metadata(stream, options):
+def set_metadata(stream, mi):
+    mi = copy.deepcopy(mi)
+    mi.authors = ', '.join(mi.authors)
+    mi.comment = mi.comments
+    set_metadata_(stream, mi)
+
+def set_metadata_(stream, options):
     '''
     Modify/add RTF metadata in stream
     @param options: Object with metadata attributes title, author, comment, category
@@ -151,7 +157,7 @@ def set_metadata(stream, options):
                 src = add_metadata_item(src, 'subject', comment)
         author = options.authors
         if author != None:
-            author = author.encode('ascii', 'replace')
+            author = author.encode('ascii', 'ignore')
             pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)        
             if pat.search(src):
                 src = pat.sub(r'{\\author ' + author + r'}', src)
@@ -180,7 +186,7 @@ def main(args=sys.argv):
         parser.print_help()
         sys.exit(1)
     stream = open(args[1], 'r+b')
-    set_metadata(stream, options)
+    set_metadata_(stream, options)
     mi = get_metadata(stream)
     return mi
 

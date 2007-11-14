@@ -614,6 +614,19 @@ def option_parser():
     
     return parser
 
+def set_metadata(stream, mi):
+    lrf = LRFMetaFile(stream)
+    if mi.title:
+        lrf.title = mi.title
+    if mi.authors:
+        lrf.author = ', '.join(mi.authors)
+    if mi.category:
+        lrf.category = mi.category
+    if mi.comments:    
+        lrf.free_text = mi.comments
+    if mi.author_sort:
+        lrf.author_reading = mi.author_sort
+        
 
 def main(args=sys.argv):
     import os.path
