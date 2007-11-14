@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
 '''
-import re
+import re, time, functools
 from uuid import uuid4 as _uuid
 import xml.dom.minidom as dom
 from base64 import b64decode as decode
@@ -22,7 +22,10 @@ from base64 import b64encode as encode
 
 
 from libprs500.devices.interface import BookList as _BookList
-from libprs500.devices import strftime, strptime
+from libprs500.devices import strftime as _strftime
+from libprs500.devices import strptime
+
+strftime = functools.partial(_strftime, zone=time.localtime)
 
 MIME_MAP   = { 
                 "lrf" : "application/x-sony-bbeb", 
