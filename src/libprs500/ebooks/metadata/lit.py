@@ -164,7 +164,6 @@ class UnBinary(object):
     pending_indent  = 0
     lingering_space = 0
     was_in_text     = 0
-    buf             = cStringIO.StringIO()
     
     def __init__(self, bin, manifest, attr_map=OPF_ATTR_MAP, tag_map=OPF_TAG_MAP, 
                  tag_to_attr_map=[[] for i in range(43)]):
@@ -174,6 +173,7 @@ class UnBinary(object):
         self.tag_to_attr_map = tag_to_attr_map
         self.opf = self.attr_map is OPF_ATTR_MAP
         self.bin = bin
+        self.buf = cStringIO.StringIO()
         self.binary_to_text() 
 
     def write_spaces(self, depth):
@@ -691,7 +691,7 @@ class LitFile(object):
 def get_metadata(stream):
     try:
         litfile = LitFile(stream)
-        mi = OPFReader(cStringIO.StringIO(litfile.meta))        
+        mi = OPFReader(cStringIO.StringIO(litfile.meta))
     except:
         title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
         mi = MetaInformation(title, ['Unknown'])
