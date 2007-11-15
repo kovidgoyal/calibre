@@ -161,13 +161,12 @@ FLAG_HEAD      = 8
 FLAG_ATOM      = 16
 
 class UnBinary(object):
-    pending_indent  = 0
-    lingering_space = 0
-    was_in_text     = 0
-    
     def __init__(self, bin, manifest, attr_map=OPF_ATTR_MAP, tag_map=OPF_TAG_MAP, 
                  tag_to_attr_map=[[] for i in range(43)]):
         self.manifest = manifest
+        self.pending_indent  = 0
+        self.lingering_space = 0
+        self.was_in_text     = 0
         self.attr_map = attr_map
         self.tag_map  = tag_map
         self.tag_to_attr_map = tag_to_attr_map
