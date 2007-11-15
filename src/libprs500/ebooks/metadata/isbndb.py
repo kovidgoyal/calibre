@@ -16,7 +16,7 @@
 Interface to isbndb.com. My key HLLXQX2A.
 '''
 
-import sys, logging, re
+import sys, logging, re, socket
 from urllib import urlopen, quote
 from optparse import OptionParser
 
@@ -33,22 +33,27 @@ def fetch_metadata(url, max=100):
     books = []
     page_number = 1
     total_results = sys.maxint
-    while len(books) < total_results and max > 0:
-        try:
-            raw = urlopen(url).read()
-        except Exception, err:
-            raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
-        soup = BeautifulStoneSoup(raw)
-        book_list = soup.find('booklist')
-        if book_list is None:
-            errmsg = soup.find('errormessage').string
-            raise ISBNDBError('Error fetching metadata: '+errmsg)
-        total_results = int(book_list['total_results'])
-        np = '&page_number=%s&'%(page_number+1)
-        url = re.sub(r'\&page_number=\d+\&', np, url)
-        books.extend(book_list.findAll('bookdata'))
-        max -= 1
-    return books
+    timeout = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(2.)
+    try:
+        while len(books) < total_results and max > 0:
+            try:
+                raw = urlopen(url).read()
+            except Exception, err:
+                raise ISBNDBError('Could not fetch ISBNDB metadata. Error: '+str(err))
+            soup = BeautifulStoneSoup(raw)
+            book_list = soup.find('booklist')
+            if book_list is None:
+                errmsg = soup.find('errormessage').string
+                raise ISBNDBError('Error fetching metadata: '+errmsg)
+            total_results = int(book_list['total_results'])
+            np = '&page_number=%s&'%(page_number+1)
+            url = re.sub(r'\&page_number=\d+\&', np, url)
+            books.extend(book_list.findAll('bookdata'))
+            max -= 1
+        return books
+    finally:
+        socket.setdefaulttimeout(timeout)
     
 
 class ISBNDBMetadata(MetaInformation):

@@ -16,7 +16,7 @@
 The dialog used to edit meta information for a book as well as 
 add/remove formats
 '''
-import os, urllib
+import os, urllib, socket
 
 from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
@@ -207,6 +207,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             self.fetch_cover_button.setEnabled(False)
             self.setCursor(Qt.WaitCursor)
             QCoreApplication.instance().processEvents()
+            timeout = socket.getdefaulttimeout()
+            socket.setdefaulttimeout(5.)                
             try:
                 src = urllib.urlopen('http://www.librarything.com/isbn/'+isbn).read()
                 s = BeautifulSoup(src)
@@ -225,6 +227,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             finally:
                 self.fetch_cover_button.setEnabled(True)
                 self.unsetCursor()
+                socket.setdefaulttimeout(timeout)
+                
         else:
             error_dialog(self, 'Cannot fetch cover', 'You must specify the ISBN identifier for this book.').exec_()
                 
