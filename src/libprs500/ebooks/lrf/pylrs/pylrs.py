@@ -36,7 +36,7 @@
 #                           Plot, Image (outside of ImageBlock), 
 #                           EmpLine, EmpDots
 
-import os, re, codecs
+import os, re, codecs, operator
 from datetime import date
 try:
     from elementtree.ElementTree import (Element, SubElement)
@@ -310,6 +310,14 @@ class LrsContainer(object):
             
         self.contents.append(content)
         return self
+    
+    def get_all(self, predicate=lambda x: x):
+        for child in self.contents:
+            if predicate(child):
+                yield child
+            if hasattr(child, 'get_all'):
+                for grandchild in child.get_all(predicate):
+                    yield grandchild
 
 
 
@@ -532,7 +540,44 @@ class Book(Delegator):
 
         method(content)
 
-
+    
+    def rationalize_font_sizes(self, base_font_size=10):
+        base_font_size *= 10.
+        main = None
+        for obj in self.delegates:
+            if isinstance(obj, Main):
+                main = obj
+                break
+        pages = [obj for obj in main.contents if isinstance(obj, Page)]
+        text_blocks = []
+        for p in pages:
+            for obj in p.contents:
+                if isinstance(obj, TextBlock):
+                    text_blocks.append(obj)
+            
+        text_styles = set([t.textStyle for t in text_blocks])
+        fonts = {}
+        for ts in text_styles:
+            fs = int(ts.attrs['fontsize'])
+            if fonts.has_key(fs):
+                fonts[fs] += 1
+            else:
+                fonts[fs] = 1
+        
+        old_base_font_size = float(max(zip(fonts.keys(), fonts.values()), key=operator.itemgetter(1))[0])
+        
+        def rescale(old):
+            return str(int(int(old) * (base_font_size/old_base_font_size)))
+            
+        for ts in text_styles:
+            ts.attrs['fontsize'] = rescale(ts.attrs['fontsize'])
+        
+        for tb in text_blocks:
+            if tb.textSettings.has_key('fontsize'):
+                tb.textSettings['fontsize'] = rescale(tb.textSettings['fontsize'])
+            for span in tb.get_all(lambda x: isinstance(x, Span) and x.attrs.has_key('fontsize')):
+                span.attrs['fontsize'] = rescale(span.attrs['fontsize'])
+    
     def renderLrs(self, lrsFile):
         if isinstance(lrsFile, basestring): 
             lrsFile = codecs.open(lrsFile, "wb", encoding="utf-16")

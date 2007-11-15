@@ -263,6 +263,10 @@ class HTMLConverter(object):
         for text, tb in self.extra_toc_entries:
             ascii_text = text.encode('ascii', 'ignore')
             self.book.addTocEntry(ascii_text, tb)
+            
+        if self.base_font_size > 0:
+            self.logger.info('\tRationalizing font sizes...')
+            self.book.rationalize_font_sizes(self.base_font_size)
         
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher', 

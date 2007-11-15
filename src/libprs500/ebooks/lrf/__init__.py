@@ -114,11 +114,8 @@ def option_parser(usage):
     parser.add_option('--ignore-tables', action='store_true', default=False, dest='ignore_tables',
                       help=_('Render HTML tables as blocks of text instead of actual tables. This is neccessary if the HTML contains very large or complex tables.'))
     laf = parser.add_option_group('LOOK AND FEEL')
-    laf.add_option('--font-delta', action='store', type='float', default=0., \
-                      help=_("""Increase the font size by 2 * FONT_DELTA pts and """
-                      '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
-                      """If FONT_DELTA is negative, the font size is decreased."""),
-                      dest='font_delta')
+    laf.add_option('--base-font-size', action='store', type='float', default=10.,
+                   help=_('''Specify the base font size in pts. All fonts are rescaled accordingly. This option obsoletes the --font-delta option and takes precendence over it. To use --font-delta, set this to 0.'''))
     laf.add_option('--enable-autorotation', action='store_true', default=False, 
                    help=_('Enable autorotation of images that are wider than the screen width.'), 
                    dest='autorotation')
@@ -134,6 +131,12 @@ def option_parser(usage):
                    help=_('Override the CSS. Can be either a path to a CSS stylesheet or a string. If it is a string it is interpreted as CSS.'))
     laf.add_option('--use-spine', default=False, dest='use_spine', action='store_true',
                    help=_('Use the <spine> element from the OPF file to determine the order in which the HTML files are appended to the LRF. The .opf file must be in the same directory as the base HTML file.'))
+    laf.add_option('--font-delta', action='store', type='float', default=0., \
+                  help=_("""Increase the font size by 2 * FONT_DELTA pts and """
+                  '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
+                  """If FONT_DELTA is negative, the font size is decreased."""),
+                  dest='font_delta')
+
     
     page = parser.add_option_group('PAGE OPTIONS')
     profiles = profile_map.keys()
