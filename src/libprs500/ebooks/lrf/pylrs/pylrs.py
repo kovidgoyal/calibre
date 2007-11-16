@@ -556,8 +556,19 @@ class Book(Delegator):
                     text_blocks.append(obj)
             
         text_styles = set([t.textStyle for t in text_blocks])
-        fonts = {}
+        important_text_styles = []
         for ts in text_styles:
+            temp = [len(tb.contents) for tb in text_blocks if tb.textStyle == ts]
+            avg_content_length = 0
+            if len(temp) > 0:
+                avg_content_length = sum(temp)/len(temp)
+            if avg_content_length > 4:
+                important_text_styles.append(ts)
+                
+        fonts = {}
+        if not important_text_styles:
+            important_text_styles = text_styles
+        for ts in important_text_styles:
             fs = int(ts.attrs['fontsize'])
             if fonts.has_key(fs):
                 fonts[fs] += 1
