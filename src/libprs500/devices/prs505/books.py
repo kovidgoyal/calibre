@@ -180,8 +180,20 @@ class BookList(_BookList):
     def supports_tags(self):
         return True
     
+    def book_by_path(self, path):
+        for child in self.root_element.childNodes:
+            if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("path"):
+                if path == child.getAttribute('path'):
+                    return child
+        return None
+    
     def add_book(self, info, name, size, ctime):
         """ Add a node into the DOM tree, representing a book """
+        book = self.book_by_path(name)
+        if book is not None:
+            print name
+            self.remove_book(name)
+                
         node = self.document.createElement(self.prefix + "text")
         mime = MIME_MAP[name.rpartition('.')[-1]]
         cid = self.max_id()+1
@@ -242,7 +254,7 @@ class BookList(_BookList):
         Also remove book from any collections it is part of.
         '''
         for book in self:
-            if path.endswith(book.path):
+            if path.endswith(book.rpath):
                 self.remove(book)
                 self._delete_book(book.elem)                        
                 break
@@ -354,8 +366,8 @@ class BookList(_BookList):
             pl = self.playlist_by_title(title)
             if not pl:
                 continue
-            db_ids = [i.getAttribute('id') for i in pl.childNodes]
-            pl_book_ids = [self.book_by_id(i.getAttribute('id')).db_id for i in pl.childNodes]
+            db_ids = [i.getAttribute('id') for i in pl.childNodes if hasattr(i, 'getAttribute')]
+            pl_book_ids = [self.book_by_id(i.getAttribute('id')).db_id for i in pl.childNodes  if hasattr(i, 'getAttribute')]
             map = {}
             for i, j in zip(pl_book_ids, db_ids):
                 map[i] = j
@@ -364,7 +376,7 @@ class BookList(_BookList):
             
             if len(ordered_ids) < len(pl.childNodes):
                 continue
-            children = [i for i in pl.childNodes]
+            children = [i for i in pl.childNodes  if hasattr(i, 'getAttribute')]
             for child in children:
                 pl.removeChild(child)
                 child.unlink()
