@@ -62,7 +62,6 @@ def process_file(path, options, logger=None):
             path = opf[0]
             opf = OPFReader(path)
             htmlfile = opf.spine.items().next().href
-            print htmlfile
             options.opf = path
         else:    
             l = glob.glob(os.path.join(tdir, '*toc*.htm*'))

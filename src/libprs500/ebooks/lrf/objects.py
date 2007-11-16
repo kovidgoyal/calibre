@@ -14,7 +14,6 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from libprs500.ebooks.lrf import entity_to_unicode
 import struct, array, zlib, cStringIO, collections, re
-from htmlentitydefs import name2codepoint
 
 from libprs500.ebooks.lrf import LRFParseError
 from libprs500.ebooks.lrf.tags import Tag
@@ -310,7 +309,6 @@ class Locate(EmptyPageElement):
     pos_map = {1:'bottomleft', 2:'bottomright',3:'topright',4:'topleft', 5:'base'}
     
     def __init__(self, pos):
-        print pos
         self.pos = self.pos_map[pos]
         
     def __unicode__(self):

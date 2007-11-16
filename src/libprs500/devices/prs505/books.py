@@ -191,7 +191,6 @@ class BookList(_BookList):
         """ Add a node into the DOM tree, representing a book """
         book = self.book_by_path(name)
         if book is not None:
-            print name
             self.remove_book(name)
                 
         node = self.document.createElement(self.prefix + "text")
