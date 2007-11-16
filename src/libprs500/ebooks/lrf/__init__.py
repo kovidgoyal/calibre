@@ -218,6 +218,8 @@ def option_parser(usage):
                       help='''Be verbose while processing''')
     debug.add_option('--lrs', action='store_true', dest='lrs', \
                       help='Convert to LRS', default=False)
+    parser.add_option('--minimize-memory-usage', action='store_true', default=False,
+                      help=_('Minimize memory usage at the cost of longer processing times. Use this option if you are on a memory constrained machine.'))
     return parser
 
 def find_custom_fonts(options, logger):

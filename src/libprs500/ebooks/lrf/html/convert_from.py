@@ -648,8 +648,7 @@ class HTMLConverter(object):
         # Need to make a copy of contents as when
         # extract is called on a child, it will
         # mess up the iteration.
-        contents = [i for i in ptag.contents]
-        for c in contents:
+        for c in copy.copy(ptag.contents):
             if isinstance(c, HTMLConverter.IGNORED_TAGS):
                 continue
             elif isinstance(c, Tag):
@@ -658,7 +657,8 @@ class HTMLConverter(object):
                 self.add_text(c, pcss, ppcss)
         if not self.in_table:
             try:
-                ptag.extract()
+                if self.minimize_memory_usage:
+                    ptag.extract()
             except AttributeError:
                 print ptag, type(ptag)
                     
@@ -1532,8 +1532,9 @@ class HTMLConverter(object):
                 self.logger.debug('Bad table:\n%s', str(tag)[:300])
                 self.in_table = False
                 self.process_children(tag, tag_css, tag_pseudo_css)
-            finally:                
-                tag.extract()
+            finally:
+                if self.minimize_memory_usage:                
+                    tag.extract()
         else:
             self.process_children(tag, tag_css, tag_pseudo_css)        
         if end_page:
