@@ -198,23 +198,23 @@ class BooksModel(QAbstractTableModel):
         if tags:
             tags = tags.replace(',', ', ')
         else:
-            tags = 'None'
-        data['Tags'] = tags
+            tags = _('None')
+        data[_('Tags')] = tags
         formats = self.db.formats(idx)
         if formats:
             formats = formats.replace(',', ', ')
         else:
-            formats = 'None'
-        data['Formats'] = formats
+            formats = _('None')
+        data[_('Formats')] = formats
         comments = self.db.comments(idx)
         if not comments:
-            comments = 'None'
-        data['Comments'] = comments
+            comments = _('None')
+        data[_('Comments')] = comments
         series = self.db.series(idx)
         if series:
             sidx = self.db.series_index(idx)
             sidx = self.__class__.roman(sidx)
-            data['Series'] = 'Book <font face="serif">%s</font> of %s.'%(sidx, series)
+            data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
     
     def get_metadata(self, rows):
@@ -549,17 +549,17 @@ class DeviceBooksModel(BooksModel):
         cdata = item.thumbnail
         if cdata:
             data['cover'] = cdata
-        type = 'Unknown'
+        type = _('Unknown')
         ext = os.path.splitext(item.path)[1]
         if ext:
             type = ext[1:].lower()
-        data['Format'] = type
-        data['Path'] = item.path
+        data[_('Format')] = type
+        data[_('Path')] = item.path
         dt = item.datetime
         dt = datetime(*dt[0:6])
         dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-        data['Timestamp'] = dt.ctime()
-        data['Tags'] = ', '.join(item.tags)
+        data[_('Timestamp')] = dt.ctime()
+        data[_('Tags')] = ', '.join(item.tags)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
         
     def paths(self, rows):

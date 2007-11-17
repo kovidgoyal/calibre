@@ -256,7 +256,7 @@ class BookList(_BookList):
         return max 
     
     def book_by_path(self, path):
-        for child in self.root_element.childNodes:
+        for child in self.root.childNodes:
             if child.nodeType == child.ELEMENT_NODE and child.hasAttribute("path"):
                 if path == child.getAttribute('path'):
                     return child
