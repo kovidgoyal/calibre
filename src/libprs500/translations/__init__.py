@@ -26,7 +26,8 @@ TRANSLATIONS = [
                 'sl',
                 'de',
                 'ca',
-                'fr'
+                'fr',
+                'es'
                 ]
 
 def source_files():
