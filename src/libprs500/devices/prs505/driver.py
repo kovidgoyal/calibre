@@ -52,9 +52,11 @@ class PRS505(Device):
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
     
-    OSX_MAIN_NAME            = 'Sony PRS-505/UC Media'
+    OSX_MAIN_NAME             = 'Sony PRS-505/UC Media'
     OSX_SD_NAME               = 'Sony PRS-505/UC:SD Media'
     OSX_MS_NAME               = 'Sony PRS-505/UC:MS Media'
+    
+    CARD_PATH_PREFIX          = 'libprs500'
     
     FDI_TEMPLATE = \
 '''
@@ -291,7 +293,8 @@ class PRS505(Device):
         return bl
     
     def munge_path(self, path):
-        if path.startswith('/') and not path.startswith(self._main_prefix):
+        if path.startswith('/') and not (path.startswith(self._main_prefix) or \
+            (self._card_prefix and path.startswith(self._card_prefix))):
             path = self._main_prefix + path[1:]
         elif path.startswith('card:'):
             path = path.replace('card:', self._card_prefix[:-1])
