@@ -69,7 +69,7 @@ msgid "Render HTML tables as blocks of text instead of actual tables. This is ne
 msgstr "HTML Tabellen als Textblöcke rendern und nicht als Tabellen. Dies ist notwendig, wenn die HTML Datei sehr große oder komplexe Tabellen enthält."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
-msgid "Specify the base font size in pts. All fonts are rescaled accordingly. This option obsoletes the --font-delta option and takes precendence over it. To use --font-delta, set this to 0."
+msgid "Specify the base font size in pts. All fonts are rescaled accordingly. This option obsoletes the --font-delta option and takes precedence over it. To use --font-delta, set this to 0."
 msgstr "Geben Sie die Ausgangsschriftgröße in Punkt an. Alle Schriften werden dementsprechend im Maßstab angepasst. Diese Einstellung setzt die --font-delta Einstellung außer Gebrauch und nimmt den Vorrang ein. Um --font-delta zu benutzen, stellen Sie diesen Wert auf 0."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120

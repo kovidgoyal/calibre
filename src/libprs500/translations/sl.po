@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2007-11-17 10:05+PST\n"
+"POT-Creation-Date: 2007-11-17 18:59+PST\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -77,7 +77,7 @@ msgstr ""
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
 msgid ""
 "Specify the base font size in pts. All fonts are rescaled accordingly. This "
-"option obsoletes the --font-delta option and takes precendence over it. To "
+"option obsoletes the --font-delta option and takes precedence over it. To "
 "use --font-delta, set this to 0."
 msgstr ""
 
