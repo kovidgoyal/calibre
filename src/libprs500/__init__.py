@@ -22,6 +22,8 @@ import sys, os, logging, mechanize, locale, cStringIO
 from gettext import GNUTranslations
 from math import floor
 
+from libprs500.translations.msgfmt import make
+
 iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx) 
@@ -119,8 +121,14 @@ def set_translator():
             pass 
     if lang:
         lang = lang[:2]
-        if translations.has_key(lang):
+        buf = None
+        if os.access(lang+'.po', os.R_OK):
+            buf = cStringIO.StringIO()
+            make(lang+'.po', buf)
+            buf = cStringIO.StringIO(buf.getvalue())
+        elif translations.has_key(lang):
             buf = cStringIO.StringIO(translations[lang])
+        if buf is not None:
             t = GNUTranslations(buf)
             t.install(unicode=True)
         
