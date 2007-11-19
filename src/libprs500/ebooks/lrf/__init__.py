@@ -252,21 +252,27 @@ def find_custom_fonts(options, logger):
         return results
     if options.serif_family:
         fonts['serif'] = find_family(options.serif_family)
+        if not fonts['serif']:
+            logger.warn('Unable to find serif family %s in %s'%(options.serif_family[1].strip(), options.serif_family[0]))
     if options.sans_family:
         fonts['sans'] = find_family(options.sans_family)
+        if not fonts['sans']:
+            logger.warn('Unable to find sans family %s in %s'%(options.sans_family[1].strip(), options.sans_family[0]))        
     if options.mono_family:
         fonts['mono'] = find_family(options.mono_family)
+        if not fonts['mono']:
+            logger.warn('Unable to find mono family %s in %s'%(options.mono_family[1].strip(), options.mono_family[0]))        
     return fonts
     
         
 def Book(options, logger, font_delta=0, header=None, 
          profile=PRS500_PROFILE, **settings):
     ps = {}
-    ps['topmargin'] = options.top_margin
+    ps['topmargin']      = options.top_margin
     ps['evensidemargin'] = options.left_margin
-    ps['oddsidemargin'] = options.left_margin
-    ps['textwidth'] = profile.screen_width - (options.left_margin + options.right_margin)
-    ps['textheight'] = profile.screen_height - (options.top_margin + options.bottom_margin) - profile.fudge
+    ps['oddsidemargin']  = options.left_margin
+    ps['textwidth']      = profile.screen_width - (options.left_margin + options.right_margin)
+    ps['textheight']     = profile.screen_height - (options.top_margin + options.bottom_margin) - profile.fudge
     if header:
         hdr = Header()
         hb = TextBlock(textStyle=TextStyle(align='foot', 
