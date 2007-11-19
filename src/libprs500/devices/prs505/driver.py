@@ -368,6 +368,8 @@ class PRS505(Device):
             infile.seek(0)            
             name = names.next()
             paths.append(os.path.join(path, name))
+            if on_card and not os.path.exists(os.path.dirname(paths[-1])):
+                os.mkdir(os.path.dirname(paths[-1]))
             self.put_file(infile, paths[-1], replace_file=True)
             ctimes.append(os.path.getctime(paths[-1]))
         return zip(paths, sizes, ctimes, cycle([on_card]))
