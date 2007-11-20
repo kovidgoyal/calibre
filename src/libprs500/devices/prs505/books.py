@@ -28,7 +28,8 @@ from libprs500.devices import strptime
 strftime = functools.partial(_strftime, zone=time.localtime)
 
 MIME_MAP   = { 
-                "lrf" : "application/x-sony-bbeb", 
+                "lrf" : "application/x-sony-bbeb",
+                'lrx' : 'application/x-sony-bbeb',  
                 "rtf" : "application/rtf", 
                 "pdf" : "application/pdf", 
                 "txt" : "text/plain" 

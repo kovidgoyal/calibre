@@ -26,6 +26,7 @@ from libprs500.devices import strftime, strptime
 
 MIME_MAP   = { \
                         "lrf":"application/x-sony-bbeb", \
+                        'lrx':'application/x-sony-bbeb', \
                         "rtf":"application/rtf", \
                         "pdf":"application/pdf", \
                         "txt":"text/plain" \
