@@ -19,7 +19,7 @@ from PyQt4.QtGui import QListView, QIcon, QFont, QLabel
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, QObject
 
 from libprs500.gui2 import human_readable, NONE, TableView
-from libprs500 import fit_image
+from libprs500 import fit_image, get_font_families
 
 class ImageView(QLabel):
     
@@ -99,4 +99,38 @@ class LocationView(QListView):
 class JobsView(TableView):
     pass
 
+class FontFamilyModel(QAbstractListModel):
+    
+    def __init__(self, *args):
+        QAbstractListModel.__init__(self, *args)
+        self.family_map = get_font_families()
+        self.families = self.family_map.keys()
+        self.families.sort()
+        self.families[:0] = ['None']
+        
+    def rowCount(self, *args):
+        return len(self.families)
+    
+    def data(self, index, role):
+        try:
+            family = self.families[index.row()]
+        except:
+            import traceback
+            traceback.print_exc()
+            return NONE
+        if role == Qt.DisplayRole:
+            return QVariant(family)
+        if role == Qt.FontRole:
+            return QVariant(QFont(family))
+        return NONE
+    
+    def path_of(self, family):
+        if family != None:
+            return self.family_map[family]
+        return None
+    
+    def index_of(self, family):
+        return self.families.index(family.strip())
+    
+    
 

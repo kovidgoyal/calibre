@@ -22,6 +22,7 @@ from libprs500.gui2.dialogs.lrf_single_ui import Ui_LRFSingleDialog
 from libprs500.gui2.dialogs.choose_format import ChooseFormatDialog
 from libprs500.gui2 import qstring_to_unicode, error_dialog, \
                            pixmap_to_data, choose_images
+from libprs500.gui2.widgets import FontFamilyModel
 from libprs500.ebooks.lrf import option_parser
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500 import __appname__
@@ -64,6 +65,11 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.cover_changed = False
         self.cpixmap = None
         self.changed = False
+        self.font_family_model = FontFamilyModel()
+        self.gui_serif_family.setModel(self.font_family_model)
+        self.gui_sans_family.setModel(self.font_family_model)
+        self.gui_mono_family.setModel(self.font_family_model)
+        
         self.read_saved_options()
         self.initialize_metadata()
         formats = self.db.formats(self.row)
@@ -116,8 +122,17 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 ops = prepro.get_opt_string() 
                 if ops in cmdline:
                     self.preprocess.setCurrentIndex(self.preprocess.findText(ops[2:]))
-                    break    
-        
+                    break
+                
+            for opt in ('--serif-family', '--sans-family', '--mono-family'):
+                if opt in cmdline:
+                    print 'in'
+                    family = cmdline[cmdline.index(opt)+1].split(',')[1].strip()
+                    obj = getattr(self, 'gui_'+opt[2:].replace('-', '_'))
+                    try:
+                        obj.setCurrentIndex(self.font_family_model.index_of(family))
+                    except:
+                        continue
     
     def select_cover(self, checked):
         files = choose_images(self, 'change cover dialog', 
@@ -284,6 +299,17 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         if text != 'No preprocessing':
             cmd.append(u'--'+text)
         cmd.extend([u'--profile',  qstring_to_unicode(self.gui_profile.currentText())])
+        
+        for opt in ('--serif-family', '--sans-family', '--mono-family'):
+            obj = getattr(self, 'gui_'+opt[2:].replace('-', '_'))
+            family = qstring_to_unicode(obj.itemText(obj.currentIndex())).strip()
+            try:
+                path = self.font_family_model.path_of(family)
+            except KeyError:
+                continue
+            if path:
+                cmd.extend([opt, os.path.dirname(path)+', '+family])
+        
         return cmd        
     
     def title(self):
@@ -319,6 +345,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             self.cover_file.write(cover)
             self.cover_file.close()
         self.db.set_conversion_options(self.id, self.output_format.lower(), cmdline)
+        
         if self.cover_file:
             cmdline.extend([u'--cover', self.cover_file.name])
         self.cmdline = [unicode(i) for i in cmdline]
