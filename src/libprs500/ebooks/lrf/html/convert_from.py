@@ -22,7 +22,6 @@ and to Falstaff for pylrs.
 """
 import os, re, sys, copy, glob, logging, tempfile
 from collections import deque
-from htmlentitydefs import name2codepoint
 from urllib import unquote
 from urlparse import urlparse
 from math import ceil, floor
@@ -38,7 +37,7 @@ from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream,
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
                 LrsError, Sup, Sub, properties_different, EmpLine
 from libprs500.ebooks.lrf.pylrs.pylrs import Span 
-from libprs500.ebooks.lrf import Book
+from libprs500.ebooks.lrf import Book, entity_to_unicode
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.table import Table 
@@ -65,16 +64,10 @@ def munge_paths(basepath, url):
     return os.path.normpath(path), fragment
 
                               
-        
-
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
-    replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo']
-    patterns = [ re.compile('&'+i+';') for i in replaced_entities ]
-    targets  = [ unichr(name2codepoint[i]) for i in replaced_entities ]
-    ENTITY_RULES = zip(patterns, targets) + [(re.compile('&apos;'), "'")]
     
      
     MARKUP_MASSAGE   = [
@@ -89,8 +82,10 @@ class HTMLConverter(object):
                         (re.compile(r'<a.*?>(.*?)</a\s*>', re.DOTALL|re.IGNORECASE),
                          lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
                         # Workaround bug in BeautifulSoup &nbsp; handling
-                        (re.compile(u'&nbsp;|&#160;|&#xa0;|\xa0', re.IGNORECASE), lambda match : u'\uffff')
-                         ]
+                        (re.compile(u'&nbsp;|&#160;|&#xa0;|\xa0', re.IGNORECASE), lambda match : u'\uffff'),
+                        # Replace entities
+                        (re.compile(ur'&(\S+?);'), entity_to_unicode),
+                        ]
     # Fix Baen markup
     BAEN = [ 
                      (re.compile(r'page-break-before:\s*\w+([\s;\}])', re.IGNORECASE), 
@@ -523,9 +518,6 @@ class HTMLConverter(object):
                         text += c['alt']
                         return text
                     text += self.get_text(c)
-            if text:
-                for rule, sub in self.__class__.ENTITY_RULES:
-                    text = rule.sub(sub, text)
             return text
     
     def process_links(self):
@@ -740,8 +732,6 @@ class HTMLConverter(object):
         
         def append_text(src):
             fp, key, variant = self.font_properties(css)
-            for pat, repl in self.__class__.ENTITY_RULES:
-                src = pat.sub(repl, src)
             src = src.replace(u'\uffff', ' ') # &nbsp; becomes u'\uffff'
             normal_font_size = int(fp['fontsize'])
             if variant == 'small-caps':
