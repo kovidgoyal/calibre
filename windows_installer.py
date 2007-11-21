@@ -57,7 +57,6 @@ Var MUI_TEMP
 !define WEBSITE "https://libprs500.kovidgoyal.net"
 !define DEVCON  "C:\devcon\i386\devcon.exe"
 !define PY2EXE_DIR "%(py2exe_dir)s"
-;!define LIBUSB_DIR "C:\libusb-prs500"
 !define LIBUSB_DIR "C:\Users\kovid\libusb1"
 !define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
 !define CLIT         "C:\clit\clit.exe"
@@ -102,9 +101,12 @@ Var MUI_TEMP
   
   !insertmacro MUI_PAGE_STARTMENU Application $STARTMENU_FOLDER
   !insertmacro MUI_PAGE_INSTFILES
-  !define MUI_FINISHPAGE_RUN "$INSTDIR\${PRODUCT_NAME}.exe"
-  !define MUI_FINISHPAGE_NOAUTOCLOSE
-  !insertmacro MUI_PAGE_FINISH
+  
+  ; Finish page with option to run program
+  ; Disabled as GUI requires PATH and working directory to be set correctly
+  ;!define MUI_FINISHPAGE_RUN "$INSTDIR\${PRODUCT_NAME}.exe"
+  ;!define MUI_FINISHPAGE_NOAUTOCLOSE
+  ;!insertmacro MUI_PAGE_FINISH
   
   !insertmacro MUI_UNPAGE_CONFIRM
   !insertmacro MUI_UNPAGE_INSTFILES

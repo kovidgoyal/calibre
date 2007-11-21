@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.22\n"
-"POT-Creation-Date: 2007-11-18 10:39+PST\n"
+"POT-Creation-Date: 2007-11-20 20:53+PST\n"
 "PO-Revision-Date: 2007-11-18 13:53+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -90,7 +90,6 @@ msgstr ""
 "Définit la taille de base de la police en pts. Toutes les poslices sont "
 "retaillées en fonction. Cette option remplace l'ancienne option --font-"
 "delta. Pour utiliser --font-delta, saisir 0."
-
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -390,7 +389,7 @@ msgstr ""
 msgid "Active Jobs"
 msgstr "Exécutions en cours"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:249
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
 msgid ""
 "Specify metadata such as title and author for the book.<p>Metadata will be "
 "updated in the database as well as the generated LRF file."
@@ -398,12 +397,12 @@ msgstr ""
 "Définit les metadata comme le titre et l'auteur du livre.<p>Les metadata "
 "seront modifiées dans la base de données et dans le fichier LRF généré."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:249
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:523
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:563
 msgid "Metadata"
 msgstr "Metadata"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:250
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
 msgid ""
 "Adjust the look of the generated LRF file by specifying things like font "
 "sizes and the spacing between words."
@@ -411,12 +410,12 @@ msgstr ""
 "Ajuste la présentation du fichier LRF généré en définissant des paramètres "
 "tels que la taille des polices et l'espacement entre les mots."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:250
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:527
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:567
 msgid "Look & Feel"
 msgstr "Présentation"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:251
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
 msgid ""
 "Specify the page settings like margins and the screen size of the target "
 "device."
@@ -424,48 +423,48 @@ msgstr ""
 "Définit les paramètres de la pages tels que les marges et la taille de "
 "l'écran du lecteur cible."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:251
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:531
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:571
 msgid "Page Setup"
 msgstr "Mise en page"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:252
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:267
 msgid "Fine tune the detection of chapter and section headings."
 msgstr "Peaufiner la détection des chapitres et des en-têtes de section."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:252
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:535
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:267
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:575
 msgid "Chapter Detection"
 msgstr "Détection des chapitres"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:518
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:558
 msgid "Convert to LRF"
 msgstr "Convertir en LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:519
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:559
 msgid "Category"
 msgstr "Catégorie"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:537
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:577
 msgid "Options"
 msgstr "Options"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:538
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:578
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:295
 msgid "Book Cover"
 msgstr "Couverture du livre"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:539
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:579
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:296
 msgid "Change &cover image:"
 msgstr "Modifie l'image &cover :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:540
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:580
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:297
 msgid "Browse for an image to use as the cover of this book."
 msgstr "Rechercher une image à utiliser en tant que couverture du livre."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:541
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:581
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:292
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:294
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:298
@@ -479,28 +478,28 @@ msgstr "Rechercher une image à utiliser en tant que couverture du livre."
 msgid "..."
 msgstr "..."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:542
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:582
 msgid "Use &metadata cover"
 msgstr "Utilise la couverture &metadata"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:543
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:583
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:267
 msgid "&Title: "
 msgstr "&Titre :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:544
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:584
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:268
 msgid "Change the title of this book"
 msgstr "Modifie le titre du livre"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:545
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:585
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:120
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:269
 msgid "&Author(s): "
 msgstr "&Auteurs :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:546
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:548
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:586
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:588
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:121
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:270
 msgid ""
@@ -510,28 +509,28 @@ msgstr ""
 "Modifie les auteurs du livres. Si plusieurs auteurs, les séparer avec des "
 "virgules."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:547
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:587
 msgid "Author So&rt:"
 msgstr "T&ri de l'auteur :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:549
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:589
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:128
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:277
 msgid "&Publisher: "
 msgstr "&Editeur :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:550
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:590
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:129
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:278
 msgid "Change the publisher of this book"
 msgstr "Modifie l'éditeur du livre"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:551
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:591
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:279
 msgid "Ta&gs: "
 msgstr "Ta&gs :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:552
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:592
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:131
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:280
 msgid ""
@@ -541,14 +540,14 @@ msgstr ""
 "Tags caractérisant le livre, particulièrement utile pour la recherche. <br> "
 "<br> Cela peut être n'importe quels mots, séparés par des virgules."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:553
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:593
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:132
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:281
 msgid "&Series:"
 msgstr "&Séries :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:554
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:555
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:594
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:595
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:133
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:134
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:282
@@ -556,129 +555,145 @@ msgstr "&Séries :"
 msgid "List of known series. You can add new series."
 msgstr "Liste de séries connues. Vous pouvez ajouter de nouvelles séries."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:556
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:557
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:596
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:597
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:284
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:285
 msgid "Series index."
 msgstr "Index de séries"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:558
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:598
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:286
 msgid "Book "
 msgstr "Livre"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:559
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:599
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:288
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:212
 msgid "Comments"
 msgstr "Commentaires"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:560
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:600
 msgid "Base &font size:"
 msgstr "Taille de &police par défaut :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:561
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:563
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:601
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:607
 msgid " pts"
 msgstr " pts"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:562
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:602
+msgid "Embedded Fonts"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:603
+msgid "&Serif:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:604
+msgid "S&ans-serif:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:605
+msgid "&Monospace:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:606
 msgid "&Word spacing:"
 msgstr "Espacement entre &mots :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:564
-msgid "&Preprocess:"
-msgstr "&Preprocess :"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:565
-msgid "Header"
-msgstr "En-têtre"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:566
-msgid "&Show header"
-msgstr "&Affiche l'en-tête"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:567
-msgid "&Header format:"
-msgstr "Format de l'&en-tête"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:568
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:608
 msgid "Enable auto &rotation of images"
 msgstr "Active l'auto &rotation des images"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:569
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:609
 msgid "Insert &blank lines between paragraphs"
 msgstr "Insère des lignes &blanches entre les paragraphes"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:570
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:610
 msgid "Ignore &tables"
 msgstr "Ignore les &tables"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:571
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:611
+msgid "&Preprocess:"
+msgstr "&Preprocess :"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:612
+msgid "Header"
+msgstr "En-têtre"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:613
+msgid "&Show header"
+msgstr "&Affiche l'en-tête"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:614
+msgid "&Header format:"
+msgstr "Format de l'&en-tête"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:615
 msgid "Override<br>CSS"
 msgstr "Surcharge <br> CSS"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:572
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:616
 msgid "&Profile:"
 msgstr "&Profil :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:573
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:617
 msgid "&Left Margin:"
 msgstr "Marge &Gauche :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:574
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:576
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:578
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:580
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:618
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:620
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:622
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:624
 msgid " px"
 msgstr " px"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:575
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:619
 msgid "&Right Margin:"
 msgstr "Marge &Droite :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:577
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:621
 msgid "&Top Margin:"
 msgstr "Marge &Haute :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:579
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:623
 msgid "&Bottom Margin:"
 msgstr "Marge &Basse :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:581
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:625
 msgid "Title based detection"
 msgstr "Détection basée sur les titres"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:582
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:626
 msgid "&Disable chapter detection"
 msgstr "&Désactive la détection de chapitres"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:583
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:627
 msgid "&Regular expression:"
 msgstr "Expression &Régulière :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:584
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:628
 msgid "Tag based detection"
 msgstr "Détection basée sur des tags"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:585
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:629
 msgid "&Page break before tag:"
 msgstr "Saut de &page avant le tag:"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:586
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:630
 msgid "&Force page break before tag:"
 msgstr "&Force un saut de page avant le tag:"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:587
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:631
 msgid "Force page break before &attribute:"
 msgstr "Force un saut de page avant l'&attribut :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:588
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:632
 msgid "Help on item"
 msgstr "Aide"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:589
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:633
 msgid ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
 "\">\n"
@@ -1076,5 +1091,3 @@ msgid ""
 msgstr ""
 "Carte\n"
 "%s disponible"
-
-
