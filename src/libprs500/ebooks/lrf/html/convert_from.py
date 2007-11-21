@@ -260,6 +260,8 @@ class HTMLConverter(object):
             self.link_level += 1
             paths = [link['path'] for link in self.links]
             
+        
+            
         for text, tb in self.extra_toc_entries:
             ascii_text = text.encode('ascii', 'ignore')
             self.book.addTocEntry(ascii_text, tb)
@@ -1301,8 +1303,9 @@ class HTMLConverter(object):
                             key = 'name' if tag.has_key('name') else 'id'
                             self.targets[self.target_prefix+tag[key]] = self.current_block
                             self.current_block.must_append = True
-                elif not urlparse(tag['href'])[0]:
+                else:
                     self.logger.warn('Could not follow link to '+tag['href'])
+                    self.process_children(tag, tag_css, tag_pseudo_css)
             elif tag.has_key('name') or tag.has_key('id'):
                 self.process_anchor(tag, tag_css, tag_pseudo_css)                            
         elif tagname == 'img':
