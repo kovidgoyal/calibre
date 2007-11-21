@@ -22,6 +22,8 @@ import sys, os, logging, mechanize, locale, cStringIO
 from gettext import GNUTranslations
 from math import floor
 
+from ttfquery import findsystem, describe
+
 from libprs500.translations.msgfmt import make
 
 iswindows = 'win32' in sys.platform.lower()
@@ -132,4 +134,22 @@ def set_translator():
             t = GNUTranslations(buf)
             t.install(unicode=True)
         
-set_translator()   
+set_translator()
+
+font_families = {}
+def get_font_families():
+    global font_families
+    if font_families:
+        return font_families
+    ffiles = findsystem.findFonts()
+    zlist = []
+    for ff in ffiles:
+        font = describe.openFont(ff)
+        try:
+            wt, italic = describe.modifiers(font)
+        except:
+            wt, italic = 0, 0
+        if wt == 400 and italic == 0:
+            family = describe.shortName(font)[1].strip()
+            zlist.append((family, ff))
+    return dict(zlist)
