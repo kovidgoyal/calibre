@@ -38,7 +38,7 @@ class Distribution(object):
     DEPENDENCIES = [
         #(Generic, version, gentoo, ubuntu, fedora)
         ('python', '2.5', None, None, None),
-        ('setuptools', '0.6c5', 'setuptools', 'python-setuptools', 'python-setuptools'),
+        ('setuptools', '0.6c5', 'setuptools', 'python-setuptools', 'python-setuptools-devel'),
         ('Python Imaging Library', '1.1.6', 'imaging', 'python-imaging', 'python-imaging'),
         ('libusb', '0.1.12', None, None, None),
         ('Qt', '4.3.1', 'qt', 'libqt4-core libqt4-gui', 'qt4'),
@@ -58,7 +58,7 @@ class Distribution(object):
     AS_ROOT    = (True, False, True)
     
     TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Gutsy Gibbon',
-                'fedora':'Fedora 7', 'debian':'Debian Sid', 'generic': 'Generic Unix'}
+                'fedora':'Fedora 8', 'debian':'Debian Sid', 'generic': 'Generic Unix'}
     
     MANUAL_MAP = {
                   'ubuntu' : '<li>You will have to install <a href="">convertlit</a> manually to be able to convert LIT files.</li>',
