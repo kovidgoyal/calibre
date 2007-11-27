@@ -19,6 +19,7 @@ import sqlite3 as sqlite
 import datetime, re, os, cPickle, traceback
 from zlib import compress, decompress
 
+from libprs500 import sanitize_file_name
 from libprs500.ebooks.metadata.meta import set_metadata
 from libprs500.ebooks.metadata import MetaInformation
 
@@ -1103,12 +1104,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 by_author[au] = []
             by_author[au].append(index)
         for au in by_author.keys():
-            apath = os.path.join(dir, au.replace(os.sep, '_').strip())
+            apath = os.path.join(dir, sanitize_file_name(au))
             if not os.path.exists(apath):
                 os.mkdir(apath)
             for idx in by_author[au]:
                 title = re.sub(r'\s', ' ', self.title(idx))
-                tpath = os.path.join(apath, title.replace(os.sep, '_').strip())
+                tpath = os.path.join(apath, sanitize_file_name(title))
                 id = str(self.id(idx))
                 if not os.path.exists(tpath):
                     os.mkdir(tpath)
@@ -1116,7 +1117,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     data = self.format(idx, fmt)
                     name = au + ' - ' + title if byauthor else title + ' - ' + au
                     fname = name +'_'+id+'.'+fmt.lower()
-                    f = open(os.path.join(tpath, fname.replace(os.sep, '_').strip()), 'w+b')
+                    f = open(os.path.join(tpath, sanitize_file_name(fname)), 'w+b')
                     f.write(data)
                     f.flush()
                     aum = self.authors(idx)

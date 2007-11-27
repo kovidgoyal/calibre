@@ -18,7 +18,7 @@ __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys, os, logging, mechanize, locale, cStringIO
+import sys, os, logging, mechanize, locale, cStringIO, re
 from gettext import GNUTranslations
 from math import floor
 
@@ -153,3 +153,11 @@ def get_font_families():
             family = describe.shortName(font)[1].strip()
             zlist.append((family, ff))
     return dict(zlist)
+
+def sanitize_file_name(name):
+    '''
+    Remove characters that are illegal in filenames from name. 
+    Also remove path separators. ALl illegal characters are replaced by
+    underscores.
+    '''
+    return re.sub(r'[:\?\\\/]|^-', '_', name.strip())
