@@ -185,7 +185,7 @@ class OPFReader(MetaInformation):
             scheme = item.get('scheme')
             if not scheme:
                 scheme = item.get('opf:scheme')
-            if scheme.lower() == 'isbn':
+            if scheme is not None and scheme.lower() == 'isbn':
                 return item.string
         return None
     
