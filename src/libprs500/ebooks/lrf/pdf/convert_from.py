@@ -12,11 +12,10 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500 import filename_to_utf8
 ''''''
 
 import sys, os, subprocess, logging
-from libprs500 import isosx, setup_cli_handlers
+from libprs500 import isosx, setup_cli_handlers, filename_to_utf8
 from libprs500.ebooks import ConversionError
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
