@@ -41,7 +41,8 @@ def get_metadata(stream):
         if info.subject:
             mi.category = info.subject
     except Exception, err:
-        print >>sys.stderr, 'Couldn\'t read metadata from pdf: %s with error %s'%(mi.title, str(err))
+        msg = u'Couldn\'t read metadata from pdf: %s with error %s'%(mi.title, unicode(err))
+        print >>sys.stderr, msg.encode('utf8')
     return mi
         
             
