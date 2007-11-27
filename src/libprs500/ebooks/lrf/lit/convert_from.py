@@ -91,7 +91,10 @@ def process_file(path, options, logger=None):
         
         html_process_file(htmlfile, options, logger=logger)
     finally:
-        shutil.rmtree(tdir)
+        try:
+            shutil.rmtree(tdir)
+        except:
+            logger.warning('Failed to delete temporary directory '+tdir)
 
 
 def main(args=sys.argv, logger=None):
