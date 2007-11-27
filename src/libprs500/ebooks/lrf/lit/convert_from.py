@@ -12,7 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.ebooks.metadata.opf import OPFReader
 
 import os, sys, shutil, glob, logging
 from tempfile import mkdtemp
@@ -20,6 +19,7 @@ from subprocess import Popen, PIPE
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_file
+from libprs500.ebooks.metadata.opf import OPFReader
 from libprs500 import isosx, __appname__, setup_cli_handlers, iswindows
 CLIT = 'clit'
 if isosx and hasattr(sys, 'frameworks_dir'):
