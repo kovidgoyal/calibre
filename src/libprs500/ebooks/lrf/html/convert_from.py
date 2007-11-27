@@ -853,8 +853,8 @@ class HTMLConverter(object):
                 pt.close()
                 self.scaled_images[path] = pt
                 return pt.name
-            except IOError: # PIL chokes on interlaced PNG images
-                self.logger.warning('Unable to process interlaced PNG %s', path)
+            except (IOError, SystemError), err: # PIL chokes on interlaced PNG images as well a some GIF images
+                self.logger.warning('Unable to process image %s. Error: %s'%(path, err))
                 return None
         
         pheight = int(self.current_page.pageStyle.attrs['textheight'])
