@@ -34,6 +34,7 @@ class DefaultProfile(object):
     delay                 = 0     # Delay between consecutive downloads
     timeout               = 10    # Timeout for fetching files from server in seconds
     timefmt               = ' [%a %d %b %Y]' # The format of the date shown on the first page
+    pubdate_fmt           = None  # The format string used to parse the publication date in the RSS feed. If set to None some default heuristics are used, these may fail, in which case set this to the correct string or re-implement strptime in your subclass.
     no_stylesheets        = False # Download stylesheets only if False 
     match_regexps         = []    # List of regular expressions that determines which links to follow
     filter_regexps        = []    # List of regular expressions that determines which links to ignore
@@ -163,13 +164,23 @@ class DefaultProfile(object):
             soup = BeautifulStoneSoup(src)
             for item in soup.findAll('item'):
                 try:
-                    pubdate = item.find('pubdate').string
+                    pubdate = item.find('pubdate')
                     if not pubdate:
+                        pubdate = item.find('dc:date')
+                    if not pubdate or not pubdate.string:
+                        self.logger.debug('Skipping article as it does not have publication date')
                         continue
+                    pubdate = pubdate.string
                     pubdate = pubdate.replace('+0000', 'GMT')
+                    url = item.find('guid')
+                    if not url:
+                        url = item.find('link')
+                    if not url or not url.string:
+                        self.logger.debug('Skipping article as it does not have a link url')
+                        continue
                     d = { 
                         'title'    : item.find('title').string,                 
-                        'url'      : self.print_version(item.find('guid').string),
+                        'url'      : self.print_version(url.string),
                         'timestamp': self.strptime(pubdate),
                         'date'     : pubdate
                         }
@@ -215,27 +226,32 @@ class DefaultProfile(object):
         
     @classmethod
     def strptime(cls, src):
-        src = src.strip().split()
-        try:
-            src[0] = str(cls.DAY_MAP[src[0][:-1]])+','
-        except KeyError:
-            src[0] = str(cls.FULL_DAY_MAP[src[0][:-1]])+','
-        try:
-            src[2] = str(cls.MONTH_MAP[src[2]])
-        except KeyError:
-            src[2] = str(cls.FULL_MONTH_MAP[src[2]])
-        fmt = '%w, %d %m %Y %H:%M:%S'
         delta = 0
-        if src[-1].startswith('+') or src[-1].startswith('-'):
-            delta = src[-1]
-            hrs, mins = int(delta[1:3]), int(delta[3:5])
+        zone = re.search(r'\s*(\+\d\d\:{0,1}\d\d)', src)
+        if zone:
+            delta = zone.group(1)
+            hrs, mins = int(delta[1:3]), int(delta[-2:].rstrip())
             delta = 60*(hrs*60 + mins) * (-1 if delta.startswith('-') else 1)
-        src = src[:-1] # Discard timezone information
-        try:
-            time_t = time.strptime(' '.join(src), fmt)
-        except ValueError:
-            time_t = time.strptime(' '.join(src), fmt.replace('%Y', '%y'))
-        return calendar.timegm(time_t)-delta
+            src = src.replace(zone.group(), '')
+        if cls.pubdate_fmt is None:
+            src = src.strip().split()
+            try:
+                src[0] = str(cls.DAY_MAP[src[0][:-1]])+','
+            except KeyError:
+                src[0] = str(cls.FULL_DAY_MAP[src[0][:-1]])+','
+            try:
+                src[2] = str(cls.MONTH_MAP[src[2]])
+            except KeyError:
+                src[2] = str(cls.FULL_MONTH_MAP[src[2]])
+            fmt = '%w, %d %m %Y %H:%M:%S'
+            src = src[:5] # Discard extra information
+            try:
+                time_t = time.strptime(' '.join(src), fmt)
+            except ValueError:
+                time_t = time.strptime(' '.join(src), fmt.replace('%Y', '%y'))
+            return calendar.timegm(time_t)-delta
+        else:
+            return calendar.timegm(time.strptime(src, cls.pubdate_fmt))
     
     def command_line_options(self):
         args = []
