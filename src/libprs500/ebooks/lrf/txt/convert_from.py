@@ -63,10 +63,9 @@ def generate_html(txtfile, encoding, logger):
                        safe_mode=False,
                        )
     html = md.toString()
-    
     p = PersistentTemporaryFile('.html', dir=os.path.dirname(txtfile))
     p.close()
-    codecs.open(p.name, 'wb', enc).write(html)
+    codecs.open(p.name, 'wb', 'utf8').write(html)
     return p
         
 def process_file(path, options, logger=None):
