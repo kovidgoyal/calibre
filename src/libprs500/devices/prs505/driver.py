@@ -229,6 +229,16 @@ class PRS505(Device):
             except DeviceError:
                 time.sleep(3)
                 self.open_osx()
+        if self._card_prefix is not None:
+            cachep = os.path.join(self._card_prefix, self.CACHE_XML)
+            if not os.path.exists(cachep):
+                os.makedirs(os.path.dirname(cachep), mode=0777)
+                f = open(cachep, 'wb')
+                f.write(u'''<?xml version="1.0" encoding="UTF-8"?>
+<cache xmlns="http://www.kinoma.com/FskCache/1">
+</cache>
+'''.encode('utf8'))
+                f.close()
             
     def set_progress_reporter(self, pr):
         self.report_progress = pr
