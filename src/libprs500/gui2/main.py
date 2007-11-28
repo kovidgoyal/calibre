@@ -119,12 +119,14 @@ class Main(MainWindow, Ui_MainWindow):
         nm.addAction(QIcon(':/images/news/bbc.png'), 'BBC')
         nm.addAction(QIcon(':/images/news/economist.png'), 'Economist')
         nm.addAction(QIcon(':/images/news/newsweek.png'), 'Newsweek')
+        nm.addAction(QIcon(':/images/book.svg'), 'New York Review of Books')
         nm.addAction(QIcon(':/images/news/nytimes.png'), 'New York Times')
         
         QObject.connect(nm.actions()[0], SIGNAL('triggered(bool)'), self.fetch_news_bbc)
         QObject.connect(nm.actions()[1], SIGNAL('triggered(bool)'), self.fetch_news_economist)
         QObject.connect(nm.actions()[2], SIGNAL('triggered(bool)'), self.fetch_news_newsweek)
-        QObject.connect(nm.actions()[3], SIGNAL('triggered(bool)'), self.fetch_news_nytimes)
+        QObject.connect(nm.actions()[3], SIGNAL('triggered(bool)'), self.fetch_news_nyreview)
+        QObject.connect(nm.actions()[4], SIGNAL('triggered(bool)'), self.fetch_news_nytimes)
         
         self.news_menu = nm
         self.action_news.setMenu(nm)
@@ -537,6 +539,9 @@ class Main(MainWindow, Ui_MainWindow):
         
     def fetch_news_economist(self, checked):
         self.fetch_news('economist', 'The Economist')
+    
+    def fetch_news_nyreview(self, checked):
+        self.fetch_news('newyorkreview', 'New York Review of Books')
     
     def fetch_news_nytimes(self, checked):
         d = PasswordDialog(self, 'nytimes info dialog', 
