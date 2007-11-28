@@ -24,7 +24,8 @@ class Economist(DefaultProfile):
     
     title = 'The Economist'
     timefmt = ' [%d %b %Y]'
-    max_recursions = 3
+    max_recursions = 2
+    
     
     TITLES = [
           'The world this week',
@@ -50,6 +51,9 @@ class Economist(DefaultProfile):
             [
              # Remove advert
              (r'<noscript.*?</noscript>', lambda match: ''),
+             (r'<\!--\s+INVISIBLE SKIP .*?-->.*?<\!--\s+INVISIBLE SKIP .*?\s+-->',
+              lambda match : ''),
+             (r'<img.+?alt="AP".+?/>', lambda match: ''),
              ]
             ]
     

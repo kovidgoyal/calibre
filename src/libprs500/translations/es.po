@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-20 20:53+PST\n"
+"POT-Creation-Date: 2007-11-27 22:06+PST\n"
 "PO-Revision-Date: 2007-11-16 09:21+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: Spanish\n"
@@ -950,11 +950,11 @@ msgstr "Editar metadatos individualmente"
 msgid "Edit metadata in bulk"
 msgstr "Edita metadatos en bloque"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:128
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:132
 msgid "Convert individually"
 msgstr "Convertir individualmente"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:129
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:133
 msgid "Bulk convert"
 msgstr "Convertir en bloque"
 

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2007-11-20 20:53+PST\n"
+"POT-Creation-Date: 2007-11-27 22:06+PST\n"
 "PO-Revision-Date: 2007-11-18 00:49+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
@@ -967,11 +967,11 @@ msgstr "Meta-Daten einzeln bearbeiten"
 msgid "Edit metadata in bulk"
 msgstr "Meta-Daten auf einmal bearbeiten"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:128
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:132
 msgid "Convert individually"
 msgstr "Einzeln konvertieren"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:129
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:133
 msgid "Bulk convert"
 msgstr "Auf einmal konvertieren"
 
