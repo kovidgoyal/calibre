@@ -20,7 +20,8 @@ from urllib import url2pathname
 from httplib import responses
 from optparse import OptionParser
 
-from libprs500 import __version__, __appname__, __author__, setup_cli_handlers, browser
+from libprs500 import __version__, __appname__, __author__, setup_cli_handlers, \
+                      browser, sanitize_file_name
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
 class FetchError(Exception):
@@ -191,7 +192,7 @@ class RecursiveFetcher(object):
                 self.logger.debug('Error: %s', str(err), exc_info=True)
                 continue
             c += 1
-            imgpath = os.path.join(diskpath, 'img'+str(c)+ext)
+            imgpath = os.path.join(diskpath, sanitize_file_name('img'+str(c)+ext))
             self.imagemap[iurl] = imgpath
             open(imgpath, 'wb').write(f.read())
             tag['src'] = imgpath
