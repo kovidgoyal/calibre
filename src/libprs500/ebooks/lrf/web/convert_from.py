@@ -63,6 +63,8 @@ def option_parser():
                       help='Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.')
     parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',
                       help='Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --filter-regexp is applied first.')
+    parser.add_option('--keep-downloaded-files', default=False, action='store_true',
+                      help='''Do not delete the downloaded files after creating the LRF''')
     return parser
     
 def fetch_website(options, logger):
@@ -157,7 +159,10 @@ def process_profile(args, options, logger=None):
             os.chdir(cwd)
     finally:
         if tdir and os.path.isdir(tdir):
-            shutil.rmtree(tdir)
+            if options.keep_downloaded_files:
+                print 'Downloaded files in ', tdir
+            else:
+                shutil.rmtree(tdir)
     
 
 def main(args=sys.argv, logger=None):
