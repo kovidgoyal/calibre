@@ -49,7 +49,11 @@ def tokens(tb):
             yield x, cattrs(attrs, {})
         elif isinstance(x, (CharButton, LrsTextTag)):
             if x.contents:
-                yield x.contents[0].text, cattrs(attrs, {})
+                if hasattr(x.contents[0], 'text'):
+                    yield x.contents[0].text, cattrs(attrs, {})
+                elif hasattr(x.contents[0], 'attrs'):
+                    for z in process_element(x.contents[0], x.contents[0].attrs):
+                        yield z
         elif isinstance(x, Plot):
             yield x, None
         elif isinstance(x, Span):
