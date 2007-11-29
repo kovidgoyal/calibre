@@ -21,6 +21,7 @@ from zlib import compress, decompress
 
 from libprs500 import sanitize_file_name
 from libprs500.ebooks.metadata.meta import set_metadata
+from libprs500.ebooks.metadata.opf import OPFCreator
 from libprs500.ebooks.metadata import MetaInformation
 
 class Concatenate(object):
@@ -1087,6 +1088,25 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
         
+    def get_metadata(self, idx):
+        aum = self.authors(idx)
+        if aum: aum = aum.split(',')
+        mi = MetaInformation(self.title(idx), aum)
+        mi.author_sort = self.author_sort(idx)
+        mi.comments    = self.comments(idx)
+        mi.publisher   = self.publisher(idx)
+        tags = self.tags(idx)
+        if tags:
+            mi.tags = [i.strip() for i in tags.split(',')]
+        mi.series = self.series(idx)
+        if mi.series:
+            mi.series_index = self.series_index(idx)
+        mi.rating = self.rating(idx)
+        id = self.id(idx)
+        mi.isbn = self.isbn(id)
+        mi.libprs_id = id
+        return mi
+    
     def export_to_dir(self, dir, indices, byauthor=False):
         if not os.path.exists(dir):
             raise IOError('Target directory does not exist: '+dir)
@@ -1113,6 +1133,17 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 id = str(self.id(idx))
                 if not os.path.exists(tpath):
                     os.mkdir(tpath)
+                mi = OPFCreator(self.get_metadata(idx))
+                cover = self.cover(idx)
+                if cover is not None:
+                    f = open(os.path.join(tpath, 'cover.jpg'), 'wb')
+                    f.write(cover)
+                    mi.cover = 'cover.jpg'
+                    f.close()
+                f = open(os.path.join(tpath, 'metadata.opf'), 'wb')
+                mi.write(f)
+                f.close()
+                
                 for fmt in self.formats(idx).split(','):
                     data = self.format(idx, fmt)
                     name = au + ' - ' + title if byauthor else title + ' - ' + au
@@ -1120,16 +1151,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     f = open(os.path.join(tpath, sanitize_file_name(fname)), 'w+b')
                     f.write(data)
                     f.flush()
-                    aum = self.authors(idx)
-                    if aum: aum = aum.split(',')
-                    mi = MetaInformation(self.title(idx), aum)
-                    mi.author_sort = self.author_sort(idx)
                     try:
                         set_metadata(f, mi, fmt.lower())
                     except:
                         print 'Error setting metadata for book:', mi.title
                         traceback.print_exc()
-
+                    f.close()
+                
                 
 if __name__ == '__main__':
     db = LibraryDatabase('/home/kovid/library1.db')

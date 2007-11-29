@@ -59,6 +59,7 @@ class MetaInformation(object):
         self.series_index = None
         self.rating       = None
         self.isbn         = None
+        self.tags         = [] 
         
     def __str__(self):
         ans = ''

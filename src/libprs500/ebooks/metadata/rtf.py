@@ -15,7 +15,7 @@
 """
 Edit metadata in RTF files.
 """
-import re, cStringIO, sys, copy
+import re, cStringIO, sys
 
 from libprs500.ebooks.metadata import MetaInformation, get_parser
 
@@ -118,13 +118,7 @@ def create_metadata(stream, options):
         stream.seek(0)
         stream.write(ans)
 
-def set_metadata(stream, mi):
-    mi = copy.deepcopy(mi)
-    mi.authors = ', '.join(mi.authors)
-    mi.comment = mi.comments
-    set_metadata_(stream, mi)
-
-def set_metadata_(stream, options):
+def set_metadata(stream, options):
     '''
     Modify/add RTF metadata in stream
     @param options: Object with metadata attributes title, author, comment, category
@@ -147,7 +141,7 @@ def set_metadata_(stream, options):
                 src = pat.sub(r'{\\title ' + title + r'}', src)
             else:
                 src = add_metadata_item(src, 'title', title)
-        comment = options.comment
+        comment = options.comments
         if comment != None:
             comment = comment.encode('ascii', 'replace')
             pat = re.compile(base_pat.replace('name', 'subject'), re.DOTALL)
@@ -157,6 +151,7 @@ def set_metadata_(stream, options):
                 src = add_metadata_item(src, 'subject', comment)
         author = options.authors
         if author != None:
+            author =  ', '.join(author)
             author = author.encode('ascii', 'ignore')
             pat = re.compile(base_pat.replace('name', 'author'), re.DOTALL)        
             if pat.search(src):
@@ -186,7 +181,10 @@ def main(args=sys.argv):
         parser.print_help()
         sys.exit(1)
     stream = open(args[1], 'r+b')
-    set_metadata_(stream, options)
+    if options.authors:
+        options.authors = options.authors.split(',')
+    options.comments = options.comment 
+    set_metadata(stream, options)
     mi = get_metadata(stream)
     return mi
 
