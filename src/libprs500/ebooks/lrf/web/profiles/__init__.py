@@ -34,6 +34,7 @@ class DefaultProfile(object):
     delay                 = 0     # Delay between consecutive downloads
     timeout               = 10    # Timeout for fetching files from server in seconds
     timefmt               = ' [%a %d %b %Y]' # The format of the date shown on the first page
+    url_search_order      = ['guid', 'link'] # THe order of elements to search for a URL when parssing the RSS feed
     pubdate_fmt           = None  # The format string used to parse the publication date in the RSS feed. If set to None some default heuristics are used, these may fail, in which case set this to the correct string or re-implement strptime in your subclass.
     no_stylesheets        = False # Download stylesheets only if False 
     match_regexps         = []    # List of regular expressions that determines which links to follow
@@ -172,9 +173,11 @@ class DefaultProfile(object):
                         continue
                     pubdate = pubdate.string
                     pubdate = pubdate.replace('+0000', 'GMT')
-                    url = item.find('guid')
-                    if not url:
-                        url = item.find('link')
+                    for element in self.url_search_order:
+                        url = item.find(element)
+                        if url:
+                            break
+                        
                     if not url or not url.string:
                         self.logger.debug('Skipping article as it does not have a link url')
                         continue
