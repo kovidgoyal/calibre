@@ -577,17 +577,24 @@ class Book(Delegator):
         
         old_base_font_size = float(max(zip(fonts.keys(), fonts.values()), key=operator.itemgetter(1))[0])
         
+        factor = base_font_size/old_base_font_size
+        
         def rescale(old):
-            return str(int(int(old) * (base_font_size/old_base_font_size)))
+            return str(int(int(old) * factor))
             
         for ts in text_styles:
             ts.attrs['fontsize'] = rescale(ts.attrs['fontsize'])
+            ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
         
         for tb in text_blocks:
             if tb.textSettings.has_key('fontsize'):
                 tb.textSettings['fontsize'] = rescale(tb.textSettings['fontsize'])
-            for span in tb.get_all(lambda x: isinstance(x, Span) and x.attrs.has_key('fontsize')):
-                span.attrs['fontsize'] = rescale(span.attrs['fontsize'])
+            for span in tb.get_all(lambda x: isinstance(x, Span)):
+                if span.attrs.has_key('fontsize'):
+                    span.attrs['fontsize'] = rescale(span.attrs['fontsize'])
+                if span.attrs.has_key('baselineskip'):
+                    span.attrs['baselineskip'] = rescale(span.attrs['baselineskip'])
+                
     
     def renderLrs(self, lrsFile):
         if isinstance(lrsFile, basestring): 
