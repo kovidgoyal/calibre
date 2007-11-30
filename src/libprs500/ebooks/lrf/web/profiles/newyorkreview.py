@@ -1,3 +1,6 @@
+##  By Lorenzo goehr, lorenzogoehr@hotmail.com for Libprs500 by Kovid Goyal
+
+
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile
 
 import re
@@ -17,7 +20,5 @@ class NewYorkReviewOfBooks(DefaultProfile):
         (r'<meta http-equiv="Content-Type" content="text/html; charset=(\S+)"', lambda match : match.group().replace(match.group(1), 'UTF-8')),
         (r'<body.*?((<div id="article_body">)|(<div id="st-page-maincontent">)|(<div id="containermain">)|(<p class="ap-story-p">)|(<!-- img_nav -->))', lambda match: '<body><div>'),
         (r'((<!-- end article content -->)|(<div id="st-custom-afterpagecontent">)|(<p class="ap-story-p">&copy;)|(<div class="entry-footer">)|(<div id="see_also">)|(<p>Via <a href=)|(<div id="ss_nav">)).*?</html>', lambda match : '</div></body></html>'),
-        (r'<a.*?onclick.*?>.*?(<img .*?>)', lambda match: match.group(1),), 
         (r'<div class="nav">.*?<h2>', lambda match: '<h2>'),
-        ] ]
-    
+        (r'<table.*?>.*?(<img .*?/table>)', lambda match: match.group(1),), ] ]
