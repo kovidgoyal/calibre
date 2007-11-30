@@ -446,6 +446,9 @@ class OPFReader(OPF):
         self.soup = BeautifulStoneSoup(stream.read())
         if manage:
             stream.close()
+        self.manifest = Manifest(self.soup, dir)
+        self.spine = Spine(self.soup, self.manifest)
+        self.toc = TOC(self, dir)
         
 class OPFCreator(OPF):
     
