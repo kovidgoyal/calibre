@@ -172,8 +172,8 @@ class xml_field(object):
         return ''
         
     def __set__(self, obj, val):
-        if val == None:
-            val = ""
+        if not val:
+            val = ''
         try:
             document = dom.parseString(obj.info)
         except Exception, err:
@@ -182,7 +182,6 @@ class xml_field(object):
             raise
         def create_elem():
             elem = document.createElement(self.tag_name)
-            elem.appendChild(dom.Text())
             parent = document.getElementsByTagName(self.parent)[0]
             parent.appendChild(elem)
             return elem
@@ -203,11 +202,10 @@ class xml_field(object):
             else:
                 elem.normalize()
                 while elem.hasChildNodes(): 
-                    elem.removeChild(elem.lastChild)
-                elem.appendChild(dom.Text())            
+                    elem.removeChild(elem.lastChild)                        
         else:
-            elem = create_elem()            
-        elem.firstChild.data = val
+            elem = create_elem()  
+        elem.appendChild(document.createTextNode(val))
         info = document.toxml(encoding='utf-16')
         obj.info = info
             
