@@ -460,10 +460,11 @@ class Main(MainWindow, Ui_MainWindow):
                 bad.append(mi['title'])
             else:
                 aus = mi['authors'].split(',')
-                for a in copy.copy(aus):
-                    aus += a.split('&')
+                aus2 = []
+                for a in aus:
+                    aus2.extend(a.split('&'))
                 try:
-                    set_metadata(f, MetaInformation(mi['title'], aus), f.name.rpartition('.')[2])
+                    set_metadata(f, MetaInformation(mi['title'], aus2), f.name.rpartition('.')[2])
                 except:
                     print 'Error setting metadata in book:', mi['title']
                     traceback.print_exc()
