@@ -66,6 +66,8 @@ def load_library(name, cdll):
 
 def filename_to_utf8(name):
     '''Return C{name} encoded in utf8. Unhandled characters are replaced. '''
+    if isinstance(name, unicode):
+        return name.encode('utf8')
     codec = 'cp1252' if iswindows else 'utf8'
     return name.decode(codec, 'replace').encode('utf8')
 
