@@ -676,7 +676,7 @@ class LitFile(object):
             self._stream.seek(self.content_offset + entry.offset)
             raw = self._stream.read(entry.size)
             xml = \
-'''
+'''\
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package
   PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
