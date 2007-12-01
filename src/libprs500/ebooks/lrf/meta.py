@@ -29,9 +29,12 @@ from shutil import copyfileobj
 from cStringIO import StringIO
 import xml.dom.minidom as dom
 from functools import wraps
+from xml.parsers.expat import ParserCreate
 
 from libprs500.devices.prs500.prstypes import field
 from libprs500.ebooks.metadata import MetaInformation
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
+
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte 
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes 
@@ -94,12 +97,7 @@ class xml_attr_field(object):
         
     def __get__(self, obj, typ=None):
         """ Return the data in this field or '' if the field is empty """
-        try:
-            document = dom.parseString(obj.info)
-        except Exception, err:
-            print >>sys.stderr, "Could not parse XML:", err
-            print obj.info
-            raise
+        document = obj.info
         elems = document.getElementsByTagName(self.tag_name)
         if len(elems):
             elem = None
@@ -113,12 +111,7 @@ class xml_attr_field(object):
     def __set__(self, obj, val):
         if val == None:
             val = ""
-        try:
-            document = dom.parseString(obj.info)
-        except Exception, err:
-            print >>sys.stderr, "Could not parse XML:", err
-            print obj.info
-            raise
+        document = obj.info
         elems = document.getElementsByTagName(self.tag_name)
         if len(elems):
             elem = None
@@ -127,8 +120,7 @@ class xml_attr_field(object):
                     elem = candidate
         if elem:
             elem.setAttribute(self.attr, val)
-        info = document.toxml(encoding='utf-16')
-        obj.info = info
+        obj.info = document
                 
     
     def __repr__(self):
@@ -152,12 +144,7 @@ class xml_field(object):
         
     def __get__(self, obj, typ=None): 
         """ Return the data in this field or '' if the field is empty """
-        try:
-            document = dom.parseString(obj.info)
-        except Exception, err:
-            print >>sys.stderr, "Could not parse XML:", err
-            print obj.info
-            raise
+        document = obj.info
             
         elems = document.getElementsByTagName(self.tag_name)
         if len(elems):
@@ -174,12 +161,7 @@ class xml_field(object):
     def __set__(self, obj, val):
         if not val:
             val = ''
-        try:
-            document = dom.parseString(obj.info)
-        except Exception, err:
-            print >>sys.stderr, "Could not parse XML:", err
-            print obj.info
-            raise
+        document = obj.info
         def create_elem():
             elem = document.createElement(self.tag_name)
             parent = document.getElementsByTagName(self.parent)[0]
@@ -206,8 +188,7 @@ class xml_field(object):
         else:
             elem = create_elem()  
         elem.appendChild(document.createTextNode(val))
-        info = document.toxml(encoding='utf-16')
-        obj.info = info
+        obj.info = document
             
     
     def __str__(self):
@@ -371,9 +352,8 @@ class LRFMetaFile(object):
     def info():
         doc = \
         """ 
-        Document meta information in raw XML format as a byte string encoded in
-        utf-16.
-        To set use raw XML in a byte string encoded in utf-16.
+        Document meta information as a minidom Document object.
+        To set use a minidom document object.
         """
         def fget(self):
             if self.compressed_info_size == 0:
@@ -381,30 +361,16 @@ class LRFMetaFile(object):
             size = self.compressed_info_size - 4
             self._file.seek(self.info_start)      
             try:
-                src =  zlib.decompress(self._file.read(size))        
+                src =  zlib.decompress(self._file.read(size))
                 if len(src) != self.uncompressed_info_size:          
                     raise LRFException("Decompression of document meta info\
-                                        yielded unexpected results")                
-                candidate = unicode(src, 'utf-16', 'replace')
-                # LRF files produced with makelrf dont have a correctly
-                # encoded metadata block. 
-                # Decoding using latin1 is the most useful for me since I
-                # occassionally read french books.
-                # pdflrf creates invalif metadata blocks
-                candidate = re.compile(u'</Info>.*', re.DOTALL).sub(u'</Info>', candidate)
-                if not u"Info" in candidate: 
-                    candidate = unicode(src, 'latin1', errors='ignore')
-                    if candidate[-1:] == '\0':
-                        candidate = candidate[:-1]
-                    candidate = dom.parseString(candidate.encode('utf-8')).\
-                            toxml(encoding='utf-16').strip()
-                else:
-                    candidate = candidate.strip().encode('utf-16')
-                return candidate
+                                        yielded unexpected results")
+                return dom.parseString(src)
             except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
         
-        def fset(self, info):
+        def fset(self, document):
+            info = document.toxml('utf-8')
             self.uncompressed_info_size = len(info)
             stream = zlib.compress(info)
             orig_size = self.compressed_info_size
