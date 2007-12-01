@@ -163,7 +163,8 @@ class OPF(MetaInformation):
         if isinstance(value, basestring):
             value = [value]
             attrs = [attrs]
-        doc = dom.parseString(self.soup.__str__('UTF-8'))
+        
+        doc = dom.parseString(self.soup.__str__('UTF-8').strip())
         package = doc.documentElement
         metadata = package.getElementsByTagName('metadata')[0]
             
