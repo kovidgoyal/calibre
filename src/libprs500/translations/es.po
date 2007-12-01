@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-27 22:06+PST\n"
+"POT-Creation-Date: 2007-11-30 16:39+PST\n"
 "PO-Revision-Date: 2007-11-16 09:21+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: Spanish\n"
@@ -292,44 +292,44 @@ msgid ""
 "option if you are on a memory constrained machine."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:591
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:555
 msgid "Set the book title"
 msgstr "Insertar el nombre del libro"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:593
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:557
 msgid "Set sort key for the title"
 msgstr "Insertar la clave de orden por título"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:595
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:559
 msgid "Set the author"
 msgstr "Insertar el autor"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:597
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:561
 msgid "Set sort key for the author"
 msgstr "Insertar la clave de orden por autor"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:599
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:563
 msgid "The category this book belongs to. E.g.: History"
 msgstr "Categoria a la que pertenece el libro. Por ejemplo, Historia"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:602
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
 msgid "Path to a graphic that will be set as this files' thumbnail"
 msgstr "Ruta al archivo de imagen que se utilizará como miniatura"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:605
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:569
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
 msgstr ""
 "Ruta al archivo txt que contiene el comentaria a guardar en el archivo LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:609
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:573
 msgid "Extract thumbnail from LRF file"
 msgstr "Extraer la miniatura del archivo LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:611
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:575
 msgid "Set book ID"
 msgstr "Insertar el ID del libro"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:613
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:577
 msgid "Don't know what this is for"
 msgstr "No sé para qué sirve esto"
 
@@ -950,11 +950,11 @@ msgstr "Editar metadatos individualmente"
 msgid "Edit metadata in bulk"
 msgstr "Edita metadatos en bloque"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:132
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:134
 msgid "Convert individually"
 msgstr "Convertir individualmente"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:133
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:135
 msgid "Bulk convert"
 msgstr "Convertir en bloque"
 
