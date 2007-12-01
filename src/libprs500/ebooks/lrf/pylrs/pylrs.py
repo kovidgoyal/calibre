@@ -549,11 +549,16 @@ class Book(Delegator):
                 main = obj
                 break
         pages = [obj for obj in main.contents if isinstance(obj, Page)]
+        
         text_blocks = []
         for p in pages:
             for obj in p.contents:
                 if isinstance(obj, TextBlock):
                     text_blocks.append(obj)
+                elif isinstance(obj, Canvas):
+                    for o in obj.contents:
+                        if isinstance(o.content, TextBlock):
+                            text_blocks.append(o.content)
             
         text_styles = set([t.textStyle for t in text_blocks])
         important_text_styles = []
@@ -568,6 +573,7 @@ class Book(Delegator):
         fonts = {}
         if not important_text_styles:
             important_text_styles = text_styles
+        
         for ts in important_text_styles:
             fs = int(ts.attrs['fontsize'])
             if fonts.has_key(fs):
