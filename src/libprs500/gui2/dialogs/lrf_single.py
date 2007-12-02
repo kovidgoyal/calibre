@@ -27,6 +27,8 @@ from libprs500.ebooks.lrf import option_parser
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500 import __appname__
 
+font_family_model = None
+
 class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     
     PARSER = option_parser('')
@@ -65,7 +67,10 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.cover_changed = False
         self.cpixmap = None
         self.changed = False
-        self.font_family_model = FontFamilyModel()
+        global font_family_model
+        if font_family_model is None:
+            font_family_model = FontFamilyModel()
+        self.font_family_model = font_family_model
         self.gui_serif_family.setModel(self.font_family_model)
         self.gui_sans_family.setModel(self.font_family_model)
         self.gui_mono_family.setModel(self.font_family_model)
