@@ -36,6 +36,7 @@ class DefaultProfile(object):
     timefmt               = ' [%a %d %b %Y]' # The format of the date shown on the first page
     url_search_order      = ['guid', 'link'] # THe order of elements to search for a URL when parssing the RSS feed
     pubdate_fmt           = None  # The format string used to parse the publication date in the RSS feed. If set to None some default heuristics are used, these may fail, in which case set this to the correct string or re-implement strptime in your subclass.
+    use_pubdate           = True, # If True will look for a publication date for each article. If False assumes the publication date is the current time.
     no_stylesheets        = False # Download stylesheets only if False 
     match_regexps         = []    # List of regular expressions that determines which links to follow
     filter_regexps        = []    # List of regular expressions that determines which links to ignore
@@ -165,14 +166,15 @@ class DefaultProfile(object):
             soup = BeautifulStoneSoup(src)
             for item in soup.findAll('item'):
                 try:
-                    pubdate = item.find('pubdate')
-                    if not pubdate:
-                        pubdate = item.find('dc:date')
-                    if not pubdate or not pubdate.string:
-                        self.logger.debug('Skipping article as it does not have publication date')
-                        continue
-                    pubdate = pubdate.string
-                    pubdate = pubdate.replace('+0000', 'GMT')
+                    if self.use_pubdate:
+                        pubdate = item.find('pubdate')
+                        if not pubdate:
+                            pubdate = item.find('dc:date')
+                        if not pubdate or not pubdate.string:
+                            self.logger.debug('Skipping article as it does not have publication date')
+                            continue
+                        pubdate = pubdate.string
+                        pubdate = pubdate.replace('+0000', 'GMT')
                     for element in self.url_search_order:
                         url = item.find(element)
                         if url:
@@ -184,8 +186,8 @@ class DefaultProfile(object):
                     d = { 
                         'title'    : item.find('title').string,                 
                         'url'      : self.print_version(url.string),
-                        'timestamp': self.strptime(pubdate),
-                        'date'     : pubdate
+                        'timestamp': self.strptime(pubdate) if self.use_pubdate else time.time(),
+                        'date'     : pubdate if self.use_pubate else time.ctime()
                         }
                     delta = time.time() - d['timestamp']
                     if delta > self.oldest_article*3600*24:
