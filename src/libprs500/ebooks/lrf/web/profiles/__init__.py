@@ -229,6 +229,10 @@ class DefaultProfile(object):
         
     @classmethod
     def strptime(cls, src):
+        ''' 
+        Take a string and return the date that string represents, in UTC as
+        an epoch (i.e. number of seconds since Jan 1, 1970)
+        '''        
         delta = 0
         zone = re.search(r'\s*(\+\d\d\:{0,1}\d\d)', src)
         if zone:
