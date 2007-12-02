@@ -141,20 +141,20 @@ set_translator()
 font_families = {}
 def get_font_families():
     global font_families
-    if font_families:
-        return font_families
-    ffiles = findsystem.findFonts()
-    zlist = []
-    for ff in ffiles:
-        font = describe.openFont(ff)
-        try:
-            wt, italic = describe.modifiers(font)
-        except:
-            wt, italic = 0, 0
-        if wt == 400 and italic == 0:
-            family = describe.shortName(font)[1].strip()
-            zlist.append((family, ff))
-    return dict(zlist)
+    if not font_families:
+        ffiles = findsystem.findFonts()
+        zlist = []
+        for ff in ffiles:
+            font = describe.openFont(ff)
+            try:
+                wt, italic = describe.modifiers(font)
+            except:
+                wt, italic = 0, 0
+            if wt == 400 and italic == 0:
+                family = describe.shortName(font)[1].strip()
+                zlist.append((family, ff))
+        font_families = dict(zlist)
+    return font_families
 
 def sanitize_file_name(name):
     '''
