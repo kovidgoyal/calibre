@@ -187,7 +187,7 @@ class DefaultProfile(object):
                         'title'    : item.find('title').string,                 
                         'url'      : self.print_version(url.string),
                         'timestamp': self.strptime(pubdate) if self.use_pubdate else time.time(),
-                        'date'     : pubdate if self.use_pubate else time.ctime()
+                        'date'     : pubdate if self.use_pubdate else time.ctime()
                         }
                     delta = time.time() - d['timestamp']
                     if delta > self.oldest_article*3600*24:
