@@ -96,6 +96,7 @@ def main():
     os.mkdir('docs')
     check_call("sudo python setup.py develop", shell=True)
     check_call('make', shell=True)
+    check_call('svn commit -m "Updated translations" src/libprs500/translations')
     upload_demo()
     print 'Building OSX installer...'
     dmg = build_osx()
