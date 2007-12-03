@@ -313,8 +313,10 @@ def Book(options, logger, font_delta=0, header=None,
             raise ConversionError, 'Could not find the normal version of the ' + family + ' font'
     return book, fonts
 
-def entity_to_unicode(match):
+def entity_to_unicode(match, exceptions=[]):
     ent = match.group(1)
+    if ent in exceptions:
+        return '&'+ent+';'
     if ent.startswith(u'#x'):
         return unichr(int(ent[2:], 16))
     if ent.startswith(u'#'):
@@ -322,4 +324,4 @@ def entity_to_unicode(match):
     try:
         return unichr(name2codepoint[ent])
     except KeyError:
-        return ent
+        return '&'+ent+';'

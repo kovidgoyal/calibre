@@ -25,6 +25,8 @@ from collections import deque
 from urllib import unquote
 from urlparse import urlparse
 from math import ceil, floor
+from functools import partial
+
 try:
     from PIL import Image as PILImage
 except ImportError:
@@ -63,7 +65,6 @@ def munge_paths(basepath, url):
         path = os.path.join(os.path.dirname(basepath), path)
     return os.path.normpath(path), fragment
 
-                              
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
@@ -84,7 +85,7 @@ class HTMLConverter(object):
                         # Workaround bug in BeautifulSoup &nbsp; handling
                         (re.compile(u'&nbsp;|&#160;|&#xa0;|\xa0', re.IGNORECASE), lambda match : u'\uffff'),
                         # Replace entities
-                        (re.compile(ur'&(\S+?);'), entity_to_unicode),
+                        (re.compile(ur'&(\S+?);'), partial(entity_to_unicode, exceptions=['lt', 'gt'])),
                         ]
     # Fix Baen markup
     BAEN = [ 
