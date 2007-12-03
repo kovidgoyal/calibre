@@ -85,7 +85,8 @@ class HTMLConverter(object):
                         # Workaround bug in BeautifulSoup &nbsp; handling
                         (re.compile(u'&nbsp;|&#160;|&#xa0;|\xa0', re.IGNORECASE), lambda match : u'\uffff'),
                         # Replace entities
-                        (re.compile(ur'&(\S+?);'), partial(entity_to_unicode, exceptions=['lt', 'gt'])),
+                        (re.compile(ur'&(\S+?);'), partial(entity_to_unicode, 
+                                                           exceptions=['lt', 'gt', 'amp'])),
                         ]
     # Fix Baen markup
     BAEN = [ 
