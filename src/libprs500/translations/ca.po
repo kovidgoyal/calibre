@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca(1)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-11-30 16:39+PST\n"
+"POT-Creation-Date: 2007-12-03 09:43+PST\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: \n"
@@ -381,7 +381,7 @@ msgstr "Seleccioneu el llibre que més s'acoste del llistat que hi ha a sota"
 msgid "Active Jobs"
 msgstr "Treballs actius"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:269
 msgid ""
 "Specify metadata such as title and author for the book.<p>Metadata will be "
 "updated in the database as well as the generated LRF file."
@@ -389,12 +389,12 @@ msgstr ""
 "Especifiqueu informació com ara tí­tol i autor per al llibre.<p>Aquesta "
 "informació s'actualitza tant a la base de dades com al fitxer LRF."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:269
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:563
 msgid "Metadata"
 msgstr "Metadades"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:270
 msgid ""
 "Adjust the look of the generated LRF file by specifying things like font "
 "sizes and the spacing between words."
@@ -402,12 +402,12 @@ msgstr ""
 "Milloreu l'aparença del fitxer LRF generat, especificant la grandària de "
 "lletra i l'espaiat entre paraules."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:270
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:567
 msgid "Look & Feel"
 msgstr "Look & Feel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:271
 msgid ""
 "Specify the page settings like margins and the screen size of the target "
 "device."
@@ -415,16 +415,16 @@ msgstr ""
 "Configuració de la pàgina del dispositiu, especificant ,marges i grandària "
 "de la pantalla, entre d'altres."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:271
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:571
 msgid "Page Setup"
 msgstr "Configuració de la pàgina"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:267
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:272
 msgid "Fine tune the detection of chapter and section headings."
 msgstr "Milloreu la detecció de capí­tols i seccions."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:267
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:272
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:575
 msgid "Chapter Detection"
 msgstr "Detecció de capí­tols"

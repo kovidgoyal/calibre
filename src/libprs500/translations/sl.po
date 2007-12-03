@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2007-11-30 16:39+PST\n"
+"POT-Creation-Date: 2007-12-03 09:43+PST\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -322,44 +322,44 @@ msgstr ""
 msgid "Active Jobs"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:269
 msgid ""
 "Specify metadata such as title and author for the book.<p>Metadata will be "
 "updated in the database as well as the generated LRF file."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:269
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:563
 msgid "Metadata"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:270
 msgid ""
 "Adjust the look of the generated LRF file by specifying things like font "
 "sizes and the spacing between words."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:270
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:567
 msgid "Look & Feel"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:271
 msgid ""
 "Specify the page settings like margins and the screen size of the target "
 "device."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:271
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:571
 msgid "Page Setup"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:267
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:272
 msgid "Fine tune the detection of chapter and section headings."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:267
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:272
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:575
 msgid "Chapter Detection"
 msgstr ""

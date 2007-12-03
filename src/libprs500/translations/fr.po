@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.22\n"
-"POT-Creation-Date: 2007-11-30 16:39+PST\n"
+"POT-Creation-Date: 2007-12-03 09:43+PST\n"
 "PO-Revision-Date: 2007-11-18 13:53+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -389,7 +389,7 @@ msgstr ""
 msgid "Active Jobs"
 msgstr "Exécutions en cours"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:269
 msgid ""
 "Specify metadata such as title and author for the book.<p>Metadata will be "
 "updated in the database as well as the generated LRF file."
@@ -397,12 +397,12 @@ msgstr ""
 "Définit les metadata comme le titre et l'auteur du livre.<p>Les metadata "
 "seront modifiées dans la base de données et dans le fichier LRF généré."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:269
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:563
 msgid "Metadata"
 msgstr "Metadata"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:270
 msgid ""
 "Adjust the look of the generated LRF file by specifying things like font "
 "sizes and the spacing between words."
@@ -410,12 +410,12 @@ msgstr ""
 "Ajuste la présentation du fichier LRF généré en définissant des paramètres "
 "tels que la taille des polices et l'espacement entre les mots."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:270
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:567
 msgid "Look & Feel"
 msgstr "Présentation"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:271
 msgid ""
 "Specify the page settings like margins and the screen size of the target "
 "device."
@@ -423,16 +423,16 @@ msgstr ""
 "Définit les paramètres de la pages tels que les marges et la taille de "
 "l'écran du lecteur cible."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:271
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:571
 msgid "Page Setup"
 msgstr "Mise en page"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:267
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:272
 msgid "Fine tune the detection of chapter and section headings."
 msgstr "Peaufiner la détection des chapitres et des en-têtes de section."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:267
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:272
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:575
 msgid "Chapter Detection"
 msgstr "Détection des chapitres"
