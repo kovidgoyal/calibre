@@ -91,7 +91,9 @@ def build_combined(base_url, opts):
     if len(query) == 0:
         raise ISBNDBError('You must specify at least one of --author, --title or --publisher')
     
-    query = re.sub(r'\s+', '+', query)  
+    query = re.sub(r'\s+', '+', query)
+    if isinstance(query, unicode):
+        query = query.encode('utf-8')
     return base_url+'index1=combined&value1='+quote(query, '+')    
 
 
@@ -146,7 +148,7 @@ def main(args=sys.argv):
         return 1
     
     for book in create_books(opts, args):
-        print book
+        print unicode(book)
             
     return 0
 
