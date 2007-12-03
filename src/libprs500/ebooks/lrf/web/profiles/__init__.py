@@ -151,6 +151,9 @@ class DefaultProfile(object):
 
     
     def parse_feeds(self):
+        '''
+        Create list of articles from a list of feeds.
+        '''
         feeds = self.get_feeds()
         articles = {}
         for title, url in feeds:
@@ -213,6 +216,10 @@ class DefaultProfile(object):
 
     
     def cleanup(self):
+        '''
+        Called after LRF file has been generated. Use it to do any cleanup like 
+        logging out of subscription sites, etc.
+        '''
         pass
     
     @classmethod
