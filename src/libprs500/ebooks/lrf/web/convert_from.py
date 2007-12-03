@@ -160,6 +160,10 @@ def process_profile(args, options, logger=None):
         finally:
             os.chdir(cwd)
     finally:
+        try:
+            profile.cleanup()
+        except:
+            pass
         if tdir and os.path.isdir(tdir):
             if options.keep_downloaded_files:
                 print 'Downloaded files in ', tdir

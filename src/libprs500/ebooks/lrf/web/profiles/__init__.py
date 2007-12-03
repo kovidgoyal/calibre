@@ -212,6 +212,9 @@ class DefaultProfile(object):
         return articles
 
     
+    def cleanup(self):
+        pass
+    
     @classmethod
     def process_html_description(cls, tag):
         src = '\n'.join(tag.contents)
