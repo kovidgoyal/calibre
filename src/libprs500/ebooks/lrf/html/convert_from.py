@@ -329,7 +329,7 @@ class HTMLConverter(object):
         self.css.update(self.override_css)
         
         self.file_name = os.path.basename(path)
-        self.logger.info('Processing %s', self.file_name)
+        self.logger.info('Processing %s', path if self.verbose else self.file_name)
         raw = open(path, 'rb').read()
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')
