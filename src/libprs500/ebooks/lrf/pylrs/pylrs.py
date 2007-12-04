@@ -2459,11 +2459,3 @@ class Font(LrsContainer):
         element = Element("RegistFont", encoding="TTF", fontname=self.facename,
                 file=self.filename, fontfilename=self.filename)
         return element
-
-
-
-def properties_different(attrs1, attrs2):
-    for key in attrs1.keys():
-        if attrs2.has_key(key) and str(attrs1[key]) != str(attrs2[key]):
-                return True
-    return False

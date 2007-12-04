@@ -37,7 +37,7 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
-                LrsError, Sup, Sub, properties_different, EmpLine
+                LrsError, Sup, Sub, EmpLine
 from libprs500.ebooks.lrf.pylrs.pylrs import Span 
 from libprs500.ebooks.lrf import Book, entity_to_unicode
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
@@ -200,7 +200,7 @@ class HTMLConverter(object):
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.tops = {}          #: element representing the top of each HTML file in the LRF file
         self.previous_text = '' #: Used to figure out when to lstrip
-        self.preserve_block_style = False #: Used so that <p> tags in <blockquote> elements are handles properly
+        self.preserve_block_style = False #: Used so that <p> tags in <blockquote> elements are handled properly
         # Styles 
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
@@ -1194,6 +1194,20 @@ class HTMLConverter(object):
         text_properties = self.text_properties(tag_css)
         block_properties = self.block_properties(tag_css)
         align = self.get_alignment(tag_css)
+        
+        def fill_out_properties(props, default):
+            for key in default.keys():
+                if not props.has_key(key):
+                    props[key] = default[key]
+        
+        fill_out_properties(block_properties, self.book.defaultBlockStyle.attrs)
+        fill_out_properties(text_properties, self.book.defaultTextStyle.attrs)
+        
+        def properties_different(dict1, dict2):
+            for key in dict1.keys():
+                if dict1[key] != dict2[key]:
+                    return True
+            return False
         
         if properties_different(self.current_block.blockStyle.attrs, block_properties) or \
            properties_different(self.current_block.textStyle.attrs, text_properties) or\
