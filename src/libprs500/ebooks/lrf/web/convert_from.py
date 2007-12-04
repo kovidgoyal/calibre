@@ -154,6 +154,9 @@ def process_profile(args, options, logger=None):
             options.output = os.path.join(cwd, options.title+('.lrs' if options.lrs else '.lrf'))
         if not os.path.isabs(options.output):
             options.output = os.path.join(cwd, options.output)
+        
+        option_parser().parse_args(profile.html2lrf_options, options)
+            
         try:
             os.chdir(os.path.dirname(htmlfile))
             create_lrf(os.path.basename(htmlfile), options, logger)
