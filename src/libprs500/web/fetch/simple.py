@@ -207,6 +207,9 @@ class RecursiveFetcher(object):
         if not self.is_link_ok(iurl):
             self.logger.debug('Skipping invalid link: %s', iurl)
             return None
+        if not self.is_link_wanted(iurl):
+            self.logger.debug('Filtered link: '+iurl)
+            return None
         return iurl
     
     def normurl(self, url):
