@@ -39,13 +39,16 @@ def generate_html(pathtolit, logger):
     sep = r'\\' if iswindows else os.path.sep
     cmd = ' '.join([CLIT, '"'+pathtolit+'"', '"%s"'%(tdir+sep,)])
     logger.debug(cmd)
-    p = Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE)    
+    p = Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE)
+    stdout = p.stdout.read()
+    err = p.stderr.read()     
     logger.info(p.stdout.read())
     ret = p.wait()
     if ret != 0:
         if os.path.exists(tdir) and os.path.isdir(tdir):
-            shutil.rmtree(tdir)
-        err = p.stderr.read()
+            shutil.rmtree(tdir)        
+        if 'keys.txt' in unicode(err)+unicode(stdout):
+            raise ConversionError('This lit file is protected by DRM. You must first use the ConvertLIT program to remove the DRM.')
         raise ConversionError, err
     return tdir
 
