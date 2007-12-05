@@ -317,6 +317,8 @@ def entity_to_unicode(match, exceptions=[]):
     ent = match.group(1)
     if ent in exceptions:
         return '&'+ent+';'
+    if ent == 'apos':
+        return "'"
     if ent.startswith(u'#x'):
         return unichr(int(ent[2:], 16))
     if ent.startswith(u'#'):
