@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import urllib, re
+import urllib, re, traceback
 
 from PyQt4.QtCore import QThread, SIGNAL
 
@@ -23,14 +23,17 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 class CheckForUpdates(QThread):
     
     def run(self):
-        src = urllib.urlopen('http://pypi.python.org/pypi/libprs500').read()
-        soup = BeautifulSoup(src)
-        meta = soup.find('link', rel='meta', title='DOAP')
-        if meta:
-            src = meta['href']
-            match = re.search(r'version=(\S+)', src)
-            if match:
-                version = match.group(1)
-                if version != __version__:
-                    self.emit(SIGNAL('update_found(PyQt_PyObject)'), version)
+        try:
+            src = urllib.urlopen('http://pypi.python.org/pypi/libprs500').read()
+            soup = BeautifulSoup(src)
+            meta = soup.find('link', rel='meta', title='DOAP')
+            if meta:
+                src = meta['href']
+                match = re.search(r'version=(\S+)', src)
+                if match:
+                    version = match.group(1)
+                    if version != __version__:
+                        self.emit(SIGNAL('update_found(PyQt_PyObject)'), version)
+        except:
+            traceback.print_exc()
                     
