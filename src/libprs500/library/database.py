@@ -697,8 +697,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def __del__(self):
         global _lock_file
         import os
-        if _lock_file is not None and os.path.exists(_lock_file):
-            os.unlink(_lock_file) 
+        if _lock_file is not None:
+            _lock_file.close()
+            if os.path.exists(_lock_file.name):
+                os.unlink(_lock_file.name) 
     
     def __init__(self, dbpath):
         self.dbpath = dbpath
@@ -714,6 +716,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if self.user_version == 3: # Upgrade to 4
             LibraryDatabase.upgrade_version3(self.conn)
         
+    def close(self):
+        global _lock_file
+        _lock_file.close()
+        os.unlink(_lock_file.name)
+        _lock_file = None
+        self.conn.close()
+    
     @apply
     def user_version():
         doc = 'The user version of this database'

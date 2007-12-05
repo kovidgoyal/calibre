@@ -12,12 +12,11 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-from libprs500.ebooks.BeautifulSoup import BeautifulSoup
-from libprs500.gui2 import qstring_to_unicode
-import re
-import urllib
-import shutil
-import os, sys, textwrap, cStringIO, collections, traceback
+from libprs500.gui2.update import CheckForUpdates
+from libprs500 import iswindows
+from libprs500 import isosx
+
+import os, sys, textwrap, cStringIO, collections, traceback, shutil
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread, QTimer
@@ -34,7 +33,7 @@ from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, BOOK_EXTENSIONS, \
-                           pixmap_to_data, choose_dir, ORG_NAME
+                           pixmap_to_data, choose_dir, ORG_NAME, qstring_to_unicode
 from libprs500.gui2.main_window import MainWindow
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
@@ -95,7 +94,10 @@ class Main(MainWindow, Ui_MainWindow):
         self.latest_version = ' '
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
-        QTimer.singleShot(1000, self.check_for_updates)
+        self.update_checker = CheckForUpdates()
+        QObject.connect(self.update_checker, SIGNAL('update_found(PyQt_PyObject)'),
+                        self.update_found)
+        self.update_checker.start()
         ####################### Status Bar #####################
         self.status_bar = StatusBar(self.jobs_dialog)
         self.setStatusBar(self.status_bar)
@@ -674,19 +676,27 @@ class Main(MainWindow, Ui_MainWindow):
         if d.result() == d.Accepted:
             if os.path.dirname(self.database_path) != d.database_location:
                 try:
-                    self.db.close()
-                    src = open(self.database_path, 'rb')
                     newloc = os.path.join(d.database_location, os.path.basename(self.database_path))
                     dest = open(newloc, 'wb')
                     self.status_bar.showMessage('Copying database to '+newloc)
-                    shutil.copy(src, dest)
+                    self.setCursor(Qt.BusyCursor)
+                    self.library_view.setEnabled(False)
+                    self.library_view.close()
+                    src = open(self.database_path, 'rb')
+                    shutil.copyfileobj(src, dest)
                     src.close()
                     dest.close()
                     self.database_path = newloc
+                    settings = QSettings()
+                    settings.setValue("database path", QVariant(self.database_path))
+                    os.unlink(src.name)
                 except Exception, err:
+                    traceback.print_exc()
                     d = error_dialog(self, 'Could not move database', unicode(err))
                     d.exec_()
                 finally:
+                    self.unsetCursor()
+                    self.library_view.setEnabled(True)
                     self.status_bar.clearMessage()
                     self.search.clear_to_help()
                     self.status_bar.reset_info()
@@ -764,8 +774,8 @@ class Main(MainWindow, Ui_MainWindow):
         settings.beginGroup("Main Window")
         self.resize(settings.value("size", QVariant(QSize(800, 600))).toSize())
         settings.endGroup()
-        self.database_path = settings.value("database path", 
-                QVariant(os.path.join(os.path.expanduser('~'),'library1.db'))).toString()
+        self.database_path = qstring_to_unicode(settings.value("database path", 
+                QVariant(os.path.join(os.path.expanduser('~'),'library1.db'))).toString())
     
     def write_settings(self):
         settings = QSettings()
@@ -795,19 +805,14 @@ class Main(MainWindow, Ui_MainWindow):
         self.write_settings()
         e.accept()
         
-    def check_for_updates(self):
-        src = urllib.urlopen('http://pypi.python.org/pypi/libprs500').read()
-        soup = BeautifulSoup(src)
-        meta = soup.find('link', rel='meta', title='DOAP')
-        if meta:
-            src = meta['href']
-            match = re.search(r'version=(\S+)', src)
-            if match:
-                version = match.group(1)
-                if version != __version__:
-                    self.latest_version = '<span style="color:red; font-weight:bold">%s</span>'%('Latest version: '+version,)
-                    self.vanity.setText(self.vanity_template%(dict(version=self.latest_version, device=self.device_info)))
-                    self.vanity.update()
+    def update_found(self, version):
+        os = 'windows' if iswindows else 'osx' if isosx else 'linux'
+        url = 'https://libprs500.kovidgoyal.net/download_'+os
+        self.latest_version = '<span style="color:red; font-weight:bold">Latest version: <a href="%s">%s</a></span>'%(url, version)
+        self.vanity.setText(self.vanity_template%(dict(version=self.latest_version, 
+                                                    device=self.device_info)))
+        self.vanity.update()
+        
 
 def main(args=sys.argv):
     from PyQt4.Qt import QApplication

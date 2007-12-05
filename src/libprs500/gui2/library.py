@@ -115,8 +115,13 @@ class BooksModel(QAbstractTableModel):
         if isinstance(db, (QString, basestring)):
             if isinstance(db, QString):
                 db = qstring_to_unicode(db)    
-            db = LibraryDatabase(os.path.expanduser(qstring_to_unicode(db)))
+            db = LibraryDatabase(os.path.expanduser(db))
         self.db = db
+        
+    def close(self):
+        self.db.close()
+        self.db = None
+        self.reset()
         
     def add_books(self, paths, formats, metadata, uris=[]):
         self.db.add_books(paths, formats, metadata, uris)
@@ -392,6 +397,8 @@ class BooksView(TableView):
     def set_database(self, db):
         self._model.set_database(db)
         
+    def close(self):
+        self._model.close()
         
     def migrate_database(self):
         if self.model().database_needs_migration():
