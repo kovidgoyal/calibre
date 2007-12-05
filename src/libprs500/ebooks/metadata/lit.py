@@ -178,12 +178,15 @@ class UnBinary(object):
     def write_spaces(self, depth):
         self.buf.write(u' '.join(u'' for i in range(depth)))
         
-    
     def item_path(self, internal_id):
         for i in self.manifest:
             if i == internal_id:
                 return i.path
         raise LitReadError('Could not find item %s'%(internal_id,))
+    
+    def __unicode__(self):
+        raw = self.buf.getvalue().lstrip()
+        return raw.decode('utf-8')
     
     def binary_to_text(self, base=0, depth=0):
         space_enabled, saved_space_enabled = 1, 0
@@ -210,7 +213,7 @@ class UnBinary(object):
                 if c == '\v': 
                     c = '\n'
                 pending_indent = 0
-                self.buf.write(c)
+                self.buf.write(c.encode('utf-8') if isinstance(c, unicode) else c)
             elif state == 'get flags':
                 if ord(c) == 0:
                     state = 'text'
@@ -249,7 +252,7 @@ class UnBinary(object):
                         current_map = self.tag_to_attr_map[tag]
                         print 'WARNING: tag %s unknown'%(unichr(tag),)
                     
-                    self.buf.write(unicode(tag_name))
+                    self.buf.write(unicode(tag_name).encode('utf-8'))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:
                         raise LitReadError('Extra closing tag')
@@ -261,9 +264,9 @@ class UnBinary(object):
                     if not is_goingdown:
                         tag_name = None
                         dynamic_tag = 0
-                        self.buf.write(u' />')
+                        self.buf.write(' />')
                     else:
-                        self.buf.write(u'>')
+                        self.buf.write('>')
                         if not self.opf and (flags & (FLAG_BLOCK|FLAG_HEAD)):
                             pending_indent += 1
                         index = self.binary_to_text(base=index, depth=depth+1)
@@ -273,9 +276,9 @@ class UnBinary(object):
                         saved_space_enabled = space_enabled
                         space_enabled = self.lingering_space
                         if space_enabled and was_indented and not self.was_in_text:
-                            self.buf.write(u'\n')
+                            self.buf.write('\n')
                             self.write_spaces(depth)
-                        self.buf.write(u'</'+tag_name+u'>')
+                        self.buf.write('</'+tag_name+'>')
                         if (space_enabled and self.opf) or (flags & (FLAG_BLOCK|FLAG_HEAD)):
                             self.pending_indent += 1
                         dynamic_tag = 0
@@ -302,18 +305,18 @@ class UnBinary(object):
                         state = 'get value length'
                         continue
                     
-                    self.buf.write(u' ' + unicode(attr) + u'=')
+                    self.buf.write(' ' + unicode(attr).encode('utf-8') + '=')
                     if attr in ['href', 'src']:
                         state = 'get href'
                     else:
                         state = 'get value length'
             elif state == 'get value length':
                 if not in_censorship:
-                    self.buf.write(u'"')
+                    self.buf.write('"')
                 char_count = ord(c) - 1
                 if not char_count:
                     if not in_censorship:
-                        self.buf.write(u'"')
+                        self.buf.write('"')
                     in_censorship = 0
                     state = 'get attr'
                 state = 'get value'
@@ -324,7 +327,7 @@ class UnBinary(object):
             elif state == 'get value':
                 if char_count == 0xfffe:
                     if not in_censorship:
-                        self.buf.write(unicode(ord(c)-1))
+                        self.buf.write(str(ord(c)-1))
                     in_censorship = 0
                     state = 'get attr'
                 elif char_count:
@@ -353,13 +356,13 @@ class UnBinary(object):
                 char_count = ord(c) - 1
                 if char_count <= 0 or char_count > len(self.bin)-index:
                     raise LitReadError('Invalid character count %d'%(char_count,))
-                self.buf.write(u' ')
+                self.buf.write(' ')
                 state = 'get custom attr'
             elif state == 'get custom attr':
                 self.buf.write(c)
                 char_count -= 1
                 if not char_count:
-                    self.buf.write(u'=')
+                    self.buf.write('=')
                     state = 'get value length'
             elif state == 'get href':
                 char_count = ord(c) - 1
@@ -371,7 +374,7 @@ class UnBinary(object):
                 path = self.item_path(doc)
                 if m and frag:
                     path += m+frag
-                self.buf.write(u'"%s"'%(path,))
+                self.buf.write((u'"%s"'%(path,)).encode('utf-8'))
                 state = 'get attr'
         
         self.lingering_space = space_enabled
@@ -682,7 +685,7 @@ class LitFile(object):
   PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
   "http://openebook.org/dtds/oeb-1.0.1/oebpkg101.dtd">
 '''+\
-                UnBinary(raw, self.manifest).buf.getvalue().lstrip()
+                unicode(UnBinary(raw, self.manifest))
             self.meta = xml
         finally:
             self._stream.seek(opos)
@@ -690,7 +693,7 @@ class LitFile(object):
 def get_metadata(stream):
     try:
         litfile = LitFile(stream)
-        mi = OPFReader(cStringIO.StringIO(litfile.meta))
+        mi = OPFReader(cStringIO.StringIO(litfile.meta.encode('utf-8')))
     except:
         title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
         mi = MetaInformation(title, ['Unknown'])
@@ -702,7 +705,7 @@ def main(args=sys.argv):
     if len(args) != 2:
         print >>sys.stderr, 'Usage: %s file.lit'%(args[0],)
         return 1
-    print get_metadata(open(args[1], 'rb'))
+    print unicode(get_metadata(open(args[1], 'rb')))
     return 0
 
 if __name__ == '__main__':
