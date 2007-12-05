@@ -105,7 +105,7 @@
          <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/WikiStart#Usage">&lt;span style=" text-decoration: underline; color:#0000ff;">libprs500.kovidgoyal.net&lt;/span>&lt;/a>&lt;br />&lt;br />&lt;span style=" font-weight:600;">libprs500&lt;/span>: %1 by &lt;span style=" font-weight:600;">Kovid Goyal&lt;/span> &lt;br />%2&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">For help visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/WikiStart#Usage">&lt;span style=" text-decoration: underline; color:#0000ff;">libprs500.kovidgoyal.net&lt;/span>&lt;/a>&lt;br />&lt;br />&lt;span style=" font-weight:600;">libprs500&lt;/span>: %1 by &lt;span style=" font-weight:600;">Kovid Goyal&lt;/span> %2&lt;br />%3&lt;/p>&lt;/body>&lt;/html></string>
         </property>
         <property name="textFormat" >
          <enum>Qt::RichText</enum>
@@ -149,6 +149,12 @@ p, li { white-space: pre-wrap; }
         <property name="enabled" >
          <bool>true</bool>
         </property>
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="acceptDrops" >
          <bool>false</bool>
         </property>
@@ -179,6 +185,39 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="icon" >
          <iconset resource="images.qrc" >:/images/clear_left.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="Line" name="line" >
+        <property name="orientation" >
+         <enum>Qt::Vertical</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="config_button" >
+        <property name="toolTip" >
+         <string>Configuration</string>
+        </property>
+        <property name="text" >
+         <string>...</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="images.qrc" >:/images/config.svg</iconset>
         </property>
        </widget>
       </item>
@@ -436,13 +475,13 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>BooksView</class>
-   <extends>QTableView</extends>
+   <class>SearchBox</class>
+   <extends>QLineEdit</extends>
    <header>library.h</header>
   </customwidget>
   <customwidget>
-   <class>SearchBox</class>
-   <extends>QLineEdit</extends>
+   <class>BooksView</class>
+   <extends>QTableView</extends>
    <header>library.h</header>
   </customwidget>
   <customwidget>
@@ -467,12 +506,12 @@ p, li { white-space: pre-wrap; }
    <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>853</x>
-     <y>61</y>
+     <x>787</x>
+     <y>215</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>784</x>
-     <y>58</y>
+     <x>755</x>
+     <y>213</y>
     </hint>
    </hints>
   </connection>

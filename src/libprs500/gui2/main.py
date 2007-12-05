@@ -12,16 +12,20 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-from libprs500 import sanitize_file_name
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup
+from libprs500.gui2 import qstring_to_unicode
+import re
+import urllib
+import shutil
 import os, sys, textwrap, cStringIO, collections, traceback
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QThread
+                         QSettings, QVariant, QSize, QThread, QTimer
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
 
-from libprs500 import __version__, __appname__, islinux
+from libprs500 import __version__, __appname__, islinux, sanitize_file_name
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
@@ -42,6 +46,7 @@ from libprs500.gui2.dialogs.jobs import JobsDialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog 
 from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
 from libprs500.gui2.dialogs.password import PasswordDialog
+from libprs500.gui2.dialogs.config import ConfigDialog
 from libprs500.gui2.lrf_renderer.main import file_renderer
 from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
 from libprs500.library.database import DatabaseLocked
@@ -86,9 +91,11 @@ class Main(MainWindow, Ui_MainWindow):
                         self.location_view.location_changed)
         
         ####################### Vanity ########################
-        self.vanity_template = self.vanity.text().arg(__version__)
-        self.vanity.setText(self.vanity_template.arg(' '))
-        
+        self.vanity_template = qstring_to_unicode(self.vanity.text().arg(__version__)).replace('%2', '%(version)s').replace('%3', '%(device)s')
+        self.latest_version = ' '
+        self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
+        self.device_info = ' '
+        QTimer.singleShot(1000, self.check_for_updates)
         ####################### Status Bar #####################
         self.status_bar = StatusBar(self.jobs_dialog)
         self.setStatusBar(self.status_bar)
@@ -143,7 +150,10 @@ class Main(MainWindow, Ui_MainWindow):
         self.tool_bar.widgetForAction(self.action_edit).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_sync).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_convert).setPopupMode(QToolButton.MenuButtonPopup)
-        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)        
+        self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
+        
+        QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
+                
         ####################### Library view ########################
         self.library_view.set_database(self.database_path)
         for func, target in [
@@ -206,6 +216,8 @@ class Main(MainWindow, Ui_MainWindow):
             self.device_manager.device_removed()
             self.location_view.model().update_devices()
             self.action_sync.setEnabled(False)
+            self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=' '))
+            self.device_info = ' '
             if self.current_view() != self.library_view:
                 self.status_bar.reset_info()
                 self.location_selected('library')
@@ -219,7 +231,8 @@ class Main(MainWindow, Ui_MainWindow):
             return
         info, cp, fs = result
         self.location_view.model().update_devices(cp, fs)
-        self.vanity.setText(self.vanity_template.arg('Connected '+' '.join(info[:-1])))
+        self.device_info = 'Connected '+' '.join(info[:-1])
+        self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=self.device_info))
         func = self.device_manager.books_func()
         self.job_manager.run_device_job(self.metadata_downloaded, func)
         
@@ -649,6 +662,41 @@ class Main(MainWindow, Ui_MainWindow):
     
     ############################################################################
     
+    ############################### Do config ##################################
+    
+    def do_config(self):
+        if self.job_manager.has_jobs():
+            d = error_dialog(self, 'Cannot configure', 'Cannot configure while there are running jobs.')
+            d.exec_()
+            return
+        d = ConfigDialog(self)
+        d.exec_()
+        if d.result() == d.Accepted:
+            if os.path.dirname(self.database_path) != d.database_location:
+                try:
+                    self.db.close()
+                    src = open(self.database_path, 'rb')
+                    newloc = os.path.join(d.database_location, os.path.basename(self.database_path))
+                    dest = open(newloc, 'wb')
+                    self.status_bar.showMessage('Copying database to '+newloc)
+                    shutil.copy(src, dest)
+                    src.close()
+                    dest.close()
+                    self.database_path = newloc
+                except Exception, err:
+                    d = error_dialog(self, 'Could not move database', unicode(err))
+                    d.exec_()
+                finally:
+                    self.status_bar.clearMessage()
+                    self.search.clear_to_help()
+                    self.status_bar.reset_info()
+                    self.library_view.set_database(self.database_path)
+                    self.library_view.sortByColumn(3, Qt.DescendingOrder)
+                    self.library_view.resizeRowsToContents()
+                     
+    
+    ############################################################################
+    
     ############################################################################
     def location_selected(self, location):
         '''
@@ -747,8 +795,19 @@ class Main(MainWindow, Ui_MainWindow):
         self.write_settings()
         e.accept()
         
-                
-    
+    def check_for_updates(self):
+        src = urllib.urlopen('http://pypi.python.org/pypi/libprs500').read()
+        soup = BeautifulSoup(src)
+        meta = soup.find('link', rel='meta', title='DOAP')
+        if meta:
+            src = meta['href']
+            match = re.search(r'version=(\S+)', src)
+            if match:
+                version = match.group(1)
+                if version != __version__:
+                    self.latest_version = '<span style="color:red; font-weight:bold">%s</span>'%('Latest version: '+version,)
+                    self.vanity.setText(self.vanity_template%(dict(version=self.latest_version, device=self.device_info)))
+                    self.vanity.update()
 
 def main(args=sys.argv):
     from PyQt4.Qt import QApplication
