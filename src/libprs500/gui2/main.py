@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
+from libprs500 import sanitize_file_name
 import os, sys, textwrap, cStringIO, collections, traceback
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
@@ -470,7 +471,18 @@ class Main(MainWindow, Ui_MainWindow):
                     traceback.print_exc()
                 good.append(mi)
                 gf.append(f)
-                names.append('%s_%d%s'%(__appname__, id, os.path.splitext(f.name)[1]))
+                t = mi['title']
+                if not t:
+                    t = 'Unknown'
+                a = mi['authors']
+                if not a:
+                    a = 'Unknown'
+                prefix = sanitize_file_name(t+' - '+a)
+                if isinstance(prefix, unicode):
+                    prefix = prefix.encode('ascii', 'ignore')
+                else:
+                    prefix = prefix.decode('ascii', 'ignore').encode('ascii', 'ignore')
+                names.append('%s_%d%s'%(prefix, id, os.path.splitext(f.name)[1]))
         self.upload_books(gf, names, good, on_card)
         self.status_bar.showMessage('Sending books to device.', 5000)
         if bad:
