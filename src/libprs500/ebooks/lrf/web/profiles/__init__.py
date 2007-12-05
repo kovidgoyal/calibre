@@ -229,7 +229,7 @@ class DefaultProfile(object):
         for e in replaced_entities:
             ent = '&'+e+';'
             src = src.replace(ent, unichr(name2codepoint[e]))
-        return re.compile(r'<a.*?</a>', re.IGNORECASE|re.DOTALL).sub('', src)
+        return re.compile(r'<a.*?>(.*?)</a>', re.IGNORECASE|re.DOTALL).sub(r'\1', src)
 
     
     DAY_MAP        = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
