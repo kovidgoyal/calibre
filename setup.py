@@ -115,7 +115,7 @@ if __name__ == '__main__':
           """, 
           license = 'GPL', 
           classifiers = [
-            'Development Status :: 3 - Alpha', 
+            'Development Status :: 4 - Beta', 
             'Environment :: Console', 
             'Environment :: X11 Applications :: Qt', 
             'Intended Audience :: Developers', 
