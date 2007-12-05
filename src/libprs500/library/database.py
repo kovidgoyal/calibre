@@ -668,7 +668,32 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 ''')
         conn.execute('pragma user_version=3')
         conn.commit()
+        
+    @staticmethod
+    def upgrade_version3(conn):
+        conn.executescript(
+'''
+/***** Add series_index column to meta view ******/
+    DROP VIEW meta;
+    CREATE VIEW meta AS
+    SELECT id, title,
+           (SELECT concat(name) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=books.id)) authors,
+           (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+           (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+           timestamp,
+           (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+           (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+           (SELECT text FROM comments WHERE book=books.id) comments,
+           (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+           series_index,
+           sort,
+           author_sort
+    FROM books;
+''')
+        conn.execute('pragma user_version=4')
+        conn.commit()
 
+        
     def __del__(self):
         global _lock_file
         import os
@@ -686,6 +711,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             LibraryDatabase.upgrade_version1(self.conn)
         if self.user_version == 2: # Upgrade to 3
             LibraryDatabase.upgrade_version2(self.conn)
+        if self.user_version == 3: # Upgrade to 4
+            LibraryDatabase.upgrade_version3(self.conn)
         
     @apply
     def user_version():
@@ -706,16 +733,19 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                   'publisher': 'publisher',
                   'size': 'size',
                   'date': 'timestamp',
-                  'rating': 'rating'
+                  'rating': 'rating',
+                  'series': 'series',
                   }
         field = FIELDS[sort_field]
         order = 'ASC'
         if not ascending:
             order = 'DESC'
+        sort = field + ' ' + order
+        if field == 'series':
+            sort += ',series_index '+order
         
         
-        self.cache = self.conn.execute('SELECT * from meta ORDER BY '+field+' '
-                                       +order).fetchall()
+        self.cache = self.conn.execute('SELECT * from meta ORDER BY '+sort).fetchall()
         self.data  = self.cache
         self.conn.commit()
         

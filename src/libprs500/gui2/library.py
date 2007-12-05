@@ -107,7 +107,7 @@ class BooksModel(QAbstractTableModel):
     def __init__(self, parent):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
-        self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher']
+        self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'series']
         self.sorted_on = (3, Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
             
@@ -301,6 +301,10 @@ class BooksModel(QAbstractTableModel):
                 pub = self.db.publisher(row)
                 if pub: 
                     return QVariant(BooksView.wrap(pub, 20))
+            elif col == 6:
+                series = self.db.series(row)
+                if series:
+                    return QVariant(series)
             return NONE
         elif role == Qt.TextAlignmentRole and index.column() in [2, 3, 4]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
@@ -320,6 +324,7 @@ class BooksModel(QAbstractTableModel):
             elif section == 3: text = _("Date")
             elif section == 4: text = _("Rating")
             elif section == 5: text = _("Publisher")
+            elif section == 6: text = _("Series")
             return QVariant(text)
         else: 
             return QVariant(section+1)
