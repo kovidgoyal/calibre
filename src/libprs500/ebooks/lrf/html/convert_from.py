@@ -330,7 +330,8 @@ class HTMLConverter(object):
         
         self.file_name = os.path.basename(path)
         self.logger.info('Processing %s', path if self.verbose else self.file_name)
-        raw = open(path, 'rb').read()
+        upath = path.encode('utf-8') if isinstance(path, unicode) else path 
+        raw = open(upath, 'rb').read()
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')
         self.current_page = None
