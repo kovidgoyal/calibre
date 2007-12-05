@@ -19,7 +19,7 @@ from libprs500 import isosx
 import os, sys, textwrap, cStringIO, collections, traceback, shutil
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QThread, QTimer
+                         QSettings, QVariant, QSize, QThread
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
@@ -33,7 +33,8 @@ from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, BOOK_EXTENSIONS, \
-                           pixmap_to_data, choose_dir, ORG_NAME, qstring_to_unicode
+                           pixmap_to_data, choose_dir, ORG_NAME, \
+                           qstring_to_unicode, set_sidebar_directories
 from libprs500.gui2.main_window import MainWindow
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
@@ -703,7 +704,7 @@ class Main(MainWindow, Ui_MainWindow):
                     self.library_view.set_database(self.database_path)
                     self.library_view.sortByColumn(3, Qt.DescendingOrder)
                     self.library_view.resizeRowsToContents()
-                     
+            set_sidebar_directories(d.directories)
     
     ############################################################################
     
@@ -776,6 +777,7 @@ class Main(MainWindow, Ui_MainWindow):
         settings.endGroup()
         self.database_path = qstring_to_unicode(settings.value("database path", 
                 QVariant(os.path.join(os.path.expanduser('~'),'library1.db'))).toString())
+        set_sidebar_directories(None)
     
     def write_settings(self):
         settings = QSettings()

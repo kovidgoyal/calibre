@@ -15,7 +15,7 @@
 """ The GUI for libprs500. """
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant, QSettings, QFileInfo, QObject, SIGNAL, QBuffer, \
-                         QByteArray, QLocale, QTranslator
+                         QByteArray, QLocale, QTranslator, QUrl
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView
 
@@ -173,6 +173,13 @@ def initialize_file_icon_provider():
 def file_icon_provider():
     global _file_icon_provider
     return _file_icon_provider
+
+_sidebar_directories = []
+def set_sidebar_directories(dirs):
+    global _sidebar_directories
+    if dirs is None:
+        dirs = QSettings().value('frequently used directories', QVariant([])).toStringList()        
+    _sidebar_directories = [QUrl.fromLocalFile(i) for i in dirs]
         
 class FileDialog(QObject):
     def __init__(self, title='Choose Files', 
@@ -208,6 +215,8 @@ class FileDialog(QObject):
             state = settings.value(name, QVariant()).toByteArray()
             if not self.fd.restoreState(state):
                 self.fd.setDirectory(os.path.expanduser('~'))
+            osu = [i for i in self.fd.sidebarUrls()]
+            self.fd.setSidebarUrls(osu + _sidebar_directories)
             QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
             self.accepted = self.fd.exec_() == QFileDialog.Accepted
         else:

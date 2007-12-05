@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>408</width>
+    <height>412</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -39,6 +39,9 @@
            </item>
            <item>
             <widget class="QToolButton" name="browse_button" >
+             <property name="toolTip" >
+              <string>Browse for the new database location</string>
+             </property>
              <property name="text" >
               <string>...</string>
              </property>
@@ -52,6 +55,101 @@
         </layout>
        </item>
        <item row="1" column="0" >
+        <widget class="QGroupBox" name="dirs_box" >
+         <property name="title" >
+          <string>Frequently used directories</string>
+         </property>
+         <layout class="QGridLayout" >
+          <item row="0" column="0" >
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QListWidget" name="directory_list" >
+              <property name="alternatingRowColors" >
+               <bool>true</bool>
+              </property>
+              <property name="iconSize" >
+               <size>
+                <width>22</width>
+                <height>22</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" >
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QToolButton" name="add_button" >
+                <property name="toolTip" >
+                 <string>Add a directory to the frequently used directories list</string>
+                </property>
+                <property name="text" >
+                 <string>...</string>
+                </property>
+                <property name="icon" >
+                 <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QToolButton" name="remove_button" >
+                <property name="toolTip" >
+                 <string>Remove a directory from the frequently used directories list</string>
+                </property>
+                <property name="text" >
+                 <string>...</string>
+                </property>
+                <property name="icon" >
+                 <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -92,8 +190,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>248</x>
-     <y>254</y>
+     <x>227</x>
+     <y>279</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -108,8 +206,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
+     <x>295</x>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>

@@ -12,14 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.gui2 import error_dialog
 import os
 
 from PyQt4.QtGui import QDialog
-from PyQt4.QtCore import QSettings, QVariant, SIGNAL
+from PyQt4.QtCore import QSettings, QVariant, SIGNAL, QStringList
 
+from libprs500 import islinux
 from libprs500.gui2.dialogs.config_ui import Ui_Dialog
-from libprs500.gui2 import qstring_to_unicode, choose_dir
+from libprs500.gui2 import qstring_to_unicode, choose_dir, error_dialog
 
 class ConfigDialog(QDialog, Ui_Dialog):
     
@@ -36,10 +36,28 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.location.setText(os.path.dirname(path))
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         
+        dirs = settings.value('frequently used directories', QVariant(QStringList())).toStringList()
+        self.directory_list.addItems(dirs)
+        self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
+        self.connect(self.remove_button, SIGNAL('clicked(bool)'), self.remove_dir)
+        if not islinux:
+            self.dirs_box.setVisible(False)
+        
     def browse(self):
         dir = choose_dir(self, 'database location dialog', 'Select database location')
-        self.location.setText(dir)
+        if dir:
+            self.location.setText(dir)
         
+    def add_dir(self):
+        dir = choose_dir(self, 'Add freq dir dialog', 'select directory')
+        if dir:
+            self.directory_list.addItem(dir)
+    
+    def remove_dir(self):
+        idx = self.directory_list.currentRow()
+        if idx >= 0:
+            self.directory_list.takeItem(idx)
+    
     def accept(self):
         path = qstring_to_unicode(self.location.text())        
         if not path or not os.path.exists(path) or not os.path.isdir(path):
@@ -50,4 +68,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
             d.exec_()
         else:
             self.database_location = os.path.abspath(path)
+            self.directories = [qstring_to_unicode(self.directory_list.item(i).text()) for i in range(self.directory_list.count())]
+            QSettings().setValue('frequently used directories', QVariant(self.directories))
             QDialog.accept(self)
