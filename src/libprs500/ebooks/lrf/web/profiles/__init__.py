@@ -37,7 +37,8 @@ class DefaultProfile(object):
     url_search_order      = ['guid', 'link'] # THe order of elements to search for a URL when parssing the RSS feed
     pubdate_fmt           = None  # The format string used to parse the publication date in the RSS feed. If set to None some default heuristics are used, these may fail, in which case set this to the correct string or re-implement strptime in your subclass.
     use_pubdate           = True, # If True will look for a publication date for each article. If False assumes the publication date is the current time.
-    no_stylesheets        = False # Download stylesheets only if False 
+    no_stylesheets        = False # Download stylesheets only if False
+    allow_duplicates      = False # If False articles with the same title in the same feed are not downloaded multiple times 
     match_regexps         = []    # List of regular expressions that determines which links to follow
     filter_regexps        = []    # List of regular expressions that determines which links to ignore
     # Only one of match_regexps or filter_regexps should be defined
@@ -154,6 +155,7 @@ class DefaultProfile(object):
         '''
         Create list of articles from a list of feeds.
         '''
+        added_articles = {}
         feeds = self.get_feeds()
         articles = {}
         for title, url in feeds:
@@ -166,6 +168,7 @@ class DefaultProfile(object):
                 continue
             
             articles[title] = []
+            added_articles[title] = []
             soup = BeautifulStoneSoup(src)
             for item in soup.findAll('item'):
                 try:
@@ -193,6 +196,10 @@ class DefaultProfile(object):
                         'date'     : pubdate if self.use_pubdate else time.ctime()
                         }
                     delta = time.time() - d['timestamp']
+                    if not self.allow_duplicates:
+                        if d['title'] in added_articles[title]:
+                            continue
+                        added_articles[title].append(d['title'])
                     if delta > self.oldest_article*3600*24:
                         continue
                      
