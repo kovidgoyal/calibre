@@ -40,12 +40,12 @@ from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
 from libprs500.gui2.status import StatusBar
 from libprs500.gui2.jobs import JobManager
+from libprs500.gui2.news import NewsMenu
 from libprs500.gui2.dialogs.metadata_single import MetadataSingleDialog
 from libprs500.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from libprs500.gui2.dialogs.jobs import JobsDialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog 
 from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
-from libprs500.gui2.dialogs.password import PasswordDialog
 from libprs500.gui2.dialogs.config import ConfigDialog
 from libprs500.gui2.lrf_renderer.main import file_renderer
 from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
@@ -126,21 +126,9 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"), self.view_book)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
-        nm = QMenu()
-        nm.addAction(QIcon(':/images/news/bbc.png'), 'BBC')
-        nm.addAction(QIcon(':/images/news/economist.png'), 'Economist')
-        nm.addAction(QIcon(':/images/news/newsweek.png'), 'Newsweek')
-        nm.addAction(QIcon(':/images/book.svg'), 'New York Review of Books')
-        nm.addAction(QIcon(':/images/news/nytimes.png'), 'New York Times')
-        
-        QObject.connect(nm.actions()[0], SIGNAL('triggered(bool)'), self.fetch_news_bbc)
-        QObject.connect(nm.actions()[1], SIGNAL('triggered(bool)'), self.fetch_news_economist)
-        QObject.connect(nm.actions()[2], SIGNAL('triggered(bool)'), self.fetch_news_newsweek)
-        QObject.connect(nm.actions()[3], SIGNAL('triggered(bool)'), self.fetch_news_nyreview)
-        QObject.connect(nm.actions()[4], SIGNAL('triggered(bool)'), self.fetch_news_nytimes)
-        
-        self.news_menu = nm
-        self.action_news.setMenu(nm)
+        self.news_menu = NewsMenu()
+        self.action_news.setMenu(self.news_menu)
+        QObject.connect(self.news_menu, SIGNAL('fetch_news(PyQt_PyObject)'), self.fetch_news)
         cm = QMenu()
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
@@ -539,18 +527,18 @@ class Main(MainWindow, Ui_MainWindow):
     
     ############################### Fetch news #################################
     
-    def fetch_news(self, profile, pretty, username=None, password=None):
+    def fetch_news(self, data):
         pt = PersistentTemporaryFile(suffix='.lrf')
         pt.close()
-        args = ['web2lrf', '-o', pt.name, profile]
-        if username:
-            args.extend(['--username', username])
-        if password:
-            args.extend(['--password', password])
+        args = ['web2lrf', '-o', pt.name, data['profile']]
+        if data['username']:
+            args.extend(['--username', data['username']])
+        if data['password']:
+            args.extend(['--password', data['password']])
         id = self.job_manager.run_conversion_job(self.news_fetched, web2lrf, args=args,
-                                            job_description='Fetch news from '+pretty)
+                                            job_description='Fetch news from '+data['title'])
         self.conversion_jobs[id] = (pt, 'lrf')
-        self.status_bar.showMessage('Fetching news from '+pretty, 2000)
+        self.status_bar.showMessage('Fetching news from '+data['title'], 2000)
         
     def news_fetched(self, id, description, result, exception, formatted_traceback, log):
         pt, fmt = self.conversion_jobs.pop(id)
@@ -562,26 +550,6 @@ class Main(MainWindow, Ui_MainWindow):
         if to_device:
             self.status_bar.showMessage('News fetched. Uploading to device.', 2000)
             self.persistent_files.append(pt)
-    
-    def fetch_news_bbc(self, checked):
-        self.fetch_news('bbc', 'BBC')
-    
-    def fetch_news_newsweek(self, checked):
-        self.fetch_news('newsweek', 'Newsweek')
-        
-    def fetch_news_economist(self, checked):
-        self.fetch_news('economist', 'The Economist')
-    
-    def fetch_news_nyreview(self, checked):
-        self.fetch_news('newyorkreview', 'New York Review of Books')
-    
-    def fetch_news_nytimes(self, checked):
-        d = PasswordDialog(self, 'nytimes info dialog', 
-                           '<p>Please enter your username and password for nytimes.com<br>If you do not have an account, you can <a href="http://www.nytimes.com/gst/regi.html">register</a> for free.<br>Without a registration, some articles will not be downloaded correctly. Click OK to proceed.')
-        d.exec_()
-        if d.result() == QDialog.Accepted:
-            un, pw = d.username(), d.password()
-            self.fetch_news('nytimes', 'New York Times', username=un, password=pw)
     
     ############################################################################
     

@@ -29,8 +29,11 @@ from libprs500.ebooks.lrf.web.profiles.bbc import BBC
 from libprs500.ebooks.lrf.web.profiles.newsweek import Newsweek
 from libprs500.ebooks.lrf.web.profiles.economist import Economist
 from libprs500.ebooks.lrf.web.profiles.newyorkreview import NewYorkReviewOfBooks
+from libprs500.ebooks.lrf.web.profiles.spiegelde import SpiegelOnline
+from libprs500.ebooks.lrf.web.profiles.zeitde import ZeitNachrichten
 
-builtin_profiles   = [NYTimes, BBC, Newsweek, Economist, NewYorkReviewOfBooks]
+builtin_profiles   = [NYTimes, BBC, Newsweek, Economist, NewYorkReviewOfBooks, \
+                      SpiegelOnline, ZeitNachrichten]
 available_profiles = [i.__module__.rpartition('.')[2] for i in builtin_profiles] 
 
 def option_parser():
