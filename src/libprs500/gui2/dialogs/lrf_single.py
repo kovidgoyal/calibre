@@ -12,9 +12,10 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import os
+import cPickle
+import os, cPickle
 
-from PyQt4.QtCore import QObject, SIGNAL, Qt
+from PyQt4.QtCore import QObject, SIGNAL, Qt, QSettings, QVariant, QByteArray
 from PyQt4.QtGui import QAbstractSpinBox, QLineEdit, QCheckBox, QDialog, \
                         QPixmap, QTextEdit
 
@@ -63,7 +64,6 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.initialize_options()
         self.db = db
         self.row = row
-        self.id = self.db.id(self.row)
         self.cover_changed = False
         self.cpixmap = None
         self.changed = False
@@ -75,69 +75,88 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.gui_sans_family.setModel(self.font_family_model)
         self.gui_mono_family.setModel(self.font_family_model)
         
-        self.read_saved_options()
-        self.initialize_metadata()
-        formats = self.db.formats(self.row)
-        formats = [i.upper() for i in formats.split(',')] if formats else []
-        try:
-            formats.remove(self.output_format)
-        except ValueError:
-            pass        
-        if not formats:
-            d = error_dialog(window, 'No available formats', 
-                    'Cannot convert %s as this book has no supported formats'%(self.gui_title.text()))
-            d.exec_()
         
-        if len(formats) > 1:
-            d = ChooseFormatDialog(window, 'Choose the format to convert into LRF', formats)
-            d.exec_()
-            if d.result() == QDialog.Accepted:
-                self.selected_format = d.format()
-        elif len(formats) > 0:
-            self.selected_format = formats[0]
-            
-        if self.selected_format:
-            self.setWindowTitle('Convert %s to LRF'%(self.selected_format,))
-            
+        self.load_saved_global_defaults()
+        if db:
+            self.id = self.db.id(self.row)
+            self.read_saved_options()
+            self.initialize_metadata()
+            formats = self.db.formats(self.row)
+            formats = [i.upper() for i in formats.split(',')] if formats else []
+            try:
+                formats.remove(self.output_format)
+            except ValueError:
+                pass        
+            if not formats:
+                d = error_dialog(window, _('No available formats'), 
+                        _('Cannot convert %s as this book has no supported formats')%(self.gui_title.text()))
+                d.exec_()
         
+            if len(formats) > 1:
+                d = ChooseFormatDialog(window, 'Choose the format to convert into LRF', formats)
+                d.exec_()
+                if d.result() == QDialog.Accepted:
+                    self.selected_format = d.format()
+            elif len(formats) > 0:
+                self.selected_format = formats[0]
+            
+            if self.selected_format:
+                self.setWindowTitle(_('Convert %s to LRF')%(self.selected_format,))
+        else:
+            self.setWindowTitle(_('Set conversion defaults'))
+            
+    
+    def load_saved_global_defaults(self):
+        cmdline = QSettings().value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
+        if cmdline:
+            cmdline = cPickle.loads(cmdline)
+            self.set_options_from_cmdline(cmdline)
+    
+    def set_options_from_cmdline(self, cmdline):
+        for opt in self.options():
+            guiname = self.option_to_name(opt)
+            try:
+                obj = getattr(self, guiname)
+            except AttributeError:
+                continue
+            if isinstance(obj, QCheckBox):
+                if opt.get_opt_string() in cmdline:
+                    obj.setCheckState(Qt.Checked)
+                else:
+                    obj.setCheckState(Qt.Unchecked)
+            try:
+                i = cmdline.index(opt.get_opt_string())
+            except ValueError:
+                continue
+            
+            if isinstance(obj, QAbstractSpinBox):
+                obj.setValue(cmdline[i+1])
+            elif isinstance(obj, QLineEdit):
+                obj.setText(cmdline[i+1])
+            elif isinstance(obj, QTextEdit):
+                obj.setPlainText(cmdline[i+1])
+        profile = cmdline[cmdline.index('--profile')+1]            
+        self.gui_profile.setCurrentIndex(self.gui_profile.findText(profile))
+        for prepro in self.PREPROCESS_OPTIONS:
+            ops = prepro.get_opt_string() 
+            if ops in cmdline:
+                self.preprocess.setCurrentIndex(self.preprocess.findText(ops[2:]))
+                break
+            
+        for opt in ('--serif-family', '--sans-family', '--mono-family'):
+            if opt in cmdline:
+                print 'in'
+                family = cmdline[cmdline.index(opt)+1].split(',')[1].strip()
+                obj = getattr(self, 'gui_'+opt[2:].replace('-', '_'))
+                try:
+                    obj.setCurrentIndex(self.font_family_model.index_of(family))
+                except:
+                    continue
+    
     def read_saved_options(self):
         cmdline = self.db.conversion_options(self.id, self.output_format.lower())
         if cmdline:
-            for opt in self.options():
-                try:
-                    i = cmdline.index(opt.get_opt_string())
-                except ValueError:
-                    continue
-                guiname = self.option_to_name(opt)
-                try:
-                    obj = getattr(self, guiname)
-                except AttributeError:
-                    continue
-                if isinstance(obj, QCheckBox):
-                    obj.setCheckState(Qt.Checked)
-                elif isinstance(obj, QAbstractSpinBox):
-                    obj.setValue(cmdline[i+1])
-                elif isinstance(obj, QLineEdit):
-                    obj.setText(cmdline[i+1])
-                elif isinstance(obj, QTextEdit):
-                    obj.setPlainText(cmdline[i+1])
-            profile = cmdline[cmdline.index('--profile')+1]            
-            self.gui_profile.setCurrentIndex(self.gui_profile.findText(profile))
-            for prepro in self.PREPROCESS_OPTIONS:
-                ops = prepro.get_opt_string() 
-                if ops in cmdline:
-                    self.preprocess.setCurrentIndex(self.preprocess.findText(ops[2:]))
-                    break
-                
-            for opt in ('--serif-family', '--sans-family', '--mono-family'):
-                if opt in cmdline:
-                    print 'in'
-                    family = cmdline[cmdline.index(opt)+1].split(',')[1].strip()
-                    obj = getattr(self, 'gui_'+opt[2:].replace('-', '_'))
-                    try:
-                        obj.setCurrentIndex(self.font_family_model.index_of(family))
-                    except:
-                        continue
+            self.set_options_from_cmdline(cmdline)
     
     def select_cover(self, checked):
         files = choose_images(self, 'change cover dialog', 
@@ -342,17 +361,20 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     
     def accept(self):
         cmdline = self.build_commandline()
-        self.cover_file = None
-        self.write_metadata()
-        cover = self.db.cover(self.row)
-        if cover:
-            self.cover_file = PersistentTemporaryFile(suffix='.jpeg')
-            self.cover_file.write(cover)
-            self.cover_file.close()
-        self.db.set_conversion_options(self.id, self.output_format.lower(), cmdline)
-        
-        if self.cover_file:
-            cmdline.extend([u'--cover', self.cover_file.name])
-        self.cmdline = [unicode(i) for i in cmdline]
+        if self.db:
+            self.cover_file = None
+            self.write_metadata()
+            cover = self.db.cover(self.row)
+            if cover:
+                self.cover_file = PersistentTemporaryFile(suffix='.jpeg')
+                self.cover_file.write(cover)
+                self.cover_file.close()
+            self.db.set_conversion_options(self.id, self.output_format.lower(), cmdline)
+            
+            if self.cover_file:
+                cmdline.extend([u'--cover', self.cover_file.name])
+            self.cmdline = [unicode(i) for i in cmdline]
+        else:
+            QSettings().setValue('LRF conversion defaults', QVariant(QByteArray(cPickle.dumps(cmdline))))
         QDialog.accept(self)
     

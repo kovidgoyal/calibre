@@ -144,9 +144,12 @@ class Main(MainWindow, Ui_MainWindow):
         cm = QMenu()
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
+        cm.addSeparator()
+        cm.addAction(_('Set conversion defaults'))
         self.action_convert.setMenu(cm)
         QObject.connect(cm.actions()[0], SIGNAL('triggered(bool)'), self.convert_single)
         QObject.connect(cm.actions()[1], SIGNAL('triggered(bool)'), self.convert_bulk)
+        QObject.connect(cm.actions()[3], SIGNAL('triggered(bool)'), self.set_conversion_defaults)
         QObject.connect(self.action_convert, SIGNAL('triggered(bool)'), self.convert_single)        
         self.convert_menu = cm
         self.tool_bar.widgetForAction(self.action_news).setPopupMode(QToolButton.InstantPopup)
@@ -585,6 +588,10 @@ class Main(MainWindow, Ui_MainWindow):
     ############################### Convert ####################################
     def convert_bulk(self, checked):
         d = error_dialog(self, 'Cannot convert', 'Not yet implemented.')            
+        d.exec_()
+    
+    def set_conversion_defaults(self, checked):
+        d = LRFSingleDialog(self, None, None)
         d.exec_()
     
     def convert_single(self, checked):
