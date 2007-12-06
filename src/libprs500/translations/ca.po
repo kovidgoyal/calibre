@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca(1)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-03 09:43+PST\n"
+"POT-Creation-Date: 2007-12-05 17:21+PST\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: \n"
@@ -36,7 +36,7 @@ msgstr ""
 "comes. Per defecte: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:96
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:552
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:564
 msgid "Unknown"
 msgstr "Desconegut"
 
@@ -57,7 +57,7 @@ msgid "Sort key for the author"
 msgstr "Clau d'ordre per a l'autor"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:106
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:322
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:331
 msgid "Publisher"
 msgstr "Editorial"
 
@@ -341,6 +341,49 @@ msgstr "Trieu format"
 msgid "TextLabel"
 msgstr "TextLabel"
 
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:113
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:271
+msgid "Configuration"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:114
+msgid "&Location of books database (library1.db)"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:115
+msgid "Browse for the new database location"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:116
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:119
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:121
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:581
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:292
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:294
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:298
+#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:185
+#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:186
+#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:187
+#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:188
+#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:189
+#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:190
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:270
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:272
+msgid "..."
+msgstr "..."
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:117
+msgid "Frequently used directories"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:118
+msgid "Add a directory to the frequently used directories list"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:120
+msgid "Remove a directory from the frequently used directories list"
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/conversion_error_ui.py:37
 msgid "ERROR"
 msgstr "ERROR"
@@ -381,7 +424,24 @@ msgstr "Seleccioneu el llibre que més s'acoste del llistat que hi ha a sota"
 msgid "Active Jobs"
 msgstr "Treballs actius"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:269
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:91
+msgid "No available formats"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:92
+msgid "Cannot convert %s as this book has no supported formats"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:104
+msgid "Convert %s to LRF"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:106
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:136
+msgid "Set conversion defaults"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:288
 msgid ""
 "Specify metadata such as title and author for the book.<p>Metadata will be "
 "updated in the database as well as the generated LRF file."
@@ -389,12 +449,12 @@ msgstr ""
 "Especifiqueu informació com ara tí­tol i autor per al llibre.<p>Aquesta "
 "informació s'actualitza tant a la base de dades com al fitxer LRF."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:269
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:288
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:563
 msgid "Metadata"
 msgstr "Metadades"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:270
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:289
 msgid ""
 "Adjust the look of the generated LRF file by specifying things like font "
 "sizes and the spacing between words."
@@ -402,12 +462,12 @@ msgstr ""
 "Milloreu l'aparença del fitxer LRF generat, especificant la grandària de "
 "lletra i l'espaiat entre paraules."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:270
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:289
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:567
 msgid "Look & Feel"
 msgstr "Look & Feel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:271
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:290
 msgid ""
 "Specify the page settings like margins and the screen size of the target "
 "device."
@@ -415,16 +475,16 @@ msgstr ""
 "Configuració de la pàgina del dispositiu, especificant ,marges i grandària "
 "de la pantalla, entre d'altres."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:271
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:290
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:571
 msgid "Page Setup"
 msgstr "Configuració de la pàgina"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:272
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:291
 msgid "Fine tune the detection of chapter and section headings."
 msgstr "Milloreu la detecció de capí­tols i seccions."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:272
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:291
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:575
 msgid "Chapter Detection"
 msgstr "Detecció de capí­tols"
@@ -455,20 +515,6 @@ msgstr "Canvia la imatge de la &coberta:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:297
 msgid "Browse for an image to use as the cover of this book."
 msgstr "Cerca una imatge per a utilitzar com a coberta d'aquest llibre."
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:581
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:292
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:294
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:298
-#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:185
-#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:186
-#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:187
-#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:188
-#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:189
-#: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:190
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:250
-msgid "..."
-msgstr "..."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:582
 msgid "Use &metadata cover"
@@ -559,7 +605,7 @@ msgstr "Llibre "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:599
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:288
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:212
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:217
 msgid "Comments"
 msgstr "Comentaris"
 
@@ -816,67 +862,68 @@ msgstr "Finalitzat"
 msgid "Unavailable"
 msgstr "No disponible"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:201
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:207
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:211
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:206
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:212
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:216
 msgid "None"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:202
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:562
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:626
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:207
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:574
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:638
 msgid "Tags"
 msgstr "Etiquetes"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:208
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:213
 msgid "Formats"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:217
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:222
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:217
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:222
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:332
 msgid "Series"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:317
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:622
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:326
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:634
 msgid "Title"
 msgstr "Tí­tol"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:318
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:623
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:327
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:635
 msgid "Author(s)"
 msgstr "Autor(s)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:319
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:624
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:328
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:636
 msgid "Size (MB)"
 msgstr "Grandària (MB)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:320
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:625
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:329
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:637
 msgid "Date"
 msgstr "Data"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:321
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:330
 msgid "Rating"
 msgstr "Valoració"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:556
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:568
 msgid "Format"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:557
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:569
 msgid "Path"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:561
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:573
 msgid "Timestamp"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:661
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:673
 msgid "Search by title, author, publisher, tags, series and comments"
 msgstr "Cerca per tí­tol, autor, editorial, etiquetes, series i comentaris"
 
@@ -932,35 +979,35 @@ msgstr "Obre l'eBook"
 msgid "Configure"
 msgstr "Configura"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:99
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:110
 msgid "Send to main memory"
 msgstr "Envia a la memòria interna"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:100
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:111
 msgid "Send to storage card"
 msgstr "Envia a la targeta de memòria"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:103
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:114
 msgid "Edit metadata individually"
 msgstr "Edita metadades individualment"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:104
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:115
 msgid "Edit metadata in bulk"
 msgstr "Edita metadades en massa"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:134
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:133
 msgid "Convert individually"
 msgstr "Converteix individualment"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:135
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:134
 msgid "Bulk convert"
 msgstr "Converteix tots"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:241
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:261
 msgid "libprs500"
 msgstr "libprs500"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:242
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:262
 msgid ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
 "\">\n"
@@ -972,27 +1019,15 @@ msgid ""
 "\"https://libprs500.kovidgoyal.net/wiki/WikiStart#Usage\"><span style=\" "
 "text-decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</"
 "span></a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %1 "
-"by <span style=\" font-weight:600;\">Kovid Goyal</span> <br />%2</p></body></"
-"html>"
+"by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
+"body></html>"
 msgstr ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
-"\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
-"weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Per a més informació "
-"consulteu (en anglés): <a href=\"https://libprs500.kovidgoyal.net/wiki/"
-"WikiStart#Usage\"><span style=\" text-decoration: underline; color:#0000ff;"
-"\">libprs500.kovidgoyal.net</span></a><br /><br /><span style=\" font-"
-"weight:600;\">libprs500</span>: %1 de <span style=\" font-weight:600;"
-"\">Kovid Goyal</span> <br />%2</p></body></html>"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:246
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:266
 msgid "&Search:"
 msgstr "Re&cerca:"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:247
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:267
 msgid ""
 "Search the list of books by title or author<br><br>Words separated by spaces "
 "are ANDed"
@@ -1000,7 +1035,7 @@ msgstr ""
 "Recerca llibres pel tí­tol o l'autor. <br><br>Els espais entre paraules es "
 "substitueixen per AND."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:248
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:268
 msgid ""
 "Search the list of books by title, author, publisher, tags and "
 "comments<br><br>Words separated by spaces are ANDed"
@@ -1008,52 +1043,52 @@ msgstr ""
 "Recerca llibres pel tí­tol, l'autor, l'editorial, les etiquetes i els "
 "comentaris<br><br>Els espais entre paraules es substitueixen per AND."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:249
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:269
 msgid "Reset Quick Search"
 msgstr "Reinicialitza la recerca ràpida"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:251
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:273
 msgid "Add books"
 msgstr "Afegeix llibres"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:252
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:274
 msgid "A"
 msgstr "A"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:253
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:254
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:275
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:276
 msgid "Remove books"
 msgstr "Suprimeix llibres"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:255
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:277
 msgid "Del"
 msgstr "Esborra"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:256
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:278
 msgid "Edit meta information"
 msgstr "Edita la meta-informació"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:257
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:279
 msgid "E"
 msgstr "E"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:258
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:280
 msgid "Send to device"
 msgstr "Envia al dispositiu"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:259
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:281
 msgid "Save to disk"
 msgstr "Desa al disc"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:260
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:282
 msgid "Fetch news"
 msgstr "Recull notí­cies (RSS)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:261
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:283
 msgid "Convert E-books"
 msgstr "Converteix Ebooks"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:262
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:284
 msgid "View"
 msgstr "Visualitza"
 
@@ -1080,3 +1115,30 @@ msgid ""
 msgstr ""
 "La targeta\n"
 "%s està disponible"
+
+#~ msgid ""
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
+#~ "css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href="
+#~ "\"https://libprs500.kovidgoyal.net/wiki/WikiStart#Usage\"><span style=\" "
+#~ "text-decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</"
+#~ "span></a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %"
+#~ "1 by <span style=\" font-weight:600;\">Kovid Goyal</span> <br />%2</p></"
+#~ "body></html>"
+#~ msgstr ""
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
+#~ "css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Per a més informació "
+#~ "consulteu (en anglés): <a href=\"https://libprs500.kovidgoyal.net/wiki/"
+#~ "WikiStart#Usage\"><span style=\" text-decoration: underline; color:"
+#~ "#0000ff;\">libprs500.kovidgoyal.net</span></a><br /><br /><span style=\" "
+#~ "font-weight:600;\">libprs500</span>: %1 de <span style=\" font-weight:600;"
+#~ "\">Kovid Goyal</span> <br />%2</p></body></html>"
