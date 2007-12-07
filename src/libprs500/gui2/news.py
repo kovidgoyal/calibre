@@ -39,7 +39,7 @@ class NewsMenu(QMenu):
         self.emit(SIGNAL('fetch_news(PyQt_PyObject)'), data)
     
     def fetch_news_spiegelde(self, checked):
-        self.fetch_news('speigelde', 'Spiegel Online')
+        self.fetch_news('spiegelde', 'Spiegel Online')
         
     def fetch_news_zeitde(self, checked):
         self.fetch_news('zeitde', 'Zeit Nachrichten')
