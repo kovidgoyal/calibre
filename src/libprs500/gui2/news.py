@@ -31,8 +31,8 @@ class NewsMenu(QMenu):
         self.add_menu_item('Newsweek', self.fetch_news_newsweek, ':/images/news/newsweek.png')
         self.add_menu_item('New York Review of Books', self.fetch_news_nyreview, ':/images/book.svg')
         self.add_menu_item('New York Times', self.fetch_news_nytimes, ':/images/news/nytimes.png')
-        self.add_menu_item('Spiegel Online', self.fetch_news_spiegelde)
-        self.add_menu_item('Zeit Nachrichten', self.fetch_news_zeitde)
+        self.add_menu_item('Spiegel Online', self.fetch_news_spiegelde, ':/images/news/spiegelonline.png')
+        self.add_menu_item('Zeit Nachrichten', self.fetch_news_zeitde, ':/images/news/diezeit.png')
         
     def fetch_news(self, profile, title, username=None, password=None):
         data = dict(profile=profile, title=title, username=username, password=password)
