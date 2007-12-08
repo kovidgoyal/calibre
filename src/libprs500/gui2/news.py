@@ -28,6 +28,7 @@ class NewsMenu(QMenu):
         QMenu.__init__(self)
         self.add_menu_item('BBC', self.fetch_news_bbc, ':/images/news/bbc.png')
         self.add_menu_item('Economist', self.fetch_news_economist, ':/images/news/economist.png')
+        self.add_menu_item('Faz.net', self.fetch_news_faznet, ':/images/news/faznet.png')
         self.add_menu_item('Newsweek', self.fetch_news_newsweek, ':/images/news/newsweek.png')
         self.add_menu_item('New York Review of Books', self.fetch_news_nyreview, ':/images/book.svg')
         self.add_menu_item('New York Times', self.fetch_news_nytimes, ':/images/news/nytimes.png')
@@ -43,6 +44,9 @@ class NewsMenu(QMenu):
         
     def fetch_news_zeitde(self, checked):
         self.fetch_news('zeitde', 'Zeit Nachrichten')
+        
+    def fetch_news_faznet(self, checked):
+        self.fetch_news('faznet', 'Faz.net')
     
     def fetch_news_bbc(self, checked):
         self.fetch_news('bbc', 'BBC')
