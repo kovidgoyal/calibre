@@ -61,10 +61,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def accept(self):
         path = qstring_to_unicode(self.location.text())        
         if not path or not os.path.exists(path) or not os.path.isdir(path):
-            d = error_dialog(self, 'Invalid database location', 'Invalid database location '+path+'<br>Must be a directory.')
+            d = error_dialog(self, _('Invalid database location'), _('Invalid database location ')+path+_('<br>Must be a directory.'))
             d.exec_()
         elif not os.access(path, os.W_OK):
-            d = error_dialog(self, 'Invalid database location', 'Invalid database location.<br>Cannot write to '+path)
+            d = error_dialog(self, _('Invalid database location'), _('Invalid database location.<br>Cannot write to ')+path)
             d.exec_()
         else:
             self.database_location = os.path.abspath(path)

@@ -12,7 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import cPickle
 import os, cPickle
 
 from PyQt4.QtCore import QObject, SIGNAL, Qt, QSettings, QVariant, QByteArray
@@ -93,7 +92,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 d.exec_()
         
             if len(formats) > 1:
-                d = ChooseFormatDialog(window, 'Choose the format to convert into LRF', formats)
+                d = ChooseFormatDialog(window, _('Choose the format to convert into LRF'), formats)
                 d.exec_()
                 if d.result() == QDialog.Accepted:
                     self.selected_format = d.format()
@@ -167,8 +166,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         if _file:
             _file = os.path.abspath(_file)
             if not os.access(_file, os.R_OK):
-                d = error_dialog(self.window, 'Cannot read', 
-                        'You do not have permission to read the file: ' + _file)
+                d = error_dialog(self.window, _('Cannot read'), 
+                        _('You do not have permission to read the file: ') + _file)
                 d.exec_()
                 return
             cf, cover = None, None
@@ -176,14 +175,14 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 cf = open(_file, "rb")
                 cover = cf.read()
             except IOError, e: 
-                d = error_dialog(self.window, 'Error reading file',
-                        "<p>There was an error reading from file: <br /><b>" + _file + "</b></p><br />"+str(e))
+                d = error_dialog(self.window, _('Error reading file'),
+                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
             if cover:
                 pix = QPixmap()
                 pix.loadFromData(cover)
                 if pix.isNull():
-                    d = error_dialog(self.window, _file + " is not a valid picture")
+                    d = error_dialog(self.window, _file + _(" is not a valid picture"))
                     d.exec_()
                 else:
                     self.cover_path.setText(_file)
@@ -249,10 +248,10 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.preprocess.addItem('No preprocessing')
         for opt in self.PREPROCESS_OPTIONS:
             self.preprocess.addItem(opt.get_opt_string()[2:])
-        ph = 'Preprocess the file before converting to LRF. This is useful if you know that the file is from a specific source. Known sources:'
-        ph += '<ol><li><b>baen</b> - Books from BAEN Publishers</li>'
-        ph += '<li><b>pdftohtml</b> - HTML files that are the output of the program pdftohtml</li>'
-        ph += '<li><b>book-designer</b> - HTML0 files from Book Designer</li>'
+        ph = _('Preprocess the file before converting to LRF. This is useful if you know that the file is from a specific source. Known sources:')
+        ph += _('<ol><li><b>baen</b> - Books from BAEN Publishers</li>')
+        ph += _('<li><b>pdftohtml</b> - HTML files that are the output of the program pdftohtml</li>')
+        ph += _('<li><b>book-designer</b> - HTML0 files from Book Designer</li>')
         self.preprocess.setToolTip(ph)
         self.preprocess.setWhatsThis(ph)
         for profile in self.PARSER.get_option('--profile').choices:
@@ -296,7 +295,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.help_view.setHtml('<html><body>%s</body></html>'%(msg,))
     
     def reset_help(self, *args):
-        self.set_help('<font color="gray">No help available</font>')
+        self.set_help(_('<font color="gray">No help available</font>'))
         if args:
             args[0].accept()
             

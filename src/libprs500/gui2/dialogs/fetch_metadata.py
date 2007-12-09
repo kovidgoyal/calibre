@@ -94,8 +94,8 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
     def fetch_metadata(self):
         key = str(self.key.text())
         if not key:
-            error_dialog(self, 'Cannot connect', 
-                         'You must specify a valid access key for isndb.com')
+            error_dialog(self, _('Cannot connect'), 
+                         _('You must specify a valid access key for isbndb.com'))
             return
         else:
             QSettings().setValue('isbndb.com key', QVariant(self.key.text()))

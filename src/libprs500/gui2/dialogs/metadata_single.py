@@ -46,8 +46,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         if _file:
             _file = os.path.abspath(_file)
             if not os.access(_file, os.R_OK):
-                d = error_dialog(self.window, 'Cannot read', 
-                        'You do not have permission to read the file: ' + _file)
+                d = error_dialog(self.window, _('Cannot read'), 
+                        _('You do not have permission to read the file: ') + _file)
                 d.exec_()
                 return
             cf, cover = None, None
@@ -55,8 +55,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 cf = open(_file, "rb")
                 cover = cf.read()
             except IOError, e: 
-                d = error_dialog(self.window, 'Error reading file',
-                        "<p>There was an error reading from file: <br /><b>" + _file + "</b></p><br />"+str(e))
+                d = error_dialog(self.window, _('Error reading file'),
+                        _("<p>There was an error reading from file: <br /><b>") + _file + "</b></p><br />"+str(e))
                 d.exec_()
             if cover:
                 pix = QPixmap()
@@ -223,14 +223,14 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     self.cover_changed = True
                     self.cpixmap = pix   
             except Exception, err:
-                error_dialog(self, 'Could not fetch cover', '<b>Could not fetch cover.</b><br/>'+str(err)).exec_()
+                error_dialog(self, _('Could not fetch cover'), _('<b>Could not fetch cover.</b><br/>')+str(err)).exec_()
             finally:
                 self.fetch_cover_button.setEnabled(True)
                 self.unsetCursor()
                 socket.setdefaulttimeout(timeout)
                 
         else:
-            error_dialog(self, 'Cannot fetch cover', 'You must specify the ISBN identifier for this book.').exec_()
+            error_dialog(self, _('Cannot fetch cover'), _('You must specify the ISBN identifier for this book.')).exec_()
                 
     
     def fetch_metadata(self):

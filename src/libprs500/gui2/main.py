@@ -79,7 +79,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.conversion_jobs = {}
         self.persistent_files = []
         self.default_thumbnail = None
-        self.device_error_dialog = ConversionErrorDialog(self, 'Error communicating with device', ' ')
+        self.device_error_dialog = ConversionErrorDialog(self, _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.device_connected = False
@@ -333,8 +333,8 @@ class Main(MainWindow, Ui_MainWindow):
             if isinstance(exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
                 titles = '\n'.join(['<li>'+mi['title']+'</li>' for mi in metadata])
-                d = error_dialog(self, 'No space on device',
-                                 '<p>Cannot upload books to device there is no more free space available '+where+
+                d = error_dialog(self, _('No space on device'),
+                                 _('<p>Cannot upload books to device there is no more free space available ')+where+
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()                
             else:
@@ -403,7 +403,7 @@ class Main(MainWindow, Ui_MainWindow):
         if len(rows) > 1:
             return self.edit_bulk_metadata(checked)
         if not rows or len(rows) == 0:
-            d = error_dialog(self, 'Cannot edit metadata', 'No books selected')
+            d = error_dialog(self, _('Cannot edit metadata'), _('No books selected'))
             d.exec_()
             return
         changed = False
@@ -422,7 +422,7 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         rows = [r.row() for r in self.library_view.selectionModel().selectedRows()]
         if not rows or len(rows) == 0:
-            d = error_dialog(self, 'Cannot edit metadata', 'No books selected')
+            d = error_dialog(self, _('Cannot edit metadata'), _('No books selected'))
             d.exec_()
             return
         if MetadataBulkDialog(self, rows, self.library_view.model().db).changed:
@@ -505,7 +505,7 @@ class Main(MainWindow, Ui_MainWindow):
     def save_to_disk(self, checked):
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, 'Cannot save to disk', 'No books selected')
+            d = error_dialog(self, _('Cannot save to disk'), _('No books selected'))
             d.exec_()
             return
         dir = choose_dir(self, 'save to disk dialog', 'Choose destination directory')
@@ -555,7 +555,7 @@ class Main(MainWindow, Ui_MainWindow):
     
     ############################### Convert ####################################
     def convert_bulk(self, checked):
-        d = error_dialog(self, 'Cannot convert', 'Not yet implemented.')            
+        d = error_dialog(self, _('Cannot convert'), _('Not yet implemented.'))            
         d.exec_()
     
     def set_conversion_defaults(self, checked):
@@ -565,7 +565,7 @@ class Main(MainWindow, Ui_MainWindow):
     def convert_single(self, checked):
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, 'Cannot convert', 'No books selected')            
+            d = error_dialog(self, _('Cannot convert'), _('No books selected'))            
             d.exec_()
         
         changed = False
@@ -611,7 +611,7 @@ class Main(MainWindow, Ui_MainWindow):
     def view_book(self, triggered):
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
-            d = error_dialog(self, 'Cannot view', 'No book selected')            
+            d = error_dialog(self, _('Cannot view'), _('No book selected'))            
             d.exec_()
             return
         
@@ -620,7 +620,7 @@ class Main(MainWindow, Ui_MainWindow):
         title   = self.library_view.model().db.title(row)
         id      = self.library_view.model().db.id(row) 
         if 'LRF' not in formats.upper():
-            d = error_dialog(self, 'Cannot view', '%s is not available in LRF format. Please convert it first.'%(title,))            
+            d = error_dialog(self, _('Cannot view'), _('%s is not available in LRF format. Please convert it first.')%(title,))            
             d.exec_()
             return
         
@@ -644,7 +644,7 @@ class Main(MainWindow, Ui_MainWindow):
     
     def do_config(self):
         if self.job_manager.has_jobs():
-            d = error_dialog(self, 'Cannot configure', 'Cannot configure while there are running jobs.')
+            d = error_dialog(self, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec_()
             return
         d = ConfigDialog(self)
@@ -668,7 +668,7 @@ class Main(MainWindow, Ui_MainWindow):
                     os.unlink(src.name)
                 except Exception, err:
                     traceback.print_exc()
-                    d = error_dialog(self, 'Could not move database', unicode(err))
+                    d = error_dialog(self, _('Could not move database'), unicode(err))
                     d.exec_()
                 finally:
                     self.unsetCursor()
@@ -716,8 +716,8 @@ class Main(MainWindow, Ui_MainWindow):
         Handle exceptions in threaded device jobs.
         '''
         if 'Could not read 32 bytes on the control bus.' in str(exception):
-            error_dialog(self, 'Error talking to device', 
-                         'There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot.').show()
+            error_dialog(self, _('Error talking to device'), 
+                         _('There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot.')).show()
             return
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
         print >>sys.stderr, exception
