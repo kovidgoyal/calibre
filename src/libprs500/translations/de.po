@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
 "POT-Creation-Date: 2007-12-05 17:21+PST\n"
-"PO-Revision-Date: 2007-12-06 20:05+0100\n"
+"PO-Revision-Date: 2007-12-09 17:29+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
 "MIME-Version: 1.0\n"
@@ -128,8 +128,8 @@ msgstr "Unterer Rand der Seite. Die Voreinstellung ist %default Pixel."
 msgid "The maximum number of levels to recursively process links. A value of 0 means thats links are not followed. A negative value means that <a> tags are ignored."
 msgstr "Höchstzahl der rekursiven Verknüpfungen (Hyperlinks). Der Wert 0 bedeutet, dass Verknüpfungen ignoriert werden. Ein negativer Wert bedeutet, dass alle <a> Elemente ignoriert werden. "
 
-# ???
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:165
+#, fuzzy
 msgid "A regular expression. <a> tags whoose href matches will be ignored. Defaults to %default"
 msgstr "Ein regulärer Ausdruck. <a> tags, deren Verknüpfungen ignoriert werden. Voreinstellung %default"
 
@@ -243,7 +243,7 @@ msgstr "Konfiguration"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:114
 msgid "&Location of books database (library1.db)"
-msgstr "Speicher&ort der Bücherdatenbank (library1.db)"
+msgstr "Speicherort der Bücherdatenbank (&library1.db)"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:115
 msgid "Browse for the new database location"
@@ -297,7 +297,7 @@ msgstr "Kostenloses Konto anmelden bei <a href=\"http://www.isbndb.com\">ISBNdb.
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata_ui.py:82
 msgid "&Access Key;"
-msgstr "&Zugriffsschlüssel;"
+msgstr "&Zugriffsschlüssel:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata_ui.py:83
 msgid "Fetch"
@@ -489,7 +489,7 @@ msgstr "Ausgangsschrift&größe:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:601
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:607
 msgid " pts"
-msgstr "Punkt"
+msgstr " Punkt"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:602
 msgid "Embedded Fonts"
@@ -556,7 +556,7 @@ msgstr "&Linker Rand:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:622
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:624
 msgid " px"
-msgstr "Pixel"
+msgstr " Pixel"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:619
 msgid "&Right Margin:"
@@ -688,7 +688,7 @@ msgstr "Passwort erforderlich"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/password_ui.py:59
 msgid "&Username:"
-msgstr "&Benutzername:"
+msgstr "Ben&utzername:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/password_ui.py:60
 msgid "&Password:"
@@ -963,5 +963,4 @@ msgid ""
 msgstr ""
 "Karte\n"
 "%s verfügbar"
-
 
