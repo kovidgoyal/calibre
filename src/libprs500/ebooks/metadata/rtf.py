@@ -102,7 +102,10 @@ def create_metadata(stream, options):
         title = options.title.encode('ascii', 'ignore')
         md += r'{\title %s}'%(title,)
     if options.authors:
-        author = options.authors.encode('ascii', 'ignore')
+        au = options.authors
+        if not isinstance(au, basestring):
+            au = u', '.join(au)
+        author = au.encode('ascii', 'ignore')
         md += r'{\author %s}'%(author,)
     if options.category:
         category = options.category.encode('ascii', 'ignore')
