@@ -20,16 +20,20 @@ from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_
 from libprs500.ebooks import ConversionError
 from libprs500 import isosx, setup_cli_handlers, __appname__
 from libprs500.libwand import convert, WandException
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
+from libprs500.ebooks.lrf.rtf.xsl import xhtml
 
 UNRTF   = 'unrtf'
 if isosx and hasattr(sys, 'frameworks_dir'):
     UNRTF   = os.path.join(getattr(sys, 'frameworks_dir'), UNRTF)
 
 def option_parser():
-    return lrf_option_parser(
+    parser = lrf_option_parser(
         '''Usage: %prog [options] mybook.rtf\n\n'''
         '''%prog converts mybook.rtf to mybook.lrf'''
         )
+    parser.add_option('--keep-intermediate-files', action='store_true', default=False)
+    return parser
 
 def convert_images(html, logger):
     wmfs = glob.glob('*.wmf') + glob.glob('*.WMF')
@@ -72,14 +76,15 @@ def generate_html(rtfpath, logger):
 def process_file(path, options, logger=None):
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO
-        logger = logging.getLogger('pdf2lrf')
+        logger = logging.getLogger('rtf2lrf')
         setup_cli_handlers(logger, level)
     rtf = os.path.abspath(os.path.expanduser(path))
     f = open(rtf, 'rb')
     mi = get_metadata(f, 'rtf')
     f.close()
-    html = generate_html(rtf, logger)
+    html = generate_html2(rtf, logger)
     tdir = os.path.dirname(html)
+    cwd = os.getcwdu()
     try:
         if not options.output:
             ext = '.lrs' if options.lrs else '.lrf'
@@ -95,9 +100,14 @@ def process_file(path, options, logger=None):
             options.category = mi.category
         if (not options.freetext or options.freetext == 'Unknown') and mi.comments:
             options.freetext = mi.comments
+        os.chdir(tdir)
         html_process_file(html, options, logger)
     finally:
-        shutil.rmtree(tdir)
+        os.chdir(cwd)
+        if options.keep_intermediate_files:
+            logger.debug('Intermediate files in '+ tdir)
+        else:
+            shutil.rmtree(tdir)
 
 def main(args=sys.argv, logger=None):
     parser = option_parser()
@@ -110,9 +120,89 @@ def main(args=sys.argv, logger=None):
     process_file(args[1], options, logger)
     return 0
     
+
+def generate_xml(rtfpath):
+    from rtf2xml.ParseRtf import ParseRtf
+    tdir = tempfile.mkdtemp(prefix=__appname__+'_')
+    ofile = os.path.join(tdir, 'index.xml')
+    cwd = os.getcwdu()
+    os.chdir(tdir)
+    try:
+        parser = ParseRtf(
+            in_file    = rtfpath,
+            out_file   = ofile,
+            # Convert symbol fonts to unicode equivelents. Default
+            # is 1
+            convert_symbol = 1,
     
+            # Convert Zapf fonts to unicode equivelents. Default
+            # is 1.
+            convert_zapf = 1,
+    
+            # Convert Wingding fonts to unicode equivelents.
+            # Default is 1.
+            convert_wingdings = 1,
+    
+            # Convert RTF caps to real caps.
+            # Default is 1.
+            convert_caps = 1,
+    
+            # Indent resulting XML.
+            # Default is 0 (no indent).
+            indent = 1,
+    
+            # Form lists from RTF. Default is 1.
+            form_lists = 1,
+    
+            # Convert headings to sections. Default is 0.
+            headings_to_sections = 1,
+    
+            # Group paragraphs with the same style name. Default is 1.
+            group_styles = 1,
+    
+            # Group borders. Default is 1.
+            group_borders = 1,
+    
+            # Write or do not write paragraphs. Default is 0.
+            empty_paragraphs = 0,
+        )
+        parser.parse_rtf()
+    finally:
+        os.chdir(cwd)
+    return ofile
+
+
+def generate_html2(rtfpath, logger):
+    from lxml import etree
+    logger.info('Converting RTF to XML...')
+    xml = generate_xml(rtfpath)
+    tdir = os.path.dirname(xml)
+    cwd = os.getcwdu()
+    os.chdir(tdir)
+    try:
+        logger.info('Parsing XML...')
+        parser = etree.XMLParser(recover=True, no_network=True)
+        try:
+            doc = etree.parse(xml, parser)
+        except:
+            raise
+            logger.info('Parsing failed. Trying to clean up XML...')
+            soup = BeautifulStoneSoup(open(xml, 'rb').read())
+            doc = etree.fromstring(str(soup))
+        logger.info('Converting XML to HTML...')
+        styledoc = etree.fromstring(xhtml)
+        
+        transform = etree.XSLT(styledoc)
+        result = transform(doc)
+        tdir = os.path.dirname(xml)
+        html = os.path.join(tdir, 'index.html')
+        f = open(html, 'wb')
+        f.write(transform.tostring(result))
+        f.close()
+    finally:
+        os.chdir(cwd)
+    return html
             
 if __name__ == '__main__':
-    sys.exit(main())
-    
+    sys.exit(main())    
         

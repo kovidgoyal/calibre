@@ -30,6 +30,15 @@ iswindows = 'win32' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx) 
 
+def osx_version():
+    if isosx:
+        import platform
+        src = platform.mac_ver()[0]
+        m = re.match(r'(\d+)\.(\d+)\.(\d+)', src)
+        if m:
+            return int(m.group(1)), int(m.group(2)), int(m.group(3))
+        
+
 # Default translation is NOOP
 import __builtin__
 __builtin__.__dict__['_'] = lambda s: s

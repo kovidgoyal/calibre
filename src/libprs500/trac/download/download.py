@@ -92,7 +92,7 @@ class Distribution(object):
             self.command = cmd.strip()
             if os == 'debian':
                 self.command += '\n'+prefix + 'cp -R /usr/share/pycentral/fonttools/site-packages/FontTools* /usr/lib/python2.5/site-packages/'
-            self.command += '\n'+prefix+'easy_install -U TTFQuery libprs500 \nlibprs500_postinstall'
+            self.command += '\n'+prefix+'easy_install -U TTFQuery lxml libprs500 \n'+prefix+'easy_install -f http://sourceforge.net/project/showfiles.php?group_id=68617 rtf2xml\n'+prefix+'libprs500_postinstall'
             try:
                 self.manual = Markup(self.MANUAL_MAP[os])
             except KeyError:
