@@ -801,9 +801,9 @@ def main(args=sys.argv):
         initialize_file_icon_provider()
         try:
             main = Main()
-        except DatabaseLocked:
+        except DatabaseLocked, err:
             QMessageBox.critical(None, 'Cannot Start '+__appname__, 
-            'Another program is using the database. Perhaps %s is already running?'%(__appname__,))
+            '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
             return 1
         sys.excepthook = main.unhandled_exception    
         return app.exec_()

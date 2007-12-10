@@ -42,33 +42,38 @@ class Concatenate(object):
 
 _lock_file = None
 class DatabaseLocked(Exception):
-    pass
+    
+    def __init__(self, msg, lock_file_path):
+        Exception.__init__(self, msg)
+        self.lock_file_path = lock_file_path
 
 def _lock(path):
     path = os.path.join(os.path.dirname(path), '.'+os.path.basename(path)+'.lock')
     global _lock_file
     if _lock_file is not None:
-        raise DatabaseLocked('Database already locked in this instance.')
+        raise DatabaseLocked('Database already locked in this instance.', _lock_file.name)
     try:
         _lock_file = open(path, 'wb')
     except IOError:
-        raise DatabaseLocked('Database in use by another instance')
+        raise DatabaseLocked('Database in use by another instance', _lock_file.name)
     try:
         import fcntl, errno
         try:
             fcntl.lockf(_lock_file.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
         except IOError, err:
+            path = _lock_file.name
             _lock_file = None
             if err.errno in (errno.EACCES, errno.EAGAIN):
-                raise DatabaseLocked('Database in use by another instance')
+                raise DatabaseLocked('Database in use by another instance', path)
     except ImportError:
         try:
             import msvcrt
             try:
                 msvcrt.locking(_lock_file.fileno(), msvcrt.LK_NBLCK, 1)
             except IOError:
+                path = _lock_file.name
                 _lock_file = None
-                raise DatabaseLocked('Database in use by another instance')
+                raise DatabaseLocked('Database in use by another instance', path)
         except ImportError:
             pass
 
