@@ -55,7 +55,7 @@ def _lock(path):
     try:
         _lock_file = open(path, 'wb')
     except IOError:
-        raise DatabaseLocked('Database in use by another instance', _lock_file.name)
+        raise DatabaseLocked('Database in use by another instance', path)
     try:
         import fcntl, errno
         try:
