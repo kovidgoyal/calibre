@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca(1)\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-09 11:17+PST\n"
+"POT-Creation-Date: 2007-12-09 18:07+PST\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: \n"
@@ -465,56 +465,67 @@ msgstr ""
 msgid "Convert %s to LRF"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:105
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:109
+msgid "RTF conversion not supported"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:110
+msgid ""
+"Conversion of RTF files is not supported on OS X Leopard and higher. This is "
+"because unrtf, the underlying program does not work. If you are willing to "
+"port unrtf to Leopard, contact me."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:115
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:136
 msgid "Set conversion defaults"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:169
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:179
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:49
 msgid "Cannot read"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:170
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:180
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:50
 msgid "You do not have permission to read the file: "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:178
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:188
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:58
 msgid "Error reading file"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:179
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:189
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:59
 msgid "<p>There was an error reading from file: <br /><b>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:185
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:195
 msgid " is not a valid picture"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:251
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:261
 msgid ""
 "Preprocess the file before converting to LRF. This is useful if you know "
 "that the file is from a specific source. Known sources:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:252
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:262
 msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:253
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:263
 msgid ""
 "<li><b>pdftohtml</b> - HTML files that are the output of the program "
 "pdftohtml</li>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:254
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
 msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:287
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:297
 msgid ""
 "Specify metadata such as title and author for the book.<p>Metadata will be "
 "updated in the database as well as the generated LRF file."
@@ -522,12 +533,12 @@ msgstr ""
 "Especifiqueu informació com ara tí­tol i autor per al llibre.<p>Aquesta "
 "informació s'actualitza tant a la base de dades com al fitxer LRF."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:287
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:297
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:563
 msgid "Metadata"
 msgstr "Metadades"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:288
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:298
 msgid ""
 "Adjust the look of the generated LRF file by specifying things like font "
 "sizes and the spacing between words."
@@ -535,12 +546,12 @@ msgstr ""
 "Milloreu l'aparença del fitxer LRF generat, especificant la grandària de "
 "lletra i l'espaiat entre paraules."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:288
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:298
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:567
 msgid "Look & Feel"
 msgstr "Look & Feel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:289
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:299
 msgid ""
 "Specify the page settings like margins and the screen size of the target "
 "device."
@@ -548,21 +559,21 @@ msgstr ""
 "Configuració de la pàgina del dispositiu, especificant ,marges i grandària "
 "de la pantalla, entre d'altres."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:289
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:299
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:571
 msgid "Page Setup"
 msgstr "Configuració de la pàgina"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:290
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:300
 msgid "Fine tune the detection of chapter and section headings."
 msgstr "Milloreu la detecció de capí­tols i seccions."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:290
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:300
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:575
 msgid "Chapter Detection"
 msgstr "Detecció de capí­tols"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:298
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:308
 msgid "<font color=\"gray\">No help available</font>"
 msgstr ""
 
