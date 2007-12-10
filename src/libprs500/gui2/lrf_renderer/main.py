@@ -168,8 +168,8 @@ class Main(MainWindow, Ui_MainWindow):
                                             self.renderer.lrf.device_info.height
             self.graphics_view.resize_for(width+5, height+5)
             desktop = QCoreApplication.instance().desktop()
-            screen_height = desktop.availableGeometry().height()
-            height = min(screen_height-25, height+55)
+            screen_height = desktop.availableGeometry().height() - 25
+            height = min(screen_height, height+55)
             self.resize(self.size().width(), height) 
             self.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)
             self.document_title = self.renderer.lrf.metadata.title
