@@ -1138,7 +1138,7 @@ class HTMLConverter(object):
         except ValueError:
             pass
         m = re.match("\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
-        if m is not None:
+        if m is not None and m.group(1):
             unit = float(m.group(1))
             if m.group(2) == '%':
                 normal = self.unit_convert(base_length)
