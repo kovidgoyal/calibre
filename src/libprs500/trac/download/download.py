@@ -49,7 +49,8 @@ class Distribution(object):
         ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
-        ('convertlit', '1.8', 'convertlit', None, None)
+        ('convertlit', '1.8', 'convertlit', None, None),
+        ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
         ]
     
     DISTRO_MAP = {'gentoo':2, 'ubuntu':3, 'fedora':4, 'debian':3}
@@ -92,7 +93,7 @@ class Distribution(object):
             self.command = cmd.strip()
             if os == 'debian':
                 self.command += '\n'+prefix + 'cp -R /usr/share/pycentral/fonttools/site-packages/FontTools* /usr/lib/python2.5/site-packages/'
-            self.command += '\n'+prefix+'easy_install -U TTFQuery lxml libprs500 \n'+prefix+'easy_install -f http://sourceforge.net/project/showfiles.php?group_id=68617 rtf2xml\n'+prefix+'libprs500_postinstall'
+            self.command += '\n'+prefix+'easy_install -U TTFQuery libprs500 \n'+prefix+'easy_install -f http://sourceforge.net/project/showfiles.php?group_id=68617 rtf2xml\n'+prefix+'libprs500_postinstall'
             try:
                 self.manual = Markup(self.MANUAL_MAP[os])
             except KeyError:
