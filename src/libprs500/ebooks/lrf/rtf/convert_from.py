@@ -104,7 +104,7 @@ def process_file(path, options, logger=None):
         html_process_file(html, options, logger)
     finally:
         os.chdir(cwd)
-        if options.keep_intermediate_files:
+        if hasattr(options, 'keep_intermediate_files') and options.keep_intermediate_files:
             logger.debug('Intermediate files in '+ tdir)
         else:
             shutil.rmtree(tdir)
