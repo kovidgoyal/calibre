@@ -262,6 +262,9 @@ class Color(object):
     def __getitem__(self, i): # Qt compatible ordering and values
         return (self.r, self.g, self.b, 0xff-self.a)[i] # In Qt 0xff is opaque while in LRS 0x00 is opaque
     
+    def to_html(self):
+        return 'rgb(%d, %d, %d)'%(self.r, self.g, self.b)
+    
 
 class EmptyPageElement(object):
     def __iter__(self):
