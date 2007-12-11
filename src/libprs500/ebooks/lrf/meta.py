@@ -231,8 +231,9 @@ def get_metadata(stream):
     """
     Return basic meta-data about the LRF file in C{stream} as a 
     L{MetaInformation} object.
+    @param stream: A file like object or an instance of L{LRFMetaFile}
     """
-    lrf = LRFMetaFile(stream)
+    lrf = stream if isinstance(stream, LRFMetaFile) else LRFMetaFile(stream)
     au = lrf.author.strip().split(',')
     authors = []
     for i in au:
