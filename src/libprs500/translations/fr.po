@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.22\n"
-"POT-Creation-Date: 2007-12-09 18:07+PST\n"
+"POT-Creation-Date: 2007-12-11 11:02+PST\n"
 "PO-Revision-Date: 2007-12-09 19:53+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -296,45 +296,45 @@ msgstr ""
 "long. N'utilisez cette option que si vous avez des problèmes de mémoire "
 "disponible."
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:555
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:556
 msgid "Set the book title"
 msgstr "Définit le titre du livre"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:557
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:558
 msgid "Set sort key for the title"
 msgstr "Définit la clé de tri pour le titre"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:559
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:560
 msgid "Set the author"
 msgstr "Définit l'auteur"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:561
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
 msgid "Set sort key for the author"
 msgstr "Définit la clef de tri pour l'auteur"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:563
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:564
 msgid "The category this book belongs to. E.g.: History"
 msgstr "La catégorie à laquelle le livre appartient. Exemple : Histoire"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:567
 msgid "Path to a graphic that will be set as this files' thumbnail"
 msgstr "Chemin d'une image qui sera utilisée comme vignette pour ces fichiers"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:569
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:570
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
 msgstr ""
 "Chemin d'un fichier texte contenant les commentaires qui seront inclus dans "
 "le fichier lrf."
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:573
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:574
 msgid "Extract thumbnail from LRF file"
 msgstr "Extrait la vignette du fichier LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:575
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:576
 msgid "Set book ID"
 msgstr "Définit l'ID du livre"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:577
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:578
 msgid "Don't know what this is for"
 msgstr "Je ne sais pas à quoi cela sert"
 

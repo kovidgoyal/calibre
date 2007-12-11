@@ -1,4 +1,4 @@
-# translation of ca(1).po to Spanish
+# translation of ca.po to Catalan
 # Translation template file..
 # Copyright (C) 2007 Kovid Goyal
 # Kovid Goyal <kovid@kovidgoyal.net>, 2007.
@@ -8,9 +8,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: ca(1)\n"
+"Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-09 18:07+PST\n"
+"POT-Creation-Date: 2007-12-11 11:02+PST\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: \n"
@@ -91,6 +91,9 @@ msgid ""
 "option obsoletes the --font-delta option and takes precedence over it. To "
 "use --font-delta, set this to 0."
 msgstr ""
+"Especifiqueu la grandària de lletra base en punts. Totes les lletres seran "
+"escalades segons aquest valor. L'opció --font-delta resta obsoleta. Per a "
+"utilitzar --font-delta, fixe aquest valor a 0."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -291,44 +294,46 @@ msgid ""
 "Minimize memory usage at the cost of longer processing times. Use this "
 "option if you are on a memory constrained machine."
 msgstr ""
+"Minimitza l'ús de memòria, utilitzant més temps de processador. Empreu "
+"aquesta opció si el vostre equip no disposa de molta RAM."
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:555
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:556
 msgid "Set the book title"
 msgstr "Indiqueu el nom del llibre"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:557
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:558
 msgid "Set sort key for the title"
 msgstr "Indiqueu la clau d'ordenació per tí­tol"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:559
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:560
 msgid "Set the author"
 msgstr "Indiqueu l'autor"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:561
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
 msgid "Set sort key for the author"
 msgstr "Indiqueu la clau d'ordenació per autor"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:563
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:564
 msgid "The category this book belongs to. E.g.: History"
 msgstr "Categoria a la que pertany el llibre. Per exemple, Història"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:567
 msgid "Path to a graphic that will be set as this files' thumbnail"
 msgstr "Camí­ al fitxer d'imatge que s'utilitzarà com a miniatura"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:569
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:570
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
 msgstr "Camí­ al fitxer txt que conté el comentari a desar en el fitxer LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:573
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:574
 msgid "Extract thumbnail from LRF file"
 msgstr "Extrau la miniatura del fitxer LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:575
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:576
 msgid "Set book ID"
 msgstr "Indiqueu l'ID (identificador) del llibre"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:577
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:578
 msgid "Don't know what this is for"
 msgstr "No sé per a qué és aixó"
 
@@ -343,33 +348,33 @@ msgstr "TextLabel"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:64
 msgid "<br>Must be a directory."
-msgstr ""
+msgstr "<br>Cal que siga un directori."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:64
 msgid "Invalid database location "
-msgstr ""
+msgstr "Ubicació de la base de dades no vàlida "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:64
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:67
 msgid "Invalid database location"
-msgstr ""
+msgstr "Ubicació de la base de dades no vàlida "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:67
 msgid "Invalid database location.<br>Cannot write to "
-msgstr ""
+msgstr "Ubicació de la base de dades no vàlida.<br>No es pot escriure "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:113
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:271
 msgid "Configuration"
-msgstr ""
+msgstr "Configuració"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:114
 msgid "&Location of books database (library1.db)"
-msgstr ""
+msgstr "&Ubicació de la base de dades (library1.db)"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:115
 msgid "Browse for the new database location"
-msgstr ""
+msgstr "Cerca la nova ubicació de la base de dades"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:116
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:119
@@ -391,15 +396,15 @@ msgstr "..."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:117
 msgid "Frequently used directories"
-msgstr ""
+msgstr "Directoris emprats amb freqüència"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:118
 msgid "Add a directory to the frequently used directories list"
-msgstr ""
+msgstr "Afegir el directori al llistat de directoris freqüents"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:120
 msgid "Remove a directory from the frequently used directories list"
-msgstr ""
+msgstr "Elimiar el directori al llistat de directoris freqüents"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/conversion_error_ui.py:37
 msgid "ERROR"
@@ -407,11 +412,11 @@ msgstr "ERROR"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata.py:97
 msgid "Cannot connect"
-msgstr ""
+msgstr "No puc connectar"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata.py:98
 msgid "You must specify a valid access key for isbndb.com"
-msgstr ""
+msgstr "Cal especificar una clau d'accès vàlida per a isbndb.com"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata_ui.py:79
 msgid "Fetch metadata"
@@ -451,23 +456,23 @@ msgstr "Treballs actius"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:90
 msgid "No available formats"
-msgstr ""
+msgstr "Formats no disponibles"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:91
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr ""
+msgstr "No puc convetir \"%s\" perquè el format no hi és suportat"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:95
 msgid "Choose the format to convert into LRF"
-msgstr ""
+msgstr "Trieu el format per convertir a LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:103
 msgid "Convert %s to LRF"
-msgstr ""
+msgstr "Converteix %s a LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:109
 msgid "RTF conversion not supported"
-msgstr ""
+msgstr "Conversió de RTF no disponible"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:110
 msgid ""
@@ -475,55 +480,61 @@ msgid ""
 "because unrtf, the underlying program does not work. If you are willing to "
 "port unrtf to Leopard, contact me."
 msgstr ""
+"La conversió d'arxius RTF no està soportada a OS X Leopard i superiors, "
+"perquè unrtf no funciona. Si voleu col·laborar en el \"port\", fiqueu-vos en "
+"contacte amb Kovid."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:115
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:136
 msgid "Set conversion defaults"
-msgstr ""
+msgstr "Fixa els valors de conversió er defecte"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:179
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:49
 msgid "Cannot read"
-msgstr ""
+msgstr "No pot llegir-se"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:180
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:50
 msgid "You do not have permission to read the file: "
-msgstr ""
+msgstr "No tens permissos per a llegir l'arxiu: "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:188
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:58
 msgid "Error reading file"
-msgstr ""
+msgstr "Error llegint l'arxiu"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:189
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:59
 msgid "<p>There was an error reading from file: <br /><b>"
-msgstr ""
+msgstr "<p>Error llegint de l'arxiu: <br /><b>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:195
 msgid " is not a valid picture"
-msgstr ""
+msgstr " no és una imatge vàlida"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:261
 msgid ""
 "Preprocess the file before converting to LRF. This is useful if you know "
 "that the file is from a specific source. Known sources:"
 msgstr ""
+"Preprocessa l'arxiu abans de convertir a LRF. Aixó ès útil si coneixes "
+"l'origen de l'arxiu. Fonts conegudes:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:262
 msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
-msgstr ""
+msgstr "<ol><li><b>baen</b> - Llibre de BAEN Publishers</li>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:263
 msgid ""
 "<li><b>pdftohtml</b> - HTML files that are the output of the program "
 "pdftohtml</li>"
 msgstr ""
+"<li><b>pdftohtml</b> - Arxius HTML obtinguts amb l'aplicació pdftohtml</li>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
 msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
-msgstr ""
+msgstr "<li><b>book-designer</b> - Arxius HTML0 del Book Designer</li>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:297
 msgid ""
@@ -549,7 +560,7 @@ msgstr ""
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:298
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:567
 msgid "Look & Feel"
-msgstr "Look & Feel"
+msgstr "Aparença"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:299
 msgid ""
@@ -575,7 +586,7 @@ msgstr "Detecció de capí­tols"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:308
 msgid "<font color=\"gray\">No help available</font>"
-msgstr ""
+msgstr "<font color=\"gray\">Ajuda no disponible</font>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:558
 msgid "Convert to LRF"
@@ -699,7 +710,7 @@ msgstr "Comentaris"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:600
 msgid "Base &font size:"
-msgstr ""
+msgstr "Grandària de lletra base:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:601
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:607
@@ -708,19 +719,19 @@ msgstr " punts"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:602
 msgid "Embedded Fonts"
-msgstr ""
+msgstr "Lletres inserides"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:603
 msgid "&Serif:"
-msgstr ""
+msgstr "&Serif:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:604
 msgid "S&ans-serif:"
-msgstr ""
+msgstr "S&ans-serif:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:605
 msgid "&Monospace:"
-msgstr ""
+msgstr "&Monoespaiada:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:606
 msgid "&Word spacing:"
@@ -771,7 +782,7 @@ msgstr "Marge &Esquerre:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:622
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:624
 msgid " px"
-msgstr "Pí­xels"
+msgstr " Pí­xels"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:619
 msgid "&Right Margin:"
@@ -883,19 +894,19 @@ msgstr "Afe&geix les etiquetes: "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:226
 msgid "<b>Could not fetch cover.</b><br/>"
-msgstr ""
+msgstr "<b>No puc aconseguir la coberta.</b><br/>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:226
 msgid "Could not fetch cover"
-msgstr ""
+msgstr "No puc aconseguir la coberta"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:233
 msgid "Cannot fetch cover"
-msgstr ""
+msgstr "No puc aconseguir la coberta"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:233
 msgid "You must specify the ISBN identifier for this book."
-msgstr ""
+msgstr "Cal especificar un ISBN correcte per al llibre."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:265
 msgid "Edit Meta Information"
@@ -970,7 +981,7 @@ msgstr "No disponible"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:212
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:216
 msgid "None"
-msgstr ""
+msgstr "Cap"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:207
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:574
@@ -980,16 +991,16 @@ msgstr "Etiquetes"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:213
 msgid "Formats"
-msgstr ""
+msgstr "Formats"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:222
 msgid "Book <font face=\"serif\">%s</font> of %s."
-msgstr ""
+msgstr "Llibre <font face=\"serif\">%s</font> de %s."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:222
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:332
 msgid "Series"
-msgstr ""
+msgstr "Sèries"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:326
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:634
@@ -1017,15 +1028,15 @@ msgstr "Valoració"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:568
 msgid "Format"
-msgstr ""
+msgstr "Format"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:569
 msgid "Path"
-msgstr ""
+msgstr "Camí"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:573
 msgid "Timestamp"
-msgstr ""
+msgstr "Marca de temps"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:673
 msgid "Search by title, author, publisher, tags, series and comments"
@@ -1033,7 +1044,7 @@ msgstr "Cerca per tí­tol, autor, editorial, etiquetes, series i comentaris"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/config_ui.py:51
 msgid "Configure Viewer"
-msgstr "Configura el visualitzador"
+msgstr "Configura el visor"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/config_ui.py:52
 msgid "Use white background"
@@ -1049,15 +1060,15 @@ msgstr "<b>Els canvis s'ignoren fins que el re-inicieu."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main.py:163
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
-msgstr ""
+msgstr "<b>No</b> s'han trobat coincidències per al text \"<i>%s</i>\"."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main.py:163
 msgid "No matches found"
-msgstr ""
+msgstr "No s'han trobat coincidències"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:184
 msgid "LRF Viewer"
-msgstr "Visualitzador LRF"
+msgstr "Visor LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:191
 msgid "Parsing LRF file"
@@ -1093,7 +1104,7 @@ msgstr "Configura"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:82
 msgid "Error communicating with device"
-msgstr ""
+msgstr "Error en la comunicació amb el dispositiu"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:110
 msgid "Send to main memory"
@@ -1121,71 +1132,73 @@ msgstr "Converteix tots"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:336
 msgid "No space on device"
-msgstr ""
+msgstr "Sense espai al dispositiu"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:337
 msgid "<p>Cannot upload books to device there is no more free space available "
-msgstr ""
+msgstr "<p>No puc desar llibres al dispositiu perquè no hi ha espai restant"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:406
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:425
 msgid "Cannot edit metadata"
-msgstr ""
+msgstr "No puc editar les meta-dades"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:406
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:425
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:508
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:568
 msgid "No books selected"
-msgstr ""
+msgstr "Cap llibre seleccionat"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:508
 msgid "Cannot save to disk"
-msgstr ""
+msgstr "No puc desar al disc"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:558
 msgid "Not yet implemented."
-msgstr ""
+msgstr "Sense implementar."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:558
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:568
 msgid "Cannot convert"
-msgstr ""
+msgstr "No puc convertir-lo"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:614
 msgid "No book selected"
-msgstr ""
+msgstr "Cap llibre seleccionat"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:614
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:623
 msgid "Cannot view"
-msgstr ""
+msgstr "No puc mostrar-lo"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:623
 msgid "%s is not available in LRF format. Please convert it first."
-msgstr ""
+msgstr "%s no està disponible en LRF. Ha de ser convertir primer."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:647
 msgid "Cannot configure"
-msgstr ""
+msgstr "No puc configurar-lo"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:647
 msgid "Cannot configure while there are running jobs."
-msgstr ""
+msgstr "No puc configurar-lo amb treballs processant-se"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:671
 msgid "Could not move database"
-msgstr ""
+msgstr "No puc moure la base de dades"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:719
 msgid "Error talking to device"
-msgstr ""
+msgstr "Error comunicant amb el dispositiu"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:720
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
 msgstr ""
+"Hi ha hagut un error de comunicació amb el dispositiu. Lleve, torne a "
+"connectar el dispositiu i torne a iniciar el programa"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:261
 msgid "libprs500"
@@ -1206,6 +1219,18 @@ msgid ""
 "by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
 "body></html>"
 msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Per a més ajuda, vegeu (en "
+"anglès) <a href=\"https://libprs500.kovidgoyal.net/wiki/WikiStart#Usage"
+"\"><span style=\" text-decoration: underline; color:#0000ff;\">libprs500."
+"kovidgoyal.net</span></a><br /><br /><span style=\" font-weight:600;"
+"\">libprs500</span>: %1 de <span style=\" font-weight:600;\">Kovid Goyal</"
+"span> %2<br />%3</p></body></html>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:266
 msgid "&Search:"
@@ -1274,7 +1299,7 @@ msgstr "Converteix Ebooks"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:284
 msgid "View"
-msgstr "Visualitza"
+msgstr "Mostra"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/status.py:98
 msgid "Jobs:"
