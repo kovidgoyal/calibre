@@ -1083,10 +1083,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 uri = uris.next()
             except StopIteration:
                 uri = None
-            if mi.series_index is None:
-                mi.series_index = 1
+            series_index = 1 if mi.series_index is None else mi.series_index
             obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
-                              (mi.title, uri, mi.series_index))
+                              (mi.title, uri, series_index))
             id = obj.lastrowid
             self.conn.commit()
             if not mi.authors:
