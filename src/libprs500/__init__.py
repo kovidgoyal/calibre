@@ -154,7 +154,10 @@ def get_font_families():
         ffiles = findsystem.findFonts()
         zlist = []
         for ff in ffiles:
-            font = describe.openFont(ff)
+            try:
+                font = describe.openFont(ff)
+            except: # Some font files cause ttfquery to raise an exception, in which case they are ignored
+                continue
             try:
                 wt, italic = describe.modifiers(font)
             except:
