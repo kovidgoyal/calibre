@@ -21,12 +21,18 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from libprs500 import __author__, islinux
+from libprs500 import __author__, islinux, iswindows
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
 BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 
                    'html', 'xhtml', 'epub', 'pdf']
+
+# Turn off DeprecationWarnings in windows GUI
+if iswindows:
+    import warnings
+    warnings.simplefilter('ignore', DeprecationWarning)
+
 
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
