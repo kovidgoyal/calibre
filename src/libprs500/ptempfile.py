@@ -42,10 +42,13 @@ class _TemporaryFileWrapper(object):
         return a
         
     def __del__(self):
-        import os # Needs to be here as the main os may no longer exist
-        self.close()
-        if self.name and os.access(self.name, os.F_OK): 
-            os.remove(self.name)
+        try:
+            import os # Needs to be here as the main os may no longer exist
+            self.close()
+            if self.name and os.access(self.name, os.F_OK): 
+                os.remove(self.name)
+        except: # An error just means that deleting of temporary file failed
+            pass
     
     
 def PersistentTemporaryFile(suffix="", prefix="", dir=None):
