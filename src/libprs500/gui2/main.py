@@ -15,6 +15,7 @@
 from libprs500.gui2.update import CheckForUpdates
 from libprs500 import iswindows
 from libprs500 import isosx
+from libprs500.library.database import LibraryDatabase
 
 import os, sys, textwrap, cStringIO, collections, traceback, shutil
 
@@ -653,15 +654,25 @@ class Main(MainWindow, Ui_MainWindow):
             if os.path.dirname(self.database_path) != d.database_location:
                 try:
                     newloc = os.path.join(d.database_location, os.path.basename(self.database_path))
-                    dest = open(newloc, 'wb')
-                    self.status_bar.showMessage('Copying database to '+newloc)
-                    self.setCursor(Qt.BusyCursor)
-                    self.library_view.setEnabled(False)
-                    self.library_view.close()
-                    src = open(self.database_path, 'rb')
-                    shutil.copyfileobj(src, dest)
-                    src.close()
-                    dest.close()
+                    if not os.path.exists(newloc):
+                        dest = open(newloc, 'wb')
+                        self.status_bar.showMessage('Copying database to '+newloc)
+                        self.setCursor(Qt.BusyCursor)
+                        self.library_view.setEnabled(False)
+                        self.library_view.close()
+                        src = open(self.database_path, 'rb')
+                        shutil.copyfileobj(src, dest)
+                        src.close()
+                        dest.close()
+                        os.unlink(self.database_path)
+                    else:
+                        try:
+                            db = LibraryDatabase(newloc)
+                            db.close()
+                        except Exception, err:
+                            d = error_dialog(self, _('Invalid database'), 
+                                             _('<p>An invalid database already exists at %s, delete it before trying to move the existing database.<br>Error: %s')%(newloc, str(err)))
+                            newloc = self.database_path
                     self.database_path = newloc
                     settings = QSettings()
                     settings.setValue("database path", QVariant(self.database_path))
