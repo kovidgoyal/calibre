@@ -26,18 +26,24 @@ class NewsMenu(QMenu):
     
     def __init__(self):
         QMenu.__init__(self)
+        self.add_menu_item('Barrons', self.fetch_news_barrons)
         self.add_menu_item('BBC', self.fetch_news_bbc, ':/images/news/bbc.png')
         self.add_menu_item('Economist', self.fetch_news_economist, ':/images/news/economist.png')
         self.add_menu_item('Faz.net', self.fetch_news_faznet, ':/images/news/faznet.png')
         self.add_menu_item('Newsweek', self.fetch_news_newsweek, ':/images/news/newsweek.png')
         self.add_menu_item('New York Review of Books', self.fetch_news_nyreview, ':/images/book.svg')
         self.add_menu_item('New York Times', self.fetch_news_nytimes, ':/images/news/nytimes.png')
+        self.add_menu_item('Portfolio.com', self.fetch_news_portfolio)
         self.add_menu_item('Spiegel Online', self.fetch_news_spiegelde, ':/images/news/spiegelonline.png')
+        self.add_menu_item('Wall Street Journal', self.fetch_news_wsj)
         self.add_menu_item('Zeit Nachrichten', self.fetch_news_zeitde, ':/images/news/diezeit.png')
         
     def fetch_news(self, profile, title, username=None, password=None):
         data = dict(profile=profile, title=title, username=username, password=password)
         self.emit(SIGNAL('fetch_news(PyQt_PyObject)'), data)
+    
+    def fetch_news_portfolio(self, checked):
+        self.fetch_news('portfolio', 'Portfolio.com')
     
     def fetch_news_spiegelde(self, checked):
         self.fetch_news('spiegelde', 'Spiegel Online')
@@ -67,3 +73,19 @@ class NewsMenu(QMenu):
         if d.result() == QDialog.Accepted:
             un, pw = d.username(), d.password()
             self.fetch_news('nytimes', 'New York Times', username=un, password=pw)
+            
+    def fetch_news_wsj(self, checked):
+        d = PasswordDialog(self, 'wsj info dialog', 
+                           '<p>Please enter your username and password for wsj.com<br>Click OK to proceed.')
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            un, pw = d.username(), d.password()
+            self.fetch_news('wsj', 'Wall Street Journal', username=un, password=pw)
+            
+    def fetch_news_barrons(self, checked):
+        d = PasswordDialog(self, 'barrons info dialog', 
+                           '<p>Please enter your username and password for barrons.com<br>Click OK to proceed.')
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            un, pw = d.username(), d.password()
+            self.fetch_news('barrons', 'Barrons', username=un, password=pw)

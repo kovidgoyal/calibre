@@ -32,9 +32,13 @@ from libprs500.ebooks.lrf.web.profiles.newyorkreview import NewYorkReviewOfBooks
 from libprs500.ebooks.lrf.web.profiles.spiegelde import SpiegelOnline
 from libprs500.ebooks.lrf.web.profiles.zeitde import ZeitNachrichten
 from libprs500.ebooks.lrf.web.profiles.faznet import FazNet
+from libprs500.ebooks.lrf.web.profiles.wsj import WallStreetJournal
+from libprs500.ebooks.lrf.web.profiles.barrons import Barrons
+from libprs500.ebooks.lrf.web.profiles.portfolio import Portfolio  
 
-builtin_profiles   = [NYTimes, BBC, Newsweek, Economist, NewYorkReviewOfBooks, \
-                      SpiegelOnline, ZeitNachrichten, FazNet]
+builtin_profiles   = [NYTimes, BBC, Newsweek, Economist, NewYorkReviewOfBooks,   \
+                      SpiegelOnline, ZeitNachrichten, FazNet, WallStreetJournal, \
+                      Barrons, Portfolio]
 available_profiles = [i.__module__.rpartition('.')[2] for i in builtin_profiles] 
 
 def option_parser():
