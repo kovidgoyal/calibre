@@ -150,11 +150,11 @@ class _Canvas(QGraphicsRectItem):
              
     def layout_image_block(self, ib, x, y):
         mw, mh = self.max_x - x, self.max_y - y
-        if ib.width > mw or ib.height > mh:
-            ib.resize(mw, mh)
         if self.current_y + ib.height > self.max_y-y and self.current_y > 5:
             self.is_full = True
         else:
+            if ib.width > mw or ib.height > mh:
+                ib.resize(mw, mh)
             br = ib.boundingRect()
             max_height = min(br.height(), self.max_y-y)
             max_width  = min(br.width(), self.max_x-x)
@@ -168,6 +168,11 @@ class _Canvas(QGraphicsRectItem):
             self.current_y = y + br.height()
             self.is_full = y > self.max_y-5
             ib.has_content = False
+            if ib.block_id == 54:
+                print
+                print ib.block_id, ib.has_content, self.is_full
+                print self.current_y, self.max_y, y, br.height()
+                print 
             
     def search(self, phrase):
         matches = []
