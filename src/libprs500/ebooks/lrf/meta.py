@@ -366,6 +366,7 @@ class LRFMetaFile(object):
                 if len(src) != self.uncompressed_info_size:          
                     raise LRFException("Decompression of document meta info\
                                         yielded unexpected results")
+                src = src.replace('\x00', '').strip()
                 return dom.parseString(src)
             except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
