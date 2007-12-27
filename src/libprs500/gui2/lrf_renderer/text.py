@@ -521,28 +521,34 @@ class Line(QGraphicsItem):
                 x += tok.width
         painter.restore()
         
+    def words(self):
+        for w in self.tokens:
+            if isinstance(w, Word):
+                yield w
+    
     def search(self, phrase):
         tokens = phrase.lower().split()
         if len(tokens) < 1: return None
-        for i in range(len(self.tokens)):
-            if not isinstance(self.tokens[i], Word):
-                continue
-            src = qstring_to_unicode(self.tokens[i].string).lower()
-            self.tokens[i].highlight = False
-            if tokens[0] in src:
-                if len(tokens) == 1:
-                    self.tokens[i].highlight = True
+        
+        words = self.words()
+        matches = []
+        try:
+            while True:
+                word = words.next()
+                word.highlight = False
+                if tokens[0] in qstring_to_unicode(word.string).lower():
+                    matches.append(word)
+                    for c in range(1, len(tokens)):
+                        word = words.next()
+                        print tokens[c], word.string
+                        if tokens[c] not in qstring_to_unicode(word.string):
+                            return None
+                        matches.append(word)
+                    for w in matches:
+                        w.highlight = True
                     return self
-                else:
-                    match = True
-                    for j in range(len(tokens)):
-                        if i+j >= len(self.tokens) or tokens[j].lower() != qstring_to_unicode(self.tokens[i+j].string).lower():
-                            match = False
-                            break
-                        self.tokens[i+j].highlight = True
-                    if match:
-                        return self
-        return None
+        except StopIteration:
+            return None
         
         
     def getx(self, textwidth):
