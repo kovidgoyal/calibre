@@ -122,7 +122,7 @@ def main(args=sys.argv, logger=None):
     
 
 def generate_xml(rtfpath):
-    from rtf2xml.ParseRtf import ParseRtf
+    from libprs500.ebooks.rtf2xml.ParseRtf import ParseRtf
     tdir = tempfile.mkdtemp(prefix=__appname__+'_')
     ofile = os.path.join(tdir, 'index.xml')
     cwd = os.getcwdu()
