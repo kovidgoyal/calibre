@@ -268,7 +268,8 @@ class FileDialog(QObject):
         
 
 def choose_dir(window, name, title):
-    fd = FileDialog(title, [], False, window, mode=QFileDialog.DirectoryOnly)
+    fd = FileDialog(title, [], False, window, name=name, 
+                    mode=QFileDialog.DirectoryOnly)
     dir = fd.get_files()
     if dir:
         return dir[0]
