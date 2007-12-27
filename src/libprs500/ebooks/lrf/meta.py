@@ -24,17 +24,14 @@ to get and set meta information. For example:
 >>> lrf.category = "History"
 """
 
-import struct, zlib, sys, re
+import struct, zlib, sys
 from shutil import copyfileobj
 from cStringIO import StringIO
 import xml.dom.minidom as dom
 from functools import wraps
-from xml.parsers.expat import ParserCreate
 
 from libprs500.devices.prs500.prstypes import field
 from libprs500.ebooks.metadata import MetaInformation
-from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
-
 
 BYTE      = "<B"  #: Unsigned char little endian encoded in 1 byte 
 WORD      = "<H"  #: Unsigned short little endian encoded in 2 bytes 
@@ -366,8 +363,10 @@ class LRFMetaFile(object):
                 if len(src) != self.uncompressed_info_size:          
                     raise LRFException("Decompression of document meta info\
                                         yielded unexpected results")
-                src = src.replace('\x00', '').strip()
-                return dom.parseString(src)
+                try:
+                    return dom.parseString(src)
+                except:
+                    return dom.parseString(src.replace('\x00', '').strip())
             except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
         
