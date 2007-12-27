@@ -174,4 +174,4 @@ def sanitize_file_name(name):
     Also remove path separators. ALl illegal characters are replaced by
     underscores.
     '''
-    return re.sub(r'[\|\~\:\?\\\/]|^-', '_', name.strip())
+    return re.sub(r'\s', ' ', re.sub(r'[\|\~\:\?\\\/]|^-', '_', name.strip()))
