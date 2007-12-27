@@ -58,11 +58,11 @@ def generate_html(txtfile, encoding, logger):
         txt = codecs.open(txtfile, 'rb', enc).read()
     
     logger.info('Converting text to HTML...')
-    md = markdown.Markdown(txt,
+    md = markdown.Markdown(
                        extensions=['footnotes', 'tables', 'toc'],
                        safe_mode=False,
                        )
-    html = md.toString()
+    html = md.convert(txt)
     p = PersistentTemporaryFile('.html', dir=os.path.dirname(txtfile))
     p.close()
     codecs.open(p.name, 'wb', 'utf8').write(html)
