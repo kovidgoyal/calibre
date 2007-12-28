@@ -1268,8 +1268,8 @@ class HTMLConverter(object):
                     if self.current_block.has_text():
                         target = self.current_block
                     else:
-                        target = BlockSpace()
-                        self.current_page.append(target)
+                        target = self.current_block
+                        self.current_block.must_append = True
             self.targets[self.target_prefix+name] = target
         else:
             self.process_children(tag, tag_css, tag_pseudo_css)
