@@ -41,6 +41,8 @@ class GetCharMap:
         self.__bug_handler = bug_handler
 
     def get_char_map(self, map):
+        if map == 'ansicpg0':
+            map = 'ansicpg1250'
         found_map = 0
         map_dict = {}
         self.__char_file.seek(0)
