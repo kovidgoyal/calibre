@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.22\n"
-"POT-Creation-Date: 2007-12-11 11:02+PST\n"
+"POT-Creation-Date: 2007-12-27 16:24+PST\n"
 "PO-Revision-Date: 2007-12-09 19:53+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -487,7 +487,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:115
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:136
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:137
 msgid "Set conversion defaults"
 msgstr "Définir les paramètres par défaut de conversion"
 
@@ -1104,97 +1104,107 @@ msgstr "Ouvrir le livre"
 msgid "Configure"
 msgstr "Configuration"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:82
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:83
 msgid "Error communicating with device"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:110
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:111
 msgid "Send to main memory"
 msgstr "Envoi vers la mémoire du lecteur"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:111
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:112
 msgid "Send to storage card"
 msgstr "Envoi vers la carte mémoire"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:114
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:115
 msgid "Edit metadata individually"
 msgstr "Edition des metadata individuellement"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:115
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:116
 msgid "Edit metadata in bulk"
 msgstr "Edition des metadata par lot"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:133
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:134
 msgid "Convert individually"
 msgstr "Convertion individuelle"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:134
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:135
 msgid "Bulk convert"
 msgstr "Convertion par lot"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:336
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:337
 msgid "No space on device"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:337
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:338
 msgid "<p>Cannot upload books to device there is no more free space available "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:406
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:425
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:407
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:426
 msgid "Cannot edit metadata"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:406
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:425
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:508
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:568
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:407
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:426
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:509
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:569
 msgid "No books selected"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:508
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:509
 msgid "Cannot save to disk"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:558
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:559
 msgid "Not yet implemented."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:558
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:568
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:559
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:569
 msgid "Cannot convert"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:614
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:615
 msgid "No book selected"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:614
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:623
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:615
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:624
 msgid "Cannot view"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:623
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:624
 msgid "%s is not available in LRF format. Please convert it first."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:647
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:648
 msgid "Cannot configure"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:647
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:648
 msgid "Cannot configure while there are running jobs."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:671
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:673
+msgid "Invalid database"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:674
+msgid ""
+"<p>An invalid database already exists at %s, delete it before trying to move "
+"the existing database.<br>Error: %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:682
 msgid "Could not move database"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:719
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:730
 msgid "Error talking to device"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:720
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:731
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."

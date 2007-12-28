@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2007-12-11 11:02+PST\n"
+"POT-Creation-Date: 2007-12-27 16:24+PST\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: \n"
@@ -485,7 +485,7 @@ msgstr ""
 "contacte amb Kovid."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:115
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:136
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:137
 msgid "Set conversion defaults"
 msgstr "Fixa els valors de conversió er defecte"
 
@@ -1102,97 +1102,107 @@ msgstr "Obre l'eBook"
 msgid "Configure"
 msgstr "Configura"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:82
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:83
 msgid "Error communicating with device"
 msgstr "Error en la comunicació amb el dispositiu"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:110
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:111
 msgid "Send to main memory"
 msgstr "Envia a la memòria interna"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:111
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:112
 msgid "Send to storage card"
 msgstr "Envia a la targeta de memòria"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:114
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:115
 msgid "Edit metadata individually"
 msgstr "Edita metadades individualment"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:115
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:116
 msgid "Edit metadata in bulk"
 msgstr "Edita metadades en massa"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:133
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:134
 msgid "Convert individually"
 msgstr "Converteix individualment"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:134
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:135
 msgid "Bulk convert"
 msgstr "Converteix tots"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:336
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:337
 msgid "No space on device"
 msgstr "Sense espai al dispositiu"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:337
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:338
 msgid "<p>Cannot upload books to device there is no more free space available "
 msgstr "<p>No puc desar llibres al dispositiu perquè no hi ha espai restant"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:406
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:425
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:407
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:426
 msgid "Cannot edit metadata"
 msgstr "No puc editar les meta-dades"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:406
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:425
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:508
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:568
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:407
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:426
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:509
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:569
 msgid "No books selected"
 msgstr "Cap llibre seleccionat"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:508
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:509
 msgid "Cannot save to disk"
 msgstr "No puc desar al disc"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:558
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:559
 msgid "Not yet implemented."
 msgstr "Sense implementar."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:558
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:568
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:559
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:569
 msgid "Cannot convert"
 msgstr "No puc convertir-lo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:614
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:615
 msgid "No book selected"
 msgstr "Cap llibre seleccionat"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:614
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:623
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:615
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:624
 msgid "Cannot view"
 msgstr "No puc mostrar-lo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:623
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:624
 msgid "%s is not available in LRF format. Please convert it first."
 msgstr "%s no està disponible en LRF. Ha de ser convertir primer."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:647
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:648
 msgid "Cannot configure"
 msgstr "No puc configurar-lo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:647
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:648
 msgid "Cannot configure while there are running jobs."
 msgstr "No puc configurar-lo amb treballs processant-se"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:671
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:673
+msgid "Invalid database"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:674
+msgid ""
+"<p>An invalid database already exists at %s, delete it before trying to move "
+"the existing database.<br>Error: %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:682
 msgid "Could not move database"
 msgstr "No puc moure la base de dades"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:719
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:730
 msgid "Error talking to device"
 msgstr "Error comunicant amb el dispositiu"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:720
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:731
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
