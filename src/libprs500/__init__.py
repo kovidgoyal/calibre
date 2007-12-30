@@ -171,7 +171,7 @@ def get_font_families():
 def sanitize_file_name(name):
     '''
     Remove characters that are illegal in filenames from name. 
-    Also remove path separators. ALl illegal characters are replaced by
+    Also remove path separators. All illegal characters are replaced by
     underscores.
     '''
-    return re.sub(r'\s', ' ', re.sub(r'[\|\~\:\?\\\/]|^-', '_', name.strip()))
+    return re.sub(r'\s', ' ', re.sub(r'["\'\|\~\:\?\\\/]|^-', '_', name.strip()))
