@@ -21,6 +21,7 @@ from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_file
 from libprs500.ebooks.metadata.opf import OPFReader
 from libprs500 import isosx, __appname__, setup_cli_handlers, iswindows
+
 CLIT = 'clit'
 if isosx and hasattr(sys, 'frameworks_dir'):
     CLIT = os.path.join(getattr(sys, 'frameworks_dir'), CLIT)
@@ -48,7 +49,7 @@ def generate_html(pathtolit, logger):
         if os.path.exists(tdir) and os.path.isdir(tdir):
             shutil.rmtree(tdir)        
         if 'keys.txt' in unicode(err)+unicode(stdout):
-            raise ConversionError('This lit file is protected by DRM. You must first use the ConvertLIT program to remove the DRM.')
+            raise ConversionError('This lit file is protected by DRM. You must first use the ConvertLIT program to remove the DRM. Doing so may be illegal, and so %s does not do this, nor does it provide instructions on how to do it.'%(__appname__,))
         raise ConversionError, err
     return tdir
 
