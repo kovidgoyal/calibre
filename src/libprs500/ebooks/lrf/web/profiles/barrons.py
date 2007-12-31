@@ -15,6 +15,7 @@ class Barrons(DefaultProfile):
         title = 'Barron\'s' 
         max_recursions = 3
         max_articles_per_feed = 50
+        needs_subscription    = True
         timefmt  = ' [%a, %b %d, %Y]' 
         html_description = True 
         no_stylesheets = False

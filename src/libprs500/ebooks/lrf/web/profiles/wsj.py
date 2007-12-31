@@ -13,7 +13,8 @@ from libprs500.ebooks.lrf.web.profiles import DefaultProfile
 class WallStreetJournal(DefaultProfile): 
     
         title = 'Wall Street Journal' 
-        max_recursions = 2 
+        max_recursions = 2
+        needs_subscription = True 
         max_articles_per_feed = 50
         timefmt  = ' [%a, %b %d, %Y]' 
         html_description = True 

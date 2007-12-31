@@ -24,22 +24,8 @@ from libprs500.ebooks.lrf.html.convert_from import process_file
 from libprs500.web.fetch.simple import create_fetcher
 
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile
-from libprs500.ebooks.lrf.web.profiles.nytimes import NYTimes
-from libprs500.ebooks.lrf.web.profiles.bbc import BBC
-from libprs500.ebooks.lrf.web.profiles.newsweek import Newsweek
-from libprs500.ebooks.lrf.web.profiles.economist import Economist
-from libprs500.ebooks.lrf.web.profiles.newyorkreview import NewYorkReviewOfBooks
-from libprs500.ebooks.lrf.web.profiles.spiegelde import SpiegelOnline
-from libprs500.ebooks.lrf.web.profiles.zeitde import ZeitNachrichten
-from libprs500.ebooks.lrf.web.profiles.faznet import FazNet
-from libprs500.ebooks.lrf.web.profiles.wsj import WallStreetJournal
-from libprs500.ebooks.lrf.web.profiles.barrons import Barrons
-from libprs500.ebooks.lrf.web.profiles.portfolio import Portfolio  
-
-builtin_profiles   = [NYTimes, BBC, Newsweek, Economist, NewYorkReviewOfBooks,   \
-                      SpiegelOnline, ZeitNachrichten, FazNet, WallStreetJournal, \
-                      Barrons, Portfolio]
-available_profiles = [i.__module__.rpartition('.')[2] for i in builtin_profiles] 
+from libprs500.ebooks.lrf.web import builtin_profiles, available_profiles
+ 
 
 def option_parser():
     parser = lrf_option_parser(usage='''%prog [options] website_profile\n\n'''

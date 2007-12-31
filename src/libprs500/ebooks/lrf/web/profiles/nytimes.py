@@ -24,6 +24,7 @@ class NYTimes(DefaultProfile):
     
     title   = 'The New York Times'
     timefmt = ' [%a, %d %b, %Y]'
+    needs_subscription = True
     max_recursions = 2
     
     preprocess_regexps = \

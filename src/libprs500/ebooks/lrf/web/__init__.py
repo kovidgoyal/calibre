@@ -13,3 +13,20 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from libprs500.ebooks.lrf.web.profiles.nytimes       import NYTimes
+from libprs500.ebooks.lrf.web.profiles.bbc           import BBC
+from libprs500.ebooks.lrf.web.profiles.newsweek      import Newsweek
+from libprs500.ebooks.lrf.web.profiles.economist     import Economist
+from libprs500.ebooks.lrf.web.profiles.newyorkreview import NewYorkReviewOfBooks
+from libprs500.ebooks.lrf.web.profiles.spiegelde     import SpiegelOnline
+from libprs500.ebooks.lrf.web.profiles.zeitde        import ZeitNachrichten
+from libprs500.ebooks.lrf.web.profiles.faznet        import FazNet
+from libprs500.ebooks.lrf.web.profiles.wsj           import WallStreetJournal
+from libprs500.ebooks.lrf.web.profiles.barrons       import Barrons
+from libprs500.ebooks.lrf.web.profiles.portfolio     import Portfolio  
+
+builtin_profiles   = [Barrons, BBC, Economist, FazNet, Newsweek, NewYorkReviewOfBooks, NYTimes,  \
+                      Portfolio, SpiegelOnline, WallStreetJournal, ZeitNachrichten,   \
+                     ]
+
+available_profiles = [i.__module__.rpartition('.')[2] for i in builtin_profiles]

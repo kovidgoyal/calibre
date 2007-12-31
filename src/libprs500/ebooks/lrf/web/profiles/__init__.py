@@ -38,7 +38,8 @@ class DefaultProfile(object):
     pubdate_fmt           = None  # The format string used to parse the publication date in the RSS feed. If set to None some default heuristics are used, these may fail, in which case set this to the correct string or re-implement strptime in your subclass.
     use_pubdate           = True, # If True will look for a publication date for each article. If False assumes the publication date is the current time.
     no_stylesheets        = False # Download stylesheets only if False
-    allow_duplicates      = False # If False articles with the same title in the same feed are not downloaded multiple times 
+    allow_duplicates      = False # If False articles with the same title in the same feed are not downloaded multiple times
+    needs_subscription    = False # If True the GUI will ask the userfor a username and password to use while downloading
     match_regexps         = []    # List of regular expressions that determines which links to follow
     filter_regexps        = []    # List of regular expressions that determines which links to ignore
     # Only one of match_regexps or filter_regexps should be defined
@@ -51,7 +52,8 @@ class DefaultProfile(object):
     preprocess_regexps = []
     
     # See the built-in profiles for examples of these settings.
-    
+
+
     def get_feeds(self):
         '''
         Return a list of RSS feeds to fetch for this profile. Each element of the list
