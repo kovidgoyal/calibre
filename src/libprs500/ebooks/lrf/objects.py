@@ -547,7 +547,7 @@ class Text(LRFStream):
     
     style = property(fget=lambda self : self._document.objects[self.style_id])
     
-    text_map = { 0x22: u'&quot;', 0x26: u'&amp;', 0x27: u'&squot;', 0x3c: u'&lt;', 0x3e: u'&gt;' }
+    text_map = { 0x22: u'"', 0x26: u'&amp;', 0x27: u'\'', 0x3c: u'&lt;', 0x3e: u'&gt;' }
     entity_pattern = re.compile(r'&amp;(\S+?);')
     
     text_tags = {
