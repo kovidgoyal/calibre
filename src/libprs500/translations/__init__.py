@@ -46,9 +46,9 @@ def main(args=sys.argv):
     print 'Creating translations template'
     pygettext(buf, ['-p', tdir]+files)
     src = buf.getvalue()
-    template = tempfile.NamedTemporaryFile(suffix='.pot')
-    template.write(src)
-    template.flush()
+    fd, fname = tempfile.mkstemp(suffix='.pot')
+    os.write(fd,src)
+
     translations = {}
     for tr in TRANSLATIONS:
         po = os.path.join(tdir, tr+'.po')
@@ -56,12 +56,14 @@ def main(args=sys.argv):
             open(po, 'wb').write(src.replace('LANGUAGE', tr))
         else:
             print 'Merging', os.path.basename(po)
-            check_call('msgmerge -v -U -N --backup=none '+po + ' ' + template.name)
+            check_call('msgmerge -v -U -N --backup=none '+po + ' ' + fname)
         buf = cStringIO.StringIO()
         print 'Compiling translations'
         msgfmt(buf, [po])
         translations[tr] = buf.getvalue()
     open(os.path.join(tdir, 'data.py'), 'wb').write('translations = '+repr(translations))
+    os.close(fd)
+    os.unlink(fname)
     return 0
 
 if __name__ == '__main__':
