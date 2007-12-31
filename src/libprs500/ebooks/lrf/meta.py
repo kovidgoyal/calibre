@@ -366,7 +366,11 @@ class LRFMetaFile(object):
                 try:
                     return dom.parseString(src)
                 except:
-                    return dom.parseString(src.replace('\x00', '').strip())
+                    try:
+                        return dom.parseString(src.replace('\x00', '').strip())
+                    except:
+                        src = src.replace('\x00', '').strip().decode('latin1')
+                        return dom.parseString(src.encode('utf-8'))
             except zlib.error:
                 raise LRFException("Unable to decompress document meta information")
         
