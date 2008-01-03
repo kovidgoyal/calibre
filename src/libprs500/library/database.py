@@ -981,6 +981,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             author = self.conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
             if author:
                 aid = author[0]
+                # Handle change of case
+                self.conn.execute('UPDATE authors SET name=? WHERE id=?', (a, aid))
             else:
                 aid = self.conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
             self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
