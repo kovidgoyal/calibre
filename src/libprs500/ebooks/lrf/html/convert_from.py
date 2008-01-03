@@ -65,6 +65,19 @@ def munge_paths(basepath, url):
         path = os.path.join(os.path.dirname(basepath), path)
     return os.path.normpath(path), fragment
 
+def strip_style_comments(match):
+    src = match.group()
+    while True:
+        lindex = src.find('/*')
+        if lindex < 0:
+            break
+        rindex = src.find('*/', lindex)
+        if rindex < 0:
+            src = src[:lindex]
+            break
+        src = src[:lindex] + src[rindex+2:]
+    return src
+
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
@@ -87,6 +100,9 @@ class HTMLConverter(object):
                         # Replace entities
                         (re.compile(ur'&(\S+?);'), partial(entity_to_unicode, 
                                                            exceptions=['lt', 'gt', 'amp'])),
+                        # Remove comments from within style tags as they can mess up BeatifulSoup
+                        (re.compile(r'(<style.*?</style>)', re.IGNORECASE|re.DOTALL),
+                         strip_style_comments),
                         ]
     # Fix Baen markup
     BAEN = [ 
