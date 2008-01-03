@@ -581,6 +581,10 @@ class Book(Delegator):
             else:
                 fonts[fs] = 1
         
+        if not fonts:
+            print 'WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.'
+            return
+        
         old_base_font_size = float(max(zip(fonts.keys(), fonts.values()), key=operator.itemgetter(1))[0])
         
         factor = base_font_size/old_base_font_size
