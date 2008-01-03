@@ -59,7 +59,7 @@ class NYTimes(DefaultProfile):
                                      'Most E-mailed Articles', 
                                      'Automobiles', 'Fashion & Style', 'Television News',
                                      'Education']:
-                feeds.append((link['title'], link['href']))            
+                feeds.append((link['title'], link['href'].replace('graphics8', 'www')))            
         
         return feeds
     
