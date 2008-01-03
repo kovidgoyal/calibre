@@ -23,10 +23,11 @@ from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 
 from libprs500.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
-                           choose_files, pixmap_to_data, BOOK_EXTENSIONS, choose_images
+                           choose_files, pixmap_to_data, choose_images
 from libprs500.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from libprs500.gui2.dialogs.fetch_metadata import FetchMetadata
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
+from libprs500.ebooks import BOOK_EXTENSIONS
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, path=None):

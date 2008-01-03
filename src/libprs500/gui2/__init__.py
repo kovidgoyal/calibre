@@ -25,8 +25,6 @@ from libprs500 import __author__, islinux, iswindows
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
-BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 
-                   'html', 'xhtml', 'epub', 'pdf']
 
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:

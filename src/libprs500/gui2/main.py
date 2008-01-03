@@ -33,7 +33,7 @@ from libprs500.ebooks.lrf.any.convert_from import main as any2lrf
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
-                           initialize_file_icon_provider, BOOK_EXTENSIONS, \
+                           initialize_file_icon_provider, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            qstring_to_unicode, set_sidebar_directories
 from libprs500.gui2.main_window import MainWindow
@@ -53,6 +53,7 @@ from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
 from libprs500.library.database import DatabaseLocked
 from libprs500.ebooks.metadata.meta import set_metadata
 from libprs500.ebooks.metadata import MetaInformation
+from libprs500.ebooks import BOOK_EXTENSIONS
 
 
 class Main(MainWindow, Ui_MainWindow):
