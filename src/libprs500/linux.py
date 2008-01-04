@@ -211,7 +211,10 @@ def setup_udev_rules():
         try:
             check_call('/etc/init.d/hal restart', shell=True)
         except:
-            check_call('/etc/init.d/haldaemon restart', shell=True)
+            try:
+                check_call('/etc/init.d/haldaemon restart', shell=True)
+            except:
+                check_call('/etc/rc.d/rc.hald restart', shell=True)
     
     try:
         check_call('udevcontrol reload_rules', shell=True)
