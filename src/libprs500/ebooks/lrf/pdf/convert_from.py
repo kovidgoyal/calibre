@@ -23,7 +23,7 @@ from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_
 
 PDFTOHTML = 'pdftohtml'
 if isosx and hasattr(sys, 'frameworks_dir'):
-    PDFTOHTML = os.path.join(sys.frameworks_dir, PDFTOHTML)
+    PDFTOHTML = os.path.join(getattr(sys, 'frameworks_dir'), PDFTOHTML)
 
 
 def generate_html(pathtopdf, logger):
@@ -47,6 +47,8 @@ def generate_html(pathtopdf, logger):
         if ret != 0:
             err = p.stderr.read()
             raise ConversionError, err
+        if os.stat(pf.name).st_size < 100:
+            raise ConversionError(os.path.basename(pathtopdf) + ' does not allow copying of text.')
     finally:
         os.chdir(cwd)
     return pf
