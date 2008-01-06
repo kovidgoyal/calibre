@@ -48,18 +48,32 @@ class Manifest(list):
             if i.id == id:
                 return i    
 
-class Spine(list):
+class Spine(object):
     
     def __init__(self, soup, manifest):
         self.manifest = manifest
+        self.linear_ids, self.nonlinear_ids = [], []
         spine = soup.find('spine')
         if spine is not None:
             for itemref in spine.findAll('itemref'):
                 if itemref.has_key('idref'):
-                    self.append(itemref['idref'])
+                    if itemref.get('linear', 'yes') == 'yes':
+                        self.linear_ids.append(itemref['idref'])
+                    else:
+                        self.nonlinear_ids.append(itemref['idref'])
                     
+    def linear_items(self):
+        for id in self.linear_ids:
+            yield self.manifest.item(id)
+
+
+    def nonlinear_items(self):
+        for id in self.nonlinear_ids:
+            yield self.manifest.item(id)
+    
+    
     def items(self):
-        for i in self:
+        for i in self.linear_ids + self.nonlinear_ids:
             yield  self.manifest.item(i)
 
 class TOC(list):
