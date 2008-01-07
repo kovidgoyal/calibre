@@ -213,7 +213,13 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             try:
                 src = urllib.urlopen('http://www.librarything.com/isbn/'+isbn).read()
                 s = BeautifulSoup(src)
-                url = s.find('td', attrs={'class':'left'}).find('img')['src']
+                url = s.find('td', attrs={'class':'left'})
+                if url is None:
+                    raise Exception('ISBN: '+isbn+' not found.')
+                url = url.find('img')
+                if url is None:
+                    raise Exception('Server error. Try again later.')
+                url = url['src']
                 cover = urllib.urlopen(url).read()
                 pix = QPixmap()
                 pix.loadFromData(cover)
