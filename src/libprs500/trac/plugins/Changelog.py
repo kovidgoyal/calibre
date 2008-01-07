@@ -12,8 +12,8 @@ from trac.wiki.macros import WikiMacroBase
 from trac.util import Markup
 
 
-#SVN_PATH = 'https://svn.kovidgoyal.net/code/libprs500/trunk'
-SVN_PATH = 'file:///svn/code/libprs500/trunk'
+SVN_PATH = 'https://svn.kovidgoyal.net/code/libprs500/trunk'
+#SVN_PATH = 'file:///svn/code/libprs500/trunk'
 
 def svn_log_to_txt():
     cl = pysvn.Client()
@@ -36,7 +36,7 @@ def svn_log_to_txt():
     current_version = False
     for entry in log:
         msg = entry['message'].strip()
-        msg = re.sub(r'\#(\d+)', r'[ticket:\1 Ticket \1]', msg)
+        msg = re.sub(ur'\#(\d+)', r'[ticket:\1 Ticket \1]', msg)
         if not msg:
             continue
         match = version_pat.search(msg)
@@ -52,7 +52,7 @@ def svn_log_to_txt():
 class ChangeLogMacro(WikiMacroBase):
 
     def expand_macro(self, formatter, name, args):
-        txt = svn_log_to_txt()
+        txt = svn_log_to_txt().encode('ascii', 'xmlcharrefreplace')
         out = StringIO()
         Formatter(formatter.env, formatter.context).format(txt, out)
         return Markup(out.getvalue())
