@@ -120,6 +120,7 @@ class standard_field(object):
         
 class OPF(MetaInformation):
     
+    MIMETYPE = 'application/oebps-package+xml'
     ENTITY_PATTERN = re.compile(r'&(\S+?);')
     
     libprs_id     = standard_field('libprs_id')

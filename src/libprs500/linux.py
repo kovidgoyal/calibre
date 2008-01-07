@@ -88,6 +88,7 @@ def setup_completion():
                               ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'php']))
         f.write(opts_and_exts('txt2lrf', txtop, ['txt']))
         f.write(opts_and_exts('lit2lrf', htmlop, ['lit']))
+        f.write(opts_and_exts('epub2lrf', htmlop, ['epub']))
         f.write(opts_and_exts('rtf2lrf', htmlop, ['rtf']))
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('any2lrf', htmlop, 
@@ -97,6 +98,7 @@ def setup_completion():
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
         f.write(opts_and_exts('pdf-meta', metaop, ['pdf']))
         f.write(opts_and_exts('lit-meta', metaop, ['lit']))
+        f.write(opts_and_exts('epub-meta', metaop, ['epub']))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write('''
 _prs500_ls()
