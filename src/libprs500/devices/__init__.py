@@ -19,7 +19,8 @@ Device drivers.
 def devices():
     from libprs500.devices.prs500.driver import PRS500
     from libprs500.devices.prs505.driver import PRS505
-    return (PRS500, PRS505)
+    from libprs500.devices.kindle.driver import KINDLE
+    return (PRS500, PRS505, KINDLE)
 
 import time
 

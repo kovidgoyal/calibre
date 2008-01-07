@@ -116,6 +116,9 @@ class FileIconProvider(QFileIconProvider):
              'rar'     : 'rar',
              'zip'     : 'zip',
              'txt'     : 'txt',
+             'prc'     : 'mobi',
+             'azw'     : 'azw',
+             'mobi'    : 'mobi',
              }
     
     def __init__(self):
