@@ -24,6 +24,7 @@ from libprs500.ebooks.lrf.pdf.convert_from  import process_file as pdf2lrf
 from libprs500.ebooks.lrf.rtf.convert_from  import process_file as rtf2lrf
 from libprs500.ebooks.lrf.txt.convert_from  import process_file as txt2lrf
 from libprs500.ebooks.lrf.html.convert_from import process_file as html2lrf
+from libprs500.ebooks.lrf.epub.convert_from import process_file as epub2lrf
 
 def largest_file(files):
     maxsize, file = 0, None
@@ -60,7 +61,7 @@ def handle_archive(path):
     files = []
     cdir = traverse_subdirs(tdir)
     file = None
-    for ext in ('lit', 'rtf', 'pdf', 'txt'):
+    for ext in ('lit', 'rtf', 'pdf', 'txt', 'epub'):
         pat = os.path.join(cdir, '*.'+ext)
         files.extend(glob.glob(pat))
     file = largest_file(files)
@@ -112,6 +113,8 @@ def process_file(path, options, logger=None):
             convertor = rtf2lrf
         elif 'txt' == ext:
             convertor = txt2lrf
+        elif 'epub' == ext:
+            convertor = epub2lrf
         if not convertor:
             raise UnknownFormatError('Coverting from %s to LRF is not supported.')
         convertor(path, options, logger)
@@ -127,7 +130,7 @@ def main(args=sys.argv, logger=None):
 any2lrf myfile
 
 Convert any ebook format into LRF. Supported formats are:
-LIT, RTF, TXT, HTML and PDF. any2lrf will also process a RAR or
+LIT, RTF, TXT, HTML, EPUB and PDF. any2lrf will also process a RAR or
 ZIP archive.
     ''')
     options, args = parser.parse_args(args)

@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-'''Read meta information from PDF files'''
+'''Read meta information from epub files'''
 
 from __future__ import with_statement
 
@@ -22,8 +22,7 @@ from zipfile import ZipFile, BadZipfile
 from cStringIO import StringIO
 from contextlib import closing
 
-from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
-from libprs500.ebooks.metadata import MetaInformation
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
 from libprs500.ebooks.metadata.opf import OPF, OPFReader
 
 
@@ -108,8 +107,8 @@ def get_metadata(stream):
     return OCFZipReader(stream).opf
 
 def main(args=sys.argv):
-    if len(args) != 2 or '--help' in args or '-help' in args:
-        print >>sys.stderr, 'Usage: epub-meta FILE'
+    if len(args) != 2 or '--help' in args or '-h' in args:
+        print >>sys.stderr, 'Usage:', args[0], 'mybook.epub'
         return 1
     
     path = os.path.abspath(os.path.expanduser(args[1]))

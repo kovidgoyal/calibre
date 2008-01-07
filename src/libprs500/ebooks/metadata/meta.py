@@ -13,12 +13,13 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from libprs500.ebooks.metadata.rtf import get_metadata as rtf_metadata
-from libprs500.ebooks.lrf.meta     import get_metadata as lrf_metadata
-from libprs500.ebooks.metadata.pdf import get_metadata as pdf_metadata
-from libprs500.ebooks.metadata.lit import get_metadata as lit_metadata
-from libprs500.ebooks.metadata.rtf import set_metadata as set_rtf_metadata
-from libprs500.ebooks.lrf.meta     import set_metadata as set_lrf_metadata
+from libprs500.ebooks.metadata.rtf  import get_metadata as rtf_metadata
+from libprs500.ebooks.lrf.meta      import get_metadata as lrf_metadata
+from libprs500.ebooks.metadata.pdf  import get_metadata as pdf_metadata
+from libprs500.ebooks.metadata.lit  import get_metadata as lit_metadata
+from libprs500.ebooks.metadata.epub import get_metadata as epub_metadata
+from libprs500.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
+from libprs500.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 
 from libprs500.ebooks.metadata import MetaInformation
 
@@ -32,6 +33,8 @@ def get_metadata(stream, stream_type='lrf'):
         return pdf_metadata(stream)
     if stream_type == 'lit':
         return lit_metadata(stream)
+    if stream_type == 'epub':
+        return epub_metadata(stream)
     return MetaInformation(None, None)
 
 def set_metadata(stream, mi, stream_type='lrf'):

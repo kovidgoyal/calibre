@@ -25,4 +25,4 @@ class UnknownFormatError(Exception):
     pass
 
 BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 
-                   'html', 'xhtml', 'epub', 'pdf', 'prc', 'mobi', 'azw']
+                   'html', 'xhtml', 'epub', 'pdf', 'prc', 'mobi', 'azw', 'epub']
