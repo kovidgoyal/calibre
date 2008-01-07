@@ -1,14 +1,16 @@
+PYTHON = python
+
 all : gui2 translations
 
 clean : 
-	cd src/libprs500/gui2 && python make.py clean
+	cd src/libprs500/gui2 && ${PYTHON} make.py clean
 
 gui2 :
-	 cd src/libprs500/gui2 && python make.py
+	 cd src/libprs500/gui2 && ${PYTHON} make.py
 
 test : gui2
-	cd src/libprs500/gui2 && python make.py test
+	cd src/libprs500/gui2 && ${PYTHON} make.py test
 
 translations :
-	cd src/libprs500 && python translations/__init__.py
+	cd src/libprs500 && ${PYTHON} translations/__init__.py
     
