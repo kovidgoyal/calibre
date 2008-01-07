@@ -23,9 +23,10 @@ setup(
     packages=find_packages(exclude=['*.tests*']),
     entry_points = """
         [trac.plugins]
-        download = libprs500.trac.download
+        download = plugins.download
+        changelog = plugins.Changelog
     """,
-    package_data={'download': ['templates/*.html',
+    package_data={'plugins': ['templates/*.html',
                                'htdocs/css/*.css', 
                                'htdocs/images/*']},
 )
