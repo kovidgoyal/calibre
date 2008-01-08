@@ -697,6 +697,31 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 ''')
         conn.execute('pragma user_version=4')
         conn.commit()
+        
+    @staticmethod
+    def upgrade_version4(conn):
+        conn.executescript(
+'''
+/***** Add formats column to meta view ******/
+    DROP VIEW meta;
+    CREATE VIEW meta AS
+    SELECT id, title,
+           (SELECT concat(name) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=books.id)) authors,
+           (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+           (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+           timestamp,
+           (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+           (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+           (SELECT text FROM comments WHERE book=books.id) comments,
+           (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+           series_index,
+           sort,
+           author_sort,
+           (SELECT concat(format) FROM data WHERE data.book=books.id) formats
+    FROM books;
+''')
+        conn.execute('pragma user_version=5')
+        conn.commit()
 
         
     def __del__(self):
@@ -720,6 +745,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             LibraryDatabase.upgrade_version2(self.conn)
         if self.user_version == 3: # Upgrade to 4
             LibraryDatabase.upgrade_version3(self.conn)
+        if self.user_version == 4: # Upgrade to 5
+            LibraryDatabase.upgrade_version4(self.conn)
         
     def close(self):
         global _lock_file
@@ -777,7 +804,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             matches = []
             for item in self.data if refilter else self.cache:
                 keep = True
-                test = ' '.join([item[i] if item[i] else '' for i in (1,2,3,7,8,9)])
+                test = ' '.join([item[i] if item[i] else '' for i in (1,2,3,7,8,9,13)])
                 for filter in filters:
                     if not filter.search(test):
                         keep = False
