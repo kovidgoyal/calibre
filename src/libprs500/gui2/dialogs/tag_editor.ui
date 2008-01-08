@@ -1,0 +1,303 @@
+<ui version="4.0" >
+ <class>TagEditor</class>
+ <widget class="QDialog" name="TagEditor" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>588</width>
+    <height>335</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Tag Editor</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../images.qrc" >:/images/chapters.svg</iconset>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <layout class="QHBoxLayout" >
+     <item>
+      <layout class="QVBoxLayout" >
+       <item>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>A&amp;vailable tags</string>
+           </property>
+           <property name="buddy" >
+            <cstring>available_tags</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="available_tags" >
+         <property name="alternatingRowColors" >
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode" >
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+         <property name="selectionBehavior" >
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" >
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QToolButton" name="apply_button" >
+         <property name="toolTip" >
+          <string>Apply tag to current book</string>
+         </property>
+         <property name="text" >
+          <string>...</string>
+         </property>
+         <property name="icon" >
+          <iconset resource="../images.qrc" >:/images/forward.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" >
+       <item>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QLabel" name="label_2" >
+           <property name="text" >
+            <string>A&amp;pplied tags</string>
+           </property>
+           <property name="buddy" >
+            <cstring>applied_tags</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="applied_tags" >
+         <property name="alternatingRowColors" >
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode" >
+          <enum>QAbstractItemView::MultiSelection</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" >
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QToolButton" name="unapply_button" >
+         <property name="toolTip" >
+          <string>Unapply (remove) tag from current book</string>
+         </property>
+         <property name="text" >
+          <string>...</string>
+         </property>
+         <property name="icon" >
+          <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer>
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" >
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" >
+    <layout class="QHBoxLayout" >
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3" >
+       <property name="text" >
+        <string>&amp;Add tag:</string>
+       </property>
+       <property name="buddy" >
+        <cstring>add_tag_input</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="add_tag_input" >
+       <property name="toolTip" >
+        <string>If the tag you want is not in the available list, you can add it here. Accepts a comman separated list of tags.</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="add_tag_button" >
+       <property name="toolTip" >
+        <string>Add tag to available tags and apply it to current book</string>
+       </property>
+       <property name="text" >
+        <string>...</string>
+       </property>
+       <property name="icon" >
+        <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" >
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../images.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>TagEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>TagEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

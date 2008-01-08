@@ -829,12 +829,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return(decompress(data[0]))
     
     def tags(self, index):
-        '''tags as a comman separated list or None'''
+        '''tags as a comma separated list or None'''
         id = self.id(index)
         matches = self.conn.execute('SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=?)', (id,)).fetchall()
-        if not matches:
+        if not matches or not matches[0][0]:
             return None
-        return matches[0][0]
+        matches = [t.lower().strip() for t in matches[0][0].split(',')]         
+        return ','.join(matches)
     
     def series_id(self, index):
         id = self.id(index)
@@ -898,6 +899,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def all_series(self):
         return [ (i[0], i[1]) for i in \
                 self.conn.execute('SELECT id, name FROM series').fetchall()]
+        
+    def all_tags(self):
+        return [i[0].strip() for i in self.conn.execute('SELECT name FROM tags').fetchall() if i[0].strip()]
     
     def conversion_options(self, id, format):
         data = self.conn.execute('SELECT data FROM conversion_options WHERE book=? AND format=?', (id, format.upper())).fetchone()
@@ -1026,7 +1030,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if not append:
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
         for tag in set(tags):
-            tag = tag.strip()
+            tag = tag.lower().strip()
             if not tag:
                 continue
             t = self.conn.execute('SELECT id FROM tags WHERE name=?', (tag,)).fetchone()

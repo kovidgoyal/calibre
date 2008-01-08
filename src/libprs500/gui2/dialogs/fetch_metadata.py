@@ -142,7 +142,6 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
 
     def selected_book(self):
         try:
-            print self.matches.currentIndex().row()
             return self.matches.model().matches[self.matches.currentIndex().row()]
         except:
             return None

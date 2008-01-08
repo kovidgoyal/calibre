@@ -26,6 +26,7 @@ from libprs500.gui2 import qstring_to_unicode, error_dialog, file_icon_provider,
                            choose_files, pixmap_to_data, choose_images
 from libprs500.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from libprs500.gui2.dialogs.fetch_metadata import FetchMetadata
+from libprs500.gui2.dialogs.tag_editor import TagEditor
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 from libprs500.ebooks import BOOK_EXTENSIONS
 
@@ -145,6 +146,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         
         QObject.connect(self.fetch_cover_button, SIGNAL('clicked()'), 
                         self.fetch_cover)
+        QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), 
+                        self.edit_tags)        
         
         self.title.setText(db.title(row))
         isbn = db.isbn(self.id)
@@ -201,6 +204,13 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
 
         self.exec_()
 
+    
+    def edit_tags(self):
+        d = TagEditor(self, self.db, self.row)
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            tag_string = ', '.join(d.tags)
+            self.tags.setText(tag_string)
     
     def fetch_cover(self):
         isbn   = qstring_to_unicode(self.isbn.text())
