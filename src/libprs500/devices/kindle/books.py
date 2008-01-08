@@ -25,7 +25,8 @@ strftime = functools.partial(_strftime, zone=time.localtime)
 MIME_MAP   = { 
                 "azw" : "application/azw", 
                 "prc" : "application/prc", 
-                "txt" : "text/plain" 
+                "txt" : "text/plain",
+                'mobi': 'application/mobi', 
               }
 
 def sortable_title(title):

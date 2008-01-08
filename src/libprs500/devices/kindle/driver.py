@@ -41,7 +41,7 @@ class File(object):
         
 
 class KINDLE(Device):
-    FORMATS     = ["azw", "prc", "txt"]   
+    FORMATS     = ["azw", "prc", "txt", 'mobi']   
     VENDOR_ID    = 0x1949 #: Amazon Vendor Id
     PRODUCT_ID   = 0x001 #: Product Id for the Kindle
     INTERNAL_STORAGE = 'INTERNAL_STORAGE'
