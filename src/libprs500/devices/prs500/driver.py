@@ -97,6 +97,8 @@ class PRS500(Device):
 
     VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x029b #: Product Id for the PRS-500
+    PRODUCT_NAME = 'PRS-500'
+    VENDOR_NAME  = 'SONY'
     INTERFACE_ID = 0      #: The interface we use to talk to the device
     BULK_IN_EP   = 0x81   #: Endpoint for Bulk reads
     BULK_OUT_EP  = 0x02   #: Endpoint for Bulk writes

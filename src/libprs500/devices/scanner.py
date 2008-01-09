@@ -55,7 +55,14 @@ class DeviceScanner(object):
         return linux_scanner()
     
     def scan(self):
-        self.devices = self.get_devices()
+        try: # Windows WMI occassionally and temporarily barfs
+            self.devices = self.get_devices()
+        except Exception, e:
+            if not iswindows:
+                raise e
+            import traceback
+            traceback.print_exc()
+            
         
     def is_device_connected(self, device):
         if iswindows:
