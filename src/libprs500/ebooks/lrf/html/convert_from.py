@@ -183,7 +183,9 @@ class HTMLConverter(object):
            'th'     : {'font-size'   : 'large', 'font-weight':'bold'},
            'big'    : {'font-size'   : 'large', 'font-weight':'bold'},
            '.libprs500_dropcaps' : {'font-size': 'xx-large'},
-           'u'      : {'text-decoration': 'underline'}, 
+           'u'      : {'text-decoration': 'underline'},
+           'sup'    : {'vertical-align': 'super', 'font-size': '60%'},
+           'sub'    : {'vertical-align': 'sub', 'font-size': '60%'},
            }
     
     def __init__(self, book, fonts, options, logger, paths):
@@ -409,15 +411,18 @@ class HTMLConverter(object):
         Return a dictionary of style properties applicable to Tag tag.
         """
         def merge_parent_css(prop, pcss):
+            # float should not be inherited according to the CSS spec
+            # however we need to as we don't do alignment at a block level.
+            # float is removed by the process_alignment function.
+            inherited = ['text-align', 'float', 'white-space', 'color',
+                         'line-height', 'vertical-align']
             temp = {}
             for key in pcss.keys():
                 chk = key.lower()
                 # float should not be inherited according to the CSS spec
                 # however we need to as we don't do alignment at a block level.
                 # float is removed by the process_alignment function.
-                if chk.startswith('font') or chk == 'text-align' or \
-                chk == 'float' or chk == 'white-space' or chk == 'color' or \
-                chk == 'line-height':
+                if chk.startswith('font') or chk in inherited:
                     temp[key] = pcss[key]
             prop.update(temp)
             
@@ -752,22 +757,31 @@ class HTMLConverter(object):
         def append_text(src):
             fp, key, variant = self.font_properties(css)
             src = src.replace(u'\uffff', ' ') # &nbsp; becomes u'\uffff'
+
+            valigner = lambda x: x
+            if 'vertical-align' in css:
+                valign = css['vertical-align']
+                if valign in ('sup', 'super', 'sub'):
+                    fp['fontsize'] = int(int(fp['fontsize']) * 5 / 3.0)
+                    valigner = Sub if valign == 'sub' else Sup
             normal_font_size = int(fp['fontsize'])
+            
             if variant == 'small-caps':
                 dump = Span(fontsize=normal_font_size-30)
                 temp = []
                 for c in src:
                     if c.isupper():
                         if temp:
-                            dump.append(''.join(temp))
+                            dump.append(valigner(''.join(temp)))
                             temp = []
-                        dump.append(Span(c, fontsize=normal_font_size))
+                        dump.append(Span(valigner(c), fontsize=normal_font_size))
                     else:
                         temp.append(c.upper())
                 src = dump                
                 if temp:
-                    src.append(''.join(temp))
-            
+                    src.append(valigner(''.join(temp)))
+            else:
+                src = valigner(src)
             
             if key in ['italic', 'bi']:
                 already_italic = False
@@ -1476,11 +1490,6 @@ class HTMLConverter(object):
             self.current_para = Paragraph()
             self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
                                                              blockStyle=pb.blockStyle)
-        elif tagname in ['sub', 'sup']:
-            text = self.get_text(tag)
-            elem = Sub if tagname == 'sub' else Sup 
-            self.current_para.append(elem(text))
-                                
         elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             new_block = self.process_block(tag, tag_css)
             
@@ -1526,7 +1535,7 @@ class HTMLConverter(object):
             self.current_para = Paragraph()
             if tagname.startswith('h') or self.blank_after_para:
                 self.current_block.append(CR())                            
-        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite']:
+        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite', 'sup', 'sub']:
             self.process_children(tag, tag_css, tag_pseudo_css)
         elif tagname == 'font':
             if tag.has_key('face'):
