@@ -31,7 +31,7 @@ def svn_log_to_txt():
             version_change_indices.append(i)
             version_change_version.append(match.group(1))
             
-    txt = '= Changelog =\n[[PageOutline]]\n'
+    txt = ['= Changelog =\n[[PageOutline]]']
     version_pat = re.compile(r'version\s+(\d+\.\d+\.\d+)', re.IGNORECASE)
     current_version = False
     for entry in log:
@@ -42,11 +42,13 @@ def svn_log_to_txt():
         match = version_pat.search(msg)
         if match:
             current_version = True
-            txt += '----\n== Version '+match.group(1)+' ==\n'
+            line = u'----\n== Version '+match.group(1)+' =='
         elif current_version:
-            txt += '  * ' + msg + '\n'
+            line = u'  * ' + msg
+        if line not in txt:
+            txt.append(line)
             
-    return txt
+    return u'\n'.join(txt)
 
 
 class ChangeLogMacro(WikiMacroBase):
