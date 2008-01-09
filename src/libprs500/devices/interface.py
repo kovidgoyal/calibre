@@ -50,16 +50,6 @@ class Device(object):
         '''Return the FDI description of this device for HAL on linux.'''
         return ''
     
-    @classmethod
-    def is_connected(cls, helper=None):
-        '''
-        Return True iff the device is physically connected to the computer
-        
-        @param helper: Platform dependent helper object. For e.g. on windows
-        an instantiated WMI interface.
-        '''
-        raise NotImplementedError()
-    
     def set_progress_reporter(self, report_progress):
         '''
         @param report_progress: Function that is called with a % progress 

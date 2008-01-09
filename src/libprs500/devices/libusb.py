@@ -207,11 +207,11 @@ class DeviceHandle(Structure):
         """
         Perform a control request to the default control pipe on the device.
         @param rtype: specifies the direction of data flow, the type
-                      of request, and the recipient.
+                of request, and the recipient.
         @param request: specifies the request.
         @param bytes: if the transfer is a write transfer, buffer is a sequence
-                      with the transfer data, otherwise, buffer is the number of
-                      bytes to read.
+                with the transfer data, otherwise, buffer is the number of
+                bytes to read.
         @param value: specific information to pass to the device.
         @param index: specific information to pass to the device.
         """
@@ -357,3 +357,16 @@ def get_device_by_id(idVendor, idProduct):
             if dev.device_descriptor.idVendor == idVendor and \
                dev.device_descriptor.idProduct == idProduct:
                 return dev
+            
+def has_library():
+    return _libusb is not None
+
+def get_devices():
+    buslist = busses()
+    ans = []
+    for bus in buslist:
+        devices = bus.device_list
+        for dev in devices:
+            device = (dev.device_descriptor.idVendor, dev.device_descriptor.idProduct)
+            ans.append(device)
+    return ans

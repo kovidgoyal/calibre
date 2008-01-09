@@ -26,6 +26,7 @@ from libprs500.devices.errors import PathError
 from libprs500.devices.prs500.cli.terminfo import TerminalController
 from libprs500.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from libprs500.devices import devices
+from libprs500.devices.scanner import DeviceScanner
 
 MINIMUM_COL_WIDTH = 12 #: Minimum width of columns in ls output
 
@@ -207,13 +208,15 @@ def main():
     command = args[0]
     args = args[1:]
     dev = None
-    helper = None
+    _wmi = None
     if iswindows:
         import wmi, pythoncom
         pythoncom.CoInitialize()
-        helper = wmi.WMI()
+        _wmi = wmi.WMI()
+    scanner = DeviceScanner(_wmi)
+    scanner.scan()
     for d in devices():
-        if d.is_connected(helper):
+        if scanner.is_device_connected(d):
             dev = d(log_packets=options.log_packets)
     
     if dev is None:

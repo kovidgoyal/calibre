@@ -113,21 +113,6 @@ class PRS505(Device):
             return True
         return False
     
-    @classmethod
-    def is_connected(cls, helper=None):
-        if iswindows:
-            for c in helper.USBControllerDevice():
-                if cls.is_device(c.Dependent.DeviceID):
-                    return True
-            return False
-        else:
-            try:
-                return get_device_by_id(cls.VENDOR_ID, cls.PRODUCT_ID) != None
-            except USBError:
-                return False
-        return False                
-        
-    
     def open_osx(self):
         mount = subprocess.Popen('mount', shell=True, 
                                  stdout=subprocess.PIPE).stdout.read()

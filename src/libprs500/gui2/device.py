@@ -12,12 +12,13 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import os, sys, traceback
+import os, traceback
 
 from PyQt4.QtCore import QThread, SIGNAL, QObject
 
 from libprs500 import iswindows
 from libprs500.devices import devices
+from libprs500.devices.scanner import DeviceScanner
 
 class DeviceDetector(QThread):
     '''
@@ -35,17 +36,16 @@ class DeviceDetector(QThread):
         QThread.__init__(self)
         
     def run(self):
-        helper = None
+        _wmi = None
         if iswindows:
             import wmi, pythoncom
             pythoncom.CoInitialize()
-            helper = wmi.WMI()
+            _wmi = wmi.WMI()
+        scanner = DeviceScanner(_wmi)
         while True:
+            scanner.scan()
             for device in self.devices:
-                try:
-                    connected = device[0].is_connected(helper=helper)
-                except:
-                    connected = False
+                connected = scanner.is_device_connected(device[0])
                 if connected and not device[1]:
                     try:
                         dev = device[0]()
