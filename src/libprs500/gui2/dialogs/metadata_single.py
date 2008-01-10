@@ -225,6 +225,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 s = BeautifulSoup(src)
                 url = s.find('td', attrs={'class':'left'})
                 if url is None:
+                    if s.find('div', attrs={'class':'highloadwarning'}) is not None:
+                        raise Exception('Could not fetch cover as server is experiencing high load. Please try again later.')
                     raise Exception('ISBN: '+isbn+' not found.')
                 url = url.find('img')
                 if url is None:
