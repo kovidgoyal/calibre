@@ -156,6 +156,13 @@ class DefaultProfile(object):
     def parse_feeds(self):
         '''
         Create list of articles from a list of feeds.
+        @return: A list of dictionaries, each of the form:
+        {
+            'title'       : article title,
+            'url'         : URL of print version,
+            'date'        : The publication date of the article as a string,
+            'description' : A summary of the article
+        }
         '''
         added_articles = {}
         feeds = self.get_feeds()
