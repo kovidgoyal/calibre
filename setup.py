@@ -38,6 +38,7 @@ entry_points = {
                              'any2lrf   = libprs500.ebooks.lrf.any.convert_from:main',
                              'lrf2lrs   = libprs500.ebooks.lrf.parser:main',
                              'isbndb    = libprs500.ebooks.metadata.isbndb:main',
+                             'librarything = libprs500.ebooks.metadata.library_thing:main',
                              'lrf2html  = libprs500.ebooks.lrf.html.convert_to:main',                             
                            ], 
         'gui_scripts'    : [ 

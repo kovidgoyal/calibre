@@ -16,7 +16,7 @@
 The dialog used to edit meta information for a book as well as 
 add/remove formats
 '''
-import os, urllib, socket
+import os
 
 from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
@@ -27,8 +27,9 @@ from libprs500.gui2 import qstring_to_unicode, error_dialog, file_icon_provider,
 from libprs500.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from libprs500.gui2.dialogs.fetch_metadata import FetchMetadata
 from libprs500.gui2.dialogs.tag_editor import TagEditor
-from libprs500.ebooks.BeautifulSoup import BeautifulSoup
+from libprs500.gui2.dialogs.password import PasswordDialog
 from libprs500.ebooks import BOOK_EXTENSIONS
+from libprs500.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, path=None):
@@ -215,38 +216,32 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     def fetch_cover(self):
         isbn   = qstring_to_unicode(self.isbn.text())
         if isbn:
+            d = PasswordDialog(self, 'LibraryThing account', 
+                               _('<p>Enter your username and password for <b>LibraryThing.com</b>. <br/>If you do not have one, you can <a href=\'http://www.librarything.com\'>register</a> for free!.</p>'))
+            if not d.username() or not d.password():
+                d.exec_()
+                if d.result() != PasswordDialog.Accepted:
+                    return
             self.fetch_cover_button.setEnabled(False)
             self.setCursor(Qt.WaitCursor)
             QCoreApplication.instance().processEvents()
-            timeout = socket.getdefaulttimeout()
-            socket.setdefaulttimeout(5.)                
             try:
-                src = urllib.urlopen('http://www.librarything.com/isbn/'+isbn).read()
-                s = BeautifulSoup(src)
-                url = s.find('td', attrs={'class':'left'})
-                if url is None:
-                    if s.find('div', attrs={'class':'highloadwarning'}) is not None:
-                        raise Exception('Could not fetch cover as server is experiencing high load. Please try again later.')
-                    raise Exception('ISBN: '+isbn+' not found.')
-                url = url.find('img')
-                if url is None:
-                    raise Exception('Server error. Try again later.')
-                url = url['src']
-                cover = urllib.urlopen(url).read()
+                login(d.username(), d.password(), force=False)
+                cover_data = cover_from_isbn(isbn)[0]
+            
                 pix = QPixmap()
-                pix.loadFromData(cover)
+                pix.loadFromData(cover_data)
                 if pix.isNull():
-                    error_dialog(self.window, url + " is not a valid picture").exec_()
+                    error_dialog(self.window, "The cover is not a valid picture").exec_()
                 else:
                     self.cover.setPixmap(pix)
                     self.cover_changed = True
                     self.cpixmap = pix   
-            except Exception, err:
+            except LibraryThingError, err:
                 error_dialog(self, _('Could not fetch cover'), _('<b>Could not fetch cover.</b><br/>')+str(err)).exec_()
             finally:
                 self.fetch_cover_button.setEnabled(True)
                 self.unsetCursor()
-                socket.setdefaulttimeout(timeout)
                 
         else:
             error_dialog(self, _('Cannot fetch cover'), _('You must specify the ISBN identifier for this book.')).exec_()
