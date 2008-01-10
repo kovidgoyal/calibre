@@ -13,8 +13,8 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from PyQt4.QtGui import QDialog
-from PyQt4.QtCore import QSettings, QVariant
+from PyQt4.QtGui import QDialog, QLineEdit
+from PyQt4.QtCore import QSettings, QVariant, SIGNAL, Qt
 
 from libprs500.gui2.dialogs.password_ui import Ui_Dialog
 from libprs500.gui2 import qstring_to_unicode
@@ -33,7 +33,14 @@ class PasswordDialog(QDialog, Ui_Dialog):
         self.gui_password.setText(pw)
         self.sname = name 
         self.msg.setText(msg)
+        self.connect(self.show_password, SIGNAL('stateChanged(int)'), self.toggle_password)
         
+    def toggle_password(self, state):
+        if state == Qt.Unchecked:
+            self.gui_password.setEchoMode(QLineEdit.Password)
+        else:
+            self.gui_password.setEchoMode(QLineEdit.Normal)
+    
     def username(self):
         return qstring_to_unicode(self.gui_username.text())
     
