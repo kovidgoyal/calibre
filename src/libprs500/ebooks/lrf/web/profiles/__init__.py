@@ -156,7 +156,8 @@ class DefaultProfile(object):
     def parse_feeds(self):
         '''
         Create list of articles from a list of feeds.
-        @return: A list of dictionaries, each of the form:
+        @return: A dictionary whose keys are feed titles and whose values are each
+        a list of dictionaries. Each list contains dictionaries of the form:
         {
             'title'       : article title,
             'url'         : URL of print version,
