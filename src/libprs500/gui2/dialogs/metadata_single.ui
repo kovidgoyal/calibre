@@ -389,8 +389,8 @@
          <property name="title" >
           <string>Book Cover</string>
          </property>
-         <layout class="QGridLayout" >
-          <item row="0" column="0" >
+         <layout class="QVBoxLayout" >
+          <item>
            <layout class="QHBoxLayout" >
             <item>
              <spacer>
@@ -439,7 +439,7 @@
             </item>
            </layout>
           </item>
-          <item row="1" column="0" >
+          <item>
            <layout class="QVBoxLayout" >
             <property name="spacing" >
              <number>6</number>
@@ -507,12 +507,26 @@
             </item>
            </layout>
           </item>
-          <item row="2" column="0" >
-           <widget class="QPushButton" name="fetch_cover_button" >
-            <property name="text" >
-             <string>Fetch cover image from server</string>
-            </property>
-           </widget>
+          <item>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="QPushButton" name="fetch_cover_button" >
+              <property name="text" >
+               <string>Fetch cover image from server</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="password_button" >
+              <property name="toolTip" >
+               <string>Change the username and/or password for your account at LibraryThing.com</string>
+              </property>
+              <property name="text" >
+               <string>Change password</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>

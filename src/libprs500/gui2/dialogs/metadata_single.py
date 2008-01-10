@@ -201,7 +201,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.series_index.setValue(self.db.series_index(row))
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
-         
+        QObject.connect(self.password_button, SIGNAL('clicked()'), self.change_password) 
 
         self.exec_()
 
@@ -213,11 +213,18 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             tag_string = ', '.join(d.tags)
             self.tags.setText(tag_string)
     
+    def lt_password_dialog(self):
+        return PasswordDialog(self, 'LibraryThing account', 
+                 _('<p>Enter your username and password for <b>LibraryThing.com</b>. <br/>If you do not have one, you can <a href=\'http://www.librarything.com\'>register</a> for free!.</p>'))
+    
+    def change_password(self):
+        d = self.lt_password_dialog() 
+        d.exec_()
+    
     def fetch_cover(self):
         isbn   = qstring_to_unicode(self.isbn.text())
         if isbn:
-            d = PasswordDialog(self, 'LibraryThing account', 
-                               _('<p>Enter your username and password for <b>LibraryThing.com</b>. <br/>If you do not have one, you can <a href=\'http://www.librarything.com\'>register</a> for free!.</p>'))
+            d = self.lt_password_dialog() 
             if not d.username() or not d.password():
                 d.exec_()
                 if d.result() != PasswordDialog.Accepted:
