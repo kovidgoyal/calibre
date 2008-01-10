@@ -178,7 +178,7 @@ Section "Main" "secmain"
   
 SectionEnd
 
-Section /o "Device Drivers" "secdd"
+Section /o "Device Drivers (only needed for PRS500)" "secdd"
   SetOutPath "$INSTDIR\driver"
   File "${LIBUSB_DIR}\*.dll"
   File "${LIBUSB_DIR}\*.sys"
