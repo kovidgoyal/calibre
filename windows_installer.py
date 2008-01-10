@@ -178,7 +178,7 @@ Section "Main" "secmain"
   
 SectionEnd
 
-Section "Device Drivers" "secdd"
+Section /o "Device Drivers" "secdd"
   SetOutPath "$INSTDIR\driver"
   File "${LIBUSB_DIR}\*.dll"
   File "${LIBUSB_DIR}\*.sys"
