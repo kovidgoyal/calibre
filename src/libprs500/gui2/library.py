@@ -12,7 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.gui2 import qstring_to_unicode
 import os, textwrap, traceback, time, re, sre_constants
 from datetime import timedelta, datetime
 from operator import attrgetter
@@ -22,11 +21,13 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
                         QPalette
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
+                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
+                         QSettings
 
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.library.database import LibraryDatabase
 from libprs500.gui2 import NONE, TableView
+from libprs500.gui2 import qstring_to_unicode
 
 class LibraryDelegate(QItemDelegate):
     COLOR = QColor("blue")
@@ -110,7 +111,13 @@ class BooksModel(QAbstractTableModel):
         self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'series']
         self.sorted_on = (3, Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
+        self.read_config()
             
+    def read_config(self):
+        self.use_roman_numbers = bool(QSettings().value('use roman numerals for series number',
+                                                   QVariant(True)).toBool())
+        
+    
     def set_database(self, db):
         if isinstance(db, (QString, basestring)):
             if isinstance(db, QString):
@@ -218,7 +225,7 @@ class BooksModel(QAbstractTableModel):
         series = self.db.series(idx)
         if series:
             sidx = self.db.series_index(idx)
-            sidx = self.__class__.roman(sidx)
+            sidx = self.__class__.roman(sidx) if self.use_roman_numbers else str(sidx)
             data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
     

@@ -37,6 +37,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         
         dirs = settings.value('frequently used directories', QVariant(QStringList())).toStringList()
+        rn = bool(settings.value('use roman numerals for series number',
+                            QVariant(True)).toBool())
+        self.roman_numerals.setChecked(rn)
         self.directory_list.addItems(dirs)
         self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
         self.connect(self.remove_button, SIGNAL('clicked(bool)'), self.remove_dir)
@@ -69,5 +72,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         else:
             self.database_location = os.path.abspath(path)
             self.directories = [qstring_to_unicode(self.directory_list.item(i).text()) for i in range(self.directory_list.count())]
-            QSettings().setValue('frequently used directories', QVariant(self.directories))
+            settings = QSettings()
+            settings.setValue('frequently used directories', QVariant(self.directories))
+            settings.setValue('use roman numerals for series number', QVariant(self.roman_numerals.isChecked()))
             QDialog.accept(self)

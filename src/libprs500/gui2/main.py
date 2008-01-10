@@ -692,6 +692,7 @@ class Main(MainWindow, Ui_MainWindow):
                     self.library_view.sortByColumn(3, Qt.DescendingOrder)
                     self.library_view.resizeRowsToContents()
             set_sidebar_directories(d.directories)
+            self.library_view.model().read_config()
     
     ############################################################################
     

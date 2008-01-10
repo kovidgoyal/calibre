@@ -54,7 +54,7 @@
          </item>
         </layout>
        </item>
-       <item row="1" column="0" >
+       <item row="2" column="0" >
         <widget class="QGroupBox" name="dirs_box" >
          <property name="title" >
           <string>Frequently used directories</string>
@@ -149,7 +149,7 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" >
+       <item row="3" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -161,6 +161,16 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QCheckBox" name="roman_numerals" >
+         <property name="text" >
+          <string>Use &amp;Roman numerals for series number</string>
+         </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
