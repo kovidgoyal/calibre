@@ -22,8 +22,6 @@ from libprs500.devices.interface import Device
 from libprs500.devices.errors import DeviceError, FreeSpaceError
 from libprs500.devices.prs505.books import BookList, fix_ids
 from libprs500 import iswindows, islinux, isosx
-from libprs500.devices.libusb import get_device_by_id
-from libprs500.devices.libusb import Error as USBError
 from libprs500.devices.errors import PathError
 
 class File(object):
@@ -384,7 +382,8 @@ class PRS505(Device):
         
     def delete_books(self, paths, end_session=True):
         for path in paths:
-            os.unlink(path)
+            if os.path.exists(path):
+                os.unlink(path)
             
     @classmethod
     def remove_books_from_metadata(cls, paths, booklists):
