@@ -718,6 +718,11 @@ class Text(LRFStream):
             if pos > 0:
                 self.add_text(self.stream[stream.tell():pos])
                 stream.seek(pos)
+            elif pos == -2: # No tags in this stream
+                self.add_text(self.stream)
+                stream.seek(0, 2)
+                print repr(self.stream)
+                break
             
             tag = Tag(stream)
             
