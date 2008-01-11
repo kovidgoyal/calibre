@@ -39,6 +39,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         dirs = settings.value('frequently used directories', QVariant(QStringList())).toStringList()
         rn = bool(settings.value('use roman numerals for series number',
                             QVariant(True)).toBool())
+        self.timeout.setValue(settings.value('network timeout', QVariant(5)).toInt()[0])
         self.roman_numerals.setChecked(rn)
         self.directory_list.addItems(dirs)
         self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
@@ -62,6 +63,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.directory_list.takeItem(idx)
     
     def accept(self):
+        settings = QSettings()            
+        settings.setValue('use roman numerals for series number', QVariant(self.roman_numerals.isChecked()))
+        settings.setValue('network timeout', QVariant(self.timeout.value()))
         path = qstring_to_unicode(self.location.text())        
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'), _('Invalid database location ')+path+_('<br>Must be a directory.'))
@@ -72,7 +76,5 @@ class ConfigDialog(QDialog, Ui_Dialog):
         else:
             self.database_location = os.path.abspath(path)
             self.directories = [qstring_to_unicode(self.directory_list.item(i).text()) for i in range(self.directory_list.count())]
-            settings = QSettings()
             settings.setValue('frequently used directories', QVariant(self.directories))
-            settings.setValue('use roman numerals for series number', QVariant(self.roman_numerals.isChecked()))
             QDialog.accept(self)

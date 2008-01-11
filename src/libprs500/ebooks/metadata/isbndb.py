@@ -29,12 +29,12 @@ BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&page_number=1&res
 class ISBNDBError(Exception):
     pass
 
-def fetch_metadata(url, max=100):
+def fetch_metadata(url, max=100, timeout=5.):
     books = []
     page_number = 1
     total_results = sys.maxint
     timeout = socket.getdefaulttimeout()
-    socket.setdefaulttimeout(2.)
+    socket.setdefaulttimeout(timeout)
     try:
         while len(books) < total_results and max > 0:
             try:
@@ -123,7 +123,7 @@ key is the account key you generate after signing up for a free account from isb
     return parser
     
 
-def create_books(opts, args, logger=None):
+def create_books(opts, args, logger=None, timeout=5.):
     if logger is None:
         level = logging.DEBUG if opts.verbose else logging.INFO
         logger = logging.getLogger('isbndb')
@@ -137,7 +137,7 @@ def create_books(opts, args, logger=None):
         
     logger.info('ISBNDB query: '+url)
     
-    return [ISBNDBMetadata(book) for book in fetch_metadata(url)]
+    return [ISBNDBMetadata(book) for book in fetch_metadata(url, timeout=timeout)]
 
 def main(args=sys.argv):
     parser = option_parser()

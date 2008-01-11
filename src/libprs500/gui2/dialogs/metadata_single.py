@@ -18,7 +18,7 @@ add/remove formats
 '''
 import os
 
-from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt
+from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QVariant, QSettings
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 
@@ -149,7 +149,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                         self.fetch_cover)
         QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), 
                         self.edit_tags)        
-        
+        self.timeout = float(QSettings().value('network timeout', QVariant(5)).toInt()[0])
         self.title.setText(db.title(row))
         isbn = db.isbn(self.id)
         if not isbn:
@@ -234,7 +234,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             QCoreApplication.instance().processEvents()
             try:
                 login(d.username(), d.password(), force=False)
-                cover_data = cover_from_isbn(isbn)[0]
+                cover_data = cover_from_isbn(isbn, timeout=self.timeout)[0]
             
                 pix = QPixmap()
                 pix.loadFromData(cover_data)
@@ -260,7 +260,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         author = qstring_to_unicode(self.authors.text()).split(',')[0]
         publisher = qstring_to_unicode(self.publisher.text()) 
         if isbn or title or author or publisher:
-            d = FetchMetadata(self, isbn, title, author, publisher)
+            d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
             d.exec_()
             if d.result() == QDialog.Accepted:
                 book = d.selected_book()

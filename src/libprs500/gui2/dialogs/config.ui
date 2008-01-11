@@ -19,8 +19,8 @@
    <item row="0" column="0" >
     <widget class="QStackedWidget" name="stackedWidget" >
      <widget class="QWidget" name="page" >
-      <layout class="QGridLayout" >
-       <item row="0" column="0" >
+      <layout class="QVBoxLayout" >
+       <item>
         <layout class="QVBoxLayout" >
          <item>
           <widget class="QLabel" name="label" >
@@ -54,7 +54,50 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" >
+       <item>
+        <widget class="QCheckBox" name="roman_numerals" >
+         <property name="text" >
+          <string>Use &amp;Roman numerals for series number</string>
+         </property>
+         <property name="checked" >
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QLabel" name="label_2" >
+           <property name="text" >
+            <string>Default network &amp;timeout:</string>
+           </property>
+           <property name="buddy" >
+            <cstring>timeout</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="timeout" >
+           <property name="toolTip" >
+            <string>Set the default timeout for network fetches (i.e. anytime libprs500 foes out to the internet to get information)</string>
+           </property>
+           <property name="suffix" >
+            <string> seconds</string>
+           </property>
+           <property name="minimum" >
+            <number>2</number>
+           </property>
+           <property name="maximum" >
+            <number>120</number>
+           </property>
+           <property name="value" >
+            <number>5</number>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QGroupBox" name="dirs_box" >
          <property name="title" >
           <string>Frequently used directories</string>
@@ -149,28 +192,18 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" >
+       <item>
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
          <property name="sizeHint" >
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>372</width>
+           <height>16</height>
           </size>
          </property>
         </spacer>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QCheckBox" name="roman_numerals" >
-         <property name="text" >
-          <string>Use &amp;Roman numerals for series number</string>
-         </property>
-         <property name="checked" >
-          <bool>true</bool>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>

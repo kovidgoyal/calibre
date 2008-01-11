@@ -75,11 +75,12 @@ class Matches(QAbstractTableModel):
 
 class FetchMetadata(QDialog, Ui_FetchMetadata):
     
-    def __init__(self, parent, isbn, title, author, publisher):
+    def __init__(self, parent, isbn, title, author, publisher, timeout):
         QDialog.__init__(self, parent)
         Ui_FetchMetadata.__init__(self)
         self.setupUi(self)
         
+        self.timeout = timeout
         QObject.connect(self.fetch, SIGNAL('clicked()'), self.fetch_metadata)
         
         self.key.setText(QSettings().value('isbndb.com key', QVariant('')).toString())
@@ -126,7 +127,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
         self.logger.addHandler(handler)
         
-        books = create_books(opts, args, self.logger)
+        books = create_books(opts, args, self.logger, self.timeout)
         
         self.model = Matches(books)
         
