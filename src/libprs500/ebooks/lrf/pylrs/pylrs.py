@@ -368,7 +368,7 @@ class Book(Delegator):
         
         The following settings are available on the contructor of Book:
 
-        author="book author" or author=("book author, "sort as")
+        author="book author" or author=("book author", "sort as")
         Author of the book.
         
         title="book title" or title=("book title", "sort as")
@@ -1665,7 +1665,7 @@ class LrsSimpleChar1(object):
 
 class DropCaps(LrsTextTag):
     
-    def __init__(self, lines):
+    def __init__(self, lines=1):
         LrsTextTag.__init__(self, None, [LrsSimpleChar1])
         if int(lines) <= 0:
             raise LrsError('A DrawChar must span at least one line.')
@@ -1685,10 +1685,70 @@ class DropCaps(LrsTextTag):
         parent.appendLrfTag(LrfTag("DrawCharEnd"))
     
             
-    
-class Button(object):
-    # TODO: Implement
+
+class Button(LrsObject, LrsContainer):
+    def __init__(self, **settings):
+        LrsObject.__init__(self, **settings)
+        LrsContainer.__init__(self, [PushButton])
+
+    def findJumpToRefs(self):
+        for sub1 in self.contents:
+            if isinstance(sub1, PushButton):
+                for sub2 in sub1.contents:
+                    if isinstance(sub2, JumpTo):
+                        return (sub2.textBlock.objId, sub2.textBlock.parent.objId)
+        raise LrsException, "%s has no PushButton or JumpTo subs"%self.__class__.__name__
+
+    def toLrf(self, lrfWriter):
+        (refobj, refpage) = self.findJumpToRefs()
+        # print "Button writing JumpTo refobj=", jumpto.refobj, ", and refpage=", jumpto.refpage
+        button = LrfObject("Button", self.objId)
+        button.appendLrfTag(LrfTag("buttonflags", 0x10)) # pushbutton
+        button.appendLrfTag(LrfTag("PushButtonStart"))
+        button.appendLrfTag(LrfTag("buttonactions"))
+        button.appendLrfTag(LrfTag("jumpto", (int(refpage), int(refobj))))
+        button.append(LrfTag("endbuttonactions"))
+        button.appendLrfTag(LrfTag("PushButtonEnd"))
+        lrfWriter.append(button)
+
+    def toElement(self, se):
+        b = self.lrsObjectElement("Button")
+
+        for content in self.contents:
+            b.append(content.toElement(se))
+
+        return b
+
+class ButtonBlock(Button):
     pass
+
+class PushButton(LrsContainer):
+
+    def __init__(self, **settings):
+        LrsContainer.__init__(self, [JumpTo])
+
+    def toElement(self, se):
+        b = Element("PushButton")
+
+        for content in self.contents:
+            b.append(content.toElement(se))
+
+        return b
+
+class JumpTo(LrsContainer):
+
+    def __init__(self, textBlock):
+        LrsContainer.__init__(self, [])
+        self.textBlock=textBlock
+
+    def setTextBlock(self, textBlock):
+        self.textBlock = textBlock
+
+    def toElement(self, se):
+        return Element("JumpTo", refpage=str(self.textBlock.parent.objId), refobj=str(self.textBlock.objId))
+
+
+    
         
         
 class Plot(LrsSimpleChar1, LrsContainer):
@@ -1964,27 +2024,33 @@ class CharButton(LrsSimpleChar1, LrsContainer):
 
         Only text or SimpleChars can be appended to the CharButton.
     """
-    def __init__(self, jumpButton, text=None):
+    def __init__(self, button, text=None):
         LrsContainer.__init__(self, [basestring, Text, LrsSimpleChar1])
-        if not isinstance(jumpButton, JumpButton):
-            raise LrsError, "first argument to CharButton must be a JumpButton"
+        self.button = None
+        if button != None:
+            self.setButton(button)
 
-        self.jumpButton = jumpButton
         if text is not None:
             self.append(text)
 
+    def setButton(self, button):
+        if not isinstance(button, (JumpButton, Button)):
+            raise LrsError, "CharButton button must be a JumpButton or Button"
+
+        self.button = button
+
 
     def appendReferencedObjects(self, parent):
-        if self.jumpButton.parent is None:
-            parent.append(self.jumpButton)
+        if self.button.parent is None:
+            parent.append(self.button)
 
 
     def getReferencedObjIds(self):
-        return [self.jumpButton.objId]
+        return [self.button.objId]
 
 
     def toLrfContainer(self, lrfWriter, container):
-        container.appendLrfTag(LrfTag("CharButton", self.jumpButton.objId))
+        container.appendLrfTag(LrfTag("CharButton", self.button.objId))
         
         for content in self.contents:
             content.toLrfContainer(lrfWriter, container)
@@ -1993,7 +2059,7 @@ class CharButton(LrsSimpleChar1, LrsContainer):
 
 
     def toElement(self, se):
-        cb = Element("CharButton", refobj=str(self.jumpButton.objId))
+        cb = Element("CharButton", refobj=str(self.button.objId))
         appendTextElements(cb, self.contents, se)
         return cb
 
@@ -2002,7 +2068,7 @@ class CharButton(LrsSimpleChar1, LrsContainer):
 class Objects(LrsContainer):
     def __init__(self):
         LrsContainer.__init__(self, [JumpButton, TextBlock, HeaderOrFooter,
-            ImageStream, Image, ImageBlock])
+            ImageStream, Image, ImageBlock, Button, ButtonBlock])
         self.appendJumpButton = self.appendTextBlock = self.appendHeader = \
                 self.appendFooter = self.appendImageStream = \
                 self.appendImage = self.appendImageBlock = self.append
@@ -2084,7 +2150,9 @@ class JumpButton(LrsObject, LrsContainer):
         LrsContainer.__init__(self, [])
         self.textBlock = textBlock
 
-
+    def setTextBlock(self, textBlock):
+        self.textBlock = textBlock
+    
     def toLrf(self, lrfWriter):
         button = LrfObject("Button", self.objId)
         button.appendLrfTag(LrfTag("buttonflags", 0x10)) # pushbutton
@@ -2202,7 +2270,7 @@ class Canvas(LrsObject, LrsContainer, LrsAttributes):
         self.settings['canvaswidth']  = int(width)
         
     def put_object(self, obj, x, y):
-        self.append(PutObj(obj, x=x, y=y))
+        self.append(PutObj(obj, x1=x, y1=y))
         
     def toElement(self, source_encoding):
         el = self.lrsObjectElement("Canvas", **self.settings)
@@ -2235,17 +2303,18 @@ class Canvas(LrsObject, LrsContainer, LrsAttributes):
 class PutObj(LrsContainer):
     """ PutObj holds other objects that are drawn on a Canvas or Header. """
 
-    def __init__(self, content, x=0, y=0):
+    def __init__(self, content, x1=0, y1=0):
         LrsContainer.__init__(self, [TextBlock, ImageBlock])
         self.content = content
-        self.x1 = int(x)
-        self.y1 = int(y)
+        self.x1 = int(x1)
+        self.y1 = int(y1)
 
+    def setContent(self, content):
+        self.content = content
 
     def appendReferencedObjects(self, parent):        
         if self.content.parent is None:
             parent.append(self.content)
-
 
     def toLrfContainer(self, lrfWriter, container):
         container.appendLrfTag(LrfTag("PutObj", (self.x1, self.y1,

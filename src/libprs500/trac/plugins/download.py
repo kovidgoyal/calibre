@@ -51,6 +51,7 @@ class Distribution(object):
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('convertlit', '1.8', 'convertlit', None, None),
         ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
+        ('elementtree', '1.2.6', 'elementtree', 'python-elementtree', 'python-elementtree'),
         ]
     
     DISTRO_MAP = {'gentoo':2, 'ubuntu':3, 'fedora':4, 'debian':3}

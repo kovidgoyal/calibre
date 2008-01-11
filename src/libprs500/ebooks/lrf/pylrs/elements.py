@@ -1,11 +1,13 @@
 """ elements.py -- replacements and helpers for ElementTree """
 
 class ElementWriter(object):
-    def __init__(self, e, header=False, sourceEncoding="ascii", spaceBeforeClose=True):
+    def __init__(self, e, header=False, sourceEncoding="ascii", 
+                 spaceBeforeClose=True, outputEncodingName="UTF-16"):
         self.header = header
         self.e = e
         self.sourceEncoding=sourceEncoding
         self.spaceBeforeClose = spaceBeforeClose
+        self.outputEncodingName = outputEncodingName
 
 
     def _encodeCdata(self, rawText):
@@ -71,8 +73,8 @@ class ElementWriter(object):
 
     def write(self, f):
         if self.header:
-            f.write(u'<?xml version="1.0" encoding="UTF-16"?>\n')
-
+            f.write(u'<?xml version="1.0" encoding="%s"?>\n' % self.outputEncodingName)
+            
         self._write(f, self.e)
 
 
