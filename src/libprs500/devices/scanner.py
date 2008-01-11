@@ -73,8 +73,8 @@ class DeviceScanner(object):
                 vid, pid = hex(device.VENDOR_ID)[2:], hex(device.PRODUCT_ID)[2:]
                 if len(vid) < 4: vid = '0'+vid
                 if len(pid) < 4: pid = '0'+pid
-                if 'VID_'+vid in device_id and \
-                       'PID_'+pid in device_id:
+                vid, pid = 'VID_'+vid.upper(), 'PID_'+pid.upper()
+                if vid in device_id and pid in device_id:
                     return True
             return False
         else:
