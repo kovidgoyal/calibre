@@ -23,7 +23,7 @@ incomplete = re.compile('&([a-zA-Z][a-zA-Z0-9]*|#[0-9]*)?|'
                               '![^<>]*)?')
 
 entityref = re.compile('&([a-zA-Z][-.a-zA-Z0-9]*)[^a-zA-Z0-9]')
-charref = re.compile('&#([0-9]+)[^0-9]')
+charref = re.compile('&#(x{0,1}[a-f0-9]+)[^a-f0-9]', re.IGNORECASE) # Changed by Kovid to handle hex numeric entities
 
 starttagopen = re.compile('<[>a-zA-Z]')
 shorttagopen = re.compile('<[a-zA-Z][-.a-zA-Z0-9]*/')

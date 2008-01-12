@@ -95,8 +95,6 @@ class HTMLConverter(object):
                          # remove <p> tags from within <a> tags
                         (re.compile(r'<a.*?>(.*?)</a\s*>', re.DOTALL|re.IGNORECASE),
                          lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
-                        # Workaround bug in BeautifulSoup &nbsp; handling
-                        (re.compile(u'&nbsp;|&#160;|&#xa0;|\xa0', re.IGNORECASE), lambda match : u'\uffff'),
                         # Replace entities
                         (re.compile(ur'&(\S+?);'), partial(entity_to_unicode, 
                                                            exceptions=['lt', 'gt', 'amp'])),
@@ -311,13 +309,13 @@ class HTMLConverter(object):
             nmassage.extend(HTMLConverter.BOOK_DESIGNER)
         try:
             soup = BeautifulSoup(raw, 
-                         convertEntities=BeautifulSoup.HTML_ENTITIES,
+                         convertEntities=BeautifulSoup.XHTML_ENTITIES,
                          markupMassage=nmassage)
         except ConversionError, err:
             if 'Failed to coerce to unicode' in str(err):
                 raw = unicode(raw, 'utf8', 'replace')
                 soup = BeautifulSoup(raw, 
-                         convertEntities=BeautifulSoup.HTML_ENTITIES,
+                         convertEntities=BeautifulSoup.XHTML_ENTITIES,
                          markupMassage=nmassage)
         
         if not self.baen and self.is_baen(soup):
@@ -756,7 +754,7 @@ class HTMLConverter(object):
         
         def append_text(src):
             fp, key, variant = self.font_properties(css)
-            src = src.replace(u'\uffff', ' ') # &nbsp; becomes u'\uffff'
+            src = src.replace(u'\xa0', ' ') #Sony's wonderful reading software doesn't handle the nbsp character
 
             valigner = lambda x: x
             if 'vertical-align' in css:
