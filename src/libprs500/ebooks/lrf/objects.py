@@ -522,10 +522,12 @@ class Block(LRFStream):
             s += 'textstyle="%d" '%(self.textstyle_id,)
         for attr in self.attrs:
             s += '%s="%s" '%(attr, self.attrs[attr])
-        s = s.rstrip()+'>\n'
-        s += unicode(self.content)
-        s += '</%s>\n'%(self.name,)
-        return s
+        if self.name != 'ImageBlock':
+            s = s.rstrip()+'>\n'
+            s += unicode(self.content)
+            s += '</%s>\n'%(self.name,)
+            return s
+        return s.rstrip() + ' />\n'
         
 
 class MiniPage(LRFStream):
@@ -794,12 +796,12 @@ class Image(LRFObject):
 
 class PutObj(EmptyPageElement):
     
-    def __init__(self, objects, x, y, refobj):
-        self.x, self.y, self.refobj = x, y, refobj
+    def __init__(self, objects, x1, y1, refobj):
+        self.x1, self.y1, self.refobj = x1, y1, refobj
         self.object = objects[refobj]
         
     def __unicode__(self):
-        return u'<PutObj x="%d" y="%d" refobj="%d" />'%(self.x, self.y, self.refobj)
+        return u'<PutObj x1="%d" y1="%d" refobj="%d" />'%(self.x1, self.y1, self.refobj)
 
 class Canvas(LRFStream):
     tag_map = {
@@ -992,7 +994,7 @@ class Font(LRFStream):
         self.file = self.fontfacename + '.ttf'
     
     def __unicode__(self):
-        s = '<RegistFont objid="%s" fontfilename="%s" fontfacename="%s" encoding="TTF" file="%s" />\n'%\
+        s = '<RegistFont objid="%s" fontfilename="%s" fontname="%s" encoding="TTF" file="%s" />\n'%\
             (self.id, self.fontfilename, self.fontfacename, self.file)
         return s
 

@@ -1131,7 +1131,7 @@ class StyleDefault(LrsAttributes):
                 empdotscode="0x002e", emplineposition="after",
                 emplinetype = "solid", setwaitprop="noreplay")
 
-    alsoAllow = ["refempdotsfont"]
+    alsoAllow = ["refempdotsfont", "rubyAlignAndAdjust"]
 
     def __init__(self, **settings):       
         LrsAttributes.__init__(self, self.defaults,
@@ -1665,19 +1665,19 @@ class LrsSimpleChar1(object):
 
 class DropCaps(LrsTextTag):
     
-    def __init__(self, lines=1):
+    def __init__(self, line=1):
         LrsTextTag.__init__(self, None, [LrsSimpleChar1])
-        if int(lines) <= 0:
+        if int(line) <= 0:
             raise LrsError('A DrawChar must span at least one line.')
-        self.lines = int(lines)
+        self.line = int(line)
         
     def toElement(self, se):
-        elem =  Element('DrawChar', line=str(self.lines))
+        elem =  Element('DrawChar', line=str(self.line))
         appendTextElements(elem, self.contents, se)
         return elem
     
     def toLrfContainer(self, lrfWriter, parent):
-        parent.appendLrfTag(LrfTag('DrawChar', (int(self.lines),)))
+        parent.appendLrfTag(LrfTag('DrawChar', (int(self.line),)))
 
         for content in self.contents:
             content.toLrfContainer(lrfWriter, parent)
@@ -1697,7 +1697,7 @@ class Button(LrsObject, LrsContainer):
                 for sub2 in sub1.contents:
                     if isinstance(sub2, JumpTo):
                         return (sub2.textBlock.objId, sub2.textBlock.parent.objId)
-        raise LrsException, "%s has no PushButton or JumpTo subs"%self.__class__.__name__
+        raise LrsError, "%s has no PushButton or JumpTo subs"%self.__class__.__name__
 
     def toLrf(self, lrfWriter):
         (refobj, refpage) = self.findJumpToRefs()
@@ -1757,9 +1757,8 @@ class Plot(LrsSimpleChar1, LrsContainer):
     
     def __init__(self, obj, xsize=0, ysize=0, adjustment=None):
         LrsContainer.__init__(self, [])
-        if not isinstance(obj, (Image, Button)):
-            raise LrsError('Plot elements can only refer to Image or Button elements')
-        self.obj = obj
+        if obj != None:
+            self.setObj(obj)
         if xsize < 0 or ysize < 0:
             raise LrsError('Sizes must be positive semi-definite')
         self.xsize = int(xsize)
@@ -1768,6 +1767,11 @@ class Plot(LrsSimpleChar1, LrsContainer):
             raise LrsError('adjustment must be one of' + Plot.ADJUSTMENT_VALUES.keys())
         self.adjustment = adjustment
         
+    def setObj(self, obj):
+        if not isinstance(obj, (Image, Button)):
+            raise LrsError('Plot elements can only refer to Image or Button elements')
+        self.obj = obj
+    
     def getReferencedObjIds(self):
         return  [self.obj.objId]
         
@@ -1942,18 +1946,20 @@ class Span(LrsSimpleChar1, LrsContainer):
         return element
 
 class EmpLine(LrsTextTag, LrsSimpleChar1):
-    linetypes = ['none', 'solid', 'dotted', 'dashed', 'double']
-    linepositions = ['before', 'after']
+    emplinetypes = ['none', 'solid', 'dotted', 'dashed', 'double']
+    emplinepositions = ['before', 'after']
     
-    def __init__(self, text=None, lineposition='before', linetype='solid'):
+    def __init__(self, text=None, emplineposition='before', emplinetype='solid'):
         LrsTextTag.__init__(self, text, [LrsSimpleChar1])
-        if lineposition not in self.__class__.linepositions:
-            raise LrsError('lineposition for an EmpLine must be one of: '+str(self.__class__.linepositions))
-        if linetype not in self.__class__.linetypes:
-            raise LrsError('linetype for an EmpLine must be one of: '+str(self.__class__.linetypes))
+        if emplineposition not in self.__class__.emplinepositions:
+            raise LrsError('emplineposition for an EmpLine must be one of: '+str(self.__class__.emplinepositions))
+        if emplinetype not in self.__class__.emplinetypes:
+            raise LrsError('emplinetype for an EmpLine must be one of: '+str(self.__class__.emplinetypes))
         
-        self.emplinetype=linetype
-        self.emplineposition=lineposition
+        self.emplinetype     = emplinetype
+        self.emplineposition = emplineposition
+               
+                 
         
     def toLrfContainer(self, lrfWriter, parent):
         parent.appendLrfTag(LrfTag(self.__class__.__name__, (self.emplineposition, self.emplinetype)))
@@ -2269,8 +2275,8 @@ class Canvas(LrsObject, LrsContainer, LrsAttributes):
         self.settings['canvasheight'] = int(height)
         self.settings['canvaswidth']  = int(width)
         
-    def put_object(self, obj, x, y):
-        self.append(PutObj(obj, x1=x, y1=y))
+    def put_object(self, obj, x1, y1):
+        self.append(PutObj(obj, x1, y1))
         
     def toElement(self, source_encoding):
         el = self.lrsObjectElement("Canvas", **self.settings)
@@ -2336,15 +2342,15 @@ class ImageStream(LrsObject, LrsContainer):
     
     VALID_ENCODINGS = [ "JPEG", "GIF", "BMP", "PNG" ]
     
-    def __init__(self, filename, encoding=None, comment=None):
+    def __init__(self, file=None, encoding=None, comment=None):
         LrsObject.__init__(self)
         LrsContainer.__init__(self, [])
-        _checkExists(filename)
-        self.filename = filename
+        _checkExists(file)
+        self.filename = file
         self.comment = comment
         # TODO: move encoding from extension to lrf module
         if encoding is None:
-            extension = os.path.splitext(filename)[1]
+            extension = os.path.splitext(file)[1]
             if not extension:
                 raise LrsError, \
                         "file must have extension if encoding is not specified"
@@ -2397,6 +2403,9 @@ class Image(LrsObject, LrsContainer, LrsAttributes):
         LrsAttributes.__init__(self, self.defaults, settings)
         self.x0, self.y0, self.x1, self.y1 = int(x0), int(y0), int(x1), int(y1)
         self.xsize, self.ysize = int(xsize), int(ysize)
+        self.setRefstream(refstream)
+        
+    def setRefstream(self, refstream):
         self.refstream = refstream
         
     def appendReferencedObjects(self, parent):
@@ -2436,14 +2445,16 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
                        blockStyle=BlockStyle(blockrule='block-fixed'),
                        alttext=None, **settings):       
         LrsObject.__init__(self)
-        LrsContainer.__init__(self, [])
+        LrsContainer.__init__(self, [Text, Image])
         LrsAttributes.__init__(self, self.defaults, **settings)
         self.x0, self.y0, self.x1, self.y1 = int(x0), int(y0), int(x1), int(y1)
         self.xsize, self.ysize = int(xsize), int(ysize)
-        self.refstream = refstream
+        self.setRefstream(refstream)
         self.blockStyle = blockStyle
         self.alttext = alttext
  
+    def setRefstream(self, refstream):
+        self.refstream = refstream
 
     def appendReferencedObjects(self, parent):
         if self.refstream.parent is None:
@@ -2507,28 +2518,39 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
 
 class Font(LrsContainer):
     """ Allows a TrueType file to be embedded in an Lrf. """
-    def __init__(self, filename, facename):
+    def __init__(self, file=None, fontname=None, fontfilename=None, encoding=None):
         LrsContainer.__init__(self, [])
-        _checkExists(filename)
-        self.filename = filename
-        self.facename = facename
+        try:
+            _checkExists(fontfilename)
+            self.truefile = fontfilename
+        except:
+            try:
+                _checkExists(file)
+                self.truefile = file
+            except:
+                raise LrsError, "neither '%s' nor '%s' exists"%(fontfilename, file)
+            
+        self.file = file
+        self.fontname = fontname
+        self.fontfilename = fontfilename
+        self.encoding = encoding
 
 
     def toLrf(self, lrfWriter):
         font = LrfObject("Font", LrsObject.getNextObjId())
         lrfWriter.registerFontId(font.objId)
-        font.appendLrfTag(LrfTag("FontFilename",
-            lrfWriter.toUnicode(self.filename)))
-        font.appendLrfTag(LrfTag("FontFacename",
-            lrfWriter.toUnicode(self.facename)))
-
-        stream = LrfFileStream(STREAM_FORCE_COMPRESSED, self.filename)
+        font.appendLrfTag(LrfTag("FontFilename", 
+                                 lrfWriter.toUnicode(self.truefile)))
+        font.appendLrfTag(LrfTag("FontFacename", 
+                                 lrfWriter.toUnicode(self.fontname)))
+ 
+        stream = LrfFileStream(STREAM_FORCE_COMPRESSED, self.truefile)
         font.appendLrfTags(stream.getStreamTags())
 
         lrfWriter.append(font)
 
 
     def toElement(self, se):
-        element = Element("RegistFont", encoding="TTF", fontname=self.facename,
-                file=self.filename, fontfilename=self.filename)
+        element = Element("RegistFont", encoding="TTF", fontname=self.fontname,
+                file=self.file, fontfilename=self.file)        
         return element

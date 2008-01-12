@@ -513,9 +513,12 @@ class LrfObject(object):
         #
         composites = {}
         for name, value in tagDict.items():
+            if name == 'rubyAlignAndAdjust':
+                continue
             if name not in ["bgimagemode", "bgimageid",
-                    "rubyalign", "rubyadjust",
-                    "empdotscode", "empdotsfontname", "refempdotsfont"]:
+                            "rubyalign",   "rubyadjust",
+                            "empdotscode", "empdotsfontname",
+                            "refempdotsfont"]:
                 self.append(LrfTag(name, value))
             else:
                 composites[name] = value

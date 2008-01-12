@@ -31,14 +31,14 @@ from libprs500.ebooks.lrf.pylrs.pylrs import \
      Paragraph, CR, Italic, Bold, ImageStream, \
      CharButton, Button, PushButton, JumpTo, \
      Plot, Image, RuledLine, Canvas, DropCaps, \
-     Sup, Sub, Span, Text, \
+     Sup, Sub, Span, Text, EmpLine, Font, \
      LrsError,  Space, Box, ButtonBlock, NoBR
 
 from libprs500 import __appname__, __version__
 
 class LrsParser(object):
     filterAttrib = ['objid', 'refobj', 'objlabel', 'pagestyle', 'blockstyle', 'textstyle', 'stylelabel',
-                    'evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid']
+                    'evenheaderid', 'oddheaderid', 'evenfooterid', 'oddfooterid', 'page_tree_id', 'refstream']
     def __init__(self, file):
         self.file = file
         self.book = Book()
@@ -53,6 +53,9 @@ class LrsParser(object):
         self.footers = list()
         self.headers = list()
         self.putobjs = list()
+        self.plots = list()
+        self.images = list()
+        self.imageblocks = list()
         self.root = ElementTree(file=file)
 
     #
@@ -65,22 +68,45 @@ class LrsParser(object):
                     id = element.attrib['objid']
                     if id not in self.objects:
                         self.objects[id] = element
+                    elif self.equal_element(self.objects[id], element):
+                        continue
                     elif self.objects[id] != element:
-                        raise LrsError, "multiple objects with same objid=%d, %s and %s"%(id, element.tag, self.objects[id].tag)
-                    if id == objid:
-                        break
+                        raise LrsError, "multiple objects with same objid=%s, %s and %s"%(id, element.tag, self.objects[id].tag)
         if objid in self.objects:
             return self.objects[objid]
         return None
     
     #
-    # compare two attrib dictionaries for equivalence
+    # put the tag and attributes into one string
+    #
+    def element_dump(self, element):
+        str = ""
+        str += "<%s"%element.tag
+        keys = element.attrib.keys()
+        keys.sort()
+        for key in keys:
+            str += " %s=\"%s\""%(key,element.attrib[key])
+        # should do something about sub elements and sub text
+        str += "/>"
+        return str
+    
+    #
+    # compare two elements for identical tags and attributes
+    #
+    def equal_element(self, e1, e2):
+        return e1.tag == e2.tag and self._equal_attrib(e1, e2, ignore=[])
+
+    #
+    # compare two element attrib dictionaries for equivalence
+    # ignoring some attributes
     #
     def equal_attrib(self, e1, e2):
+        return self._equal_attrib(e1, e2, ignore=LrsParser.filterAttrib)
+
+    def _equal_attrib(self, e1, e2, ignore):
         #print "comparing %s to %s in equal_attrib"%(e1.tag,e2.tag)
         a1 = e1.attrib
         a2 = e2.attrib
-        ignore = LrsParser.filterAttrib
         for name in a1.keys():
             if name in ignore:
                 continue
@@ -112,11 +138,9 @@ class LrsParser(object):
                 if name == 'objid':
                     if id not in self.objects:
                         self.objects[id] = element
-                    elif self.objects[id] != element:
+                    elif self.objects[id] != element and not self.equal_element(self.objects[id], element):
                         raise LrsError, "multiple objects with same objid=%s, %s and %s"%(id, element.tag, self.objects[id].tag)
-
                 del attrib[name]
-
         return attrib
 
     #
@@ -257,12 +281,20 @@ class LrsParser(object):
             obj.append(Text(text.text))
 
         for element in text:
-            print "No text processor for ", element.tag
+            print "No text processor for %s", self.element_dump(element)
             if element.tail != None:
                 obj.append(Text(element.tail))
 
         return obj
     
+    #
+    # <Plot> occurs in draw_char, simple_char2, ...
+    #
+    def process_Plot(self, plot):
+        self.plots.append(plot)
+        plot.lrsplot = Plot(None, **self.process_attrib(plot))
+        return plot.lrsplot
+
     def process_draw_char(self, draw_char, obj):
         """Process an element in the DrawChar set"""
 
@@ -271,49 +303,49 @@ class LrsParser(object):
 
         for element in draw_char:
             if element.tag == "Span":
-                obj.append(self.process_draw_char(element, Span(**element.attrib)))
+                obj.append(self.process_draw_char(element, Span(**self.process_attrib(element))))
             elif element.tag == "Plot":
-                obj.append(self.process_text(element, Plot(**element.attrib)))
+                obj.append(self.process_text(element, self.process_Plot(element)))
             elif element.tag == "CR":
                 obj.append(CR())
             elif element.tag == "Space":
-                obj.append(Space(**element.attrib))
+                obj.append(Space(**self.process_attrib(element)))
             elif element.tag == "CharButton":
                 self.charbuttons.append(element)
                 element.lrscharbutton = CharButton(None, **self.process_attrib(element))
                 obj.append(self.process_simple_char1(element, element.lrscharbutton))
             elif element.tag == "Sup":
-                obj.append(self.process_simple_char0(element, Sup(element.text)))
+                obj.append(self.process_simple_char0(element, Sup()))
             elif element.tag == "Sub":
-                obj.append(self.process_simple_char0(element, Sub(element.text)))
+                obj.append(self.process_simple_char0(element, Sub()))
             elif element.tag == "NoBR":
                 obj.append(self.process_simple_char1(element, NoBR()))
             elif element.tag == "DrawChar":
-                obj.append(self.process_simple_char0(element, DropCaps(**element.attrib)))
+                obj.append(self.process_simple_char0(element, DropCaps(**self.process_attrib(element))))
             elif element.tag == "Box":
-                obj.append(self.process_simple_char0(element, Box(**element.attrib)))
+                obj.append(self.process_simple_char0(element, Box(**self.process_attrib(element))))
             elif element.tag == "Italic":
                 obj.append(self.process_draw_char(element, Italic()))
             elif element.tag == "Bold":
                 obj.append(self.process_draw_char(element, Bold()))
             # elif element.tag == "Fill":
-            #    obj.append(Fill(**element.attrib))
+            #    obj.append(Fill(**self.process_attrib(element)))
             # elif element.tag == "Rubi":
-            #    obj.append(process_Rubi(element))
+            #    obj.append(self.process_Rubi(element))
             # elif element.tag == "Yoko":
-            #    obj.append(process_simple_char0(element, Yoko(**element.attrib)))
+            #    obj.append(self.process_simple_char0(element, Yoko(**self.process_attrib(element))))
             # elif element.tag == "Tate":
-            #    obj.append(process_simple_char2(element, Tate(**element.attrib)))
+            #    obj.append(self.process_simple_char2(element, Tate(**self.process_attrib(element))))
             # elif element.tag == "Nekase":
-            #    obj.append(process_simple_char2(element, Nekase(**element.attrib)))
-            # elif element.tag == "EmpLine":
-            #    obj.append(process_simple_char0(element, EmpLine(**element.attrib)))
+            #    obj.append(self.process_simple_char2(element, Nekase(**self.process_attrib(element))))
+            elif element.tag == "EmpLine":
+                obj.append(self.process_simple_char0(element, EmpLine(**self.process_attrib(element))))
             # elif element.tag == "EmpDots":
-            #    obj.append(process_simple_char0(element, EmpDots(**element.attrib)))
+            #    obj.append(self.process_simple_char0(element, EmpDots(**self.process_attrib(element))))
             # elif element.tag == "Gaiji":
-            #    obj.append(process_text(element, Gaiji(**element.attrib)))
+            #    obj.append(self.process_text(element, Gaiji(**self.process_attrib(element))))
             # elif element.tag == "AltString":
-            #    obj.append(process_AltString(element))
+            #    obj.append(self.process_AltString(element))
             else:
                 print "No DrawChar set processor for ", element.tag
             if element.tail != None:
@@ -327,12 +359,14 @@ class LrsParser(object):
         if simple_char0.text != None:
             obj.append(Text(simple_char0.text))
         for element in simple_char0:
-            # if element.tag == "Gaiji":
-            #    obj.append(process_text(element, Gaiji(**element.attrib)))
+            if element.tag == "Plot":
+                obj.append(self.process_text(element, self.process_Plot(element)))
+            # elif element.tag == "Gaiji":
+            #    obj.append(process_text(element, Gaiji(**self.process_attrib(element))))
             # elif element.tag == "AltString":
             #    obj.append(process_AltString(element))
-            # else:
-            print "No SimpleChar0 set processor for ", element.tag
+            else:
+                print "No SimpleChar0 set processor for ", element.tag
             if element.tail != None:
                 obj.append(Text(element.tail))
 
@@ -341,27 +375,26 @@ class LrsParser(object):
     
     def process_simple_char1(self, simple_char1, obj):
         """Process an element in the SimpleChar1 set"""
-
         if simple_char1.text != None:
             obj.append(Text(simple_char1.text))
 
         for element in simple_char1:
             if element.tag == "Box":
-                obj.append(self.process_simple_char0(element), Box(**element.attrib))
+                obj.append(self.process_simple_char0(element), Box(**self.process_attrib(element)))
             elif element.tag == "Sub":
-                obj.append(self.process_simple_char0(element, Sub(**element.attrib)))
+                obj.append(self.process_simple_char0(element, Sub(**self.process_attrib(element))))
             elif element.tag == "Sup":
-                obj.append(self.process_simple_char0(element, Sup(**element.attrib)))
+                obj.append(self.process_simple_char0(element, Sup(**self.process_attrib(element))))
             elif element.tag == "Space":
-                obj.append(Space(**element.attrib))
+                obj.append(Space(**self.process_attrib(element)))
             #    elif element.tag == "Rubi":
             #        obj.append(process_Rubi(element))
             #    elif element.tag == "Gaiji":
-            #        obj.append(process_text(element, Gaiji(**element.attrib)))
+            #        obj.append(process_text(element, Gaiji(**self.process_attrib(element))))
             #    elif element.tag == "EmpDots":
-            #        obj.append(process_simple_char0(element, EmpDots(**element.attrib)))
+            #        obj.append(process_simple_char0(element, EmpDots(**self.process_attrib(element))))
             #    elif element.tag == "EmpLine":
-            #        obj.append(process_simple_char0(element, EmpLine(**element.attrib)))
+            #        obj.append(process_simple_char0(element, EmpLine(**self.process_attrib(element))))
             #    elif element.tag == "AltString":
             #        obj.append(process_AltString(element))
             else:
@@ -379,9 +412,9 @@ class LrsParser(object):
 
         for element in simple_char2:
             if element.tag == "Plot":
-                obj.append(self.process_text(element, Plot(**element.attrib)))
+                obj.append(self.process_text(element, self.process_Plot(element)))
             # elif element.tag == "Gaiji":
-            #    obj.append(process_text(element, Gaiji(**element.attrib)))
+            #    obj.append(process_text(element, Gaiji(**self.process_attrib(element))))
             # elif element.tag == "AltString":
             #    obj.append(process_AltString(element))
             else:
@@ -391,6 +424,13 @@ class LrsParser(object):
 
         return obj
 
+    #
+    # <PutObj> occurs in <Canvas>, <Header>, <Footer>
+    #
+    def process_PutObj(self, putobj):
+        self.putobjs.append(putobj)
+        putobj.lrsputobj = PutObj(None, **self.process_attrib(putobj))
+        return putobj.lrsputobj
 
     #
     # <Canvas> occurs in <Page>, <Objects>, <Window>
@@ -398,19 +438,24 @@ class LrsParser(object):
     def process_Canvas(self, canvas):
         """Process the <Canvas> element"""
 
-        dcanvas = Canvas(**canvas.attrib)
+        width = canvas.attrib['canvaswidth']
+        height = canvas.attrib['canvasheight']
+        del canvas.attrib['canvaswidth']
+        del canvas.attrib['canvasheight']
+        dcanvas = Canvas(width=width, height=height, **self.process_attrib(canvas))
+        
         # text permitted?
         for element in canvas:
             if element.tag == "PutObj":
-                dcanvas.append(PutObj(**element.attrib))
+                dcanvas.append(self.process_PutObj(element))
             # elif element.tag == "MoveTo":
-            #     dcanvas.append(MoveTo(**element.attrib))
+            #     dcanvas.append(MoveTo(**self.process_attrib(element)))
             # elif element.tag == "LineTo":
-            #     dcanvas.append(LineTo(**element.attrib))
+            #     dcanvas.append(LineTo(**self.process_attrib(element)))
             # elif element.tag == "DrawBox":
-            #     dcanvas.append(DrawBox(**element.attrib))
+            #     dcanvas.append(DrawBox(**self.process_attrib(element)))
             # elif element.tag == "DrawEllipse":
-            #     dcanvas.append(DrawEllipse(**element.attrib))
+            #     dcanvas.append(DrawEllipse(**self.process_attrib(element)))
             else:
                 print "No <Canvas> processor for ", element.tag
             # tail text permitted?
@@ -424,7 +469,7 @@ class LrsParser(object):
         """Process the <TextBlock> element"""
 
         self.dobjects[textBlock.attrib['objid']] = \
-        dtextblock = self.book.create_text_block(textStyle=self.fetch_style(textBlock, 'textstyle'),
+            dtextblock = self.book.create_text_block(textStyle=self.fetch_style(textBlock, 'textstyle'),
                                             blockStyle=self.fetch_style(textBlock, 'blockstyle'),
                                             **self.process_attrib(textBlock))
         # text permitted?
@@ -454,11 +499,11 @@ class LrsParser(object):
                     element.lrsjumpto = JumpTo(None)
                     dbutton.append(element.lrsjumpto)
             #elif element.tag == "Run":
-            #    dbutton.append(Run(**element.attrib))
+            #    dbutton.append(Run(**self.process_attrib(element)))
             #elif element.tag == "SoundStop":
-            #    dbutton.append(SoundStop(**element.attrib))
+            #    dbutton.append(SoundStop(**self.process_attrib(element)))
             #elif element.tag == "CloseWindow":
-            #    dbutton.append(CloseWindow(**element.attrib))
+            #    dbutton.append(CloseWindow(**self.process_attrib(element)))
             else:
                 print "No ", name, " processor for ", element.tag
             # tail text permitted?
@@ -475,16 +520,16 @@ class LrsParser(object):
     #
     # <FocusinButton> occurs in <ButtonBlock>, <Button>
     #
-    #def process_FocusinButton(self, button):
-    #    """Process the <FocusinButton> element"""
-    #    return self.process_some_Button(button, FocusinButton(**button.attrib), "<FocusinButton>")
+    def process_FocusinButton(self, button):
+        """Process the <FocusinButton> element"""
+        return self.process_some_Button(button, FocusinButton(**button.attrib), "<FocusinButton>")
 
     #
     # <UpButton> occurs in <ButtonBlock>, <Button>
     #
-    #def process_UpButton(self, button):
-    #    """Process the <FocusinButton> element"""
-    #    return self.process_some_Button(button, UpButton(**button.attrib), "<UpButton>")
+    def process_UpButton(self, button):
+        """Process the <FocusinButton> element"""
+        return self.process_some_Button(button, UpButton(**button.attrib), "<UpButton>")
     
     #
     # <ButtonBlock> occurs in <Page>, <Objects>, <Window>
@@ -495,18 +540,35 @@ class LrsParser(object):
         dbuttonblock = ButtonBlock()
         # text permitted?
         for element in buttonBlock:
-            #if element.tag == "BaseButton":
-            #    dbuttonblock.append(BaseButton(**element.attrib))
-            #elif element.tag == "FocusinButton":
-            #    dbuttonblock.append(process_FocusinButton(element))
-            #elif element.tag == "PushButton":
-            #    dbuttonblock.append(process_PushButton(element))
-            #elif element.tag == "UpButton":
-            #    dbuttonblock.append(process_UpButton(element))
-            #else:
-                print "No <ButtonBlock> processor for ", element.tag
+            if element.tag == "BaseButton":
+                dbuttonblock.append(BaseButton(**self.process_attrib(element)))
+            elif element.tag == "FocusinButton":
+                dbuttonblock.append(self.process_FocusinButton(element))
+            elif element.tag == "PushButton":
+                dbuttonblock.append(self.process_PushButton(element))
+            elif element.tag == "UpButton":
+                dbuttonblock.append(self.process_UpButton(element))
+            else:
+                print "No <%s> processor for <%s>"%(buttonBlock.tag,element.tag)
             # tail text permitted?
         return dbuttonblock
+
+    #
+    # <ImageBlock> occurs in ...
+    #
+    def process_ImageBlock(self, imageblock):
+        self.imageblocks.append(imageblock)
+        imageblock.lrsimageblock = ImageBlock(None, **self.process_attrib(imageblock))
+        self.dobjects[imageblock.attrib['objid']] = imageblock.lrsimageblock
+        return self.process_text(imageblock, imageblock.lrsimageblock)
+        
+    #
+    # <Image> occurs in ...
+    def process_Image(self, image):
+        self.images.append(image)
+        image.lrsimage = Image(None, **self.process_attrib(image))
+        self.dobjects[image.attrib['objid']] = image.lrsimage
+        return self.process_text(image, image.lrsimage)
 
     #
     # <Button> occurs at toplevel, also <Page>, <Objects>, <Window>
@@ -515,19 +577,19 @@ class LrsParser(object):
         """Process the <Button> element"""
     
         self.dobjects[button.attrib['objid']] = \
-        dbutton = Button(**self.process_attrib(button))
+            dbutton = Button(**self.process_attrib(button))
         # text permitted?
         for element in button:
-            #if element.tag == "BaseButton":
-            #    dbutton.append(BaseButton(**element.attrib))
-            #elif element.tag == "FocusinButton":
-            #    dbutton.append(self.process_FocusinButton(element))
-            #elif element.tag == "PushButton":
-            #    dbutton.append(self.process_PushButton(element))
-            #elif element.tag == "UpButton":
-            #    dbutton.append(self.process_UpButton(element))
-            #else:
-                print "No <ButtonBlock> processor for ", element.tag
+            if element.tag == "BaseButton":
+                dbutton.append(BaseButton(**self.process_attrib(element)))
+            elif element.tag == "FocusinButton":
+                dbutton.append(self.process_FocusinButton(element))
+            elif element.tag == "PushButton":
+                dbutton.append(self.process_PushButton(element))
+            elif element.tag == "UpButton":
+                dbutton.append(self.process_UpButton(element))
+            else:
+                print "No <Button> processor for <%s>"%element.tag
             # tail text permitted?
         return dbutton
 
@@ -542,25 +604,25 @@ class LrsParser(object):
             if name+'id' in page.attrib:
                 attrib[name] = self.fetch_header_footer(page, name+'id')
         self.dobjects[page.attrib['objid']] = \
-        dpage = self.book.create_page(pageStyle=self.fetch_style(page, 'pagestyle'), **attrib)
+            dpage = self.book.create_page(pageStyle=self.fetch_style(page, 'pagestyle'), **attrib)
         # text permitted?
         for element in page:
             if element.tag == "TextBlock":
                 dpage.append(self.process_TextBlock(element))
             elif element.tag == "ImageBlock":
-                dpage.append(self.process_text(element, ImageBlock(**element.attrib)))
+                dpage.append(self.process_ImageBlock(element))
             elif element.tag == "ButtonBlock":
                 dpage.append(self.process_ButtonBlock(element))
             elif element.tag == "Button":
                 dpage.append(self.process_Button(element))
             elif element.tag == "BlockSpace":
-                dpage.BlockSpace(**element.attrib)
+                dpage.BlockSpace(**self.process_attrib(element))
             elif element.tag == "Canvas":
                 dpage.append(self.process_Canvas(element))
             elif element.tag == "RuledLine":
-                dpage.append(RuledLine(**element.attrib))
+                dpage.append(RuledLine(**self.process_attrib(element)))
             #elif element.tag == "Wait":
-            #    dpage.append(Wait(**element.attrib))
+            #    dpage.append(Wait(**self.process_attrib(element)))
             else:
                 print "No <Page> processor for ", element.tag
             # tail text permitted?
@@ -574,17 +636,15 @@ class LrsParser(object):
         
         for element in header:
             if element.tag == "PutObj":
-                self.putobjs.append(element)
-                element.lrsputobj = PutObj(None, **self.process_attrib(element))
-                dheader.append(element.lrsputobj)
+                dheader.append(self.process_PutObj(element))
             # elif element.tag == "MoveTo":
-            #     dheader.append(MoveTo(**element.attrib))
+            #     dheader.append(MoveTo(**self.process_attrib(element)))
             # elif element.tag == "LineTo":
-            #     dheader.append(LineTo(**element.attrib))
+            #     dheader.append(LineTo(**self.process_attrib(element)))
             # elif element.tag == "DrawBox":
-            #     dheader.append(DrawBox(**element.attrib))
+            #     dheader.append(DrawBox(**self.process_attrib(element)))
             # elif element.tag == "DrawEllipse":
-            #     dheader.append(DrawEllipse(**element.attrib))
+            #     dheader.append(DrawEllipse(**self.process_attrib(element)))
             else:
                 print "No <Header> processor for ", element.tag
 
@@ -598,21 +658,27 @@ class LrsParser(object):
         
         for element in footer:
             if element.tag == "PutObj":
-                self.putobjs.append(element)
-                element.lrsputobj = PutObj(None, **self.process_attrib(element))
-                dfooter.append(element.lrsputobj)
+                dfooter.append(self.process_PutObj(element))
             # elif element.tag == "MoveTo":
-            #     dheader.append(MoveTo(**element.attrib))
+            #     dheader.append(MoveTo(**self.process_attrib(element)))
             # elif element.tag == "LineTo":
-            #     dheader.append(LineTo(**element.attrib))
+            #     dheader.append(LineTo(**self.process_attrib(element)))
             # elif element.tag == "DrawBox":
-            #     dheader.append(DrawBox(**element.attrib))
+            #     dheader.append(DrawBox(**self.process_attrib(element)))
             # elif element.tag == "DrawEllipse":
-            #     dheader.append(DrawEllipse(**element.attrib))
+            #     dheader.append(DrawEllipse(**self.process_attrib(element)))
             else:
                 print "No <Footer> processor for ", element.tag
 
         return dfooter
+
+    #
+    # <ImageStream> occurs in <Objects>
+    #
+    def process_ImageStream(self, imagestream):
+        self.dobjects[imagestream.attrib['objid']] = \
+            dimagestream = ImageStream(**self.process_attrib(imagestream))
+        return self.process_text(imagestream, dimagestream)
 
     #
     # Toplevel elements.
@@ -745,9 +811,11 @@ class LrsParser(object):
 
             for element in bookStyle:
                 if element.tag == "SetDefault":
-                    dbookstyle.styledefault = StyleDefault(**element.attrib)
+                    dbookstyle.styledefault = StyleDefault(**self.process_attrib(element))
                 elif element.tag == "BookSetting":
-                    dbookstyle.booksetting = BookSetting(**element.attrib)
+                    dbookstyle.booksetting = BookSetting(**self.process_attrib(element))
+                elif element.tag == "RegistFont":
+                    dbookstyle.append(Font(**self.process_attrib(element)))
                 else:
                     print "No <BookStyle> processor for ", element.tag
                 
@@ -755,13 +823,13 @@ class LrsParser(object):
             if element.tag == "BookStyle":
                 process_BookStyle(element)
             elif element.tag == "PageStyle":
-                # ignore - self.book.append(PageStyle(**element.attrib))
+                # ignore - self.book.append(PageStyle(**self.process_attrib(element)))
                 None
             elif element.tag == "TextStyle":
-                # ignore - self.book.append(TextStyle(**element.attrib))
+                # ignore - self.book.append(TextStyle(**self.process_attrib(element)))
                 None
             elif element.tag == "BlockStyle":
-                # ignore - self.book.append(BlockStyle(**element.attrib))
+                # ignore - self.book.append(BlockStyle(**self.process_attrib(element)))
                 None
             else:
                 print "No <Style> processor for ", element.tag
@@ -778,35 +846,35 @@ class LrsParser(object):
         # def process_Window(window):
         #     """Process the <Window> element"""
         #
-        #     dwindow = Window(**window.attrib)
+        #     dwindow = Window(**self.process_attrib(window))
         #
         #     for element in window:
         #         if element.tag == "TextBlock":
-        #             dwindow.append(process_TextBlock(element))
+        #             dwindow.append(self.process_TextBlock(element))
         #         elif element.tag == "ImageBlock":
-        #             dwindow.append(process_text(element, ImageBlock(**element.attrib)))
+        #             dwindow.append(self.process_ImageBlock(element)
         #         elif element.tag == "ButtonBlock":
-        #             dwindow.append(process_ButtonBlock(element))
+        #             dwindow.append(self.process_ButtonBlock(element))
         #         elif element.tag == "Button":
-        #             dwindow.append(process_Button(element))
+        #             dwindow.append(self.process_Button(element))
         #         elif element.tag == "Canvas":
-        #             dwindow.append(process_Canvas(element))
+        #             dwindow.append(self.process_Canvas(element))
         #         elif element.tag == "RuledLine":
-        #             dwindow.append(RuledLine(**element.attrib))
+        #             dwindow.append(RuledLine(**self.process_attrib(element)))
         #         elif element.tag == "Wait":
-        #             dwindow.append(Wait(**element.attrib))
+        #             dwindow.append(Wait(**self.process_attrib(element)))
         #         else:
         #             print "No <Window> processor for ", element.tag
 
         # <PopUpWin> occurs in <Objects>
         # def process_PopUpWin(popUpWin):
         #     """Process <PopUpWin> element"""
-        #     dpopupwin = PopUpWin(**popUpWin.attrib)
+        #     dpopupwin = PopUpWin(**self.process_attrib(popUpWin))
         #     for element in popUpWin:
         #         if element.tag == "TextBlock":
         #             dpopupwin.append(process_TextBlock(element))
         #         elif element.tag == "ImageBlock":
-        #             dpopup.append(process_text(element, ImageBlock(**element.attrib)))
+        #             dpopup.append(self.process_ImageBlock(element))
         #         else:
         #             print "No <PopUpWin> processor for ", element.tag
         
@@ -825,7 +893,7 @@ class LrsParser(object):
             if element.tag == "TextBlock":
                 dobjects.append(self.process_TextBlock(element))
             elif element.tag == "ImageBlock":
-                dobjects.appendImageBlock(self.process_text(element, ImageBlock(**element.attrib)))
+                dobjects.appendImageBlock(self.process_ImageBlock(element))
             elif element.tag == "ButtonBlock":
                 dobjects.append(self.process_ButtonBlock(element))
             elif element.tag == "Button":
@@ -841,7 +909,7 @@ class LrsParser(object):
             # elif element.tag == "SoundStream":
             #     dobjects.appendSoundStream(self.process_empty(element))
             elif element.tag == "ImageStream":
-                dobjects.appendImageStream(self.process_text(element, ImageStream(**element.attrib)))
+                dobjects.appendImageStream(self.process_ImageStream(element))
             elif element.tag == "Header":
                 # processed as part of Page or PageStyle, just skip here
                 None    # self.process_Header(element)
@@ -851,7 +919,7 @@ class LrsParser(object):
             # elif element.tag == "eSound":
             #     dobjects.appendeSound(process_empty(element))
             elif element.tag == "Image":
-                dobjects.appendImage(self.process_text(element, Image(**element.attrib)))
+                dobjects.appendImage(self.process_Image(element))
             # elif element.tag == "TOC":
             #     dobjects.appendTOC(process_TOC(element))
             else:
@@ -906,7 +974,24 @@ class LrsParser(object):
                 raise LrsError, "PutObj reference to %s did not resolve"%refobj
             else:
                 po.lrsputobj.setContent(self.dobjects[refobj])
-
+        for pl in self.plots:
+            refobj = pl.attrib['refobj']
+            if refobj not in self.dobjects:
+                raise LrsError, "Plot reference to %s did not resolve"%refobj
+            else:
+                pl.lrsplot.setObj(self.dobjects[refobj])
+        for im in self.images:
+            refstream = im.attrib['refstream']
+            if refstream not in self.dobjects:
+                raise LrsError, "Image reference to %s did not resolve"%refstream
+            else:
+                im.lrsimage.setRefstream(self.dobjects[refstream])
+        for ib in self.imageblocks:
+            refstream = ib.attrib['refstream']
+            if refstream not in self.dobjects:
+                raise LrsError, "ImageBlock reference to %s did not resolve"%refstream
+            else:
+                ib.lrsimageblock.setRefstream(self.dobjects[refstream])
                 
     def renderLrf(self, file):
         self.book.renderLrf(file)

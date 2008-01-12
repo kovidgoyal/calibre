@@ -36,7 +36,6 @@ class LRFDocument(LRFMetaFile):
         
     def parse(self):
         self._parse_objects()
-        self.toc = None
         self.metadata = LRFDocument.temp()
         for a in ('title', 'title_reading', 'author', 'author_reading', 'book_id', 
                   'classification', 'free_text', 'publisher', 'label', 'category'):
@@ -65,7 +64,7 @@ class LRFDocument(LRFMetaFile):
                 break
             if hasattr(obj, 'initialize'):
                 obj.initialize()
-                    
+
     def _parse_object(self, objid, objoff, objsize):
         obj = get_object(self, self._file, objid, objoff, objsize, self.scramble_key)
         self.objects[objid] = obj
@@ -105,7 +104,7 @@ class LRFDocument(LRFMetaFile):
         bookinfo += u'<Language reading="">%s</Language>\n'%(self.doc_info.language,)
         bookinfo += u'<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
         bookinfo += u'<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)
-        bookinfo += u'<SumPage>%s</SumPage>\n</DocInfo>\n</Info>\n</BookInformation>\n'%(self.doc_info.page,)
+        bookinfo += u'<SumPage>%s</SumPage>\n</DocInfo>\n</Info>\n%s</BookInformation>\n'%(self.doc_info.page,self.toc)
         pages = u''
         done_main = False
         pt_id = -1
@@ -127,8 +126,10 @@ class LRFDocument(LRFMetaFile):
         styles  = u'\n<Style>\n'
         for obj in self.objects:
             obj = self.objects[obj]
-            if obj.id in traversed_objects or isinstance(obj, (Font, Text)):
-                continue            
+            if obj.id in traversed_objects:
+                continue
+            if isinstance(obj, (Font, Text, TOCObject)):
+                continue
             if isinstance(obj, StyleObject):
                 styles += unicode(obj)
             else:

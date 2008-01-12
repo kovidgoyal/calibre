@@ -208,7 +208,7 @@ class Canvas(_Canvas, ContentObject):
             obj = po.object
             item = object_factory(self, obj, respect_max_y=True)
             if item:
-                self.items.append((item, po.x, po.y))
+                self.items.append((item, po.x1, po.y1))
                 
     def put_objects(self):
         for block, x, y in self.items:

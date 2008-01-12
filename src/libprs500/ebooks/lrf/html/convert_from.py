@@ -807,7 +807,7 @@ class HTMLConverter(object):
                 dec = css['text-decoration'].lower()
                 linepos = 'after' if dec == 'underline' else 'before' if dec == 'overline' else None
                 if linepos is not None:
-                    elem = EmpLine(elem, lineposition=linepos)
+                    elem = EmpLine(elem, emplineposition=linepos)
             self.current_para.append(elem)
         
         
