@@ -68,11 +68,11 @@ def upload_demo():
                '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''
                '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
                ''''''%(HTML2LRF,))
-    check_call('cd src/libprs500/ebooks/lrf/html/demo/ && zip /tmp/html-demo.zip * /tmp/html2lrf.lrf')
+    check_call('cd src/libprs500/ebooks/lrf/html/demo/ && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf')
     check_call('''scp /tmp/html-demo.zip castalia:%s/'''%(DOWNLOADS,))
     check_call('''txt2lrf -t 'Demonstration of txt2lrf' -a 'Kovid Goyal' '''
                '''--header -o /tmp/txt2lrf.lrf %s/demo.txt'''%(TXT2LRF,) )
-    check_call('cd src/libprs500/ebooks/lrf/txt/demo/ && zip /tmp/txt-demo.zip * /tmp/txt2lrf.lrf')
+    check_call('cd src/libprs500/ebooks/lrf/txt/demo/ && zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf')
     check_call('''scp /tmp/txt-demo.zip castalia:%s/'''%(DOWNLOADS,))
 
 def upload_installers(exe, dmg):
