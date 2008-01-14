@@ -19,11 +19,7 @@
 # 
 
 import sys, os
-
-try:
-    from elementtree.ElementTree import ElementTree
-except ImportError:
-    from xml.etree.ElementTree import ElementTree
+from xml.etree.ElementTree import ElementTree
 
 from libprs500.ebooks.lrf.pylrs.pylrs import \
      Book, StyleDefault, BookSetting, \
