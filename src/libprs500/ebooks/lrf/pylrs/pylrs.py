@@ -1485,6 +1485,8 @@ class TextBlock(LrsObject, LrsContainer):
                 self.textSettings[name] = value
             elif name in BlockStyle.validSettings:
                 self.blockSettings[name] = value
+            elif name == 'toclabel':
+                self.tocLabel = value
             else:
                 raise LrsError, "%s not a valid setting for TextBlock" % name
 
