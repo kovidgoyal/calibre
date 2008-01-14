@@ -353,7 +353,7 @@ class OPF(MetaInformation):
                 type = reference.get('type')
                 if not type:
                     continue
-                if type.lower() in ['cover', 'other.ms-coverimage-standard']:
+                if type.lower() in ['cover', 'other.ms-coverimage-standard', "other.ms-coverimage"]:
                     return reference.get('href')
         return None
     

@@ -1135,6 +1135,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 self.set_rating(id, mi.rating)
             if mi.series:
                 self.set_series(id, mi.series)
+            if mi.cover_data[1] is not None:
+                self.set_cover(id, mi.cover_data[1])
             stream = open(path, 'rb')
             stream.seek(0, 2)
             usize = stream.tell()

@@ -100,9 +100,12 @@ class DirectoryEntry(object):
         self.offset = offset
         self.size = size
         
-    def __str__(self):
-        return '%s\n\tSection: %d\n\tOffset: %d\n\tSize: %d'%(self.name,
+    def __repr__(self):
+        return '%s\n\tSection: %d\n\tOffset: %d\n\tSize: %d\n'%(self.name,
                                         self.section, self.offset, self.size)
+        
+    def __str__(self):
+        return repr(self)
 
 class LitReadError(Exception):
     pass
@@ -693,7 +696,7 @@ class LitFile(object):
                         self.manifest.append(ManifestItem(original, internal, mime_type, offset, root, state))                        
                         i += 1
         finally:
-            self._stream.seek(opos)
+            self._stream.seek(opos)        
             
     def read_meta(self, entry):
         opos = self._stream.tell()
@@ -711,12 +714,39 @@ class LitFile(object):
             self.meta = xml
         finally:
             self._stream.seek(opos)
+            
+    def read_cover(self, internal_name):
+        cover_entry = None
+        for entry in self.entries:
+            if internal_name in entry.name:
+                cover_entry = entry
+                break
+        opos = self._stream.tell()
+        try:
+            self._stream.seek(self.content_offset + cover_entry.offset)
+            return self._stream.read(cover_entry.size)
+        finally:
+            self._stream.seek(opos)
 
 def get_metadata(stream):
     try:
         litfile = LitFile(stream)
         src = litfile.meta.encode('utf-8')
         mi = OPFReader(cStringIO.StringIO(src))
+        cover_url, cover_item = mi.cover, None
+        if cover_url:
+            for item in litfile.manifest:
+                if item.path == cover_url:
+                    cover_item = item.internal
+        if cover_item is not None:
+            ext = cover_url.rpartition('.')[-1]
+            if not ext:
+                ext = 'jpg'
+            else:
+                ext = ext.lower()
+            cd = litfile.read_cover(cover_item)
+            if cd:
+                mi.cover_data = (ext, cd)            
     except:
         title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
         mi = MetaInformation(title, ['Unknown'])
@@ -730,6 +760,10 @@ def main(args=sys.argv):
         return 1
     mi = get_metadata(open(args[1], 'rb'))
     print unicode(mi)
+    if mi.cover_data[1]:
+        cover = os.path.abspath(os.path.splitext(os.path.basename(args[1]))[0] + '.' + mi.cover_data[0]) 
+        open(cover, 'wb').write(mi.cover_data[1])
+        print 'Cover saved to', cover
     return 0
 
 if __name__ == '__main__':
