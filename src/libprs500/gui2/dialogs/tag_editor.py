@@ -53,7 +53,6 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.connect(self.applied_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
     
     def apply_tags(self, item=None):
-        print 1111111111111111111
         items = self.available_tags.selectedItems() if item is None else [item]  
         for item in items:
             tag = qstring_to_unicode(item.text())
