@@ -68,7 +68,8 @@ def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
     stream.seek(0)
     if stream.read(5) != r'{\rtf':
-        raise Exception('Not a valid RTF file')
+        name = stream.name if hasattr(stream, 'name') else repr(stream)
+        raise Exception('Not a valid RTF file: '+name)
     block = get_document_info(stream)[0]
     if not block:
         return MetaInformation(None, None)
