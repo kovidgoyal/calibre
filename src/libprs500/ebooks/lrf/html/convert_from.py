@@ -250,7 +250,6 @@ class HTMLConverter(object):
         
         paths = [os.path.abspath(path) for path in paths]
         
-        
         while len(paths) > 0 and self.link_level <= self.link_levels:
             for path in paths:
                 if path in self.processed_files:
@@ -346,7 +345,9 @@ class HTMLConverter(object):
         
         self.file_name = os.path.basename(path)
         self.logger.info('Processing %s', path if self.verbose else self.file_name)
-        upath = path.encode('utf-8') if isinstance(path, unicode) else path 
+        upath = path.encode('utf-8') if isinstance(path, unicode) else path
+        if not os.path.exists(upath):
+            upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names 
         raw = open(upath, 'rb').read()
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')
