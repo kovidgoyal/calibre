@@ -295,14 +295,12 @@ class Main(MainWindow, Ui_MainWindow):
             format = format[1:] if format else None
             stream = open(book, 'rb')
             mi = get_metadata(stream, stream_type=format)
-            if not mi.title:
-                mi.title = os.path.splitext(os.path.basename(book))[0]
+            title = mi.title if mi.title else os.path.splitext(os.path.basename(book))[0] 
             formats.append(format)
             metadata.append(mi)
             names.append(os.path.basename(book))
-            if not mi.authors:
-                mi.authors = ['Unknown']
-            infos.append({'title':mi.title, 'authors':', '.join(mi.authors), 
+            authors = mi.authors if mi.authors else ['Unknown']
+            infos.append({'title':title, 'authors':', '.join(authors), 
                           'cover':self.default_thumbnail, 'tags':[]})
         
         if not to_device:

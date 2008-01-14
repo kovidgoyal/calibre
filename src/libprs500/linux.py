@@ -98,6 +98,7 @@ def setup_completion():
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
         f.write(opts_and_exts('pdf-meta', metaop, ['pdf']))
         f.write(opts_and_exts('lit-meta', metaop, ['lit']))
+        f.write(opts_and_exts('opf-meta', metaop, ['opf']))
         f.write(opts_and_exts('epub-meta', metaop, ['epub']))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write('''

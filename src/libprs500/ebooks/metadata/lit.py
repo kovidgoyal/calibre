@@ -159,6 +159,7 @@ FLAG_CLOSING   = 2
 FLAG_BLOCK     = 4
 FLAG_HEAD      = 8
 FLAG_ATOM      = 16
+XML_ENTITIES   = ['&amp;', '&apos;', '&lt;', '&gt;', '&quot;']
 
 class UnBinary(object):
     def __init__(self, bin, manifest, attr_map=OPF_ATTR_MAP, tag_map=OPF_TAG_MAP, 
@@ -173,8 +174,28 @@ class UnBinary(object):
         self.opf = self.attr_map is OPF_ATTR_MAP
         self.bin = bin
         self.buf = cStringIO.StringIO()
-        self.binary_to_text() 
+        self.ampersands = []
+        self.binary_to_text()
+        self.raw = self.buf.getvalue().lstrip().decode('utf-8') 
+        self.escape_ampersands() 
 
+    def escape_ampersands(self):
+        offset = 0
+        for pos in self.ampersands:
+            test = self.raw[pos+offset:pos+offset+6]
+            if test.startswith('&#') and ';' in test:
+                continue
+            escape = True
+            for ent in XML_ENTITIES:
+                if test.startswith(ent):
+                    escape = False
+                    break
+            if not escape:
+                continue
+            self.raw = self.raw[:pos+offset] + '&amp;' + self.raw[pos+offset+1:]
+            offset += 4
+            
+    
     def write_spaces(self, depth):
         self.buf.write(u' '.join(u'' for i in range(depth)))
         
@@ -185,8 +206,7 @@ class UnBinary(object):
         raise LitReadError('Could not find item %s'%(internal_id,))
     
     def __unicode__(self):
-        raw = self.buf.getvalue().lstrip()
-        return raw.decode('utf-8')
+        return self.raw
     
     def binary_to_text(self, base=0, depth=0):
         space_enabled, saved_space_enabled = 1, 0
@@ -213,6 +233,8 @@ class UnBinary(object):
                 if c == '\v': 
                     c = '\n'
                 pending_indent = 0
+                if c == '&':
+                    self.ampersands.append(self.buf.tell()-1)
                 self.buf.write(c.encode('utf-8') if isinstance(c, unicode) else c)
             elif state == 'get flags':
                 if ord(c) == 0:
@@ -693,7 +715,8 @@ class LitFile(object):
 def get_metadata(stream):
     try:
         litfile = LitFile(stream)
-        mi = OPFReader(cStringIO.StringIO(litfile.meta.encode('utf-8')))
+        src = litfile.meta.encode('utf-8')
+        mi = OPFReader(cStringIO.StringIO(src))
     except:
         title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
         mi = MetaInformation(title, ['Unknown'])
@@ -705,7 +728,8 @@ def main(args=sys.argv):
     if len(args) != 2:
         print >>sys.stderr, 'Usage: %s file.lit'%(args[0],)
         return 1
-    print unicode(get_metadata(open(args[1], 'rb')))
+    mi = get_metadata(open(args[1], 'rb'))
+    print unicode(mi)
     return 0
 
 if __name__ == '__main__':

@@ -22,6 +22,7 @@ import xml.dom.minidom as dom
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 from libprs500.ebooks.lrf import entity_to_unicode
+from libprs500.ebooks.metadata import get_parser
 
 class ManifestItem(object):
     def __init__(self, item, cwd):
@@ -491,7 +492,25 @@ class OPFCreator(OPF):
             self.libprs_id = mi.libprs_id
     
 def main(args=sys.argv):
-    print OPFReader(open(args[1], 'rb'))
+    parser = get_parser('opf')
+    opts, args = parser.parse_args(args)
+    if len(args) != 2:
+        parser.print_help()
+        return 1
+    mi = OPFReader(open(args[1], 'rb'))
+    if opts.title is not None:
+        mi.title = opts.title.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    if opts.authors is not None:
+        aus = [i.strip().replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;') for i in opts.authors.split(',')]
+        mi.authors = aus
+    if opts.category is not None:
+        mi.category = opts.category.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    if opts.comment is not None:
+        mi.comments = opts.comment.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+    print mi
+    res = str(mi.soup)
+    del mi
+    open(args[1], 'wb').write(res)
     return 0
 
 if __name__ == '__main__':
