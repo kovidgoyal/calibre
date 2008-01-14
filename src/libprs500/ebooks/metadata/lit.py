@@ -715,7 +715,7 @@ class LitFile(object):
         finally:
             self._stream.seek(opos)
             
-    def read_cover(self, internal_name):
+    def read_image(self, internal_name):
         cover_entry = None
         for entry in self.entries:
             if internal_name in entry.name:
@@ -744,7 +744,7 @@ def get_metadata(stream):
                 ext = 'jpg'
             else:
                 ext = ext.lower()
-            cd = litfile.read_cover(cover_item)
+            cd = litfile.read_image(cover_item)
             if cd:
                 mi.cover_data = (ext, cd)            
     except:
