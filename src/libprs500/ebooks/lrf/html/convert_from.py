@@ -1347,6 +1347,8 @@ class HTMLConverter(object):
         elif tagname == 'img':
             if tag.has_key('src'):
                 path = munge_paths(self.target_prefix, tag['src'])[0]
+                if not os.path.exists(path):
+                    path = path.replace('&', '%26') # convertlit replaces & with %26
                 if os.access(path, os.R_OK) and os.path.isfile(path):
                     width, height = None, None
                     try:
