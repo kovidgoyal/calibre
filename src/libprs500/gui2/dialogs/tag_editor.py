@@ -49,9 +49,13 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.connect(self.unapply_button, SIGNAL('clicked()'), self.unapply_tags)
         self.connect(self.add_tag_button, SIGNAL('clicked()'), self.add_tag)
         self.connect(self.add_tag_input, SIGNAL('returnPressed()'), self.add_tag)
-        
-    def apply_tags(self):
-        for item in self.available_tags.selectedItems():
+        self.connect(self.available_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
+        self.connect(self.applied_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
+    
+    def apply_tags(self, item=None):
+        print 1111111111111111111
+        items = self.available_tags.selectedItems() if item is None else [item]  
+        for item in items:
             tag = qstring_to_unicode(item.text())
             self.tags.append(tag)
             self.available_tags.takeItem(self.available_tags.row(item))
@@ -63,8 +67,9 @@ class TagEditor(QDialog, Ui_TagEditor):
                 
             
     
-    def unapply_tags(self):
-        for item in self.applied_tags.selectedItems():
+    def unapply_tags(self, item=None):
+        items = self.available_tags.selectedItems() if item is None else [item] 
+        for item in items:
             tag = qstring_to_unicode(item.text())
             self.tags.remove(tag)
             self.available_tags.addItem(tag)
