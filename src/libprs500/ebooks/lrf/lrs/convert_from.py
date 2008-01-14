@@ -161,7 +161,9 @@ class LrsParser(object):
         newstyle = None
         #
         # yuck - headers and footers really mess this up
-        #
+        # until then, there were no objid pointers in any
+        # style object.
+        # hmm, so maybe we push them always into the page
         if stylename == 'pagestyle':
             for e in self.pagestyles:
                 if self.equal_attrib(e, style):
@@ -171,7 +173,11 @@ class LrsParser(object):
             if newstyle == None:
                 #print "making pagestyle %s"%id
                 self.pagestyles.append(style)
-                newstyle = self.book.create_page_style(**self.process_attrib(style))
+                attrib = self.process_attrib(style)
+                for name in ['evenfooter', 'evenheader', 'footer', 'header', 'oddfooter', 'oddheader' ]:
+                    if name+'id' in style.attrib:
+                        attrib[name] = self.fetch_header_footer(style, name+'id')
+                newstyle = self.book.create_page_style(**attrib)
         elif stylename == 'blockstyle':
             for e in self.blockstyles:
                 if self.equal_attrib(e, style):
@@ -191,6 +197,8 @@ class LrsParser(object):
             if newstyle == None:
                 #print "making textstyle %s"%id
                 self.textstyles.append(style)
+                #if 'textlinewidth' in style.attrib:
+                #    print "creating new TextStyle with textlinewidth='%s'"%style.attrib['textlinewidth']
                 newstyle = self.book.create_text_style(**self.process_attrib(style))
         else:
             raise LrsError, "no handler for %s style name"
@@ -303,7 +311,9 @@ class LrsParser(object):
 
         for element in draw_char:
             if element.tag == "Span":
-                obj.append(self.process_draw_char(element, Span(**self.process_attrib(element))))
+                span = self.process_draw_char(element, Span(**self.process_attrib(element)))
+                if not span.isEmpty():
+                    obj.append(span)
             elif element.tag == "Plot":
                 obj.append(self.process_text(element, self.process_Plot(element)))
             elif element.tag == "CR":

@@ -1662,8 +1662,22 @@ class LrsTextTag(LrsContainer):
 
 
 class LrsSimpleChar1(object):
-    pass
-                
+    def isEmpty(self):
+        for content in self.contents:
+            if not content.isEmpty():
+                return False
+        return True
+
+    def hasFollowingContent(self):
+        foundSelf = False
+        for content in self.parent.contents:
+            if content == self:
+                foundSelf = True
+            elif foundSelf:
+                if not content.isEmpty():
+                    return True
+        return False
+
 
 class DropCaps(LrsTextTag):
     
@@ -1672,6 +1686,9 @@ class DropCaps(LrsTextTag):
         if int(line) <= 0:
             raise LrsError('A DrawChar must span at least one line.')
         self.line = int(line)
+
+    def isEmpty(self):
+        return self.text == None or not self.text.strip()
         
     def toElement(self, se):
         elem =  Element('DrawChar', line=str(self.line))
@@ -1800,6 +1817,9 @@ class Text(LrsContainer):
         LrsContainer.__init__(self, [])
         self.text = text
 
+    def isEmpty(self):
+        return not self.text or not self.text.strip()
+    
     def toLrfContainer(self, lrfWriter, parent):
         if self.text:
             if isinstance(self.text, str):
@@ -1922,9 +1942,15 @@ class Span(LrsSimpleChar1, LrsContainer):
     
     def toLrfContainer(self, lrfWriter, container):
 
+        # find the currentTextStyle
+        oldTextStyle = self.findCurrentTextStyle()
+        
         # set the attributes we want changed
         for (name, value) in self.attrs.items():
-            container.appendLrfTag(LrfTag(name, value))
+            if name in oldTextStyle.attrs and oldTextStyle.attrs[name] == self.attrs[name]:
+                self.attrs.pop(name)
+            else:
+                container.appendLrfTag(LrfTag(name, value))
 
         # set a currentTextStyle so nested span can put things back
         oldTextStyle = self.findCurrentTextStyle()
@@ -1935,6 +1961,8 @@ class Span(LrsSimpleChar1, LrsContainer):
             content.toLrfContainer(lrfWriter, container)
 
         # put the attributes back the way we found them
+        # the attributes persist beyond the next </P>
+        # if self.hasFollowingContent():
         for name in self.attrs.keys():
             container.appendLrfTag(LrfTag(name, oldTextStyle.attrs[name]))
 

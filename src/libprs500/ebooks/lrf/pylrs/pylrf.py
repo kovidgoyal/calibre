@@ -110,7 +110,7 @@ def writeColor(f, color):
     f.write(struct.pack(">I", int(color, 0)))
 
 def writeLineWidth(f, width):
-    writeWord(f, int(width)//5)
+    writeWord(f, int(width))
 
 def writeUnicode(f, string, encoding):    
     if isinstance(string, str):
@@ -292,7 +292,7 @@ TAG_INFO = dict(
         ParentPageTree  = (0xF57C, "<I"),
         Italic          = (0xF581,),
         ItalicEnd       = (0xF582,),
-        pstart          = (0xF5A1, writeDWord), # what goes in the dword?
+        pstart          = (0xF5A1, writeDWord), # what goes in the dword? refesound
         pend            = (0xF5A2,),
         CharButton      = (0xF5A7, writeDWord),
         CharButtonEnd   = (0xF5A8,),
