@@ -44,6 +44,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.directory_list.addItems(dirs)
         self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
         self.connect(self.remove_button, SIGNAL('clicked(bool)'), self.remove_dir)
+        self.priority.addItem('Normal')
+        self.priority.addItem('Low')
+        self.priority.addItem('Lowest')
+        self.priority.addItem('Idle')
         if not islinux:
             self.dirs_box.setVisible(False)
         

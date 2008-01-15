@@ -15,7 +15,7 @@
 import traceback, logging, cStringIO
 
 from PyQt4.QtCore import QAbstractTableModel, QMutex, QObject, SIGNAL, Qt, \
-                         QVariant, QThread, QModelIndex
+                         QVariant, QThread, QModelIndex, QSettings
 from PyQt4.QtGui import QIcon
 
 from libprs500.gui2 import NONE
@@ -107,6 +107,12 @@ class ConversionJob(Job):
 
 class JobManager(QAbstractTableModel):
     
+    PRIORITY = {'Idle'  : QThread.IdlePriority,
+                'Lowest': QThread.LowestPriority,
+                'Low'   : QThread.LowPriority,
+                'Normal': QThread.NormalPriority 
+                }
+    
     def __init__(self):
         QAbstractTableModel.__init__(self)
         self.jobs = {}
@@ -172,7 +178,9 @@ class JobManager(QAbstractTableModel):
         if slot:
             QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
                             slot)
-        job.start()
+        priority = self.PRIORITY[str(QSettings().value('conversion job priority', 
+                            QVariant('Normal')).toString())]
+        job.start(priority)
         return job.id
     
     def run_device_job(self, slot, callable, *args, **kwargs):

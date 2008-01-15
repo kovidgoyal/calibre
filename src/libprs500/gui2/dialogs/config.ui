@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>408</width>
-    <height>412</height>
+    <height>378</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -15,8 +15,8 @@
   <property name="windowIcon" >
    <iconset resource="../images.qrc" >:/images/config.svg</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" >
+  <layout class="QVBoxLayout" >
+   <item>
     <widget class="QStackedWidget" name="stackedWidget" >
      <widget class="QWidget" name="page" >
       <layout class="QVBoxLayout" >
@@ -94,6 +94,20 @@
             <number>5</number>
            </property>
           </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QLabel" name="label_3" >
+           <property name="text" >
+            <string>&amp;Priority for conversion jobs:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="priority" />
          </item>
         </layout>
        </item>
@@ -199,7 +213,7 @@
          </property>
          <property name="sizeHint" >
           <size>
-           <width>372</width>
+           <width>392</width>
            <height>16</height>
           </size>
          </property>
@@ -210,7 +224,7 @@
      <widget class="QWidget" name="page_2" />
     </widget>
    </item>
-   <item row="1" column="0" >
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
