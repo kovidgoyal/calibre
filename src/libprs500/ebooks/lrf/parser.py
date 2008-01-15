@@ -32,6 +32,7 @@ class LRFDocument(LRFMetaFile):
         self.page_trees = []
         self.font_map = {}
         self.image_map = {}
+        self.toc = ''
         self.keep_parsing = True
         
     def parse(self):
