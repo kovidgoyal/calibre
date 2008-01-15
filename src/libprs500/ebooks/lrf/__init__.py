@@ -17,7 +17,7 @@ This package contains logic to read and write LRF files.
 The LRF file format is documented at U{http://www.sven.de/librie/Librie/LrfFormat}. 
 """
 import sys, os
-from optparse import OptionParser, OptionValueError
+from optparse import OptionValueError
 from htmlentitydefs import name2codepoint
 from uuid import uuid4
 
@@ -29,8 +29,7 @@ from libprs500.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, \
                                              Paragraph, TextStyle, BlockStyle
 from libprs500.ebooks.lrf.fonts import FONT_FILE_MAP
 from libprs500.ebooks import ConversionError
-from libprs500 import __appname__, __version__, __author__
-from libprs500 import iswindows
+from libprs500 import __appname__, __version__, __author__, iswindows, OptionParser
 
 __docformat__ = "epytext"
 
@@ -40,10 +39,10 @@ class LRFParseError(Exception):
 
 class PRS500_PROFILE(object):
     screen_width  = 600
-    screen_height = 765
+    screen_height = 775
     dpi           = 166
     # Number of pixels to subtract from screen_height when calculating height of text area
-    fudge         = 18
+    fudge         = 0
     font_size     = 10  #: Default (in pt)
     parindent     = 10  #: Default (in pt)
     line_space    = 1.2 #: Default (in pt)
@@ -54,14 +53,8 @@ class PRS500_PROFILE(object):
     
     name = 'prs500' 
     
-class PRS500_PROFILE_UNSAFE(PRS500_PROFILE):
-    fudge = 0
-    name = 'prs500-unsafe'
-    
-    
 profile_map = {
                PRS500_PROFILE.name : PRS500_PROFILE,
-               PRS500_PROFILE_UNSAFE.name : PRS500_PROFILE_UNSAFE,
                }
     
 def profile_from_string(option, opt_str, value, parser):
@@ -85,9 +78,8 @@ def font_family(option, opt_str, value, parser):
         setattr(parser.values, option.dest, tuple())
             
     
-def option_parser(usage):
-    parser = OptionParser(usage=usage, version=__appname__+' '+__version__,
-                          epilog=_('Created by ')+__author__)
+def option_parser(usage, gui_mode=False):
+    parser = OptionParser(usage=usage, gui_mode=gui_mode)
     metadata = parser.add_option_group('METADATA OPTIONS')
     metadata.add_option("-t", "--title", action="store", type="string", default=None,\
                     dest="title", help=_("Set the title. Default: filename."))
@@ -272,7 +264,8 @@ def Book(options, logger, font_delta=0, header=None,
     ps['evensidemargin'] = options.left_margin
     ps['oddsidemargin']  = options.left_margin
     ps['textwidth']      = profile.screen_width - (options.left_margin + options.right_margin)
-    ps['textheight']     = profile.screen_height - (options.top_margin + options.bottom_margin) - profile.fudge
+    ps['textheight']     = profile.screen_height - (options.top_margin + options.bottom_margin) \
+                                                 - profile.fudge
     if header:
         hdr = Header()
         hb = TextBlock(textStyle=TextStyle(align='foot', 
@@ -283,7 +276,9 @@ def Book(options, logger, font_delta=0, header=None,
         ps['headheight'] = profile.header_height
         ps['header']     = hdr
         ps['topmargin']  = 0
-        ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin'] + ps['headheight'] + profile.fudge)
+        ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin']) \
+                                                 - ps['headheight'] - profile.fudge
+        
     fontsize = int(10*profile.font_size+font_delta*20)
     baselineskip = fontsize + 20
     fonts = find_custom_fonts(options, logger)

@@ -21,6 +21,7 @@ __appname__   = 'libprs500'
 import sys, os, logging, mechanize, locale, cStringIO, re
 from gettext import GNUTranslations
 from math import floor
+from optparse import OptionParser as _OptionParser
 
 from ttfquery import findsystem, describe
 
@@ -62,6 +63,22 @@ def setup_cli_handlers(logger, level):
         handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
     logger.addHandler(handler)
 
+
+class OptionParser(_OptionParser):
+    
+    def __init__(self,
+                 usage='%prog [options] filename',
+                 version=__appname__+' '+__version__,
+                 epilog=_('Created by ')+__author__,
+                 gui_mode=False,
+                 **kwds):
+        _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, **kwds)
+        self.gui_mode = gui_mode
+        
+    def error(self, msg):
+        if self.gui_mode:
+            raise Exception(msg)
+        _OptionParser.error(self, msg)
 
 def load_library(name, cdll):
     if iswindows:

@@ -40,27 +40,42 @@ def get_parser(extension):
 class MetaInformation(object):
     '''Convenient encapsulation of book metadata'''
     
+    @staticmethod
+    def copy(mi):
+        ans = MetaInformation(mi.title, mi.authors)
+        ans.author_sort = mi.author_sort
+        ans.title_sort = mi.title_sort
+        ans.comments = mi.comments
+        ans.category = mi.category
+        ans.publisher = mi.publisher
+    
     def __init__(self, title, authors):
         '''
-        @param title: title or "Unknonw"
+        @param title: title or "Unknown" or a MetaInformation object
         @param authors: List of strings or []
         '''
+        mi = None
+        if isinstance(title, MetaInformation):
+            mi = title
+            title = mi.title
+            authors = mi.authors
         self.title = title
         self.author = authors # Needed for backward compatibility
         #: List of strings or []
         self.authors = authors
         #: Sort text for author
-        self.author_sort  = None
-        self.title_sort   = None
-        self.comments     = None
-        self.category     = None
-        self.publisher    = None
-        self.series       = None
-        self.series_index = None
-        self.rating       = None
-        self.isbn         = None
-        self.tags         = []
-        self.cover_data   = (None, None) #(extension, data) 
+        self.author_sort  = None if not mi else mi.author_sort
+        self.title_sort   = None if not mi else mi.title_sort
+        self.comments     = None if not mi else mi.comments
+        self.category     = None if not mi else mi.category
+        self.publisher    = None if not mi else mi.publisher
+        self.series       = None if not mi else mi.series
+        self.series_index = None if not mi else mi.series_index
+        self.rating       = None if not mi else mi.rating
+        self.isbn         = None if not mi else mi.isbn
+        self.tags         = []  if not mi else mi.tags
+        self.cover_data   = (None, None)  if not mi else mi.cover_data #(extension, data)
+         
         
     def __str__(self):
         ans = u''

@@ -144,8 +144,10 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 obj.setText(cmdline[i+1])
             elif isinstance(obj, QTextEdit):
                 obj.setPlainText(cmdline[i+1])
-        profile = cmdline[cmdline.index('--profile')+1]            
-        self.gui_profile.setCurrentIndex(self.gui_profile.findText(profile))
+        profile = cmdline[cmdline.index('--profile')+1]
+        pindex = self.gui_profile.findText(profile)
+        if pindex >= 0:
+            self.gui_profile.setCurrentIndex(pindex)
         for prepro in self.PREPROCESS_OPTIONS:
             ops = prepro.get_opt_string() 
             if ops in cmdline:

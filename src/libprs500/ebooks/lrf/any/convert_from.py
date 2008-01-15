@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.ebooks import ConversionError
 '''Convert any ebook file into a LRF file.'''
 
 import sys, os, logging, shutil, tempfile, glob
@@ -125,14 +126,14 @@ def process_file(path, options, logger=None):
     return 0
     
 
-def main(args=sys.argv, logger=None):
-    parser = option_parser('''\
+def main(args=sys.argv, logger=None, gui_mode=False):
+    parser = option_parser(usage='''\
 any2lrf myfile
 
 Convert any ebook format into LRF. Supported formats are:
 LIT, RTF, TXT, HTML, EPUB and PDF. any2lrf will also process a RAR or
 ZIP archive.
-    ''')
+    ''', gui_mode=gui_mode)
     options, args = parser.parse_args(args)
     if len(args) != 2:
         parser.print_help()

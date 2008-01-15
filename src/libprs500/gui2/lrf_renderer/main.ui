@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>615</width>
-    <height>702</height>
+    <width>601</width>
+    <height>701</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -38,9 +38,9 @@
     <item>
      <widget class="QStackedWidget" name="stack" >
       <property name="currentIndex" >
-       <number>1</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="page" >
+      <widget class="QWidget" name="viewer_page" >
        <layout class="QGridLayout" >
         <property name="leftMargin" >
          <number>0</number>
@@ -162,7 +162,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="page_2" >
+      <widget class="QWidget" name="bar_page" >
        <layout class="QVBoxLayout" >
         <item>
          <spacer>

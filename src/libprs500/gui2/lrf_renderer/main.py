@@ -110,6 +110,7 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.closed = False
         
+        
     def configure(self, triggered):
         opts = cPickle.loads(str(QSettings().value('ebook viewer options', QVariant(cPickle.dumps(self.opts))).toString()))
         d = Config(self, opts)
@@ -166,11 +167,16 @@ class Main(MainWindow, Ui_MainWindow):
         if not self.renderer.aborted and self.renderer.lrf is not None:
             width, height =  self.renderer.lrf.device_info.width, \
                                             self.renderer.lrf.device_info.height
-            self.graphics_view.resize_for(width+5, height+5)
+            hdelta = self.viewer_page.size().height() - self.graphics_view.size().height()
+            from PyQt4.QtGui import QScrollBar
+            s = QScrollBar(self)
+            scrollbar_adjust = min(s.width(), s.height())
+            self.graphics_view.resize_for(width+scrollbar_adjust, height+scrollbar_adjust)
+            
             desktop = QCoreApplication.instance().desktop()
             screen_height = desktop.availableGeometry().height() - 25
-            height = min(screen_height, height+55)
-            self.resize(self.size().width(), height) 
+            height = min(screen_height, height+hdelta+scrollbar_adjust)
+            self.resize(width+scrollbar_adjust, height) 
             self.setWindowTitle(self.renderer.lrf.metadata.title + ' - ' + __appname__)
             self.document_title = self.renderer.lrf.metadata.title
             if self.opts.profile:
@@ -183,6 +189,7 @@ class Main(MainWindow, Ui_MainWindow):
                 self.document.render(self.renderer.lrf)
                 print 'Layout time:', time.time()-start, 'seconds'
             self.renderer.lrf = None
+            
             self.graphics_view.setScene(self.document)
             self.graphics_view.show()
             self.spin_box.setRange(1, self.document.num_of_pages)

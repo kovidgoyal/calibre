@@ -26,15 +26,15 @@ from libprs500.ebooks.metadata import MetaInformation
 def get_metadata(stream, stream_type='lrf'):
     if stream_type: stream_type = stream_type.lower()
     if stream_type == 'rtf':
-        return rtf_metadata(stream)
+        return MetaInformation(rtf_metadata(stream), None)
     if stream_type == 'lrf':
-        return lrf_metadata(stream)
+        return MetaInformation(lrf_metadata(stream), None)
     if stream_type == 'pdf':
-        return pdf_metadata(stream)
+        return MetaInformation(pdf_metadata(stream), None)
     if stream_type == 'lit':
-        return lit_metadata(stream)
+        return MetaInformation(lit_metadata(stream), None)
     if stream_type == 'epub':
-        return epub_metadata(stream)
+        return MetaInformation(epub_metadata(stream), None)
     return MetaInformation(None, None)
 
 def set_metadata(stream, mi, stream_type='lrf'):

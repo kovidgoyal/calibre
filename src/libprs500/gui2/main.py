@@ -12,12 +12,10 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-from libprs500.gui2.update import CheckForUpdates
-from libprs500 import iswindows
-from libprs500 import isosx
-from libprs500.library.database import LibraryDatabase
+
 
 import os, sys, textwrap, cStringIO, collections, traceback, shutil
+from functools import partial
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
@@ -29,13 +27,16 @@ from libprs500 import __version__, __appname__, islinux, sanitize_file_name
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata
 from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
-from libprs500.ebooks.lrf.any.convert_from import main as any2lrf
+from libprs500.ebooks.lrf.any.convert_from import main as _any2lrf
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            qstring_to_unicode, set_sidebar_directories
+from libprs500 import iswindows, isosx
+from libprs500.library.database import LibraryDatabase
+from libprs500.gui2.update import CheckForUpdates
 from libprs500.gui2.main_window import MainWindow
 from libprs500.gui2.main_ui import Ui_MainWindow
 from libprs500.gui2.device import DeviceDetector, DeviceManager
@@ -55,6 +56,7 @@ from libprs500.ebooks.metadata.meta import set_metadata
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks import BOOK_EXTENSIONS
 
+any2lrf = partial(_any2lrf, gui_mode=True)
 
 class Main(MainWindow, Ui_MainWindow):
     
@@ -295,12 +297,14 @@ class Main(MainWindow, Ui_MainWindow):
             format = format[1:] if format else None
             stream = open(book, 'rb')
             mi = get_metadata(stream, stream_type=format)
-            title = mi.title if mi.title else os.path.splitext(os.path.basename(book))[0] 
+            if not mi.title:
+                mi.title = os.path.splitext(os.path.basename(book))[0]
             formats.append(format)
             metadata.append(mi)
             names.append(os.path.basename(book))
-            authors = mi.authors if mi.authors else ['Unknown']
-            infos.append({'title':title, 'authors':', '.join(authors), 
+            if not mi.authors:
+                mi.authors = ['Unknown']
+            infos.append({'title':mi.title, 'authors':', '.join(mi.authors), 
                           'cover':self.default_thumbnail, 'tags':[]})
         
         if not to_device:
