@@ -22,8 +22,6 @@ from libprs500.devices.interface import Device
 from libprs500.devices.errors import DeviceError, FreeSpaceError
 from libprs500.devices.kindle.books import BookList
 from libprs500 import iswindows, islinux, isosx
-from libprs500.devices.libusb import get_device_by_id
-from libprs500.devices.libusb import Error as USBError
 from libprs500.devices.errors import PathError
 
 class File(object):
@@ -46,7 +44,8 @@ class KINDLE(Device):
     PRODUCT_ID   = 0x001 #: Product Id for the Kindle
     INTERNAL_STORAGE = 'INTERNAL_STORAGE'
     CARD_STORAGE     = 'CARD_STORAGE'
-    VENDOR_NAME      = 'KINDLE'
+    PRODUCT_NAME     = 'KINDLE'
+    VENDOR_NAME      = 'AMAZON'
     
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Kindle Internal Storage USB Device'
