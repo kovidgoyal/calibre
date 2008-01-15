@@ -25,7 +25,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QSettings
 
 from libprs500.ptempfile import PersistentTemporaryFile
-from libprs500.library.database import LibraryDatabase
+from libprs500.library.database import LibraryDatabase, SearchToken
 from libprs500.gui2 import NONE, TableView
 from libprs500.gui2 import qstring_to_unicode
 
@@ -160,7 +160,7 @@ class BooksModel(QAbstractTableModel):
         ans = []
         for i in tokens:
             try:
-                ans.append(re.compile(i, re.IGNORECASE))
+                ans.append(SearchToken(i))
             except sre_constants.error:
                 continue
         return ans
@@ -505,7 +505,7 @@ class DeviceBooksModel(BooksModel):
             add = True
             q = self.db[i].title + ' ' + self.db[i].authors + ' ' + ', '.join(self.db[i].tags)
             for token in tokens:
-                if not token.search(q):
+                if not token.match(q):
                     add = False
                     break
             if add:

@@ -805,8 +805,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             for item in self.data if refilter else self.cache:
                 keep = True
                 test = ' '.join([item[i] if item[i] else '' for i in (1,2,3,7,8,9,13)])
-                for filter in filters:
-                    if not filter.search(test):
+                for token in filters:
+                    if not token.match(test):
                         keep = False
                         break
                 if keep:
@@ -1236,7 +1236,20 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                         traceback.print_exc()
                     f.close()
                 
-                
+
+class SearchToken(object):
+    
+    def __init__(self, text_token):
+        if text_token.startswith('!'):
+            self.negate = True
+            text_token = text_token[1:]
+        else:
+            self.negate = False
+        self.pattern = re.compile(text_token, re.IGNORECASE)
+        
+    def match(self, text):
+        return bool(self.pattern.search(text)) ^ self.negate
+
 if __name__ == '__main__':
     db = LibraryDatabase('/home/kovid/library1.db')
     
