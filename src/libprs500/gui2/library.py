@@ -130,8 +130,9 @@ class BooksModel(QAbstractTableModel):
         self.db = None
         self.reset()
         
-    def add_books(self, paths, formats, metadata, uris=[]):
-        self.db.add_books(paths, formats, metadata, uris)
+    def add_books(self, paths, formats, metadata, uris=[], add_duplicates=False):
+        return self.db.add_books(paths, formats, metadata, uris, 
+                                 add_duplicates=add_duplicates)
         
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''

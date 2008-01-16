@@ -1105,17 +1105,22 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                               (id, usize, sqlite.Binary(data)))
         self.conn.commit()
     
-    def add_books(self, paths, formats, metadata, uris=[]):
+    def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
         Add a book to the database. self.data and self.cache are not updated.
         '''
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
+        duplicates = []
         for path in paths:
             mi = metadata.next()
+            format = formats.next()
             try:
                 uri = uris.next()
             except StopIteration:
                 uri = None
+            if not add_duplicates and self.conn.execute('SELECT id FROM books where title=?', (mi.title,)).fetchone():
+                duplicates.append((path, format, mi, uri))
+                continue
             series_index = 1 if mi.series_index is None else mi.series_index
             obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
                               (mi.title, uri, series_index))
@@ -1141,11 +1146,19 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             stream.seek(0, 2)
             usize = stream.tell()
             stream.seek(0)
-            format = formats.next()
+            
             self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
                               (id, format, usize, sqlite.Binary(compress(stream.read()))))
             stream.close()
         self.conn.commit()
+        if duplicates:
+            paths    = tuple(duplicate[0] for duplicate in duplicates)
+            formats  = tuple(duplicate[1] for duplicate in duplicates)
+            metadata = tuple(duplicate[2] for duplicate in duplicates)
+            uris     = tuple(duplicate[3] for duplicate in duplicates)
+            return (paths, formats, metadata, uris)
+        return None
+            
         
         
     def index(self, id, cache=False):

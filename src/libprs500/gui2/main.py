@@ -31,7 +31,7 @@ from libprs500.ebooks.lrf.any.convert_from import main as _any2lrf
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
-                           initialize_file_icon_provider, \
+                           initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            qstring_to_unicode, set_sidebar_directories
 from libprs500 import iswindows, isosx
@@ -309,7 +309,14 @@ class Main(MainWindow, Ui_MainWindow):
         
         if not to_device:
             model = self.current_view().model()
-            model.add_books(paths, formats, metadata)
+            duplicates = model.add_books(paths, formats, metadata)
+            if duplicates:
+                files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
+                for mi in duplicates[2]:
+                    files += '<li>'+mi.title+'</li>\n'
+                d = question_dialog(self, _('Duplicates found!'), files+'</ul></p>')
+                if d.exec_() == QMessageBox.Yes:
+                    model.add_books(*duplicates, **dict(add_duplicates=True))
             model.resort()
             model.research()
         else:
