@@ -33,7 +33,8 @@ except ImportError:
     import Image as PILImage
 
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
-                            NavigableString, Declaration, ProcessingInstruction
+                            NavigableString, Declaration, ProcessingInstruction, \
+                            UnicodeDammit
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
@@ -348,7 +349,7 @@ class HTMLConverter(object):
         upath = path.encode('utf-8') if isinstance(path, unicode) else path
         if not os.path.exists(upath):
             upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names 
-        raw = open(upath, 'rb').read()
+        raw = UnicodeDammit(open(upath, 'rb').read()).unicode
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')
         self.current_page = None
