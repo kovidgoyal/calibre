@@ -2,6 +2,7 @@
     <qresource prefix="/" >
         <file>images/back.svg</file>
         <file>images/book.svg</file>
+        <file>images/search.svg</file>
         <file>images/chapters.svg</file>
         <file>images/clear_left.svg</file>
         <file>images/config.svg</file>

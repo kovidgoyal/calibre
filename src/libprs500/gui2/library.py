@@ -152,6 +152,11 @@ class BooksModel(QAbstractTableModel):
             self.endRemoveRows()
     
     def search_tokens(self, text):
+        OR = False
+        match = re.match(r'\[(.*)\]', text)
+        if match:
+            text = match.group(1)
+            OR = True
         tokens = []
         quot = re.search('"(.*?)"', text)
         while quot:
@@ -165,11 +170,11 @@ class BooksModel(QAbstractTableModel):
                 ans.append(SearchToken(i))
             except sre_constants.error:
                 continue
-        return ans
+        return ans, OR
             
     def search(self, text, refinement, reset=True):
-        tokens = self.search_tokens(text)
-        self.db.filter(tokens, refinement)
+        tokens, OR = self.search_tokens(text)
+        self.db.filter(tokens, refilter=refinement, OR=OR)
         self.last_search = text
         if reset:
             self.reset()
@@ -505,20 +510,30 @@ class DeviceBooksModel(BooksModel):
         
     
     def search(self, text, refinement, reset=True):
-        tokens = self.search_tokens(text)
+        tokens, OR = self.search_tokens(text)
         base = self.map if refinement else self.sorted_map
         result = []
         for i in base:
-            add = True
-            q = self.db[i].title + ' ' + self.db[i].authors + ' ' + ', '.join(self.db[i].tags)
-            for token in tokens:
-                if not token.match(q):
-                    add = False
-                    break
-            if add:
-                result.append(i)
+            q = ['', self.db[i].title, self.db[i].authors, '', ', '.join(self.db[i].tags)] + ['' for j in range(10)]
+            if OR:
+                add = False
+                for token in tokens:
+                    if token.match(q):
+                        add = True
+                        break
+                if add:
+                    result.append(i)
+            else:
+                add = True
+                for token in tokens:
+                    if not token.match(q):
+                        add = False
+                        break
+                if add:
+                    result.append(i)
         
         self.map = result
+
         if reset:
             self.reset()
         self.last_search = text
@@ -705,6 +720,11 @@ class SearchBox(QLineEdit):
         self.home(False)        
         self.initial_state = True
         
+    def clear(self):
+        self.clear_to_help()
+        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), '', False)
+        
+        
     def keyPressEvent(self, event):
         if self.initial_state:
             self.normalize_state()
@@ -726,6 +746,12 @@ class SearchBox(QLineEdit):
         self.killTimer(event.timerId())
         if event.timerId() == self.timer:
             text = qstring_to_unicode(self.text())
-            refinement = text.startswith(self.prev_search)
+            refinement = text.startswith(self.prev_search) and ':' not in text
             self.prev_search = text
             self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
+            
+    def set_search_string(self, txt):
+        self.normalize_state()
+        self.setText(txt)
+        self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
+        self.end(False)

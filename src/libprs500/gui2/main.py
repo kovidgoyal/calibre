@@ -12,8 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-
-
 import os, sys, textwrap, cStringIO, collections, traceback, shutil
 from functools import partial
 
@@ -49,6 +47,7 @@ from libprs500.gui2.dialogs.jobs import JobsDialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog 
 from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
 from libprs500.gui2.dialogs.config import ConfigDialog
+from libprs500.gui2.dialogs.search import SearchDialog
 from libprs500.gui2.lrf_renderer.main import file_renderer
 from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
 from libprs500.library.database import DatabaseLocked
@@ -151,6 +150,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
+        QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
                 
         ####################### Library view ########################
         self.library_view.set_database(self.database_path)
@@ -648,6 +648,15 @@ class Main(MainWindow, Ui_MainWindow):
         
     def viewer_closed(self, viewer):
         self.viewers.remove(viewer)
+    
+    ############################################################################
+    
+    ########################### Do advanced search #############################
+    
+    def do_advanced_search(self, *args):
+        d = SearchDialog(self)
+        if d.exec_() == QDialog.Accepted:
+            self.search.set_search_string(d.search_string())
     
     ############################################################################
     

@@ -809,27 +809,37 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.data  = self.cache
         self.conn.commit()
         
-    def filter(self, filters, refilter=False):
+    def filter(self, filters, refilter=False, OR=False):
         '''
         Filter data based on filters. All the filters must match for an item to
         be accepted. Matching is case independent regexp matching.
         @param filters: A list of compiled regexps
         @param refilter: If True filters are applied to the results of the previous
                          filtering.
+        @param OR: If True, keeps a match if any one of the filters matches. If False,
+        keeps a match only if all the filters match
         '''
         if not filters:
             self.data = self.data if refilter else self.cache
         else:
             matches = []
             for item in self.data if refilter else self.cache:
-                keep = True
-                test = ' '.join([item[i] if item[i] else '' for i in (1,2,3,7,8,9,13)])
-                for token in filters:
-                    if not token.match(test):
-                        keep = False
-                        break
-                if keep:
-                    matches.append(item)
+                if OR:
+                    keep = False
+                    for token in filters:
+                        if token.match(item):
+                            keep = True
+                            break
+                    if keep:
+                        matches.append(item)
+                else:
+                    keep = True
+                    for token in filters:
+                        if not token.match(item):
+                            keep = False
+                            break
+                    if keep:
+                        matches.append(item)
             self.data = matches
             
     def rows(self):
@@ -1297,15 +1307,38 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
 class SearchToken(object):
     
+    FIELD_MAP = { 'title'       : 1,
+                  'author'      : 2,
+                  'publisher'   : 3,
+                  'tag'         : 7,
+                  'comments'    : 8,
+                  'series'      : 9,
+                  'format'      : 13,
+                 }
+    
     def __init__(self, text_token):
+        self.index = -1
+        text_token = text_token.strip()
+        for field in self.FIELD_MAP.keys():
+            if text_token.lower().startswith(field+':'):
+                text_token = text_token[len(field)+1:]
+                self.index = self.FIELD_MAP[field]
+                break
+        
+        self.negate = False
         if text_token.startswith('!'):
             self.negate = True
             text_token = text_token[1:]
-        else:
-            self.negate = False
+        
         self.pattern = re.compile(text_token, re.IGNORECASE)
         
-    def match(self, text):
+    def match(self, item):
+        if self.index >= 0:
+            text = item[self.index]
+            if not text:
+                text = ''
+        else:
+            text = ' '.join([item[i] if item[i] else '' for i in self.FIELD_MAP.values()])
         return bool(self.pattern.search(text)) ^ self.negate
 
 if __name__ == '__main__':
