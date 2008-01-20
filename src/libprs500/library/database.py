@@ -1085,6 +1085,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         for tag in tags:
             self.delete_tag(tag)
     
+    def unapply_tags(self, book_id, tags):
+        for tag in tags:
+            id = self.conn.execute('SELECT id FROM tags WHERE name=?', (tag,)).fetchone()
+            if id:
+                self.conn.execute('DELETE FROM books_tags_link WHERE tag=? AND book=?', (id[0], book_id))
+        self.conn.commit()
+    
     def set_tags(self, id, tags, append=False):
         '''
         @param tags: list of strings

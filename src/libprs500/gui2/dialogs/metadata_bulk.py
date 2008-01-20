@@ -65,6 +65,10 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if tags:
                 tags = tags.split(',')
                 self.db.set_tags(id, tags, append=True)
+            remove_tags = qstring_to_unicode(self.remove_tags.text()).strip()
+            if remove_tags:
+                remove_tags = [i.strip() for i in remove_tags.split(',')]
+                self.db.unapply_tags(id, remove_tags)
             if self.write_series:
                 self.db.set_series(id, qstring_to_unicode(self.series.currentText()))
         self.changed = True
