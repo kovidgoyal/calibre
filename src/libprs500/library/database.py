@@ -377,7 +377,7 @@ class LibraryDatabase(object):
         BEFORE DELETE ON tags
         BEGIN
             SELECT CASE
-                WHEN (SELECT COUNT(id) FROM books_tags_link WHERE book=OLD.book) > 0
+                WHEN (SELECT COUNT(id) FROM books_tags_link WHERE tag=OLD.book) > 0
                 THEN RAISE(ABORT, 'Foreign key violation: tag is still referenced')
             END;
         END;
@@ -722,7 +722,23 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 ''')
         conn.execute('pragma user_version=5')
         conn.commit()
-
+    
+    @staticmethod
+    def upgrade_version5(conn):
+        conn.executescript(\
+        '''
+        DROP TRIGGER fkc_delete_books_tags_link;
+        CREATE TRIGGER fkc_delete_books_tags_link
+        BEFORE DELETE ON tags
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT COUNT(id) FROM books_tags_link WHERE tag=OLD.id) > 0
+                THEN RAISE(ABORT, 'Foreign key violation: tag is still referenced')
+            END;
+        END;
+        ''')
+        conn.execute('pragma user_version=6')
+        conn.commit()
         
     def __del__(self):
         global _lock_file
@@ -747,6 +763,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             LibraryDatabase.upgrade_version3(self.conn)
         if self.user_version == 4: # Upgrade to 5
             LibraryDatabase.upgrade_version4(self.conn)
+        if self.user_version == 5: # Upgrade to 6
+            LibraryDatabase.upgrade_version5(self.conn)
         
     def close(self):
         global _lock_file
@@ -1048,6 +1066,24 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('DELETE FROM comments WHERE book=?', (id,))
         self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
         self.conn.commit()
+    
+    def is_tag_used(self, tag):
+        id = self.conn.execute('SELECT id FROM tags WHERE name=?', (tag,)).fetchone()
+        if not id:
+            return False
+        return bool(self.conn.execute('SELECT tag FROM books_tags_link WHERE tag=?',(id[0],)).fetchone())
+    
+    def delete_tag(self, tag):
+        id = self.conn.execute('SELECT id FROM tags WHERE name=?', (tag,)).fetchone()
+        if id:
+            id = id[0]
+            self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
+            self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
+            self.conn.commit()
+    
+    def delete_tags(self, tags):
+        for tag in tags:
+            self.delete_tag(tag)
     
     def set_tags(self, id, tags, append=False):
         '''

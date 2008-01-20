@@ -13,10 +13,11 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4.QtGui import QDialog
+from PyQt4.QtGui import QDialog, QMessageBox
 
 from libprs500.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from libprs500.gui2 import qstring_to_unicode
+from libprs500.gui2 import question_dialog
 
 class TagEditor(QDialog, Ui_TagEditor):
     
@@ -45,12 +46,34 @@ class TagEditor(QDialog, Ui_TagEditor):
             if tag not in tags:
                 self.available_tags.addItem(tag)
                 
-        self.connect(self.apply_button, SIGNAL('clicked()'), self.apply_tags)
+        self.connect(self.apply_button,   SIGNAL('clicked()'), self.apply_tags)
         self.connect(self.unapply_button, SIGNAL('clicked()'), self.unapply_tags)
         self.connect(self.add_tag_button, SIGNAL('clicked()'), self.add_tag)
-        self.connect(self.add_tag_input, SIGNAL('returnPressed()'), self.add_tag)
+        self.connect(self.delete_button,  SIGNAL('clicked()'), self.delete_tags)
+        self.connect(self.add_tag_input,  SIGNAL('returnPressed()'), self.add_tag)
         self.connect(self.available_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.apply_tags)
-        self.connect(self.applied_tags, SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
+        self.connect(self.applied_tags,   SIGNAL('itemActivated(QListWidgetItem*)'), self.unapply_tags)
+        
+    
+    def delete_tags(self, item=None):
+        confirms, deletes = [], []
+        items = self.available_tags.selectedItems() if item is None else [item]
+        for item in items:
+            if self.db.is_tag_used(qstring_to_unicode(item.text())):
+                confirms.append(item)
+            else:
+                deletes.append(item)    
+        if confirms:
+            ct = ', '.join([qstring_to_unicode(item.text()) for item in confirms])
+            d = question_dialog(self, 'Are your sure?', 
+                                '<p>The following tags are used by one or more books. Are you certain you want to delete them?<br>'+ct)
+            if d.exec_() == QMessageBox.Yes:
+                deletes += confirms
+        
+        for item in deletes:
+            self.db.delete_tag(qstring_to_unicode(item.text()))
+            self.available_tags.takeItem(self.available_tags.row(item))
+        
     
     def apply_tags(self, item=None):
         items = self.available_tags.selectedItems() if item is None else [item]  
