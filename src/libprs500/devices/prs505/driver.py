@@ -165,16 +165,8 @@ class PRS505(Device):
         import dbus
         bus = dbus.SystemBus() 
         hm  = dbus.Interface(bus.get_object("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager"), "org.freedesktop.Hal.Manager")
-        try:
-            mm = hm.FindDeviceStringMatch('libprs500.mainvolume', self.__class__.__name__)[0]
-        except:
-            raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
-        try:
-            sc = hm.FindDeviceStringMatch('libprs500.cardvolume', self.__class__.__name__)[0]
-        except:
-            sc = None
         
-        def conditional_mount(dev):
+        def conditional_mount(dev, main_mem=True):
             mmo = bus.get_object("org.freedesktop.Hal", dev)
             label = mmo.GetPropertyString('volume.label', dbus_interface='org.freedesktop.Hal.Device')
             is_mounted = mmo.GetPropertyString('volume.is_mounted', dbus_interface='org.freedesktop.Hal.Device')
@@ -183,13 +175,44 @@ class PRS505(Device):
             if is_mounted:
                 return str(mount_point)
             mmo.Mount(label, fstype, ['umask=077', 'uid='+str(os.getuid()), 'sync'], 
-                      dbus_interface='org.freedesktop.Hal.Device.Volume')
+                          dbus_interface='org.freedesktop.Hal.Device.Volume')
             return os.path.normpath('/media/'+label)+'/'
+    
         
-        self._main_prefix = conditional_mount(mm)+os.sep
+        mm = hm.FindDeviceStringMatch('libprs500.mainvolume', self.__class__.__name__)
+        if not mm:
+            raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
+        self._main_prefix = None
+        for dev in mm:
+            try:
+                self._main_prefix = conditional_mount(dev)+os.sep
+                break
+            except dbus.exceptions.DBusException:
+                continue
+            
+            
+        if not self._main_prefix:
+            raise DeviceError('Could not open device for reading. Try a reboot.')
+            
         self._card_prefix = None
-        if sc is not None:
-            self._card_prefix = conditional_mount(sc)+os.sep
+        cards = hm.FindDeviceStringMatch('libprs500.cardvolume', self.__class__.__name__)
+        keys = []
+        for card in cards:
+            keys.append(int('UC_SD' in bus.get_object("org.freedesktop.Hal", card).GetPropertyString('info.parent', dbus_interface='org.freedesktop.Hal.Device')))
+            
+        cards = zip(cards, keys)
+        cards.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        cards = [i[0] for i in cards]
+        
+        for dev in cards:
+            try:
+                self._card_prefix = conditional_mount(dev, False)+os.sep
+                break
+            except:
+                import traceback
+                print traceback
+                continue
+            
     
     def open(self):
         time.sleep(5)
