@@ -406,7 +406,7 @@
              </spacer>
             </item>
             <item>
-             <widget class="QLabel" name="cover" >
+             <widget class="ImageView" name="cover" >
               <property name="sizePolicy" >
                <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
                 <horstretch>0</horstretch>
@@ -547,6 +547,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ImageView</class>
+   <extends>QLabel</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../images.qrc" />
  </resources>
