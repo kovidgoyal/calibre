@@ -30,6 +30,16 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QCheckBox" name="negate" >
+     <property name="toolTip" >
+      <string>&lt;p>Negate this match. That is, only return results that &lt;b>do not&lt;/b> match this query.</string>
+     </property>
+     <property name="text" >
+      <string>Negate</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

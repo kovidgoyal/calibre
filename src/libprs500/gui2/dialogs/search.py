@@ -42,6 +42,8 @@ class SearchItem(Ui_Form, QWidget):
     def token(self):
         txt = qstring_to_unicode(self.text.text()).strip()
         if txt:
+            if self.negate.isChecked():
+                txt = '!'+txt
             tok = self.FIELDS[qstring_to_unicode(self.field.currentText())]+txt
             if re.search(r'\s', tok):
                 tok = '"%s"'%tok
