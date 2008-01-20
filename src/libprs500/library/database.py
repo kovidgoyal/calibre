@@ -793,6 +793,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                   'size': 'size',
                   'date': 'timestamp',
                   'rating': 'rating',
+                  'tags':'tags',
                   'series': 'series',
                   }
         field = FIELDS[sort_field]
@@ -990,8 +991,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         Convenience method for setting the title, authors, publisher or rating 
         '''
         id = self.data[row][0]
-        cols = {'title' : 1, 'authors': 2, 'publisher': 3, 'rating':4}
-        col = cols[column]
+        col = {'title':1, 'authors':2, 'publisher':3, 'rating':4, 'tags':7}[column]
         
         self.data[row][col] = val
         for item in self.cache:
@@ -1007,6 +1007,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.set_publisher(id, val)
         elif column == 'rating':
             self.set_rating(id, val)
+        elif column == 'tags':
+            self.set_tags(id, val.split(','), append=False)
         
     def set_conversion_options(self, id, format, options):
         data = sqlite.Binary(cPickle.dumps(options))

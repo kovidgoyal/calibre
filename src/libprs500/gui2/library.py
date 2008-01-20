@@ -108,7 +108,8 @@ class BooksModel(QAbstractTableModel):
     def __init__(self, parent):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
-        self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'series']
+        self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'tags', 'series']
+        self.editable_cols = [0, 1, 4, 5, 6]
         self.sorted_on = (3, Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
         self.read_config()
@@ -315,6 +316,10 @@ class BooksModel(QAbstractTableModel):
                 if pub: 
                     return QVariant(BooksView.wrap(pub, 20))
             elif col == 6:
+                tags = self.db.tags(row)
+                if tags:
+                    return QVariant(', '.join(tags.split(',')))                
+            elif col == 7:
                 series = self.db.series(row)
                 if series:
                     return QVariant(series)
@@ -322,7 +327,7 @@ class BooksModel(QAbstractTableModel):
         elif role == Qt.TextAlignmentRole and index.column() in [2, 3, 4]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         elif role == Qt.ToolTipRole and index.isValid():            
-            if index.column() in [0, 1, 4, 5]:
+            if index.column() in self.editable_cols:
                 return QVariant("Double click to <b>edit</b> me<br><br>")
         return NONE
     
@@ -337,7 +342,8 @@ class BooksModel(QAbstractTableModel):
             elif section == 3: text = _("Date")
             elif section == 4: text = _("Rating")
             elif section == 5: text = _("Publisher")
-            elif section == 6: text = _("Series")
+            elif section == 6: text = _("Tags")
+            elif section == 7: text = _("Series")
             return QVariant(text)
         else: 
             return QVariant(section+1)
@@ -345,7 +351,7 @@ class BooksModel(QAbstractTableModel):
     def flags(self, index):
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid():       
-            if index.column() not in [2, 3]:  
+            if index.column() in self.editable_cols:  
                 flags |= Qt.ItemIsEditable    
         return flags
     
@@ -353,7 +359,7 @@ class BooksModel(QAbstractTableModel):
         done = False
         if role == Qt.EditRole:
             row, col = index.row(), index.column()
-            if col in [2,3]:
+            if col not in self.editable_cols:
                 return False
             val = unicode(value.toString().toUtf8(), 'utf-8').strip() if col != 4 else \
                   int(value.toInt()[0])
