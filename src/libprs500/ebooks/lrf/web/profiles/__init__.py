@@ -321,10 +321,14 @@ class DefaultProfile(object):
         
     
 class FullContentProfile(DefaultProfile):
+    '''
+    This profile is designed for feeds that embed the full article content in the RSS file.
+    '''
     
-    max_recursions = 3
+    
     summary_length = 500 # Max number of characters in the short description
-
+    
+    max_recursions = 0
     article_counter = 0
     
     def build_index(self):
