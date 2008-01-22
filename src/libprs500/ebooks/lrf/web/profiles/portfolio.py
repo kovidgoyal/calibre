@@ -4,12 +4,11 @@
 ''' 
 ''' 
  
-from libprs500.ebooks.lrf.web.profiles import DefaultProfile  
+from libprs500.ebooks.lrf.web.profiles import FullContentProfile  
          
-class Portfolio(DefaultProfile): 
+class Portfolio(FullContentProfile): 
     
-        title = 'Portfolio' 
-        max_recursions = 0
+        title = 'Portfolio'
         max_articles_per_feed = 50
         timefmt  = ' [%a, %b %d, %Y]' 
         html_description = True 
@@ -17,7 +16,6 @@ class Portfolio(DefaultProfile):
         html2lrf_options = ['--ignore-tables']
         ##delay = 1
         
-        ## Don't grab articles more than 7 days old 
         oldest_article = 30
 
 ## Comment out the feeds you don't want retrieved. 

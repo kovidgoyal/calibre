@@ -153,9 +153,10 @@ class DefaultProfile(object):
         return index
 
     
-    def parse_feeds(self):
+    def parse_feeds(self, require_url=True):
         '''
         Create list of articles from a list of feeds.
+        @param require_url: If True skip articles that don't have a link to a HTML page with the full article contents.
         @return: A dictionary whose keys are feed titles and whose values are each
         a list of dictionaries. Each list contains dictionaries of the form:
         {
@@ -163,6 +164,7 @@ class DefaultProfile(object):
             'url'         : URL of print version,
             'date'        : The publication date of the article as a string,
             'description' : A summary of the article
+            'content'     : The full article (can be an empty string). This is unused in DefaultProfile
         }
         '''
         added_articles = {}
@@ -196,14 +198,25 @@ class DefaultProfile(object):
                         if url:
                             break
                         
-                    if not url or not url.string:
+                    if require_url and (not url or not url.string):
                         self.logger.debug('Skipping article as it does not have a link url')
                         continue
+                    url = url.string if (url and url.string) else ''
+                    
+                    content = item.find('content:encoded')
+                    if not content:
+                        content = item.find('description')
+                    if content:
+                        content = self.process_html_description(content, strip_links=False)
+                    else:
+                        content = ''
+                         
                     d = { 
                         'title'    : item.find('title').string,                 
-                        'url'      : self.print_version(url.string),
+                        'url'      : self.print_version(url),
                         'timestamp': self.strptime(pubdate) if self.use_pubdate else time.time(),
-                        'date'     : pubdate if self.use_pubdate else time.ctime()
+                        'date'     : pubdate if self.use_pubdate else time.ctime(),
+                        'content'  : content,
                         }
                     delta = time.time() - d['timestamp']
                     if not self.allow_duplicates:
@@ -240,13 +253,19 @@ class DefaultProfile(object):
         pass
     
     @classmethod
-    def process_html_description(cls, tag):
+    def process_html_description(cls, tag, strip_links=True):
         src = '\n'.join(tag.contents)
-        replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
-        for e in replaced_entities:
-            ent = '&'+e+';'
-            src = src.replace(ent, unichr(name2codepoint[e]))
-        return re.compile(r'<a.*?>(.*?)</a>', re.IGNORECASE|re.DOTALL).sub(r'\1', src)
+        match = re.match(r'<\!\[CDATA\[(.*)\]\]>', src.lstrip())
+        if match:
+            src = match.group(1)
+        else:
+            replaced_entities = [ 'amp', 'lt', 'gt' , 'ldquo', 'rdquo', 'lsquo', 'rsquo' ]
+            for e in replaced_entities:
+                ent = '&'+e+';'
+                src = src.replace(ent, unichr(name2codepoint[e]))
+        if strip_links:
+            src = re.compile(r'<a.*?>(.*?)</a>', re.IGNORECASE|re.DOTALL).sub(r'\1', src)
+        return src 
 
     
     DAY_MAP        = dict(Sun=0, Mon=1, Tue=2, Wed=3, Thu=4, Fri=5, Sat=6)
@@ -300,4 +319,82 @@ class DefaultProfile(object):
             args.append('--filter-regexp="'+i+'"')
         return args
         
+    
+class FullContentProfile(DefaultProfile):
+    
+    max_recursions = 3
+    summary_length = 500 # Max number of characters in the short description
+
+    article_counter = 0
+    
+    def build_index(self):
+        '''Build an RSS based index.html'''
+        import os
+        articles = self.parse_feeds(require_url=False)
+        
+        
+    
+        def build_sub_index(title, items):
+            ilist = ''
+            li = u'<li><a href="%(url)s">%(title)s</a> <span style="font-size: x-small">[%(date)s]</span><br/>\n'+\
+                u'<div style="font-size:small; font-family:sans">%(description)s<br /></div></li>\n'
+            for item in items:
+                content = item['content']
+                if not content:
+                    self.logger.debug('Skipping article as it has no content:%s'%item['title'])
+                    continue
+                item['description'] = item['description'][:self.summary_length]+'&hellip;'
+                self.article_counter = self.article_counter + 1
+                url = os.path.join(self.temp_dir, 'article%d.html'%self.article_counter)
+                item['url'] = url
+                open(url, 'wb').write((u'''\
+                    <html>
+                    <body>
+                    <h2>%s</h2>
+                    <div>
+                    %s
+                    </div>
+                    </body>
+                    </html>'''%(item['title'], content)).encode('utf-8')
+                    )
+                ilist += li%item
+            return u'''\
+            <html>
+            <body>
+            <h2>%(title)s</h2>
+            <ul>
+            %(items)s
+            </ul>
+            </body>
+            </html>
+            '''%dict(title=title, items=ilist.rstrip())        
+        
+        cnum = 0
+        clist = ''
+        categories = articles.keys()
+        categories.sort()
+        for category in categories:
+            cnum  += 1
+            cfile = os.path.join(self.temp_dir, 'category'+str(cnum)+'.html')
+            prefix = 'file:' if iswindows else ''
+            clist += u'<li><a href="%s">%s</a></li>\n'%(prefix+cfile, category)
+            src = build_sub_index(category, articles[category])
+            open(cfile, 'wb').write(src.encode('utf-8'))        
+        
+        src = '''\
+        <html>
+        <body>
+        <h1>%(title)s</h1>
+        <div style='text-align: right; font-weight: bold'>%(date)s</div>
+        <ul>
+        %(categories)s
+        </ul>
+        </body>
+        </html>
+        '''%dict(date=time.strftime('%a, %d %B, %Y', time.localtime()), 
+                 categories=clist, title=self.title)
+        index = os.path.join(self.temp_dir, 'index.html')
+        open(index, 'wb').write(src.encode('utf-8'))
+        return index
+
     
