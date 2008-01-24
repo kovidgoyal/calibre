@@ -13,53 +13,22 @@ TXT2LRF  = "src/libprs500/ebooks/lrf/txt/demo"
 check_call = partial(_check_call, shell=True)
 h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
 
+
 def build_windows():
-    files = glob.glob('dist/*.exe')
-    for file in files:
-        os.unlink(file)
-    
-    
-    
-    vm = h.openVM('/mnt/vista/Windows Vista/Windows Vista.vmx')
-    vm.powerOn() 
-    if not vm.waitForToolsInGuest():
-        print >>sys.stderr, 'Windows is not booting up'
-        sys.exit(1)
-    
-    
-    
-    vm.loginInGuest('kovid', 'et tu brutus')
-    vm.loginInGuest(VIX_CONSOLE_USER_NAME, '')
-    vm.runProgramInGuest('C:\\Users\kovid\Desktop\libprs500.bat', '')
-    if not glob.glob('dist/*.exe'):
-        raise Exception('Windows build has failed')
-    vm.runProgramInGuest('C:\Windows\system32\shutdown.exe', '/s')
-    return os.path.basename(glob.glob('dist/*.exe')[-1])
+    from libprs500 import __version__
+    installer = 'dist/libprs500-%s.exe'%__version__
+    if not os.path.exists(installer):
+        raise Exception('You must build the windows installer before running this script')
+        
+    return os.path.basename(installer)
 
 def build_osx():
-    files = glob.glob('dist/*.dmg')
-    for file in files:
-            os.unlink(file)
-    if os.path.exists('dist/dmgdone'):
-        os.unlink('dist/dmgdone')
-    
-    vm = h.openVM('/mnt/osx/Mac OSX/Mac OSX.vmx')
-    vm.powerOn()
-    c = 25 * 60
-    print 'Waiting (minutes):',
-    while c > 0 and not os.path.exists('dist/dmgdone'):
-        time.sleep(10)
-        c -= 10
-        if c%60==0:
-            print c/60, ',',
-            sys.stdout.flush()
-    print
+    from libprs500 import __version__
+    installer = 'dist/libprs500-%s.dmg'%__version__
+    if not os.path.exists(installer):
+        raise Exception('You must build the OSX installer before running this script')
         
-    if not os.path.exists('dist/dmgdone'):
-        raise Exception('OSX build has failed')
-    vm.powerOff()
-    return os.path.basename(glob.glob('dist/*.dmg')[-1])
-    
+    return os.path.basename(installer)
 
 
 def upload_demo():

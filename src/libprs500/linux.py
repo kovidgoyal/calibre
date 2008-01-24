@@ -231,13 +231,10 @@ def post_install():
     if os.geteuid() != 0:
         print >> sys.stderr, 'You must be root to run this command.'
         sys.exit(1)
-        
+    
     setup_udev_rules()
     setup_completion()
-    try:
-        setup_desktop_integration()
-    except:
-        print >>sys.stderr, 'You do not have the Portland Desktop Utilities installed, skipping installation of desktop integration'
+    setup_desktop_integration()
         
     try:
         from PyQt4 import Qt
@@ -288,40 +285,52 @@ MIME = '''\
 '''
 
 def setup_desktop_integration():
-    from PyQt4.QtGui import QApplication, QPixmap  
-    from PyQt4.QtCore import Qt
-    from libprs500.gui2 import images_rc
-    from tempfile import mkdtemp
-    
-    print 'Setting up desktop integration...'
-    
-    app = QApplication([])
-    svg = QPixmap(':/images/mimetypes/lrf.svg').scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-    gui = QPixmap(':library').scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-    viewer = QPixmap(':/images/viewer.svg').scaled(128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)  
-    tdir = mkdtemp()
     try:
-        os.chdir(tdir)
-        svg.save(os.path.join(tdir, 'libprs500-lrf.png'), 'PNG')
-        gui.save(os.path.join(tdir, 'libprs500-gui.png'), 'PNG')
-        viewer.save(os.path.join(tdir, 'libprs500-viewer.png'), 'PNG')
-        check_call('xdg-icon-resource install --context mimetypes --size 128 libprs500-lrf.png application-lrf', shell=True)
-        check_call('xdg-icon-resource install --context mimetypes --size 128 libprs500-lrf.png text-lrs', shell=True)
-        check_call('xdg-icon-resource install --size 128 libprs500-gui.png libprs500-gui', shell=True)
-        check_call('xdg-icon-resource install --size 128 libprs500-viewer.png libprs500-viewer', shell=True)
-        f = open('libprs500-lrfviewer.desktop', 'wb')
-        f.write(VIEWER)
-        f.close()
-        f = open('libprs500-gui.desktop', 'wb')
-        f.write(GUI)
-        f.close()
-        check_call('xdg-desktop-menu install ./libprs500-gui.desktop ./libprs500-lrfviewer.desktop', shell=True)
-        f = open('libprs500-mimetypes', 'wb')
-        f.write(MIME)
-        f.close()
-        check_call('xdg-mime install libprs500-mimetypes', shell=True)
-    finally:
-        shutil.rmtree(tdir)
+        from PyQt4.QtCore import QFile
+        from libprs500.gui2 import images_rc # Load images
+        from tempfile import mkdtemp
+        
+        print 'Setting up desktop integration...'
+        
+        
+        tdir = mkdtemp()
+        rsvg = 'rsvg --dpi-x 600 --dpi-y 600 -w 128 -h 128 -f png '
+        cwd = os.getcwdu()
+        try:
+            os.chdir(tdir)
+            if QFile(':/images/mimetypes/lrf.svg').copy(os.path.join(tdir, 'libprs500-lrf.svg')):
+                check_call(rsvg + 'libprs500-lrf.svg libprs500-lrf.png', shell=True)
+                check_call('xdg-icon-resource install --context mimetypes --size 128 libprs500-lrf.png application-lrf', shell=True)
+                check_call('xdg-icon-resource install --context mimetypes --size 128 libprs500-lrf.png text-lrs', shell=True)
+            else:
+                raise Exception('Could not create LRF mimetype icon')
+            if QFile(':library').copy(os.path.join(tdir, 'libprs500-gui.png')):
+                check_call('xdg-icon-resource install --size 128 libprs500-gui.png libprs500-gui', shell=True)
+            else:
+                raise Exception('Could not creaet GUI icon')
+            if QFile(':/images/viewer.svg').copy(os.path.join(tdir, 'libprs500-viewer.svg')):
+                check_call(rsvg + 'libprs500-viewer.svg libprs500-viewer.png', shell=True)
+                check_call('xdg-icon-resource install --size 128 libprs500-viewer.png libprs500-viewer', shell=True)
+            else:
+                raise Exception('Could not creaet viewer icon')
+            
+            f = open('libprs500-lrfviewer.desktop', 'wb')
+            f.write(VIEWER)
+            f.close()
+            f = open('libprs500-gui.desktop', 'wb')
+            f.write(GUI)
+            f.close()
+            check_call('xdg-desktop-menu install ./libprs500-gui.desktop ./libprs500-lrfviewer.desktop', shell=True)
+            f = open('libprs500-mimetypes', 'wb')
+            f.write(MIME)
+            f.close()
+            check_call('xdg-mime install libprs500-mimetypes', shell=True)
+        finally:
+            os.chdir(cwd)
+            shutil.rmtree(tdir)
+    except Exception, err:
+        print >>sys.stderr, 'Could not setup desktop integration. Error:'
+        print err
  
          
 if __name__ == '__main__':
