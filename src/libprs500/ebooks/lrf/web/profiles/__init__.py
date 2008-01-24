@@ -37,6 +37,7 @@ class DefaultProfile(object):
     url_search_order      = ['guid', 'link'] # THe order of elements to search for a URL when parssing the RSS feed
     pubdate_fmt           = None  # The format string used to parse the publication date in the RSS feed. If set to None some default heuristics are used, these may fail, in which case set this to the correct string or re-implement strptime in your subclass.
     use_pubdate           = True, # If True will look for a publication date for each article. If False assumes the publication date is the current time.
+    summary_length        = 500 # Max number of characters in the short description (ignored in DefaultProfile)
     no_stylesheets        = False # Download stylesheets only if False
     allow_duplicates      = False # If False articles with the same title in the same feed are not downloaded multiple times
     needs_subscription    = False # If True the GUI will ask the userfor a username and password to use while downloading
@@ -52,14 +53,17 @@ class DefaultProfile(object):
     preprocess_regexps = []
     
     # See the built-in profiles for examples of these settings.
-
+    
+    feeds = []
 
     def get_feeds(self):
         '''
         Return a list of RSS feeds to fetch for this profile. Each element of the list
         must be a 2-element tuple of the form (title, url).
         '''
-        raise NotImplementedError
+        if not self.feeds:
+            raise NotImplementedError
+        return self.feeds
     
     @classmethod
     def print_version(cls, url):
@@ -134,8 +138,8 @@ class DefaultProfile(object):
             prefix = 'file:' if iswindows else ''
             clist += u'<li><a href="%s">%s</a></li>\n'%(prefix+cfile, category)
             src = build_sub_index(category, articles[category])
-            open(cfile, 'wb').write(src.encode('utf-8'))        
-        
+            open(cfile, 'wb').write(src.encode('utf-8'))
+            
         src = '''\
         <html>
         <body>
@@ -225,7 +229,6 @@ class DefaultProfile(object):
                         added_articles[title].append(d['title'])
                     if delta > self.oldest_article*3600*24:
                         continue
-                     
                 except Exception, err:
                     if self.verbose:
                         self.logger.exception('Error parsing article:\n%s'%(item,))
@@ -325,19 +328,16 @@ class FullContentProfile(DefaultProfile):
     This profile is designed for feeds that embed the full article content in the RSS file.
     '''
     
-    
-    summary_length = 500 # Max number of characters in the short description
-    
     max_recursions = 0
     article_counter = 0
+    html_description = True
+    
     
     def build_index(self):
         '''Build an RSS based index.html'''
         import os
         articles = self.parse_feeds(require_url=False)
         
-        
-    
         def build_sub_index(title, items):
             ilist = ''
             li = u'<li><a href="%(url)s">%(title)s</a> <span style="font-size: x-small">[%(date)s]</span><br/>\n'+\
@@ -347,7 +347,7 @@ class FullContentProfile(DefaultProfile):
                 if not content:
                     self.logger.debug('Skipping article as it has no content:%s'%item['title'])
                     continue
-                item['description'] = item['description'][:self.summary_length]+'&hellip;'
+                item['description'] = cutoff(item['description'], self.summary_length)+'&hellip;'
                 self.article_counter = self.article_counter + 1
                 url = os.path.join(self.temp_dir, 'article%d.html'%self.article_counter)
                 item['url'] = url
@@ -383,7 +383,8 @@ class FullContentProfile(DefaultProfile):
             prefix = 'file:' if iswindows else ''
             clist += u'<li><a href="%s">%s</a></li>\n'%(prefix+cfile, category)
             src = build_sub_index(category, articles[category])
-            open(cfile, 'wb').write(src.encode('utf-8'))        
+            open(cfile, 'wb').write(src.encode('utf-8'))
+            open('/tmp/category'+str(cnum)+'.html', 'wb').write(src.encode('utf-8'))        
         
         src = '''\
         <html>
@@ -401,4 +402,15 @@ class FullContentProfile(DefaultProfile):
         open(index, 'wb').write(src.encode('utf-8'))
         return index
 
+def cutoff(src, pos, fuzz=50):
+    si = src.find(';', pos)
+    if si > 0 and si-pos > fuzz:
+        si = -1
+    gi = src.find('>', pos)
+    if gi > 0 and gi-pos > fuzz:
+        gi = -1
+    npos = max(si, gi)
+    if npos < 0:
+        npos = pos
+    return src[:npos+1]
     

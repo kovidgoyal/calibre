@@ -23,8 +23,6 @@ Fetch Dilbert.
 
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile
 
-import re
-
 class Dilbert(DefaultProfile):
 
     title = 'Dilbert'

@@ -1,0 +1,382 @@
+<ui version="4.0" >
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>703</width>
+    <height>661</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Add custom RSS feed</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../images.qrc" >:/images/user_profile.svg</iconset>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>Available user profiles</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="BasicList" name="available_profiles" >
+        <property name="selectionMode" >
+         <enum>QAbstractItemView::MultiSelection</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="add_profile_button" >
+        <property name="text" >
+         <string>Add/Update &amp;profile</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="remove_profile_button" >
+        <property name="text" >
+         <string>&amp;Remove profile</string>
+        </property>
+        <property name="icon" >
+         <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <layout class="QVBoxLayout" >
+     <item>
+      <widget class="QPushButton" name="toggle_mode_button" >
+       <property name="text" >
+        <string>Switch to Advanced mode</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QStackedWidget" name="stacks" >
+       <property name="currentIndex" >
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="page" >
+        <layout class="QVBoxLayout" >
+         <item>
+          <widget class="QLabel" name="label" >
+           <property name="text" >
+            <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Create a basic news profile, by adding RSS feeds to it. &lt;br />For most feeds, you will have to use the "Advanced" setting to further customize the fetch process.&lt;br />The Basic tab is useful mainly for feeds that have the full article content embedded within them.&lt;/p>&lt;/body>&lt;/html></string>
+           </property>
+           <property name="textFormat" >
+            <enum>Qt::RichText</enum>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" >
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_2" >
+             <property name="text" >
+              <string>Profile &amp;title:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>profile_title</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="2" >
+            <widget class="QLineEdit" name="profile_title" >
+             <property name="font" >
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" colspan="2" >
+            <widget class="QLabel" name="label_3" >
+             <property name="text" >
+              <string>&amp;Summary length:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>summary_length</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="2" >
+            <widget class="QSpinBox" name="summary_length" >
+             <property name="suffix" >
+              <string> characters</string>
+             </property>
+             <property name="minimum" >
+              <number>0</number>
+             </property>
+             <property name="maximum" >
+              <number>100000</number>
+             </property>
+             <property name="value" >
+              <number>500</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0" >
+            <widget class="QLabel" name="label_6" >
+             <property name="text" >
+              <string>&amp;Oldest article:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>oldest_article</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="2" >
+            <widget class="QSpinBox" name="oldest_article" >
+             <property name="toolTip" >
+              <string>The oldest article to download</string>
+             </property>
+             <property name="suffix" >
+              <string> days</string>
+             </property>
+             <property name="minimum" >
+              <number>1</number>
+             </property>
+             <property name="maximum" >
+              <number>365</number>
+             </property>
+             <property name="value" >
+              <number>7</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" >
+            <widget class="QLabel" name="label_7" >
+             <property name="text" >
+              <string>&amp;Max. number of articles per feed:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>max_articles</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2" >
+            <widget class="QSpinBox" name="max_articles" >
+             <property name="toolTip" >
+              <string>Maximum number of articles to download per feed.</string>
+             </property>
+             <property name="minimum" >
+              <number>5</number>
+             </property>
+             <property name="maximum" >
+              <number>100</number>
+             </property>
+             <property name="value" >
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QCheckBox" name="full_articles" >
+             <property name="toolTip" >
+              <string>Try to follow links in the RSS feed to full articles on the web. If you enable this option, you're probably going to end up having to use the advanced mode.</string>
+             </property>
+             <property name="text" >
+              <string>Try to download &amp;full articles</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2" >
+           <property name="title" >
+            <string>Feeds in profile</string>
+           </property>
+           <layout class="QHBoxLayout" >
+            <item>
+             <widget class="BasicList" name="added_feeds" >
+              <property name="selectionMode" >
+               <enum>QAbstractItemView::MultiSelection</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="remove_feed_button" >
+              <property name="toolTip" >
+               <string>Remove feed from profile</string>
+              </property>
+              <property name="text" >
+               <string>...</string>
+              </property>
+              <property name="icon" >
+               <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_3" >
+           <property name="title" >
+            <string>Add feed to profile</string>
+           </property>
+           <layout class="QGridLayout" >
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_4" >
+              <property name="text" >
+               <string>&amp;Feed title:</string>
+              </property>
+              <property name="buddy" >
+               <cstring>feed_title</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QLineEdit" name="feed_title" />
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="label_5" >
+              <property name="text" >
+               <string>Feed &amp;URL:</string>
+              </property>
+              <property name="buddy" >
+               <cstring>feed_url</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QLineEdit" name="feed_url" />
+            </item>
+            <item row="2" column="0" colspan="2" >
+             <widget class="QPushButton" name="add_feed_button" >
+              <property name="toolTip" >
+               <string>Add feed to profile</string>
+              </property>
+              <property name="text" >
+               <string>&amp;Add feed</string>
+              </property>
+              <property name="icon" >
+               <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page_2" >
+        <layout class="QVBoxLayout" >
+         <item>
+          <widget class="QLabel" name="label_8" >
+           <property name="text" >
+            <string>For help with writing advanced news profiles, please visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/UserProfiles">UserProfiles&lt;/a></string>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+           <property name="openExternalLinks" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_4" >
+           <property name="title" >
+            <string>Profile source code (python)</string>
+           </property>
+           <layout class="QVBoxLayout" >
+            <item>
+             <widget class="QTextEdit" name="source_code" >
+              <property name="font" >
+               <font>
+                <family>DejaVu Sans Mono</family>
+               </font>
+              </property>
+              <property name="lineWrapMode" >
+               <enum>QTextEdit::NoWrap</enum>
+              </property>
+              <property name="acceptRichText" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="1" column="0" colspan="2" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>BasicList</class>
+   <extends>QListWidget</extends>
+   <header>widgets.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../images.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>446</x>
+     <y>649</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>0</x>
+     <y>632</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>175</x>
+     <y>643</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>176</x>
+     <y>636</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

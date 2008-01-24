@@ -12,10 +12,11 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.gui2 import qstring_to_unicode
 '''
 Miscellanous widgets used in the GUI
 '''
-from PyQt4.QtGui import QListView, QIcon, QFont, QLabel
+from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, QListWidgetItem
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, QObject
 
 from libprs500.gui2 import human_readable, NONE, TableView
@@ -132,5 +133,36 @@ class FontFamilyModel(QAbstractListModel):
     def index_of(self, family):
         return self.families.index(family.strip())
     
-    
 
+class BasicListItem(QListWidgetItem):
+    
+    def __init__(self, text, user_data=None):
+        QListWidgetItem.__init__(self, text)
+        self.user_data = user_data
+        
+    def __eq__(self, other):
+        if hasattr(other, 'text'):
+            return self.text() == other.text()
+        return False
+
+class BasicList(QListWidget):
+    
+    def add_item(self, text, user_data=None, replace=False):
+        item = BasicListItem(text, user_data)
+        
+        for oitem in self.items():
+            if oitem == item:
+                if replace:
+                    self.takeItem(self.row(oitem))
+                else:
+                    raise ValueError('Item already in list')
+            
+        self.addItem(item)
+    
+    def remove_selected_items(self, *args):
+        for item in self.selectedItems():
+            self.takeItem(self.row(item))
+    
+    def items(self):
+        for i in range(self.count()):
+            yield self.item(i)

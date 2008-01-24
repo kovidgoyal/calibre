@@ -48,6 +48,7 @@ from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog
 from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
 from libprs500.gui2.dialogs.config import ConfigDialog
 from libprs500.gui2.dialogs.search import SearchDialog
+from libprs500.gui2.dialogs.user_profiles import UserProfiles
 from libprs500.gui2.lrf_renderer.main import file_renderer
 from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
 from libprs500.library.database import DatabaseLocked
@@ -129,7 +130,7 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"), self.view_book)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
-        self.news_menu = NewsMenu()
+        self.news_menu = NewsMenu(self.customize_feeds)
         self.action_news.setMenu(self.news_menu)
         QObject.connect(self.news_menu, SIGNAL('fetch_news(PyQt_PyObject)'), self.fetch_news)
         cm = QMenu()
@@ -178,6 +179,8 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.detector, SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), 
                         self.device_detected, Qt.QueuedConnection)
         self.detector.start(QThread.InheritPriority)
+        
+        self.news_menu.set_custom_feeds(self.library_view.model().db.get_feeds())
         
     
     def current_view(self):
@@ -537,6 +540,13 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
     
     ############################### Fetch news #################################
+    
+    def customize_feeds(self, *args):
+        d = UserProfiles(self, self.library_view.model().db.get_feeds())
+        if d.exec_() == QDialog.Accepted:
+            feeds = tuple(d.profiles())
+            self.library_view.model().db.set_feeds(feeds)
+            self.news_menu.set_custom_feeds(feeds)
     
     def fetch_news(self, data):
         pt = PersistentTemporaryFile(suffix='.lrf')

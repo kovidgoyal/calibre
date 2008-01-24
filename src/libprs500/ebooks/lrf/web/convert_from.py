@@ -104,16 +104,20 @@ def process_profile(args, options, logger=None):
             if len(args) < 2:
                 args.append(name)
             args[1] = name
+        index = -1
         if len(args) == 2:
             try:
-                index = -1
-                if args[1] != 'default':
-                    index = available_profiles.index(args[1])
+                if isinstance(args[1], basestring):
+                    if args[1] != 'default':
+                        index = available_profiles.index(args[1])
             except ValueError:
                 raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], available_profiles))
         else:
             raise CommandLineError('Only one profile at a time is allowed.')
-        profile = DefaultProfile if index == -1 else builtin_profiles[index]
+        if isinstance(args[1], basestring):
+            profile = DefaultProfile if index == -1 else builtin_profiles[index]
+        else:
+            profile = args[1]
         profile = profile(logger, options.verbose, options.username, options.password)
         if profile.browser is not None:
             options.browser = profile.browser
@@ -170,7 +174,11 @@ def process_profile(args, options, logger=None):
 
 def main(args=sys.argv, logger=None):
     parser = option_parser()
-    options, args = parser.parse_args(args)
+    if not isinstance(args[-1], basestring): # Called from GUI
+        options, args2 = parser.parse_args(args[:-1])
+        args = args2 + [args[-1]]
+    else:
+        options, args = parser.parse_args(args)
     if len(args) > 2 or (len(args) == 1 and not options.user_profile):
         parser.print_help()
         return 1

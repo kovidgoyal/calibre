@@ -739,6 +739,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         ''')
         conn.execute('pragma user_version=6')
         conn.commit()
+    
+    @staticmethod
+    def upgrade_version6(conn):
+        conn.executescript('''CREATE TABLE feeds ( id   INTEGER PRIMARY KEY,
+                              title TEXT NOT NULL,
+                              script TEXT NOT NULL,
+                              UNIQUE(title)
+                             );''')
+        conn.execute('pragma user_version=7')
+        conn.commit()
         
     def __del__(self):
         global _lock_file
@@ -765,6 +775,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             LibraryDatabase.upgrade_version4(self.conn)
         if self.user_version == 5: # Upgrade to 6
             LibraryDatabase.upgrade_version5(self.conn)
+        if self.user_version == 6: # Upgrade to 7
+            LibraryDatabase.upgrade_version6(self.conn)
         
     def close(self):
         global _lock_file
@@ -1221,6 +1233,18 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         for i in range(len(data)):
             if data[i][0] == id:
                 return i
+    
+    def get_feeds(self):
+        feeds = self.conn.execute('SELECT title, script FROM feeds').fetchall()
+        for title, script in feeds:
+            yield title, script
+            
+    def set_feeds(self, feeds):
+        self.conn.execute('DELETE FROM feeds')
+        for title, script in feeds:
+            self.conn.execute('INSERT INTO feeds(title, script) VALUES (?, ?)',
+                                  (title, script))
+        self.conn.commit()
     
     def delete_book(self, id):
         '''
