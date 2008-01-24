@@ -551,11 +551,12 @@ class Main(MainWindow, Ui_MainWindow):
     def fetch_news(self, data):
         pt = PersistentTemporaryFile(suffix='.lrf')
         pt.close()
-        args = ['web2lrf', '-o', pt.name, data['profile']]
+        args = ['web2lrf', '-o', pt.name]
         if data['username']:
             args.extend(['--username', data['username']])
         if data['password']:
             args.extend(['--password', data['password']])
+        args.append(data['profile'])
         id = self.job_manager.run_conversion_job(self.news_fetched, web2lrf, args=args,
                                             job_description='Fetch news from '+data['title'])
         self.conversion_jobs[id] = (pt, 'lrf')
