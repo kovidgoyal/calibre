@@ -51,6 +51,7 @@ class Distribution(object):
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('convertlit', '1.8', 'convertlit', None, None),
         ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
+        ('librsvg', '2.0.0', 'librsvg', 'librsvg2-bin', 'librsvg2')
         ]
     
     DISTRO_MAP = {'gentoo':2, 'ubuntu':3, 'fedora':4, 'debian':3}
