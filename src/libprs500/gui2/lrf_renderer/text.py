@@ -365,7 +365,7 @@ class Line(QGraphicsItem):
         self.tokens = collections.deque()
         self.current_width = 0
         self.length_in_space = 0
-        self.height, self.descent = 0, 0
+        self.height, self.descent, self.width = 0, 0, 0
         self.links = collections.deque()
         self.current_link = None
         self.valign = None
