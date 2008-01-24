@@ -40,12 +40,13 @@ def svn_log_to_txt():
         if not msg:
             continue
         match = version_pat.search(msg)
+        line = ''
         if match:
             current_version = True
             line = u'----\n== Version '+match.group(1)+' =='
         elif current_version:
             line = u'  * ' + msg
-        if line not in txt:
+        if line and line not in txt:
             txt.append(line)
             
     return u'\n'.join(txt)
