@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
 "POT-Creation-Date: 2008-01-23 23:50+PST\n"
-"PO-Revision-Date: 2008-01-25 00:11+0100\n"
+"PO-Revision-Date: 2008-01-25 09:14+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
 "MIME-Version: 1.0\n"
@@ -170,7 +170,7 @@ msgstr "Benutzen Sie diese Einstellung bei HTML Dateien von Book Designer."
 msgid ""
 "Specify trutype font families for serif, sans-serif and monospace fonts. These fonts will be embedded in the LRF file. Note that custom fonts lead to slower page turns. Each family specification is of the form: \"path to fonts directory, family\" For example: --serif-family \"%s, Times New Roman\"\n"
 "    "
-msgstr "Geben Sie Truetype Schriftarten für serife, serifenlose und nichtproportionale Schriften an. Diese Schriften werden in die LRF Datei eingebettet. Bitte beachten Sie, dass eingebettete Schriften das Umblättern verlangsamen. Jede Schriftartfamilie wird folgendermaßen angegeben: \"Pfad zum Verzeichnis der Schriften, Schriftartfamilie\" Zum Beispiel: --serif-family \"%s, Times New Roman\"\n"
+msgstr "Geben Sie Truetype Schriftarten für serife, serifenlose und nichtproportionale Schriften an. Diese Schriften werden in die LRF Datei eingebettet. Bitte beachten Sie, dass individuell eingebettete Schriften das Umblättern verlangsamen. Jede Schriftartfamilie wird folgendermaßen angegeben: \"Pfad zum Verzeichnis der Schriften, Schriftartfamilie\" Zum Beispiel: --serif-family \"%s, Times New Roman\"\n"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:200
 msgid "The serif family of fonts to embed"
@@ -958,11 +958,11 @@ msgstr "Etikett &hinzufügen:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:151
 msgid "If the tag you want is not in the available list, you can add it here. Accepts a comman separated list of tags."
-msgstr ""
+msgstr "Falls das Etikett nciht in der Liste enthalten ist, können Sie es hier hinzufügen. Es werden durch Kommata separierte Listen mit Etiketten akzeptiert."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:152
 msgid "Add tag to available tags and apply it to current book"
-msgstr ""
+msgstr "Etikett zu den verfügbaren Etiketten hinzufügen und dem aktuellen Buch zuweisen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:216
 msgid "Add custom RSS feed"
@@ -985,12 +985,17 @@ msgid "Switch to Advanced mode"
 msgstr "In erweiterten Modus umschalten"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:221
+#, fuzzy
 msgid ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news profile, by adding RSS feeds to it. <br />For most feeds, you will have to use the \"Advanced\" setting to further customize the fetch process.<br />The Basic tab is useful mainly for feeds that have the full article content embedded within them.</p></body></html>"
 msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news profile, by adding RSS feeds to it. <br />For most feeds, you will have to use the \"Advanced\" setting to further customize the fetch process.<br />The Basic tab is useful mainly for feeds that have the full article content embedded within them.</p></body></html>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:225
 msgid "Profile &title:"
@@ -1026,7 +1031,7 @@ msgstr "Maximale Anzahl der zu ladenden Artikel pro feed."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:233
 msgid "Try to follow links in the RSS feed to full articles on the web. If you enable this option, you're probably going to end up having to use the advanced mode."
-msgstr ""
+msgstr "Verknüpfungen im RSS Feed bis zu den vollständigen Artikeln im Netz verfolgen. Falls Sie diese Option wählen, müssen Sie in den meisten Fällen den erweiterten Modus zur Konfiguration benutzen."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:234
 msgid "Try to download &full articles"
@@ -1059,7 +1064,7 @@ msgstr "Feed &hinzufügen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:243
 msgid "For help with writing advanced news profiles, please visit <a href=\"https://libprs500.kovidgoyal.net/wiki/UserProfiles\">UserProfiles</a>"
-msgstr ""
+msgstr "Benötigen Sie Hilfe beim Erstellen von weiteren Nachrichten-Profilen? Schauen Sie hier vorbei: <a href=\"https://libprs500.kovidgoyal.net/wiki/UserProfiles\">UserProfiles</a>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:244
 msgid "Profile source code (python)"
@@ -1235,7 +1240,7 @@ msgstr "Auf einmal konvertieren"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:317
 msgid "<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>"
-msgstr ""
+msgstr "<p>Es existieren bereits Bücher mit dem selben Titel in der Datenbank. Sollen die folgenden Bücher trotzdem hinzugefügt werden?<ul>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:320
 msgid "Duplicates found!"
@@ -1301,7 +1306,7 @@ msgstr "Ungültige Datenbank"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:704
 msgid "<p>An invalid database already exists at %s, delete it before trying to move the existing database.<br>Error: %s"
-msgstr ""
+msgstr "<p>Es existiert bereits eine ungültige Datenbank in %s, bitte löschen Sie diese, bevor sie die bestehende Datenbank verschieben.<br>Fehler: %s"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:712
 msgid "Could not move database"
@@ -1402,11 +1407,11 @@ msgstr "Vorschau"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/news.py:45
 msgid "Add a custom news source"
-msgstr ""
+msgstr "Neue individuelle Nachrichtenquelle hinzufügen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/news.py:89
 msgid "Custom news sources"
-msgstr ""
+msgstr "Individuelle Nachrichtenquellen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/status.py:98
 msgid "Jobs:"
