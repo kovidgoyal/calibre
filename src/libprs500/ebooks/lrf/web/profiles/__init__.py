@@ -27,7 +27,7 @@ class DefaultProfile(object):
     url                   = ''    # The URL of the website
     title                 = 'Default Profile'    # The title to use for the LRF file
     max_articles_per_feed = 10    # Maximum number of articles to download from each feed 
-    html_description      = False # If True process the <description> element of the feed as HTML
+    html_description      = True  # If True process the <description> element of the feed as HTML
     oldest_article        = 7     # How many days old should the oldest article downloaded from the feeds be?
     max_recursions        = 1     # Number of levels of links to follow
     max_files             = 3000  # Maximum number of files to download
@@ -330,7 +330,6 @@ class FullContentProfile(DefaultProfile):
     
     max_recursions = 0
     article_counter = 0
-    html_description = True
     
     
     def build_index(self):
