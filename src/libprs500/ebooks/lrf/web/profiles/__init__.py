@@ -214,10 +214,15 @@ class DefaultProfile(object):
                         content = self.process_html_description(content, strip_links=False)
                     else:
                         content = ''
-                         
+                    purl = url
+                    try:
+                        purl = self.print_version(url)
+                    except Exception, err:
+                        self.logger.debug('Skipping %s as could not find URL for print version. Error:\n%s'%(url, err))
+                        continue
                     d = { 
                         'title'    : item.find('title').string,                 
-                        'url'      : self.print_version(url),
+                        'url'      : purl,
                         'timestamp': self.strptime(pubdate) if self.use_pubdate else time.time(),
                         'date'     : pubdate if self.use_pubdate else time.ctime(),
                         'content'  : content,
@@ -412,4 +417,12 @@ def cutoff(src, pos, fuzz=50):
     if npos < 0:
         npos = pos
     return src[:npos+1]
+
+def create_class(src):
+    environment = {'FullContentProfile':FullContentProfile, 'DefaultProfile':DefaultProfile}
+    exec src in environment
+    for item in environment.values():
+        if hasattr(item, 'build_index'):
+            if item.__name__ not in ['DefaultProfile', 'FullContentProfile']:
+                return item
     

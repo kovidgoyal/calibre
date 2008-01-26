@@ -15,7 +15,7 @@ class WallStreetJournal(DefaultProfile):
         title = 'Wall Street Journal' 
         max_recursions = 2
         needs_subscription = True 
-        max_articles_per_feed = 50
+        max_articles_per_feed = 10
         timefmt  = ' [%a, %b %d, %Y]' 
         html_description = True 
         no_stylesheets = False
