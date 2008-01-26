@@ -16,8 +16,7 @@
 Provides platform independent temporary files that persist even after 
 being closed.
 """
-import tempfile
-import os
+import tempfile, os, atexit
 
 from libprs500 import __version__, __appname__
 
@@ -32,7 +31,8 @@ class _TemporaryFileWrapper(object):
 
     def __init__(self, _file, name):
         self.file = _file
-        self.name = name        
+        self.name = name
+        atexit.register(cleanup, name)        
 
     def __getattr__(self, name):
         _file = self.__dict__['file']
@@ -42,19 +42,20 @@ class _TemporaryFileWrapper(object):
         return a
         
     def __del__(self):
-        try:
-            import os # Needs to be here as the main os may no longer exist
-            self.close()
-            if self.name and os.access(self.name, os.F_OK): 
-                os.remove(self.name)
-        except: # An error just means that deleting of temporary file failed
-            pass
-    
+        self.close()
+        
+def cleanup(path):
+    try:
+        import os
+        if os.path.exists(path):
+            os.remove(path)            
+    except:
+        pass   
     
 def PersistentTemporaryFile(suffix="", prefix="", dir=None):
     """ 
     Return a temporary file that is available even after being closed on
-    all platforms. It is automatically deleted when this object is deleted.
+    all platforms. It is automatically deleted on normal program termination.
     Uses tempfile.mkstemp to create the file. The file is opened in mode 'wb'.
     """
     if prefix == None: 
