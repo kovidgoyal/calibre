@@ -49,6 +49,9 @@ entry_points = {
                             ],
       }
 
+if 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower():
+    entry_points['console_scripts'].append('parallel = libprs500.parallel:main')
+
 def _ep_to_script(ep, base='src'):
     return (base+os.path.sep+re.search(r'.*=\s*(.*?):', ep).group(1).replace('.', '/')+'.py').strip()
 

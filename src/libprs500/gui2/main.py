@@ -13,7 +13,6 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
 import os, sys, textwrap, cStringIO, collections, traceback, shutil
-from functools import partial
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread
@@ -24,8 +23,6 @@ from PyQt4.QtSvg import QSvgRenderer
 from libprs500 import __version__, __appname__, islinux, sanitize_file_name
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata
-from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
-from libprs500.ebooks.lrf.any.convert_from import main as _any2lrf
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
@@ -56,7 +53,7 @@ from libprs500.ebooks.metadata.meta import set_metadata
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks import BOOK_EXTENSIONS
 
-any2lrf = partial(_any2lrf, gui_mode=True)
+
 
 class Main(MainWindow, Ui_MainWindow):
     
@@ -557,7 +554,7 @@ class Main(MainWindow, Ui_MainWindow):
         if data['password']:
             args.extend(['--password', data['password']])
         args.append(data['profile'])
-        id = self.job_manager.run_conversion_job(self.news_fetched, web2lrf, args=args,
+        id = self.job_manager.run_conversion_job(self.news_fetched, 'web2lrf', args=[args],
                                             job_description='Fetch news from '+data['title'])
         self.conversion_jobs[id] = (pt, 'lrf')
         self.status_bar.showMessage('Fetching news from '+data['title'], 2000)
@@ -606,9 +603,8 @@ class Main(MainWindow, Ui_MainWindow):
                     of.close()
                     cmdline.extend(['-o', of.name])
                     cmdline.append(pt.name)
-                    
                     id = self.job_manager.run_conversion_job(self.book_converted, 
-                                                        any2lrf, args=cmdline,
+                                                        'any2lrf', args=[cmdline],
                                     job_description='Convert book:'+d.title())
                     
                     
@@ -763,7 +759,7 @@ class Main(MainWindow, Ui_MainWindow):
                          _('There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot.')).show()
             return
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
-        print >>sys.stderr, exception
+        print >>sys.stderr, exception[0], exception[1]
         print >>sys.stderr, formatted_traceback.encode('utf8')
         if not self.device_error_dialog.isVisible():
             msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
@@ -776,15 +772,17 @@ class Main(MainWindow, Ui_MainWindow):
             
     def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
-        print >>sys.stderr, log.encode('utf8')
+        if log:
+            print >>sys.stderr, log.encode('utf8')
         print >>sys.stderr, exception
         print >>sys.stderr, formatted_traceback.encode('utf8')
-        msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
+        msg =  u'<p><b>%s</b>: %s</p>'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
         msg += formatted_traceback + '</pre>'
         msg += '<p><b>Log:</b></p><pre>'
-        msg += log
+        if log:
+            msg += log
         ConversionErrorDialog(self, 'Conversion Error', msg, show=True)
         
     

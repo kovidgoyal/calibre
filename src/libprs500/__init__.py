@@ -27,7 +27,7 @@ from ttfquery import findsystem, describe
 
 from libprs500.translations.msgfmt import make
 
-iswindows = 'win32' in sys.platform.lower()
+iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx) 
 

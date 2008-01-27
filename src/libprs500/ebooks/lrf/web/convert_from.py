@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Convert known websites into LRF files.'''
 
-import sys, time, tempfile, shutil, os, logging, imp, inspect
+import sys, time, tempfile, shutil, os, logging, imp, inspect, re
 from urlparse import urlsplit
 
 from libprs500 import __appname__, setup_cli_handlers, CommandLineError
@@ -23,7 +23,7 @@ from libprs500.ebooks.lrf.html.convert_from import process_file
 
 from libprs500.web.fetch.simple import create_fetcher
 
-from libprs500.ebooks.lrf.web.profiles import DefaultProfile
+from libprs500.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile, create_class
 from libprs500.ebooks.lrf.web import builtin_profiles, available_profiles
  
 
@@ -89,35 +89,39 @@ def process_profile(args, options, logger=None):
             logger = logging.getLogger('web2lrf')
             setup_cli_handlers(logger, level)
         index = -1
-        if options.user_profile is not None:
-            path = os.path.abspath(options.user_profile)
-            name = os.path.splitext(os.path.basename(path))[0]
-            res = imp.find_module(name, [os.path.dirname(path)])
-            module =  imp.load_module(name, *res)
-            classes = inspect.getmembers(module, 
-                lambda x : inspect.isclass(x) and issubclass(x, DefaultProfile)\
-                           and x is not DefaultProfile)
-            if not classes:
-                raise CommandLineError('Invalid user profile '+path)
-            builtin_profiles.append(classes[0][1])
-            available_profiles.append(name)
-            if len(args) < 2:
-                args.append(name)
-            args[1] = name
-        index = -1
-        if len(args) == 2:
-            try:
-                if isinstance(args[1], basestring):
-                    if args[1] != 'default':
-                        index = available_profiles.index(args[1])
-            except ValueError:
-                raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], available_profiles))
-        else:
-            raise CommandLineError('Only one profile at a time is allowed.')
-        if isinstance(args[1], basestring):
+        
+        if len(args) == 2 and re.search(r'class\s+\S+\(\S+\)\s*\:', args[1]):
+            profile = create_class(args[1])
+        else:        
+            if options.user_profile is not None:
+                path = os.path.abspath(options.user_profile)
+                name = os.path.splitext(os.path.basename(path))[0]
+                res = imp.find_module(name, [os.path.dirname(path)])
+                module =  imp.load_module(name, *res)
+                classes = inspect.getmembers(module, 
+                    lambda x : inspect.isclass(x) and issubclass(x, DefaultProfile)\
+                               and x is not DefaultProfile and x is not FullContentProfile)
+                if not classes:
+                    raise CommandLineError('Invalid user profile '+path)
+                builtin_profiles.append(classes[0][1])
+                available_profiles.append(name)
+                if len(args) < 2:
+                    args.append(name)
+                args[1] = name
+            index = -1
+            if len(args) == 2:
+                try:
+                    if isinstance(args[1], basestring):
+                        if args[1] != 'default':
+                            index = available_profiles.index(args[1])
+                except ValueError:
+                    raise CommandLineError('Unknown profile: %s\nValid profiles: %s'%(args[1], available_profiles))
+            else:
+                raise CommandLineError('Only one profile at a time is allowed.')
             profile = DefaultProfile if index == -1 else builtin_profiles[index]
-        else:
-            profile = args[1]
+        
+        
+        
         profile = profile(logger, options.verbose, options.username, options.password)
         if profile.browser is not None:
             options.browser = profile.browser
@@ -174,11 +178,7 @@ def process_profile(args, options, logger=None):
 
 def main(args=sys.argv, logger=None):
     parser = option_parser()
-    if not isinstance(args[-1], basestring): # Called from GUI
-        options, args2 = parser.parse_args(args[:-1])
-        args = args2 + [args[-1]]
-    else:
-        options, args = parser.parse_args(args)
+    options, args = parser.parse_args(args)
     if len(args) > 2 or (len(args) == 1 and not options.user_profile):
         parser.print_help()
         return 1

@@ -17,7 +17,7 @@ import time
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QMessageBox
 
-from libprs500.ebooks.lrf.web.profiles import FullContentProfile, DefaultProfile
+from libprs500.ebooks.lrf.web.profiles import FullContentProfile, create_class
 from libprs500.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from libprs500.gui2 import qstring_to_unicode, error_dialog, question_dialog
 
@@ -52,7 +52,7 @@ class UserProfiles(QDialog, Ui_Dialog):
             current = previous
         src = current.user_data[1]
         if 'class BasicUserProfile' in src:
-            profile = self.create_class(src)
+            profile = create_class(src)
             self.populate_options(profile)
             self.stacks.setCurrentIndex(0)
             self.toggle_mode_button.setText('Switch to Advanced mode')
@@ -122,22 +122,12 @@ class %(classname)s(%(base_class)s):
         src = self.options_to_profile().replace('BasicUserProfile', 'AdvancedUserProfile')
         self.source_code.setPlainText(src)
         
-    @classmethod
-    def create_class(cls, src):
-        environment = {'FullContentProfile':FullContentProfile, 'DefaultProfile':DefaultProfile}
-        exec src in environment
-        for item in environment.values():
-            if hasattr(item, 'build_index'):
-                if item.__name__ not in ['DefaultProfile', 'FullContentProfile']:
-                    return item                              
-        
-    
     def add_profile(self, clicked):
         if self.stacks.currentIndex() == 0:
             src, title = self.options_to_profile()
             
             try:
-                self.create_class(src)
+                create_class(src)
             except Exception, err:
                 error_dialog(self, 'Invalid input', 
                         '<p>Could not create profile. Error:<br>%s'%str(err)).exec_()
@@ -146,7 +136,7 @@ class %(classname)s(%(base_class)s):
         else:
             src = qstring_to_unicode(self.source_code.toPlainText())
             try:
-                title = self.create_class(src).title
+                title = create_class(src).title
             except Exception, err:
                 error_dialog(self, 'Invalid input', 
                         '<p>Could not create profile. Error:<br>%s'%str(err)).exec_()

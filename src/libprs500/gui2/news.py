@@ -17,7 +17,7 @@ from PyQt4.QtGui import QMenu, QIcon, QDialog, QAction
 
 from libprs500.gui2.dialogs.password import PasswordDialog
 from libprs500.ebooks.lrf.web import builtin_profiles, available_profiles
-from libprs500.gui2.dialogs.user_profiles import UserProfiles
+from libprs500.ebooks.lrf.web.profiles import create_class
 
 class NewsAction(QAction):
     
@@ -59,6 +59,9 @@ class NewsMenu(QMenu):
             module = profile.title
         username = password = None
         fetch = True
+        if isinstance(profile, basestring):
+            module = profile
+            profile = create_class(module)
         if profile.needs_subscription:
             d = PasswordDialog(self, module + ' info dialog', 
                            '<p>Please enter your username and password for %s<br>If you do not have one, please subscribe to get access to the articles.<br/> Click OK to proceed.'%(profile.title,))
@@ -68,7 +71,7 @@ class NewsMenu(QMenu):
             else:
                 fetch = False
         if fetch:
-            data = dict(profile=profile, title=profile.title, username=username, password=password)
+            data = dict(profile=module, title=profile.title, username=username, password=password)
             self.emit(SIGNAL('fetch_news(PyQt_PyObject)'), data)
             
     def set_custom_feeds(self, feeds):
@@ -90,7 +93,7 @@ class CustomNewsMenu(QMenu):
         self.connect(self, SIGNAL('triggered(QAction*)'), self.launch)
         
     def launch(self, action):
-        profile = UserProfiles.create_class(action.script)
+        profile = action.script
         self.emit(SIGNAL('start_news_fetch(PyQt_PyObject, PyQt_PyObject)'),
                   profile, None)
     

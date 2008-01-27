@@ -12,13 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import traceback, logging, cStringIO
+import traceback, logging
 
 from PyQt4.QtCore import QAbstractTableModel, QMutex, QObject, SIGNAL, Qt, \
                          QVariant, QThread, QModelIndex, QSettings
 from PyQt4.QtGui import QIcon
 
 from libprs500.gui2 import NONE
+from libprs500.parallel import Server
 
 class JobException(Exception):
     pass
@@ -44,11 +45,7 @@ class Job(QThread):
         self.logger = logging.getLogger('Job #'+str(id))
         self.logger.setLevel(logging.DEBUG)
         self.is_locked = False
-        self.log_dest = cStringIO.StringIO()
-        handler = logging.StreamHandler(self.log_dest)
-        handler.setLevel(logging.DEBUG)
-        handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
-        self.logger.addHandler(handler)
+        self.log = None
         
         
     def lock(self):
@@ -85,23 +82,23 @@ class DeviceJob(Job):
             self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
                       self.id, self.description, self.result, exception, last_traceback)
         
-    
+MPServer = None
 class ConversionJob(Job):
-    ''' Jobs that invlove conversion of content. Synchronous. '''
+    ''' Jobs that involve conversion of content. Synchronous. '''
     def run(self):
         self.lock()
         last_traceback, exception = None, None
         try:
             try:
-                self.kwargs['logger'] = self.logger
-                self.result = self.func(*self.args, **self.kwargs)
+                self.result, exception, last_traceback, self.log = \
+                    MPServer.run(self.id, self.func, self.args, self.kwargs)
             except Exception, err:
-                exception = err
-                last_traceback = traceback.format_exc()            
+                last_traceback = traceback.format_exc()
+                exception = (exception.__class__.__name__, unicode(str(err), 'utf8', 'replace'))                        
         finally:
             self.unlock()
             self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
-                      self.id, self.description, self.result, exception, last_traceback, self.log_dest.getvalue())
+                      self.id, self.description, self.result, exception, last_traceback, self.log)
             
         
 
@@ -125,6 +122,8 @@ class JobManager(QAbstractTableModel):
         self.cleanup = {}
         self.device_job_icon = QVariant(QIcon(':/images/reader.svg'))
         self.job_icon        = QVariant(QIcon(':/images/jobs.svg'))
+        global MPServer
+        MPServer = Server()
         
     def terminate_device_jobs(self):
         changed = False
@@ -143,8 +142,8 @@ class JobManager(QAbstractTableModel):
         try:
             self.next_id += 1
             job = job_class(self.next_id, description, lock, *args, **kwargs)
-            QObject.connect(job, SIGNAL('finished()'), self.cleanup_jobs)
-            QObject.connect(job, SIGNAL('status_update(int, int)'), self.status_update)
+            QObject.connect(job, SIGNAL('finished()'), self.cleanup_jobs, Qt.QueuedConnection)
+            QObject.connect(job, SIGNAL('status_update(int, int)'), self.status_update, Qt.QueuedConnection)
             self.beginInsertRows(QModelIndex(), len(self.jobs), len(self.jobs))
             self.jobs[self.next_id] = job
             self.endInsertRows()
@@ -162,7 +161,7 @@ class JobManager(QAbstractTableModel):
     def has_jobs(self):
         return len(self.jobs.values()) > 0
     
-    def run_conversion_job(self, slot, callable, *args, **kwargs):
+    def run_conversion_job(self, slot, callable, args=[], **kwargs):
         '''
         Run a conversion job.
         @param slot: The function to call with the job result. 
@@ -174,10 +173,10 @@ class JobManager(QAbstractTableModel):
         job = self.create_job(ConversionJob, desc, self.conversion_lock, 
                               callable, *args, **kwargs)
         QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                        self.job_done)
+                        self.job_done, Qt.QueuedConnection)
         if slot:
             QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                            slot)
+                            slot, Qt.QueuedConnection)
         priority = self.PRIORITY[str(QSettings().value('conversion job priority', 
                             QVariant('Normal')).toString())]
         job.start(priority)
@@ -195,10 +194,10 @@ class JobManager(QAbstractTableModel):
         desc += kwargs.pop('job_extra_description', '')
         job = self.create_job(DeviceJob, desc, self.device_lock, callable, *args, **kwargs)        
         QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                        self.job_done)
+                        self.job_done, Qt.QueuedConnection)
         if slot:
             QObject.connect(job, SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'),
-                            slot)
+                            slot, Qt.QueuedConnection)
         job.start()
         return job.id
         
