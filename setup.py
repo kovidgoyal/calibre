@@ -14,9 +14,11 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import sys, re, os, shutil
 sys.path.append('src')
-from libprs500 import __version__ as VERSION
-from libprs500 import __appname__ as APPNAME
-from libprs500 import islinux
+islinux = not ('win32' in sys.platform or 'win64' in sys.platform or 'darwin' in sys.platform)
+src = open('src/libprs500/__init__.py', 'rb').read()
+VERSION = re.search(r'__version__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
+APPNAME = re.search(r'__appname__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
+print 'Setup', APPNAME, 'version:', VERSION
 
 entry_points = {
         'console_scripts': [ \
