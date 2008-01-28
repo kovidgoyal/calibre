@@ -19,7 +19,7 @@ import tempfile, time, calendar, re, operator
 from htmlentitydefs import name2codepoint
 
 from libprs500 import __appname__, iswindows, browser
-from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, CData, Tag
 
 
 class DefaultProfile(object):
@@ -55,6 +55,7 @@ class DefaultProfile(object):
     # See the built-in profiles for examples of these settings.
     
     feeds = []
+    CDATA_PAT = re.compile(r'<\!\[CDATA\[(.*?)\]\]>', re.DOTALL)
 
     def get_feeds(self):
         '''
@@ -68,7 +69,7 @@ class DefaultProfile(object):
     @classmethod
     def print_version(cls, url):
         '''
-        Takea a URL pointing to an article and returns the URL pointing to the
+        Take a URL pointing to an article and returns the URL pointing to the
         print version of the article.
         '''
         return url
@@ -157,6 +158,28 @@ class DefaultProfile(object):
         return index
 
     
+    @classmethod
+    def tag_to_string(cls, tag, use_alt=True):
+        '''
+        Convenience method to take a BeautifulSoup Tag and extract the text from it
+        recursively, including any CDATA sections and alt tag attributes.
+        @param use_alt: If True try to use the alt attribute for tags that don't have any textual content
+        @return: A unicode (possibly empty) object
+        '''
+        if not tag:
+            return ''
+        strings = []
+        for item in tag.contents:
+            if isinstance(item, (NavigableString, CData)):
+                strings.append(item.string)
+            elif isinstance(item, Tag):
+                res = cls.tag_to_string(item)
+                if res:
+                    strings.append(res)
+                elif use_alt and item.has_key('alt'):
+                    strings.append(item['alt'])
+        return u''.join(strings) 
+    
     def parse_feeds(self, require_url=True):
         '''
         Create list of articles from a list of feeds.
@@ -195,7 +218,7 @@ class DefaultProfile(object):
                         if not pubdate or not pubdate.string:
                             self.logger.debug('Skipping article as it does not have publication date')
                             continue
-                        pubdate = pubdate.string
+                        pubdate = self.tag_to_string(pubdate)
                         pubdate = pubdate.replace('+0000', 'GMT')
                     for element in self.url_search_order:
                         url = item.find(element)
@@ -205,7 +228,7 @@ class DefaultProfile(object):
                     if require_url and (not url or not url.string):
                         self.logger.debug('Skipping article as it does not have a link url')
                         continue
-                    url = url.string if (url and url.string) else ''
+                    url = self.tag_to_string(url)
                     
                     content = item.find('content:encoded')
                     if not content:
@@ -221,7 +244,7 @@ class DefaultProfile(object):
                         self.logger.debug('Skipping %s as could not find URL for print version. Error:\n%s'%(url, err))
                         continue
                     d = { 
-                        'title'    : item.find('title').string,                 
+                        'title'    : self.tag_to_string(item.find('title')),                 
                         'url'      : purl,
                         'timestamp': self.strptime(pubdate) if self.use_pubdate else time.time(),
                         'date'     : pubdate if self.use_pubdate else time.ctime(),
@@ -263,7 +286,7 @@ class DefaultProfile(object):
     @classmethod
     def process_html_description(cls, tag, strip_links=True):
         src = '\n'.join(tag.contents)
-        match = re.match(r'<\!\[CDATA\[(.*)\]\]>', src.lstrip())
+        match = cls.CDATA_PAT.match(src.lstrip())
         if match:
             src = match.group(1)
         else:

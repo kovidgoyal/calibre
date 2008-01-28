@@ -81,7 +81,7 @@ def writeWord(f, word):
     f.write(struct.pack("<H", int(word)))
 
 def writeSignedWord(f, sword):
-    f.write(struct.pack("<h", int(sword)))
+    f.write(struct.pack("<h", int(float(sword))))
 
 def writeWords(f, *words):
     f.write(struct.pack("<%dH" % len(words), *words))

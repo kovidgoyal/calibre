@@ -17,9 +17,7 @@ class WallStreetJournal(DefaultProfile):
         needs_subscription = True 
         max_articles_per_feed = 10
         timefmt  = ' [%a, %b %d, %Y]' 
-        html_description = True 
-        no_stylesheets = False
-        html2lrf_options = [('--ignore-tables')]
+        html2lrf_options = ['--ignore-tables', '--base-font-size=5']
 
         ## Don't grab articles more than 7 days old 
         oldest_article = 7 

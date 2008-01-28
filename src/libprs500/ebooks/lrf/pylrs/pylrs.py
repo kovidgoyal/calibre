@@ -396,8 +396,8 @@ class Book(Delegator):
         booksetting=BookSetting()
         Override the default BookSetting.
 
-        setdefault=SetDefault()
-        Override the defalut SetDefault.
+        setdefault=StyleDefault()
+        Override the default SetDefault.
         
         There are several other settings -- see the BookInfo class for more.       
     """
@@ -434,9 +434,12 @@ class Book(Delegator):
         self.defaultTextStyle = textStyle
         self.defaultBlockStyle = blockStyle
         LrsObject.nextObjId += 1
-
+        
+        styledefault = StyleDefault()
+        if settings.has_key('setdefault'):
+            styledefault = settings.pop('setdefault')
         Delegator.__init__(self, [BookInformation(), Main(),
-            Template(), Style(), Solos(), Objects()])        
+            Template(), Style(styledefault), Solos(), Objects()])        
 
         self.sourceencoding = None
         
@@ -606,10 +609,10 @@ class Book(Delegator):
                     span.attrs['baselineskip'] = rescale(span.attrs['baselineskip'])
                 
     
-    def renderLrs(self, lrsFile):
+    def renderLrs(self, lrsFile, encoding="UTF-8"):
         if isinstance(lrsFile, basestring): 
-            lrsFile = codecs.open(lrsFile, "wb", encoding="utf-16")
-        self.render(lrsFile)
+            lrsFile = codecs.open(lrsFile, "wb", encoding=encoding)
+        self.render(lrsFile, outputEncodingName=encoding)
         lrsFile.close()
 
 
@@ -634,7 +637,7 @@ class Book(Delegator):
         return root
 
 
-    def render(self, f):
+    def render(self, f, outputEncodingName='UTF-8'):
         """ Write the book as an LRS to file f. """
 
         self.appendReferencedObjects(self)
@@ -649,7 +652,8 @@ class Book(Delegator):
 
         writer = ElementWriter(root, header=True,
                                sourceEncoding=self.sourceencoding,
-                               spaceBeforeClose=False)
+                               spaceBeforeClose=False,
+                               outputEncodingName=outputEncodingName)
         writer.write(f)
         
 
@@ -1010,12 +1014,33 @@ class Template(object):
         # does nothing
         pass
 
+class StyleDefault(LrsAttributes):
+    """
+        Supply some defaults for all TextBlocks.
+        The legal values are a subset of what is allowed on a
+        TextBlock -- ruby, emphasis, and waitprop settings.
+    """
+    defaults = dict(rubyalign="start", rubyadjust="none", 
+                rubyoverhang="none", empdotsposition="before",
+                empdotsfontname="Dutch801 Rm BT Roman",
+                empdotscode="0x002e", emplineposition="after",
+                emplinetype = "solid", setwaitprop="noreplay")
+
+    alsoAllow = ["refempdotsfont", "rubyAlignAndAdjust"]
+
+    def __init__(self, **settings):       
+        LrsAttributes.__init__(self, self.defaults,
+                alsoAllow=self.alsoAllow, **settings)
+        
+        
+    def toElement(self, se):
+        return Element("SetDefault", self.attrs)
 
 
 class Style(LrsContainer, Delegator):
-    def __init__(self):
+    def __init__(self, styledefault=StyleDefault()):
         LrsContainer.__init__(self, [PageStyle, TextStyle, BlockStyle])
-        Delegator.__init__(self, [BookStyle()])
+        Delegator.__init__(self, [BookStyle(styledefault=styledefault)])
         self.bookStyle = self.delegates[0]
         self.appendPageStyle = self.appendTextStyle = \
                 self.appendBlockStyle = self.append
@@ -1071,10 +1096,10 @@ class Style(LrsContainer, Delegator):
 
 
 class BookStyle(LrsObject, LrsContainer):
-    def __init__(self):
+    def __init__(self, styledefault=StyleDefault()):
         LrsObject.__init__(self, assignId=True)
         LrsContainer.__init__(self, [Font])
-        self.styledefault = StyleDefault()
+        self.styledefault = styledefault
         self.booksetting = BookSetting()
         self.appendFont = self.append
         
@@ -1119,27 +1144,6 @@ class BookStyle(LrsObject, LrsContainer):
     
     
  
-class StyleDefault(LrsAttributes):
-    """
-        Supply some defaults for all TextBlocks.
-        The legal values are a subset of what is allowed on a
-        TextBlock -- ruby, emphasis, and waitprop settings.
-    """
-    defaults = dict(rubyalign="start", rubyadjust="none", 
-                rubyoverhang="none", empdotsposition="before",
-                empdotsfontname="Dutch801 Rm BT Roman",
-                empdotscode="0x002e", emplineposition="after",
-                emplinetype = "solid", setwaitprop="noreplay")
-
-    alsoAllow = ["refempdotsfont", "rubyAlignAndAdjust"]
-
-    def __init__(self, **settings):       
-        LrsAttributes.__init__(self, self.defaults,
-                alsoAllow=self.alsoAllow, **settings)
-        
-        
-    def toElement(self, se):
-        return Element("SetDefault", self.attrs)
     
     
 
@@ -1226,7 +1230,7 @@ class TextStyle(LrsStyle):
     """
     baseDefaults = dict(
             columnsep="0", charspace="0",
-            textlinewidth="10", align="head", linecolor="0x00000000",
+            textlinewidth="2", align="head", linecolor="0x00000000",
             column="1", fontsize="100", fontwidth="-10", fontescapement="0",
             fontorientation="0", fontweight="400",
             fontfacename="Dutch801 Rm BT Roman",
@@ -2251,7 +2255,9 @@ class HeaderOrFooter(LrsObject, LrsContainer, LrsAttributes):
         LrsContainer.__init__(self, [PutObj])
         LrsAttributes.__init__(self, self.defaults, **settings)
 
-
+    def put_object(self, obj, x1, y1):
+        self.append(PutObj(obj, x1, y1))
+        
     def PutObj(self, *args, **kwargs):
         p = PutObj(*args, **kwargs)
         self.append(p)
@@ -2468,7 +2474,7 @@ class ImageBlock(LrsObject, LrsContainer, LrsAttributes):
     """ Create an image on a page. """
     # TODO: allow other block attributes
 
-    defaults = dict(blockwidth="600", blockheight="800") 
+    defaults = BlockStyle.baseDefaults.copy() 
 
     def __init__(self, refstream, x0="0", y0="0", x1="600", y1="800", 
                        xsize="600", ysize="800",  

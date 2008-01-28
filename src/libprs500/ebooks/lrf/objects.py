@@ -601,7 +601,7 @@ class Text(LRFStream):
             s = u'<%s '%(self.name,)
             for name, val in self.attrs.items():
                 s += '%s="%s" '%(name, val)
-            return s.rstrip() + (u' />' if self.self_closing else u'>') + (u'\n' if self.name in ('P', 'CR') else u'')
+            return s.rstrip() + (u' />' if self.self_closing else u'>')
         
     class Span(TextTag):
         pass
@@ -760,8 +760,7 @@ class Text(LRFStream):
                 s += c
             elif c is None:
                 p = open_containers.pop()
-                nl = u'\n' if p.name == 'P' else u''
-                s += nl + u'</%s>'%(p.name,) + nl 
+                s += u'</%s>'%(p.name,) 
             else:
                 s += unicode(c)
                 if not c.self_closing: 
