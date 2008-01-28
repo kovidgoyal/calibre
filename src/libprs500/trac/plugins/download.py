@@ -92,9 +92,11 @@ class Distribution(object):
                 cmd += ' ' 
                 if dep[index]: cmd += dep[index]
             self.command = cmd.strip()
+            easy_install = 'easy_install'
             if os == 'debian':
                 self.command += '\n'+prefix + 'cp -R /usr/share/pycentral/fonttools/site-packages/FontTools* /usr/lib/python2.5/site-packages/'
-            self.command += '\n'+prefix+'easy_install -U TTFQuery libprs500 \n'+prefix+'libprs500_postinstall'
+                easy_install = 'easy_install-2.5'
+            self.command += '\n'+prefix+easy_install+' -U TTFQuery libprs500 \n'+prefix+'libprs500_postinstall'
             try:
                 self.manual = Markup(self.MANUAL_MAP[os])
             except KeyError:
