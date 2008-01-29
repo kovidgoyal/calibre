@@ -47,7 +47,7 @@ class DefaultProfile(object):
     
     html2lrf_options   = []    # List of options to pass to html2lrf
     # List of regexp substitution rules to run on the downloaded HTML. Each element of the 
-    # list should be a two element tuple. THe first element of the tuple should
+    # list should be a two element tuple. The first element of the tuple should
     # be a compiled regular expression and the second a callable that takes
     # a single match object and returns a string to replace the match.
     preprocess_regexps = []
