@@ -1094,8 +1094,9 @@ class BeautifulStoneSoup(Tag, SGMLParser):
                 # was relying on the existence of markupMassage, this
                 # might cause problems.
                 del(self.markupMassage)
+                self.markup = markup
         self.reset()
-
+        
         SGMLParser.feed(self, markup)
         # Close out any unfinished strings and close all the open tags.
         self.endData()
