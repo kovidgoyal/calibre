@@ -251,7 +251,7 @@ def option_parser():
                       help='If set, respect the environment variable DESTDIR when installing files')
     parser.add_option('--do-not-reload-udev-hal', action='store_true', dest='dont_reload', default=False,
                       help='If set, do not try to reload udev rules and HAL FDI files')
-    parser.add_option('--group-file', default='/etc/group', dest='group',
+    parser.add_option('--group-file', default='/etc/group', dest='group_file',
                       help='File from which to read group information. Default: %default')
     parser.add_option('--dont-check-root', action='store_true', default=False, dest='no_root',
                       help='If set, do not check if we are root.')
