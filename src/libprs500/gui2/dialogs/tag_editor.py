@@ -17,7 +17,7 @@ from PyQt4.QtGui import QDialog, QMessageBox
 
 from libprs500.gui2.dialogs.tag_editor_ui import Ui_TagEditor
 from libprs500.gui2 import qstring_to_unicode
-from libprs500.gui2 import question_dialog
+from libprs500.gui2 import question_dialog, error_dialog
 
 class TagEditor(QDialog, Ui_TagEditor):
     
@@ -58,6 +58,9 @@ class TagEditor(QDialog, Ui_TagEditor):
     def delete_tags(self, item=None):
         confirms, deletes = [], []
         items = self.available_tags.selectedItems() if item is None else [item]
+        if not items:
+            d = error_dialog(self, 'No tags selected', 'You must select at least one tag from the list of Available tags.').exec_()
+            return
         for item in items:
             if self.db.is_tag_used(qstring_to_unicode(item.text())):
                 confirms.append(item)
