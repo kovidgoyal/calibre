@@ -262,7 +262,7 @@ class RecursiveFetcher(object):
                     dsrc = f.read()
                     if len(dsrc) == 0:
                         raise Exception('No content')
-                    soup = self.get_soup(f.read())
+                    soup = self.get_soup(dsrc)
                     self.logger.debug('Processing images...')
                     self.process_images(soup, f.geturl())
                     if self.download_stylesheets:
