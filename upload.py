@@ -3,7 +3,8 @@ import sys, glob, os, subprocess, time, shutil
 sys.path.append('src')
 from subprocess import check_call as _check_call
 from functools import partial
-from pyvix.vix import *
+#from pyvix.vix import Host, VIX_SERVICEPROVIDER_VMWARE_WORKSTATION
+import pysvn
 
 PREFIX = "/var/www/vhosts/kovidgoyal.net/subdomains/libprs500"
 DOWNLOADS = PREFIX+"/httpdocs/downloads"
@@ -13,6 +14,24 @@ TXT2LRF  = "src/libprs500/ebooks/lrf/txt/demo"
 check_call = partial(_check_call, shell=True)
 h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
 
+def tag_release():
+    from libprs500 import __version__
+    base = 'https://kovid@svn.kovidgoyal.net/code/libprs500' 
+    tag = base + '/tags/'+__version__
+    client = pysvn.Client()
+    client.exception_style = 1
+    try:
+        client.ls(tag)
+    except pysvn.ClientError, err:
+        if err.args[1][0][1] == 160013: # Tag does not exist
+            def get_credentials(realm, username, may_save):
+                return (True, 'kovid', input('Enter password for kovid: '), True)
+            client.callback_get_login = get_credentials
+            def get_log_message():
+                return True, 'Tagging %s for release'%__version__
+            client.callback_get_log_message = get_log_message
+            client.copy(base+'/trunk', tag) 
+            
 
 def build_windows():
     from libprs500 import __version__
