@@ -23,6 +23,10 @@ from libprs500.devices import devices
 
 DEVICES = devices()
 
+DESTDIR = ''
+if os.environ.has_key('DESTDIR'):
+    DESTDIR = os.environ['DESTDIR']
+
 def options(option_parser):
     parser = option_parser() 
     options = parser.option_list
@@ -73,6 +77,17 @@ def opts_and_exts(name, op, exts):
 }
 complete -o filenames -F _'''%(opts,exts) + name + ' ' + name +"\n\n"
 
+use_destdir = False
+
+def open_file(path):
+    if use_destdir:
+        if os.path.isabs(path):
+            path = path[1:]
+        path = os.path.join(DESTDIR, path)
+        if not os.path.exists(os.path.dirname(path)):
+                os.makedirs(os.path.dirname(path))
+    return open(path, 'wb')
+
 def setup_completion():
     try:
         print 'Setting up bash completion...',
@@ -82,7 +97,8 @@ def setup_completion():
         from libprs500.ebooks.lrf.meta import option_parser as metaop
         from libprs500.ebooks.lrf.parser import option_parser as lrf2lrsop
         from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
-        f = open('/etc/bash_completion.d/libprs500', 'wb')
+        f = open_file('/etc/bash_completion.d/libprs500')
+        
         f.write('# libprs500 Bash Shell Completion\n')
         f.write(opts_and_exts('html2lrf', htmlop, 
                               ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'php']))
@@ -181,17 +197,17 @@ complete -o nospace  -F _prs500 prs500
         import traceback
         traceback.print_exc()
         
-def setup_udev_rules():
+def setup_udev_rules(group_file, reload):
     print 'Trying to setup udev rules...'
     sys.stdout.flush()
-    groups = open('/etc/group', 'rb').read()
+    groups = open(group_file, 'rb').read()
     group = 'plugdev' if 'plugdev' in groups else 'usb'
-    udev = open('/etc/udev/rules.d/95-libprs500.rules', 'w')
+    udev = open_file('/etc/udev/rules.d/95-libprs500.rules')
     udev.write('''# Sony Reader PRS-500\n'''
                '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
              )
     udev.close()
-    fdi = open('/usr/share/hal/fdi/policy/20thirdparty/10-libprs500.fdi', 'w')
+    fdi = open_file('/usr/share/hal/fdi/policy/20thirdparty/10-libprs500.fdi')
     fdi.write('<?xml version="1.0" encoding="UTF-8"?>\n\n<deviceinfo version="0.2">\n')
     for cls in DEVICES:
         fdi.write(\
@@ -208,31 +224,51 @@ def setup_udev_rules():
         fdi.write('\n'+cls.get_fdi())
     fdi.write('\n</deviceinfo>\n')
     fdi.close()
-    try:
-        check_call('/etc/init.d/hald restart', shell=True)
-    except:
+    if reload:
         try:
-            check_call('/etc/init.d/hal restart', shell=True)
+            check_call('/etc/init.d/hald restart', shell=True)
         except:
             try:
-                check_call('/etc/init.d/haldaemon restart', shell=True)
+                check_call('/etc/init.d/hal restart', shell=True)
             except:
-                check_call('/etc/rc.d/rc.hald restart', shell=True)
-    
-    try:
-        check_call('udevcontrol reload_rules', shell=True)
-    except:
+                try:
+                    check_call('/etc/init.d/haldaemon restart', shell=True)
+                except:
+                    check_call('/etc/rc.d/rc.hald restart', shell=True)
+        
         try:
-            check_call('/etc/init.d/udev reload', shell=True)
+            check_call('udevcontrol reload_rules', shell=True)
         except:
-            print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
+            try:
+                check_call('/etc/init.d/udev reload', shell=True)
+            except:
+                print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
+
+def option_parser():
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option('--use-destdir', action='store_true', default=False, dest='destdir',
+                      help='If set, respect the environment variable DESTDIR when installing files')
+    parser.add_option('--do-not-reload-udev-hal', action='store_true', dest='dont_reload', default=False,
+                      help='If set, do not try to reload udev rules and HAL FDI files')
+    parser.add_option('--group-file', default='/etc/group', dest='group',
+                      help='File from which to read group information. Default: %default')
+    parser.add_option('--dont-check-root', action='store_true', default=False, dest='no_root',
+                      help='If set, do not check if we are root.')
+    return parser
 
 def post_install():
-    if os.geteuid() != 0:
+    parser = option_parser()
+    opts = parser.parse_args()[0]
+    
+    if not opts.no_root and os.geteuid() != 0:
         print >> sys.stderr, 'You must be root to run this command.'
         sys.exit(1)
+        
+    global use_destdir
+    use_destdir = opts.destdir
     
-    setup_udev_rules()
+    setup_udev_rules(opts.group_file, not opts.dont_reload)
     setup_completion()
     setup_desktop_integration()
         
