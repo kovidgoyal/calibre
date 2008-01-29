@@ -123,6 +123,8 @@ def option_parser(usage, gui_mode=False):
                    help=_('Override the CSS. Can be either a path to a CSS stylesheet or a string. If it is a string it is interpreted as CSS.'))
     laf.add_option('--use-spine', default=False, dest='use_spine', action='store_true',
                    help=_('Use the <spine> element from the OPF file to determine the order in which the HTML files are appended to the LRF. The .opf file must be in the same directory as the base HTML file.'))
+    laf.add_option('--minimum-indent', default=0, type='float', 
+                   help='Minimum paragraph indent (the indent of the first line of a paragraph) in pts. Default: %default')
     laf.add_option('--font-delta', action='store', type='float', default=0., \
                   help=_("""Increase the font size by 2 * FONT_DELTA pts and """
                   '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''

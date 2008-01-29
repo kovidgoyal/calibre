@@ -1200,8 +1200,8 @@ class HTMLConverter(object):
             indent = self.unit_convert(str(tag_css['text-indent']), pts=True)
             if not indent:
                 indent = 0
-            if hasattr(self, 'minimum_indent') and indent > 0 and indent < self.minimum_indent:
-                indent = self.minimum_indent
+            if indent > 0 and indent < 10 * self.minimum_indent:
+                indent = int(10 * self.minimum_indent)
                 
         fp = self.font_properties(tag_css)[0]
         fp['parindent'] = indent

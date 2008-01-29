@@ -90,7 +90,8 @@ def process_file(path, options, logger=None):
             ext = '.lrs' if options.lrs else '.lrf'
             options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
         options.output = os.path.abspath(os.path.expanduser(options.output))
-        options.minimum_indent = 100
+        if options.minimum_indent == 0:
+            options.minimum_indent = 10
         options.use_spine = True
         
         html_process_file(htmlfile, options, logger=logger)
