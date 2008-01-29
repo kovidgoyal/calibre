@@ -349,7 +349,9 @@ class HTMLConverter(object):
         upath = path.encode('utf-8') if isinstance(path, unicode) else path
         if not os.path.exists(upath):
             upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names 
-        raw = UnicodeDammit(open(upath, 'rb').read()).unicode
+        f = open(upath, 'rb')
+        raw = UnicodeDammit(f.read()).unicode
+        f.close()
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')
         self.current_page = None
