@@ -462,5 +462,4 @@ def cleanup(tdir):
         if os.path.isdir(tdir):
             shutil.rmtree(tdir)
     except:
-        #print tdir
         pass 
