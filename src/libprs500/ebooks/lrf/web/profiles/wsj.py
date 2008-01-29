@@ -6,7 +6,8 @@
 ''' 
 ''' 
  
-import re 
+import re
+from urlparse import urlparse 
  
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile  
          
@@ -14,10 +15,11 @@ class WallStreetJournal(DefaultProfile):
     
         title = 'Wall Street Journal' 
         max_recursions = 2
-        needs_subscription = True 
+        needs_subscription = True
+        no_stylesheets = False 
         max_articles_per_feed = 10
         timefmt  = ' [%a, %b %d, %Y]' 
-        html2lrf_options = ['--ignore-tables', '--base-font-size=5']
+        html2lrf_options = ['--ignore-tables']
 
         ## Don't grab articles more than 7 days old 
         oldest_article = 7 
@@ -26,9 +28,6 @@ class WallStreetJournal(DefaultProfile):
                 [ 
                 ## Remove anything before the body of the article. 
                 (r'<body.*?<!-- article start', lambda match: '<body><!-- article start'), 
- 
-                ## Remove any insets from the body of the article. 
-                (r'<div id="inset".*?</div>.?</div>.?<p', lambda match : '<p'), 
  
                 ## Remove anything after the end of the article. 
                 (r'<!-- article end.*?</body>', lambda match : '</body>'), 
@@ -46,12 +45,13 @@ class WallStreetJournal(DefaultProfile):
             return br 
  
         def print_version(self, url): 
-                return url.replace('/article/', '/article_print/') 
+            article = urlparse(url).path.rpartition('/')[-1]
+            return 'http://online.wsj.com/article_print/'+article 
  
 ## Comment out the feeds you don't want retrieved. 
 ## Because these feeds are sorted alphabetically when converted to LRF, you may want to number them  or use spaces to put them in the order you desire 
-        def get_feeds(self): 
-                return  [ 
+        def get_feeds(self):
+            return  [ 
                 #('Most Emailed - Day', 'http://online.wsj.com/xml/rss/3_7030.xml'), 
                 #('Most Emailed - Week', 'http://online.wsj.com/xml/rss/3_7253.xml'), 
                 #('Most Emailed - Month', 'http://online.wsj.com/xml/rss/3_7254.xml'), 
