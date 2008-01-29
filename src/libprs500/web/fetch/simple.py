@@ -259,6 +259,9 @@ class RecursiveFetcher(object):
                 try:
                     self.current_dir = linkdiskpath
                     f = self.fetch_url(iurl)
+                    dsrc = f.read()
+                    if len(dsrc) == 0:
+                        raise Exception('No content')
                     soup = self.get_soup(f.read())
                     self.logger.debug('Processing images...')
                     self.process_images(soup, f.geturl())
@@ -272,7 +275,7 @@ class RecursiveFetcher(object):
                         self.process_links(soup, iurl, recursion_level+1)
                     else:
                         self.process_return_links(soup, iurl) 
-                        self.logger.debug('Recursion limit reached. Skipping %s', iurl)
+                        self.logger.debug('Recursion limit reached. Skipping links in %s', iurl)
                     
                     save_soup(soup, res)
                     self.localize_link(tag, 'href', res)
