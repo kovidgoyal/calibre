@@ -15,7 +15,7 @@
 '''
 '''
 
-import tempfile, time, calendar, re, operator
+import tempfile, time, calendar, re, operator, atexit, shutil, os
 from htmlentitydefs import name2codepoint
 
 from libprs500 import __appname__, iswindows, browser
@@ -100,15 +100,10 @@ class DefaultProfile(object):
             self.url = 'file:'+ ('' if iswindows else '//') + self.build_index()
         except NotImplementedError:
             self.url = None
-    
-    def __del__(self):
-        import os, shutil
-        if os.path.isdir(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
+        atexit.register(cleanup, self.temp_dir)
     
     def build_index(self):
         '''Build an RSS based index.html'''
-        import os
         articles = self.parse_feeds()
         
     
@@ -168,6 +163,8 @@ class DefaultProfile(object):
         '''
         if not tag:
             return ''
+        if isinstance(tag, basestring):
+            return tag
         strings = []
         for item in tag.contents:
             if isinstance(item, (NavigableString, CData)):
@@ -179,6 +176,19 @@ class DefaultProfile(object):
                 elif use_alt and item.has_key('alt'):
                     strings.append(item['alt'])
         return u''.join(strings) 
+    
+    def get_article_url(self, item):
+        '''
+        Return the article URL given an item Tag from a feed, or None if no valid URL is found
+        @param: A BeautifulSoup Tag instance corresponding to the <item> tag from a feed.
+        '''
+        url = None
+        for element in self.url_search_order:
+            url = item.find(element)
+            if url:
+                break
+        return url
+        
     
     def parse_feeds(self, require_url=True):
         '''
@@ -220,15 +230,14 @@ class DefaultProfile(object):
                             continue
                         pubdate = self.tag_to_string(pubdate)
                         pubdate = pubdate.replace('+0000', 'GMT')
-                    for element in self.url_search_order:
-                        url = item.find(element)
-                        if url:
-                            break
-                        
-                    if require_url and (not url or not url.string):
+                    
+                    url = self.get_article_url(item)
+                    
+                    
+                    url = self.tag_to_string(url)
+                    if require_url and not url:
                         self.logger.debug('Skipping article as it does not have a link url')
                         continue
-                    url = self.tag_to_string(url)
                     
                     content = item.find('content:encoded')
                     if not content:
@@ -362,7 +371,6 @@ class FullContentProfile(DefaultProfile):
     
     def build_index(self):
         '''Build an RSS based index.html'''
-        import os
         articles = self.parse_feeds(require_url=False)
         
         def build_sub_index(title, items):
@@ -448,4 +456,11 @@ def create_class(src):
         if hasattr(item, 'build_index'):
             if item.__name__ not in ['DefaultProfile', 'FullContentProfile']:
                 return item
-    
+   
+def cleanup(tdir):
+    try:
+        if os.path.isdir(tdir):
+            shutil.rmtree(tdir)
+    except:
+        #print tdir
+        pass 
