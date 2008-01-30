@@ -103,8 +103,10 @@ class Main(MainWindow, Ui_MainWindow):
         ####################### Status Bar #####################
         self.status_bar = StatusBar(self.jobs_dialog)
         self.setStatusBar(self.status_bar)
-        QObject.connect(self.job_manager, SIGNAL('job_added(int)'), self.status_bar.job_added)
-        QObject.connect(self.job_manager, SIGNAL('job_done(int)'), self.status_bar.job_done)
+        QObject.connect(self.job_manager, SIGNAL('job_added(int)'), self.status_bar.job_added,
+                        Qt.QueuedConnection)
+        QObject.connect(self.job_manager, SIGNAL('job_done(int)'), self.status_bar.job_done,
+                        Qt.QueuedConnection)
         
         ####################### Setup Toolbar #####################
         sm = QMenu()

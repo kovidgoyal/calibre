@@ -12,13 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.gui2 import qstring_to_unicode
+
 '''
 Miscellanous widgets used in the GUI
 '''
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, QListWidgetItem
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, QObject
 
+from libprs500.gui2.jobs import ConversionJob, DetailView
 from libprs500.gui2 import human_readable, NONE, TableView
 from libprs500 import fit_image, get_font_families
 
@@ -98,7 +99,16 @@ class LocationView(QListView):
             self.model().location_changed(row)
                         
 class JobsView(TableView):
-    pass
+    
+    def __init__(self, parent):
+        TableView.__init__(self, parent)
+        self.connect(self, SIGNAL('activated(QModelIndex)'), self.show_details)
+        
+    def show_details(self, index):
+        row = index.row()
+        job = self.model().row_to_job(row)[0]
+        DetailView(self, job).exec_()
+            
 
 class FontFamilyModel(QAbstractListModel):
     
