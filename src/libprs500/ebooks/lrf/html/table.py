@@ -135,7 +135,7 @@ class Cell(object):
             
     def pts_to_pixels(self, pts):
         pts = int(pts)
-        return ceil((float(self.conv.profile.dpi)/72)*(pts/10.))
+        return ceil((float(self.conv.profile.dpi)/72.)*(pts/10.))
     
     def minimum_width(self):
         return max([self.minimum_tb_width(tb) for tb in self.text_blocks])
@@ -198,7 +198,7 @@ class Cell(object):
                 continue
             if isinstance(token, Plot):
                 width, height = self.pts_to_pixels(token.xsize), self.pts_to_pixels(token.ysize)
-                left, right, top, bottom = add_word(width, height, left, right, top, bottom, ls, ws)
+                left, right, top, bottom = add_word(width, height, left, right, top, bottom, height, ws)
                 continue
             ff = attrs.get('fontfacename', ts['fontfacename'])
             fs = attrs.get('fontsize', ts['fontsize'])
