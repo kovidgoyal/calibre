@@ -1277,6 +1277,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         mi.libprs_id = id
         return mi
     
+    def vacuum(self):
+        self.conn.execute('VACUUM;')
+        self.conn.commit()
+    
     def export_to_dir(self, dir, indices, byauthor=False):
         if not os.path.exists(dir):
             raise IOError('Target directory does not exist: '+dir)
@@ -1327,6 +1331,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                         print 'Error setting metadata for book:', mi.title
                         traceback.print_exc()
                     f.close()
+                    
+        
                 
 
 class SearchToken(object):

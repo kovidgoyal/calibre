@@ -19,8 +19,8 @@
    <item>
     <widget class="QStackedWidget" name="stackedWidget" >
      <widget class="QWidget" name="page" >
-      <layout class="QVBoxLayout" >
-       <item>
+      <layout class="QGridLayout" >
+       <item row="0" column="0" >
         <layout class="QVBoxLayout" >
          <item>
           <widget class="QLabel" name="label" >
@@ -54,7 +54,7 @@
          </item>
         </layout>
        </item>
-       <item>
+       <item row="1" column="0" >
         <widget class="QCheckBox" name="roman_numerals" >
          <property name="text" >
           <string>Use &amp;Roman numerals for series number</string>
@@ -64,7 +64,7 @@
          </property>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0" >
         <layout class="QHBoxLayout" >
          <item>
           <widget class="QLabel" name="label_2" >
@@ -97,12 +97,15 @@
          </item>
         </layout>
        </item>
-       <item>
+       <item row="3" column="0" >
         <layout class="QHBoxLayout" >
          <item>
           <widget class="QLabel" name="label_3" >
            <property name="text" >
             <string>&amp;Priority for conversion jobs:</string>
+           </property>
+           <property name="buddy" >
+            <cstring>priority</cstring>
            </property>
           </widget>
          </item>
@@ -111,7 +114,47 @@
          </item>
         </layout>
        </item>
-       <item>
+       <item row="4" column="0" >
+        <layout class="QHBoxLayout" >
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QToolButton" name="compact_button" >
+           <property name="toolTip" >
+            <string>Free unused diskspace from the database</string>
+           </property>
+           <property name="text" >
+            <string>&amp;Compact database</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="5" column="0" >
         <widget class="QGroupBox" name="dirs_box" >
          <property name="title" >
           <string>Frequently used directories</string>
@@ -206,7 +249,7 @@
          </layout>
         </widget>
        </item>
-       <item>
+       <item row="6" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>

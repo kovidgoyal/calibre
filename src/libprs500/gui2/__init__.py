@@ -53,6 +53,12 @@ def question_dialog(parent, title, msg):
     d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
     return d
 
+def info_dialog(parent, title, msg):
+    d = QMessageBox(QMessageBox.Information, title, msg, QMessageBox.NoButton,
+                    parent)
+    d.setIconPixmap(QPixmap(':/images/dialog_information.svg'))
+    return d
+
 def qstring_to_unicode(q):
     return unicode(q)
 

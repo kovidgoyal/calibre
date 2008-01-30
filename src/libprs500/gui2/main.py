@@ -676,7 +676,7 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec_()
             return
-        d = ConfigDialog(self)
+        d = ConfigDialog(self, self.library_view.model().db)
         d.exec_()
         if d.result() == d.Accepted:
             if os.path.dirname(self.database_path) != d.database_location:

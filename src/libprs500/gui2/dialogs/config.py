@@ -14,8 +14,8 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import os
 
-from PyQt4.QtGui import QDialog
-from PyQt4.QtCore import QSettings, QVariant, SIGNAL, QStringList
+from PyQt4.QtGui import QDialog, QMessageBox
+from PyQt4.QtCore import QSettings, QVariant, SIGNAL, QStringList, QTimer
 
 from libprs500 import islinux
 from libprs500.gui2.dialogs.config_ui import Ui_Dialog
@@ -23,11 +23,12 @@ from libprs500.gui2 import qstring_to_unicode, choose_dir, error_dialog
 
 class ConfigDialog(QDialog, Ui_Dialog):
     
-    def __init__(self, window):
+    def __init__(self, window, db):
         QDialog.__init__(self, window)
         Ui_Dialog.__init__(self)
         self.setupUi(self)
         
+        self.db = db
         settings = QSettings()
         path = qstring_to_unicode(\
         settings.value("database path", 
@@ -35,6 +36,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         
         self.location.setText(os.path.dirname(path))
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
+        self.connect(self.compact_button, SIGNAL('clicked(bool)'), self.compact)
         
         dirs = settings.value('frequently used directories', QVariant(QStringList())).toStringList()
         rn = bool(settings.value('use roman numerals for series number',
@@ -51,6 +53,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         if not islinux:
             self.dirs_box.setVisible(False)
         
+    def compact(self, toggled):
+        d = Vacuum(self, self.db)
+        d.exec_()
+    
     def browse(self):
         dir = choose_dir(self, 'database location dialog', 'Select database location')
         if dir:
@@ -82,3 +88,16 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.directories = [qstring_to_unicode(self.directory_list.item(i).text()) for i in range(self.directory_list.count())]
             settings.setValue('frequently used directories', QVariant(self.directories))
             QDialog.accept(self)
+
+class Vacuum(QMessageBox):
+    
+    def __init__(self, parent, db):
+        self.db = db
+        QMessageBox.__init__(self, QMessageBox.Information, 'Compacting...', 'Compacting database. This may take a while.', 
+                             QMessageBox.NoButton, parent)
+        QTimer.singleShot(200, self.vacuum)
+        
+    def vacuum(self):
+        self.db.vacuum()
+        self.accept()
+    
