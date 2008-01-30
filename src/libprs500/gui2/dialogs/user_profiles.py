@@ -20,6 +20,7 @@ from PyQt4.QtGui import QDialog, QMessageBox
 from libprs500.ebooks.lrf.web.profiles import FullContentProfile, create_class
 from libprs500.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from libprs500.gui2 import qstring_to_unicode, error_dialog, question_dialog
+from libprs500.gui2.widgets import PythonHighlighter 
 
 class UserProfiles(QDialog, Ui_Dialog):
     
@@ -58,6 +59,7 @@ class UserProfiles(QDialog, Ui_Dialog):
             self.toggle_mode_button.setText('Switch to Advanced mode')
         else:
             self.source_code.setPlainText(src)
+            self.highlighter = PythonHighlighter(self.source_code.document())
             self.stacks.setCurrentIndex(1)
             self.toggle_mode_button.setText('Switch to Basic mode')
     
@@ -71,6 +73,7 @@ class UserProfiles(QDialog, Ui_Dialog):
             if not qstring_to_unicode(self.source_code.toPlainText()).strip():
                 src = self.options_to_profile()[0]
                 self.source_code.setPlainText(src.replace('BasicUserProfile', 'AdvancedUserProfile'))
+                self.highlighter = PythonHighlighter(self.source_code.document())
             
     
     def add_feed(self, *args):
@@ -121,6 +124,7 @@ class %(classname)s(%(base_class)s):
     def populate_source_code(self):
         src = self.options_to_profile().replace('BasicUserProfile', 'AdvancedUserProfile')
         self.source_code.setPlainText(src)
+        self.highlighter = PythonHighlighter(self.source_code.document())
         
     def add_profile(self, clicked):
         if self.stacks.currentIndex() == 0:
