@@ -999,28 +999,41 @@ class HTMLConverter(object):
         return end_page
     
     def block_properties(self, tag_css):
-        ans = {}
-        for key in ('topskip', 'footskip', 'sidemargin'):
-            ans[key] = self.book.defaultBlockStyle.attrs[key]
         
-        src = [None for i in range(4)]         
-        if tag_css.has_key('padding'):
-            msrc = tag_css['padding'].split()
-            for i in range(len(msrc)):
-                src[i] = msrc[i]
-        i = 0
-        for c in ('top', 'right', 'bottom', 'left'):
-            if tag_css.has_key('padding-'+c):
-                src[i] = tag_css['padding-'+c]
-            i += 1
+        def get(what):
+            src = [None for i in range(4)]         
+            if tag_css.has_key(what):
+                msrc = tag_css[what].split()
+                for i in range(len(msrc)):
+                    src[i] = msrc[i]
+            i = 0
+            for c in ('-top', '-right', '-bottom', '-left'):
+                if tag_css.has_key(what+c):
+                    src[i] = tag_css[what+c]
+                i += 1
+            return src
+            
+        s1, s2 = get('margin'), get('padding')
         
-        t = {}
-        t['topskip'], t['footskip'], t['sidemargin'] = src[0], src[2], src[3]
-        for key in ('topskip', 'footskip', 'sidemargin'):
-            if t[key] is not None:
-                val = self.unit_convert(t[key])
+        bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
+        def set(default, one, two):
+            fval = None 
+            if one is not None:
+                val = self.unit_convert(one, base_length=bl)
                 if val is not None:
-                    ans[key] = val
+                    fval = val
+            if two is not None:
+                val = self.unit_convert(two, base_length=bl)
+                if val is not None:
+                    fval = val if fval is None else fval + val
+            if fval is None:
+                fval = default
+            return fval
+        
+        ans = {}
+        ans['topskip']    = set(self.book.defaultBlockStyle.attrs['topskip'], s1[0], s2[0])
+        ans['footskip']   = set(self.book.defaultBlockStyle.attrs['footskip'], s1[2], s2[2])
+        ans['sidemargin'] = set(self.book.defaultBlockStyle.attrs['sidemargin'], s1[3], s2[3])
         
         return ans
     
@@ -1197,11 +1210,13 @@ class HTMLConverter(object):
     def text_properties(self, tag_css):
         indent = self.book.defaultTextStyle.attrs['parindent']
         if tag_css.has_key('text-indent'):
-            indent = self.unit_convert(str(tag_css['text-indent']), pts=True)
-            if not indent:
+            bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
+            indent = self.unit_convert(str(tag_css['text-indent']), pts=True, base_length=bl)
+            if not indent: 
                 indent = 0
             if indent > 0 and indent < 10 * self.minimum_indent:
                 indent = int(10 * self.minimum_indent)
+                
                 
         fp = self.font_properties(tag_css)[0]
         fp['parindent'] = indent
@@ -1226,6 +1241,13 @@ class HTMLConverter(object):
         ''' Ensure padding and text-indent properties are respected '''
         text_properties = self.text_properties(tag_css)
         block_properties = self.block_properties(tag_css)
+        indent = (float(text_properties['parindent'])/10) * (self.profile.dpi/72.)
+        margin = float(block_properties['sidemargin'])
+        # Since we're flattening the block structure, we need to ensure that text 
+        # doesn't go off the left edge of the screen
+        if indent < 0 and margin + indent < 0: 
+            text_properties['parindent'] = int(-margin * (72./self.profile.dpi) * 10)
+        
         align = self.get_alignment(tag_css)
         
         def fill_out_properties(props, default):
