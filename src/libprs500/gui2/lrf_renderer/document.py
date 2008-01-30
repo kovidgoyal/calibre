@@ -395,6 +395,7 @@ class Document(QGraphicsScene):
         else:
             jb = self.objects[objid]
             self.link_map[objid] = (jb.refpage, jb.refobj)
+        
             
     def back(self):
         oid = self.history.back()
@@ -458,9 +459,9 @@ class Document(QGraphicsScene):
             block = object_factory(self, object)
             if block is None:
                 continue
+            object_to_page_map[object.id] = len(pages) + 1
             while block.has_content:
                 current_page.add_block(block)
-                object_to_page_map[object.id] = len(pages) + 1
                 if current_page.is_full:
                     pages.append(current_page)
                     current_page = Page(self.font_loader, self.logger, self.opts, width, height)
