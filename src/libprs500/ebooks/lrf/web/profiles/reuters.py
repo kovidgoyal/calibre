@@ -30,7 +30,7 @@ class Reuters(DefaultProfile):
                   ('World News', 'http://feeds.reuters.com/reuters/worldNews?format=xml'),
                   ('Politics News', 'http://feeds.reuters.com/reuters/politicsNews?format=xml'),
                   ('Science News', 'http://feeds.reuters.com/reuters/scienceNews?format=xml'),
-                  ('Emviroment News', 'http://feeds.reuters.com/reuters/Environment?format=xml'),
+                  ('Environment News', 'http://feeds.reuters.com/reuters/Environment?format=xml'),
                   ('Technology News', 'http://feeds.reuters.com/reuters/technologyNews?format=xml'),
                   ('Oddly Enough News', 'http://feeds.reuters.com/reuters/oddlyEnoughNews?format=xml')
          ]
