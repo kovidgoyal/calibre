@@ -57,10 +57,9 @@ Var MUI_TEMP
 !define WEBSITE "https://libprs500.kovidgoyal.net"
 !define DEVCON  "C:\devcon\i386\devcon.exe"
 !define PY2EXE_DIR "%(py2exe_dir)s"
-!define LIBUSB_DIR "C:\Users\kovid\libusb1"
+!define LIBUSB_DIR "C:\libusb"
 !define LIBUNRAR_DIR "C:\Program Files\UnrarDLL"
 !define CLIT         "C:\clit\clit.exe"
-!define UNRTF        "C:\unrtf\unrtf.exe"
 !define PDFTOHTML    "C:\pdftohtml\pdftohtml.exe"
 !define IMAGEMAGICK  "C:\ImageMagick"
 
@@ -137,7 +136,6 @@ Section "Main" "secmain"
   ;ADD YOUR OWN FILES HERE...
   File /r "${PY2EXE_DIR}\*"
   File "${CLIT}"
-  File "${UNRTF}"
   File "${PDFTOHTML}"
   
   SetOutPath "$INSTDIR\ImageMagick"
@@ -371,7 +369,7 @@ r'''<?xml version='1.0' encoding='windows-1252'?>
 
 class BuildEXE(build_exe):
     manifest_resource_id = 0
-    QT_PREFIX = r'C:\\Qt\\4.3.0' 
+    QT_PREFIX = r'C:\\Qt\\4.3.3' 
     MANIFEST_TEMPLATE = '''
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0"> 
