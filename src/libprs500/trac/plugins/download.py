@@ -44,7 +44,6 @@ class Distribution(object):
         ('Qt', '4.3.1', 'qt', 'libqt4-core libqt4-gui', 'qt4'),
         ('PyQt', '4.3.1', 'PyQt4', 'python-qt4', 'PyQt4'),
         ('fonttools', '2.0-beta1', 'fonttools', 'fonttools', 'fonttools'),
-        ('unrtf', '0.20.1', 'unrtf', 'unrtf', 'unrtf'),
         ('mechanize for python', '0.1.7b', 'dev-python/mechanize', 'python-mechanize', 'python-mechanize'),
         ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
@@ -56,7 +55,7 @@ class Distribution(object):
     
     DISTRO_MAP = {'gentoo':2, 'ubuntu':3, 'fedora':4, 'debian':3}
     
-    INSTALLERS = ('emerge -av', 'apt-get install', 'yum install')
+    INSTALLERS = ('emerge -avn', 'apt-get install', 'yum install')
     AS_ROOT    = (True, False, True)
     
     TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Gutsy Gibbon',
