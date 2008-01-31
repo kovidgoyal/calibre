@@ -25,10 +25,15 @@ from libprs500.ebooks.lrf.web.profiles.wsj           import WallStreetJournal
 from libprs500.ebooks.lrf.web.profiles.barrons       import Barrons
 from libprs500.ebooks.lrf.web.profiles.portfolio     import Portfolio
 from libprs500.ebooks.lrf.web.profiles.dilbert       import Dilbert  
-from libprs500.ebooks.lrf.web.profiles.cnn           import CNN 
+from libprs500.ebooks.lrf.web.profiles.cnn           import CNN
+from libprs500.ebooks.lrf.web.profiles.chr_mon       import ChristianScienceMonitor
+from libprs500.ebooks.lrf.web.profiles.jpost         import JerusalemPost
+from libprs500.ebooks.lrf.web.profiles.reuters       import Reuters
+from libprs500.ebooks.lrf.web.profiles.atlantic      import Atlantic 
 
-builtin_profiles   = [Barrons, BBC, CNN, Dilbert, Economist, FazNet, Newsweek, NewYorkReviewOfBooks, NYTimes,  \
-                      Portfolio, SpiegelOnline, WallStreetJournal, ZeitNachrichten,   \
+builtin_profiles   = [Atlantic, Barrons, BBC, ChristianScienceMonitor, CNN, Dilbert, Economist, FazNet, 
+                      JerusalemPost, Newsweek, NewYorkReviewOfBooks, NYTimes,  
+                      Portfolio, Reuters, SpiegelOnline, WallStreetJournal, ZeitNachrichten,   
                      ]
 
 available_profiles = [i.__module__.rpartition('.')[2] for i in builtin_profiles]
