@@ -418,8 +418,7 @@ class FullContentProfile(DefaultProfile):
             prefix = 'file:' if iswindows else ''
             clist += u'<li><a href="%s">%s</a></li>\n'%(prefix+cfile, category)
             src = build_sub_index(category, articles[category])
-            open(cfile, 'wb').write(src.encode('utf-8'))
-            open('/tmp/category'+str(cnum)+'.html', 'wb').write(src.encode('utf-8'))        
+            open(cfile, 'wb').write(src.encode('utf-8'))        
         
         src = '''\
         <html>
