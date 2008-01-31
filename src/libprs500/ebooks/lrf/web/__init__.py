@@ -30,8 +30,10 @@ from libprs500.ebooks.lrf.web.profiles.chr_mon       import ChristianScienceMoni
 from libprs500.ebooks.lrf.web.profiles.jpost         import JerusalemPost
 from libprs500.ebooks.lrf.web.profiles.reuters       import Reuters
 from libprs500.ebooks.lrf.web.profiles.atlantic      import Atlantic 
+from libprs500.ebooks.lrf.web.profiles.ap            import AssociatedPress 
 
-builtin_profiles   = [Atlantic, Barrons, BBC, ChristianScienceMonitor, CNN, Dilbert, Economist, FazNet, 
+builtin_profiles   = [Atlantic, AssociatedPress, Barrons, BBC, 
+                      ChristianScienceMonitor, CNN, Dilbert, Economist, FazNet, 
                       JerusalemPost, Newsweek, NewYorkReviewOfBooks, NYTimes,  
                       Portfolio, Reuters, SpiegelOnline, WallStreetJournal, ZeitNachrichten,   
                      ]
