@@ -150,7 +150,6 @@ class JobManager(QAbstractTableModel):
         self.timer_id = self.startTimer(500)
         
     def terminate_device_jobs(self):
-        changed = False
         for job in self.running_jobs:
             if isinstance(job, DeviceJob):
                 job.terminate()
