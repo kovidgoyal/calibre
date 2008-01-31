@@ -151,13 +151,10 @@ class JobManager(QAbstractTableModel):
         
     def terminate_device_jobs(self):
         changed = False
-        for key in self.jobs.keys():
-            if isinstance(self.jobs[key], DeviceJob):
-                changed = True
-                job = self.jobs.pop(key)
+        for job in self.running_jobs:
+            if isinstance(job, DeviceJob):
                 job.terminate()
-        if changed:
-            self.reset()
+                
     
     def timerEvent(self, event):
         if event.timerId() == self.timer_id:
