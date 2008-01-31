@@ -12,7 +12,7 @@ DOCS = PREFIX+"/httpdocs/apidocs"
 HTML2LRF = "src/libprs500/ebooks/lrf/html/demo"
 TXT2LRF  = "src/libprs500/ebooks/lrf/txt/demo"
 check_call = partial(_check_call, shell=True)
-h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
+#h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
 
 def tag_release():
     from libprs500 import __version__
@@ -88,6 +88,7 @@ def main():
     check_call("sudo python setup.py develop", shell=True)
     check_call('make', shell=True)
     check_call('svn commit -m "Updated translations" src/libprs500/translations')
+    tag_release()
     upload_demo()
     print 'Building OSX installer...'
     dmg = build_osx()
