@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import sys, glob, os, subprocess, time, shutil
+import sys, os, shutil
 sys.path.append('src')
 from subprocess import check_call as _check_call
 from functools import partial
@@ -13,6 +13,7 @@ HTML2LRF = "src/libprs500/ebooks/lrf/html/demo"
 TXT2LRF  = "src/libprs500/ebooks/lrf/txt/demo"
 check_call = partial(_check_call, shell=True)
 #h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
+
 
 def tag_release():
     from libprs500 import __version__
@@ -64,12 +65,14 @@ def upload_demo():
     check_call('''scp /tmp/txt-demo.zip castalia:%s/'''%(DOWNLOADS,))
 
 def upload_installers(exe, dmg):
-    check_call('''ssh castalia rm -f %s/libprs500\*.exe'''%(DOWNLOADS,))
-    check_call('''scp dist/%s castalia:%s/'''%(exe, DOWNLOADS))
-    check_call('''ssh castalia rm -f %s/libprs500\*.dmg'''%(DOWNLOADS,))
-    check_call('''scp dist/%s castalia:%s/'''%(dmg, DOWNLOADS))
-    check_call('''ssh castalia chmod a+r %s/\*'''%(DOWNLOADS,))
-    check_call('''ssh castalia /root/bin/update-installer-links %s %s'''%(exe, dmg))
+    if exe and os.path.exists(exe):
+        check_call('''ssh castalia rm -f %s/libprs500\*.exe'''%(DOWNLOADS,))
+        check_call('''scp dist/%s castalia:%s/'''%(exe, DOWNLOADS))
+        check_call('''ssh castalia rm -f %s/libprs500\*.dmg'''%(DOWNLOADS,))
+    if dmg and os.path.exists(dmg):
+        check_call('''scp dist/%s castalia:%s/'''%(dmg, DOWNLOADS))
+        check_call('''ssh castalia chmod a+r %s/\*'''%(DOWNLOADS,))
+        check_call('''ssh castalia /root/bin/update-installer-links %s %s'''%(exe, dmg))
 
 def upload_docs():
     check_call('''epydoc --config epydoc.conf''')
