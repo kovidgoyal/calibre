@@ -93,7 +93,7 @@ class TagEditor(QDialog, Ui_TagEditor):
             
     
     def unapply_tags(self, item=None):
-        items = self.available_tags.selectedItems() if item is None else [item] 
+        items = self.applied_tags.selectedItems() if item is None else [item] 
         for item in items:
             tag = qstring_to_unicode(item.text())
             self.tags.remove(tag)
