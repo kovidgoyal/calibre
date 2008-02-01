@@ -551,9 +551,7 @@ def option_parser():
     from libprs500 import __appname__, __version__
     parser = OptionParser(usage = \
       '''%prog [options] mybook.lrf\n\n'''
-      '''Show/edit the metadata in an LRF file.\n\n'''      
-      '''WARNING: Based on reverse engineering the LRF format.\n''' 
-      '''Making changes may render your LRF file unreadable.''', 
+      '''Show/edit the metadata in an LRF file.\n\n''', 
       version=__appname__+' '+__version__,
       epilog='Created by Kovid Goyal')
     parser.add_option("-t", "--title", action="store", type="string", \
