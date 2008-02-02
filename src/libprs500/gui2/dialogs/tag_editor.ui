@@ -232,7 +232,7 @@
      <item>
       <widget class="QLineEdit" name="add_tag_input" >
        <property name="toolTip" >
-        <string>If the tag you want is not in the available list, you can add it here. Accepts a comman separated list of tags.</string>
+        <string>If the tag you want is not in the available list, you can add it here. Accepts a comma separated list of tags.</string>
        </property>
       </widget>
      </item>
