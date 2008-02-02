@@ -36,7 +36,7 @@ def generate_html(pathtopdf, logger):
     pf = PersistentTemporaryFile('.html')
     pf.close()
     # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
-    cmd = PDFTOHTML + ' -noframes -p -nomerge "%s" "%s"'%(pathtopdf, os.path.basename(pf.name))
+    cmd = PDFTOHTML + ' -enc UTF-8 -noframes -p -nomerge "%s" "%s"'%(pathtopdf, os.path.basename(pf.name))
     cwd = os.getcwd()
     try:
         os.chdir(os.path.dirname(pf.name)) 
