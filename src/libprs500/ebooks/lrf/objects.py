@@ -51,6 +51,7 @@ class LRFObject(object):
         
     @staticmethod
     def tag_to_val(h, obj, tag, stream):
+        val = None
         if h[1] == 'D':
             val = tag.dword
         elif h[1] == 'W':
@@ -886,7 +887,7 @@ class Button(LRFObject):
         0xF561: ['button_flags','W'],           #<Button/>
         0xF562: ['','do_base_button'],            #<BaseButton>
         0xF563: ['',''],            #</BaseButton>
-        0xF564: ['','do_focusin_button'],            #<FocusinButton>
+        0xF564: ['','do_focus_in_button'],            #<FocusinButton>
         0xF565: ['',''],            #</FocusinButton>
         0xF566: ['','do_push_button'],            #<PushButton>
         0xF567: ['',''],            #</PushButton>
@@ -910,7 +911,7 @@ class Button(LRFObject):
         LRFObject.__init__(self, document, stream, id, scramble_key, boundary)
     
     def do_ref_image(self, tag, f):
-        self.refimage[self.button_yype] = tag.dword
+        self.refimage[self.button_type] = tag.dword
         
     def do_base_button(self, tag, f):
         self.button_type = 0
