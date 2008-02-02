@@ -1676,7 +1676,7 @@ class UnicodeDammit:
             for proposedEncoding in (documentEncoding, sniffedEncoding):
                 u = self._convertFrom(proposedEncoding)
                 if u: break
-
+        
         # If no luck and we have auto-detection library, try that:
         if not u and chardet and not isinstance(self.markup, unicode):
             u = self._convertFrom(chardet.detect(self.markup)['encoding'])
@@ -1804,6 +1804,8 @@ class UnicodeDammit:
             xml_encoding_match = re.compile \
                                  ('^<\?.*encoding=[\'"](.*?)[\'"].*\?>')\
                                  .match(xml_data)
+            if xml_encoding_match is None: # By Kovid to use the content-type header in HTML files
+                xml_encoding_match = re.compile(r'<meta.*?http-equiv=[\'"]Content-type[\'"].*?content=[\'"].*?charset=(\S+).*?[\'"]', re.IGNORECASE).search(xml_data)
         except:
             xml_encoding_match = None
         if xml_encoding_match:
@@ -1814,6 +1816,7 @@ class UnicodeDammit:
                                  'utf-16', 'utf-32', 'utf_16', 'utf_32',
                                  'utf16', 'u16')):
                 xml_encoding = sniffed_xml_encoding
+        
         return xml_data, xml_encoding, sniffed_xml_encoding
 
 

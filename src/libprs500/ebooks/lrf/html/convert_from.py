@@ -350,7 +350,11 @@ class HTMLConverter(object):
         if not os.path.exists(upath):
             upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names 
         f = open(upath, 'rb')
-        raw = UnicodeDammit(f.read()).unicode
+        raw = f.read()
+        if self.pdftohtml: # Bug in pdftohtml that causes it to output invalid UTF-8 files
+            raw = raw.decode('utf-8', 'ignore')
+        else:
+            raw = UnicodeDammit(raw).unicode
         f.close()
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')
