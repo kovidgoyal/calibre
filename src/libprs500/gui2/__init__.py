@@ -102,6 +102,28 @@ class TableView(QTableView):
             for i in range(len(self.cw)):
                 self.setColumnWidth(i, self.cw[i])
             return True
+        
+    def set_visible_columns(self, cols=None):
+        '''
+        @param cols: A list of booleans or None. If an entry is False the corresponding column
+        is hidden, if True it is shown. 
+        '''
+        if cols:
+            QSettings().setValue(self.__class__.__name__ + ' visible columns',
+                             QVariant(repr(cols)))
+        else:
+            cols = qstring_to_unicode(QSettings().value(self.__class__.__name__ + ' visible columns', 
+                                        QVariant('')).toString())
+            if cols:
+                cols = eval(cols)
+            else:
+                cols = [True for i in range(self.model().columnCount(self))]
+        
+        for i in range(len(cols)):
+            hidden = self.isColumnHidden(i)
+            self.setColumnHidden(i, not cols[i])
+            if hidden and cols[i]:
+                self.resizeColumnToContents(i)
     
 
 class FileIconProvider(QFileIconProvider):

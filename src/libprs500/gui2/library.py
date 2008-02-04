@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.gui2 import qstring_to_unicode
 import os, textwrap, traceback, time, re, sre_constants
 from datetime import timedelta, datetime
 from operator import attrgetter
@@ -411,6 +412,7 @@ class BooksView(TableView):
         QObject.connect(self.model(), SIGNAL('rowsInserted(QModelIndex, int, int)'), self.resizeRowsToContents)
         # Resetting the model should resize rows (model is reset after search and sort operations)
         QObject.connect(self.model(), SIGNAL('modelReset()'), self.resizeRowsToContents)
+        self.set_visible_columns()
         
     
     def set_database(self, db):

@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>408</width>
-    <height>378</height>
+    <width>451</width>
+    <height>507</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -154,7 +154,7 @@
          </item>
         </layout>
        </item>
-       <item row="5" column="0" >
+       <item row="6" column="0" >
         <widget class="QGroupBox" name="dirs_box" >
          <property name="title" >
           <string>Frequently used directories</string>
@@ -249,7 +249,7 @@
          </layout>
         </widget>
        </item>
-       <item row="6" column="0" >
+       <item row="7" column="0" >
         <spacer>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
@@ -261,6 +261,22 @@
           </size>
          </property>
         </spacer>
+       </item>
+       <item row="5" column="0" >
+        <widget class="QGroupBox" name="groupBox" >
+         <property name="title" >
+          <string>Select visible &amp;columns in library view</string>
+         </property>
+         <layout class="QGridLayout" >
+          <item row="0" column="0" >
+           <widget class="QListWidget" name="columns" >
+            <property name="selectionMode" >
+             <enum>QAbstractItemView::NoSelection</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>

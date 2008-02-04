@@ -14,8 +14,8 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import os
 
-from PyQt4.QtGui import QDialog, QMessageBox
-from PyQt4.QtCore import QSettings, QVariant, SIGNAL, QStringList, QTimer
+from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem
+from PyQt4.QtCore import QSettings, QVariant, SIGNAL, QStringList, QTimer, Qt
 
 from libprs500 import islinux
 from libprs500.gui2.dialogs.config_ui import Ui_Dialog
@@ -23,12 +23,13 @@ from libprs500.gui2 import qstring_to_unicode, choose_dir, error_dialog
 
 class ConfigDialog(QDialog, Ui_Dialog):
     
-    def __init__(self, window, db):
+    def __init__(self, window, db, columns):
         QDialog.__init__(self, window)
         Ui_Dialog.__init__(self)
         self.setupUi(self)
         
         self.db = db
+        self.current_cols = columns
         settings = QSettings()
         path = qstring_to_unicode(\
         settings.value("database path", 
@@ -52,6 +53,15 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.priority.addItem('Idle')
         if not islinux:
             self.dirs_box.setVisible(False)
+            
+        for hidden, hdr in self.current_cols:
+            item = QListWidgetItem(hdr, self.columns)
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
+            if hidden:
+                item.setCheckState(Qt.Unchecked)
+            else:
+                item.setCheckState(Qt.Checked)
+            
         
     def compact(self, toggled):
         d = Vacuum(self, self.db)
@@ -76,7 +86,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         settings = QSettings()            
         settings.setValue('use roman numerals for series number', QVariant(self.roman_numerals.isChecked()))
         settings.setValue('network timeout', QVariant(self.timeout.value()))
-        path = qstring_to_unicode(self.location.text())        
+        path = qstring_to_unicode(self.location.text())
+        self.final_columns = [self.columns.item(i).checkState() == Qt.Checked for i in range(self.columns.count())]
+                
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'), _('Invalid database location ')+path+_('<br>Must be a directory.'))
             d.exec_()

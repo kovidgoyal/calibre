@@ -676,9 +676,14 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec_()
             return
-        d = ConfigDialog(self, self.library_view.model().db)
+        columns = [(self.library_view.isColumnHidden(i), \
+                    self.library_view.model().headerData(i, Qt.Horizontal, Qt.DisplayRole).toString())\
+                    for i in range(self.library_view.model().columnCount(None))]
+        d = ConfigDialog(self, self.library_view.model().db, columns)
         d.exec_()
         if d.result() == d.Accepted:
+            self.library_view.set_visible_columns(d.final_columns)
+            
             if os.path.dirname(self.database_path) != d.database_location:
                 try:
                     newloc = os.path.join(d.database_location, os.path.basename(self.database_path))
