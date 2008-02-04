@@ -12,7 +12,6 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.gui2 import qstring_to_unicode
 import os, textwrap, traceback, time, re, sre_constants
 from datetime import timedelta, datetime
 from operator import attrgetter
@@ -27,8 +26,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
 
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.library.database import LibraryDatabase, SearchToken
-from libprs500.gui2 import NONE, TableView
-from libprs500.gui2 import qstring_to_unicode
+from libprs500.gui2 import NONE, TableView, qstring_to_unicode
 
 class LibraryDelegate(QItemDelegate):
     COLOR = QColor("blue")
@@ -701,7 +699,7 @@ class SearchBox(QLineEdit):
     
     def __init__(self, parent):
         QLineEdit.__init__(self, parent)
-        self.help_text = _('Search by title, author, publisher, tags, series and comments')
+        self.help_text = _('Search (For Advanced Search click the button to the left)')
         self.initial_state = True
         self.default_palette = QApplication.palette(self)
         self.gray = QPalette(self.default_palette)
