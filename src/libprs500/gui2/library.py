@@ -755,3 +755,4 @@ class SearchBox(QLineEdit):
         self.setText(txt)
         self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), txt, False)
         self.end(False)
+        self.initial_state = False

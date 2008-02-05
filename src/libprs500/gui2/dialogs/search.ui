@@ -21,7 +21,7 @@
      <item>
       <layout class="QVBoxLayout" >
        <item>
-        <widget class="QRadioButton" name="radioButton" >
+        <widget class="QRadioButton" name="match_all" >
          <property name="text" >
           <string>Match a&amp;ll of the following criteria</string>
          </property>
@@ -31,7 +31,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="radioButton_2" >
+        <widget class="QRadioButton" name="match_any" >
          <property name="text" >
           <string>Match a&amp;ny of the following criteria</string>
          </property>

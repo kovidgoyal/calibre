@@ -84,5 +84,8 @@ class SearchDialog(Ui_Dialog, QDialog):
             token = tok.token()
             if token:
                 ans.append(token)
-        return ' '.join(ans)
+        ans = ' '.join(ans)
+        if self.match_any.isChecked():
+            ans = '['+ans+']'
+        return ans
             
