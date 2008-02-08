@@ -48,11 +48,31 @@ def find_htmlfile(dir):
     finally:
         os.chdir(cwd)
 
+def number_of_unhidden_files(base, listing):
+    ans = 0
+    for i in listing:
+        i = os.path.join(base, i)
+        if os.path.isdir(i) or os.path.basename(i).startswith('.'):
+            continue
+        ans += 1
+    return ans
+
+def unhidden_directories(base, listing):
+    ans = []
+    for i in listing:
+        if os.path.isdir(os.path.join(base, i)) and not i.startswith('__') and \
+           not i.startswith('.'):
+            ans.append(i)
+    return ans  
+
 def traverse_subdirs(tdir):
     temp = os.listdir(tdir)
-    if len(temp) == 1 and os.path.isdir(os.path.join(tdir, temp[0])):
-        cdir = os.path.join(tdir, temp[0])
-        return traverse_subdirs(cdir)
+    if number_of_unhidden_files(tdir, temp) == 0:
+        try:
+            cdir = os.path.join(tdir, unhidden_directories(tdir, temp)[0])
+            return traverse_subdirs(cdir)
+        except IndexError:
+            pass
     return tdir
 
 def handle_archive(path):
