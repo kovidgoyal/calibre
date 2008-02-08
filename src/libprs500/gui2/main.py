@@ -688,16 +688,20 @@ class Main(MainWindow, Ui_MainWindow):
                 try:
                     newloc = os.path.join(d.database_location, os.path.basename(self.database_path))
                     if not os.path.exists(newloc):
+                        dirname = os.path.dirname(newloc)
+                        if not os.path.isdir(dirname):
+                            os.makedirs(dirname)
                         dest = open(newloc, 'wb')
-                        self.status_bar.showMessage('Copying database to '+newloc)
-                        self.setCursor(Qt.BusyCursor)
-                        self.library_view.setEnabled(False)
-                        self.library_view.close()
-                        src = open(self.database_path, 'rb')
-                        shutil.copyfileobj(src, dest)
-                        src.close()
-                        dest.close()
-                        os.unlink(self.database_path)
+                        if os.access(self.database_path, os.R_OK):
+                            self.status_bar.showMessage('Copying database to '+newloc)
+                            self.setCursor(Qt.BusyCursor)
+                            self.library_view.setEnabled(False)
+                            self.library_view.close()
+                            src = open(self.database_path, 'rb')
+                            shutil.copyfileobj(src, dest)
+                            src.close()
+                            dest.close()
+                            os.unlink(self.database_path)
                     else:
                         try:
                             db = LibraryDatabase(newloc)
