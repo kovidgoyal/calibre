@@ -93,6 +93,10 @@ class TOC(list):
             if not os.path.isabs(toc):
                 toc = os.path.join(cwd, toc)
             try:
+                if not os.path.exists(toc):
+                    bn  = os.path.basename(toc)
+                    bn  = bn.replace('_top.htm', '_toc.htm') # Bug in BAEN OPF files
+                    toc = os.path.join(os.path.dirname(toc), bn) 
                 soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
                 for a in soup.findAll('a'):
                     if not a.has_key('href'):
