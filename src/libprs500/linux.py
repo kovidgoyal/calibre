@@ -97,7 +97,7 @@ def setup_completion():
         from libprs500.ebooks.lrf.meta import option_parser as metaop
         from libprs500.ebooks.lrf.parser import option_parser as lrf2lrsop
         from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
-        from libprs500.ebooks.lrf.pdf.pdftohtml import option_parser as pdfhtmlop
+        from libprs500.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
         
         f = open_file('/etc/bash_completion.d/libprs500')
         
