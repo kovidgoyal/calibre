@@ -97,6 +97,8 @@ def setup_completion():
         from libprs500.ebooks.lrf.meta import option_parser as metaop
         from libprs500.ebooks.lrf.parser import option_parser as lrf2lrsop
         from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
+        from libprs500.ebooks.lrf.pdf.pdftohtml import option_parser as pdfhtmlop
+        
         f = open_file('/etc/bash_completion.d/libprs500')
         
         f.write('# libprs500 Bash Shell Completion\n')
@@ -117,6 +119,7 @@ def setup_completion():
         f.write(opts_and_exts('opf-meta', metaop, ['opf']))
         f.write(opts_and_exts('epub-meta', metaop, ['epub']))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
+        f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write('''
 _prs500_ls()
 {
