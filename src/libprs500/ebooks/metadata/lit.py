@@ -745,8 +745,7 @@ def get_metadata(stream):
             else:
                 ext = ext.lower()
             cd = litfile.read_image(cover_item)
-            if cd:
-                mi.cover_data = (ext, cd)            
+            mi.cover_data = (ext, cd) if cd else (None, None)            
     except:
         title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
         mi = MetaInformation(title, ['Unknown'])
