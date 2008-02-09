@@ -26,6 +26,26 @@ PDFTOXML = 'pdftoxml.exe'
 if isosx and hasattr(sys, 'frameworks_dir'):
     PDFTOXML = os.path.join(getattr(sys, 'frameworks_dir'), PDFTOXML)
 
+class StyleContainer(object):
+    
+    def set_style(self, iterator):
+        styles = set([])
+        for tok in iterator:
+            if hasattr(tok, 'style'):
+                styles.add(tok.style)
+        counts = [0*i for i in range(len(styles))]
+        for i in range(len(styles)):
+            counts[i] = sum([1 for j in self if j.style == styles[i]])
+        max = max(counts)
+        for i in range(len(counts)):
+            if counts[i] == max:
+                break
+        self.style = styles[i]
+        for obj in iterator:
+            if obj.style == self.style:
+                obj.style = None
+
+
 class Page(object):
     
     def __init__(self, attrs):
@@ -78,7 +98,7 @@ class Page(object):
         self.page_break_after = max < 0.8*self.height
         
 
-class Group(object, StyleContainer):
+class Group(StyleContainer):
     
     def __init__(self, lines):
         self.lines = lines
@@ -150,25 +170,6 @@ class Text(object):
         return ' '.join(res)
                 
 
-class StyleContainer(object):
-    
-    def set_style(self, iterator):
-        styles = set([])
-        for tok in iterator:
-            if hasattr(tok, 'style'):
-                styles.add(tok.style)
-        counts = [0*i for i in range(len(styles))]
-        for i in range(len(styles)):
-            counts[i] = sum([1 for j in self if j.style == styles[i]])
-        max = max(counts)
-        for i in range(len(counts)):
-            if counts[i] == max:
-                break
-        self.style = styles[i]
-        for obj in iterator:
-            if obj.style == self.style:
-                obj.style = None
-    
 class Line(list, StyleContainer):
     
     def calculate_geometry(self):
