@@ -17,6 +17,7 @@ check_call = partial(_check_call, shell=True)
 
 def tag_release():
     from libprs500 import __version__
+    print 'Tagging release'
     base = 'https://kovid@svn.kovidgoyal.net/code/libprs500' 
     tag = base + '/tags/'+__version__
     client = pysvn.Client()
