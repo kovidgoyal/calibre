@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.22\n"
-"POT-Creation-Date: 2008-01-30 19:24+PST\n"
+"POT-Creation-Date: 2008-02-09 11:22+PST\n"
 "PO-Revision-Date: 2008-01-20 09:59+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -53,7 +53,7 @@ msgstr "Clé de tri pour l'auteur"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:98
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:28
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:349
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:348
 msgid "Publisher"
 msgstr "Editeur"
 
@@ -297,47 +297,61 @@ msgstr ""
 "long. N'utilisez cette option que si vous avez des problèmes de mémoire "
 "disponible."
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:560
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:558
 msgid "Set the book title"
 msgstr "Définit le titre du livre"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:560
 msgid "Set sort key for the title"
 msgstr "Définit la clé de tri pour le titre"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:564
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
 msgid "Set the author"
 msgstr "Définit l'auteur"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:564
 msgid "Set sort key for the author"
 msgstr "Définit la clef de tri pour l'auteur"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:568
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
 msgid "The category this book belongs to. E.g.: History"
 msgstr "La catégorie à laquelle le livre appartient. Exemple : Histoire"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:571
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:569
 msgid "Path to a graphic that will be set as this files' thumbnail"
 msgstr "Chemin d'une image qui sera utilisée comme vignette pour ces fichiers"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:574
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:572
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
 msgstr ""
 "Chemin d'un fichier texte contenant les commentaires qui seront inclus dans "
 "le fichier lrf."
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:578
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:576
 msgid "Extract thumbnail from LRF file"
 msgstr "Extrait la vignette du fichier LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:580
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:578
 msgid "Set book ID"
 msgstr "Définit l'ID du livre"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:582
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:580
 msgid "Don't know what this is for"
 msgstr "Je ne sais pas à quoi cela sert"
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/pdf/reflow.py:414
+msgid ""
+"Path to output directory in which to create the HTML file. Defaults to "
+"current directory."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/pdf/reflow.py:416
+msgid "Be more verbose."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/pdf/reflow.py:428
+msgid "You must specify a single PDF file."
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/library_thing.py:59
 msgid ""
@@ -364,39 +378,39 @@ msgstr "Choisir le format"
 msgid "TextLabel"
 msgstr "TextLabel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:81
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:93
 msgid "<br>Must be a directory."
 msgstr "<br>Doit être un répertoire."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:81
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:93
 msgid "Invalid database location "
 msgstr "Chemin de la database invalide"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:81
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:84
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:93
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:96
 msgid "Invalid database location"
 msgstr "Chemin de la database invalide"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:84
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:96
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Chemin de la database invalide.<br>Erreur en écriture"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:161
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:173
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:279
 msgid "Configuration"
 msgstr "Configuration"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:162
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:174
 msgid "&Location of books database (library1.db)"
 msgstr "&Emplacement de la base de données (library1.db)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:163
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:175
 msgid "Browse for the new database location"
 msgstr "Choisir un nouvel emplacement pour la base de données"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:164
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:174
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:176
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:186
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:188
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:593
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:311
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:313
@@ -418,15 +432,15 @@ msgstr "Choisir un nouvel emplacement pour la base de données"
 msgid "..."
 msgstr "..."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:165
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:177
 msgid "Use &Roman numerals for series number"
 msgstr "Utilisation de chiffres romains pour les numéro de séries"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:166
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:178
 msgid "Default network &timeout:"
 msgstr "&Timeout par défaut pour les connexions réseau :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:167
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:179
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime libprs500 foes out "
 "to the internet to get information)"
@@ -434,33 +448,37 @@ msgstr ""
 "Définit le délai maximum de connexion avant erreur lorsque libprs500 "
 "récupère des informations sur internet."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:168
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:180
 msgid " seconds"
 msgstr " secondes"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:169
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:181
 msgid "&Priority for conversion jobs:"
 msgstr "&Priorité pour les travaux de conversion :"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:170
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:182
 msgid "Free unused diskspace from the database"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:171
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:183
 msgid "&Compact database"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:172
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:184
 msgid "Frequently used directories"
 msgstr "Répertoires utilisés fréquemment"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:173
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:185
 msgid "Add a directory to the frequently used directories list"
 msgstr "Ajouter un répetoire à la liste des répertoires utilisés fréquemment"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:175
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:187
 msgid "Remove a directory from the frequently used directories list"
 msgstr "Supprime un répetoire de la liste des répertoires utilisés fréquemment"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:189
+msgid "Select visible &columns in library view"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/conversion_error_ui.py:37
 msgid "ERROR"
@@ -772,7 +790,7 @@ msgstr "Livre"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:611
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:307
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:231
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:230
 msgid "Comments"
 msgstr "Commentaires"
 
@@ -1052,7 +1070,7 @@ msgid "&Show password"
 msgstr "&Affiche le mot de passe"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:26
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:344
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:343
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:663
 msgid "Title"
 msgstr "Titre"
@@ -1066,8 +1084,8 @@ msgid "Tag"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:30
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:236
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:351
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:235
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:350
 msgid "Series"
 msgstr "Séries"
 
@@ -1161,11 +1179,8 @@ msgstr "Ajoute mot-clef"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:151
 msgid ""
 "If the tag you want is not in the available list, you can add it here. "
-"Accepts a comman separated list of tags."
+"Accepts a comma separated list of tags."
 msgstr ""
-"Si le mot-clef que vous cherchez n'est pas dans la liste, vous pouvez "
-"l'ajouter ici. Vous pouvez également saisir une liste de mot-clefs séparés "
-"par des virgules."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:152
 msgid "Add tag to available tags and apply it to current book"
@@ -1317,43 +1332,43 @@ msgstr "En cours"
 msgid "Unavailable"
 msgstr "Indisponible"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:220
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:226
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:230
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:219
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:225
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:229
 msgid "None"
 msgstr "Aucun"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:221
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:350
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:220
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:349
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:603
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:667
 msgid "Tags"
 msgstr "Tags"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:227
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:226
 msgid "Formats"
 msgstr "Formats"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:236
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:235
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Livre <font face=\"serif\">%s</font> of %s."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:345
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:344
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:664
 msgid "Author(s)"
 msgstr "Auteur(s)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:346
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:345
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:665
 msgid "Size (MB)"
 msgstr "Taille (MB)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:347
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:346
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:666
 msgid "Date"
 msgstr "Date"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:348
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:347
 msgid "Rating"
 msgstr "Note"
 
@@ -1366,8 +1381,8 @@ msgid "Timestamp"
 msgstr "Horodatage"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:702
-msgid "Search by title, author, publisher, tags, series and comments"
-msgstr "Recherche par titre, auteur, éditeur, tags, séries et commentaires."
+msgid "Search (For Advanced Search click the button to the left)"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/config_ui.py:51
 msgid "Configure Viewer"
@@ -1527,11 +1542,11 @@ msgstr "Configuration impossible"
 msgid "Cannot configure while there are running jobs."
 msgstr "Impossible de configurer pendant que des travaux sont en cours."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:701
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:710
 msgid "Invalid database"
 msgstr "Base de données invalide"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:702
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:711
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
@@ -1539,15 +1554,15 @@ msgstr ""
 "<p>Une base de données invalide existe déjà ici : %s, spprimez la avant "
 "d'essayer de déplacer la base de données existante.<br>Erreur : %s"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:710
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:719
 msgid "Could not move database"
 msgstr "Déplacement de la base de données impossible"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:760
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:769
 msgid "Error talking to device"
 msgstr "Erreur pendant la communication avec le lecteur électronique"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:761
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:770
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -1696,6 +1711,17 @@ msgid ""
 msgstr ""
 "Carte\n"
 "%s disponible"
+
+#~ msgid ""
+#~ "If the tag you want is not in the available list, you can add it here. "
+#~ "Accepts a comman separated list of tags."
+#~ msgstr ""
+#~ "Si le mot-clef que vous cherchez n'est pas dans la liste, vous pouvez "
+#~ "l'ajouter ici. Vous pouvez également saisir une liste de mot-clefs "
+#~ "séparés par des virgules."
+
+#~ msgid "Search by title, author, publisher, tags, series and comments"
+#~ msgstr "Recherche par titre, auteur, éditeur, tags, séries et commentaires."
 
 #~ msgid ""
 #~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
