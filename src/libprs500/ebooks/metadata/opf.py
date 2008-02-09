@@ -31,6 +31,10 @@ class ManifestItem(object):
         if not os.path.isabs(self.href):
             self.href = os.path.join(cwd, self.href)
         self.href = os.path.normpath(self.href)
+        if not os.path.exists(self.href): # Bug in Baen OPF files
+            nhref = os.path.join(os.path.dirname(self.href), os.path.basename(self.href).replace('__p_.htm', '__c_.htm'))
+            if os.path.exists(nhref):
+                self.href = nhref
         self.media_type = item['media-type'] if item.has_key('media-type') else ''
         
     def __unicode__(self):
