@@ -165,24 +165,36 @@ def set_translator():
 set_translator()
 
 font_families = {}
-def get_font_families():
+def get_font_families(cached=None):
     global font_families
+    if cached is not None:
+        font_families = cached
     if not font_families:
-        ffiles = findsystem.findFonts()
-        zlist = []
-        for ff in ffiles:
-            try:
-                font = describe.openFont(ff)
-            except: # Some font files cause ttfquery to raise an exception, in which case they are ignored
-                continue
-            try:
-                wt, italic = describe.modifiers(font)
-            except:
-                wt, italic = 0, 0
-            if wt == 400 and italic == 0:
-                family = describe.shortName(font)[1].strip()
-                zlist.append((family, ff))
-        font_families = dict(zlist)
+        try:
+            ffiles = findsystem.findFonts()
+        except Exception, err:
+            print 'WARNING: Could not find fonts on your system.'
+            print err
+        else:
+            zlist = []
+            for ff in ffiles:
+                try:
+                    font = describe.openFont(ff)
+                except: # Some font files cause ttfquery to raise an exception, in which case they are ignored
+                    continue
+                try:
+                    wt, italic = describe.modifiers(font)
+                except:
+                    wt, italic = 0, 0
+                if wt == 400 and italic == 0:
+                    try:
+                        family = describe.shortName(font)[1].strip()
+                    except: # Windows strikes again!
+                        continue
+                    zlist.append((family, ff))
+            font_families = dict(zlist)
+        
+            
     return font_families
 
 def sanitize_file_name(name):
