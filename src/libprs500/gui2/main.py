@@ -15,7 +15,7 @@
 import os, sys, textwrap, cStringIO, collections, traceback, shutil
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QThread
+                         QSettings, QVariant, QSize, QThread, QString
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
@@ -802,8 +802,9 @@ class Main(MainWindow, Ui_MainWindow):
         settings.beginGroup("Main Window")
         self.resize(settings.value("size", QVariant(QSize(800, 600))).toSize())
         settings.endGroup()
+        dbpath = os.path.join(os.path.expanduser(u'~'), u'library1.db').encode('utf-8')
         self.database_path = qstring_to_unicode(settings.value("database path", 
-                QVariant(os.path.join(os.path.expanduser('~'),'library1.db'))).toString())
+                QVariant(QString.fromUtf8(dbpath))).toString())
         set_sidebar_directories(None)
     
     def write_settings(self):
