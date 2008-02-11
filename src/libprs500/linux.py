@@ -88,7 +88,7 @@ def open_file(path):
                 os.makedirs(os.path.dirname(path))
     return open(path, 'wb')
 
-def setup_completion():
+def setup_completion(fatal_errors):
     try:
         print 'Setting up bash completion...',
         sys.stdout.flush()
@@ -196,11 +196,13 @@ complete -o nospace  -F _prs500 prs500
         f.close()
         print 'done'
     except:
+        if fatal_errors:
+            raise
         print 'failed'
         import traceback
         traceback.print_exc()
         
-def setup_udev_rules(group_file, reload):
+def setup_udev_rules(group_file, reload, fatal_errors):
     print 'Trying to setup udev rules...'
     sys.stdout.flush()
     groups = open(group_file, 'rb').read()
@@ -245,6 +247,8 @@ def setup_udev_rules(group_file, reload):
             try:
                 check_call('/etc/init.d/udev reload', shell=True)
             except:
+                if fatal_errors:
+                    raise Exception("Couldn't reload udev, you may have to reboot")
                 print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
 
 def option_parser():
@@ -258,6 +262,8 @@ def option_parser():
                       help='File from which to read group information. Default: %default')
     parser.add_option('--dont-check-root', action='store_true', default=False, dest='no_root',
                       help='If set, do not check if we are root.')
+    parser.add_option('--make-errors-fatal', action='store_true', default=False, 
+                      dest='fatal_errors', help='If set die on errors.')
     return parser
 
 def post_install():
@@ -271,9 +277,9 @@ def post_install():
     global use_destdir
     use_destdir = opts.destdir
     
-    setup_udev_rules(opts.group_file, not opts.dont_reload)
-    setup_completion()
-    setup_desktop_integration()
+    setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
+    setup_completion(opts.fatal_errors)
+    setup_desktop_integration(opts.fatal_errors)
         
     try:
         from PyQt4 import Qt
@@ -323,7 +329,7 @@ MIME = '''\
 </mime-info>
 '''
 
-def setup_desktop_integration():
+def setup_desktop_integration(fatal_errors):
     try:
         from PyQt4.QtCore import QFile
         from libprs500.gui2 import images_rc # Load images
@@ -368,6 +374,8 @@ def setup_desktop_integration():
             os.chdir(cwd)
             shutil.rmtree(tdir)
     except Exception, err:
+        if fatal_errors:
+            raise
         print >>sys.stderr, 'Could not setup desktop integration. Error:'
         print err
  
