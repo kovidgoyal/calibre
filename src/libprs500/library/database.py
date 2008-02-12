@@ -1293,7 +1293,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 au = self.authors(index)
                 if not au:
                     au = 'Unknown'
-                au = au.split(',')[0]         
+                au = au.split(',')[0]
+            else:
+                au = au.replace(',', ';')         
             if not by_author.has_key(au):
                 by_author[au] = []
             by_author[au].append(index)
