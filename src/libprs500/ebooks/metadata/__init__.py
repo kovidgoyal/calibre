@@ -43,11 +43,12 @@ class MetaInformation(object):
     @staticmethod
     def copy(mi):
         ans = MetaInformation(mi.title, mi.authors)
-        ans.author_sort = mi.author_sort
-        ans.title_sort = mi.title_sort
-        ans.comments = mi.comments
-        ans.category = mi.category
-        ans.publisher = mi.publisher
+        for attr in ('author_sort', 'title_sort', 'comments', 'category',
+                     'publisher', 'series', 'series_index', 'rating',
+                     'isbn', 'tags', 'cover_data'):
+            if hasattr(mi, attr):
+                setattr(ans, attr, getattr(mi, attr))
+        
     
     def __init__(self, title, authors):
         '''
@@ -76,7 +77,33 @@ class MetaInformation(object):
         self.tags         = []  if not mi else mi.tags
         self.cover_data   = (None, None)  if not mi else mi.cover_data #(extension, data)
          
+    
+    def smart_update(self, mi):
+        '''
+        Merge the information in C{mi} into self. In case of conflicts, the information
+        in C{mi} takes precedence, unless the information in mi is NULL.
+        '''
+        if mi.title and mi.title.lower() != 'unknown':
+            self.title = mi.title
+            
+        if mi.authors and mi.authors[0].lower() != 'unknown':
+            self.authors = mi.authors
+            
+        for attr in ('author_sort', 'title_sort', 'comments', 'category',
+                     'publisher', 'series', 'series_index', 'rating',
+                     'isbn'):
+            if hasattr(mi, attr):
+                val = getattr(mi, attr)
+                if val is not None:
+                    setattr(self, attr, val)
+                    
+        self.tags += mi.tags
+        self.tags = list(set(self.tags))
         
+        if mi.cover_data[0] is not None:
+            self.cover_data = mi.cover_data
+            
+            
     def __str__(self):
         ans = u''
         ans += u'Title    : ' + unicode(self.title) + u'\n'

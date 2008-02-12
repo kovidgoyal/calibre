@@ -13,11 +13,14 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import os, re
+
 from libprs500.ebooks.metadata.rtf  import get_metadata as rtf_metadata
 from libprs500.ebooks.lrf.meta      import get_metadata as lrf_metadata
 from libprs500.ebooks.metadata.pdf  import get_metadata as pdf_metadata
 from libprs500.ebooks.metadata.lit  import get_metadata as lit_metadata
 from libprs500.ebooks.metadata.epub import get_metadata as epub_metadata
+from libprs500.ebooks.metadata.html import get_metadata as html_metadata
 from libprs500.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from libprs500.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 
@@ -25,17 +28,23 @@ from libprs500.ebooks.metadata import MetaInformation
 
 def get_metadata(stream, stream_type='lrf'):
     if stream_type: stream_type = stream_type.lower()
-    if stream_type == 'rtf':
-        return MetaInformation(rtf_metadata(stream), None)
-    if stream_type == 'lrf':
-        return MetaInformation(lrf_metadata(stream), None)
-    if stream_type == 'pdf':
-        return MetaInformation(pdf_metadata(stream), None)
-    if stream_type == 'lit':
-        return MetaInformation(lit_metadata(stream), None)
-    if stream_type == 'epub':
-        return MetaInformation(epub_metadata(stream), None)
-    return MetaInformation(None, None)
+    if stream_type in ('html', 'html', 'xhtml', 'xhtm'):
+        stream_type = 'html'
+    
+    try:
+        func = eval(stream_type + '_metadata')
+        mi = func(stream)
+    except NameError:
+        mi = MetaInformation(None, None)
+        
+    name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
+    base = metadata_from_filename(name)
+    if not base.title:
+        base.title = name if name else 'Unknown'
+    if not base.authors:
+        base.authors = ['Unknown']
+    base.smart_update(mi)
+    return base
 
 def set_metadata(stream, mi, stream_type='lrf'):
     if stream_type: stream_type = stream_type.lower()
@@ -43,4 +52,30 @@ def set_metadata(stream, mi, stream_type='lrf'):
         set_lrf_metadata(stream, mi)
     elif stream_type == 'rtf':
         set_rtf_metadata(stream, mi)
+
+_filename_pat = re.compile(r'(?P<title>.+) - (?P<author>[^_]+)')
+
+def metadata_from_filename(name):
+    name = os.path.splitext(name)[0]
+    mi = MetaInformation(None, None)
+    match = _filename_pat.search(name)
+    if match:
+        try:
+            mi.title = match.group('title')
+        except IndexError:
+            pass
+        try:
+            mi.authors = [match.group('author')]
+        except IndexError:
+            pass
+        try:
+            au = match.group('authors')
+            aus = au.split(',')
+            authors = []
+            for a in aus:
+                authors.extend(a.split('&'))
+            mi.authors = authors
+        except IndexError:
+            pass
+    return mi
     
