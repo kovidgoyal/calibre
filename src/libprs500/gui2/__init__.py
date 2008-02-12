@@ -151,7 +151,7 @@ class FileIconProvider(QFileIconProvider):
              'zip'     : 'zip',
              'txt'     : 'txt',
              'prc'     : 'mobi',
-             'azw'     : 'azw',
+             'azw'     : 'mobi',
              'mobi'    : 'mobi',
              }
     
