@@ -31,10 +31,11 @@ from libprs500.ebooks.lrf.web.profiles.jpost         import JerusalemPost
 from libprs500.ebooks.lrf.web.profiles.reuters       import Reuters
 from libprs500.ebooks.lrf.web.profiles.atlantic      import Atlantic 
 from libprs500.ebooks.lrf.web.profiles.ap            import AssociatedPress 
+from libprs500.ebooks.lrf.web.profiles.newyorker     import NewYorker 
 
 builtin_profiles   = [Atlantic, AssociatedPress, Barrons, BBC, 
                       ChristianScienceMonitor, CNN, Dilbert, Economist, FazNet, 
-                      JerusalemPost, Newsweek, NewYorkReviewOfBooks, NYTimes,  
+                      JerusalemPost, Newsweek, NewYorker, NewYorkReviewOfBooks, NYTimes,  
                       Portfolio, Reuters, SpiegelOnline, WallStreetJournal, ZeitNachrichten,   
                      ]
 
