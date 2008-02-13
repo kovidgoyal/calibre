@@ -12,19 +12,71 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
 '''
-Miscellanous widgets used in the GUI
+Miscellaneous widgets used in the GUI
 '''
+import re
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
-                        QSyntaxHighlighter, QCursor, QColor
+                        QSyntaxHighlighter, QCursor, QColor, QWidget
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, \
                          QObject, QRegExp, QSettings
 
 from libprs500.gui2.jobs import DetailView
-from libprs500.gui2 import human_readable, NONE, TableView
+from libprs500.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
+from libprs500.gui2.filename_pattern_ui import Ui_Form
 from libprs500 import fit_image, get_font_families
+from libprs500.ebooks.metadata.meta import get_filename_pat, metadata_from_filename, \
+                                           set_filename_pat
+
+class FilenamePattern(QWidget, Ui_Form):
+    
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        self.setupUi(self)
+        
+        self.connect(self.test_button, SIGNAL('clicked()'), self.do_test)
+        self.connect(self.re, SIGNAL('returnPressed()'), self.do_test)
+        self.re.setText(get_filename_pat())
+        
+    def do_test(self):
+        try:
+            pat = self.pattern()
+        except Exception, err:
+            error_dialog(self, _('Invalid regular expression'), 
+                         _('Invalid regular expression: %s')%err).exec_()
+            return
+        mi = metadata_from_filename(qstring_to_unicode(self.filename.text()), pat)
+        if mi.title:
+            self.title.setText(mi.title)
+        else:
+            self.title.setText(_('No match'))
+        if mi.authors:
+            self.authors.setText(', '.join(mi.authors))
+        else:
+            self.authors.setText(_('No match'))
+            
+        if mi.series:
+            self.series.setText(mi.series)
+        else:
+            self.series.setText(_('No match'))
+            
+        if mi.series_index is not None:
+            self.series_index.setText(str(mi.series_index))
+        else:
+            self.series_index.setText(_('No match'))
+    
+    def pattern(self):
+        pat = qstring_to_unicode(self.re.text())
+        return re.compile(pat)
+    
+    def commit(self):
+        pat = self.pattern()
+        set_filename_pat(pat)
+        return pat.pattern
+         
+            
+        
 
 class ImageView(QLabel):
     

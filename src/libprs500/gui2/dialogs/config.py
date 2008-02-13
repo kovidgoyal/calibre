@@ -14,12 +14,13 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import os
 
-from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem
+from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QVBoxLayout
 from PyQt4.QtCore import QSettings, QVariant, SIGNAL, QStringList, QTimer, Qt
 
 from libprs500 import islinux
 from libprs500.gui2.dialogs.config_ui import Ui_Dialog
 from libprs500.gui2 import qstring_to_unicode, choose_dir, error_dialog
+from libprs500.gui2.widgets import FilenamePattern
 
 class ConfigDialog(QDialog, Ui_Dialog):
     
@@ -61,6 +62,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 item.setCheckState(Qt.Unchecked)
             else:
                 item.setCheckState(Qt.Checked)
+                
+        self.mbl = QVBoxLayout()
+        self.metadata_box.setLayout(self.mbl)
+        self.filename_pattern = FilenamePattern(None)
+        self.mbl.addChildWidget(self.filename_pattern)
             
         
     def compact(self, toggled):
@@ -88,7 +94,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         settings.setValue('network timeout', QVariant(self.timeout.value()))
         path = qstring_to_unicode(self.location.text())
         self.final_columns = [self.columns.item(i).checkState() == Qt.Checked for i in range(self.columns.count())]
-                
+        
+        pattern = self.filename_pattern.commit()
+        settings.setValue('filename pattern', QVariant(pattern))
+           
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'), _('Invalid database location ')+path+_('<br>Must be a directory.'))
             d.exec_()

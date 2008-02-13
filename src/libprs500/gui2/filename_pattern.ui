@@ -1,0 +1,182 @@
+<ui version="4.0" >
+ <class>Form</class>
+ <widget class="QWidget" name="Form" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>498</width>
+    <height>452</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <item>
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>15</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLabel" name="label" >
+     <property name="text" >
+      <string>&lt;p>Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;p>A &lt;a href="http://docs.python.org/lib/re-syntax.html">reference&lt;/a> on the syntax of regular expressions is available.&lt;p>Use the &lt;b>Test&lt;/b> functionality below to test you regular expression on a few sample filenames.</string>
+     </property>
+     <property name="textFormat" >
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="wordWrap" >
+      <bool>true</bool>
+     </property>
+     <property name="openExternalLinks" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>Regular &amp;expression</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <item>
+       <widget class="QLineEdit" name="re" />
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2" >
+     <property name="title" >
+      <string>&amp;Test</string>
+     </property>
+     <layout class="QVBoxLayout" >
+      <item>
+       <layout class="QHBoxLayout" >
+        <item>
+         <layout class="QHBoxLayout" >
+          <item>
+           <widget class="QLabel" name="label_2" >
+            <property name="text" >
+             <string>File &amp;name:</string>
+            </property>
+            <property name="buddy" >
+             <cstring>filename</cstring>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="filename" />
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="test_button" >
+          <property name="text" >
+           <string>Test</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" >
+        <item row="0" column="0" >
+         <widget class="QLabel" name="label_3" >
+          <property name="text" >
+           <string>Title:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QLineEdit" name="title" >
+          <property name="toolTip" >
+           <string>Regular expression group name (?P&lt;title>)</string>
+          </property>
+          <property name="text" >
+           <string>No match</string>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="label_4" >
+          <property name="text" >
+           <string>Authors:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QLineEdit" name="authors" >
+          <property name="toolTip" >
+           <string>Regular expression group name (?P&lt;authors>)</string>
+          </property>
+          <property name="text" >
+           <string>No match</string>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QLabel" name="label_5" >
+          <property name="text" >
+           <string>Series:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" >
+         <widget class="QLineEdit" name="series" >
+          <property name="toolTip" >
+           <string>Regular expression group name (?P&lt;series>)</string>
+          </property>
+          <property name="text" >
+           <string>No match</string>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0" >
+         <widget class="QLabel" name="label_6" >
+          <property name="text" >
+           <string>Series index:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" >
+         <widget class="QLineEdit" name="series_index" >
+          <property name="toolTip" >
+           <string>Regular expression group name (?P&lt;series_index>)</string>
+          </property>
+          <property name="text" >
+           <string>No match</string>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -55,12 +55,21 @@ def set_metadata(stream, mi, stream_type='lrf'):
     elif stream_type == 'rtf':
         set_rtf_metadata(stream, mi)
 
-_filename_pat = re.compile(r'(?P<title>.+) - (?P<author>[^_]+)')
+_filename_pat = re.compile(ur'(?P<title>.+) - (?P<author>[^_]+)')
 
-def metadata_from_filename(name):
+def get_filename_pat():
+    return _filename_pat.pattern
+
+def set_filename_pat(pat):
+    global _filename_pat
+    _filename_pat = re.compile(pat)
+
+def metadata_from_filename(name, pat=None):
     name = os.path.splitext(name)[0]
     mi = MetaInformation(None, None)
-    match = _filename_pat.search(name)
+    if pat is None:
+        pat = _filename_pat
+    match = pat.search(name)
     if match:
         try:
             mi.title = match.group('title')
@@ -78,6 +87,15 @@ def metadata_from_filename(name):
                 authors.extend(a.split('&'))
             mi.authors = authors
         except IndexError:
+            pass
+        try:
+            mi.series = match.group('series')
+        except IndexError:
+            pass
+        try:
+            si = match.group('series_index')
+            mi.series_index = int(si)
+        except IndexError, ValueError:
             pass
     if not mi.title:
         mi.title = name

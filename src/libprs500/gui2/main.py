@@ -22,7 +22,7 @@ from PyQt4.QtSvg import QSvgRenderer
 
 from libprs500 import __version__, __appname__, islinux, sanitize_file_name
 from libprs500.ptempfile import PersistentTemporaryFile
-from libprs500.ebooks.metadata.meta import get_metadata
+from libprs500.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from libprs500.devices.errors import FreeSpaceError
 from libprs500.devices.interface import Device
 from libprs500.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
@@ -806,6 +806,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.database_path = qstring_to_unicode(settings.value("database path", 
                 QVariant(QString.fromUtf8(dbpath))).toString())
         set_sidebar_directories(None)
+        set_filename_pat(qstring_to_unicode(settings.value('filename pattern', QVariant(get_filename_pat())).toString()))
     
     def write_settings(self):
         settings = QSettings()
