@@ -232,11 +232,15 @@ class DefaultProfile(object):
                         pubdate = pubdate.replace('+0000', 'GMT')
                     
                     url = self.get_article_url(item)
-                    
-                    
                     url = self.tag_to_string(url)
                     if require_url and not url:
                         self.logger.debug('Skipping article as it does not have a link url')
+                        continue
+                    purl = url
+                    try:
+                        purl = self.print_version(url)
+                    except Exception, err:
+                        self.logger.debug('Skipping %s as could not find URL for print version. Error:\n%s'%(url, err))
                         continue
                     
                     content = item.find('content:encoded')
@@ -246,12 +250,7 @@ class DefaultProfile(object):
                         content = self.process_html_description(content, strip_links=False)
                     else:
                         content = ''
-                    purl = url
-                    try:
-                        purl = self.print_version(url)
-                    except Exception, err:
-                        self.logger.debug('Skipping %s as could not find URL for print version. Error:\n%s'%(url, err))
-                        continue
+                        
                     d = { 
                         'title'    : self.tag_to_string(item.find('title')),                 
                         'url'      : purl,
@@ -266,18 +265,23 @@ class DefaultProfile(object):
                         added_articles[title].append(d['title'])
                     if delta > self.oldest_article*3600*24:
                         continue
+                    
                 except Exception, err:
                     if self.verbose:
                         self.logger.exception('Error parsing article:\n%s'%(item,))
                     continue
                 try:
-                    desc = item.find('description')
+                    desc = ''
+                    for c in item.findAll('description'):
+                        desc = self.tag_to_string(c)
+                        if desc:
+                            break
                     d['description'] = self.process_html_description(desc) if  self.html_description else desc.string                    
                 except:
                     d['description'] = ''
                 articles[title].append(d)
             articles[title].sort(key=operator.itemgetter('timestamp'), reverse=True)
-            articles[title][self.max_articles_per_feed:] = []
+            articles[title] = articles[title][:self.max_articles_per_feed+1]
             for item in articles[title]:
                 item.pop('timestamp')
             if not articles[title]:
