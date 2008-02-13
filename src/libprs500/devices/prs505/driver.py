@@ -100,14 +100,17 @@ class PRS505(Device):
     
     @classmethod
     def is_device(cls, device_id):
-        if 'VEN_'+cls.VENDOR_NAME in device_id.upper() and \
-               'PROD_'+cls.PRODUCT_NAME in device_id.upper():
+        if not hasattr(device_id, 'upper'):
+            return False
+        device_id = device_id.upper()
+        if 'VEN_'+cls.VENDOR_NAME in device_id and \
+               'PROD_'+cls.PRODUCT_NAME in device_id:
             return True
         vid, pid = hex(cls.VENDOR_ID)[2:], hex(cls.PRODUCT_ID)[2:]
         if len(vid) < 4: vid = '0'+vid
         if len(pid) < 4: pid = '0'+pid
-        if 'VID_'+vid in device_id.upper() and \
-               'PID_'+pid in device_id.upper():
+        if 'VID_'+vid in device_id and \
+               'PID_'+pid in device_id:
             return True
         return False
     
