@@ -298,7 +298,7 @@ class Main(MainWindow, Ui_MainWindow):
             format = os.path.splitext(book)[1]
             format = format[1:] if format else None
             stream = open(book, 'rb')
-            mi = get_metadata(stream, stream_type=format)
+            mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
             if not mi.title:
                 mi.title = os.path.splitext(os.path.basename(book))[0]
             formats.append(format)

@@ -21,16 +21,20 @@ from libprs500.ebooks.metadata.pdf  import get_metadata as pdf_metadata
 from libprs500.ebooks.metadata.lit  import get_metadata as lit_metadata
 from libprs500.ebooks.metadata.epub import get_metadata as epub_metadata
 from libprs500.ebooks.metadata.html import get_metadata as html_metadata
+from libprs500.ebooks.metadata.opf  import OPFReader 
 from libprs500.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from libprs500.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 
 from libprs500.ebooks.metadata import MetaInformation
 
-def get_metadata(stream, stream_type='lrf'):
+def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if stream_type: stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm'):
         stream_type = 'html'
-    
+    if use_libprs_metadata and hasattr(stream, 'name'):
+        mi = libprs_metadata(stream.name)
+        if mi is not None:
+            return mi
     try:
         func = eval(stream_type + '_metadata')
         mi = func(stream)
@@ -79,3 +83,10 @@ def metadata_from_filename(name):
         mi.title = name
     return mi
     
+def libprs_metadata(name):
+    if os.access(name, os.R_OK):
+        name = os.path.abspath(name)
+        f = open(name, 'rb')
+        opf = OPFReader(f, os.path.dirname(name))
+        if opf.libprs_id is not None:
+            return MetaInformation(opf, None)

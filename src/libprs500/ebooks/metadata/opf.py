@@ -459,7 +459,7 @@ class OPF(MetaInformation):
 
 class OPFReader(OPF):
     
-    def __init__(self, stream, dir=os.getcwd()):
+    def __init__(self, stream, dir=os.getcwdu()):
         manage = False
         if not hasattr(stream, 'read'):
             manage = True
