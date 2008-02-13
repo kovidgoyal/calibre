@@ -66,11 +66,11 @@ def upload_demo():
     check_call('''scp /tmp/txt-demo.zip castalia:%s/'''%(DOWNLOADS,))
 
 def upload_installers(exe, dmg):
-    if exe and os.path.exists(exe):
+    if exe and os.path.exists(os.path.join('dist', exe)):
         check_call('''ssh castalia rm -f %s/libprs500\*.exe'''%(DOWNLOADS,))
         check_call('''scp dist/%s castalia:%s/'''%(exe, DOWNLOADS))
         check_call('''ssh castalia rm -f %s/libprs500\*.dmg'''%(DOWNLOADS,))
-    if dmg and os.path.exists(dmg):
+    if dmg and os.path.exists(os.path.join('dist', dmg)):
         check_call('''scp dist/%s castalia:%s/'''%(dmg, DOWNLOADS))
         check_call('''ssh castalia chmod a+r %s/\*'''%(DOWNLOADS,))
         check_call('''ssh castalia /root/bin/update-installer-links %s %s'''%(exe, dmg))
