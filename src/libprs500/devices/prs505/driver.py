@@ -146,11 +146,12 @@ class PRS505(Device):
                     continue
                 try:
                     partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
+                    logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
+                    prefix = logical_disk.DeviceID+os.sep
+                    drives.append((drive.Index, prefix))
                 except IndexError:
                     continue
-                logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
-                prefix = logical_disk.DeviceID+os.sep
-                drives.append((drive.Index, prefix))
+                
                 
         if not drives:
             raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
