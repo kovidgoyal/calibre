@@ -100,8 +100,6 @@ class PRS505(Device):
     
     @classmethod
     def is_device(cls, device_id):
-        if not hasattr(device_id, 'upper'):
-            return False
         device_id = device_id.upper()
         if 'VEN_'+cls.VENDOR_NAME in device_id and \
                'PROD_'+cls.PRODUCT_NAME in device_id:
@@ -144,7 +142,7 @@ class PRS505(Device):
         import wmi
         c = wmi.WMI()
         for drive in c.Win32_DiskDrive():
-            if self.__class__.is_device(drive.PNPDeviceID):
+            if self.__class__.is_device(str(drive.PNPDeviceID)):
                 if drive.Partitions == 0:
                     continue
                 try:
