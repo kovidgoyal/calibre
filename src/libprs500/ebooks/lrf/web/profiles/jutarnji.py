@@ -11,7 +11,7 @@ class Jutarnji(DefaultProfile):
 	title = 'Jutarnji'
 	max_recursions = 2
 	timefmt  = ' [%d %b %Y]'
-	max_articles_per_feed = 20
+	max_articles_per_feed = 80
 	html_description = True
 	no_stylesheets = True
 
