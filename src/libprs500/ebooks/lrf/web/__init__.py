@@ -32,11 +32,15 @@ from libprs500.ebooks.lrf.web.profiles.reuters       import Reuters
 from libprs500.ebooks.lrf.web.profiles.atlantic      import Atlantic 
 from libprs500.ebooks.lrf.web.profiles.ap            import AssociatedPress 
 from libprs500.ebooks.lrf.web.profiles.newyorker     import NewYorker 
+from libprs500.ebooks.lrf.web.profiles.jutarnji      import Jutarnji
+from libprs500.ebooks.lrf.web.profiles.usatoday      import USAToday
 
 builtin_profiles   = [Atlantic, AssociatedPress, Barrons, BBC, 
                       ChristianScienceMonitor, CNN, Dilbert, Economist, FazNet, 
-                      JerusalemPost, Newsweek, NewYorker, NewYorkReviewOfBooks, NYTimes,  
-                      Portfolio, Reuters, SpiegelOnline, WallStreetJournal, ZeitNachrichten,   
+                      JerusalemPost, Jutarnji, Newsweek, NewYorker, 
+                      NewYorkReviewOfBooks, NYTimes, USAToday,  
+                      Portfolio, Reuters, SpiegelOnline, WallStreetJournal, 
+                      ZeitNachrichten,   
                      ]
 
 available_profiles = [i.__module__.rpartition('.')[2] for i in builtin_profiles]
