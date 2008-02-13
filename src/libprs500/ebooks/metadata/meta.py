@@ -39,8 +39,6 @@ def get_metadata(stream, stream_type='lrf'):
         
     name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
     base = metadata_from_filename(name)
-    if not base.title:
-        base.title = name if name else 'Unknown'
     if not base.authors:
         base.authors = ['Unknown']
     base.smart_update(mi)
@@ -77,5 +75,7 @@ def metadata_from_filename(name):
             mi.authors = authors
         except IndexError:
             pass
+    if not mi.title:
+        mi.title = name
     return mi
     

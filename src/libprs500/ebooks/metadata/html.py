@@ -32,6 +32,11 @@ def get_metadata(stream):
     match = pat.search(src)
     if match:
         title = match.group(1)
+    else:
+        pat = re.compile('<title>([^<>]+?)</title>', re.IGNORECASE)
+        match = pat.search(src)
+        if match:
+            title = match.group(1)
         
     # Author
     author = None
