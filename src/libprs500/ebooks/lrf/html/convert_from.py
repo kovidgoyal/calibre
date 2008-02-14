@@ -1808,7 +1808,8 @@ def try_opf(path, options, logger):
             if not options.cover and orig_cover is not None:
                 options.cover = orig_cover        
         options.spine = [i.href for i in opf.spine.items()]
-        options.toc   = opf.toc
+        if not hasattr(options, 'toc') or options.toc is None:
+            options.toc   = opf.toc
     except Exception:
         logger.exception('Failed to process opf file')
     
