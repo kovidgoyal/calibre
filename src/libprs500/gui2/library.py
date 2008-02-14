@@ -138,9 +138,9 @@ class BooksModel(QAbstractTableModel):
         ''' Return list indices of all cells in index.row()'''
         return [ self.index(index.row(), c) for c in range(self.columnCount(None))]
         
-    def save_to_disk(self, rows, path):
+    def save_to_disk(self, rows, path, single_dir=False):
         rows = [row.row() for row in rows]
-        self.db.export_to_dir(path, rows, self.sorted_on[0] == 1)
+        self.db.export_to_dir(path, rows, self.sorted_on[0] == 1, single_dir=single_dir)
         
     def delete_books(self, indices):
         ids = [ self.id(i) for i in indices ]

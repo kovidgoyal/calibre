@@ -1281,7 +1281,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('VACUUM;')
         self.conn.commit()
     
-    def export_to_dir(self, dir, indices, byauthor=False):
+    def export_to_dir(self, dir, indices, byauthor=False, single_dir=False):
         if not os.path.exists(dir):
             raise IOError('Target directory does not exist: '+dir)
         by_author = {}
@@ -1311,22 +1311,26 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     os.mkdir(tpath)
                 mi = OPFCreator(self.get_metadata(idx))
                 cover = self.cover(idx)
-                if cover is not None:
-                    f = open(os.path.join(tpath, 'cover.jpg'), 'wb')
-                    f.write(cover)
-                    mi.cover = 'cover.jpg'
+                if not single_dir:
+                    if cover is not None:
+                        f = open(os.path.join(tpath, 'cover.jpg'), 'wb')
+                        f.write(cover)
+                        mi.cover = 'cover.jpg'
+                        f.close()
+                    f = open(os.path.join(tpath, 'metadata.opf'), 'wb')
+                    mi.write(f)
                     f.close()
-                f = open(os.path.join(tpath, 'metadata.opf'), 'wb')
-                mi.write(f)
-                f.close()
                 
                 for fmt in self.formats(idx).split(','):
                     data = self.format(idx, fmt)
                     name = au + ' - ' + title if byauthor else title + ' - ' + au
                     fname = name +'_'+id+'.'+fmt.lower()
-                    f = open(os.path.join(tpath, sanitize_file_name(fname)), 'w+b')
+                    fname = sanitize_file_name(fname)
+                    base  = dir if single_dir else tpath 
+                    f = open(os.path.join(base, fname), 'w+b')
                     f.write(data)
                     f.flush()
+                    f.seek(0)
                     try:
                         set_metadata(f, mi, fmt.lower())
                     except:

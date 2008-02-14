@@ -125,10 +125,17 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)        
         QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
         QObject.connect(sm.actions()[1], SIGNAL('triggered(bool)'), self.sync_to_card)
+        self.save_menu = QMenu()
+        self.save_menu.addAction(_('Save to disk'))
+        self.save_menu.addAction(_('Save to disk in a single directory'))
+        
         QObject.connect(self.action_save, SIGNAL("triggered(bool)"), self.save_to_disk)
+        QObject.connect(self.save_menu.actions()[0], SIGNAL("triggered(bool)"), self.save_to_disk)
+        QObject.connect(self.save_menu.actions()[1], SIGNAL("triggered(bool)"), self.save_to_single_dir)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"), self.view_book)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
+        self.action_save.setMenu(self.save_menu)
         self.news_menu = NewsMenu(self.customize_feeds)
         self.action_news.setMenu(self.news_menu)
         QObject.connect(self.news_menu, SIGNAL('fetch_news(PyQt_PyObject)'), self.fetch_news)
@@ -147,6 +154,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.tool_bar.widgetForAction(self.action_edit).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_sync).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_convert).setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_save).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
@@ -515,7 +523,10 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
     
     ############################## Save to disk ################################
-    def save_to_disk(self, checked):
+    def save_to_single_dir(self, checked):
+        self.save_to_disk(checked, True)
+    
+    def save_to_disk(self, checked, single_dir=False):
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot save to disk'), _('No books selected'))
@@ -525,7 +536,7 @@ class Main(MainWindow, Ui_MainWindow):
         if not dir:
             return
         if self.current_view() == self.library_view:
-            self.current_view().model().save_to_disk(rows, dir)
+            self.current_view().model().save_to_disk(rows, dir, single_dir=single_dir)
         else:
             paths = self.current_view().model().paths(rows)
             self.job_manager.run_device_job(self.books_saved,
