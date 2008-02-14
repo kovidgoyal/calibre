@@ -84,7 +84,7 @@ class Spine(object):
 class TOC(list):
     
     def __init__(self, opfreader, cwd):
-        self.toc = toc = None
+        self.toc = None
         toc = opfreader.soup.find('spine', toc=True)
         if toc is not None:
             toc = toc['toc']
