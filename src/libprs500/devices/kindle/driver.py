@@ -100,6 +100,8 @@ class KINDLE(Device):
     @classmethod
     def is_device(cls, device_id):
         '''print "mimi in is device"'''
+        if not hasattr(device_id, 'upper'):
+            return False
         
         if 'VEN_'+cls.VENDOR_NAME in device_id.upper() and \
                'PROD_'+cls.INTERNAL_STORAGE in device_id.upper():
@@ -153,11 +155,12 @@ class KINDLE(Device):
                     continue
                 try:
                     partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
+                    logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
+                    prefix = logical_disk.DeviceID+os.sep
+                    drives.append((drive.Index, prefix))
                 except IndexError:
                     continue
-                logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
-                prefix = logical_disk.DeviceID+os.sep
-                drives.append((drive.Index, prefix))
+                
                 
         if not drives:
             print self.__class__.__name__
