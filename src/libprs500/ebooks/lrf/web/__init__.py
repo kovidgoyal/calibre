@@ -34,13 +34,15 @@ from libprs500.ebooks.lrf.web.profiles.ap            import AssociatedPress
 from libprs500.ebooks.lrf.web.profiles.newyorker     import NewYorker 
 from libprs500.ebooks.lrf.web.profiles.jutarnji      import Jutarnji
 from libprs500.ebooks.lrf.web.profiles.usatoday      import USAToday
+from libprs500.ebooks.lrf.web.profiles.upi           import UnitedPressInternational 
+from libprs500.ebooks.lrf.web.profiles.wash_post     import WashingtonPost 
 
 builtin_profiles   = [Atlantic, AssociatedPress, Barrons, BBC, 
                       ChristianScienceMonitor, CNN, Dilbert, Economist, FazNet, 
                       JerusalemPost, Jutarnji, Newsweek, NewYorker, 
-                      NewYorkReviewOfBooks, NYTimes, USAToday,  
+                      NewYorkReviewOfBooks, NYTimes, UnitedPressInternational, USAToday,  
                       Portfolio, Reuters, SpiegelOnline, WallStreetJournal, 
-                      ZeitNachrichten,   
+                      WashingtonPost, ZeitNachrichten,   
                      ]
 
 available_profiles = [i.__module__.rpartition('.')[2] for i in builtin_profiles]
