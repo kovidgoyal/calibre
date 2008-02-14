@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''Read/Write metadata from Open Packaging Format (.opf) files.'''
 
-import sys, re, os
+import sys, re, os, glob
 from urllib import unquote
 from urlparse import urlparse
 import xml.dom.minidom as dom
@@ -85,35 +85,80 @@ class TOC(list):
     
     def __init__(self, opfreader, cwd):
         self.toc = toc = None
-        try:
-            toc = opfreader.soup.find('guide').find('reference', attrs={'type':'toc'})['href']
-        except:
-            for item in opfreader.manifest:
-                if 'toc' in item.href.lower():
-                    toc = item.href
-                    break
+        toc = opfreader.soup.find('spine', toc=True)
         if toc is not None:
-            toc = urlparse(unquote(toc))[2]
-            if not os.path.isabs(toc):
-                toc = os.path.join(cwd, toc)
+            toc = toc['toc']
+        if toc is None:
             try:
-                if not os.path.exists(toc):
-                    bn  = os.path.basename(toc)
-                    bn  = bn.replace('_top.htm', '_toc.htm') # Bug in BAEN OPF files
-                    toc = os.path.join(os.path.dirname(toc), bn) 
-                soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
-                for a in soup.findAll('a'):
-                    if not a.has_key('href'):
-                        continue
-                    purl = urlparse(unquote(a['href']))
-                    href, fragment = purl[2], purl[5]
-                    if not os.path.isabs(href):
-                        href = os.path.join(cwd, href)
-                    txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
-                    self.append((href, fragment, txt))
-                self.toc = toc
+                toc = opfreader.soup.find('guide').find('reference', attrs={'type':'toc'})['href']
             except:
-                pass
+                for item in opfreader.manifest:
+                    if 'toc' in item.href.lower():
+                        toc = item.href
+                        break
+                            
+        if toc is not None:
+            if toc.lower() != 'ncx':
+                toc = urlparse(unquote(toc))[2]
+                if not os.path.isabs(toc):
+                    toc = os.path.join(cwd, toc)
+                try:
+                    if not os.path.exists(toc):
+                        bn  = os.path.basename(toc)
+                        bn  = bn.replace('_top.htm', '_toc.htm') # Bug in BAEN OPF files
+                        toc = os.path.join(os.path.dirname(toc), bn)
+                    
+                    self.read_html_toc(toc, cwd)
+                    self.toc = toc
+                except:
+                    pass
+            else:
+                cwd = os.path.abspath(cwd)
+                m = glob.glob(os.path.join(cwd, '*.ncx'))
+                if m:
+                    toc = m[0]
+                    try:
+                        self.read_ncx_toc(toc)
+                        self.toc = toc
+                    except:
+                        raise
+                        pass
+            
+    def read_ncx_toc(self, toc):
+        bdir = os.path.dirname(toc)
+        soup = BeautifulStoneSoup(open(toc, 'rb').read(),
+                                  convertEntities=BeautifulSoup.HTML_ENTITIES)
+        elems = soup.findAll('navpoint')
+        elems.sort(cmp=lambda x, y: cmp(int(x['playorder']), int(y['playorder'])))
+        
+        for elem in elems:
+            txt = u''
+            for nl in elem.findAll('navlabel'):
+                for text in nl.findAll('text'):
+                    txt += ''.join([unicode(s) for s in text.findAll(text=True)])
+            
+            content = elem.find('content')
+            if content is None or not content.has_key('src') or not txt:
+                continue
+            
+            purl = urlparse(unquote(content['src']))
+            href, fragment = purl[2], purl[5]
+            if not os.path.isabs(href):
+                href = os.path.join(bdir, href)
+            self.append((href, fragment, txt))
+        
+    
+    def read_html_toc(self, toc, cwd):
+        soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
+        for a in soup.findAll('a'):
+            if not a.has_key('href'):
+                continue
+            purl = urlparse(unquote(a['href']))
+            href, fragment = purl[2], purl[5]
+            if not os.path.isabs(href):
+                href = os.path.join(cwd, href)
+            txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
+            self.append((href, fragment, txt))
             
 
 class standard_field(object):
