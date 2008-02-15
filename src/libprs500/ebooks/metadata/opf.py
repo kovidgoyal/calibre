@@ -558,6 +558,7 @@ class OPFCreator(OPF):
             self.tags = mi.tags
         if mi.isbn:
             self.isbn = mi.isbn
+        self.cover_data = mi.cover_data
         if hasattr(mi, 'libprs_id'):
             self.libprs_id = mi.libprs_id
         if hasattr(mi, 'uid'):

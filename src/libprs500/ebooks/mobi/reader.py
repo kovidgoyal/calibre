@@ -1,6 +1,5 @@
 #!/usr/bin/env  python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-
 ##    Copyright (C) 2008 Kovid Goyal kovid@kovidgoyal.net
 ##    This program is free software; you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -19,13 +18,14 @@
 Read data from .mobi files
 '''
 
-import sys, struct, os, cStringIO, re
+import sys, struct, os, cStringIO, re, atexit, shutil, tempfile
 
 try:
     from PIL import Image as PILImage
 except ImportError:
     import Image as PILImage
 
+from libprs500 import __appname__
 from libprs500.ebooks.mobi import MobiError
 from libprs500.ebooks.mobi.huffcdic import HuffReader
 from libprs500.ebooks.mobi.palmdoc import decompress_doc
@@ -57,9 +57,9 @@ class EXTHHeader(object):
             elif id == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
         pos += 3
-        stop = raw.find('\x00')
+        stop = raw[pos:].find('\x00')
         if stop > -1:
-            self.mi.title = raw[pos:stop].decode(codec, 'ignore')
+            self.mi.title = raw[pos:pos+stop].decode(codec, 'ignore')
             
                 
     def process_metadata(self, id, content, codec):
@@ -161,8 +161,42 @@ class MobiReader(object):
         
         
     def extract_content(self, output_dir=os.getcwdu()):
+        output_dir = os.path.abspath(output_dir)
         if self.book_header.encryption_type != 0:
-            raise MobiError('Cannot extract content from DRM protected ebook')
+            raise MobiError('Cannot extract content from a DRM protected ebook')
+        
+        processed_records = self.extract_text()
+        self.add_anchors()
+        self.extract_images(processed_records, output_dir)
+        self.replace_page_breaks()
+        
+        self.processed_html = re.compile('<head>', re.IGNORECASE).sub(
+            '<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n',
+                                     self.processed_html)
+                
+        htmlfile = os.path.join(output_dir, self.name+'.html') 
+        open(htmlfile, 'wb').write(self.processed_html.encode('utf8'))
+        self.htmlfile = htmlfile
+        
+        if self.book_header.exth is not None:
+            opf = self.create_opf(htmlfile)
+            opf.write(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'))
+        
+    def create_opf(self, htmlfile):
+        mi = self.book_header.exth.mi
+        opf = OPFCreator(mi)
+        if hasattr(self.book_header.exth, 'cover_offset'):
+            opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
+        manifest = [(os.path.basename(htmlfile), 'text/x-oeb1-document')]
+        for i in self.image_names:
+            manifest.append(('images/'+i, 'image/jpg'))
+        
+        opf.create_manifest(manifest)
+        opf.create_spine([os.path.basename(htmlfile)])
+        return opf
+        
+        
+    def extract_text(self):
         text_sections = [self.sections[i][0] for i in range(1, self.book_header.records+1)]
         processed_records = list(range(0, self.book_header.records+1))
         
@@ -189,29 +223,7 @@ class MobiReader(object):
         else:
             raise MobiError('Unknown compression algorithm: %s'%repr(self.book_header.compression_type))
         
-        self.add_anchors()
-        self.extract_images(processed_records, output_dir)
-        self.replace_page_breaks()
-        
-        self.processed_html = re.compile('<head>', re.IGNORECASE).sub(
-            '<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n',
-                                     self.processed_html)
-                
-        htmlfile = os.path.join(output_dir, self.name+'.html') 
-        open(htmlfile, 'wb').write(self.processed_html.encode('utf8'))
-        
-        if self.book_header.exth is not None:
-            mi = self.book_header.exth.mi
-            opf = OPFCreator(mi)
-            if hasattr(self.book_header.exth, 'cover_offset'):
-                opf.cover = 'images/%d.jpg'%(self.book_header.exth.cover_offset+1)
-            manifest = [(os.path.basename(htmlfile), 'text/x-oeb1-document')]
-            for i in self.image_names:
-                manifest.append(('images/'+i, 'image/jpg'))
-            
-            opf.create_manifest(manifest)
-            opf.create_spine([os.path.basename(htmlfile)])
-            opf.write(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'))
+        return processed_records
             
     
     def replace_page_breaks(self):
@@ -264,10 +276,26 @@ class MobiReader(object):
             one = re.compile(r'src=["\']{0,1}[^\'"]+["\']{0,1}', re.IGNORECASE).sub('', match.group(1)).strip()
             return '<img'+one+' src="images/%s.jpg"'%match.group(2)
         
-        self.processed_html = \
+        if hasattr(self, 'processed_html'):
+            self.processed_html = \
             re.compile(r'<img(.+?)recindex=[\'"]{0,1}(\d+)[\'"]{0,1}', re.IGNORECASE|re.DOTALL)\
                 .sub(fix_images, self.processed_html)
-    
+
+def get_metadata(stream):
+    mr = MobiReader(stream)
+    if mr.book_header.exth is None:
+        mi = MetaInformation(mr.name, ['Unknown'])
+    else:
+        tdir = tempfile.mkdtemp('mobi-meta', __appname__)
+        atexit.register(shutil.rmtree, tdir)
+        mr.extract_images([], tdir)
+        mi = mr.create_opf('dummy.html')
+        if mi.cover:
+            cover =  os.path.join(tdir, mi.cover)
+            print cover
+            if os.access(cover, os.R_OK):
+                mi.cover_data = ('JPEG', open(os.path.join(tdir, mi.cover), 'rb').read())
+    return mi
         
 def option_parser():
     from libprs500 import OptionParser

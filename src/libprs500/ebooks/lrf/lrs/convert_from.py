@@ -20,7 +20,7 @@ import sys, os, logging
 
 from libprs500 import __author__, __appname__, __version__, setup_cli_handlers
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, \
-                                           CData, Tag
+                                           CData, Tag, UnicodeDammit
 from libprs500.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \
             BlockStyle, ImageStream, Font, StyleDefault, BookSetting, Header, \
             Image, ImageBlock, Page, TextBlock, Canvas, Paragraph, CR, Span, \
@@ -38,7 +38,8 @@ class LrsParser(object):
     def __init__(self, stream, logger):
         self.logger = logger
         src = stream.read()
-        self.soup = BeautifulStoneSoup(src, selfClosingTags=self.SELF_CLOSING_TAGS)
+        self.soup = BeautifulStoneSoup(UnicodeDammit(src).unicode, 
+                                       selfClosingTags=self.SELF_CLOSING_TAGS)
         self.objects = {}
         for obj in self.soup.findAll(objid=True):
             self.objects[obj['objid']] = obj

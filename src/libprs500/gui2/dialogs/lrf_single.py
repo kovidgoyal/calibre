@@ -25,7 +25,7 @@ from libprs500.gui2 import qstring_to_unicode, error_dialog, \
 from libprs500.gui2.widgets import FontFamilyModel
 from libprs500.ebooks.lrf import option_parser
 from libprs500.ptempfile import PersistentTemporaryFile
-from libprs500 import __appname__, osx_version
+from libprs500 import __appname__
 
 font_family_model = None
 
@@ -101,16 +101,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             
             if self.selected_format:
                 self.setWindowTitle(_('Convert %s to LRF')%(self.selected_format,))
-                if self.selected_format == 'RTF':
-                    try:
-                        major, minor = osx_version()[:2]
-                        if False and (major == 10 and minor > 4) or major > 10:
-                            self.selected_format = None
-                            d = error_dialog(self, _('RTF conversion not supported'), 
-                                             _('Conversion of RTF files is not supported on OS X Leopard and higher. This is because unrtf, the underlying program does not work. If you are willing to port unrtf to Leopard, contact me.'))
-                            d.exec_()
-                    except:
-                        pass
+                
         else:
             self.setWindowTitle(_('Set conversion defaults'))
             

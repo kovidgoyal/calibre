@@ -109,6 +109,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('lit2lrf', htmlop, ['lit']))
         f.write(opts_and_exts('epub2lrf', htmlop, ['epub']))
         f.write(opts_and_exts('rtf2lrf', htmlop, ['rtf']))
+        f.write(opts_and_exts('mobi2lrf', htmlop, ['mobi', 'prc']))
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('any2lrf', htmlop, 
             ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'txt', 'lit', 'rtf', 'pdf']))
