@@ -44,6 +44,7 @@ entry_points = {
                              'pdfreflow = libprs500.ebooks.lrf.pdf.reflow:main',
                              'isbndb    = libprs500.ebooks.metadata.isbndb:main',
                              'librarything = libprs500.ebooks.metadata.library_thing:main',
+                             'mobi2oeb  = libprs500.ebooks.mobi.reader:main',
                              'lrf2html  = libprs500.ebooks.lrf.html.convert_to:main',                             
                            ], 
         'gui_scripts'    : [ 

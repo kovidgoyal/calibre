@@ -177,6 +177,7 @@ class OPF(MetaInformation):
     MIMETYPE = 'application/oebps-package+xml'
     ENTITY_PATTERN = re.compile(r'&(\S+?);')
     
+    uid           = standard_field('uid')
     libprs_id     = standard_field('libprs_id')
     title         = standard_field('title')
     authors       = standard_field('authors')
@@ -239,10 +240,11 @@ class OPF(MetaInformation):
             
         dcms = metadata.getElementsByTagName(type)
         if dcms:
-            dcm = dcms[0]
+            dcm = dcms[0]            
         else:
             dcm = doc.createElement(type)
             metadata.appendChild(dcm)
+            metadata.appendChild(doc.createTextNode('\n'))
         tags =  dcm.getElementsByTagName(name)
         if tags and not replace:
             for tag in tags:
@@ -260,6 +262,7 @@ class OPF(MetaInformation):
             for attr, vattr in vattrs:
                 el.setAttribute(attr, vattr)
             dcm.appendChild(el)
+            dcm.appendChild(doc.createTextNode('\n'))
         self._commit(doc)
             
     
@@ -349,6 +352,15 @@ class OPF(MetaInformation):
         if not comments:
             comments = ''
         self._set_metadata_element('dc:Description', comments)
+    
+    def get_uid(self):
+        package = self.soup.find('package')
+        if package.has_key('unique-identifier'):
+            return package['unique-identifier']
+        
+    def set_uid(self, uid):
+        package = self.soup.find('package')
+        package['unique-identifier'] = str(uid)
     
     def get_category(self):
         category = self.soup.find('dc:type')
@@ -500,7 +512,12 @@ class OPF(MetaInformation):
         self._set_metadata_element('dc:Subject', tags)
         
     def write(self, stream):
-        stream.write(self.soup.prettify('utf-8'))
+        src = unicode(self.soup)
+        src = re.sub(r'>\s*</item(ref)*>', ' />\n', src)
+        src = re.sub(r'<manifest><', '<manifest>\n<', src)
+        src = re.sub(r'<spine><', '<spine>\n<', src)
+        src = re.sub(r'^<item', '    <item', src)
+        stream.write(src.encode('utf-8')+'\n')
 
 class OPFReader(OPF):
     
@@ -543,6 +560,44 @@ class OPFCreator(OPF):
             self.isbn = mi.isbn
         if hasattr(mi, 'libprs_id'):
             self.libprs_id = mi.libprs_id
+        if hasattr(mi, 'uid'):
+            self.uid = mi.uid    
+        
+    def create_manifest(self, entries):
+        doc = dom.parseString(self.soup.__str__('UTF-8').strip())
+        package = doc.documentElement
+        manifest = doc.createElement('manifest')
+        package.appendChild(manifest)
+        package.appendChild(doc.createTextNode('\n'))
+        
+        self.href_map = {}
+        
+        for href, media_type in entries:
+            item = doc.createElement('item')
+            item.setAttribute('href', href)
+            item.setAttribute('media-type', media_type)
+            self.href_map[href] = str(hash(href))
+            item.setAttribute('id', self.href_map[href])
+            manifest.appendChild(item)
+            manifest.appendChild(doc.createTextNode('\n'))
+            
+        self._commit(doc)
+            
+            
+    def create_spine(self, entries):
+        doc = dom.parseString(self.soup.__str__('UTF-8').strip())
+        package = doc.documentElement
+        spine = doc.createElement('spine')
+        package.appendChild(spine)
+        package.appendChild(doc.createTextNode('\n'))
+        
+        for href in entries:
+            itemref = doc.createElement('itemref')
+            itemref.setAttribute('idref', self.href_map[href])
+            spine.appendChild(itemref)
+            spine.appendChild(doc.createTextNode('\n'))
+            
+        self._commit(doc)
     
 def main(args=sys.argv):
     parser = get_parser('opf')

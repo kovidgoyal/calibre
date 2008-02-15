@@ -98,6 +98,7 @@ def setup_completion(fatal_errors):
         from libprs500.ebooks.lrf.parser import option_parser as lrf2lrsop
         from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
         from libprs500.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
+        from libprs500.ebooks.mobi.reader import option_parser as mobioeb
         
         f = open_file('/etc/bash_completion.d/libprs500')
         
@@ -120,6 +121,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('epub-meta', metaop, ['epub']))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
+        f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))
         f.write('''
 _prs500_ls()
 {
