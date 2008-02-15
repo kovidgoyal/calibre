@@ -302,6 +302,8 @@ def option_parser():
     parser = OptionParser(usage='%prog [options] myebook.mobi')
     parser.add_option('-o', '--output-dir', default='.', 
                       help='Output directory. Defaults to current directory.')
+    parser.add_option('--verbose', default=False, action='store_true',
+                      help='Useful for debugging.')
     return parser
     
 
@@ -315,6 +317,10 @@ def main(args=sys.argv):
     mr = MobiReader(args[1])
     opts.output_dir = os.path.abspath(opts.output_dir)
     mr.extract_content(opts.output_dir)
+    if opts.verbose:
+        oname = os.path.join(opts.output_dir, 'debug-raw.html')
+        open(oname, 'wb').write(mr.mobi_html.encode('utf-8'))
+        print 'Raw MOBI HTML saved in', oname
     
     print 'OEB ebook created in', opts.output_dir
     
