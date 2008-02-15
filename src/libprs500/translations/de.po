@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2008-02-09 11:22+PST\n"
+"POT-Creation-Date: 2008-02-15 06:16+PST\n"
 "PO-Revision-Date: 2008-01-25 09:14+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
@@ -384,39 +384,47 @@ msgstr "Format wählen"
 msgid "TextLabel"
 msgstr "TextLabel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:93
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:102
 msgid "<br>Must be a directory."
 msgstr "<br>Muss ein Verzeichnis sein."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:93
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:102
 msgid "Invalid database location "
 msgstr "Ortsangabe der Datenbank ungültig"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:93
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:96
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:102
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:105
 msgid "Invalid database location"
 msgstr "Ortsangabe der Datenbank ungültig"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:96
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:105
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Ortsangabe der Datenbank ungültig.<br>Speichern nicht möglich"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:173
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:210
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:279
 msgid "Configuration"
 msgstr "Konfiguration"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:174
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:214
+msgid "Basic"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:218
+msgid "Advanced"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:220
 msgid "&Location of books database (library1.db)"
 msgstr "Speicherort der Bücherdatenbank (&library1.db)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:175
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:221
 msgid "Browse for the new database location"
 msgstr "Zu einem neuen Ort der Datenbank wechseln"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:176
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:186
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:188
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:222
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:230
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:232
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:593
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:311
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:313
@@ -438,15 +446,15 @@ msgstr "Zu einem neuen Ort der Datenbank wechseln"
 msgid "..."
 msgstr "..."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:177
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:223
 msgid "Use &Roman numerals for series number"
 msgstr "&Römische Ziffern für Serien Nummerierung verwenden"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:178
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:224
 msgid "Default network &timeout:"
 msgstr "Voreinstellung für Zei&tüberschreitung bei Netzwerkverbindungen:"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:179
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:225
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime libprs500 foes out "
 "to the internet to get information)"
@@ -455,38 +463,42 @@ msgstr ""
 "(immer dann, wenn libprs500 zur Informationsbeschaffung auf das Internet "
 "zugreift)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:180
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:226
 msgid " seconds"
 msgstr " Sekunden"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:181
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:227
 msgid "&Priority for conversion jobs:"
 msgstr "&Priorität der Konvertierungsaufträge:"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:182
-msgid "Free unused diskspace from the database"
-msgstr ""
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:183
-msgid "&Compact database"
-msgstr ""
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:184
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:228
 msgid "Frequently used directories"
 msgstr "Häufig benutzte Verzeichnisse"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:185
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:229
 msgid "Add a directory to the frequently used directories list"
 msgstr ""
 "Ein Verzeichnis zur Liste der häufig genutzten Verzeichnisse hinzufügen"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:187
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:231
 msgid "Remove a directory from the frequently used directories list"
 msgstr ""
 "Ein Verzeichnis von der Liste der häufig genutzten Verzeichnisse entfernen"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:189
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:233
 msgid "Select visible &columns in library view"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:234
+msgid "Free unused diskspace from the database"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:235
+msgid "&Compact database"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:236
+msgid "&Metadata from file name"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/conversion_error_ui.py:37
@@ -563,51 +575,36 @@ msgstr "Wählen Sie das Format, das zu LRF konvertiert werden soll"
 msgid "Convert %s to LRF"
 msgstr "Konvertiere %s in LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:109
-msgid "RTF conversion not supported"
-msgstr "RTF Konvertierung wird nicht unterstützt"
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:110
-msgid ""
-"Conversion of RTF files is not supported on OS X Leopard and higher. This is "
-"because unrtf, the underlying program does not work. If you are willing to "
-"port unrtf to Leopard, contact me."
-msgstr ""
-"Die Konvertierung von RTF Dateien wird unter Mac OS X Leopard und höher "
-"nicht unterstützt. Das liegt daran, dass unrtf, das dafür zuständige "
-"Programm nicht funktioniert. Bitte kontaktieren Sie mich, wenn Sie unrtf für "
-"Leopard portieren möchten."
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:115
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:139
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:106
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:146
 msgid "Set conversion defaults"
 msgstr "Voreinstellungen zur Konvertierung wählen"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:181
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:172
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:52
 msgid "Cannot read"
 msgstr "Lesen nicht möglich"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:182
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:173
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:53
 msgid "You do not have permission to read the file: "
 msgstr "Sie haben nicht die nötigen Rechte, um diese Datei zu lesen:"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:190
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:181
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:61
 msgid "Error reading file"
 msgstr "Fehler beim Lesen der Datei"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:191
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:182
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:62
 msgid "<p>There was an error reading from file: <br /><b>"
 msgstr "<p>Es trat ein Fehler beim Lesen dieser Datei auf: <br /><b>"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:197
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:188
 msgid " is not a valid picture"
 msgstr " ist kein gültiges Bild"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:263
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:254
 msgid ""
 "Preprocess the file before converting to LRF. This is useful if you know "
 "that the file is from a specific source. Known sources:"
@@ -615,11 +612,11 @@ msgstr ""
 "Datei vorbearbeiten bevor sie zu LRF konvertiert wird. Das ist hilfreich, "
 "wenn Sie wissen, dass die Datei von einer der folgenden Bezugsquellen stammt:"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:264
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:255
 msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
 msgstr "<ol><li><b>baen</b> - Bücher von BAEN Publishers</li>"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:256
 msgid ""
 "<li><b>pdftohtml</b> - HTML files that are the output of the program "
 "pdftohtml</li>"
@@ -627,11 +624,11 @@ msgstr ""
 "<li><b>pdftohtml</b> - HTML Dateien, die mit dem Programm pdftohtml erstellt "
 "wurden</li>"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:266
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:257
 msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
 msgstr "<li><b>book-designer</b> - HTML Dateien von Book Designer</li>"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:299
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:290
 msgid ""
 "Specify metadata such as title and author for the book.<p>Metadata will be "
 "updated in the database as well as the generated LRF file."
@@ -640,12 +637,12 @@ msgstr ""
 "Daten werden sowohl in der Datenbank als auch in der erstellten LRF Datei "
 "aktualisiert."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:299
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:290
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:575
 msgid "Metadata"
 msgstr "Meta-Daten"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:300
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:291
 msgid ""
 "Adjust the look of the generated LRF file by specifying things like font "
 "sizes and the spacing between words."
@@ -653,12 +650,12 @@ msgstr ""
 "Aussehen der erstellten LRF Datei durch die Angabe von Schriftgrößen und "
 "Wortabständen angleichen."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:300
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:291
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:579
 msgid "Look & Feel"
 msgstr "Look & Feel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:301
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:292
 msgid ""
 "Specify the page settings like margins and the screen size of the target "
 "device."
@@ -666,21 +663,21 @@ msgstr ""
 "Seiteneinstellungen wie Ränder und die Bildschirmgröße des Zielgeräts "
 "angeben."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:301
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:292
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:583
 msgid "Page Setup"
 msgstr "Seiteneinrichtung"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:302
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:293
 msgid "Fine tune the detection of chapter and section headings."
 msgstr "Feineinstellung der Erkennung von Kapitel- und Absatzüberschriften."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:302
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:293
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:587
 msgid "Chapter Detection"
 msgstr "Ermittlung der Kapitel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:310
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:301
 msgid "<font color=\"gray\">No help available</font>"
 msgstr "<font color=\"gray\">Keine Hilfe verfügbar</font>"
 
@@ -1112,6 +1109,7 @@ msgid "Any"
 msgstr "Irgendein"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search_item_ui.py:40
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:113
 msgid "Form"
 msgstr "Art"
 
@@ -1336,6 +1334,74 @@ msgstr ""
 msgid "Profile source code (python)"
 msgstr "Profil-Quellcode (Python)"
 
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:114
+msgid ""
+"<p>Set a regular expression pattern to use when trying to guess ebook "
+"metadata from filenames. <p>A <a href=\"http://docs.python.org/lib/re-syntax."
+"html\">reference</a> on the syntax of regular expressions is available."
+"<p>Use the <b>Test</b> functionality below to test you regular expression on "
+"a few sample filenames."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:115
+msgid "Regular &expression"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:116
+msgid "&Test"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:117
+msgid "File &name:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:118
+msgid "Test"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:119
+msgid "Title:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:120
+msgid "Regular expression group name (?P<title>)"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:121
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:124
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:127
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:130
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:53
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:57
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:62
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:67
+msgid "No match"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:122
+msgid "Authors:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:123
+msgid "Regular expression group name (?P<authors>)"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:125
+msgid "Series:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:126
+msgid "Regular expression group name (?P<series>)"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:128
+msgid "Series index:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:129
+msgid "Regular expression group name (?P<series_index>)"
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:277
 msgid "Job"
 msgstr "Auftrag"
@@ -1500,15 +1566,24 @@ msgstr "Meta-Daten einzeln bearbeiten"
 msgid "Edit metadata in bulk"
 msgstr "Meta-Daten auf einmal bearbeiten"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:136
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:129
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:289
+msgid "Save to disk"
+msgstr "Auf HD sichern"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:130
+msgid "Save to disk in a single directory"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:143
 msgid "Convert individually"
 msgstr "Einzeln konvertieren"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:137
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:144
 msgid "Bulk convert"
 msgstr "Auf einmal konvertieren"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:316
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:324
 msgid ""
 "<p>Books with the same title as the following already exist in the database. "
 "Add them anyway?<ul>"
@@ -1516,73 +1591,73 @@ msgstr ""
 "<p>Es existieren bereits Bücher mit dem selben Titel in der Datenbank. "
 "Sollen die folgenden Bücher trotzdem hinzugefügt werden?<ul>"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:319
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:327
 msgid "Duplicates found!"
 msgstr "Duplikate gefunden"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:349
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:357
 msgid "No space on device"
 msgstr "Gerätespeicher voll"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:350
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:358
 msgid "<p>Cannot upload books to device there is no more free space available "
 msgstr ""
 "<p>Es können keine Bücher mehr auf das Gerät geladen werden, da der "
 "Gerätespeicher voll ist "
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:419
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:438
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:427
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:446
 msgid "Cannot edit metadata"
 msgstr "Kann Metadaten nicht bearbeiten"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:419
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:438
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:521
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:589
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:427
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:446
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:532
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:600
 msgid "No books selected"
 msgstr "Keine Bücher ausgewählt"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:521
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:532
 msgid "Cannot save to disk"
 msgstr "Speichern auf Festplatte nicht möglich"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:579
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:590
 msgid "Not yet implemented."
 msgstr "Noch nicht eingeführt."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:579
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:589
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:590
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:600
 msgid "Cannot convert"
 msgstr "Konvertierung nicht möglich"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:634
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:645
 msgid "No book selected"
 msgstr "Kein Buch ausgewählt"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:634
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:643
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:645
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:654
 msgid "Cannot view"
 msgstr "Ansehen nicht möglich"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:643
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:654
 msgid "%s is not available in LRF format. Please convert it first."
 msgstr ""
 "%s ist noch nicht im LFR Format verfügbar. Bitte konvertieren Sie es "
 "zunächst."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:676
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:687
 msgid "Cannot configure"
 msgstr "Konfiguration nicht möglich"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:676
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:687
 msgid "Cannot configure while there are running jobs."
 msgstr "Konfiguration nicht möglich während Aufträge abgearbeitet werden."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:710
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:721
 msgid "Invalid database"
 msgstr "Ungültige Datenbank"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:711
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:722
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
@@ -1590,15 +1665,15 @@ msgstr ""
 "<p>Es existiert bereits eine ungültige Datenbank in %s, bitte löschen Sie "
 "diese, bevor sie die bestehende Datenbank verschieben.<br>Fehler: %s"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:719
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:730
 msgid "Could not move database"
 msgstr "Konnte Datenbank nicht verschieben"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:769
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:780
 msgid "Error talking to device"
 msgstr "Fehler in der Kommunikation zum Gerät"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:770
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:781
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -1700,10 +1775,6 @@ msgstr "E"
 msgid "Send to device"
 msgstr "An Reader übertragen"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:289
-msgid "Save to disk"
-msgstr "Auf HD sichern"
-
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:290
 msgid "Fetch news"
 msgstr "Nachrichten abrufen"
@@ -1729,10 +1800,18 @@ msgid "Jobs:"
 msgstr "Aufträge:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:46
+msgid "Invalid regular expression"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:47
+msgid "Invalid regular expression: %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:98
 msgid "Library"
 msgstr "Bibliothek"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:47
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:99
 msgid ""
 "Reader\n"
 "%s available"
@@ -1740,13 +1819,26 @@ msgstr ""
 "Reader\n"
 "%s verfügbar"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:48
+#: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:100
 msgid ""
 "Card\n"
 "%s available"
 msgstr ""
 "Karte\n"
 "%s verfügbar"
+
+#~ msgid "RTF conversion not supported"
+#~ msgstr "RTF Konvertierung wird nicht unterstützt"
+
+#~ msgid ""
+#~ "Conversion of RTF files is not supported on OS X Leopard and higher. This "
+#~ "is because unrtf, the underlying program does not work. If you are "
+#~ "willing to port unrtf to Leopard, contact me."
+#~ msgstr ""
+#~ "Die Konvertierung von RTF Dateien wird unter Mac OS X Leopard und höher "
+#~ "nicht unterstützt. Das liegt daran, dass unrtf, das dafür zuständige "
+#~ "Programm nicht funktioniert. Bitte kontaktieren Sie mich, wenn Sie unrtf "
+#~ "für Leopard portieren möchten."
 
 #~ msgid ""
 #~ "If the tag you want is not in the available list, you can add it here. "
