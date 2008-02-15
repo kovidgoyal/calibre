@@ -106,5 +106,8 @@ def libprs_metadata(name):
         name = os.path.abspath(name)
         f = open(name, 'rb')
         opf = OPFReader(f, os.path.dirname(name))
-        if opf.libprs_id is not None:
-            return MetaInformation(opf, None)
+        try:
+            if opf.libprs_id is not None:
+                return MetaInformation(opf, None)
+        except:
+            pass
