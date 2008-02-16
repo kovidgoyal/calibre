@@ -75,7 +75,7 @@ class MetaInformation(object):
         self.rating       = None if not mi else mi.rating
         self.isbn         = None if not mi else mi.isbn
         self.tags         = []  if not mi else mi.tags
-        self.cover_data   = (None, None)  if not mi else mi.cover_data #(extension, data)
+        self.cover_data   = mi.cover_data if (mi and hasattr(mi, 'cover_data')) else (None, None)
          
     
     def smart_update(self, mi):
@@ -100,7 +100,7 @@ class MetaInformation(object):
         self.tags += mi.tags
         self.tags = list(set(self.tags))
         
-        if mi.cover_data[0] is not None:
+        if hasattr(mi, 'cover_data') and mi.cover_data[0] is not None:
             self.cover_data = mi.cover_data
             
             

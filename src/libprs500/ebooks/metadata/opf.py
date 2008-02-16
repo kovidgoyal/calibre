@@ -536,6 +536,7 @@ class OPFReader(OPF):
         self.manifest = Manifest(self.soup, dir)
         self.spine = Spine(self.soup, self.manifest)
         self.toc = TOC(self, dir)
+        self.cover_data = (None, None)
         
 class OPFCreator(OPF):
     

@@ -107,13 +107,19 @@ def metadata_from_filename(name, pat=None):
 def libprs_metadata(name):
     if os.path.basename(name) != 'metadata.opf':
         name = os.path.join(os.path.dirname(name), 'metadata.opf')
+    name = os.path.abspath(name)
     if os.access(name, os.R_OK):
-        print name
-        name = os.path.abspath(name)
         f = open(name, 'rb')
         opf = OPFReader(f, os.path.dirname(name))
         try:
             if opf.libprs_id is not None:
-                return MetaInformation(opf, None)
+                mi = MetaInformation(opf, None)
+                if hasattr(opf, 'cover') and opf.cover:
+                    cpath = os.path.join(os.path.dirname(name), opf.cover)
+                    if os.access(cpath, os.R_OK):                     
+                        fmt = cpath.rpartition('.')[-1]
+                        data = open(cpath, 'rb').read()
+                        mi.cover_data = (fmt, data)
+                return mi
         except:
             pass
