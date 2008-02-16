@@ -960,6 +960,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return None
         return matches[0][0]
     
+    def sizeof_format(self, index, format, index_is_id=False):
+        ''' Return size of C{format} for book C{index} in bytes'''
+        id = index if index_is_id else self.id(index)
+        format = format.upper()
+        return self.conn.execute('SELECT uncompressed_size FROM data WHERE data.book=? AND data.format=?', (id, format)).fetchone()[0]
+        
+    
     def format(self, index, format):
         id = self.id(index)
         return decompress(self.conn.execute('SELECT data FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0])

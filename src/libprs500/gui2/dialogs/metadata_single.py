@@ -32,11 +32,13 @@ from libprs500.ebooks import BOOK_EXTENSIONS
 from libprs500.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
 
 class Format(QListWidgetItem):
-    def __init__(self, parent, ext, path=None):
+    def __init__(self, parent, ext, size, path=None):
         self.path = path
         self.ext = ext
+        self.size = float(size)/(1024*1024)
+        text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext), 
-                                 ext.upper(), parent, QListWidgetItem.UserType)
+                                 text, parent, QListWidgetItem.UserType)
 
 class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     
@@ -86,6 +88,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 QErrorMessage(self.window).showMessage("You do not have "+\
                                     "permission to read the file: " + _file)
                 continue
+            size = os.stat(_file).st_size
             ext = os.path.splitext(_file)[1].lower()
             if '.' in ext:
                 ext = ext.replace('.', '')
@@ -94,7 +97,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 if fmt.ext == ext:
                     self.formats.takeItem(row)
                     break
-            Format(self.formats, ext, path=_file)
+            Format(self.formats, ext, size, path=_file)
             self.formats_changed = True
     
     def remove_format(self, x):
@@ -180,7 +183,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             for ext in exts:
                 if not ext:
                     ext = ''
-                Format(self.formats, ext)
+                size = self.db.sizeof_format(row, ext)
+                Format(self.formats, ext, size)
             
         all_series = self.db.all_series()
         all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
