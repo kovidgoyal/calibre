@@ -45,7 +45,7 @@ def get_metadata(stream):
     if match:
         author = match.group(1).replace(',', ';')
         
-    mi = MetaInformation(title, [author])
+    mi = MetaInformation(title, [author] if author else None)
     
     # Publisher
     pat = re.compile(r'<!--.*?PUBLISHER=[\'"]([^"\']+)[\'"].*?-->', re.DOTALL)
@@ -60,8 +60,6 @@ def get_metadata(stream):
         isbn = match.group(1)
         mi.isbn = re.sub(r'[^0-9xX]', '', isbn)
         
-    print mi
-    
     return mi
     
     
