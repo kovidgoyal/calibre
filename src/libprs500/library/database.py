@@ -1308,13 +1308,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             by_author[au].append(index)
         for au in by_author.keys():
             apath = os.path.join(dir, sanitize_file_name(au))
-            if not os.path.exists(apath):
+            if not single_dir and not os.path.exists(apath):
                 os.mkdir(apath)
             for idx in by_author[au]:
                 title = re.sub(r'\s', ' ', self.title(idx))
                 tpath = os.path.join(apath, sanitize_file_name(title))
                 id = str(self.id(idx))
-                if not os.path.exists(tpath):
+                if not single_dir and not os.path.exists(tpath):
                     os.mkdir(tpath)
                 mi = OPFCreator(self.get_metadata(idx))
                 cover = self.cover(idx)
