@@ -239,7 +239,7 @@ class PRS500(Device):
         Claim an interface on the device for communication. 
         Requires write privileges to the device file.
         Also initialize the device. 
-        See the source code for the sequenceof initialization commands.
+        See the source code for the sequence of initialization commands.
         """
         self.device = get_device_by_id(self.VENDOR_ID, self.PRODUCT_ID)        
         if not self.device:
