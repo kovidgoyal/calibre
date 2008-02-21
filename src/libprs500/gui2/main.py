@@ -118,7 +118,13 @@ class Main(MainWindow, Ui_MainWindow):
         md.addAction(_('Edit metadata individually'))
         md.addAction(_('Edit metadata in bulk'))
         self.metadata_menu = md
+        self.add_menu = QMenu()
+        self.add_menu.addAction(_('Add books from a single directory'))
+        self.add_menu.addAction(_('Add books recursively (One book per directory)'))
+        self.action_add.setMenu(self.add_menu)
         QObject.connect(self.action_add, SIGNAL("triggered(bool)"), self.add_books)
+        QObject.connect(self.add_menu.actions()[0], SIGNAL("triggered(bool)"), self.add_books)
+        QObject.connect(self.add_menu.actions()[1], SIGNAL("triggered(bool)"), self.add_recursive_single)
         QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit_metadata)
         QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), self.edit_metadata)
@@ -156,6 +162,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.tool_bar.widgetForAction(self.action_sync).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_convert).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_save).setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_add).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
@@ -286,6 +293,30 @@ class Main(MainWindow, Ui_MainWindow):
     
     
     ################################# Add books ################################
+    
+    def add_recursive_single(self, checked):
+        '''
+        Add books from the local filesystem to either the library or the device
+        recursively assuming one book per folder.
+        '''
+        root = choose_dir(self, 'recursive book import root dir dialog', 'Select root folder')
+        if not root:
+            return
+        duplicates = self.library_view.model().db.recursive_import(root)
+        
+        if duplicates:
+            files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
+            for mi, path in duplicates:
+                files += '<li>'+mi.title+'</li>\n'
+            d = question_dialog(self, _('Duplicates found!'), files+'</ul></p>')
+            if d.exec_() == QMessageBox.Yes:
+                for mi, path in duplicates:
+                    self.library_view.model().db.import_book_directory(path, add_duplicates=True)
+        
+        self.library_view.model().resort()
+        self.library_view.model().research()
+        
+    
     def add_books(self, checked):
         '''
         Add books from the local filesystem to either the library or the device.

@@ -20,9 +20,10 @@ import datetime, re, os, cPickle, traceback
 from zlib import compress, decompress
 
 from libprs500 import sanitize_file_name
-from libprs500.ebooks.metadata.meta import set_metadata
+from libprs500.ebooks.metadata.meta import set_metadata, get_metadata
 from libprs500.ebooks.metadata.opf import OPFCreator
 from libprs500.ebooks.metadata import MetaInformation
+from libprs500.ebooks import BOOK_EXTENSIONS
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -1179,9 +1180,31 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                               (id, usize, sqlite.Binary(data)))
         self.conn.commit()
     
+    def set_metadata(self, id, mi):
+        '''
+        Set metadata for the book C{id} from the L{MetaInformation} object C{mi} 
+        '''
+        if not mi.authors:
+                mi.authors = ['Unknown']
+        authors = []
+        for a in mi.authors:
+            authors += a.split('&')
+        self.set_authors(id, authors)
+        if mi.author_sort:
+            self.set_author_sort(id, mi.author_sort)
+        if mi.publisher:
+            self.set_publisher(id, mi.publisher)
+        if mi.rating:
+            self.set_rating(id, mi.rating)
+        if mi.series:
+            self.set_series(id, mi.series)
+        if mi.cover_data[1] is not None:
+            self.set_cover(id, mi.cover_data[1])
+    
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
         Add a book to the database. self.data and self.cache are not updated.
+        @param paths: List of paths to book files of file-like objects
         '''
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
         duplicates = []
@@ -1200,30 +1223,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                               (mi.title, uri, series_index))
             id = obj.lastrowid
             self.conn.commit()
-            if not mi.authors:
-                mi.authors = ['Unknown']
-            authors = []
-            for a in mi.authors:
-                authors += a.split('&')
-            self.set_authors(id, authors)
-            if mi.author_sort:
-                self.set_author_sort(id, mi.author_sort)
-            if mi.publisher:
-                self.set_publisher(id, mi.publisher)
-            if mi.rating:
-                self.set_rating(id, mi.rating)
-            if mi.series:
-                self.set_series(id, mi.series)
-            if mi.cover_data[1] is not None:
-                self.set_cover(id, mi.cover_data[1])
-            stream = open(path, 'rb')
+            self.set_metadata(id, mi)
+            stream = path if hasattr(path, 'read') else open(path, 'rb')
             stream.seek(0, 2)
             usize = stream.tell()
             stream.seek(0)
             
             self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
                               (id, format, usize, sqlite.Binary(compress(stream.read()))))
-            stream.close()
+            if not hasattr(path, 'read'):
+                stream.close()
         self.conn.commit()
         if duplicates:
             paths    = tuple(duplicate[0] for duplicate in duplicates)
@@ -1345,7 +1354,52 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                         traceback.print_exc()
                     f.close()
                     
-        
+    
+    def import_book_directory(self, dirpath, add_duplicates=False):
+        mi = MetaInformation(None, None)
+        dirpath = os.path.abspath(dirpath)
+        formats = []
+        for path in os.listdir(dirpath):
+            path = os.path.join(dirpath, path)
+            if os.path.isdir(path) or not os.access(path, os.R_OK):
+                continue
+            ext = os.path.splitext(path)[1]
+            if not ext:
+                continue
+            ext = ext[1:].lower()
+            if ext not in BOOK_EXTENSIONS:
+                continue
+            f = open(path, 'rb')
+            mi.smart_update(get_metadata(f, stream_type=ext, use_libprs_metadata=True))
+            formats.append((ext, path))
+        if mi.title is None or not formats:
+            return
+        if not add_duplicates and self.conn.execute('SELECT id FROM books where title=?', (mi.title,)).fetchone():
+            return mi, dirpath
+        series_index = 1 if mi.series_index is None else mi.series_index
+        obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
+                          (mi.title, None, series_index))
+        id = obj.lastrowid
+        self.conn.commit()
+        self.set_metadata(id, mi)
+        for ext, path in formats:
+            stream = open(path, 'rb')
+            stream.seek(0, 2)
+            usize = stream.tell()
+            stream.seek(0)
+            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
+                              (id, ext, usize, sqlite.Binary(compress(stream.read()))))
+        self.conn.commit()   
+            
+                    
+    def recursive_import(self, root):
+        root = os.path.abspath(root)
+        duplicates = []
+        for dirpath in os.walk(root):
+            res = self.import_book_directory(dirpath[0])
+            if res is not None:
+                duplicates.append(res)
+        return duplicates
                 
 
 class SearchToken(object):
