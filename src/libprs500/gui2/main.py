@@ -861,7 +861,7 @@ class Main(MainWindow, Ui_MainWindow):
                          _('There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot.')).show()
             return
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
-        print >>sys.stderr, exception[0], exception[1]
+        print >>sys.stderr, exception
         print >>sys.stderr, formatted_traceback.encode('utf8')
         if not self.device_error_dialog.isVisible():
             msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
