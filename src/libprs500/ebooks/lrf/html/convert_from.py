@@ -96,12 +96,18 @@ class HTMLConverter(object):
                          # remove <p> tags from within <a> tags
                         (re.compile(r'<a.*?>(.*?)</a\s*>', re.DOTALL|re.IGNORECASE),
                          lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
+                        
+                        # Replace common line break patterns with line breaks
+                        (re.compile(r'<p>(&nbsp;|\s)*</p>', re.IGNORECASE), lambda m: '<br />'),
+                        
                         # Replace entities
                         (re.compile(ur'&(\S+?);'), partial(entity_to_unicode, 
                                                            exceptions=['lt', 'gt', 'amp'])),
                         # Remove comments from within style tags as they can mess up BeatifulSoup
                         (re.compile(r'(<style.*?</style>)', re.IGNORECASE|re.DOTALL),
                          strip_style_comments),
+                         
+                        
                         ]
     # Fix Baen markup
     BAEN = [ 
