@@ -15,9 +15,6 @@
 ''' Create a windows installer '''
 import sys, re, os, shutil, subprocess
 from setup import VERSION, APPNAME, entry_points, scripts, basenames
-sys.argv[1:2] = ['py2exe']
-if '--verbose' not in ' '.join(sys.argv):
-    sys.argv.append('--quiet') #py2exe produces too much output by default
 from distutils.core import setup
 from distutils.filelist import FileList
 import py2exe, glob
@@ -432,37 +429,55 @@ class BuildEXE(build_exe):
         return (24, cls.manifest_resource_id, 
                 cls.MANIFEST_TEMPLATE % dict(prog=prog, version=VERSION+'.0'))
 
-console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i]) 
-           for i in range(len(scripts['console']))]
 
-setup(
-      cmdclass = {'py2exe': BuildEXE},
-      windows = [
-                 {'script'          : scripts['gui'][0], 
-                  'dest_base'       : APPNAME,
-                  'icon_resources'  : [(1, 'icons/library.ico')],
-                  'other_resources' : [BuildEXE.manifest(APPNAME)],
-                  },
-                  {'script'         : scripts['gui'][1], 
-                  'dest_base'       : 'lrfviewer',
-                  'icon_resources'  : [(1, 'icons/viewer.ico')],
-                  'other_resources' : [BuildEXE.manifest('lrfviewer')],
-                  },
-                  ],
-      console = console,
-      options = { 'py2exe' : {'compressed': 1,
-                              'optimize'  : 2,
-                              'dist_dir'  : PY2EXE_DIR,
-                              'includes'  : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
-                                             'mechanize', 'ClientForm', 'wmi', 
-                                             'win32file', 'pythoncom', 'rtf2xml', 
-                                             'lxml', 'lxml._elementpath'],                                
-                              'packages'  : ['PIL'],
-                              'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
-                                             "_imagingtk", "ImageTk", "FixTk", 
-                                             'pydoc'],
-                              'dll_excludes' : ['mswsock.dll'],
-                             },
-                },
-      
-      )
+    
+def main():
+    auto = '--auto' in sys.argv
+    if auto:
+        sys.argv.remove('--auto')
+    sys.argv[1:2] = ['py2exe']
+    if '--verbose' not in sys.argv:
+        sys.argv.append('--quiet') #py2exe produces too much output by default
+    if auto and not os.path.exists('dist\\auto'):
+        print os.path.abspath('dist\\auto'), 'does not exist'
+        return 1
+    console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i]) 
+               for i in range(len(scripts['console']))]
+    
+    setup(
+          cmdclass = {'py2exe': BuildEXE},
+          windows = [
+                     {'script'          : scripts['gui'][0], 
+                      'dest_base'       : APPNAME,
+                      'icon_resources'  : [(1, 'icons/library.ico')],
+                      'other_resources' : [BuildEXE.manifest(APPNAME)],
+                      },
+                      {'script'         : scripts['gui'][1], 
+                      'dest_base'       : 'lrfviewer',
+                      'icon_resources'  : [(1, 'icons/viewer.ico')],
+                      'other_resources' : [BuildEXE.manifest('lrfviewer')],
+                      },
+                      ],
+          console = console,
+          options = { 'py2exe' : {'compressed': 1,
+                                  'optimize'  : 2,
+                                  'dist_dir'  : PY2EXE_DIR,
+                                  'includes'  : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
+                                                 'mechanize', 'ClientForm', 'wmi', 
+                                                 'win32file', 'pythoncom', 'rtf2xml', 
+                                                 'lxml', 'lxml._elementpath'],                                
+                                  'packages'  : ['PIL'],
+                                  'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
+                                                 "_imagingtk", "ImageTk", "FixTk", 
+                                                 'pydoc'],
+                                  'dll_excludes' : ['mswsock.dll'],
+                                 },
+                    },
+          
+          )
+    if auto:
+        subprocess.call(('shutdown', '-s', '-f', '-t', '01')) 
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -18,7 +18,6 @@
 import sys, re, os, shutil, subprocess, stat
 from setup import VERSION, APPNAME, scripts, main_modules, basenames, main_functions
 from setuptools import setup
-sys.argv[1:2] = ['py2app']
 from py2app.build_app import py2app
 from modulegraph.find_modules import find_modules
 
@@ -222,31 +221,46 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         BuildAPP.makedmg(os.path.join(self.dist_dir, APPNAME+'.app'), APPNAME+'-'+VERSION)
 
 
-setup(
-    name = APPNAME,
-    app = [scripts['gui'][0]],
-    cmdclass = { 'py2app' : BuildAPP },
-    options  = { 'py2app' :
-                 {
-                     'optimize' : 2,
-                     'dist_dir' : 'build/py2app',
-                     'argv_emulation' : True,
-                     'iconfile' : 'icons/library.icns',
-                     'frameworks': ['libusb.dylib', 'libunrar.dylib'],
-                     'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
-                                   'mechanize', 'ClientForm', 'usbobserver'],
-                     'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
-                     'excludes' : ['pydoc'],
-                     'plist'    : { 'CFBundleGetInfoString' : '''libprs500, an E-book management application.'''
-                                    ''' Visit http://libprs500.kovidgoyal.net for details.''',
-                                    'CFBundleIdentifier':'net.kovidgoyal.librs500',
-                                    'CFBundleShortVersionString':VERSION,
-                                    'CFBundleVersion':APPNAME + ' ' + VERSION,
-                                    'LSMinimumSystemVersion':'10.4.3',
-                                    'LSMultipleInstancesProhibited':'true',
-                                    'NSHumanReadableCopyright':'Copyright 2006, Kovid Goyal',
-                                   },
-                  },
-                },
-    setup_requires = ['py2app'],
-    )
+def main():
+    auto = '--auto' in sys.argv
+    if auto:
+        sys.argv.remove('--auto')
+    if auto and not os.path.exists('dist/auto'):
+        print '%s does not exist'%os.path.abspath('dist/auto')
+        return 1
+    
+    sys.argv[1:2] = ['py2app']
+    setup(
+        name = APPNAME,
+        app = [scripts['gui'][0]],
+        cmdclass = { 'py2app' : BuildAPP },
+        options  = { 'py2app' :
+                     {
+                         'optimize' : 2,
+                         'dist_dir' : 'build/py2app',
+                         'argv_emulation' : True,
+                         'iconfile' : 'icons/library.icns',
+                         'frameworks': ['libusb.dylib', 'libunrar.dylib'],
+                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
+                                       'mechanize', 'ClientForm', 'usbobserver'],
+                         'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
+                         'excludes' : ['pydoc'],
+                         'plist'    : { 'CFBundleGetInfoString' : '''libprs500, an E-book management application.'''
+                                        ''' Visit http://libprs500.kovidgoyal.net for details.''',
+                                        'CFBundleIdentifier':'net.kovidgoyal.librs500',
+                                        'CFBundleShortVersionString':VERSION,
+                                        'CFBundleVersion':APPNAME + ' ' + VERSION,
+                                        'LSMinimumSystemVersion':'10.4.3',
+                                        'LSMultipleInstancesProhibited':'true',
+                                        'NSHumanReadableCopyright':'Copyright 2006, Kovid Goyal',
+                                       },
+                      },
+                    },
+        setup_requires = ['py2app'],
+        )
+    if auto:
+        subprocess.call(('sudo', 'shutdown', '-h', '+0'))
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main())

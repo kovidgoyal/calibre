@@ -1,6 +1,7 @@
 #!/usr/bin/python
-import sys, os, shutil
+import sys, os, shutil, time
 sys.path.append('src')
+import subprocess
 from subprocess import check_call as _check_call
 from functools import partial
 #from pyvix.vix import Host, VIX_SERVICEPROVIDER_VMWARE_WORKSTATION
@@ -34,23 +35,49 @@ def tag_release():
             client.callback_get_log_message = get_log_message
             client.copy(base+'/trunk', tag) 
             
+def build_installer(installer, vm, timeout=25):
+    if os.path.exists(installer):
+        os.unlink(installer)
+    f = open('dist/auto', 'wb')
+    f.write('\n')
+    f.close()
+    print 'Building installer %s ...'%installer
+    vmware = ('vmware', '-q', '-x', '-n', vm)
+    try:
+        p = subprocess.Popen(vmware)
+        print 'Waiting...',
+        minutes = 0
+        sys.stdout.flush()
+        while p.returncode is None and minutes < timeout and not os.path.exists(installer):
+            p.poll()
+            time.sleep(60)
+            minutes += 1
+            print minutes,
+            sys.stdout.flush()
+        if not os.path.exists(installer):
+            raise Exception('Failed to build windows installer')
+    finally:
+        os.unlink('dist/auto')
+    
+        
+    return os.path.basename(installer)
+
 
 def build_windows():
     from libprs500 import __version__
     installer = 'dist/libprs500-%s.exe'%__version__
-    if not os.path.exists(installer):
-        raise Exception('You must build the windows installer before running this script')
-        
-    return os.path.basename(installer)
+    vm = '/vmware/Windows XP/Windows XP Professional.vmx'
+    return build_installer(installer, vm, 20)
+    
 
 def build_osx():
     from libprs500 import __version__
     installer = 'dist/libprs500-%s.dmg'%__version__
-    if not os.path.exists(installer):
-        raise Exception('You must build the OSX installer before running this script')
-        
-    return os.path.basename(installer)
+    vm = '/vmware/Mac OSX/Mac OSX.vmx'
+    return build_installer(installer, vm, 20)
 
+def build_installers():
+    return build_windows(), build_osx()
 
 def upload_demo():
     check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' '''
@@ -94,10 +121,7 @@ def main():
     check_call('svn commit -m "Updated translations" src/libprs500/translations')
     tag_release()
     upload_demo()
-    print 'Building OSX installer...'
-    dmg = build_osx()
-    print 'Building Windows installer...'
-    exe = build_windows()
+    exe, dmg = build_installers()
     if upload:
         print 'Uploading installers...'
         upload_installers(exe, dmg)
