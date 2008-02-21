@@ -42,7 +42,7 @@ from libprs500.gui2.dialogs.metadata_single import MetadataSingleDialog
 from libprs500.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from libprs500.gui2.dialogs.jobs import JobsDialog
 from libprs500.gui2.dialogs.conversion_error import ConversionErrorDialog 
-from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog
+from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
 from libprs500.gui2.dialogs.config import ConfigDialog
 from libprs500.gui2.dialogs.search import SearchDialog
 from libprs500.gui2.dialogs.user_profiles import UserProfiles
@@ -52,6 +52,7 @@ from libprs500.library.database import DatabaseLocked
 from libprs500.ebooks.metadata.meta import set_metadata
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks import BOOK_EXTENSIONS
+from libprs500.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
 
 
 
@@ -586,9 +587,61 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
     
     ############################### Convert ####################################
+    
     def convert_bulk(self, checked):
-        d = error_dialog(self, _('Cannot convert'), _('Not yet implemented.'))            
+        rows = self.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Cannot convert'), _('No books selected'))            
+            d.exec_()
+            return
+        d = LRFBulkDialog(self)
         d.exec_()
+        if d.result() != QDialog.Accepted:
+            return
+        bad_rows = []
+        
+        self.status_bar.showMessage('Starting Bulk conversion of %d books'%len(rows), 2000)
+        
+        for i, row in enumerate([r.row() for r in rows]):
+            cmdline = list(d.cmdline)
+            data = None
+            for fmt in LRF_PREFERRED_SOURCE_FORMATS:
+                try:
+                    data = self.library_view.model().db.format(row, fmt.upper())
+                    break                    
+                except:
+                    continue
+            if data is None:
+                bad_rows.append(row)
+                continue
+            pt = PersistentTemporaryFile('.'+fmt.lower())
+            pt.write(data)
+            pt.close()
+            of = PersistentTemporaryFile('.lrf')
+            of.close()
+            cmdline.extend(['-o', of.name])
+            cmdline.append(pt.name)
+            id = self.job_manager.run_conversion_job(self.book_converted, 
+                                                        'any2lrf', args=[cmdline],
+                                    job_description='Convert book %d of %d'%(i, len(rows)))
+                    
+                    
+            self.conversion_jobs[id] = (d.cover_file, pt, of, d.output_format, 
+                                        self.library_view.model().db.id(row))
+            
+    
+        res = []
+        for row in bad_rows:
+            title = self.library_view.model().db.title(row)
+            res.append('<li>%s</li>'%title)
+        if res:
+            msg = '<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>'%(len(res), len(rows), '\n'.join(res))
+            warning_dialog(self, 'Could not convert some books', msg).exec_()
+            
+            
+        
+            
+        
     
     def set_conversion_defaults(self, checked):
         d = LRFSingleDialog(self, None, None)
@@ -600,13 +653,11 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot convert'), _('No books selected'))            
             d.exec_()
         
-        changed = False
         for row in [r.row() for r in rows]:
             d = LRFSingleDialog(self, self.library_view.model().db, row)
             if d.selected_format:
                 d.exec_()
                 if d.result() == QDialog.Accepted:
-                    changed = True
                     cmdline = d.cmdline
                     data = self.library_view.model().db.format(row, d.selected_format)
                     pt = PersistentTemporaryFile('.'+d.selected_format.lower())
@@ -622,9 +673,7 @@ class Main(MainWindow, Ui_MainWindow):
                     
                     
                     self.conversion_jobs[id] = (d.cover_file, pt, of, d.output_format, d.id)
-        if changed:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
+        
         
                     
     def book_converted(self, id, description, result, exception, formatted_traceback, log):

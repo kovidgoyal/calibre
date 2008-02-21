@@ -47,6 +47,18 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         src = opt.get_opt_string()
         return 'gui_' + src[2:].replace('-', '_')
     
+    def initialize_common(self):
+        self.output_format = 'LRF'
+        self.setup_tooltips()
+        self.initialize_options()
+        global font_family_model
+        if font_family_model is None:
+            font_family_model = FontFamilyModel()
+        self.font_family_model = font_family_model
+        self.gui_serif_family.setModel(self.font_family_model)
+        self.gui_sans_family.setModel(self.font_family_model)
+        self.gui_mono_family.setModel(self.font_family_model)
+    
     def __init__(self, window, db, row):
         QDialog.__init__(self, window)
         Ui_LRFSingleDialog.__init__(self)        
@@ -57,22 +69,13 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), self.select_cover)
         self.categoryList.leaveEvent = self.reset_help
         self.reset_help()
-        self.output_format = 'LRF'
         self.selected_format = None
-        self.setup_tooltips()
-        self.initialize_options()
+        self.initialize_common()
         self.db = db
         self.row = row
         self.cover_changed = False
         self.cpixmap = None
         self.changed = False
-        global font_family_model
-        if font_family_model is None:
-            font_family_model = FontFamilyModel()
-        self.font_family_model = font_family_model
-        self.gui_serif_family.setModel(self.font_family_model)
-        self.gui_sans_family.setModel(self.font_family_model)
-        self.gui_mono_family.setModel(self.font_family_model)
         
         
         self.load_saved_global_defaults()
@@ -378,5 +381,24 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             self.cmdline = [unicode(i) for i in cmdline]
         else:
             QSettings().setValue('LRF conversion defaults', QVariant(QByteArray(cPickle.dumps(cmdline))))
+        QDialog.accept(self)
+        
+class LRFBulkDialog(LRFSingleDialog):
+    
+    def __init__(self, window):
+        QDialog.__init__(self, window)
+        Ui_LRFSingleDialog.__init__(self)        
+        self.setupUi(self)
+        
+        self.categoryList.takeItem(0)
+        self.stack.removeWidget(self.stack.widget(0))
+        self.categoryList.setCurrentRow(0)
+        
+        self.initialize_common()
+        self.setWindowTitle(_('Bulk convert ebooks to LRF'))
+        
+    def accept(self):
+        self.cmdline = self.cmdline = [unicode(i) for i in self.build_commandline()]
+        self.cover_file = None
         QDialog.accept(self)
     

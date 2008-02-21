@@ -33,6 +33,21 @@ from libprs500 import __appname__, __version__, __author__, iswindows, OptionPar
 
 __docformat__ = "epytext"
 
+preferred_source_formats = [
+                            'LIT',
+                            'MOBI',
+                            'HTML',
+                            'HTM',
+                            'XHTM',
+                            'XHTML',
+                            'PRC',
+                            'RTF',
+                            'PDF',
+                            'TXT',
+                            'ZIP',
+                            'RAR'
+                            ]
+
 class LRFParseError(Exception):
     pass
 
