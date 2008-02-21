@@ -259,7 +259,7 @@ def main():
         setup_requires = ['py2app'],
         )
     if auto:
-        subprocess.call(('sudo', 'shutdown', '-h', '+0'))
+        subprocess.call(('sudo', 'shutdown', '-h', '+1'))
     return 0
 
 if __name__ == '__main__':
