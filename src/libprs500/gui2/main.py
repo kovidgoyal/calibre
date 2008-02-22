@@ -304,12 +304,12 @@ class Main(MainWindow, Ui_MainWindow):
         
         if duplicates:
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
-            for mi, path in duplicates:
+            for mi, formats in duplicates:
                 files += '<li>'+mi.title+'</li>\n'
             d = question_dialog(self, _('Duplicates found!'), files+'</ul></p>')
             if d.exec_() == QMessageBox.Yes:
-                for mi, path in duplicates:
-                    self.library_view.model().db.import_book_directory(path, add_duplicates=True)
+                for mi, formats in duplicates:
+                    self.library_view.model().db.import_book(mi, formats )
         
         self.library_view.model().resort()
         self.library_view.model().research()

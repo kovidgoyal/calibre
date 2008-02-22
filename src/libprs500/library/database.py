@@ -20,7 +20,7 @@ import datetime, re, os, cPickle, traceback
 from zlib import compress, decompress
 
 from libprs500 import sanitize_file_name
-from libprs500.ebooks.metadata.meta import set_metadata, get_metadata
+from libprs500.ebooks.metadata.meta import set_metadata, metadata_from_formats
 from libprs500.ebooks.metadata.opf import OPFCreator
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks import BOOK_EXTENSIONS
@@ -1325,24 +1325,26 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 id = str(self.id(idx))
                 if not single_dir and not os.path.exists(tpath):
                     os.mkdir(tpath)
+                
+                name = au + ' - ' + title if byauthor else title + ' - ' + au
+                name += '_'+id
+                base  = dir if single_dir else tpath
+                
                 mi = OPFCreator(self.get_metadata(idx))
                 cover = self.cover(idx)
-                if not single_dir:
-                    if cover is not None:
-                        f = open(os.path.join(tpath, 'cover.jpg'), 'wb')
-                        f.write(cover)
-                        mi.cover = 'cover.jpg'
-                        f.close()
-                    f = open(os.path.join(tpath, 'metadata.opf'), 'wb')
-                    mi.write(f)
-                    f.close()
+                if cover is not None:
+                    cname = name + '.jpg'
+                    cpath = os.path.join(base, cname)
+                    open(cpath, 'wb').write(cover)
+                    mi.cover = cname
+                f = open(os.path.join(base, name+'.opf'), 'wb')
+                mi.write(f)
+                f.close()
                 
                 for fmt in self.formats(idx).split(','):
                     data = self.format(idx, fmt)
-                    name = au + ' - ' + title if byauthor else title + ' - ' + au
-                    fname = name +'_'+id+'.'+fmt.lower()
+                    fname = name +'.'+fmt.lower()
                     fname = sanitize_file_name(fname)
-                    base  = dir if single_dir else tpath 
                     f = open(os.path.join(base, fname), 'w+b')
                     f.write(data)
                     f.flush()
@@ -1355,90 +1357,91 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     f.close()
                     
     
-    def import_book_directory_multiple(self, dirpath, add_duplicates=False):
-        mi = MetaInformation(None, None)
-        dirpath = os.path.abspath(dirpath)
-        duplicates = []
-        for path in os.listdir(dirpath):
-            path = os.path.join(dirpath, path)
-            if os.path.isdir(path) or not os.access(path, os.R_OK):
-                continue
-            ext = os.path.splitext(path)[1]
-            if not ext:
-                continue
-            ext = ext[1:].lower()
-            if ext not in BOOK_EXTENSIONS:
-                continue
-            stream = open(path, 'rb')
-            mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=False))
-            if mi.title is None: 
-                continue
-            if not add_duplicates and self.conn.execute('SELECT id FROM books where title=?', (mi.title,)).fetchone():
-                duplicates.append((mi, path))
-                continue
-            series_index = 1 if mi.series_index is None else mi.series_index
-            obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
-                              (mi.title, None, series_index))
-            id = obj.lastrowid
-            self.conn.commit()
-            self.set_metadata(id, mi)
-            stream.seek(0, 2)
-            usize = stream.tell()
-            stream.seek(0)
-            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
-                              (id, ext, usize, sqlite.Binary(compress(stream.read()))))
-            self.conn.commit()
-        return duplicates
-                      
-    
-    def import_book_directory(self, dirpath, add_duplicates=False):
-        mi = MetaInformation(None, None)
-        dirpath = os.path.abspath(dirpath)
-        formats = []
-        for path in os.listdir(dirpath):
-            path = os.path.join(dirpath, path)
-            if os.path.isdir(path) or not os.access(path, os.R_OK):
-                continue
-            ext = os.path.splitext(path)[1]
-            if not ext:
-                continue
-            ext = ext[1:].lower()
-            if ext not in BOOK_EXTENSIONS:
-                continue
-            f = open(path, 'rb')
-            mi.smart_update(get_metadata(f, stream_type=ext, use_libprs_metadata=True))
-            f.close()
-            formats.append((ext, path))
-        if mi.title is None or not formats:
-            return
-        if not add_duplicates and self.conn.execute('SELECT id FROM books where title=?', (mi.title,)).fetchone():
-            return mi, dirpath
+    def import_book(self, mi, formats):
         series_index = 1 if mi.series_index is None else mi.series_index
         obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
                           (mi.title, None, series_index))
         id = obj.lastrowid
         self.conn.commit()
         self.set_metadata(id, mi)
-        for ext, path in formats:
+        for path in formats:
+            ext = os.path.splitext(path)[1][1:].lower()
             stream = open(path, 'rb')
             stream.seek(0, 2)
             usize = stream.tell()
             stream.seek(0)
             self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
                               (id, ext, usize, sqlite.Binary(compress(stream.read()))))
-        self.conn.commit()   
+        self.conn.commit()
+    
+    def import_book_directory_multiple(self, dirpath):
+        dirpath = os.path.abspath(dirpath)
+        duplicates = []
+        books = {}
+        for path in os.listdir(dirpath):
+            path = os.path.abspath(os.path.join(dirpath, path))
+            if os.path.isdir(path) or not os.access(path, os.R_OK):
+                continue
+            ext = os.path.splitext(path)[1]
+            if not ext:
+                continue
+            ext = ext[1:].lower()
+            if ext not in BOOK_EXTENSIONS:
+                continue
+            
+            key = os.path.splitext(path)[0]
+            if not books.has_key(key):
+                books[key] = []
+                
+            books[key].append(path)
+            
+        for formats in books.values():
+            mi = metadata_from_formats(formats)
+            if mi.title is None:
+                continue
+            if self.has_book(mi):
+                duplicates.append((mi, formats))
+                continue
+            self.import_book(mi, formats)
+        return duplicates
+                      
+    
+    def import_book_directory(self, dirpath):
+        dirpath = os.path.abspath(dirpath)
+        formats = []
+        
+        for path in os.listdir(dirpath):
+            path = os.path.abspath(os.path.join(dirpath, path))
+            if os.path.isdir(path) or not os.access(path, os.R_OK):
+                continue
+            ext = os.path.splitext(path)[1]
+            if not ext:
+                continue
+            ext = ext[1:].lower()
+            if ext not in BOOK_EXTENSIONS:
+                continue
+            formats.append(path)
+        
+        if not formats:
+            return
+        mi = metadata_from_formats(formats)
+        if mi.title is None:
+            return
+        if self.has_book(mi):
+            return [(mi, formats)]
+        self.import_book(mi, formats)
             
                     
+    def has_book(self, mi):
+        return bool(self.conn.execute('SELECT id FROM books where title=?', (mi.title,)).fetchone())
+    
     def recursive_import(self, root, single_book_per_directory=True):
         root = os.path.abspath(root)
         duplicates  = []
         for dirpath in os.walk(root):
             res = self.import_book_directory(dirpath[0]) if single_book_per_directory else self.import_book_directory_multiple(dirpath[0])
             if res is not None:
-                if single_book_per_directory:
-                    duplicates.append(res)
-                else:
-                    duplicates.extend(res)
+                duplicates.extend(res)
         return duplicates
                 
 

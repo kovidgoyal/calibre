@@ -45,7 +45,7 @@ class MetaInformation(object):
         ans = MetaInformation(mi.title, mi.authors)
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'tags', 'cover_data'):
+                     'isbn', 'tags', 'cover_data', 'libprs_id'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
         
@@ -76,6 +76,7 @@ class MetaInformation(object):
         self.isbn         = None if not mi else mi.isbn
         self.tags         = []  if not mi else mi.tags
         self.cover_data   = mi.cover_data if (mi and hasattr(mi, 'cover_data')) else (None, None)
+        self.libprs_id    = mi.libprs_id  if (mi and hasattr(mi, 'libprs_id')) else None
          
     
     def smart_update(self, mi):
@@ -91,7 +92,7 @@ class MetaInformation(object):
             
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn'):
+                     'isbn', 'libprs_id'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:

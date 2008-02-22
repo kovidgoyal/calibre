@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import os, re
+import os, re, collections
 
 from libprs500.ebooks.metadata.rtf  import get_metadata as rtf_metadata
 from libprs500.ebooks.lrf.meta      import get_metadata as lrf_metadata
@@ -28,33 +28,66 @@ from libprs500.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 
 from libprs500.ebooks.metadata import MetaInformation
 
+_METADATA_PRIORITIES = [
+                       'html', 'htm', 'xhtml', 'xhtm',
+                       'rtf', 'pdf', 'prc',
+                       'epub', 'lit', 'lrf', 'mobi',
+                      ]
+
+# The priorities for loading metadata from different file types
+# Higher values should be used to update metadata from lower values
+METADATA_PRIORITIES = collections.defaultdict(lambda:0)
+for i, ext in enumerate(_METADATA_PRIORITIES):
+    METADATA_PRIORITIES[ext] = i 
+
+def path_to_ext(path):
+    return os.path.splitext(path)[1][1:].lower()
+
+def metadata_from_formats(formats):
+    mi = MetaInformation(None, None)
+    formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],  
+                                     METADATA_PRIORITIES[path_to_ext(y)]))
+    for path in formats:
+        ext = path_to_ext(path)
+        stream = open(path, 'rb')
+        mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=True))
+        if getattr(mi, 'libprs_id', None) is not None:
+            return mi
+    
+    return mi
+
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if stream_type: stream_type = stream_type.lower()
     if stream_type in ('html', 'html', 'xhtml', 'xhtm'):
         stream_type = 'html'
     if stream_type in ('mobi', 'prc'):
         stream_type = 'mobi'
-    if use_libprs_metadata and hasattr(stream, 'name'):
-        mi = libprs_metadata(stream.name)
-        if mi is not None:
-            return mi
+        
+    opf = None
+    if hasattr(stream, 'name'):
+        c = os.path.splitext(stream.name)[0]+'.opf'
+        if os.access(c, os.R_OK):
+            opf = opf_metadata(os.path.abspath(c))
+        
+    if use_libprs_metadata and getattr(opf, 'libprs_id', None) is not None:
+        return opf
+    
     try:
         func = eval(stream_type + '_metadata')
         mi = func(stream)
     except NameError:
         mi = MetaInformation(None, None)
         
-    name = os.path.basename(stream.name) if hasattr(stream, 'name') else ''
+    name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name)
     if not base.authors:
         base.authors = ['Unknown']
+    if not base.title:
+        base.title = 'Unknown'
     base.smart_update(mi)
-    if hasattr(stream, 'name'):
-        opfpath = os.path.abspath(os.path.splitext(stream.name)[0]+'.opf')
-        if os.access(opfpath, os.R_OK):
-            mi = opf_metadata(opfpath)
-            if mi is not None:
-                base.smart_update(mi)
+    if opf is not None:
+        base.update(opf)
+    
     return base
 
 def set_metadata(stream, mi, stream_type='lrf'):
@@ -125,12 +158,3 @@ def opf_metadata(opfpath):
             return mi
     except:
         pass
-    
-    
-def libprs_metadata(name):
-    if os.path.basename(name) != 'metadata.opf':
-        name = os.path.join(os.path.dirname(name), 'metadata.opf')
-    name = os.path.abspath(name)
-    if os.access(name, os.R_OK):
-        return opf_metadata(name)
-    
