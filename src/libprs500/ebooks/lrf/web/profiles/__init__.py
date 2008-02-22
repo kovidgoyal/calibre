@@ -112,6 +112,8 @@ class DefaultProfile(object):
             li = u'<li><a href="%(url)s">%(title)s</a> <span style="font-size: x-small">[%(date)s]</span><br/>\n'+\
                 u'<div style="font-size:small; font-family:sans">%(description)s<br /></div></li>\n'
             for item in items:
+                if not item.has_key('date'):
+                    item['date'] = time.ctime()
                 ilist += li%item
             return u'''\
             <html>
