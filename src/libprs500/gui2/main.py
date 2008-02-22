@@ -120,11 +120,13 @@ class Main(MainWindow, Ui_MainWindow):
         self.metadata_menu = md
         self.add_menu = QMenu()
         self.add_menu.addAction(_('Add books from a single directory'))
-        self.add_menu.addAction(_('Add books recursively (One book per directory)'))
+        self.add_menu.addAction(_('Add books recursively (One book per directory, assumes every ebook file is the same book in a different format)'))
+        self.add_menu.addAction(_('Add books recursively (Multiple books per directory, assumes every ebook file is a different book)'))
         self.action_add.setMenu(self.add_menu)
         QObject.connect(self.action_add, SIGNAL("triggered(bool)"), self.add_books)
         QObject.connect(self.add_menu.actions()[0], SIGNAL("triggered(bool)"), self.add_books)
         QObject.connect(self.add_menu.actions()[1], SIGNAL("triggered(bool)"), self.add_recursive_single)
+        QObject.connect(self.add_menu.actions()[2], SIGNAL("triggered(bool)"), self.add_recursive_multiple)
         QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit_metadata)
         QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), self.edit_metadata)
@@ -294,15 +296,11 @@ class Main(MainWindow, Ui_MainWindow):
     
     ################################# Add books ################################
     
-    def add_recursive_single(self, checked):
-        '''
-        Add books from the local filesystem to either the library or the device
-        recursively assuming one book per folder.
-        '''
+    def add_recursive(self, single):
         root = choose_dir(self, 'recursive book import root dir dialog', 'Select root folder')
         if not root:
             return
-        duplicates = self.library_view.model().db.recursive_import(root)
+        duplicates = self.library_view.model().db.recursive_import(root, single)
         
         if duplicates:
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
@@ -315,6 +313,22 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.library_view.model().resort()
         self.library_view.model().research()
+    
+    def add_recursive_single(self, checked):
+        '''
+        Add books from the local filesystem to either the library or the device
+        recursively assuming one book per folder.
+        '''
+        self.add_recursive(True)
+        
+    def add_recursive_multiple(self, checked):
+        '''
+        Add books from the local filesystem to either the library or the device
+        recursively assuming multiple books per folder.
+        '''
+        self.add_recursive(False)
+        
+        
         
     
     def add_books(self, checked):

@@ -1355,6 +1355,42 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     f.close()
                     
     
+    def import_book_directory_multiple(self, dirpath, add_duplicates=False):
+        mi = MetaInformation(None, None)
+        dirpath = os.path.abspath(dirpath)
+        duplicates = []
+        for path in os.listdir(dirpath):
+            path = os.path.join(dirpath, path)
+            if os.path.isdir(path) or not os.access(path, os.R_OK):
+                continue
+            ext = os.path.splitext(path)[1]
+            if not ext:
+                continue
+            ext = ext[1:].lower()
+            if ext not in BOOK_EXTENSIONS:
+                continue
+            stream = open(path, 'rb')
+            mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=False))
+            if mi.title is None: 
+                continue
+            if not add_duplicates and self.conn.execute('SELECT id FROM books where title=?', (mi.title,)).fetchone():
+                duplicates.append((mi, path))
+                continue
+            series_index = 1 if mi.series_index is None else mi.series_index
+            obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
+                              (mi.title, None, series_index))
+            id = obj.lastrowid
+            self.conn.commit()
+            self.set_metadata(id, mi)
+            stream.seek(0, 2)
+            usize = stream.tell()
+            stream.seek(0)
+            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
+                              (id, ext, usize, sqlite.Binary(compress(stream.read()))))
+            self.conn.commit()
+        return duplicates
+                      
+    
     def import_book_directory(self, dirpath, add_duplicates=False):
         mi = MetaInformation(None, None)
         dirpath = os.path.abspath(dirpath)
@@ -1371,6 +1407,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 continue
             f = open(path, 'rb')
             mi.smart_update(get_metadata(f, stream_type=ext, use_libprs_metadata=True))
+            f.close()
             formats.append((ext, path))
         if mi.title is None or not formats:
             return
@@ -1392,13 +1429,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()   
             
                     
-    def recursive_import(self, root):
+    def recursive_import(self, root, single_book_per_directory=True):
         root = os.path.abspath(root)
-        duplicates = []
+        duplicates  = []
         for dirpath in os.walk(root):
-            res = self.import_book_directory(dirpath[0])
+            res = self.import_book_directory(dirpath[0]) if single_book_per_directory else self.import_book_directory_multiple(dirpath[0])
             if res is not None:
-                duplicates.append(res)
+                if single_book_per_directory:
+                    duplicates.append(res)
+                else:
+                    duplicates.extend(res)
         return duplicates
                 
 

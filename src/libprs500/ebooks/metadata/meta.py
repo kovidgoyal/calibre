@@ -49,6 +49,12 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if not base.authors:
         base.authors = ['Unknown']
     base.smart_update(mi)
+    if hasattr(stream, 'name'):
+        opfpath = os.path.abspath(os.path.splitext(stream.name)[0]+'.opf')
+        if os.access(opfpath, os.R_OK):
+            mi = opf_metadata(opfpath)
+            if mi is not None:
+                base.smart_update(mi)
     return base
 
 def set_metadata(stream, mi, stream_type='lrf'):
@@ -103,23 +109,28 @@ def metadata_from_filename(name, pat=None):
     if not mi.title:
         mi.title = name
     return mi
+
+def opf_metadata(opfpath):
+    f = open(opfpath, 'rb')
+    opf = OPFReader(f, os.path.dirname(opfpath))
+    try:
+        if opf.libprs_id is not None:
+            mi = MetaInformation(opf, None)
+            if hasattr(opf, 'cover') and opf.cover:
+                cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
+                if os.access(cpath, os.R_OK):                     
+                    fmt = cpath.rpartition('.')[-1]
+                    data = open(cpath, 'rb').read()
+                    mi.cover_data = (fmt, data)
+            return mi
+    except:
+        pass
+    
     
 def libprs_metadata(name):
     if os.path.basename(name) != 'metadata.opf':
         name = os.path.join(os.path.dirname(name), 'metadata.opf')
     name = os.path.abspath(name)
     if os.access(name, os.R_OK):
-        f = open(name, 'rb')
-        opf = OPFReader(f, os.path.dirname(name))
-        try:
-            if opf.libprs_id is not None:
-                mi = MetaInformation(opf, None)
-                if hasattr(opf, 'cover') and opf.cover:
-                    cpath = os.path.join(os.path.dirname(name), opf.cover)
-                    if os.access(cpath, os.R_OK):                     
-                        fmt = cpath.rpartition('.')[-1]
-                        data = open(cpath, 'rb').read()
-                        mi.cover_data = (fmt, data)
-                return mi
-        except:
-            pass
+        return opf_metadata(name)
+    
