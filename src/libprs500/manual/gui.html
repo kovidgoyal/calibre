@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+
+    <head>
+        <meta name="author" content="Kovid Goyal" />
+        <meta name="copyright" content="2008 Kovid Goyal" />
+        <title>The Graphical User Interface</title>
+        <link rel="stylesheet" type="text/css" href="common.css" />
+    </head>
+
+    <body>
+        <h1 class="documentHeading">The Graphical User Interface</h1>
+        <p>
+            The Graphical User Interface <i>(GUI)</i> provides access to all
+            library management and ebook format conversion features. The interface
+            is divided into various sections:
+        </p>
+        <ul>
+            <li><a href="#actions">Actions</a></li>
+            <li><a href="#catalogs">Catalogs</a></li>
+            <li><a href="#search">Search</a></li>
+            <li><a href="#configuration">Configuration</a></li>
+            <li><a href="#library">Library</a></li>
+            <li><a href="#book_details">Book Details</a></li>
+            <li><a href="#jobs">Jobs</a></li>
+        </ul>
+
+        <hr />
+        <h2 class="sectionHeading" id="actions">Actions</h2>
+        <div><img src="images/actions.png" alt="The Actions toolbar"/></div>
+        <p>
+            The actions toolbar provides convenient shortcuts to commonly used actions.
+            Most of the action buttons have little arrows next to them. By clicking the arrows,
+            you can perform slight variations on the defult action.
+        </p>
+        <ul>
+            <li><a href="#add_books">Add books</a></li>
+            <li><a href="#remove_books">Remove books</a></li>
+            <li><a href="#edit_meta_information">Edit meta information</a></li>
+            <li><a href="#send_to_device">Send to device</a></li>
+            <li><a href="#save_to_disk">Save to disk</a></li>
+            <li><a href="#fetch_news">Fetch News</a></li>
+            <li><a href="#convert_ebooks">Convert E-books</a></li>
+            <li><a href="#view">View</a></li>
+        </ul>
+
+        <h3 class="subsectionHeading" id="add_books">Add books</h3>
+        <p>
+            The <span class="action">Add books</span> action has three variations, accessed by the
+            arrow next to the button.
+        </p>
+        <ul>
+            <li>
+                <b>Add books from a single directory</b>: Opens a file chooser dialog and allows you to
+                specify which books in a directory should be added. This action is <i>context sensitive</i>, i.e.
+                it depends on which <a href="#catalogs">catalog</a> you have selected. If you have selected the
+                library, books will be added to the library. If you have selected the ebook reader device, the books
+                will be uploaded to the device.
+            </li>
+            <li>
+                <b>Add books recursively (One book per directory)</b>: Allows you to choose a directory. The directory and
+                all its sub-directories are scanned recursively and any ebooks found are added to the library. The algorithm
+                assumes that each directory contains a single book. All ebook files in a directory are assumed to be the same book
+                in different formats. This action is the inverse of the <a href="#save_to_disk_multiple">Save to disk</a> action,
+                i.e. you can Save to disk, delete the books and re-add them with no lost information (except Date).
+            </li>
+            <li>
+                <b>Add books recursively (Multiple books per directory)</b>: Allows you to choose a directory. The directory and
+                all its sub-directories are scanned recursively and any ebooks found are added to the library. The algorithm
+                assumes that each directory contains many books. All ebook files with the same name in a directory are assumed to be
+                the same book in different formats. This action is the inverse of the
+                <a href="#save_to_disk_single">Save to disk in a single directory</a> action,
+                i.e. you can Save to disk, delete the books and re-add them with no lost information (except Date).
+            </li>
+        </ul>
+        <p>
+            The <span class="action">Add books</span> action can read metadata from the following ebook formats:
+            <code>LRF, EPUB, LIT, MOBI, RTF, PDF, PRC, HTML</code>. In addition it tries to guess metadata from the filename.
+            See <a href="#config_filename_metadata">Configuration</a> section, to learn how to configure this.
+        </p>
+
+        <h3 class="subsectionHeading" id="remove_books">Remove books</h3>
+
+        <h3 class="subsectionHeading" id="edit_meta_information">Edit meta information</h3>
+
+        <h3 class="subsectionHeading" id="send_to_device">Send to device</h3>
+
+        <h3 class="subsectionHeading" id="save_to_disk">Save to disk</h3>
+
+        <h3 class="subsectionHeading" id="fetch_news">Fetch news</h3>
+
+        <h3 class="subsectionHeading" id="convert_ebooks">Convert E-books</h3>
+
+        <h3 class="subsectionHeading" id="view">View</h3>
+
+        <hr />
+        <h2 class="sectionHeading" id="catalogs">Catalogs</h2>
+        <div><img src="images/catalogs.png" alt="Catalogs"/></div>
+
+        <hr />
+        <h2 class="sectionHeading" id="search">Search</h2>
+        <div><img src="images/search.png" alt="Search"/></div>
+
+        <hr />
+        <h2 class="sectionHeading" id="configuration">Configuration</h2>
+        <div><img src="images/configuration.png" alt="Configuration" /></div>
+
+        <hr />
+        <h2 class="sectionHeading" id="library">Library</h2>
+        <div><img src="images/library.png" alt="Library"/></div>
+
+        <p>multiple selection</p>
+
+        <hr />
+        <h2 class="sectionHeading" id="book_details">Book Details</h2>
+        <div><img src="images/book_details.png" alt="Book Details" /></div>
+
+        <hr />
+        <h2 class="sectionHeading" id="jobs">Jobs</h2>
+        <div><img src="images/jobs.png" alt="Jobs" /></div>
+
+    </body>
+
+</html>

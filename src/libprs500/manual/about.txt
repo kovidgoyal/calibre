@@ -1,0 +1,1 @@
+<b>libprs500</b> is an ebook management application with support for various ebook readers. Created by <b>Kovid Goyal</b> &copy; 2007.

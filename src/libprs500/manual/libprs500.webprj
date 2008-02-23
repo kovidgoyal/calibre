@@ -1,0 +1,23 @@
+<!DOCTYPE webproject>
+<webproject>
+  <project type="Local" name="libprs500" encoding="utf8" >
+    <upload/>
+    <author/>
+    <email/>
+    <defaultDTD>-//W3C//DTD XHTML 1.1//EN</defaultDTD>
+    <item url="about.txt" uploadstatus="1" />
+    <item url="libprs500.qhcp" uploadstatus="1" />
+    <item url="libprs500.qhp" uploadstatus="1" />
+    <item url="Makefile" uploadstatus="1" />
+    <item url="" uploadstatus="1" />
+    <annotations/>
+    <templates>templates/</templates>
+    <toolbars>toolbars/</toolbars>
+    <item url="templates/" uploadstatus="1" />
+    <item url="templates/basic.html" />
+    <item url="index.html" />
+    <item url="common.css" />
+    <item url="gui.html" />
+    <item url="images/" />
+  </project>
+</webproject>

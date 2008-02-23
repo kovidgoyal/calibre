@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtHelpProject version="1.0">
+    <namespace>libprs500</namespace>
+    <virtualFolder>manual</virtualFolder>
+    <customFilter name="index">
+        <filterAttribute>libprs500</filterAttribute>
+    </customFilter>
+
+    <filterSection>
+        <filterAttribute>libprs500</filterAttribute>
+
+        <toc>
+            <section title="Start" ref="index.html" />
+            <section title="Using the GUI" ref="gui.html">
+                <section title="Actions" ref="gui.html#actions" />
+            </section>
+        </toc>
+
+        <files>
+            <file>index.html</file>
+            <file>gui.html</file>
+
+            <file>common.css</file>
+
+            <file>images/actions.png</file>
+            <file>images/catalogs.png</file>
+            <file>images/book_details.png</file>
+            <file>images/configuration.png</file>
+            <file>images/jobs.png</file>
+            <file>images/library.png</file>
+            <file>images/search.png</file>
+        </files>
+
+    </filterSection>
+
+</QtHelpProject>

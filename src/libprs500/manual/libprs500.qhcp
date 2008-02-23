@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+ <QHelpCollectionProject version="1.0">
+     <assistant>
+         <title>libprs500 Help</title>
+         <startPage>qthelp://libprs500/manual/index.html</startPage>
+         <applicationIcon>../gui2/images/library.png</applicationIcon>
+         <enableFilterFunctionality>false</enableFilterFunctionality>
+         <enableDocumentationManager>false</enableDocumentationManager>
+         <enableAddressBar visible="true">true</enableAddressBar>
+         <aboutMenuText>
+             <text>About libprs500</text>
+         </aboutMenuText>
+         <aboutDialog>
+             <file>about.txt</file>
+             <icon>../gui2/images/dialog_information.svg</icon>
+         </aboutDialog>
+     </assistant>
+     <docFiles>
+         <generate>
+             <file>
+                 <input>libprs500.qhp</input>
+                 <output>libprs500.qch</output>
+             </file>
+         </generate>
+         <register>
+             <file>libprs500.qch</file>
+         </register>
+     </docFiles>
+ </QHelpCollectionProject>

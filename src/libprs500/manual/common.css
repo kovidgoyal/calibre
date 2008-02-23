@@ -1,0 +1,22 @@
+body {
+    font-family: sans-serif;
+    background-color: white;
+}
+
+.documentHeading {
+    text-align: center;
+    font-family: monospace;
+}
+
+.sectionHeading {
+    font-family: monospace;
+}
+
+.subsectionHeading {
+font-family: monospace;
+}
+
+.action {
+    font-family: monospace;
+    font-weight: bold;
+}
