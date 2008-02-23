@@ -65,7 +65,9 @@ for s, l in zip(scripts, links):
     if os.path.lexists(l):
         os.remove(l)
     print 'Creating link:', l, '->', s
+    omask = os.umask(022)
     os.symlink(s, l)
+    os.umask(omask)
 """
     
     dest_path = %(dest_path)s
