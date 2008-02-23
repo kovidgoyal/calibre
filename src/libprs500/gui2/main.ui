@@ -52,7 +52,7 @@
         <property name="maximumSize" >
          <size>
           <width>10000</width>
-          <height>90</height>
+          <height>100</height>
          </size>
         </property>
         <property name="verticalScrollBarPolicy" >
