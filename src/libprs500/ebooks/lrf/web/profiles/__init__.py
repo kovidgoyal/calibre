@@ -105,7 +105,6 @@ class DefaultProfile(object):
     def build_index(self):
         '''Build an RSS based index.html'''
         articles = self.parse_feeds()
-        
     
         def build_sub_index(title, items):
             ilist = ''
@@ -300,7 +299,7 @@ class DefaultProfile(object):
     
     @classmethod
     def process_html_description(cls, tag, strip_links=True):
-        src = '\n'.join(tag.contents)
+        src = '\n'.join(tag.contents) if hasattr(tag, 'contents') else tag
         match = cls.CDATA_PAT.match(src.lstrip())
         if match:
             src = match.group(1)
@@ -311,6 +310,7 @@ class DefaultProfile(object):
                 src = src.replace(ent, unichr(name2codepoint[e]))
         if strip_links:
             src = re.compile(r'<a.*?>(.*?)</a>', re.IGNORECASE|re.DOTALL).sub(r'\1', src)
+        
         return src 
 
     
