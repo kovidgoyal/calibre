@@ -80,14 +80,75 @@
             <code>LRF, EPUB, LIT, MOBI, RTF, PDF, PRC, HTML</code>. In addition it tries to guess metadata from the filename.
             See <a href="#config_filename_metadata">Configuration</a> section, to learn how to configure this.
         </p>
+        <p>
+            To add a new format to an existing book, use the <a href="#edit_meta_information">Edit meta information</a> action.
+        </p>
 
         <h3 class="subsectionHeading" id="remove_books">Remove books</h3>
+        <p>
+            The <span class="action">Remove books</span> action deletes books permanently, so use it with care.
+            It is <i>context sensitive</i>,
+            i.e. it depends on which <a href="#catalogs">catalog</a> you have selected. If you have selected the
+            library, books will be removed from the library. If you have selected the ebook reader device, the books
+            will be removed from the device. To remove only a particular format for a given book use the
+            <a href="#edit_meta_information">Edit meta information</a> action.
+        </p>
 
         <h3 class="subsectionHeading" id="edit_meta_information">Edit meta information</h3>
+        <p>
+            The <span class="action">Edit meta information</span> action has two variations, accessed by the
+            arrow next to the button.
+        </p>
+        <ul>
+            <li>
+                <b>Edit metadata individually</b>: This allows you to edit the metadata of books one-by-one, with the option
+                of fetching metadata, including covers from the internet. It also allows you to add/remove particular
+                ebook formats from a book. For more detail see <a href="metadata.html">Editing metadata</a>.
+            </li>
+            <li>
+                <b>Edit metadata in bulk</b>: This allows you to edit common metadata fields for large numbers of books simulataneously. It
+                operates on all the books you have selected in the <a href="#library">Library view</a>.
+            </li>
+        </ul>
 
         <h3 class="subsectionHeading" id="send_to_device">Send to device</h3>
+        <p>
+            The <span class="action">Send to device</span> action has two variations, accessed by the
+            arrow next to the button.
+        </p>
+        <ul>
+            <li>
+                <b>Send to main memory</b>: The selected books are transferred to the main memory of the ebook reader.
+            </li>
+            <li>
+                <b>Send to card</b>: The selected books are transferred to the storage card on the ebook reader.
+            </li>
+        </ul>
 
         <h3 class="subsectionHeading" id="save_to_disk">Save to disk</h3>
+        <p>
+            The <span class="action">Save to disk</span> action has two variations, accessed by the
+            arrow next to the button.
+        </p>
+        <ul>
+            <li id="save_to_disk_multiple">
+                <b>Save to disk</b>: This will save the selected books to disk organized in directories. The directory
+                structure looks like:
+                <pre>
+Author
+    Title
+        Book Files
+                </pre>
+            </li>
+            <li id="save_to_disk_single">
+                <b>Save to disk in a single directory</b>: The selected books are saved to disk in a single directory.
+            </li>
+        </ul>
+        <p>
+            All available formats as well as metadata is stored to disk for each selected book. Metadata is stored in an OPF file.
+            Saved books can be re-imported to the library without any loss of information by using the <a href="#add_books">Add books</a>
+            action.
+        </p>
 
         <h3 class="subsectionHeading" id="fetch_news">Fetch news</h3>
 

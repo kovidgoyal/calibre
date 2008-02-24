@@ -19,5 +19,14 @@
     <item url="common.css" />
     <item url="gui.html" />
     <item url="images/" />
+    <item url="images/actions.png" />
+    <item url="images/book_details.png" />
+    <item url="images/catalogs.png" />
+    <item url="images/configuration.png" />
+    <item url="images/jobs.png" />
+    <item url="images/library.png" />
+    <item url="images/search.png" />
+    <item url="libprs500.session" />
+    <item url="libprs500.webprj" />
   </project>
 </webproject>

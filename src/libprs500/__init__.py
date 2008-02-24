@@ -18,7 +18,7 @@ __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys, os, logging, mechanize, locale, cStringIO, re
+import sys, os, logging, mechanize, locale, cStringIO, re, subprocess
 from gettext import GNUTranslations
 from math import floor
 from optparse import OptionParser as _OptionParser
@@ -224,3 +224,12 @@ def detect_ncpus():
             return ncpus
     #return the default value
     return 1
+
+def launch(path_or_url):
+    if islinux:
+        subprocess.Popen(('xdg-open', path_or_url))
+    elif isosx:
+        subprocess.Popen(('open', path_or_url))
+    elif iswindows:
+        import win32api
+        win32api.ShellExecute(0, 'open', path_or_url, None, os.getcwd(), 0)

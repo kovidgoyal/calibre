@@ -3,6 +3,14 @@ body {
     background-color: white;
 }
 
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    color: red;
+}
+
 .documentHeading {
     text-align: center;
     font-family: monospace;

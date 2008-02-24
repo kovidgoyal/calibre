@@ -20,7 +20,7 @@ from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
 
-from libprs500 import __version__, __appname__, islinux, sanitize_file_name
+from libprs500 import __version__, __appname__, islinux, sanitize_file_name, launch
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from libprs500.devices.errors import FreeSpaceError
@@ -46,6 +46,7 @@ from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
 from libprs500.gui2.dialogs.config import ConfigDialog
 from libprs500.gui2.dialogs.search import SearchDialog
 from libprs500.gui2.dialogs.user_profiles import UserProfiles
+from libprs500.gui2.dialogs.choose_format import ChooseFormatDialog
 from libprs500.library.database import DatabaseLocked
 from libprs500.ebooks.metadata.meta import set_metadata
 from libprs500.ebooks.metadata import MetaInformation
@@ -137,10 +138,16 @@ class Main(MainWindow, Ui_MainWindow):
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
         
+        self.view_menu = QMenu()
+        self.view_menu.addAction(_('View'))
+        self.view_menu.addAction(_('View specific format'))
+        self.action_view.setMenu(self.view_menu)
         QObject.connect(self.action_save, SIGNAL("triggered(bool)"), self.save_to_disk)
         QObject.connect(self.save_menu.actions()[0], SIGNAL("triggered(bool)"), self.save_to_disk)
         QObject.connect(self.save_menu.actions()[1], SIGNAL("triggered(bool)"), self.save_to_single_dir)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"), self.view_book)
+        QObject.connect(self.view_menu.actions()[0], SIGNAL("triggered(bool)"), self.view_book)
+        QObject.connect(self.view_menu.actions()[1], SIGNAL("triggered(bool)"), self.view_specific_format)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
         self.action_save.setMenu(self.save_menu)
@@ -164,6 +171,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.tool_bar.widgetForAction(self.action_convert).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_save).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_add).setPopupMode(QToolButton.MenuButtonPopup)
+        self.tool_bar.widgetForAction(self.action_view).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
@@ -732,6 +740,38 @@ class Main(MainWindow, Ui_MainWindow):
     
     #############################View book######################################
     
+    def view_format(self, row, format):
+        pt = PersistentTemporaryFile('_viewer')
+        pt.write(self.library_view.model().db.format(row, format))
+        pt.close()
+        self.persistent_files.append(pt)
+        if format.upper() == 'LRF':
+            args = ['lrfviewer', pt.name]
+            self.job_manager.process_server.run('viewer%d'%self.viewer_job_id, 
+                                                'lrfviewer', kwdargs=dict(args=args),
+                                                monitor=False)
+            self.viewer_job_id += 1
+        else:
+            launch(pt.name)
+        time.sleep(2) # User feedback
+    
+    def view_specific_format(self, triggered):
+        rows = self.library_view.selectionModel().selectedRows()
+        if not rows or len(rows) == 0:
+            d = error_dialog(self, _('Cannot view'), _('No book selected'))            
+            d.exec_()
+            return
+        
+        row = rows[0].row()
+        formats = self.library_view.model().db.formats(row).upper().split(',')
+        d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            format = d.format()
+            self.view_format(row, format)
+        else:
+            return
+    
     def view_book(self, triggered):
         rows = self.library_view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
@@ -740,25 +780,29 @@ class Main(MainWindow, Ui_MainWindow):
             return
         
         row = rows[0].row()
-        formats = self.library_view.model().db.formats(row)
+        formats = self.library_view.model().db.formats(row).upper().split(',')
         title   = self.library_view.model().db.title(row)
-        id      = self.library_view.model().db.id(row) 
-        if 'LRF' not in formats.upper():
+        id      = self.library_view.model().db.id(row)
+        format = None
+        if len(formats) == 1:
+            format = formats[0]
+        if 'LRF' in formats:
+            format = 'LRF'
+        if not formats:
             d = error_dialog(self, _('Cannot view'), 
-                    _('%s is not available in LRF format. Please convert it first.')%(title,))            
+                    _('%s has no available formats.')%(title,))            
             d.exec_()
             return
+        if format is None:
+            d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
+            d.exec_()
+            if d.result() == QDialog.Accepted:
+                format = d.format()
+            else:
+                return
         
-        pt = PersistentTemporaryFile('_viewer')
-        pt.write(self.library_view.model().db.format(row, 'LRF'))
-        pt.close()
-        self.persistent_files.append(pt)
-        args = ['lrfviewer', pt.name]
-        self.job_manager.process_server.run('viewer%d'%self.viewer_job_id, 
-                                            'lrfviewer', kwdargs=dict(args=args),
-                                            monitor=False)
-        self.viewer_job_id += 1
-        time.sleep(2) # User feedback
+        self.view_format(row, format)
+        
     
     ############################################################################
     
