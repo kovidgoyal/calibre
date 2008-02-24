@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
-import os, sys, textwrap, cStringIO, collections, traceback, shutil
+import os, sys, textwrap, collections, traceback, shutil, time
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QSettings, QVariant, QSize, QThread, QString
@@ -46,8 +46,6 @@ from libprs500.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
 from libprs500.gui2.dialogs.config import ConfigDialog
 from libprs500.gui2.dialogs.search import SearchDialog
 from libprs500.gui2.dialogs.user_profiles import UserProfiles
-from libprs500.gui2.lrf_renderer.main import file_renderer
-from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
 from libprs500.library.database import DatabaseLocked
 from libprs500.ebooks.metadata.meta import set_metadata
 from libprs500.ebooks.metadata import MetaInformation
@@ -80,6 +78,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.delete_memory = {}
         self.conversion_jobs = {}
         self.persistent_files = []
+        self.viewer_job_id = 1
         self.default_thumbnail = None
         self.device_error_dialog = ConversionErrorDialog(self, _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
@@ -745,23 +744,21 @@ class Main(MainWindow, Ui_MainWindow):
         title   = self.library_view.model().db.title(row)
         id      = self.library_view.model().db.id(row) 
         if 'LRF' not in formats.upper():
-            d = error_dialog(self, _('Cannot view'), _('%s is not available in LRF format. Please convert it first.')%(title,))            
+            d = error_dialog(self, _('Cannot view'), 
+                    _('%s is not available in LRF format. Please convert it first.')%(title,))            
             d.exec_()
             return
         
-        data = cStringIO.StringIO(self.library_view.model().db.format(row, 'LRF'))
-        parser = lrfviewerop()
-        opts   = parser.parse_args(['lrfviewer'])[0]
-        
-        viewer = file_renderer(data, opts)
-        viewer.libprs500_db_id = id
-        viewer.show()
-        viewer.render()
-        self.viewers.append(viewer)
-        QObject.connect(viewer, SIGNAL('viewer_closed(PyQt_PyObject)'), self.viewer_closed)
-        
-    def viewer_closed(self, viewer):
-        self.viewers.remove(viewer)
+        pt = PersistentTemporaryFile('_viewer')
+        pt.write(self.library_view.model().db.format(row, 'LRF'))
+        pt.close()
+        self.persistent_files.append(pt)
+        args = ['lrfviewer', pt.name]
+        self.job_manager.process_server.run('viewer%d'%self.viewer_job_id, 
+                                            'lrfviewer', kwdargs=dict(args=args),
+                                            monitor=False)
+        self.viewer_job_id += 1
+        time.sleep(2) # User feedback
     
     ############################################################################
     

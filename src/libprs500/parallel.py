@@ -19,11 +19,13 @@ import re, sys, tempfile, os, subprocess, cPickle, cStringIO, traceback, atexit,
 from functools import partial
 from libprs500.ebooks.lrf.any.convert_from import main as any2lrf
 from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
+from libprs500.gui2.lrf_renderer.main import main as lrfviewer
 from libprs500 import iswindows
 
 PARALLEL_FUNCS = {
-                  'any2lrf' : partial(any2lrf, gui_mode=True),
-                  'web2lrf' : web2lrf,
+                  'any2lrf'   : partial(any2lrf, gui_mode=True),
+                  'web2lrf'   : web2lrf,
+                  'lrfviewer' : lrfviewer,
                   }
 Popen = subprocess.Popen
 
@@ -50,11 +52,21 @@ class Server(object):
         atexit.register(cleanup, self.tdir)
         self.stdout = {}
         
-    def run(self, job_id, func, args=(), kwdargs={}):
+    def run(self, job_id, func, args=[], kwdargs={}, monitor=True):
+        '''
+        Run a job in a separate process.
+        @param job_id: A unique (per server) identifier
+        @param func: One of C{PARALLEL_FUNCS.keys()}
+        @param args: A list of arguments to pass of C{func}
+        @param kwdargs: A dictionary of keyword arguments to pass to C{func}
+        @param monitor: If False launch the child process and return. Do not monitor/communicate with it.
+        @return: (result, exception, formatted_traceback, log) where log is the combined
+        stdout + stderr of the child process; or None if monitor is True.
+        '''
         job_id = str(job_id)
         job_dir = os.path.join(self.tdir, job_id)
         if os.path.exists(job_dir):
-            raise ValueError('Cannot run job. The job_id %s has already been used.')
+            raise ValueError('Cannot run job. The job_id %s has already been used.'%job_id)
         os.mkdir(job_dir)
         self.stdout[job_id] = cStringIO.StringIO()
         
@@ -68,7 +80,11 @@ class Server(object):
                 os.environ['PATH'] += ':'+fd
         cmd = prefix + 'from libprs500.parallel import run_job; run_job(\'%s\')'%binascii.hexlify(job_data)
         
-        p = Popen((python, '-c', cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        if monitor:
+            p = Popen((python, '-c', cmd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        else:
+            Popen((python, '-c', cmd))
+            return 
         while p.returncode is None:
             self.stdout[job_id].write(p.stdout.readline())
             p.poll()
@@ -77,7 +93,8 @@ class Server(object):
         
         job_result = os.path.join(job_dir, 'job_result.pickle')
         if not os.path.exists(job_result):
-            result, exception, traceback = None, ('ParallelRuntimeError', 'The worker process died unexpectedly.'), ''
+            result, exception, traceback = None, ('ParallelRuntimeError', 
+                                                  'The worker process died unexpectedly.'), ''
         else:              
             result, exception, traceback = cPickle.load(open(job_result, 'rb'))
         log = self.stdout[job_id].getvalue()
@@ -98,7 +115,8 @@ def run_job(job_data):
         exception = (err.__class__.__name__, unicode(str(err), 'utf-8', 'replace'))
         tb = traceback.format_exc()
     
-    cPickle.dump((result, exception, tb), open(job_result, 'wb'))
+    if os.path.exists(os.path.dirname(job_result)):
+        cPickle.dump((result, exception, tb), open(job_result, 'wb'))
     
 def main():
     src = sys.argv[2]
