@@ -101,15 +101,17 @@ class BookHeader(object):
         except IndexError, KeyError:
             raise MobiError('Unknown codepage: %d'%self.codepage)
         
-        if ident == 'TEXTREAD':
+        if ident == 'TEXTREAD' or self.length < 0xF4:
             self.extra_flags = 0
         else:
             self.extra_flags, = struct.unpack('>L', raw[0xF0:0xF4])
+        
         
         if self.compression_type == 'DH':
             self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78]) 
         
         self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
+        
         self.exth = None
         if self.exth_flag & 0x40:
             self.exth = EXTHHeader(raw[16+self.length:], self.codec)
