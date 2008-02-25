@@ -1074,11 +1074,8 @@ class BeautifulStoneSoup(Tag, SGMLParser):
             if not hasattr(self, 'originalEncoding'):
                 self.originalEncoding = None
         else:
-            dammit = UnicodeDammit\
-                     (markup, [self.fromEncoding, inDocumentEncoding],
-                      smartQuotesTo=self.smartQuotesTo)
-            markup = dammit.unicode
-            self.originalEncoding = dammit.originalEncoding
+            # Changed detection by Kovid
+            markup, self.originalEncoding = chardet.xml_to_unicode(markup)            
         if markup:
             if self.markupMassage:
                 if not isList(self.markupMassage):

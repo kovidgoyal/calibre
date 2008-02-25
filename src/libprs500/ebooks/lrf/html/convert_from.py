@@ -33,8 +33,7 @@ except ImportError:
     import Image as PILImage
 
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Comment, Tag, \
-                            NavigableString, Declaration, ProcessingInstruction, \
-                            UnicodeDammit
+                            NavigableString, Declaration, ProcessingInstruction
 from libprs500.ebooks.lrf.pylrs.pylrs import Paragraph, CR, Italic, ImageStream, \
                 TextBlock, ImageBlock, JumpButton, CharButton, \
                 Plot, Image, BlockSpace, RuledLine, BookSetting, Canvas, DropCaps, \
@@ -49,6 +48,7 @@ from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.opf import OPFReader
 from libprs500.devices.interface import Device
 from libprs500.ebooks.lrf.html.color_map import lrs_color
+from libprs500.ebooks.chardet import xml_to_unicode
 
 def update_css(ncss, ocss):
     for key in ncss.keys():
@@ -360,7 +360,7 @@ class HTMLConverter(object):
         if self.pdftohtml: # Bug in pdftohtml that causes it to output invalid UTF-8 files
             raw = raw.decode('utf-8', 'ignore')
         else:
-            raw = UnicodeDammit(raw).unicode
+            raw = xml_to_unicode(raw)[0]
         f.close()
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')

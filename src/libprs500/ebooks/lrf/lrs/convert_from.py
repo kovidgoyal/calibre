@@ -20,12 +20,13 @@ import sys, os, logging
 
 from libprs500 import __author__, __appname__, __version__, setup_cli_handlers
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, \
-                                           CData, Tag, UnicodeDammit
+                                           CData, Tag
 from libprs500.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \
             BlockStyle, ImageStream, Font, StyleDefault, BookSetting, Header, \
             Image, ImageBlock, Page, TextBlock, Canvas, Paragraph, CR, Span, \
             Italic, Sup, Sub, Bold, EmpLine, JumpButton, CharButton, Plot, \
             DropCaps, Footer, RuledLine
+from libprs500.ebooks.chardet import xml_to_unicode
 
 class LrsParser(object):
     
@@ -38,7 +39,7 @@ class LrsParser(object):
     def __init__(self, stream, logger):
         self.logger = logger
         src = stream.read()
-        self.soup = BeautifulStoneSoup(UnicodeDammit(src).unicode, 
+        self.soup = BeautifulStoneSoup(xml_to_unicode(src)[0], 
                                        selfClosingTags=self.SELF_CLOSING_TAGS)
         self.objects = {}
         for obj in self.soup.findAll(objid=True):

@@ -17,6 +17,8 @@
 
 __version__ = "1.0"
 
+import re
+
 def detect(aBuf):
     import universaldetector
     u = universaldetector.UniversalDetector()
@@ -24,3 +26,31 @@ def detect(aBuf):
     u.feed(aBuf)
     u.close()
     return u.result
+
+# Added by Kovid
+def xml_to_unicode(raw):
+    '''
+    Force conversion of byte string to unicode. Tries to llok for XML/HTML 
+    encoding declaration first, if not found uses the chardet library and
+    prints a warning if detection confidence is < 100%
+    @return: (unicode, encoding used) 
+    '''
+    encoding = None
+    if isinstance(raw, unicode):
+        return raw, encoding
+    match = re.compile('^\s*<\?.*encoding=[\'"](.*?)[\'"].*\?>', re.IGNORECASE).match(raw)
+    if match is None:
+        match = re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"]', re.IGNORECASE).search(raw)
+    if match is not None:
+        encoding = match.group(1) 
+    if encoding is None:
+        chardet = detect(raw)
+        encoding = chardet['encoding']
+        if chardet['confidence'] < 1:
+            print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)
+    CHARSET_ALIASES = { "macintosh" : "mac-roman",
+                        "x-sjis" : "shift-jis" }
+    encoding = encoding.lower()
+    if CHARSET_ALIASES.has_key(encoding):
+        encoding = CHARSET_ALIASES[encoding]
+    return raw.decode(encoding, 'ignore'), encoding 

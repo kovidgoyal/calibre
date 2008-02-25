@@ -26,6 +26,7 @@ from optparse import OptionParser as _OptionParser
 from ttfquery import findsystem, describe
 
 from libprs500.translations.msgfmt import make
+from libprs500.ebooks.chardet import detect
 
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
