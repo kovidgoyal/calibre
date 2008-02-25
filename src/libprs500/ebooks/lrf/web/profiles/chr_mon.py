@@ -1,38 +1,46 @@
-import re
+
+import re, time
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
 class ChristianScienceMonitor(DefaultProfile):
 
     title = 'Christian Science Monitor'
     max_recursions = 2
     max_articles_per_feed = 20
-    use_pubdate = False
-    html_description = True
-    html2lrf_options = ['--ignore-tables', '--base-font-size=8.0', '--wordspace=2.0',]
+    no_stylesheets = True
+    
+  
 
     
     preprocess_regexps = [ (re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
-[
-        (r'<HEAD>.*?</HEAD>' , lambda match : '<HEAD></HEAD>'),
-        (r'<body class="apple-rss-no-unread-mode" onLoad="setup(null)">.*?<!-- start Entries -->', lambda match : '<BODY><!-- start Entries -->'),
-        (r'<!-- end Entries -->.*?</BODY>', lambda match : '<!-- end Entries --></BODY>'),
-        (r'<script>.*?</script>', lambda match : ''),
-        (r'<body>.*?<div class="portlet-container">', lambda match : '<body><div class="portlet-container">'),
-        (r'<div class="pubdate">.*?</div>', lambda match : ''),
-        (r'<div class="factbox">.*?</body>', lambda match : '</body>'),
-
-    ]
-    ]
+        [
+        (r'<body.*?<div id="story"', lambda match : '<body><div id="story"'),
+        (r'<div class="pubdate">.*?</div>', lambda m: ''),
+        (r'Full HTML version of this story which may include photos, graphics, and related links.*</body>',
+              lambda match : '</body>'),
+        ]]
      
 
-  
-    def get_feeds(self):
-        return [ ('Top News', 'http://rss.csmonitor.com/feeds/top'),
-                  ('Terrorism', 'http://rss.csmonitor.com/terrorismSecurity'),
-                  ('World', 'http://rss.csmonitor.com/feeds/world'),
-               ] 
-          
-          
-    def print_version(self, url):
-        resolved_url = self.browser.open(url).geturl()
-        return resolved_url.strip()[:-1]  
+    def parse_feeds(self):
+        soup = BeautifulSoup(self.browser.open('http://www.csmonitor.com/textedition'))
+        articles = {}
+        feed = []
+        for tag in soup.findAll(['h2', 'p']):
+            if tag.name == 'h2':
+                title = self.tag_to_string(tag)
+                feed = [] 
+                articles[title] = feed
+            elif tag.has_key('class') and tag['class'] == 'story':
+                a = tag.find('a')
+                if a is not None and a.has_key('href'):
+                    feed.append({
+                         'title': self.tag_to_string(a),
+                         'url'  : 'http://www.csmonitor.com'+a['href'],
+                         'date' : time.strftime('%d %b'),
+                         'content' : '',
+                         })
+                    a.extract()
+                    feed[-1]['description'] = self.tag_to_string(tag).strip()
+        return articles
+      
