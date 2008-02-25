@@ -344,7 +344,10 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
         num = int(ent[1:])
         if encoding is None or num > 255:
             return unichr(num)
-        return chr(num).decode(encoding)
+        try:
+            return chr(num).decode(encoding)
+        except UnicodeDecodeError:
+            return unichr(num)
     try:
         return unichr(name2codepoint[ent])
     except KeyError:
