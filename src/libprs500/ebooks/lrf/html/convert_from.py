@@ -360,7 +360,7 @@ class HTMLConverter(object):
         if self.pdftohtml: # Bug in pdftohtml that causes it to output invalid UTF-8 files
             raw = raw.decode('utf-8', 'ignore')
         else:
-            raw = xml_to_unicode(raw)[0]
+            raw = xml_to_unicode(raw, self.verbose)[0]
         f.close()
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')

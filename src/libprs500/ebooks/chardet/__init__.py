@@ -28,13 +28,15 @@ def detect(aBuf):
     return u.result
 
 # Added by Kovid
-def xml_to_unicode(raw):
+def xml_to_unicode(raw, verbose=False):
     '''
     Force conversion of byte string to unicode. Tries to llok for XML/HTML 
     encoding declaration first, if not found uses the chardet library and
     prints a warning if detection confidence is < 100%
     @return: (unicode, encoding used) 
     '''
+    if not raw:
+        return u'', None
     encoding = None
     if isinstance(raw, unicode):
         return raw, encoding
@@ -46,7 +48,7 @@ def xml_to_unicode(raw):
     if encoding is None:
         chardet = detect(raw)
         encoding = chardet['encoding']
-        if chardet['confidence'] < 1:
+        if chardet['confidence'] < 1 and verbose:
             print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)
     CHARSET_ALIASES = { "macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis" }

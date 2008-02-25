@@ -23,6 +23,7 @@ from optparse import OptionParser
 from libprs500 import __version__, __appname__, __author__, setup_cli_handlers, \
                       browser, sanitize_file_name
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
+from libprs500.ebooks.chardet import xml_to_unicode
 
 class FetchError(Exception):
     pass
@@ -58,6 +59,7 @@ class RecursiveFetcher(object):
             os.makedirs(self.base_dir)
         self.default_timeout = socket.getdefaulttimeout()
         socket.setdefaulttimeout(options.timeout)
+        self.verbose = options.verbose
         self.browser = options.browser if hasattr(options, 'browser') else browser()
         self.max_recursions = options.max_recursions
         self.match_regexps  = [re.compile(i, re.IGNORECASE) for i in options.match_regexps]
@@ -77,7 +79,7 @@ class RecursiveFetcher(object):
     def get_soup(self, src):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
-        return BeautifulSoup(src, markupMassage=nmassage)
+        return BeautifulSoup(xml_to_unicode(src, self.verbose)[0], markupMassage=nmassage)
 
     def fetch_url(self, url):
         f = None
@@ -97,7 +99,7 @@ class RecursiveFetcher(object):
 
         
     def start_fetch(self, url):
-        soup = BeautifulSoup('<a href="'+url+'" />')
+        soup = BeautifulSoup(u'<a href="'+url+'" />')
         self.logger.info('Downloading')
         res = self.process_links(soup, url, 0, into_dir='')
         self.logger.info('%s saved to %s', url, res)
