@@ -1812,7 +1812,7 @@ class UnicodeDammit:
                                  ('^<\?.*encoding=[\'"](.*?)[\'"].*\?>')\
                                  .match(xml_data)
             if xml_encoding_match is None: # By Kovid to use the content-type header in HTML files
-                xml_encoding_match = re.compile(r'<meta.*?http-equiv=[\'"]Content-type[\'"].*?content=[\'"].*?charset=(\S+).*?[\'"]', re.IGNORECASE).search(xml_data)
+                xml_encoding_match = re.compile(r'<meta.*?content=[\'"].*?charset=(\S+).*?[\'"]', re.IGNORECASE).search(xml_data)
         except:
             xml_encoding_match = None
         if xml_encoding_match:
