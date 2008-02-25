@@ -28,3 +28,9 @@ font-family: monospace;
     font-family: monospace;
     font-weight: bold;
 }
+
+.footer {
+    font-size: x-small;
+    color: lightgray;
+    text-align: right;
+}

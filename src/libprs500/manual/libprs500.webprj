@@ -14,19 +14,19 @@
     <templates>templates/</templates>
     <toolbars>toolbars/</toolbars>
     <item url="templates/" uploadstatus="1" />
-    <item url="templates/basic.html" />
-    <item url="index.html" />
-    <item url="common.css" />
-    <item url="gui.html" />
-    <item url="images/" />
-    <item url="images/actions.png" />
-    <item url="images/book_details.png" />
-    <item url="images/catalogs.png" />
-    <item url="images/configuration.png" />
-    <item url="images/jobs.png" />
-    <item url="images/library.png" />
-    <item url="images/search.png" />
-    <item url="libprs500.session" />
-    <item url="libprs500.webprj" />
+    <item url="templates/basic.html" uploadstatus="1" />
+    <item url="index.html" uploadstatus="1" />
+    <item url="common.css" uploadstatus="1" />
+    <item url="gui.html" uploadstatus="1" />
+    <item url="images/" uploadstatus="1" />
+    <item url="images/actions.png" uploadstatus="1" />
+    <item url="images/book_details.png" uploadstatus="1" />
+    <item url="images/catalogs.png" uploadstatus="1" />
+    <item url="images/configuration.png" uploadstatus="1" />
+    <item url="images/jobs.png" uploadstatus="1" />
+    <item url="images/library.png" uploadstatus="1" />
+    <item url="images/search.png" uploadstatus="1" />
+    <item url="libprs500.session" uploadstatus="1" />
+    <item url="libprs500.webprj" uploadstatus="1" />
   </project>
 </webproject>

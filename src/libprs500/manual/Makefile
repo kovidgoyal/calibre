@@ -4,6 +4,7 @@ ASSISTANT=${QTDIR}/bin/assistant_new
 LD_LIBRARY_PATH=${QTDIR}/lib
 
 all : clean
+	python preprocess.py
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ${QCG} libprs500.qhcp && \
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ${ASSISTANT} -collectionFile libprs500.qhc &
 
