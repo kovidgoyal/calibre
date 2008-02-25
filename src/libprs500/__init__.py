@@ -107,7 +107,7 @@ class OptionParser(_OptionParser):
     def __init__(self,
                  usage='%prog [options] filename',
                  version='%%prog (%s %s)'%(__appname__, __version__),
-                 epilog=_('Created by ')+__author__,
+                 epilog=_('Created by ')+terminal_controller.RED+__author__+terminal_controller.NORMAL,
                  gui_mode=False,
                  **kwds):
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, 
