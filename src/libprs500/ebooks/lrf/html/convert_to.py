@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import sys, logging, os
 
-from libprs500 import __appname__, __author__, __version__, setup_cli_handlers
+from libprs500 import setup_cli_handlers, OptionParser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.meta import get_metadata
 from libprs500.ebooks.lrf.parser import LRFDocument
@@ -91,9 +91,7 @@ class LRFConverter(object):
         self.create_block_styles()
 
 def option_parser():
-    from optparse import OptionParser
-    parser = OptionParser(usage='%prog book.lrf', epilog='Created by '+__author__,
-                          version=__appname__ + ' ' + __version__)
+    parser = OptionParser(usage='%prog book.lrf')
     parser.add_option('--output-dir', '-o', default=None, help='Output directory in which to store created HTML files. If it does not exist, it is created. By default the current directory is used.', dest='out')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
     return parser

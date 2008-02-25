@@ -18,7 +18,7 @@ Compile a LRS file into a LRF file.
 
 import sys, os, logging
 
-from libprs500 import __author__, __appname__, __version__, setup_cli_handlers
+from libprs500 import OptionParser, setup_cli_handlers
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, \
                                            CData, Tag
 from libprs500.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \
@@ -263,10 +263,7 @@ class LrsParser(object):
         
 
 def option_parser():
-    from optparse import OptionParser
-    parser = OptionParser(usage='%prog [options] file.lrs', 
-                          version=__appname__+ ' ' + __version__, 
-                          epilog='Created by '+__author__)
+    parser = OptionParser(usage='%prog [options] file.lrs\nCompile an LRS file into an LRF file.')
     parser.add_option('-o', '--output', default=None, help='Path to output file')
     parser.add_option('--verbose', default=False, action='store_true',
                       help='Verbose processing')

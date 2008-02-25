@@ -16,7 +16,7 @@
 
 import sys, array, os, re, codecs, logging
 
-from libprs500 import __author__, __appname__, __version__, setup_cli_handlers 
+from libprs500 import OptionParser, setup_cli_handlers 
 from libprs500.ebooks.lrf.meta import LRFMetaFile
 from libprs500.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
                                          Font, Text, TOCObject, BookAttr, ruby_tags
@@ -141,9 +141,7 @@ class LRFDocument(LRFMetaFile):
         return '<BBeBXylog version="1.0">\n' + bookinfo + pages + styles + objects + '</BBeBXylog>'
         
 def option_parser():
-    from optparse import OptionParser
-    parser = OptionParser(usage='%prog book.lrf', epilog='Created by '+__author__,
-                          version=__appname__ + ' ' + __version__)
+    parser = OptionParser(usage='%prog book.lrf\nConvert an LRF file into an LRS (XML UTF-8 encoded) file')
     parser.add_option('--output', '-o', default=None, help='Output LRS file', dest='out')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
     return parser

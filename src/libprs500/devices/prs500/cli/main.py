@@ -23,7 +23,7 @@ from optparse import OptionParser
 
 from libprs500 import __version__, iswindows
 from libprs500.devices.errors import PathError 
-from libprs500.devices.prs500.cli.terminfo import TerminalController
+from libprs500.terminfo import TerminalController
 from libprs500.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from libprs500.devices import devices
 from libprs500.devices.scanner import DeviceScanner

@@ -19,13 +19,13 @@ the L{libprs500.lrf.meta} module.
 __docformat__ = "epytext"
 __author__       = "Kovid Goyal <kovid@kovidgoyal.net>"
 
-from optparse import OptionParser
+
 from libprs500 import __version__ as VERSION
+from libprs500 import OptionParser
 
 def get_parser(extension):
     ''' Return an option parser with the basic metadata options already setup'''
-    parser = OptionParser(version='libprs500 version: '+VERSION,
-                          usage='''%prog [options] myfile.'''+extension)
+    parser = OptionParser(usage='%prog [options] myfile.'+extension+'\n\nRead and write metadata from an ebook file.')
     parser.add_option("-t", "--title", action="store", type="string", \
                     dest="title", help="Set the book title", default=None)
     parser.add_option("-a", "--authors", action="store", type="string", \

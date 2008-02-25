@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.Warning
 import shutil
 ''' Post installation script for linux '''
-import sys, os
+import sys, os, re
 
 from subprocess import check_call
 from libprs500 import __version__, __appname__
@@ -26,6 +26,41 @@ DEVICES = devices()
 DESTDIR = ''
 if os.environ.has_key('DESTDIR'):
     DESTDIR = os.environ['DESTDIR']
+
+entry_points = {
+        'console_scripts': [ \
+                             'prs500    = libprs500.devices.prs500.cli.main:main', 
+                             'lrf-meta  = libprs500.ebooks.lrf.meta:main', 
+                             'rtf-meta  = libprs500.ebooks.metadata.rtf:main', 
+                             'pdf-meta  = libprs500.ebooks.metadata.pdf:main', 
+                             'lit-meta  = libprs500.ebooks.metadata.lit:main',
+                             'opf-meta  = libprs500.ebooks.metadata.opf:main',
+                             'epub-meta = libprs500.ebooks.metadata.epub:main',
+                             'txt2lrf   = libprs500.ebooks.lrf.txt.convert_from:main', 
+                             'html2lrf  = libprs500.ebooks.lrf.html.convert_from:main',
+                             'markdown-libprs500  = libprs500.ebooks.markdown.markdown:main',
+                             'lit2lrf   = libprs500.ebooks.lrf.lit.convert_from:main',
+                             'epub2lrf  = libprs500.ebooks.lrf.epub.convert_from:main',
+                             'rtf2lrf   = libprs500.ebooks.lrf.rtf.convert_from:main',
+                             'web2disk  = libprs500.web.fetch.simple:main',
+                             'web2lrf   = libprs500.ebooks.lrf.web.convert_from:main',
+                             'pdf2lrf   = libprs500.ebooks.lrf.pdf.convert_from:main',
+                             'mobi2lrf  = libprs500.ebooks.lrf.mobi.convert_from:main',
+                             'any2lrf   = libprs500.ebooks.lrf.any.convert_from:main',
+                             'lrf2lrs   = libprs500.ebooks.lrf.parser:main',
+                             'lrs2lrf   = libprs500.ebooks.lrf.lrs.convert_from:main',
+                             'pdfreflow = libprs500.ebooks.lrf.pdf.reflow:main',
+                             'isbndb    = libprs500.ebooks.metadata.isbndb:main',
+                             'librarything = libprs500.ebooks.metadata.library_thing:main',
+                             'mobi2oeb  = libprs500.ebooks.mobi.reader:main',
+                             'lrf2html  = libprs500.ebooks.lrf.html.convert_to:main',                             
+                           ], 
+        'gui_scripts'    : [ 
+                            __appname__+' = libprs500.gui2.main:main',
+                            'lrfviewer = libprs500.gui2.lrf_renderer.main:main',
+                            ],
+      }
+
 
 def options(option_parser):
     parser = option_parser() 
@@ -79,14 +114,14 @@ complete -o filenames -F _'''%(opts,exts) + name + ' ' + name +"\n\n"
 
 use_destdir = False
 
-def open_file(path):
+def open_file(path, mode='wb'):
     if use_destdir:
         if os.path.isabs(path):
             path = path[1:]
         path = os.path.join(DESTDIR, path)
-        if not os.path.exists(os.path.dirname(path)):
-                os.makedirs(os.path.dirname(path))
-    return open(path, 'wb')
+    if not os.path.exists(os.path.dirname(path)):
+        os.makedirs(os.path.dirname(path))
+    return open(path, mode)
 
 def setup_completion(fatal_errors):
     try:
@@ -269,6 +304,32 @@ def option_parser():
                       dest='fatal_errors', help='If set die on errors.')
     return parser
 
+def install_man_pages(fatal_errors):
+    from bz2 import compress
+    import subprocess
+    print 'Installing MAN pages...'
+    manpath = '/usr/share/man/man1'
+    f = open_file('/tmp/man_extra', 'wb')
+    f.write('[see also]\nhttp://%s.kovidgoyal.net\n'%__appname__)
+    f.close()
+    for src in entry_points['console_scripts']:
+        prog = src[:src.index('=')].strip()
+        if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta', 'markdown-libprs500'):
+            continue
+        help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
+                    '--section', '1', '--no-info', '--include',
+                    f.name, '--manual', __appname__)
+        manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
+        p = subprocess.Popen(help2man, stdout=subprocess.PIPE)
+        raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', p.stdout.read())
+        if not raw.strip():
+            print 'Unable to create MAN page for', prog
+            continue
+        open_file(manfile).write(compress(raw))
+        
+     
+    
+
 def post_install():
     parser = option_parser()
     opts = parser.parse_args()[0]
@@ -283,6 +344,7 @@ def post_install():
     setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
     setup_completion(opts.fatal_errors)
     setup_desktop_integration(opts.fatal_errors)
+    install_man_pages(opts.fatal_errors)
         
     try:
         from PyQt4 import Qt

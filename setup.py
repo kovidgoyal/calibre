@@ -20,39 +20,8 @@ VERSION = re.search(r'__version__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 APPNAME = re.search(r'__appname__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 print 'Setup', APPNAME, 'version:', VERSION
 
-entry_points = {
-        'console_scripts': [ \
-                             'prs500    = libprs500.devices.prs500.cli.main:main', 
-                             'lrf-meta  = libprs500.ebooks.lrf.meta:main', 
-                             'rtf-meta  = libprs500.ebooks.metadata.rtf:main', 
-                             'pdf-meta  = libprs500.ebooks.metadata.pdf:main', 
-                             'lit-meta  = libprs500.ebooks.metadata.lit:main',
-                             'opf-meta  = libprs500.ebooks.metadata.opf:main',
-                             'epub-meta = libprs500.ebooks.metadata.epub:main',
-                             'txt2lrf   = libprs500.ebooks.lrf.txt.convert_from:main', 
-                             'html2lrf  = libprs500.ebooks.lrf.html.convert_from:main',
-                             'markdown-libprs500  = libprs500.ebooks.markdown.markdown:main',
-                             'lit2lrf   = libprs500.ebooks.lrf.lit.convert_from:main',
-                             'epub2lrf  = libprs500.ebooks.lrf.epub.convert_from:main',
-                             'rtf2lrf   = libprs500.ebooks.lrf.rtf.convert_from:main',
-                             'web2disk  = libprs500.web.fetch.simple:main',
-                             'web2lrf   = libprs500.ebooks.lrf.web.convert_from:main',
-                             'pdf2lrf   = libprs500.ebooks.lrf.pdf.convert_from:main',
-                             'mobi2lrf  = libprs500.ebooks.lrf.mobi.convert_from:main',
-                             'any2lrf   = libprs500.ebooks.lrf.any.convert_from:main',
-                             'lrf2lrs   = libprs500.ebooks.lrf.parser:main',
-                             'lrs2lrf   = libprs500.ebooks.lrf.lrs.convert_from:main',
-                             'pdfreflow = libprs500.ebooks.lrf.pdf.reflow:main',
-                             'isbndb    = libprs500.ebooks.metadata.isbndb:main',
-                             'librarything = libprs500.ebooks.metadata.library_thing:main',
-                             'mobi2oeb  = libprs500.ebooks.mobi.reader:main',
-                             'lrf2html  = libprs500.ebooks.lrf.html.convert_to:main',                             
-                           ], 
-        'gui_scripts'    : [ 
-                            APPNAME+' = libprs500.gui2.main:main',
-                            'lrfviewer = libprs500.gui2.lrf_renderer.main:main',
-                            ],
-      }
+epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).search(open('src/libprs500/linux.py', 'rb').read()).group(1)
+entry_points = eval(epsrc, {'__appname__': APPNAME})
 
 if 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower():
     entry_points['console_scripts'].append('parallel = libprs500.parallel:main')

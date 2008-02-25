@@ -18,9 +18,8 @@ Interface to isbndb.com. My key HLLXQX2A.
 
 import sys, logging, re, socket
 from urllib import urlopen, quote
-from optparse import OptionParser
 
-from libprs500 import __appname__, __version__, __author__, setup_cli_handlers
+from libprs500 import setup_cli_handlers, OptionParser
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
 
@@ -98,8 +97,7 @@ def build_combined(base_url, opts):
 
 
 def option_parser():
-    parser = OptionParser(epilog='Created by '+__author__, version=__appname__+' '+__version__,
-                          usage=\
+    parser = OptionParser(usage=\
 '''
 %prog [options] key
 

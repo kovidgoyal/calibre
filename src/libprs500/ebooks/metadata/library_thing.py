@@ -17,9 +17,8 @@ Fetch cover from LibraryThing.com based on ISBN number.
 '''
 
 import sys, socket, os
-from optparse import OptionParser
 
-from libprs500 import browser as _browser, __author__, __appname__, __version__
+from libprs500 import browser as _browser, OptionParser
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup 
 browser = None
 
@@ -68,9 +67,7 @@ def cover_from_isbn(isbn, timeout=5.):
         socket.setdefaulttimeout(_timeout)
 
 def option_parser():
-    parser = OptionParser(epilog='Created by '+__author__, 
-                          version=__appname__+' '+__version__,
-                          usage=\
+    parser = OptionParser(usage=\
 '''
 %prog [options] ISBN
 

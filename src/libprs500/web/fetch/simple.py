@@ -18,10 +18,8 @@ Fetch a webpage and its links recursively.
 import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2
 from urllib import url2pathname
 from httplib import responses
-from optparse import OptionParser
 
-from libprs500 import __version__, __appname__, __author__, setup_cli_handlers, \
-                      browser, sanitize_file_name
+from libprs500 import setup_cli_handlers, browser, sanitize_file_name, OptionParser
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 from libprs500.ebooks.chardet import xml_to_unicode
 
@@ -296,8 +294,7 @@ class RecursiveFetcher(object):
         socket.setdefaulttimeout(self.default_timeout)
         
 def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com'):
-    parser = OptionParser(usage=usage, version=__appname__+' '+__version__,
-                          epilog='Created by ' + __author__)
+    parser = OptionParser(usage=usage)
     parser.add_option('-d', '--base-dir', help='Base directory into which URL is saved. Default is %default',
                       default='.', type='string', dest='dir')
     parser.add_option('-t', '--timeout', help='Timeout in seconds to wait for a response from the server. Default: %default s',
