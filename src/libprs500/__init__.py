@@ -18,15 +18,18 @@ __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys, os, logging, mechanize, locale, cStringIO, re, subprocess
+import sys, os, logging, mechanize, locale, cStringIO, re, subprocess, textwrap
 from gettext import GNUTranslations
 from math import floor
 from optparse import OptionParser as _OptionParser
+from optparse import IndentedHelpFormatter
 
 from ttfquery import findsystem, describe
 
 from libprs500.translations.msgfmt import make
 from libprs500.ebooks.chardet import detect
+from libprs500.terminfo import TerminalController
+terminal_controller = TerminalController()
 
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
@@ -64,16 +67,51 @@ def setup_cli_handlers(logger, level):
         handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
     logger.addHandler(handler)
 
+class CustomHelpFormatter(IndentedHelpFormatter):
+    
+    def format_usage(self, usage):
+        return _("%sUsage%s: %s\n") % (terminal_controller.BLUE, terminal_controller.NORMAL, usage)
+    
+    def format_heading(self, heading):
+        return "%*s%s%s%s:\n" % (self.current_indent, terminal_controller.BLUE, 
+                                 "", heading, terminal_controller.NORMAL)
+        
+    def format_option(self, option):
+        result = []
+        opts = self.option_strings[option]
+        opt_width = self.help_position - self.current_indent - 2
+        if len(opts) > opt_width:
+            opts = "%*s%s\n" % (self.current_indent, "", 
+                                    terminal_controller.GREEN+opts+terminal_controller.NORMAL)
+            indent_first = self.help_position
+        else:                       # start help on same line as opts
+            opts = "%*s%-*s  " % (self.current_indent, "", opt_width + len(terminal_controller.GREEN + terminal_controller.NORMAL), 
+                                  terminal_controller.GREEN + opts + terminal_controller.NORMAL)
+            indent_first = 0
+        result.append(opts)
+        if option.help:
+            help_text = self.expand_default(option).split('\n')
+            help_lines = []
+            
+            for line in help_text:
+                help_lines.extend(textwrap.wrap(line, self.help_width))
+            result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
+            result.extend(["%*s%s\n" % (self.help_position, "", line)
+                           for line in help_lines[1:]])
+        elif opts[-1] != "\n":
+            result.append("\n")
+        return "".join(result)+'\n'
 
 class OptionParser(_OptionParser):
     
     def __init__(self,
                  usage='%prog [options] filename',
-                 version=__appname__+' '+__version__,
+                 version='%%prog (%s %s)'%(__appname__, __version__),
                  epilog=_('Created by ')+__author__,
                  gui_mode=False,
                  **kwds):
-        _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, **kwds)
+        _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, 
+                               formatter=CustomHelpFormatter(), **kwds)
         self.gui_mode = gui_mode
         
     def error(self, msg):
