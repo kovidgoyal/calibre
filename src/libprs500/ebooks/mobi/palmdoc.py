@@ -18,7 +18,7 @@
 
 COUNT_BITS = 3
 
-def decompress_doc(data, codec='cp1252'):
+def decompress_doc(data):
     buffer = [ord(i) for i in data]
     res = []
     i = 0
@@ -42,5 +42,5 @@ def decompress_doc(data, codec='cp1252'):
             for k in range( num ):
                 res.append(res[j - di+k])
 
-    return unicode(''.join([chr(i) for i in res]), codec)
+    return ''.join([chr(i) for i in res])
     

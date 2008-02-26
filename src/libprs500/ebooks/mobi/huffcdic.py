@@ -44,8 +44,8 @@ class BitReader(object):
 
 class HuffReader(object):
     
-    def __init__(self, huffs, extra_flags, codec='cp1252'):
-        self.huffs, self.extra_flags, self.codec = huffs, extra_flags, codec
+    def __init__(self, huffs, extra_flags):
+        self.huffs, self.extra_flags = huffs, extra_flags
         
         if huffs[0][0:4] != 'HUFF' or huffs[0][4:8] != '\x00\x00\x00\x18':
             raise MobiError('Invalid HUFF header')
@@ -124,4 +124,4 @@ class HuffReader(object):
             r += self.unpack(data[:len(data)-trail_size])
         if r.endswith('#'):
             r = r[:-1]
-        return r.decode(self.codec)
+        return r

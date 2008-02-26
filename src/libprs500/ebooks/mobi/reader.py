@@ -169,6 +169,7 @@ class MobiReader(object):
         
         processed_records = self.extract_text()
         self.add_anchors()
+        self.processed_html = self.processed_html.decode(self.book_header.codec)
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         
@@ -202,8 +203,7 @@ class MobiReader(object):
         text_sections = [self.sections[i][0] for i in range(1, self.book_header.records+1)]
         processed_records = list(range(0, self.book_header.records+1))
         
-        self.mobi_html = u''
-        codec = self.book_header.codec
+        self.mobi_html = ''
         
         if self.book_header.compression_type == 'DH':
             huffs = [self.sections[i][0] for i in 
@@ -211,16 +211,15 @@ class MobiReader(object):
                         self.book_header.huff_offset+self.book_header.huff_number)]
             processed_records += list(range(self.book_header.huff_offset, 
                         self.book_header.huff_offset+self.book_header.huff_number))
-            huff = HuffReader(huffs, self.book_header.extra_flags, codec)
+            huff = HuffReader(huffs, self.book_header.extra_flags)
             self.mobi_html = huff.decompress(text_sections)
         
         elif self.book_header.compression_type == '\x00\x02':
             for section in text_sections:
-                self.mobi_html += decompress_doc(section, codec)
+                self.mobi_html += decompress_doc(section)
         
         elif self.book_header.compression_type == '\x00\x01':
-            t = [i.decode(codec) for i in text_sections]
-            self.mobi_html = ''.join(t)
+            self.mobi_html = ''.join(text_sections)
         
         else:
             raise MobiError('Unknown compression algorithm: %s'%repr(self.book_header.compression_type))
