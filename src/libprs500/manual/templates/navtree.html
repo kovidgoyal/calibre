@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+    <head>
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+        <link rel="stylesheet" href="http://dev.jquery.com/view/trunk/plugins/treeview/jquery.treeview.css" type="text/css" />
+        <link rel="stylesheet" href="styles/common.css" type="text/css" />
+        <script type="text/javascript" src="http://dev.jquery.com/view/trunk/plugins/treeview/jquery.treeview.js"></script>
+        <style type="text/css">
+            #browser {
+                font-family: monospace;
+            }
+            .toplevel {
+                font-weight: bold;
+            }
+            .nottoplevel {
+                font-weight: normal;
+            }
+        </style>
+        <script>
+            $(document).ready(function(){
+                $("#browser").treeview({collapsed:true});
+            });
+        </script>
+
+    </head>
+    <body>
+        <h2 class="documentHeading">libprs500 Manual</h2>
+        <ul id="browser" class="filetree">
+            %tree
+        </ul>
+
+        <hr />
+        <div class="footer">
+            <p>
+                <a href="http://validator.w3.org/check?uri=referer">
+                    <img src="images/valid.png" alt="Valid XHTML 1.1" height="31" width="88" />
+                </a><br />
+                Created by Kovid Goyal &copy; 2008
+            </p>
+        </div>
+    </body>
+</html>

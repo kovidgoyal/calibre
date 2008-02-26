@@ -28,5 +28,7 @@
     <item url="images/search.png" uploadstatus="1" />
     <item url="libprs500.session" uploadstatus="1" />
     <item url="libprs500.webprj" uploadstatus="1" />
+    <item url="templates/navtree.html" />
+    <item url="start.html" />
   </project>
 </webproject>

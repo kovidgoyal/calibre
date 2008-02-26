@@ -10,16 +10,61 @@
         <filterAttribute>libprs500</filterAttribute>
 
         <toc>
-            <section ref="index.html" title="Start" />
-            <section ref="gui.html" title="Using the GUI">
+            <section ref="start.html" title="Start" />
+
+            <section ref="gui.html" title="The Graphical User Interface">
                 <section ref="gui.html#actions" title="Actions" />
+            </section>
+
+            <section ref="cli-index.html" title="The Command Line Interface">
+                <section ref="cli-any2lrf.html" title="any2lrf" />
+                <section ref="cli-epub2lrf.html" title="epub2lrf" />
+                <section ref="cli-html2lrf.html" title="html2lrf" />
+                <section ref="cli-isbndb.html" title="isbndb" />
+                <section ref="cli-librarything.html" title="librarything" />
+                <section ref="cli-lit2lrf.html" title="lit2lrf" />
+                <section ref="cli-lrf-meta.html" title="lrf-meta" />
+                <section ref="cli-lrf2html.html" title="lrf2html" />
+                <section ref="cli-lrf2lrs.html" title="lrf2lrs" />
+                <section ref="cli-lrs2lrf.html" title="lrs2lrf" />
+                <section ref="cli-mobi2lrf.html" title="mobi2lrf" />
+                <section ref="cli-mobi2oeb.html" title="mobi2oeb" />
+                <section ref="cli-opf-meta.html" title="opf-meta" />
+                <section ref="cli-pdf2lrf.html" title="pdf2lrf" />
+                <section ref="cli-pdfreflow.html" title="pdfreflow" />
+                <section ref="cli-rtf-meta.html" title="rtf-meta" />
+                <section ref="cli-rtf2lrf.html" title="rtf2lrf" />
+                <section ref="cli-txt2lrf.html" title="txt2lrf" />
+                <section ref="cli-web2disk.html" title="web2disk" />
+                <section ref="cli-web2lrf.html" title="web2lrf" />
             </section>
         </toc>
 
         <files>
-            <file>index.html</file>
+            <file>cli-isbndb.html</file>
+            <file>cli-pdfreflow.html</file>
+            <file>cli-mobi2lrf.html</file>
+            <file>cli-lrf-meta.html</file>
+            <file>cli-lit2lrf.html</file>
+            <file>cli-lrf2lrs.html</file>
+            <file>cli-index.html</file>
+            <file>cli-web2lrf.html</file>
+            <file>cli-lrs2lrf.html</file>
+            <file>cli-txt2lrf.html</file>
+            <file>start.html</file>
+            <file>cli-web2disk.html</file>
             <file>gui.html</file>
-            <file>common.css</file>
+            <file>cli-opf-meta.html</file>
+            <file>cli-html2lrf.html</file>
+            <file>cli-rtf2lrf.html</file>
+            <file>cli-librarything.html</file>
+            <file>cli-epub2lrf.html</file>
+            <file>cli-rtf-meta.html</file>
+            <file>cli-pdf2lrf.html</file>
+            <file>cli-lrf2html.html</file>
+            <file>cli-any2lrf.html</file>
+            <file>cli-mobi2oeb.html</file>
+            <file>styles/common.css</file>
             <file>images/edit_meta_information.png</file>
             <file>images/remove_books.png</file>
             <file>images/book_details.png</file>
@@ -37,6 +82,7 @@
             <file>images/news.png</file>
             <file>images/view.png</file>
             <file>images/fetch_news.png</file>
+            <file>images/cli.png</file>
         </files>
 
     </filterSection>

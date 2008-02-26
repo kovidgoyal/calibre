@@ -2,7 +2,7 @@
  <QHelpCollectionProject version="1.0">
      <assistant>
          <title>libprs500 Help</title>
-         <startPage>qthelp://libprs500/manual/index.html</startPage>
+         <startPage>qthelp://libprs500/manual/start.html</startPage>
          <applicationIcon>../gui2/images/library.png</applicationIcon>
          <enableFilterFunctionality>false</enableFilterFunctionality>
          <enableDocumentationManager>false</enableDocumentationManager>

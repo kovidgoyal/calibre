@@ -5,10 +5,15 @@ body {
 
 a {
     text-decoration: none;
+    color: blue;
 }
 
 a:hover {
     color: red;
+}
+
+a:visited {
+    color: blue;
 }
 
 .documentHeading {
@@ -33,4 +38,30 @@ font-family: monospace;
     font-size: x-small;
     color: lightgray;
     text-align: right;
+}
+
+.option {
+    font-family: monospace;
+    color: green;
+}
+
+
+.option_table td {
+    padding-bottom : 1em;
+}
+
+.cmd {
+    font-family: monospace;
+    font-weight: bold;
+}
+
+.runcmd {
+    background: #eeeeee;
+    border: inset 2px;
+    padding: 0.2em;
+}
+
+.cmdlist li {
+    font-family: monospace;
+    margin-bottom: 0.2em;
 }
