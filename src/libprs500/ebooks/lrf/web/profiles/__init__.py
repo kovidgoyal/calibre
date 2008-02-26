@@ -34,7 +34,7 @@ class DefaultProfile(object):
     delay                 = 0     # Delay between consecutive downloads
     timeout               = 10    # Timeout for fetching files from server in seconds
     timefmt               = ' [%a %d %b %Y]' # The format of the date shown on the first page
-    url_search_order      = ['guid', 'link'] # THe order of elements to search for a URL when parssing the RSS feed
+    url_search_order      = ['guid', 'link'] # The order of elements to search for a URL when parssing the RSS feed
     pubdate_fmt           = None  # The format string used to parse the publication date in the RSS feed. If set to None some default heuristics are used, these may fail, in which case set this to the correct string or re-implement strptime in your subclass.
     use_pubdate           = True, # If True will look for a publication date for each article. If False assumes the publication date is the current time.
     summary_length        = 500 # Max number of characters in the short description (ignored in DefaultProfile)

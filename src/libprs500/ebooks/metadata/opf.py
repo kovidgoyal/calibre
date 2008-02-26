@@ -601,8 +601,11 @@ class OPFCreator(OPF):
             
         self._commit(doc)
     
+def option_parser():
+    return get_parser('opf')
+
 def main(args=sys.argv):
-    parser = get_parser('opf')
+    parser = option_parser()
     opts, args = parser.parse_args(args)
     if len(args) != 2:
         parser.print_help()

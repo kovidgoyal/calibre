@@ -110,6 +110,8 @@ class OptionParser(_OptionParser):
                  epilog=_('Created by ')+terminal_controller.RED+__author__+terminal_controller.NORMAL,
                  gui_mode=False,
                  **kwds):
+        usage += '''\n\nWhenever you pass arguments to %prog that have spaces in them, '''\
+                 '''enclose the arguments in quotation marks.'''
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, 
                                formatter=CustomHelpFormatter(), **kwds)
         self.gui_mode = gui_mode

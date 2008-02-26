@@ -16,7 +16,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''''''
 
-import sys, glob, mechanize, time, subprocess, os, re
+import sys, glob, mechanize, time, subprocess, os, re, shutil
 from tempfile import NamedTemporaryFile
 from xml.etree.ElementTree import parse, tostring, fromstring
 from BeautifulSoup import BeautifulSoup
@@ -73,9 +73,22 @@ def clean():
         for f in glob.glob(pat):
             f = os.path.abspath(os.path.expanduser(f))
             if os.path.exists(f):
-                if os.path.isfile(f):
+                if os.path.isdir(f):
+                    shutil.rmtree(f)
+                else:
                     os.unlink(f)
-    
+    return 0
+                
+def compile_help():
+    QTDIR = '/usr/local/Trolltech/Qt-4.4.0-tp1'
+    QTBIN = QTDIR + '/bin'
+    QTLIB = QTDIR + '/lib'
+    QCG = os.path.join(QTBIN, 'qcollectiongenerator')
+    QTA = os.path.join(QTBIN, 'assistant_new')
+    os.environ['LD_LIBRARY_PATH'] = QTLIB
+    subprocess.check_call((QCG, 'libprs500.qhcp'))
+    subprocess.call((QTA, '-collectionFile', 'libprs500.qhc'))
+     
 
 def generate_cli_docs(src='libprs500.qhp'):
     documented_cmds = []
@@ -144,7 +157,7 @@ def generate_cli_docs(src='libprs500.qhp'):
     
     body = '<h1 class="documentHeading">The Command Line Interface</h1>\n'
     body += '<div style="text-align:center"><img src="images/cli.png" /></div>'
-    body += '<p>%s</p>\n'%'libprs500 has a very comprehensive command line interface to perform most operations that can be performed by the GUI.'
+    body += '<p>%s</p>\n'%'<b class="cmd">libprs500</b> has a very comprehensive command line interface to perform most operations that can be performed by the GUI.'
     body += '<h2 class="sectionHeading">Documented commands</h2>\n'+dc_html
     body += '<h2 class="sectionHeading">Undocumented commands</h2>\n'+uc_html
     body += '<p>You can see usage for undocumented commands by executing them without arguments in a terminal</p>'
@@ -185,11 +198,10 @@ def create_html_interface(src='libprs500.qhp'):
     def process_branch(branch, toplevel=False):
         parent = []
         for sec in branch.findall('section'):
-            html = '<li class="||||">\n<a target="content" href="%s">%s</s>\n</li>\n'%(sec.attrib['ref'], sec.attrib['title'])
-            if toplevel:
-                html=html.replace('<li', '<li class="toplevel"')
-            else:
-                html=html.replace('<li', '<li class="nottoplevel"')
+            html = '<li class="||||">\n<a target="content" href="%s">%s</a>\n</li>\n'%(sec.attrib['ref'], sec.attrib['title'])
+            lc = 'toplevel' if toplevel else 'nottoplevel'
+            html=html.replace('||||', '%s ||||'%lc)
+            
             type = 'file'
             if not is_leaf(sec):
                 html = html.replace('</li>','%s\n</li>'%process_branch(sec))
@@ -204,18 +216,25 @@ def create_html_interface(src='libprs500.qhp'):
     tree = process_branch(toc, True)
     
     template = open('templates/navtree.html').read()
-    open('navtree.html', 'wb').write(template.replace('%tree', tree))        
+    open('navtree.html', 'wb').write(template.replace('%tree', tree)+'\n')        
         
 
-def main(args=sys.argv):
+def all(args=sys.argv):
     generate_cli_docs()
     update_manifest()
     create_html_interface()
-    #validate_html()
-    
-    
+    compile_help()
+    validate_html()
     
     return 0
 
 if __name__ == '__main__':
-    sys.exit(main())
+    if len(sys.argv) == 1:
+        clean()
+        sys.exit(all())
+    elif len(sys.argv) == 2:
+        func = eval(sys.argv[1])
+        if func is None:
+            print >>sys.stderr, 'Unknown target', sys.argv(1)
+            sys.exit(1)
+        sys.exit(func())

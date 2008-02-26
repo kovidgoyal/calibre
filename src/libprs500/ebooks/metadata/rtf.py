@@ -177,9 +177,11 @@ def set_metadata(stream, options):
         stream.write(src)
         stream.write(after)
     
+def option_parser():
+    return get_parser('rtf')
 
 def main(args=sys.argv):
-    parser = get_parser('rtf')
+    parser = option_parser()
     options, args = parser.parse_args(args)
     if len(args) != 2:
         parser.print_help()

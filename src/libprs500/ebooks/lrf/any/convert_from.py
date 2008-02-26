@@ -17,7 +17,7 @@
 import sys, os, logging, shutil, tempfile, glob
 
 from libprs500.ebooks import UnknownFormatError
-from libprs500.ebooks.lrf import option_parser
+from libprs500.ebooks.lrf import option_parser as _option_parser
 from libprs500 import __appname__, setup_cli_handlers, extract
 from libprs500.ebooks.lrf.lit.convert_from  import process_file as lit2lrf
 from libprs500.ebooks.lrf.pdf.convert_from  import process_file as pdf2lrf
@@ -148,14 +148,18 @@ def process_file(path, options, logger=None):
     return 0
     
 
-def main(args=sys.argv, logger=None, gui_mode=False):
-    parser = option_parser(usage='''\
+def option_parser(gui_mode=False):
+    return _option_parser(usage='''\
 any2lrf myfile
 
 Convert any ebook format into LRF. Supported formats are:
 LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a RAR or
-ZIP archive.
+ZIP archive, looking for an ebook inside the archive.
     ''', gui_mode=gui_mode)
+
+
+def main(args=sys.argv, logger=None, gui_mode=False):
+    parser = option_parser(gui_mode) 
     options, args = parser.parse_args(args)
     if len(args) != 2:
         parser.print_help()

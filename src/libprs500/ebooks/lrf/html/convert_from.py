@@ -1823,7 +1823,10 @@ def try_opf(path, options, logger):
                 
 def option_parser():
     return lrf_option_parser('''Usage: %prog [options] mybook.html\n\n'''
-                    '''%prog converts mybook.html to mybook.lrf''')
+                    '''%prog converts mybook.html to mybook.lrf. '''
+                    '''html2lrf follows all links in mybook.html that point '''
+                    '''to local files recursively. Thus, you can use it to '''
+                    '''convert a whole tree of HTML files.''')
 
 def main(args=sys.argv):
     try:
