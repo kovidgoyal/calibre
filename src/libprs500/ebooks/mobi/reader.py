@@ -99,7 +99,8 @@ class BookHeader(object):
                       65001 : 'utf-8',
                       }[self.codepage]
         except IndexError, KeyError:
-            raise MobiError('Unknown codepage: %d'%self.codepage)
+            print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
+            self.codec = 'cp1252'
         
         if ident == 'TEXTREAD' or self.length < 0xF4:
             self.extra_flags = 0
