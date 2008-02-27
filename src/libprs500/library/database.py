@@ -751,6 +751,33 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.execute('pragma user_version=7')
         conn.commit()
         
+    @staticmethod
+    def upgrade_version7(conn):
+        conn.executescript('''\
+        DROP TRIGGER fkc_update_books_series_link_b;
+        CREATE TRIGGER fkc_update_books_series_link_b
+        BEFORE UPDATE OF series ON books_series_link
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT id from series WHERE id=NEW.series) IS NULL 
+                THEN RAISE(ABORT, 'Foreign key violation: series not in series')
+            END;
+        END;
+        
+        DROP TRIGGER fkc_delete_books_series_link;
+        CREATE TRIGGER fkc_delete_books_series_link
+        BEFORE DELETE ON series
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT COUNT(id) FROM books_series_link WHERE series=OLD.id) > 0
+                THEN RAISE(ABORT, 'Foreign key violation: series is still referenced')
+            END;
+        END;        
+        '''
+        )
+        conn.execute('pragma user_version=8')
+        conn.commit()
+        
     def __del__(self):
         global _lock_file
         import os
@@ -778,6 +805,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             LibraryDatabase.upgrade_version5(self.conn)
         if self.user_version == 6: # Upgrade to 7
             LibraryDatabase.upgrade_version6(self.conn)
+        if self.user_version == 7: # Upgrade to 8
+            LibraryDatabase.upgrade_version7(self.conn)
         
     def close(self):
         global _lock_file
@@ -1157,6 +1186,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
+        self.conn.commit()
+        
+    def remove_unused_series(self):
+        for id, in self.conn.execute('SELECT id FROM series').fetchall():
+            if not self.conn.execute('SELECT id from books_series_link WHERE series=?', (id,)).fetchone():
+                self.conn.execute('DELETE FROM series WHERE id=?', (id,))
         self.conn.commit()
             
     def set_series_index(self, id, idx):

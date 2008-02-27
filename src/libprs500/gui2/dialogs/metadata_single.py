@@ -151,7 +151,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.fetch_cover_button, SIGNAL('clicked()'), 
                         self.fetch_cover)
         QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), 
-                        self.edit_tags)        
+                        self.edit_tags)
+        QObject.connect(self.remove_series_button, SIGNAL('clicked()'),
+                        self.remove_unused_series)        
         self.timeout = float(QSettings().value('network timeout', QVariant(5)).toInt()[0])
         self.title.setText(db.title(row))
         isbn = db.isbn(self.id)
@@ -186,9 +188,19 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 size = self.db.sizeof_format(row, ext)
                 Format(self.formats, ext, size)
             
+        self.initialize_series()
+            
+        self.series_index.setValue(self.db.series_index(row))
+        QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
+        QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
+        QObject.connect(self.password_button, SIGNAL('clicked()'), self.change_password) 
+
+        self.exec_()
+
+    def initialize_series(self):
         all_series = self.db.all_series()
         all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
-        series_id = self.db.series_id(row)
+        series_id = self.db.series_id(self.row)
         idx, c = None, 0
         for i in all_series:
             id, name = i
@@ -201,14 +213,15 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         if idx is not None:
             self.series.setCurrentIndex(idx)
             self.enable_series_index()
-            
-        self.series_index.setValue(self.db.series_index(row))
-        QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
-        QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
-        QObject.connect(self.password_button, SIGNAL('clicked()'), self.change_password) 
-
-        self.exec_()
-
+        
+        pl = self.series.parentWidget().layout()
+        for i in range(pl.count()):
+            l =  pl.itemAt(i).layout()
+            if l:
+                l.invalidate()
+                l.activate()
+                
+        self.layout().activate()
     
     def edit_tags(self):
         d = TagEditor(self, self.db, self.row)
@@ -279,6 +292,18 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
              
     def enable_series_index(self, *args):
         self.series_index.setEnabled(True)
+    
+    def remove_unused_series(self):
+        self.db.remove_unused_series()
+        idx = qstring_to_unicode(self.series.currentText())
+        self.series.clear()
+        self.initialize_series()
+        if idx:
+            for i in range(self.series.count()):
+                if qstring_to_unicode(self.series.itemText(i)) == idx:
+                    self.series.setCurrentIndex(i)
+                    break
+        
     
     def accept(self):
         if self.formats_changed:
