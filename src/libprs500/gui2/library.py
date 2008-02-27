@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import os, textwrap, traceback, time, re, sre_constants
+import os, textwrap, traceback, time, re, sre_constants, urllib
 from datetime import timedelta, datetime
 from operator import attrgetter
 from math import cos, sin, pi
@@ -24,6 +24,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
                          QSettings
 
+from libprs500 import iswindows
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.library.database import LibraryDatabase, SearchToken
 from libprs500.gui2 import NONE, TableView, qstring_to_unicode
@@ -326,7 +327,7 @@ class BooksModel(QAbstractTableModel):
             elif col == 7:
                 series = self.db.series(row)
                 if series:
-                    return QVariant(series)
+                    return QVariant(series  + ' [%d]'%self.db.series_index(row))
             return NONE
         elif role == Qt.TextAlignmentRole and index.column() in [2, 3, 4]:
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
@@ -412,6 +413,48 @@ class BooksView(TableView):
         QObject.connect(self.model(), SIGNAL('modelReset()'), self.resizeRowsToContents)
         self.set_visible_columns()
         
+    @classmethod
+    def paths_from_event(cls, event):
+        ''' 
+        Accept a drop event and return a list of paths that can be read from 
+        and represent files with extensions.
+        '''
+        
+        def url_to_path(url):
+            try:
+                url = urllib.unquote(url)[8 if iswindows else 7:]
+            except:
+                return ''
+            return url.replace('/', os.sep)
+            
+        
+        if event.mimeData().hasFormat('text/uri-list'):
+            urls = str(event.mimeData().data('text/uri-list')).replace('\x00', '').splitlines()
+            urls = [urllib.unquote(f.strip()) for f in urls]
+            # Only accept URLs to local files that have extensions
+            urls = [url_to_path(u) for u in urls if os.path.splitext(u)[1] and \
+                            u.startswith('file://')]
+            urls = [u for u in urls if os.access(u, os.R_OK)]
+            return urls
+        
+        
+    
+    def dragEnterEvent(self, event):
+        if int(event.possibleActions() & Qt.CopyAction) != 1:
+            return
+        paths = self.paths_from_event(event)
+        if paths:
+            event.acceptProposedAction()
+    
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
+    
+    def dropEvent(self, event):
+        paths = self.paths_from_event(event)
+        event.setDropAction(Qt.CopyAction)
+        event.accept()
+        self.emit(SIGNAL('files_dropped(PyQt_PyObject)'), paths, Qt.QueuedConnection) 
+             
     
     def set_database(self, db):
         self._model.set_database(db)

@@ -920,7 +920,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         
     def series_index(self, index, index_is_id=False):
         if not index_is_id:
-            index = self.id(index)
+            return self.data[index][10]
         return self.conn.execute('SELECT series_index FROM books WHERE id=?', (index,)).fetchone()[0]
     
     def books_in_series(self, series_id):
