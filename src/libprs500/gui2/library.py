@@ -440,9 +440,11 @@ class BooksView(TableView):
         
     
     def dragEnterEvent(self, event):
-        if int(event.possibleActions() & Qt.CopyAction) != 1:
+        if int(event.possibleActions() & Qt.CopyAction) + \
+           int(event.possibleActions() & Qt.MoveAction) == 0:
             return
         paths = self.paths_from_event(event)
+        
         if paths:
             event.acceptProposedAction()
     

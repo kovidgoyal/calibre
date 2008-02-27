@@ -179,6 +179,8 @@ class Main(MainWindow, Ui_MainWindow):
                 
         ####################### Library view ########################
         self.library_view.set_database(self.database_path)
+        QObject.connect(self.library_view, SIGNAL('files_dropped(PyQt_PyObject)'),
+                        self.files_dropped)
         for func, target in [
                              ('connect_to_search_box', self.search),
                              ('connect_to_book_display', self.status_bar.book_info.show_data),
@@ -335,7 +337,9 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         self.add_recursive(False)
         
-        
+    def files_dropped(self, paths):
+        to_device = self.stack.currentIndex() != 0
+        self._add_books(paths, to_device)
         
     
     def add_books(self, checked):
