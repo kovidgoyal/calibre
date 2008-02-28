@@ -16,14 +16,14 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''''''
 
-import sys, glob, mechanize, time, subprocess, os, re, shutil
+import sys, glob, mechanize, time, subprocess, os, shutil
 from tempfile import NamedTemporaryFile
-from xml.etree.ElementTree import parse, tostring, fromstring, Element
-from BeautifulSoup import BeautifulSoup
+from xml.etree.ElementTree import parse, tostring, fromstring
 
 # Load libprs500 from source copy
-sys.path[0:1] = [os.path.dirname(os.path.dirname(os.getcwdu()))]
+sys.path.insert(1, os.path.dirname(os.path.dirname(os.getcwdu())))
 
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 from libprs500.linux import entry_points
 
 def browser():
@@ -33,24 +33,30 @@ def browser():
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
     return opener
 
-def update_manifest(src='libprs500.qhp'):
-    root = parse(src).getroot()
+def update_manifest(src):
+    root = fromstring(src)
     files = root.find('filterSection').find('files')
+    attrs = files.attrib.copy()
     files.clear()
+    files.attrib = attrs
+    files.text = '\n%12s'%' '
+    files.tail = '\n%4s'%' '
+    
     for f in glob.glob('*.html')+glob.glob('styles/*.css')+glob.glob('images/*'):
         if f.startswith('preview') or f in ('navtree.html', 'index.html'):
             continue
-        files.append(fromstring('<file>%s</file>'%f))
+        el = fromstring('<file>%s</file>'%f)
+        el.tail = '\n%12s'%' '
+        files.append(el)
+    el.tail = '\n%8s'%' '
     
-    raw = tostring(root, 'UTF-8').replace('<file>', '\n            <file>')
-    raw = raw.replace('</files>', '\n        </files>')
-    raw = raw.replace('</filterSection>', '\n\n    </filterSection>')
-    open(src, 'wb').write(raw+'\n')
+    return tostring(root, 'UTF-8').decode('UTF-8')
 
 
-def validate():
+def validate(file=None):
     br = browser()
-    for f in glob.glob('*.html'):
+    files = [file] if file is not None else glob.glob('*.html') 
+    for f in files:
         if f.startswith('preview-'):
             continue
         print 'Validating', f
@@ -90,45 +96,87 @@ def compile_help():
     subprocess.call((QTA, '-collectionFile', 'libprs500.qhc'))
      
 
-def populate_section(secref, items, src='libprs500.qhp'):
-    root = parse(src).getroot()
+def populate_section(secref, items, src):
+    root = fromstring(src)
     toc = root.find('filterSection').find('toc')
     sec = None
-    
-    for c in toc.findall('section'):
-        if c.attrib['ref'] == secref:
-            sec = c
-            break
+    if secref is None:
+        sec = toc
+        ss = '\n%8s'%' '
+        ls = '\n%12s'%' '
+    else:
+        for c in toc.findall('section'):
+            if c.attrib['ref'] == secref:
+                sec = c
+                break
+        ss = '\n%12s'%' '
+        ls = '\n%16s'%' '
         
-    attr = sec.attrib.copy()    
+    attr = sec.attrib.copy()
+    tail = sec.tail
     sec.clear()
     sec.attrib = attr
-    sec.text = '\n%16s'%' '
+    sec.tail = tail
+    sec.text = ls
     secs = ['<section ref="%s" title="%s" />\n'%i for i in items]
-    sec.tail = '\n\n%12s'%' '
+    sec.tail = ss
     for i in secs:
         el = fromstring(i)
         sec.append(el)
-        if secs.index(i) == len(secs)-1:
-            el.tail = '\n%12s'%' '
-        else:
-            el.tail = '\n%16s'%' '
-        
+        el.tail = ss if i is secs[-1] else ls
     
     raw = tostring(root, 'UTF-8')
     
-    open(src, 'wb').write(raw)
+    return raw.decode('UTF-8')
     
-def populate_faq(src='libprs500.qhp'):
+def populate_faq(src):
     soup = BeautifulSoup(open('faq.html').read().decode('UTF-8'))
     items = []
     toc = soup.find('div', id="toc")
     for a in toc('a', href=True):
         items.append(('faq.html%s'%a['href'], a.string))
     
-    populate_section('faq.html', items, src=src)
+    return populate_section('faq.html', items, src=src)
 
-def generate_cli_docs(src='libprs500.qhp'):
+def populate_cli(src):
+    cmds = []
+    for f in glob.glob('cli-*.html'):
+        cmds.append(f[4:].rpartition('.')[0])
+        
+    items = [('cli-%s.html'%i, i) for i in cmds]
+    return populate_section('cli-index.html', items, src)
+
+def populate_toc(src):
+    soup = BeautifulSoup(open('start.html', 'rb').read().decode('UTF-8'))
+    sections = []
+    for a in soup.find(id='toc').findAll('a'):
+        sections.append((a['href'], a.string))
+        
+    return populate_section(None, sections, src)
+    
+def populate_gui(src):
+    soup = BeautifulSoup(open('gui.html', 'rb').read().decode('UTF-8'))
+    sections = []
+    for a in soup.find(id='toc').findAll('a'):
+        sections.append((a['href'], a.string))
+        
+    return populate_section('gui.html', sections, src)
+
+def qhp():
+    src = open('libprs500.qhp', 'rb').read().decode('UTf-8')
+    src = update_manifest(src)
+    src = populate_toc(src)
+    src = populate_gui(src)
+    src = populate_faq(src)
+    src = populate_cli(src)
+    
+    root = fromstring(src)
+    root.find('filterSection').find('toc')[-1].tail = '\n%8s'%' '
+    root.find('filterSection').find('toc').tail = '\n\n%8s'%' '
+    
+    open('libprs500.qhp', 'wb').write(tostring(root, encoding='UTF-8'))
+
+def generate_cli_docs():
     documented_cmds = []
     undocumented_cmds = []
         
@@ -175,7 +223,7 @@ def generate_cli_docs(src='libprs500.qhp'):
                 name = '%s<br />%s'%(lgf, shf)
                 help = sanitize_text(opt.help) if opt.help else ''
                 res.append('<tr><td class="option">%s</td><td>%s</td></tr>'%(name, help))
-            return '\n'.join(res)
+            return '\n%8s'%' ' + ('\n%8s'%' ').join(res)
                 
         
         gh = [group_html(None, None, parser.option_list)]
@@ -184,8 +232,8 @@ def generate_cli_docs(src='libprs500.qhp'):
             gh.append(group_html(title, desc, olist))
         
         if ''.join(gh).strip():
-            body += '\n<h2 class="sectionHeading">[options]</h2>\n'
-            body += '\n<table class="option_table">\n%s\n</table>\n'%'\n'.join(gh)
+            body += '\n    <h2 class="sectionHeading">[options]</h2>\n'
+            body += '\n    <table class="option_table">\n%s\n    </table>\n'%'\n'.join(gh)
         output.write(template.replace('%body', body))
         
     uc_html = '\n<ul class="cmdlist">\n%s</ul>\n'%'\n'.join(\
@@ -202,9 +250,7 @@ def generate_cli_docs(src='libprs500.qhp'):
     open('cli-index.html', 'wb').write(template.replace('%body', body))
         
     
-    cmds = [i[0] for i in documented_cmds]
-    items = [('cli-%s.html'%i, i) for i in cmds]
-    populate_section('cli-index.html', items, src=src)
+    
     
     
     
@@ -242,9 +288,9 @@ def create_html_interface(src='libprs500.qhp'):
         
 
 def all(opts):
+    clean()
     generate_cli_docs()
-    populate_faq()
-    update_manifest()
+    qhp()
     create_html_interface()
     compile_help()
     if opts.validate:
@@ -254,7 +300,7 @@ def all(opts):
 
 if __name__ == '__main__':
     from libprs500 import OptionParser
-    parser = OptionParser()
+    parser = OptionParser(usage='%prog [options] target [arguments to target]')
     parser.add_option('--validate', default=False, action='store_true',
                       help='Validate all HTML files against their DTDs.')
     opts, args = parser.parse_args()
@@ -267,6 +313,8 @@ if __name__ == '__main__':
         fargs = []
         if args[0] == 'all':
             fargs = [opts]
+        elif len(args) > 1:
+            fargs = args[1:]
         if func is None:
             print >>sys.stderr, 'Unknown target', sys.argv(1)
             sys.exit(1)

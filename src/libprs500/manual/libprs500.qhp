@@ -10,40 +10,37 @@
         <filterAttribute>libprs500</filterAttribute>
 
         <toc>
-            <section ref="start.html" title="Start" />
-
-            <section ref="gui.html" title="The Graphical User Interface">
-                <section ref="gui.html#actions" title="Actions" />
-                <section ref="gui.html#catalogs" title="Catalogs" />
-                <section ref="gui.html#search_sort" title="Search &amp; Sort" />
-                <section ref="gui.html#configuration" title="Configuration" />
-                <section ref="gui.html#book_details" title="Book Details" />
-                <section ref="gui.html#jobs" title="Jobs" />
+            <section ref="gui.html" title="Graphical User Interface">
+                <section ref="#actions" title="Actions" />
+                <section ref="#catalogs" title="Catalogs" />
+                <section ref="#search_sort" title="Search &amp; Sort" />
+                <section ref="#configuration" title="Configuration" />
+                <section ref="#book_details" title="Book Details" />
+                <section ref="#jobs" title="Jobs" />
             </section>
-
-            <section ref="cli-index.html" title="The Command Line Interface">
-                <section ref="cli-any2lrf.html" title="any2lrf" />
-                <section ref="cli-epub2lrf.html" title="epub2lrf" />
-                <section ref="cli-html2lrf.html" title="html2lrf" />
+            <section ref="cli-index.html" title="Command Line Interface">
                 <section ref="cli-isbndb.html" title="isbndb" />
-                <section ref="cli-librarything.html" title="librarything" />
-                <section ref="cli-lit2lrf.html" title="lit2lrf" />
-                <section ref="cli-lrf-meta.html" title="lrf-meta" />
-                <section ref="cli-lrf2html.html" title="lrf2html" />
-                <section ref="cli-lrf2lrs.html" title="lrf2lrs" />
-                <section ref="cli-lrs2lrf.html" title="lrs2lrf" />
-                <section ref="cli-mobi2lrf.html" title="mobi2lrf" />
-                <section ref="cli-mobi2oeb.html" title="mobi2oeb" />
-                <section ref="cli-opf-meta.html" title="opf-meta" />
-                <section ref="cli-pdf2lrf.html" title="pdf2lrf" />
                 <section ref="cli-pdfreflow.html" title="pdfreflow" />
-                <section ref="cli-rtf-meta.html" title="rtf-meta" />
-                <section ref="cli-rtf2lrf.html" title="rtf2lrf" />
+                <section ref="cli-mobi2lrf.html" title="mobi2lrf" />
+                <section ref="cli-lrf-meta.html" title="lrf-meta" />
+                <section ref="cli-lit2lrf.html" title="lit2lrf" />
+                <section ref="cli-lrf2lrs.html" title="lrf2lrs" />
+                <section ref="cli-index.html" title="index" />
+                <section ref="cli-web2lrf.html" title="web2lrf" />
+                <section ref="cli-lrs2lrf.html" title="lrs2lrf" />
                 <section ref="cli-txt2lrf.html" title="txt2lrf" />
                 <section ref="cli-web2disk.html" title="web2disk" />
-                <section ref="cli-web2lrf.html" title="web2lrf" />
+                <section ref="cli-opf-meta.html" title="opf-meta" />
+                <section ref="cli-html2lrf.html" title="html2lrf" />
+                <section ref="cli-rtf2lrf.html" title="rtf2lrf" />
+                <section ref="cli-librarything.html" title="librarything" />
+                <section ref="cli-epub2lrf.html" title="epub2lrf" />
+                <section ref="cli-rtf-meta.html" title="rtf-meta" />
+                <section ref="cli-pdf2lrf.html" title="pdf2lrf" />
+                <section ref="cli-lrf2html.html" title="lrf2html" />
+                <section ref="cli-any2lrf.html" title="any2lrf" />
+                <section ref="cli-mobi2oeb.html" title="mobi2oeb" />
             </section>
-
             <section ref="faq.html" title="Frequently Asked Questions">
                 <section ref="faq.html#Whatdevicesdoeslibprs500support" title="What devices does libprs500 support?" />
                 <section ref="faq.html#Whatformatsdoeslibprs500readmetadatafrom" title="What formats does libprs500 read metadata from?" />
@@ -58,8 +55,7 @@
                 <section ref="faq.html#Iwantsomefeatureaddedtolibprs500.WhatcanIdo" title="I want some feature added to libprs500. What can I do?" />
                 <section ref="faq.html#HowdoIusesomeoftheadvancedfeaturesoftheconversiontools" title="How do I use some of the advanced features of the conversion tools?" />
             </section>
-
-            </toc>
+        </toc>
 
         <files>
             <file>cli-isbndb.html</file>
@@ -107,7 +103,6 @@
             <file>images/fetch_news.png</file>
             <file>images/cli.png</file>
         </files>
-
     </filterSection>
 
 </QtHelpProject>
