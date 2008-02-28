@@ -18,6 +18,7 @@ import sys, re, os, glob
 from urllib import unquote
 from urlparse import urlparse
 import xml.dom.minidom as dom
+from itertools import repeat
 
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
@@ -193,16 +194,19 @@ class OPF(MetaInformation):
     rating        = standard_field('rating')
     tags          = standard_field('tags')
     
+    HEADER = '''\
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE package 
+  PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.2 Package//EN"
+  "http://openebook.org/dtds/oeb-1.2/oebpkg12.dtd">
+'''    
     def __init__(self):
         raise NotImplementedError('Abstract base class')
     
     def _initialize(self):
         if not hasattr(self, 'soup'):
             self.soup = BeautifulStoneSoup(u'''\
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE package 
-  PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.2 Package//EN"
-  "http://openebook.org/dtds/oeb-1.2/oebpkg12.dtd">
+%s
 <package unique-identifier="libprs_id">
     <metadata>
         <dc-metadata
@@ -210,7 +214,7 @@ class OPF(MetaInformation):
          xmlns:oebpackage="http://openebook.org/namespaces/oeb-package/1.0/" />
     </metadata>
 </package>
-''')
+'''%self.HEADER)
     
     def _commit(self, doc):
         self.soup = BeautifulStoneSoup(doc.toxml('utf-8'), fromEncoding='utf-8')
@@ -297,8 +301,8 @@ class OPF(MetaInformation):
     def set_authors(self, authors):
         if not authors:
             authors = ['Unknown']
-        attrs = [[('role', 'aut')] for a in authors]
-        self._set_metadata_element('dc:Creator', authors, attrs)
+        attrs = list(repeat([('role', 'aut')], len(authors)))
+        self._set_metadata_element('dc:creator', authors, attrs)
     
     def get_author_sort(self):
         creators = self.soup.package.metadata.findAll('dc:creator')
@@ -319,7 +323,7 @@ class OPF(MetaInformation):
             self.set_authors([])
         doc = dom.parseString(self.soup.__str__('UTF-8'))
         package = doc.documentElement
-        aut = package.getElementsByTagName('dc:Creator')[0]
+        aut = package.getElementsByTagName('dc:creator')[0]
         aut.setAttribute('file-as', aus)
         self._commit(doc)
         
@@ -338,7 +342,7 @@ class OPF(MetaInformation):
             self.title = None
         doc = dom.parseString(self.soup.__str__('UTF-8'))
         package = doc.documentElement
-        tit = package.getElementsByTagName('dc:Title')[0]
+        tit = package.getElementsByTagName('dc:title')[0]
         tit.setAttribute('file-as', title_sort)
         self._commit(doc)
     
@@ -351,7 +355,7 @@ class OPF(MetaInformation):
     def set_comments(self, comments):
         if not comments:
             comments = ''
-        self._set_metadata_element('dc:Description', comments)
+        self._set_metadata_element('dc:description', comments)
     
     def get_uid(self):
         package = self.soup.find('package')
@@ -371,7 +375,7 @@ class OPF(MetaInformation):
     def set_category(self, category):
         if not category:
             category = ''
-        self._set_metadata_element('dc:Type', category)
+        self._set_metadata_element('dc:type', category)
     
     def get_publisher(self):
         publisher = self.soup.find('dc:publisher')
@@ -382,7 +386,7 @@ class OPF(MetaInformation):
     def set_publisher(self, category):
         if not category:
             category = 'Unknown'
-        self._set_metadata_element('dc:Publisher', category)
+        self._set_metadata_element('dc:publisher', category)
     
        
     def get_isbn(self):
@@ -396,7 +400,7 @@ class OPF(MetaInformation):
     
     def set_isbn(self, isbn):
         if isbn:
-            self._set_metadata_element('dc:Identifier', isbn, [('scheme', 'ISBN')], 
+            self._set_metadata_element('dc:identifier', isbn, [('scheme', 'ISBN')], 
                                        replace=True)
         
     def get_libprs_id(self):
@@ -407,7 +411,7 @@ class OPF(MetaInformation):
     
     def set_libprs_id(self, val):
         if val:
-            self._set_metadata_element('dc:Identifier', str(val), [('scheme', 'libprs'), ('id', 'libprs_id')], 
+            self._set_metadata_element('dc:identifier', str(val), [('scheme', 'libprs'), ('id', 'libprs_id')], 
                                        replace=True)
     
     def get_cover(self):
@@ -509,15 +513,40 @@ class OPF(MetaInformation):
         return [unicode(a).strip() for a in ans]
     
     def set_tags(self, tags):
-        self._set_metadata_element('dc:Subject', tags)
+        self._set_metadata_element('dc:subject', tags)
         
     def write(self, stream):
-        src = unicode(self.soup)
-        src = re.sub(r'>\s*</item(ref)*>', ' />\n', src)
-        src = re.sub(r'<manifest><', '<manifest>\n<', src)
-        src = re.sub(r'<spine><', '<spine>\n<', src)
-        src = re.sub(r'^<item', '    <item', src)
-        stream.write(src.encode('utf-8')+'\n')
+        from lxml import etree 
+        root = etree.fromstring(unicode(self.soup))
+        root.text = '\n%4s'%' '
+        for child in root:
+            child.text = '\n%8s'%' '
+            child.tail = '\n%4s'%' ' if child is not root[-1] else '\n'
+            for grandchild in child:
+                grandchild.tail = '\n%8s'%' ' if grandchild is not child[-1] else '\n%4s'%' '
+        
+        metadata = root.find('metadata')
+        if metadata is not None:
+            for parent in ['dc-metadata', 'x-metadata']:
+                parent = metadata.find(parent)
+                if parent is None:
+                    continue
+                parent.text = '\n%12s'%' '
+                for child in parent:
+                    child.tail = '\n%8s'%' ' if child is parent[-1] else '\n%12s'%' '
+        
+        def fix_self_closing_tags(el):
+            ''' Makes tags that have only whitespace content self closing '''
+            if len(el) == 0 and (el.text is None or el.text.strip() == ''):
+                el.text = None
+            for child in el:
+                fix_self_closing_tags(child)
+        
+        fix_self_closing_tags(root)
+        
+        raw = self.HEADER + etree.tostring(root, encoding='UTF-8')
+        
+        stream.write(raw+'\n')
 
 class OPFReader(OPF):
     
@@ -621,9 +650,7 @@ def main(args=sys.argv):
     if opts.comment is not None:
         mi.comments = opts.comment.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
     print mi
-    res = str(mi.soup)
-    del mi
-    open(args[1], 'wb').write(res)
+    mi.write(open(args[1], 'wb'))
     return 0
 
 if __name__ == '__main__':
