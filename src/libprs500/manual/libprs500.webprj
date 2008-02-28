@@ -30,5 +30,6 @@
     <item url="libprs500.webprj" uploadstatus="1" />
     <item url="templates/navtree.html" />
     <item url="start.html" />
+    <item url="faq.html" />
   </project>
 </webproject>

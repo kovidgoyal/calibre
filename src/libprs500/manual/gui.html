@@ -6,6 +6,7 @@
     <head>
         <meta name="author" content="Kovid Goyal" />
         <meta name="copyright" content="2008 Kovid Goyal" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>The Graphical User Interface</title>
         <link rel="stylesheet" type="text/css" href="styles/common.css" />
     </head>
@@ -14,15 +15,21 @@
         <h1 class="documentHeading">The Graphical User Interface</h1>
         <p>
             The Graphical User Interface <i>(GUI)</i> provides access to all
-            library management and ebook format conversion features. The interface
-            is divided into various sections:
+            library management and ebook format conversion features. The basic workflow
+            for using libprs500 is to first add books to the library from your hard disk.
+            libprs500 will automatically try to read metadata from the books and add them
+            to its internal database. Once they are in the database, you can performa various
+            <a href="#actions">actions</a> on them that include conversion from one format to another,
+            transfer to the reading device, viewing on your computer, editing metadata, including covers, etc.
+        </p>
+        <p>
+            The interface is divided into various sections:
         </p>
         <ul>
             <li><a href="#actions">Actions</a></li>
             <li><a href="#catalogs">Catalogs</a></li>
-            <li><a href="#search">Search</a></li>
+            <li><a href="#search_sort">Search &amp; Sort</a></li>
             <li><a href="#configuration">Configuration</a></li>
-            <li><a href="#library">Library</a></li>
             <li><a href="#book_details">Book Details</a></li>
             <li><a href="#jobs">Jobs</a></li>
         </ul>
@@ -114,7 +121,7 @@
             </li>
             <li>
                 <b>Edit metadata in bulk</b>: This allows you to edit common metadata fields for large numbers of books simulataneously. It
-                operates on all the books you have selected in the <a href="#library">Library view</a>.
+                operates on all the books you have selected in the <a href="#search_sort">Library view</a>.
             </li>
         </ul>
 
@@ -224,28 +231,101 @@ Author
         <hr />
         <h2 class="sectionHeading" id="catalogs">Catalogs</h2>
         <div><img src="images/catalogs.png" alt="Catalogs"/></div>
+        <p>
+            A <i>catalog</i> is a collection of books. libprs500 can manage three different catalogs:
+        </p>
+        <ul>
+            <li>
+                <b>Library</b>: This is a collection of books stored in a database file on your computers hard disk.
+                <b>Reader</b>:  This is a collection of books stored in the main memory of your ebook reader. It will be available
+                when you connect
+                <b>Card</b>: This is a collection of books stored on the storage card in your reader. Note that libprs500 supports
+                only a single storage card at a time.
+            </li>
+        </ul>
 
         <hr />
-        <h2 class="sectionHeading" id="search">Search</h2>
-        <div><img src="images/search.png" alt="Search"/></div>
+        <h2 class="sectionHeading" id="search_sort">Search &amp; Sort</h2>
+        <div><img src="images/search_sort.png" alt="Search &amp; Sort"/></div>
+        <p>
+            The Search &amp; Sort section allows you to perform several powerful actions
+            on your book collections.
+        </p>
+        <ul>
+            <li>
+                You can sort them by title, author, date, rating etc.
+                by clicking on the column titles.
+            </li>
+            <li>
+                You can search for a particular book or set of books using the search bar. More on that
+                below.
+            </li>
+            <li>
+                You can quickly and conveniently edit metadata by double-clicking the entry you want changed
+                in the list.
+            </li>
+            <li>
+                You can perform <a href="#actions">actions</a> on sets to books. To select multiple books you can either:
+                <ul>
+                    <li>Keep the <code>Ctrl</code> key pressed and click on the books you want selected.</li>
+                    <li>Keep the <code>Shift</code> key pressed and click on the starting and ending book of a range
+                        of books you want selected.</li>
+                </ul>
+            </li>
+            <li>
+                You can configure which fields you want displayed by using the <a href="#configuration">Configuration</a> dialog.
+            </li>
+        </ul>
+        <h3 class="subsectionHeading">The Search Interface</h3>
+        <p>
+            You can search all the metadata by entering search terms in the search bar. Searches are case insensitive.
+            For example:
+        </p>
+
+        <pre style="background: #eeeeee">
+            Asimov Foundation format:lrf
+        </pre>
+        <p>
+            This will match all books in your library that have <code>Asimov</code> and <code>Foundation</code> in their metadata
+            and are available in the LRF format. You can build advanced search queries easily using the "Advanced Search Dialog"
+            by clicking the button <img src="images/search_button.png" alt="Search button" style="vertical-align: middle"/>.<br /><br />
+        </p>
+
+        <table>
+            <tr>
+                <td><img src="images/search.png" alt="Advanced Search Dialog" /></td>
+                <td>
+                    You can search on individual fields as shown. The "Negate" checkbox implies that only results that
+                    do not match the search expression will be returned. You can require all the search criteria to match
+                    or any of them.
+                </td>
+            </tr>
+        </table>
 
         <hr />
         <h2 class="sectionHeading" id="configuration">Configuration</h2>
-        <div><img src="images/configuration.png" alt="Configuration" /></div>
-
-        <hr />
-        <h2 class="sectionHeading" id="library">Library</h2>
-        <div><img src="images/library.png" alt="Library"/></div>
-
-        <p>multiple selection</p>
+        <p>
+            The configuration dialog allows you to set some global defaults used by all of libprs500. To access it, click the
+            <img src="images/configuration.png" alt="Configuration" /> button.
+        </p>
 
         <hr />
         <h2 class="sectionHeading" id="book_details">Book Details</h2>
         <div><img src="images/book_details.png" alt="Book Details" /></div>
+        <p>
+            The Book Details display shows you extra information and the cover for the currently selected book.
+        </p>
 
         <hr />
         <h2 class="sectionHeading" id="jobs">Jobs</h2>
         <div><img src="images/jobs.png" alt="Jobs" /></div>
+        <p>
+            The Jobs panel shows you the number of currently running jobs. Jobs are tasks that run in a separate
+            process, they include converting ebooks and talking to your reader device.
+            You can click on the jobs panel to access the list of jobs.
+            Once a job has completed, by clicking it in the list, you can see a detailed log from that job. This is useful
+            to debug jobs that may not have completed successfully.
+        </p>
 
         <hr />
         <div class="footer">

@@ -18,7 +18,7 @@
 
 import sys, glob, mechanize, time, subprocess, os, re, shutil
 from tempfile import NamedTemporaryFile
-from xml.etree.ElementTree import parse, tostring, fromstring
+from xml.etree.ElementTree import parse, tostring, fromstring, Element
 from BeautifulSoup import BeautifulSoup
 
 # Load libprs500 from source copy
@@ -48,7 +48,7 @@ def update_manifest(src='libprs500.qhp'):
     open(src, 'wb').write(raw+'\n')
 
 
-def validate_html():
+def validate():
     br = browser()
     for f in glob.glob('*.html'):
         if f.startswith('preview-'):
@@ -89,6 +89,44 @@ def compile_help():
     subprocess.check_call((QCG, 'libprs500.qhcp'))
     subprocess.call((QTA, '-collectionFile', 'libprs500.qhc'))
      
+
+def populate_section(secref, items, src='libprs500.qhp'):
+    root = parse(src).getroot()
+    toc = root.find('filterSection').find('toc')
+    sec = None
+    
+    for c in toc.findall('section'):
+        if c.attrib['ref'] == secref:
+            sec = c
+            break
+        
+    attr = sec.attrib.copy()    
+    sec.clear()
+    sec.attrib = attr
+    sec.text = '\n%16s'%' '
+    secs = ['<section ref="%s" title="%s" />\n'%i for i in items]
+    sec.tail = '\n\n%12s'%' '
+    for i in secs:
+        el = fromstring(i)
+        sec.append(el)
+        if secs.index(i) == len(secs)-1:
+            el.tail = '\n%12s'%' '
+        else:
+            el.tail = '\n%16s'%' '
+        
+    
+    raw = tostring(root, 'UTF-8')
+    
+    open(src, 'wb').write(raw)
+    
+def populate_faq(src='libprs500.qhp'):
+    soup = BeautifulSoup(open('faq.html').read().decode('UTF-8'))
+    items = []
+    toc = soup.find('div', id="toc")
+    for a in toc('a', href=True):
+        items.append(('faq.html%s'%a['href'], a.string))
+    
+    populate_section('faq.html', items, src=src)
 
 def generate_cli_docs(src='libprs500.qhp'):
     documented_cmds = []
@@ -163,28 +201,12 @@ def generate_cli_docs(src='libprs500.qhp'):
     body += '<p>You can see usage for undocumented commands by executing them without arguments in a terminal</p>'
     open('cli-index.html', 'wb').write(template.replace('%body', body))
         
-        
-        
-    root = parse(src).getroot()
-    toc = root.find('filterSection').find('toc')
-    sec = None
-    
-    for c in toc.findall('section'):
-        if c.attrib['ref'] == 'cli-index.html':
-            sec = c
-            break
-    attr = sec.attrib.copy()    
-    sec.clear()
-    sec.attrib = attr
     
     cmds = [i[0] for i in documented_cmds]
-    secs = ['<section ref="cli-%s.html" title="%s" />\n'%(i, i) for i in cmds]
-    [sec.append(fromstring(i)) for i in secs]
-    raw = tostring(root, 'UTF-8')
-    raw = re.sub(r'(<section ref="cli-[^<>]*?/>)', r'\n                \1', raw)
-    raw = raw.replace('</section></toc>', '\n            </section>\n        </toc>')
-    raw = raw.replace('                <section ref="cli-index.html', '            <section ref="cli-index.html')
-    open(src, 'wb').write(raw+'\n')
+    items = [('cli-%s.html'%i, i) for i in cmds]
+    populate_section('cli-index.html', items, src=src)
+    
+    
     
 
 def create_html_interface(src='libprs500.qhp'):
@@ -219,22 +241,33 @@ def create_html_interface(src='libprs500.qhp'):
     open('navtree.html', 'wb').write(template.replace('%tree', tree)+'\n')        
         
 
-def all(args=sys.argv):
+def all(opts):
     generate_cli_docs()
+    populate_faq()
     update_manifest()
     create_html_interface()
     compile_help()
-    validate_html()
+    if opts.validate:
+        validate()
     
     return 0
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
+    from libprs500 import OptionParser
+    parser = OptionParser()
+    parser.add_option('--validate', default=False, action='store_true',
+                      help='Validate all HTML files against their DTDs.')
+    opts, args = parser.parse_args()
+    
+    if len(args) == 0:
         clean()
-        sys.exit(all())
-    elif len(sys.argv) == 2:
-        func = eval(sys.argv[1])
+        sys.exit(all(opts))
+    elif len(args) == 1:
+        func = eval(args[0])
+        fargs = []
+        if args[0] == 'all':
+            fargs = [opts]
         if func is None:
             print >>sys.stderr, 'Unknown target', sys.argv(1)
             sys.exit(1)
-        sys.exit(func())
+        sys.exit(func(*fargs))

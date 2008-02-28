@@ -14,6 +14,11 @@
 
             <section ref="gui.html" title="The Graphical User Interface">
                 <section ref="gui.html#actions" title="Actions" />
+                <section ref="gui.html#catalogs" title="Catalogs" />
+                <section ref="gui.html#search_sort" title="Search &amp; Sort" />
+                <section ref="gui.html#configuration" title="Configuration" />
+                <section ref="gui.html#book_details" title="Book Details" />
+                <section ref="gui.html#jobs" title="Jobs" />
             </section>
 
             <section ref="cli-index.html" title="The Command Line Interface">
@@ -38,7 +43,23 @@
                 <section ref="cli-web2disk.html" title="web2disk" />
                 <section ref="cli-web2lrf.html" title="web2lrf" />
             </section>
-        </toc>
+
+            <section ref="faq.html" title="Frequently Asked Questions">
+                <section ref="faq.html#Whatdevicesdoeslibprs500support" title="What devices does libprs500 support?" />
+                <section ref="faq.html#Whatformatsdoeslibprs500readmetadatafrom" title="What formats does libprs500 read metadata from?" />
+                <section ref="faq.html#Whatformatsdoeslibprs500supportconversiontofrom" title="What formats does libprs500 support conversion to/from?" />
+                <section ref="faq.html#WhatarethebestformatstoconverttoLRF" title="What are the best formats to convert to LRF?" />
+                <section ref="faq.html#WhydoesthePDFconversionlosesomeimages" title="Why does the PDF conversion lose some images?" />
+                <section ref="faq.html#Wherearethebookfilesstored" title="Where are the book files stored?" />
+                <section ref="faq.html#CanIsavemybookstothedisk" title="Can I save my books to the disk?" />
+                <section ref="faq.html#Iusedlibprs500totransfersomebookstomyreaderandnowtheSONYsoftwarehangseverytimeIconnectthereader" title="I used libprs500 to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?" />
+                <section ref="faq.html#NoimagesintheLRFfileafterconversionfromHTML" title="No images in the LRF file after conversion from HTML?" />
+                <section ref="faq.html#CanIuseweb2lrftodownloadanarbitrarywebsite" title="Can I use web2lrf to download an arbitrary website?" />
+                <section ref="faq.html#Iwantsomefeatureaddedtolibprs500.WhatcanIdo" title="I want some feature added to libprs500. What can I do?" />
+                <section ref="faq.html#HowdoIusesomeoftheadvancedfeaturesoftheconversiontools" title="How do I use some of the advanced features of the conversion tools?" />
+            </section>
+
+            </toc>
 
         <files>
             <file>cli-isbndb.html</file>
@@ -46,6 +67,7 @@
             <file>cli-mobi2lrf.html</file>
             <file>cli-lrf-meta.html</file>
             <file>cli-lit2lrf.html</file>
+            <file>faq.html</file>
             <file>cli-lrf2lrs.html</file>
             <file>cli-index.html</file>
             <file>cli-web2lrf.html</file>
@@ -68,7 +90,8 @@
             <file>images/edit_meta_information.png</file>
             <file>images/remove_books.png</file>
             <file>images/book_details.png</file>
-            <file>images/library.png</file>
+            <file>images/search_sort.png</file>
+            <file>images/search_button.png</file>
             <file>images/convert_ebooks.png</file>
             <file>images/add_books.png</file>
             <file>images/save_to_disk.png</file>
