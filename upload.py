@@ -113,7 +113,7 @@ def upload_user_manual():
     cwd = os.getcwdu()
     os.chdir('src/libprs500/manual')
     try:
-        check_call('python make.py')
+        check_call('python make.py --validate')
         check_call('ssh castalia rm -rf %s/\\*'%USER_MANUAL)
         check_call('scp -r *.html styles images castalia:%s/'%USER_MANUAL)
     finally:

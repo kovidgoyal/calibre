@@ -79,22 +79,18 @@ if __name__ == '__main__':
                       """, 
           long_description = 
           """
-          libprs500 is a ebook management application. It maintains an ebook library
-          and allows for easy transfer of books from the library to an ebook reader.
-          At the moment, it supports the `SONY Portable Reader`_.
-          
-          It can also convert various popular ebook formats into LRF, the native
-          ebook format of the SONY Reader.
+          libprs500 is an e-book library manager. It can view, convert and catalog e-books
+          in most of the major e-book formats. It can also talk to a few e-book reader devices. It can
+          go out to the internet and fetch metadata for your books. It can download newspapers and convert
+          them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
           
           For screenshots: https://libprs500.kovidgoyal.net/wiki/Screenshots
           
           For installation/usage instructions please see 
-          https://libprs500.kovidgoyal.net/wiki/WikiStart#Installation
+          http://libprs500.kovidgoyal.net
           
           For SVN access: svn co https://svn.kovidgoyal.net/code/libprs500
-          
-            .. _SONY Portable Reader: http://Sony.com/reader
-            .. _USB: http://www.usb.org  
+            
           """, 
           license = 'GPL', 
           classifiers = [
