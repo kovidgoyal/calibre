@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import os, cPickle
+import os, cPickle, codecs
 
 from PyQt4.QtCore import QObject, SIGNAL, Qt, QSettings, QVariant, QByteArray
 from PyQt4.QtGui import QAbstractSpinBox, QLineEdit, QCheckBox, QDialog, \
@@ -315,6 +315,14 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             elif isinstance(obj, QLineEdit):
                 val = qstring_to_unicode(obj.text())
                 if val:
+                    if opt == '--encoding':
+                        try:
+                            codecs.getdecoder(val)
+                        except:
+                            d = error_dialog(self, 'Unknown encoding', 
+                                             '<p>Unknown encoding: %s<br/>For a list of known encodings see http://docs.python.org/lib/standard-encodings.html'%val)
+                            d.exec_()
+                            return
                     cmd.extend([opt, val])
             elif isinstance(obj, QTextEdit):
                 val = qstring_to_unicode(obj.toPlainText())
@@ -366,6 +374,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     
     def accept(self):
         cmdline = self.build_commandline()
+        if cmdline is None:
+            return
         if self.db:
             self.cover_file = None
             self.write_metadata()

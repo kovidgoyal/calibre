@@ -74,11 +74,10 @@ def process_file(path, options, logger=None):
         logger = logging.getLogger('txt2lrf')
         setup_cli_handlers(logger, level)
     txt = os.path.abspath(os.path.expanduser(path))
-    if not hasattr(options, 'encoding'):
-        options.encoding = None 
     if not hasattr(options, 'debug_html_generation'):
         options.debug_html_generation = False
     htmlfile = generate_html(txt, options.encoding, logger)
+    options.encoding = 'utf-8'
     if not options.debug_html_generation:
         options.force_page_break = 'h2'
         if not options.output:

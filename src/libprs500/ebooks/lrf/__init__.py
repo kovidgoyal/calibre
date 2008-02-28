@@ -229,6 +229,9 @@ def option_parser(usage, gui_mode=False):
                       help='Convert to LRS', default=False)
     parser.add_option('--minimize-memory-usage', action='store_true', default=False,
                       help=_('Minimize memory usage at the cost of longer processing times. Use this option if you are on a memory constrained machine.'))
+    parser.add_option('--encoding', default=None, 
+                      help='Specify the character encoding of the source file. If the output LRF file contains strange characters, try changing this option. A common encoding for files from windows computers is cp-1252. Another common choice is utf-8. The default is to try and guess the encoding.')
+    
     return parser
 
 def find_custom_fonts(options, logger):

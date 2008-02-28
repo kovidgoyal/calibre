@@ -80,11 +80,11 @@ def clean():
     return 0
                 
 def compile_help():
-    QTDIR = '/usr/local/Trolltech/Qt-4.4.0-tp1'
+    QTDIR = '/usr/local/Trolltech/Qt-4.4.0-beta1'
     QTBIN = QTDIR + '/bin'
     QTLIB = QTDIR + '/lib'
     QCG = os.path.join(QTBIN, 'qcollectiongenerator')
-    QTA = os.path.join(QTBIN, 'assistant_new')
+    QTA = os.path.join(QTBIN, 'assistant')
     os.environ['LD_LIBRARY_PATH'] = QTLIB
     subprocess.check_call((QCG, 'libprs500.qhcp'))
     subprocess.call((QTA, '-collectionFile', 'libprs500.qhc'))
@@ -156,7 +156,7 @@ def generate_cli_docs(src='libprs500.qhp'):
                 '<li><a href="cli-%s.html">%s</a></li>\n'%(i[0], i[0]) for i in documented_cmds)
     
     body = '<h1 class="documentHeading">The Command Line Interface</h1>\n'
-    body += '<div style="text-align:center"><img src="images/cli.png" /></div>'
+    body += '<div style="text-align:center"><img src="images/cli.png" alt="CLI" /></div>'
     body += '<p>%s</p>\n'%'<b class="cmd">libprs500</b> has a very comprehensive command line interface to perform most operations that can be performed by the GUI.'
     body += '<h2 class="sectionHeading">Documented commands</h2>\n'+dc_html
     body += '<h2 class="sectionHeading">Undocumented commands</h2>\n'+uc_html

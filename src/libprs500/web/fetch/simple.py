@@ -13,7 +13,8 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
-Fetch a webpage and its links recursively.
+Fetch a webpage and its links recursively. The webpages are saved to disk in
+UTF-8 encoding with any charset declarations removed.
 '''
 import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2
 from urllib import url2pathname
@@ -35,6 +36,9 @@ def basename(url):
     return res
 
 def save_soup(soup, target):
+    for meta in soup.findAll('meta', content=True):
+        if 'charset' in meta['content']:
+            meta.extract()
     f = codecs.open(target, 'w', 'utf8')
     f.write(unicode(soup))
     f.close()
@@ -58,6 +62,7 @@ class RecursiveFetcher(object):
         self.default_timeout = socket.getdefaulttimeout()
         socket.setdefaulttimeout(options.timeout)
         self.verbose = options.verbose
+        self.encoding = options.encoding
         self.browser = options.browser if hasattr(options, 'browser') else browser()
         self.max_recursions = options.max_recursions
         self.match_regexps  = [re.compile(i, re.IGNORECASE) for i in options.match_regexps]
@@ -262,6 +267,11 @@ class RecursiveFetcher(object):
                     dsrc = f.read()
                     if len(dsrc) == 0:
                         raise Exception('No content')
+                    if self.encoding is not None:
+                        dsrc = dsrc.decode(self.encoding, 'ignore')
+                    else:
+                        dsrc = xml_to_unicode(dsrc)
+                    
                     soup = self.get_soup(dsrc)
                     self.logger.debug('Processing images...')
                     self.process_images(soup, f.geturl())
@@ -305,6 +315,8 @@ def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com
                       help='The maximum number of files to download. This only applies to files from <a href> tags. Default is %default')
     parser.add_option('--delay', default=0, dest='delay', type='int',
                       help='Minimum interval in seconds between consecutive fetches. Default is %default s')
+    parser.add_option('--encoding', default=None, 
+                      help='The character encoding for the websites you are trying to download. The default is to try and guess the encoding.')
     parser.add_option('--match-regexp', default=[], action='append', dest='match_regexps',
                       help='Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.')
     parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',

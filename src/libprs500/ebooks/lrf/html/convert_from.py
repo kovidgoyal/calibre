@@ -359,6 +359,8 @@ class HTMLConverter(object):
         raw = f.read()
         if self.pdftohtml: # Bug in pdftohtml that causes it to output invalid UTF-8 files
             raw = raw.decode('utf-8', 'ignore')
+        elif self.encoding is not None:
+            raw = raw.decode(self.encoding, 'ignore')
         else:
             raw = xml_to_unicode(raw, self.verbose)[0]
         f.close()

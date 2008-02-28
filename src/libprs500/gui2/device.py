@@ -34,6 +34,7 @@ class DeviceDetector(QThread):
         self.devices = [[d, False] for d in devices()]
         self.sleep_time = sleep_time
         QThread.__init__(self)
+        self.keep_going = True
         
     def run(self):
         _wmi = None
@@ -42,7 +43,7 @@ class DeviceDetector(QThread):
             pythoncom.CoInitialize()
             _wmi = wmi.WMI()
         scanner = DeviceScanner(_wmi)
-        while True:
+        while self.keep_going:
             scanner.scan()
             for device in self.devices:
                 connected = scanner.is_device_connected(device[0])

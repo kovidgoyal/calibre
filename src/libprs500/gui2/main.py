@@ -984,6 +984,10 @@ class Main(MainWindow, Ui_MainWindow):
                 e.ignore()
                 return
         self.write_settings()
+        self.detector.keep_going = False
+        self.hide()
+        self.detector.wait(2000)
+        self.detector.terminate()
         e.accept()
         
     def update_found(self, version):

@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-'''Convert known websites into LRF files.'''
+'''Convert websites into LRF files.'''
 
 import sys, time, tempfile, shutil, os, logging, imp, inspect, re
 from urlparse import urlsplit
@@ -53,8 +53,7 @@ def option_parser():
     parser.add_option('--delay', default=None, dest='delay', type='int',
                       help='Minimum interval in seconds between consecutive fetches. Default is %d s'%DefaultProfile.timeout)
     parser.add_option('--dont-download-stylesheets', action='store_true', default=None,
-                      help='Do not download CSS stylesheets.', dest='no_stylesheets')    
-    
+                      help='Do not download CSS stylesheets.', dest='no_stylesheets')
     parser.add_option('--match-regexp', dest='match_regexps', default=[], action='append',
                       help='Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.')
     parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',
@@ -64,7 +63,7 @@ def option_parser():
     return parser
     
 def fetch_website(options, logger):
-    tdir = tempfile.mkdtemp(prefix=__appname__+'_' )
+    tdir = tempfile.mkdtemp(prefix=__appname__+'_', suffix='_web2lrf')
     options.dir = tdir
     fetcher = create_fetcher(options, logger)
     fetcher.preprocess_regexps = options.preprocess_regexps
@@ -147,10 +146,13 @@ def process_profile(args, options, logger=None):
         options.preprocess_regexps = profile.preprocess_regexps
         options.filter_regexps += profile.filter_regexps
         
+        options.encoding = profile.encoding if options.encoding is None else options.encoding 
+        
         if len(args) == 2 and args[1] != 'default':
             options.anchor_ids = False
         
         htmlfile, tdir = fetch_website(options, logger)
+        options.encoding = 'utf-8'
         cwd = os.getcwdu()
         if not options.output:
             options.output = os.path.join(cwd, options.title+('.lrs' if options.lrs else '.lrf'))

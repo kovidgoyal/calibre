@@ -13,6 +13,8 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
+Contains the Base Profiles that can be used to easily create profiles to download
+particular websites.  
 '''
 
 import tempfile, time, calendar, re, operator, atexit, shutil, os
@@ -24,35 +26,119 @@ from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, 
 
 class DefaultProfile(object):
     
-    url                   = ''    # The URL of the website
-    title                 = 'Default Profile'    # The title to use for the LRF file
-    max_articles_per_feed = 10    # Maximum number of articles to download from each feed 
-    html_description      = True  # If True process the <description> element of the feed as HTML
-    oldest_article        = 7     # How many days old should the oldest article downloaded from the feeds be?
-    max_recursions        = 1     # Number of levels of links to follow
-    max_files             = 3000  # Maximum number of files to download
-    delay                 = 0     # Delay between consecutive downloads
-    timeout               = 10    # Timeout for fetching files from server in seconds
-    timefmt               = ' [%a %d %b %Y]' # The format of the date shown on the first page
-    url_search_order      = ['guid', 'link'] # The order of elements to search for a URL when parssing the RSS feed
-    pubdate_fmt           = None  # The format string used to parse the publication date in the RSS feed. If set to None some default heuristics are used, these may fail, in which case set this to the correct string or re-implement strptime in your subclass.
-    use_pubdate           = True, # If True will look for a publication date for each article. If False assumes the publication date is the current time.
-    summary_length        = 500 # Max number of characters in the short description (ignored in DefaultProfile)
-    no_stylesheets        = False # Download stylesheets only if False
-    allow_duplicates      = False # If False articles with the same title in the same feed are not downloaded multiple times
-    needs_subscription    = False # If True the GUI will ask the userfor a username and password to use while downloading
-    match_regexps         = []    # List of regular expressions that determines which links to follow
-    filter_regexps        = []    # List of regular expressions that determines which links to ignore
-    # Only one of match_regexps or filter_regexps should be defined
+    #: The title to use for the LRF file
+    #: @type: string    
+    title                 = 'Default Profile'    
     
-    html2lrf_options   = []    # List of options to pass to html2lrf
-    # List of regexp substitution rules to run on the downloaded HTML. Each element of the 
-    # list should be a two element tuple. The first element of the tuple should
-    # be a compiled regular expression and the second a callable that takes
-    # a single match object and returns a string to replace the match.
+    #: Maximum number of articles to download from each feed
+    #: @type: integer
+    max_articles_per_feed = 10     
+    
+    #: If True process the <description> element of the feed as HTML
+    #: @type: boolean
+    html_description      = True  
+    
+    #: How many days old should the oldest article downloaded from the feeds be
+    #: @type: integer
+    oldest_article        = 7
+    
+    #: Recommend frequency at which to download this profile. In days.
+    recommended_frequency = 7
+    
+    #: Number of levels of links to follow
+    #: @type: integer
+    max_recursions        = 1
+    
+    #: Maximum number of files to download
+    #: @type: integer
+    max_files             = 3000
+    
+    #: Delay between consecutive downloads in seconds
+    #: @type: integer
+    delay                 = 0
+    
+    #: Timeout for fetching files from server in seconds
+    #: @type: integer
+    timeout               = 10
+    
+    #: The format string for the date shown on the first page
+    #: @type: string
+    timefmt               = ' [%a %d %b %Y]'
+    
+    #: The order of elements to search for a URL when parsing the RSS feed. You 
+    #: can replace these elements by completely arbitrary elements to customize
+    #: feed processing. 
+    #: @type: list of strings
+    url_search_order      = ['guid', 'link']
+    
+    #: The format string used to parse the publication date in the RSS feed. 
+    #: If set to None some default heuristics are used, these may fail, 
+    #: in which case set this to the correct string or re-implement 
+    #: L{DefaultProfile.strptime} in your subclass.
+    #: @type: string or None 
+    pubdate_fmt           = None  
+    
+    #: If True will look for a publication date for each article. 
+    #: If False assumes the publication date is the current time.
+    #: @type: boolean
+    use_pubdate           = True, 
+    
+    #: Max number of characters in the short description.
+    #: Used by L{FullContentProfile}
+    #: @type: integer
+    summary_length        = 500
+    
+    #: If True stylesheets are not downloaded and processed
+    #: Convenient flag to disable loading of stylesheets for websites
+    #: that have overly complex stylesheets unsuitable for conversion
+    #: to ebooks formats
+    #: @type: boolean
+    no_stylesheets        = False
+    
+    #: If False articles with the same title in the same feed 
+    #: are not downloaded multiple times
+    #: @type: boolean 
+    allow_duplicates      = False 
+    
+    #: If True the GUI will ask the user for a username and password 
+    #: to use while downloading
+    #: @type: boolean
+    needs_subscription    = False
+    
+    #: Specify an override encoding for sites that have an incorrect
+    #: charset specification. THe most common being specifying latin1 and
+    #: using cp1252 
+    encoding = None
+    
+    #: List of regular expressions that determines which links to follow
+    #: If empty, it is ignored.
+    #: Only one of L{match_regexps} or L{filter_regexps} should be defined
+    #: @type: list of strings
+    match_regexps         = []
+    
+    #: List of regular expressions that determines which links to ignore
+    #: If empty it is ignored
+    #: Only one of L{match_regexps} or L{filter_regexps} should be defined
+    #: @type: list of strings
+    filter_regexps        = []    
+    
+    #: List of options to pass to html2lrf, to customize conversion
+    #: to LRF
+    #: @type: list of strings
+    html2lrf_options   = []
+        
+    #: List of regexp substitution rules to run on the downloaded HTML. Each element of the 
+    #: list should be a two element tuple. The first element of the tuple should
+    #: be a compiled regular expression and the second a callable that takes
+    #: a single match object and returns a string to replace the match.
+    #: @type: list of tuples
     preprocess_regexps = []
     
     # See the built-in profiles for examples of these settings.
+    
+    #: The URL of the website
+    #: @type: string
+    url                   = ''
     
     feeds = []
     CDATA_PAT = re.compile(r'<\!\[CDATA\[(.*?)\]\]>', re.DOTALL)
@@ -84,9 +170,7 @@ class DefaultProfile(object):
         '''
         return browser()
     
-    ########################################################################
-    ###################### End of customizable portion #####################
-    ########################################################################
+    
     
     
     def __init__(self, logger, verbose=False, username=None, password=None):
@@ -105,14 +189,14 @@ class DefaultProfile(object):
     def build_index(self):
         '''Build an RSS based index.html'''
         articles = self.parse_feeds()
-    
+        encoding = 'utf-8' if self.encoding is None else self.encoding 
         def build_sub_index(title, items):
             ilist = ''
             li = u'<li><a href="%(url)s">%(title)s</a> <span style="font-size: x-small">[%(date)s]</span><br/>\n'+\
                 u'<div style="font-size:small; font-family:sans">%(description)s<br /></div></li>\n'
             for item in items:
                 if not item.has_key('date'):
-                    item['date'] = time.ctime()
+                    item['date'] = time.strftime('%a, %d %b', time.localtime())
                 ilist += li%item
             return u'''\
             <html>
@@ -135,8 +219,8 @@ class DefaultProfile(object):
             prefix = 'file:' if iswindows else ''
             clist += u'<li><a href="%s">%s</a></li>\n'%(prefix+cfile, category)
             src = build_sub_index(category, articles[category])
-            open(cfile, 'wb').write(src.encode('utf-8'))
-            
+            open(cfile, 'wb').write(src.encode(encoding))
+                        
         src = '''\
         <html>
         <body>
@@ -150,7 +234,8 @@ class DefaultProfile(object):
         '''%dict(date=time.strftime('%a, %d %B, %Y', time.localtime()), 
                  categories=clist, title=self.title)
         index = os.path.join(self.temp_dir, 'index.html')
-        open(index, 'wb').write(src.encode('utf-8'))
+        open(index, 'wb').write(src.encode(encoding))
+        
         return index
 
     
@@ -160,7 +245,9 @@ class DefaultProfile(object):
         Convenience method to take a BeautifulSoup Tag and extract the text from it
         recursively, including any CDATA sections and alt tag attributes.
         @param use_alt: If True try to use the alt attribute for tags that don't have any textual content
+        @type use_alt: boolean
         @return: A unicode (possibly empty) object
+        @rtype: unicode string
         '''
         if not tag:
             return ''
@@ -181,11 +268,13 @@ class DefaultProfile(object):
     def get_article_url(self, item):
         '''
         Return the article URL given an item Tag from a feed, or None if no valid URL is found
-        @param: A BeautifulSoup Tag instance corresponding to the <item> tag from a feed.
+        @type item: BeatifulSoup.Tag
+        @param item: A BeautifulSoup Tag instance corresponding to the <item> tag from a feed.
+        @rtype: string or None
         '''
         url = None
         for element in self.url_search_order:
-            url = item.find(element)
+            url = item.find(element.lower())
             if url:
                 break
         return url
@@ -195,15 +284,17 @@ class DefaultProfile(object):
         '''
         Create list of articles from a list of feeds.
         @param require_url: If True skip articles that don't have a link to a HTML page with the full article contents.
+        @type require_url: boolean
+        @rtype: dictionary
         @return: A dictionary whose keys are feed titles and whose values are each
-        a list of dictionaries. Each list contains dictionaries of the form:
-        {
+        a list of dictionaries. Each list contains dictionaries of the form::
+            {
             'title'       : article title,
             'url'         : URL of print version,
             'date'        : The publication date of the article as a string,
             'description' : A summary of the article
-            'content'     : The full article (can be an empty string). This is unused in DefaultProfile
-        }
+            'content'     : The full article (can be an empty string). This is used by FullContentProfile
+            }
         '''
         added_articles = {}
         feeds = self.get_feeds()
@@ -299,6 +390,12 @@ class DefaultProfile(object):
     
     @classmethod
     def process_html_description(cls, tag, strip_links=True):
+        '''
+        Process a <description> tag that contains HTML markup, either 
+        entity encoded or escaped in a CDATA section. 
+        @return: HTML
+        @rtype: string
+        '''
         src = '\n'.join(tag.contents) if hasattr(tag, 'contents') else tag
         match = cls.CDATA_PAT.match(src.lstrip())
         if match:
@@ -325,7 +422,13 @@ class DefaultProfile(object):
     def strptime(cls, src):
         ''' 
         Take a string and return the date that string represents, in UTC as
-        an epoch (i.e. number of seconds since Jan 1, 1970)
+        an epoch (i.e. number of seconds since Jan 1, 1970). This function uses
+        a bunch of heuristics and is a prime candidate for being overridden in a 
+        subclass.
+        @param src: Timestamp as a string
+        @type src: string
+        @return: time ans a epoch
+        @rtype: number 
         '''        
         delta = 0
         zone = re.search(r'\s*(\+\d\d\:{0,1}\d\d)', src)
@@ -376,7 +479,7 @@ class FullContentProfile(DefaultProfile):
     
     
     def build_index(self):
-        '''Build an RSS based index.html'''
+        '''Build an RSS based index.html. '''
         articles = self.parse_feeds(require_url=False)
         
         def build_sub_index(title, items):
@@ -467,4 +570,5 @@ def cleanup(tdir):
         if os.path.isdir(tdir):
             shutil.rmtree(tdir)
     except:
-        pass 
+        pass
+    

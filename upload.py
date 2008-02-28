@@ -10,6 +10,7 @@ import pysvn
 PREFIX = "/var/www/vhosts/kovidgoyal.net/subdomains/libprs500"
 DOWNLOADS = PREFIX+"/httpdocs/downloads"
 DOCS = PREFIX+"/httpdocs/apidocs"
+USER_MANUAL = PREFIX+'/httpdocs/user_manual'
 HTML2LRF = "src/libprs500/ebooks/lrf/html/demo"
 TXT2LRF  = "src/libprs500/ebooks/lrf/txt/demo"
 check_call = partial(_check_call, shell=True)
@@ -108,7 +109,15 @@ def upload_docs():
     check_call('''epydoc -v --config epydoc-pdf.conf''')
     check_call('''scp docs/pdf/api.pdf castalia:%s/'''%(DOCS,))
 
-    
+def upload_user_manual():
+    cwd = os.getcwdu()
+    os.chdir('src/libprs500/manual')
+    try:
+        check_call('python make.py')
+        check_call('ssh castalia rm -rf %s/\\*'%USER_MANUAL)
+        check_call('scp -r *.html styles images castalia:%s/'%USER_MANUAL)
+    finally:
+        os.chdir(cwd)
 
 def main():
     upload = len(sys.argv) < 2
@@ -128,6 +137,7 @@ def main():
         print 'Uploading to PyPI'
         check_call('''python setup.py register bdist_egg --exclude-source-files upload''')
         upload_docs()
+        upload_user_manual()
         check_call('''rm -rf dist/* build/*''')
     
 if __name__ == '__main__':
