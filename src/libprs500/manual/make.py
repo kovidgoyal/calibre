@@ -16,7 +16,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''''''
 
-import sys, glob, mechanize, time, subprocess, os, shutil
+import sys, glob, mechanize, time, subprocess, os, shutil, re
 from tempfile import NamedTemporaryFile
 from xml.etree.ElementTree import parse, tostring, fromstring
 
@@ -55,7 +55,7 @@ def update_manifest(src):
 
 def validate(file=None):
     br = browser()
-    files = [file] if file is not None else glob.glob('*.html') 
+    files = [file] if file is not None else glob.glob('*.html')
     for f in files:
         if f.startswith('preview-'):
             continue
@@ -257,6 +257,7 @@ def generate_cli_docs():
 
 def create_html_interface(src='libprs500.qhp'):
     root = parse(src).getroot()
+    print  
     toc = root.find('filterSection').find('toc')
     
     def is_leaf(sec):
@@ -266,7 +267,8 @@ def create_html_interface(src='libprs500.qhp'):
     def process_branch(branch, toplevel=False):
         parent = []
         for sec in branch.findall('section'):
-            html = '<li class="||||">\n<a target="content" href="%s">%s</a>\n</li>\n'%(sec.attrib['ref'], sec.attrib['title'])
+            title = re.sub('&(?!amp;)', '&amp;', sec.attrib['title'])
+            html = '<li class="||||">\n<a target="content" href="%s">%s</a>\n</li>\n'%(sec.attrib['ref'], title)
             lc = 'toplevel' if toplevel else 'nottoplevel'
             html=html.replace('||||', '%s ||||'%lc)
             
@@ -313,9 +315,13 @@ if __name__ == '__main__':
         fargs = []
         if args[0] == 'all':
             fargs = [opts]
-        elif len(args) > 1:
-            fargs = args[1:]
+    elif len(args) > 1:
+        func = eval(args[0])
+        fargs = args[1:]
         if func is None:
             print >>sys.stderr, 'Unknown target', sys.argv(1)
             sys.exit(1)
         sys.exit(func(*fargs))
+    else:
+        parser.print_help()
+        sys.exit(1)
