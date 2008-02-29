@@ -270,7 +270,7 @@ class RecursiveFetcher(object):
                     if self.encoding is not None:
                         dsrc = dsrc.decode(self.encoding, 'ignore')
                     else:
-                        dsrc = xml_to_unicode(dsrc)
+                        dsrc = xml_to_unicode(dsrc, self.verbose)[0]
                     
                     soup = self.get_soup(dsrc)
                     self.logger.debug('Processing images...')

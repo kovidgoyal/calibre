@@ -30,14 +30,14 @@ def detect(aBuf):
 # Added by Kovid
 def xml_to_unicode(raw, verbose=False):
     '''
-    Force conversion of byte string to unicode. Tries to llok for XML/HTML 
+    Force conversion of byte string to unicode. Tries to look for XML/HTML 
     encoding declaration first, if not found uses the chardet library and
     prints a warning if detection confidence is < 100%
     @return: (unicode, encoding used) 
     '''
-    if not raw:
-        return u'', None
     encoding = None
+    if not raw:
+        return u'', encoding    
     if isinstance(raw, unicode):
         return raw, encoding
     match = re.compile('^\s*<\?.*encoding=[\'"](.*?)[\'"].*\?>', re.IGNORECASE).match(raw)

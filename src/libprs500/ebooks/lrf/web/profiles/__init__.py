@@ -313,20 +313,26 @@ class DefaultProfile(object):
             soup = BeautifulStoneSoup(src)
             for item in soup.findAll('item'):
                 try:
+                    atitle = item.find('title')
+                    if not atitle:
+                        continue
+                    
+                    atitle = self.tag_to_string(atitle)
                     if self.use_pubdate:
                         pubdate = item.find('pubdate')
                         if not pubdate:
                             pubdate = item.find('dc:date')
                         if not pubdate or not pubdate.string:
-                            self.logger.debug('Skipping article as it does not have publication date')
+                            self.logger.debug('Skipping article %s as it does not have publication date'%atitle)
                             continue
                         pubdate = self.tag_to_string(pubdate)
                         pubdate = pubdate.replace('+0000', 'GMT')
                     
+                    
                     url = self.get_article_url(item)
                     url = self.tag_to_string(url)
                     if require_url and not url:
-                        self.logger.debug('Skipping article as it does not have a link url')
+                        self.logger.debug('Skipping article %s as it does not have a link url'%atitle)
                         continue
                     purl = url
                     try:
@@ -344,7 +350,7 @@ class DefaultProfile(object):
                         content = ''
                         
                     d = { 
-                        'title'    : self.tag_to_string(item.find('title')),                 
+                        'title'    : atitle,                 
                         'url'      : purl,
                         'timestamp': self.strptime(pubdate) if self.use_pubdate else time.time(),
                         'date'     : pubdate if self.use_pubdate else time.ctime(),
