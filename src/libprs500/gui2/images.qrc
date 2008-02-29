@@ -18,7 +18,7 @@
         <file>images/forward.svg</file>
         <file>images/jobs-animated.mng</file>
         <file>images/jobs.svg</file>
-        <file alias="library" >images/library.png</file>
+        <file alias="library">images/library.png</file>
         <file>images/list_remove.svg</file>
         <file>images/lookfeel.svg</file>
         <file>images/metadata.svg</file>
@@ -46,6 +46,7 @@
         <file>images/news/newsweek.png</file>
         <file>images/news/nytimes.png</file>
         <file>images/news/economist.png</file>
+        <file>images/news/newyorker.png</file>
         <file>images/news/zeitde.png</file>
         <file>images/news/spiegelde.png</file>
         <file>images/news/faznet.png</file>
