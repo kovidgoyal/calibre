@@ -179,7 +179,7 @@ def qhp():
     open('libprs500.qhp', 'wb').write(tostring(root, encoding='UTF-8'))
     compile_help()
 
-def generate_cli_docs():
+def cli_docs():
     documented_cmds = []
     undocumented_cmds = []
         
@@ -201,7 +201,8 @@ def generate_cli_docs():
         
     for cmd, parser in documented_cmds:
         output = open('cli-%s.html'%cmd, 'wb')
-        template = open('templates/basic.html', 'rb').read()
+        template = open('templates/basic.html', 'rb').read().decode('utf-8')
+        template = re.sub('<title>\s*</title>', '<title>%s</title>'%cmd, template)
         usage = [sanitize_text(i) for i in parser.usage.replace('%prog', cmd).splitlines(True) if i]
         usage[0] = '<pre class="runcmd">%s</pre>'%usage[0]
         usage[1:] = [i.replace(cmd, '<span class="cmd">%s</span>'%cmd) for i in usage[1:]]
@@ -250,6 +251,9 @@ def generate_cli_docs():
     body += '<h2 class="sectionHeading">Documented commands</h2>\n'+dc_html
     body += '<h2 class="sectionHeading">Undocumented commands</h2>\n'+uc_html
     body += '<p>You can see usage for undocumented commands by executing them without arguments in a terminal</p>'
+    
+    template = open('templates/basic.html', 'rb').read().decode('utf-8')
+    template = re.sub('<title>\s*</title>', '<title>%s</title>'%'Command Line Interface', template)
     open('cli-index.html', 'wb').write(template.replace('%body', body))
         
 
@@ -288,7 +292,7 @@ def html(src='libprs500.qhp'):
 
 def all(opts):
     clean()
-    generate_cli_docs()
+    cli_docs()
     qhp()
     html()
     if opts.validate:
