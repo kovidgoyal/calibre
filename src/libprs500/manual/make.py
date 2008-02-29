@@ -1,5 +1,4 @@
 #!/usr/bin/env  python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 ##    Copyright (C) 2008 Kovid Goyal kovid@kovidgoyal.net
 ##    This program is free software; you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -92,6 +91,9 @@ def compile_help():
     QCG = os.path.join(QTBIN, 'qcollectiongenerator')
     QTA = os.path.join(QTBIN, 'assistant')
     os.environ['LD_LIBRARY_PATH'] = QTLIB
+    for f in ('libprs500.qch', 'libprs500.qhc'):
+        if os.path.exists(f):
+            os.unlink(f)
     subprocess.check_call((QCG, 'libprs500.qhcp'))
     subprocess.call((QTA, '-collectionFile', 'libprs500.qhc'))
      
@@ -148,7 +150,7 @@ def populate_cli(src):
 
 def populate_toc(src):
     soup = BeautifulSoup(open('start.html', 'rb').read().decode('UTF-8'))
-    sections = []
+    sections = [('start.html', 'Start')]
     for a in soup.find(id='toc').findAll('a'):
         sections.append((a['href'], a.string))
         
@@ -158,7 +160,7 @@ def populate_gui(src):
     soup = BeautifulSoup(open('gui.html', 'rb').read().decode('UTF-8'))
     sections = []
     for a in soup.find(id='toc').findAll('a'):
-        sections.append((a['href'], a.string))
+        sections.append(('gui.html'+a['href'], a.string))
         
     return populate_section('gui.html', sections, src)
 
@@ -175,6 +177,7 @@ def qhp():
     root.find('filterSection').find('toc').tail = '\n\n%8s'%' '
     
     open('libprs500.qhp', 'wb').write(tostring(root, encoding='UTF-8'))
+    compile_help()
 
 def generate_cli_docs():
     documented_cmds = []
@@ -249,15 +252,9 @@ def generate_cli_docs():
     body += '<p>You can see usage for undocumented commands by executing them without arguments in a terminal</p>'
     open('cli-index.html', 'wb').write(template.replace('%body', body))
         
-    
-    
-    
-    
-    
 
-def create_html_interface(src='libprs500.qhp'):
+def html(src='libprs500.qhp'):
     root = parse(src).getroot()
-    print  
     toc = root.find('filterSection').find('toc')
     
     def is_leaf(sec):
@@ -293,8 +290,7 @@ def all(opts):
     clean()
     generate_cli_docs()
     qhp()
-    create_html_interface()
-    compile_help()
+    html()
     if opts.validate:
         validate()
     
@@ -321,7 +317,8 @@ if __name__ == '__main__':
         if func is None:
             print >>sys.stderr, 'Unknown target', sys.argv(1)
             sys.exit(1)
-        sys.exit(func(*fargs))
     else:
         parser.print_help()
         sys.exit(1)
+    sys.exit(func(*fargs))
+    

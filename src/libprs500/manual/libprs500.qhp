@@ -10,13 +10,14 @@
         <filterAttribute>libprs500</filterAttribute>
 
         <toc>
+            <section ref="start.html" title="Start" />
             <section ref="gui.html" title="Graphical User Interface">
-                <section ref="#actions" title="Actions" />
-                <section ref="#catalogs" title="Catalogs" />
-                <section ref="#search_sort" title="Search &amp; Sort" />
-                <section ref="#configuration" title="Configuration" />
-                <section ref="#book_details" title="Book Details" />
-                <section ref="#jobs" title="Jobs" />
+                <section ref="gui.html#actions" title="Actions" />
+                <section ref="gui.html#catalogs" title="Catalogs" />
+                <section ref="gui.html#search_sort" title="Search &amp; Sort" />
+                <section ref="gui.html#configuration" title="Configuration" />
+                <section ref="gui.html#book_details" title="Book Details" />
+                <section ref="gui.html#jobs" title="Jobs" />
             </section>
             <section ref="cli-index.html" title="Command Line Interface">
                 <section ref="cli-isbndb.html" title="isbndb" />
