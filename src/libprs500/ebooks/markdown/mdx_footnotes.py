@@ -1,7 +1,4 @@
 """
-## To see this file as plain text go to
-## http://freewisdom.org/projects/python-markdown/mdx_footnotes.raw_content
-
 ========================= FOOTNOTES =================================
 
 This section adds footnote handling to markdown.  It can be used as
@@ -119,7 +116,7 @@ class FootnoteExtension (markdown.Extension):
             li = doc.createElement('li')
             li.setAttribute('id', self.makeFootnoteId(i))
 
-            self.md._processSection(li, self.footnotes[id].split("\n"))
+            self.md._processSection(li, self.footnotes[id].split("\n"), looseList=1)
 
             #li.appendChild(doc.createTextNode(self.footnotes[id]))
 
@@ -133,8 +130,13 @@ class FootnoteExtension (markdown.Extension):
             if li.childNodes :
                 node = li.childNodes[-1]
                 if node.type == "text" :
-                    node = li
-                node.appendChild(backlink)
+		            li.appendChild(backlink)
+                elif node.nodeName == "p":
+                    node.appendChild(backlink)
+                else:
+                    p = doc.createElement('p')
+                    p.appendChild(backlink)
+                    li.appendChild(p)
 
             ol.appendChild(li)
 
