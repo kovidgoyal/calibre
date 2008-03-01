@@ -266,6 +266,7 @@ def detect_ncpus():
     #return the default value
     return 1
 
+
 def launch(path_or_url):
     if islinux:
         subprocess.Popen(('xdg-open', path_or_url))
@@ -273,4 +274,4 @@ def launch(path_or_url):
         subprocess.Popen(('open', path_or_url))
     elif iswindows:
         import win32api
-        win32api.ShellExecute(0, 'open', path_or_url, None, os.getcwd(), 0)
+        win32api.ShellExecute(0, 'open', path_or_url, None, os.getcwd(), 1)
