@@ -53,7 +53,24 @@ class NYTimes(DefaultProfile):
             br.submit()
         return br
     
+    def get_feeds(self):
+        src = self.browser.open('http://www.nytimes.com/services/xml/rss/index.html').read()
+        soup = BeautifulSoup(src[src.index('<html'):])
+        feeds = []
+        for link in soup.findAll('link', attrs={'type':'application/rss+xml'}):
+            if link['title'] not in ['NYTimes.com Homepage', 'Obituaries', 'Pogue\'s Posts', 
+                                     'Dining & Wine', 'Home & Garden', 'Multimedia',
+                                     'Most E-mailed Articles', 
+                                     'Automobiles', 'Fashion & Style', 'Television News',
+                                     'Education']:
+                feeds.append((link['title'], link['href'].replace('graphics8', 'www')))            
+        
+        return feeds
+    
+    
     def parse_feeds(self):
+        if self.lrf: # The new feed causes the SONY Reader to crash
+            return DefaultProfile.parse_feeds(self)
         src = self.browser.open('http://www.nytimes.com/pages/todayspaper/index.html').read().decode('cp1252')
         soup = BeautifulSoup(src)
         

@@ -173,11 +173,12 @@ class DefaultProfile(object):
     
     
     
-    def __init__(self, logger, verbose=False, username=None, password=None):
+    def __init__(self, logger, verbose=False, username=None, password=None, lrf=True):
         self.logger = logger
         self.username = username
         self.password = password
         self.verbose  = verbose
+        self.lrf = lrf
         self.temp_dir = tempfile.mkdtemp(prefix=__appname__+'_')
         self.browser = self.get_browser()
         try:
