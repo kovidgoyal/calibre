@@ -709,6 +709,7 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot convert'), _('No books selected'))            
             d.exec_()
         
+        changed = False
         for row in [r.row() for r in rows]:
             d = LRFSingleDialog(self, self.library_view.model().db, row)
             if d.selected_format:
@@ -729,7 +730,10 @@ class Main(MainWindow, Ui_MainWindow):
                     
                     
                     self.conversion_jobs[id] = (d.cover_file, pt, of, d.output_format, d.id)
-        
+                    changed = True
+        if changed:
+            self.library_view.model().resort(reset=False)
+            self.library_view.model().research()
         
                     
     def book_converted(self, id, description, result, exception, formatted_traceback, log):
