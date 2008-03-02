@@ -20,9 +20,6 @@ from tempfile import NamedTemporaryFile
 from genshi.template import TemplateLoader, MarkupTemplate
 
 
-if not os.path.exists('build'):
-    os.mkdir('build')
-
 # Load libprs500 from source copy
 sys.path.insert(1, os.path.dirname(os.path.dirname(os.getcwdu())))
 
@@ -70,7 +67,8 @@ def validate(file=None):
             return
                         
 def clean():
-    shutil.rmtree('build')
+    if os.path.exists('build'):
+        shutil.rmtree('build')
     return 0
                 
 def compile_help():
@@ -199,6 +197,8 @@ def render():
 
 def all(opts):
     clean()
+    os.mkdir('build')
+    qhp()
     html()
     if opts.validate:
         validate()
@@ -206,6 +206,9 @@ def all(opts):
     return 0
 
 if __name__ == '__main__':
+    if not os.path.exists('build'):
+        os.mkdir('build')
+
     from libprs500 import OptionParser
     parser = OptionParser(usage='%prog [options] target [arguments to target]')
     parser.add_option('--validate', default=False, action='store_true',
