@@ -1,14 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
-
+<?python
+title = 'Frequently Asked Questions'
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xml:lang="en"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/" 
+       
+>
+    <xi:include href="layout.html" />
+      
     <head>
-        <meta name="author" content="Kovid Goyal" />
-        <meta name="copyright" content="&copy; 2008 Kovid Goyal" />
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>Frequently Asked Questions</title>
-        <link rel="stylesheet" type="text/css" href="styles/common.css" />
+        <title>${title}</title>
         <style type="text/css">
             h2 {
                 font-family: monospace;
@@ -17,38 +21,36 @@
     </head>
 
     <body>
-        <h1 class="documentHeading" id="FrequentlyAskedQuestions">Frequently Asked Questions</h1>
-
         <div class="toc" id="toc">
             <ul>
-                <li><a href="#Whatdevicesdoeslibprs500support">What devices does libprs500 support?</a></li>
-                <li><a href="#Whatformatsdoeslibprs500readmetadatafrom">What formats does libprs500 read metadata from?</a></li>
-                <li><a href="#Whatformatsdoeslibprs500supportconversiontofrom">What formats does libprs500 support conversion to/from?</a></li>
+                <li><a href="#Whatdevicesdoes${app}support">What devices does ${app} support?</a></li>
+                <li><a href="#Whatformatsdoes${app}readmetadatafrom">What formats does ${app} read metadata from?</a></li>
+                <li><a href="#Whatformatsdoes${app}supportconversiontofrom">What formats does ${app} support conversion to/from?</a></li>
                 <li><a href="#WhatarethebestformatstoconverttoLRF">What are the best formats to convert to LRF?</a></li>
                 <li><a href="#WhydoesthePDFconversionlosesomeimages">Why does the PDF conversion lose some images?</a></li>
                 <li><a href="#Wherearethebookfilesstored">Where are the book files stored?</a></li>
                 <li><a href="#CanIsavemybookstothedisk">Can I save my books to the disk?</a></li>
-                <li><a href="#Iusedlibprs500totransfersomebookstomyreaderandnowtheSONYsoftwarehangseverytimeIconnectthereader">I used libprs500 to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?</a></li>
+                <li><a href="#Iused${app}totransfersomebookstomyreaderandnowtheSONYsoftwarehangseverytimeIconnectthereader">I used ${app} to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?</a></li>
                 <li><a href="#NoimagesintheLRFfileafterconversionfromHTML">No images in the LRF file after conversion from HTML?</a></li>
                 <li><a href="#CanIuseweb2lrftodownloadanarbitrarywebsite">Can I use web2lrf to download an arbitrary website?</a></li>
-                <li><a href="#Iwantsomefeatureaddedtolibprs500.WhatcanIdo">I want some feature added to libprs500. What can I do?</a></li>
+                <li><a href="#Iwantsomefeatureaddedto${app}.WhatcanIdo">I want some feature added to ${app}. What can I do?</a></li>
                 <li><a href="#HowdoIusesomeoftheadvancedfeaturesoftheconversiontools">How do I use some of the advanced features of the conversion tools?</a></li>
             </ul>
         </div>
 
-        <h2 id="Whatdevicesdoeslibprs500support">What devices does libprs500 support?</h2>
+        <h2 id="Whatdevicesdoes${app}support">What devices does ${app} support?</h2>
         <p>
-            At the moment libprs500 has full support for the SONY PRS500 and PRS505. However, using the "save to disk" function you can use it with any ebook reader that exports itself as a USB disk.
+            At the moment ${app} has full support for the SONY PRS500 and PRS505. However, using the "save to disk" function you can use it with any ebook reader that exports itself as a USB disk.
         </p>
 
-        <h2 id="Whatformatsdoeslibprs500readmetadatafrom">What formats does libprs500 read metadata from?</h2>
+        <h2 id="Whatformatsdoes${app}readmetadatafrom">What formats does ${app} read metadata from?</h2>
         <p>
-            libprs500 reads metadata from the following formats: LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB.
+            ${app} reads metadata from the following formats: LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB.
             In addition it can write metadata to: LRF, RTF, OPF
         </p>
-        <h2 id="Whatformatsdoeslibprs500supportconversiontofrom">What formats does libprs500 support conversion to/from?</h2>
+        <h2 id="Whatformatsdoes${app}supportconversiontofrom">What formats does ${app} support conversion to/from?</h2>
         <p>
-            libprs500 supports the conversion of the following formats to LRF: HTML, LIT, MOBI, PRC, EPUB, RTF, TXT, PDF and LRS. It also supports the conversion of LRF to LRS and HTML(upcoming). Note that libprs500 does not support the conversion of DRMed ebooks.
+            ${app} supports the conversion of the following formats to LRF: HTML, LIT, MOBI, PRC, EPUB, RTF, TXT, PDF and LRS. It also supports the conversion of LRF to LRS and HTML(upcoming). Note that ${app} does not support the conversion of DRMed ebooks.
         </p>
         <h2 id="WhatarethebestformatstoconverttoLRF">What are the best formats to convert to LRF?</h2>
         <p>
@@ -66,9 +68,9 @@
         <p>
             You can save your books to the disk by selecting the books and clicking the "Save to disk" button. Your books will be saved in nicely organized folders.
         </p>
-        <h2 id="Iusedlibprs500totransfersomebookstomyreaderandnowtheSONYsoftwarehangseverytimeIconnectthereader">I used libprs500 to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?</h2>
+        <h2 id="Iused${app}totransfersomebookstomyreaderandnowtheSONYsoftwarehangseverytimeIconnectthereader">I used ${app} to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?</h2>
         <p>
-            You should not use both libprs500 and Connect to transfer books to the reader. You can fix this problem by:
+            You should not use both ${app} and Connect to transfer books to the reader. You can fix this problem by:
         </p>
         <ul><li>Removing any storage cards from your reader.
             </li><li>Deleting the file media.xml from the reader's main memory using windows explorer (search for the file to find all locations where it is present). Note that by doing this you will lose all your collections, bookmarks, history etc.
@@ -82,15 +84,15 @@
         <h2 id="CanIuseweb2lrftodownloadanarbitrarywebsite">Can I use web2lrf to download an arbitrary website?</h2>
         <pre class="showcmd">web2lrf --url http://mywebsite.com default</pre>
 
-        <h2 id="Iwantsomefeatureaddedtolibprs500.WhatcanIdo">I want some feature added to libprs500. What can I do?</h2>
+        <h2 id="Iwantsomefeatureaddedto${app}.WhatcanIdo">I want some feature added to ${app}. What can I do?</h2>
         <p>
             You have two choices:
         </p>
         <ol>
-            <li>Create a patch by hacking on libprs500 and send it to me for review and inclusion. See
-                <a class="wiki" href="http://libprs500.kovidgoyal.net/wiki/Development">Development</a>.
+            <li>Create a patch by hacking on ${app} and send it to me for review and inclusion. See
+                <a class="wiki" href="http://${app}.kovidgoyal.net/wiki/Development">Development</a>.
             </li>
-            <li><a href="http://libprs500.kovidgoyal.net/newticket">Open a ticket</a> (you have to register and login first) and hopefully I will find the time to implement your feature.
+            <li><a href="http://${app}.kovidgoyal.net/newticket">Open a ticket</a> (you have to register and login first) and hopefully I will find the time to implement your feature.
             </li>
         </ol>
 
@@ -98,20 +100,9 @@
         <p>
             You can get help on any individual feature of the converters by mousing over it in the GUI or running html2lrf --help at a terminal. A good place to start is to look at the following demo files that demonstrate some of the advanced features:
         </p>
-        <ul><li><a href="http://libprs500.kovidgoyal.net/downloads/html-demo.zip">html-demo.zip</a>
-            </li><li><a href="http://libprs500.kovidgoyal.net/downloads/txt-demo.zip">txt-demo.zip</a>
+        <ul><li><a href="http://${app}.kovidgoyal.net/downloads/html-demo.zip">html-demo.zip</a>
+            </li><li><a href="http://${app}.kovidgoyal.net/downloads/txt-demo.zip">txt-demo.zip</a>
             </li></ul>
-
-
-        <hr />
-        <div class="footer">
-            <p>
-                <a href="http://validator.w3.org/check?uri=referer">
-                    <img src="images/valid.png" alt="Valid XHTML 1.1" height="31" width="88" />
-                </a><br />
-                Created by Kovid Goyal &copy; 2008
-            </p>
-        </div>
     </body>
 
 </html>

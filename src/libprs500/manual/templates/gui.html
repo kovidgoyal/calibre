@@ -1,23 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" >
+<?python
+title = 'Graphical User Interface'
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xml:lang="en"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/" 
+       
+>
+    <xi:include href="layout.html" />
+      
 
     <head>
-        <meta name="author" content="Kovid Goyal" />
-        <meta name="copyright" content="2008 Kovid Goyal" />
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-        <title>The Graphical User Interface</title>
-        <link rel="stylesheet" type="text/css" href="styles/common.css" />
+        <title>${title}</title>
     </head>
 
+
     <body>
-        <h1 class="documentHeading">The Graphical User Interface</h1>
         <p>
             The Graphical User Interface <i>(GUI)</i> provides access to all
             library management and ebook format conversion features. The basic workflow
-            for using libprs500 is to first add books to the library from your hard disk.
-            libprs500 will automatically try to read metadata from the books and add them
+            for using ${app} is to first add books to the library from your hard disk.
+            ${app} will automatically try to read metadata from the books and add them
             to its internal database. Once they are in the database, you can performa various
             <a href="#actions">actions</a> on them that include conversion from one format to another,
             transfer to the reading device, viewing on your computer, editing metadata, including covers, etc.
@@ -193,8 +198,8 @@ Author
         <p>
             Ebooks can be converted from a number of formats into the LRF format (for the SONY Reader). Note that ebooks you purchase
             will typically have <a href="http://en.wikipedia.org/wiki/Digital_rights_management">Digital Rights Management</a>
-            <i>(DRM)</i>. libprs500 will not convert these ebooks. For many DRM formats, it is easy to remove the DRM, but as this
-            is illegal, you have to find tools to liberate your books yourself and then use libprs500 to convert them.
+            <i>(DRM)</i>. ${app} will not convert these ebooks. For many DRM formats, it is easy to remove the DRM, but as this
+            is illegal, you have to find tools to liberate your books yourself and then use ${app} to convert them.
         </p>
         <p>
             For most people, conversion should be a simple 1-click affair. But if you want to learn more about the
@@ -223,7 +228,7 @@ Author
             View
         </h3>
         <p>
-            The <span class="action">View</span> action displays the book in an ebook viewer program. libprs500 has a builtin
+            The <span class="action">View</span> action displays the book in an ebook viewer program. ${app} has a builtin
             viewer for the LRF format. For other formats it uses the default operating system application. If a book has more than
             one format, you can view a particular format by clicking the arrow next to the View button.
         </p>
@@ -232,14 +237,14 @@ Author
         <h2 class="sectionHeading" id="catalogs">Catalogs</h2>
         <div><img src="images/catalogs.png" alt="Catalogs"/></div>
         <p>
-            A <i>catalog</i> is a collection of books. libprs500 can manage three different catalogs:
+            A <i>catalog</i> is a collection of books. ${app} can manage three different catalogs:
         </p>
         <ul>
             <li>
                 <b>Library</b>: This is a collection of books stored in a database file on your computers hard disk.
                 <b>Reader</b>:  This is a collection of books stored in the main memory of your ebook reader. It will be available
                 when you connect
-                <b>Card</b>: This is a collection of books stored on the storage card in your reader. Note that libprs500 supports
+                <b>Card</b>: This is a collection of books stored on the storage card in your reader. Note that ${app} supports
                 only a single storage card at a time.
             </li>
         </ul>
@@ -305,7 +310,7 @@ Author
         <hr />
         <h2 class="sectionHeading" id="configuration">Configuration</h2>
         <p>
-            The configuration dialog allows you to set some global defaults used by all of libprs500. To access it, click the
+            The configuration dialog allows you to set some global defaults used by all of ${app}. To access it, click the
             <img src="images/configuration.png" alt="Configuration" /> button.
         </p>
 
@@ -326,16 +331,7 @@ Author
             Once a job has completed, by clicking it in the list, you can see a detailed log from that job. This is useful
             to debug jobs that may not have completed successfully.
         </p>
-
-        <hr />
-        <div class="footer">
-            <p>
-                <a href="http://validator.w3.org/check?uri=referer">
-                    <img src="images/valid.png" alt="Valid XHTML 1.1" height="31" width="88" />
-                </a><br />
-                Created by Kovid Goyal &copy; 2008
-            </p>
-        </div>
+        
 
     </body>
 

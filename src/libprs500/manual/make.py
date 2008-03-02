@@ -17,13 +17,29 @@
 
 import sys, glob, mechanize, time, subprocess, os, shutil, re
 from tempfile import NamedTemporaryFile
-from xml.etree.ElementTree import parse, tostring, fromstring
+from genshi.template import TemplateLoader, MarkupTemplate
+
+
+if not os.path.exists('build'):
+    os.mkdir('build')
 
 # Load libprs500 from source copy
 sys.path.insert(1, os.path.dirname(os.path.dirname(os.getcwdu())))
 
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 from libprs500.linux import entry_points
+from libprs500 import __appname__, __author__, __version__
+
+class Template(MarkupTemplate):
+    
+    def generate(self, *args, **kwargs):
+        kwdargs = dict(app=__appname__, author=__author__.partition('<')[0].strip(),
+                          version=__version__, footer=True)
+        kwdargs.update(kwargs)
+        return MarkupTemplate.generate(self, *args, **kwdargs)
+
+loader = TemplateLoader(os.path.abspath('templates'), auto_reload=True, 
+                        variable_lookup='strict', default_class=Template)
 
 def browser():
     opener = mechanize.Browser()
@@ -32,31 +48,11 @@ def browser():
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
     return opener
 
-def update_manifest(src):
-    root = fromstring(src)
-    files = root.find('filterSection').find('files')
-    attrs = files.attrib.copy()
-    files.clear()
-    files.attrib = attrs
-    files.text = '\n%12s'%' '
-    files.tail = '\n%4s'%' '
-    
-    for f in glob.glob('*.html')+glob.glob('styles/*.css')+glob.glob('images/*'):
-        if f.startswith('preview') or f in ('navtree.html', 'index.html'):
-            continue
-        el = fromstring('<file>%s</file>'%f)
-        el.tail = '\n%12s'%' '
-        files.append(el)
-    el.tail = '\n%8s'%' '
-    
-    return tostring(root, 'UTF-8').decode('UTF-8')
-
-
 def validate(file=None):
     br = browser()
-    files = [file] if file is not None else glob.glob('*.html')
+    files = [file] if file is not None else glob.glob('build/*.html')
     for f in files:
-        if f.startswith('preview-'):
+        if f.endswith('navtree.html'):
             continue
         print 'Validating', f
         raw = open(f).read()
@@ -74,14 +70,7 @@ def validate(file=None):
             return
                         
 def clean():
-    for pat in ('preview-*.html', '*.qhc', '*.qch', 'cli-*.html', '~/.assistant/libprs500*'):
-        for f in glob.glob(pat):
-            f = os.path.abspath(os.path.expanduser(f))
-            if os.path.exists(f):
-                if os.path.isdir(f):
-                    shutil.rmtree(f)
-                else:
-                    os.unlink(f)
+    shutil.rmtree('build')
     return 0
                 
 def compile_help():
@@ -91,92 +80,53 @@ def compile_help():
     QCG = os.path.join(QTBIN, 'qcollectiongenerator')
     QTA = os.path.join(QTBIN, 'assistant')
     os.environ['LD_LIBRARY_PATH'] = QTLIB
-    for f in ('libprs500.qch', 'libprs500.qhc'):
+    for f in ('build/%s.qch'%__appname__, 'build/%s.qhc'%__appname__):
         if os.path.exists(f):
             os.unlink(f)
-    subprocess.check_call((QCG, 'libprs500.qhcp'))
-    subprocess.call((QTA, '-collectionFile', 'libprs500.qhc'))
+    cwd = os.getcwd()
+    os.chdir('build')
+    try:
+        subprocess.check_call((QCG, __appname__+'.qhcp', '-o', __appname__+'.qhc'))
+        subprocess.call((QTA, '-collectionFile', __appname__+'.qhc'))
+    finally:
+        os.chdir(cwd)
      
 
-def populate_section(secref, items, src):
-    root = fromstring(src)
-    toc = root.find('filterSection').find('toc')
-    sec = None
-    if secref is None:
-        sec = toc
-        ss = '\n%8s'%' '
-        ls = '\n%12s'%' '
-    else:
-        for c in toc.findall('section'):
-            if c.attrib['ref'] == secref:
-                sec = c
-                break
-        ss = '\n%12s'%' '
-        ls = '\n%16s'%' '
-        
-    attr = sec.attrib.copy()
-    tail = sec.tail
-    sec.clear()
-    sec.attrib = attr
-    sec.tail = tail
-    sec.text = ls
-    secs = ['<section ref="%s" title="%s" />\n'%i for i in items]
-    sec.tail = ss
-    for i in secs:
-        el = fromstring(i)
-        sec.append(el)
-        el.tail = ss if i is secs[-1] else ls
-    
-    raw = tostring(root, 'UTF-8')
-    
-    return raw.decode('UTF-8')
-    
-def populate_faq(src):
-    soup = BeautifulSoup(open('faq.html').read().decode('UTF-8'))
-    items = []
-    toc = soup.find('div', id="toc")
-    for a in toc('a', href=True):
-        items.append(('faq.html%s'%a['href'], a.string))
-    
-    return populate_section('faq.html', items, src=src)
-
-def populate_cli(src):
-    cmds = []
-    for f in glob.glob('cli-*.html'):
-        cmds.append(f[4:].rpartition('.')[0])
-        
-    items = [('cli-%s.html'%i, i) for i in cmds]
-    return populate_section('cli-index.html', items, src)
-
-def populate_toc(src):
-    soup = BeautifulSoup(open('start.html', 'rb').read().decode('UTF-8'))
-    sections = [('start.html', 'Start')]
-    for a in soup.find(id='toc').findAll('a'):
-        sections.append((a['href'], a.string))
-        
-    return populate_section(None, sections, src)
-    
-def populate_gui(src):
-    soup = BeautifulSoup(open('gui.html', 'rb').read().decode('UTF-8'))
-    sections = []
-    for a in soup.find(id='toc').findAll('a'):
-        sections.append(('gui.html'+a['href'], a.string))
-        
-    return populate_section('gui.html', sections, src)
+def get_subsections(section, level=0, max_level=1, prefix='templates'):
+    src = os.path.join(prefix, section)
+    if not os.path.exists(src):
+        return []
+    soup = BeautifulSoup(open(src, 'rb').read().decode('UTF-8'))
+    toc = soup.find(id='toc')
+    if toc is None:
+        return []
+    return [dict(href=section+a['href'] if a['href'].startswith('#') else a['href'], 
+                 title=a.string.replace('&amp;', '&'), 
+                 subsections=get_subsections(a['href'], level=1, 
+                        prefix=prefix, max_level=max_level) if level<max_level else [])\
+             for a in toc.findAll('a', href=True)]
 
 def qhp():
-    src = open('libprs500.qhp', 'rb').read().decode('UTf-8')
-    src = update_manifest(src)
-    src = populate_toc(src)
-    src = populate_gui(src)
-    src = populate_faq(src)
-    src = populate_cli(src)
+    render()
+    cli_docs()
     
-    root = fromstring(src)
-    root.find('filterSection').find('toc')[-1].tail = '\n%8s'%' '
-    root.find('filterSection').find('toc').tail = '\n\n%8s'%' '
+    toc = get_subsections('start.html', prefix='build')
+    toc.insert(0, dict(title='Start', href='start.html', subsections=[]))
+    files = []
+    for loc in ('*.html', 'images'+os.sep+'*', 'styles'+os.sep+'*'):
+        files += glob.glob(os.path.join('build', loc))
+    files = [i.partition(os.sep)[2] for i in files]
     
-    open('libprs500.qhp', 'wb').write(tostring(root, encoding='UTF-8'))
+    tpl = loader.load('app.qhp')
+    raw = tpl.generate(toc=toc, files=files).render('xml')
+    open(os.path.join('build', __appname__+'.qhp'), 'wb').write(raw)
+    
+    tpl = loader.load('app.qhcp')
+    open(os.path.join('build', __appname__+'.qhcp'), 'wb').write(tpl.generate().render('xml'))
+    about = open('templates'+os.sep+'about.txt', 'rb').read()
+    about = re.sub(r'\$\{app\}', __appname__, about)
+    about = re.sub(r'\$\{author\}', __author__.partition('<')[0].strip(), about)
+    open('build'+os.sep+'about.txt', 'wb').write(about)
     compile_help()
 
 def cli_docs():
@@ -195,105 +145,60 @@ def cli_docs():
         documented_cmds.sort(cmp=lambda x, y: cmp(x[0], y[0]))
         undocumented_cmds.sort()
     
-    
-    def sanitize_text(txt):
-        return txt.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-        
     for cmd, parser in documented_cmds:
-        output = open('cli-%s.html'%cmd, 'wb')
-        template = open('templates/basic.html', 'rb').read().decode('utf-8')
-        template = re.sub('<title>\s*</title>', '<title>%s</title>'%cmd, template)
-        usage = [sanitize_text(i) for i in parser.usage.replace('%prog', cmd).splitlines(True) if i]
-        usage[0] = '<pre class="runcmd">%s</pre>'%usage[0]
-        usage[1:] = [i.replace(cmd, '<span class="cmd">%s</span>'%cmd) for i in usage[1:]]
-        usage = ''.join(usage).replace('\n', '<br />')
-        body = ('\n<h1 class="documentHeading">%s</h1>\n'%cmd)+'<div>\n%s\n</div>'%usage
-         
-        
-        groups = {}
-        for grp in parser.option_groups:
-            groups[(grp.title, grp.description)] = grp.option_list
-            
-        def group_html(title, description, option_list):
-            res = []
-            
-            if title is not None:
-                res.append('<tr><th colspan="2"><h3 class="subsectionHeading">%s</h3></th></tr>'%title)
-            if description is not None:
-                res.append('<tr><td colspan="2">%s<br />&nbsp;</td></tr>'%sanitize_text(description))
-            for opt in option_list:
-                shf = ' '.join(opt._short_opts)
-                lgf = opt.get_opt_string()
-                name = '%s<br />%s'%(lgf, shf)
-                help = sanitize_text(opt.help) if opt.help else ''
-                res.append('<tr><td class="option">%s</td><td>%s</td></tr>'%(name, help))
-            return '\n%8s'%' ' + ('\n%8s'%' ').join(res)
-                
-        
-        gh = [group_html(None, None, parser.option_list)]
-        for title, desc in groups.keys():
-            olist = groups[(title, desc)]
-            gh.append(group_html(title, desc, olist))
-        
-        if ''.join(gh).strip():
-            body += '\n    <h2 class="sectionHeading">[options]</h2>\n'
-            body += '\n    <table class="option_table">\n%s\n    </table>\n'%'\n'.join(gh)
-        output.write(template.replace('%body', body))
-        
-    uc_html = '\n<ul class="cmdlist">\n%s</ul>\n'%'\n'.join(\
-                '<li>%s</li>\n'%i for i in undocumented_cmds)
-    dc_html = '\n<ul class="cmdlist">\n%s</ul>\n'%'\n'.join(\
-                '<li><a href="cli-%s.html">%s</a></li>\n'%(i[0], i[0]) for i in documented_cmds)
+        template = loader.load('cli-cmd.html')
+        open('build/cli-%s.html'%cmd, 'wb').write(
+            template.generate(cmd=cmd, parser=parser).render(doctype='xhtml'))
     
-    body = '<h1 class="documentHeading">The Command Line Interface</h1>\n'
-    body += '<div style="text-align:center"><img src="images/cli.png" alt="CLI" /></div>'
-    body += '<p>%s</p>\n'%'<b class="cmd">libprs500</b> has a very comprehensive command line interface to perform most operations that can be performed by the GUI.'
-    body += '<h2 class="sectionHeading">Documented commands</h2>\n'+dc_html
-    body += '<h2 class="sectionHeading">Undocumented commands</h2>\n'+uc_html
-    body += '<p>You can see usage for undocumented commands by executing them without arguments in a terminal</p>'
+    documented = [i[0] for i in documented_cmds]
+    template = loader.load('cli-index.html')
     
-    template = open('templates/basic.html', 'rb').read().decode('utf-8')
-    template = re.sub('<title>\s*</title>', '<title>%s</title>'%'Command Line Interface', template)
-    open('cli-index.html', 'wb').write(template.replace('%body', body))
+    open('build/cli-index.html', 'wb').write(
+        template.generate(documented=documented, undocumented=undocumented_cmds).render(doctype='xhtml'))
         
 
-def html(src='libprs500.qhp'):
-    root = parse(src).getroot()
-    toc = root.find('filterSection').find('toc')
-    
-    def is_leaf(sec):
-        return not sec.findall('section')
-    
-    
-    def process_branch(branch, toplevel=False):
-        parent = []
-        for sec in branch.findall('section'):
-            title = re.sub('&(?!amp;)', '&amp;', sec.attrib['title'])
-            html = '<li class="||||">\n<a target="content" href="%s">%s</a>\n</li>\n'%(sec.attrib['ref'], title)
-            lc = 'toplevel' if toplevel else 'nottoplevel'
-            html=html.replace('||||', '%s ||||'%lc)
+def html():
+    toc = get_subsections('start.html', prefix='build')
+    toc.insert(0, dict(title='Start', href='start.html', subsections=[]))
+    template = loader.load('navtree.html')
+    dt = ('html', "-//W3C//DTD HTML 4.01 Transitional//EN",
+                    "http://www.w3.org/TR/html4/loose.dtd")
+    raw = template.generate(footer=False, toc=toc).render(doctype=dt)
+    raw = re.sub(r'<html[^<>]+>', '<html lang="en">', raw)
+    open('build'+os.sep+'navtree.html', 'wb').write(raw)
             
-            type = 'file'
-            if not is_leaf(sec):
-                html = html.replace('</li>','%s\n</li>'%process_branch(sec))
-                type = 'folder'
-                
-            parent.append(html.replace('||||', type))
-        html = '\n'.join(parent)
-        if toplevel:
-            return html
-        return '<ul>\n%s\n</ul>'%html
-            
-    tree = process_branch(toc, True)
+
+def render():
+    for d in ('images', 'styles'):
+        tgt = os.path.join('build', d)
+        if not os.path.exists(tgt):
+            os.mkdir(tgt)
+        for f in glob.glob(d+os.sep+'*'):
+            if os.path.isfile(f):
+                ftgt = os.path.join(tgt, os.path.basename(f))
+                if os.path.exists(ftgt):
+                    os.unlink(ftgt)
+                os.link(f, ftgt)
     
-    template = open('templates/navtree.html').read()
-    open('navtree.html', 'wb').write(template.replace('%tree', tree)+'\n')        
+    sections = [i['href'] for i in get_subsections('start.html')]
+    sections.remove('cli-index.html')
+    
+    for f in sections + ['index.html', 'start.html']:
+        kwdargs = {}
+        if not isinstance(f, basestring):
+            f, kwdargs = f
+        dt = f.rpartition('.')[-1]
+        if dt == 'html':
+            dt = 'xhtml'
+        if f == 'index.html':
+            dt=('html', '-//W3C//DTD XHTML 1.0 Frameset//EN', 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd')
         
+        raw = loader.load(f).generate(**kwdargs).render(doctype=dt)
+        open(os.path.join('build', f), 'wb').write(raw)
+    
 
 def all(opts):
     clean()
-    cli_docs()
-    qhp()
     html()
     if opts.validate:
         validate()

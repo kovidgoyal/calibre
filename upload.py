@@ -57,7 +57,7 @@ def build_installer(installer, vm, timeout=25):
             sys.stdout.flush()
         print
         if not os.path.exists(installer):
-            raise Exception('Failed to build windows installer')
+            raise Exception('Failed to build installer '+installer)
     finally:
         os.unlink('dist/auto')
     
@@ -116,10 +116,7 @@ def upload_user_manual():
     try:
         check_call('python make.py --validate')
         check_call('ssh castalia rm -rf %s/\\*'%USER_MANUAL)
-        check_call('ssh castalia mkdir %(um)s/styles %(um)s/images'%dict(um=USER_MANUAL))
-        check_call('scp *.html castalia:%s/'%USER_MANUAL)
-        check_call('scp styles/* castalia:%s/styles/'%USER_MANUAL)
-        check_call('scp images/* castalia:%s/images/'%USER_MANUAL)
+        check_call('scp -r build/* castalia:%s'%USER_MANUAL)
     finally:
         os.chdir(cwd)
 

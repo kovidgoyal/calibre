@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<QtHelpProject version="1.0"
+    xmlns:py="http://genshi.edgewall.org/"
+>
+    <namespace>${app}</namespace>
+    <virtualFolder>manual</virtualFolder>
+
+    <filterSection>
+
+        <toc>
+            <py:for each="section in toc">
+            <section ref="${section['href']}" title="${section['title']}">
+                <py:for each="ss in section['subsections']">
+                <section ref="${ss['title']}" title="${ss['title']}" />
+                    
+                </py:for>
+            </section>
+                
+            </py:for>
+        </toc>
+
+        <files>
+            <py:for each="file in files">
+            <file>${file}</file>
+            
+            </py:for>
+        </files>
+    </filterSection>
+
+</QtHelpProject>

@@ -1,0 +1,1 @@
+<b>${app}</b> is an ebook management application with support for various ebook readers. Created by <b>${author}</b> &copy; 2007.

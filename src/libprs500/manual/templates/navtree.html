@@ -1,12 +1,21 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-                    "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<?python
+title = '%s Manual'%app
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xml:lang="en"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/"
+>
+    <xi:include href="layout.html" />
+      
+
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <script src="http://code.jquery.com/jquery-latest.js" type="text/javascript"></script>
-        <link rel="stylesheet" href="http://dev.jquery.com/view/trunk/plugins/treeview/jquery.treeview.css" type="text/css">
-        <link rel="stylesheet" href="styles/common.css" type="text/css">
-        <script type="text/javascript" src="http://dev.jquery.com/view/trunk/plugins/treeview/jquery.treeview.js"></script>
+        <title>${title}</title>
+        <script src="http://code.jquery.com/jquery-latest.js" type="text/javascript" />
+        <link rel="stylesheet" href="http://dev.jquery.com/view/trunk/plugins/treeview/jquery.treeview.css" type="text/css" />
+        <script type="text/javascript" src="http://dev.jquery.com/view/trunk/plugins/treeview/jquery.treeview.js" />
         <style type="text/css">
             #browser {
                 font-family: monospace;
@@ -25,23 +34,26 @@
                 $("#browser").treeview({collapsed:true});
             });
         </script>
-        <title>libprs500 User Manual</title>
+        
     </head>
     <body>
-        <h2 class="documentHeading">libprs500 Manual</h2>
         <ul id="browser" class="filetree">
-            %tree
+        <py:for each="section in toc">
+            <li py:with="cl='toplevel %s'%('folder' if section['subsections'] else 'file')"
+                class="${cl}">
+                <a target="content" href="${section['href']}">${section['title']}</a>
+            <py:if test="section['subsections']">
+                <ul>
+                <py:for each="ss in section['subsections']">
+                    <li class="nottoplevel file">
+                        <a target="content" href="${ss['href']}">${ss['title']}</a>
+                    </li>
+                </py:for>
+                </ul>
+            </py:if>
+            </li>
+        </py:for>
         </ul>
 
-        <hr>
-        <div class="footer">
-            <p>
-                <a href="http://validator.w3.org/check?uri=referer">
-                    <img src="http://www.w3.org/Icons/valid-html401-blue" alt="Valid HTML 4.01 Transitional" height="31" width="88">
-                    </a><br>
-                Created by Kovid Goyal &copy; 2008
-            </p>
-
-        </div>
     </body>
 </html>
