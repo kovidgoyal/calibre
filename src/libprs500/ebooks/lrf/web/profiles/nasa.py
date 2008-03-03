@@ -38,8 +38,8 @@ class NASA(DefaultProfile):
 	html_description = True
 	no_stylesheets = True
 	
-	## Don't grab articles more than 7 days old
-	oldest_article = 7
+	## Don't grab articles more than 30 days old
+	oldest_article = 30
 
 	preprocess_regexps = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
 		[
