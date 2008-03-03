@@ -539,24 +539,24 @@ class HTMLConverter(object):
         
     
     def get_text(self, tag, limit=None):
-            css = self.tag_css(tag)[0]
-            if (css.has_key('display') and css['display'].lower() == 'none') or \
-               (css.has_key('visibility') and css['visibility'].lower() == 'hidden'):
-                return ''
-            text = u''
-            for c in tag.contents:
-                if limit != None and len(text) > limit:
-                    break
-                if isinstance(c, HTMLConverter.IGNORED_TAGS):
-                    return u''
-                if isinstance(c, NavigableString):
-                    text += unicode(c)                
-                elif isinstance(c, Tag):
-                    if c.name.lower() == 'img' and c.has_key('alt'):
-                        text += c['alt']
-                        return text
-                    text += self.get_text(c)
-            return text
+        css = self.tag_css(tag)[0]
+        if (css.has_key('display') and css['display'].lower() == 'none') or \
+           (css.has_key('visibility') and css['visibility'].lower() == 'hidden'):
+            return ''
+        text = u''
+        for c in tag.contents:
+            if limit != None and len(text) > limit:
+                break
+            if isinstance(c, HTMLConverter.IGNORED_TAGS):
+                return u''
+            if isinstance(c, NavigableString):
+                text += unicode(c)                
+            elif isinstance(c, Tag):
+                if c.name.lower() == 'img' and c.has_key('alt'):
+                    text += c['alt']
+                    return text
+                text += self.get_text(c)
+        return text
     
     def process_links(self):
         def add_toc_entry(text, target):
