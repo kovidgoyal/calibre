@@ -36,10 +36,12 @@ from libprs500.ebooks.lrf.web.profiles.jutarnji      import Jutarnji
 from libprs500.ebooks.lrf.web.profiles.usatoday      import USAToday
 from libprs500.ebooks.lrf.web.profiles.upi           import UnitedPressInternational 
 from libprs500.ebooks.lrf.web.profiles.wash_post     import WashingtonPost 
+from libprs500.ebooks.lrf.web.profiles.nasa          import NASA 
+
 
 builtin_profiles   = [Atlantic, AssociatedPress, Barrons, BBC, 
                       ChristianScienceMonitor, CNN, Dilbert, Economist, FazNet, 
-                      JerusalemPost, Jutarnji, Newsweek, NewYorker, 
+                      JerusalemPost, Jutarnji, NASA, Newsweek, NewYorker, 
                       NewYorkReviewOfBooks, NYTimes, UnitedPressInternational, USAToday,  
                       Portfolio, Reuters, SpiegelOnline, WallStreetJournal, 
                       WashingtonPost, ZeitNachrichten,   
