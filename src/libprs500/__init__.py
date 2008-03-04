@@ -248,6 +248,13 @@ def sanitize_file_name(name):
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
+    try:
+        from PyQt4.QtCore import QThread
+        ans = QThread.idealThreadCount()
+        if ans > 0:
+            return ans
+    except:
+        pass
     #for Linux, Unix and MacOS
     if hasattr(os, "sysconf"):
         if os.sysconf_names.has_key("SC_NPROCESSORS_ONLN"):
