@@ -12,6 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.gui2 import error_dialog
 import traceback, logging, collections
 
 from PyQt4.QtCore import QAbstractTableModel, QMutex, QObject, SIGNAL, Qt, \
@@ -170,7 +171,8 @@ class JobManager(QAbstractTableModel):
                 for job in [job for job in self.running_jobs if job.isFinished()]:
                     self.running_jobs.remove(job)
                     self.finished_jobs.appendleft(job)
-                    job.notify()
+                    if job.result != self.process_server.KILL_RESULT:
+                        job.notify()
                     self.emit(SIGNAL('job_done(int)'), job.id)
                     refresh = True
                 
@@ -317,7 +319,9 @@ class JobManager(QAbstractTableModel):
             if status == 0:
                 return self.running_icon
             if status == 2:
-                return self.done_icon if job.exception is None else self.error_icon
+                if job.exception or job.result == self.process_server.KILL_RESULT:
+                    return self.error_icon
+                return self.done_icon 
         return NONE
     
     def status_update(self, id, progress):
@@ -327,6 +331,22 @@ class JobManager(QAbstractTableModel):
                 index = self.index(i, 2)
                 self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), index, index)
                 break
+            
+    def kill_job(self, row, gui_parent):
+        job, status = self.row_to_job(row)
+        if isinstance(job, DeviceJob):
+            error_dialog(gui_parent, _('Cannot kill job'), 
+                _('Cannot kill jobs that are communicating with the device as this may cause data corruption.')).exec_()
+            return
+        if status == 2:
+            error_dialog(gui_parent, _('Cannot kill job'), 
+                _('Cannot kill already completed jobs.')).exec_()
+            return
+        if status == 1:
+            error_dialog(gui_parent, _('Cannot kill job'), 
+                _('Cannot kill waiting jobs.')).exec_()
+            return
+        self.process_server.kill(job.id)
 
 class DetailView(QDialog, Ui_Dialog):
     

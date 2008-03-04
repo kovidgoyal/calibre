@@ -41,6 +41,13 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QPushButton" name="kill_button" >
+     <property name="text" >
+      <string>&amp;Stop selected job</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>

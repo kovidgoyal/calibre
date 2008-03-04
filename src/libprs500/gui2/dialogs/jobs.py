@@ -31,7 +31,17 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.setWindowTitle(__appname__ + ' - Active Jobs')
         QObject.connect(self.jobs_view.model(), SIGNAL('modelReset()'), 
                         self.jobs_view.resizeColumnsToContents)
-        
+        QObject.connect(self.kill_button, SIGNAL('clicked()'),
+                        self.kill_job)
+        QObject.connect(self, SIGNAL('kill_job(int, PyQt_PyObject)'), 
+                        self.jobs_view.model().kill_job)
+    
+    def kill_job(self):
+        for index in self.jobs_view.selectedIndexes():
+            row = index.row()
+            self.emit(SIGNAL('kill_job(int, PyQt_PyObject)'), row, self)
+            return
+    
     def closeEvent(self, e):
         self.jobs_view.write_settings()
         e.accept()
