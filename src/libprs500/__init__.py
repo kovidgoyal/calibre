@@ -257,7 +257,16 @@ def detect_ncpus():
                 return ncpus
         else:
             #MacOS X
-            return int(os.popen2("sysctl -n hw.ncpu")[1].read())
+            try:
+                return int(subprocess.Popen(('sysctl', '-n', 'hw.cpu'), stdout=subprocess.PIPE).stdout.read())
+            except IOError: # Occassionally the system call gets interrupted
+                try:
+                    return int(subprocess.Popen(('sysctl', '-n', 'hw.cpu'), stdout=subprocess.PIPE).stdout.read())
+                except IOError:
+                    return 1
+            except ValueError: # On some systems the sysctl call fails
+                return 1
+                
     #for Windows
     if os.environ.has_key("NUMBER_OF_PROCESSORS"):
         ncpus = int(os.environ["NUMBER_OF_PROCESSORS"]);
