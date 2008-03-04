@@ -155,6 +155,14 @@ class JobManager(QAbstractTableModel):
             if isinstance(job, DeviceJob):
                 job.terminate()
                 
+    def terminate_all_jobs(self):
+        for job in self.running_jobs:
+            try:
+                if isinstance(job, DeviceJob):
+                    job.terminate()
+                self.process_server.kill(job.id)
+            except:
+                continue
     
     def timerEvent(self, event):
         if event.timerId() == self.timer_id:

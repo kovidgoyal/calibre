@@ -987,10 +987,12 @@ class Main(MainWindow, Ui_MainWindow):
             if d.exec_() != QMessageBox.Yes:
                 e.ignore()
                 return
+            
+        self.job_manager.terminate_all_jobs()
         self.write_settings()
         self.detector.keep_going = False
         self.hide()
-        self.detector.wait(2000)
+        time.sleep(2)
         self.detector.terminate()
         e.accept()
         
