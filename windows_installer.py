@@ -465,7 +465,7 @@ def main():
                                   'includes'  : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
                                                  'mechanize', 'ClientForm', 'wmi', 
                                                  'win32file', 'pythoncom', 'rtf2xml', 
-                                                 'lxml', 'lxml._elementpath'],                                
+                                                 'lxml', 'lxml._elementpath', 'genshi'],                                
                                   'packages'  : ['PIL'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
                                                  "_imagingtk", "ImageTk", "FixTk", 
