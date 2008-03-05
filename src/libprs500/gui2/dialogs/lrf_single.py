@@ -58,6 +58,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.gui_serif_family.setModel(self.font_family_model)
         self.gui_sans_family.setModel(self.font_family_model)
         self.gui_mono_family.setModel(self.font_family_model)
+        self.load_saved_global_defaults()
     
     def __init__(self, window, db, row):
         QDialog.__init__(self, window)
@@ -78,7 +79,6 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.changed = False
         
         
-        self.load_saved_global_defaults()
         if db:
             self.id = self.db.id(self.row)
             self.read_saved_options()
