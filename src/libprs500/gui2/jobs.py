@@ -12,15 +12,14 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.gui2 import error_dialog
-import traceback, logging, collections
+import traceback, logging, collections, time
 
 from PyQt4.QtCore import QAbstractTableModel, QMutex, QObject, SIGNAL, Qt, \
                          QVariant, QThread, QSettings
 from PyQt4.QtGui import QIcon, QDialog
 
 from libprs500 import detect_ncpus
-from libprs500.gui2 import NONE
+from libprs500.gui2 import NONE, error_dialog
 from libprs500.parallel import Server
 from libprs500.gui2.dialogs.job_view_ui import Ui_Dialog
 
@@ -51,9 +50,11 @@ class Job(QThread):
         self.is_locked = False
         self.log = self.exception = self.last_traceback = None
         self.connect_done_signal()
+        self.start_time = None
         
         
     def start(self):
+        self.start_time = time.time()
         QThread.start(self, self._priority)
     
     def progress_update(self, val):
@@ -181,6 +182,7 @@ class JobManager(QAbstractTableModel):
                     self.finished_jobs.appendleft(job)
                     if job.result != self.process_server.KILL_RESULT:
                         job.notify()
+                    job.running_time = time.time() - job.start_time
                     self.emit(SIGNAL('job_done(int)'), job.id)
                     refresh = True
                 
@@ -213,6 +215,8 @@ class JobManager(QAbstractTableModel):
                     self.reset()
                     if len(self.running_jobs) == 0:
                         self.emit(SIGNAL('no_more_jobs()'))
+                for i in range(len(self.running_jobs)):
+                    self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), self.index(i, 3), self.index(i, 3))
             finally:
                 self.update_lock.unlock()
         
@@ -278,7 +282,7 @@ class JobManager(QAbstractTableModel):
         return len(self.running_jobs) + len(self.waiting_jobs) + len(self.finished_jobs)    
     
     def columnCount(self, parent):
-        return 3
+        return 4
     
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
@@ -287,6 +291,7 @@ class JobManager(QAbstractTableModel):
             if   section == 0: text = _("Job")
             elif section == 1: text = _("Status")
             elif section == 2: text = _("Progress")
+            elif section == 3: text = _('Running time')
             return QVariant(text)
         else: 
             return QVariant(section+1)
@@ -321,6 +326,9 @@ class JobManager(QAbstractTableModel):
             if col == 2:
                 p = str(job.percent_done) + r'%' if job.percent_done > 0 else _('Unavailable')
                 return QVariant(p)
+            if col == 3:
+                rtime = job.running_time if hasattr(job, 'running_time') else time.time() - job.start_time
+                return QVariant('%dm %ds'%(int(rtime)//60, int(rtime)%60))
         if role == Qt.DecorationRole and col == 0:
             if status == 1:
                 return self.wait_icon
@@ -336,8 +344,7 @@ class JobManager(QAbstractTableModel):
         for i in range(len(self.running_jobs)):
             job = self.running_jobs[i]
             if job.id == id:
-                index = self.index(i, 2)
-                self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), index, index)
+                self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), self.index(i, 2), self.index(i, 3))
                 break
             
     def kill_job(self, row, gui_parent):
