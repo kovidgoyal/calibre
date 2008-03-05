@@ -1362,262 +1362,263 @@ class HTMLConverter(object):
         except KeyError:
             pass
         end_page = self.process_page_breaks(tag, tagname, tag_css)
-        
-        if tagname in ["title", "script", "meta", 'del', 'frameset']:            
-            pass
-        elif tagname == 'a' and self.link_levels >= 0:
-            if tag.has_key('href') and not self.link_exclude.match(tag['href']):
-                path = munge_paths(self.target_prefix, tag['href'])[0]
-                ext = os.path.splitext(path)[1]
-                if ext: ext = ext[1:].lower()
-                if os.access(path, os.R_OK) and os.path.isfile(path):
-                    if ext in ['png', 'jpg', 'bmp', 'jpeg']:
-                        self.process_image(path, tag_css)
+        try:
+            if tagname in ["title", "script", "meta", 'del', 'frameset']:            
+                pass
+            elif tagname == 'a' and self.link_levels >= 0:
+                if tag.has_key('href') and not self.link_exclude.match(tag['href']):
+                    path = munge_paths(self.target_prefix, tag['href'])[0]
+                    ext = os.path.splitext(path)[1]
+                    if ext: ext = ext[1:].lower()
+                    if os.access(path, os.R_OK) and os.path.isfile(path):
+                        if ext in ['png', 'jpg', 'bmp', 'jpeg']:
+                            self.process_image(path, tag_css)
+                        else:
+                            text = self.get_text(tag, limit=1000)
+                            if not text.strip():
+                                text = "Link"
+                            self.add_text(text, tag_css, {}, force_span_use=True)
+                            self.links.append(self.create_link(self.current_para.contents, tag))
+                            if tag.has_key('id') or tag.has_key('name'):
+                                key = 'name' if tag.has_key('name') else 'id'
+                                self.targets[self.target_prefix+tag[key]] = self.current_block
+                                self.current_block.must_append = True
                     else:
-                        text = self.get_text(tag, limit=1000)
-                        if not text.strip():
-                            text = "Link"
-                        self.add_text(text, tag_css, {}, force_span_use=True)
-                        self.links.append(self.create_link(self.current_para.contents, tag))
-                        if tag.has_key('id') or tag.has_key('name'):
-                            key = 'name' if tag.has_key('name') else 'id'
-                            self.targets[self.target_prefix+tag[key]] = self.current_block
-                            self.current_block.must_append = True
+                        self.logger.warn('Could not follow link to '+tag['href'])
+                        self.process_children(tag, tag_css, tag_pseudo_css)
+                elif tag.has_key('name') or tag.has_key('id'):
+                    self.process_anchor(tag, tag_css, tag_pseudo_css)                            
+            elif tagname == 'img':
+                if tag.has_key('src'):
+                    path = munge_paths(self.target_prefix, tag['src'])[0]
+                    if not os.path.exists(path):
+                        path = path.replace('&', '%26') # convertlit replaces & with %26
+                    if os.access(path, os.R_OK) and os.path.isfile(path):
+                        width, height = None, None
+                        try:
+                            width = int(tag['width'])
+                            height = int(tag['height'])
+                        except:
+                            pass
+                        dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
+                        self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
+                    elif not urlparse(tag['src'])[0]:
+                        self.logger.warn('Could not find image: '+tag['src'])
                 else:
-                    self.logger.warn('Could not follow link to '+tag['href'])
-                    self.process_children(tag, tag_css, tag_pseudo_css)
-            elif tag.has_key('name') or tag.has_key('id'):
-                self.process_anchor(tag, tag_css, tag_pseudo_css)                            
-        elif tagname == 'img':
-            if tag.has_key('src'):
-                path = munge_paths(self.target_prefix, tag['src'])[0]
-                if not os.path.exists(path):
-                    path = path.replace('&', '%26') # convertlit replaces & with %26
-                if os.access(path, os.R_OK) and os.path.isfile(path):
-                    width, height = None, None
+                    self.logger.debug("Failed to process: %s", str(tag))
+            elif tagname in ['style', 'link']:
+                ncss, npcss = {}, {}
+                if tagname == 'style':
+                    for c in tag.contents:
+                        if isinstance(c, NavigableString):
+                            css, pcss = self.parse_css(str(c))
+                            ncss.update(css)
+                            npcss.update(pcss)
+                elif tag.has_key('type') and tag['type'] == "text/css" \
+                        and tag.has_key('href'):
+                    path = munge_paths(self.target_prefix, tag['href'])[0]           
                     try:
-                        width = int(tag['width'])
-                        height = int(tag['height'])
-                    except:
-                        pass
-                    dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
-                    self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
-                elif not urlparse(tag['src'])[0]:
-                    self.logger.warn('Could not find image: '+tag['src'])
-            else:
-                self.logger.debug("Failed to process: %s", str(tag))
-        elif tagname in ['style', 'link']:
-            ncss, npcss = {}, {}
-            if tagname == 'style':
-                for c in tag.contents:
+                        f = open(path, 'rb')
+                        src = f.read()
+                        f.close()
+                        match = self.PAGE_BREAK_PAT.search(src) 
+                        if match and not re.match('avoid', match.group(1), re.IGNORECASE):
+                            self.page_break_found = True
+                        ncss, npcss = self.parse_css(src)
+                    except IOError:
+                        self.logger.warn('Could not read stylesheet: '+tag['href'])
+                if ncss:
+                    update_css(ncss, self.css)
+                    self.css.update(self.override_css)
+                if npcss:
+                    update_css(npcss, self.pseudo_css)
+                    self.pseudo_css.update(self.override_pcss)
+            elif tagname == 'pre':
+                self.end_current_para()
+                self.end_current_block()
+                self.current_block = self.book.create_text_block()
+                ts = self.current_block.textStyle.copy()
+                self.current_block.textStyle = ts
+                self.current_block.textStyle.attrs['parindent'] = '0'
+                if tag.contents:
+                    c = tag.contents[0]
                     if isinstance(c, NavigableString):
-                        css, pcss = self.parse_css(str(c))
-                        ncss.update(css)
-                        npcss.update(pcss)
-            elif tag.has_key('type') and tag['type'] == "text/css" \
-                    and tag.has_key('href'):
-                path = munge_paths(self.target_prefix, tag['href'])[0]           
-                try:
-                    f = open(path, 'rb')
-                    src = f.read()
-                    f.close()
-                    match = self.PAGE_BREAK_PAT.search(src) 
-                    if match and not re.match('avoid', match.group(1), re.IGNORECASE):
-                        self.page_break_found = True
-                    ncss, npcss = self.parse_css(src)
-                except IOError:
-                    self.logger.warn('Could not read stylesheet: '+tag['href'])
-            if ncss:
-                update_css(ncss, self.css)
-                self.css.update(self.override_css)
-            if npcss:
-                update_css(npcss, self.pseudo_css)
-                self.pseudo_css.update(self.override_pcss)
-        elif tagname == 'pre':
-            self.end_current_para()
-            self.end_current_block()
-            self.current_block = self.book.create_text_block()
-            ts = self.current_block.textStyle.copy()
-            self.current_block.textStyle = ts
-            self.current_block.textStyle.attrs['parindent'] = '0'
-            if tag.contents:
-                c = tag.contents[0]
-                if isinstance(c, NavigableString):
-                    c = unicode(c).replace('\r\n', '\n').replace('\r', '\n')
-                    if c.startswith('\n'):
-                        c = c[1:]
-                        tag.contents[0] = NavigableString(c)
-                        tag.contents[0].setup(tag)
-            self.process_children(tag, tag_css, tag_pseudo_css)
-            self.end_current_block()
-        elif tagname in ['ul', 'ol', 'dl']:
-            self.list_level += 1
-            if tagname == 'ol':
-                old_counter = self.list_counter
-                self.list_counter = 1
-            prev_bs = self.current_block.blockStyle
-            self.end_current_block()
-            attrs = self.current_block.blockStyle.attrs
-            attrs = attrs.copy()
-            attrs['sidemargin'] = self.list_indent*self.list_level
-            bs = self.book.create_block_style(**attrs)
-            self.current_block = self.book.create_text_block(
-                                        blockStyle=bs,
-                                        textStyle=self.unindented_style)
-            self.process_children(tag, tag_css, tag_pseudo_css)
-            self.end_current_block()
-            self.current_block.blockStyle = prev_bs
-            self.list_level -= 1
-            if tagname == 'ol':
-                self.list_counter = old_counter
-        elif tagname in ['li', 'dt', 'dd']:
-            margin = self.list_indent*self.list_level
-            if tagname == 'dd':
-                margin += 80
-            if int(self.current_block.blockStyle.attrs['sidemargin']) != margin:
+                        c = unicode(c).replace('\r\n', '\n').replace('\r', '\n')
+                        if c.startswith('\n'):
+                            c = c[1:]
+                            tag.contents[0] = NavigableString(c)
+                            tag.contents[0].setup(tag)
+                self.process_children(tag, tag_css, tag_pseudo_css)
+                self.end_current_block()
+            elif tagname in ['ul', 'ol', 'dl']:
+                self.list_level += 1
+                if tagname == 'ol':
+                    old_counter = self.list_counter
+                    self.list_counter = 1
+                prev_bs = self.current_block.blockStyle
                 self.end_current_block()
                 attrs = self.current_block.blockStyle.attrs
                 attrs = attrs.copy()
-                attrs['sidemargin'] = margin
-                attrs['blockwidth'] = int(attrs['blockwidth']) + margin
+                attrs['sidemargin'] = self.list_indent*self.list_level
                 bs = self.book.create_block_style(**attrs)
                 self.current_block = self.book.create_text_block(
-                                        blockStyle=bs,
-                                        textStyle=self.unindented_style)
-
-            if self.current_para.has_text():
-                self.line_break()
-                self.current_block.append(self.current_para)
-            self.current_para = Paragraph()
-            self.previous_text = '\n'
-            if tagname == 'li':
-                in_ol, parent = True, tag.parent            
-                while parent:                
-                    if parent.name and parent.name.lower() in ['ul', 'ol']:
-                        in_ol = parent.name.lower() == 'ol'
-                        break
-                    parent = parent.parent
-                prepend = str(self.list_counter)+'. ' if in_ol else u'\u2022' + ' '
-                self.current_para.append(Span(prepend))
+                                            blockStyle=bs,
+                                            textStyle=self.unindented_style)
                 self.process_children(tag, tag_css, tag_pseudo_css)
-                if in_ol:
-                    self.list_counter += 1
-            else:
-                self.process_children(tag, tag_css, tag_pseudo_css)    
-        elif tagname == 'blockquote':
-            self.current_para.append_to(self.current_block)
-            self.current_block.append_to(self.current_page)
-            pb = self.current_block
-            self.current_para = Paragraph()
-            ts = self.book.create_text_style()
-            ts.attrs['parindent'] = 0
-            try:
-                index = self.text_styles.index(ts)
-                ts = self.text_styles[index]
-            except ValueError:
-                self.text_styles.append(ts)
-            bs = self.book.create_block_style()
-            bs.attrs['sidemargin'], bs.attrs['topskip'], bs.attrs['footskip'] = \
-            60, 20, 20
-            try:
-                index = self.block_styles.index(bs)
-                bs = self.block_styles[index]
-            except ValueError:
-                self.block_styles.append(bs)
-            self.current_block = self.book.create_text_block(
-                                    blockStyle=bs, textStyle=ts)
-            self.previous_text = '\n'
-            self.preserve_block_style = True
-            self.process_children(tag, tag_css, tag_pseudo_css)
-            self.preserve_block_style = False
-            self.current_para.append_to(self.current_block)
-            self.current_block.append_to(self.current_page)
-            self.current_para = Paragraph()
-            self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
-                                                             blockStyle=pb.blockStyle)
-        elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-            new_block = self.process_block(tag, tag_css)
-            
-            if (self.anchor_ids and tag.has_key('id')) or \
-               (self.book_designer and tag.has_key('class') and tag['class']=='title'):
-                if not tag.has_key('id'):
-                    tag['id'] = 'libprs500_id_'+str(self.id_counter)
-                    self.id_counter += 1 
-        
-                tkey = self.target_prefix+tag['id']
-                if not new_block:
+                self.end_current_block()
+                self.current_block.blockStyle = prev_bs
+                self.list_level -= 1
+                if tagname == 'ol':
+                    self.list_counter = old_counter
+            elif tagname in ['li', 'dt', 'dd']:
+                margin = self.list_indent*self.list_level
+                if tagname == 'dd':
+                    margin += 80
+                if int(self.current_block.blockStyle.attrs['sidemargin']) != margin:
                     self.end_current_block()
-                self.current_block.must_append = True
-                self.targets[tkey] = self.current_block
-                if (self.book_designer and tag.has_key('class') and tag['class']=='title'):
-                    self.extra_toc_entries.append((self.get_text(tag, 100), self.current_block))
-            
-            src = self.get_text(tag, limit=1000)
-            
-            if not self.disable_chapter_detection and tagname.startswith('h'):
-                if self.chapter_regex.search(src):
-                    self.logger.debug('Detected chapter %s', src)
-                    self.end_page()
-                    self.page_break_found = True
-            
-            if self.current_para.has_text():
+                    attrs = self.current_block.blockStyle.attrs
+                    attrs = attrs.copy()
+                    attrs['sidemargin'] = margin
+                    attrs['blockwidth'] = int(attrs['blockwidth']) + margin
+                    bs = self.book.create_block_style(**attrs)
+                    self.current_block = self.book.create_text_block(
+                                            blockStyle=bs,
+                                            textStyle=self.unindented_style)
+    
+                if self.current_para.has_text():
+                    self.line_break()
+                    self.current_block.append(self.current_para)
+                self.current_para = Paragraph()
+                self.previous_text = '\n'
+                if tagname == 'li':
+                    in_ol, parent = True, tag.parent            
+                    while parent:                
+                        if parent.name and parent.name.lower() in ['ul', 'ol']:
+                            in_ol = parent.name.lower() == 'ol'
+                            break
+                        parent = parent.parent
+                    prepend = str(self.list_counter)+'. ' if in_ol else u'\u2022' + ' '
+                    self.current_para.append(Span(prepend))
+                    self.process_children(tag, tag_css, tag_pseudo_css)
+                    if in_ol:
+                        self.list_counter += 1
+                else:
+                    self.process_children(tag, tag_css, tag_pseudo_css)    
+            elif tagname == 'blockquote':
                 self.current_para.append_to(self.current_block)
-            self.current_para = Paragraph()
-            
-            self.previous_text = '\n'
-            
-            if not tag.contents:
-                self.current_block.append(CR())
-                return
-            
-            if self.current_block.contents:
-                self.current_block.append(CR())
-            
-            self.process_children(tag, tag_css, tag_pseudo_css)
-            
-            if self.current_para.contents :
-                self.current_block.append(self.current_para)
-            self.current_para = Paragraph()
-            if tagname.startswith('h') or self.blank_after_para:
-                self.current_block.append(CR())                            
-        elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite', 'sup', 'sub']:
-            self.process_children(tag, tag_css, tag_pseudo_css)
-        elif tagname == 'font':
-            if tag.has_key('face'):
-                tag_css['font-family'] = tag['face']
-            if tag.has_key('color'):
-                tag_css['color'] = tag['color']
-            self.process_children(tag, tag_css, tag_pseudo_css)
-        elif tagname in ['br']:
-            self.line_break()
-            self.previous_text = '\n'
-        elif tagname in ['hr', 'tr']: # tr needed for nested tables
-            self.end_current_block()
-            if tagname == 'hr':
-                self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
-            self.previous_text = '\n'
-            self.process_children(tag, tag_css, tag_pseudo_css)
-        elif tagname == 'td': # Needed for nested tables
-            if not self.in_table:
-                self.current_para.append(' ')
-                self.previous_text = ' '
-            self.process_children(tag, tag_css, tag_pseudo_css)
-        elif tagname == 'table' and not self.ignore_tables and not self.in_table:
-            tag_css = self.tag_css(tag)[0] # Table should not inherit CSS
-            try:
-                self.process_table(tag, tag_css)
-            except Exception, err:
-                self.logger.warning('An error occurred while processing a table: %s. Ignoring table markup.', str(err))
-                self.logger.debug('', exc_info=True)
-                self.logger.debug('Bad table:\n%s', str(tag)[:300])
-                self.in_table = False
+                self.current_block.append_to(self.current_page)
+                pb = self.current_block
+                self.current_para = Paragraph()
+                ts = self.book.create_text_style()
+                ts.attrs['parindent'] = 0
+                try:
+                    index = self.text_styles.index(ts)
+                    ts = self.text_styles[index]
+                except ValueError:
+                    self.text_styles.append(ts)
+                bs = self.book.create_block_style()
+                bs.attrs['sidemargin'], bs.attrs['topskip'], bs.attrs['footskip'] = \
+                60, 20, 20
+                try:
+                    index = self.block_styles.index(bs)
+                    bs = self.block_styles[index]
+                except ValueError:
+                    self.block_styles.append(bs)
+                self.current_block = self.book.create_text_block(
+                                        blockStyle=bs, textStyle=ts)
+                self.previous_text = '\n'
+                self.preserve_block_style = True
                 self.process_children(tag, tag_css, tag_pseudo_css)
-            finally:
-                if self.minimize_memory_usage:                
-                    tag.extract()
-        else:
-            self.process_children(tag, tag_css, tag_pseudo_css)        
-        if end_page:
+                self.preserve_block_style = False
+                self.current_para.append_to(self.current_block)
+                self.current_block.append_to(self.current_page)
+                self.current_para = Paragraph()
+                self.current_block = self.book.create_text_block(textStyle=pb.textStyle,
+                                                                 blockStyle=pb.blockStyle)
+            elif tagname in ['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+                new_block = self.process_block(tag, tag_css)
+                
+                if (self.anchor_ids and tag.has_key('id')) or \
+                   (self.book_designer and tag.has_key('class') and tag['class']=='title'):
+                    if not tag.has_key('id'):
+                        tag['id'] = 'libprs500_id_'+str(self.id_counter)
+                        self.id_counter += 1 
+            
+                    tkey = self.target_prefix+tag['id']
+                    if not new_block:
+                        self.end_current_block()
+                    self.current_block.must_append = True
+                    self.targets[tkey] = self.current_block
+                    if (self.book_designer and tag.has_key('class') and tag['class']=='title'):
+                        self.extra_toc_entries.append((self.get_text(tag, 100), self.current_block))
+                
+                src = self.get_text(tag, limit=1000)
+                
+                if not self.disable_chapter_detection and tagname.startswith('h'):
+                    if self.chapter_regex.search(src):
+                        self.logger.debug('Detected chapter %s', src)
+                        self.end_page()
+                        self.page_break_found = True
+                
+                if self.current_para.has_text():
+                    self.current_para.append_to(self.current_block)
+                self.current_para = Paragraph()
+                
+                self.previous_text = '\n'
+                
+                if not tag.contents:
+                    self.current_block.append(CR())
+                    return
+                
+                if self.current_block.contents:
+                    self.current_block.append(CR())
+                
+                self.process_children(tag, tag_css, tag_pseudo_css)
+                
+                if self.current_para.contents :
+                    self.current_block.append(self.current_para)
+                self.current_para = Paragraph()
+                if tagname.startswith('h') or self.blank_after_para:
+                    self.current_block.append(CR())                            
+            elif tagname in ['b', 'strong', 'i', 'em', 'span', 'tt', 'big', 'code', 'cite', 'sup', 'sub']:
+                self.process_children(tag, tag_css, tag_pseudo_css)
+            elif tagname == 'font':
+                if tag.has_key('face'):
+                    tag_css['font-family'] = tag['face']
+                if tag.has_key('color'):
+                    tag_css['color'] = tag['color']
+                self.process_children(tag, tag_css, tag_pseudo_css)
+            elif tagname in ['br']:
+                self.line_break()
+                self.previous_text = '\n'
+            elif tagname in ['hr', 'tr']: # tr needed for nested tables
+                self.end_current_block()
+                if tagname == 'hr':
+                    self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
+                self.previous_text = '\n'
+                self.process_children(tag, tag_css, tag_pseudo_css)
+            elif tagname == 'td': # Needed for nested tables
+                if not self.in_table:
+                    self.current_para.append(' ')
+                    self.previous_text = ' '
+                self.process_children(tag, tag_css, tag_pseudo_css)
+            elif tagname == 'table' and not self.ignore_tables and not self.in_table:
+                tag_css = self.tag_css(tag)[0] # Table should not inherit CSS
+                try:
+                    self.process_table(tag, tag_css)
+                except Exception, err:
+                    self.logger.warning('An error occurred while processing a table: %s. Ignoring table markup.', str(err))
+                    self.logger.debug('', exc_info=True)
+                    self.logger.debug('Bad table:\n%s', str(tag)[:300])
+                    self.in_table = False
+                    self.process_children(tag, tag_css, tag_pseudo_css)
+                finally:
+                    if self.minimize_memory_usage:                
+                        tag.extract()
+            else:
+                self.process_children(tag, tag_css, tag_pseudo_css)
+        finally:        
+            if end_page:
                 self.end_page()
                     
     def process_table(self, tag, tag_css):
