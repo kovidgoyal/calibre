@@ -1018,16 +1018,15 @@ class HTMLConverter(object):
                 msrc = tag_css[what].split()
                 for i in range(len(msrc)):
                     src[i] = msrc[i]
-            i = 0
-            for c in ('-top', '-right', '-bottom', '-left'):
+            for i, c in enumerate(('-top', '-right', '-bottom', '-left')):
                 if tag_css.has_key(what+c):
                     src[i] = tag_css[what+c]
-                i += 1
             return src
             
         s1, s2 = get('margin'), get('padding')
         
         bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
+        
         def set(default, one, two):
             fval = None 
             if one is not None:
@@ -1047,13 +1046,17 @@ class HTMLConverter(object):
         ans['footskip']   = set(self.book.defaultBlockStyle.attrs['footskip'], s1[2], s2[2])
         ans['sidemargin'] = set(self.book.defaultBlockStyle.attrs['sidemargin'], s1[3], s2[3])
         
-        if 2*int(ans['sidemargin']) >= 0.8*int(self.current_block.blockStyle.attrs['blockwidth']):
+        factor = 0.7
+        if 2*int(ans['sidemargin']) >= factor*int(self.current_block.blockStyle.attrs['blockwidth']):
+            # Try using (left + right)/2 
             val = int(ans['sidemargin'])
             ans['sidemargin'] = set(self.book.defaultBlockStyle.attrs['sidemargin'], s1[1], s2[1])
             val += int(ans['sidemargin'])
             val /= 2.
             ans['sidemargin'] = int(val)
-            
+        if 2*int(ans['sidemargin']) >= factor*int(self.current_block.blockStyle.attrs['blockwidth']):
+            ans['sidemargin'] = int((factor*int(self.current_block.blockStyle.attrs['blockwidth']))/2.)
+        
         return ans
     
     def font_properties(self, css):
