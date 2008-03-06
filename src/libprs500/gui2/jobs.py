@@ -327,6 +327,8 @@ class JobManager(QAbstractTableModel):
                 p = str(job.percent_done) + r'%' if job.percent_done > 0 else _('Unavailable')
                 return QVariant(p)
             if col == 3:
+                if job.start_time is None:
+                    return NONE
                 rtime = job.running_time if hasattr(job, 'running_time') else time.time() - job.start_time
                 return QVariant('%dm %ds'%(int(rtime)//60, int(rtime)%60))
         if role == Qt.DecorationRole and col == 0:
