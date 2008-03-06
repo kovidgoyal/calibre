@@ -893,7 +893,7 @@ class HTMLConverter(object):
         factor = 720./self.profile.dpi
         
         def scale_image(width, height):
-            pt = PersistentTemporaryFile(suffix='.'+encoding.lower())
+            pt = PersistentTemporaryFile(suffix='_html2lrf_scaled_image_.'+encoding.lower())
             self.image_memory.append(pt) # Neccessary, trust me ;-)
             try:
                 im.resize((int(width), int(height)), PILImage.ANTIALIAS).save(pt, encoding)
@@ -931,7 +931,7 @@ class HTMLConverter(object):
             return
         
         if self.autorotation and width > pwidth and width > height:
-            pt = PersistentTemporaryFile(suffix='.'+encoding.lower())
+            pt = PersistentTemporaryFile(suffix='_html2lrf_rotated_image_.'+encoding.lower())
             try:
                 im = im.rotate(90)
                 im.save(pt, encoding)
