@@ -19,6 +19,7 @@ particular websites.
 
 import tempfile, time, calendar, re, operator, atexit, shutil, os
 from htmlentitydefs import name2codepoint
+from email.utils import formatdate
 
 from libprs500 import __appname__, iswindows, browser
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, CData, Tag
@@ -324,8 +325,7 @@ class DefaultProfile(object):
                         if not pubdate:
                             pubdate = item.find('dc:date')
                         if not pubdate or not pubdate.string:
-                            self.logger.debug('Skipping article %s as it does not have publication date'%atitle)
-                            continue
+                            pubdate = formatdate()
                         pubdate = self.tag_to_string(pubdate)
                         pubdate = pubdate.replace('+0000', 'GMT')
                     
@@ -354,7 +354,7 @@ class DefaultProfile(object):
                         'title'    : atitle,                 
                         'url'      : purl,
                         'timestamp': self.strptime(pubdate) if self.use_pubdate else time.time(),
-                        'date'     : pubdate if self.use_pubdate else time.ctime(),
+                        'date'     : pubdate if self.use_pubdate else formatdate(),
                         'content'  : content,
                         }
                     delta = time.time() - d['timestamp']
