@@ -32,6 +32,8 @@ title = 'Frequently Asked Questions'
                 <li><a href="#CanIsavemybookstothedisk">Can I save my books to the disk?</a></li>
                 <li><a href="#Iused${app}totransfersomebookstomyreaderandnowtheSONYsoftwarehangseverytimeIconnectthereader">I used ${app} to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?</a></li>
                 <li><a href="#NoimagesintheLRFfileafterconversionfromHTML">No images in the LRF file after conversion from HTML?</a></li>
+                <li><a href="#osxfonts">Why does ${app} show only some of my fonts on OS X?</a></li>
+                <li><a href="#unicode">How do I convert my file containing non-English characters?</a></li>
                 <li><a href="#CanIuseweb2lrftodownloadanarbitrarywebsite">Can I use web2lrf to download an arbitrary website?</a></li>
                 <li><a href="#Iwantsomefeatureaddedto${app}.WhatcanIdo">I want some feature added to ${app}. What can I do?</a></li>
                 <li><a href="#HowdoIusesomeoftheadvancedfeaturesoftheconversiontools">How do I use some of the advanced features of the conversion tools?</a></li>
@@ -76,11 +78,45 @@ title = 'Frequently Asked Questions'
             </li><li>Deleting the file media.xml from the reader's main memory using windows explorer (search for the file to find all locations where it is present). Note that by doing this you will lose all your collections, bookmarks, history etc.
             </li><li>Unplugging the reader and waiting till the list of books shows up again
             </li><li>Re-connecting the reader and starting the SONY software
-            </li></ul><h2 id="NoimagesintheLRFfileafterconversionfromHTML">No images in the LRF file after conversion from HTML?</h2>
+            </li></ul>
+            
+        <h2 id="NoimagesintheLRFfileafterconversionfromHTML">No images in the LRF file after conversion from HTML?</h2>
         <p>
             If you use the GUI to convert an HTML file, you have to create a zip file with the HTML file and any images it references and then convert that ZIP file to LRF.
         </p>
-
+        <h2 id="osxfonts">Why does ${app} show only some of my fonts on OS X?</h2>
+        <p>
+            ${app} embeds fonts in ebook files it creates. E-book files support embedding only
+            TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they
+            cannot be embedded. ${app} shows only TrueType fonts founf on your system. You can
+            obtain many TrueType fonts on the web. Simply download the .ttf files and add them
+            to the <code>Library/Fonts</code> directory in your home directory.
+        </p>
+        
+        <h2 id="unicode">How do I convert my file containing non-English characters?</h2>
+        <p>
+            There are two aspects to this problem:
+        </p>
+        <ol>
+            <li>
+                Knowing the encoding of the source file: ${app} tries to guess what
+                character encoding your source files use, but often, this is impossible,
+                so you need to tell it what encoding to use. This can be done in the GUI
+                via the "Source encoding" field in the "Look &amp; Feel" section. 
+                The command-line tools all have an <code>--encoding</code> option. 
+            </li>
+            <li>
+                Embedding fonts: If you are generating an LRF file to read on your
+                SONY Reader, you are limited by the fact that the Reader only supports
+                a few non-English characters in the fonts it comes pre-loaded with.
+                You can work around this problem by embedding a unicode-aware font 
+                that supports the character set your file uses into the LRF file. You
+                should embed atleast a serif and a sans-serif font. Be aware that
+                embedding fonts significantly slows down page-turn speed on the reader. 
+            </li>
+        </ol>
+        
+        
         <h2 id="CanIuseweb2lrftodownloadanarbitrarywebsite">Can I use web2lrf to download an arbitrary website?</h2>
         <pre class="showcmd">web2lrf --url http://mywebsite.com default</pre>
 

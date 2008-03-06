@@ -1,3 +1,13 @@
+<?python
+import re
+from genshi import HTML
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+formatter = HtmlFormatter(linenos='inline', cssclass='codeblock', 
+            lineanchors='lineno', lineseparator='\n')
+lexer = PythonLexer()
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" 
@@ -12,15 +22,34 @@
         <meta name="copyright" content="&copy; 2008 ${author}" />
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="stylesheet" type="text/css" href="styles/common.css" />
-            ${select('*|text()')}
+        <style type="text/css">
+            ${formatter.get_style_defs('.codeblock')}
+            .codeblock {
+	        background-color: #eeeeee;
+	        border: inset 1px black;
+	        }
+	        .lineno {
+	        color: lightgray;
+	        font-weight: normal;
+	        border-top: solid 1px black;
+	        }
+        </style>
+
+        ${select('*|text()')}
     </head>
     </py:match>
     
+    <py:match path="div[@class='pygmentize']">
+        ${HTML(highlight(re.compile(r'^\|\|\|$', re.MULTILINE).sub('', unicode(select('*|text()'))), lexer, formatter))}
+    </py:match>
+    
     <py:match path="body">
+    
     <body py:attrs="select('@*')">
         <h1 class="documentHeading">
             ${title}
         </h1>
+
         ${select('*|text()')}
         <py:if test="footer">
         <hr />
