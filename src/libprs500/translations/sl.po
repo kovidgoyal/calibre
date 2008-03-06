@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2008-02-29 10:36+PST\n"
+"POT-Creation-Date: 2008-03-05 23:23+PST\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -476,8 +476,12 @@ msgstr ""
 msgid "Details of job"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/jobs_ui.py:35
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/jobs_ui.py:39
 msgid "Active Jobs"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/jobs_ui.py:40
+msgid "&Stop selected job"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:93
@@ -1286,36 +1290,60 @@ msgstr ""
 msgid "Regular expression group name (?P<series_index>)"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:277
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:291
 msgid "Job"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:278
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:292
 msgid "Status"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:279
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:293
 msgid "Progress"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:307
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:294
+msgid "Running time"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:322
 msgid "Error"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:307
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:322
 msgid "Finished"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:309
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:324
 msgid "Waiting"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:309
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:324
 msgid "Working"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:312
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:327
 msgid "Unavailable"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:353
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:357
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:361
+msgid "Cannot kill job"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:354
+msgid ""
+"Cannot kill jobs that are communicating with the device as this may cause "
+"data corruption."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:358
+msgid "Cannot kill already completed jobs."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:362
+msgid "Cannot kill waiting jobs."
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:220
@@ -1534,53 +1562,53 @@ msgstr ""
 msgid "Cannot convert"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:765
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:782
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:769
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:786
 msgid "No book selected"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:765
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:782
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:796
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:769
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:786
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:800
 msgid "Cannot view"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:771
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:801
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:775
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:805
 msgid "Choose the format to view"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:797
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:801
 msgid "%s has no available formats."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:826
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:830
 msgid "Cannot configure"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:826
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:830
 msgid "Cannot configure while there are running jobs."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:860
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:864
 msgid "Invalid database"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:861
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:865
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:869
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:873
 msgid "Could not move database"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:919
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:923
 msgid "Error talking to device"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:920
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:924
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -1705,4 +1733,40 @@ msgstr ""
 msgid ""
 "Card\n"
 "%s available"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/parallel.py:128
+msgid "Job killed by user"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:44
+msgid ""
+"Specify a list of feeds to download. For example: \n"
+"\"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/"
+"headlines/politics']\"\n"
+"If you specify this option, any argument to %prog is ignored and a default "
+"recipe is used to download the feeds."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:48
+msgid "Be more verbose while processing."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:49
+msgid "Username for sites that require a login to access content."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:50
+msgid "Password for sites that require a login to access content."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:53
+msgid ""
+"Number of levels of links to follow on webpages that are linked to from "
+"feeds. Defaul %default"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:69
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:73
+msgid "Fetching feeds..."
 msgstr ""
