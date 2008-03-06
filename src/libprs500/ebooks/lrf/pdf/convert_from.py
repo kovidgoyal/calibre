@@ -17,7 +17,7 @@
 import sys, os, subprocess, logging
 from libprs500 import isosx, setup_cli_handlers, filename_to_utf8
 from libprs500.ebooks import ConversionError
-from libprs500.ptempfile import PersistentTemporaryFile
+from libprs500.ptempfile import PersistentTemporaryDirectory
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_file
 
@@ -29,17 +29,18 @@ if isosx and hasattr(sys, 'frameworks_dir'):
 def generate_html(pathtopdf, logger):
     '''
     Convert the pdf into html.
-    @return: A closed PersistentTemporaryFile.
+    @return: Path to a temporary file containing the HTML.
     '''
     if not os.access(pathtopdf, os.R_OK):
         raise ConversionError, 'Cannot read from ' + pathtopdf
-    pf = PersistentTemporaryFile('.html')
-    pf.close()
+    tdir = PersistentTemporaryDirectory('pdftohtml')
+    index = os.path.join(tdir, 'index.html')
     # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
-    cmd = PDFTOHTML + ' -enc UTF-8 -noframes -p -nomerge "%s" "%s"'%(pathtopdf, os.path.basename(pf.name))
+    cmd = PDFTOHTML + ' -enc UTF-8 -noframes -p -nomerge "%s" "%s"'%(pathtopdf, os.path.basename(index))
     cwd = os.getcwd()
+    
     try:
-        os.chdir(os.path.dirname(pf.name)) 
+        os.chdir(tdir)
         p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, 
                              stdout=subprocess.PIPE)
         logger.info(p.stdout.read())
@@ -47,11 +48,11 @@ def generate_html(pathtopdf, logger):
         if ret != 0:
             err = p.stderr.read()
             raise ConversionError, err
-        if os.stat(pf.name).st_size < 100:
+        if os.stat(index).st_size < 100:
             raise ConversionError(os.path.basename(pathtopdf) + ' does not allow copying of text.')
     finally:
         os.chdir(cwd)
-    return pf
+    return index
 
 def option_parser():
     return lrf_option_parser(
@@ -74,7 +75,7 @@ def process_file(path, options, logger=None):
     options.pdftohtml = True
     if not options.title:
         options.title = filename_to_utf8(os.path.splitext(os.path.basename(options.output))[0])
-    html_process_file(htmlfile.name, options, logger)
+    html_process_file(htmlfile, options, logger)
 
 
 def main(args=sys.argv, logger=None):

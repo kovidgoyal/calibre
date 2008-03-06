@@ -16,7 +16,7 @@
 Provides platform independent temporary files that persist even after 
 being closed.
 """
-import tempfile, os, atexit
+import tempfile, os, atexit, shutil
 
 from libprs500 import __version__, __appname__
 
@@ -63,4 +63,14 @@ def PersistentTemporaryFile(suffix="", prefix="", dir=None):
     fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
                                 dir=dir)
     _file = os.fdopen(fd, 'w+b')
-    return _TemporaryFileWrapper(_file, name)    
+    return _TemporaryFileWrapper(_file, name)  
+
+def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
+    '''
+    Return the path to a newly created temporary directory that will
+    be automatically deleted on application exit.
+    '''
+    tdir = tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir)
+    atexit.register(shutil.rmtree, tdir, True)
+    return tdir
+      
