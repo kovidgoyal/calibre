@@ -156,7 +156,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)        
         self.timeout = float(QSettings().value('network timeout', QVariant(5)).toInt()[0])
         self.title.setText(db.title(row))
-        isbn = db.isbn(self.id)
+        isbn = db.isbn(self.id, index_is_id=True)
         if not isbn:
             isbn = ''
         self.isbn.setText(isbn)

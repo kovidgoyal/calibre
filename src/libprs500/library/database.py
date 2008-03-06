@@ -32,7 +32,8 @@ class Concatenate(object):
         self.ans = ''
         
     def step(self, value):
-        self.ans += value + self.sep
+        if value is not None:
+            self.ans += value + self.sep
     
     def finalize(self):
         if not self.ans:
@@ -890,8 +891,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def id(self, index):
         return self.data[index][0]
     
-    def title(self, index):
-        return self.data[index][1]
+    def title(self, index, index_is_id=False):
+        if not index_is_id:
+            return self.data[index][1]
+        return self.conn.execute('SELECT title FROM meta WHERE id=?',(index,)).fetchone()[0]
     
     def authors(self, index, index_is_id=False):
         ''' Authors as a comman separated list or None'''
@@ -899,50 +902,59 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return self.data[index][2]
         return self.conn.execute('SELECT authors FROM meta WHERE id=?',(index,)).fetchone()[0]        
     
-    def isbn(self, id):
+    def isbn(self, idx, index_is_id=False):
+        id = idx if index_is_id else self.id(idx)
         return self.conn.execute('SELECT isbn FROM books WHERE id=?',(id,)).fetchone()[0]
     
-    def author_sort(self, index):
-        id = self.id(index)
+    def author_sort(self, index, index_is_id=False):
+        id = index if index_is_id else self.id(index)
         return self.conn.execute('SELECT author_sort FROM books WHERE id=?', (id,)).fetchone()[0]
             
-    def publisher(self, index):
+    def publisher(self, index, index_is_id=False):
+        if index_is_id:
+            return self.conn.execute('SELECT publisher FROM meta WHERE id=?', (id,)).fetchone()[0]
         return self.data[index][3]
     
-    def rating(self, index):
+    def rating(self, index, index_is_id=False):
+        if index_is_id:
+            return self.conn.execute('SELECT rating FROM meta WHERE id=?', (id,)).fetchone()[0]
         return self.data[index][4]
         
-    def timestamp(self, index):
+    def timestamp(self, index, index_is_id=False):
+        if index_is_id:
+            return self.conn.execute('SELECT timestamp FROM meta WHERE id=?', (id,)).fetchone()[0]
         return self.data[index][5]
         
-    def max_size(self, index):
+    def max_size(self, index, index_is_id=False):
+        if index_is_id:
+            return self.conn.execute('SELECT size FROM meta WHERE id=?', (id,)).fetchone()[0]
         return self.data[index][6]
     
-    def cover(self, index):
+    def cover(self, index, index_is_id=False):
         '''Cover as a data string or None'''
-        id = self.id(index)
+        id = index if index_is_id else self.id(index)
         data = self.conn.execute('SELECT data FROM covers WHERE book=?', (id,)).fetchone()
         if not data or not data[0]:
             return None
         return(decompress(data[0]))
     
-    def tags(self, index):
+    def tags(self, index, index_is_id=False):
         '''tags as a comma separated list or None'''
-        id = self.id(index)
+        id = index if index_is_id else self.id(index)
         matches = self.conn.execute('SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=?)', (id,)).fetchall()
         if not matches or not matches[0][0]:
             return None
         matches = [t.lower().strip() for t in matches[0][0].split(',')]         
         return ','.join(matches)
     
-    def series_id(self, index):
-        id = self.id(index)
+    def series_id(self, index, index_is_id=False):
+        id = index if index_is_id else self.id(index)
         ans= self.conn.execute('SELECT series from books_series_link WHERE book=?', (id,)).fetchone()
         if ans:
             return ans[0]
         
-    def series(self, index):
-        id = self.series_id(index)
+    def series(self, index, index_is_id=False):
+        id = self.series_id(index, index_is_id)
         ans = self.conn.execute('SELECT name from series WHERE id=?', (id,)).fetchone()
         if ans:
             return ans[0]
@@ -965,18 +977,18 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         ans.sort(cmp = lambda x, y: cmp(self.series_index(x, True), self.series_index(y, True)))
         return ans
     
-    def books_in_series_of(self, index):
+    def books_in_series_of(self, index, index_is_id=False):
         '''
         Return an ordered list of all books in the series that the book indetified by index belongs to.
         If the book does not belong to a series return an empty list. The list contains book ids.
         '''
-        series_id = self.series_id(index)
+        series_id = self.series_id(index, index_is_id=index_is_id)
         return self.books_in_series(series_id)
         
     
-    def comments(self, index):
+    def comments(self, index, index_is_id=False):
         '''Comments as string or None'''
-        id = self.id(index)
+        id = index if index_is_id else self.id(index)
         matches = self.conn.execute('SELECT text FROM comments WHERE book=?', (id,)).fetchall()
         if not matches:
             return None
@@ -997,8 +1009,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return self.conn.execute('SELECT uncompressed_size FROM data WHERE data.book=? AND data.format=?', (id, format)).fetchone()[0]
         
     
-    def format(self, index, format):
-        id = self.id(index)
+    def format(self, index, format, index_is_id=False):
+        id = index if index_is_id else self.id(index)
         return decompress(self.conn.execute('SELECT data FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0])
     
     def all_series(self):
@@ -1040,8 +1052,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                               (id, ext, usize, data))
         self.conn.commit()
         
-    def remove_format(self, index, ext):
-        id = self.id(index)
+    def remove_format(self, index, ext, index_is_id=False):
+        id = index if index_is_id else self.id(index)
         self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, ext.lower()))
         self.conn.commit()
         
@@ -1309,22 +1321,25 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
         
-    def get_metadata(self, idx):
-        aum = self.authors(idx)
+    def get_metadata(self, idx, index_is_id=False):
+        '''
+        Convenience method to return metadata as a L{MetaInformation} object.
+        '''
+        aum = self.authors(idx, index_is_id=index_is_id)
         if aum: aum = aum.split(',')
-        mi = MetaInformation(self.title(idx), aum)
-        mi.author_sort = self.author_sort(idx)
-        mi.comments    = self.comments(idx)
-        mi.publisher   = self.publisher(idx)
-        tags = self.tags(idx)
+        mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
+        mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
+        mi.comments    = self.comments(idx, index_is_id=index_is_id)
+        mi.publisher   = self.publisher(idx, index_is_id=index_is_id)
+        tags = self.tags(idx, index_is_id=index_is_id)
         if tags:
             mi.tags = [i.strip() for i in tags.split(',')]
-        mi.series = self.series(idx)
+        mi.series = self.series(idx, index_is_id=index_is_id)
         if mi.series:
-            mi.series_index = self.series_index(idx)
-        mi.rating = self.rating(idx)
-        id = self.id(idx)
-        mi.isbn = self.isbn(id)
+            mi.series_index = self.series_index(idx, index_is_id=index_is_id)
+        mi.rating = self.rating(idx, index_is_id=index_is_id)
+        mi.isbn = self.isbn(idx, index_is_id=index_is_id)
+        id = idx if index_is_id else self.id(idx)        
         mi.libprs_id = id
         return mi
     
@@ -1332,16 +1347,17 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('VACUUM;')
         self.conn.commit()
     
-    def export_to_dir(self, dir, indices, byauthor=False, single_dir=False):
+    def export_to_dir(self, dir, indices, byauthor=False, single_dir=False,
+                      index_is_id=False):
         if not os.path.exists(dir):
             raise IOError('Target directory does not exist: '+dir)
         by_author = {}
         for index in indices:
-            id = self.id(index)
+            id = index if index_is_id else self.id(index)
             au = self.conn.execute('SELECT author_sort FROM books WHERE id=?', 
                                    (id,)).fetchone()[0]
             if not au:
-                au = self.authors(index)
+                au = self.authors(index, index_is_id=index_is_id)
                 if not au:
                     au = 'Unknown'
                 au = au.split(',')[0]
@@ -1355,9 +1371,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             if not single_dir and not os.path.exists(apath):
                 os.mkdir(apath)
             for idx in by_author[au]:
-                title = re.sub(r'\s', ' ', self.title(idx))
+                title = re.sub(r'\s', ' ', self.title(idx, index_is_id=index_is_id))
                 tpath = os.path.join(apath, sanitize_file_name(title))
-                id = str(self.id(idx))
+                id = idx if index_is_id else self.id(idx)
+                id = str(id)
                 if not single_dir and not os.path.exists(tpath):
                     os.mkdir(tpath)
                 
@@ -1365,8 +1382,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 name += '_'+id
                 base  = dir if single_dir else tpath
                 
-                mi = OPFCreator(self.get_metadata(idx))
-                cover = self.cover(idx)
+                mi = OPFCreator(self.get_metadata(idx, index_is_id=index_is_id))
+                cover = self.cover(idx, index_is_id=index_is_id)
                 if cover is not None:
                     cname = name + '.jpg'
                     cpath = os.path.join(base, cname)
@@ -1376,8 +1393,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 mi.write(f)
                 f.close()
                 
-                for fmt in self.formats(idx).split(','):
-                    data = self.format(idx, fmt)
+                for fmt in self.formats(idx, index_is_id=index_is_id).split(','):
+                    data = self.format(idx, fmt, index_is_id=index_is_id)
                     fname = name +'.'+fmt.lower()
                     fname = sanitize_file_name(fname)
                     f = open(os.path.join(base, fname), 'w+b')
@@ -1517,5 +1534,5 @@ class SearchToken(object):
         return bool(self.pattern.search(text)) ^ self.negate
 
 if __name__ == '__main__':
-    db = LibraryDatabase('/home/kovid/library1.db')
-    
+    sqlite.enable_callback_tracebacks(True)
+    db = LibraryDatabase('/home/kovid/temp/library1.db.orig')
