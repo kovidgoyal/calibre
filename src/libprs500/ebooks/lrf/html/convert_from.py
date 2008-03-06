@@ -79,6 +79,11 @@ def strip_style_comments(match):
         src = src[:lindex] + src[rindex+2:]
     return src
 
+def tag_regex(tagname):
+    '''Return non-grouping regular expressions that match the opening and closing tags for tagname''' 
+    return dict(open=r'(?:<\s*%(t)s\s+[^<>]*?>|<\s*%(t)s\s*>)'%dict(t=tagname), \
+                close=r'</\s*%(t)s\s*>'%dict(t=tagname))
+
 class HTMLConverter(object):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
@@ -94,8 +99,8 @@ class HTMLConverter(object):
                         (re.compile(r"<\s*style.*?>(.*?)<\/\s*style\s*>", re.DOTALL|re.IGNORECASE),
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
                          # remove <p> tags from within <a> tags
-                        (re.compile(r'<a.*?>(.*?)</a\s*>', re.DOTALL|re.IGNORECASE),
-                         lambda match: re.compile(r'<\s*?p.*?>', re.IGNORECASE).sub('', match.group())),
+                        (re.compile(r'%(open)s(.*?)%(close)s'%tag_regex('a'), re.DOTALL|re.IGNORECASE),
+                         lambda match: re.compile(r'%(open)s|%(close)s'%tag_regex('p'), re.IGNORECASE).sub('', match.group())),
                         
                         # Replace common line break patterns with line breaks
                         (re.compile(r'<p>(&nbsp;|\s)*</p>', re.IGNORECASE), lambda m: '<br />'),
