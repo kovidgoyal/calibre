@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''' E-book management software'''
-__version__   = "0.4.40"
+__version__   = "0.4.41"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
@@ -109,17 +109,53 @@ class OptionParser(_OptionParser):
                  version='%%prog (%s %s)'%(__appname__, __version__),
                  epilog=_('Created by ')+terminal_controller.RED+__author__+terminal_controller.NORMAL,
                  gui_mode=False,
+                 conflict_handler='resolve',
                  **kwds):
         usage += '''\n\nWhenever you pass arguments to %prog that have spaces in them, '''\
                  '''enclose the arguments in quotation marks.'''
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, 
-                               formatter=CustomHelpFormatter(), **kwds)
+                               formatter=CustomHelpFormatter(), 
+                               conflict_handler=conflict_handler, **kwds)
         self.gui_mode = gui_mode
         
     def error(self, msg):
         if self.gui_mode:
             raise Exception(msg)
         _OptionParser.error(self, msg)
+        
+    def subsume(self, group_name, msg=''):
+        '''
+        Move all existing options into a subgroup named
+        C{group_name} with description C{msg}.
+        '''
+        opts   = list(self.option_list)
+        groups = list(self.option_groups)
+        exclude = []
+        
+        for opt in opts:
+            ops = opt.get_opt_string()
+            if ops in ('--help', '--version'):
+                exclude.append(opt)
+            else:
+                self.remove_option(ops)
+        for group in groups:
+            for opt in group.option_list:
+                opts.append(opt) 
+                group.remove_option(opt)
+        
+        self.option_groups = []
+        subgroup = self.add_option_group(group_name, msg)
+        for opt in opts:
+            if opt in exclude:
+                continue
+            subgroup.add_option(opt)
+        
+            
+        
+        
+            
+            
+        
 
 def load_library(name, cdll):
     if iswindows:
@@ -234,7 +270,6 @@ def get_font_families(cached=None):
                         continue
                     zlist.append((family, ff))
             font_families = dict(zlist)
-        
             
     return font_families
 

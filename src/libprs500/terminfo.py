@@ -188,9 +188,8 @@ class ProgressBar:
         self.bar = term.render(self.BAR)
         self.header = self.term.render(self.HEADER % header.center(self.width))
         self.cleared = 1 #: true if we haven't drawn the bar yet.
-        self.update(0, '')
-    
-    def update(self, percent, message):
+        
+    def update(self, percent, message=''):
         if self.cleared:
             sys.stdout.write(self.header)
             self.cleared = 0
