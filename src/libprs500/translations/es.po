@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-05 23:23+PST\n"
+"POT-Creation-Date: 2008-03-06 14:16+PST\n"
 "PO-Revision-Date: 2007-11-16 09:21+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: Spanish\n"
@@ -1406,23 +1406,23 @@ msgstr "Procesando..."
 msgid "Unavailable"
 msgstr "No disponible"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:353
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:357
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:361
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:355
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:359
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:363
 msgid "Cannot kill job"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:354
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:356
 msgid ""
 "Cannot kill jobs that are communicating with the device as this may cause "
 "data corruption."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:358
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:360
 msgid "Cannot kill already completed jobs."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:362
+#: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:364
 msgid "Cannot kill waiting jobs."
 msgstr ""
 
@@ -1843,22 +1843,22 @@ msgstr ""
 msgid "Be more verbose while processing."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:49
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:51
 msgid "Username for sites that require a login to access content."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:50
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:52
 msgid "Password for sites that require a login to access content."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:53
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
 msgid ""
 "Number of levels of links to follow on webpages that are linked to from "
 "feeds. Defaul %default"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:69
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:73
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:71
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:75
 msgid "Fetching feeds..."
 msgstr ""
 
