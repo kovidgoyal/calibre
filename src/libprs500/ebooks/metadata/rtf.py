@@ -111,8 +111,9 @@ def create_metadata(stream, options):
     if options.category:
         category = options.category.encode('ascii', 'ignore')
         md += r'{\category %s}'%(category,)
-    if options.comment:
-        comment = options.comment.encode('ascii', 'ignore')
+    comp = options.comment if hasattr(options, 'comment') else options.comments
+    if comp:
+        comment = comp.encode('ascii', 'ignore')
         md += r'{\subject %s}'%(comment,)
     if len(md) > 6:
         md += '}'
