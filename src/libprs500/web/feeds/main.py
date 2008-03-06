@@ -46,6 +46,8 @@ recipe as a string   - $prog will load the recipe directly from the string arg.
 If you specify this option, any argument to %prog is ignored and a default recipe is used to download the feeds.'''))
     p.add_option('--verbose', default=False, action='store_true',
                  help=_('''Be more verbose while processing.'''))
+    p.add_option('--title', default=None,
+                 help='The title for this recipe. Used as the title for any ebooks created from the downloaded feeds.')
     p.add_option('--username', default=None, help=_('Username for sites that require a login to access content.'))
     p.add_option('--password', default=None, help=_('Password for sites that require a login to access content.'))
     p.add_option('--lrf', default=False, action='store_true', help='Optimize fetching for subsequent conversion to LRF.')
