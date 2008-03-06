@@ -49,8 +49,6 @@ def validate(file=None):
     br = browser()
     files = [file] if file is not None else glob.glob('build/*.html')
     for f in files:
-        if f.endswith('navtree.html'):
-            continue
         print 'Validating', f
         raw = open(f).read()
         br.open('http://validator.w3.org/#validate_by_input')
@@ -163,6 +161,7 @@ def html():
                     "http://www.w3.org/TR/html4/loose.dtd")
     raw = template.generate(footer=False, toc=toc).render(doctype=dt)
     raw = re.sub(r'<html[^<>]+>', '<html lang="en">', raw)
+    raw = re.sub(r'<(script|link|style)([^<>])+/>', '<\1 \2></\1>', raw)
     open('build'+os.sep+'navtree.html', 'wb').write(raw)
             
 
