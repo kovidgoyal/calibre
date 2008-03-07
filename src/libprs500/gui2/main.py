@@ -15,7 +15,7 @@
 import os, sys, textwrap, collections, traceback, shutil, time
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QSize, QThread, QString
+                         QSettings, QVariant, QThread, QString
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
@@ -71,7 +71,7 @@ class Main(MainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowTitle(__appname__)
-        maximized = self.read_settings()
+        self.read_settings()
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
         self.device_manager = None
@@ -191,7 +191,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.memory_view.connect_dirtied_signal(self.upload_booklists)
         self.card_view.connect_dirtied_signal(self.upload_booklists)
         
-        self.show() if not maximized else self.showMaximized()
+        self.show()
         self.stack.setCurrentIndex(0)
         self.library_view.migrate_database()
         self.library_view.sortByColumn(3, Qt.DescendingOrder)
@@ -954,21 +954,20 @@ class Main(MainWindow, Ui_MainWindow):
     def read_settings(self):
         settings = QSettings()
         settings.beginGroup("Main Window")
-        self.resize(settings.value("size", QVariant(QSize(800, 600))).toSize())
-        maximized = settings.value('main window maximized', QVariant(False)).toBool()
+        geometry = settings.value('main window geometry', QVariant()).toByteArray()
+        self.restoreGeometry(geometry)
         settings.endGroup()
         dbpath = os.path.join(os.path.expanduser(u'~'), u'library1.db').encode('utf-8')
         self.database_path = qstring_to_unicode(settings.value("database path", 
                 QVariant(QString.fromUtf8(dbpath))).toString())
         set_sidebar_directories(None)
         set_filename_pat(qstring_to_unicode(settings.value('filename pattern', QVariant(get_filename_pat())).toString()))
-        return maximized
+        
     
     def write_settings(self):
         settings = QSettings()
         settings.beginGroup("Main Window")
-        settings.setValue("size", QVariant(self.size()))
-        settings.setValue('main window maximized', QVariant(self.isMaximized()))
+        settings.setValue("main window geometry", QVariant(self.saveGeometry()))
         settings.endGroup()
         settings.beginGroup('Book Views')
         self.library_view.write_settings()
