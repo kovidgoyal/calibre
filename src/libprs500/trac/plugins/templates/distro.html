@@ -18,6 +18,9 @@
       <div py:if="not distro.is_generic">
         First verify that you have a sufficiently new installation of python
         <pre class="wiki">python --version</pre> should return at least 2.5.1<br />
+        <p py:if="distro.os == 'gentoo'">
+            Make sure your python is compiled with the sqlite USE flag. 
+        </p>
         <br />
         Run the following commands in a terminal <span py:if="distro.as_root">as root</span>
         <pre class="wiki">${distro.command}</pre>
