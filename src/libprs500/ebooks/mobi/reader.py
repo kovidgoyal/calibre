@@ -26,6 +26,7 @@ except ImportError:
     import Image as PILImage
 
 from libprs500 import __appname__
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 from libprs500.ebooks.mobi import MobiError
 from libprs500.ebooks.mobi.huffcdic import HuffReader
 from libprs500.ebooks.mobi.palmdoc import decompress_doc
@@ -177,9 +178,12 @@ class MobiReader(object):
         self.processed_html = re.compile('<head>', re.IGNORECASE).sub(
             '<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n',
                                      self.processed_html)
-                
+        
+        soup = BeautifulSoup(self.processed_html.replace('> <', '>\n<'))
+        for elem in soup.findAll(['metadata', 'guide']):
+            elem.extract()
         htmlfile = os.path.join(output_dir, self.name+'.html') 
-        open(htmlfile, 'wb').write(self.processed_html.encode('utf8'))
+        open(htmlfile, 'wb').write(unicode(soup).encode('utf8'))
         self.htmlfile = htmlfile
         
         if self.book_header.exth is not None:
