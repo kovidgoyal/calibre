@@ -29,6 +29,7 @@ class ZeitNachrichten(DefaultProfile):
     max_articles_per_feed = 40
     html_description = True
     no_stylesheets = True
+    encoding = 'latin1'
 
     
     def get_feeds(self): 
