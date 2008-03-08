@@ -120,7 +120,7 @@ class Server(object):
         
         started = p.waitForStarted(30000) # Wait at most 30 secs
         if not started:
-            raise RuntimeError('Could not run job: %s %s'%(func, args))
+            raise RuntimeError('Could not run job: %s %s\nError: '%(func, args, p.errorString()))
         
         while p.state() == QProcess.Running:
             if job_id in self.kill_jobs:
