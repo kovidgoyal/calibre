@@ -7,6 +7,8 @@ from functools import partial
 #from pyvix.vix import Host, VIX_SERVICEPROVIDER_VMWARE_WORKSTATION
 import pysvn
 
+from libprs500 import __version__, __appname__
+
 PREFIX = "/var/www/vhosts/kovidgoyal.net/subdomains/libprs500"
 DOWNLOADS = PREFIX+"/httpdocs/downloads"
 DOCS = PREFIX+"/httpdocs/apidocs"
@@ -18,7 +20,6 @@ check_call = partial(_check_call, shell=True)
 
 
 def tag_release():
-    from libprs500 import __version__
     print 'Tagging release'
     base = 'https://kovid@svn.kovidgoyal.net/code/libprs500' 
     tag = base + '/tags/'+__version__
@@ -64,17 +65,17 @@ def build_installer(installer, vm, timeout=25):
         
     return os.path.basename(installer)
 
+def installer_name(ext):
+    return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
 
 def build_windows():
-    from libprs500 import __version__
-    installer = 'dist/libprs500-%s.exe'%__version__
+    installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
     return build_installer(installer, vm, 20)
     
 
 def build_osx():
-    from libprs500 import __version__
-    installer = 'dist/libprs500-%s.dmg'%__version__
+    installer = installer_name('dmg')
     vm = '/vmware/Mac OSX/Mac OSX.vmx'
     return build_installer(installer, vm, 20)
 
@@ -94,13 +95,14 @@ def upload_demo():
     check_call('cd src/libprs500/ebooks/lrf/txt/demo/ && zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf')
     check_call('''scp /tmp/txt-demo.zip castalia:%s/'''%(DOWNLOADS,))
 
-def upload_installers(exe, dmg):
-    if exe and os.path.exists(os.path.join('dist', exe)):
+def upload_installers():
+    exe, dmg = installer_name('exe'), installer_name('dmg')
+    if exe and os.path.exists(exe):
         check_call('''ssh castalia rm -f %s/libprs500\*.exe'''%(DOWNLOADS,))
-        check_call('''scp dist/%s castalia:%s/'''%(exe, DOWNLOADS))
+        check_call('''scp %s castalia:%s/'''%(exe, DOWNLOADS))
         check_call('''ssh castalia rm -f %s/libprs500\*.dmg'''%(DOWNLOADS,))
-    if dmg and os.path.exists(os.path.join('dist', dmg)):
-        check_call('''scp dist/%s castalia:%s/'''%(dmg, DOWNLOADS))
+    if dmg and os.path.exists(dmg):
+        check_call('''scp %s castalia:%s/'''%(dmg, DOWNLOADS))
         check_call('''ssh castalia chmod a+r %s/\*'''%(DOWNLOADS,))
         check_call('''ssh castalia /root/bin/update-installer-links %s %s'''%(exe, dmg))
 
@@ -131,10 +133,10 @@ def main():
     check_call('svn commit -m "Updated translations" src/libprs500/translations')
     tag_release()
     upload_demo()
-    exe, dmg = build_installers()
+    build_installers()
     if upload:
         print 'Uploading installers...'
-        upload_installers(exe, dmg)
+        upload_installers()
         print 'Uploading to PyPI'
         check_call('''python setup.py register bdist_egg --exclude-source-files upload''')
         upload_docs()

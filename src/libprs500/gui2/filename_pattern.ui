@@ -29,7 +29,7 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>&lt;p>Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;p>A &lt;a href="http://docs.python.org/lib/re-syntax.html">reference&lt;/a> on the syntax of regular expressions is available.&lt;p>Use the &lt;b>Test&lt;/b> functionality below to test you regular expression on a few sample filenames.</string>
+      <string>&lt;p>Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;p>A &lt;a href="http://docs.python.org/lib/re-syntax.html">reference&lt;/a> on the syntax of regular expressions is available.&lt;p>Use the &lt;b>Test&lt;/b> functionality below to test your regular expression on a few sample filenames.</string>
      </property>
      <property name="textFormat" >
       <enum>Qt::RichText</enum>
