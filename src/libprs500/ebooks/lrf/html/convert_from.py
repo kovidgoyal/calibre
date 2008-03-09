@@ -1010,7 +1010,8 @@ class HTMLConverter(object):
             self.end_page()
             self.page_break_found = True
         if not self.page_break_found and self.page_break.match(tagname):
-            if len(self.current_page.contents) > 3:
+            num = len([1 for i in self.current_block.contents if isinstance(i, Paragraph)])
+            if len(self.current_page.contents) > 3 or num > 3:
                 self.end_page()
                 self.logger.debug('Forcing page break at %s', tagname)
         return end_page
