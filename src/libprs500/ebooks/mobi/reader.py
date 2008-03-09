@@ -237,10 +237,12 @@ class MobiReader(object):
                                                       self.processed_html)
     
     def add_anchors(self):
-        positions = []
+        positions = set([])
         link_pattern = re.compile(r'<a\s+filepos=(\d+)', re.IGNORECASE)
         for match in link_pattern.finditer(self.mobi_html):
-            positions.append(int(match.group(1)))
+            positions.add(int(match.group(1)))
+        positions = list(positions)
+        positions.sort()
         pos = 0
         self.processed_html = ''
         for end in positions:
@@ -249,11 +251,11 @@ class MobiReader(object):
             r = self.mobi_html.find('>', end)
             if r > -1 and r < l: # Move out of tag
                 end = r+1
-            self.processed_html += self.mobi_html[pos:end] + '<a name="%d" />'%oend
+            self.processed_html += self.mobi_html[pos:end] + '<a name="filepos%d" />'%oend 
             pos = end
             
         self.processed_html += self.mobi_html[pos:]
-        self.processed_html = link_pattern.sub(lambda match: '<a href="#%d"'%int(match.group(1)), 
+        self.processed_html = link_pattern.sub(lambda match: '<a href="#filepos%d"'%int(match.group(1)), 
                                                self.processed_html)
                 
     
