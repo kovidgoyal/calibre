@@ -90,6 +90,7 @@ class BookInfoDisplay(QFrame):
 class MovieButton(QFrame):
     def __init__(self, movie, jobs_dialog):
         QFrame.__init__(self)
+        movie.setCacheMode(QMovie.CacheAll)
         self.setLayout(QVBoxLayout())
         self.movie_widget = QLabel()
         self.movie_widget.setMovie(movie)
@@ -160,7 +161,6 @@ class StatusBar(QStatusBar):
         if self.movie_button.movie.state() == QMovie.Running:
             self.movie_button.movie.jumpToFrame(0)
             self.movie_button.movie.stop()
-            self.movie_button.movie.jumpToFrame(0)
         
 if __name__ == '__main__':
     # Used to create the animated status icon
