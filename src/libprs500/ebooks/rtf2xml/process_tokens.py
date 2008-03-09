@@ -618,7 +618,7 @@ class ProcessTokens:
                 type = 'Arabic'
         return 'cw<%s<%s<nu<%s\n' % (pre, token, type)
     def __language_func(self, pre, token, num):
-        lang_name = self.__language_dict.get(int(num))
+        lang_name = self.__language_dict.get(int(re.search('[0-9]+', num).group()))
         if not lang_name:
             lang_name = "not defined"
             if self.__run_level > 3:
@@ -678,7 +678,7 @@ class ProcessTokens:
         return the_string
     def divide_num(self, numerator, denominator):
         try:
-            numerator = float(numerator)
+            numerator = float(re.search('[0-9.]+', numerator).group())            
         except TypeError, msg:
             if self.__run_level > 3:
                 msg = 'no number to process?\n'
