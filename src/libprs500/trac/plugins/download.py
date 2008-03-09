@@ -51,7 +51,8 @@ class Distribution(object):
         ('convertlit', '1.8', 'convertlit', None, None),
         ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
         ('librsvg', '2.0.0', 'librsvg', 'librsvg2-bin', 'librsvg2'),
-        ('genshi', '0.4.4', 'genshi', 'python-genshi', 'python-genshi')
+        ('genshi', '0.4.4', 'genshi', 'python-genshi', 'python-genshi'),
+        ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
     
     DISTRO_MAP = {'gentoo':2, 'ubuntu':3, 'fedora':4, 'debian':3}
