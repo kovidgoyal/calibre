@@ -145,7 +145,7 @@ class StatusBar(QStatusBar):
         text = src.replace(str(num), str(nnum))
         jobs.setText(text)
         if self.movie_button.movie.state() == QMovie.Paused:
-            self.movie_button.movie.start()
+            self.movie_button.movie.setPaused(False)
             
     def job_done(self, id):
         jobs = self.movie_button.jobs
@@ -160,7 +160,7 @@ class StatusBar(QStatusBar):
     def no_more_jobs(self):
         if self.movie_button.movie.state() == QMovie.Running:
             self.movie_button.movie.jumpToFrame(0)
-            self.movie_button.movie.stop()
+            self.movie_button.movie.setPaused(True)
         
 if __name__ == '__main__':
     # Used to create the animated status icon
