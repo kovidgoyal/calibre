@@ -105,7 +105,7 @@ class MovieButton(QFrame):
         self.jobs.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.jobs_dialog = jobs_dialog
         self.setCursor(Qt.PointingHandCursor)
-        self.setToolTip('Click to see list of active jobs.')
+        self.setToolTip(_('Click to see list of active jobs.'))
         movie.start()
         movie.setPaused(True)
         self.jobs_dialog.jobs_view.restore_column_widths()
