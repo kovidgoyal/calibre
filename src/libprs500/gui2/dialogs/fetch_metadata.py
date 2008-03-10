@@ -30,6 +30,7 @@ class Matches(QAbstractTableModel):
     
     def __init__(self, matches):
         self.matches = matches
+        self.matches.sort(cmp=lambda b, a: cmp(len(a.comments if a.comments else ''), len(b.comments if b.comments else '')))
         QAbstractTableModel.__init__(self)
         
     def rowCount(self, *args):
@@ -53,6 +54,9 @@ class Matches(QAbstractTableModel):
         else: 
             return QVariant(section+1)
         
+    def summary(self, row):
+        return self.matches[row].comments
+    
     def data(self, index, role):
         row, col = index.row(), index.column()
         if role == Qt.DisplayRole:
@@ -91,6 +95,16 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.title = title
         self.author = author.strip()
         self.publisher = publisher
+        self.previous_row = None
+        
+        
+        
+    def show_summary(self, current, previous):
+        row  = current.row()
+        if row != self.previous_row:
+            summ =  self.model.summary(row)
+            self.summary.setText(summ if summ else '')
+            self.previous_row = row
         
     def fetch_metadata(self):
         key = str(self.key.text())
@@ -132,6 +146,8 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.model = Matches(books)
         
         self.matches.setModel(self.model)
+        QObject.connect(self.matches.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
+                     self.show_summary)
         self.model.reset()
         self.matches.selectionModel().select(self.model.index(0, 0), 
                               QItemSelectionModel.Select | QItemSelectionModel.Rows)
@@ -139,6 +155,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.fetch.setEnabled(True)
         self.unsetCursor()
         self.matches.resizeColumnsToContents()
+        
 
 
     def selected_book(self):

@@ -287,6 +287,12 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     if book.author_sort: self.author_sort.setText(book.author_sort)
                     self.publisher.setText(book.publisher)
                     self.isbn.setText(book.isbn)
+                    summ = book.comments
+                    if summ:
+                        prefix = qstring_to_unicode(self.comments.text())
+                        if prefix:
+                            prefix += '\n'
+                        self.comments.setText(prefix + summ)
         else:
             error_dialog(self, 'Cannot fetch metadata', 'You must specify at least one of ISBN, Title, Authors or Publisher')
              

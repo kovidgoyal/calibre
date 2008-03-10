@@ -23,7 +23,7 @@ from libprs500 import setup_cli_handlers, OptionParser
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
 
-BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&page_number=1&results=subjects,authors&'
+BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&page_number=1&results=subjects,authors,texts&'
 
 class ISBNDBError(Exception):
     pass
@@ -56,6 +56,7 @@ def fetch_metadata(url, max=100, timeout=5.):
     
 
 class ISBNDBMetadata(MetaInformation):
+    
     def __init__(self, book):
         MetaInformation.__init__(self, None, [])
         
@@ -76,6 +77,11 @@ class ISBNDBMetadata(MetaInformation):
         except:
             pass
         self.publisher = book.find('publishertext').string
+        
+        summ = book.find('summary')
+        if summ and hasattr(summ, 'string') and summ.string:
+            self.comments = 'SUMMARY:\n'+summ.string
+        
         
 
 def build_isbn(base_url, opts):
