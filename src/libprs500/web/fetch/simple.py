@@ -184,9 +184,9 @@ class RecursiveFetcher(object):
         c = 0
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
             iurl, ext = tag['src'], os.path.splitext(tag['src'])[1]
-            if not ext:
-                self.logger.debug('Skipping extensionless image %s', iurl)
-                continue
+            #if not ext:
+            #    self.logger.debug('Skipping extensionless image %s', iurl)
+            #    continue
             if not urlparse.urlsplit(iurl).scheme:
                 iurl = urlparse.urljoin(baseurl, iurl, False)
             with self.imagemap_lock:
