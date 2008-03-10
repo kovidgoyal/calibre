@@ -16,7 +16,8 @@
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2
+from __future__ import with_statement
+import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2, threading
 from urllib import url2pathname
 from httplib import responses
 
@@ -54,7 +55,7 @@ class RecursiveFetcher(object):
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     
-    def __init__(self, options, logger):
+    def __init__(self, options, logger, image_map={}):
         self.logger = logger
         self.base_dir = os.path.abspath(os.path.expanduser(options.dir))
         if not os.path.exists(self.base_dir):
@@ -71,7 +72,8 @@ class RecursiveFetcher(object):
         self.delay = options.delay
         self.last_fetch_at = 0.
         self.filemap = {}
-        self.imagemap = {}
+        self.imagemap = image_map
+        self.imagemap_lock = threading.RLock()
         self.stylemap = {}
         self.current_dir = self.base_dir
         self.files = 0
@@ -187,9 +189,10 @@ class RecursiveFetcher(object):
                 continue
             if not urlparse.urlsplit(iurl).scheme:
                 iurl = urlparse.urljoin(baseurl, iurl, False)
-            if self.imagemap.has_key(iurl):
-                tag['src'] = self.imagemap[iurl]
-                continue
+            with self.imagemap_lock:
+                if self.imagemap.has_key(iurl):
+                    tag['src'] = self.imagemap[iurl]
+                    continue
             try:
                 f = self.fetch_url(iurl)
             except Exception, err:
@@ -198,7 +201,8 @@ class RecursiveFetcher(object):
                 continue
             c += 1
             imgpath = os.path.join(diskpath, sanitize_file_name('img'+str(c)+ext))
-            self.imagemap[iurl] = imgpath
+            with self.imagemap_lock:
+                self.imagemap[iurl] = imgpath
             open(imgpath, 'wb').write(f.read())
             tag['src'] = imgpath
 
@@ -329,12 +333,12 @@ def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com
     return parser
 
 
-def create_fetcher(options, logger=None):
+def create_fetcher(options, logger=None, image_map={}):
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('web2disk')
         setup_cli_handlers(logger, level)
-    return RecursiveFetcher(options, logger)
+    return RecursiveFetcher(options, logger, image_map={})
 
 def main(args=sys.argv):
     parser = option_parser()    
