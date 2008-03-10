@@ -90,7 +90,7 @@ class BookHeader(object):
         self.doctype = raw[16:20]
         self.length, self.type, self.codepage, self.unique_id, self.version = \
                  struct.unpack('>LLLLL', raw[20:40])
-        
+                
         if ident == 'TEXTREAD':
             self.codepage = 1252
         
@@ -103,17 +103,15 @@ class BookHeader(object):
             print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
             self.codec = 'cp1252'
         
-        if ident == 'TEXTREAD' or self.length < 0xF4:
+        if ident == 'TEXTREAD' or self.length != 0xE4:
             self.extra_flags = 0
         else:
             self.extra_flags, = struct.unpack('>L', raw[0xF0:0xF4])
-        
         
         if self.compression_type == 'DH':
             self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78]) 
         
         self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
-        
         self.exth = None
         if self.exth_flag & 0x40:
             self.exth = EXTHHeader(raw[16+self.length:], self.codec)
