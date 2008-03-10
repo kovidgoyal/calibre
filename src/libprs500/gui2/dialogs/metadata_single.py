@@ -289,7 +289,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     self.isbn.setText(book.isbn)
                     summ = book.comments
                     if summ:
-                        prefix = qstring_to_unicode(self.comments.text())
+                        prefix = qstring_to_unicode(self.comments.toPlainText())
                         if prefix:
                             prefix += '\n'
                         self.comments.setText(prefix + summ)
