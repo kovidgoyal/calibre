@@ -22,6 +22,9 @@ from functools import partial
 from PyQt4.uic import compileUi
 
 check_call = partial(subprocess.check_call, shell=True)
+sys.path.insert(1, os.path.abspath('..%s..'%os.sep))
+
+from libprs500 import __appname__
 
 def find_forms():
     forms = []
@@ -43,6 +46,7 @@ def build_forms(forms):
             buf = cStringIO.StringIO()
             compileUi(form, buf)
             dat = buf.getvalue()
+            dat = dat.replace('__appname__', __appname__)
             dat = dat.replace('import images_rc', 'from libprs500.gui2 import images_rc')
             dat = dat.replace('from library import', 'from libprs500.gui2.library import')
             dat = dat.replace('from widgets import', 'from libprs500.gui2.widgets import')

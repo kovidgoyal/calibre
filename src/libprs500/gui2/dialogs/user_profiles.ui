@@ -283,7 +283,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QLabel" name="label_8" >
            <property name="text" >
-            <string>For help with writing advanced news profiles, please visit &lt;a href="https://libprs500.kovidgoyal.net/wiki/UserProfiles">UserProfiles&lt;/a></string>
+            <string>For help with writing advanced news profiles, please visit &lt;a href="https://__appname__.kovidgoyal.net/wiki/UserProfiles">UserProfiles&lt;/a></string>
            </property>
            <property name="wordWrap" >
             <bool>true</bool>
