@@ -152,7 +152,7 @@
            <item>
             <widget class="QSpinBox" name="timeout" >
              <property name="toolTip" >
-              <string>Set the default timeout for network fetches (i.e. anytime libprs500 foes out to the internet to get information)</string>
+              <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
              </property>
              <property name="suffix" >
               <string> seconds</string>
