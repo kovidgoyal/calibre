@@ -190,14 +190,17 @@ class ProgressBar:
         self.cleared = 1 #: true if we haven't drawn the bar yet.
         
     def update(self, percent, message=''):
+        if isinstance(message, unicode):
+            message = message.encode('utf-8', 'ignore')
         if self.cleared:
             sys.stdout.write(self.header)
             self.cleared = 0
         n = int((self.width-10)*percent)
+        msg = message.center(self.width)
         sys.stdout.write(
         self.term.BOL + self.term.UP + self.term.CLEAR_EOL +
         (self.bar % (100*percent, '='*n, '-'*(self.width-10-n))) +
-        self.term.CLEAR_EOL + message.center(self.width))
+        self.term.CLEAR_EOL + msg)
     
     def clear(self):
         if not self.cleared:

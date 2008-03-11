@@ -77,14 +77,22 @@ class RecursiveFetcher(object):
         self.stylemap = {}
         self.current_dir = self.base_dir
         self.files = 0
-        self.preprocess_regexps = []
+        self.preprocess_regexps  = getattr(options, 'preprocess_regexps', [])
+        self.remove_tags         = getattr(options, 'remove_tags', [])
+        self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup) 
         self.download_stylesheets = not options.no_stylesheets
+        self.show_progress = True
                
 
     def get_soup(self, src):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
-        return BeautifulSoup(xml_to_unicode(src, self.verbose)[0], markupMassage=nmassage)
+        soup = BeautifulSoup(xml_to_unicode(src, self.verbose)[0], markupMassage=nmassage)
+        for kwds in self.remove_tags:
+            for tag in soup.findAll(**kwds):
+                tag.extract()
+        return self.preprocess_html_ext(soup)
+        
 
     def fetch_url(self, url):
         f = None
@@ -249,7 +257,9 @@ class RecursiveFetcher(object):
         try:
             self.current_dir = diskpath
             for tag in soup.findAll(lambda tag: tag.name.lower()=='a' and tag.has_key('href')):
-                print '.',
+                if self.show_progress:
+                    print '.',
+                    sys.stdout.flush()
                 sys.stdout.flush()
                 iurl = self.absurl(baseurl, tag, 'href')
                 if not iurl:
@@ -301,7 +311,8 @@ class RecursiveFetcher(object):
                     self.files += 1                
         finally:
             self.current_dir = prev_dir
-        print
+        if self.show_progress:
+            print
         return res
     
     def __del__(self):
@@ -327,7 +338,6 @@ def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com
                       help='Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --filter-regexp is applied first.')
     parser.add_option('--dont-download-stylesheets', action='store_true', default=False,
                       help='Do not download CSS stylesheets.', dest='no_stylesheets')
-
     parser.add_option('--verbose', help='Show detailed output information. Useful for debugging',
                       default=False, action='store_true', dest='verbose')
     return parser

@@ -17,7 +17,7 @@ from libprs500.web.feeds.news import BasicNewsRecipe
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 ''''''
 
-import sys, os
+import sys, os, logging
 from libprs500.web.recipes import get_feed, compile_recipe
 from libprs500.web.fetch.simple import option_parser as _option_parser
 
@@ -53,26 +53,38 @@ If you specify this option, any argument to %prog is ignored and a default recip
     p.add_option('--lrf', default=False, action='store_true', help='Optimize fetching for subsequent conversion to LRF.')
     p.add_option('--recursions', default=0, type='int',
                  help=_('Number of levels of links to follow on webpages that are linked to from feeds. Defaul %default'))
+    p.add_option('--output-dir', default=os.getcwd(), 
+                 help=_('The directory in which to store the downloaded feeds. Defaults to the current directory.'))
+    p.add_option('--no-progress-bar', dest='progress_bar', default=True, action='store_false',
+                 help=_('Dont show the progress bar'))
+    p.add_option('--debug', action='store_true', default=False,
+                 help='Very verbose output, useful for debugging.')
     
     return p
     
-def simple_progress_bar(*args):
-    print '%d%%'%(args[0]*100),
+def simple_progress_bar(percent, msg):
+    print '%d%%'%(percent*100),
     sys.stdout.flush()
+    
+def no_progress_bar(percent, msg):
+    print msg
 
-def main(args=sys.argv, notification=None):
+def main(args=sys.argv, notification=None, handler=None):
     p = option_parser()
     opts, args = p.parse_args(args)
     
     if notification is None:
         from libprs500.terminfo import TerminalController, ProgressBar
         term = TerminalController(sys.stdout)
-        try:
-            pb = ProgressBar(term, _('Fetching feeds...'))
-            notification = pb.update
-        except ValueError:
-            notification = simple_progress_bar
-            print _('Fetching feeds...')
+        if opts.progress_bar:
+            try:
+                pb = ProgressBar(term, _('Fetching feeds...'))
+                notification = pb.update
+            except ValueError:
+                notification = simple_progress_bar
+                print _('Fetching feeds...')
+        else:
+            notification = no_progress_bar
         
     if len(args) != 2:
         p.print_help()
@@ -98,11 +110,15 @@ def main(args=sys.argv, notification=None):
         print args[1], 'is an invalid recipe'
         return 1
     
-    recipe = recipe(opts, p, notification)
-    index  = recipe.download()
-     
-
+    if handler is None:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.DEBUG if opts.debug else logging.INFO if opts.verbose else logging.WARN)
+        handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+        logging.getLogger('feeds2disk').addHandler(handler)
     
+    recipe = recipe(opts, p, notification)
+    recipe.download()
+        
     return 0
 
 if __name__ == '__main__':
