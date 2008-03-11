@@ -186,7 +186,7 @@ if __name__ == '__main__':
             pixmaps.append(pm)
         return pixmaps
 
-    def create_mng(path='/home/kovid/work/libprs500/src/libprs500/gui2/images/jobs.svg', size=64, angle=5, delay=5):
+    def create_mng(path='', size=64, angle=5, delay=5):
         pixmaps = create_pixmaps(path, size, angle)
         filesl = []
         for i in range(len(pixmaps)):

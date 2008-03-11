@@ -17,14 +17,14 @@ import urllib, re, traceback
 
 from PyQt4.QtCore import QThread, SIGNAL
 
-from libprs500 import __version__
+from libprs500 import __version__, __appname__
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
 class CheckForUpdates(QThread):
     
     def run(self):
         try:
-            src = urllib.urlopen('http://pypi.python.org/pypi/libprs500').read()
+            src = urllib.urlopen('http://pypi.python.org/pypi/'+__appname__).read()
             soup = BeautifulSoup(src)
             meta = soup.find('link', rel='meta', title='DOAP')
             if meta:
