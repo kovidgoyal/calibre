@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
 Provides metadata editing support for PDF and RTF files. For LRF metadata, use 
-the L{libprs500.lrf.meta} module.
+the L{lrf.meta} module.
 """
 __docformat__ = "epytext"
 __author__       = "Kovid Goyal <kovid@kovidgoyal.net>"
