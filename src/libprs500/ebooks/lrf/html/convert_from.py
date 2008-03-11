@@ -204,7 +204,7 @@ class HTMLConverter(object):
         the object, you must call L{self.writeto} to output the LRF/S file.
         
         @param book: The LRF book 
-        @type book:  L{libprs500.lrf.pylrs.Book}
+        @type book:  L{lrf.pylrs.Book}
         @param fonts: dict specifying the font families to use
         '''
         # Defaults for various formatting tags        
@@ -1554,7 +1554,7 @@ class HTMLConverter(object):
                 if (self.anchor_ids and tag.has_key('id')) or \
                    (self.book_designer and tag.has_key('class') and tag['class']=='title'):
                     if not tag.has_key('id'):
-                        tag['id'] = 'libprs500_id_'+str(self.id_counter)
+                        tag['id'] = __appname__+'_id_'+str(self.id_counter)
                         self.id_counter += 1 
             
                     tkey = self.target_prefix+tag['id']
