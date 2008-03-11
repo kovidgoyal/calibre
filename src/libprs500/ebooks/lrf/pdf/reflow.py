@@ -19,7 +19,7 @@ Convert PDF to a reflowable format using pdftoxml.exe as the PDF parsing backend
 import sys, os, re, tempfile, subprocess, atexit, shutil, logging, xml.parsers.expat
 from xml.etree.ElementTree import parse
 
-from libprs500 import isosx, OptionParser, setup_cli_handlers
+from libprs500 import isosx, OptionParser, setup_cli_handlers, __appname__
 from libprs500.ebooks import ConversionError
 
 PDFTOXML = 'pdftoxml.exe'
@@ -364,7 +364,7 @@ class PDFConverter(object):
     @classmethod
     def generate_xml(cls, pathtopdf, logger):
         pathtopdf = os.path.abspath(pathtopdf)
-        tdir = tempfile.mkdtemp('pdf2xml', 'libprs500')
+        tdir = tempfile.mkdtemp('pdf2xml', __appname__)
         atexit.register(shutil.rmtree, tdir)
         xmlfile = os.path.basename(pathtopdf)+'.xml'
         os.chdir(tdir)

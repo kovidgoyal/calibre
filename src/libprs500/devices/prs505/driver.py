@@ -21,7 +21,7 @@ from itertools import cycle
 from libprs500.devices.interface import Device
 from libprs500.devices.errors import DeviceError, FreeSpaceError
 from libprs500.devices.prs505.books import BookList, fix_ids
-from libprs500 import iswindows, islinux, isosx
+from libprs500 import iswindows, islinux, isosx, __appname__
 from libprs500.devices.errors import PathError
 
 class File(object):
@@ -54,7 +54,7 @@ class PRS505(Device):
     OSX_SD_NAME               = 'Sony PRS-505/UC:SD Media'
     OSX_MS_NAME               = 'Sony PRS-505/UC:MS Media'
     
-    CARD_PATH_PREFIX          = 'libprs500'
+    CARD_PATH_PREFIX          = __appname__
     
     FDI_TEMPLATE = \
 '''
@@ -64,7 +64,7 @@ class PRS505(Device):
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                   <match key="volume.is_partition" bool="false">
                       <merge key="volume.label" type="string">%(main_memory)s</merge>
-                      <merge key="libprs500.mainvolume" type="string">%(deviceclass)s</merge>
+                      <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
                   </match>
               </match>
           </match>
@@ -76,13 +76,13 @@ class PRS505(Device):
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
                   <match key="volume.is_partition" bool="true">
                       <merge key="volume.label" type="string">%(storage_card)s</merge>
-                      <merge key="libprs500.cardvolume" type="string">%(deviceclass)s</merge>
+                      <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
                   </match>
               </match>
           </match>
       </match>
   </device>
-'''
+'''%dict(app=__appname__)
     
     
     def __init__(self, log_packets=False):
@@ -139,7 +139,7 @@ class PRS505(Device):
     
     def open_windows(self):
         drives = []
-        import wmi
+        wmi = __import__('wmi', globals(), locals(), [], -1) 
         c = wmi.WMI()
         for drive in c.Win32_DiskDrive():
             if self.__class__.is_device(str(drive.PNPDeviceID)):
@@ -181,7 +181,7 @@ class PRS505(Device):
             return os.path.normpath('/media/'+label)+'/'
     
         
-        mm = hm.FindDeviceStringMatch('libprs500.mainvolume', self.__class__.__name__)
+        mm = hm.FindDeviceStringMatch(__appname__+'.mainvolume', self.__class__.__name__)
         if not mm:
             raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
         self._main_prefix = None
@@ -197,7 +197,7 @@ class PRS505(Device):
             raise DeviceError('Could not open device for reading. Try a reboot.')
             
         self._card_prefix = None
-        cards = hm.FindDeviceStringMatch('libprs500.cardvolume', self.__class__.__name__)
+        cards = hm.FindDeviceStringMatch(__appname__+'.cardvolume', self.__class__.__name__)
         keys = []
         for card in cards:
             keys.append(int('UC_SD' in bus.get_object("org.freedesktop.Hal", card).GetPropertyString('info.parent', dbus_interface='org.freedesktop.Hal.Device')))
@@ -261,7 +261,7 @@ class PRS505(Device):
     def _windows_space(cls, prefix):
         if prefix is None:
             return 0, 0
-        import win32file
+        win32file = __import__('win32file', globals(), locals(), [], -1)
         sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
                 win32file.GetDiskFreeSpace(prefix[:-1])
         mult = sectors_per_cluster * bytes_per_sector

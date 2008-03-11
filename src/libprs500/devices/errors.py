@@ -13,7 +13,7 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 """
-Defines the errors that the libprs500 device drivers generate.
+Defines the errors that the device drivers generate.
 
 G{classtree ProtocolError}
 """

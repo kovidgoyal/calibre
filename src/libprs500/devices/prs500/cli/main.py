@@ -21,7 +21,7 @@ For usage information run the script.
 import StringIO, sys, time, os
 from optparse import OptionParser
 
-from libprs500 import __version__, iswindows
+from libprs500 import __version__, iswindows, __appname__
 from libprs500.devices.errors import PathError 
 from libprs500.terminfo import TerminalController
 from libprs500.devices.errors import ArgumentError, DeviceError, DeviceLocked
@@ -193,7 +193,7 @@ def main():
         cols = 80
     
     parser = OptionParser(usage="usage: %prog [options] command args\n\ncommand is one of: info, books, df, ls, cp, mkdir, touch, cat, rm\n\n"+
-    "For help on a particular command: %prog command", version="libprs500 version: " + __version__)
+    "For help on a particular command: %prog command", version=__appname__+" version: " + __version__)
     parser.add_option("--log-packets", help="print out packet stream to stdout. "+\
                     "The numbers in the left column are byte offsets that allow the packet size to be read off easily.", 
     dest="log_packets", action="store_true", default=False)

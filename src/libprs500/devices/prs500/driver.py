@@ -58,9 +58,9 @@ from libprs500.devices.libusb import get_device_by_id
 from libprs500.devices.prs500.prstypes import *
 from libprs500.devices.errors import *
 from libprs500.devices.prs500.books import BookList, fix_ids
-from libprs500 import __author__
+from libprs500 import __author__, __appname__
 
-# Protocol versions libprs500 has been tested with
+# Protocol versions this driver has been tested with
 KNOWN_USB_PROTOCOL_VERSIONS = [0x3030303030303130L] 
 
 
@@ -111,7 +111,7 @@ class PRS500(Device):
     # Height for thumbnails of books/images on the device
     THUMBNAIL_HEIGHT = 68
     # Directory on card to which books are copied
-    CARD_PATH_PREFIX = 'libprs500'
+    CARD_PATH_PREFIX = __appname__
     _packet_number = 0     #: Keep track of the packet number for packet tracing
     
     def log_packet(self, packet, header, stream=sys.stderr):
