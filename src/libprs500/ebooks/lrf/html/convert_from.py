@@ -212,10 +212,10 @@ class HTMLConverter(object):
         self.logger = logger        
         self.fonts = fonts #: dict specifying font families to use
         # Memory 
-        self.scaled_images = {}    #: Temporary files with scaled version of images        
-        self.rotated_images = {}  #: Temporary files with rotated version of images        
-        self.text_styles      = []#: Keep track of already used textstyles
-        self.block_styles     = []#: Keep track of already used blockstyles
+        self.scaled_images    = {}    #: Temporary files with scaled version of images        
+        self.rotated_images   = {}    #: Temporary files with rotated version of images        
+        self.text_styles      = []    #: Keep track of already used textstyles
+        self.block_styles     = []    #: Keep track of already used blockstyles
         self.images  = {}      #: Images referenced in the HTML document
         self.targets = {}      #: <a name=...> and id elements
         self.links   = deque() #: <a href=...> elements        
@@ -499,6 +499,24 @@ class HTMLConverter(object):
         elif self.current_page and self.current_page.has_text():
             self.book.append(self.current_page)
             self.current_page = None
+        
+        if not top.has_text() and top.parent.contents.index(top) == len(top.parent.contents)-1:
+            top.parent.contents.remove(top)
+            opage = top.parent
+            if self.book.last_page() is opage:
+                if self.current_page and self.current_page.has_text():
+                    for c in self.current_page.contents:
+                        if isinstance(c, (TextBlock, ImageBlock)):
+                            return c
+                raise ConversionError(_('Could not parse file: %s')%self.file_name)
+            else:
+                index = self.book.pages().index(opage)
+                for page in list(self.book.pages()[index+1:]):
+                    for c in page.contents:
+                        if isinstance(c, (TextBlock, ImageBlock)):
+                            return c
+                raise ConversionError(_('Could not parse file: %s')%self.file_name)        
+                    
         
         return top
             
@@ -1381,7 +1399,7 @@ class HTMLConverter(object):
                                 self.targets[self.target_prefix+tag[key]] = self.current_block
                                 self.current_block.must_append = True
                     else:
-                        self.logger.warn('Could not follow link to '+tag['href'])
+                        self.logger.debug('Could not follow link to '+tag['href'])
                         self.process_children(tag, tag_css, tag_pseudo_css)
                 elif tag.has_key('name') or tag.has_key('id'):
                     self.process_anchor(tag, tag_css, tag_pseudo_css)                            
