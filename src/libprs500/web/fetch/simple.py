@@ -17,12 +17,12 @@ Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
 from __future__ import with_statement
-import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2, threading
+import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2, threading, traceback
 from urllib import url2pathname
 from httplib import responses
 
 from libprs500 import setup_cli_handlers, browser, sanitize_file_name, OptionParser
-from libprs500.ebooks.BeautifulSoup import BeautifulSoup
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from libprs500.ebooks.chardet import xml_to_unicode
 
 class FetchError(Exception):
@@ -37,10 +37,11 @@ def basename(url):
     return res
 
 def save_soup(soup, target):
-    for meta in soup.findAll('meta', content=True):
+    nm = Tag(soup, '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
+    for meta in soup.find('meta', content=True):
         if 'charset' in meta['content']:
-            meta.extract()
-    f = codecs.open(target, 'w', 'utf8')
+            meta.replaceWith(nm)
+    f = codecs.open(target, 'w', 'utf-8')
     f.write(unicode(soup))
     f.close()
 
@@ -55,7 +56,7 @@ class RecursiveFetcher(object):
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     
-    def __init__(self, options, logger, image_map={}):
+    def __init__(self, options, logger, image_map={}, css_map={}):
         self.logger = logger
         self.base_dir = os.path.abspath(os.path.expanduser(options.dir))
         if not os.path.exists(self.base_dir):
@@ -74,20 +75,44 @@ class RecursiveFetcher(object):
         self.filemap = {}
         self.imagemap = image_map
         self.imagemap_lock = threading.RLock()
-        self.stylemap = {}
+        self.stylemap = css_map
+        self.stylemap_lock = threading.RLock()
+        self.downloaded_paths = []
         self.current_dir = self.base_dir
         self.files = 0
         self.preprocess_regexps  = getattr(options, 'preprocess_regexps', [])
         self.remove_tags         = getattr(options, 'remove_tags', [])
+        self.remove_tags_after   = getattr(options, 'remove_tags_after', None)
+        self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
         self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup) 
+        self.postprocess_html_ext= getattr(options, 'postprocess_html', lambda soup: soup)
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
+        self.failed_links = []
                
 
     def get_soup(self, src):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
         soup = BeautifulSoup(xml_to_unicode(src, self.verbose)[0], markupMassage=nmassage)
+         
+        if self.keep_only_tags:
+            body = Tag(soup, 'body')
+            for spec in self.keep_only_tags:
+                for tag in soup.find('body').findAll(**spec):
+                    body.insert(len(body.contents), tag)
+            soup.find('body').replaceWith(body)
+            
+        if self.remove_tags_after is not None:
+            tag = soup.find(**self.remove_tags_after)
+            while tag is not None and tag.name != 'body':
+                after = tag.nextSibling
+                while after is not None:
+                    ns = after.nextSibling
+                    after.extract()
+                    after = ns
+                tag = tag.parent
+            
         for kwds in self.remove_tags:
             for tag in soup.findAll(**kwds):
                 tag.extract()
@@ -105,7 +130,12 @@ class RecursiveFetcher(object):
         except urllib2.URLError, err:
             if hasattr(err, 'code') and responses.has_key(err.code):
                 raise FetchError, responses[err.code]
-            raise err
+            if err.reason[0] == 104: # Connection reset by peer
+                self.logger.debug('Connection reset by peer retrying in 1 second.')
+                time.sleep(1)
+                f = self.browser.open(url)
+            else: 
+                raise err
         finally:
             self.last_fetch_at = time.time()
         return f
@@ -146,9 +176,10 @@ class RecursiveFetcher(object):
                 iurl = tag['href']
                 if not urlparse.urlsplit(iurl).scheme:
                     iurl = urlparse.urljoin(baseurl, iurl, False)
-                if self.stylemap.has_key(iurl):
-                    tag['href'] = self.stylemap[iurl]
-                    continue
+                with self.stylemap_lock:
+                    if self.stylemap.has_key(iurl):
+                        tag['href'] = self.stylemap[iurl]
+                        continue
                 try:
                     f = self.fetch_url(iurl)
                 except Exception, err:
@@ -157,7 +188,8 @@ class RecursiveFetcher(object):
                     continue
                 c += 1
                 stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
-                self.stylemap[iurl] = stylepath
+                with self.stylemap_lock:
+                    self.stylemap[iurl] = stylepath
                 open(stylepath, 'wb').write(f.read())
                 tag['href'] = stylepath
             else:
@@ -168,9 +200,10 @@ class RecursiveFetcher(object):
                         iurl = m.group(1)
                         if not urlparse.urlsplit(iurl).scheme:
                             iurl = urlparse.urljoin(baseurl, iurl, False)
-                        if self.stylemap.has_key(iurl):
-                            ns.replaceWith(src.replace(m.group(1), self.stylemap[iurl]))
-                            continue
+                        with self.stylemap_lock:
+                            if self.stylemap.has_key(iurl):
+                                ns.replaceWith(src.replace(m.group(1), self.stylemap[iurl]))
+                                continue
                         try:
                             f = self.fetch_url(iurl)
                         except Exception, err:
@@ -179,7 +212,8 @@ class RecursiveFetcher(object):
                             continue
                         c += 1
                         stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
-                        self.stylemap[iurl] = stylepath
+                        with self.stylemap_lock:
+                            self.stylemap[iurl] = stylepath
                         open(stylepath, 'wb').write(f.read())
                         ns.replaceWith(src.replace(m.group(1), stylepath))
                         
@@ -214,7 +248,7 @@ class RecursiveFetcher(object):
             open(imgpath, 'wb').write(f.read())
             tag['src'] = imgpath
 
-    def absurl(self, baseurl, tag, key): 
+    def absurl(self, baseurl, tag, key, filter=True): 
         iurl = tag[key]
         parts = urlparse.urlsplit(iurl)
         if not parts.netloc and not parts.path:
@@ -224,7 +258,7 @@ class RecursiveFetcher(object):
         if not self.is_link_ok(iurl):
             self.logger.debug('Skipping invalid link: %s', iurl)
             return None
-        if not self.is_link_wanted(iurl):
+        if filter and not self.is_link_wanted(iurl):
             self.logger.debug('Filtered link: '+iurl)
             return None
         return iurl
@@ -256,12 +290,12 @@ class RecursiveFetcher(object):
         prev_dir = self.current_dir
         try:
             self.current_dir = diskpath
-            for tag in soup.findAll(lambda tag: tag.name.lower()=='a' and tag.has_key('href')):
+            for tag in soup.findAll('a', href=True):
                 if self.show_progress:
                     print '.',
                     sys.stdout.flush()
                 sys.stdout.flush()
-                iurl = self.absurl(baseurl, tag, 'href')
+                iurl = self.absurl(baseurl, tag, 'href', filter=recursion_level != 0)
                 if not iurl:
                     continue
                 nurl = self.normurl(iurl)
@@ -293,6 +327,7 @@ class RecursiveFetcher(object):
                         self.process_stylesheets(soup, f.geturl())
                     
                     res = os.path.join(linkdiskpath, basename(iurl))
+                    self.downloaded_paths.append(res)
                     self.filemap[nurl] = res
                     if recursion_level < self.max_recursions:
                         self.logger.debug('Processing links...')
@@ -301,9 +336,11 @@ class RecursiveFetcher(object):
                         self.process_return_links(soup, iurl) 
                         self.logger.debug('Recursion limit reached. Skipping links in %s', iurl)
                     
-                    save_soup(soup, res)
+                    save_soup(self.postprocess_html_ext(soup), res)
+                    
                     self.localize_link(tag, 'href', res)
                 except Exception, err:
+                    self.failed_links.append((iurl, traceback.format_exc()))
                     self.logger.warning('Could not fetch link %s', iurl)
                     self.logger.debug('Error: %s', str(err), exc_info=True)
                 finally:

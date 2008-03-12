@@ -23,13 +23,14 @@ from gettext import GNUTranslations
 from math import floor
 from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
+from logging import Formatter
 
 from ttfquery import findsystem, describe
 
 from libprs500.translations.msgfmt import make
 from libprs500.ebooks.chardet import detect
 from libprs500.terminfo import TerminalController
-terminal_controller = TerminalController()
+terminal_controller = TerminalController(sys.stdout)
 
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
@@ -50,6 +51,25 @@ __builtin__.__dict__['_'] = lambda s: s
 
 class CommandLineError(Exception):
     pass
+
+class ColoredFormatter(Formatter):
+    
+    def format(self, record):
+        ln = record.__dict__['levelname']
+        col = ''
+        if ln == 'CRITICAL':
+            col = terminal_controller.YELLOW
+        elif ln == 'ERROR':
+            col = terminal_controller.RED
+        elif ln in ['WARN', 'WARNING']:
+            col = terminal_controller.BLUE
+        elif ln == 'INFO':
+            col = terminal_controller.GREEN
+        elif ln == 'DEBUG':
+            col = terminal_controller.CYAN
+        record.__dict__['levelname'] = col + record.__dict__['levelname'] + terminal_controller.NORMAL
+        return Formatter.format(self, record)
+         
 
 def setup_cli_handlers(logger, level):
     logger.setLevel(level)
@@ -187,9 +207,9 @@ def extract(path, dir):
         raise Exception('Unknown archive type')
     extractor(path, dir)
 
-def browser():
+def browser(honor_time=False):
     opener = mechanize.Browser()
-    opener.set_handle_refresh(True)
+    opener.set_handle_refresh(True, honor_time=honor_time)
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
     return opener

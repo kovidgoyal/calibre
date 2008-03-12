@@ -97,7 +97,8 @@ class WorkerThread(threading.Thread):
                 )
             except:
                 request.exception = True
-                self.resultQueue.put((request, sys.exc_info()))
+                import traceback
+                self.resultQueue.put((request, traceback.format_exc()))
 
     def dismiss(self):
         """Sets a flag to tell the thread to exit when done with current job.

@@ -595,6 +595,11 @@ class OPFCreator(OPF):
             self.uid = mi.uid    
         
     def create_manifest(self, entries):
+        '''
+        Create <manifest>
+        @param entries: List of (URL, mime-type)
+        @type entries: list of 2-tuples
+        '''
         doc = dom.parseString(self.soup.__str__('UTF-8').strip())
         package = doc.documentElement
         manifest = doc.createElement('manifest')
@@ -616,6 +621,11 @@ class OPFCreator(OPF):
             
             
     def create_spine(self, entries):
+        '''
+        Create the <spine> element. Must first call L{create_manifest}.
+        @param: List of paths
+        @type param: list of strings
+        '''
         doc = dom.parseString(self.soup.__str__('UTF-8').strip())
         package = doc.documentElement
         spine = doc.createElement('spine')

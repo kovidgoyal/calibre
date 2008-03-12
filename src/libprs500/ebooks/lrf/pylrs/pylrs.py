@@ -147,7 +147,7 @@ class Delegator(object):
             d.parent = self
             methods = d.getMethods()
             self.delegatedMethods += methods
-            for m in methods:                
+            for m in methods:
                 setattr(self, m, getattr(d, m))
 
             """

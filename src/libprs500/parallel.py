@@ -15,7 +15,7 @@
 '''
 Used to run jobs in parallel in separate processes.
 '''
-import re, sys, tempfile, os, cPickle, cStringIO, traceback, atexit, binascii, time, subprocess
+import re, sys, tempfile, os, cPickle, traceback, atexit, binascii, time, subprocess
 from functools import partial
 
 

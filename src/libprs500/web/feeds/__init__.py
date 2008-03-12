@@ -27,6 +27,7 @@ class Article(object):
     time_offset = datetime.now() - datetime.utcnow()
 
     def __init__(self, id, title, url, summary, published, content):
+        self.downloaded = False
         self.id = id
         self.title = title
         self.url = url
@@ -103,7 +104,7 @@ class Feed(object):
         if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
             self.articles.append(article)
         else:
-            self.logger.debug('Skipping article %s as it is too old.'%title)
+            self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
         
     def __iter__(self):
         return iter(self.articles)
@@ -118,6 +119,12 @@ class Feed(object):
     
     def __str__(self):
         return repr(self)
+    
+    def __bool__(self):
+        for article in self:
+            if getattr(article, 'downloaded', False):
+                return True
+        return False
 
 
 def feed_from_xml(raw_xml, title=None, oldest_article=7, max_articles_per_feed=100):

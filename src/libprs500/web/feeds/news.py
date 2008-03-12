@@ -17,11 +17,13 @@
 The backend to parse feeds and create HTML that can then be converted
 to an ebook.
 '''
-import logging, os, cStringIO, traceback, time
+import logging, os, cStringIO, time, itertools, traceback
 import urlparse
 
-from libprs500 import browser
+from libprs500 import browser, __appname__
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
+from libprs500.ebooks.metadata.opf import OPFCreator
+from libprs500.ebooks.metadata import MetaInformation
 from libprs500.web.feeds import feed_from_xml, templates
 from libprs500.web.fetch.simple import option_parser as web2disk_option_parser
 from libprs500.web.fetch.simple import RecursiveFetcher
@@ -35,7 +37,10 @@ class BasicNewsRecipe(object):
     
     #: The title to use for the ebook
     #: @type: string    
-    title                 = 'Unknown News Source'    
+    title                 = _('Unknown News Source')
+    
+    #: The author of this recipe
+    __author__            = _('Unknown')    
     
     #: Maximum number of articles to download from each feed
     #: @type: integer
@@ -55,17 +60,18 @@ class BasicNewsRecipe(object):
     delay                 = 0
     
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
+    #: Automatically reduced to 1 if L{delay} > 0
     #: @type: integer
     simultaneous_downloads = 5
     
     #: Timeout for fetching files from server in seconds
     #: @type: integer
-    timeout               = 10
+    timeout               = 120
     
     #: The format string for the date shown on the first page
     #: By default: Day Name Day Number Month Name Year
     #: @type: string
-    timefmt               = ' %a, %d %b %Y'
+    timefmt               = ' [%a, %d %b %Y]'
     
     #: Max number of characters in the short description.
     #: @type: integer
@@ -102,7 +108,7 @@ class BasicNewsRecipe(object):
     
     #: List of options to pass to html2lrf, to customize generation of LRF ebooks.
     #: @type: list of strings
-    html2lrf_options   = []
+    html2lrf_options   = ['--page-break-before', '$']
     
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
@@ -114,8 +120,22 @@ class BasicNewsRecipe(object):
     #: U{http://www.crummy.com/software/BeautifulSoup/documentation.html#The basic find method: findAll(name, attrs, recursive, text, limit, **kwargs)}
     #: A common example::
     #:   remove_tags = [dict(name='div', attrs={'class':'advert'})]
-    #:   This will remove all <div class="advert"> tags and all their children from the downloaded HTML. 
+    #:   This will remove all <div class="advert"> tags and all their children from the downloaded HTML.
+    #: @type: list 
     remove_tags = []
+    
+    #: Remove all tags that occur after the specified tag. 
+    #: For the format for specifying a tag see L{remove_tags}.
+    #: For example, C{remove_tags_after = [dict(id='content')]} will remove all
+    #: tags after the element with id C{content}.
+    remove_tags_after = None
+    
+    #: Keep only the specified tags and their children. 
+    #: For the format for specifying tags see L{remove_tags}.
+    #: If this list is not empty, then the <body> element will be emptied and re-filled with
+    #: the tags that match the entries in this list.
+    #: @type: list 
+    keep_only_tags = []
     
     #: List of regexp substitution rules to run on the downloaded HTML. Each element of the 
     #: list should be a two element tuple. The first element of the tuple should
@@ -125,6 +145,13 @@ class BasicNewsRecipe(object):
     preprocess_regexps = []
     
     # See the built-in profiles for examples of these settings.
+    
+    def get_cover_url(self):
+        '''
+        Return a URL to the cover image for this issue or None.
+        @rtype: string or None
+        '''
+        return getattr(self, 'cover_url', None)
     
     def get_feeds(self):
         '''
@@ -156,7 +183,21 @@ class BasicNewsRecipe(object):
     
     def preprocess_html(self, soup):
         '''
-        This function is called with the source of each downloaded HTML file. 
+        This function is called with the source of each downloaded HTML file, before
+        it is parsed for links and images. 
+        It can be used to do arbitrarily powerful pre-processing on the HTML.
+        @param soup: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} 
+                     instance containing the downloaded HTML.
+        @type soup: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} instance
+        @return: It must return soup (after having done any needed preprocessing)
+        @rtype: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} instance 
+        '''
+        return soup
+    
+    def postprocess_html(self, soup):
+        '''
+        This function is called with the source of each downloaded HTML file, after
+        it is parsed for links and images. 
         It can be used to do arbitrarily powerful pre-processing on the HTML.
         @param soup: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} 
                      instance containing the downloaded HTML.
@@ -210,6 +251,7 @@ class BasicNewsRecipe(object):
         
         self.browser = self.get_browser()
         self.image_map, self.image_counter = {}, 1
+        self.css_map = {}
         
         web2disk_cmdline = [ 'web2disk', 
             '--timeout', str(self.timeout),
@@ -233,14 +275,18 @@ class BasicNewsRecipe(object):
             web2disk_cmdline.extend(['--filter-regexp', reg])
             
         self.web2disk_options = web2disk_option_parser().parse_args(web2disk_cmdline)[0]
-        self.web2disk_options.remove_tags = self.remove_tags
-        self.web2disk_options.preprocess_regexps = self.preprocess_regexps
-        self.web2disk_options.preprocess_html = self.preprocess_html
+        for extra in ('keep_only_tags', 'remove_tags', 'preprocess_regexps', 
+                      'preprocess_html', 'remove_tags_after', 'postprocess_html'):
+            setattr(self.web2disk_options, extra, getattr(self, extra))
         
         if self.delay > 0:
             self.simultaneous_downloads = 1
             
         self.navbar = templates.NavBarTemplate()
+        self.max_articles_per_feed -= 1
+        self.html2lrf_options.append('--use-spine')
+        self.failed_downloads = []
+        self.partial_failures = []
             
     def download(self):
         '''
@@ -250,9 +296,26 @@ class BasicNewsRecipe(object):
         @return: Path to index.html
         @rtype: string
         '''
-        self.report_progress(0, _('Initialized'))
+        self.report_progress(0, _('Trying to download cover...'))
+        self.download_cover()
         res = self.build_index()
         self.cleanup()
+        self.report_progress(1, _('Download finished'))
+        if self.failed_downloads:
+            self.logger.warning(_('Failed to download the following articles:'))
+            for feed, article, debug in self.failed_downloads:
+                self.logger.warning(article.title+_(' from ')+feed.title)
+                self.logger.debug(article.url)
+                self.logger.debug(debug)
+        if self.partial_failures:
+            self.logger.warning(_('Failed to download parts of the following articles:'))
+            for feed, atitle, aurl, debug in self.partial_failures:
+                self.logger.warning(atitle + _(' from ') + feed)
+                self.logger.debug(aurl)
+                self.logger.warning(_('\tFailed links:'))
+                for l, tb in debug:
+                    self.logger.warning(l)
+                    self.logger.debug(tb) 
         return res
     
     def feeds2index(self, feeds):
@@ -294,11 +357,14 @@ class BasicNewsRecipe(object):
         return logger, out
     
     def fetch_article(self, url, dir, logger):
-        fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map)
+        fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map)
         fetcher.base_dir = dir
         fetcher.current_dir = dir
         fetcher.show_progress = False
-        return fetcher.start_fetch(url)
+        res, path, failures = fetcher.start_fetch(url), fetcher.downloaded_paths, fetcher.failed_links
+        if not res:
+            raise Exception(_('Could not fetch article. Run with --debug to see the reason'))
+        return res, path, failures
     
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
@@ -331,58 +397,111 @@ class BasicNewsRecipe(object):
                 req.stream = stream
                 req.feed = feed
                 req.article = article
+                req.feed_dir = feed_dir
                 self.jobs.append(req)
+            
                     
         self.jobs_done = 0
         tp = ThreadPool(self.simultaneous_downloads)
         for req in self.jobs:
             tp.putRequest(req, block=True, timeout=0)
         
+        
         self.report_progress(0, _('Starting download [%d thread(s)]...')%self.simultaneous_downloads)
         while True:
             try:
-                tp.poll(True)
+                tp.poll()
                 time.sleep(0.1)
             except NoResultsPending:
                 break
         
-        html = self.feed2index(feed)
-        open(os.path.join(feed_dir, 'index.html'), 'wb').write(html)
+        for f, feed in enumerate(feeds):
+            html = self.feed2index(feed)
+            feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
+            open(os.path.join(feed_dir, 'index.html'), 'wb').write(html)
+        
+        self.create_opf(feeds)
         self.report_progress(1, _('Feeds downloaded to %s')%index)
         return index
+    
+    def download_cover(self):
+        self.cover_path = None
+        try:
+            cu = self.get_cover_url()
+        except Exception, err:
+            cu = None
+            self.logger.error(_('Could not download cover: %s')%str(err))
+            self.logger.debug(traceback.format_exc())
+        if cu is not None:
+            ext = cu.rpartition('.')[-1]
+            ext = ext.lower() if ext else 'jpg'
+            self.report_progress(1, _('Downloading cover from %s')%cu)
+            cpath = os.path.join(self.output_dir, 'cover.'+ext)
+            cfile = open(cpath, 'wb')
+            cfile.write(self.browser.open(cu).read())
+            self.cover_path = cpath
             
-            
+    
+    def create_opf(self, feeds, dir=None):
+        if dir is None:
+            dir = self.output_dir
+        mi = MetaInformation(self.title + time.strftime(self.timefmt), [__appname__])
+        opf = OPFCreator(mi)
+        opf_path = os.path.join(dir, 'index.opf')
+        
+        cpath = getattr(self, 'cover_path', None) 
+        if cpath is not None and os.access(cpath, os.R_OK):
+            opf.cover = cpath
+        
+        entries = ['index.html']
+        for i, f in enumerate(feeds):
+            entries.append('feed_%d/index.html'%i)
+            for j, a in enumerate(f):
+                if getattr(a, 'downloaded', False):
+                    adir = 'feed_%d/article_%d/'%(i, j)
+                    entries.append('%sindex.html'%adir)
+                    for sp in a.sub_pages:
+                        prefix = os.path.commonprefix([opf_path, sp])
+                        relp = sp[len(prefix):]
+                        entries.append(relp.replace(os.sep, '/'))
+                        
+        opf.create_manifest(itertools.izip(entries, itertools.repeat('text/html')))
+        opf.create_spine(entries)
+        opf.write(open(opf_path, 'wb'))
+        
+    
     def article_downloaded(self, request, result):
-        index = os.path.join(os.path.dirname(result), 'index.html')
-        os.rename(result, index)
+        index = os.path.join(os.path.dirname(result[0]), 'index.html')
+        os.rename(result[0], index)
         src = open(index, 'rb').read().decode('utf-8')
         f, a = request.requestID
         soup = BeautifulSoup(src)
         body = soup.find('body')
         if body is not None:
             top    = self.navbar.generate(False, f, a, len(request.feed), not self.has_single_feed).render(doctype='xhtml')
-            bottom = self.navbar.generate(True,  f, a, len(request.feed), not self.has_single_feed).render(doctype='xhtml')
             top    = BeautifulSoup(top).find('div')
-            bottom = BeautifulSoup(bottom).find('div')
             body.insert(0, top)
-            body.insert(len(body.contents), bottom)
             open(index, 'wb').write(unicode(soup).encode('utf-8'))
         
         article = request.article
-        self.logger.debug(_('\nDownloaded article %s from %s\n%s')%(article.title, article.url, request.stream.getvalue()))
-        article.url = result
+        self.logger.debug(_('\nDownloaded article %s from %s\n%s')%(article.title, article.url, request.stream.getvalue().decode('utf-8', 'ignore')))
+        article.url = result[0]
         article.downloaded = True
+        article.sub_pages  = result[1][1:]
         self.jobs_done += 1
         self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article downloaded: %s')%article.title)
+        if result[2]:
+            self.partial_failures.append((request.feed.title, article.title, article.url, result[2]))
         
-    def error_in_article_download(self, request, exc_info):
+    def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
-        self.logger.error(_('Failed to download article: %s from %s')%(request.article.title, request.article.url))
-        self.logger.debug(traceback.format_exc(*exc_info))
-        self.logger.debug(request.stream.getvalue())
+        self.logger.error(_('Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
+        debug = request.stream.getvalue().decode('utf-8', 'ignore')
+        self.logger.debug(debug)
+        self.logger.debug(traceback)
         self.logger.debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article download failed: %s')%request.article.title)
-        
+        self.failed_downloads.append((request.feed.title, request.article, debug))
         
     def parse_feeds(self):
         '''
@@ -404,5 +523,3 @@ class BasicNewsRecipe(object):
                                               max_articles_per_feed=self.max_articles_per_feed))
             
         return parsed_feeds
-    
-               

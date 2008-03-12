@@ -18,21 +18,24 @@ from libprs500.web.feeds.news import BasicNewsRecipe
 ''''''
 
 import sys, os, logging
-from libprs500.web.recipes import get_feed, compile_recipe
+from libprs500.web.feeds.recipes import get_builtin_recipe, compile_recipe, titles
 from libprs500.web.fetch.simple import option_parser as _option_parser
 
 
 def option_parser(usage='''\
-%prog [options] ARG
+%%prog [options] ARG
 
-%prog parsers an online source of articles, like an RSS or ATOM feed and 
+%%prog parsers an online source of articles, like an RSS or ATOM feed and 
 fetches the article contents organized in a nice hierarchy.
 
 ARG can be one of:
-file name            - %prog will try to load a recipe from the file
-builtin recipe title - %prog will load the builtin recipe and use it to fetch the feed. For e.g. Newsweek or "The BBC" or "The New York Times"
-recipe as a string   - $prog will load the recipe directly from the string arg.
-'''):
+file name            - %%prog will try to load a recipe from the file
+builtin recipe title - %%prog will load the builtin recipe and use it to fetch the feed. For e.g. Newsweek or "The BBC" or "The New York Times"
+recipe as a string   - %%prog will load the recipe directly from the string arg.
+
+Available builtin recipes are:
+%s
+'''%(unicode(list(titles))[1:-1])):
     p = _option_parser(usage=usage)
     p.remove_option('--max-recursions')
     p.remove_option('--base-dir')
@@ -86,7 +89,7 @@ def main(args=sys.argv, notification=None, handler=None):
         else:
             notification = no_progress_bar
         
-    if len(args) != 2:
+    if len(args) != 2 and opts.feeds is None:
         p.print_help()
         return 1
     
@@ -96,11 +99,16 @@ def main(args=sys.argv, notification=None, handler=None):
     else:
         try:
             if os.access(args[1], os.R_OK):
-                recipe = compile_recipe(open(args[1]).read())
+                try:
+                    recipe = compile_recipe(open(args[1]).read())
+                except:
+                    import traceback
+                    traceback.print_exc()
+                    return 1
             else:
-                raise Exception('')
+                raise Exception('not file')
         except:
-            recipe = get_feed(args[1])
+            recipe = get_builtin_recipe(args[1])
             if recipe is None:
                 recipe = compile_recipe(args[1])
     
@@ -111,9 +119,10 @@ def main(args=sys.argv, notification=None, handler=None):
         return 1
     
     if handler is None:
+        from libprs500 import ColoredFormatter
         handler = logging.StreamHandler(sys.stdout)
         handler.setLevel(logging.DEBUG if opts.debug else logging.INFO if opts.verbose else logging.WARN)
-        handler.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
+        handler.setFormatter(ColoredFormatter('%(levelname)s: %(message)s\n')) # The trailing newline is need because of the progress bar
         logging.getLogger('feeds2disk').addHandler(handler)
     
     recipe = recipe(opts, p, notification)

@@ -104,7 +104,7 @@ class IndexTemplate(Template):
         <p style="text-align:right">${datetime.now().strftime(datefmt)}</p>
         <ul>
             <py:for each="i, feed in enumerate(feeds)">
-            <li id="feed_${str(i)}">
+            <li py:if="feed" id="feed_${str(i)}">
                 <a class="feed" href="${'feed_%d/index.html'%i}">${feed.title}</a>
             </li>
             </py:for>
@@ -136,7 +136,7 @@ class FeedTemplate(Template):
             ${style}
         </style>
     </head>
-    <body>
+    <body style="page-break-before:always">
         <h2>${feed.title}</h2>
         <py:if test="feed.image">
         <div class="feed_image">
@@ -144,7 +144,7 @@ class FeedTemplate(Template):
         </div>
         </py:if>
         <ul>
-            <py:for each="i, article in enumerate(feed)">
+            <py:for each="i, article in enumerate(feed.articles)">
             <li id="${'article_%d'%i}" py:if="getattr(article, 'downloaded', False)">
                 <a class="article" href="${article.url}">${article.title}</a>
                 <span class="article_date">${article.localtime.strftime(" [%a, %d %b %H:%M]")}</span>

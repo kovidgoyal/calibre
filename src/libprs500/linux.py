@@ -74,6 +74,34 @@ def options(option_parser):
         opts.extend(opt._long_opts)
     return opts
 
+def opts_and_words(name, op, words):
+    opts  = ' '.join(options(op))
+    words = [repr(w) for w in words]
+    words = ' '.join(words) 
+    return '_'+name+'()'+\
+'''
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    opts="%s"
+    words="%s"
+    
+    case "${cur}" in
+      -* )
+         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+         return 0
+         ;;      
+      *  )
+         COMPREPLY=( $(compgen -W "${words}" -- ${cur}) )
+         return 0
+         ;;
+    esac
+
+}
+complete -F _'''%(opts, words) + name + ' ' + name +"\n\n"
+
+
 def opts_and_exts(name, op, exts):
     opts = ' '.join(options(op))
     exts.extend([i.upper() for i in exts])
@@ -135,6 +163,8 @@ def setup_completion(fatal_errors):
         from libprs500.gui2.lrf_renderer.main import option_parser as lrfviewerop
         from libprs500.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
         from libprs500.ebooks.mobi.reader import option_parser as mobioeb
+        from libprs500.web.feeds.main import option_parser as feeds2disk
+        from libprs500.web.feeds.recipes import titles as feed_titles
         
         f = open_file('/etc/bash_completion.d/libprs500')
         
@@ -159,6 +189,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))
+        f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write('''
 _prs500_ls()
 {
