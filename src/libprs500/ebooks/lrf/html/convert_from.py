@@ -760,7 +760,7 @@ class HTMLConverter(object):
             src = src.lstrip()
             f = src[0]
             next = 1
-            if f in ("'", '"', u'\x8222', u'\x8216', u'\x8221', u'\x8217'):
+            if f in ("'", '"', u'\u201c', u'\u2018', u'\u201d', u'\u2019'):
                 if len(src) >= 2:
                     next = 2
                     f = src[:2]                 
