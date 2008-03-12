@@ -40,10 +40,8 @@ class Newsweek(BasicNewsRecipe):
              'http://feeds.newsweek.com/newsweek/columnists/GeorgeFWill', 
              'http://feeds.newsweek.com/newsweek/columnists/AnnaQuindlen',
              ]
-    # For testing
-    feeds = feeds[:2]
-    max_articles_per_feed = 1
     
+    extra_css = '#content { font:serif,120%; }'
     keep_only_tags = [dict(name='div', id='content')]
 
     remove_tags = [
@@ -55,6 +53,12 @@ class Newsweek(BasicNewsRecipe):
     
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
+    
+    # For testing
+    #feeds = feeds[:2]
+    #max_articles_per_feed = 1
+    
+    
     
     def postprocess_html(self,  soup):
         divs = list(soup.findAll('div', 'pagination'))
