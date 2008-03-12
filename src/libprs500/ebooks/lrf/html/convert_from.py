@@ -351,7 +351,6 @@ class HTMLConverter(object):
             self.logger.info('Written preprocessed HTML to '+dump.name)
             dump.close()
             
-        #print soup
         return soup
     
     def add_file(self, path):
@@ -380,7 +379,8 @@ class HTMLConverter(object):
         self.target_prefix = path
         self.previous_text = '\n'
         self.tops[path] = self.parse_file(soup)
-        self.processed_files.append(path)            
+        self.processed_files.append(path)        
+            
         
     def parse_css(self, style):
         """
@@ -467,6 +467,8 @@ class HTMLConverter(object):
                         prop.update(self.css[classname])
                     if self.pseudo_css.has_key(classname):
                         pprop.update(self.pseudo_css[classname])
+        if tag.has_key('id') and self.css.has_key(tag['id']):
+            prop.update(self.css[tag['id']])
         if tag.has_key("style"):
             prop.update(self.parse_style_properties(tag["style"]))
         return prop, pprop
@@ -1146,7 +1148,8 @@ class HTMLConverter(object):
                     ans = 120
             if ans is not None: 
                 ans += int(self.font_delta * 20)
-                ans = str(ans)                
+                ans = str(ans)
+                            
             return ans
         
         family, weight, style, variant = 'serif', 'normal', 'normal', None
@@ -1216,7 +1219,7 @@ class HTMLConverter(object):
             result = int(val)
         except ValueError:
             pass
-        m = re.match("\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
+        m = re.search(r"\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
         if m is not None and m.group(1):
             unit = float(m.group(1))
             if m.group(2) == '%':
@@ -1424,11 +1427,10 @@ class HTMLConverter(object):
             elif tagname in ['style', 'link']:
                 ncss, npcss = {}, {}
                 if tagname == 'style':
-                    for c in tag.contents:
-                        if isinstance(c, NavigableString):
-                            css, pcss = self.parse_css(str(c))
-                            ncss.update(css)
-                            npcss.update(pcss)
+                    text = ''.join([unicode(i) for i in tag.findAll(text=True)])
+                    css, pcss = self.parse_css(text)
+                    ncss.update(css)
+                    npcss.update(pcss)
                 elif tag.has_key('type') and tag['type'] == "text/css" \
                         and tag.has_key('href'):
                     path = munge_paths(self.target_prefix, tag['href'])[0]           
