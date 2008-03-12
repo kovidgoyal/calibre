@@ -229,11 +229,14 @@ class HTMLConverter(object):
         self.tops = {}          #: element representing the top of each HTML file in the LRF file
         self.previous_text = '' #: Used to figure out when to lstrip
         self.preserve_block_style = False #: Used so that <p> tags in <blockquote> elements are handled properly
+        self.avoid_page_break = False
+        self.current_page = book.create_page()
+        
         # Styles 
         self.blockquote_style = book.create_block_style(sidemargin=60, 
                                                         topskip=20, footskip=20)
         self.unindented_style = book.create_text_style(parindent=0)
-        
+                
                 
         self.in_table = False
         # List processing
@@ -284,7 +287,8 @@ class HTMLConverter(object):
             self.link_level += 1
             paths = [link['path'] for link in self.links]
             
-        
+        if self.current_page is not None and self.current_page.has_text():
+            self.book.append(self.current_page)
             
         for text, tb in self.extra_toc_entries:
             ascii_text = text.encode('ascii', 'ignore')
@@ -371,8 +375,6 @@ class HTMLConverter(object):
         f.close()
         soup = self.preprocess(raw)
         self.logger.info('\tConverting to BBeB...')
-        self.current_page = None
-        self.current_para = None
         self.current_style = {}
         self.page_break_found = False
         self.target_prefix = path
@@ -476,14 +478,15 @@ class HTMLConverter(object):
                     if isinstance(item, TextBlock) and not item.contents:
                         continue
                     return item
-        previous = self.book.last_page()
-        self.current_page = self.book.create_page()
+        if not self.current_page:
+            self.current_page = self.book.create_page()
         self.current_block = self.book.create_text_block()
         self.current_para = Paragraph()
         if self.cover:
             self.add_image_page(self.cover)
             self.cover = None
         top = self.current_block
+        self.current_block.must_append = True
         
         self.process_children(soup, {}, {})
         
@@ -491,33 +494,12 @@ class HTMLConverter(object):
             self.current_para.append_to(self.current_block)
         if self.current_block and self.current_page:
             self.current_block.append_to(self.current_page)
-        if self.current_page and self.current_page.has_text():
+        if self.avoid_page_break:
+            self.avoid_page_break = False
+        elif self.current_page and self.current_page.has_text():
             self.book.append(self.current_page)
+            self.current_page = None
         
-        if not top.parent or not top.contents:
-            if not previous:
-                try:
-                    previous = self.book.pages()[0]
-                except IndexError:                
-                    raise ConversionError, self.file_name + ' does not seem to have any content'
-                top = get_valid_block(previous)
-                if not top or not top.parent:
-                    raise ConversionError, self.file_name + ' does not seem to have any content'
-                return top
-                
-            found = False
-            for page in self.book.pages():
-                if page == previous:
-                    found = True
-                    continue
-                if found:
-                    top = get_valid_block(page)
-                    if not top:
-                        continue
-                    break
-            
-            if not top or not top.parent:
-                raise ConversionError, 'Could not parse ' + self.file_name
         return top
             
     def create_link(self, children, tag):
@@ -999,9 +981,11 @@ class HTMLConverter(object):
                 self.end_page()
             tag_css.pop('page-break-before')
         end_page = False
-        if 'page-break-after' in tag_css.keys() and \
-           tag_css['page-break-after'].lower() != 'avoid':
-            end_page = True
+        if 'page-break-after' in tag_css.keys():
+            if tag_css['page-break-after'].lower() == 'avoid':
+                self.avoid_page_break = True
+            else:
+                end_page = True
             tag_css.pop('page-break-after')
         if (self.force_page_break_attr[0].match(tagname) and \
            tag.has_key(self.force_page_break_attr[1]) and \
