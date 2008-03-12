@@ -1126,20 +1126,32 @@ class HTMLConverter(object):
             return key
         
         def font_size(val):
-            normal = 100 #10*pts
-            ans = self.unit_convert(val, pts=True)
+            normal = int(self.current_block.textStyle.attrs['fontsize'])
+            normpts = str(normal/10) + 'pt'
+            ans = self.unit_convert(val, pts=True, base_length=normpts)
+            
             if ans:
-                if ans < 0:
+                if ans <= 0:
                     ans += normal
+                    if ans == 0: # Common case of using -1em to mean "smaller"
+                        ans = int(font_size("smaller"))
                     if ans < 0:
                         ans = normal
             else:
-                if "xx-small" in val:
+                if ans == 0:
+                    ans = int(font_size("smaller"))
+                elif "xx-small" in val:
                     ans = 40
                 elif "x-small" in val:
                     ans = 60
                 elif "small" in val:
                     ans = 80
+                if "smaller" in val:
+                    ans = normal - 20
+                elif "medium" in val:
+                    ans = 100
+                elif "larger" in val:
+                    ans = normal + 20
                 elif "xx-large" in val:
                     ans = 180
                 elif "x-large" in val:
@@ -1209,7 +1221,6 @@ class HTMLConverter(object):
     def unit_convert(self, val, pts=False, base_length='10pt'):
         '''
         Tries to convert html units in C{val} to pixels.
-        Assumes: 1em = 100% = 10pts  
         @param pts: If True return 10*pts instead of pixels.
         @return: The number of pixels (an int) if successful. Otherwise, returns None.        
         '''
@@ -1226,22 +1237,25 @@ class HTMLConverter(object):
                 normal = self.unit_convert(base_length)
                 result = int((unit/100.0)*normal)
             elif m.group(2) == 'px':
-                result =  int(unit)
+                result = unit
             elif m.group(2) == 'in':
-                result =  int(unit * dpi)
+                result = unit * dpi
             elif m.group(2) == 'pt':
-                result = int(unit * dpi/72.)
-            elif m.group(2)== 'em':
-                result = int(unit * (dpi/72.) * 10)
-            elif m.group(2)== 'pc':
-                result =  int(unit * (dpi/72.) * 12)
-            elif m.group(2)== 'mm':
-                result =  int(unit * 0.04 * (dpi/72.))
-            elif m.group(2)== 'cm':
-                result =  int(unit * 0.4 * (dpi/72.))
-        if pts:
-            if result is not None:
-                result = int((float(result)/dpi)*720)
+                result = unit * dpi/72.
+            elif m.group(2) == 'em':
+                normal = float(self.current_block.textStyle.attrs['fontsize'])
+                result = unit * normal * (dpi/720.)
+            elif m.group(2) == 'pc':
+                result = unit * (dpi/72.) * 12
+            elif m.group(2) == 'mm':
+                result = unit * 0.04 * (dpi/72.)
+            elif m.group(2) == 'cm':
+                result = unit * 0.40 * (dpi/72.)
+        if result is not None:
+            if pts:
+                result = int(round(result / dpi * 720))
+            else:
+                result = int(round(result))
         return result
         
     def text_properties(self, tag_css):
