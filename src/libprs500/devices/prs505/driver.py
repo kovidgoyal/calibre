@@ -82,7 +82,7 @@ class PRS505(Device):
           </match>
       </match>
   </device>
-'''%dict(app=__appname__)
+'''.replace('%(app)s', __appname__)
     
     
     def __init__(self, log_packets=False):
