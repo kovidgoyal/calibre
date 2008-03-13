@@ -1140,14 +1140,14 @@ class HTMLConverter(object):
             else:
                 if ans == 0:
                     ans = int(font_size("smaller"))
+                elif "smaller" in val:
+                    ans = normal - 20
                 elif "xx-small" in val:
                     ans = 40
                 elif "x-small" in val:
                     ans = 60
                 elif "small" in val:
                     ans = 80
-                if "smaller" in val:
-                    ans = normal - 20
                 elif "medium" in val:
                     ans = 100
                 elif "larger" in val:
