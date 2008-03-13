@@ -615,14 +615,14 @@ class HTMLConverter(object):
             ascii_text = text.encode('ascii', 'ignore') # Needed for TOC entries due to bug in SONY LRF renderer
             
             if path in self.processed_files:
-                if path+fragment in self.targets.keys():                    
-                    tb = get_target_block(path+fragment, self.targets)                    
+                if path+fragment in self.targets.keys():
+                    tb = get_target_block(path+fragment, self.targets)
                 else:
                     tb = self.tops[path]
                 if link['in toc']:
-                    add_toc_entry(ascii_text, tb) 
+                    add_toc_entry(ascii_text, tb)
                  
-                jb = JumpButton(tb)                
+                jb = JumpButton(tb)
                 self.book.append(jb)
                 cb = CharButton(jb, text=text)
                 para.contents = []
@@ -1079,7 +1079,7 @@ class HTMLConverter(object):
         '''
         Convert the font propertiess in css to the Xylog equivalents. If the CSS
         does not contain a particular font property, the default from self.book.defaultTextSytle
-        is used. 
+        is used. Assumes 1em = 10pt
         @return: dict, key, variant. The dict contains the Xlog equivalents. key indicates
           the font type (i.e. bold, bi, normal) and variant is None or 'small-caps' 
         '''
@@ -1128,7 +1128,7 @@ class HTMLConverter(object):
             return key
         
         def font_size(val):
-            normal = int(self.current_block.textStyle.attrs['fontsize'])
+            normal = 100
             normpts = str(normal/10) + 'pt'
             ans = self.unit_convert(val, pts=True, base_length=normpts)
             
@@ -1233,6 +1233,7 @@ class HTMLConverter(object):
         except ValueError:
             pass
         m = re.search(r"\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
+        
         if m is not None and m.group(1):
             unit = float(m.group(1))
             if m.group(2) == '%':
@@ -1245,8 +1246,7 @@ class HTMLConverter(object):
             elif m.group(2) == 'pt':
                 result = unit * dpi/72.
             elif m.group(2) == 'em':
-                normal = float(self.current_block.textStyle.attrs['fontsize'])
-                result = unit * normal * (dpi/720.)
+                result = unit * 100 * (dpi/720.)
             elif m.group(2) == 'pc':
                 result = unit * (dpi/72.) * 12
             elif m.group(2) == 'mm':
@@ -1255,7 +1255,7 @@ class HTMLConverter(object):
                 result = unit * 0.40 * (dpi/72.)
         if result is not None:
             if pts:
-                result = int(round(result / dpi * 720))
+                result = int(round(result * (720./dpi)))
             else:
                 result = int(round(result))
         return result
