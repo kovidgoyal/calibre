@@ -223,6 +223,7 @@ class HTMLConverter(object):
         self.extra_toc_entries = [] #: TOC entries gleaned from semantic information
         self.image_memory = []
         self.id_counter = 0
+        self.toc_from_metadata = False #: If True means that the toc has been populated from metadata
         self.unused_target_blocks = [] #: Used to remove extra TextBlocks
         self.link_level  = 0    #: Current link level
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
@@ -542,7 +543,7 @@ class HTMLConverter(object):
         
         path, fragment = munge_paths(self.target_prefix, tag['href'])
         return {'para':para, 'text':text, 'path':os.path.abspath(path), 
-                'fragment':fragment, 'in toc': (self.link_level == 0 and not self.use_spine)}
+                'fragment':fragment, 'in toc': (self.link_level == 0 and not self.toc_from_metadata)}
         
     
     def get_text(self, tag, limit=None):
@@ -638,8 +639,9 @@ class HTMLConverter(object):
     def create_toc(self, toc):
         for (path, fragment, txt) in toc:
             ascii_text = txt.encode('ascii', 'ignore') # Bug in SONY LRF renderer
+            self.toc_from_metadata = True
             if not fragment and path in self.tops:
-                self.book.addTocEntry(ascii_text, self.tops[path])
+                self.book.addTocEntry(ascii_text, self.tops[path])                
             else:
                 url = path+fragment
                 if url in self.targets:
