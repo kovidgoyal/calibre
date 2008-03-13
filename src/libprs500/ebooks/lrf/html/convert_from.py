@@ -822,7 +822,7 @@ class HTMLConverter(object):
             for prop in unneeded:
                 fp.pop(prop)
             attrs = {}
-            if 'color' in css:
+            if 'color' in css and not self.ignore_colors:
                 attrs['textcolor'] = lrs_color(css['color'])
             attrs.update(fp)
             elem = Span(text=src, **attrs) if (attrs or force_span_use) else src

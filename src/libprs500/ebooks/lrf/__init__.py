@@ -145,6 +145,8 @@ def option_parser(usage, gui_mode=False):
                   '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
                   """If FONT_DELTA is negative, the font size is decreased."""),
                   dest='font_delta')
+    laf.add_option('--ignore-colors', action='store_true', default=False, dest='ignore_colors',
+                      help=_('Render all content as black on white instead of the colors specified by the HTML or CSS.'))
 
     
     page = parser.add_option_group('PAGE OPTIONS')
