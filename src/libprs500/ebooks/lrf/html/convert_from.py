@@ -1128,7 +1128,7 @@ class HTMLConverter(object):
             return key
         
         def font_size(val):
-            normal = 100
+            normal = int(self.current_block.textStyle.attrs['fontsize'])
             normpts = str(normal/10) + 'pt'
             ans = self.unit_convert(val, pts=True, base_length=normpts)
             
@@ -1205,6 +1205,15 @@ class HTMLConverter(object):
                 style = font_style(val)
             elif key == 'font-variant':
                 variant = font_variant(val)
+
+        if 'font' in css:
+            css.pop('font')
+        css['font-family'] = family
+        css['font-weight'] = weight
+        css['font-style']  = style
+        css['font-size'] = str(t['fontsize']) + 'dpt'
+        if variant:
+            css['font-variant'] = variant
         
         key = font_key(family, style, weight)
         if self.fonts[family].has_key(key):
@@ -1232,7 +1241,7 @@ class HTMLConverter(object):
             result = int(val)
         except ValueError:
             pass
-        m = re.search(r"\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)", val)
+        m = re.search(r"\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|dpt|pt|pc)", val)
         
         if m is not None and m.group(1):
             unit = float(m.group(1))
@@ -1245,8 +1254,11 @@ class HTMLConverter(object):
                 result = unit * dpi
             elif m.group(2) == 'pt':
                 result = unit * dpi/72.
+            elif m.group(2) == 'dpt':
+                result = unit * dpi/720.
             elif m.group(2) == 'em':
-                result = unit * 100 * (dpi/720.)
+                normal = int(self.current_block.textStyle.attrs['fontsize'])
+                result = unit * normal * (dpi/720.)
             elif m.group(2) == 'pc':
                 result = unit * (dpi/72.) * 12
             elif m.group(2) == 'mm':
