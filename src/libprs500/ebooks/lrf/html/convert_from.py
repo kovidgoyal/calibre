@@ -838,8 +838,8 @@ class HTMLConverter(object):
         
         if collapse_whitespace:
             src = re.sub(r'\s{1,}', ' ', src)
-            if len(self.previous_text) != len(self.previous_text.rstrip(u' \n\r')):
-                src = src.lstrip(u' \n\r')
+            if len(self.previous_text) != len(self.previous_text.rstrip(u' \n\r\t')):
+                src = src.lstrip(u' \n\r\t')
             if len(src):
                 self.previous_text = src
                 append_text(src)    
