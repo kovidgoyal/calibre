@@ -1235,7 +1235,7 @@ class HTMLConverter(object):
             unit = float(m.group(1))
             if m.group(2) == '%':
                 normal = self.unit_convert(base_length)
-                result = int((unit/100.0)*normal)
+                result = (unit/100.0) * normal
             elif m.group(2) == 'px':
                 result = unit
             elif m.group(2) == 'in':
