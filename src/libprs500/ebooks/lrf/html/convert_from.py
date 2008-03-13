@@ -1801,10 +1801,15 @@ def try_opf(path, options, logger):
     if hasattr(options, 'opf'):
         opf = options.opf
     else:
-        try:
-            opf = glob.glob(os.path.join(os.path.dirname(path),'*.opf'))[0]
-        except IndexError:
-            return
+        files = glob.glob(os.path.join(os.path.dirname(path),'*'))
+        opf = None
+        for f in files:
+            ext = f.rpartition('.')[-1].lower()
+            if ext == 'opf':
+                opf = f
+                break
+    if opf is None:
+        return
     dirpath = os.path.dirname(os.path.abspath(opf))
     opf = OPFReader(open(opf, 'rb'), dirpath)    
     try:
