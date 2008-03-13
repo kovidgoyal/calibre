@@ -89,7 +89,7 @@ for s, l in zip(scripts, links):
         os.close(fd)
         os.chmod(name, 0700)
         try:
-            pipe = auth.executeWithPrivileges(name)
+            pipe = auth.executeWithPrivileges(sys.executable, name)
             sys.stdout.write(pipe.read())
             pipe.close()
         except:
