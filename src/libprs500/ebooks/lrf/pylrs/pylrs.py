@@ -743,7 +743,7 @@ class TableOfContents(object):
         if textBlock.parent is None:
             raise LrsError, "TOC text block must be already appended to a page"
 
-        if textBlock.parent.parent is None:
+        if False and textBlock.parent.parent is None:
             raise LrsError, \
                     "TOC destination page must be already appended to a book"
                     
