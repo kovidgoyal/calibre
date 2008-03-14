@@ -208,10 +208,15 @@ def extract(path, dir):
     extractor(path, dir)
 
 def browser(honor_time=False):
+    http_proxy = os.environ.get('http_proxy', None)
     opener = mechanize.Browser()
     opener.set_handle_refresh(True, honor_time=honor_time)
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
+    if http_proxy:
+        if http_proxy.startswith('http://'):
+            http_proxy = http_proxy[7:]
+        opener.set_proxies({'http':http_proxy})
     return opener
 
 def fit_image(width, height, pwidth, pheight):
