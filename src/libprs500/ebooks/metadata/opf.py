@@ -12,18 +12,21 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+import uuid
 '''Read/Write metadata from Open Packaging Format (.opf) files.'''
 
-import sys, re, os, glob
+import sys, re, os, mimetypes
 from urllib import unquote
 from urlparse import urlparse
 import xml.dom.minidom as dom
 from itertools import repeat
 
+from libprs500 import __appname__
 from libprs500.ebooks.metadata import MetaInformation
-from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
+from libprs500.ebooks.BeautifulSoup import BeautifulStoneSoup
 from libprs500.ebooks.lrf import entity_to_unicode
 from libprs500.ebooks.metadata import get_parser
+from libprs500.ebooks.metadata.toc import TOC
 
 class ManifestItem(object):
     def __init__(self, item, cwd):
@@ -40,6 +43,14 @@ class ManifestItem(object):
         
     def __unicode__(self):
         return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href, self.media_type)
+    
+    def __getitem__(self, index):
+        if index == 0:
+            return self.href
+        if index == 1:
+            return self.media_type
+        raise IndexError('%d out of bounds.'%index)
+        
 
 class Manifest(list):
     
@@ -81,85 +92,11 @@ class Spine(object):
     def items(self):
         for i in self.linear_ids + self.nonlinear_ids:
             yield  self.manifest.item(i)
+            
+    def __iter__(self):
+        for i in self.linear_ids + self.nonlinear_ids:
+            yield i
 
-class TOC(list):
-    
-    def __init__(self, opfreader, cwd):
-        self.toc = None
-        toc = opfreader.soup.find('spine', toc=True)
-        if toc is not None:
-            toc = toc['toc']
-        if toc is None:
-            try:
-                toc = opfreader.soup.find('guide').find('reference', attrs={'type':'toc'})['href']
-            except:
-                for item in opfreader.manifest:
-                    if 'toc' in item.href.lower():
-                        toc = item.href
-                        break
-                            
-        if toc is not None:
-            if toc.lower() != 'ncx':
-                toc = urlparse(unquote(toc))[2]
-                if not os.path.isabs(toc):
-                    toc = os.path.join(cwd, toc)
-                try:
-                    if not os.path.exists(toc):
-                        bn  = os.path.basename(toc)
-                        bn  = bn.replace('_top.htm', '_toc.htm') # Bug in BAEN OPF files
-                        toc = os.path.join(os.path.dirname(toc), bn)
-                    
-                    self.read_html_toc(toc, cwd)
-                    self.toc = toc
-                except:
-                    pass
-            else:
-                cwd = os.path.abspath(cwd)
-                m = glob.glob(os.path.join(cwd, '*.ncx'))
-                if m:
-                    toc = m[0]
-                    try:
-                        self.read_ncx_toc(toc)
-                        self.toc = toc
-                    except:
-                        raise
-                        pass
-            
-    def read_ncx_toc(self, toc):
-        bdir = os.path.dirname(toc)
-        soup = BeautifulStoneSoup(open(toc, 'rb').read(),
-                                  convertEntities=BeautifulSoup.HTML_ENTITIES)
-        elems = soup.findAll('navpoint')
-        elems.sort(cmp=lambda x, y: cmp(int(x['playorder']), int(y['playorder'])))
-        
-        for elem in elems:
-            txt = u''
-            for nl in elem.findAll('navlabel'):
-                for text in nl.findAll('text'):
-                    txt += ''.join([unicode(s) for s in text.findAll(text=True)])
-            
-            content = elem.find('content')
-            if content is None or not content.has_key('src') or not txt:
-                continue
-            
-            purl = urlparse(unquote(content['src']))
-            href, fragment = purl[2], purl[5]
-            if not os.path.isabs(href):
-                href = os.path.join(bdir, href)
-            self.append((href, fragment, txt))
-        
-    
-    def read_html_toc(self, toc, cwd):
-        soup = BeautifulSoup(open(toc, 'rb').read(), convertEntities=BeautifulSoup.HTML_ENTITIES)
-        for a in soup.findAll('a'):
-            if not a.has_key('href'):
-                continue
-            purl = urlparse(unquote(a['href']))
-            href, fragment = purl[2], purl[5]
-            if not os.path.isabs(href):
-                href = os.path.join(cwd, href)
-            txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
-            self.append((href, fragment, txt))
             
 
 class standard_field(object):
@@ -178,21 +115,21 @@ class OPF(MetaInformation):
     MIMETYPE = 'application/oebps-package+xml'
     ENTITY_PATTERN = re.compile(r'&(\S+?);')
     
-    uid           = standard_field('uid')
-    libprs_id     = standard_field('libprs_id')
-    title         = standard_field('title')
-    authors       = standard_field('authors')
-    title_sort    = standard_field('title_sort')
-    author_sort   = standard_field('author_sort')
-    comments      = standard_field('comments')
-    category      = standard_field('category')
-    publisher     = standard_field('publisher')
-    isbn          = standard_field('isbn')
-    cover         = standard_field('cover')
-    series        = standard_field('series')
-    series_index  = standard_field('series_index')
-    rating        = standard_field('rating')
-    tags          = standard_field('tags')
+    uid            = standard_field('uid')
+    application_id = standard_field('application_id')
+    title          = standard_field('title')
+    authors        = standard_field('authors')
+    title_sort     = standard_field('title_sort')
+    author_sort    = standard_field('author_sort')
+    comments       = standard_field('comments')
+    category       = standard_field('category')
+    publisher      = standard_field('publisher')
+    isbn           = standard_field('isbn')
+    cover          = standard_field('cover')
+    series         = standard_field('series')
+    series_index   = standard_field('series_index')
+    rating         = standard_field('rating')
+    tags           = standard_field('tags')
     
     HEADER = '''\
 <?xml version="1.0" encoding="UTF-8"?>
@@ -207,14 +144,14 @@ class OPF(MetaInformation):
         if not hasattr(self, 'soup'):
             self.soup = BeautifulStoneSoup(u'''\
 %s
-<package unique-identifier="libprs_id">
+<package unique-identifier="%s_id">
     <metadata>
         <dc-metadata
          xmlns:dc="http://purl.org/dc/elements/1.1/"
          xmlns:oebpackage="http://openebook.org/namespaces/oeb-package/1.0/" />
     </metadata>
 </package>
-'''%self.HEADER)
+'''%(__appname__, self.HEADER))
     
     def _commit(self, doc):
         self.soup = BeautifulStoneSoup(doc.toxml('utf-8'), fromEncoding='utf-8')
@@ -403,15 +340,15 @@ class OPF(MetaInformation):
             self._set_metadata_element('dc:identifier', isbn, [('scheme', 'ISBN')], 
                                        replace=True)
         
-    def get_libprs_id(self):
+    def get_application_id(self):
         for item in self.soup.package.metadata.findAll('dc:identifier'):
-            if item.has_key('scheme') and item['scheme'] == 'libprs':
+            if item.has_key('scheme') and item['scheme'] == __appname__:
                 return str(item.string).strip()
         return None
     
-    def set_libprs_id(self, val):
+    def set_application_id(self, val):
         if val:
-            self._set_metadata_element('dc:identifier', str(val), [('scheme', 'libprs'), ('id', 'libprs_id')], 
+            self._set_metadata_element('dc:identifier', str(val), [('scheme', __appname__), ('id', __appname__+'_id')], 
                                        replace=True)
     
     def get_cover(self):
@@ -564,61 +501,72 @@ class OPFReader(OPF):
             stream.close()
         self.manifest = Manifest(self.soup, dir)
         self.spine = Spine(self.soup, self.manifest)
-        self.toc = TOC(self, dir)
+        self.toc = TOC()
+        self.toc.read_from_opf(self)
         self.cover_data = (None, None)
         
-class OPFCreator(OPF):
+class OPFCreator(MetaInformation):
     
-    def __init__(self, mi):
-        self.title = mi.title
-        self.authors = mi.authors
-        if mi.category:
-            self.category = mi.category
-        if mi.comments:
-            self.comments = mi.comments
-        if mi.publisher:
-            self.publisher = mi.publisher
-        if mi.rating:
-            self.rating = mi.rating
-        if mi.series:
-            self.series = mi.series
-        if mi.series_index:
-            self.series_index = mi.series_index
-        if mi.tags:
-            self.tags = mi.tags
-        if mi.isbn:
-            self.isbn = mi.isbn
-        self.cover_data = mi.cover_data
-        if hasattr(mi, 'libprs_id'):
-            self.libprs_id = mi.libprs_id
-        if hasattr(mi, 'uid'):
-            self.uid = mi.uid    
-        
+    def __init__(self, base_path, *args, **kwargs):
+        '''
+        Initialize.
+        @param base_path: An absolute path to the directory in which this OPF file
+        will eventually be. This is used by the L{create_manifest} method
+        to convert paths to files into relative paths.
+        '''
+        MetaInformation.__init__(self, *args, **kwargs)
+        self.base_path = os.path.abspath(base_path)
+        if self.application_id is None:
+            self.application_id = str(uuid.uuid4())
+        self.toc = None
+        if isinstance(self.manifest, Manifest):
+            manifest = []
+            for path, mt in self.manifest:
+                if not path.startswith(self.base_path):
+                    raise ValueError('Inavlid manifest item %s for base path %s'%(path, self.base_path))
+                path = path[len(self.base_path)+1:]
+                manifest.append((path, mt))
+            self.manifest = manifest
+    
     def create_manifest(self, entries):
         '''
         Create <manifest>
-        @param entries: List of (URL, mime-type)
+        @param entries: List of (path, mime-type)
+        @param base_path: It is used to convert each path into a path relative to itself
         @type entries: list of 2-tuples
         '''
-        doc = dom.parseString(self.soup.__str__('UTF-8').strip())
-        package = doc.documentElement
-        manifest = doc.createElement('manifest')
-        package.appendChild(manifest)
-        package.appendChild(doc.createTextNode('\n'))
-        
-        self.href_map = {}
-        
-        for href, media_type in entries:
-            item = doc.createElement('item')
-            item.setAttribute('href', href)
-            item.setAttribute('media-type', media_type)
-            self.href_map[href] = str(hash(href))
-            item.setAttribute('id', self.href_map[href])
-            manifest.appendChild(item)
-            manifest.appendChild(doc.createTextNode('\n'))
+        rentries = []
+        base_path = self.base_path
+        mimetypes.init()
+        for href, mt in entries:
+            href = os.path.abspath(href)
+            if not href.startswith(base_path):
+                raise ValueError('OPF should only refer to files below it. %s is above %s'%(href, base_path))
+            href = href[len(base_path)+1:].replace(os.sep, '/')
+            if not mt:
+                mt = mimetypes.guess_type(href)[0]
+                if not mt:
+                    mt = ''
+            rentries.append((href, mt))
             
-        self._commit(doc)
-            
+        self.manifest = rentries
+        
+    def create_manifest_from_files_in(self, files_and_dirs):
+        entries = []
+        
+        def dodir(dir):
+            for root, dirs, files in os.walk(dir):
+                for name in files:
+                    path = os.path.join(root, name)
+                    entries.append((path, None)) 
+        
+        for i in files_and_dirs:
+            if os.path.isdir(i):
+                dodir(i)
+            else:
+                entries.append((i, None))
+                
+        self.create_manifest(entries)    
             
     def create_spine(self, entries):
         '''
@@ -626,19 +574,43 @@ class OPFCreator(OPF):
         @param: List of paths
         @type param: list of strings
         '''
-        doc = dom.parseString(self.soup.__str__('UTF-8').strip())
-        package = doc.documentElement
-        spine = doc.createElement('spine')
-        package.appendChild(spine)
-        package.appendChild(doc.createTextNode('\n'))
+        self.spine = []
         
-        for href in entries:
-            itemref = doc.createElement('itemref')
-            itemref.setAttribute('idref', self.href_map[href])
-            spine.appendChild(itemref)
-            spine.appendChild(doc.createTextNode('\n'))
+        for path in entries:
+            if not os.path.isabs(path):
+                path = os.path.join(self.base_path, path)
+            if not path.startswith(self.base_path):
+                raise ValueError('Invalid entry %s for base path %s'%(path, self.base_path))
+            href = path[len(self.base_path)+1:]
+            in_manifest = False
+            for i, m in enumerate(self.manifest):
+                if m[0] == href:
+                    in_manifest = True
+                    break
+            if not in_manifest:
+                raise ValueError('%s is not in the manifest. (%s)'%(href, path))
+            self.spine.append(i)
+         
             
-        self._commit(doc)
+        
+    def set_toc(self, toc):
+        '''
+        Set the toc. You must call L{create_spine} before calling this
+        method.
+        @param toc: A Table of Contents
+        @type toc: L{TOC}
+        '''
+        self.toc = toc
+        
+    def render(self, opf_stream, ncx_stream=None):
+        from libprs500.resources import opf_template
+        from genshi.template import MarkupTemplate
+        template = MarkupTemplate(opf_template)
+        opf = template.generate(__appname__=__appname__, mi=self).render('xml')
+        opf_stream.write(opf)
+        toc = getattr(self, 'toc', None)
+        if toc is not None and ncx_stream is not None:
+            toc.render(ncx_stream, self.application_id)
     
 def option_parser():
     return get_parser('opf')
@@ -649,7 +621,7 @@ def main(args=sys.argv):
     if len(args) != 2:
         parser.print_help()
         return 1
-    mi = OPFReader(open(args[1], 'rb'))
+    mi = MetaInformation(OPFReader(open(args[1], 'rb')))
     if opts.title is not None:
         mi.title = opts.title.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
     if opts.authors is not None:
@@ -660,7 +632,8 @@ def main(args=sys.argv):
     if opts.comment is not None:
         mi.comments = opts.comment.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
     print mi
-    mi.write(open(args[1], 'wb'))
+    mo = OPFCreator(os.getcwd(), mi)
+    mo.render(open(args[1], 'wb'))
     return 0
 
 if __name__ == '__main__':

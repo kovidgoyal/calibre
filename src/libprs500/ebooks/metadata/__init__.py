@@ -45,12 +45,13 @@ class MetaInformation(object):
         ans = MetaInformation(mi.title, mi.authors)
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'tags', 'cover_data', 'libprs_id'):
+                     'isbn', 'tags', 'cover_data', 'application_id',
+                     'manifest', 'spine', 'toc', 'cover'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
         
     
-    def __init__(self, title, authors):
+    def __init__(self, title, authors=['Unknown']):
         '''
         @param title: title or "Unknown" or a MetaInformation object
         @param authors: List of strings or []
@@ -76,8 +77,11 @@ class MetaInformation(object):
         self.isbn         = None if not mi else mi.isbn
         self.tags         = []  if not mi else mi.tags
         self.cover_data   = mi.cover_data if (mi and hasattr(mi, 'cover_data')) else (None, None)
-        self.libprs_id    = mi.libprs_id  if (mi and hasattr(mi, 'libprs_id')) else None
-         
+        self.application_id    = mi.application_id  if (mi and hasattr(mi, 'application_id')) else None
+        self.manifest = getattr(mi, 'manifest', None) 
+        self.toc      = getattr(mi, 'toc', None)
+        self.spine    = getattr(mi, 'spine', None)
+        self.cover    = getattr(mi, 'cover', None)
     
     def smart_update(self, mi):
         '''
@@ -92,7 +96,7 @@ class MetaInformation(object):
             
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'libprs_id'):
+                     'isbn', 'application_id', 'manifest', 'spine', 'toc', 'cover'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:

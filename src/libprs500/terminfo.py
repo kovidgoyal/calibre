@@ -201,6 +201,7 @@ class ProgressBar:
         self.term.BOL + self.term.UP + self.term.CLEAR_EOL +
         (self.bar % (100*percent, '='*n, '-'*(self.width-10-n))) +
         self.term.CLEAR_EOL + msg)
+        sys.stdout.flush()
     
     def clear(self):
         if not self.cleared:

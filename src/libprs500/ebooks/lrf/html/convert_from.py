@@ -60,6 +60,8 @@ def update_css(ncss, ocss):
 def munge_paths(basepath, url):
     purl = urlparse(unquote(url),)
     path, fragment = purl[2], purl[5]
+    if path:
+        path = path.replace('/', os.sep)
     if not path:
         path = basepath
     elif not os.path.isabs(path):
@@ -223,7 +225,6 @@ class HTMLConverter(object):
         self.extra_toc_entries = [] #: TOC entries gleaned from semantic information
         self.image_memory = []
         self.id_counter = 0
-        self.toc_from_metadata = False #: If True means that the toc has been populated from metadata
         self.unused_target_blocks = [] #: Used to remove extra TextBlocks
         self.link_level  = 0    #: Current link level
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
@@ -543,7 +544,7 @@ class HTMLConverter(object):
         
         path, fragment = munge_paths(self.target_prefix, tag['href'])
         return {'para':para, 'text':text, 'path':os.path.abspath(path), 
-                'fragment':fragment, 'in toc': (self.link_level == 0 and not self.toc_from_metadata)}
+                'fragment':fragment, 'in toc': (self.link_level == 0 and not self.use_spine)}
         
     
     def get_text(self, tag, limit=None):
@@ -637,13 +638,12 @@ class HTMLConverter(object):
         return outside_links
             
     def create_toc(self, toc):
-        for (path, fragment, txt) in toc:
-            ascii_text = txt.encode('ascii', 'ignore') # Bug in SONY LRF renderer
-            self.toc_from_metadata = True
-            if not fragment and path in self.tops:
-                self.book.addTocEntry(ascii_text, self.tops[path])                
+        for item in toc.top_level_items():
+            ascii_text = item.text.encode('ascii', 'ignore') # Bug in SONY LRF renderer
+            if not item.fragment and item.abspath in self.tops:
+                self.book.addTocEntry(ascii_text, self.tops[item.abspath])                
             else:
-                url = path+fragment
+                url = item.abspath+item.fragment
                 if url in self.targets:
                     self.book.addTocEntry(ascii_text, self.targets[url])
                     
@@ -1846,6 +1846,7 @@ def try_opf(path, options, logger):
             options.cover = None
             cover = opf.cover            
             if cover:
+                cover = cover.replace('/', os.sep)
                 if not os.path.isabs(cover):
                     cover = os.path.join(dirpath, cover)
                 if os.access(cover, os.R_OK):

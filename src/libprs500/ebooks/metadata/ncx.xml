@@ -1,0 +1,27 @@
+<ncx version="2005-1" 
+     xml:lang="en" 
+     xmlns="http://www.daisy.org/z3986/2005/ncx/"
+     xmlns:py="http://genshi.edgewall.org/"
+>
+    <head>
+        <meta name="dtb:uid" content="${uid}"/>
+        <meta name="dtb:depth" content="${toc.depth()}"/>
+        <meta name="dtb:generator" content="${__appname__}"/>
+        <meta name="dtb:totalPageCount" content="0"/>
+        <meta name="dtb:maxPageNumber" content="0"/>
+    </head>
+    <docTitle><text>Table of Contents</text></docTitle>
+    
+    <py:def function="navpoint(np, level)">
+        ${'%*s'%(4*level,'')}<navPoint playOrder="${str(np.play_order)}">
+            ${'%*s'%(4*level,'')}<navLabel>
+                ${'%*s'%(4*level,'')}<text>${np.text}</text>
+            ${'%*s'%(4*level,'')}</navLabel>
+            ${'%*s'%(4*level,'')}<content src="${str(np.href)+(('#' + str(np.fragment)) if np.fragment else '')}" />
+            <py:for each="np2 in np">${navpoint(np2, level+1)}</py:for>
+        ${'%*s'%(4*level,'')}</navPoint>
+    </py:def>
+    <navMap>
+    <py:for each="np in toc">${navpoint(np, 0)}</py:for>
+    </navMap>
+</ncx>

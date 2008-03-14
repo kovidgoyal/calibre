@@ -1,0 +1,36 @@
+<?xml version="1.0"  encoding="UTF-8"?>
+<package version="2.0" 
+         xmlns:opf="http://www.idpf.org/2007/opf" 
+         xmlns:py="http://genshi.edgewall.org/" 
+         unique-identifier="${__appname__}_id"
+         
+>
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:title py:with="attrs={'files-as':mi.title_sort}" py:attrs="attrs">${mi.title}</dc:title>
+        <dc:creator opf:role="aut" py:for="i, author in enumerate(mi.authors)" py:with="attrs={'file-as':mi.author_sort if i==0 else None}" py:attrs="attrs">${author}</dc:creator>
+        <dc:identifier scheme="${__appname__}" id="${__appname__}_id">${mi.application_id}</dc:identifier>
+
+        <dc:type py:if="mi.category">${mi.category}</dc:type>
+        <dc:description py:if="mi.comments">${mi.comments}</dc:description>
+        <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>
+        <dc:identifier opf:scheme="ISBN" py:if="mi.isbn">${mi.isbn}</dc:identifier>
+        <series py:if="mi.series">${mi.series}</series>
+        <series-index py:if="mi.series_index is not None">${mi.series_index}</series-index>
+        <rating py:if="mi.rating is not None">${mi.rating}</rating>
+        <dc:subject py:if="mi.tags is not None" py:for="tag in mi.tags">${tag}</dc:subject>
+    </metadata>
+    
+    <guide>
+        <reference py:if="mi.cover" type="cover" href="${mi.cover}" /> 
+    </guide>
+    
+    <manifest>
+        <py:for each="i, m in enumerate(mi.manifest)">
+        <item id="${str(i)}" href="${m[0]}" media-type="${m[1]}" /> 
+        </py:for>
+    </manifest>
+    
+    <spine py:with="attrs={'toc':'ncx' if mi.toc else None}" py:attrs="attrs">
+        <itemref py:for="idref in mi.spine" idref="${str(idref)}" />
+    </spine>    
+</package>

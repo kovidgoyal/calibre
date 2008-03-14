@@ -51,7 +51,7 @@ def metadata_from_formats(formats):
         ext = path_to_ext(path)
         stream = open(path, 'rb')
         mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=True))
-        if getattr(mi, 'libprs_id', None) is not None:
+        if getattr(mi, 'application_id', None) is not None:
             return mi
     
     return mi
@@ -69,7 +69,7 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
         if os.access(c, os.R_OK):
             opf = opf_metadata(os.path.abspath(c))
         
-    if use_libprs_metadata and getattr(opf, 'libprs_id', None) is not None:
+    if use_libprs_metadata and getattr(opf, 'application_id', None) is not None:
         return opf
     
     try:
@@ -147,7 +147,7 @@ def opf_metadata(opfpath):
     f = open(opfpath, 'rb')
     opf = OPFReader(f, os.path.dirname(opfpath))
     try:
-        if opf.libprs_id is not None:
+        if opf.application_id is not None:
             mi = MetaInformation(opf, None)
             if hasattr(opf, 'cover') and opf.cover:
                 cpath = os.path.join(os.path.dirname(opfpath), opf.cover)

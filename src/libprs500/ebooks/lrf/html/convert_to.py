@@ -65,7 +65,7 @@ class LRFConverter(object):
     def create_metadata(self):
         self.logger.info('Reading metadata...')
         mi = get_metadata(self.lrf)
-        self.opf = OPFCreator(mi)
+        self.opf = OPFCreator(self.output_dir, mi)
         
     def create_page_styles(self):
         self.page_css = ''

@@ -33,15 +33,15 @@ class Newsweek(BasicNewsRecipe):
              ('National News', 'http://feeds.newsweek.com/newsweek/NationalNews'),
              ('World News', 'http://feeds.newsweek.com/newsweek/WorldNews'),
              'http://feeds.newsweek.com/newsweek/Columnists/ChristopherDickey',
-             'http://feeds.newsweek.com/newsweek/Columnists/FareedZakaria', 
+             'http://feeds.newsweek.com/newsweek/Columnists/FareedZakaria',
              ('Iraq', 'http://feeds.newsweek.com/newsweek/iraq'),
              ('Society', 'http://feeds.newsweek.com/newsweek/society'),
              ('Entertainment', 'http://feeds.newsweek.com/newsweek/entertainment'),
-             'http://feeds.newsweek.com/newsweek/columnists/GeorgeFWill', 
+             'http://feeds.newsweek.com/newsweek/columnists/GeorgeFWill',
              'http://feeds.newsweek.com/newsweek/columnists/AnnaQuindlen',
              ]
     
-    extra_css = '#content { font:serif,120%; }'
+    extra_css = '#content { font:serif 1.2em; }'
     keep_only_tags = [dict(name='div', id='content')]
 
     remove_tags = [
@@ -55,8 +55,8 @@ class Newsweek(BasicNewsRecipe):
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
     
     # For testing
-    #feeds = feeds[:2]
-    #max_articles_per_feed = 1
+    #feeds = feeds[3:5]
+    #max_articles_per_feed = 2
     
     
     

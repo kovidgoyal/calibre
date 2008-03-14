@@ -44,6 +44,7 @@ entry_points = {
                              'rtf2lrf   = libprs500.ebooks.lrf.rtf.convert_from:main',
                              'web2disk  = libprs500.web.fetch.simple:main',
                              'feeds2disk = libprs500.web.feeds.main:main',
+                             'feeds2lrf = libprs500.ebooks.lrf.feeds.convert_from:main',
                              'web2lrf   = libprs500.ebooks.lrf.web.convert_from:main',
                              'pdf2lrf   = libprs500.ebooks.lrf.pdf.convert_from:main',
                              'mobi2lrf  = libprs500.ebooks.lrf.mobi.convert_from:main',

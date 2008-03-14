@@ -186,11 +186,11 @@ class MobiReader(object):
         
         if self.book_header.exth is not None:
             opf = self.create_opf(htmlfile)
-            opf.write(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'))
+            opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'))
         
     def create_opf(self, htmlfile):
         mi = self.book_header.exth.mi
-        opf = OPFCreator(mi)
+        opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
             opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
         manifest = [(os.path.basename(htmlfile), 'text/x-oeb1-document')]

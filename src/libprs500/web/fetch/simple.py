@@ -38,9 +38,9 @@ def basename(url):
 
 def save_soup(soup, target):
     nm = Tag(soup, '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
-    for meta in soup.find('meta', content=True):
-        if 'charset' in meta['content']:
-            meta.replaceWith(nm)
+    meta = soup.find('meta', content=True)
+    if meta and 'charset' in meta['content']:
+        meta.replaceWith(nm)
     f = codecs.open(target, 'w', 'utf-8')
     f.write(unicode(soup))
     f.close()
@@ -85,7 +85,7 @@ class RecursiveFetcher(object):
         self.remove_tags_after   = getattr(options, 'remove_tags_after', None)
         self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
         self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup) 
-        self.postprocess_html_ext= getattr(options, 'postprocess_html', lambda soup: soup)
+        self.postprocess_html_ext= getattr(options, 'postprocess_html', [])
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
         self.failed_links = []
@@ -336,7 +336,9 @@ class RecursiveFetcher(object):
                         self.process_return_links(soup, iurl) 
                         self.logger.debug('Recursion limit reached. Skipping links in %s', iurl)
                     
-                    save_soup(self.postprocess_html_ext(soup), res)
+                    for func in self.postprocess_html_ext:
+                        soup = func(soup)
+                    save_soup(soup, res)
                     
                     self.localize_link(tag, 'href', res)
                 except Exception, err:

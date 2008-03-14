@@ -1340,7 +1340,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         mi.rating = self.rating(idx, index_is_id=index_is_id)
         mi.isbn = self.isbn(idx, index_is_id=index_is_id)
         id = idx if index_is_id else self.id(idx)        
-        mi.libprs_id = id
+        mi.application_id = id
         return mi
     
     def vacuum(self):
@@ -1382,7 +1382,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 name += '_'+id
                 base  = dir if single_dir else tpath
                 
-                mi = OPFCreator(self.get_metadata(idx, index_is_id=index_is_id))
+                mi = OPFCreator(base, self.get_metadata(idx, index_is_id=index_is_id))
                 cover = self.cover(idx, index_is_id=index_is_id)
                 if cover is not None:
                     cname = name + '.jpg'
@@ -1390,7 +1390,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     open(cpath, 'wb').write(cover)
                     mi.cover = cname
                 f = open(os.path.join(base, name+'.opf'), 'wb')
-                mi.write(f)
+                mi.render(f)
                 f.close()
                 
                 for fmt in self.formats(idx, index_is_id=index_is_id).split(','):

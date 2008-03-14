@@ -1,6 +1,6 @@
 PYTHON = python
 
-all : gui2 translations
+all : gui2 translations resources
 
 clean : 
 	cd src/libprs500/gui2 && ${PYTHON} make.py clean
@@ -13,4 +13,8 @@ test : gui2
 
 translations :
 	cd src/libprs500 && ${PYTHON} translations/__init__.py
+
+resources:	
+	${PYTHON} resources.py
+    
     

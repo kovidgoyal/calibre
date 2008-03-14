@@ -17,12 +17,13 @@
 The backend to parse feeds and create HTML that can then be converted
 to an ebook.
 '''
-import logging, os, cStringIO, time, itertools, traceback
+import logging, os, cStringIO, time, traceback
 import urlparse
 
 from libprs500 import browser, __appname__
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 from libprs500.ebooks.metadata.opf import OPFCreator
+from libprs500.ebooks.metadata.toc import TOC
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.web.feeds import feed_from_xml, templates
 from libprs500.web.fetch.simple import option_parser as web2disk_option_parser
@@ -93,6 +94,9 @@ class BasicNewsRecipe(object):
     #: charset specification. The most common being specifying latin1 and
     #: using cp1252. If None, try to detect the encoding. 
     encoding = None
+    
+    #: Specify any extra CSS that should be addded to downloaded HTML files
+    extra_css = None
     
     #: List of regular expressions that determines which links to follow
     #: If empty, it is ignored.
@@ -276,8 +280,9 @@ class BasicNewsRecipe(object):
             
         self.web2disk_options = web2disk_option_parser().parse_args(web2disk_cmdline)[0]
         for extra in ('keep_only_tags', 'remove_tags', 'preprocess_regexps', 
-                      'preprocess_html', 'remove_tags_after', 'postprocess_html'):
+                      'preprocess_html', 'remove_tags_after'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
+        self.web2disk_options.postprocess_html = [self._postprocess_html, self.postprocess_html]
         
         if self.delay > 0:
             self.simultaneous_downloads = 1
@@ -288,6 +293,14 @@ class BasicNewsRecipe(object):
         self.failed_downloads = []
         self.partial_failures = []
             
+    def _postprocess_html(self, soup):
+        if self.extra_css is not None:
+            head = soup.find('head')
+            if head:
+                style = BeautifulSoup(u'<style type="text/css">%s</style>'%self.extra_css).find('style')
+                head.insert(len(head.contents), style)
+        return soup
+    
     def download(self):
         '''
         Download and pre-process all articles from the feeds in this recipe. 
@@ -297,6 +310,7 @@ class BasicNewsRecipe(object):
         @rtype: string
         '''
         self.report_progress(0, _('Trying to download cover...'))
+        
         self.download_cover()
         res = self.build_index()
         self.cleanup()
@@ -362,7 +376,7 @@ class BasicNewsRecipe(object):
         fetcher.current_dir = dir
         fetcher.show_progress = False
         res, path, failures = fetcher.start_fetch(url), fetcher.downloaded_paths, fetcher.failed_links
-        if not res:
+        if not res or not os.path.exists(res):
             raise Exception(_('Could not fetch article. Run with --debug to see the reason'))
         return res, path, failures
     
@@ -446,28 +460,44 @@ class BasicNewsRecipe(object):
         if dir is None:
             dir = self.output_dir
         mi = MetaInformation(self.title + time.strftime(self.timefmt), [__appname__])
-        opf = OPFCreator(mi)
         opf_path = os.path.join(dir, 'index.opf')
+        ncx_path = os.path.join(dir, 'index.ncx')
+        opf = OPFCreator(dir, mi)
         
+        
+        manifest = ['feed_%d'%i for i in range(len(feeds))]
+        manifest.append('index.html')
         cpath = getattr(self, 'cover_path', None) 
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
+            manifest.append(cpath)
+        opf.create_manifest_from_files_in(manifest)
         
         entries = ['index.html']
+        toc = TOC(base_path=dir)
         for i, f in enumerate(feeds):
             entries.append('feed_%d/index.html'%i)
+            feed = toc.add_item('feed_%d/index.html'%i, None, f.title)
             for j, a in enumerate(f):
                 if getattr(a, 'downloaded', False):
                     adir = 'feed_%d/article_%d/'%(i, j)
                     entries.append('%sindex.html'%adir)
+                    feed.add_item('%sindex.html'%adir, None, a.title if a.title else 'Untitled article')
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
                         relp = sp[len(prefix):]
                         entries.append(relp.replace(os.sep, '/'))
                         
-        opf.create_manifest(itertools.izip(entries, itertools.repeat('text/html')))
         opf.create_spine(entries)
-        opf.write(open(opf_path, 'wb'))
+        opf.set_toc(toc)
+        
+        for i, f in enumerate(feeds):
+            
+            for j, a in enumerate(f):
+                if getattr(a, 'downloaded', False):
+                    adir = 'feed_%d/article_%d/'%(i, j)
+                    
+        opf.render(open(opf_path, 'wb'), open(ncx_path, 'wb'))
         
     
     def article_downloaded(self, request, result):
@@ -516,7 +546,7 @@ class BasicNewsRecipe(object):
                 title, url = None, obj
             else:
                 title, url = obj
-            self.report_progress(0, _('Fetching feed %s...'%(title if title else url)))
+            self.report_progress(0, _('Fetching feed')+' %s...'%(title if title else url))
             parsed_feeds.append(feed_from_xml(self.browser.open(url).read(), 
                                               title=title,
                                               oldest_article=self.oldest_article,

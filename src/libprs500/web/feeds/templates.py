@@ -57,16 +57,17 @@ class NavBarTemplate(Template):
     <body>
         <div class="navbar" style="text-align:center">
             <hr py:if="bottom" />
-            <a href="../index.html#article_${str(art)}">Up one level</a> 
+            <py:if test="art != num - 1">
+            | <a href="../article_${str(art+1)}/index.html">Next</a>
+            </py:if>
+            | <a href="../index.html#article_${str(art)}">Up one level</a> 
             <py:if test="two_levels">
             | <a href="../../index.html#_${str(feed)}">Up two levels</a>
             </py:if>
             <py:if test="art != 0">
             | <a href="../article_${str(art-1)}/index.html">Previous</a>
             </py:if>
-            <py:if test="art != num - 1">
-            | <a href="../article_${str(art+1)}/index.html">Next</a>
-            </py:if>
+            |
             <hr py:if="not bottom" />
         </div>
     </body>
