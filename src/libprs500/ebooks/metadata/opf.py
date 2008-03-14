@@ -91,7 +91,9 @@ class Spine(object):
     
     def items(self):
         for i in self.linear_ids + self.nonlinear_ids:
-            yield  self.manifest.item(i)
+            mi = self.manifest.item(i)
+            if getattr(mi, 'href', None):
+                yield mi  
             
     def __iter__(self):
         for i in self.linear_ids + self.nonlinear_ids:
