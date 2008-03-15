@@ -41,7 +41,7 @@ Available builtin recipes are:
     p.remove_option('--base-dir')
     p.remove_option('--verbose')
     p.remove_option('--max-files')
-    p.subsume('WEB2DISK OPTIONS', 'Options to control web2disk (used to fetch websites linked from feeds)')
+    p.subsume('WEB2DISK OPTIONS', _('Options to control web2disk (used to fetch websites linked from feeds)'))
     
     p.add_option('--feeds', default=None,
                  help=_('''Specify a list of feeds to download. For example: 
@@ -50,7 +50,7 @@ If you specify this option, any argument to %prog is ignored and a default recip
     p.add_option('--verbose', default=False, action='store_true',
                  help=_('''Be more verbose while processing.'''))
     p.add_option('--title', default=None,
-                 help='The title for this recipe. Used as the title for any ebooks created from the downloaded feeds.')
+                 help=_('The title for this recipe. Used as the title for any ebooks created from the downloaded feeds.'))
     p.add_option('--username', default=None, help=_('Username for sites that require a login to access content.'))
     p.add_option('--password', default=None, help=_('Password for sites that require a login to access content.'))
     p.add_option('--lrf', default=False, action='store_true', help='Optimize fetching for subsequent conversion to LRF.')
@@ -61,7 +61,9 @@ If you specify this option, any argument to %prog is ignored and a default recip
     p.add_option('--no-progress-bar', dest='progress_bar', default=True, action='store_false',
                  help=_('Dont show the progress bar'))
     p.add_option('--debug', action='store_true', default=False,
-                 help='Very verbose output, useful for debugging.')
+                 help=_('Very verbose output, useful for debugging.'))
+    p.add_option('--test', action='store_true', default=False, 
+                 help=_('Useful for recipe development. Forces max_articles_per_feed to 2 and downloads at most 2 feeds.'))
     
     return p
     
@@ -72,10 +74,10 @@ def simple_progress_bar(percent, msg):
 def no_progress_bar(percent, msg):
     print msg
 
-def main(args=sys.argv, notification=None, handler=None):
-    p = option_parser()
-    opts, args = p.parse_args(args)
-    
+class RecipeError(Exception):
+    pass
+
+def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
     if notification is None:
         from libprs500.terminfo import TerminalController, ProgressBar
         term = TerminalController(sys.stdout)
@@ -89,18 +91,15 @@ def main(args=sys.argv, notification=None, handler=None):
         else:
             notification = no_progress_bar
         
-    if len(args) != 2 and opts.feeds is None:
-        p.print_help()
-        return 1
     
     recipe = None
     if opts.feeds is not None:
         recipe = BasicNewsRecipe
     else:
         try:
-            if os.access(args[1], os.R_OK):
+            if os.access(recipe_arg, os.R_OK):
                 try:
-                    recipe = compile_recipe(open(args[1]).read())
+                    recipe = compile_recipe(open(recipe_arg).read())
                 except:
                     import traceback
                     traceback.print_exc()
@@ -108,15 +107,13 @@ def main(args=sys.argv, notification=None, handler=None):
             else:
                 raise Exception('not file')
         except:
-            recipe = get_builtin_recipe(args[1])
+            recipe = get_builtin_recipe(recipe_arg)
             if recipe is None:
-                recipe = compile_recipe(args[1])
+                recipe = compile_recipe(recipe_arg)
     
     if recipe is None:
-        p.print_help()
-        print
-        print args[1], 'is an invalid recipe'
-        return 1
+        raise RecipeError(recipe_arg+ ' is an invalid recipe')
+        
     
     if handler is None:
         from libprs500 import ColoredFormatter
@@ -125,9 +122,23 @@ def main(args=sys.argv, notification=None, handler=None):
         handler.setFormatter(ColoredFormatter('%(levelname)s: %(message)s\n')) # The trailing newline is need because of the progress bar
         logging.getLogger('feeds2disk').addHandler(handler)
     
-    recipe = recipe(opts, p, notification)
+    recipe = recipe(opts, parser, notification)
+    if not os.path.exists(recipe.output_dir):
+        os.makedirs(recipe.output_dir)
     recipe.download()
-        
+    
+    return recipe
+
+def main(args=sys.argv, notification=None, handler=None):
+    p = option_parser()
+    opts, args = p.parse_args(args)
+    
+    if len(args) != 2 and opts.feeds is None:
+        p.print_help()
+        return 1
+    recipe_arg = args[1] if len(args) > 1 else None
+    run_recipe(opts, recipe_arg, p, notification=notification, handler=handler)    
+            
     return 0
 
 if __name__ == '__main__':

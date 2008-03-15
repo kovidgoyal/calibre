@@ -37,10 +37,12 @@ def basename(url):
     return res
 
 def save_soup(soup, target):
-    nm = Tag(soup, '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
-    meta = soup.find('meta', content=True)
-    if meta and 'charset' in meta['content']:
-        meta.replaceWith(nm)
+    ns = BeautifulSoup('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />')
+    nm = ns.find('meta')
+    metas = soup.findAll('meta', content=True)
+    for meta in metas:
+        if 'charset' in meta['content']:
+            meta.replaceWith(nm)
     f = codecs.open(target, 'w', 'utf-8')
     f.write(unicode(soup))
     f.close()

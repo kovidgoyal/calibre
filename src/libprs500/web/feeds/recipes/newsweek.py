@@ -41,7 +41,7 @@ class Newsweek(BasicNewsRecipe):
              'http://feeds.newsweek.com/newsweek/columnists/AnnaQuindlen',
              ]
     
-    extra_css = '#content { font:serif 1.2em; }'
+    extra_css = '#content { font:serif 12pt; }\n.story {font:12pt}\n.HorizontalHeader {font:18pt}\n.deck {font:16pt}'
     keep_only_tags = [dict(name='div', id='content')]
 
     remove_tags = [
@@ -53,11 +53,6 @@ class Newsweek(BasicNewsRecipe):
     
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
-    
-    # For testing
-    #feeds = feeds[3:5]
-    #max_articles_per_feed = 2
-    
     
     
     def postprocess_html(self,  soup):

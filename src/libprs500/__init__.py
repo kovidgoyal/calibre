@@ -18,7 +18,7 @@ __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys, os, logging, mechanize, locale, cStringIO, re, subprocess, textwrap
+import sys, os, logging, mechanize, locale, copy, cStringIO, re, subprocess, textwrap
 from gettext import GNUTranslations
 from math import floor
 from optparse import OptionParser as _OptionParser
@@ -143,38 +143,64 @@ class OptionParser(_OptionParser):
             raise Exception(msg)
         _OptionParser.error(self, msg)
         
+    def merge(self, parser):
+        '''
+        Add options from parser to self. In case of conflicts, confilicting options from
+        parser are skipped.
+        '''
+        opts   = list(parser.option_list)
+        groups = list(parser.option_groups)
+        
+        def merge_options(options, container):
+            for opt in copy.deepcopy(options):
+                if not self.has_option(opt.get_opt_string()):
+                    container.add_option(opt)
+                
+        merge_options(opts, self)
+        
+        for group in groups:
+            g = self.add_option_group(group.title)
+            merge_options(group.option_list, g)
+        
     def subsume(self, group_name, msg=''):
         '''
         Move all existing options into a subgroup named
         C{group_name} with description C{msg}.
         '''
-        opts   = list(self.option_list)
-        groups = list(self.option_groups)
-        exclude = []
-        
-        for opt in opts:
-            ops = opt.get_opt_string()
-            if ops in ('--help', '--version'):
-                exclude.append(opt)
-            else:
-                self.remove_option(ops)
-        for group in groups:
-            for opt in group.option_list:
-                opts.append(opt) 
-                group.remove_option(opt)
-        
+        opts = [opt for opt in self.options_iter() if opt.get_opt_string() not in ('--version', '--help')]
         self.option_groups = []
         subgroup = self.add_option_group(group_name, msg)
         for opt in opts:
-            if opt in exclude:
-                continue
+            self.remove_option(opt.get_opt_string())
             subgroup.add_option(opt)
         
-            
-        
-        
-            
-            
+    def options_iter(self):
+        for opt in self.option_list:
+            if str(opt).strip():
+                yield opt
+        for gr in self.option_groups:
+            for opt in gr.option_list:
+                if str(opt).strip():
+                    yield opt
+                
+    def option_by_dest(self, dest):
+        for opt in self.options_iter():
+            if opt.dest == dest:
+                return opt
+    
+    def merge_options(self, lower, upper):
+        '''
+        Merge options in lower and upper option lists into upper.
+        Default values in upper are overriden by
+        non default values in lower.
+        '''
+        for dest in lower.__dict__.keys():
+            if not upper.__dict__.has_key(dest):
+                continue
+            opt = self.option_by_dest(dest)
+            if lower.__dict__[dest] != opt.default and \
+               upper.__dict__[dest] == opt.default:
+                upper.__dict__[dest] = lower.__dict__[dest]
         
 
 def load_library(name, cdll):

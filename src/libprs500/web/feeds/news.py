@@ -165,6 +165,8 @@ class BasicNewsRecipe(object):
         '''
         if not self.feeds:
             raise NotImplementedError
+        if self.test:
+            return self.feeds[:2]
         return self.feeds
     
     @classmethod
@@ -225,10 +227,13 @@ class BasicNewsRecipe(object):
         @param parser:  Command line option parser. Used to intelligently merge options.
         @param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
-        for attr in ('username', 'password', 'lrf', 'output_dir', 'verbose', 'debug'):
+        for attr in ('username', 'password', 'lrf', 'output_dir', 'verbose', 'debug', 'test'):
             setattr(self, attr, getattr(options, attr))
         self.output_dir = os.path.abspath(self.output_dir)
-        
+        if options.test:
+            self.max_articles_per_feed = 2
+            self.simultaneous_downloads = min(4, self.simultaneous_downloads)
+            
         self.logger = logging.getLogger('feeds2disk')
         
         if self.debug:
@@ -288,10 +293,12 @@ class BasicNewsRecipe(object):
             self.simultaneous_downloads = 1
             
         self.navbar = templates.NavBarTemplate()
-        self.max_articles_per_feed -= 1
         self.html2lrf_options.append('--use-spine')
         self.failed_downloads = []
         self.partial_failures = []
+        
+        
+                
             
     def _postprocess_html(self, soup):
         if self.extra_css is not None:
@@ -383,6 +390,8 @@ class BasicNewsRecipe(object):
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
         feeds = self.parse_feeds()
+        if self.test:
+            feeds = feeds[:2]
         self.has_single_feed = len(feeds) == 1
         
         index = os.path.join(self.output_dir, 'index.html') 
@@ -460,13 +469,14 @@ class BasicNewsRecipe(object):
         if dir is None:
             dir = self.output_dir
         mi = MetaInformation(self.title + time.strftime(self.timefmt), [__appname__])
+        mi.author_sort = __appname__
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
         opf = OPFCreator(dir, mi)
         
         
-        manifest = ['feed_%d'%i for i in range(len(feeds))]
-        manifest.append('index.html')
+        manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
+        manifest.append(os.path.join(dir, 'index.html'))
         cpath = getattr(self, 'cover_path', None) 
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath

@@ -503,7 +503,7 @@ class OPFReader(OPF):
             stream.close()
         self.manifest = Manifest(self.soup, dir)
         self.spine = Spine(self.soup, self.manifest)
-        self.toc = TOC()
+        self.toc = TOC(base_path=dir)
         self.toc.read_from_opf(self)
         self.cover_data = (None, None)
         
@@ -554,13 +554,15 @@ class OPFCreator(MetaInformation):
         self.manifest = rentries
         
     def create_manifest_from_files_in(self, files_and_dirs):
+        #self.base_path = os.path.commonprefix(files_and_dirs)
         entries = []
         
         def dodir(dir):
             for root, dirs, files in os.walk(dir):
                 for name in files:
                     path = os.path.join(root, name)
-                    entries.append((path, None)) 
+                    if os.path.isfile(path):
+                        entries.append((path, None)) 
         
         for i in files_and_dirs:
             if os.path.isdir(i):

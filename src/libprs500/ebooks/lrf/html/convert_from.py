@@ -1715,7 +1715,7 @@ def process_file(path, options, logger=None):
     
     tpath = '' 
     try_opf(path, options, logger)
-    if options.cover:
+    if getattr(options, 'cover', None):
         options.cover = os.path.expanduser(options.cover)            
         if not os.path.isabs(options.cover):
             options.cover = os.path.join(dirpath, options.cover)
@@ -1750,7 +1750,7 @@ def process_file(path, options, logger=None):
         options.title = default_title
     
     for prop in ('author', 'author_sort', 'title', 'title_sort', 'publisher', 'freetext'):
-        val = getattr(options, prop)
+        val = getattr(options, prop, None)
         if val and not isinstance(val, unicode):
             soup = BeautifulSoup(val)
             setattr(options, prop, unicode(soup))
@@ -1822,13 +1822,14 @@ def try_opf(path, options, logger):
                 break
     if opf is None:
         return
+    
     dirpath = os.path.dirname(os.path.abspath(opf))
     opf = OPFReader(open(opf, 'rb'), dirpath)    
     try:
         title = opf.title        
-        if title and not options.title:
+        if title and not getattr(options, 'title', None):
             options.title = title
-        if options.author == 'Unknown':
+        if getattr(options, 'author', 'Unknown') == 'Unknown':
             if opf.authors:
                 options.author = ', '.join(opf.authors)
             if opf.author_sort:
@@ -1837,12 +1838,12 @@ def try_opf(path, options, logger):
             publisher = opf.publisher
             if publisher:
                 options.publisher = publisher
-        if not options.category:
+        if not getattr(options, 'category', None):
             category = opf.category
             if category:
                 options.category = category
-        if not options.cover or options.use_metadata_cover:
-            orig_cover = options.cover
+        if not getattr(options, 'cover', None) or options.use_metadata_cover:
+            orig_cover = getattr(options, 'cover', None)
             options.cover = None
             cover = opf.cover            
             if cover:
@@ -1865,10 +1866,10 @@ def try_opf(path, options, logger):
                                     break
                                 except:
                                     continue
-            if not options.cover and orig_cover is not None:
+            if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover        
         options.spine = [i.href for i in opf.spine.items()]
-        if not hasattr(options, 'toc') or options.toc is None:
+        if not getattr(options, 'toc', None):
             options.toc   = opf.toc
     except Exception:
         logger.exception('Failed to process opf file')

@@ -166,6 +166,7 @@ def setup_completion(fatal_errors):
         from libprs500.ebooks.mobi.reader import option_parser as mobioeb
         from libprs500.web.feeds.main import option_parser as feeds2disk
         from libprs500.web.feeds.recipes import titles as feed_titles
+        from libprs500.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
         
         f = open_file('/etc/bash_completion.d/libprs500')
         
@@ -191,6 +192,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
+        f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write('''
 _prs500_ls()
 {

@@ -79,7 +79,7 @@ class Feed(object):
         self.oldest_article = oldest_article
         
         for item in entries:
-            if len(self.articles) > max_articles_per_feed:
+            if len(self.articles) >= max_articles_per_feed:
                 break
             self.parse_article(item)
 
