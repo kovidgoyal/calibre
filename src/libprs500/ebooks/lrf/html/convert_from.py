@@ -1169,7 +1169,6 @@ class HTMLConverter(object):
             if ans is not None: 
                 ans += int(self.font_delta * 20)
                 ans = str(ans)
-            print val, ans
             return ans
         
         family, weight, style, variant = 'serif', 'normal', 'normal', None
