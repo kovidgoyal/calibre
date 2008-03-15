@@ -1135,7 +1135,7 @@ class HTMLConverter(object):
             '''
             Assumes 1em=100%=10pt
             '''
-            normal = int(self.current_block.textStyle.attrs['fontsize'])
+            normal = 100
             ans = self.unit_convert(val, pts=True, base_length='10pt')
             
             if ans:
@@ -1169,7 +1169,7 @@ class HTMLConverter(object):
             if ans is not None: 
                 ans += int(self.font_delta * 20)
                 ans = str(ans)
-                            
+            print val, ans
             return ans
         
         family, weight, style, variant = 'serif', 'normal', 'normal', None
@@ -1212,12 +1212,6 @@ class HTMLConverter(object):
             elif key == 'font-variant':
                 variant = font_variant(val)
 
-        if 'font' in css:
-            css.pop('font')
-        css['font-family'] = family
-        css['font-weight'] = weight
-        css['font-style']  = style
-        css['font-size'] = str(t['fontsize']) + 'dpt'
         if variant:
             css['font-variant'] = variant
         
