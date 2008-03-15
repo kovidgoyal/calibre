@@ -27,17 +27,18 @@ class Economist(BasicNewsRecipe):
     
     title = 'The Economist'
     oldest_article = 7.0
+    needs_subscription = True
     INDEX = 'http://www.economist.com/printedition'
     remove_tags = [dict(name=['script', 'noscript', 'title'])]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
     
     def get_browser(self):
-        br = BasicNewsRecipe.get_browser(self)
+        br = BasicNewsRecipe.get_browser()
         if self.username is not None and self.password is not None:
             req = mechanize.Request('http://www.economist.com/members/members.cfm?act=exec_login', headers={'Referer':'http://www.economist.com'})
             data = 'logging_in=Y&returnURL=http%253A%2F%2Fwww.economist.com%2Findex.cfm&email_address=username&pword=password&x=7&y=11'
             data = data.replace('username', quote(self.username)).replace('password', quote(self.password))
-            req.add_data()
+            req.add_data(data)
             br.open(req).read()
         return br
     
