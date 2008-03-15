@@ -902,6 +902,10 @@ class HTMLConverter(object):
         factor = 720./self.profile.dpi
         
         def scale_image(width, height):
+            if width <= 0:
+                width = 1
+            if height <= 0:
+                height = 1 
             pt = PersistentTemporaryFile(suffix='_html2lrf_scaled_image_.'+encoding.lower())
             self.image_memory.append(pt) # Neccessary, trust me ;-)
             try:
