@@ -1286,8 +1286,8 @@ class HTMLConverter(object):
         fp['parindent'] = indent
         
         if tag_css.has_key('line-height'):
-            bls, ls = int(self.current_block.textStyle.attrs['baselineskip']), \
-                      int(self.current_block.textStyle.attrs['linespace'])              
+            bls, ls = int(self.book.defaultTextStyle.attrs['baselineskip']), \
+                      int(self.book.defaultTextStyle.attrs['linespace'])              
             try: # See if line-height is a unitless number
                 val = int(float(tag_css['line-height'].strip()) * (bls+ls))
                 fp['linespace'] = val
@@ -1331,7 +1331,7 @@ class HTMLConverter(object):
         if properties_different(self.current_block.blockStyle.attrs, block_properties) or \
            properties_different(self.current_block.textStyle.attrs, text_properties) or\
            align != self.current_block.textStyle.attrs['align']:
-            ts = self.current_block.textStyle.copy()
+            ts = self.current_block.textStyle.copy()            
             ts.attrs.update(text_properties)
             ts.attrs['align'] = align
             bs = self.current_block.blockStyle.copy()
