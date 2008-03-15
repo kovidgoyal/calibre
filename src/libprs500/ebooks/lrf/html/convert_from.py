@@ -1132,9 +1132,11 @@ class HTMLConverter(object):
             return key
         
         def font_size(val):
+            '''
+            Assumes 1em=100%=10pt
+            '''
             normal = int(self.current_block.textStyle.attrs['fontsize'])
-            normpts = str(normal/10) + 'pt'
-            ans = self.unit_convert(val, pts=True, base_length=normpts)
+            ans = self.unit_convert(val, pts=True, base_length='10pt')
             
             if ans:
                 if ans <= 0:
@@ -1246,11 +1248,10 @@ class HTMLConverter(object):
         except ValueError:
             pass
         m = re.search(r"\s*(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|dpt|pt|pc)", val)
-        
+        normal = self.unit_convert(base_length)
         if m is not None and m.group(1):
             unit = float(m.group(1))
-            if m.group(2) == '%':
-                normal = self.unit_convert(base_length)
+            if m.group(2) == '%':                
                 result = (unit/100.0) * normal
             elif m.group(2) == 'px':
                 result = unit
@@ -1261,8 +1262,7 @@ class HTMLConverter(object):
             elif m.group(2) == 'dpt':
                 result = unit * dpi/720.
             elif m.group(2) == 'em':
-                normal = int(self.current_block.textStyle.attrs['fontsize'])
-                result = unit * normal * (dpi/720.)
+                result = unit * normal
             elif m.group(2) == 'pc':
                 result = unit * (dpi/72.) * 12
             elif m.group(2) == 'mm':
