@@ -318,7 +318,7 @@ class BasicNewsRecipe(object):
         for extra in ('keep_only_tags', 'remove_tags', 'preprocess_regexps', 
                       'preprocess_html', 'remove_tags_after', 'remove_tags_before'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
-        self.web2disk_options.postprocess_html = [self._postprocess_html, self.postprocess_html]
+        self.web2disk_options.postprocess_html = self._postprocess_html
         
         if self.delay > 0:
             self.simultaneous_downloads = 1
@@ -329,13 +329,20 @@ class BasicNewsRecipe(object):
         self.partial_failures = []
                 
             
-    def _postprocess_html(self, soup):
+    def _postprocess_html(self, soup, last_fetch, article_url):
         if self.extra_css is not None:
             head = soup.find('head')
             if head:
                 style = BeautifulSoup(u'<style type="text/css">%s</style>'%self.extra_css).find('style')
                 head.insert(len(head.contents), style)
-        return soup
+        if last_fetch:
+            body = soup.find('body')
+            if body:
+                div = BeautifulSoup('<div style="font:8pt monospace"><hr />This article was downloaded by <b>%s</b> from <a href="%s">%s</a></div>'%(__appname__, article_url, article_url)).find('div')
+                body.insert(len(body.contents), div)
+            
+        return self.postprocess_html(soup)
+        
     
     def download(self):
         '''
@@ -404,7 +411,7 @@ class BasicNewsRecipe(object):
         return logger, out
     
     def fetch_article(self, url, dir, logger):
-        fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map)
+        fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map, url)
         fetcher.base_dir = dir
         fetcher.current_dir = dir
         fetcher.show_progress = False

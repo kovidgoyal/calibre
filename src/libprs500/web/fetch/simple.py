@@ -58,7 +58,7 @@ class RecursiveFetcher(object):
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     
-    def __init__(self, options, logger, image_map={}, css_map={}):
+    def __init__(self, options, logger, image_map={}, css_map={}, job_info=None):
         self.logger = logger
         self.base_dir = os.path.abspath(os.path.expanduser(options.dir))
         if not os.path.exists(self.base_dir):
@@ -88,11 +88,11 @@ class RecursiveFetcher(object):
         self.remove_tags_before  = getattr(options, 'remove_tags_before', None)
         self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
         self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup) 
-        self.postprocess_html_ext= getattr(options, 'postprocess_html', [])
+        self.postprocess_html_ext= getattr(options, 'postprocess_html', None)
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
         self.failed_links = []
-               
+        self.job_info = job_info 
 
     def get_soup(self, src):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
@@ -293,14 +293,15 @@ class RecursiveFetcher(object):
                 self.localize_link(tag, 'href', self.filemap[nurl])
     
     def process_links(self, soup, baseurl, recursion_level, into_dir='links'):
-        c, res = 0, ''
+        res = ''
         diskpath = os.path.join(self.current_dir, into_dir)
         if not os.path.exists(diskpath):
             os.mkdir(diskpath)
         prev_dir = self.current_dir
         try:
             self.current_dir = diskpath
-            for tag in soup.findAll('a', href=True):
+            tags = list(soup.findAll('a', href=True))
+            for c, tag in enumerate(tags):
                 if self.show_progress:
                     print '.',
                     sys.stdout.flush()
@@ -314,7 +315,6 @@ class RecursiveFetcher(object):
                     continue
                 if self.files > self.max_files:
                     return res
-                c += 1
                 linkdir = 'link'+str(c) if into_dir else ''
                 linkdiskpath = os.path.join(diskpath, linkdir)
                 if not os.path.exists(linkdiskpath):
@@ -346,8 +346,8 @@ class RecursiveFetcher(object):
                         self.process_return_links(soup, iurl) 
                         self.logger.debug('Recursion limit reached. Skipping links in %s', iurl)
                     
-                    for func in self.postprocess_html_ext:
-                        soup = func(soup)
+                    if callable(self.postprocess_html_ext):
+                        soup = self.postprocess_html_ext(soup, c == len(tags)-1, self.job_info)
                     save_soup(soup, res)
                     
                     self.localize_link(tag, 'href', res)
