@@ -381,8 +381,8 @@ class DefaultProfile(object):
                 articles[title].append(d)
             articles[title].sort(key=operator.itemgetter('timestamp'), reverse=True)
             articles[title] = articles[title][:self.max_articles_per_feed+1]
-            for item in articles[title]:
-                item.pop('timestamp')
+            #for item in articles[title]:
+            #    item.pop('timestamp')
             if not articles[title]:
                 articles.pop(title)
         return articles
