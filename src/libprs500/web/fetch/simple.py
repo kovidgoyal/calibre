@@ -85,6 +85,7 @@ class RecursiveFetcher(object):
         self.preprocess_regexps  = getattr(options, 'preprocess_regexps', [])
         self.remove_tags         = getattr(options, 'remove_tags', [])
         self.remove_tags_after   = getattr(options, 'remove_tags_after', None)
+        self.remove_tags_before  = getattr(options, 'remove_tags_before', None)
         self.keep_only_tags      = getattr(options, 'keep_only_tags', [])
         self.preprocess_html_ext = getattr(options, 'preprocess_html', lambda soup: soup) 
         self.postprocess_html_ext= getattr(options, 'postprocess_html', [])
@@ -105,15 +106,22 @@ class RecursiveFetcher(object):
                     body.insert(len(body.contents), tag)
             soup.find('body').replaceWith(body)
             
-        if self.remove_tags_after is not None:
-            tag = soup.find(**self.remove_tags_after)
+        def remove_beyond(tag, next):
             while tag is not None and tag.name != 'body':
-                after = tag.nextSibling
+                after = getattr(tag, next)
                 while after is not None:
-                    ns = after.nextSibling
+                    ns = getattr(tag, next)
                     after.extract()
                     after = ns
                 tag = tag.parent
+        
+        if self.remove_tags_after is not None:
+            tag = soup.find(**self.remove_tags_after)
+            remove_beyond(tag, 'nextSibling')
+            
+        if self.remove_tags_before is not None:
+            tag = soup.find(**self.remove_tags_before)
+            remove_beyond(tag, 'previousSibling')
             
         for kwds in self.remove_tags:
             for tag in soup.findAll(**kwds):

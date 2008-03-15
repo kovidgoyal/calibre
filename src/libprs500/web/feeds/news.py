@@ -21,11 +21,11 @@ import logging, os, cStringIO, time, traceback
 import urlparse
 
 from libprs500 import browser, __appname__
-from libprs500.ebooks.BeautifulSoup import BeautifulSoup
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from libprs500.ebooks.metadata.opf import OPFCreator
 from libprs500.ebooks.metadata.toc import TOC
 from libprs500.ebooks.metadata import MetaInformation
-from libprs500.web.feeds import feed_from_xml, templates
+from libprs500.web.feeds import feed_from_xml, templates, feeds_from_index
 from libprs500.web.fetch.simple import option_parser as web2disk_option_parser
 from libprs500.web.fetch.simple import RecursiveFetcher
 from libprs500.threadpool import WorkRequest, ThreadPool, NoResultsPending
@@ -74,6 +74,11 @@ class BasicNewsRecipe(object):
     #: @type: string
     timefmt               = ' [%a, %d %b %Y]'
     
+    #: List of feeds to download
+    #: Can be either C{[url1, url2, ...]} or C{[('title1', url1), ('title2', url2),...]}
+    #: @type: List of strings or list of 2-tuples
+    feeds = None
+    
     #: Max number of characters in the short description.
     #: @type: integer
     summary_length        = 500
@@ -112,7 +117,7 @@ class BasicNewsRecipe(object):
     
     #: List of options to pass to html2lrf, to customize generation of LRF ebooks.
     #: @type: list of strings
-    html2lrf_options   = ['--page-break-before', '$']
+    html2lrf_options   = []
     
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
@@ -133,6 +138,12 @@ class BasicNewsRecipe(object):
     #: For example, C{remove_tags_after = [dict(id='content')]} will remove all
     #: tags after the element with id C{content}.
     remove_tags_after = None
+    
+    #: Remove all tags that occur before the specified tag.
+    #: For the format for specifying a tag see L{remove_tags}.
+    #: For example, C{remove_tags_before = [dict(id='content')]} will remove all
+    #: tags before the element with id C{content}.
+    remove_tags_before = None
     
     #: Keep only the specified tags and their children. 
     #: For the format for specifying tags see L{remove_tags}.
@@ -220,6 +231,26 @@ class BasicNewsRecipe(object):
         '''
         pass
     
+    def parse_index(self):
+        '''
+        This method should be implemented in recipes that parse a website
+        instead of feeds to generate a list of articles. Typical uses are for
+        news sources that have a "Print Edition" webpage that lists all the 
+        articles in the current print edition. If this function is implemented,
+        it will be used in preference to L{parse_feeds}.
+        @rtype: dictionary
+        @return: A dictionary whose keys are feed titles and whose values are each
+        a list of dictionaries. Each list contains dictionaries of the form::
+            {
+            'title'       : article title,
+            'url'         : URL of print version,
+            'date'        : The publication date of the article as a string,
+            'description' : A summary of the article
+            'content'     : The full article (can be an empty string). This is used by FullContentProfile
+            }
+        '''
+        raise NotImplementedError
+    
     def __init__(self, options, parser, progress_reporter):
         '''
         Initialize the recipe.
@@ -285,7 +316,7 @@ class BasicNewsRecipe(object):
             
         self.web2disk_options = web2disk_option_parser().parse_args(web2disk_cmdline)[0]
         for extra in ('keep_only_tags', 'remove_tags', 'preprocess_regexps', 
-                      'preprocess_html', 'remove_tags_after'):
+                      'preprocess_html', 'remove_tags_after', 'remove_tags_before'):
             setattr(self.web2disk_options, extra, getattr(self, extra))
         self.web2disk_options.postprocess_html = [self._postprocess_html, self.postprocess_html]
         
@@ -293,7 +324,7 @@ class BasicNewsRecipe(object):
             self.simultaneous_downloads = 1
             
         self.navbar = templates.NavBarTemplate()
-        self.html2lrf_options.append('--use-spine')
+        self.html2lrf_options.extend(['--page-break-before', '$', '--use-spine'])
         self.failed_downloads = []
         self.partial_failures = []
         
@@ -389,7 +420,13 @@ class BasicNewsRecipe(object):
     
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
-        feeds = self.parse_feeds()
+        try:
+            feeds = feeds_from_index(self.parse_index(), oldest_article=self.oldest_article,
+                                     max_articles_per_feed=self.max_articles_per_feed)
+            self.report_progress(0, _('Got feeds from index page'))
+        except NotImplementedError:
+            feeds = self.parse_feeds()
+            
         if self.test:
             feeds = feeds[:2]
         self.has_single_feed = len(feeds) == 1
@@ -485,28 +522,31 @@ class BasicNewsRecipe(object):
         
         entries = ['index.html']
         toc = TOC(base_path=dir)
-        for i, f in enumerate(feeds):
-            entries.append('feed_%d/index.html'%i)
-            feed = toc.add_item('feed_%d/index.html'%i, None, f.title)
+        
+        def feed_index(num, parent):
+            f = feeds[num]
             for j, a in enumerate(f):
                 if getattr(a, 'downloaded', False):
-                    adir = 'feed_%d/article_%d/'%(i, j)
+                    adir = 'feed_%d/article_%d/'%(num, j)
                     entries.append('%sindex.html'%adir)
-                    feed.add_item('%sindex.html'%adir, None, a.title if a.title else 'Untitled article')
+                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
                         relp = sp[len(prefix):]
                         entries.append(relp.replace(os.sep, '/'))
+        
+        if len(feeds) > 1:
+            for i, f in enumerate(feeds):
+                entries.append('feed_%d/index.html'%i)
+                feed = toc.add_item('feed_%d/index.html'%i, None, f.title)
+                feed_index(i, feed)
+        else:
+            entries.append('feed_%d/index.html'%0)
+            feed_index(0, toc)
                         
         opf.create_spine(entries)
         opf.set_toc(toc)
         
-        for i, f in enumerate(feeds):
-            
-            for j, a in enumerate(f):
-                if getattr(a, 'downloaded', False):
-                    adir = 'feed_%d/article_%d/'%(i, j)
-                    
         opf.render(open(opf_path, 'wb'), open(ncx_path, 'wb'))
         
     
@@ -525,7 +565,7 @@ class BasicNewsRecipe(object):
         
         article = request.article
         self.logger.debug(_('\nDownloaded article %s from %s\n%s')%(article.title, article.url, request.stream.getvalue().decode('utf-8', 'ignore')))
-        article.url = result[0]
+        article.url = 'article_%d/index.html'%a
         article.downloaded = True
         article.sub_pages  = result[1][1:]
         self.jobs_done += 1
@@ -563,3 +603,29 @@ class BasicNewsRecipe(object):
                                               max_articles_per_feed=self.max_articles_per_feed))
             
         return parsed_feeds
+    
+    @classmethod
+    def tag_to_string(cls, tag, use_alt=True):
+        '''
+        Convenience method to take a BeautifulSoup Tag and extract the text from it
+        recursively, including any CDATA sections and alt tag attributes.
+        @param use_alt: If True try to use the alt attribute for tags that don't have any textual content
+        @type use_alt: boolean
+        @return: A unicode (possibly empty) object
+        @rtype: unicode string
+        '''
+        if not tag:
+            return ''
+        if isinstance(tag, basestring):
+            return tag
+        strings = []
+        for item in tag.contents:
+            if isinstance(item, (NavigableString, CData)):
+                strings.append(item.string)
+            elif isinstance(item, Tag):
+                res = cls.tag_to_string(item)
+                if res:
+                    strings.append(res)
+                elif use_alt and item.has_key('alt'):
+                    strings.append(item['alt'])
+        return u''.join(strings)

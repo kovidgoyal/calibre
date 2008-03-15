@@ -102,7 +102,7 @@ class IndexTemplate(Template):
         <?python
         from datetime import datetime
         ?>
-        <p style="text-align:right">${datetime.now().strftime(datefmt)}</p>
+        <p style="text-align:right">${datetime.now().strftime(str(datefmt))}</p>
         <ul>
             <py:for each="i, feed in enumerate(feeds)">
             <li py:if="feed" id="feed_${str(i)}">
@@ -144,6 +144,9 @@ class FeedTemplate(Template):
             <img alt="${feed.image_alt}" src="${feed.image_url}" />
         </div>
         </py:if>
+        <div py:if="feed.description">
+            ${feed.description}
+        </div>
         <ul>
             <py:for each="i, article in enumerate(feed.articles)">
             <li id="${'article_%d'%i}" py:if="getattr(article, 'downloaded', False)">

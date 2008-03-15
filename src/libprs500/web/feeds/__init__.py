@@ -64,7 +64,7 @@ class Feed(object):
                            max_articles_per_feed=100):
         entries = feed.entries
         feed = feed.feed
-        self.title        = feed.get('title', 'Unknown feed') if not title else title
+        self.title        = feed.get('title', _('Unknown feed')) if not title else title
         self.description  = feed.get('description', '')
         image             = feed.get('image', {})
         self.image_url    = image.get('href', None)
@@ -83,6 +83,38 @@ class Feed(object):
                 break
             self.parse_article(item)
 
+    def populate_from_preparsed_feed(self, title, articles, oldest_article=7, 
+                           max_articles_per_feed=100):
+        self.title      = title if title else _('Unknown feed')
+        self.descrition = ''
+        self.image_url  = None
+        self.articles   = []
+        self.added_articles = []
+         
+        self.oldest_article = oldest_article
+        self.id_counter = 0
+        
+        for item in articles:
+            if len(self.articles) >= max_articles_per_feed:
+                break
+            id = item.get('id', 'internal id#'+str(self.id_counter))
+            if id in self.added_articles:
+                return
+            self.added_articles.append(id)
+            self.id_counter += 1
+            published   = time.gmtime(item.get('timestamp', time.time()))
+            title       = item.get('title', _('Untitled article'))
+            link        = item.get('url', None)
+            description = item.get('description', '')
+            content     = item.get('content', '')
+            article = Article(id, title, link, description, published, content)
+            delta = datetime.utcnow() - article.utctime
+            if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
+                self.articles.append(article)
+            else:
+                self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
+         
+    
     def parse_article(self, item):
         id = item.get('id', 'internal id#'+str(self.id_counter))
         if id in self.added_articles:
@@ -91,7 +123,7 @@ class Feed(object):
         self.id_counter += 1
         self.added_articles.append(id)
         
-        title = item.get('title', 'Untitled article')
+        title = item.get('title', _('Untitled article'))
         link  = item.get('link',  None)
         description = item.get('summary', None)
         
@@ -134,3 +166,17 @@ def feed_from_xml(raw_xml, title=None, oldest_article=7, max_articles_per_feed=1
                             oldest_article=oldest_article,
                             max_articles_per_feed=max_articles_per_feed)
     return pfeed
+
+def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100):
+    '''
+    @param index: A parsed index as returned by L{BasicNewsRecipe.parse_index}.
+    @return: A list of L{Feed} objects.
+    @rtype: list
+    '''
+    feeds = []
+    for title, articles in index.items():
+        pfeed = Feed()
+        pfeed.populate_from_preparsed_feed(title, articles, oldest_article=oldest_article, 
+                                       max_articles_per_feed=max_articles_per_feed)
+        feeds.append(pfeed)
+    return feeds

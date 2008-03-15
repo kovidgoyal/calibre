@@ -17,7 +17,7 @@
 '''
 Builtin recipes.
 '''
-recipes = ['newsweek']
+recipes = ['newsweek', 'atlantic', 'economist']
 
 import re
 from libprs500.web.feeds.news import BasicNewsRecipe
