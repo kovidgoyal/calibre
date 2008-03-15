@@ -324,11 +324,9 @@ class BasicNewsRecipe(object):
             self.simultaneous_downloads = 1
             
         self.navbar = templates.NavBarTemplate()
-        self.html2lrf_options.extend(['--page-break-before', '$', '--use-spine'])
+        self.html2lrf_options.extend(['--page-break-before', '$', '--use-spine', '--header'])
         self.failed_downloads = []
         self.partial_failures = []
-        
-        
                 
             
     def _postprocess_html(self, soup):
@@ -347,9 +345,6 @@ class BasicNewsRecipe(object):
         @return: Path to index.html
         @rtype: string
         '''
-        self.report_progress(0, _('Trying to download cover...'))
-        
-        self.download_cover()
         res = self.build_index()
         self.cleanup()
         self.report_progress(1, _('Download finished'))
@@ -426,7 +421,9 @@ class BasicNewsRecipe(object):
             self.report_progress(0, _('Got feeds from index page'))
         except NotImplementedError:
             feeds = self.parse_feeds()
-            
+        
+        self.report_progress(0, _('Trying to download cover...'))
+        self.download_cover()    
         if self.test:
             feeds = feeds[:2]
         self.has_single_feed = len(feeds) == 1
