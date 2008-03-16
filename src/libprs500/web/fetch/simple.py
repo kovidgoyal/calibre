@@ -43,6 +43,30 @@ def save_soup(soup, target):
     for meta in metas:
         if 'charset' in meta['content']:
             meta.replaceWith(nm)
+    
+    selfdir = os.path.dirname(target)
+    def abs2rel(path, base):
+        prefix = os.path.commonprefix([path, base])
+        if not os.path.exists(prefix) or not os.path.isdir(prefix):
+            prefix = os.path.dirname(prefix)
+        prefix = os.path.normpath(prefix)
+        if prefix.startswith(selfdir): # path is in a subdirectory
+            return path[len(prefix)+1:]
+        from_prefix = path[len(prefix)+1:]
+        left = base
+        ups = []
+        while left != prefix:
+            left = os.path.split(left)[0]
+            ups.append('..')
+        ups.append(from_prefix)
+        return os.path.join(*ups)
+    
+    for tag in soup.findAll(['img', 'link', 'a']):
+        for key in ('src', 'href'):
+            path = tag.get(key, None)
+            if path and os.path.exists(path) and os.path.isabs(path):
+                tag[key] = abs2rel(path, selfdir).replace(os.sep, '/')
+    
     f = codecs.open(target, 'w', 'utf-8')
     f.write(unicode(soup))
     f.close()
@@ -92,8 +116,8 @@ class RecursiveFetcher(object):
         self.download_stylesheets = not options.no_stylesheets
         self.show_progress = True
         self.failed_links = []
-        self.job_info = job_info 
-
+        self.job_info = job_info
+        
     def get_soup(self, src):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
@@ -180,8 +204,7 @@ class RecursiveFetcher(object):
         diskpath = os.path.join(self.current_dir, 'stylesheets')
         if not os.path.exists(diskpath):
             os.mkdir(diskpath)
-        c = 0
-        for tag in soup.findAll(lambda tag: tag.name.lower()in ['link', 'style'] and tag.has_key('type') and tag['type'].lower() == 'text/css'):
+        for c, tag in enumerate(soup.findAll(lambda tag: tag.name.lower()in ['link', 'style'] and tag.has_key('type') and tag['type'].lower() == 'text/css')):
             if tag.has_key('href'):
                 iurl = tag['href']
                 if not urlparse.urlsplit(iurl).scheme:
@@ -196,7 +219,6 @@ class RecursiveFetcher(object):
                     self.logger.warning('Could not fetch stylesheet %s', iurl)
                     self.logger.debug('Error: %s', str(err), exc_info=True)
                     continue
-                c += 1
                 stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                 with self.stylemap_lock:
                     self.stylemap[iurl] = stylepath
@@ -301,6 +323,7 @@ class RecursiveFetcher(object):
         try:
             self.current_dir = diskpath
             tags = list(soup.findAll('a', href=True))
+            
             for c, tag in enumerate(tags):
                 if self.show_progress:
                     print '.',
@@ -324,7 +347,7 @@ class RecursiveFetcher(object):
                     f = self.fetch_url(iurl)
                     dsrc = f.read()
                     if len(dsrc) == 0:
-                        raise Exception('No content')
+                        raise ValueError('No content at URL %s'%iurl)
                     if self.encoding is not None:
                         dsrc = dsrc.decode(self.encoding, 'ignore')
                     else:
@@ -347,9 +370,13 @@ class RecursiveFetcher(object):
                         self.logger.debug('Recursion limit reached. Skipping links in %s', iurl)
                     
                     if callable(self.postprocess_html_ext):
-                        soup = self.postprocess_html_ext(soup, c == len(tags)-1, self.job_info)
-                    save_soup(soup, res)
+                        soup = self.postprocess_html_ext(soup, 
+                                c==0 and recursion_level==0 and not getattr(self, 'called_first', False),
+                                self.job_info)
+                        if c==0 and recursion_level == 0:
+                            self.called_first = True
                     
+                    save_soup(soup, res)
                     self.localize_link(tag, 'href', res)
                 except Exception, err:
                     self.failed_links.append((iurl, traceback.format_exc()))

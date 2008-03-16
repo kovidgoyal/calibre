@@ -68,7 +68,10 @@ If you specify this option, any argument to %prog is ignored and a default recip
     return p
     
 def simple_progress_bar(percent, msg):
-    print '%d%%'%(percent*100),
+    if not msg:
+        print '%d%%'%(percent*100),
+    else:
+        print '%d%%'%(percent*100), msg
     sys.stdout.flush()
     
 def no_progress_bar(percent, msg):

@@ -20,8 +20,10 @@ from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
 class Newsweek(BasicNewsRecipe):
 
-    title      = 'Newsweek'
-    __author__ = 'Kovid Goyal'
+    title          = 'Newsweek'
+    __author__     = 'Kovid Goyal'
+    no_stylesheets = True
+    oldest_article = 11
     
     feeds = [
              ('Top News', 'http://feeds.newsweek.com/newsweek/TopNews',),

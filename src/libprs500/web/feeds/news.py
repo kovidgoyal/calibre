@@ -17,7 +17,7 @@
 The backend to parse feeds and create HTML that can then be converted
 to an ebook.
 '''
-import logging, os, cStringIO, time, traceback
+import logging, os, cStringIO, time, traceback, re
 import urlparse
 
 from libprs500 import browser, __appname__
@@ -329,17 +329,21 @@ class BasicNewsRecipe(object):
         self.partial_failures = []
                 
             
-    def _postprocess_html(self, soup, last_fetch, article_url):
+    def _postprocess_html(self, soup, first_fetch, job_info):
         if self.extra_css is not None:
             head = soup.find('head')
             if head:
                 style = BeautifulSoup(u'<style type="text/css">%s</style>'%self.extra_css).find('style')
                 head.insert(len(head.contents), style)
-        if last_fetch:
+        if first_fetch:
+            url, f, a, feed_len = job_info
             body = soup.find('body')
-            if body:
-                div = BeautifulSoup('<div style="font:8pt monospace"><hr />This article was downloaded by <b>%s</b> from <a href="%s">%s</a></div>'%(__appname__, article_url, article_url)).find('div')
-                body.insert(len(body.contents), div)
+            if body is not None:
+                templ = self.navbar.generate(False, f, a, feed_len, 
+                                             not self.has_single_feed, 
+                                             url, __appname__)
+                elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                body.insert(0, elem)
             
         return self.postprocess_html(soup)
         
@@ -410,8 +414,8 @@ class BasicNewsRecipe(object):
         logger.addHandler(handler)
         return logger, out
     
-    def fetch_article(self, url, dir, logger):
-        fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map, url)
+    def fetch_article(self, url, dir, logger, f, a, num_of_feeds):
+        fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map, (url, f, a, num_of_feeds))
         fetcher.base_dir = dir
         fetcher.current_dir = dir
         fetcher.show_progress = False
@@ -455,7 +459,7 @@ class BasicNewsRecipe(object):
                     url = self.print_version(article.url)
                 except NotImplementedError:
                     url = article.url
-                req = WorkRequest(self.fetch_article, (url, art_dir, logger), 
+                req = WorkRequest(self.fetch_article, (url, art_dir, logger, f, a, len(feed)), 
                                   {}, (f, a), self.article_downloaded, 
                                   self.error_in_article_download)
                 req.stream = stream
@@ -534,16 +538,29 @@ class BasicNewsRecipe(object):
                     adir = 'feed_%d/article_%d/'%(num, j)
                     entries.append('%sindex.html'%adir)
                     parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'))
+                    last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
                         relp = sp[len(prefix):]
                         entries.append(relp.replace(os.sep, '/'))
+                        last = sp
+                    
+                    src = open(last, 'rb').read()
+                    soup = BeautifulSoup(src)
+                    body = soup.find('body')
+                    if body is not None:
+                        prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
+                        templ = self.navbar.generate(True, num, j, len(f), 
+                                         not self.has_single_feed, 
+                                         a.orig_url, __appname__, prefix=prefix)
+                        elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                        body.insert(len(body.contents), elem)
+                        open(last, 'wb').write(unicode(soup).encode('utf-8'))
         
         if len(feeds) > 1:
             for i, f in enumerate(feeds):
                 entries.append('feed_%d/index.html'%i)
-                feed = toc.add_item('feed_%d/index.html'%i, None, f.title)
-                feed_index(i, feed)
+                feed_index(i, toc.add_item('feed_%d/index.html'%i, None, f.title))
         else:
             entries.append('feed_%d/index.html'%0)
             feed_index(0, toc)
@@ -556,19 +573,13 @@ class BasicNewsRecipe(object):
     
     def article_downloaded(self, request, result):
         index = os.path.join(os.path.dirname(result[0]), 'index.html')
-        os.rename(result[0], index)
-        src = open(index, 'rb').read().decode('utf-8')
-        f, a = request.requestID
-        soup = BeautifulSoup(src)
-        body = soup.find('body')
-        if body is not None:
-            top    = self.navbar.generate(False, f, a, len(request.feed), not self.has_single_feed).render(doctype='xhtml')
-            top    = BeautifulSoup(top).find('div')
-            body.insert(0, top)
-            open(index, 'wb').write(unicode(soup).encode('utf-8'))
+        if index != result[0]:
+            os.rename(result[0], index)
+        a = request.requestID[1]        
         
         article = request.article
         self.logger.debug(_('\nDownloaded article %s from %s\n%s')%(article.title, article.url, request.stream.getvalue().decode('utf-8', 'ignore')))
+        article.orig_url = article.url
         article.url = 'article_%d/index.html'%a
         article.downloaded = True
         article.sub_pages  = result[1][1:]
