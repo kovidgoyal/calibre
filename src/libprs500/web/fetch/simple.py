@@ -21,7 +21,7 @@ import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2, thre
 from urllib import url2pathname
 from httplib import responses
 
-from libprs500 import setup_cli_handlers, browser, sanitize_file_name, OptionParser
+from libprs500 import setup_cli_handlers, browser, sanitize_file_name, OptionParser, relpath
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from libprs500.ebooks.chardet import xml_to_unicode
 
@@ -45,27 +45,12 @@ def save_soup(soup, target):
             meta.replaceWith(nm)
     
     selfdir = os.path.dirname(target)
-    def abs2rel(path, base):
-        prefix = os.path.commonprefix([path, base])
-        if not os.path.exists(prefix) or not os.path.isdir(prefix):
-            prefix = os.path.dirname(prefix)
-        prefix = os.path.normpath(prefix)
-        if prefix.startswith(selfdir): # path is in a subdirectory
-            return path[len(prefix)+1:]
-        from_prefix = path[len(prefix)+1:]
-        left = base
-        ups = []
-        while left != prefix:
-            left = os.path.split(left)[0]
-            ups.append('..')
-        ups.append(from_prefix)
-        return os.path.join(*ups)
     
     for tag in soup.findAll(['img', 'link', 'a']):
         for key in ('src', 'href'):
             path = tag.get(key, None)
             if path and os.path.exists(path) and os.path.isabs(path):
-                tag[key] = abs2rel(path, selfdir).replace(os.sep, '/')
+                tag[key] = relpath(path, selfdir).replace(os.sep, '/')
     
     f = codecs.open(target, 'w', 'utf-8')
     f.write(unicode(soup))
