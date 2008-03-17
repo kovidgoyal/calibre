@@ -30,7 +30,7 @@
         </py:for>
     </manifest>
     
-    <spine py:if="getattr(mi, 'manifest', None)" 
+    <spine py:if="getattr(mi, 'spine', None)" 
            py:with="attrs={'toc':'ncx' if mi.toc else None}" py:attrs="attrs">
         <py:for each="idref in mi.spine">
         <itemref idref="${str(idref)}" />
