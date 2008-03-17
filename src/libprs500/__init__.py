@@ -375,7 +375,7 @@ def launch(path_or_url):
     elif isosx:
         subprocess.Popen(('open', path_or_url))
     elif iswindows:
-        import win32api
+        win32api = __import__('win32api', globals(), locals(), [], -1)
         win32api.ShellExecute(0, 'open', path_or_url, None, os.getcwd(), 1)
         
 def relpath(target, base=os.curdir):
