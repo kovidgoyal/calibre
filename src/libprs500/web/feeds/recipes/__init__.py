@@ -17,14 +17,14 @@
 '''
 Builtin recipes.
 '''
-recipes = ['newsweek', 'atlantic', 'economist']
+recipes = ['newsweek', 'atlantic', 'economist', 'dilbert']
 
 import re
-from libprs500.web.feeds.news import BasicNewsRecipe
+from libprs500.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
-from libprs500.ebooks.lrf.web import available_profiles
+from libprs500.ebooks.lrf.web import builtin_profiles
 
-basic_recipes = (BasicNewsRecipe, DefaultProfile, FullContentProfile)
+basic_recipes = (BasicNewsRecipe, CustomIndexRecipe, DefaultProfile, FullContentProfile)
 basic_recipe_names = (i.__name__ for i in basic_recipes)
 
 
@@ -51,6 +51,8 @@ recipes = [load_recipe(i) for i in recipes]
 def compile_recipe(src):
     '''
     Compile the code in src and return the first object that is a recipe or profile.
+    @param src: Python source code
+    @type src: string
     @return: Recipe/Profile class or None, if no such class was found in C{src} 
     '''
     locals = {}
@@ -67,13 +69,20 @@ def compile_recipe(src):
 def get_builtin_recipe(title):
     '''
     Return a builtin recipe/profile class whoose title == C{title} or None if no such
-    recipe exists.
+    recipe exists. Also returns a flag that is True iff the found recipe is really
+    an old-style Profile.
     
     @type title: string
-    @rtype: class or None
+    @rtype: class or None, boolean
     '''
     for r in recipes:
         if r.title == title:
-            return r
+            return r, False
+    for p in builtin_profiles:
+        if p.title == title:
+            return p, True
+    return None, False
 
-titles = set([r.title for r in recipes])
+_titles = list(frozenset([r.title for r in recipes] + [p.title for p in builtin_profiles]))
+_titles.sort()
+titles = _titles

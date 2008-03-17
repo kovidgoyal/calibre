@@ -24,13 +24,14 @@
         <reference py:if="mi.cover" type="cover" href="${mi.cover}" /> 
     </guide>
     
-    <manifest>
+    <manifest py:if="getattr(mi, 'manifest', None)">
         <py:for each="i, m in enumerate(mi.manifest)">
         <item id="${str(i)}" href="${m[0]}" media-type="${m[1]}" /> 
         </py:for>
     </manifest>
     
-    <spine py:with="attrs={'toc':'ncx' if mi.toc else None}" py:attrs="attrs">
+    <spine py:if="getattr(mi, 'manifest', None)" 
+           py:with="attrs={'toc':'ncx' if mi.toc else None}" py:attrs="attrs">
         <py:for each="idref in mi.spine">
         <itemref idref="${str(idref)}" />
         </py:for>

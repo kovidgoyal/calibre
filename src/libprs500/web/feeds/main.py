@@ -20,6 +20,7 @@ from libprs500.web.feeds.news import BasicNewsRecipe
 import sys, os, logging
 from libprs500.web.feeds.recipes import get_builtin_recipe, compile_recipe, titles
 from libprs500.web.fetch.simple import option_parser as _option_parser
+from libprs500.web.feeds.news import Profile2Recipe
 
 
 def option_parser(usage='''\
@@ -110,7 +111,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
             else:
                 raise Exception('not file')
         except:
-            recipe = get_builtin_recipe(recipe_arg)
+            recipe, is_profile = get_builtin_recipe(recipe_arg)
             if recipe is None:
                 recipe = compile_recipe(recipe_arg)
     
@@ -125,7 +126,10 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
         handler.setFormatter(ColoredFormatter('%(levelname)s: %(message)s\n')) # The trailing newline is need because of the progress bar
         logging.getLogger('feeds2disk').addHandler(handler)
     
-    recipe = recipe(opts, parser, notification)
+    if is_profile:
+        recipe = Profile2Recipe(recipe, opts, parser, notification)
+    else:
+        recipe = recipe(opts, parser, notification)
     if not os.path.exists(recipe.output_dir):
         os.makedirs(recipe.output_dir)
     recipe.download()

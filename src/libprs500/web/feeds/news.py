@@ -20,7 +20,7 @@ to an ebook.
 import logging, os, cStringIO, time, traceback, re
 import urlparse
 
-from libprs500 import browser, __appname__
+from libprs500 import browser, __appname__, iswindows
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from libprs500.ebooks.metadata.opf import OPFCreator
 from libprs500.ebooks.metadata.toc import TOC
@@ -41,7 +41,7 @@ class BasicNewsRecipe(object):
     title                 = _('Unknown News Source')
     
     #: The author of this recipe
-    __author__            = _('Unknown')    
+    __author__            = _(__appname__)    
     
     #: Maximum number of articles to download from each feed
     #: @type: integer
@@ -198,6 +198,14 @@ class BasicNewsRecipe(object):
         '''
         return browser()
     
+    def get_article_url(self, item):
+        '''
+        Override to perform extraction of URL for each article. 
+        @param item: An article instance from L{feedparser}.
+        @type item: L{FeedParserDict} 
+        '''
+        return item.get('link',  None)
+    
     def preprocess_html(self, soup):
         '''
         This function is called with the source of each downloaded HTML file, before
@@ -335,7 +343,7 @@ class BasicNewsRecipe(object):
             if head:
                 style = BeautifulSoup(u'<style type="text/css">%s</style>'%self.extra_css).find('style')
                 head.insert(len(head.contents), style)
-        if first_fetch:
+        if first_fetch and job_info:
             url, f, a, feed_len = job_info
             body = soup.find('body')
             if body is not None:
@@ -615,7 +623,8 @@ class BasicNewsRecipe(object):
             parsed_feeds.append(feed_from_xml(self.browser.open(url).read(), 
                                               title=title,
                                               oldest_article=self.oldest_article,
-                                              max_articles_per_feed=self.max_articles_per_feed))
+                                              max_articles_per_feed=self.max_articles_per_feed,
+                                              get_article_url=self.get_article_url))
             
         return parsed_feeds
     
@@ -644,3 +653,55 @@ class BasicNewsRecipe(object):
                 elif use_alt and item.has_key('alt'):
                     strings.append(item['alt'])
         return u''.join(strings)
+    
+class Profile2Recipe(BasicNewsRecipe):
+    '''
+    Used to migrate the old news Profiles to the new Recipes. Uses the settings
+    from the old Profile to populate the settings in the Recipe. Also uses, the 
+    Profile's get_browser and parse_feeds.
+    '''
+    def __init__(self, profile_class, options, parser, progress_reporter):
+        self.old_profile = profile_class(logging.getLogger('feeds2disk'), 
+                                         username=options.username, 
+                                         password=options.password,
+                                         lrf=options.lrf)
+        for attr in ('preprocess_regexps', 'oldest_article', 'delay', 'timeout',
+                     'match_regexps', 'filter_regexps', 'html2lrf_options', 
+                     'timefmt', 'needs_subscription', 'summary_length',
+                     'max_articles_per_feed', 'title','no_stylesheets', 'encoding'):
+            setattr(self, attr, getattr(self.old_profile, attr))
+        
+        self.simultaneous_downloads = 1
+        BasicNewsRecipe.__init__(self, options, parser, progress_reporter)
+        self.browser = self.old_profile.browser
+        
+    def parse_index(self):
+        return self.old_profile.parse_feeds()
+        
+class CustomIndexRecipe(BasicNewsRecipe):
+    
+    def custom_index(self):
+        '''
+        Return the path to a custom HTML document that will serve as the index for 
+        this recipe.
+        @rtype: string
+        '''
+        raise NotImplementedError
+    
+    def create_opf(self):
+        mi = MetaInformation(self.title, [__appname__])
+        mi = OPFCreator(self.output_dir, mi)
+        mi.create_manifest_from_files_in([self.output_dir])
+        mi.create_spine(['index.html'])
+        mi.render(open(os.path.join(self.output_dir, 'index.opf'), 'wb'))
+    
+    def download(self):
+        index = os.path.abspath(self.custom_index())
+        url = 'file:'+index if iswindows else 'file://'+index
+        fetcher = RecursiveFetcher(self.web2disk_options, self.logger)
+        fetcher.base_dir = self.output_dir
+        fetcher.current_dir = self.output_dir
+        fetcher.show_progress = False
+        res = fetcher.start_fetch(url)
+        self.create_opf()
+        return res

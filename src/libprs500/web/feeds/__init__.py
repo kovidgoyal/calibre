@@ -17,7 +17,7 @@
 '''
 Contains the logic for parsing feeds.
 '''
-import time, logging
+import time, logging, traceback
 from datetime import datetime
 
 from libprs500.web.feeds.feedparser import parse
@@ -54,11 +54,12 @@ Has content : %s
 
 class Feed(object):
 
-    def __init__(self):
+    def __init__(self, get_article_url=lambda item: item.get('link', None)):
         '''
         Parse a feed into articles.
         '''
         self.logger = logging.getLogger('feeds2disk')
+        self.get_article_url = get_article_url
         
     def populate_from_feed(self, feed, title=None, oldest_article=7, 
                            max_articles_per_feed=100):
@@ -124,7 +125,12 @@ class Feed(object):
         self.added_articles.append(id)
         
         title = item.get('title', _('Untitled article'))
-        link  = item.get('link',  None)
+        try:
+            link  = self.get_article_url(item)
+        except:
+            self.logger.warning('Failed to get link for %s'%title)
+            self.logger.debug(traceback.format_exc())
+            link = None
         description = item.get('summary', None)
         
         content = '\n'.join(i.value for i in item.get('content', []))
@@ -159,9 +165,10 @@ class Feed(object):
         return False
 
 
-def feed_from_xml(raw_xml, title=None, oldest_article=7, max_articles_per_feed=100):
+def feed_from_xml(raw_xml, title=None, oldest_article=7, 
+                  max_articles_per_feed=100, get_article_url=lambda item: item.get('link', None)):
     feed = parse(raw_xml)
-    pfeed = Feed()
+    pfeed = Feed(get_article_url=get_article_url)
     pfeed.populate_from_feed(feed, title=title, 
                             oldest_article=oldest_article,
                             max_articles_per_feed=max_articles_per_feed)

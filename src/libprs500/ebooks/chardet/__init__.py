@@ -52,7 +52,8 @@ def xml_to_unicode(raw, verbose=False):
             print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)
     CHARSET_ALIASES = { "macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis" }
-    encoding = encoding.lower()
+    if encoding:
+        encoding = encoding.lower()
     if CHARSET_ALIASES.has_key(encoding):
         encoding = CHARSET_ALIASES[encoding]
     return raw.decode(encoding, 'ignore'), encoding 
