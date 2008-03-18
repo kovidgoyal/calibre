@@ -462,10 +462,14 @@ def main():
           options = { 'py2exe' : {'compressed': 1,
                                   'optimize'  : 2,
                                   'dist_dir'  : PY2EXE_DIR,
-                                  'includes'  : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
-                                                 'mechanize', 'ClientForm', 'wmi', 
-                                                 'win32file', 'pythoncom', 'rtf2xml', 
-                                                 'lxml', 'lxml._elementpath', 'genshi'],                                
+                                  'includes'  : [
+                                             'sip', 'pkg_resources', 'PyQt4.QtSvg', 
+                                             'mechanize', 'ClientForm', 'wmi', 
+                                             'win32file', 'pythoncom', 'rtf2xml', 
+                                             'lxml', 'lxml._elementpath', 'genshi',
+                                             'path', 'pydoc', 'IPython.Extensions.*',
+                                             'libprs500.web.feeds.recipes.*'
+                                             ],                                
                                   'packages'  : ['PIL'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
                                                  "_imagingtk", "ImageTk", "FixTk", 
