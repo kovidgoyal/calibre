@@ -1825,7 +1825,7 @@ def try_opf(path, options, logger):
         return
     
     dirpath = os.path.dirname(os.path.abspath(opf))
-    opf = OPFReader(open(opf, 'rb'), dirpath)    
+    opf = OPFReader(open(opf, 'rb'), dirpath)
     try:
         title = opf.title        
         if title and not getattr(options, 'title', None):
