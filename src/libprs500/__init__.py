@@ -411,7 +411,16 @@ def relpath(target, base=os.curdir):
     rel_list = [os.pardir] * (len(base_list)-i) + target_list[i:]
     return os.path.join(*rel_list)
 
-_lock_file = None
+def _clean_lock_file(file):
+    try:
+        file.close()
+    except:
+        pass
+    try:
+        os.remove(file.name)
+    except:
+        pass
+    
 def singleinstance(name):
     '''
     Return True if no other instance of the application identified by name is running, 
@@ -435,7 +444,7 @@ def singleinstance(name):
         try:
             f = open(path, 'w')
             fcntl.lockf(f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
-            _lock_file = f
+            atexit.register(_clean_lock_file, f)
             return True
         except IOError:
             return False

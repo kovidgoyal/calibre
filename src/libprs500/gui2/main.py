@@ -1016,7 +1016,7 @@ def main(args=sys.argv):
         app = QApplication(args)    
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
-        if not singleinstance('main GUI'):
+        if not singleinstance('mainGUI'):
             QMessageBox.critical(None, 'Cannot Start '+__appname__, 
                                  '<p>%s is already running.</p>'%__appname__)
             return 1
