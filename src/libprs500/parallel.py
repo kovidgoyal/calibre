@@ -33,11 +33,14 @@ PARALLEL_FUNCS = {
                   }
 
 python = sys.executable
+popen = subprocess.Popen
+
 if iswindows:
     if hasattr(sys, 'frozen'):
         python = os.path.join(os.path.dirname(python), 'parallel.exe')
     else:
         python = os.path.join(os.path.dirname(python), 'Scripts\\parallel.exe')
+    popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up 
 
 def cleanup(tdir):
     try:
@@ -109,11 +112,13 @@ class Server(object):
         cmd = prefix + 'from libprs500.parallel import run_job; run_job(\'%s\')'%binascii.hexlify(job_data)
         
         if not monitor:
-            subprocess.Popen([python, '-c', cmd])
+            popen([python, '-c', cmd])
             return
         
         output = open(os.path.join(job_dir, 'output.txt'), 'wb')
-        p = subprocess.Popen([python, '-c', cmd], stdout=output, stderr=output)
+        p = popen([python, '-c', cmd], stdout=output, stderr=output,
+                             stdin=subprocess.PIPE)
+        p.stdin.close()
         while p.returncode is None:
             if job_id in self.kill_jobs:
                 self._terminate(p)
