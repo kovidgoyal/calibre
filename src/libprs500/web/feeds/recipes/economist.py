@@ -27,7 +27,7 @@ class Economist(BasicNewsRecipe):
     
     title = 'The Economist'
     oldest_article = 7.0
-    needs_subscription = True
+    needs_subscription = False # Strange but true
     INDEX = 'http://www.economist.com/printedition'
     remove_tags = [dict(name=['script', 'noscript', 'title'])]
     remove_tags_before = dict(name=lambda tag: tag.name=='title' and tag.parent.name=='body')
