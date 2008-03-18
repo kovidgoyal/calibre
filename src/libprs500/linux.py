@@ -55,7 +55,8 @@ entry_points = {
                              'isbndb    = libprs500.ebooks.metadata.isbndb:main',
                              'librarything = libprs500.ebooks.metadata.library_thing:main',
                              'mobi2oeb  = libprs500.ebooks.mobi.reader:main',
-                             'lrf2html  = libprs500.ebooks.lrf.html.convert_to:main',                             
+                             'lrf2html  = libprs500.ebooks.lrf.html.convert_to:main',
+                             'libprs500-debug = libprs500.debug:main',                             
                            ], 
         'gui_scripts'    : [ 
                             __appname__+' = libprs500.gui2.main:main',
