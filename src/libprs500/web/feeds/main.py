@@ -69,6 +69,8 @@ If you specify this option, any argument to %prog is ignored and a default recip
     return p
     
 def simple_progress_bar(percent, msg):
+    if isinstance(msg, unicode):
+        msg = msg.encode('utf-8', 'ignore')
     if not msg:
         print '%d%%'%(percent*100),
     else:

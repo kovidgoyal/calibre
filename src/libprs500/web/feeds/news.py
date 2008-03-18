@@ -575,6 +575,7 @@ class BasicNewsRecipe(object):
         if dir is None:
             dir = self.output_dir
         mi = MetaInformation(self.title + time.strftime(self.timefmt), [__appname__])
+        mi.publisher = __appname__
         mi.author_sort = __appname__
         opf_path = os.path.join(dir, 'index.opf')
         ncx_path = os.path.join(dir, 'index.ncx')
@@ -743,7 +744,9 @@ class CustomIndexRecipe(BasicNewsRecipe):
         raise NotImplementedError
     
     def create_opf(self):
-        mi = MetaInformation(self.title, [__appname__])
+        mi = MetaInformation(self.title + time.strftime(self.timefmt), [__appname__])
+        mi.publisher = __appname__
+        mi.author_sort = __appname__        
         mi = OPFCreator(self.output_dir, mi)
         mi.create_manifest_from_files_in([self.output_dir])
         mi.create_spine(['index.html'])
