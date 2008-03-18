@@ -468,7 +468,7 @@ def main():
                                              'win32file', 'pythoncom', 'rtf2xml', 
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
-                                             'libprs500.web.feeds.recipes.*'
+                                             'libprs500.web.feeds.recipes.*', 'pydoc',
                                              ],                                
                                   'packages'  : ['PIL'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl", 

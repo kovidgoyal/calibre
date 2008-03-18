@@ -244,7 +244,9 @@ def main():
                          'iconfile' : 'icons/library.icns',
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
-                                       'mechanize', 'ClientForm', 'usbobserver', 'genshi'],
+                                       'mechanize', 'ClientForm', 'usbobserver', 
+                                       'genshi', 'libprs500.web.feeds.recipes.*',
+                                       'IPython.Extensions.*'],
                          'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
                          'excludes' : ['pydoc'],
                          'plist'    : { 'CFBundleGetInfoString' : '''libprs500, an E-book management application.'''
