@@ -79,7 +79,7 @@ class TOC(list):
                     if 'toc' in item.href.lower():
                         toc = item.href
                         break
-                            
+        
         if toc is not None:
             if toc.lower() != 'ncx':
                 toc = urlparse(unquote(toc))[2]
@@ -92,9 +92,12 @@ class TOC(list):
                         bn  = bn.replace('_top.htm', '_toc.htm') # Bug in BAEN OPF files
                         toc = os.path.join(os.path.dirname(toc), bn)
                     
-                    self.read_html_toc(toc, self.base_path)
+                    self.read_html_toc(toc)
                 except:
-                    pass
+                    print 'WARNING: Could not read Table of Contents:'
+                    import traceback
+                    traceback.print_exc()
+                    print 'Continuing anyway'
             else:
                 cwd = os.path.abspath(self.base_path)
                 m = glob.glob(os.path.join(cwd, '*.ncx'))
