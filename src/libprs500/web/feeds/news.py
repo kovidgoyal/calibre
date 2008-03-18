@@ -43,7 +43,7 @@ class BasicNewsRecipe(object):
     title                 = _('Unknown News Source')
     
     #: The author of this recipe
-    __author__            = _(__appname__)    
+    __author__            = __appname__    
     
     #: Maximum number of articles to download from each feed
     #: @type: integer
