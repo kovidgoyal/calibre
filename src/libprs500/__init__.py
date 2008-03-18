@@ -449,4 +449,4 @@ def singleinstance(name):
         except IOError:
             return False
         
-    return True
+    return False
