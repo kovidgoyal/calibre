@@ -16,26 +16,25 @@ from PyQt4.QtCore import QObject, SIGNAL, QFile
 from PyQt4.QtGui import QMenu, QIcon, QDialog, QAction
 
 from libprs500.gui2.dialogs.password import PasswordDialog
-from libprs500.ebooks.lrf.web import builtin_profiles, available_profiles
-from libprs500.ebooks.lrf.web.profiles import create_class
+from libprs500.web.feeds.recipes import titles, get_builtin_recipe
 
 class NewsAction(QAction):
     
-    def __init__(self, profile, module, parent):
-        self.profile = profile
-        self.module  = module
-        if QFile(':/images/news/'+module+'.png').exists():
-            ic = QIcon(':/images/news/'+module+'.png')
+    def __init__(self, recipe, parent):
+        self.recipe  = recipe
+        self.module  = recipe.__module__.rpartition('.')[-1]
+        if QFile(':/images/news/'+self.module+'.png').exists():
+            ic = QIcon(':/images/news/'+self.module+'.png')
         else:
             ic = QIcon(':/images/news.svg')
-        QAction.__init__(self, ic, profile.title, parent)
+        QAction.__init__(self, ic, recipe.title, parent)
         QObject.connect(self, SIGNAL('triggered(bool)'), self.fetch_news)
         QObject.connect(self, SIGNAL('start_news_fetch(PyQt_PyObject, PyQt_PyObject)'),
                         parent.fetch_news)
         
     def fetch_news(self, checked):
         self.emit(SIGNAL('start_news_fetch(PyQt_PyObject, PyQt_PyObject)'),
-                  self.profile, self.module)
+                  self.recipe, self.module)
         
 
 class NewsMenu(QMenu):
@@ -50,28 +49,26 @@ class NewsMenu(QMenu):
         self.connect(self.custom_menu, SIGNAL('start_news_fetch(PyQt_PyObject, PyQt_PyObject)'),
                      self.fetch_news)
         self.addSeparator()
-        for profile, module in zip(builtin_profiles, available_profiles):
-            self.addAction(NewsAction(profile, module, self))
+        
+        for title in titles:
+            recipe = get_builtin_recipe(title)[0]
+            self.addAction(NewsAction(recipe, self))
         
     
-    def fetch_news(self, profile, module=None):
-        if module is None:
-            module = profile.title
+    def fetch_news(self, recipe, module):
         username = password = None
         fetch = True
-        if isinstance(profile, basestring):
-            module = profile
-            profile = create_class(module)
-        if profile.needs_subscription:
+        
+        if recipe.needs_subscription:
             d = PasswordDialog(self, module + ' info dialog', 
-                           '<p>Please enter your username and password for %s<br>If you do not have one, please subscribe to get access to the articles.<br/> Click OK to proceed.'%(profile.title,))
+                           _('<p>Please enter your username and password for %s<br>If you do not have one, please subscribe to get access to the articles.<br/> Click OK to proceed.')%(recipe.title,))
             d.exec_()
             if d.result() == QDialog.Accepted:
                 username, password = d.username(), d.password()
             else:
                 fetch = False
         if fetch:
-            data = dict(profile=module, title=profile.title, username=username, password=password)
+            data = dict(title=recipe.title, username=username, password=password)
             self.emit(SIGNAL('fetch_news(PyQt_PyObject)'), data)
             
     def set_custom_feeds(self, feeds):
@@ -101,6 +98,3 @@ class CustomNewsMenu(QMenu):
         self.clear()
         for title, src in feeds:
             self.addAction(CustomNewMenuItem(title, src, self))
-            
-    
-    

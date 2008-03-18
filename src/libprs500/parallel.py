@@ -21,6 +21,7 @@ from functools import partial
 
 from libprs500.ebooks.lrf.any.convert_from import main as any2lrf
 from libprs500.ebooks.lrf.web.convert_from import main as web2lrf
+from libprs500.ebooks.lrf.feeds.convert_from import main as feeds2lrf
 from libprs500.gui2.lrf_renderer.main import main as lrfviewer
 from libprs500 import iswindows, __appname__
 
@@ -28,6 +29,7 @@ PARALLEL_FUNCS = {
                   'any2lrf'   : partial(any2lrf, gui_mode=True),
                   'web2lrf'   : web2lrf,
                   'lrfviewer' : lrfviewer,
+                  'feeds2lrf' : feeds2lrf,
                   }
 
 python = sys.executable

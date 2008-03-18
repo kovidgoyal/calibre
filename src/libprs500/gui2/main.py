@@ -616,18 +616,18 @@ class Main(MainWindow, Ui_MainWindow):
             self.news_menu.set_custom_feeds(feeds)
     
     def fetch_news(self, data):
-        pt = PersistentTemporaryFile(suffix='.lrf')
+        pt = PersistentTemporaryFile(suffix='_feeds2lrf.lrf')
         pt.close()
-        args = ['web2lrf', '-o', pt.name]
+        args = ['feeds2lrf', '--output', pt.name, '--debug']
         if data['username']:
             args.extend(['--username', data['username']])
         if data['password']:
             args.extend(['--password', data['password']])
-        args.append(data['profile'])
-        id = self.job_manager.run_conversion_job(self.news_fetched, 'web2lrf', args=[args],
-                                            job_description='Fetch news from '+data['title'])
+        args.append(data['title'])
+        id = self.job_manager.run_conversion_job(self.news_fetched, 'feeds2lrf', args=[args],
+                                            job_description=_('Fetch news from ')+data['title'])
         self.conversion_jobs[id] = (pt, 'lrf')
-        self.status_bar.showMessage('Fetching news from '+data['title'], 2000)
+        self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
         
     def news_fetched(self, id, description, result, exception, formatted_traceback, log):
         pt, fmt = self.conversion_jobs.pop(id)
@@ -637,7 +637,7 @@ class Main(MainWindow, Ui_MainWindow):
         to_device = self.device_connected and fmt in self.device_manager.device_class.FORMATS
         self._add_books([pt.name], to_device)
         if to_device:
-            self.status_bar.showMessage('News fetched. Uploading to device.', 2000)
+            self.status_bar.showMessage(_('News fetched. Uploading to device.'), 2000)
             self.persistent_files.append(pt)
     
     ############################################################################

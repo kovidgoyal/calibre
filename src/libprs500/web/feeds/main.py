@@ -138,12 +138,12 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
 
 def main(args=sys.argv, notification=None, handler=None):
     p = option_parser()
-    opts, args = p.parse_args(args)
+    opts, args = p.parse_args(args=args[1:])
     
-    if len(args) != 2 and opts.feeds is None:
+    if len(args) != 1 and opts.feeds is None:
         p.print_help()
         return 1
-    recipe_arg = args[1] if len(args) > 1 else None
+    recipe_arg = args[0] if len(args) > 0 else None
     run_recipe(opts, recipe_arg, p, notification=notification, handler=handler)    
             
     return 0
