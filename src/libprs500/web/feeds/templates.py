@@ -163,7 +163,7 @@ class FeedTemplate(Template):
                 <a class="article" href="${article.url}">${article.title}</a>
                 <span class="article_date">${article.localtime.strftime(" [%a, %d %b %H:%M]")}</span>
                 <p class="article_decription" py:if="article.summary">
-                    ${Markup(article.summary)}
+                    ${Markup(cutoff(article.summary))}
                 </p>
             </li>
             </py:for>
@@ -172,5 +172,33 @@ class FeedTemplate(Template):
 </html>
 ''')
         
-    def generate(self, feed):
-        return Template.generate(self, feed=feed)
+    def generate(self, feed, cutoff):
+        return Template.generate(self, feed=feed, cutoff=cutoff)
+
+class EmbeddedContent(Template):
+    
+    def __init__(self):
+        Template.__init__(self, '''\
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" 
+      xml:lang="en"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:py="http://genshi.edgewall.org/" 
+       
+>
+    <head>
+        <title>${article.title}</title>
+    </head>
+    
+    <body>
+        <h2>${article.title}</h2>
+        <div>
+            ${Markup(article.content if len(article.content if article.content else '') > len(article.summary if article.summary else '') else article.summary)}
+        </div>
+    </body>
+</html> 
+''')
+    
+    def generate(self, article):
+        return Template.generate(self, article=article)

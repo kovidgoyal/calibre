@@ -13,6 +13,8 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+from libprs500.ebooks.lrf.web.profiles import FullContentProfile
+from libprs500.ptempfile import PersistentTemporaryFile
 '''
 The backend to parse feeds and create HTML that can then be converted
 to an ebook.
@@ -100,7 +102,18 @@ class BasicNewsRecipe(object):
     #: using cp1252. If None, try to detect the encoding. 
     encoding = None
     
+    #: Normally we try to guess if a feed has full articles embedded in it
+    #: based on the length of the embedded content. If C{None}, then the
+    #: default guessing is used. If C{True} then the we always assume the feeds has 
+    #: embedded content and if False we always assume the feed does not have
+    #: embedded content.
+    use_embedded_content = None
+    
     #: Specify any extra CSS that should be addded to downloaded HTML files
+    #: It will be inserted into C{<style></style>} just before the closing
+    #: C{</head>} tag thereby overrinding all CSS except that which is
+    #: declared using the style attribute on individual HTML tags.
+    #: type: string
     extra_css = None
     
     #: List of regular expressions that determines which links to follow
@@ -388,6 +401,24 @@ class BasicNewsRecipe(object):
         templ = templates.IndexTemplate()
         return templ.generate(self.title, self.timefmt, feeds).render(doctype='xhtml')
     
+    @classmethod
+    def description_limiter(cls, src):
+        pos = cls.summary_length
+        fuzz = 50
+        si = src.find(';', pos)
+        if si > 0 and si-pos > fuzz:
+            si = -1
+        gi = src.find('>', pos)
+        if gi > 0 and gi-pos > fuzz:
+            gi = -1
+        npos = max(si, gi)
+        if npos < 0:
+            npos = pos
+        
+        return src[:npos+1]+u'\u2026'
+
+        
+    
     def feed2index(self, feed):
         if feed.image_url is not None: # Download feed image
             imgdir = os.path.join(self.output_dir, 'images')
@@ -408,7 +439,7 @@ class BasicNewsRecipe(object):
                         self.image_map[feed.image_url] = img
                 
         templ = templates.FeedTemplate()
-        return templ.generate(feed).render(doctype='xhtml')
+        return templ.generate(feed, self.description_limiter).render(doctype='xhtml')
         
     
     def create_logger(self, feed_number, article_number):
@@ -422,7 +453,7 @@ class BasicNewsRecipe(object):
         logger.addHandler(handler)
         return logger, out
     
-    def fetch_article(self, url, dir, logger, f, a, num_of_feeds):
+    def _fetch_article(self, url, dir, logger, f, a, num_of_feeds):
         fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map, (url, f, a, num_of_feeds))
         fetcher.base_dir = dir
         fetcher.current_dir = dir
@@ -431,6 +462,20 @@ class BasicNewsRecipe(object):
         if not res or not os.path.exists(res):
             raise Exception(_('Could not fetch article. Run with --debug to see the reason'))
         return res, path, failures
+    
+    def fetch_article(self, url, dir, logger, f, a, num_of_feeds):
+        return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
+        
+    
+    def fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds):
+        pt = PersistentTemporaryFile('_feeds2disk.html')
+        templ = templates.EmbeddedContent()
+        raw = templ.generate(article).render('html')
+        open(pt.name, 'wb').write(raw)
+        pt.close()
+        url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
+        return self._fetch_article(url, dir, logger, f, a, num_of_feeds) 
+        
     
     def build_index(self):
         self.report_progress(0, _('Fetching feeds...'))
@@ -447,6 +492,9 @@ class BasicNewsRecipe(object):
             feeds = feeds[:2]
         self.has_single_feed = len(feeds) == 1
         
+        if self.use_embedded_content is None:
+            self.use_embedded_content = feeds[0].has_embedded_content()
+        
         index = os.path.join(self.output_dir, 'index.html') 
         
         html = self.feeds2index(feeds)
@@ -459,6 +507,8 @@ class BasicNewsRecipe(object):
                 os.makedirs(feed_dir)
                 
             for a, article in enumerate(feed):
+                if a >= self.max_articles_per_feed:
+                    break
                 art_dir = os.path.join(feed_dir, 'article_%d'%a)
                 if not os.path.isdir(art_dir):
                     os.makedirs(art_dir)
@@ -467,9 +517,12 @@ class BasicNewsRecipe(object):
                     url = self.print_version(article.url)
                 except NotImplementedError:
                     url = article.url
-                req = WorkRequest(self.fetch_article, (url, art_dir, logger, f, a, len(feed)), 
-                                  {}, (f, a), self.article_downloaded, 
-                                  self.error_in_article_download)
+                    
+                func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \
+                            (self.fetch_article, url)
+                req = WorkRequest(func, (arg, art_dir, logger, f, a, len(feed)), 
+                                      {}, (f, a), self.article_downloaded, 
+                                      self.error_in_article_download)
                 req.stream = stream
                 req.feed = feed
                 req.article = article
@@ -674,6 +727,7 @@ class Profile2Recipe(BasicNewsRecipe):
         self.simultaneous_downloads = 1
         BasicNewsRecipe.__init__(self, options, parser, progress_reporter)
         self.browser = self.old_profile.browser
+        self.use_embedded_content = isinstance(self.old_profile, FullContentProfile) 
         
     def parse_index(self):
         return self.old_profile.parse_feeds()

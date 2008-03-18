@@ -163,6 +163,15 @@ class Feed(object):
             if getattr(article, 'downloaded', False):
                 return True
         return False
+    
+    def has_embedded_content(self):
+        length = 0
+        for a in self:
+            if a.content or a.summary:
+                length += max(len(a.content if a.content else ''), 
+                              len(a.summary if a.summary else ''))
+                
+        return length > 2000 * len(self)
 
 
 def feed_from_xml(raw_xml, title=None, oldest_article=7, 
