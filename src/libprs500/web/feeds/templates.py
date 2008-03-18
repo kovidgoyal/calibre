@@ -55,21 +55,21 @@ class NavBarTemplate(Template):
        
 >
     <body>
-        <div class="navbar" style="text-align:center; font-family:monospace; font-size:10pt">
+        <div class="navbar" style="text-align:center; font-family:monospace; font-size:8pt">
             <hr py:if="bottom" />
-            <p py:if="bottom" style="font-size:8pt; text-align:left">
+            <p py:if="bottom" style="text-align:left">
                 This article was downloaded by <b>${__appname__}</b> from <a href="${url}">${url}</a>
             </p>
             <br py:if="bottom" /><br py:if="bottom" />
             <py:if test="art != num - 1 and not bottom">
-            | <a href="${prefix}/../article_${str(art+1)}/index.html">Next</a>
+            | <a href="${prefix}../article_${str(art+1)}/index.html">Next</a>
             </py:if>
-            | <a href="${prefix}/../index.html#article_${str(art)}">Up one level</a> 
+            | <a href="${prefix}../index.html#article_${str(art)}">Up one level</a> 
             <py:if test="two_levels">
-            | <a href="${prefix}/../../index.html#feed_${str(feed)}">Up two levels</a>
+            | <a href="${prefix}../../index.html#feed_${str(feed)}">Up two levels</a>
             </py:if>
             <py:if test="art != 0 and not bottom">
-            | <a href="${prefix}/../article_${str(art-1)}/index.html">Previous</a>
+            | <a href="${prefix}../article_${str(art-1)}/index.html">Previous</a>
             </py:if>
             |
             <hr py:if="not bottom" />
@@ -80,6 +80,8 @@ class NavBarTemplate(Template):
 
     def generate(self, bottom, feed, art, number_of_articles_in_feed, 
                  two_levels, url, __appname__, prefix=''):
+        if prefix and not prefix.endswith('/'):
+            prefix += '/'
         return Template.generate(self, bottom=bottom, art=art, feed=feed,
                                  num=number_of_articles_in_feed, 
                                  two_levels=two_levels, url=url,
