@@ -653,10 +653,12 @@ class HTMLConverter(object):
         End the current page, ensuring that any further content is displayed
         on a new page.
         """
-        self.current_para.append_to(self.current_block)
-        self.current_para = Paragraph()
-        self.current_block.append_to(self.current_page)
-        self.current_block = self.book.create_text_block()
+        if self.current_para.has_text():
+            self.current_para.append_to(self.current_block)
+            self.current_para = Paragraph()
+        if self.current_block.has_text() or self.current_block.must_append:
+            self.current_block.append_to(self.current_page)
+            self.current_block = self.book.create_text_block()
         if self.current_page.has_text(): 
             self.book.append(self.current_page)
             self.current_page = self.book.create_page()
@@ -1601,7 +1603,7 @@ class HTMLConverter(object):
                 if not self.disable_chapter_detection and tagname.startswith('h'):
                     if self.chapter_regex.search(src):
                         self.logger.debug('Detected chapter %s', src)
-                        self.end_page()
+                        self.end_page() 
                         self.page_break_found = True
                 
                 if self.current_para.has_text():
