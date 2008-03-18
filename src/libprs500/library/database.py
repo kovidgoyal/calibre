@@ -82,7 +82,7 @@ def _lock(path):
 def _connect(path):
     if isinstance(path, unicode):
         path = path.encode('utf-8')
-    _lock(path)
+    #_lock(path)
     conn =  sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row : list(row)
     conn.create_aggregate('concat', 1, Concatenate)

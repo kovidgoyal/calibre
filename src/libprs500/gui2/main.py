@@ -1009,11 +1009,17 @@ class Main(MainWindow, Ui_MainWindow):
 
 def main(args=sys.argv):
     from PyQt4.Qt import QApplication
+    from libprs500 import singleinstance
+    
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = QApplication(args)    
         QCoreApplication.setOrganizationName(ORG_NAME)
-        QCoreApplication.setApplicationName(APP_UID)        
+        QCoreApplication.setApplicationName(APP_UID)
+        if not singleinstance('main GUI'):
+            QMessageBox.critical(None, 'Cannot Start '+__appname__, 
+                                 '<p>%s is already running.</p>'%__appname__)
+            return 1
         initialize_file_icon_provider()
         try:
             main = Main()

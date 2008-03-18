@@ -18,7 +18,8 @@ __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
-import sys, os, logging, mechanize, locale, copy, cStringIO, re, subprocess, textwrap
+import sys, os, logging, mechanize, locale, copy, cStringIO, re, subprocess, \
+       textwrap, atexit
 from gettext import GNUTranslations
 from math import floor
 from optparse import OptionParser as _OptionParser
@@ -409,3 +410,34 @@ def relpath(target, base=os.curdir):
 
     rel_list = [os.pardir] * (len(base_list)-i) + target_list[i:]
     return os.path.join(*rel_list)
+
+_lock_file = None
+def singleinstance(name):
+    '''
+    Return True if no other instance of the application identified by name is running, 
+    False otherwise.
+    @param name: The name to lock.
+    @type name: string 
+    '''
+    if iswindows:
+        from win32event import CreateMutex
+        from win32api import CloseHandle, GetLastError
+        from winerror import ERROR_ALREADY_EXISTS
+        mutexname = 'mutexforsingleinstanceof'+__appname__+name
+        mutex =  CreateMutex(None, False, mutexname)
+        if mutex:
+            atexit.register(CloseHandle, mutex)
+        return not GetLastError() == ERROR_ALREADY_EXISTS
+    else:
+        import fcntl
+        global _lock_file
+        path = os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
+        try:
+            f = open(path, 'w')
+            fcntl.lockf(f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
+            _lock_file = f
+            return True
+        except IOError:
+            return False
+        
+    return True
