@@ -46,6 +46,7 @@ class Newsweek(BasicNewsRecipe):
             self.cover_url = small.replace('coversmall', 'coverlarge')
             
         articles = {}
+        ans = []
         key = None
         for tag in soup.findAll(['h5', 'h6']):
             if tag.name == 'h6':
@@ -56,6 +57,7 @@ class Newsweek(BasicNewsRecipe):
                     key = 'uncategorized'
                 key = string.capwords(key)
                 articles[key] = []
+                ans.append(key)
             elif tag.name == 'h5' and key is not None:
                 a = tag.find('a', href=True)
                 if a is not None:
@@ -70,7 +72,9 @@ class Newsweek(BasicNewsRecipe):
                            }
                     if art['title'] and art['url']:
                         articles[key].append(art)
-        return articles
+        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        
+        return ans
         
     
     def postprocess_html(self,  soup):
