@@ -21,7 +21,7 @@ from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from libprs500 import __author__, islinux, iswindows
+from libprs500 import __author__, islinux, iswindows, Settings
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
