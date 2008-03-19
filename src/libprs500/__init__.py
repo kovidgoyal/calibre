@@ -470,7 +470,7 @@ class Settings(QSettings):
         key = str(key)
         if not self.contains(key):
             return default
-        val = str(self.value(key, QVariant()).toString())
+        val = str(self.value(key, QVariant()).toByteArray())
         if not val:
             return None
         return cPickle.loads(val)
