@@ -14,7 +14,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import re
+import re, string, time
 from libprs500.web.feeds.news import BasicNewsRecipe
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
@@ -23,25 +23,6 @@ class Newsweek(BasicNewsRecipe):
     title          = 'Newsweek'
     __author__     = 'Kovid Goyal'
     no_stylesheets = True
-    oldest_article = 11
-    
-    feeds = [
-             ('Top News', 'http://feeds.newsweek.com/newsweek/TopNews',),
-             'http://feeds.newsweek.com/newsweek/columnists/StevenLevy',
-             ('Politics', 'http://feeds.newsweek.com/headlines/politics'),
-             ('Health', 'http://feeds.newsweek.com/headlines/health'),
-             ('Business', 'http://feeds.newsweek.com/headlines/business'),
-             ('Science and Technology', 'http://feeds.newsweek.com/headlines/technology/science'),
-             ('National News', 'http://feeds.newsweek.com/newsweek/NationalNews'),
-             ('World News', 'http://feeds.newsweek.com/newsweek/WorldNews'),
-             'http://feeds.newsweek.com/newsweek/Columnists/ChristopherDickey',
-             'http://feeds.newsweek.com/newsweek/Columnists/FareedZakaria',
-             ('Iraq', 'http://feeds.newsweek.com/newsweek/iraq'),
-             ('Society', 'http://feeds.newsweek.com/newsweek/society'),
-             ('Entertainment', 'http://feeds.newsweek.com/newsweek/entertainment'),
-             'http://feeds.newsweek.com/newsweek/columnists/GeorgeFWill',
-             'http://feeds.newsweek.com/newsweek/columnists/AnnaQuindlen',
-             ]
     
     extra_css = '#content { font:serif 12pt; }\n.story {font:12pt}\n.HorizontalHeader {font:18pt}\n.deck {font:16pt}'
     keep_only_tags = [dict(name='div', id='content')]
@@ -56,6 +37,41 @@ class Newsweek(BasicNewsRecipe):
     recursions = 1
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
     
+    
+    def parse_index(self):
+        soup = self.index_to_soup(self.get_current_issue())
+        img = soup.find(alt='Cover')
+        if img is not None and img.has_key('src'):
+            small = img['src']
+            self.cover_url = small.replace('coversmall', 'coverlarge')
+            
+        articles = {}
+        key = None
+        for tag in soup.findAll(['h5', 'h6']):
+            if tag.name == 'h6':
+                if key and not articles[key]:
+                    articles.pop(key)
+                key = self.tag_to_string(tag)
+                if not key or not key.strip():
+                    key = 'uncategorized'
+                key = string.capwords(key)
+                articles[key] = []
+            elif tag.name == 'h5' and key is not None:
+                a = tag.find('a', href=True)
+                if a is not None:
+                    title = self.tag_to_string(a)
+                    if not title:
+                        a = 'Untitled article'
+                    art = {
+                           'title' : title,
+                           'url'   : a['href'],
+                           'description':'', 'content':'',
+                           'date': time.strftime('%a, %d %b', time.localtime())
+                           }
+                    if art['title'] and art['url']:
+                        articles[key].append(art)
+        return articles
+        
     
     def postprocess_html(self,  soup):
         divs = list(soup.findAll('div', 'pagination'))
@@ -80,12 +96,4 @@ class Newsweek(BasicNewsRecipe):
         img  = soup.find('img', alt='Current Magazine')
         if img and img.parent.has_key('href'):
             return urlopen(img.parent['href']).read()
-        
-    def get_cover_url(self):
-        ci = self.get_current_issue()
-        if ci is not None:
-            soup = BeautifulSoup(ci)
-            img = soup.find(alt='Cover')
-            if img is not None and img.has_key('src'):
-                small = img['src']
-                return small.replace('coversmall', 'coverlarge')
+    
