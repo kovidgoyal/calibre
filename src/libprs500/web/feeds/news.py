@@ -765,7 +765,7 @@ class Profile2Recipe(BasicNewsRecipe):
         feeds = []
         for key, val in self.old_profile.parse_feeds().items():
             feeds.append((key, val))
-        return self.old_profile.parse_feeds()
+        return feeds
         
 class CustomIndexRecipe(BasicNewsRecipe):
     

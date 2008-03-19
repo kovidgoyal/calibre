@@ -33,8 +33,7 @@ class TheAtlantic(BasicNewsRecipe):
     def parse_index(self):
         articles = []
         
-        src = self.browser.open(self.INDEX).read()
-        soup = BeautifulSoup(src, convertEntities=BeautifulSoup.HTML_ENTITIES)
+        soup = self.index_to_soup(self.INDEX)
         
         issue = soup.find('span', attrs={'class':'issue'})
         if issue:
