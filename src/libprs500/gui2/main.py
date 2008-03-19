@@ -15,12 +15,12 @@
 import os, sys, textwrap, collections, traceback, shutil, time
 
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QSettings, QVariant, QThread, QString
+                         QVariant, QThread, QString
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog
 from PyQt4.QtSvg import QSvgRenderer
 
-from libprs500 import __version__, __appname__, islinux, sanitize_file_name, launch
+from libprs500 import __version__, __appname__, islinux, sanitize_file_name, launch, Settings
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from libprs500.devices.errors import FreeSpaceError
@@ -865,7 +865,7 @@ class Main(MainWindow, Ui_MainWindow):
                                              _('<p>An invalid database already exists at %s, delete it before trying to move the existing database.<br>Error: %s')%(newloc, str(err)))
                             newloc = self.database_path
                     self.database_path = newloc
-                    settings = QSettings()
+                    settings = Settings()
                     settings.setValue("database path", QVariant(self.database_path))
                     os.unlink(src.name)
                 except Exception, err:
@@ -952,7 +952,7 @@ class Main(MainWindow, Ui_MainWindow):
         
     
     def read_settings(self):
-        settings = QSettings()
+        settings = Settings()
         settings.beginGroup("Main Window")
         geometry = settings.value('main window geometry', QVariant()).toByteArray()
         self.restoreGeometry(geometry)
@@ -965,7 +965,7 @@ class Main(MainWindow, Ui_MainWindow):
         
     
     def write_settings(self):
-        settings = QSettings()
+        settings = Settings()
         settings.beginGroup("Main Window")
         settings.setValue("main window geometry", QVariant(self.saveGeometry()))
         settings.endGroup()

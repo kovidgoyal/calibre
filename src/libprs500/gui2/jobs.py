@@ -15,10 +15,10 @@
 import traceback, logging, collections, time
 
 from PyQt4.QtCore import QAbstractTableModel, QMutex, QObject, SIGNAL, Qt, \
-                         QVariant, QThread, QSettings
+                         QVariant, QThread
 from PyQt4.QtGui import QIcon, QDialog
 
-from libprs500 import detect_ncpus
+from libprs500 import detect_ncpus, Settings
 from libprs500.gui2 import NONE, error_dialog
 from libprs500.parallel import Server
 from libprs500.gui2.dialogs.job_view_ui import Ui_Dialog
@@ -258,7 +258,7 @@ class JobManager(QAbstractTableModel):
         desc = kwargs.pop('job_description', '')
         if args and hasattr(args[0], 'append') and '--verbose' not in args[0]:
             args[0].append('--verbose')
-        priority = self.PRIORITY[str(QSettings().value('conversion job priority', 
+        priority = self.PRIORITY[str(Settings().value('conversion job priority', 
                             QVariant('Normal')).toString())]
         job = self.create_job(ConversionJob, desc, slot, priority,
                               callable, *args, **kwargs)

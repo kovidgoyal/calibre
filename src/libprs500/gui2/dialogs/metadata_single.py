@@ -18,7 +18,7 @@ add/remove formats
 '''
 import os
 
-from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QVariant, QSettings
+from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QVariant
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 
@@ -30,6 +30,7 @@ from libprs500.gui2.dialogs.tag_editor import TagEditor
 from libprs500.gui2.dialogs.password import PasswordDialog
 from libprs500.ebooks import BOOK_EXTENSIONS
 from libprs500.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
+from libprs500 import Settings
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, size, path=None):
@@ -154,7 +155,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                         self.edit_tags)
         QObject.connect(self.remove_series_button, SIGNAL('clicked()'),
                         self.remove_unused_series)        
-        self.timeout = float(QSettings().value('network timeout', QVariant(5)).toInt()[0])
+        self.timeout = float(Settings().value('network timeout', QVariant(5)).toInt()[0])
         self.title.setText(db.title(row))
         isbn = db.isbn(self.id, index_is_id=True)
         if not isbn:

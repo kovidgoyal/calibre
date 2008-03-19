@@ -15,9 +15,9 @@
 import os
 
 from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QVBoxLayout
-from PyQt4.QtCore import QSettings, QVariant, SIGNAL, QStringList, QTimer, Qt
+from PyQt4.QtCore import QVariant, SIGNAL, QStringList, QTimer, Qt
 
-from libprs500 import islinux
+from libprs500 import islinux, Settings
 from libprs500.gui2.dialogs.config_ui import Ui_Dialog
 from libprs500.gui2 import qstring_to_unicode, choose_dir, error_dialog
 from libprs500.gui2.widgets import FilenamePattern
@@ -31,7 +31,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         
         self.db = db
         self.current_cols = columns
-        settings = QSettings()
+        settings = Settings()
         path = qstring_to_unicode(\
         settings.value("database path", 
                 QVariant(os.path.join(os.path.expanduser('~'),'library1.db'))).toString())
@@ -89,7 +89,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.directory_list.takeItem(idx)
     
     def accept(self):
-        settings = QSettings()            
+        settings = Settings()            
         settings.setValue('use roman numerals for series number', QVariant(self.roman_numerals.isChecked()))
         settings.setValue('network timeout', QVariant(self.timeout.value()))
         path = qstring_to_unicode(self.location.text())

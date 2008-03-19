@@ -21,10 +21,9 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
                         QPalette
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
-                         QSettings
+                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
-from libprs500 import iswindows
+from libprs500 import iswindows, Settings
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.library.database import LibraryDatabase, SearchToken
 from libprs500.gui2 import NONE, TableView, qstring_to_unicode
@@ -115,7 +114,7 @@ class BooksModel(QAbstractTableModel):
         self.read_config()
             
     def read_config(self):
-        self.use_roman_numbers = bool(QSettings().value('use roman numerals for series number',
+        self.use_roman_numbers = bool(Settings().value('use roman numerals for series number',
                                                    QVariant(True)).toBool())
         
     

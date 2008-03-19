@@ -20,12 +20,12 @@ from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, \
-                         QObject, QRegExp, QSettings
+                         QObject, QRegExp
 
 from libprs500.gui2.jobs import DetailView
 from libprs500.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
 from libprs500.gui2.filename_pattern_ui import Ui_Form
-from libprs500 import fit_image, get_font_families
+from libprs500 import fit_image, get_font_families, Settings
 from libprs500.ebooks.metadata.meta import get_filename_pat, metadata_from_filename, \
                                            set_filename_pat
 
@@ -303,7 +303,7 @@ class PythonHighlighter(QSyntaxHighlighter):
                 value = default
             Config[name] = value
     
-        settings = QSettings()
+        settings = Settings()
         for name in ("window", "shell"):
             Config["%swidth" % name] = settings.value("%swidth" % name,
                     QVariant(QApplication.desktop() \

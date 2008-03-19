@@ -16,9 +16,9 @@ import sys, logging, os, traceback, time, cPickle
 
 from PyQt4.QtGui import QApplication, QKeySequence, QPainter, QDialog
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread, \
-                         QSettings, QVariant
+                         QVariant
 
-from libprs500 import __appname__, __version__, __author__, setup_cli_handlers, islinux
+from libprs500 import __appname__, __version__, __author__, setup_cli_handlers, islinux, Settings
 from libprs500.ebooks.lrf.parser import LRFDocument
 
 from libprs500.gui2 import ORG_NAME, APP_UID, error_dialog, choose_files
@@ -112,13 +112,13 @@ class Main(MainWindow, Ui_MainWindow):
         
         
     def configure(self, triggered):
-        opts = cPickle.loads(str(QSettings().value('ebook viewer options', QVariant(cPickle.dumps(self.opts))).toString()))
+        opts = cPickle.loads(str(Settings().value('ebook viewer options', QVariant(cPickle.dumps(self.opts))).toString()))
         d = Config(self, opts)
         d.exec_()
         if d.result() == QDialog.Accepted:
             opts.white_background = bool(d.white_background.isChecked())
             opts.hyphenate = bool(d.hyphenate.isChecked())
-            QSettings().setValue('ebook viewer options', QVariant(cPickle.dumps(opts)))
+            Settings().setValue('ebook viewer options', QVariant(cPickle.dumps(opts)))
     
     def set_ebook(self, stream):
         self.progress_bar.setMinimum(0)
@@ -281,7 +281,7 @@ def option_parser():
     return parser
 
 def normalize_settings(parser, opts):
-    settings = QSettings()
+    settings = Settings()
     saved_opts = cPickle.loads(str(settings.value('ebook viewer options', QVariant(cPickle.dumps(opts))).toString()))
     for opt in parser.option_list:
         if not opt.dest:

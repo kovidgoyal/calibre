@@ -14,7 +14,7 @@
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 import os, cPickle, codecs
 
-from PyQt4.QtCore import QObject, SIGNAL, Qt, QSettings, QVariant, QByteArray
+from PyQt4.QtCore import QObject, SIGNAL, Qt, QVariant, QByteArray
 from PyQt4.QtGui import QAbstractSpinBox, QLineEdit, QCheckBox, QDialog, \
                         QPixmap, QTextEdit
 
@@ -25,7 +25,7 @@ from libprs500.gui2 import qstring_to_unicode, error_dialog, \
 from libprs500.gui2.widgets import FontFamilyModel
 from libprs500.ebooks.lrf import option_parser
 from libprs500.ptempfile import PersistentTemporaryFile
-from libprs500 import __appname__
+from libprs500 import __appname__, Settings
 
 font_family_model = None
 
@@ -110,7 +110,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             
     
     def load_saved_global_defaults(self):
-        cmdline = QSettings().value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
+        cmdline = Settings().value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
         if cmdline:
             cmdline = cPickle.loads(cmdline)
             self.set_options_from_cmdline(cmdline)
@@ -390,7 +390,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 cmdline.extend([u'--cover', self.cover_file.name])
             self.cmdline = [unicode(i) for i in cmdline]
         else:
-            QSettings().setValue('LRF conversion defaults', QVariant(QByteArray(cPickle.dumps(cmdline))))
+            Settings().setValue('LRF conversion defaults', QVariant(QByteArray(cPickle.dumps(cmdline))))
         QDialog.accept(self)
         
 class LRFBulkDialog(LRFSingleDialog):

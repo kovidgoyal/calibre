@@ -19,7 +19,7 @@ __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 __appname__   = 'libprs500'
 
 import sys, os, logging, mechanize, locale, copy, cStringIO, re, subprocess, \
-       textwrap, atexit
+       textwrap, atexit, cPickle
 from gettext import GNUTranslations
 from math import floor
 from optparse import OptionParser as _OptionParser
@@ -27,6 +27,7 @@ from optparse import IndentedHelpFormatter
 from logging import Formatter
 
 from ttfquery import findsystem, describe
+from PyQt4.QtCore import QSettings, QVariant
 
 from libprs500.translations.msgfmt import make
 from libprs500.ebooks.chardet import detect
@@ -307,6 +308,10 @@ def get_font_families(cached=None):
         else:
             zlist = []
             for ff in ffiles:
+                if 'Optane' in str(ff):
+                    font = describe.openFont(ff)
+                    wt, italic = describe.modifiers(font)
+                    print ff, wt, italic
                 try:
                     font = describe.openFont(ff)
                 except: # Some font files cause ttfquery to raise an exception, in which case they are ignored
@@ -450,3 +455,32 @@ def singleinstance(name):
             return False
         
     return False
+
+class Settings(QSettings):
+    
+    def __init__(self):
+        QSettings.__init__(self, QSettings.IniFormat, QSettings.UserScope,
+                           'kovidgoyal.net', 'calibre')
+        
+    def migrate(self, settings):
+        for key in settings.allKeys():
+            self.setValue(key, settings.value(key, QVariant()))
+                          
+    def get(self, key, default=None):
+        key = str(key)
+        if not self.contains(key):
+            return default
+        val = str(self.value(key, QVariant()).toString())
+        if not val:
+            return None
+        return cPickle.loads(val)
+    
+    def set(self, key, val):
+        val = cPickle.dumps(val, -1)
+        self.setValue(str(key), QVariant(val))
+        
+_settings = Settings()
+if not _settings.get('migrated from QSettings'):
+    _settings.migrate(QSettings('KovidsBrain', 'libprs500'))
+    _settings.set('migrated from QSettings', True)
+    _settings.sync()

@@ -18,13 +18,14 @@ GUI for fetching metadata from servers.
 
 import logging, cStringIO
 
-from PyQt4.QtCore import Qt, QObject, SIGNAL, QSettings, QVariant, \
+from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, \
                          QAbstractTableModel, QCoreApplication
 from PyQt4.QtGui import QDialog, QItemSelectionModel
 
 from libprs500.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
 from libprs500.gui2 import error_dialog, NONE
 from libprs500.ebooks.metadata.isbndb import create_books, option_parser
+from libprs500 import Settings
 
 class Matches(QAbstractTableModel):
     
@@ -87,7 +88,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.timeout = timeout
         QObject.connect(self.fetch, SIGNAL('clicked()'), self.fetch_metadata)
         
-        self.key.setText(QSettings().value('isbndb.com key', QVariant('')).toString())
+        self.key.setText(Settings().value('isbndb.com key', QVariant('')).toString())
         
         self.setWindowTitle(title if title else 'Unknown')
         self.tlabel.setText(self.tlabel.text().arg(title if title else 'Unknown'))
@@ -113,7 +114,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
                          _('You must specify a valid access key for isbndb.com'))
             return
         else:
-            QSettings().setValue('isbndb.com key', QVariant(self.key.text()))
+            Settings().setValue('isbndb.com key', QVariant(self.key.text()))
             
         args = ['isbndb']
         if self.isbn:
