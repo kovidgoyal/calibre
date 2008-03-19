@@ -13,24 +13,25 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.ebooks.lrf.web.profiles import FullContentProfile
-from libprs500.ptempfile import PersistentTemporaryFile
 '''
 The backend to parse feeds and create HTML that can then be converted
 to an ebook.
 '''
-import logging, os, cStringIO, time, traceback, re
-import urlparse
+import logging, os, cStringIO, time, traceback, re, urlparse
+from collections import defaultdict
 
 from libprs500 import browser, __appname__, iswindows
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from libprs500.ebooks.metadata.opf import OPFCreator
+from libprs500.ebooks.lrf import entity_to_unicode
 from libprs500.ebooks.metadata.toc import TOC
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.web.feeds import feed_from_xml, templates, feeds_from_index
 from libprs500.web.fetch.simple import option_parser as web2disk_option_parser
 from libprs500.web.fetch.simple import RecursiveFetcher
 from libprs500.threadpool import WorkRequest, ThreadPool, NoResultsPending
+from libprs500.ebooks.lrf.web.profiles import FullContentProfile
+from libprs500.ptempfile import PersistentTemporaryFile
 
 
 class BasicNewsRecipe(object):
@@ -252,6 +253,36 @@ class BasicNewsRecipe(object):
         '''
         pass
     
+    def index_to_soup(self, url_or_raw):
+        '''
+        Convenience method that takes an URL to the index page and returns
+        a BeautifulSoup of it.
+        @param url_or_raw: Either a URL or the downloaded index page as a string
+        '''
+        if re.match(r'\w+://', url_or_raw):
+            raw = self.browser.open(url_or_raw).read()
+        else:
+            raw = url_or_raw
+        if not isinstance(raw, unicode) and self.encoding:
+            raw = raw.decode(self.encoding)
+        raw = re.sub(r'&(\S+?);', 
+                     lambda match: entity_to_unicode(match, encoding=self.encoding), 
+                     raw)
+        return BeautifulSoup(raw)
+        
+    
+    def sort_index_by(self, index, weights):
+        '''
+        Convenience method to sort the titles in index according to weights.
+        @param index: A list of titles.
+        @param weights: A dictionary that maps weights to titles. If any titles
+        in index are not in weights, they are assumed to have a weight of 0.
+        @return: Sorted index
+        '''
+        weights = defaultdict(lambda : 0, weights)
+        index.sort(cmp=lambda x, y: cmp(weights[x], weights[y]))
+        return index
+    
     def parse_index(self):
         '''
         This method should be implemented in recipes that parse a website
@@ -259,9 +290,9 @@ class BasicNewsRecipe(object):
         news sources that have a "Print Edition" webpage that lists all the 
         articles in the current print edition. If this function is implemented,
         it will be used in preference to L{parse_feeds}.
-        @rtype: dictionary
-        @return: A dictionary whose keys are feed titles and whose values are each
-        a list of dictionaries. Each list contains dictionaries of the form::
+        @rtype: list
+        @return: A list of two element tuples of the form ('feed title', list of articles). 
+        Each list of articles contains dictionaries of the form::
             {
             'title'       : article title,
             'url'         : URL of print version,
@@ -658,7 +689,7 @@ class BasicNewsRecipe(object):
         self.logger.debug(traceback)
         self.logger.debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article download failed: %s')%request.article.title)
-        self.failed_downloads.append((request.feed.title, request.article, debug))
+        self.failed_downloads.append((request.feed, request.article, debug))
         
     def parse_feeds(self):
         '''
@@ -731,6 +762,9 @@ class Profile2Recipe(BasicNewsRecipe):
         self.use_embedded_content = isinstance(self.old_profile, FullContentProfile) 
         
     def parse_index(self):
+        feeds = []
+        for key, val in self.old_profile.parse_feeds().items():
+            feeds.append((key, val))
         return self.old_profile.parse_feeds()
         
 class CustomIndexRecipe(BasicNewsRecipe):

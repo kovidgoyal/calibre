@@ -63,4 +63,4 @@ class TheAtlantic(BasicNewsRecipe):
                                 })
                 
         
-        return {'Current Issue' : articles }
+        return [('Current Issue', articles)]

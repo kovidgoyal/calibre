@@ -20,7 +20,7 @@ economist.com
 from libprs500.web.feeds.news import BasicNewsRecipe
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
-import mechanize
+import mechanize, string
 from urllib2 import quote
 
 class Economist(BasicNewsRecipe):
@@ -47,6 +47,7 @@ class Economist(BasicNewsRecipe):
                              convertEntities=BeautifulSoup.HTML_ENTITIES)
         index_started = False
         feeds = {}
+        ans = []
         key = None
         for tag in soup.findAll(['h1', 'h2']):
             text = ''.join(tag.findAll(text=True))                
@@ -57,7 +58,9 @@ class Economist(BasicNewsRecipe):
                     index_started = True
                 if not index_started:
                     continue
+                text = string.capwords(text)
                 feeds[text] = []
+                ans.append(text)
                 key = text
                 continue
             if key is None:
@@ -68,4 +71,6 @@ class Economist(BasicNewsRecipe):
                     url='http://www.economist.com'+a['href'].replace('displaystory', 'PrinterFriendly'), 
                     description='', content='', date='')
                 feeds[key].append(article)
-        return feeds
+                
+        ans = [(key, feeds[key]) for key in ans if feeds.has_key(key)]
+        return ans

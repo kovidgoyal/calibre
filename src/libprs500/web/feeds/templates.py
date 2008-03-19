@@ -35,6 +35,7 @@ class Template(MarkupTemplate):
             a.feed {
                 font-weight: bold; font-size: large;
             }
+            
 '''
     
     def generate(self, *args, **kwargs):
@@ -63,6 +64,9 @@ class NavBarTemplate(Template):
             <br py:if="bottom" /><br py:if="bottom" />
             <py:if test="art != num - 1 and not bottom">
             | <a href="${prefix}../article_${str(art+1)}/index.html">Next</a>
+            </py:if>
+            <py:if test="art == num - 1 and not bottom">
+            | <a href="${prefix}../../feed_${str(feed+1)}/index.html">Next</a>
             </py:if>
             | <a href="${prefix}../index.html#article_${str(art)}">Up one level</a> 
             <py:if test="two_levels">
@@ -168,6 +172,9 @@ class FeedTemplate(Template):
             </li>
             </py:for>
         </ul>
+        <div class="navbar" style="text-align:center; font-family:monospace; font-size:8pt">
+            | <a href="../index.html">Up one level</a> |
+        </div>
     </body>
 </html>
 ''')

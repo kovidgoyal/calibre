@@ -190,7 +190,7 @@ def feeds_from_index(index, oldest_article=7, max_articles_per_feed=100):
     @rtype: list
     '''
     feeds = []
-    for title, articles in index.items():
+    for title, articles in index:
         pfeed = Feed()
         pfeed.populate_from_preparsed_feed(title, articles, oldest_article=oldest_article, 
                                        max_articles_per_feed=max_articles_per_feed)
