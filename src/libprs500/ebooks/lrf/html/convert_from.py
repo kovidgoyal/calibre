@@ -1038,7 +1038,7 @@ class HTMLConverter(object):
             src = [None for i in range(4)]         
             if tag_css.has_key(what):
                 msrc = tag_css[what].split()
-                for i in range(len(msrc)):
+                for i in range(min(len(msrc), len(src))):
                     src[i] = msrc[i]
             for i, c in enumerate(('-top', '-right', '-bottom', '-left')):
                 if tag_css.has_key(what+c):
