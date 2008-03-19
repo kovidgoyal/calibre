@@ -21,6 +21,7 @@ import sys, os, logging
 from libprs500.web.feeds.recipes import get_builtin_recipe, compile_recipe, titles
 from libprs500.web.fetch.simple import option_parser as _option_parser
 from libprs500.web.feeds.news import Profile2Recipe
+from libprs500.ebooks.lrf.web.profiles import DefaultProfile
 
 
 def option_parser(usage='''\
@@ -106,6 +107,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
             if os.access(recipe_arg, os.R_OK):
                 try:
                     recipe = compile_recipe(open(recipe_arg).read())
+                    is_profile = DefaultProfile in recipe.__bases__
                 except:
                     import traceback
                     traceback.print_exc()
@@ -116,6 +118,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
             recipe, is_profile = get_builtin_recipe(recipe_arg)
             if recipe is None:
                 recipe = compile_recipe(recipe_arg)
+                is_profile = DefaultProfile in recipe.__bases__
     
     if recipe is None:
         raise RecipeError(recipe_arg+ ' is an invalid recipe')
