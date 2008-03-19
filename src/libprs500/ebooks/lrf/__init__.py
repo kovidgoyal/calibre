@@ -332,6 +332,8 @@ def Book(options, logger, font_delta=0, header=None,
 
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''
+    @param match: A match object such that '&'+match.group(1)';' is the entity.
+    @param exceptions: A list of entities to not convert (Each entry is the name of the entity, for e.g. 'apos' or '#1234' 
     @param encoding: The encoding to use to decode numeric entities between 128 and 256. 
     If None, the Unicode UCS encoding is used. A common encoding is cp1252.
     '''
