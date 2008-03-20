@@ -1277,7 +1277,7 @@ class HTMLConverter(object):
         indent = self.book.defaultTextStyle.attrs['parindent']
         if tag_css.has_key('text-indent'):
             bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
-            if 'em' in tag_css['text_indent']:
+            if 'em' in tag_css['text-indent']:
                 bl = '10pt'
             indent = self.unit_convert(str(tag_css['text-indent']), pts=True, base_length=bl)
             if not indent: 
