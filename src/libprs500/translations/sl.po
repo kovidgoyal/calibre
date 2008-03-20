@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2008-03-18 14:04+PDT\n"
+"POT-Creation-Date: 2008-03-20 14:45+PDT\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -14,11 +14,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:93
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:95
 msgid "%sUsage%s: %s\n"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:130
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:132
 msgid "Created by "
 msgstr ""
 
@@ -33,7 +33,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:103
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:638
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:637
 msgid "Unknown"
 msgstr ""
 
@@ -55,7 +55,7 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:113
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:28
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:349
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:348
 msgid "Publisher"
 msgstr ""
 
@@ -457,11 +457,11 @@ msgstr ""
 msgid "ERROR"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata.py:112
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata.py:113
 msgid "Cannot connect"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata.py:113
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata.py:114
 msgid "You must specify a valid access key for isbndb.com"
 msgstr ""
 
@@ -529,22 +529,22 @@ msgid "Set conversion defaults"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:175
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:54
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:55
 msgid "Cannot read"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:176
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:55
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:56
 msgid "You do not have permission to read the file: "
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:184
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:63
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:64
 msgid "Error reading file"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:185
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:64
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:65
 msgid "<p>There was an error reading from file: <br /><b>"
 msgstr ""
 
@@ -736,7 +736,7 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:628
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:325
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:231
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:230
 msgid "Comments"
 msgstr ""
 
@@ -935,26 +935,26 @@ msgstr ""
 msgid "Comma separated list of tags to remove from the books. "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:235
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:236
 msgid ""
 "<p>Enter your username and password for <b>LibraryThing.com</b>. <br/>If you "
 "do not have one, you can <a href='http://www.librarything.com'>register</a> "
 "for free!.</p>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:266
 msgid "<b>Could not fetch cover.</b><br/>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:265
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:266
 msgid "Could not fetch cover"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:271
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:272
 msgid "Cannot fetch cover"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:271
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:272
 msgid "You must specify the ISBN identifier for this book."
 msgstr ""
 
@@ -1021,8 +1021,8 @@ msgid "&Show password"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:26
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:344
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:708
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:343
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:707
 msgid "Title"
 msgstr ""
 
@@ -1035,13 +1035,13 @@ msgid "Tag"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:30
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:236
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:351
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:235
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:350
 msgid "Series"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:31
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:642
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:641
 msgid "Format"
 msgstr ""
 
@@ -1373,55 +1373,55 @@ msgstr ""
 msgid "Cannot kill waiting jobs."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:220
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:226
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:230
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:219
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:225
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:229
 msgid "None"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:221
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:350
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:648
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:712
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:220
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:349
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:647
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:711
 msgid "Tags"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:227
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:226
 msgid "Formats"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:236
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:235
 msgid "Book <font face=\"serif\">%s</font> of %s."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:344
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:708
+msgid "Author(s)"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:345
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:709
-msgid "Author(s)"
+msgid "Size (MB)"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:346
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:710
-msgid "Size (MB)"
-msgstr ""
-
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:347
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:711
 msgid "Date"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:348
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:347
 msgid "Rating"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:643
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:642
 msgid "Path"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:647
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:646
 msgid "Timestamp"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:747
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:746
 msgid "Search (For Advanced Search click the button to the left)"
 msgstr ""
 
@@ -1742,13 +1742,13 @@ msgstr ""
 msgid "Add a custom news source"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/news.py:64
+#: /home/kovid/work/libprs500/src/libprs500/gui2/news.py:65
 msgid ""
 "<p>Please enter your username and password for %s<br>If you do not have one, "
 "please subscribe to get access to the articles.<br/> Click OK to proceed."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/news.py:89
+#: /home/kovid/work/libprs500/src/libprs500/gui2/news.py:91
 msgid "Custom news sources"
 msgstr ""
 
@@ -1784,7 +1784,7 @@ msgid ""
 "%s available"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/parallel.py:125
+#: /home/kovid/work/libprs500/src/libprs500/parallel.py:129
 msgid "Job killed by user"
 msgstr ""
 
@@ -1798,11 +1798,11 @@ msgstr ""
 msgid "Untitled article"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:45
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:44
 msgid "Options to control web2disk (used to fetch websites linked from feeds)"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:48
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:47
 msgid ""
 "Specify a list of feeds to download. For example: \n"
 "\"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/"
@@ -1811,132 +1811,132 @@ msgid ""
 "recipe is used to download the feeds."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:52
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:51
 msgid "Be more verbose while processing."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:54
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:53
 msgid ""
 "The title for this recipe. Used as the title for any ebooks created from the "
 "downloaded feeds."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:54
 msgid "Username for sites that require a login to access content."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:56
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
 msgid "Password for sites that require a login to access content."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:59
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:58
 msgid ""
 "Number of levels of links to follow on webpages that are linked to from "
 "feeds. Defaul %default"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:61
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:60
 msgid ""
 "The directory in which to store the downloaded feeds. Defaults to the "
 "current directory."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:63
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:62
 msgid "Dont show the progress bar"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:65
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:64
 msgid "Very verbose output, useful for debugging."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:67
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:66
 msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:92
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:96
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:481
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:91
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:95
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:512
 msgid "Fetching feeds..."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:43
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:44
 msgid "Unknown News Source"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:382
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:413
 msgid "Download finished"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:384
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:415
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:386
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:392
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:417
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:423
 msgid " from "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:390
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:421
 msgid "Failed to download parts of the following articles:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:394
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:425
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:463
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:494
 msgid "Could not fetch article. Run with --debug to see the reason"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:485
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:516
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:489
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:520
 msgid "Trying to download cover..."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:539
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:570
 msgid "Starting download [%d thread(s)]..."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:553
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:584
 msgid "Feeds downloaded to %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:562
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:593
 msgid "Could not download cover: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:567
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:598
 msgid "Downloading cover from %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:602
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:633
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:643
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:674
 msgid ""
 "\n"
 "Downloaded article %s from %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:649
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:680
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:655
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:686
 msgid "Failed to download article: %s from %s\n"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:660
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:691
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:676
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:707
 msgid "Fetching feed"
 msgstr ""
