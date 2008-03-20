@@ -957,9 +957,9 @@ class Main(MainWindow, Ui_MainWindow):
         geometry = settings.value('main window geometry', QVariant()).toByteArray()
         self.restoreGeometry(geometry)
         settings.endGroup()
-        dbpath = os.path.join(os.path.expanduser(u'~'), u'library1.db').encode('utf-8')
+        dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
         self.database_path = qstring_to_unicode(settings.value("database path", 
-                QVariant(QString.fromUtf8(dbpath))).toString())
+                QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
         set_sidebar_directories(None)
         set_filename_pat(qstring_to_unicode(settings.value('filename pattern', QVariant(get_filename_pat())).toString()))
         
