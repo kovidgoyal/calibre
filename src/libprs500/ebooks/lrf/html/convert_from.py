@@ -1052,11 +1052,11 @@ class HTMLConverter(object):
         def set(default, one, two):
             fval = None 
             if one is not None:
-                val = self.unit_convert(one, base_length=bl)
+                val = self.unit_convert(one, base_length='10pt' if 'em' in one else bl)
                 if val is not None:
                     fval = val
             if two is not None:
-                val = self.unit_convert(two, base_length=bl)
+                val = self.unit_convert(two, base_length='10pt' if 'em' in two else bl)
                 if val is not None:
                     fval = val if fval is None else fval + val
             if fval is None:
