@@ -623,7 +623,7 @@ class Main(MainWindow, Ui_MainWindow):
             args.extend(['--username', data['username']])
         if data['password']:
             args.extend(['--password', data['password']])
-        args.append(data['title'])
+        args.append(data['script'] if data['script'] else data['title'])
         id = self.job_manager.run_conversion_job(self.news_fetched, 'feeds2lrf', args=[args],
                                             job_description=_('Fetch news from ')+data['title'])
         self.conversion_jobs[id] = (pt, 'lrf')

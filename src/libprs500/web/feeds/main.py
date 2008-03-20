@@ -1,6 +1,4 @@
-#!/usr/bin/env  python
-from libprs500.web.feeds.news import BasicNewsRecipe
-
+#!/usr/bin/env  python 
 ##    Copyright (C) 2008 Kovid Goyal kovid@kovidgoyal.net
 ##    This program is free software; you can redistribute it and/or modify
 ##    it under the terms of the GNU General Public License as published by
@@ -20,8 +18,8 @@ from libprs500.web.feeds.news import BasicNewsRecipe
 import sys, os, logging
 from libprs500.web.feeds.recipes import get_builtin_recipe, compile_recipe, titles
 from libprs500.web.fetch.simple import option_parser as _option_parser
-from libprs500.web.feeds.news import Profile2Recipe
-from libprs500.ebooks.lrf.web.profiles import DefaultProfile
+from libprs500.web.feeds.news import Profile2Recipe, BasicNewsRecipe
+from libprs500.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
 
 
 def option_parser(usage='''\
@@ -107,7 +105,8 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
             if os.access(recipe_arg, os.R_OK):
                 try:
                     recipe = compile_recipe(open(recipe_arg).read())
-                    is_profile = DefaultProfile in recipe.__bases__
+                    is_profile = DefaultProfile in recipe.__bases__ or \
+                                 FullContentProfile in recipe.__bases__
                 except:
                     import traceback
                     traceback.print_exc()
@@ -118,7 +117,8 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
             recipe, is_profile = get_builtin_recipe(recipe_arg)
             if recipe is None:
                 recipe = compile_recipe(recipe_arg)
-                is_profile = DefaultProfile in recipe.__bases__
+                is_profile = DefaultProfile in recipe.__bases__  or \
+                                 FullContentProfile in recipe.__bases__
     
     if recipe is None:
         raise RecipeError(recipe_arg+ ' is an invalid recipe')
@@ -135,6 +135,9 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
         recipe = Profile2Recipe(recipe, opts, parser, notification)
     else:
         recipe = recipe(opts, parser, notification)
+    print
+    print recipe
+    print
     if not os.path.exists(recipe.output_dir):
         os.makedirs(recipe.output_dir)
     recipe.download()

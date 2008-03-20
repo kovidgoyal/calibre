@@ -16,7 +16,7 @@ from PyQt4.QtCore import QObject, SIGNAL, QFile
 from PyQt4.QtGui import QMenu, QIcon, QDialog, QAction
 
 from libprs500.gui2.dialogs.password import PasswordDialog
-from libprs500.web.feeds.recipes import titles, get_builtin_recipe
+from libprs500.web.feeds.recipes import titles, get_builtin_recipe, compile_recipe
 
 class NewsAction(QAction):
     
@@ -60,7 +60,8 @@ class NewsMenu(QMenu):
         fetch = True
         
         if recipe.needs_subscription:
-            d = PasswordDialog(self, module + ' info dialog', 
+            name = module if module else recipe.title
+            d = PasswordDialog(self, name + ' info dialog', 
                            _('<p>Please enter your username and password for %s<br>If you do not have one, please subscribe to get access to the articles.<br/> Click OK to proceed.')%(recipe.title,))
             d.exec_()
             if d.result() == QDialog.Accepted:
@@ -68,7 +69,8 @@ class NewsMenu(QMenu):
             else:
                 fetch = False
         if fetch:
-            data = dict(title=recipe.title, username=username, password=password)
+            data = dict(title=recipe.title, username=username, password=password,
+                        script=getattr(recipe, 'gui_recipe_script', None))
             self.emit(SIGNAL('fetch_news(PyQt_PyObject)'), data)
             
     def set_custom_feeds(self, feeds):
@@ -78,9 +80,9 @@ class CustomNewMenuItem(QAction):
     
     def __init__(self, title, script, parent):
         QAction.__init__(self, QIcon(':/images/user_profile.svg'), title, parent)
-        self.title = title
-        self.script = script
-        
+        self.title  = title
+        self.recipe = compile_recipe(script)
+        self.recipe.gui_recipe_script = script
 
 class CustomNewsMenu(QMenu):
     
@@ -90,9 +92,8 @@ class CustomNewsMenu(QMenu):
         self.connect(self, SIGNAL('triggered(QAction*)'), self.launch)
         
     def launch(self, action):
-        profile = action.script
         self.emit(SIGNAL('start_news_fetch(PyQt_PyObject, PyQt_PyObject)'),
-                  profile, None)
+                  action.recipe, None)
     
     def set_feeds(self, feeds):
         self.clear()
