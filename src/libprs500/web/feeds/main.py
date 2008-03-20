@@ -135,9 +135,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
         recipe = Profile2Recipe(recipe, opts, parser, notification)
     else:
         recipe = recipe(opts, parser, notification)
-    print
-    print recipe
-    print
+    
     if not os.path.exists(recipe.output_dir):
         os.makedirs(recipe.output_dir)
     recipe.download()
