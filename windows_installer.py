@@ -76,6 +76,9 @@ Var MUI_TEMP
   ;Vista redirects $SMPROGRAMS to all users without this
   RequestExecutionLevel admin
   
+  ; Manipulate the PATH variable for all users, not just the installing user.
+  !define ALL_USERS
+  
 ;------------------------------------------------------------------------------------------------------
 ;Interface Settings
 
