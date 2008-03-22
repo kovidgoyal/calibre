@@ -20,10 +20,11 @@ Builtin recipes.
 recipes = ['newsweek', 'atlantic', 'economist', 'dilbert', 'portfolio', 
            'nytimes', 'usatoday']
 
-import re
+import re, time 
 from libprs500.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
 from libprs500.ebooks.lrf.web import builtin_profiles
+from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
 basic_recipes = (BasicNewsRecipe, CustomIndexRecipe, DefaultProfile, FullContentProfile)
 basic_recipe_names = (i.__name__ for i in basic_recipes)
