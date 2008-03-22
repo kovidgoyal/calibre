@@ -12,7 +12,7 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import os, textwrap, traceback, time, re, sre_constants, urllib
+import os, textwrap, traceback, time, re, sre_constants, urllib, locale
 from datetime import timedelta, datetime
 from operator import attrgetter
 from math import cos, sin, pi
@@ -27,6 +27,11 @@ from libprs500 import iswindows, Settings
 from libprs500.ptempfile import PersistentTemporaryFile
 from libprs500.library.database import LibraryDatabase, SearchToken
 from libprs500.gui2 import NONE, TableView, qstring_to_unicode
+
+try:
+    pe = locale.getpreferredencoding()
+except:
+    pe = 'utf-8'
 
 class LibraryDelegate(QItemDelegate):
     COLOR = QColor("blue")
@@ -310,7 +315,7 @@ class BooksModel(QAbstractTableModel):
                 dt = self.db.timestamp(row)
                 if dt:
                     dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                    return QVariant(dt.strftime(BooksView.TIME_FMT))
+                    return QVariant(dt.strftime(BooksView.TIME_FMT).decode(pe))
             elif col == 4: 
                 r = self.db.rating(row)
                 r = r/2 if r else 0
