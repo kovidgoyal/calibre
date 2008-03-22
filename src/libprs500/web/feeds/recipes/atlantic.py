@@ -19,7 +19,6 @@ theatlantic.com
 '''
 
 from libprs500.web.feeds.news import BasicNewsRecipe
-from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
 class TheAtlantic(BasicNewsRecipe):
     
