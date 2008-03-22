@@ -1079,6 +1079,10 @@ class HTMLConverter(object):
         if 2*int(ans['sidemargin']) >= factor*int(self.current_block.blockStyle.attrs['blockwidth']):
             ans['sidemargin'] = int((factor*int(self.current_block.blockStyle.attrs['blockwidth']))/2.)
         
+        for prop in ('topskip', 'footskip', 'sidemargin'):
+            if ans[prop] < 0:
+                ans[prop] = 0
+        
         return ans
     
     def font_properties(self, css):

@@ -78,7 +78,10 @@ def writeByte(f, byte):
 def writeWord(f, word):
     if int(word) > 65535:
         raise LrfError('Cannot encode a number greater than 65535 in a word.')
+    if int(word) < 0:
+        raise LrfError('Cannot encode a number < 0 in a word: '+str(word))
     f.write(struct.pack("<H", int(word)))
+    
 
 def writeSignedWord(f, sword):
     f.write(struct.pack("<h", int(float(sword))))
