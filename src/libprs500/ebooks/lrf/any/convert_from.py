@@ -139,7 +139,7 @@ def process_file(path, options, logger=None):
         elif ext in ['mobi', 'prc']:
             convertor = mobi2lrf
         if not convertor:
-            raise UnknownFormatError('Coverting from %s to LRF is not supported.')
+            raise UnknownFormatError('Coverting from %s to LRF is not supported.'%ext)
         convertor(path, options, logger)
     finally:
         os.chdir(cwd)
