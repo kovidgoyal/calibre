@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-20 14:45+PDT\n"
+"POT-Creation-Date: 2008-03-23 16:44+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: \n"
@@ -40,7 +40,7 @@ msgstr ""
 "comes. Per defecte: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:103
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:637
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:642
 msgid "Unknown"
 msgstr "Desconegut"
 
@@ -62,7 +62,7 @@ msgstr "Clau d'ordre per a l'autor"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:113
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:28
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:348
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:353
 msgid "Publisher"
 msgstr "Editorial"
 
@@ -811,7 +811,7 @@ msgstr "Llibre "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:628
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:325
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:230
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:235
 msgid "Comments"
 msgstr "Comentaris"
 
@@ -1099,8 +1099,8 @@ msgid "&Show password"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:26
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:343
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:707
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:348
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:712
 msgid "Title"
 msgstr "Tí­tol"
 
@@ -1113,13 +1113,13 @@ msgid "Tag"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:30
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:235
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:350
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:240
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:355
 msgid "Series"
 msgstr "Sèries"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search.py:31
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:641
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:646
 msgid "Format"
 msgstr "Format"
 
@@ -1451,55 +1451,55 @@ msgstr ""
 msgid "Cannot kill waiting jobs."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:219
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:225
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:229
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:224
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:230
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:234
 msgid "None"
 msgstr "Cap"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:220
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:349
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:647
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:711
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:225
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:354
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:652
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:716
 msgid "Tags"
 msgstr "Etiquetes"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:226
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:231
 msgid "Formats"
 msgstr "Formats"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:235
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:240
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Llibre <font face=\"serif\">%s</font> de %s."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:344
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:708
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:349
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:713
 msgid "Author(s)"
 msgstr "Autor(s)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:345
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:709
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:350
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:714
 msgid "Size (MB)"
 msgstr "Grandària (MB)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:346
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:710
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:351
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:715
 msgid "Date"
 msgstr "Data"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:347
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:352
 msgid "Rating"
 msgstr "Valoració"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:642
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:647
 msgid "Path"
 msgstr "Camí"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:646
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:651
 msgid "Timestamp"
 msgstr "Marca de temps"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:746
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:751
 msgid "Search (For Advanced Search click the button to the left)"
 msgstr ""
 
