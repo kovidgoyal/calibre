@@ -18,7 +18,7 @@
 Builtin recipes.
 '''
 recipes = ['newsweek', 'atlantic', 'economist', 'dilbert', 'portfolio', 
-           'nytimes', 'usatoday']
+           'nytimes', 'usatoday', 'outlook_india']
 
 import re, time 
 from libprs500.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe
