@@ -82,7 +82,7 @@ def opts_and_words(name, op, words):
     return '_'+name+'()'+\
 '''
 {
-    local cur prev opts
+    local cur opts
     local IFS=$'|\\t'
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
