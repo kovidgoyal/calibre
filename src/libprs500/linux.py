@@ -77,13 +77,13 @@ def options(option_parser):
     return opts
 
 def opts_and_words(name, op, words):
-    opts  = ' '.join(options(op))
-    words = [repr(w) for w in words]
-    words = ' '.join(words) 
+    opts  = '|'.join(options(op))
+    words = '|'.join([w.replace("'", "\\'") for w in words]) 
     return '_'+name+'()'+\
 '''
 {
     local cur prev opts
+    local IFS=$'|\\t'
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     opts="%s"
@@ -92,10 +92,12 @@ def opts_and_words(name, op, words):
     case "${cur}" in
       -* )
          COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+         COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\\\ /g' | tr '\\n' '\\t' ) )
          return 0
          ;;      
       *  )
          COMPREPLY=( $(compgen -W "${words}" -- ${cur}) )
+         COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\\\ /g' | tr '\\n' '\\t' ) )
          return 0
          ;;
     esac
