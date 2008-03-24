@@ -49,7 +49,7 @@ def save_soup(soup, target):
     for tag in soup.findAll(['img', 'link', 'a']):
         for key in ('src', 'href'):
             path = tag.get(key, None)
-            if path and os.path.exists(path) and os.path.isabs(path):
+            if path and os.path.isfile(path) and os.path.exists(path) and os.path.isabs(path):
                 tag[key] = relpath(path, selfdir).replace(os.sep, '/')
     
     f = codecs.open(target, 'w', 'utf-8')
