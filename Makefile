@@ -17,4 +17,5 @@ translations :
 resources:	
 	${PYTHON} resources.py
     
-    
+manual:
+	make -C src/libprs500/manual clean html
