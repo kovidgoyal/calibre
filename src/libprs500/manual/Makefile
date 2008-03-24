@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS   =
-SPHINXBUILD  = sphinx-build.py
+SPHINXBUILD  = sphinx-build
 PAPER        =
 
 ALLSPHINXOPTS = -d .build/doctrees -D latex_paper_size=$(PAPER) \

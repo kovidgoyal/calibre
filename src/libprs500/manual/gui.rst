@@ -35,12 +35,11 @@ The actions toolbar provides convenient shortcuts to commonly used actions. Most
 
 .. _add_books:
 
-|adbi| Add books
+Add books
 ~~~~~~~~~~~~~~~~~~
 .. |adbi| image:: images/add_books.png
-    :align: middle
 
-The :guilabel:`Add books` action has three variations, accessed by the arrow next to the button.
+|adbi| The :guilabel:`Add books` action has three variations, accessed by the arrow next to the button.
 
 
     1. **Add books from a single directory**: Opens a file chooser dialog and allows you to specify which books in a directory should be added. This action is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be added to the library. If you have selected the ebook reader device, the books will be uploaded to the device, and so on.
@@ -56,22 +55,19 @@ To add a new format to an existing book, use the :ref:`edit_meta_information` ac
 
 .. _remove_books:
 
-|rbi| Remove books
+Remove books
 ~~~~~~~~~~~~~~~~~~~~~
 .. |rbi| image:: images/remove_books.png
-    :align: middle
 
-The :guilabel:`Remove books` action deletes books permanently, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, the books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.
+|rbi| The :guilabel:`Remove books` action deletes books permanently, so use it with care. It is *context sensitive*, i.e. it depends on which :ref:`catalog <catalogs>` you have selected. If you have selected the :guilabel:`Library`, books will be removed from the library. If you have selected the ebook reader device, the books will be removed from the device. To remove only a particular format for a given book use the :ref:`edit_meta_information` action.
 
 .. _edit_meta_information:
 
-|emii| Edit meta information
+Edit meta information
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 .. |emii| image:: images/edit_meta_information.png
-    :align: middle
 
-
-The :guilabel:`Edit meta information` action has two variations, accessed by the arrow next to the button.
+|emii| The :guilabel:`Edit meta information` action has two variations, accessed by the arrow next to the button.
 
     1. **Edit metadata individually**: This allows you to edit the metadata of books one-by-one, with the option of fetching metadata, including covers from the internet. It also allows you to add/remove particular ebook formats from a book. For more detail see :ref:`metadata`.
 
@@ -79,24 +75,22 @@ The :guilabel:`Edit meta information` action has two variations, accessed by the
 
 .. _send_to_device:
 
-|stdi| Send to device
+Send to device
 ~~~~~~~~~~~~~~~~~~~~~~~~
 .. |stdi| image:: images/send_to_device.png
-    :align: middle
 
-The :guilabel:`Send to device` action has two variations, accessed by the arrow next to the button.
+|stdi| The :guilabel:`Send to device` action has two variations, accessed by the arrow next to the button.
 
     1. **Send to main memory**: The selected books are transferred to the main memory of the ebook reader.
     2. **Send to card**: The selected books are transferred to the storage card on the ebook reader.
 
 .. _save_to_disk:
 
-|svdi| Save to disk
+Save to disk
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 .. |svdi| image:: images/save_to_disk.png
-    :align: middle
 
-The :guilabel:`Save to disk` action has two variations, accessed by the arrow next to the button.
+|svdi| The :guilabel:`Save to disk` action has two variations, accessed by the arrow next to the button.
 
 .. _save_to_disk_multiple:
 
@@ -116,23 +110,21 @@ Saved books can be re-imported to the library without any loss of information by
 
 .. _fetch_news:
 
-|fni| Fetch news
+Fetch news
 ~~~~~~~~~~~~~~~~~
 .. |fni| image:: images/fetch_news.png
-    :align: middle
 
-The :guilabel:`Fetch news` action downloads news from various websites and converts it into an ebook that can be read on your ebook reader. Normally, the newly created ebook is added to your ebook library, but if an ebook reader is connected at the time the download finishes, the news is uploaded to the reader directly.
+|fni| The :guilabel:`Fetch news` action downloads news from various websites and converts it into an ebook that can be read on your ebook reader. Normally, the newly created ebook is added to your ebook library, but if an ebook reader is connected at the time the download finishes, the news is uploaded to the reader directly.
             
 The :guilabel:`Fetch news` action uses simple recipes (10-15 lines of code) for each news site. To learn how to create recipes for your own news sources, see :ref:`news`.
 
 .. _convert_ebooks:
 
-|cei| Convert e-books
+Convert e-books
 ~~~~~~~~~~~~~~~~~~~~~~
 .. |cei| image:: images/convert_ebooks.png
-    :align: middle
 
-Ebooks can be converted from a number of formats into the LRF format (for the SONY Reader). Note that ebooks you purchase will typically have `Digital Rights Management <http://en.wikipedia.org/wiki/Digital_rights_management>` *(DRM)*. |app| will not convert these ebooks. For many DRM formats, it is easy to remove the DRM, but as this is illegal, you have to find tools to liberate your books yourself and then use |app| to convert them.
+|cei| Ebooks can be converted from a number of formats into the LRF format (for the SONY Reader). Note that ebooks you purchase will typically have `Digital Rights Management <http://en.wikipedia.org/wiki/Digital_rights_management>`_ *(DRM)*. |app| will not convert these ebooks. For many DRM formats, it is easy to remove the DRM, but as this is illegal, you have to find tools to liberate your books yourself and then use |app| to convert them.
 
 For most people, conversion should be a simple 1-click affair. But if you want to learn more about the conversion process, see :ref:`conversion`.
             
@@ -146,12 +138,11 @@ The :guilabel:`Convert E-books` action has three variations, accessed by the arr
                                             
 .. _view:
 
-|vi| View
+View
 ~~~~~~~~~~~
 .. |vi| image:: images/view.png
-    :align: middle
 
-The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a builtin viewer for the LRF format. For other formats it uses the default operating system application. If a book has more than one format, you can view a particular format by clicking the arrow next to the :guilabel:`View` button.
+|vi| The :guilabel:`View` action displays the book in an ebook viewer program. |app| has a builtin viewer for the LRF format. For other formats it uses the default operating system application. If a book has more than one format, you can view a particular format by clicking the arrow next to the :guilabel:`View` button.
 
 .. _catalogs:
 

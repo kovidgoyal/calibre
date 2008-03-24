@@ -30,11 +30,14 @@ Sections
    cli/cli-index
    faq 
 
-:ref:`search`
-------------------------
+Convenience
+-----------------------
+
+:ref:`search`: Search the help
+
 
 :ref:`genindex`
----------------------
+
 
 
 
