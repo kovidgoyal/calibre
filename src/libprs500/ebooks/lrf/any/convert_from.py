@@ -150,7 +150,7 @@ def process_file(path, options, logger=None):
 
 def option_parser(gui_mode=False):
     return _option_parser(usage='''\
-any2lrf myfile
+any2lrf [options] myfile
 
 Convert any ebook format into LRF. Supported formats are:
 LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a RAR or

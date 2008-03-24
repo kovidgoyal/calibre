@@ -118,7 +118,7 @@ def upload_user_manual():
     try:
         check_call('make clean html')
         check_call('ssh castalia rm -rf %s/\\*'%USER_MANUAL)
-        check_call('scp -r .build/* castalia:%s'%USER_MANUAL)
+        check_call('scp -r .build/html/* castalia:%s'%USER_MANUAL)
     finally:
         os.chdir(cwd)
 
