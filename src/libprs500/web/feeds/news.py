@@ -265,10 +265,9 @@ class BasicNewsRecipe(object):
             raw = url_or_raw
         if not isinstance(raw, unicode) and self.encoding:
             raw = raw.decode(self.encoding)
-        raw = re.sub(r'&(\S+?);', 
-                     lambda match: entity_to_unicode(match, encoding=self.encoding), 
-                     raw)
-        return BeautifulSoup(raw)
+        massage = list(BeautifulSoup.MARKUP_MASSAGE)
+        massage.append((re.compile(r'&(\S+?);'), lambda match: entity_to_unicode(match, encoding=self.encoding))) 
+        return BeautifulSoup(raw, markupMassage=massage)
         
     
     def sort_index_by(self, index, weights):
