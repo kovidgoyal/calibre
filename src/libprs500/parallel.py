@@ -112,11 +112,8 @@ class Server(object):
         cmd = prefix + 'from libprs500.parallel import run_job; run_job(\'%s\')'%binascii.hexlify(job_data)
         
         if not monitor:
-            p = popen([python, '-c', cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
+            popen([python, '-c', cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
                   stderr=subprocess.PIPE)
-            p.stdout.close()
-            p.stdin.close()
-            p.stderr.close()
             return
         
         output = open(os.path.join(job_dir, 'output.txt'), 'wb')
