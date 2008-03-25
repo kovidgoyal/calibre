@@ -374,7 +374,7 @@ def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com
     parser.add_option('-d', '--base-dir', help='Base directory into which URL is saved. Default is %default',
                       default='.', type='string', dest='dir')
     parser.add_option('-t', '--timeout', help='Timeout in seconds to wait for a response from the server. Default: %default s',
-                      default=10, type='int', dest='timeout')
+                      default=10.0, type='float', dest='timeout')
     parser.add_option('-r', '--max-recursions', default=1, help='Maximum number of levels to recurse i.e. depth of links to follow. Default %default',
                       type='int', dest='max_recursions')
     parser.add_option('-n', '--max-files', default=sys.maxint, type='int', dest='max_files',
