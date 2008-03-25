@@ -88,7 +88,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
             notification = no_progress_bar
         
     
-    recipe = None
+    recipe, is_profile = None, False
     if opts.feeds is not None:
         recipe = BasicNewsRecipe
     else:
