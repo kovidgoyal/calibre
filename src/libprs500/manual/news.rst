@@ -152,24 +152,49 @@ We see several new features in this :term:`recipe`. First, we have::
 This sets the displayed time on the front page of the created e-book to be in the format,
 ``Day, Day_Number Month, Year``. See :attr:`timefmt <libprs500.web.feeds.news.BasicNewsRecipe.timefmt>`.
 
+Then we see a group of directives to cleanup the downloaded :term:`HTML`::
+
+    remove_tags_before = dict(name='h1')
+    remove_tags_after  = dict(id='footer')
+    remove_tags = ...
+
+These remove everything before the first ``<h1>`` tag and everything after the first tag whose id is ``footer``. See :attr:`remove_tags <libprs500.web.feeds.news.BasicNewsRecipe.remove_tags>`, :attr:`remove_tags_before <libprs500.web.feeds.news.BasicNewsRecipe.remove_tags_before>`, :attr:`remove_tags_after <libprs500.web.feeds.news.BasicNewsRecipe.remove_tags_after>`.
+
+The next interesting feature is::
+
+    needs_subscription = True
+    ...
+    def get_growser(self):
+        ...
+
+``needs_subscription = True`` tells |app| that this recipe needs a username and password in order to access the content. This causes, |app| to ask for a username and password whenever you try to use this recipe. The code in :meth:`libprs500.web.feeds.news.BasicNewsRecipe.get_browser` actually does the login into the NYT website. Once logged in, |app| will use the same, logged in, browser instance to fetch all content. See `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_ to understand the code in ``get_browser``.
+
+The last new feature is the :meth:`libprs500.web.feeds.news.BasicNewsRecipe.parse_index` method. Its job is to go to http://www.nytimes.com/pages/todayspaper/index.html and fetch the list of articles that appear in *todays* paper. While more complex than simply using :term:`RSS`, the recipe creates an e-book that corresponds very closely to the days paper. ``parse_index`` makes heavy use of `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ to parse the daily paper webpage.
+
 Tips for developing new recipes
 ---------------------------------
 
-The best way to develop new recipes is to use the command line interface. Create the recipe using your favorite python editor and save it to a file say :file:`myrecipe.py`. You can download content using this recipe with the command:
+The best way to develop new recipes is to use the command line interface. Create the recipe using your favorite python editor and save it to a file say :file:`myrecipe.py`. You can download content using this recipe with the command::
 
-    :command:`feeds2disk` :option:`--debug` :option:`--test` myrecipe.py
+    feeds2disk --debug --test myrecipe.py
 
 The :command:`feeds2disk` will download all the webpages and save them to the current directory. The :option:`--debug` makes feeds2disk spit out a lot of information about what it is doing. The :option:`--test` makes it download only a couple of articles from at most two feeds. 
 
-Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate an LRF ebook with the command
+Once the download is complete, you can look at the downloaded :term:`HTML` by opening the file :file:`index.html` in a browser. Once you're satisfied that the download and preprocessing is happening correctly, you can generate an LRF ebook with the command::
 
-    :command:`html2lrf` :option:`--use-spine` :option:`--page-break-before` "$" index.html
+    html2lrf --use-spine --page-break-before "$" index.html
 
-If the generated :term:`LRF` looks good, you can finally, run 
+If the generated :term:`LRF` looks good, you can finally, run::
 
-    :command:`feeds2lrf` myrecipe.py
+    feeds2lrf myrecipe.py
 
 to see the final :term:`LRF` format e-book generated from your recipe. If you're satisfied with your recipe, consider attaching it to `the wiki <http://libprs500.kovidgoyal.net/wiki/UserRecipes>`_, so that others can use it as well. If you feel there is enough demand to justify its inclusion into the set of built-in recipes, add a comment to the ticket http://libprs500.kovidgoyal.net/ticket/405
+
+
+If you just want to quickly test a couple of feeds, you can use the :option:`--feeds` option::
+
+    feeds2disk --feeds "['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/headlines/politics']"
+
 
 .. seealso::
 

@@ -3,7 +3,7 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import shutil, sys, os, inspect, re
+import sys, os, inspect, re
 from sphinx.builder import StandaloneHTMLBuilder, bold
 from sphinx.util import rpartition
 from sphinx.ext.autodoc import get_module_charset, prepare_docstring
