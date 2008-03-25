@@ -15,8 +15,13 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-import shutil, sys, os
+import shutil, sys, os, inspect, re
 from sphinx.builder import StandaloneHTMLBuilder, bold
+from sphinx.util import rpartition
+from sphinx.ext.autodoc import get_module_charset, prepare_docstring
+from docutils.statemachine import ViewList
+from docutils import nodes
+
 from genshi.template import TextTemplate
 sys.path.append(os.path.abspath('../../../'))
 from libprs500.linux import entry_points
@@ -29,7 +34,7 @@ def substitute(app, doctree):
     pass
 
 CLI_INDEX = '''\
-.. include:: ../global.rst
+.. include:: global.rst
 ||
 .. _cli:
 ||
@@ -62,22 +67,19 @@ You can see usage for undocumented commands by executing them without arguments 
 '''
 
 CLI_CMD=r'''
-.. include:: ../global.rst
+.. include:: global.rst
 ||
 .. _$cmd:
-||
-.. role:: mycmdopt(literal)
-    :class: bold
 || 
 #def option(opt)
-`${opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')}`:mycmdopt:
+:option:`${opt.get_opt_string() + ((', '+', '.join(opt._short_opts)) if opt._short_opts else '')}`
 #end
 $cmd
 ====================================================================
 ||
-Usage::
+.. code-block:: none
 ||
-   $cmdline
+    $cmdline
 || 
 #for line in usage
 #choose
@@ -111,7 +113,8 @@ ${option(opt)}
 #end
 '''
 
-def cli_docs(info):
+def cli_docs(app):
+    info = app.builder.info
     info(bold('creating CLI documentation...'))
     documented_cmds = []
     undocumented_cmds = []
@@ -134,7 +137,11 @@ def cli_docs(info):
     raw = raw.replace('||', '\n')
     if not os.path.exists('cli'):
         os.makedirs('cli')
-    open(os.path.join('cli', 'cli-index.rst'), 'wb').write(raw)
+    if not os.path.exists(os.path.join('cli', 'global.rst')):
+        os.link('global.rst', os.path.join('cli', 'global.rst'))                  
+    if not os.path.exists(os.path.join('cli', 'cli-index.rst')):
+        info(bold('creating cli-index...'))
+        open(os.path.join('cli', 'cli-index.rst'), 'wb').write(raw)
     
     templ = TextTemplate(CLI_CMD)
     for cmd, parser in documented_cmds:
@@ -148,18 +155,68 @@ def cli_docs(info):
         
         raw = templ.generate(cmd=cmd, cmdline=cmdline, usage=usage, groups=groups).render()
         raw = raw.replace('||', '\n').replace('&lt;', '<').replace('&gt;', '>')
-        open(os.path.join('cli', cmd+'.rst'), 'wb').write(raw)
+        if not os.path.exists(os.path.join('cli', cmd+'.rst')):
+            info(bold('creating docs for %s...'%cmd))
+            open(os.path.join('cli', cmd+'.rst'), 'wb').write(raw)
 
-def generate(app):
-    app.builder.info(bold('copying images to the build tree...'))
-    shutil.rmtree('.build/html/images', True)
-    shutil.copytree('images', '.build/html/images')
-    shutil.rmtree('.build/html/images/.svn', True)
-    shutil.rmtree('.build/html/images/.bzr', True)
-    cli_docs(app.builder.info)
+def auto_member(dirname, arguments, options, content, lineno,
+                    content_offset, block_text, state, state_machine):
+    name = arguments[0]
+    env = state.document.settings.env
+    
+    mod_cls, obj = rpartition(name, '.')
+    if not mod_cls and hasattr(env, 'autodoc_current_class'):
+        mod_cls = env.autodoc_current_class
+    if not mod_cls:
+        mod_cls = env.currclass
+    mod, cls = rpartition(mod_cls, '.')
+    if not mod and hasattr(env, 'autodoc_current_module'):
+        mod = env.autodoc_current_module
+    if not mod:
+        mod = env.currmodule
+    
+    module = __import__(mod, None, None, ['foo'])
+    cls = getattr(module, cls)
+    lines = inspect.getsourcelines(cls)[0]
+    
+    comment_lines = []
+    for i, line in enumerate(lines):
+        if re.search(r'%s\s*=\s*\S+'%obj, line) and not line.strip().startswith('#:'):
+            for j in range(i-1, 0, -1):
+                raw = lines[j].strip()
+                if not raw.startswith('#:'):
+                    break
+                comment_lines.append(raw[2:])
+            break
+    comment_lines.reverse()
+    docstring = '\n'.join(comment_lines)
+    
+    if module is not None and docstring is not None:
+        docstring = docstring.decode(get_module_charset(mod))
+    
+    result = ViewList()
+    result.append('.. attribute:: %s.%s'%(cls.__name__, obj), '<autodoc>')
+    result.append('', '<autodoc>')
+    
+    docstring = prepare_docstring(docstring)
+    for i, line in enumerate(docstring):
+        result.append('    ' + line, '<docstring of %s>' % name, i)
+    
+    result.append('', '')
+    result.append('    **Default**: ``%s``'%repr(getattr(cls, obj, None)), '<default memeber value>')
+    result.append('', '')
+    node = nodes.paragraph()
+    state.nested_parse(result, content_offset, node)
+        
+    return node
+    
+    
 
+    
 
 def setup(app):
     app.add_builder(CustomBuilder)
+    app.add_directive('automember', auto_member, 1, (1, 0, 1))
     app.connect('doctree-read', substitute)
-    app.connect('builder-inited', generate)
+    app.connect('builder-inited', cli_docs)
+    

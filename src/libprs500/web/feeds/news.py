@@ -14,9 +14,11 @@
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 '''
-The backend to parse feeds and create HTML that can then be converted
-to an ebook.
+Defines various abstract base classes that can be subclassed to create powerful news fetching recipes.
 '''
+__docformat__ = "restructuredtext en"
+
+
 import logging, os, cStringIO, time, traceback, re, urlparse
 from collections import defaultdict
 
@@ -40,57 +42,45 @@ class BasicNewsRecipe(object):
     '''
     
     #: The title to use for the ebook
-    #: @type: string    
     title                 = _('Unknown News Source')
     
     #: The author of this recipe
     __author__            = __appname__    
     
     #: Maximum number of articles to download from each feed
-    #: @type: integer
     max_articles_per_feed = 100
     
     #: Oldest article to download from this news source. In days.
-    #: @type: float
     oldest_article = 7.0 
     
-    #: Number of levels of links to follow on webpages that are linked
-    #: to by the feed.
-    #: @type: integer
+    #: Number of levels of links to follow on article webpages 
     recursions        = 0
     
     #: Delay between consecutive downloads in seconds
-    #: @type: integer
     delay                 = 0
     
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
-    #: Automatically reduced to 1 if L{delay} > 0
-    #: @type: integer
+    #: Automatically reduced to 1 if :attr:`BasicNewsRecipe.delay` > 0
     simultaneous_downloads = 5
     
     #: Timeout for fetching files from server in seconds
-    #: @type: integer
-    timeout               = 120
+    timeout               = 120.0
     
-    #: The format string for the date shown on the first page
-    #: By default: Day Name Day Number Month Name Year
-    #: @type: string
+    #: The format string for the date shown on the first page.
+    #: By default: Day_Name, Day_Number Month_Name Year
     timefmt               = ' [%a, %d %b %Y]'
     
     #: List of feeds to download
-    #: Can be either C{[url1, url2, ...]} or C{[('title1', url1), ('title2', url2),...]}
-    #: @type: List of strings or list of 2-tuples
+    #: Can be either ``[url1, url2, ...]`` or ``[('title1', url1), ('title2', url2),...]``
     feeds = None
     
-    #: Max number of characters in the short description.
-    #: @type: integer
+    #: Max number of characters in the short description
     summary_length        = 500
     
-    #: If True stylesheets are not downloaded and processed
     #: Convenient flag to disable loading of stylesheets for websites
     #: that have overly complex stylesheets unsuitable for conversion
     #: to ebooks formats
-    #: @type: boolean
+    #: If True stylesheets are not downloaded and processed
     no_stylesheets        = False
     
     #: If True the GUI will ask the user for a username and password 
@@ -99,94 +89,133 @@ class BasicNewsRecipe(object):
     needs_subscription    = False
     
     #: Specify an override encoding for sites that have an incorrect
-    #: charset specification. The most common being specifying latin1 and
-    #: using cp1252. If None, try to detect the encoding. 
+    #: charset specification. The most common being specifying ``latin1`` and
+    #: using ``cp1252``. If None, try to detect the encoding. 
     encoding = None
     
     #: Normally we try to guess if a feed has full articles embedded in it
-    #: based on the length of the embedded content. If C{None}, then the
-    #: default guessing is used. If C{True} then the we always assume the feeds has 
-    #: embedded content and if False we always assume the feed does not have
+    #: based on the length of the embedded content. If `None`, then the
+    #: default guessing is used. If `True` then the we always assume the feeds has 
+    #: embedded content and if `False` we always assume the feed does not have
     #: embedded content.
     use_embedded_content = None
     
-    #: Specify any extra CSS that should be addded to downloaded HTML files
-    #: It will be inserted into C{<style></style>} just before the closing
-    #: C{</head>} tag thereby overrinding all CSS except that which is
-    #: declared using the style attribute on individual HTML tags.
-    #: type: string
+    #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
+    #: It will be inserted into `<style>` tags, just before the closing
+    #: `</head>` tag thereby overrinding all :term:`CSS` except that which is
+    #: declared using the style attribute on individual :term:`HTML` tags. 
+    #: For example::
+    #: 
+    #:     extra_css = '.heading { font: serif x-large }'
+    #: 
     extra_css = None
     
     #: List of regular expressions that determines which links to follow
-    #: If empty, it is ignored.
-    #: Only one of L{match_regexps} or L{filter_regexps} should be defined
-    #: @type: list of strings
+    #: If empty, it is ignored. For example::
+    #:    
+    #:     match_regexps = [r'page=[0-9]+']
+    #:
+    #: will match all URLs that have `page=some number` in them.
+    #:
+    #: Only one of :attr:`BasicNewsRecipe.match_regexps` or 
+    #: :attr:`BasicNewsRecipe.filter_regexps` should be defined.
     match_regexps         = []
     
     #: List of regular expressions that determines which links to ignore
-    #: If empty it is ignored
-    #: Only one of L{match_regexps} or L{filter_regexps} should be defined
-    #: @type: list of strings
+    #: If empty it is ignored. For example::
+    #:     
+    #:     filter_regexps = [r'ads\.doubleclick\.net']
+    #:
+    #: will remove all URLs that have `ads.doubleclick.net` in them.
+    #: 
+    #: Only one of :attr:`BasicNewsRecipe.match_regexps` or 
+    #: :attr:`BasicNewsRecipe.filter_regexps` should be defined.
     filter_regexps        = []
     
     #: List of options to pass to html2lrf, to customize generation of LRF ebooks.
-    #: @type: list of strings
     html2lrf_options   = []
     
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
-    #:  {
+    #:    
+    #:    {
     #:     name      : 'tag name',   #e.g. 'div'
     #:     attrs     : a dictionary, #e.g. {class: 'advertisment'}
-    #:  }
+    #:    }
+    #:
     #: All keys are optional. For a full explanantion of the search criteria, see
-    #: U{http://www.crummy.com/software/BeautifulSoup/documentation.html#The basic find method: findAll(name, attrs, recursive, text, limit, **kwargs)}
+    #: `Beautiful Soup <http://www.crummy.com/software/BeautifulSoup/documentation.html#The basic find method: findAll(name, attrs, recursive, text, limit, **kwargs)>`_
     #: A common example::
+    #: 
     #:   remove_tags = [dict(name='div', attrs={'class':'advert'})]
-    #:   This will remove all <div class="advert"> tags and all their children from the downloaded HTML.
-    #: @type: list 
+    #: 
+    #: This will remove all `<div class="advert">` tags and all 
+    #: their children from the downloaded :term:`HTML`.
     remove_tags = []
     
     #: Remove all tags that occur after the specified tag. 
-    #: For the format for specifying a tag see L{remove_tags}.
-    #: For example, C{remove_tags_after = [dict(id='content')]} will remove all
-    #: tags after the element with id C{content}.
+    #: For the format for specifying a tag see :attr:`BasicNewsRecipe.remove_tags`.
+    #: For example::
+    #:
+    #:     remove_tags_after = [dict(id='content')]
+    #:
+    #: will remove all
+    #: tags after the first element with `id="content"`.
     remove_tags_after = None
     
     #: Remove all tags that occur before the specified tag.
-    #: For the format for specifying a tag see L{remove_tags}.
-    #: For example, C{remove_tags_before = [dict(id='content')]} will remove all
-    #: tags before the element with id C{content}.
+    #: For the format for specifying a tag see :attr:`BasicNewsRecipe.remove_tags`.
+    #: For example::
+    #:
+    #:     remove_tags_before = [dict(id='content')]
+    #:
+    #: will remove all
+    #: tags before the first element with `id="content"`.
     remove_tags_before = None
     
     #: Keep only the specified tags and their children. 
-    #: For the format for specifying tags see L{remove_tags}.
-    #: If this list is not empty, then the <body> element will be emptied and re-filled with
-    #: the tags that match the entries in this list.
-    #: @type: list 
+    #: For the format for specifying a tag see :attr:`BasicNewsRecipe.remove_tags`.
+    #: If this list is not empty, then the `<body>` tag will be emptied and re-filled with
+    #: the tags that match the entries in this list. For example::
+    #: 
+    #:     keep_only_tags = [dict(id=['content', 'heading'])]
+    #: 
+    #: will keep only tags that have an `id` attribute of `"content"` or `"heading"`.
     keep_only_tags = []
     
-    #: List of regexp substitution rules to run on the downloaded HTML. Each element of the 
+    #: List of :term:`regexp` substitution rules to run on the downloaded :term:`HTML`. 
+    #: Each element of the 
     #: list should be a two element tuple. The first element of the tuple should
     #: be a compiled regular expression and the second a callable that takes
-    #: a single match object and returns a string to replace the match.
-    #: @type: list of tuples
+    #: a single match object and returns a string to replace the match. For example::
+    #:
+    #:     preprocess_regexps = [
+    #:        (re.compile(r'<!--Article ends here-->.*</body>', re.DOTALL|re.IGNORECASE), 
+    #:         lambda match: '</body>'),
+    #:     ]
+    #:
+    #: will remove everythong from `<!--Article ends here-->` to `</body>`.
     preprocess_regexps = []
     
     # See the built-in profiles for examples of these settings.
     
     def get_cover_url(self):
         '''
-        Return a URL to the cover image for this issue or None.
-        @rtype: string or None
+        Return a :term:`URL` to the cover image for this issue or `None`.
+        By default it returns the value of the member `self.cover_url` which
+        is normally `None`. If you want your recipe to download a cover for the e-book
+        override this method in your subclass, or set the member variable `self.cover_url`
+        before this method is called.
         '''
         return getattr(self, 'cover_url', None)
     
     def get_feeds(self):
         '''
-        Return a list of RSS feeds to fetch for this profile. Each element of the list
+        Return a list of :term:RSS feeds to fetch for this profile. Each element of the list
         must be a 2-element tuple of the form (title, url). If title is None or an
-        empty string, the title from the feed is used.
+        empty string, the title from the feed is used. This method is useful if your recipe
+        needs to do some processing to figure out the list of feeds to download. If
+        so, override in your subclass.
         '''
         if not self.feeds:
             raise NotImplementedError
@@ -195,54 +224,74 @@ class BasicNewsRecipe(object):
         return self.feeds
     
     @classmethod
-    def print_version(cls, url):
+    def print_version(self, url):
         '''
-        Take a URL pointing to an article and returns the URL pointing to the
-        print version of the article.
+        Take a `url` pointing to the webpage with article content and return the 
+        :term:`URL` pointing to the print version of the article. By default does
+        nothing. For example::
+        
+            def print_version(self, url):
+                return url + '?&pagewanted=print'
+        
         '''
         raise NotImplementedError
     
     @classmethod
-    def get_browser(cls):
+    def get_browser(self):
         '''
-        Return a browser instance used to fetch documents from the web.
+        Return a browser instance used to fetch documents from the web. By default
+        it returns a `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_
+        browser instance that supports cookies, ignores robots.txt, handles
+        refreshes and has a mozilla firefox user agent.
         
-        If your profile requires that you login first, override this method
-        in your subclass. See for example the nytimes profile.
+        If your recipe requires that you login first, override this method
+        in your subclass. For example, the following code is used in the New York
+        Times recipe to login for full access::
+        
+            def get_browser(self):
+                br = BasicNewsRecipe.get_browser()
+                if self.username is not None and self.password is not None:
+                    br.open('http://www.nytimes.com/auth/login')
+                    br.select_form(name='login')
+                    br['USERID']   = self.username
+                    br['PASSWORD'] = self.password
+                    br.submit()
+                return br
+        
         '''
         return browser()
     
-    def get_article_url(self, item):
+    def get_article_url(self, article):
         '''
-        Override to perform extraction of URL for each article. 
-        @param item: An article instance from L{feedparser}.
-        @type item: L{FeedParserDict} 
+        Override in a subclass to customize extraction of the :term:`URL` that points
+        to the content for each article. Return the 
+        article URL. It is called with `article`, an object representing a parsed article
+        from a feed. See `feedsparser <http://www.feedparser.org/docs/>`_.
+        By default it returns `article.link <http://www.feedparser.org/docs/reference-entry-link.html>`_.
         '''
-        return item.get('link',  None)
+        return article.get('link',  None)
     
     def preprocess_html(self, soup):
         '''
-        This function is called with the source of each downloaded HTML file, before
+        This method is called with the source of each downloaded :term:`HTML` file, before
         it is parsed for links and images. 
-        It can be used to do arbitrarily powerful pre-processing on the HTML.
-        @param soup: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} 
-                     instance containing the downloaded HTML.
-        @type soup: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} instance
-        @return: It must return soup (after having done any needed preprocessing)
-        @rtype: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} instance 
+        It can be used to do arbitrarily powerful pre-processing on the :term:`HTML`.
+        It should return `soup` after processing it.
+        
+        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ 
+        instance containing the downloaded :term:`HTML`.
         '''
         return soup
     
     def postprocess_html(self, soup):
         '''
-        This function is called with the source of each downloaded HTML file, after
+        This method is called with the source of each downloaded :term:`HTML` file, after
         it is parsed for links and images. 
-        It can be used to do arbitrarily powerful pre-processing on the HTML.
-        @param soup: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} 
-                     instance containing the downloaded HTML.
-        @type soup: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} instance
-        @return: It must return soup (after having done any needed preprocessing)
-        @rtype: A U{BeautifulSoup<http://www.crummy.com/software/BeautifulSoup/documentation.html>} instance 
+        It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
+        It should return `soup` after processing it. 
+        
+        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ 
+        instance containing the downloaded :term:`HTML`.
         '''
         return soup
     
@@ -256,8 +305,10 @@ class BasicNewsRecipe(object):
     def index_to_soup(self, url_or_raw):
         '''
         Convenience method that takes an URL to the index page and returns
-        a BeautifulSoup of it.
-        @param url_or_raw: Either a URL or the downloaded index page as a string
+        a `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        of it.
+        
+        `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
         if re.match(r'\w+://', url_or_raw):
             raw = self.browser.open(url_or_raw).read()
@@ -272,11 +323,13 @@ class BasicNewsRecipe(object):
     
     def sort_index_by(self, index, weights):
         '''
-        Convenience method to sort the titles in index according to weights.
-        @param index: A list of titles.
-        @param weights: A dictionary that maps weights to titles. If any titles
+        Convenience method to sort the titles in `index` according to `weights`.
+        `index` is sorted in place. Returns `index`.
+        
+        `index`: A list of titles.
+        
+        `weights`: A dictionary that maps weights to titles. If any titles
         in index are not in weights, they are assumed to have a weight of 0.
-        @return: Sorted index
         '''
         weights = defaultdict(lambda : 0, weights)
         index.sort(cmp=lambda x, y: cmp(weights[x], weights[y]))
@@ -288,10 +341,13 @@ class BasicNewsRecipe(object):
         instead of feeds to generate a list of articles. Typical uses are for
         news sources that have a "Print Edition" webpage that lists all the 
         articles in the current print edition. If this function is implemented,
-        it will be used in preference to L{parse_feeds}.
-        @rtype: list
-        @return: A list of two element tuples of the form ('feed title', list of articles). 
-        Each list of articles contains dictionaries of the form::
+        it will be used in preference to :meth:`BasicNewsRecipe.parse_feeds`.
+        
+        It must return a list. Each element of the list must be a 2-element tuple
+        of the form ``('feed title', list of articles)``.
+         
+        Each list of articles must contain dictionaries of the form::
+        
             {
             'title'       : article title,
             'url'         : URL of print version,
@@ -299,6 +355,8 @@ class BasicNewsRecipe(object):
             'description' : A summary of the article
             'content'     : The full article (can be an empty string). This is used by FullContentProfile
             }
+        
+        For an example, see the recipe for downloading `The Atlantic`.
         '''
         raise NotImplementedError
     
@@ -692,9 +750,8 @@ class BasicNewsRecipe(object):
         
     def parse_feeds(self):
         '''
-        Create a list of articles from a list of feeds.
-        @rtype: list
-        @return: A list of L{Feed}s.
+        Create a list of articles from the list of feeds returned by :meth:`BasicNewsRecipe.get_feeds`. 
+        Return a list of :class:`Feed` objects.
         '''
         feeds = self.get_feeds()
         parsed_feeds = []
@@ -713,14 +770,18 @@ class BasicNewsRecipe(object):
         return parsed_feeds
     
     @classmethod
-    def tag_to_string(cls, tag, use_alt=True):
+    def tag_to_string(self, tag, use_alt=True):
         '''
-        Convenience method to take a BeautifulSoup Tag and extract the text from it
-        recursively, including any CDATA sections and alt tag attributes.
-        @param use_alt: If True try to use the alt attribute for tags that don't have any textual content
-        @type use_alt: boolean
-        @return: A unicode (possibly empty) object
-        @rtype: unicode string
+        Convenience method to take a 
+        `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        `Tag` and extract the text from it recursively, including any CDATA sections 
+        and alt tag attributes. Return a possibly empty unicode string.
+        
+        `use_alt`: If `True` try to use the alt attribute for tags that don't 
+        have any textual content
+        
+        `tag`: `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
+        `Tag`
         '''
         if not tag:
             return ''
@@ -731,7 +792,7 @@ class BasicNewsRecipe(object):
             if isinstance(item, (NavigableString, CData)):
                 strings.append(item.string)
             elif isinstance(item, Tag):
-                res = cls.tag_to_string(item)
+                res = self.tag_to_string(item)
                 if res:
                     strings.append(res)
                 elif use_alt and item.has_key('alt'):
@@ -770,9 +831,9 @@ class CustomIndexRecipe(BasicNewsRecipe):
     
     def custom_index(self):
         '''
-        Return the path to a custom HTML document that will serve as the index for 
-        this recipe.
-        @rtype: string
+        Return the filesystem path to a custom HTML document that will serve as the index for 
+        this recipe. The index document will typically contain many `<a href="...">`
+        tags that point to resources on the internet that should be downloaded.
         '''
         raise NotImplementedError
     
@@ -795,3 +856,12 @@ class CustomIndexRecipe(BasicNewsRecipe):
         res = fetcher.start_fetch(url)
         self.create_opf()
         return res
+    
+class AutomaticNewsRecipe(BasicNewsRecipe):
+    
+    keep_only_tags = [dict(name=['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'])]
+    
+    def fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds):
+        if self.use_embedded_content:
+            self.web2disk_options.keep_only_tags = []
+        return BasicNewsRecipe.fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds)

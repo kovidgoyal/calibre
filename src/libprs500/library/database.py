@@ -24,6 +24,7 @@ from libprs500.ebooks.metadata.meta import set_metadata, metadata_from_formats
 from libprs500.ebooks.metadata.opf import OPFCreator
 from libprs500.ebooks.metadata import MetaInformation
 from libprs500.ebooks import BOOK_EXTENSIONS
+from libprs500.web.feeds.recipes import migrate_automatic_profile_to_automatic_recipe
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -779,6 +780,15 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.execute('pragma user_version=8')
         conn.commit()
         
+    @staticmethod
+    def upgrade_version8(conn):
+        feeds = conn.execute('SELECT title, script FROM feeds').fetchall()
+        for title, script in feeds:
+            script = migrate_automatic_profile_to_automatic_recipe(script)
+            conn.execute('UPDATE feeds SET script=? WHERE title=?', (script, title))
+        conn.execute('pragma user_version=9')
+        conn.commit()
+        
     def __del__(self):
         global _lock_file
         import os
@@ -808,6 +818,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             LibraryDatabase.upgrade_version6(self.conn)
         if self.user_version == 7: # Upgrade to 8
             LibraryDatabase.upgrade_version7(self.conn)
+        if self.user_version == 8: # Upgrade to 9
+            LibraryDatabase.upgrade_version8(self.conn)
         
     def close(self):
         global _lock_file

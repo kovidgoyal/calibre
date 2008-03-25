@@ -25,12 +25,15 @@ from libprs500.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
 def option_parser(usage='''\
 %%prog [options] ARG
 
-%%prog parsers an online source of articles, like an RSS or ATOM feed and 
+%%prog parses an online source of articles, like an RSS or ATOM feed and 
 fetches the article contents organized in a nice hierarchy.
 
 ARG can be one of:
+
 file name            - %%prog will try to load a recipe from the file
+
 builtin recipe title - %%prog will load the builtin recipe and use it to fetch the feed. For e.g. Newsweek or "The BBC" or "The New York Times"
+
 recipe as a string   - %%prog will load the recipe directly from the string arg.
 
 Available builtin recipes are:

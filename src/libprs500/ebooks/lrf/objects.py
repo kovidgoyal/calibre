@@ -12,10 +12,9 @@
 ##    You should have received a copy of the GNU General Public License along
 ##    with this program; if not, write to the Free Software Foundation, Inc.,
 ##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-from libprs500.ebooks.lrf import entity_to_unicode
 import struct, array, zlib, cStringIO, collections, re
 
-from libprs500.ebooks.lrf import LRFParseError
+from libprs500.ebooks.lrf import LRFParseError, PRS500_PROFILE, entity_to_unicode
 from libprs500.ebooks.lrf.tags import Tag
 
 ruby_tags = {
@@ -245,6 +244,10 @@ class PageAttr(StyleObject, LRFObject):
         0xF529: ['', "parse_bg_image"],
       }
     tag_map.update(LRFObject.tag_map)
+    
+    @classmethod
+    def to_css(cls, obj, inline=False):
+        return ''
 
 
 class Color(object):
@@ -446,8 +449,42 @@ class BlockAttr(StyleObject, LRFObject):
         0xF529: ['', 'parse_bg_image'],
       }
     tag_map.update(LRFObject.tag_map)
+    
+    @classmethod
+    def to_css(cls, obj, inline=False):
+        ans = ''
+        def item(line):
+            ans += '' if inline else '\t'
+            ans += line
+            ans += ' ' if inline else '\n'
+        
+        if hasattr(obj, 'sidemargin'):
+            margin = str(obj.sidemargin) + 'px'
+            item('margin-left: %(m)s; margin-right: %(m)s;'%dict(m=margin))
+        if hasattr(obj, 'topskip'):
+            item('margin-top: %dpx;'%obj.topskip)
+        if hasattr(obj, 'footskip'):
+            item('margin-bottom: %dpx;'%obj.footskip)
+        if hasattr(obj, 'framewidth'):
+            item('border: solid %dpx'%obj.framewidth)
+        if hasattr(obj, 'framecolor') and obj.framecolor.a < 255:
+            item('border-color: %s;'%obj.framecolor.to_html())
+        if hasattr(obj, 'bgcolor') and obj.bgcolor.a < 255:
+            item('background-color: %s;'%obj.bgcolor.to_html())
+        
+        return ans
+                 
+                 
+
+            
+        
 
 class TextAttr(StyleObject, LRFObject):
+    
+    FONT_MAP = collections.defaultdict(lambda : 'serif')
+    for key, value in PRS500_PROFILE.default_fonts.items():
+        FONT_MAP[value] = key
+        
     tag_map = {
         0xF511: ['fontsize', 'w'],
         0xF512: ['fontwidth', 'w'],
@@ -472,6 +509,45 @@ class TextAttr(StyleObject, LRFObject):
       }
     tag_map.update(ruby_tags)
     tag_map.update(LRFObject.tag_map)
+    
+    @classmethod
+    def to_css(cls, obj, inline=False):
+        ans = ''
+        def item(line):
+            ans += '' if inline else '\t'
+            ans += line
+            ans += ' ' if inline else '\n'
+        
+        fs = getattr(obj, 'fontsize', None)
+        if fs is not None:
+            item('font-size: %fpt;'%(int(fs)/10.))
+        fw = getattr(obj, 'fontweight', None)
+        if fw is not None:
+            item('font-weight: %s;'%('bold' if int(fw) >= 700 else 'normal'))
+        fn = getattr(obj, 'fontfacename', None)
+        if fn is not None:
+            fn = cls.FONT_MAP[fn]
+            item('font-family: %s;'%fn)
+        fg = getattr(obj, 'textcolor', None)
+        if fg is not None:
+            fg = fg.to_html()
+            item('color: %s;'%fg)
+        bg = getattr(obj, 'textbgcolor', None)
+        if bg is not None:
+            bg = bg.to_html()
+            item('background-color: %s;'%bg)
+        al = getattr(obj, 'align', None)
+        if al is not None:
+            al = dict(head='left', center='center', foot='right')
+            item('text-align: %s;'%al)
+        lh = getattr(obj, 'linespace', None)
+        if lh is not None:
+            item('text-align: %fpt;'%(int(lh)/10.))
+        pi = getattr(obj, 'parindent', None)
+        if pi is not None:
+            item('text-indent: %fpt;'%(int(pi)/10.))
+            
+        return ans
 
 
 class Block(LRFStream):

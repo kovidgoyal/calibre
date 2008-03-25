@@ -29,6 +29,7 @@ Sections
    metadata
    cli/cli-index
    faq 
+   glossary
 
 Convenience
 -----------------------

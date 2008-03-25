@@ -20,7 +20,8 @@ from libprs500.ebooks.lrf.meta import get_metadata
 from libprs500.ebooks.lrf.parser import LRFDocument
 from libprs500.ebooks.metadata.opf import OPFCreator
 
-from libprs500.ebooks.lrf.objects import PageAttr, BlockAttr
+from libprs500.ebooks.lrf.objects import PageAttr, BlockAttr, TextAttr
+
 
 class BlockStyle(object):
     
@@ -74,7 +75,8 @@ class LRFConverter(object):
                 selector = 'body.'+str(obj.id)
                 self.page_css = selector + ' {\n'
                 # TODO: Headers and footers
-                self.page_css += '}\n'        
+                self.page_css += '}\n'
+                
         
     def create_block_styles(self):
         self.block_css = ''
@@ -82,8 +84,12 @@ class LRFConverter(object):
             if isinstance(obj, BlockAttr):
                 self.block_css += str(BlockStyle(obj))
                 
-        print self.block_css
-                
+    def create_text_styles(self):
+        self.text_css = ''
+        for obj in self.lrf.objects.values():
+            if isinstance(obj, TextAttr):
+                self.text_css += str(TextStyle(obj))
+        print self.text_css
     
     def create_styles(self):
         self.logger.info('Creating CSS stylesheet...')

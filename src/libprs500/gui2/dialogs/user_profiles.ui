@@ -45,7 +45,7 @@
        </size>
       </property>
       <property name="title" >
-       <string>Available user profiles</string>
+       <string>Available user recipes</string>
       </property>
       <layout class="QVBoxLayout" >
        <item>
@@ -64,7 +64,7 @@
        <item>
         <widget class="QPushButton" name="add_profile_button" >
          <property name="text" >
-          <string>Add/Update &amp;profile</string>
+          <string>Add/Update &amp;recipe</string>
          </property>
          <property name="icon" >
           <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
@@ -74,7 +74,7 @@
        <item>
         <widget class="QPushButton" name="remove_profile_button" >
          <property name="text" >
-          <string>&amp;Remove profile</string>
+          <string>&amp;Remove recipe</string>
          </property>
          <property name="icon" >
           <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
@@ -83,7 +83,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="" >
+     <widget class="QWidget" name="layoutWidget" >
       <layout class="QVBoxLayout" >
        <item>
         <widget class="QPushButton" name="toggle_mode_button" >
@@ -105,7 +105,7 @@
               <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
-&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Create a basic news profile, by adding RSS feeds to it. &lt;br />For most feeds, you will have to use the "Advanced" setting to further customize the fetch process.&lt;br />The Basic tab is useful mainly for feeds that have the full article content embedded within them.&lt;/p>&lt;/body>&lt;/html></string>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Create a basic news recipe, by adding RSS feeds to it. &lt;br />For most feeds, you will have to use the "Advanced mode" to further customize the fetch process.&lt;/p>&lt;/body>&lt;/html></string>
              </property>
              <property name="textFormat" >
               <enum>Qt::RichText</enum>
@@ -120,7 +120,7 @@ p, li { white-space: pre-wrap; }
              <item row="0" column="0" >
               <widget class="QLabel" name="label_2" >
                <property name="text" >
-                <string>Profile &amp;title:</string>
+                <string>Recipe &amp;title:</string>
                </property>
                <property name="buddy" >
                 <cstring>profile_title</cstring>
@@ -134,32 +134,6 @@ p, li { white-space: pre-wrap; }
                  <weight>75</weight>
                  <bold>true</bold>
                 </font>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="0" colspan="2" >
-              <widget class="QLabel" name="label_3" >
-               <property name="text" >
-                <string>&amp;Summary length:</string>
-               </property>
-               <property name="buddy" >
-                <cstring>summary_length</cstring>
-               </property>
-              </widget>
-             </item>
-             <item row="4" column="2" >
-              <widget class="QSpinBox" name="summary_length" >
-               <property name="suffix" >
-                <string> characters</string>
-               </property>
-               <property name="minimum" >
-                <number>0</number>
-               </property>
-               <property name="maximum" >
-                <number>100000</number>
-               </property>
-               <property name="value" >
-                <number>500</number>
                </property>
               </widget>
              </item>
@@ -218,22 +192,12 @@ p, li { white-space: pre-wrap; }
                </property>
               </widget>
              </item>
-             <item row="1" column="0" >
-              <widget class="QCheckBox" name="full_articles" >
-               <property name="toolTip" >
-                <string>Try to follow links in the RSS feed to full articles on the web. If you enable this option, you're probably going to end up having to use the advanced mode.</string>
-               </property>
-               <property name="text" >
-                <string>Try to download &amp;full articles</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </item>
            <item>
             <widget class="QGroupBox" name="groupBox_2" >
              <property name="title" >
-              <string>Feeds in profile</string>
+              <string>Feeds in recipe</string>
              </property>
              <layout class="QHBoxLayout" >
               <item>
@@ -246,7 +210,7 @@ p, li { white-space: pre-wrap; }
               <item>
                <widget class="QToolButton" name="remove_feed_button" >
                 <property name="toolTip" >
-                 <string>Remove feed from profile</string>
+                 <string>Remove feed from recipe</string>
                 </property>
                 <property name="text" >
                  <string>...</string>
@@ -262,7 +226,7 @@ p, li { white-space: pre-wrap; }
            <item>
             <widget class="QGroupBox" name="groupBox_3" >
              <property name="title" >
-              <string>Add feed to profile</string>
+              <string>Add feed to recipe</string>
              </property>
              <layout class="QGridLayout" >
               <item row="0" column="0" >
@@ -294,7 +258,7 @@ p, li { white-space: pre-wrap; }
               <item row="2" column="0" colspan="2" >
                <widget class="QPushButton" name="add_feed_button" >
                 <property name="toolTip" >
-                 <string>Add feed to profile</string>
+                 <string>Add feed to recipe</string>
                 </property>
                 <property name="text" >
                  <string>&amp;Add feed</string>
@@ -314,7 +278,7 @@ p, li { white-space: pre-wrap; }
            <item>
             <widget class="QLabel" name="label_8" >
              <property name="text" >
-              <string>For help with writing advanced news profiles, please visit &lt;a href="https://__appname__.kovidgoyal.net/wiki/UserProfiles">UserProfiles&lt;/a></string>
+              <string>For help with writing advanced news recipes, please visit &lt;a href="http://__appname__.kovidgoyal.net/user_manual/news.html">User Recipes&lt;/a></string>
              </property>
              <property name="wordWrap" >
               <bool>true</bool>
@@ -327,7 +291,7 @@ p, li { white-space: pre-wrap; }
            <item>
             <widget class="QGroupBox" name="groupBox_4" >
              <property name="title" >
-              <string>Profile source code (python)</string>
+              <string>Recipe source code (python)</string>
              </property>
              <layout class="QVBoxLayout" >
               <item>

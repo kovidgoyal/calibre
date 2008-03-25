@@ -24,7 +24,7 @@ import custom
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.addons.*') or your custom ones.
-extensions = ['custom']
+extensions = ['sphinx.ext.autodoc', 'custom']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -54,9 +54,8 @@ release = __version__
 today_fmt = '%B %d, %Y'
 
 # List of documents that shouldn't be included in the build.
-unused_docs = ['global']
+unused_docs = ['global', 'cli/global']
 
-master_doc = 'index'
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 #add_function_parentheses = True
@@ -105,7 +104,7 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_additional_pages = {}
 
 # If false, no module index is generated.
-html_use_modindex = False
+# html_use_modindex = True
 
 # If true, the reST sources are included in the HTML build as _sources/<name>.
 html_copy_source = False
