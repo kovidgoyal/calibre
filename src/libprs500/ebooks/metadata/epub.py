@@ -1,8 +1,9 @@
+#!/usr/bin/env python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-'''Read meta information from epub files'''
 
-from __future__ import with_statement
+'''Read meta information from epub files'''
 
 import sys, os
 

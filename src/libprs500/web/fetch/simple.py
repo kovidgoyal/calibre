@@ -1,10 +1,12 @@
+#!/usr/bin/env python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 '''
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-from __future__ import with_statement
 import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2, threading, traceback
 from urllib import url2pathname
 from httplib import responses

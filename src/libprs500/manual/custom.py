@@ -22,7 +22,7 @@ def substitute(app, doctree):
     pass
 
 CLI_INDEX = '''\
-.. include:: global.rst
+.. include:: ../global.rst
 ||
 .. _cli:
 ||
@@ -55,7 +55,7 @@ You can see usage for undocumented commands by executing them without arguments 
 '''
 
 CLI_CMD=r'''
-.. include:: global.rst
+.. include:: ../global.rst
 ||
 .. _$cmd:
 || 

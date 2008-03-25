@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'Warning
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, traceback
 
 from PyQt4.QtCore import QThread, SIGNAL, QObject

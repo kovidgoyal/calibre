@@ -145,6 +145,12 @@ A reasonably complex real life example that exposes more of the :term:`API` of `
 .. literalinclude:: ../web/feeds/recipes/nytimes.py
     :linenos:
 
+We see several new features in this :term:`recipe`. First, we have::
+
+    timefmt = ' [%a, %d %b, %Y]'
+
+This sets the displayed time on the front page of the created e-book to be in the format,
+``Day, Day_Number Month, Year``. See :attr:`timefmt <libprs500.web.feeds.news.BasicNewsRecipe.timefmt>`.
 
 Tips for developing new recipes
 ---------------------------------
