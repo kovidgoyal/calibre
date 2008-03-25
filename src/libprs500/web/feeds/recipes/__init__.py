@@ -18,15 +18,15 @@
 Builtin recipes.
 '''
 recipes = ['newsweek', 'atlantic', 'economist', 'dilbert', 'portfolio', 
-           'nytimes', 'usatoday', 'outlook_india']
+           'nytimes', 'usatoday', 'outlook_india', 'bbc']
 
 import re, time 
-from libprs500.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe
+from libprs500.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
 from libprs500.ebooks.lrf.web import builtin_profiles
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 
-basic_recipes = (BasicNewsRecipe, CustomIndexRecipe, DefaultProfile, FullContentProfile)
+basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe, DefaultProfile, FullContentProfile)
 basic_recipe_names = (i.__name__ for i in basic_recipes)
 
 
@@ -88,3 +88,21 @@ def get_builtin_recipe(title):
 _titles = list(frozenset([r.title for r in recipes] + [p.title for p in builtin_profiles]))
 _titles.sort()
 titles = _titles
+
+def migrate_automatic_profile_to_automatic_recipe(profile):
+    profile = compile_recipe(profile)
+    if 'BasicUserProfile' not in profile.__name__:
+        return profile
+    return '''\
+class BasicUserRecipe%d(AutomaticNewsRecipe):
+
+    title = %s
+    oldest_article = %d
+    max_articles_per_feed = %d
+    summary_length = %d
+    
+    feeds = %s
+    
+'''%(int(time.time()), repr(profile.title), profile.oldest_article, 
+    profile.max_articles_per_feed, profile.summary_length, repr(profile.feeds))
+    
