@@ -1,17 +1,7 @@
-##    Copyright (C) 2006 Kovid Goyal kovid@kovidgoyal.net
-##    This program is free software; you can redistribute it and/or modify
-##    it under the terms of the GNU General Public License as published by
-##    the Free Software Foundation; either version 2 of the License, or
-##    (at your option) any later version.
-##
-##    This program is distributed in the hope that it will be useful,
-##    but WITHOUT ANY WARRANTY; without even the implied warranty of
-##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##    GNU General Public License for more details.
-##
-##    You should have received a copy of the GNU General Public License along
-##    with this program; if not, write to the Free Software Foundation, Inc.,
-##    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#!/usr/bin/env python
+__license__   = 'GPL v3'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 import sys, re, os, shutil
 sys.path.append('src')
 islinux = not ('win32' in sys.platform or 'win64' in sys.platform or 'darwin' in sys.platform)
@@ -79,19 +69,19 @@ if __name__ == '__main__':
                       """, 
           long_description = 
           """
-          libprs500 is an e-book library manager. It can view, convert and catalog e-books
+          %s is an e-book library manager. It can view, convert and catalog e-books
           in most of the major e-book formats. It can also talk to a few e-book reader devices. It can
           go out to the internet and fetch metadata for your books. It can download newspapers and convert
           them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
           
-          For screenshots: https://libprs500.kovidgoyal.net/wiki/Screenshots
+          For screenshots: https://%s.kovidgoyal.net/wiki/Screenshots
           
           For installation/usage instructions please see 
-          http://libprs500.kovidgoyal.net
+          http://%s.kovidgoyal.net
           
-          For SVN access: svn co https://svn.kovidgoyal.net/code/libprs500
+          For SVN access: svn co https://svn.kovidgoyal.net/code/%s
             
-          """, 
+          """%__appname__,
           license = 'GPL', 
           classifiers = [
             'Development Status :: 4 - Beta', 
@@ -99,7 +89,7 @@ if __name__ == '__main__':
             'Environment :: X11 Applications :: Qt', 
             'Intended Audience :: Developers', 
             'Intended Audience :: End Users/Desktop', 
-            'License :: OSI Approved :: GNU General Public License (GPL)', 
+            'License :: OSI Approved :: GNU General Public License (GPL) v3', 
             'Natural Language :: English', 
             'Operating System :: POSIX :: Linux', 
             'Programming Language :: Python', 
