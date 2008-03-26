@@ -25,9 +25,9 @@ Sections
 
    gui
    news
+   cli/cli-index
    conversion
    metadata
-   cli/cli-index
    faq 
    glossary
 
