@@ -927,16 +927,16 @@ class Main(MainWindow, Ui_MainWindow):
     def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
         if log:
-            print >>sys.stderr, log.encode('utf8', 'ignore')
+            print >>sys.stderr, log.encode('utf8', 'ignore') if isinstance(log, unicode) else log
         print >>sys.stderr, exception
-        print >>sys.stderr, formatted_traceback.encode('utf8', 'ignore')
+        print >>sys.stderr, formatted_traceback.encode('utf8', 'ignore') if isinstance(formatted_traceback, unicode) else formatted_traceback
         msg =  u'<p><b>%s</b>: %s</p>'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
         msg += formatted_traceback + '</pre>'
         msg += '<p><b>Log:</b></p><pre>'
         if log:
-            msg += log
+            msg += log.encode('utf8', 'ignore') if isinstance(log, unicode) else log.decode('utf8', 'ignore')
         ConversionErrorDialog(self, 'Conversion Error', msg, show=True)
         
     

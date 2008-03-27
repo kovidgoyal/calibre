@@ -81,7 +81,7 @@ if __name__ == '__main__':
           
           For SVN access: svn co https://svn.kovidgoyal.net/code/%s
             
-          """%__appname__,
+          """%(APPNAME, APPNAME, APPNAME, APPNAME),
           license = 'GPL', 
           classifiers = [
             'Development Status :: 4 - Beta', 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
             'Environment :: X11 Applications :: Qt', 
             'Intended Audience :: Developers', 
             'Intended Audience :: End Users/Desktop', 
-            'License :: OSI Approved :: GNU General Public License (GPL) v3', 
+            'License :: OSI Approved :: GNU General Public License (GPL)', 
             'Natural Language :: English', 
             'Operating System :: POSIX :: Linux', 
             'Programming Language :: Python', 
