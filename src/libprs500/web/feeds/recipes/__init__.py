@@ -1,5 +1,4 @@
 #!/usr/bin/env  python
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -8,11 +7,13 @@ Builtin recipes.
 recipes = ['newsweek', 'atlantic', 'economist', 'dilbert', 'portfolio', 
            'nytimes', 'usatoday', 'outlook_india', 'bbc']
 
-import re, time 
+import re, imp, inspect, time
 from libprs500.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
 from libprs500.ebooks.lrf.web import builtin_profiles
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
+from libprs500.path import path
+from libprs500.ptempfile import PersistentTemporaryDirectory
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe, DefaultProfile, FullContentProfile)
 basic_recipe_names = (i.__name__ for i in basic_recipes)
@@ -37,7 +38,8 @@ def load_recipe(module, package='libprs500.web.feeds.recipes'):
 
 
 recipes = [load_recipe(i) for i in recipes]
-    
+
+_tdir = None
 def compile_recipe(src):
     '''
     Compile the code in src and return the first object that is a recipe or profile.
@@ -45,15 +47,23 @@ def compile_recipe(src):
     @type src: string
     @return: Recipe/Profile class or None, if no such class was found in C{src} 
     '''
-    locals = {}
-    exec src in globals(), locals
-    for obj in locals.values():
-        if type(obj) is type and obj.__name__ not in basic_recipe_names:
-            for base in obj.__bases__:
-                if base in basic_recipes:
-                    return obj
+    global _tdir
+    if _tdir is None:
+        _tdir = path(PersistentTemporaryDirectory('_recipes'))
+    temp = _tdir/('recipe%d.py'%time.time())
+    f = open(temp, 'wb')
+    f.write(src)
+    f.close()
+    module = imp.find_module(temp.namebase, [temp.dirname()])
+    module = imp.load_module(temp.namebase, *module)
+    classes = inspect.getmembers(module, 
+            lambda x : inspect.isclass(x) and \
+                issubclass(x, (DefaultProfile, BasicNewsRecipe)) and \
+                x not in basic_recipes)
+    if not classes:
+        return None
     
-    return None
+    return classes[0][1]
 
 
 def get_builtin_recipe(title):
