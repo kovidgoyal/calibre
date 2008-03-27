@@ -927,9 +927,9 @@ class Main(MainWindow, Ui_MainWindow):
     def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
         print >>sys.stderr, 'Error in job:', description.encode('utf8')
         if log:
-            print >>sys.stderr, log.encode('utf8')
+            print >>sys.stderr, log.encode('utf8', 'ignore')
         print >>sys.stderr, exception
-        print >>sys.stderr, formatted_traceback.encode('utf8')
+        print >>sys.stderr, formatted_traceback.encode('utf8', 'ignore')
         msg =  u'<p><b>%s</b>: %s</p>'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
