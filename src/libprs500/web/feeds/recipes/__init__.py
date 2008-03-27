@@ -4,8 +4,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Builtin recipes.
 '''
-recipes = ['newsweek', 'atlantic', 'economist', 'dilbert', 'portfolio', 
-           'nytimes', 'usatoday', 'outlook_india', 'bbc']
+recipes = [
+           'newsweek', 'atlantic', 'economist', 'dilbert', 'portfolio', 
+           'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader',
+          ]
 
 import re, imp, inspect, time
 from libprs500.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
