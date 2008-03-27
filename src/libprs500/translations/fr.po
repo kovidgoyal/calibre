@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.22\n"
-"POT-Creation-Date: 2008-03-26 19:58+PDT\n"
+"POT-Creation-Date: 2008-03-27 16:35+PDT\n"
 "PO-Revision-Date: 2008-01-20 09:59+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -455,7 +455,7 @@ msgstr "Choisir un nouvel emplacement pour la base de données"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:146
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:149
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:153
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:236
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:235
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:185
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:186
 #: /home/kovid/work/libprs500/src/libprs500/gui2/lrf_renderer/main_ui.py:187
@@ -1233,7 +1233,7 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:48
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:58
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:223
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:222
 msgid "Switch to Advanced mode"
 msgstr ""
 
@@ -1284,23 +1284,23 @@ msgstr ""
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:219
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:218
 msgid "Add custom news source"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:220
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:219
 msgid "Available user recipes"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:221
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:220
 msgid "Add/Update &recipe"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:222
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:221
 msgid "&Remove recipe"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:224
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:223
 msgid ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
 "\">\n"
@@ -1314,62 +1314,62 @@ msgid ""
 "body></html>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:228
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:227
 msgid "Recipe &title:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:229
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:228
 msgid "&Oldest article:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:230
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:229
 msgid "The oldest article to download"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:231
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:230
 msgid " days"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:232
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:231
 msgid "&Max. number of articles per feed:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:233
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:232
 msgid "Maximum number of articles to download per feed."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:234
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:233
 msgid "Feeds in recipe"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:235
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:234
 msgid "Remove feed from recipe"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:237
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:240
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:236
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:239
 msgid "Add feed to recipe"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:238
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:237
 msgid "&Feed title:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:239
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:238
 msgid "Feed &URL:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:241
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:240
 msgid "&Add feed"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:242
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:241
 msgid ""
 "For help with writing advanced news recipes, please visit <a href=\"http://"
 "libprs500.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:243
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:242
 msgid "Recipe source code (python)"
 msgstr ""
 
