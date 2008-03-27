@@ -93,9 +93,10 @@ _titles.sort()
 titles = _titles
 
 def migrate_automatic_profile_to_automatic_recipe(profile):
+    oprofile = profile
     profile = compile_recipe(profile)
     if 'BasicUserProfile' not in profile.__name__:
-        return profile
+        return oprofile
     return '''\
 class BasicUserRecipe%d(AutomaticNewsRecipe):
 
