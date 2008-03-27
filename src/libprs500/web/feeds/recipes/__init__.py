@@ -16,6 +16,7 @@ from libprs500.ebooks.lrf.web import builtin_profiles
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 from libprs500.path import path
 from libprs500.ptempfile import PersistentTemporaryDirectory
+from libprs500 import __appname__
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe, DefaultProfile, FullContentProfile)
 basic_recipe_names = (i.__name__ for i in basic_recipes)
@@ -54,6 +55,7 @@ def compile_recipe(src):
         _tdir = path(PersistentTemporaryDirectory('_recipes'))
     temp = _tdir/('recipe%d.py'%time.time())
     f = open(temp, 'wb')
+    src = 'from %s.web.feeds.news import BasicNewsRecipe, AutomaticNewsRecipe\n'%__appname__ + src
     f.write(src)
     f.close()
     module = imp.find_module(temp.namebase, [temp.dirname()])
