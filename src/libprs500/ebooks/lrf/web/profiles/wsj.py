@@ -13,7 +13,7 @@ from libprs500.ebooks.lrf.web.profiles import DefaultProfile
          
 class WallStreetJournal(DefaultProfile): 
     
-        title = 'Wall Street Journal' 
+        title = 'The Wall Street Journal' 
         max_recursions = 2
         needs_subscription = True
         no_stylesheets = False 

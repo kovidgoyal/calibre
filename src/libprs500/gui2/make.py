@@ -66,10 +66,6 @@ def build_images():
         os.utime(images, None)
         os.utime(images, None)
         print 'Size of images:', '%.2f MB'%(path(images+'c').size/(1024*1024.))
-        os.unlink(f.name)
-    
-    
-        
         
             
 def build(forms):

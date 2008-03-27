@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' E-book management software'''
-__version__   = "0.4.44"
+__version__   = "0.4.45"
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'libprs500'
@@ -472,3 +472,10 @@ if not _settings.get('migrated from QSettings'):
     _settings.migrate(QSettings('KovidsBrain', 'libprs500'))
     _settings.set('migrated from QSettings', True)
     _settings.sync()
+    
+_spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
+def english_sort(x, y):
+    '''
+    Comapare two english phrases ignoring starting prepositions.
+    '''
+    return cmp(_spat.sub('', x), _spat.sub('', y))

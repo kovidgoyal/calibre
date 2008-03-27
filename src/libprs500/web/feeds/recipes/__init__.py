@@ -17,7 +17,7 @@ from libprs500.ebooks.lrf.web import builtin_profiles
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup
 from libprs500.path import path
 from libprs500.ptempfile import PersistentTemporaryDirectory
-from libprs500 import __appname__
+from libprs500 import __appname__, english_sort
 
 basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe, DefaultProfile, FullContentProfile)
 basic_recipe_names = (i.__name__ for i in basic_recipes)
@@ -57,6 +57,7 @@ def compile_recipe(src):
     temp = _tdir/('recipe%d.py'%time.time())
     f = open(temp, 'wb')
     src = 'from %s.web.feeds.news import BasicNewsRecipe, AutomaticNewsRecipe\n'%__appname__ + src
+    src = 'from %s.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile\n'%__appname__ + src
     f.write(src)
     f.close()
     module = imp.find_module(temp.namebase, [temp.dirname()])
@@ -89,7 +90,7 @@ def get_builtin_recipe(title):
     return None, False
 
 _titles = list(frozenset([r.title for r in recipes] + [p.title for p in builtin_profiles]))
-_titles.sort()
+_titles.sort(cmp=english_sort)
 titles = _titles
 
 def migrate_automatic_profile_to_automatic_recipe(profile):
