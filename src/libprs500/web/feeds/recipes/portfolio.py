@@ -11,6 +11,8 @@ from libprs500.web.feeds.news import BasicNewsRecipe
 class Portfolio(BasicNewsRecipe):
     
     title                = 'Portfolio'
+    __author__           = 'JTravers'
+    description          = 'Conde Nast Portfolio: For the businessman.'
     use_embedded_content = True
     timefmt              = ' [%a, %b %d, %Y]'
     html2lrf_options     = ['--ignore-tables']

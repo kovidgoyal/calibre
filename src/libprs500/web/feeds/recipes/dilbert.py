@@ -12,6 +12,8 @@ from libprs500.ptempfile import PersistentTemporaryDirectory
 class Dilbert(CustomIndexRecipe):
     
     title = 'Dilbert'
+    __author__ = 'Kovid Goyal'
+    description = 'Daily dilbert comic (from the last five days)'
     timefmt = ' [%d %b %Y]'
     
     feeds = [('Dilbert', 'http://feeds.feedburner.com/tapestrydilbert')]

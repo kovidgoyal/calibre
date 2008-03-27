@@ -10,6 +10,7 @@ class Newsweek(BasicNewsRecipe):
 
     title          = 'Newsweek'
     __author__     = 'Kovid Goyal'
+    description    = 'Weekly news and current affairs in the US'
     no_stylesheets = True
     
     extra_css = '#content { font:serif 12pt; }\n.story {font:12pt}\n.HorizontalHeader {font:18pt}\n.deck {font:16pt}'

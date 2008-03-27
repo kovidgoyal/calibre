@@ -14,6 +14,8 @@ from urllib2 import quote
 class Economist(BasicNewsRecipe):
     
     title = 'The Economist'
+    __author__ = "Kovid Goyal"
+    description = 'Global news and current affairs from a European perspective'
     oldest_article = 7.0
     needs_subscription = False # Strange but true
     INDEX = 'http://www.economist.com/printedition'

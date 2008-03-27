@@ -10,7 +10,9 @@ from libprs500.web.feeds.news import BasicNewsRecipe
 
 class TheAtlantic(BasicNewsRecipe):
     
-    title = 'The Atlantic'
+    title      = 'The Atlantic'
+    __author__ = 'Kovid Goyal'
+    description = 'Current affairs and politics focussed on the US'
     INDEX = 'http://www.theatlantic.com/doc/current'
     
     remove_tags_before = dict(name='div', id='storytop')

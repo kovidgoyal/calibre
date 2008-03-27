@@ -10,7 +10,9 @@ from libprs500.web.feeds.recipes import BasicNewsRecipe
 
 class NYTimes(BasicNewsRecipe):
     
-    title   = 'The New York Times'
+    title       = 'The New York Times'
+    __author__  = 'Kovid Goyal'
+    description = 'Daily news from the New York Times'
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = True
     

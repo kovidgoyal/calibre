@@ -9,6 +9,8 @@ import re, urlparse
 class WallStreetJournal(BasicNewsRecipe): 
     
         title = 'The Wall Street Journal' 
+        __author__ = 'JTravers'
+        description = 'News and current affairs.'
         needs_subscription = True
         max_articles_per_feed = 10
         timefmt  = ' [%a, %b %d, %Y]' 

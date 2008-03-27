@@ -10,6 +10,8 @@ from libprs500.web.feeds.news import BasicNewsRecipe
 
 class BBC(BasicNewsRecipe):
     title          = u'The BBC'
+    __author__     = 'Kovid Goyal'
+    description    = 'Global news and current affairs from the British Broadcasting Corporation'
     no_stylesheets = True
 
     remove_tags    = [dict(name='div', attrs={'class':'footer'})]
