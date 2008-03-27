@@ -849,13 +849,14 @@ class Main(MainWindow, Ui_MainWindow):
                             db = LibraryDatabase(newloc)
                             db.close()
                         except Exception, err:
+                            traceback.print_exc()
                             d = error_dialog(self, _('Invalid database'), 
                                              _('<p>An invalid database already exists at %s, delete it before trying to move the existing database.<br>Error: %s')%(newloc, str(err)))
+                            d.exec_()
                             newloc = self.database_path
                     self.database_path = newloc
                     settings = Settings()
                     settings.setValue("database path", QVariant(self.database_path))
-                    os.unlink(src.name)
                 except Exception, err:
                     traceback.print_exc()
                     d = error_dialog(self, _('Could not move database'), unicode(err))
