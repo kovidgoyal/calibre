@@ -13,7 +13,7 @@ class Wired(BasicNewsRecipe):
     description = 'Technology news'
     timefmt  = ' [%Y%b%d  %H%M]'
     no_stylesheets = True
-    html2lrf_options = ['--base-font-size', '12']
+    html2lrf_options = ['--base-font-size', '16']
     
     preprocess_regexps = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in 
   
