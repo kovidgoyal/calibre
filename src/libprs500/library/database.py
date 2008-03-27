@@ -810,10 +810,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             LibraryDatabase.upgrade_version8(self.conn)
         
     def close(self):
-        global _lock_file
-        _lock_file.close()
-        os.unlink(_lock_file.name)
-        _lock_file = None
+#        global _lock_file
+#        _lock_file.close()
+#        os.unlink(_lock_file.name)
+#        _lock_file = None
         self.conn.close()
     
     @apply
