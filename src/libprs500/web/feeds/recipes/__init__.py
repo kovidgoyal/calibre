@@ -6,7 +6,7 @@ Builtin recipes.
 '''
 recipes = [
            'newsweek', 'atlantic', 'economist', 'dilbert', 'portfolio', 
-           'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader',
+           'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
           ]
 
 import re, imp, inspect, time
