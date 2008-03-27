@@ -36,6 +36,8 @@ Customizing e-book download
 
 .. automember:: BasicNewsRecipe.title
 
+.. automember:: BasicNewsRecipe.description
+
 .. automember:: BasicNewsRecipe.__author__
 
 .. automember:: BasicNewsRecipe.max_articles_per_feed

@@ -32,10 +32,16 @@ class BasicNewsRecipe(object):
     #: The title to use for the ebook
     title                 = _('Unknown News Source')
     
+    #: A couple of lines that describe the content this recipe downloads.
+    #: This will be used primarily in a GUI that presents a list of recipes.
+    description = ''
+    
     #: The author of this recipe
     __author__            = __appname__    
     
-    #: Maximum number of articles to download from each feed
+    #: Maximum number of articles to download from each feed. This is primarily
+    #: useful for feeds that don't have article dates. For most feeds, you should
+    #: use :attr:`BasicNewsRecipe.oldest_article`
     max_articles_per_feed = 100
     
     #: Oldest article to download from this news source. In days.
