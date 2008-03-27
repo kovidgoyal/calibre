@@ -13,6 +13,7 @@ check_call = partial(subprocess.check_call, shell=True)
 sys.path.insert(1, os.path.abspath('..%s..'%os.sep))
 
 from libprs500 import __appname__
+from libprs500.path import path
 
 def find_forms():
     forms = []
@@ -43,19 +44,33 @@ def build_forms(forms):
             
                 
 def build_images():
-    newest = 0
-    for root, dirs, files in os.walk(os.path.join('.', 'images')):
-        for name in files:
-            newest = max(os.stat(os.path.join(root, name)).st_mtime, newest)
+    p = path('images')
+    mtime = p.mtime
+    for x in p.walk():
+        mtime = max(x.mtime, mtime)
+    images = path('images_rc.py')
+    if not images.exists() or mtime > images.mtime:
+        print 'Compiling images...'
+        files = []
+        for x in p.walk():
+            if '.svn' in x or '.bzr' in x or x.isdir():
+                continue
+            alias = ' alias="library"' if x == p/'library.png' else ''
+            files.append('<file%s>%s</file>'%(alias, x))
+        qrc = '<RCC>\n<qresource prefix="/">\n%s\n</qresource>\n</RCC>'%'\n'.join(files)
+        f = open('images.qrc', 'wb')
+        f.write(qrc)
+        f.close()
+        check_call(' '.join(['pyrcc4', '-o', images, 'images.qrc']))
+        compiler.compileFile(images)
+        os.utime(images, None)
+        os.utime(images, None)
+        print 'Size of images:', '%.2f MB'%(path(images+'c').size/(1024*1024.))
+        os.unlink(f.name)
     
-    newest = max(newest, os.stat('images.qrc').st_mtime)
     
-    if not os.path.exists('images_rc.py') or newest > os.stat('images_rc.py').st_mtime:
-        print 'Compiling images'
-        check_call(' '.join(['pyrcc4', '-o', 'images_rc.py', 'images.qrc']))
-        compiler.compileFile('images_rc.py')
-        os.utime('images_rc.py', None)
-        os.utime('images_rc.pyc', None)
+        
+        
             
 def build(forms):
     build_forms(forms)
