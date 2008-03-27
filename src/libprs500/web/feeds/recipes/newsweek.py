@@ -27,47 +27,71 @@ class Newsweek(BasicNewsRecipe):
     match_regexps = [r'http://www.newsweek.com/id/\S+/page/\d+']
     
     
+    def get_sections(self, soup):
+        sections = []
+        
+        def process_section(img):
+            articles = []
+            match = re.search(r'label_([^_.]+)', img['src'])
+            if match is None:
+                return
+            title =  match.group(1)
+            if title in ['coverstory', 'more', 'tipsheet']:
+                return
+            title = string.capwords(title)
+            
+            for a in img.parent.findAll('a', href=True):
+                art, href = a.string, a['href']
+                if not re.search('\d+$', href) or not art or 'Preview Article' in art:
+                    continue
+                articles.append({
+                                 'title':art, 'url':href, 'description':'', 
+                                 'content':'', 'date':'' 
+                    })
+            sections.append((title, articles))
+                
+            img.parent.extract()
+
+        for img in soup.findAll(src=re.compile('/label_')):
+            process_section(img)
+            
+        return sections
+
+    
     def parse_index(self):
         soup = self.index_to_soup(self.get_current_issue())
         img = soup.find(alt='Cover')
         if img is not None and img.has_key('src'):
             small = img['src']
+            match = re.search(r'(\d+)_', small.rpartition('/')[-1])
+            if match is not None:
+                self.timefmt = time.strftime(' [%d %b, %Y]', time.strptime(match.group(1), '%y%m%d'))
             self.cover_url = small.replace('coversmall', 'coverlarge')
             
-        articles = {}
-        ans = []
-        key = None
-        for tag in soup.findAll(['h5', 'h6']):
-            if tag.name == 'h6':
-                if key and not articles[key]:
-                    articles.pop(key)
-                key = self.tag_to_string(tag)
-                if not key or not key.strip():
-                    key = 'uncategorized'
-                key = string.capwords(key)
-                articles[key] = []
-                ans.append(key)
-            elif tag.name == 'h5' and key is not None:
-                a = tag.find('a', href=True)
-                if a is not None:
-                    title = self.tag_to_string(a)
-                    if not title:
-                        a = 'Untitled article'
-                    art = {
-                           'title' : title,
-                           'url'   : a['href'],
-                           'description':'', 'content':'',
-                           'date': time.strftime('%a, %d %b', time.localtime())
-                           }
-                    if art['title'] and art['url']:
-                        articles[key].append(art)
-        ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
+        sections = self.get_sections(soup)
+        sections.insert(0, ('Main articles', []))
         
-        return ans
+        for tag in soup.findAll('h5'):
+            a = tag.find('a', href=True)
+            if a is not None:
+                title = self.tag_to_string(a)
+                if not title:
+                    a = 'Untitled article'
+                art = {
+                       'title' : title,
+                       'url'   : a['href'],
+                       'description':'', 'content':'',
+                       'date': time.strftime('%a, %d %b', time.localtime())
+                       }
+                if art['title'] and art['url']:
+                    sections[0][1].append(art)
+        return sections
         
     
     def postprocess_html(self,  soup):
         divs = list(soup.findAll('div', 'pagination'))
+        if not divs:
+            return
         divs[0].extract()
         if len(divs) > 1:
             soup.find('body')['style'] = 'page-break-after:avoid'
