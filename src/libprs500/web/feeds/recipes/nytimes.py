@@ -24,7 +24,6 @@ class NYTimes(BasicNewsRecipe):
     encoding = 'cp1252'
     no_stylesheets = True
     extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
-    html2lrf_options = ['--base-font-size', '14']
     
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
