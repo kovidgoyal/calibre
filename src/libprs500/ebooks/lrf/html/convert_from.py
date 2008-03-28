@@ -491,8 +491,9 @@ class HTMLConverter(object):
             self.current_page = None
         
         if not top.has_text() and top.parent.contents.index(top) == len(top.parent.contents)-1:
-            top.parent.contents.remove(top)
+            # Empty block at the bottom of a page
             opage = top.parent
+            top.parent.contents.remove(top)
             if self.book.last_page() is opage:
                 if self.current_page and self.current_page.has_text():
                     for c in self.current_page.contents:
@@ -599,7 +600,7 @@ class HTMLConverter(object):
         while len(self.links) > 0:
             link = self.links.popleft()
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
-            ascii_text = text.encode('ascii', 'ignore') # Needed for TOC entries due to bug in SONY LRF renderer
+            ascii_text = text.encode('ascii', 'replace') # Needed for TOC entries due to bug in SONY LRF renderer
             
             if path in self.processed_files:
                 if path+fragment in self.targets.keys():
@@ -625,7 +626,7 @@ class HTMLConverter(object):
             
     def create_toc(self, toc):
         for item in toc.top_level_items():
-            ascii_text = item.text.encode('ascii', 'ignore') # Bug in SONY LRF renderer
+            ascii_text = item.text.encode('ascii', 'replace') # Bug in SONY LRF renderer
             if not item.fragment and item.abspath in self.tops:
                 self.book.addTocEntry(ascii_text, self.tops[item.abspath])                
             else:
