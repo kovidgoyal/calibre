@@ -600,7 +600,7 @@ class HTMLConverter(object):
         while len(self.links) > 0:
             link = self.links.popleft()
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
-            ascii_text = text.encode('ascii', 'replace') # Needed for TOC entries due to bug in SONY LRF renderer
+            ascii_text = text
             
             if path in self.processed_files:
                 if path+fragment in self.targets.keys():
@@ -626,7 +626,7 @@ class HTMLConverter(object):
             
     def create_toc(self, toc):
         for item in toc.top_level_items():
-            ascii_text = item.text.encode('ascii', 'replace') # Bug in SONY LRF renderer
+            ascii_text = item.text
             if not item.fragment and item.abspath in self.tops:
                 self.book.addTocEntry(ascii_text, self.tops[item.abspath])                
             else:
