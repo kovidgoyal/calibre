@@ -428,6 +428,8 @@ class BasicNewsRecipe(object):
             
         self.navbar = templates.NavBarTemplate()
         self.html2lrf_options.extend(['--page-break-before', '$', '--use-spine', '--header'])
+        if '--base-font-size' not in self.html2lrf_options:
+            self.html2lrf_options.extend(['--base-font-size', '12'])
         self.failed_downloads = []
         self.partial_failures = []
                 
