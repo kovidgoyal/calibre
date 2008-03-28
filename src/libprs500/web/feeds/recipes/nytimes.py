@@ -77,4 +77,6 @@ class NYTimes(BasicNewsRecipe):
         return ans
     
     def print_version(self, url):
+        if url.endswith('?&pagewanted=print'):
+            return url
         return url + '?&pagewanted=print'
