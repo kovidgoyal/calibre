@@ -321,7 +321,8 @@ class RecursiveFetcher(object):
                     self.current_dir = linkdiskpath
                     f = self.fetch_url(iurl)
                     dsrc = f.read()
-                    if len(dsrc) == 0:
+                    if len(dsrc) == 0 or \
+                       len(re.compile('<!--.*?-->', re.DOTALL).sub('', dsrc).strip()) == 0:
                         raise ValueError('No content at URL %s'%iurl)
                     if self.encoding is not None:
                         dsrc = dsrc.decode(self.encoding, 'ignore')
