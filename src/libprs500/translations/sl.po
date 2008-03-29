@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2008-03-27 16:35+PDT\n"
+"POT-Creation-Date: 2008-03-28 10:27+PDT\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -258,8 +258,8 @@ msgstr ""
 msgid "Fetching of recipe failed: "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:501
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:508
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:502
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:509
 msgid "Could not parse file: %s"
 msgstr ""
 
@@ -1886,7 +1886,7 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:82
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:86
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:563
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:565
 msgid "Fetching feeds..."
 msgstr ""
 
@@ -1894,78 +1894,78 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:464
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:466
 msgid "Download finished"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:466
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:468
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:468
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:474
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:470
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:476
 msgid " from "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:472
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:474
 msgid "Failed to download parts of the following articles:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:476
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:478
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:545
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:547
 msgid "Could not fetch article. Run with --debug to see the reason"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:567
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:569
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:573
 msgid "Trying to download cover..."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:621
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:623
 msgid "Starting download [%d thread(s)]..."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:635
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:637
 msgid "Feeds downloaded to %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:644
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:646
 msgid "Could not download cover: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:649
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:651
 msgid "Downloading cover from %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:684
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:686
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:725
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:727
 msgid ""
 "\n"
 "Downloaded article %s from %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:731
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:733
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:737
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:739
 msgid "Failed to download article: %s from %s\n"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:742
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:744
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:757
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:759
 msgid "Fetching feed"
 msgstr ""

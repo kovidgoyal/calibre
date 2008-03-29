@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-03-28 10:08+PDT\n"
+"POT-Creation-Date: 2008-03-28 10:27+PDT\n"
 "PO-Revision-Date: 15:10, 28/3/2008\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano <it@li.org>\n"
@@ -327,8 +327,8 @@ msgstr "Opzioni per controllare il comportamento di html2lrf"
 msgid "Fetching of recipe failed: "
 msgstr "Scaricamento della formula fallito: "
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:501
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:508
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:502
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:509
 msgid "Could not parse file: %s"
 msgstr "Impossibile analizzare il file: %s"
 
