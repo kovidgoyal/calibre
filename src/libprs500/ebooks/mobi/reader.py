@@ -184,7 +184,7 @@ class MobiReader(object):
         manifest = [(htmlfile, 'text/x-oeb1-document')]
         bp = os.path.dirname(htmlfile)
         for i in self.image_names:
-            manifest.append((os.path.join(bp,'images/',i), 'image/jpg'))
+            manifest.append((os.path.join(bp, 'images/', i), 'image/jpg'))
         
         opf.create_manifest(manifest)
         opf.create_spine([os.path.basename(htmlfile)])
