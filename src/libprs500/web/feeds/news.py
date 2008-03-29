@@ -306,6 +306,8 @@ class BasicNewsRecipe(object):
         '''
         if re.match(r'\w+://', url_or_raw):
             raw = self.browser.open(url_or_raw).read()
+            if not raw:
+                raise RuntimeError('Could not fetch index from %s'%url_or_raw)
         else:
             raw = url_or_raw
         if not isinstance(raw, unicode) and self.encoding:
