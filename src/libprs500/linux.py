@@ -171,7 +171,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('mobi2lrf', htmlop, ['mobi', 'prc']))
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('any2lrf', htmlop, 
-            ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'txt', 'lit', 'rtf', 'pdf']))
+            ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi']))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))        
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))

@@ -59,7 +59,10 @@ class Newsweek(BasicNewsRecipe):
 
     
     def parse_index(self):
-        soup = self.index_to_soup(self.get_current_issue())
+        ci = self.get_current_issue()
+        if not ci:
+            raise RuntimeError('Unable to connect to newsweek.com. Try again later.')
+        soup = self.index_to_soup(ci)
         img = soup.find(alt='Cover')
         if img is not None and img.has_key('src'):
             small = img['src']
