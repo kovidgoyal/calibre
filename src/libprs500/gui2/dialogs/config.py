@@ -2,8 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 
-from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QVBoxLayout
-from PyQt4.QtCore import QVariant, SIGNAL, QStringList, QTimer, Qt
+from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem
+from PyQt4.QtCore import QVariant, SIGNAL, QStringList, QTimer, Qt, QSize
 
 from libprs500 import islinux, Settings
 from libprs500.gui2.dialogs.config_ui import Ui_Dialog
@@ -51,10 +51,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
             else:
                 item.setCheckState(Qt.Checked)
                 
-        self.mbl = QVBoxLayout()
-        self.metadata_box.setLayout(self.mbl)
-        self.filename_pattern = FilenamePattern(None)
-        self.mbl.addChildWidget(self.filename_pattern)
+        self.filename_pattern = FilenamePattern(self)
+        self.metadata_box.layout().insertWidget(0, self.filename_pattern)
+        
             
         
     def compact(self, toggled):

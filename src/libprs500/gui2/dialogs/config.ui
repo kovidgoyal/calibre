@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>667</width>
-    <height>630</height>
+    <width>709</width>
+    <height>685</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -360,6 +360,21 @@
            <property name="title" >
             <string>&amp;Metadata from file name</string>
            </property>
+           <layout class="QVBoxLayout" >
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>

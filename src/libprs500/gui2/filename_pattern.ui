@@ -5,27 +5,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>498</width>
-    <height>452</height>
+    <width>349</width>
+    <height>441</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" >
-   <item>
-    <spacer>
-     <property name="orientation" >
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" >
-      <size>
-       <width>20</width>
-       <height>15</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
