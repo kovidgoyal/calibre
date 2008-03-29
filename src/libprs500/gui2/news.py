@@ -70,8 +70,6 @@ class CustomNewMenuItem(QAction):
         QAction.__init__(self, QIcon(':/images/user_profile.svg'), title, parent)
         self.title  = title
         self.recipe = compile_recipe(script)
-        print self.recipe.title
-        print script
         self.recipe.gui_recipe_script = script
 
 class CustomNewsMenu(QMenu):

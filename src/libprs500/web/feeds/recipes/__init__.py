@@ -44,6 +44,7 @@ def load_recipe(module, package='libprs500.web.feeds.recipes'):
 recipes = [load_recipe(i) for i in recipes]
 
 _tdir = None
+_crep = 0
 def compile_recipe(src):
     '''
     Compile the code in src and return the first object that is a recipe or profile.
@@ -51,10 +52,11 @@ def compile_recipe(src):
     @type src: string
     @return: Recipe/Profile class or None, if no such class was found in C{src} 
     '''
-    global _tdir
+    global _tdir, _crep
     if _tdir is None:
         _tdir = path(PersistentTemporaryDirectory('_recipes'))
-    temp = _tdir/('recipe%d.py'%time.time())
+    temp = _tdir/('recipe%d.py'%_crep)
+    _crep += 1
     f = open(temp, 'wb')
     src = 'from %s.web.feeds.news import BasicNewsRecipe, AutomaticNewsRecipe\n'%__appname__ + src
     src = 'from %s.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile\n'%__appname__ + src
