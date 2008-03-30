@@ -234,9 +234,9 @@ def main():
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
                                        'mechanize', 'ClientForm', 'usbobserver', 
                                        'genshi', 'libprs500.web.feeds.recipes.*',
-                                       'IPython.Extensions.*'],
+                                       'IPython.Extensions.*', 'pydoc'],
                          'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
-                         'excludes' : ['pydoc'],
+                         'excludes' : [],
                          'plist'    : { 'CFBundleGetInfoString' : '''libprs500, an E-book management application.'''
                                         ''' Visit http://libprs500.kovidgoyal.net for details.''',
                                         'CFBundleIdentifier':'net.kovidgoyal.librs500',
