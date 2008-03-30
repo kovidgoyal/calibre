@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "POT-Creation-Date: 2008-03-23 16:44+PDT\n"
-"PO-Revision-Date: 2008-03-29 21:37+0100\n"
+"PO-Revision-Date: 2008-03-29 22:48+0100\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano <it@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -578,7 +578,7 @@ msgstr "<font color=\"gray\">Nessun aiuto disponibile</font>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:408
 msgid "Bulk convert ebooks to LRF"
-msgstr "Conversione in massa di libri in LRF"
+msgstr "Conversione in gruppo di libri in LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:587
 msgid "Convert to LRF"
@@ -1480,7 +1480,7 @@ msgstr "Modifica metadati individualmente"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:119
 msgid "Edit metadata in bulk"
-msgstr "Modifica metadati in massa"
+msgstr "Modifica metadati in gruppo"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:122
 msgid "Add books from a single directory"
@@ -1518,7 +1518,7 @@ msgstr "Converti individualmente"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:159
 msgid "Bulk convert"
-msgstr "Converti in massa"
+msgstr "Converti in gruppo"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:315
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:381
@@ -1897,6 +1897,4 @@ msgstr "Scaricamento fallito dell'articolo: %s"
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:707
 msgid "Fetching feed"
 msgstr "Scaricamento feed"
-
-
 
