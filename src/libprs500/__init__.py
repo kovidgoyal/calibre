@@ -296,10 +296,12 @@ def get_font_families(cached=None):
         else:
             zlist = []
             for ff in ffiles:
-                if 'Optane' in str(ff):
-                    font = describe.openFont(ff)
-                    wt, italic = describe.modifiers(font)
-                    print ff, wt, italic
+                try:
+                    if 'Optane' in str(ff):
+                        font = describe.openFont(ff)
+                        wt, italic = describe.modifiers(font)
+                except:
+                    pass
                 try:
                     font = describe.openFont(ff)
                 except: # Some font files cause ttfquery to raise an exception, in which case they are ignored
