@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-28 10:27+PDT\n"
+"POT-Creation-Date: 2008-03-30 13:05+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:21+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: Spanish\n"
@@ -403,47 +403,47 @@ msgstr "Elegir formato"
 msgid "TextLabel"
 msgstr "TextLabel"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:90
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:89
 msgid "<br>Must be a directory."
 msgstr "<br>Debe ser un directorio."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:90
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:89
 msgid "Invalid database location "
 msgstr "Ubicación no válida"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:90
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:93
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:89
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:92
 msgid "Invalid database location"
 msgstr "Ubicación no válida"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:93
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:92
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Ubicación no válida.<br>Imposible escribir en "
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:210
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:216
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:279
 msgid "Configuration"
 msgstr "Configuración"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:214
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:220
 msgid "Basic"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:218
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:224
 msgid "Advanced"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:220
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:226
 msgid "&Location of books database (library1.db)"
 msgstr "&Ubicación de la base de datos (library1.db)"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:221
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:227
 msgid "Browse for the new database location"
 msgstr "Navegar a la nueva ubicación de la base de datos"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:222
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:230
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:232
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:228
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:236
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:238
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:610
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:320
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:329
@@ -466,53 +466,53 @@ msgstr "Navegar a la nueva ubicación de la base de datos"
 msgid "..."
 msgstr "..."
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:223
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:229
 msgid "Use &Roman numerals for series number"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:224
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:230
 msgid "Default network &timeout:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:225
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:231
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:226
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:232
 msgid " seconds"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:227
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:233
 msgid "&Priority for conversion jobs:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:228
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:234
 msgid "Frequently used directories"
 msgstr "Directorios usados con frecuencia"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:229
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:235
 msgid "Add a directory to the frequently used directories list"
 msgstr "Añadir directorio a la lista de directorios frecuentes"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:231
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:237
 msgid "Remove a directory from the frequently used directories list"
 msgstr "Eliminar directorio a la lista de directorios frecuentes"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:233
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:239
 msgid "Select visible &columns in library view"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:234
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:240
 msgid "Free unused diskspace from the database"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:235
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:241
 msgid "&Compact database"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:236
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:242
 msgid "&Metadata from file name"
 msgstr ""
 
@@ -1130,7 +1130,7 @@ msgid "Any"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search_item_ui.py:40
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:113
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:110
 msgid "Form"
 msgstr ""
 
@@ -1358,7 +1358,7 @@ msgstr ""
 msgid "Recipe source code (python)"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:114
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:111
 msgid ""
 "<p>Set a regular expression pattern to use when trying to guess ebook "
 "metadata from filenames. <p>A <a href=\"http://docs.python.org/lib/re-syntax."
@@ -1367,34 +1367,34 @@ msgid ""
 "on a few sample filenames."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:115
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:112
 msgid "Regular &expression"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:116
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:113
 msgid "&Test"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:117
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:114
 msgid "File &name:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:118
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:115
 msgid "Test"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:119
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:116
 msgid "Title:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:120
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:117
 msgid "Regular expression group name (?P<title>)"
 msgstr ""
 
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:118
 #: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:121
 #: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:124
 #: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:127
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:130
 #: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:41
 #: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:45
 #: /home/kovid/work/libprs500/src/libprs500/gui2/widgets.py:50
@@ -1402,27 +1402,27 @@ msgstr ""
 msgid "No match"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:122
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:119
 msgid "Authors:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:123
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:120
 msgid "Regular expression group name (?P<authors>)"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:125
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:122
 msgid "Series:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:126
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:123
 msgid "Regular expression group name (?P<series>)"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:128
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:125
 msgid "Series index:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:129
+#: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:126
 msgid "Regular expression group name (?P<series_index>)"
 msgstr ""
 
@@ -1977,7 +1977,7 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:82
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:86
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:565
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:567
 msgid "Fetching feeds..."
 msgstr ""
 
@@ -1985,79 +1985,79 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:466
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:468
 msgid "Download finished"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:468
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:470
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:470
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:476
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:472
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:478
 msgid " from "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:474
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:476
 msgid "Failed to download parts of the following articles:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:478
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:480
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:547
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:569
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:573
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:575
 msgid "Trying to download cover..."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:623
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:625
 msgid "Starting download [%d thread(s)]..."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:637
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:639
 msgid "Feeds downloaded to %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:646
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:648
 msgid "Could not download cover: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:651
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:653
 msgid "Downloading cover from %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:686
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:688
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:727
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:729
 msgid ""
 "\n"
 "Downloaded article %s from %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:733
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:735
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:739
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:741
 msgid "Failed to download article: %s from %s\n"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:744
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:746
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:759
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:761
 msgid "Fetching feed"
 msgstr ""
 
