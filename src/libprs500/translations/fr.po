@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.22\n"
-"POT-Creation-Date: 2008-03-30 13:05+PDT\n"
+"POT-Creation-Date: 2008-03-31 15:53+PDT\n"
 "PO-Revision-Date: 2008-01-20 09:59+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -1787,6 +1787,12 @@ msgstr ""
 "Une erreur temporaire s'est déclenchée pendant la communication avec le "
 "lecteur électronique. Veuillez déconnecter et reconnecter le lecteur "
 "électronique et redémarrer."
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:993
+msgid ""
+"<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
+"s</a></span>"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:266
 msgid "libprs500"

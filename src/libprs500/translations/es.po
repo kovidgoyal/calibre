@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-03-30 13:05+PDT\n"
+"POT-Creation-Date: 2008-03-31 15:53+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:21+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: Spanish\n"
@@ -1764,6 +1764,12 @@ msgid ""
 msgstr ""
 "Hubo un error de comunicación con el dispositivo. Desconecte, vuelva a "
 "conectar el dispositivo y reinicie la aplicación."
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:993
+msgid ""
+"<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
+"s</a></span>"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:266
 msgid "libprs500"

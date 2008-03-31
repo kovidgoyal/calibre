@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2008-03-30 13:05+PDT\n"
+"POT-Creation-Date: 2008-03-31 15:53+PDT\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -1680,6 +1680,12 @@ msgstr ""
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:993
+msgid ""
+"<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
+"s</a></span>"
 msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:266

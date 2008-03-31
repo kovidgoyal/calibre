@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-03-30 13:05+PDT\n"
+"POT-Creation-Date: 2008-03-31 15:53+PDT\n"
 "PO-Revision-Date: 2008-03-31 13:49+0200\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
@@ -79,7 +79,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:108
 msgid "Output file name. Default is derived from input filename"
-msgstr "Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
+msgstr ""
+"Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:110
 msgid ""
@@ -109,7 +110,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
+msgstr ""
+"Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Separate paragraphs by blank lines."
@@ -117,7 +119,8 @@ msgstr "Separa i paragrafi con linee bianche"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:122
 msgid "Add a header to all the pages with title and author."
-msgstr "Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
+msgstr ""
+"Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:124
 msgid ""
@@ -208,7 +211,8 @@ msgstr ""
 "ignorati. Predefinita: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:169
-msgid "Prevent the automatic insertion of page breaks before detected chapters."
+msgid ""
+"Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Previene l'inserimento automatico di interruzioni di pagina prima dei "
 "capitoli individuati"
@@ -241,7 +245,8 @@ msgstr ""
 "perciò ignorata se la pagina corrente ha solo pochi elementi"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:186
-msgid "Force a page break before tags whoose names match this regular expression."
+msgid ""
+"Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Forza un'interruzione di pagina prima dei tag i cui nomi corrispondono a "
 "questa espressione regolare"
@@ -350,11 +355,13 @@ msgstr "La categoria a cui questo libro appartiene. Es: Storia"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:557
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Percorso a un'immagine che verrà impostata come miniatura di questo file"
+msgstr ""
+"Percorso a un'immagine che verrà impostata come miniatura di questo file"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:560
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr "Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
+msgstr ""
+"Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:564
 msgid "Extract thumbnail from LRF file"
@@ -588,7 +595,8 @@ msgstr "Nessun formato disponibile"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:82
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr "Impossibile convertire %s perché questo libro non ha formati supportati"
+msgstr ""
+"Impossibile convertire %s perché questo libro non ha formati supportati"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:86
 msgid "Choose the format to convert into LRF"
@@ -732,7 +740,8 @@ msgstr "Ca&mbia l'immagine di copertina:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:609
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:334
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Sfoglia per trovare un'immagine da usare come copertina per questo libro"
+msgstr ""
+"Sfoglia per trovare un'immagine da usare come copertina per questo libro"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:611
 msgid "Use cover from &source file"
@@ -1099,8 +1108,10 @@ msgid "Fetch cover image from server"
 msgstr "Scarica immagine di copertina dal server"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:337
-msgid "Change the username and/or password for your account at LibraryThing.com"
-msgstr "Cambia il nome utente e/o password del proprio account su LibraryThing.com"
+msgid ""
+"Change the username and/or password for your account at LibraryThing.com"
+msgstr ""
+"Cambia il nome utente e/o password del proprio account su LibraryThing.com"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:338
 msgid "Change password"
@@ -1332,8 +1343,10 @@ msgstr ""
 "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
 "font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Crea una formula di notizie di base, aggiungendo ad essa dei feed RSS. <br />Per la maggior parte dei feed, bisognerà usare la \"Modalità avanzata\" per personalizzare ulteriormente il processo di scaricamento.</p></"
-"body></html>"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Crea una formula di "
+"notizie di base, aggiungendo ad essa dei feed RSS. <br />Per la maggior "
+"parte dei feed, bisognerà usare la \"Modalità avanzata\" per personalizzare "
+"ulteriormente il processo di scaricamento.</p></body></html>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:227
 msgid "Recipe &title:"
@@ -1389,8 +1402,8 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a href=\"http://"
 "libprs500.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
 msgstr ""
-"Per un aiuto su come scrivere formule di notizie avanzate, visitare <a href=\"http://"
-"libprs500.kovidgoyal.net/user_manual/news.html\">Formule utente</a>"
+"Per un aiuto su come scrivere formule di notizie avanzate, visitare <a href="
+"\"http://libprs500.kovidgoyal.net/user_manual/news.html\">Formule utente</a>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:242
 msgid "Recipe source code (python)"
@@ -1820,6 +1833,12 @@ msgstr ""
 "Si è verificato un errore di comunicazione temporaneo col dispositivo. "
 "Disconnettere e riconnettere il dispositivo e/o riavviare"
 
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:993
+msgid ""
+"<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
+"s</a></span>"
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:266
 msgid "libprs500"
 msgstr "libprs500"
@@ -2044,7 +2063,8 @@ msgstr ""
 msgid ""
 "The directory in which to store the downloaded feeds. Defaults to the "
 "current directory."
-msgstr "La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
+msgstr ""
+"La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:53
 msgid "Dont show the progress bar"
@@ -2095,7 +2115,8 @@ msgstr "\tLink falliti:"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
-msgstr "Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
+msgstr ""
+"Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
 msgid "Got feeds from index page"
@@ -2150,4 +2171,3 @@ msgstr "Scaricamento fallito dell'articolo: %s"
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:761
 msgid "Fetching feed"
 msgstr "Scaricamento feed"
-
