@@ -8,9 +8,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "POT-Creation-Date: 2008-03-30 13:05+PDT\n"
-"PO-Revision-Date: 2008-03-29 22:48+0100\n"
+"PO-Revision-Date: 2008-03-31 13:49+0200\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
-"Language-Team: italiano <it@li.org>\n"
+"Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -79,8 +79,7 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:108
 msgid "Output file name. Default is derived from input filename"
-msgstr ""
-"Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
+msgstr "Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:110
 msgid ""
@@ -110,8 +109,7 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
-msgstr ""
-"Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
+msgstr "Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Separate paragraphs by blank lines."
@@ -119,8 +117,7 @@ msgstr "Separa i paragrafi con linee bianche"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:122
 msgid "Add a header to all the pages with title and author."
-msgstr ""
-"Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
+msgstr "Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:124
 msgid ""
@@ -211,8 +208,7 @@ msgstr ""
 "ignorati. Predefinita: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:169
-msgid ""
-"Prevent the automatic insertion of page breaks before detected chapters."
+msgid "Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Previene l'inserimento automatico di interruzioni di pagina prima dei "
 "capitoli individuati"
@@ -245,8 +241,7 @@ msgstr ""
 "perciò ignorata se la pagina corrente ha solo pochi elementi"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:186
-msgid ""
-"Force a page break before tags whoose names match this regular expression."
+msgid "Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Forza un'interruzione di pagina prima dei tag i cui nomi corrispondono a "
 "questa espressione regolare"
@@ -355,13 +350,11 @@ msgstr "La categoria a cui questo libro appartiene. Es: Storia"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:557
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr ""
-"Percorso a un'immagine che verrà impostata come miniatura di questo file"
+msgstr "Percorso a un'immagine che verrà impostata come miniatura di questo file"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:560
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr ""
-"Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
+msgstr "Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:564
 msgid "Extract thumbnail from LRF file"
@@ -595,8 +588,7 @@ msgstr "Nessun formato disponibile"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:82
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr ""
-"Impossibile convertire %s perché questo libro non ha formati supportati"
+msgstr "Impossibile convertire %s perché questo libro non ha formati supportati"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:86
 msgid "Choose the format to convert into LRF"
@@ -740,8 +732,7 @@ msgstr "Ca&mbia l'immagine di copertina:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:609
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:334
 msgid "Browse for an image to use as the cover of this book."
-msgstr ""
-"Sfoglia per trovare un'immagine da usare come copertina per questo libro"
+msgstr "Sfoglia per trovare un'immagine da usare come copertina per questo libro"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:611
 msgid "Use cover from &source file"
@@ -1108,10 +1099,8 @@ msgid "Fetch cover image from server"
 msgstr "Scarica immagine di copertina dal server"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:337
-msgid ""
-"Change the username and/or password for your account at LibraryThing.com"
-msgstr ""
-"Cambia il nome utente e/o password del proprio account su LibraryThing.com"
+msgid "Change the username and/or password for your account at LibraryThing.com"
+msgstr "Cambia il nome utente e/o password del proprio account su LibraryThing.com"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:338
 msgid "Change password"
@@ -1264,49 +1253,49 @@ msgstr "Passa alla modalità avanzata"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:53
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:61
 msgid "Switch to Basic mode"
-msgstr ""
+msgstr "Passa alla modalità base"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:71
 msgid "Feed must have a title"
-msgstr ""
+msgstr "Il feed deve avere un titolo"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:72
 msgid "The feed must have a title"
-msgstr ""
+msgstr "Il feed deve avere un titolo"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:76
 msgid "Feed must have a URL"
-msgstr ""
+msgstr "Il feed deve avere una URL"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:77
 msgid "The feed %s must have a URL"
-msgstr ""
+msgstr "Il feed %S deve avere una URL"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:82
 msgid "Already exists"
-msgstr ""
+msgstr "Esiste già"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:83
 msgid "This feed has already been added to the recipe"
-msgstr ""
+msgstr "Questo feed è già stato aggiunto alla formula"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:124
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:133
 msgid "Invalid input"
-msgstr ""
+msgstr "Input non valido"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:125
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:134
 msgid "<p>Could not create recipe. Error:<br>%s"
-msgstr ""
+msgstr "<p>Impossibile creare la formula. Errore:<br>%s"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:140
 msgid "Replace recipe?"
-msgstr ""
+msgstr "Sovrascrivere la formula?"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:141
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
-msgstr ""
+msgstr "Esiste già una formula personalizzata di nome %s. Sovrascriverla?"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:218
 msgid "Add custom news source"
@@ -1314,15 +1303,15 @@ msgstr "Aggiungi una fonte di notizie personalizzata"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:219
 msgid "Available user recipes"
-msgstr ""
+msgstr "Formule utente disponibili"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:220
 msgid "Add/Update &recipe"
-msgstr ""
+msgstr "Aggiungi/Aggiorna for&mula"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:221
 msgid "&Remove recipe"
-msgstr ""
+msgstr "Rimuo&vi formula"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:223
 msgid ""
@@ -1337,10 +1326,18 @@ msgid ""
 "use the \"Advanced mode\" to further customize the fetch process.</p></"
 "body></html>"
 msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Crea una formula di notizie di base, aggiungendo ad essa dei feed RSS. <br />Per la maggior parte dei feed, bisognerà usare la \"Modalità avanzata\" per personalizzare ulteriormente il processo di scaricamento.</p></"
+"body></html>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:227
 msgid "Recipe &title:"
-msgstr ""
+msgstr "&Titolo formula:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:228
 msgid "&Oldest article:"
@@ -1364,16 +1361,16 @@ msgstr "Massimo numero di articoli da scaricare per feed"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:233
 msgid "Feeds in recipe"
-msgstr ""
+msgstr "Feed nella formula"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:234
 msgid "Remove feed from recipe"
-msgstr ""
+msgstr "Rimuove il feed dalla formula"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:236
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:239
 msgid "Add feed to recipe"
-msgstr ""
+msgstr "Aggiunge il feed alla formula"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:237
 msgid "&Feed title:"
@@ -1392,10 +1389,12 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a href=\"http://"
 "libprs500.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
 msgstr ""
+"Per un aiuto su come scrivere formule di notizie avanzate, visitare <a href=\"http://"
+"libprs500.kovidgoyal.net/user_manual/news.html\">Formule utente</a>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:242
 msgid "Recipe source code (python)"
-msgstr ""
+msgstr "Codice sorgente formula (python)"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:111
 msgid ""
@@ -2045,8 +2044,7 @@ msgstr ""
 msgid ""
 "The directory in which to store the downloaded feeds. Defaults to the "
 "current directory."
-msgstr ""
-"La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
+msgstr "La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:53
 msgid "Dont show the progress bar"
@@ -2097,8 +2095,7 @@ msgstr "\tLink falliti:"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
-msgstr ""
-"Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
+msgstr "Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
 msgid "Got feeds from index page"
@@ -2154,78 +2151,3 @@ msgstr "Scaricamento fallito dell'articolo: %s"
 msgid "Fetching feed"
 msgstr "Scaricamento feed"
 
-#~ msgid "Available user profiles"
-#~ msgstr "Profili utente disponibili"
-
-#~ msgid "Add/Update &profile"
-#~ msgstr "&Aggiungi/Aggiorna profilo"
-
-#~ msgid "&Remove profile"
-#~ msgstr "&Rimuovi profilo"
-
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news "
-#~ "profile, by adding RSS feeds to it. <br />For most feeds, you will have "
-#~ "to use the \"Advanced\" setting to further customize the fetch process."
-#~ "<br />The Basic tab is useful mainly for feeds that have the full article "
-#~ "content embedded within them.</p></body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Crea un profilo di "
-#~ "notizia di base, aggiungendo ad essso dei feed RSS. <br />Per la maggior "
-#~ "parte dei feed, è necessario usare la modalità \"Avanzata\" per "
-#~ "personalizzare maggiormente il processo di scaricamento.<br />La modalità "
-#~ "di base è utile per i feed che contengono tutto l'articolo.</p></body></"
-#~ "html>"
-
-#~ msgid "Profile &title:"
-#~ msgstr "&Titolo profilo:"
-
-#~ msgid "&Summary length:"
-#~ msgstr "&Lunghezza sommario:"
-
-#~ msgid " characters"
-#~ msgstr " caratteri"
-
-#~ msgid ""
-#~ "Try to follow links in the RSS feed to full articles on the web. If you "
-#~ "enable this option, you're probably going to end up having to use the "
-#~ "advanced mode."
-#~ msgstr ""
-#~ "Prova a seguire i link nell'RSS per l'articolo completo sul web. Se si "
-#~ "abilita questa opzione, probabilmente si finirà con l'aver bisogno della "
-#~ "modalità avanzata"
-
-#~ msgid "Try to download &full articles"
-#~ msgstr "&Prova a scaricare gli articoli completi"
-
-#~ msgid "Feeds in profile"
-#~ msgstr "Feed nel profilo"
-
-#~ msgid "Remove feed from profile"
-#~ msgstr "Rimuovi il feed dal profilo"
-
-#~ msgid "Add feed to profile"
-#~ msgstr "Aggiungi il feed al profilo"
-
-#~ msgid ""
-#~ "For help with writing advanced news profiles, please visit <a href="
-#~ "\"https://libprs500.kovidgoyal.net/wiki/UserProfiles\">UserProfiles</a>"
-#~ msgstr ""
-#~ "Per un aiuto su come scrivere profili di notizie avanzati, visitare <a "
-#~ "href=\"https://libprs500.kovidgoyal.net/wiki/UserProfiles\">UserProfiles</"
-#~ "a>"
-
-#~ msgid "Profile source code (python)"
-#~ msgstr "Codice sorgente del profilo (python)"
