@@ -990,7 +990,7 @@ class Main(MainWindow, Ui_MainWindow):
     def update_found(self, version):
         os = 'windows' if iswindows else 'osx' if isosx else 'linux'
         url = 'http://%s.kovidgoyal.net/download_%s'%(__appname__, os)
-        self.latest_version = '<span style="color:red; font-weight:bold">Latest version: <a href="%s">%s</a></span>'%(url, version)
+        self.latest_version = _('<span style="color:red; font-weight:bold">Latest version: <a href="%s">%s</a></span>')%(url, version)
         self.vanity.setText(self.vanity_template%(dict(version=self.latest_version, 
                                                     device=self.device_info)))
         self.vanity.update()
