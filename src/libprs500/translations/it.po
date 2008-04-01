@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-04-01 09:18+PDT\n"
+"POT-Creation-Date: 2008-04-01 13:03+PDT\n"
 "PO-Revision-Date: 19:31, 1/4/2008\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
@@ -79,7 +79,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:108
 msgid "Output file name. Default is derived from input filename"
-msgstr "Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
+msgstr ""
+"Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:110
 msgid ""
@@ -109,7 +110,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
+msgstr ""
+"Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Separate paragraphs by blank lines."
@@ -117,7 +119,8 @@ msgstr "Separa i paragrafi con linee bianche"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:122
 msgid "Add a header to all the pages with title and author."
-msgstr "Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
+msgstr ""
+"Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:124
 msgid ""
@@ -149,7 +152,9 @@ msgstr ""
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
-msgstr "Indentazione minima paragrafo (l'indentazione della prima riga di un paragrafo) in pt. Predefinita: %default"
+msgstr ""
+"Indentazione minima paragrafo (l'indentazione della prima riga di un "
+"paragrafo) in pt. Predefinita: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:132
 msgid ""
@@ -214,7 +219,8 @@ msgstr ""
 "ignorati. Predefinita: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:169
-msgid "Prevent the automatic insertion of page breaks before detected chapters."
+msgid ""
+"Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Previene l'inserimento automatico di interruzioni di pagina prima dei "
 "capitoli individuati"
@@ -247,7 +253,8 @@ msgstr ""
 "perciò ignorata se la pagina corrente ha solo pochi elementi"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:186
-msgid "Force a page break before tags whoose names match this regular expression."
+msgid ""
+"Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Forza un'interruzione di pagina prima dei tag i cui nomi corrispondono a "
 "questa espressione regolare"
@@ -331,7 +338,11 @@ msgid ""
 "contains strange characters, try changing this option. A common encoding for "
 "files from windows computers is cp-1252. Another common choice is utf-8. The "
 "default is to try and guess the encoding."
-msgstr "Specifica la codifica caratteri del file di origine. Se il file LRF generato contiene caratteri strani, provare a cambiare questa opzione. Una codifica comune per i computer Windows è cp-1252. Un'altra scelta comune è utf-8. L'opzione predefinita è quella di provare ad indovinare la codifica"
+msgstr ""
+"Specifica la codifica caratteri del file di origine. Se il file LRF generato "
+"contiene caratteri strani, provare a cambiare questa opzione. Una codifica "
+"comune per i computer Windows è cp-1252. Un'altra scelta comune è utf-8. "
+"L'opzione predefinita è quella di provare ad indovinare la codifica"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/any/convert_from.py:140
 msgid ""
@@ -433,7 +444,9 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1649
 msgid "An error occurred while processing a table: %s. Ignoring table markup."
-msgstr "Si è verificato un errore nel processamento della tabella: %s. Ignoro il codice della tabella"
+msgstr ""
+"Si è verificato un errore nel processamento della tabella: %s. Ignoro il "
+"codice della tabella"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1651
 msgid ""
@@ -451,17 +464,23 @@ msgstr "La tabella ha celle troppo larghe"
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
-msgstr "È necessario prima salvare il sito web %s come un file HTML e poi eseguire html2lrf su di esso"
+msgstr ""
+"È necessario prima salvare il sito web %s come un file HTML e poi eseguire "
+"html2lrf su di esso"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1740
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1741
+msgid "Could not read cover image: %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1744
 msgid "Cannot read from: %s"
 msgstr "Impossibile leggere da: %s"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1869
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1873
 msgid "Failed to process opf file"
 msgstr "Processamento del file OPF fallito"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1875
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1879
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
@@ -550,11 +569,13 @@ msgstr "La categoria a cui questo libro appartiene. Es: Storia"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:559
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Percorso a un'immagine che verrà impostata come miniatura di questo file"
+msgstr ""
+"Percorso a un'immagine che verrà impostata come miniatura di questo file"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr "Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
+msgstr ""
+"Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
 msgid "Extract thumbnail from LRF file"
@@ -693,10 +714,12 @@ msgstr ""
 "%prog [opzioni] chiave\n"
 "\n"
 "Scarica i metadati per i libri da isndb.com. È possibile specificare sia\n"
-"l'ISBN del libro che il suo titolo e autore. Se si specificano il titolo e l'autore,\n"
+"l'ISBN del libro che il suo titolo e autore. Se si specificano il titolo e "
+"l'autore,\n"
 "la ricerca potrebbe riportare più di un risultato\n"
 "\n"
-"Chiave è la chiave dell'account generata dopo la registrazione gratuita su isndb.com\n"
+"Chiave è la chiave dell'account generata dopo la registrazione gratuita su "
+"isndb.com\n"
 "\n"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/isbndb.py:106
@@ -741,7 +764,8 @@ msgstr ""
 "\n"
 "%prog [opzioni] ISBN\n"
 "\n"
-"Scarica un'immagine di copertina per il libro identificato dall'ISBN da LibraryThing.com\n"
+"Scarica un'immagine di copertina per il libro identificato dall'ISBN da "
+"LibraryThing.com\n"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/lit.py:746
 msgid "Usage: %s file.lit"
@@ -963,7 +987,8 @@ msgstr "Nessun formato disponibile"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:82
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr "Impossibile convertire %s perché questo libro non ha formati supportati"
+msgstr ""
+"Impossibile convertire %s perché questo libro non ha formati supportati"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:86
 msgid "Choose the format to convert into LRF"
@@ -1107,7 +1132,8 @@ msgstr "Ca&mbia l'immagine di copertina:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:609
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:334
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Sfoglia per trovare un'immagine da usare come copertina per questo libro"
+msgstr ""
+"Sfoglia per trovare un'immagine da usare come copertina per questo libro"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:611
 msgid "Use cover from &source file"
@@ -1474,8 +1500,10 @@ msgid "Fetch cover image from server"
 msgstr "Scarica immagine di copertina dal server"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:337
-msgid "Change the username and/or password for your account at LibraryThing.com"
-msgstr "Cambia il nome utente e/o password del proprio account su LibraryThing.com"
+msgid ""
+"Change the username and/or password for your account at LibraryThing.com"
+msgstr ""
+"Cambia il nome utente e/o password del proprio account su LibraryThing.com"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:338
 msgid "Change password"
@@ -2406,9 +2434,12 @@ msgstr ""
 "\n"
 "nome file            - %%prog proverà a caricare una formula dal file\n"
 "\n"
-"titolo formula presente - %%prog caricherà una formula già presente e la userà per scaricare i feed. Per es. Newsweek o \"The BBC\" o \"The New York Times\"\n"
+"titolo formula presente - %%prog caricherà una formula già presente e la "
+"userà per scaricare i feed. Per es. Newsweek o \"The BBC\" o \"The New York "
+"Times\"\n"
 "\n"
-"formula come stringa   - %%prog caricherà la formula direttamente dalla stringa ARG\n"
+"formula come stringa   - %%prog caricherà la formula direttamente dalla "
+"stringa ARG\n"
 "\n"
 "Le formule presenti disponibili sono:\n"
 "%s\n"
@@ -2469,7 +2500,8 @@ msgstr ""
 msgid ""
 "The directory in which to store the downloaded feeds. Defaults to the "
 "current directory."
-msgstr "La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
+msgstr ""
+"La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
 msgid "Dont show the progress bar"
@@ -2520,7 +2552,8 @@ msgstr "\tLink falliti:"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
-msgstr "Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
+msgstr ""
+"Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
 msgid "Got feeds from index page"
@@ -2594,38 +2627,52 @@ msgstr "Cartella base in cui le URL sono salvate. Predefinita: %default"
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
-msgstr "Timeout in secondi da aspettare per una risposta dal server. Predefinito: %default s"
+msgstr ""
+"Timeout in secondi da aspettare per una risposta dal server. Predefinito: %"
+"default s"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:382
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default %"
 "default"
-msgstr "Numero massimo di livelli ricorsivi, cioè profondità dei link da seguire. Predefinito: %default"
+msgstr ""
+"Numero massimo di livelli ricorsivi, cioè profondità dei link da seguire. "
+"Predefinito: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:385
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
-msgstr "Il numero massimo di file da scaricare. Questa si applica solo ai file dai tag <a fref>. Predefinito: %default"
+msgstr ""
+"Il numero massimo di file da scaricare. Questa si applica solo ai file dai "
+"tag <a fref>. Predefinito: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:387
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
-msgstr "Intervallo minimo in secondi tra due scaricamenti consecutivi. Predefinito: %default s"
+msgstr ""
+"Intervallo minimo in secondi tra due scaricamenti consecutivi. Predefinito: %"
+"default s"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:389
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
-msgstr "La codifica caratteri del sito webb che si sta cercando di scaricare. L'impostazione predefinita è quella di provare a indovinare la codifica"
+msgstr ""
+"La codifica caratteri del sito webb che si sta cercando di scaricare. "
+"L'impostazione predefinita è quella di provare a indovinare la codifica"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:391
 msgid ""
 "Only links that match this regular expression will be followed. This option "
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
-msgstr "Verranno seguiti solamente i link che corrispondono a questa espressione regolare. Questa opzione può essere specificata più volte, in questo modo se un link corrisponde a una delle espressioni regolari verrà seguito. Per impostazione predefinita i link non vengono seguiti"
+msgstr ""
+"Verranno seguiti solamente i link che corrispondono a questa espressione "
+"regolare. Questa opzione può essere specificata più volte, in questo modo se "
+"un link corrisponde a una delle espressioni regolari verrà seguito. Per "
+"impostazione predefinita i link non vengono seguiti"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:393
 msgid ""
@@ -2634,7 +2681,13 @@ msgid ""
 "a link, it will be ignored.By default, no links are ignored. If both --"
 "filter-regexp and --match-regexp are specified, then --filter-regexp is "
 "applied first."
-msgstr "Tutti i link che corrispondono a questa espressione regolare saranno ignorati. Questa opzione può essere specificata più volte, in questo modo finché una regexp fa corrispondere un link, questo sarà ignorato. Per impostazione predefinita nessun link viene ignorato. Se vengono specificate sia --filter-regexp che --match-regexp, --filter-regexp viene applicata per prima"
+msgstr ""
+"Tutti i link che corrispondono a questa espressione regolare saranno "
+"ignorati. Questa opzione può essere specificata più volte, in questo modo "
+"finché una regexp fa corrispondere un link, questo sarà ignorato. Per "
+"impostazione predefinita nessun link viene ignorato. Se vengono specificate "
+"sia --filter-regexp che --match-regexp, --filter-regexp viene applicata per "
+"prima"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:395
 msgid "Do not download CSS stylesheets."
@@ -2643,4 +2696,3 @@ msgstr "Non scaricare i fogli di stile CSS"
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:396
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Mostra un output dettagliato. Utile per il debugging"
-

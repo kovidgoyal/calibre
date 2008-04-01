@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-01 09:18+PDT\n"
+"POT-Creation-Date: 2008-04-01 13:03+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: \n"
@@ -436,15 +436,19 @@ msgid ""
 "on it."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1740
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1741
+msgid "Could not read cover image: %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1744
 msgid "Cannot read from: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1869
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1873
 msgid "Failed to process opf file"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1875
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1879
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
