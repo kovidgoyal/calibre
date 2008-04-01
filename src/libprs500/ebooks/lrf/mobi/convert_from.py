@@ -40,8 +40,10 @@ def process_file(path, options, logger=None):
 
 def option_parser():
     return lrf_option_parser(
-        '''Usage: %prog [options] mybook.mobi|prc\n\n'''
-        '''%prog converts mybook.mobi to mybook.lrf'''
+_('''Usage: %prog [options] mybook.mobi|prc
+
+
+%prog converts mybook.mobi to mybook.lrf''')
         )
 
 

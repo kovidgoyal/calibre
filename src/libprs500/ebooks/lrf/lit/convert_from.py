@@ -16,8 +16,10 @@ if isosx and hasattr(sys, 'frameworks_dir'):
 
 def option_parser():
     return lrf_option_parser(
-        '''Usage: %prog [options] mybook.lit\n\n'''
-        '''%prog converts mybook.lit to mybook.lrf'''
+_('''Usage: %prog [options] mybook.lit
+
+
+%prog converts mybook.lit to mybook.lrf''')
         )
 
 def generate_html(pathtolit, logger):

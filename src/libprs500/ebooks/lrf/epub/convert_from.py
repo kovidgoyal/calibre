@@ -1,22 +1,23 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import os, sys, shutil, glob, logging
+import os, sys, shutil, logging
 from tempfile import mkdtemp
-from subprocess import Popen, PIPE
 from libprs500.ebooks.lrf import option_parser as lrf_option_parser
 from libprs500.ebooks import ConversionError
 from libprs500.ebooks.lrf.html.convert_from import process_file as html_process_file
-from libprs500.ebooks.metadata.opf import OPFReader, OPF
+from libprs500.ebooks.metadata.opf import OPF
 from libprs500.ebooks.metadata.epub import OCFDirReader
 from libprs500.libunzip import extract as zip_extract
-from libprs500 import isosx, __appname__, setup_cli_handlers, iswindows
+from libprs500 import __appname__, setup_cli_handlers
 
 
 def option_parser():
     return lrf_option_parser(
-        '''Usage: %prog [options] mybook.epub\n\n'''
-        '''%prog converts mybook.epub to mybook.lrf'''
+_('''Usage: %prog [options] mybook.epub
+        
+        
+%prog converts mybook.epub to mybook.lrf''')
         )
 
 def generate_html(pathtoepub, logger):

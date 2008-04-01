@@ -44,8 +44,10 @@ def generate_html(pathtopdf, logger):
 
 def option_parser():
     return lrf_option_parser(
-        '''Usage: %prog [options] mybook.pdf\n\n'''
-        '''%prog converts mybook.pdf to mybook.lrf\n\n'''
+_('''%prog [options] mybook.pdf
+
+
+%prog converts mybook.pdf to mybook.lrf''')
         )
 
 def process_file(path, options, logger=None):

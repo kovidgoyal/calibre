@@ -56,11 +56,11 @@ def cover_from_isbn(isbn, timeout=5.):
 
 def option_parser():
     parser = OptionParser(usage=\
-'''
+_('''
 %prog [options] ISBN
 
 Fetch a cover image for the book identified by ISBN from LibraryThing.com
-''')
+'''))
     parser.add_option('-u', '--username', default=None, 
                       help='Username for LibraryThing.com')
     parser.add_option('-p', '--password', default=None, 

@@ -15,14 +15,13 @@ def get_parser(extension):
     ''' Return an option parser with the basic metadata options already setup'''
     parser = OptionParser(usage='%prog [options] myfile.'+extension+'\n\nRead and write metadata from an ebook file.')
     parser.add_option("-t", "--title", action="store", type="string", \
-                    dest="title", help="Set the book title", default=None)
+                    dest="title", help=_("Set the book title"), default=None)
     parser.add_option("-a", "--authors", action="store", type="string", \
-                    dest="authors", help="Set the authors", default=None)
+                    dest="authors", help=_("Set the authors"), default=None)
     parser.add_option("-c", "--category", action="store", type="string", \
-                    dest="category", help="The category this book belongs"+\
-                    " to. E.g.: History", default=None)
+                    dest="category", help=_("The category this book belongs to. E.g.: History"), default=None)
     parser.add_option('--comment', dest='comment', default=None, action='store',
-                      help='Set the comment')
+                      help=_('Set the comment'))
     return parser
 
 class MetaInformation(object):

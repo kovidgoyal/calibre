@@ -127,7 +127,7 @@ def option_parser(usage, gui_mode=False):
     laf.add_option('--use-spine', default=False, dest='use_spine', action='store_true',
                    help=_('Use the <spine> element from the OPF file to determine the order in which the HTML files are appended to the LRF. The .opf file must be in the same directory as the base HTML file.'))
     laf.add_option('--minimum-indent', default=0, type='float', 
-                   help='Minimum paragraph indent (the indent of the first line of a paragraph) in pts. Default: %default')
+                   help=_('Minimum paragraph indent (the indent of the first line of a paragraph) in pts. Default: %default'))
     laf.add_option('--font-delta', action='store', type='float', default=0., \
                   help=_("""Increase the font size by 2 * FONT_DELTA pts and """
                   '''the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.'''
@@ -214,13 +214,13 @@ def option_parser(usage, gui_mode=False):
     
     debug = parser.add_option_group('DEBUG OPTIONS')
     debug.add_option('--verbose', dest='verbose', action='store_true', default=False,
-                      help='''Be verbose while processing''')
+                      help=_('''Be verbose while processing'''))
     debug.add_option('--lrs', action='store_true', dest='lrs', \
-                      help='Convert to LRS', default=False)
+                      help=_('Convert to LRS'), default=False)
     parser.add_option('--minimize-memory-usage', action='store_true', default=False,
                       help=_('Minimize memory usage at the cost of longer processing times. Use this option if you are on a memory constrained machine.'))
     parser.add_option('--encoding', default=None, 
-                      help='Specify the character encoding of the source file. If the output LRF file contains strange characters, try changing this option. A common encoding for files from windows computers is cp-1252. Another common choice is utf-8. The default is to try and guess the encoding.')
+                      help=_('Specify the character encoding of the source file. If the output LRF file contains strange characters, try changing this option. A common encoding for files from windows computers is cp-1252. Another common choice is utf-8. The default is to try and guess the encoding.'))
     
     return parser
 

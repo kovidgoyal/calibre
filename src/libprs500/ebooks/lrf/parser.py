@@ -129,8 +129,8 @@ class LRFDocument(LRFMetaFile):
         return '<BBeBXylog version="1.0">\n' + bookinfo + pages + styles + objects + '</BBeBXylog>'
         
 def option_parser():
-    parser = OptionParser(usage='%prog book.lrf\nConvert an LRF file into an LRS (XML UTF-8 encoded) file')
-    parser.add_option('--output', '-o', default=None, help='Output LRS file', dest='out')
+    parser = OptionParser(usage=_('%prog book.lrf\nConvert an LRF file into an LRS (XML UTF-8 encoded) file'))
+    parser.add_option('--output', '-o', default=None, help=_('Output LRS file'), dest='out')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
     return parser
     
@@ -148,12 +148,12 @@ def main(args=sys.argv, logger=None):
         opts.out = os.path.join(os.path.dirname(args[1]), os.path.splitext(os.path.basename(args[1]))[0]+".lrs")
     o = codecs.open(os.path.abspath(os.path.expanduser(opts.out)), 'wb', 'utf-8')
     o.write(u'<?xml version="1.0" encoding="UTF-8"?>\n')
-    logger.info('Parsing LRF...')
+    logger.info(_('Parsing LRF...'))
     d = LRFDocument(open(args[1], 'rb'))
     d.parse()
-    logger.info('Creating XML...')
+    logger.info(_('Creating XML...'))
     o.write(d.to_xml())
-    logger.info('LRS written to '+opts.out)
+    logger.info(_('LRS written to ')+opts.out)
     return 0
 
 if __name__ == '__main__':

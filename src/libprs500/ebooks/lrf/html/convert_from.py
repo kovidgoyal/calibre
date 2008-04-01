@@ -299,9 +299,9 @@ class HTMLConverter(object):
         
         if not self.book_designer and self.is_book_designer(raw):
             self.book_designer = True
-            self.logger.info('\tBook Designer file detected.')
+            self.logger.info(_('\tBook Designer file detected.'))
         
-        self.logger.info('\tParsing HTML...')
+        self.logger.info(_('\tParsing HTML...'))
         
         if self.baen:
             nmassage.extend(HTMLConverter.BAEN)
@@ -323,7 +323,7 @@ class HTMLConverter(object):
         
         if not self.baen and self.is_baen(soup):
             self.baen = True
-            self.logger.info('\tBaen file detected. Re-parsing...')
+            self.logger.info(_('\tBaen file detected. Re-parsing...'))
             return self.preprocess(raw)
         if self.book_designer:
             t = soup.find(id='BookTitle')
@@ -336,7 +336,7 @@ class HTMLConverter(object):
             tdir = tempfile.gettempdir()
             dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
             dump.write(unicode(soup).encode('utf-8'))
-            self.logger.info('Written preprocessed HTML to '+dump.name)
+            self.logger.info(_('Written preprocessed HTML to ')+dump.name)
             dump.close()
             
         return soup
@@ -347,7 +347,7 @@ class HTMLConverter(object):
         self.css.update(self.override_css)
         
         self.file_name = os.path.basename(path)
-        self.logger.info('Processing %s', path if self.verbose else self.file_name)
+        self.logger.info(_('Processing %s'), path if self.verbose else self.file_name)
         upath = path.encode('utf-8') if isinstance(path, unicode) else path
         if not os.path.exists(upath):
             upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names 
@@ -361,7 +361,7 @@ class HTMLConverter(object):
             raw = xml_to_unicode(raw, self.verbose)[0]
         f.close()
         soup = self.preprocess(raw)
-        self.logger.info('\tConverting to BBeB...')
+        self.logger.info(_('\tConverting to BBeB...'))
         self.current_style = {}
         self.page_break_found = False
         self.target_prefix = path
@@ -518,7 +518,7 @@ class HTMLConverter(object):
                 para = children[i]
                 break
         if para is None:
-            raise ConversionError('Failed to parse link %s %s'%(tag, children))
+            raise ConversionError(_('Failed to parse link %s %s')%(tag, children))
         text = self.get_text(tag, 1000)
         if not text:
             text = 'Link'
@@ -561,7 +561,7 @@ class HTMLConverter(object):
                hasattr(target.parent, 'objId'): 
                 self.book.addTocEntry(ascii_text, tb)
             else:
-                self.logger.debug("Cannot add link %s to TOC", ascii_text)
+                self.logger.debug(_("Cannot add link %s to TOC"), ascii_text)
                 
         
         def get_target_block(fragment, targets):
@@ -903,7 +903,7 @@ class HTMLConverter(object):
                 self.scaled_images[path] = pt
                 return pt.name
             except (IOError, SystemError), err: # PIL chokes on interlaced PNG images as well a some GIF images
-                self.logger.warning('Unable to process image %s. Error: %s'%(path, err))
+                self.logger.warning(_('Unable to process image %s. Error: %s')%(path, err))
                 return None
         
         pheight = int(self.current_page.pageStyle.attrs['textheight'])
@@ -941,7 +941,7 @@ class HTMLConverter(object):
                 self.rotated_images[path] = pt
                 width, height = im.size
             except IOError: # PIL chokes on interlaced PNG files and since auto-rotation is not critical we ignore the error
-                self.logger.debug('Unable to process interlaced PNG %s', original_path)                 
+                self.logger.debug(_('Unable to process interlaced PNG %s'), original_path)                 
             finally:
                 pt.close()
         
@@ -956,7 +956,7 @@ class HTMLConverter(object):
             try:
                 self.images[path] = ImageStream(path, encoding=encoding)
             except LrsError, err:
-                self.logger.warning('Could not process image: %s\n%s', original_path, err)
+                self.logger.warning(_('Could not process image: %s\n%s'), original_path, err)
                 return
             
         im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
@@ -1646,9 +1646,9 @@ class HTMLConverter(object):
                 try:
                     self.process_table(tag, tag_css)
                 except Exception, err:
-                    self.logger.warning('An error occurred while processing a table: %s. Ignoring table markup.', str(err))
+                    self.logger.warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), str(err))
                     self.logger.debug('', exc_info=True)
-                    self.logger.debug('Bad table:\n%s', str(tag)[:300])
+                    self.logger.debug(_('Bad table:\n%s'), str(tag)[:300])
                     self.in_table = False
                     self.process_children(tag, tag_css, tag_pseudo_css)
                 finally:
@@ -1670,7 +1670,7 @@ class HTMLConverter(object):
         for block, xpos, ypos, delta, targets in table.blocks(int(ps['textwidth']), int(ps['textheight'])):
             if not block:
                 if ypos > int(ps['textheight']):
-                    raise Exception, 'Table has cell that is too large'
+                    raise Exception, _('Table has cell that is too large')
                 canvases.append(Canvas(int(self.current_page.pageStyle.attrs['textwidth']), ypos+rowpad,
                         blockrule='block-fixed'))
                 for name in targets:
@@ -1698,7 +1698,7 @@ class HTMLConverter(object):
 
 def process_file(path, options, logger=None):
     if re.match('http://|https://', path):
-        raise ConversionError, 'You have to save the website %s as an html file first and then run html2lrf on it.'%(path,)
+        raise ConversionError, _('You have to save the website %s as an html file first and then run html2lrf on it.')%(path,)
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('html2lrf')
@@ -1737,7 +1737,7 @@ def process_file(path, options, logger=None):
             tim.save(tf.name)
             tpath = tf.name
         else:
-            raise ConversionError, 'Cannot read from: %s'% (options.cover,)
+            raise ConversionError, _('Cannot read from: %s')% (options.cover,)
     
                 
     if not options.title:
@@ -1866,16 +1866,19 @@ def try_opf(path, options, logger):
         if not getattr(options, 'toc', None):
             options.toc   = opf.toc
     except Exception:
-        logger.exception('Failed to process opf file')
+        logger.exception(_('Failed to process opf file'))
     
     
                 
 def option_parser():
-    return lrf_option_parser('''Usage: %prog [options] mybook.html\n\n'''
-                    '''%prog converts mybook.html to mybook.lrf. '''
-                    '''html2lrf follows all links in mybook.html that point '''
-                    '''to local files recursively. Thus, you can use it to '''
-                    '''convert a whole tree of HTML files.''')
+    return lrf_option_parser(
+_('''Usage: %prog [options] mybook.html
+
+
+%prog converts mybook.html to mybook.lrf. 
+%prog follows all links in mybook.html that point 
+to local files recursively. Thus, you can use it to 
+convert a whole tree of HTML files.'''))
 
 def main(args=sys.argv):
     try:

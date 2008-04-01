@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-03-31 15:53+PDT\n"
+"POT-Creation-Date: 2008-04-01 09:18+PDT\n"
 "PO-Revision-Date: 14:08, 1/4/2008\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
@@ -79,7 +79,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:108
 msgid "Output file name. Default is derived from input filename"
-msgstr "Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
+msgstr ""
+"Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:110
 msgid ""
@@ -109,7 +110,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
+msgstr ""
+"Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Separate paragraphs by blank lines."
@@ -117,7 +119,8 @@ msgstr "Separa i paragrafi con linee bianche"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:122
 msgid "Add a header to all the pages with title and author."
-msgstr "Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
+msgstr ""
+"Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:124
 msgid ""
@@ -144,6 +147,12 @@ msgstr ""
 "Usa l'elemento <spine> dal file OPF per determinare in quale ordine i file "
 "HTML devono essere aggiunti al file LRF. Il file OPF deve essere nella "
 "stessa cartella del file HTML principale"
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:130
+msgid ""
+"Minimum paragraph indent (the indent of the first line of a paragraph) in "
+"pts. Default: %default"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:132
 msgid ""
@@ -208,7 +217,8 @@ msgstr ""
 "ignorati. Predefinita: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:169
-msgid "Prevent the automatic insertion of page breaks before detected chapters."
+msgid ""
+"Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Previene l'inserimento automatico di interruzioni di pagina prima dei "
 "capitoli individuati"
@@ -241,7 +251,8 @@ msgstr ""
 "perciò ignorata se la pagina corrente ha solo pochi elementi"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:186
-msgid "Force a page break before tags whoose names match this regular expression."
+msgid ""
+"Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Forza un'interruzione di pagina prima dei tag i cui nomi corrispondono a "
 "questa espressione regolare"
@@ -303,6 +314,14 @@ msgstr "La famiglia di caratteri senza grazie da includere"
 msgid "The monospace family of fonts to embed"
 msgstr "La famiglia di caratteri a spaziatura fissa da includere"
 
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:217
+msgid "Be verbose while processing"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:219
+msgid "Convert to LRS"
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:221
 msgid ""
 "Minimize memory usage at the cost of longer processing times. Use this "
@@ -310,6 +329,37 @@ msgid ""
 msgstr ""
 "Minimizza l'uso di memoria al costo di un maggior tempo di processamento. "
 "Usare questa opzione se si è su una macchina a corto di memoria"
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:223
+msgid ""
+"Specify the character encoding of the source file. If the output LRF file "
+"contains strange characters, try changing this option. A common encoding for "
+"files from windows computers is cp-1252. Another common choice is utf-8. The "
+"default is to try and guess the encoding."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/any/convert_from.py:140
+msgid ""
+"any2lrf [options] myfile\n"
+"\n"
+"Convert any ebook format into LRF. Supported formats are:\n"
+"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a "
+"RAR or\n"
+"ZIP archive, looking for an ebook inside the archive.\n"
+"    "
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/any/convert_from.py:155
+msgid "No file to convert specified."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/epub/convert_from.py:17
+msgid ""
+"Usage: %prog [options] mybook.epub\n"
+"        \n"
+"        \n"
+"%prog converts mybook.epub to mybook.lrf"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/feeds/convert_from.py:20
 msgid "Options to control the behavior of feeds2disk"
@@ -323,50 +373,213 @@ msgstr "Opzioni per controllare il comportamento di html2lrf"
 msgid "Fetching of recipe failed: "
 msgstr "Scaricamento della formula fallito: "
 
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:302
+msgid "\tBook Designer file detected."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:304
+msgid "\tParsing HTML..."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:326
+msgid "\tBaen file detected. Re-parsing..."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:339
+msgid "Written preprocessed HTML to "
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:350
+msgid "Processing %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:364
+msgid "\tConverting to BBeB..."
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:502
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:509
 msgid "Could not parse file: %s"
 msgstr "Impossibile analizzare il file: %s"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:546
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:521
+msgid "Failed to parse link %s %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:564
+msgid "Cannot add link %s to TOC"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:906
+msgid "Unable to process image %s. Error: %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:944
+msgid "Unable to process interlaced PNG %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:959
+msgid ""
+"Could not process image: %s\n"
+"%s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1649
+msgid "An error occurred while processing a table: %s. Ignoring table markup."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1651
+msgid ""
+"Bad table:\n"
+"%s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1673
+msgid "Table has cell that is too large"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1701
+msgid ""
+"You have to save the website %s as an html file first and then run html2lrf "
+"on it."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1740
+msgid "Cannot read from: %s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1869
+msgid "Failed to process opf file"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1875
+msgid ""
+"Usage: %prog [options] mybook.html\n"
+"\n"
+"\n"
+"%prog converts mybook.html to mybook.lrf. \n"
+"%prog follows all links in mybook.html that point \n"
+"to local files recursively. Thus, you can use it to \n"
+"convert a whole tree of HTML files."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/lit/convert_from.py:19
+msgid ""
+"Usage: %prog [options] mybook.lit\n"
+"\n"
+"\n"
+"%prog converts mybook.lit to mybook.lrf"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/lrs/convert_from.py:254
+msgid ""
+"%prog [options] file.lrs\n"
+"Compile an LRS file into an LRF file."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/lrs/convert_from.py:255
+msgid "Path to output file"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/lrs/convert_from.py:257
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/isbndb.py:113
+msgid "Verbose processing"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/lrs/convert_from.py:259
+msgid "Convert LRS to LRS, useful for debugging."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:541
+msgid ""
+"%prog [options] mybook.lrf\n"
+"\n"
+"\n"
+"Show/edit the metadata in an LRF file.\n"
+"\n"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:548
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/__init__.py:18
 msgid "Set the book title"
 msgstr "Imposta il titolo del libro"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:548
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:550
 msgid "Set sort key for the title"
 msgstr "Imposta la chiave per la classificazione del titolo"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:550
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:552
 msgid "Set the author"
 msgstr "Imposta l'autore"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:552
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:554
 msgid "Set sort key for the author"
 msgstr "Imposta la chiave per la classificazione dell'autore"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:554
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:556
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/__init__.py:22
 msgid "The category this book belongs to. E.g.: History"
 msgstr "La categoria a cui questo libro appartiene. Es: Storia"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:557
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:559
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Percorso a un'immagine che verrà impostata come miniatura di questo file"
+msgstr ""
+"Percorso a un'immagine che verrà impostata come miniatura di questo file"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:560
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr "Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
+msgstr ""
+"Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:564
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
 msgid "Extract thumbnail from LRF file"
 msgstr "Estrae la miniatura da un file LRF"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:568
 msgid "Set book ID"
 msgstr "Imposta l'ID del libro"
 
-#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:568
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:570
 msgid "Don't know what this is for"
 msgstr "Non so a cosa serve questo"
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/mobi/convert_from.py:43
+msgid ""
+"Usage: %prog [options] mybook.mobi|prc\n"
+"\n"
+"\n"
+"%prog converts mybook.mobi to mybook.lrf"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/parser.py:132
+msgid ""
+"%prog book.lrf\n"
+"Convert an LRF file into an LRS (XML UTF-8 encoded) file"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/parser.py:133
+msgid "Output LRS file"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/parser.py:151
+msgid "Parsing LRF..."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/parser.py:154
+msgid "Creating XML..."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/parser.py:156
+msgid "LRS written to "
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/pdf/convert_from.py:47
+msgid ""
+"%prog [options] mybook.pdf\n"
+"\n"
+"\n"
+"%prog converts mybook.pdf to mybook.lrf"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/pdf/reflow.py:402
 msgid ""
@@ -384,6 +597,72 @@ msgstr "Sii più prolisso"
 msgid "You must specify a single PDF file."
 msgstr "È necessario specificare un singolo file PDF"
 
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/rtf/convert_from.py:20
+msgid ""
+"%prog [options] mybook.rtf\n"
+"\n"
+"\n"
+"%prog converts mybook.rtf to mybook.lrf"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/txt/convert_from.py:17
+msgid ""
+"%prog [options] mybook.txt\n"
+"\n"
+"\n"
+"%prog converts mybook.txt to mybook.lrf"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/txt/convert_from.py:22
+msgid "Print generated HTML to stdout and quit."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/__init__.py:20
+msgid "Set the authors"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/__init__.py:24
+msgid "Set the comment"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/epub.py:100
+msgid "Usage:"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/epub.py:100
+msgid "mybook.epub"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/isbndb.py:95
+msgid ""
+"\n"
+"%prog [options] key\n"
+"\n"
+"Fetch metadata for books from isndb.com. You can specify either the \n"
+"books ISBN ID or its title and author. If you specify the title and author,\n"
+"then more than one book may be returned.\n"
+"\n"
+"key is the account key you generate after signing up for a free account from "
+"isbndb.com.\n"
+"\n"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/isbndb.py:106
+msgid "The ISBN ID of the book you want metadata for."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/isbndb.py:108
+msgid "The author whoose book to search for."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/isbndb.py:110
+msgid "The title of the book to search for."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/isbndb.py:112
+msgid "The publisher of the book to search for."
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/library_thing.py:46
 msgid ""
 "Could not fetch cover as server is experiencing high load. Please try again "
@@ -399,6 +678,46 @@ msgstr " non trovato"
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/library_thing.py:50
 msgid "Server error. Try again later."
 msgstr "Errore del server. Ritentare più tardi"
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/library_thing.py:59
+msgid ""
+"\n"
+"%prog [options] ISBN\n"
+"\n"
+"Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/lit.py:746
+msgid "Usage: %s file.lit"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/lit.py:753
+msgid "Cover saved to"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/pdf.py:39
+msgid "Usage: pdf-meta file.pdf"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/pdf.py:40
+msgid "No filename specified."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/mobi/reader.py:297
+msgid "%prog [options] myebook.mobi"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/mobi/reader.py:299
+msgid "Output directory. Defaults to current directory."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/mobi/reader.py:318
+msgid "Raw MOBI HTML saved in"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/ebooks/mobi/reader.py:320
+msgid "OEB ebook created in"
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/choose_format_ui.py:42
 msgid "Choose Format"
@@ -588,7 +907,8 @@ msgstr "Nessun formato disponibile"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:82
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr "Impossibile convertire %s perché questo libro non ha formati supportati"
+msgstr ""
+"Impossibile convertire %s perché questo libro non ha formati supportati"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:86
 msgid "Choose the format to convert into LRF"
@@ -732,7 +1052,8 @@ msgstr "Ca&mbia l'immagine di copertina:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:609
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:334
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Sfoglia per trovare un'immagine da usare come copertina per questo libro"
+msgstr ""
+"Sfoglia per trovare un'immagine da usare come copertina per questo libro"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:611
 msgid "Use cover from &source file"
@@ -1099,8 +1420,10 @@ msgid "Fetch cover image from server"
 msgstr "Scarica immagine di copertina dal server"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:337
-msgid "Change the username and/or password for your account at LibraryThing.com"
-msgstr "Cambia il nome utente e/o password del proprio account su LibraryThing.com"
+msgid ""
+"Change the username and/or password for your account at LibraryThing.com"
+msgstr ""
+"Cambia il nome utente e/o password del proprio account su LibraryThing.com"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:338
 msgid "Change password"
@@ -1551,6 +1874,10 @@ msgstr "Formati"
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Libro <font face=\"serif\">%s</font> di %s"
 
+#: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:328
+msgid "Double click to <b>edit</b> me<br><br>"
+msgstr ""
+
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:337
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:701
 msgid "Author(s)"
@@ -1998,13 +2325,34 @@ msgstr "Feed sconosciuto"
 msgid "Untitled article"
 msgstr "Articolo senza titolo"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:35
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:15
+msgid ""
+"%%prog [options] ARG\n"
+"\n"
+"%%prog parses an online source of articles, like an RSS or ATOM feed and \n"
+"fetches the article contents organized in a nice hierarchy.\n"
+"\n"
+"ARG can be one of:\n"
+"\n"
+"file name            - %%prog will try to load a recipe from the file\n"
+"\n"
+"builtin recipe title - %%prog will load the builtin recipe and use it to "
+"fetch the feed. For e.g. Newsweek or \"The BBC\" or \"The New York Times\"\n"
+"\n"
+"recipe as a string   - %%prog will load the recipe directly from the string "
+"arg.\n"
+"\n"
+"Available builtin recipes are:\n"
+"%s\n"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:37
 msgid "Options to control web2disk (used to fetch websites linked from feeds)"
 msgstr ""
 "Opzioni per controllare web2disk (usato per scaricare i siti collegati ai "
 "feed)"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:38
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:40
 msgid ""
 "Specify a list of feeds to download. For example: \n"
 "\"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/"
@@ -2018,11 +2366,11 @@ msgstr ""
 "Se si specifica questa opzione, ogni indice per %prog viene ignorato e viene "
 "usata una formula predefinita per scaricare i feed."
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:42
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:44
 msgid "Be more verbose while processing."
 msgstr "Sii più prolisso durante il processamento"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:44
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:46
 msgid ""
 "The title for this recipe. Used as the title for any ebooks created from the "
 "downloaded feeds."
@@ -2030,19 +2378,19 @@ msgstr ""
 "Il titolo per questa formula. Usato come titolo per ogni libro creato da "
 "questi feed scaricati"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:45
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:47
 msgid "Username for sites that require a login to access content."
 msgstr ""
 "Nome utente per i siti che richiedono un'identificazione per accedere ai "
 "contenuti"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:46
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:48
 msgid "Password for sites that require a login to access content."
 msgstr ""
 "Password per i siti che richiedono un'identificazione per accedere ai "
 "contenuti"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:49
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:51
 msgid ""
 "Number of levels of links to follow on webpages that are linked to from "
 "feeds. Defaul %default"
@@ -2050,21 +2398,22 @@ msgstr ""
 "Numero di livelli di link da seguire nelle pagine web che sono collegate ai "
 "feed. Predefinito: %default"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:51
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:53
 msgid ""
 "The directory in which to store the downloaded feeds. Defaults to the "
 "current directory."
-msgstr "La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
+msgstr ""
+"La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:53
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
 msgid "Dont show the progress bar"
 msgstr "Non mostrare la barra di progresso"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:57
 msgid "Very verbose output, useful for debugging."
 msgstr "Output molto prolisso, utile per il debugging"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:57
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:59
 msgid ""
 "Useful for recipe development. Forces max_articles_per_feed to 2 and "
 "downloads at most 2 feeds."
@@ -2072,8 +2421,8 @@ msgstr ""
 "Utile per lo sviluppo delle formule. Forza max_articles_per_feed a 2 e "
 "scarica al massimo 2 feed"
 
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:82
-#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:86
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:84
+#: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:88
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:567
 msgid "Fetching feeds..."
 msgstr "Scaricamento feed..."
@@ -2105,7 +2454,8 @@ msgstr "\tLink falliti:"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
-msgstr "Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
+msgstr ""
+"Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
 msgid "Got feeds from index page"
@@ -2161,3 +2511,67 @@ msgstr "Scaricamento fallito dell'articolo: %s"
 msgid "Fetching feed"
 msgstr "Scaricamento feed"
 
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:373
+msgid ""
+"%prog URL\n"
+"\n"
+"Where URL is for example http://google.com"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:376
+msgid "Base directory into which URL is saved. Default is %default"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:379
+msgid ""
+"Timeout in seconds to wait for a response from the server. Default: %default "
+"s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:382
+msgid ""
+"Maximum number of levels to recurse i.e. depth of links to follow. Default %"
+"default"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:385
+msgid ""
+"The maximum number of files to download. This only applies to files from <a "
+"href> tags. Default is %default"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:387
+msgid ""
+"Minimum interval in seconds between consecutive fetches. Default is %default "
+"s"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:389
+msgid ""
+"The character encoding for the websites you are trying to download. The "
+"default is to try and guess the encoding."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:391
+msgid ""
+"Only links that match this regular expression will be followed. This option "
+"can be specified multiple times, in which case as long as a link matches any "
+"one regexp, it will be followed. By default all links are followed."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:393
+msgid ""
+"Any link that matches this regular expression will be ignored. This option "
+"can be specified multiple times, in which case as long as any regexp matches "
+"a link, it will be ignored.By default, no links are ignored. If both --"
+"filter-regexp and --match-regexp are specified, then --filter-regexp is "
+"applied first."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:395
+msgid "Do not download CSS stylesheets."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:396
+msgid "Show detailed output information. Useful for debugging"
+msgstr ""

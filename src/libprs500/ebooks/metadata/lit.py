@@ -743,14 +743,14 @@ def get_metadata(stream):
 
 def main(args=sys.argv):
     if len(args) != 2:
-        print >>sys.stderr, 'Usage: %s file.lit'%(args[0],)
+        print >>sys.stderr, _('Usage: %s file.lit')%(args[0],)
         return 1
     mi = get_metadata(open(args[1], 'rb'))
     print unicode(mi)
     if mi.cover_data[1]:
         cover = os.path.abspath(os.path.splitext(os.path.basename(args[1]))[0] + '.' + mi.cover_data[0]) 
         open(cover, 'wb').write(mi.cover_data[1])
-        print 'Cover saved to', cover
+        print _('Cover saved to'), cover
     return 0
 
 if __name__ == '__main__':

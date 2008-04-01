@@ -137,13 +137,13 @@ def process_file(path, options, logger=None):
     
 
 def option_parser(gui_mode=False):
-    return _option_parser(usage='''\
+    return _option_parser(usage=_('''\
 any2lrf [options] myfile
 
 Convert any ebook format into LRF. Supported formats are:
 LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a RAR or
 ZIP archive, looking for an ebook inside the archive.
-    ''', gui_mode=gui_mode)
+    '''), gui_mode=gui_mode)
 
 
 def main(args=sys.argv, logger=None, gui_mode=False):
@@ -152,7 +152,7 @@ def main(args=sys.argv, logger=None, gui_mode=False):
     if len(args) != 2:
         parser.print_help()
         print
-        print 'No file to convert specified.'
+        print _('No file to convert specified.')
         return 1
     
     return process_file(args[1], options, logger)

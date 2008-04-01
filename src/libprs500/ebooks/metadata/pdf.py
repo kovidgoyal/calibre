@@ -36,8 +36,8 @@ def get_metadata(stream):
             
 def main(args=sys.argv):
     if len(args) != 2:
-        print >>sys.stderr, 'Usage: pdf-meta file.pdf'
-        print >>sys.stderr, 'No filename specified.'
+        print >>sys.stderr, _('Usage: pdf-meta file.pdf')
+        print >>sys.stderr, _('No filename specified.')
         return 1
     
     path = os.path.abspath(os.path.expanduser(args[1]))

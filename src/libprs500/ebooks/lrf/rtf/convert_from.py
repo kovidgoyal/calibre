@@ -17,8 +17,10 @@ if isosx and hasattr(sys, 'frameworks_dir'):
 
 def option_parser():
     parser = lrf_option_parser(
-        '''Usage: %prog [options] mybook.rtf\n\n'''
-        '''%prog converts mybook.rtf to mybook.lrf'''
+_('''%prog [options] mybook.rtf
+
+
+%prog converts mybook.rtf to mybook.lrf''')
         )
     parser.add_option('--keep-intermediate-files', action='store_true', default=False)
     return parser

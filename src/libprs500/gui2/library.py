@@ -325,7 +325,7 @@ class BooksModel(QAbstractTableModel):
             return QVariant(Qt.AlignRight | Qt.AlignVCenter)
         elif role == Qt.ToolTipRole and index.isValid():            
             if index.column() in self.editable_cols:
-                return QVariant("Double click to <b>edit</b> me<br><br>")
+                return QVariant(_("Double click to <b>edit</b> me<br><br>"))
         return NONE
     
     def headerData(self, section, orientation, role):    

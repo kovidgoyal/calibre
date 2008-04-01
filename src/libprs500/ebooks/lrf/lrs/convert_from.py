@@ -251,12 +251,12 @@ class LrsParser(object):
         
 
 def option_parser():
-    parser = OptionParser(usage='%prog [options] file.lrs\nCompile an LRS file into an LRF file.')
-    parser.add_option('-o', '--output', default=None, help='Path to output file')
+    parser = OptionParser(usage=_('%prog [options] file.lrs\nCompile an LRS file into an LRF file.'))
+    parser.add_option('-o', '--output', default=None, help=_('Path to output file'))
     parser.add_option('--verbose', default=False, action='store_true',
-                      help='Verbose processing')
+                      help=_('Verbose processing'))
     parser.add_option('--lrs', default=False, action='store_true',
-                      help='Convert LRS to LRS, useful for debugging.')
+                      help=_('Convert LRS to LRS, useful for debugging.'))
     return parser
 
 

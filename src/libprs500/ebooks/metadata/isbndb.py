@@ -92,7 +92,7 @@ def build_combined(base_url, opts):
 
 def option_parser():
     parser = OptionParser(usage=\
-'''
+_('''
 %prog [options] key
 
 Fetch metadata for books from isndb.com. You can specify either the 
@@ -101,16 +101,16 @@ then more than one book may be returned.
 
 key is the account key you generate after signing up for a free account from isbndb.com.
 
-''')
+'''))
     parser.add_option('-i', '--isbn', default=None, dest='isbn',
-                      help='The ISBN ID of the book you want metadata for.')
+                      help=_('The ISBN ID of the book you want metadata for.'))
     parser.add_option('-a', '--author', dest='author',
-                      default=None, help='The author whoose book to search for.')
+                      default=None, help=_('The author whoose book to search for.'))
     parser.add_option('-t', '--title', dest='title',
-                      default=None, help='The title of the book to search for.')
+                      default=None, help=_('The title of the book to search for.'))
     parser.add_option('-p', '--publisher', default=None, dest='publisher',
-                      help='The publisher of the book to search for.')
-    parser.add_option('--verbose', default=False, action='store_true', help='Verbose processing')
+                      help=_('The publisher of the book to search for.'))
+    parser.add_option('--verbose', default=False, action='store_true', help=_('Verbose processing'))
     
     return parser
     

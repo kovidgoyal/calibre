@@ -97,7 +97,7 @@ def get_metadata(stream):
 
 def main(args=sys.argv):
     if len(args) != 2 or '--help' in args or '-h' in args:
-        print >>sys.stderr, 'Usage:', args[0], 'mybook.epub'
+        print >>sys.stderr, _('Usage:'), args[0], _('mybook.epub')
         return 1
     
     path = os.path.abspath(os.path.expanduser(args[1]))

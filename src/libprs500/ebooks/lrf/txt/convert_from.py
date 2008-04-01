@@ -13,10 +13,13 @@ from libprs500.ebooks.markdown import markdown
 from libprs500 import setup_cli_handlers
 
 def option_parser():
-    parser = lrf_option_parser('''Usage: %prog [options] mybook.txt\n\n'''
-        '''%prog converts mybook.txt to mybook.lrf''')
+    parser = lrf_option_parser(
+_('''%prog [options] mybook.txt
+
+
+%prog converts mybook.txt to mybook.lrf'''))
     parser.add_option('--debug-html-generation', action='store_true', default=False,
-                      dest='debug_html_generation', help='Print generated HTML to stdout and quit.')
+                      dest='debug_html_generation', help=_('Print generated HTML to stdout and quit.'))
     return parser
     
 

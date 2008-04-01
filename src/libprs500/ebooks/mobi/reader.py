@@ -294,9 +294,9 @@ def get_metadata(stream):
         
 def option_parser():
     from libprs500 import OptionParser
-    parser = OptionParser(usage='%prog [options] myebook.mobi')
+    parser = OptionParser(usage=_('%prog [options] myebook.mobi'))
     parser.add_option('-o', '--output-dir', default='.', 
-                      help='Output directory. Defaults to current directory.')
+                      help=_('Output directory. Defaults to current directory.'))
     parser.add_option('--verbose', default=False, action='store_true',
                       help='Useful for debugging.')
     return parser
@@ -315,9 +315,9 @@ def main(args=sys.argv):
     if opts.verbose:
         oname = os.path.join(opts.output_dir, 'debug-raw.html')
         open(oname, 'wb').write(mr.mobi_html.encode('utf-8'))
-        print 'Raw MOBI HTML saved in', oname
+        print _('Raw MOBI HTML saved in'), oname
     
-    print 'OEB ebook created in', opts.output_dir
+    print _('OEB ebook created in'), opts.output_dir
     
     return 0
 

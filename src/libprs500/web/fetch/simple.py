@@ -370,27 +370,30 @@ class RecursiveFetcher(object):
     def __del__(self):
         socket.setdefaulttimeout(self.default_timeout)
         
-def option_parser(usage='%prog URL\n\nWhere URL is for example http://google.com'):
+def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.com')):
     parser = OptionParser(usage=usage)
-    parser.add_option('-d', '--base-dir', help='Base directory into which URL is saved. Default is %default',
+    parser.add_option('-d', '--base-dir', 
+                      help=_('Base directory into which URL is saved. Default is %default'),
                       default='.', type='string', dest='dir')
-    parser.add_option('-t', '--timeout', help='Timeout in seconds to wait for a response from the server. Default: %default s',
+    parser.add_option('-t', '--timeout', 
+                      help=_('Timeout in seconds to wait for a response from the server. Default: %default s'),
                       default=10.0, type='float', dest='timeout')
-    parser.add_option('-r', '--max-recursions', default=1, help='Maximum number of levels to recurse i.e. depth of links to follow. Default %default',
+    parser.add_option('-r', '--max-recursions', default=1, 
+                      help=_('Maximum number of levels to recurse i.e. depth of links to follow. Default %default'),
                       type='int', dest='max_recursions')
     parser.add_option('-n', '--max-files', default=sys.maxint, type='int', dest='max_files',
-                      help='The maximum number of files to download. This only applies to files from <a href> tags. Default is %default')
+                      help=_('The maximum number of files to download. This only applies to files from <a href> tags. Default is %default'))
     parser.add_option('--delay', default=0, dest='delay', type='int',
-                      help='Minimum interval in seconds between consecutive fetches. Default is %default s')
+                      help=_('Minimum interval in seconds between consecutive fetches. Default is %default s'))
     parser.add_option('--encoding', default=None, 
-                      help='The character encoding for the websites you are trying to download. The default is to try and guess the encoding.')
+                      help=_('The character encoding for the websites you are trying to download. The default is to try and guess the encoding.'))
     parser.add_option('--match-regexp', default=[], action='append', dest='match_regexps',
-                      help='Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.')
+                      help=_('Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.'))
     parser.add_option('--filter-regexp', default=[], action='append', dest='filter_regexps',
-                      help='Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --filter-regexp is applied first.')
+                      help=_('Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --filter-regexp is applied first.'))
     parser.add_option('--dont-download-stylesheets', action='store_true', default=False,
-                      help='Do not download CSS stylesheets.', dest='no_stylesheets')
-    parser.add_option('--verbose', help='Show detailed output information. Useful for debugging',
+                      help=_('Do not download CSS stylesheets.'), dest='no_stylesheets')
+    parser.add_option('--verbose', help=_('Show detailed output information. Useful for debugging'),
                       default=False, action='store_true', dest='verbose')
     return parser
 

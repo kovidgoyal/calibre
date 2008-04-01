@@ -1,7 +1,9 @@
 #!/usr/bin/env  python 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-''''''
+'''
+CLI for downloading feeds.
+'''
 
 import sys, os, logging
 from libprs500.web.feeds.recipes import get_builtin_recipe, compile_recipe, titles
@@ -10,7 +12,7 @@ from libprs500.web.feeds.news import Profile2Recipe, BasicNewsRecipe
 from libprs500.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
 
 
-def option_parser(usage='''\
+def option_parser(usage=_('''\
 %%prog [options] ARG
 
 %%prog parses an online source of articles, like an RSS or ATOM feed and 
@@ -26,7 +28,7 @@ recipe as a string   - %%prog will load the recipe directly from the string arg.
 
 Available builtin recipes are:
 %s
-'''%(unicode(list(titles))[1:-1])):
+''')%(unicode(list(titles))[1:-1])):
     p = _option_parser(usage=usage)
     p.remove_option('--max-recursions')
     p.remove_option('--base-dir')
