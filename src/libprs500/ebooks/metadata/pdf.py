@@ -18,7 +18,7 @@ def get_metadata(stream):
     try:
         info = PdfFileReader(stream).getDocumentInfo()
         if info.title:
-            mi.title = title
+            mi.title = info.title
         if info.author:
             src = info.author.split('&')
             authors = []
