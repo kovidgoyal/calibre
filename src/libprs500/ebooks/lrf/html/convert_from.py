@@ -1724,18 +1724,22 @@ def process_file(path, options, logger=None):
                 width, height = pwidth, int(corrf*height)
             
             scaled, width, height = fit_image(width, height, pwidth, pheight)
-            cim = im.resize((width, height), PILImage.BICUBIC).convert('RGB') if \
-                  scaled else im
-            cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
-            cf.close()                
-            cim.save(cf.name)
-            options.cover = cf.name
-            
-            tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
-            tf = PersistentTemporaryFile(prefix=__appname__+'_', suffix=".jpg")
-            tf.close()
-            tim.save(tf.name)
-            tpath = tf.name
+            try:
+                cim = im.resize((width, height), PILImage.BICUBIC).convert('RGB') if \
+                      scaled else im
+                cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
+                cf.close()                
+                cim.save(cf.name)
+                options.cover = cf.name
+                
+                tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
+                tf = PersistentTemporaryFile(prefix=__appname__+'_', suffix=".jpg")
+                tf.close()
+                tim.save(tf.name)
+                tpath = tf.name
+            except IOError, err: # PIL sometimes fails, for example on interlaced PNG files
+                logger.warn(_('Could not read cover image: %s'), err)
+                options.cover = None
         else:
             raise ConversionError, _('Cannot read from: %s')% (options.cover,)
     
