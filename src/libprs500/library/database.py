@@ -75,7 +75,7 @@ def _connect(path):
     conn =  sqlite.connect(path, detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
     conn.row_factory = lambda cursor, row : list(row)
     conn.create_aggregate('concat', 1, Concatenate)
-    title_pat = re.compile('^(A|The|An\s+)', re.IGNORECASE)
+    title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
     def title_sort(title):
         match = title_pat.search(title)
         if match:
@@ -777,6 +777,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.execute('pragma user_version=9')
         conn.commit()
         
+    @staticmethod
+    def upgrade_version9(conn):
+        for id, title in conn.execute('SELECT id, title FROM books').fetchall():
+            conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
+        conn.execute('pragma user_version=10')
+        conn.commit()
+        
     def __del__(self):
         global _lock_file
         import os
@@ -792,22 +799,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.data  = []
         if self.user_version == 0: # No tables have been created
             LibraryDatabase.create_version1(self.conn)
-        if self.user_version == 1: # Upgrade to 2
-            LibraryDatabase.upgrade_version1(self.conn)
-        if self.user_version == 2: # Upgrade to 3
-            LibraryDatabase.upgrade_version2(self.conn)
-        if self.user_version == 3: # Upgrade to 4
-            LibraryDatabase.upgrade_version3(self.conn)
-        if self.user_version == 4: # Upgrade to 5
-            LibraryDatabase.upgrade_version4(self.conn)
-        if self.user_version == 5: # Upgrade to 6
-            LibraryDatabase.upgrade_version5(self.conn)
-        if self.user_version == 6: # Upgrade to 7
-            LibraryDatabase.upgrade_version6(self.conn)
-        if self.user_version == 7: # Upgrade to 8
-            LibraryDatabase.upgrade_version7(self.conn)
-        if self.user_version == 8: # Upgrade to 9
-            LibraryDatabase.upgrade_version8(self.conn)
+        i = 0
+        while True:
+            i += 1
+            func = getattr(LibraryDatabase, 'upgrade_version%d'%i, None)
+            if func is None:
+                break
+            if self.user_version == i:
+                print 'Upgrading database from version: %d'%i
+                func(self.conn)
+        
         
     def close(self):
 #        global _lock_file
