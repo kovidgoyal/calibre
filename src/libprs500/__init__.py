@@ -26,6 +26,8 @@ iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx) 
 
+locale.setlocale(locale.LC_ALL, '')
+
 def osx_version():
     if isosx:
         import platform
