@@ -784,6 +784,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.execute('pragma user_version=10')
         conn.commit()
         
+    @staticmethod
+    def upgrade_version10(conn):
+        for id, author_sort in conn.execute('SELECT id, author_sort FROM books').fetchall():
+            if not author_sort:
+                aus = conn.execute('SELECT authors FROM meta WHERE id=?',(id,)).fetchone()[0]
+                conn.execute('UPDATE books SET author_sort=? WHERE id=?', (aus, id))
+        conn.execute('pragma user_version=11')
+        conn.commit()
+        
+        
     def __del__(self):
         global _lock_file
         import os
@@ -1267,8 +1277,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 duplicates.append((path, format, mi, uri))
                 continue
             series_index = 1 if mi.series_index is None else mi.series_index
-            obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
-                              (mi.title, uri, series_index))
+            aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
+            obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
+                              (mi.title, uri, series_index, aus))
             id = obj.lastrowid
             self.conn.commit()
             self.set_metadata(id, mi)
@@ -1412,8 +1423,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     
     def import_book(self, mi, formats):
         series_index = 1 if mi.series_index is None else mi.series_index
-        obj = self.conn.execute('INSERT INTO books(title, uri, series_index) VALUES (?, ?, ?)', 
-                          (mi.title, None, series_index))
+        aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
+        obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
+                          (mi.title, None, series_index, aus))
         id = obj.lastrowid
         self.conn.commit()
         self.set_metadata(id, mi)
