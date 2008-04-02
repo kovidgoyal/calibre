@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-01 13:03+PDT\n"
+"POT-Creation-Date: 2008-04-01 19:37+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:21+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: Spanish\n"
@@ -19,11 +19,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: KBabel 1.11.4\n"
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:83
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:85
 msgid "%sUsage%s: %s\n"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:120
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:122
 msgid "Created by "
 msgstr "Creado por "
 

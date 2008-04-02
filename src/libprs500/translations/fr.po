@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.22\n"
-"POT-Creation-Date: 2008-04-01 13:03+PDT\n"
+"POT-Creation-Date: 2008-04-01 19:37+PDT\n"
 "PO-Revision-Date: 2008-01-20 09:59+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -14,11 +14,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:83
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:85
 msgid "%sUsage%s: %s\n"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:120
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:122
 msgid "Created by "
 msgstr "Créé par"
 

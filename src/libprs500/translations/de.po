@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2008-04-01 13:03+PDT\n"
+"POT-Creation-Date: 2008-04-01 19:52+PDT\n"
 "PO-Revision-Date: 2008-04-01 22:55+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
@@ -14,11 +14,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:83
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:85
 msgid "%sUsage%s: %s\n"
 msgstr "%sBenutzung%s: %s\n"
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:120
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:122
 msgid "Created by "
 msgstr "Erstellt von "
 
@@ -27,8 +27,12 @@ msgid "Set the title. Default: filename."
 msgstr "Geben Sie den Titel an. Voreinstellung: Dateiname."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:90
-msgid "Set the author(s). Multiple authors should be set as a comma separated list. Default: %default"
-msgstr "Geben Sie den Autor an. Mehrere Autoren sollten durch Kommata getrennt angegeben werden. Voreinstellung: %default"
+msgid ""
+"Set the author(s). Multiple authors should be set as a comma separated list. "
+"Default: %default"
+msgstr ""
+"Geben Sie den Autor an. Mehrere Autoren sollten durch Kommata getrennt "
+"angegeben werden. Voreinstellung: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:91
 #: /home/kovid/work/libprs500/src/libprs500/gui2/library.py:630
@@ -62,28 +66,48 @@ msgid "Path to file containing image to be used as cover"
 msgstr "Pfad zur Datei des Umschlagbildes "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:105
-msgid "If there is a cover graphic detected in the source file, use that instead of the specified cover."
-msgstr "Falls die Quelldatei ein Umschlagbild enthält, das Umschlagbild der Quelldatei benutzen, anstatt des angegebenen Umschlagbildes. "
+msgid ""
+"If there is a cover graphic detected in the source file, use that instead of "
+"the specified cover."
+msgstr ""
+"Falls die Quelldatei ein Umschlagbild enthält, das Umschlagbild der "
+"Quelldatei benutzen, anstatt des angegebenen Umschlagbildes. "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:108
 msgid "Output file name. Default is derived from input filename"
-msgstr "Ausgabedateiname. Die Voreinstellung leitet sich vom ursprünglichen Dateinamen ab."
+msgstr ""
+"Ausgabedateiname. Die Voreinstellung leitet sich vom ursprünglichen "
+"Dateinamen ab."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:110
-msgid "Render HTML tables as blocks of text instead of actual tables. This is neccessary if the HTML contains very large or complex tables."
-msgstr "HTML Tabellen als Textblöcke rendern und nicht als Tabellen. Dies ist notwendig, wenn die HTML Datei sehr große oder komplexe Tabellen enthält."
+msgid ""
+"Render HTML tables as blocks of text instead of actual tables. This is "
+"neccessary if the HTML contains very large or complex tables."
+msgstr ""
+"HTML Tabellen als Textblöcke rendern und nicht als Tabellen. Dies ist "
+"notwendig, wenn die HTML Datei sehr große oder komplexe Tabellen enthält."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:113
-msgid "Specify the base font size in pts. All fonts are rescaled accordingly. This option obsoletes the --font-delta option and takes precedence over it. To use --font-delta, set this to 0."
-msgstr "Geben Sie die Ausgangsschriftgröße in Punkt an. Alle Schriften werden dementsprechend im Maßstab angepasst. Diese Einstellung setzt die --font-delta Einstellung außer Gebrauch und nimmt den Vorrang ein. Um --font-delta zu benutzen, stellen Sie diesen Wert auf 0."
+msgid ""
+"Specify the base font size in pts. All fonts are rescaled accordingly. This "
+"option obsoletes the --font-delta option and takes precedence over it. To "
+"use --font-delta, set this to 0."
+msgstr ""
+"Geben Sie die Ausgangsschriftgröße in Punkt an. Alle Schriften werden "
+"dementsprechend im Maßstab angepasst. Diese Einstellung setzt die --font-"
+"delta Einstellung außer Gebrauch und nimmt den Vorrang ein. Um --font-delta "
+"zu benutzen, stellen Sie diesen Wert auf 0."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:115
 msgid "Enable autorotation of images that are wider than the screen width."
-msgstr "Automatische Rotation von Bildern, die breiter als die Bildschirmbreite sind."
+msgstr ""
+"Automatische Rotation von Bildern, die breiter als die Bildschirmbreite sind."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Wählen Sie den Abstand in Punkt zwischen einzelnen Wörtern. Die Voreinstellung ist %default"
+msgstr ""
+"Wählen Sie den Abstand in Punkt zwischen einzelnen Wörtern. Die "
+"Voreinstellung ist %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Separate paragraphs by blank lines."
@@ -94,32 +118,65 @@ msgid "Add a header to all the pages with title and author."
 msgstr "Kopfzeile mit Titel und Autornamen für alle Seiten einfügen. "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:124
-msgid "Set the format of the header. %a is replaced by the author and %t by the title. Default is %default"
-msgstr "Wählen Sie das Format der Kopfzeile. %a wird durch den Autor und %t durch den Titel ersetzt. Die Voreinstellung ist %default"
+msgid ""
+"Set the format of the header. %a is replaced by the author and %t by the "
+"title. Default is %default"
+msgstr ""
+"Wählen Sie das Format der Kopfzeile. %a wird durch den Autor und %t durch "
+"den Titel ersetzt. Die Voreinstellung ist %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:126
-msgid "Override the CSS. Can be either a path to a CSS stylesheet or a string. If it is a string it is interpreted as CSS."
-msgstr "CSS überschreiben. Es kann ein Pfad zu einem CSS Stylesheet oder eine Zeichenfolge angegeben werden. Zeichenfolgen werden als CSS interpretiert. "
+msgid ""
+"Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
+"it is a string it is interpreted as CSS."
+msgstr ""
+"CSS überschreiben. Es kann ein Pfad zu einem CSS Stylesheet oder eine "
+"Zeichenfolge angegeben werden. Zeichenfolgen werden als CSS interpretiert. "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:128
-msgid "Use the <spine> element from the OPF file to determine the order in which the HTML files are appended to the LRF. The .opf file must be in the same directory as the base HTML file."
-msgstr "Das <spine> Element der OPF Datei benutzen um die Reihenfolge zu bestimmen, in der die HTML Dateien zur LRF Datei hinzugefügt werden. Die OPF Datei muss sich im gleichen Verzeichnis wie die ursprüngliche HTML Datei befinden."
+msgid ""
+"Use the <spine> element from the OPF file to determine the order in which "
+"the HTML files are appended to the LRF. The .opf file must be in the same "
+"directory as the base HTML file."
+msgstr ""
+"Das <spine> Element der OPF Datei benutzen um die Reihenfolge zu bestimmen, "
+"in der die HTML Dateien zur LRF Datei hinzugefügt werden. Die OPF Datei muss "
+"sich im gleichen Verzeichnis wie die ursprüngliche HTML Datei befinden."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:130
-msgid "Minimum paragraph indent (the indent of the first line of a paragraph) in pts. Default: %default"
-msgstr "Mindest-Zeileneinzug von Paragraphen (Zeileneinzug der ersten Zeile eines Paragraphen) in Punkt. Voreinstellung: %default"
+msgid ""
+"Minimum paragraph indent (the indent of the first line of a paragraph) in "
+"pts. Default: %default"
+msgstr ""
+"Mindest-Zeileneinzug von Paragraphen (Zeileneinzug der ersten Zeile eines "
+"Paragraphen) in Punkt. Voreinstellung: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:132
-msgid "Increase the font size by 2 * FONT_DELTA pts and the line spacing by FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the font size is decreased."
-msgstr "Schriftgröße um 2 * FONT_DELTA Punkt und Zeilenabstand um FONT_DELTA Punkt vergrößern. FONT_DELTA kann ein Bruchteil sein. Falls FONT_DELTA negativ angegeben wird, wird die Schriftgröße verkleinert."
+msgid ""
+"Increase the font size by 2 * FONT_DELTA pts and the line spacing by "
+"FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
+"font size is decreased."
+msgstr ""
+"Schriftgröße um 2 * FONT_DELTA Punkt und Zeilenabstand um FONT_DELTA Punkt "
+"vergrößern. FONT_DELTA kann ein Bruchteil sein. Falls FONT_DELTA negativ "
+"angegeben wird, wird die Schriftgröße verkleinert."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:137
-msgid "Render all content as black on white instead of the colors specified by the HTML or CSS."
-msgstr "Inhalt schwarz-weiß rendern anstatt in den in HTML oder CSS angegeben Farben."
+msgid ""
+"Render all content as black on white instead of the colors specified by the "
+"HTML or CSS."
+msgstr ""
+"Inhalt schwarz-weiß rendern anstatt in den in HTML oder CSS angegeben Farben."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:144
-msgid "Profile of the target device for which this LRF is being generated. The profile determines things like the resolution and screen size of the target device. Default: %s Supported profiles: "
-msgstr "Profil des Zielgeräts für das diese LRF Datei erstellt wird. Das Profil legt unter anderem die Auflösung und die Bildschirmgröße des Zielgerätes fest. Voreinstellung: %s Unterstützte Profile:"
+msgid ""
+"Profile of the target device for which this LRF is being generated. The "
+"profile determines things like the resolution and screen size of the target "
+"device. Default: %s Supported profiles: "
+msgstr ""
+"Profil des Zielgeräts für das diese LRF Datei erstellt wird. Das Profil legt "
+"unter anderem die Auflösung und die Bildschirmgröße des Zielgerätes fest. "
+"Voreinstellung: %s Unterstützte Profile:"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:150
 msgid "Left margin of page. Default is %default px."
@@ -138,41 +195,90 @@ msgid "Bottom margin of page. Default is %default px."
 msgstr "Unterer Rand der Seite. Die Voreinstellung ist %default Pixel."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:160
-msgid "The maximum number of levels to recursively process links. A value of 0 means thats links are not followed. A negative value means that <a> tags are ignored."
-msgstr "Höchstzahl der rekursiven Verknüpfungen (Hyperlinks). Der Wert 0 bedeutet, dass Verknüpfungen ignoriert werden. Ein negativer Wert bedeutet, dass alle <a> Elemente ignoriert werden. "
+msgid ""
+"The maximum number of levels to recursively process links. A value of 0 "
+"means thats links are not followed. A negative value means that <a> tags are "
+"ignored."
+msgstr ""
+"Höchstzahl der rekursiven Verknüpfungen (Hyperlinks). Der Wert 0 bedeutet, "
+"dass Verknüpfungen ignoriert werden. Ein negativer Wert bedeutet, dass alle "
+"<a> Elemente ignoriert werden. "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:164
 #, fuzzy
-msgid "A regular expression. <a> tags whoose href matches will be ignored. Defaults to %default"
-msgstr "Ein regulärer Ausdruck. <a> tags, deren Verknüpfungen ignoriert werden. Voreinstellung %default"
+msgid ""
+"A regular expression. <a> tags whoose href matches will be ignored. Defaults "
+"to %default"
+msgstr ""
+"Ein regulärer Ausdruck. <a> tags, deren Verknüpfungen ignoriert werden. "
+"Voreinstellung %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:169
-msgid "Prevent the automatic insertion of page breaks before detected chapters."
-msgstr "Automatisches Einfügen von Seitenumbrüchen vor ermittelten Kapiteln verhindern."
+msgid ""
+"Prevent the automatic insertion of page breaks before detected chapters."
+msgstr ""
+"Automatisches Einfügen von Seitenumbrüchen vor ermittelten Kapiteln "
+"verhindern."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:173
-msgid "The regular expression used to detect chapter titles. It is searched for in heading tags (h1-h6). Defaults to %default"
-msgstr "Der reguläre Ausdruck zur Ermittlung von Kapitelüberschriften. Es wird nach mit (h1) - (h6) angegebenen Überschriften gesucht. Voreinstellung %default"
+msgid ""
+"The regular expression used to detect chapter titles. It is searched for in "
+"heading tags (h1-h6). Defaults to %default"
+msgstr ""
+"Der reguläre Ausdruck zur Ermittlung von Kapitelüberschriften. Es wird nach "
+"mit (h1) - (h6) angegebenen Überschriften gesucht. Voreinstellung %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:176
-msgid "If html2lrf does not find any page breaks in the html file and cannot detect chapter headings, it will automatically insert page-breaks before the tags whose names match this regular expression. Defaults to %default. You can disable it by setting the regexp to \"$\". The purpose of this option is to try to ensure that there are no really long pages as this degrades the page turn performance of the LRF. Thus this option is ignored if the current page has only a few elements."
-msgstr "Wenn html2lrf keine Seitenumbrüche in der HTML Datei und keine Kapitel-Überschriften finden kann, fügt es automatisch Seitenumbrüche vor Elementen ein, deren Namen mit diesem regulären Ausdruck entsprechen. Voreinstellung ist %default. Sie können dies deaktivieren indem sie den regulären Ausdruck \"$\" verwenden. Der Zweck dieser Einstellung ist der Versuch sicherzustellen, dass keine extrem langen Seiten entstehen, da dies das Umblättern der in der LRF Datei verlangsamt. Diese Einstellung wird ignoriert, wenn die aktuelle Seite nur wenige Elemente enthält."
+msgid ""
+"If html2lrf does not find any page breaks in the html file and cannot detect "
+"chapter headings, it will automatically insert page-breaks before the tags "
+"whose names match this regular expression. Defaults to %default. You can "
+"disable it by setting the regexp to \"$\". The purpose of this option is to "
+"try to ensure that there are no really long pages as this degrades the page "
+"turn performance of the LRF. Thus this option is ignored if the current page "
+"has only a few elements."
+msgstr ""
+"Wenn html2lrf keine Seitenumbrüche in der HTML Datei und keine Kapitel-"
+"Überschriften finden kann, fügt es automatisch Seitenumbrüche vor Elementen "
+"ein, deren Namen mit diesem regulären Ausdruck entsprechen. Voreinstellung "
+"ist %default. Sie können dies deaktivieren indem sie den regulären Ausdruck "
+"\"$\" verwenden. Der Zweck dieser Einstellung ist der Versuch "
+"sicherzustellen, dass keine extrem langen Seiten entstehen, da dies das "
+"Umblättern der in der LRF Datei verlangsamt. Diese Einstellung wird "
+"ignoriert, wenn die aktuelle Seite nur wenige Elemente enthält."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:186
-msgid "Force a page break before tags whoose names match this regular expression."
-msgstr "Seitenumbruch erzwingen vor Elementen, deren Namen diesem regulären Ausdruck entsprechen. "
+msgid ""
+"Force a page break before tags whoose names match this regular expression."
+msgstr ""
+"Seitenumbruch erzwingen vor Elementen, deren Namen diesem regulären Ausdruck "
+"entsprechen. "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:188
-msgid "Force a page break before an element having the specified attribute. The format for this option is tagname regexp,attribute name,attribute value regexp. For example to match all heading tags that have the attribute class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
-msgstr "Seitenumbruch vor einem Element mit dem angegebenen Attribut erzwingen. Das Format dieser Einstellung ist tagname regexp,attribute name,attribute value regexp. Um zum Beispiel alle \"heading\" Elemente, die das Attribut class=\"chapter\" anzupassen, verwenden Sie \"h\\d,class,chapter\". Voreinstellung ist %default"
+msgid ""
+"Force a page break before an element having the specified attribute. The "
+"format for this option is tagname regexp,attribute name,attribute value "
+"regexp. For example to match all heading tags that have the attribute class="
+"\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
+msgstr ""
+"Seitenumbruch vor einem Element mit dem angegebenen Attribut erzwingen. Das "
+"Format dieser Einstellung ist tagname regexp,attribute name,attribute value "
+"regexp. Um zum Beispiel alle \"heading\" Elemente, die das Attribut class="
+"\"chapter\" anzupassen, verwenden Sie \"h\\d,class,chapter\". Voreinstellung "
+"ist %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:191
 msgid "Preprocess Baen HTML files to improve generated LRF."
-msgstr "Baen HTML Dateien vorbearbeiten, um die erstellte LRF Datei zu verbessern."
+msgstr ""
+"Baen HTML Dateien vorbearbeiten, um die erstellte LRF Datei zu verbessern."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:193
-msgid "You must add this option if processing files generated by pdftohtml, otherwise conversion will fail."
-msgstr "Sie müssen diese Auswahl treffen, wenn sie Dateien, die von pdftohtml erstellt wurden, verarbeiten wollen, sonst schlägt die Konvertierung fehl."
+msgid ""
+"You must add this option if processing files generated by pdftohtml, "
+"otherwise conversion will fail."
+msgstr ""
+"Sie müssen diese Auswahl treffen, wenn sie Dateien, die von pdftohtml "
+"erstellt wurden, verarbeiten wollen, sonst schlägt die Konvertierung fehl."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:195
 msgid "Use this option on html0 files from Book Designer."
@@ -180,9 +286,18 @@ msgstr "Benutzen Sie diese Einstellung bei HTML Dateien von Book Designer."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:198
 msgid ""
-"Specify trutype font families for serif, sans-serif and monospace fonts. These fonts will be embedded in the LRF file. Note that custom fonts lead to slower page turns. Each family specification is of the form: \"path to fonts directory, family\" For example: --serif-family \"%s, Times New Roman\"\n"
+"Specify trutype font families for serif, sans-serif and monospace fonts. "
+"These fonts will be embedded in the LRF file. Note that custom fonts lead to "
+"slower page turns. Each family specification is of the form: \"path to fonts "
+"directory, family\" For example: --serif-family \"%s, Times New Roman\"\n"
 "    "
-msgstr "Geben Sie Truetype Schriftarten für serife, serifenlose und nichtproportionale Schriften an. Diese Schriften werden in die LRF Datei eingebettet. Bitte beachten Sie, dass individuell eingebettete Schriften das Umblättern verlangsamen. Jede Schriftartfamilie wird folgendermaßen angegeben: \"Pfad zum Verzeichnis der Schriften, Schriftartfamilie\" Zum Beispiel: --serif-family \"%s, Times New Roman\"\n"
+msgstr ""
+"Geben Sie Truetype Schriftarten für serife, serifenlose und "
+"nichtproportionale Schriften an. Diese Schriften werden in die LRF Datei "
+"eingebettet. Bitte beachten Sie, dass individuell eingebettete Schriften das "
+"Umblättern verlangsamen. Jede Schriftartfamilie wird folgendermaßen "
+"angegeben: \"Pfad zum Verzeichnis der Schriften, Schriftartfamilie\" Zum "
+"Beispiel: --serif-family \"%s, Times New Roman\"\n"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:207
 msgid "The serif family of fonts to embed"
@@ -205,26 +320,43 @@ msgid "Convert to LRS"
 msgstr "Zu LRS konvertieren"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:221
-msgid "Minimize memory usage at the cost of longer processing times. Use this option if you are on a memory constrained machine."
-msgstr "Speicherbenutzung verringern auf Kosten längerer Bearbeitungszeiten. Benutzen Sie diese Einstellung, wenn sie an einem Rechner mit geringem Hauptspeicher arbeiten."
+msgid ""
+"Minimize memory usage at the cost of longer processing times. Use this "
+"option if you are on a memory constrained machine."
+msgstr ""
+"Speicherbenutzung verringern auf Kosten längerer Bearbeitungszeiten. "
+"Benutzen Sie diese Einstellung, wenn sie an einem Rechner mit geringem "
+"Hauptspeicher arbeiten."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:223
-msgid "Specify the character encoding of the source file. If the output LRF file contains strange characters, try changing this option. A common encoding for files from windows computers is cp-1252. Another common choice is utf-8. The default is to try and guess the encoding."
-msgstr "Geben Sie die Zeichenkodierung der Ausgangsdatei an. Sollte die ausgegebene LRF Datei seltsame Zeichen enthalten, ändern Sie diese Einstellung. Eine gebräuchliche Kodierung von Dateien, die von Windows Computern stammen, ist cp-1252. Eine andere gebräuchliche Alternative ist utf-8. In der Voreinstellung wird versucht, die Kodierung zu erraten. "
+msgid ""
+"Specify the character encoding of the source file. If the output LRF file "
+"contains strange characters, try changing this option. A common encoding for "
+"files from windows computers is cp-1252. Another common choice is utf-8. The "
+"default is to try and guess the encoding."
+msgstr ""
+"Geben Sie die Zeichenkodierung der Ausgangsdatei an. Sollte die ausgegebene "
+"LRF Datei seltsame Zeichen enthalten, ändern Sie diese Einstellung. Eine "
+"gebräuchliche Kodierung von Dateien, die von Windows Computern stammen, ist "
+"cp-1252. Eine andere gebräuchliche Alternative ist utf-8. In der "
+"Voreinstellung wird versucht, die Kodierung zu erraten. "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/any/convert_from.py:140
 msgid ""
 "any2lrf [options] myfile\n"
 "\n"
 "Convert any ebook format into LRF. Supported formats are:\n"
-"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a RAR or\n"
+"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC and PDF. any2lrf will also process a "
+"RAR or\n"
 "ZIP archive, looking for an ebook inside the archive.\n"
 "    "
 msgstr ""
 "any2lrf [options] dateiname\n"
 "\n"
-"Konvertiert verschiedene eBook Formate in LRF Dateien. Unterstützte Formate:\n"
-"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC und PDF. any2lrf verarbeitet auch RAR oder\n"
+"Konvertiert verschiedene eBook Formate in LRF Dateien. Unterstützte "
+"Formate:\n"
+"LIT, RTF, TXT, HTML, EPUB, MOBI, PRC und PDF. any2lrf verarbeitet auch RAR "
+"oder\n"
 "ZIP Archive, indem es nach einem eBook im Archiv sucht.\n"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/any/convert_from.py:155
@@ -310,7 +442,9 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1649
 msgid "An error occurred while processing a table: %s. Ignoring table markup."
-msgstr "Ein Fehler trat während der Bearbeitung einer Tabelle auf: %s. Tabellenformat wird ignoriert."
+msgstr ""
+"Ein Fehler trat während der Bearbeitung einer Tabelle auf: %s. "
+"Tabellenformat wird ignoriert."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1651
 msgid ""
@@ -325,8 +459,12 @@ msgid "Table has cell that is too large"
 msgstr "Tabelle enthält Zelle, die zu groß ist"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1701
-msgid "You have to save the website %s as an html file first and then run html2lrf on it."
-msgstr "Sichern Sie die Website %s zuerst als HTML Datei und benutzen Sie dann html2lrf mit der gespeicherten HTML Datei."
+msgid ""
+"You have to save the website %s as an html file first and then run html2lrf "
+"on it."
+msgstr ""
+"Sichern Sie die Website %s zuerst als HTML Datei und benutzen Sie dann "
+"html2lrf mit der gespeicherten HTML Datei."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/html/convert_from.py:1741
 msgid "Could not read cover image: %s"
@@ -429,11 +567,15 @@ msgstr "Die Kategorie dieses Buches ... (Z. B.: Geschichte)"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:559
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Pfad zu einer Grafik, die als Thumbnail für diese Datei verwendet werden soll "
+msgstr ""
+"Pfad zu einer Grafik, die als Thumbnail für diese Datei verwendet werden "
+"soll "
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr "Pfad zu einer Text Datei, deren Inhalt als Bemerkung in der LRF Datei gespeichert wird"
+msgstr ""
+"Pfad zu einer Text Datei, deren Inhalt als Bemerkung in der LRF Datei "
+"gespeichert wird"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
 msgid "Extract thumbnail from LRF file"
@@ -496,8 +638,12 @@ msgstr ""
 "%prog konvertiert dateiname.pdf in dateiname.lrf"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/pdf/reflow.py:402
-msgid "Path to output directory in which to create the HTML file. Defaults to current directory."
-msgstr "Pfad zum Ausgabeverzeichnis, in dem die HTML Datei erstellt werden soll. Voreinstellung auf aktuelles Verzeichnis."
+msgid ""
+"Path to output directory in which to create the HTML file. Defaults to "
+"current directory."
+msgstr ""
+"Pfad zum Ausgabeverzeichnis, in dem die HTML Datei erstellt werden soll. "
+"Voreinstellung auf aktuelles Verzeichnis."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/pdf/reflow.py:404
 msgid "Be more verbose."
@@ -560,17 +706,20 @@ msgid ""
 "books ISBN ID or its title and author. If you specify the title and author,\n"
 "then more than one book may be returned.\n"
 "\n"
-"key is the account key you generate after signing up for a free account from isbndb.com.\n"
+"key is the account key you generate after signing up for a free account from "
+"isbndb.com.\n"
 "\n"
 msgstr ""
 "\n"
 "%prog [options] key\n"
 "\n"
 "Rufe Metadaten der Bücher von isndb.com ab. Sie können entweder die\n"
-"ISBN oder den Titel und den Autor des Buches angeben. Wenn Sie Titel und Autor angeben,\n"
+"ISBN oder den Titel und den Autor des Buches angeben. Wenn Sie Titel und "
+"Autor angeben,\n"
 "kann es sein, dass mehrere Bücher gefunden werden.\n"
 "\n"
-"key steht für den Konto-Schlüssel, der nach der kostenfreien Registrierung bei isbndb.com erstellt werden kann.\n"
+"key steht für den Konto-Schlüssel, der nach der kostenfreien Registrierung "
+"bei isbndb.com erstellt werden kann.\n"
 "\n"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/isbndb.py:106
@@ -590,8 +739,12 @@ msgid "The publisher of the book to search for."
 msgstr "Der Herausgeber des gesuchten Buches."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/library_thing.py:46
-msgid "Could not fetch cover as server is experiencing high load. Please try again later."
-msgstr "Konnte aufgrund zu hoher Serverlast kein Umschlagbild abrufen. Bitte versuchen sie es später wieder."
+msgid ""
+"Could not fetch cover as server is experiencing high load. Please try again "
+"later."
+msgstr ""
+"Konnte aufgrund zu hoher Serverlast kein Umschlagbild abrufen. Bitte "
+"versuchen sie es später wieder."
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/library_thing.py:47
 msgid " not found."
@@ -611,7 +764,8 @@ msgstr ""
 "\n"
 "%prog [options] ISBN\n"
 "\n"
-"Umschlagbild des Buches mit der angegebenen ISBN von LibraryThing.com abrufen\n"
+"Umschlagbild des Buches mit der angegebenen ISBN von LibraryThing.com "
+"abrufen\n"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/metadata/lit.py:746
 msgid "Usage: %s file.lit"
@@ -726,8 +880,12 @@ msgid "Default network &timeout:"
 msgstr "Voreinstellung für Zei&tüberschreitung bei Netzwerkverbindungen:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:231
-msgid "Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)"
-msgstr "Voreinstellung der Zeitüberschreitung für Netzwerkabrufe festsetzen (Gilt immer dann, wenn aus dem Internet Informationen abgerufen werden sollen) "
+msgid ""
+"Set the default timeout for network fetches (i.e. anytime we go out to the "
+"internet to get information)"
+msgstr ""
+"Voreinstellung der Zeitüberschreitung für Netzwerkabrufe festsetzen (Gilt "
+"immer dann, wenn aus dem Internet Informationen abgerufen werden sollen) "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:232
 msgid " seconds"
@@ -743,11 +901,13 @@ msgstr "Häufig benutzte Verzeichnisse"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:235
 msgid "Add a directory to the frequently used directories list"
-msgstr "Ein Verzeichnis zur Liste der häufig genutzten Verzeichnisse hinzufügen"
+msgstr ""
+"Ein Verzeichnis zur Liste der häufig genutzten Verzeichnisse hinzufügen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:237
 msgid "Remove a directory from the frequently used directories list"
-msgstr "Ein Verzeichnis von der Liste der häufig genutzten Verzeichnisse entfernen"
+msgstr ""
+"Ein Verzeichnis von der Liste der häufig genutzten Verzeichnisse entfernen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:239
 msgid "Select visible &columns in library view"
@@ -775,7 +935,9 @@ msgstr "Verbindung nicht möglich"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata.py:102
 msgid "You must specify a valid access key for isbndb.com"
-msgstr "Sie müssen einen gültigen Zugangsschlüssel (access key) für isbndb.com angeben"
+msgstr ""
+"Sie müssen einen gültigen Zugangsschlüssel (access key) für isbndb.com "
+"angeben"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata_ui.py:89
 msgid "Fetch metadata"
@@ -786,8 +948,12 @@ msgid "Fetching metadata for <b>%1</b>"
 msgstr "Meta-Daten abrufen für <b>%1</b>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata_ui.py:91
-msgid "Sign up for a free account from <a href=\"http://www.isbndb.com\">ISBNdb.com</a> to get an access key."
-msgstr "Kostenloses Konto anmelden bei <a href=\"http://www.isbndb.com\">ISBNdb.com</a> um einen Zugriffsschlüssel zu erhalten."
+msgid ""
+"Sign up for a free account from <a href=\"http://www.isbndb.com\">ISBNdb."
+"com</a> to get an access key."
+msgstr ""
+"Kostenloses Konto anmelden bei <a href=\"http://www.isbndb.com\">ISBNdb.com</"
+"a> um einen Zugriffsschlüssel zu erhalten."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata_ui.py:92
 msgid "&Access Key;"
@@ -803,7 +969,9 @@ msgstr "Treffer"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/fetch_metadata_ui.py:95
 msgid "Select the book that most closely matches your copy from the list below"
-msgstr "Wählen Sie aus der unten stehenden Liste das Buch, das Ihrer Ausgabe entspricht"
+msgstr ""
+"Wählen Sie aus der unten stehenden Liste das Buch, das Ihrer Ausgabe "
+"entspricht"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/job_view_ui.py:30
 msgid "Details of job"
@@ -823,7 +991,9 @@ msgstr "Keine verfügbaren Formate"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:82
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr "Kann %s nicht konvertieren, da dieses Buch nicht den bekannten Formaten entspricht"
+msgstr ""
+"Kann %s nicht konvertieren, da dieses Buch nicht den bekannten Formaten "
+"entspricht"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:86
 msgid "Choose the format to convert into LRF"
@@ -863,24 +1033,37 @@ msgid " is not a valid picture"
 msgstr " ist kein gültiges Bild"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:245
-msgid "Preprocess the file before converting to LRF. This is useful if you know that the file is from a specific source. Known sources:"
-msgstr "Datei vorbearbeiten bevor sie zu LRF konvertiert wird. Das ist hilfreich, wenn Sie wissen, dass die Datei von einer der folgenden Bezugsquellen stammt:"
+msgid ""
+"Preprocess the file before converting to LRF. This is useful if you know "
+"that the file is from a specific source. Known sources:"
+msgstr ""
+"Datei vorbearbeiten bevor sie zu LRF konvertiert wird. Das ist hilfreich, "
+"wenn Sie wissen, dass die Datei von einer der folgenden Bezugsquellen stammt:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:246
 msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
 msgstr "<ol><li><b>baen</b> - Bücher von BAEN Publishers</li>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:247
-msgid "<li><b>pdftohtml</b> - HTML files that are the output of the program pdftohtml</li>"
-msgstr "<li><b>pdftohtml</b> - HTML Dateien, die mit dem Programm pdftohtml erstellt wurden</li>"
+msgid ""
+"<li><b>pdftohtml</b> - HTML files that are the output of the program "
+"pdftohtml</li>"
+msgstr ""
+"<li><b>pdftohtml</b> - HTML Dateien, die mit dem Programm pdftohtml erstellt "
+"wurden</li>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:248
 msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
 msgstr "<li><b>book-designer</b> - HTML Dateien von Book Designer</li>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:281
-msgid "Specify metadata such as title and author for the book.<p>Metadata will be updated in the database as well as the generated LRF file."
-msgstr "Geben Sie Meta-Daten wie den Titel und den Autor des Buches an. <p>Meta-Daten werden sowohl in der Datenbank als auch in der erstellten LRF Datei aktualisiert."
+msgid ""
+"Specify metadata such as title and author for the book.<p>Metadata will be "
+"updated in the database as well as the generated LRF file."
+msgstr ""
+"Geben Sie Meta-Daten wie den Titel und den Autor des Buches an. <p>Meta-"
+"Daten werden sowohl in der Datenbank als auch in der erstellten LRF Datei "
+"aktualisiert."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:281
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:592
@@ -888,8 +1071,12 @@ msgid "Metadata"
 msgstr "Meta-Daten"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:282
-msgid "Adjust the look of the generated LRF file by specifying things like font sizes and the spacing between words."
-msgstr "Aussehen der erstellten LRF Datei durch die Angabe von Schriftgrößen und Wortabständen angleichen."
+msgid ""
+"Adjust the look of the generated LRF file by specifying things like font "
+"sizes and the spacing between words."
+msgstr ""
+"Aussehen der erstellten LRF Datei durch die Angabe von Schriftgrößen und "
+"Wortabständen angleichen."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:282
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:596
@@ -897,8 +1084,12 @@ msgid "Look & Feel"
 msgstr "Look & Feel"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:283
-msgid "Specify the page settings like margins and the screen size of the target device."
-msgstr "Seiteneinstellungen wie Ränder und die Bildschirmgröße des Zielgeräts angeben."
+msgid ""
+"Specify the page settings like margins and the screen size of the target "
+"device."
+msgstr ""
+"Seiteneinstellungen wie Ränder und die Bildschirmgröße des Zielgeräts "
+"angeben."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:283
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:600
@@ -973,8 +1164,12 @@ msgstr "&Autor:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:617
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:130
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:303
-msgid "Change the author(s) of this book. Multiple authors should be separated by a comma"
-msgstr "Autor dieses Buches ändern. Mehrere Autoren sollten durch Kommata getrennt werden"
+msgid ""
+"Change the author(s) of this book. Multiple authors should be separated by a "
+"comma"
+msgstr ""
+"Autor dieses Buches ändern. Mehrere Autoren sollten durch Kommata getrennt "
+"werden"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:616
 msgid "Author So&rt:"
@@ -1000,8 +1195,13 @@ msgstr "&Etiketten:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:621
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:140
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:313
-msgid "Tags categorize the book. This is particularly useful while searching. <br><br>They can be any words or phrases, separated by commas."
-msgstr "Etiketten klassifizieren das Buch. Besonders wichtig bei der Suche nach Büchern. <br><br>Sie können für Etiketten durch Kommata getrennte Wörter oder Sätze verwenden."
+msgid ""
+"Tags categorize the book. This is particularly useful while searching. "
+"<br><br>They can be any words or phrases, separated by commas."
+msgstr ""
+"Etiketten klassifizieren das Buch. Besonders wichtig bei der Suche nach "
+"Büchern. <br><br>Sie können für Etiketten durch Kommata getrennte Wörter "
+"oder Sätze verwenden."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:622
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:143
@@ -1171,15 +1371,23 @@ msgstr "Hilfe für das jeweilige Objekt"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:666
 msgid ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
+"family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 msgstr ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
+"family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:127
 msgid "Edit Meta information"
@@ -1197,8 +1405,12 @@ msgstr "S&ortierung nach Autor:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:132
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:305
-msgid "Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles."
-msgstr "Geben Sie an, wie der Autor dieses Buches sortiert werden soll. \"Charles Dickens\" zum Beispiel als \"Dickens, Charles\"."
+msgid ""
+"Specify how the author(s) of this book should be sorted. For example Charles "
+"Dickens should be sorted as Dickens, Charles."
+msgstr ""
+"Geben Sie an, wie der Autor dieses Buches sortiert werden soll. \"Charles "
+"Dickens\" zum Beispiel als \"Dickens, Charles\"."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:133
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:306
@@ -1227,11 +1439,18 @@ msgstr "Etiketten entfe&rnen:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_bulk_ui.py:142
 msgid "Comma separated list of tags to remove from the books. "
-msgstr "Durch getrennte Liste der Etiketten, die von den Büchern entfernt werden."
+msgstr ""
+"Durch getrennte Liste der Etiketten, die von den Büchern entfernt werden."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:224
-msgid "<p>Enter your username and password for <b>LibraryThing.com</b>. <br/>If you do not have one, you can <a href='http://www.librarything.com'>register</a> for free!.</p>"
-msgstr "<p>Geben Sie Ihren Benutzernamen und Ihr Passwort für <b>LibraryThing.com</b> an. <br/>Insofern Sie dies nicht besitzen, können Sie sich kostenlos <a href='http://www.librarything.com'>anmelden</a>! </p>"
+msgid ""
+"<p>Enter your username and password for <b>LibraryThing.com</b>. <br/>If you "
+"do not have one, you can <a href='http://www.librarything.com'>register</a> "
+"for free!.</p>"
+msgstr ""
+"<p>Geben Sie Ihren Benutzernamen und Ihr Passwort für <b>LibraryThing.com</"
+"b> an. <br/>Insofern Sie dies nicht besitzen, können Sie sich kostenlos <a "
+"href='http://www.librarything.com'>anmelden</a>! </p>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single.py:254
 msgid "<b>Could not fetch cover.</b><br/>"
@@ -1287,8 +1506,10 @@ msgid "Fetch cover image from server"
 msgstr "Umschlagbild vom Server abrufen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:337
-msgid "Change the username and/or password for your account at LibraryThing.com"
-msgstr "Benutzername und/oder Passwort Ihres Kontos bei LibraryThing.com ändern"
+msgid ""
+"Change the username and/or password for your account at LibraryThing.com"
+msgstr ""
+"Benutzername und/oder Passwort Ihres Kontos bei LibraryThing.com ändern"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:338
 msgid "Change password"
@@ -1350,11 +1571,17 @@ msgstr "beinhaltet"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search_item_ui.py:42
 msgid "The text to search for. It is interpreted as a regular expression."
-msgstr "Der Text, nach dem gesucht werden soll. Dies wird als eine Reguläre Expression interpretiert."
+msgstr ""
+"Der Text, nach dem gesucht werden soll. Dies wird als eine Reguläre "
+"Expression interpretiert."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search_item_ui.py:43
-msgid "<p>Negate this match. That is, only return results that <b>do not</b> match this query."
-msgstr "<p>Diesen Treffer ausblenden. Das heißt, es werden nur Ergebnisse angezeigt, die <b>nicht</b> dieser Suchanfrage entsprechen. "
+msgid ""
+"<p>Negate this match. That is, only return results that <b>do not</b> match "
+"this query."
+msgstr ""
+"<p>Diesen Treffer ausblenden. Das heißt, es werden nur Ergebnisse angezeigt, "
+"die <b>nicht</b> dieser Suchanfrage entsprechen. "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/search_item_ui.py:44
 msgid "Negate"
@@ -1393,8 +1620,12 @@ msgid "A&vailable tags"
 msgstr "&Verfügbare Etiketten"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:143
-msgid "Delete tag from database. This will unapply the tag from all books and then remove it from the database."
-msgstr "Etikett aus der Datenbank löschen. Entfernt das Etikett von allen Büchern und löscht es dann aus der Datenbank."
+msgid ""
+"Delete tag from database. This will unapply the tag from all books and then "
+"remove it from the database."
+msgstr ""
+"Etikett aus der Datenbank löschen. Entfernt das Etikett von allen Büchern "
+"und löscht es dann aus der Datenbank."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:145
 msgid "Apply tag to current book"
@@ -1413,12 +1644,18 @@ msgid "&Add tag:"
 msgstr "Etikett &anfügen:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:151
-msgid "If the tag you want is not in the available list, you can add it here. Accepts a comma separated list of tags."
-msgstr "Ist das gewünschte Etikett nicht in der Liste, kann es hier hinzugefügt werden. Akzeptiert eine durch Kommata getrennte Liste von Etiketten. "
+msgid ""
+"If the tag you want is not in the available list, you can add it here. "
+"Accepts a comma separated list of tags."
+msgstr ""
+"Ist das gewünschte Etikett nicht in der Liste, kann es hier hinzugefügt "
+"werden. Akzeptiert eine durch Kommata getrennte Liste von Etiketten. "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/tag_editor_ui.py:152
 msgid "Add tag to available tags and apply it to current book"
-msgstr "Etikett zu den verfügbaren Etiketten hinzufügen und dem aktuellen Buch zuweisen"
+msgstr ""
+"Etikett zu den verfügbaren Etiketten hinzufügen und dem aktuellen Buch "
+"zuweisen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:48
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:58
@@ -1471,7 +1708,8 @@ msgstr "Rezept ersetzen?"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles.py:141
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
-msgstr "Es gibt schon ein erstelltes Rezept mit dem Namen %s. Soll es ersetzt werden?"
+msgstr ""
+"Es gibt schon ein erstelltes Rezept mit dem Namen %s. Soll es ersetzt werden?"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:218
 msgid "Add custom news source"
@@ -1491,15 +1729,28 @@ msgstr "Rezept entfe&rnen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:223
 msgid ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news recipe, by adding RSS feeds to it. <br />For most feeds, you will have to use the \"Advanced mode\" to further customize the fetch process.</p></body></html>"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news "
+"recipe, by adding RSS feeds to it. <br />For most feeds, you will have to "
+"use the \"Advanced mode\" to further customize the fetch process.</p></"
+"body></html>"
 msgstr ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"> Erstellen Sie ein einfaches Nachrichten Rezept, indem Sie RSS Feeds hinzufügen. <br />Die meisten Feeds sind komplexer, so dass ihr Abruf einer weitergehenden Konfiguration bedarf. Dazu müssen Sie den \"Erweiterten Modus\" verwenden.</p></body></html>"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"> Erstellen Sie ein "
+"einfaches Nachrichten Rezept, indem Sie RSS Feeds hinzufügen. <br />Die "
+"meisten Feeds sind komplexer, so dass ihr Abruf einer weitergehenden "
+"Konfiguration bedarf. Dazu müssen Sie den \"Erweiterten Modus\" verwenden.</"
+"p></body></html>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:227
 msgid "Recipe &title:"
@@ -1551,16 +1802,32 @@ msgid "&Add feed"
 msgstr "Feed &anfügen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:241
-msgid "For help with writing advanced news recipes, please visit <a href=\"http://libprs500.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
-msgstr "Wenn Sie Hilfe zur Erstellung Erweiterter Nachrichten Rezepte benötigen, besuchen Sie die englischsprachige Seite <a href=\"http://libprs500.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
+msgid ""
+"For help with writing advanced news recipes, please visit <a href=\"http://"
+"libprs500.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
+msgstr ""
+"Wenn Sie Hilfe zur Erstellung Erweiterter Nachrichten Rezepte benötigen, "
+"besuchen Sie die englischsprachige Seite <a href=\"http://libprs500."
+"kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/user_profiles_ui.py:242
 msgid "Recipe source code (python)"
 msgstr "Source Code (Python) des Rezepts"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:111
-msgid "<p>Set a regular expression pattern to use when trying to guess ebook metadata from filenames. <p>A <a href=\"http://docs.python.org/lib/re-syntax.html\">reference</a> on the syntax of regular expressions is available.<p>Use the <b>Test</b> functionality below to test your regular expression on a few sample filenames."
-msgstr "<p>Ein Muster von regulären Ausdrücken festlegen, die zum Auslesen der Meta-Daten von eBooks aus deren Dateinamen verwendet werden sollen. <p>Zur Unterstützung gibt es eine englische <a href=\"http://docs.python.org/lib/re-syntax.html\">Referenz</a> der Syntax von regulären Ausdrücken. <p>Benutzen Sie die <b>Test</b>-Funktionalität unten zur Überprüfung der regulären Ausdrücke bei einigen Beispiel-Dateinamen."
+msgid ""
+"<p>Set a regular expression pattern to use when trying to guess ebook "
+"metadata from filenames. <p>A <a href=\"http://docs.python.org/lib/re-syntax."
+"html\">reference</a> on the syntax of regular expressions is available."
+"<p>Use the <b>Test</b> functionality below to test your regular expression "
+"on a few sample filenames."
+msgstr ""
+"<p>Ein Muster von regulären Ausdrücken festlegen, die zum Auslesen der Meta-"
+"Daten von eBooks aus deren Dateinamen verwendet werden sollen. <p>Zur "
+"Unterstützung gibt es eine englische <a href=\"http://docs.python.org/lib/re-"
+"syntax.html\">Referenz</a> der Syntax von regulären Ausdrücken. <p>Benutzen "
+"Sie die <b>Test</b>-Funktionalität unten zur Überprüfung der regulären "
+"Ausdrücke bei einigen Beispiel-Dateinamen."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/filename_pattern_ui.py:112
 msgid "Regular &expression"
@@ -1664,8 +1931,12 @@ msgid "Cannot kill job"
 msgstr "Kann Auftrag nicht abbrechen."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:344
-msgid "Cannot kill jobs that are communicating with the device as this may cause data corruption."
-msgstr "Kann Aufträge nicht abbrechen, die mit dem Gerät kommunizieren, da dies zu Datenverlust führen kann."
+msgid ""
+"Cannot kill jobs that are communicating with the device as this may cause "
+"data corruption."
+msgstr ""
+"Kann Aufträge nicht abbrechen, die mit dem Gerät kommunizieren, da dies zu "
+"Datenverlust führen kann."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/jobs.py:348
 msgid "Cannot kill already completed jobs."
@@ -1816,12 +2087,20 @@ msgid "Add books from a single directory"
 msgstr "Bücher aus einem einzelnen Verzeichnis hinzufügen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:111
-msgid "Add books recursively (One book per directory, assumes every ebook file is the same book in a different format)"
-msgstr "Bücher rekursiv hinzufügen (Ein Buch pro Verzeichnis, setzt voraus, dass jede eBook Datei das gleiche Buch in einem unterschiedlichen Format enthält)"
+msgid ""
+"Add books recursively (One book per directory, assumes every ebook file is "
+"the same book in a different format)"
+msgstr ""
+"Bücher rekursiv hinzufügen (Ein Buch pro Verzeichnis, setzt voraus, dass "
+"jede eBook Datei das gleiche Buch in einem unterschiedlichen Format enthält)"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:112
-msgid "Add books recursively (Multiple books per directory, assumes every ebook file is a different book)"
-msgstr "Bücher rekursiv hinzufügen (Mehrere Bücher pro Verzeichnis, setzt voraus, dass jede eBook Datei ein anderes Buch enthält)"
+msgid ""
+"Add books recursively (Multiple books per directory, assumes every ebook "
+"file is a different book)"
+msgstr ""
+"Bücher rekursiv hinzufügen (Mehrere Bücher pro Verzeichnis, setzt voraus, "
+"dass jede eBook Datei ein anderes Buch enthält)"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:126
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:289
@@ -1851,8 +2130,12 @@ msgstr "Auf einmal konvertieren"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:303
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:369
-msgid "<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>"
-msgstr "<p>Es existieren bereits Bücher mit dem selben Titel in der Datenbank. Sollen die folgenden Bücher trotzdem hinzugefügt werden?<ul>"
+msgid ""
+"<p>Books with the same title as the following already exist in the database. "
+"Add them anyway?<ul>"
+msgstr ""
+"<p>Es existieren bereits Bücher mit dem selben Titel in der Datenbank. "
+"Sollen die folgenden Bücher trotzdem hinzugefügt werden?<ul>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:306
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:372
@@ -1865,7 +2148,9 @@ msgstr "Gerätespeicher voll"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:403
 msgid "<p>Cannot upload books to device there is no more free space available "
-msgstr "<p>Es können keine Bücher mehr auf das Gerät geladen werden, da der Gerätespeicher voll ist "
+msgstr ""
+"<p>Es können keine Bücher mehr auf das Gerät geladen werden, da der "
+"Gerätespeicher voll ist "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:472
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:491
@@ -1934,8 +2219,12 @@ msgid "Invalid database"
 msgstr "Ungültige Datenbank"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:854
-msgid "<p>An invalid database already exists at %s, delete it before trying to move the existing database.<br>Error: %s"
-msgstr "<p>Es existiert bereits eine ungültige Datenbank in %s, bitte löschen Sie diese, bevor sie die bestehende Datenbank verschieben.<br>Fehler: %s"
+msgid ""
+"<p>An invalid database already exists at %s, delete it before trying to move "
+"the existing database.<br>Error: %s"
+msgstr ""
+"<p>Es existiert bereits eine ungültige Datenbank in %s, bitte löschen Sie "
+"diese, bevor sie die bestehende Datenbank verschieben.<br>Fehler: %s"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:862
 msgid "Could not move database"
@@ -1946,12 +2235,20 @@ msgid "Error talking to device"
 msgstr "Fehler in der Kommunikation zum Gerät"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:913
-msgid "There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot."
-msgstr "Es trat ein Fehler in der Kommunikation mit dem Gerät auf. Bitte entfernen und schließen Sie das Gerät wieder an und - oder starten Sie neu."
+msgid ""
+"There was a temporary error talking to the device. Please unplug and "
+"reconnect the device and or reboot."
+msgstr ""
+"Es trat ein Fehler in der Kommunikation mit dem Gerät auf. Bitte entfernen "
+"und schließen Sie das Gerät wieder an und - oder starten Sie neu."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:993
-msgid "<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%s</a></span>"
-msgstr "<span style=\"color:red; font-weight:bold\">Letzte Version: <a href=\"%s\">%s</a></span>"
+msgid ""
+"<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
+"s</a></span>"
+msgstr ""
+"<span style=\"color:red; font-weight:bold\">Letzte Version: <a href=\"%s\">%"
+"s</a></span>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:266
 msgid "libprs500"
@@ -1959,15 +2256,31 @@ msgstr "libprs500"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:267
 msgid ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href=\"http://libprs500.kovidgoyal.net/user_manual\"><span style=\" text-decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</span></a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %1 by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></html>"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href="
+"\"http://libprs500.kovidgoyal.net/user_manual\"><span style=\" text-"
+"decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</span></"
+"a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %1 by "
+"<span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></"
+"html>"
 msgstr ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Hilfe gibt es online bei <a href=\"http://libprs500.kovidgoyal.net/user_manual\"><span style=\" text-decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</span></a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %1 by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></html>"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Hilfe gibt es online bei "
+"<a href=\"http://libprs500.kovidgoyal.net/user_manual\"><span style=\" text-"
+"decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</span></"
+"a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %1 by "
+"<span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></"
+"html>"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:271
 msgid "Advanced search"
@@ -1982,12 +2295,21 @@ msgid "&Search:"
 msgstr "&Suche:"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:275
-msgid "Search the list of books by title or author<br><br>Words separated by spaces are ANDed"
-msgstr "Liste der Bücher nach Titel oder Autor durchsuchen<br><br>Durch Leerzeichen getrennte Wörter werden mit \"AND\" verknüpft"
+msgid ""
+"Search the list of books by title or author<br><br>Words separated by spaces "
+"are ANDed"
+msgstr ""
+"Liste der Bücher nach Titel oder Autor durchsuchen<br><br>Durch Leerzeichen "
+"getrennte Wörter werden mit \"AND\" verknüpft"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:276
-msgid "Search the list of books by title, author, publisher, tags and comments<br><br>Words separated by spaces are ANDed"
-msgstr "Liste der Bücher nach Titel, Autor, Herausgeber, Etiketten und Bemerkungen durchsuchen<br><br>Durch Leerzeichen getrennte Wörter werden mit \"AND\" verknüpft"
+msgid ""
+"Search the list of books by title, author, publisher, tags and "
+"comments<br><br>Words separated by spaces are ANDed"
+msgstr ""
+"Liste der Bücher nach Titel, Autor, Herausgeber, Etiketten und Bemerkungen "
+"durchsuchen<br><br>Durch Leerzeichen getrennte Wörter werden mit \"AND\" "
+"verknüpft"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:277
 msgid "Reset Quick Search"
@@ -2035,8 +2357,13 @@ msgid "Add a custom news source"
 msgstr "Neue individuelle Nachrichtenquelle hinzufügen"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/news.py:53
-msgid "<p>Please enter your username and password for %s<br>If you do not have one, please subscribe to get access to the articles.<br/> Click OK to proceed."
-msgstr "<p>Geben Sie Ihren Benutzernamen und Ihr Passwort für %s an. <br>Insofern Sie dies nicht besitzen, melden Sie sich bitte an, um auf die Artikel zugriefen zu können. <br/> Klicken Sie OK, um fortzufahren."
+msgid ""
+"<p>Please enter your username and password for %s<br>If you do not have one, "
+"please subscribe to get access to the articles.<br/> Click OK to proceed."
+msgstr ""
+"<p>Geben Sie Ihren Benutzernamen und Ihr Passwort für %s an. <br>Insofern "
+"Sie dies nicht besitzen, melden Sie sich bitte an, um auf die Artikel "
+"zugriefen zu können. <br/> Klicken Sie OK, um fortzufahren."
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/news.py:79
 msgid "Custom news sources"
@@ -2103,66 +2430,91 @@ msgid ""
 "\n"
 "file name            - %%prog will try to load a recipe from the file\n"
 "\n"
-"builtin recipe title - %%prog will load the builtin recipe and use it to fetch the feed. For e.g. Newsweek or \"The BBC\" or \"The New York Times\"\n"
+"builtin recipe title - %%prog will load the builtin recipe and use it to "
+"fetch the feed. For e.g. Newsweek or \"The BBC\" or \"The New York Times\"\n"
 "\n"
-"recipe as a string   - %%prog will load the recipe directly from the string arg.\n"
+"recipe as a string   - %%prog will load the recipe directly from the string "
+"arg.\n"
 "\n"
 "Available builtin recipes are:\n"
 "%s\n"
 msgstr ""
 "%%prog [options] ARG\n"
 "\n"
-"%%prog analysiert eine Online-Quelle von Artikeln, z.B. einen RSS oder ATOM Feed und \n"
+"%%prog analysiert eine Online-Quelle von Artikeln, z.B. einen RSS oder ATOM "
+"Feed und \n"
 "ruft die Artikelinhalte hierarchisch organisiert ab.\n"
 "\n"
 "ARG kann eines der folgenden sein:\n"
 "\n"
 "dateiname            - %%prog versucht ein Rezept aus der Datei zu laden\n"
 "\n"
-"installiertes Rezept - %%prog lädt ein installiertes Rezept und benutzt es, um den Feed abzurufen. Z.B. für Newsweek or \"The BBC\" or \"The New York Times\"\n"
+"installiertes Rezept - %%prog lädt ein installiertes Rezept und benutzt es, "
+"um den Feed abzurufen. Z.B. für Newsweek or \"The BBC\" or \"The New York "
+"Times\"\n"
 "\n"
-"Rezept als eine Reihung  - %%prog lädt das Rezept direkt nach der angegebenen Reihung.\n"
+"Rezept als eine Reihung  - %%prog lädt das Rezept direkt nach der "
+"angegebenen Reihung.\n"
 "\n"
 "Verfügbare installierte Rezepte:\n"
 "%s\n"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:37
 msgid "Options to control web2disk (used to fetch websites linked from feeds)"
-msgstr "Einstellungen für web2disk (um von Feeds verlinkte Webseiten abzurufen)"
+msgstr ""
+"Einstellungen für web2disk (um von Feeds verlinkte Webseiten abzurufen)"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:40
 msgid ""
 "Specify a list of feeds to download. For example: \n"
-"\"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/headlines/politics']\"\n"
-"If you specify this option, any argument to %prog is ignored and a default recipe is used to download the feeds."
+"\"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/"
+"headlines/politics']\"\n"
+"If you specify this option, any argument to %prog is ignored and a default "
+"recipe is used to download the feeds."
 msgstr ""
 "Geben Sie eine Liste von Feeds zum Download an. Zum Beispiel: \n"
-"\"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/headlines/politics']\"\n"
-"Wenn Sie diese Option wählen, wird jedes Argument %prog ignoriert und die Voreinstellung zum Download der Feeds verwendet. "
+"\"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/"
+"headlines/politics']\"\n"
+"Wenn Sie diese Option wählen, wird jedes Argument %prog ignoriert und die "
+"Voreinstellung zum Download der Feeds verwendet. "
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:44
 msgid "Be more verbose while processing."
 msgstr "Mehr Wörter bei der weiteren Verarbeitung angeben."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:46
-msgid "The title for this recipe. Used as the title for any ebooks created from the downloaded feeds."
-msgstr "Der Titel für dieses Rezept. Wird als Titel für alle eBooks benutzt, die aus den geladenen Feeds erstellt wurden."
+msgid ""
+"The title for this recipe. Used as the title for any ebooks created from the "
+"downloaded feeds."
+msgstr ""
+"Der Titel für dieses Rezept. Wird als Titel für alle eBooks benutzt, die aus "
+"den geladenen Feeds erstellt wurden."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:47
 msgid "Username for sites that require a login to access content."
-msgstr "Benutzername für Webseiten, die einen Login für den Inhaltsabruf benötigen."
+msgstr ""
+"Benutzername für Webseiten, die einen Login für den Inhaltsabruf benötigen."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:48
 msgid "Password for sites that require a login to access content."
-msgstr "Passwort für Webseiten, die einen Login für den Inhaltsabruf benötigen."
+msgstr ""
+"Passwort für Webseiten, die einen Login für den Inhaltsabruf benötigen."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:51
-msgid "Number of levels of links to follow on webpages that are linked to from feeds. Defaul %default"
-msgstr "Anzahl der Links in die Tiefe, die vom Feed aus verfolgt werden sollen. Voreinstellung %default"
+msgid ""
+"Number of levels of links to follow on webpages that are linked to from "
+"feeds. Defaul %default"
+msgstr ""
+"Anzahl der Links in die Tiefe, die vom Feed aus verfolgt werden sollen. "
+"Voreinstellung %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:53
-msgid "The directory in which to store the downloaded feeds. Defaults to the current directory."
-msgstr "Das Verzeichnis, in dem die geladenen Feeds gespeichert werden. Voreinstellung auf das aktuelle Verzeichnis."
+msgid ""
+"The directory in which to store the downloaded feeds. Defaults to the "
+"current directory."
+msgstr ""
+"Das Verzeichnis, in dem die geladenen Feeds gespeichert werden. "
+"Voreinstellung auf das aktuelle Verzeichnis."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
 msgid "Dont show the progress bar"
@@ -2173,8 +2525,12 @@ msgid "Very verbose output, useful for debugging."
 msgstr "Ausführliche Ausgabe, hilfreich zur Fehlerbeseitigung."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:59
-msgid "Useful for recipe development. Forces max_articles_per_feed to 2 and downloads at most 2 feeds."
-msgstr "Hilfreich zur Entwicklung von Rezepten. Erzwingt maximal 2 Artikel pro Feed und lädt höchstens 2 Feeds."
+msgid ""
+"Useful for recipe development. Forces max_articles_per_feed to 2 and "
+"downloads at most 2 feeds."
+msgstr ""
+"Hilfreich zur Entwicklung von Rezepten. Erzwingt maximal 2 Artikel pro Feed "
+"und lädt höchstens 2 Feeds."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:84
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:88
@@ -2209,7 +2565,9 @@ msgstr "\tFehlgeschlagene Verknüpfungen:"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
-msgstr "Konnte Artikel nicht abrufen. Der erneute Start mit --debug zeigt mögliche Gründe an "
+msgstr ""
+"Konnte Artikel nicht abrufen. Der erneute Start mit --debug zeigt mögliche "
+"Gründe an "
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
 msgid "Got feeds from index page"
@@ -2277,35 +2635,74 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:376
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr "Grundverzeichnis, in das die URL gespeichert wird. Voreinstellung ist %default "
+msgstr ""
+"Grundverzeichnis, in das die URL gespeichert wird. Voreinstellung ist %"
+"default "
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:379
-msgid "Timeout in seconds to wait for a response from the server. Default: %default s"
-msgstr "Timeout in Sekunden beim Warten auf eine Antwort vom Server. Voreinstellung: %default s"
+msgid ""
+"Timeout in seconds to wait for a response from the server. Default: %default "
+"s"
+msgstr ""
+"Timeout in Sekunden beim Warten auf eine Antwort vom Server. Voreinstellung: "
+"%default s"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:382
-msgid "Maximum number of levels to recurse i.e. depth of links to follow. Default %default"
-msgstr "Maximale Zahl von einbezogenen Ebenen, z.B. Tiefe der Links, die verfolgt werden. Voreinstellung %default"
+msgid ""
+"Maximum number of levels to recurse i.e. depth of links to follow. Default %"
+"default"
+msgstr ""
+"Maximale Zahl von einbezogenen Ebenen, z.B. Tiefe der Links, die verfolgt "
+"werden. Voreinstellung %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:385
-msgid "The maximum number of files to download. This only applies to files from <a href> tags. Default is %default"
-msgstr "Höchstzahl der Dateien, die geladen werden. Dies trifft nur auf Dateien aus <a href> Tags zu. Voreinstellung ist %default"
+msgid ""
+"The maximum number of files to download. This only applies to files from <a "
+"href> tags. Default is %default"
+msgstr ""
+"Höchstzahl der Dateien, die geladen werden. Dies trifft nur auf Dateien aus "
+"<a href> Tags zu. Voreinstellung ist %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:387
-msgid "Minimum interval in seconds between consecutive fetches. Default is %default s"
-msgstr "Kleinstes Intervall in Sekunden zwischen aufeinander folgenden Abrufen. Voreinstellung ist %default s"
+msgid ""
+"Minimum interval in seconds between consecutive fetches. Default is %default "
+"s"
+msgstr ""
+"Kleinstes Intervall in Sekunden zwischen aufeinander folgenden Abrufen. "
+"Voreinstellung ist %default s"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:389
-msgid "The character encoding for the websites you are trying to download. The default is to try and guess the encoding."
-msgstr "Zeichenkodierung für Webseiten, die zu laden versucht werden. In der Voreinstellung wird versucht, die Kodierung zu erraten. "
+msgid ""
+"The character encoding for the websites you are trying to download. The "
+"default is to try and guess the encoding."
+msgstr ""
+"Zeichenkodierung für Webseiten, die zu laden versucht werden. In der "
+"Voreinstellung wird versucht, die Kodierung zu erraten. "
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:391
-msgid "Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed."
-msgstr "Nur Links, die diesem Regulären Ausdruck entsprechen, werden verfolgt. Diese Option kann mehrmals angegeben werden, somit werden Links verfolgt, solange sie einem Regulären Ausdruck entsprechen. In der Voreinstellung werden alle Links verfolgt."
+msgid ""
+"Only links that match this regular expression will be followed. This option "
+"can be specified multiple times, in which case as long as a link matches any "
+"one regexp, it will be followed. By default all links are followed."
+msgstr ""
+"Nur Links, die diesem Regulären Ausdruck entsprechen, werden verfolgt. Diese "
+"Option kann mehrmals angegeben werden, somit werden Links verfolgt, solange "
+"sie einem Regulären Ausdruck entsprechen. In der Voreinstellung werden alle "
+"Links verfolgt."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:393
-msgid "Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --filter-regexp is applied first."
-msgstr "Jeder Link, der diesem Regulären Ausdruck entspricht, wird ignoriert. Diese Option kann mehrmals angegeben werden, somit werden Links ignoriert, solange sie einem Regulären Ausdruck entsprechen. In der Voreinstellung werden keine Links ignoriert. Falls beide --filter-regexp und --match-regexp angegeben sind, wird --filter-regexp zuerst angewendet."
+msgid ""
+"Any link that matches this regular expression will be ignored. This option "
+"can be specified multiple times, in which case as long as any regexp matches "
+"a link, it will be ignored.By default, no links are ignored. If both --"
+"filter-regexp and --match-regexp are specified, then --filter-regexp is "
+"applied first."
+msgstr ""
+"Jeder Link, der diesem Regulären Ausdruck entspricht, wird ignoriert. Diese "
+"Option kann mehrmals angegeben werden, somit werden Links ignoriert, solange "
+"sie einem Regulären Ausdruck entsprechen. In der Voreinstellung werden keine "
+"Links ignoriert. Falls beide --filter-regexp und --match-regexp angegeben "
+"sind, wird --filter-regexp zuerst angewendet."
 
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:395
 msgid "Do not download CSS stylesheets."
@@ -2317,20 +2714,28 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 
 #~ msgid "Available user profiles"
 #~ msgstr "Verfügbare Benutzerprofile"
+
 #~ msgid "Add/Update &profile"
 #~ msgstr "&Profil hinzufügen/aktualisieren"
+
 #~ msgid "&Remove profile"
 #~ msgstr "Profil entfe&rnen"
+
 #~ msgid "Profile &title:"
 #~ msgstr "Profil&titel:"
+
 #~ msgid "Feeds in profile"
 #~ msgstr "Feeds im Profil"
+
 #~ msgid "Remove feed from profile"
 #~ msgstr "Feeds aus dem Profil entfernen"
+
 #~ msgid "Add feed to profile"
 #~ msgstr "Neuen Feed zum Profil hinzufügen"
+
 #~ msgid "Profile source code (python)"
 #~ msgstr "Profil-Quellcode (Python)"
+
 #~ msgid ""
 #~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
 #~ "css\">\n"
@@ -2356,10 +2761,13 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "Abruf weiter anzupassen.<br />Die Einstellung \"Einfach\" ist für Feeds "
 #~ "ausreichend, die den vollständigen Nachrichten-Inhalt im Feed schon "
 #~ "eingebettet haben.</p></body></html>"
+
 #~ msgid "&Summary length:"
 #~ msgstr "Länge der Zu&sammenfassung:"
+
 #~ msgid " characters"
 #~ msgstr " Zeichen"
+
 #~ msgid ""
 #~ "Try to follow links in the RSS feed to full articles on the web. If you "
 #~ "enable this option, you're probably going to end up having to use the "
@@ -2368,8 +2776,10 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "Verknüpfungen im RSS Feed bis zu den vollständigen Artikeln im Netz "
 #~ "verfolgen. Falls Sie diese Option wählen, müssen Sie in den meisten "
 #~ "Fällen den erweiterten Modus zur Konfiguration benutzen."
+
 #~ msgid "Try to download &full articles"
 #~ msgstr "Versuche &vollständige Artikel zu laden"
+
 #~ msgid ""
 #~ "For help with writing advanced news profiles, please visit <a href="
 #~ "\"https://libprs500.kovidgoyal.net/wiki/UserProfiles\">UserProfiles</a>"
@@ -2377,8 +2787,10 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "Benötigen Sie Hilfe beim Erstellen von weiteren Nachrichten-Profilen? "
 #~ "Schauen Sie hier vorbei: <a href=\"https://libprs500.kovidgoyal.net/wiki/"
 #~ "UserProfiles\">UserProfiles</a>"
+
 #~ msgid "Add custom RSS feed"
 #~ msgstr "Individuellen RSS feed hinzufügen"
+
 #~ msgid ""
 #~ "Set the default timeout for network fetches (i.e. anytime libprs500 foes "
 #~ "out to the internet to get information)"
@@ -2386,6 +2798,7 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "Geben Sie die Vorgabe für die Zeitüberschreitung bei Netzwerkzugriffen an "
 #~ "(immer dann, wenn libprs500 zur Informationsbeschaffung auf das Internet "
 #~ "zugreift)"
+
 #~ msgid ""
 #~ "<p>Set a regular expression pattern to use when trying to guess ebook "
 #~ "metadata from filenames. <p>A <a href=\"http://docs.python.org/lib/re-"
@@ -2399,10 +2812,12 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "org/lib/re-syntax.html\">Referenz</a> der Syntax von regulären "
 #~ "Ausdrücken. <p>Benutzen Sie die <b>Test</b>-Funktionalität unten zur "
 #~ "Überprüfung der regulären Ausdrücke bei einigen Beispiel-Dateinamen."
+
 #~ msgid "%s is not available in LRF format. Please convert it first."
 #~ msgstr ""
 #~ "%s ist noch nicht im LFR Format verfügbar. Bitte konvertieren Sie es "
 #~ "zunächst."
+
 #~ msgid ""
 #~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
 #~ "css\">\n"
@@ -2429,10 +2844,13 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "kovidgoyal.net</span></a><br /><br /><span style=\" font-weight:600;"
 #~ "\">libprs500</span>: %1 by <span style=\" font-weight:600;\">Kovid Goyal</"
 #~ "span> %2<br />%3</p></body></html>"
+
 #~ msgid "Not yet implemented."
 #~ msgstr "Noch nicht eingeführt."
+
 #~ msgid "RTF conversion not supported"
 #~ msgstr "RTF Konvertierung wird nicht unterstützt"
+
 #~ msgid ""
 #~ "Conversion of RTF files is not supported on OS X Leopard and higher. This "
 #~ "is because unrtf, the underlying program does not work. If you are "
@@ -2442,6 +2860,7 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "nicht unterstützt. Das liegt daran, dass unrtf, das dafür zuständige "
 #~ "Programm nicht funktioniert. Bitte kontaktieren Sie mich, wenn Sie unrtf "
 #~ "für Leopard portieren möchten."
+
 #~ msgid ""
 #~ "If the tag you want is not in the available list, you can add it here. "
 #~ "Accepts a comman separated list of tags."
@@ -2449,14 +2868,18 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "Falls das Etikett nciht in der Liste enthalten ist, können Sie es hier "
 #~ "hinzufügen. Es werden durch Kommata separierte Listen mit Etiketten "
 #~ "akzeptiert."
+
 #~ msgid "Search by title, author, publisher, tags, series and comments"
 #~ msgstr ""
 #~ "Liste der Bücher nach Titel, Autor, Herausgeber, Etiketten und "
 #~ "Bemerkungen durchsuchen"
+
 #~ msgid "Done"
 #~ msgstr "Erledigt!"
+
 #~ msgid "Use &metadata cover"
 #~ msgstr "Benutze &Meta-Daten Umschlagbild"
+
 #~ msgid ""
 #~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
 #~ "css\">\n"
@@ -2475,4 +2898,3 @@ msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 #~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
 #~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"
 #~ "\"></p></body></html>"
-

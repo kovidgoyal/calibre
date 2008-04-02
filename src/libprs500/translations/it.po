@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-04-01 13:03+PDT\n"
+"POT-Creation-Date: 2008-04-01 19:37+PDT\n"
 "PO-Revision-Date: 19:31, 1/4/2008\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
@@ -18,11 +18,11 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "Plural-Forms:  nplurals=2; plural=(n != 1);\n"
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:83
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:85
 msgid "%sUsage%s: %s\n"
 msgstr "%sUso%s: %s\n"
 
-#: /home/kovid/work/libprs500/src/libprs500/__init__.py:120
+#: /home/kovid/work/libprs500/src/libprs500/__init__.py:122
 msgid "Created by "
 msgstr "Creato da "
 
