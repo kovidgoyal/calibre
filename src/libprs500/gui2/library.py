@@ -303,7 +303,7 @@ class BooksModel(QAbstractTableModel):
                 dt = self.db.timestamp(row)
                 if dt:
                     dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                    return QVariant(dt.strftime(BooksView.TIME_FMT).decode(pe))
+                    return QVariant(dt.strftime(BooksView.TIME_FMT).decode(pe, 'replace'))
             elif col == 4: 
                 r = self.db.rating(row)
                 r = r/2 if r else 0
