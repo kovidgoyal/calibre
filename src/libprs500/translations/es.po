@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-01 19:37+PDT\n"
+"POT-Creation-Date: 2008-04-02 09:38+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:21+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: Spanish\n"
@@ -735,6 +735,14 @@ msgstr "Ubicación no válida"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:92
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Ubicación no válida.<br>Imposible escribir en "
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:104
+msgid "Compacting database. This may take a while."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:104
+msgid "Compacting..."
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:216
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:279

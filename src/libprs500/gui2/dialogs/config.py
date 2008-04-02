@@ -101,7 +101,7 @@ class Vacuum(QMessageBox):
     
     def __init__(self, parent, db):
         self.db = db
-        QMessageBox.__init__(self, QMessageBox.Information, 'Compacting...', 'Compacting database. This may take a while.', 
+        QMessageBox.__init__(self, QMessageBox.Information, _('Compacting...'), _('Compacting database. This may take a while.'), 
                              QMessageBox.NoButton, parent)
         QTimer.singleShot(200, self.vacuum)
         

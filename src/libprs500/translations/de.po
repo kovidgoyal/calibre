@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2008-04-01 19:52+PDT\n"
+"POT-Creation-Date: 2008-04-02 09:38+PDT\n"
 "PO-Revision-Date: 2008-04-01 22:55+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
@@ -824,6 +824,14 @@ msgstr "Ortsangabe der Datenbank ungültig"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:92
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Ortsangabe der Datenbank ungültig.<br>Speichern nicht möglich"
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:104
+msgid "Compacting database. This may take a while."
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config.py:104
+msgid "Compacting..."
+msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/config_ui.py:216
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main_ui.py:279
