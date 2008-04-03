@@ -48,9 +48,7 @@ def cover_from_isbn(isbn, timeout=5.):
         url = url.find('img')
         if url is None:
             raise LibraryThingError(_('Server error. Try again later.'))
-        print url['src']
         url = re.sub(r'_SX\d+', '', url['src'])
-        print url
         cover_data = browser.open(url).read()
         return cover_data, url.rpartition('.')[-1]
     finally:
