@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch cover from LibraryThing.com based on ISBN number.
 '''
 
-import sys, socket, os
+import sys, socket, os, re
 
 from libprs500 import browser as _browser, OptionParser
 from libprs500.ebooks.BeautifulSoup import BeautifulSoup 
@@ -48,7 +48,9 @@ def cover_from_isbn(isbn, timeout=5.):
         url = url.find('img')
         if url is None:
             raise LibraryThingError(_('Server error. Try again later.'))
-        url = url['src']
+        print url['src']
+        url = re.sub(r'_SX\d+', '', url['src'])
+        print url
         cover_data = browser.open(url).read()
         return cover_data, url.rpartition('.')[-1]
     finally:
