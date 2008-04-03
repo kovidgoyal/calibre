@@ -256,7 +256,17 @@ class Main(MainWindow, Ui_MainWindow):
         Called once metadata has been read for all books on the device.
         '''
         if exception:
-            self.device_job_exception(id, description, exception, formatted_traceback)
+            if 'ExpatError' in str(exception):
+                error_dialog(self, _('Device database corrupted'),
+                _('''
+                <p>The database of books on the reader is corrupted. Try the following:
+                <ol>
+                <li>Unplug the reader. Wait for it to finish regenerating the database (i.e. wait till it is ready to be used). Plug it back in. Now it should work with %(app)s. If not try the next step.</li>
+                <li>Quit %(app)s. Find the file media.xml in the reader's main memory. Delete it. Unplug the reader. Wait for it to regenrate the file. Re-connect it and start %(app)s.</li>
+                </ol>
+                ''')%dict(app=__appname__)).exec_()
+            else:
+                self.device_job_exception(id, description, exception, formatted_traceback)
             return
         mainlist, cardlist = result
         self.memory_view.set_database(mainlist)
