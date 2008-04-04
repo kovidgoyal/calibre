@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-04-04 06:39+PDT\n"
+"POT-Creation-Date: 2008-04-04 09:07+PDT\n"
 "PO-Revision-Date: 16:44, 4/4/2008\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
@@ -79,7 +79,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:108
 msgid "Output file name. Default is derived from input filename"
-msgstr "Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
+msgstr ""
+"Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:110
 msgid ""
@@ -109,7 +110,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
+msgstr ""
+"Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Separate paragraphs by blank lines."
@@ -117,7 +119,8 @@ msgstr "Separa i paragrafi con linee bianche"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:122
 msgid "Add a header to all the pages with title and author."
-msgstr "Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
+msgstr ""
+"Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:124
 msgid ""
@@ -216,7 +219,8 @@ msgstr ""
 "ignorati. Predefinita: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:169
-msgid "Prevent the automatic insertion of page breaks before detected chapters."
+msgid ""
+"Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Previene l'inserimento automatico di interruzioni di pagina prima dei "
 "capitoli individuati"
@@ -249,7 +253,8 @@ msgstr ""
 "perciò ignorata se la pagina corrente ha solo pochi elementi"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:186
-msgid "Force a page break before tags whoose names match this regular expression."
+msgid ""
+"Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Forza un'interruzione di pagina prima dei tag i cui nomi corrispondono a "
 "questa espressione regolare"
@@ -564,11 +569,13 @@ msgstr "La categoria a cui questo libro appartiene. Es: Storia"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:559
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Percorso a un'immagine che verrà impostata come miniatura di questo file"
+msgstr ""
+"Percorso a un'immagine che verrà impostata come miniatura di questo file"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr "Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
+msgstr ""
+"Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
 msgid "Extract thumbnail from LRF file"
@@ -988,7 +995,8 @@ msgstr "Nessun formato disponibile"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:82
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr "Impossibile convertire %s perché questo libro non ha formati supportati"
+msgstr ""
+"Impossibile convertire %s perché questo libro non ha formati supportati"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:86
 msgid "Choose the format to convert into LRF"
@@ -1132,7 +1140,8 @@ msgstr "Ca&mbia l'immagine di copertina:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:609
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:334
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Sfoglia per trovare un'immagine da usare come copertina per questo libro"
+msgstr ""
+"Sfoglia per trovare un'immagine da usare come copertina per questo libro"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:611
 msgid "Use cover from &source file"
@@ -1499,8 +1508,10 @@ msgid "Fetch cover image from server"
 msgstr "Scarica immagine di copertina dal server"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:337
-msgid "Change the username and/or password for your account at LibraryThing.com"
-msgstr "Cambia il nome utente e/o password del proprio account su LibraryThing.com"
+msgid ""
+"Change the username and/or password for your account at LibraryThing.com"
+msgstr ""
+"Cambia il nome utente e/o password del proprio account su LibraryThing.com"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:338
 msgid "Change password"
@@ -2126,23 +2137,11 @@ msgid ""
 "the database (i.e. wait till it is ready to be used). Plug it back in. Now "
 "it should work with %(app)s. If not try the next step.</li>\n"
 "                <li>Quit %(app)s. Find the file media.xml in the reader's "
-"main memory. Delete it. Unplug the reader. Wait for it to regenrate the "
+"main memory. Delete it. Unplug the reader. Wait for it to regenerate the "
 "file. Re-connect it and start %(app)s.</li>\n"
 "                </ol>\n"
 "                "
 msgstr ""
-"\n"
-"                <p>Il database dei libri nel lettore è corrotto. Prova con i "
-"seguente passi:\n"
-"                <ol>\n"
-"                <li>Scollega il lettore. Aspetta che abbia finito la rigenerazione "
-"del database (cioè aspetta finché non è pronto per l'uso). Ricollegalo. Ora "
-"dovrebbe funzionare con %(app)s, altrimenti provare il passo successivo.</li>\n"
-"                <li>Chiudere %(app)s. Trovare il file media.xml nella memoria "
-"principale del lettore e cancellarlo. Scollegare il lettore e aspettare che rigeneri "
-"il file. Ricollegarlo e avviare %(app)s</li>\n"
-"                </ol>\n"
-"                "
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:313
 #: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:379
@@ -2529,7 +2528,8 @@ msgstr ""
 msgid ""
 "The directory in which to store the downloaded feeds. Defaults to the "
 "current directory."
-msgstr "La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
+msgstr ""
+"La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
 msgid "Dont show the progress bar"
@@ -2580,7 +2580,8 @@ msgstr "\tLink falliti:"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
-msgstr "Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
+msgstr ""
+"Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
 msgid "Got feeds from index page"
@@ -2724,3 +2725,30 @@ msgstr "Non scaricare i fogli di stile CSS"
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Mostra un output dettagliato. Utile per il debugging"
 
+#~ msgid ""
+#~ "\n"
+#~ "                <p>The database of books on the reader is corrupted. Try "
+#~ "the following:\n"
+#~ "                <ol>\n"
+#~ "                <li>Unplug the reader. Wait for it to finish regenerating "
+#~ "the database (i.e. wait till it is ready to be used). Plug it back in. "
+#~ "Now it should work with %(app)s. If not try the next step.</li>\n"
+#~ "                <li>Quit %(app)s. Find the file media.xml in the reader's "
+#~ "main memory. Delete it. Unplug the reader. Wait for it to regenrate the "
+#~ "file. Re-connect it and start %(app)s.</li>\n"
+#~ "                </ol>\n"
+#~ "                "
+#~ msgstr ""
+#~ "\n"
+#~ "                <p>Il database dei libri nel lettore è corrotto. Prova "
+#~ "con i seguente passi:\n"
+#~ "                <ol>\n"
+#~ "                <li>Scollega il lettore. Aspetta che abbia finito la "
+#~ "rigenerazione del database (cioè aspetta finché non è pronto per l'uso). "
+#~ "Ricollegalo. Ora dovrebbe funzionare con %(app)s, altrimenti provare il "
+#~ "passo successivo.</li>\n"
+#~ "                <li>Chiudere %(app)s. Trovare il file media.xml nella "
+#~ "memoria principale del lettore e cancellarlo. Scollegare il lettore e "
+#~ "aspettare che rigeneri il file. Ricollegarlo e avviare %(app)s</li>\n"
+#~ "                </ol>\n"
+#~ "                "

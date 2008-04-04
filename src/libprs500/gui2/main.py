@@ -262,7 +262,7 @@ class Main(MainWindow, Ui_MainWindow):
                 <p>The database of books on the reader is corrupted. Try the following:
                 <ol>
                 <li>Unplug the reader. Wait for it to finish regenerating the database (i.e. wait till it is ready to be used). Plug it back in. Now it should work with %(app)s. If not try the next step.</li>
-                <li>Quit %(app)s. Find the file media.xml in the reader's main memory. Delete it. Unplug the reader. Wait for it to regenrate the file. Re-connect it and start %(app)s.</li>
+                <li>Quit %(app)s. Find the file media.xml in the reader's main memory. Delete it. Unplug the reader. Wait for it to regenerate the file. Re-connect it and start %(app)s.</li>
                 </ol>
                 ''')%dict(app=__appname__)).exec_()
             else:
