@@ -129,6 +129,7 @@ def main():
     shutil.rmtree('docs')
     os.mkdir('docs')
     check_call("sudo python setup.py develop", shell=True)
+    check_call('sudo rm src/%s/gui2/images_rc.pyc'%__appname__, shell=True)
     check_call('make', shell=True)
     check_call('svn commit -m "Updated translations" src/libprs500/translations')
     tag_release()
