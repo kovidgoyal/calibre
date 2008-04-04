@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-02 09:38+PDT\n"
+"POT-Creation-Date: 2008-04-04 06:39+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: libprs500\n"
 "Language-Team: \n"
@@ -1982,107 +1982,127 @@ msgstr "Converteix individualment"
 msgid "Bulk convert"
 msgstr "Converteix tots"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:303
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:369
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:260
+msgid "Device database corrupted"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:261
+msgid ""
+"\n"
+"                <p>The database of books on the reader is corrupted. Try the "
+"following:\n"
+"                <ol>\n"
+"                <li>Unplug the reader. Wait for it to finish regenerating "
+"the database (i.e. wait till it is ready to be used). Plug it back in. Now "
+"it should work with %(app)s. If not try the next step.</li>\n"
+"                <li>Quit %(app)s. Find the file media.xml in the reader's "
+"main memory. Delete it. Unplug the reader. Wait for it to regenrate the "
+"file. Re-connect it and start %(app)s.</li>\n"
+"                </ol>\n"
+"                "
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:313
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:379
 msgid ""
 "<p>Books with the same title as the following already exist in the database. "
 "Add them anyway?<ul>"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:306
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:372
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:316
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:382
 msgid "Duplicates found!"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:402
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:412
 msgid "No space on device"
 msgstr "Sense espai al dispositiu"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:403
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:413
 msgid "<p>Cannot upload books to device there is no more free space available "
 msgstr "<p>No puc desar llibres al dispositiu perquè no hi ha espai restant"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:472
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:491
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:482
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:501
 msgid "Cannot edit metadata"
 msgstr "No puc editar les meta-dades"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:472
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:491
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:577
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:638
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:697
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:482
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:501
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:587
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:648
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:707
 msgid "No books selected"
 msgstr "Cap llibre seleccionat"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:577
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:587
 msgid "Cannot save to disk"
 msgstr "No puc desar al disc"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:616
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:626
 msgid "Fetch news from "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:618
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:628
 msgid "Fetching news from "
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:628
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:638
 msgid "News fetched. Uploading to device."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:638
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:697
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:648
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:707
 msgid "Cannot convert"
 msgstr "No puc convertir-lo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:757
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:774
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:767
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:784
 msgid "No book selected"
 msgstr "Cap llibre seleccionat"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:757
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:774
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:788
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:767
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:784
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:798
 msgid "Cannot view"
 msgstr "No puc mostrar-lo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:763
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:793
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:773
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:803
 msgid "Choose the format to view"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:789
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:799
 msgid "%s has no available formats."
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:818
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:828
 msgid "Cannot configure"
 msgstr "No puc configurar-lo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:818
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:828
 msgid "Cannot configure while there are running jobs."
 msgstr "No puc configurar-lo amb treballs processant-se"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:853
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:863
 msgid "Invalid database"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:854
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:864
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
 msgstr ""
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:862
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:872
 msgid "Could not move database"
 msgstr "No puc moure la base de dades"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:912
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:922
 msgid "Error talking to device"
 msgstr "Error comunicant amb el dispositiu"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:913
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:923
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -2090,7 +2110,7 @@ msgstr ""
 "Hi ha hagut un error de comunicació amb el dispositiu. Lleve, torne a "
 "connectar el dispositiu i torne a iniciar el programa"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:993
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:1003
 msgid ""
 "<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
 "s</a></span>"

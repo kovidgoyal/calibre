@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-04-02 09:38+PDT\n"
+"POT-Creation-Date: 2008-04-04 06:39+PDT\n"
 "PO-Revision-Date: 23:54, 2/4/2008\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
@@ -79,7 +79,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:108
 msgid "Output file name. Default is derived from input filename"
-msgstr "Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
+msgstr ""
+"Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:110
 msgid ""
@@ -109,7 +110,8 @@ msgstr ""
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
+msgstr ""
+"Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:120
 msgid "Separate paragraphs by blank lines."
@@ -117,7 +119,8 @@ msgstr "Separa i paragrafi con linee bianche"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:122
 msgid "Add a header to all the pages with title and author."
-msgstr "Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
+msgstr ""
+"Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:124
 msgid ""
@@ -216,7 +219,8 @@ msgstr ""
 "ignorati. Predefinita: %default"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:169
-msgid "Prevent the automatic insertion of page breaks before detected chapters."
+msgid ""
+"Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Previene l'inserimento automatico di interruzioni di pagina prima dei "
 "capitoli individuati"
@@ -249,7 +253,8 @@ msgstr ""
 "perciò ignorata se la pagina corrente ha solo pochi elementi"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/__init__.py:186
-msgid "Force a page break before tags whoose names match this regular expression."
+msgid ""
+"Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Forza un'interruzione di pagina prima dei tag i cui nomi corrispondono a "
 "questa espressione regolare"
@@ -564,11 +569,13 @@ msgstr "La categoria a cui questo libro appartiene. Es: Storia"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:559
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Percorso a un'immagine che verrà impostata come miniatura di questo file"
+msgstr ""
+"Percorso a un'immagine che verrà impostata come miniatura di questo file"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:562
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr "Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
+msgstr ""
+"Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
 
 #: /home/kovid/work/libprs500/src/libprs500/ebooks/lrf/meta.py:566
 msgid "Extract thumbnail from LRF file"
@@ -988,7 +995,8 @@ msgstr "Nessun formato disponibile"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:82
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr "Impossibile convertire %s perché questo libro non ha formati supportati"
+msgstr ""
+"Impossibile convertire %s perché questo libro non ha formati supportati"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single.py:86
 msgid "Choose the format to convert into LRF"
@@ -1132,7 +1140,8 @@ msgstr "Ca&mbia l'immagine di copertina:"
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:609
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:334
 msgid "Browse for an image to use as the cover of this book."
-msgstr "Sfoglia per trovare un'immagine da usare come copertina per questo libro"
+msgstr ""
+"Sfoglia per trovare un'immagine da usare come copertina per questo libro"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/lrf_single_ui.py:611
 msgid "Use cover from &source file"
@@ -1499,8 +1508,10 @@ msgid "Fetch cover image from server"
 msgstr "Scarica immagine di copertina dal server"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:337
-msgid "Change the username and/or password for your account at LibraryThing.com"
-msgstr "Cambia il nome utente e/o password del proprio account su LibraryThing.com"
+msgid ""
+"Change the username and/or password for your account at LibraryThing.com"
+msgstr ""
+"Cambia il nome utente e/o password del proprio account su LibraryThing.com"
 
 #: /home/kovid/work/libprs500/src/libprs500/gui2/dialogs/metadata_single_ui.py:338
 msgid "Change password"
@@ -2112,8 +2123,28 @@ msgstr "Converti individualmente"
 msgid "Bulk convert"
 msgstr "Converti in gruppo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:303
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:369
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:260
+msgid "Device database corrupted"
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:261
+msgid ""
+"\n"
+"                <p>The database of books on the reader is corrupted. Try the "
+"following:\n"
+"                <ol>\n"
+"                <li>Unplug the reader. Wait for it to finish regenerating "
+"the database (i.e. wait till it is ready to be used). Plug it back in. Now "
+"it should work with %(app)s. If not try the next step.</li>\n"
+"                <li>Quit %(app)s. Find the file media.xml in the reader's "
+"main memory. Delete it. Unplug the reader. Wait for it to regenrate the "
+"file. Re-connect it and start %(app)s.</li>\n"
+"                </ol>\n"
+"                "
+msgstr ""
+
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:313
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:379
 msgid ""
 "<p>Books with the same title as the following already exist in the database. "
 "Add them anyway?<ul>"
@@ -2121,88 +2152,88 @@ msgstr ""
 "<p>Nel database sono già presenti libri con i seguenti titoli. Aggiungerli "
 "ugualmente?<ul>"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:306
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:372
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:316
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:382
 msgid "Duplicates found!"
 msgstr "Scoperti duplicati!"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:402
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:412
 msgid "No space on device"
 msgstr "Spazio insufficiente sul dispositivo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:403
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:413
 msgid "<p>Cannot upload books to device there is no more free space available "
 msgstr ""
 "<p>Impossibile salvare libri sul dispositivo perché non c'è più spazio "
 "disponibile "
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:472
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:491
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:482
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:501
 msgid "Cannot edit metadata"
 msgstr "Impossibile modificare i metadati"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:472
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:491
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:577
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:638
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:697
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:482
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:501
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:587
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:648
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:707
 msgid "No books selected"
 msgstr "Nessun libro selezionato"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:577
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:587
 msgid "Cannot save to disk"
 msgstr "Impossibile salvare sul disco"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:616
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:626
 msgid "Fetch news from "
 msgstr "Scarica notizie da "
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:618
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:628
 msgid "Fetching news from "
 msgstr "Scaricamento notizie da "
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:628
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:638
 msgid "News fetched. Uploading to device."
 msgstr "Notizie scaricate. Salvataggio sul dispositivo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:638
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:697
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:648
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:707
 msgid "Cannot convert"
 msgstr "Impossibile convertire"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:757
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:774
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:767
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:784
 msgid "No book selected"
 msgstr "Nessun libro selezionato"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:757
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:774
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:788
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:767
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:784
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:798
 msgid "Cannot view"
 msgstr "Impossibile leggere"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:763
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:793
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:773
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:803
 msgid "Choose the format to view"
 msgstr "Scegliere il formato da leggere"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:789
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:799
 msgid "%s has no available formats."
 msgstr "%s non ha formati disponibili"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:818
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:828
 msgid "Cannot configure"
 msgstr "Impossibile configurare"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:818
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:828
 msgid "Cannot configure while there are running jobs."
 msgstr "Impossibile configurare mentre ci sono lavori in esecuzione"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:853
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:863
 msgid "Invalid database"
 msgstr "Database non valido"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:854
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:864
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
@@ -2210,15 +2241,15 @@ msgstr ""
 "<p>Esiste già un database non valido in %s, eliminarlo prima di provare a "
 "spostare il database esistente.<br>Errore: %s"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:862
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:872
 msgid "Could not move database"
 msgstr "Impossibile spostare il database"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:912
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:922
 msgid "Error talking to device"
 msgstr "Errore di comunicazione col dispositivo"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:913
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:923
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -2226,7 +2257,7 @@ msgstr ""
 "Si è verificato un errore di comunicazione temporaneo col dispositivo. "
 "Disconnettere e riconnettere il dispositivo e/o riavviare"
 
-#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:993
+#: /home/kovid/work/libprs500/src/libprs500/gui2/main.py:1003
 msgid ""
 "<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
 "s</a></span>"
@@ -2497,7 +2528,8 @@ msgstr ""
 msgid ""
 "The directory in which to store the downloaded feeds. Defaults to the "
 "current directory."
-msgstr "La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
+msgstr ""
+"La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/main.py:55
 msgid "Dont show the progress bar"
@@ -2548,7 +2580,8 @@ msgstr "\tLink falliti:"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
-msgstr "Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
+msgstr ""
+"Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
 
 #: /home/kovid/work/libprs500/src/libprs500/web/feeds/news.py:571
 msgid "Got feeds from index page"
@@ -2691,4 +2724,3 @@ msgstr "Non scaricare i fogli di stile CSS"
 #: /home/kovid/work/libprs500/src/libprs500/web/fetch/simple.py:396
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Mostra un output dettagliato. Utile per il debugging"
-
