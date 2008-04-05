@@ -7,21 +7,21 @@ from functools import partial
 #from pyvix.vix import Host, VIX_SERVICEPROVIDER_VMWARE_WORKSTATION
 import pysvn
 
-from libprs500 import __version__, __appname__
+from calibre import __version__, __appname__
 
-PREFIX = "/var/www/vhosts/kovidgoyal.net/subdomains/libprs500"
+PREFIX = "/var/www/calibre.kovidgoyal.net"
 DOWNLOADS = PREFIX+"/httpdocs/downloads"
 DOCS = PREFIX+"/httpdocs/apidocs"
 USER_MANUAL = PREFIX+'/httpdocs/user_manual'
-HTML2LRF = "src/libprs500/ebooks/lrf/html/demo"
-TXT2LRF  = "src/libprs500/ebooks/lrf/txt/demo"
+HTML2LRF = "src/calibre/ebooks/lrf/html/demo"
+TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
 check_call = partial(_check_call, shell=True)
 #h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
 
 
 def tag_release():
     print 'Tagging release'
-    base = 'https://kovid@svn.kovidgoyal.net/code/libprs500' 
+    base = 'https://kovid@svn.kovidgoyal.net/code/calibre' 
     tag = base + '/tags/'+__version__
     client = pysvn.Client()
     client.exception_style = 1
@@ -88,19 +88,19 @@ def upload_demo():
                '''--serif-family "/usr/share/fonts/corefonts, Times New Roman" '''
                '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
                ''''''%(HTML2LRF,))
-    check_call('cd src/libprs500/ebooks/lrf/html/demo/ && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf')
+    check_call('cd src/calibre/ebooks/lrf/html/demo/ && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf')
     check_call('''scp /tmp/html-demo.zip castalia:%s/'''%(DOWNLOADS,))
     check_call('''txt2lrf -t 'Demonstration of txt2lrf' -a 'Kovid Goyal' '''
                '''--header -o /tmp/txt2lrf.lrf %s/demo.txt'''%(TXT2LRF,) )
-    check_call('cd src/libprs500/ebooks/lrf/txt/demo/ && zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf')
+    check_call('cd src/calibre/ebooks/lrf/txt/demo/ && zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf')
     check_call('''scp /tmp/txt-demo.zip castalia:%s/'''%(DOWNLOADS,))
 
 def upload_installers():
     exe, dmg = installer_name('exe'), installer_name('dmg')
     if exe and os.path.exists(exe):
-        check_call('''ssh castalia rm -f %s/libprs500\*.exe'''%(DOWNLOADS,))
+        check_call('''ssh castalia rm -f %s/calibre\*.exe'''%(DOWNLOADS,))
         check_call('''scp %s castalia:%s/'''%(exe, DOWNLOADS))
-        check_call('''ssh castalia rm -f %s/libprs500\*.dmg'''%(DOWNLOADS,))
+        check_call('''ssh castalia rm -f %s/calibre\*.dmg'''%(DOWNLOADS,))
     if dmg and os.path.exists(dmg):
         check_call('''scp %s castalia:%s/'''%(dmg, DOWNLOADS))
         check_call('''ssh castalia chmod a+r %s/\*'''%(DOWNLOADS,))
@@ -114,7 +114,7 @@ def upload_docs():
 
 def upload_user_manual():
     cwd = os.getcwdu()
-    os.chdir('src/libprs500/manual')
+    os.chdir('src/calibre/manual')
     try:
         check_call('make clean html')
         check_call('ssh castalia rm -rf %s/\\*'%USER_MANUAL)
@@ -131,7 +131,7 @@ def main():
     check_call("sudo python setup.py develop", shell=True)
     check_call('sudo rm src/%s/gui2/images_rc.pyc'%__appname__, shell=True)
     check_call('make', shell=True)
-    check_call('svn commit -m "Updated translations" src/libprs500/translations')
+    check_call('svn commit -m "Updated translations" src/calibre/translations')
     tag_release()
     upload_demo()
     build_installers()

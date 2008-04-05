@@ -1,1 +1,0 @@
-.. |app| replace:: libprs500

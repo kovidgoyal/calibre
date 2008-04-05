@@ -7,7 +7,7 @@ Compile resource files.
 '''
 import os, sys
 sys.path.insert(1, os.path.join(os.getcwd(), 'src'))
-from libprs500 import __appname__
+from calibre import __appname__
 
 RESOURCES = dict(
     opf_template = '%p/ebooks/metadata/opf.xml',

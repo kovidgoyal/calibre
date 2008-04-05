@@ -5,16 +5,16 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, re, os, shutil
 sys.path.append('src')
 islinux = not ('win32' in sys.platform or 'win64' in sys.platform or 'darwin' in sys.platform)
-src = open('src/libprs500/__init__.py', 'rb').read()
+src = open('src/calibre/__init__.py', 'rb').read()
 VERSION = re.search(r'__version__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 APPNAME = re.search(r'__appname__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 print 'Setup', APPNAME, 'version:', VERSION
 
-epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).search(open('src/libprs500/linux.py', 'rb').read()).group(1)
+epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).search(open('src/%s/linux.py'%APPNAME, 'rb').read()).group(1)
 entry_points = eval(epsrc, {'__appname__': APPNAME})
 
 if 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower():
-    entry_points['console_scripts'].append('parallel = libprs500.parallel:main')
+    entry_points['console_scripts'].append('parallel = %s.parallel:main'%APPNAME)
 
 def _ep_to_script(ep, base='src'):
     return (base+os.path.sep+re.search(r'.*=\s*(.*?):', ep).group(1).replace('.', '/')+'.py').strip()
@@ -50,16 +50,16 @@ if __name__ == '__main__':
     from setuptools import setup, find_packages
     import subprocess
     
-    entry_points['console_scripts'].append('libprs500_postinstall = libprs500.linux:post_install')
+    entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
     
     setup(
-          name='libprs500', 
+          name=APPNAME, 
           packages = find_packages('src'), 
           package_dir = { '' : 'src' }, 
           version=VERSION, 
           author='Kovid Goyal', 
           author_email='kovid@kovidgoyal.net', 
-          url = 'http://libprs500.kovidgoyal.net', 
+          url = 'http://%s.kovidgoyal.net'%APPNAME, 
           include_package_data = True,
           entry_points = entry_points, 
           zip_safe = True,
@@ -99,4 +99,4 @@ if __name__ == '__main__':
          )
     
     if 'develop' in ' '.join(sys.argv) and islinux:
-        subprocess.check_call('libprs500_postinstall', shell=True)
+        subprocess.check_call('calibre_postinstall', shell=True)

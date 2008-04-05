@@ -233,12 +233,12 @@ def main():
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
                                        'mechanize', 'ClientForm', 'usbobserver', 
-                                       'genshi', 'libprs500.web.feeds.recipes.*',
+                                       'genshi', 'calibre.web.feeds.recipes.*',
                                        'IPython.Extensions.*', 'pydoc'],
                          'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
                          'excludes' : [],
-                         'plist'    : { 'CFBundleGetInfoString' : '''libprs500, an E-book management application.'''
-                                        ''' Visit http://libprs500.kovidgoyal.net for details.''',
+                         'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
+                                        ''' Visit http://calibre.kovidgoyal.net for details.''',
                                         'CFBundleIdentifier':'net.kovidgoyal.librs500',
                                         'CFBundleShortVersionString':VERSION,
                                         'CFBundleVersion':APPNAME + ' ' + VERSION,

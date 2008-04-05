@@ -7,8 +7,8 @@ from distutils.core import setup
 from distutils.filelist import FileList
 import py2exe, glob
 from py2exe.build_exe import py2exe as build_exe
-from libprs500 import __version__ as VERSION
-from libprs500 import __appname__ as APPNAME
+from calibre import __version__ as VERSION
+from calibre import __appname__ as APPNAME
 
 PY2EXE_DIR = os.path.join('build','py2exe')
 if os.path.exists(PY2EXE_DIR):
@@ -39,7 +39,7 @@ Var MUI_TEMP
 !define PRODUCT_NAME "%(name)s"
 !define XPUI_BRANDINGTEXT "${PRODUCT_NAME} created by Kovid Goyal"
 !define PRODUCT_VERSION "%(version)s"
-!define WEBSITE "https://libprs500.kovidgoyal.net"
+!define WEBSITE "https://calibre.kovidgoyal.net"
 !define DEVCON  "C:\devcon\i386\devcon.exe"
 !define PY2EXE_DIR "%(py2exe_dir)s"
 !define LIBUSB_DIR "C:\libusb"
@@ -150,11 +150,11 @@ Section "Main" "secmain"
     ;Create shortcuts
     WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${WEBSITE}"
     CreateDirectory "$SMPROGRAMS\$STARTMENU_FOLDER"
-    CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\libprs500.lnk" "$INSTDIR\${PRODUCT_NAME}.exe"
+    CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\calibre.lnk" "$INSTDIR\${PRODUCT_NAME}.exe"
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\lrfviewer.lnk" "$INSTDIR\lrfviewer.exe"
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
     CreateShortCut  "$SMPROGRAMS\$STARTMENU_FOLDER\Uninstall.lnk" "$INSTDIR\Uninstall.exe"
-    CreateShortCut  "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\libprs500.exe"
+    CreateShortCut  "$DESKTOP\${PRODUCT_NAME}.lnk" "$INSTDIR\calibre.exe"
 
   !insertmacro MUI_STARTMENU_WRITE_END
   
@@ -287,7 +287,7 @@ r'''<?xml version='1.0' encoding='windows-1252'?>
       Privileged
     </Condition>
     <Property Id='ARPNOMODIFY'>1</Property>
-    <Property Id='ARPURLINFOABOUT'>http://libprs500.kovidgoyal.net</Property>
+    <Property Id='ARPURLINFOABOUT'>http://calibre.kovidgoyal.net</Property>
     <Property Id='ARPPRODUCTICON'>appicon.ico</Property>
     <Media Id='1' Cabinet='%(appname)s.cab' EmbedCab='yes' />
     <Directory Id='TARGETDIR' Name='SourceDir'>
@@ -459,7 +459,7 @@ def main():
                                              'win32file', 'pythoncom', 'rtf2xml', 
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
-                                             'libprs500.web.feeds.recipes.*', 'pydoc',
+                                             'calibre.web.feeds.recipes.*', 'pydoc',
                                              ],                                
                                   'packages'  : ['PIL'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
