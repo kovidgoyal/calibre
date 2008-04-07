@@ -334,6 +334,8 @@ class HTMLConverter(object):
                 self.book.set_author(self.get_text(a))
         if self.verbose:
             tdir = tempfile.gettempdir()
+            if not os.path.exists(tdir):
+                os.makedirs(tdir)
             dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
             dump.write(unicode(soup).encode('utf-8'))
             self.logger.info(_('Written preprocessed HTML to ')+dump.name)
