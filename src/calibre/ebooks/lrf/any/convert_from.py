@@ -14,6 +14,7 @@ from calibre.ebooks.lrf.txt.convert_from  import process_file as txt2lrf
 from calibre.ebooks.lrf.html.convert_from import process_file as html2lrf
 from calibre.ebooks.lrf.epub.convert_from import process_file as epub2lrf
 from calibre.ebooks.lrf.mobi.convert_from import process_file as mobi2lrf
+from calibre.ebooks.lrf.fb2.convert_from  import process_file as fb22lrf
 
 def largest_file(files):
     maxsize, file = 0, None
@@ -52,7 +53,7 @@ def unhidden_directories(base, listing):
         if os.path.isdir(os.path.join(base, i)) and not i.startswith('__') and \
            not i.startswith('.'):
             ans.append(i)
-    return ans  
+    return ans
 
 def traverse_subdirs(tdir):
     temp = os.listdir(tdir)
@@ -85,7 +86,7 @@ def process_file(path, options, logger=None):
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('any2lrf')
-        setup_cli_handlers(logger, level)    
+        setup_cli_handlers(logger, level)
     if not os.access(path, os.R_OK):
         logger.critical('Cannot read from %s', path)
         return 1
@@ -126,6 +127,8 @@ def process_file(path, options, logger=None):
             convertor = epub2lrf
         elif ext in ['mobi', 'prc']:
             convertor = mobi2lrf
+        elif ext == 'fb2':
+            convertor = fb22lrf
         if not convertor:
             raise UnknownFormatError('Coverting from %s to LRF is not supported.'%ext)
         convertor(path, options, logger)

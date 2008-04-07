@@ -36,6 +36,7 @@ entry_points = {
                              'web2lrf   = calibre.ebooks.lrf.web.convert_from:main',
                              'pdf2lrf   = calibre.ebooks.lrf.pdf.convert_from:main',
                              'mobi2lrf  = calibre.ebooks.lrf.mobi.convert_from:main',
+                             'fb22lrf   = calibre.ebooks.lrf.fb2.convert_from:main',
                              'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
                              'lrf2lrs   = calibre.ebooks.lrf.parser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
@@ -172,9 +173,11 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('epub2lrf', htmlop, ['epub']))
         f.write(opts_and_exts('rtf2lrf', htmlop, ['rtf']))
         f.write(opts_and_exts('mobi2lrf', htmlop, ['mobi', 'prc']))
+        f.write(opts_and_exts('fb22lrf', htmlop, ['fb2']))
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('any2lrf', htmlop, 
-            ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi']))
+            ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 
+             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2']))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-04 09:07+PDT\n"
+"POT-Creation-Date: 2008-04-07 16:11+IST\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: calibre\n"
 "Language-Team: \n"
@@ -330,7 +330,7 @@ msgid ""
 "default is to try and guess the encoding."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:140
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:143
 msgid ""
 "any2lrf [options] myfile\n"
 "\n"
@@ -341,7 +341,7 @@ msgid ""
 "    "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:155
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:158
 msgid "No file to convert specified."
 msgstr ""
 
@@ -351,6 +351,19 @@ msgid ""
 "        \n"
 "        \n"
 "%prog converts mybook.epub to mybook.lrf"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:18
+msgid ""
+"%prog [options] mybook.fb2\n"
+"\n"
+"\n"
+"%prog converts mybook.fb2 to mybook.lrf"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:23
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:22
+msgid "Print generated HTML to stdout and quit."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:20
@@ -377,78 +390,78 @@ msgstr ""
 msgid "\tBaen file detected. Re-parsing..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:339
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:341
 msgid "Written preprocessed HTML to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:350
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:352
 msgid "Processing %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:364
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:366
 msgid "\tConverting to BBeB..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:502
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:509
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:504
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:511
 msgid "Could not parse file: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:521
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:523
 msgid "Failed to parse link %s %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:564
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:566
 msgid "Cannot add link %s to TOC"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:906
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:908
 msgid "Unable to process image %s. Error: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:944
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:946
 msgid "Unable to process interlaced PNG %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:959
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:961
 msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1649
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1651
 msgid "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1651
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1653
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1673
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1675
 msgid "Table has cell that is too large"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1701
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1703
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1741
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1743
 msgid "Could not read cover image: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1744
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1746
 msgid "Cannot read from: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1873
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1875
 msgid "Failed to process opf file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1879
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1881
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
@@ -603,10 +616,6 @@ msgid ""
 "\n"
 "\n"
 "%prog converts mybook.txt to mybook.lrf"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:22
-msgid "Print generated HTML to stdout and quit."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:20
@@ -2131,9 +2140,8 @@ msgid ""
 "right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href="
 "\"http://calibre.kovidgoyal.net/user_manual\"><span style=\" text-"
 "decoration: underline; color:#0000ff;\">calibre.kovidgoyal.net</span></"
-"a><br /><br /><span style=\" font-weight:600;\">calibre</span>: %1 by "
-"<span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></"
-"html>"
+"a><br /><br /><span style=\" font-weight:600;\">calibre</span>: %1 by <span "
+"style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></html>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:271
@@ -2511,8 +2519,8 @@ msgstr ""
 #~ "right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href="
 #~ "\"https://calibre.kovidgoyal.net/wiki/WikiStart#Usage\"><span style=\" "
 #~ "text-decoration: underline; color:#0000ff;\">calibre.kovidgoyal.net</"
-#~ "span></a><br /><br /><span style=\" font-weight:600;\">calibre</span>: %"
-#~ "1 by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
+#~ "span></a><br /><br /><span style=\" font-weight:600;\">calibre</span>: %1 "
+#~ "by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
 #~ "body></html>"
 #~ msgstr ""
 #~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
@@ -2522,11 +2530,11 @@ msgstr ""
 #~ "font-weight:400; font-style:normal;\">\n"
 #~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
 #~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Per a més ajuda, vegeu "
-#~ "(en anglès) <a href=\"https://calibre.kovidgoyal.net/wiki/"
-#~ "WikiStart#Usage\"><span style=\" text-decoration: underline; color:"
-#~ "#0000ff;\">calibre.kovidgoyal.net</span></a><br /><br /><span style=\" "
-#~ "font-weight:600;\">calibre</span>: %1 de <span style=\" font-weight:600;"
-#~ "\">Kovid Goyal</span> %2<br />%3</p></body></html>"
+#~ "(en anglès) <a href=\"https://calibre.kovidgoyal.net/wiki/WikiStart#Usage"
+#~ "\"><span style=\" text-decoration: underline; color:#0000ff;\">calibre."
+#~ "kovidgoyal.net</span></a><br /><br /><span style=\" font-weight:600;"
+#~ "\">calibre</span>: %1 de <span style=\" font-weight:600;\">Kovid Goyal</"
+#~ "span> %2<br />%3</p></body></html>"
 
 #~ msgid "Not yet implemented."
 #~ msgstr "Sense implementar."
