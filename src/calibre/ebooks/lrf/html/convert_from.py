@@ -336,10 +336,13 @@ class HTMLConverter(object):
             tdir = tempfile.gettempdir()
             if not os.path.exists(tdir):
                 os.makedirs(tdir)
-            dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
-            dump.write(unicode(soup).encode('utf-8'))
-            self.logger.info(_('Written preprocessed HTML to ')+dump.name)
-            dump.close()
+            try:
+                dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
+                dump.write(unicode(soup).encode('utf-8'))
+                self.logger.info(_('Written preprocessed HTML to ')+dump.name)
+                dump.close()
+            except:
+                pass
             
         return soup
     
