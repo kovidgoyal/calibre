@@ -27,9 +27,9 @@ Why does the PDF conversion lose some images?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 The PDF conversion tries to extract the text and images from the PDF file and convert them to and HTML based ebook. Some PDF files have images in a format that cannot be extracted (vector images).
 
-There are no images in the LRF file after conversion from HTML?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If you use the GUI to convert an HTML file, you have to create a zip file with the HTML file and any images it references and then convert that ZIP file to LRF.
+There are no images in the LRF file after conversion from HTML, or, why is only one HTML file being converted and not the others it links to?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+If you use the GUI to convert an HTML file, you have to create a zip file with the HTML file and any images/extra files it references and then convert that ZIP file to LRF.
 
 How do I convert my file containing non-English characters?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
