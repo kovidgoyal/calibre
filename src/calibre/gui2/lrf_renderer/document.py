@@ -366,7 +366,7 @@ class Document(QGraphicsScene):
     def get_page_num(self, chapterid, objid):
         cnum = self.chapter_map[chapterid]
         page = self.chapters[cnum].object_to_page_map[objid]
-        return sum(self.chapter_layout[:cnum])+page        
+        return sum(self.chapter_layout[:cnum])+page
     
     def add_to_history(self):
         page = self.chapter_page(self.current_page)[1]
@@ -377,9 +377,10 @@ class Document(QGraphicsScene):
     def link_activated(self, objid, on_creation=None):
         if on_creation is None:
             cid, oid = self.link_map[objid]
-            self.add_to_history()
-            page = self.get_page_num(cid, oid)
-            self.show_page(page) 
+            if oid is not None:
+                self.add_to_history()
+                page = self.get_page_num(cid, oid)
+                self.show_page(page)
         else:
             jb = self.objects[objid]
             self.link_map[objid] = (jb.refpage, jb.refobj)

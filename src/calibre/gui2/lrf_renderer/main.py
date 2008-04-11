@@ -228,6 +228,12 @@ class Main(MainWindow, Ui_MainWindow):
     def back(self, triggered):
         self.document.back()
         
+    def wheelEvent(self, ev):
+        if ev.delta() >= 0:
+            self.document.previous()
+        else:
+            self.document.next()
+
     def closeEvent(self, event):
         if self.renderer is not None and self.renderer.isRunning():
             self.renderer.abort()

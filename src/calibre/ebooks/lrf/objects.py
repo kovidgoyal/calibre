@@ -1013,6 +1013,7 @@ class Button(LRFObject):
         for i in self.actions[button_type]:
             if i[0] == 1:
                 return i[1:][0]
+        return (None, None)
     
     def __unicode__(self):
         s = u'<Button objid="%s">\n'%(self.id,)
