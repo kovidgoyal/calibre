@@ -1118,7 +1118,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 self.conn.execute('UPDATE authors SET name=? WHERE id=?', (a, aid))
             else:
                 aid = self.conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
-            self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
+            try:
+                self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
+            except sqlite.IntegrityError: # Sometimes books specify the same author twice in their metadata
+                pass
         self.conn.commit()
         
     def set_author_sort(self, id, sort):
