@@ -24,9 +24,12 @@ terminal_controller = TerminalController(sys.stdout)
 
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
-islinux   = not(iswindows or isosx) 
+islinux   = not(iswindows or isosx)
 
-locale.setlocale(locale.LC_ALL, '')
+try:
+    locale.setlocale(locale.LC_ALL, '')
+except:
+    pass
 
 def osx_version():
     if isosx:
@@ -249,7 +252,7 @@ def fit_image(width, height, pwidth, pheight):
     scaled = height > pheight or width > pwidth
     if height > pheight:
         corrf = pheight/float(height)
-        width, height = floor(corrf*width), pheight                        
+        width, height = floor(corrf*width), pheight
     if width > pwidth:
         corrf = pwidth/float(width)
         width, height = pwidth, floor(corrf*height)
@@ -257,7 +260,7 @@ def fit_image(width, height, pwidth, pheight):
         corrf = pheight/float(height)
         width, height = floor(corrf*width), pheight
                             
-    return scaled, int(width), int(height)      
+    return scaled, int(width), int(height)
 
 def set_translator():
     # To test different translations invoke as
