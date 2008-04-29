@@ -1,0 +1,8 @@
+*_ui.py
+src/calibre.egg-info/
+src/calibre/resources.py
+src/calibre/gui2/images.qrc
+src/calibre/gui2/images_rc.py
+src/calibre/manual/.build/
+src/calibre/manual/cli/
+
