@@ -23,7 +23,7 @@ basic_recipes = (BasicNewsRecipe, AutomaticNewsRecipe, CustomIndexRecipe, Defaul
 basic_recipe_names = (i.__name__ for i in basic_recipes)
 
 
-#: Compiled builtin recipe/profile classes
+#: Compile builtin recipe/profile classes
 def load_recipe(module, package='calibre.web.feeds.recipes'):
     module = __import__(package+'.'+module, fromlist=[''])
     for attr in dir(module):
@@ -60,7 +60,7 @@ def compile_recipe(src):
     f = open(temp, 'wb')
     src = 'from %s.web.feeds.news import BasicNewsRecipe, AutomaticNewsRecipe\n'%__appname__ + src
     src = 'from %s.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile\n'%__appname__ + src
-    f.write(src)
+    f.write(src.replace('from libprs500', 'from calibre'))
     f.close()
     module = imp.find_module(temp.namebase, [temp.dirname()])
     module = imp.load_module(temp.namebase, *module)
