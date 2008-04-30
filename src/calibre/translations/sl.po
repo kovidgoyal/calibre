@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.17\n"
-"POT-Creation-Date: 2008-04-07 16:11+IST\n"
+"POT-Creation-Date: 2008-04-29 17:45+PDT\n"
 "PO-Revision-Date: 2007-11-08 14:39+PST\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: sl\n"
@@ -14,11 +14,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: /home/kovid/work/calibre/src/calibre/__init__.py:85
+#: /home/kovid/work/calibre/src/calibre/__init__.py:88
 msgid "%sUsage%s: %s\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/__init__.py:122
+#: /home/kovid/work/calibre/src/calibre/__init__.py:125
 msgid "Created by "
 msgstr ""
 
@@ -33,7 +33,7 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:630
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:631
 msgid "Unknown"
 msgstr ""
 
@@ -55,7 +55,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:16
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:342
 msgid "Publisher"
 msgstr ""
 
@@ -328,78 +328,78 @@ msgstr ""
 msgid "\tBaen file detected. Re-parsing..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:341
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:342
 msgid "Written preprocessed HTML to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:352
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:355
 msgid "Processing %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:366
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:369
 msgid "\tConverting to BBeB..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:504
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:511
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:507
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:514
 msgid "Could not parse file: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:523
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:526
 msgid "Failed to parse link %s %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:566
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:569
 msgid "Cannot add link %s to TOC"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:908
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:911
 msgid "Unable to process image %s. Error: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:946
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:949
 msgid "Unable to process interlaced PNG %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:961
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:964
 msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1651
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1654
 msgid "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1653
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1656
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1675
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1678
 msgid "Table has cell that is too large"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1703
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1706
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1743
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1746
 msgid "Could not read cover image: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1746
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1749
 msgid "Cannot read from: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1875
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1878
 msgid "Failed to process opf file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1881
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1884
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
@@ -1069,7 +1069,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:628
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:325
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:224
 msgid "Comments"
 msgstr ""
 
@@ -1354,8 +1354,8 @@ msgid "&Show password"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:14
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:336
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:700
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:701
 msgid "Title"
 msgstr ""
 
@@ -1368,13 +1368,13 @@ msgid "Tag"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:18
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:228
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:343
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:344
 msgid "Series"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:19
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:634
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:635
 msgid "Format"
 msgstr ""
 
@@ -1735,59 +1735,59 @@ msgstr ""
 msgid "Cannot kill waiting jobs."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:212
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:218
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:222
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:213
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:223
 msgid "None"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:213
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:342
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:640
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:704
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:214
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:343
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:641
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:705
 msgid "Tags"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:219
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:220
 msgid "Formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:229
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:328
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:329
 msgid "Double click to <b>edit</b> me<br><br>"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:337
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:701
-msgid "Author(s)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:338
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:702
-msgid "Size (MB)"
+msgid "Author(s)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:339
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:703
-msgid "Date"
+msgid "Size (MB)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:340
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:704
+msgid "Date"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:341
 msgid "Rating"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:636
 msgid "Path"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:639
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:640
 msgid "Timestamp"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:739
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:740
 msgid "Search (For Advanced Search click the button to the left)"
 msgstr ""
 
