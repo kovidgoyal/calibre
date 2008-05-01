@@ -1,9 +1,9 @@
 '''
 Trac Macro to generate an end use Changelog from the svn logs.
 '''
-import re
+import time, re, collections
 
-import pysvn
+from bzrlib import log as blog, branch
 
 from cStringIO import StringIO
 
@@ -12,56 +12,60 @@ from trac.wiki.macros import WikiMacroBase
 from trac.util import Markup
 
 
-#SVN_PATH = 'https://svn.kovidgoyal.net/code/libprs500/trunk'
-SVN_PATH = 'file:///svn/code/libprs500/trunk'
+BZR_PATH = '/var/bzr/code/calibre/trunk'
 
-def svn_log_to_txt():
-    cl = pysvn.Client()
+class ChangelogFormatter(blog.LogFormatter):
     
-    log = cl.log(SVN_PATH, 
-        revision_end=pysvn.Revision(pysvn.opt_revision_kind.number, 583 ), 
-        revision_start=pysvn.Revision(pysvn.opt_revision_kind.head))
+    supports_tags = True
     
+    def __init__(self, num_of_versions=10):
+        self.num_of_versions = num_of_versions
+        self.messages = collections.deque()
+        self.entries = []
+        self.current_entry = None 
     
-    version_change_indices, version_change_version = [], []
-    for i in range(len(log)):
-        entry = log[i]
-        match = re.search(r'version\s+(\d+\.\d+\.\d+)', entry['message']) 
+    def log_revision(self, r):
+        if len(self.entries) > self.num_of_versions-1:
+            return
+        msg = r.rev.message
+        match = re.match(r'version\s+(\d+\.\d+.\d+)', msg)
+         
         if match:
-            version_change_indices.append(i)
-            version_change_version.append(match.group(1))
+            if self.current_entry is not None:
+                self.entries.append((self.current_entry, set(self.messages)))
+            self.current_entry = match.group(1)
+            self.messages = collections.deque()
             
-    txt = ['= Changelog =\n[[PageOutline]]']
-    version_pat = re.compile(r'version\s+(\d+\.\d+\.\d+)', re.IGNORECASE)
-    current_version = False
-    for entry in log:
-        msg = entry['message'].strip()
-        msg = re.sub(ur'\#(\d+)', r'[ticket:\1 Ticket \1]', msg)
-        if not msg:
-            continue
-        match = version_pat.search(msg)
-        line = ''
-        if match:
-            current_version = True
-            line = u'----\n== Version '+match.group(1)+' =='
-        elif current_version:
-            line = u'  * ' + msg
-        if line and line not in txt:
-            txt.append(line)
-            
-    return u'\n'.join(txt)
-
+        else:
+            if re.search(r'[a-zA-Z]', msg):
+                if 'translation' not in msg and not msg.startswith('IGN'):
+                    self.messages.append(msg.strip())
+                    
+    def to_wiki_txt(self):
+        txt = ['= Changelog =\n[[PageOutline]]']
+        for entry in self.entries:
+            txt.append(u'----\n== Version '+entry[0]+' ==')
+            for msg in entry[1]:
+                txt.append(u'  * ' + msg)
+                
+        return u'\n'.join(txt)
+    
+def bzr_log_to_txt():
+    b = branch.Branch.open(BZR_PATH)
+    lf = ChangelogFormatter()
+    blog.show_log(b, lf)
+    return lf.to_wiki_txt()
 
 class ChangeLogMacro(WikiMacroBase):
 
     def expand_macro(self, formatter, name, args):
-        txt = svn_log_to_txt().encode('ascii', 'xmlcharrefreplace')
+        txt = bzr_log_to_txt().encode('ascii', 'xmlcharrefreplace')
         out = StringIO()
         Formatter(formatter.env, formatter.context).format(txt, out)
         return Markup(out.getvalue())
 
 
 if __name__ == '__main__':
-    print svn_log_to_txt() 
+    print bzr_log_to_txt() 
         
         
