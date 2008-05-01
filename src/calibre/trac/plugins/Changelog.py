@@ -1,7 +1,7 @@
 '''
 Trac Macro to generate an end use Changelog from the svn logs.
 '''
-import time, re, collections
+import re, collections
 
 from bzrlib import log as blog, branch
 
