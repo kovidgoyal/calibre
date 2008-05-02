@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-29 17:45+PDT\n"
+"POT-Creation-Date: 2008-05-02 09:40+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:21+0100\n"
 "Last-Translator: calibre\n"
 "Language-Team: Spanish\n"
@@ -293,6 +293,7 @@ msgstr ""
 "que añadir fuentes personalizadas relentiza el cambio de página. Para "
 "especificar cada una de las familias se utiliza: \"ruta a la carpeta de "
 "fuents, familia\" ( --serif-family \"%s, Times New Roman\")\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:207
 msgid "The serif family of fonts to embed"
@@ -703,19 +704,19 @@ msgstr ""
 msgid "No filename specified."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:297
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:299
 msgid "%prog [options] myebook.mobi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:299
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:301
 msgid "Output directory. Defaults to current directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:318
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:320
 msgid "Raw MOBI HTML saved in"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:322
 msgid "OEB ebook created in"
 msgstr ""
 

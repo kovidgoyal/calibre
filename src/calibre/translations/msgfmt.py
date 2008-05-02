@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 # Written by Martin v. Loewis <loewis@informatik.hu-berlin.de>
+# Modified by Kovid Goyal <kovid@kovidgoyal.net>
 
 """Generate binary message catalog from textual translation description.
 
@@ -13,11 +14,7 @@ import os
 import struct
 import array
 
-__version__ = "1.1"
-
-MESSAGES = {}
-
-
+__version__ = "1.2"
 
 def usage(code, msg=''):
     print >> sys.stderr, __doc__
@@ -27,17 +24,15 @@ def usage(code, msg=''):
 
 
 
-def add(id, str, fuzzy):
+def add(id, str, fuzzy, MESSAGES):
     "Add a non-fuzzy translation to the dictionary."
-    global MESSAGES
     if not fuzzy and str:
         MESSAGES[id] = str
 
 
 
-def generate():
+def generate(MESSAGES):
     "Return the generated output."
-    global MESSAGES
     keys = MESSAGES.keys()
     # the keys are sorted in the .mo file
     keys.sort()
@@ -78,6 +73,7 @@ def generate():
 
 
 def make(filename, outfile):
+    MESSAGES = {}
     ID = 1
     STR = 2
 
@@ -100,11 +96,12 @@ def make(filename, outfile):
 
     # Parse the catalog
     lno = 0
+    msgid = msgstr = ''
     for l in lines:
         lno += 1
         # If we get a comment line after a msgstr, this is a new entry
         if l[0] == '#' and section == STR:
-            add(msgid, msgstr, fuzzy)
+            add(msgid, msgstr, fuzzy, MESSAGES)
             section = None
             fuzzy = 0
         # Record a fuzzy mark
@@ -116,7 +113,7 @@ def make(filename, outfile):
         # Now we are in a msgid section, output previous section
         if l.startswith('msgid'):
             if section == STR:
-                add(msgid, msgstr, fuzzy)
+                add(msgid, msgstr, fuzzy, MESSAGES)
             section = ID
             l = l[5:]
             msgid = msgstr = ''
@@ -141,10 +138,10 @@ def make(filename, outfile):
             sys.exit(1)
     # Add last entry
     if section == STR:
-        add(msgid, msgstr, fuzzy)
+        add(msgid, msgstr, fuzzy, MESSAGES)
 
     # Compute output
-    output = generate()
+    output = generate(MESSAGES)
 
     try:
         outfile.write(output)
@@ -156,5 +153,7 @@ def make(filename, outfile):
 def main(outfile, args=sys.argv[1:]):
     for filename in args:
         make(filename, outfile)
+    return 0
 
-
+if __name__ == '__main__':
+    sys.exit(main(sys.stdout))

@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-04-29 17:45+PDT\n"
+"POT-Creation-Date: 2008-05-02 09:40+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: calibre\n"
 "Language-Team: \n"
@@ -702,19 +702,19 @@ msgstr ""
 msgid "No filename specified."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:297
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:299
 msgid "%prog [options] myebook.mobi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:299
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:301
 msgid "Output directory. Defaults to current directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:318
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:320
 msgid "Raw MOBI HTML saved in"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:322
 msgid "OEB ebook created in"
 msgstr ""
 

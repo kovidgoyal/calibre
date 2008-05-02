@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 globeandmail.com
 '''
-import re
+
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
