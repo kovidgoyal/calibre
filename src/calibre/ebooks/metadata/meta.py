@@ -132,9 +132,13 @@ def metadata_from_filename(name, pat=None):
     return mi
 
 def opf_metadata(opfpath):
-    f = open(opfpath, 'rb')
-    opf = OPFReader(f, os.path.dirname(opfpath))
+    if hasattr(opfpath, 'read'):
+        f = opfpath
+        opfpath = getattr(f, 'name', '')
+    else:
+        f = open(opfpath, 'rb')
     try:
+        opf = OPFReader(f, os.path.dirname(opfpath))
         if opf.application_id is not None:
             mi = MetaInformation(opf, None)
             if hasattr(opf, 'cover') and opf.cover:
