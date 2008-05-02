@@ -1686,6 +1686,8 @@ class HTMLConverter(object):
                 for name in targets:
                     self.targets[self.target_prefix+name] = canvases[-1]
             else:
+                if xpos > 65535:
+                    xpos = 65535
                 canvases[-1].put_object(block, xpos + int(delta/2.), ypos)
             
         for canvas in canvases:
