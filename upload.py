@@ -20,6 +20,7 @@ check_call = partial(_check_call, shell=True)
 
 def tag_release():
     print 'Tagging release'
+    check_call('bzr commit -m "Updated translations"')
     check_call('bzr tag '+__version__) 
             
 def build_installer(installer, vm, timeout=25):
@@ -74,36 +75,36 @@ def upload_demo():
                '''--mono-family  "/usr/share/fonts/corefonts, Andale Mono" '''
                ''''''%(HTML2LRF,))
     check_call('cd src/calibre/ebooks/lrf/html/demo/ && zip -j /tmp/html-demo.zip * /tmp/html2lrf.lrf')
-    check_call('''scp /tmp/html-demo.zip castalia:%s/'''%(DOWNLOADS,))
+    check_call('''scp /tmp/html-demo.zip divok:%s/'''%(DOWNLOADS,))
     check_call('''txt2lrf -t 'Demonstration of txt2lrf' -a 'Kovid Goyal' '''
                '''--header -o /tmp/txt2lrf.lrf %s/demo.txt'''%(TXT2LRF,) )
     check_call('cd src/calibre/ebooks/lrf/txt/demo/ && zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf')
-    check_call('''scp /tmp/txt-demo.zip castalia:%s/'''%(DOWNLOADS,))
+    check_call('''scp /tmp/txt-demo.zip divok:%s/'''%(DOWNLOADS,))
 
 def upload_installers():
     exe, dmg = installer_name('exe'), installer_name('dmg')
     if exe and os.path.exists(exe):
-        check_call('''ssh castalia rm -f %s/calibre\*.exe'''%(DOWNLOADS,))
-        check_call('''scp %s castalia:%s/'''%(exe, DOWNLOADS))
-        check_call('''ssh castalia rm -f %s/calibre\*.dmg'''%(DOWNLOADS,))
+        check_call('''ssh divok rm -f %s/calibre\*.exe'''%(DOWNLOADS,))
+        check_call('''scp %s divok:%s/'''%(exe, DOWNLOADS))
+        check_call('''ssh divok rm -f %s/calibre\*.dmg'''%(DOWNLOADS,))
     if dmg and os.path.exists(dmg):
-        check_call('''scp %s castalia:%s/'''%(dmg, DOWNLOADS))
-        check_call('''ssh castalia chmod a+r %s/\*'''%(DOWNLOADS,))
-        check_call('''ssh castalia /root/bin/update-installer-links %s %s'''%(exe, dmg))
+        check_call('''scp %s divok:%s/'''%(dmg, DOWNLOADS))
+        check_call('''ssh divok chmod a+r %s/\*'''%(DOWNLOADS,))
+        check_call('''ssh divok /root/bin/update-installer-links %s %s'''%(exe, dmg))
 
 def upload_docs():
     check_call('''epydoc --config epydoc.conf''')
-    check_call('''scp -r docs/html castalia:%s/'''%(DOCS,))
+    check_call('''scp -r docs/html divok:%s/'''%(DOCS,))
     check_call('''epydoc -v --config epydoc-pdf.conf''')
-    check_call('''scp docs/pdf/api.pdf castalia:%s/'''%(DOCS,))
+    check_call('''scp docs/pdf/api.pdf divok:%s/'''%(DOCS,))
 
 def upload_user_manual():
     cwd = os.getcwdu()
     os.chdir('src/calibre/manual')
     try:
         check_call('make clean html')
-        check_call('ssh castalia rm -rf %s/\\*'%USER_MANUAL)
-        check_call('scp -r .build/html/* castalia:%s'%USER_MANUAL)
+        check_call('ssh divok rm -rf %s/\\*'%USER_MANUAL)
+        check_call('scp -r .build/html/* divok:%s'%USER_MANUAL)
     finally:
         os.chdir(cwd)
 

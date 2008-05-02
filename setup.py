@@ -79,10 +79,10 @@ if __name__ == '__main__':
           For installation/usage instructions please see 
           http://%s.kovidgoyal.net
           
-          For source code access: bzr branch http://bzr.kovidgoyal.net/code/%s/trunk %s 
+          For source code access: bzr branch lp:%s 
           To update your copy of the source code: bzr merge
             
-          """%(APPNAME, APPNAME, APPNAME, APPNAME, APPNAME),
+          """%(APPNAME, APPNAME, APPNAME, APPNAME),
           license = 'GPL', 
           classifiers = [
             'Development Status :: 4 - Beta', 
