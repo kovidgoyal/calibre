@@ -51,6 +51,8 @@ def munge_paths(basepath, url):
     if not path:
         path = basepath
     elif not os.path.isabs(path):
+        if isinstance(path, unicode):
+            path = path.encode(sys.getfilesystemencoding())
         path = os.path.join(os.path.dirname(basepath), path)
     return os.path.normpath(path), fragment
 
