@@ -67,7 +67,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     
     def add_format(self, x):
         files = choose_files(self, 'add formats dialog', 
-                             "Choose formats for " + str(self.title.text()),
+                             "Choose formats for " + qstring_to_unicode((self.title.text())),
                              [('Books', BOOK_EXTENSIONS)])
         if not files: 
             return      
