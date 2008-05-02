@@ -53,7 +53,10 @@ def munge_paths(basepath, url):
     elif not os.path.isabs(path):
         if isinstance(path, unicode):
             path = path.encode(sys.getfilesystemencoding())
-        path = os.path.join(os.path.dirname(basepath), path)
+        dn = os.path.dirname(basepath)
+        if isinstance(dn, unicode):
+            dn = dn.encode(sys.getfilesystemencoding())
+        path = os.path.join(dn, path)
     return os.path.normpath(path), fragment
 
 def strip_style_comments(match):
