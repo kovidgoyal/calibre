@@ -383,11 +383,8 @@ class OPF(MetaInformation):
         return ans
     
     def get_series(self):
-        xm = self.soup.package.metadata.find('x-metadata')
-        if not xm:
-            return None
-        s = xm.find('series')
-        if s:
+        s = self.soup.package.metadata.find('series')
+        if s is not None:
             return str(s.string).strip()
         return None
     
@@ -397,10 +394,7 @@ class OPF(MetaInformation):
         self._set_metadata_element('series', val, type='x-metadata')
     
     def get_series_index(self):
-        xm = self.soup.package.metadata.find('x-metadata')
-        if not xm:
-            return None
-        s = xm.find('series-index')
+        s = self.soup.package.metadata.find('series-index')
         if s:
             try:
                 return int(str(s.string).strip())
@@ -623,7 +617,6 @@ def main(args=sys.argv):
         mi.category = opts.category.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
     if opts.comment is not None:
         mi.comments = opts.comment.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-    print mi
     mo = OPFCreator(os.getcwd(), mi)
     mo.render(open(args[1], 'wb'))
     return 0
