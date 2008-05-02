@@ -5,7 +5,6 @@ import subprocess
 from subprocess import check_call as _check_call
 from functools import partial
 #from pyvix.vix import Host, VIX_SERVICEPROVIDER_VMWARE_WORKSTATION
-import pysvn
 
 from calibre import __version__, __appname__
 
@@ -21,21 +20,7 @@ check_call = partial(_check_call, shell=True)
 
 def tag_release():
     print 'Tagging release'
-    base = 'https://kovid@svn.kovidgoyal.net/code/calibre' 
-    tag = base + '/tags/'+__version__
-    client = pysvn.Client()
-    client.exception_style = 1
-    try:
-        client.ls(tag)
-    except pysvn.ClientError, err:
-        if err.args[1][0][1] == 160013: # Tag does not exist
-            def get_credentials(realm, username, may_save):
-                return (True, 'kovid', input('Enter password for kovid: '), True)
-            client.callback_get_login = get_credentials
-            def get_log_message():
-                return True, 'Tagging %s for release'%__version__
-            client.callback_get_log_message = get_log_message
-            client.copy(base+'/trunk', tag) 
+    check_call('bzr tag '+__version__) 
             
 def build_installer(installer, vm, timeout=25):
     if os.path.exists(installer):
@@ -131,7 +116,6 @@ def main():
     check_call("sudo python setup.py develop", shell=True)
     check_call('sudo rm src/%s/gui2/images_rc.pyc'%__appname__, shell=True)
     check_call('make', shell=True)
-    check_call('svn commit -m "Updated translations" src/calibre/translations')
     tag_release()
     upload_demo()
     build_installers()
