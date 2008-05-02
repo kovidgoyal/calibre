@@ -9,9 +9,9 @@ from functools import partial
 from calibre import __version__, __appname__
 
 PREFIX = "/var/www/calibre.kovidgoyal.net"
-DOWNLOADS = PREFIX+"/httpdocs/downloads"
-DOCS = PREFIX+"/httpdocs/apidocs"
-USER_MANUAL = PREFIX+'/httpdocs/user_manual'
+DOWNLOADS = PREFIX+"/htdocs/downloads"
+DOCS = PREFIX+"/htdocs/apidocs"
+USER_MANUAL = PREFIX+'/htdocs/user_manual'
 HTML2LRF = "src/calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
 check_call = partial(_check_call, shell=True)
@@ -20,8 +20,8 @@ check_call = partial(_check_call, shell=True)
 
 def tag_release():
     print 'Tagging release'
-    check_call('bzr commit -m "Updated translations"')
-    check_call('bzr tag '+__version__) 
+    check_call('bzr tag '+__version__)
+    check_call('bzr commit -m "Updated translations"') 
             
 def build_installer(installer, vm, timeout=25):
     if os.path.exists(installer):
