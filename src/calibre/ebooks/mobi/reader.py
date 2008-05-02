@@ -1,5 +1,4 @@
 #!/usr/bin/env  python
-# vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -238,14 +237,13 @@ class MobiReader(object):
             r = self.mobi_html.find('>', end)
             if r > -1 and r < l: # Move out of tag
                 end = r+1
-            self.processed_html += self.mobi_html[pos:end] + '<a name="filepos%d" />'%oend 
+            self.processed_html += self.mobi_html[pos:end] + '<a name="filepos%d"></a>'%oend 
             pos = end
             
         self.processed_html += self.mobi_html[pos:]
         self.processed_html = link_pattern.sub(lambda match: '<a href="#filepos%d"'%int(match.group(1)), 
                                                self.processed_html)
-                
-    
+        
     def extract_images(self, processed_records, output_dir):
         output_dir = os.path.abspath(os.path.join(output_dir, 'images'))
         if not os.path.exists(output_dir):
