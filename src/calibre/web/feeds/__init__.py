@@ -130,7 +130,12 @@ class Feed(object):
         if delta.days*24*3600 + delta.seconds <= 24*3600*self.oldest_article:
             self.articles.append(article)
         else:
-            self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
+            try:
+                self.logger.debug('Skipping article %s (%s) from feed %s as it is too old.'%(title, article.localtime.strftime('%a, %d %b, %Y %H:%M'), self.title))
+            except UnicodeDecodeError:
+                if not isinstance(title, unicode):
+                    title = title.decode('utf-8', 'replace')
+                self.logger.debug('Skipping article %s as it is too old'%title)
         
     def __iter__(self):
         return iter(self.articles)
