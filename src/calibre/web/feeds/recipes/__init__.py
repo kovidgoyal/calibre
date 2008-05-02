@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Builtin recipes.
 '''
 recipes = [
-           'newsweek', 'atlantic', 'economist', 'dilbert', 'portfolio', 
+           'newsweek', 'atlantic', 'economist', 'portfolio', 
            'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
            'wired', 'globe_and_mail',
           ]
