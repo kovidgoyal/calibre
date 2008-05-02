@@ -133,7 +133,7 @@ class LrsParser(object):
         toc = self.soup.find('toc')
         if toc:
             for tag in toc.findAll('toclabel'):
-                label = self.tag_to_string(tag).encode('ascii', 'ignore') # Bug in SONY reader software cant handle non ascii toc labels
+                label = self.tag_to_string(tag)
                 self.book.addTocEntry(label, self.parsed_objects[tag.get('refobj')])
                 
     
