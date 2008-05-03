@@ -111,6 +111,13 @@ Miscellaneous
   :depth: 1
   :local:
 
+Why the name calibre?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Take your pick:
+  * Convertor And LIBRary for E-books
+  * A high *calibre* product
+  * A tribute to the SONY Librie which was the first e-ink based e-book reader
+
 Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| embeds fonts in ebook files it creates. E-book files support embedding only TrueType (.ttf) fonts. Most fonts on OS X systems are in .dfont format, thus they cannot be embedded. |app| shows only TrueType fonts founf on your system. You can obtain many TrueType fonts on the web. Simply download the .ttf files and add them to the Library/Fonts directory in your home directory. 
