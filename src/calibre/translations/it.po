@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-05-02 14:21+PDT\n"
+"POT-Creation-Date: 2008-05-02 17:09+PDT\n"
 "PO-Revision-Date: 2008-04-05 14:25+0200\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
@@ -402,52 +402,52 @@ msgstr "Opzioni per controllare il comportamento di html2lrf"
 msgid "Fetching of recipe failed: "
 msgstr "Scaricamento della formula fallito: "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:304
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:307
 msgid "\tBook Designer file detected."
 msgstr "\tFile di Book Designer individuato"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:306
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:309
 msgid "\tParsing HTML..."
 msgstr "\tAnalisi HTML..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:328
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:331
 msgid "\tBaen file detected. Re-parsing..."
 msgstr "\tFile di Baen individuato. Rianalizzo..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:344
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:347
 msgid "Written preprocessed HTML to "
 msgstr "HTML preprocessato scritto in "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:357
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:360
 msgid "Processing %s"
 msgstr "Sto processando %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:371
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:374
 msgid "\tConverting to BBeB..."
 msgstr "\tConversione in BBeB..."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:509
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:516
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:512
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:519
 msgid "Could not parse file: %s"
 msgstr "Impossibile analizzare il file: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:528
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:531
 msgid "Failed to parse link %s %s"
 msgstr "Analisi fallita del link %s %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:571
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:574
 msgid "Cannot add link %s to TOC"
 msgstr "Impossibile aggiungere il link %s alla TOC"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:913
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:916
 msgid "Unable to process image %s. Error: %s"
 msgstr "Impossibile processare l'immagine %s. Errore: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:951
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:954
 msgid "Unable to process interlaced PNG %s"
 msgstr "Impossibile processare la PNG interlacciata %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:966
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:969
 msgid ""
 "Could not process image: %s\n"
 "%s"
@@ -455,13 +455,13 @@ msgstr ""
 "Impossibile processare l'immagine: %s\n"
 "%s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1656
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1659
 msgid "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
 "Si è verificato un errore nel processamento della tabella: %s. Ignoro il "
 "codice della tabella"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1658
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1661
 msgid ""
 "Bad table:\n"
 "%s"
@@ -469,11 +469,11 @@ msgstr ""
 "Tabella malformata:\n"
 "%s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1680
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1683
 msgid "Table has cell that is too large"
 msgstr "La tabella ha celle troppo larghe"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1708
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1713
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
@@ -481,19 +481,19 @@ msgstr ""
 "È necessario prima salvare il sito web %s come un file HTML e poi eseguire "
 "html2lrf su di esso"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1748
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1753
 msgid "Could not read cover image: %s"
 msgstr "Impossibile leggere l'immagine di copertina: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1751
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1756
 msgid "Cannot read from: %s"
 msgstr "Impossibile leggere da: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1880
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1885
 msgid "Failed to process opf file"
 msgstr "Processamento del file OPF fallito"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1886
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1891
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
