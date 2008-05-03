@@ -69,18 +69,18 @@ if __name__ == '__main__':
                       """, 
           long_description = 
           """
-          %s is an e-book library manager. It can view, convert and catalog e-books
-          in most of the major e-book formats. It can also talk to a few e-book reader devices. It can
-          go out to the internet and fetch metadata for your books. It can download newspapers and convert
-          them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
-          
-          For screenshots: https://%s.kovidgoyal.net/wiki/Screenshots
-          
-          For installation/usage instructions please see 
-          http://%s.kovidgoyal.net
-          
-          For source code access: bzr branch http://bzr.kovidgoyal.net/code/%s/trunk %s 
-          To update your copy of the source code: bzr merge
+  %s is an e-book library manager. It can view, convert and catalog e-books in most of the major e-book formats. It can also talk to a few e-book reader devices. It can go out to the internet and fetch metadata for your books. It can download newspapers and convert them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
+  
+  For screenshots: https://%s.kovidgoyal.net/wiki/Screenshots
+  
+  For installation/usage instructions please see 
+  http://%s.kovidgoyal.net
+  
+  For source code access: 
+  bzr branch http://bzr.kovidgoyal.net/code/%s/trunk %s 
+  
+  To update your copy of the source code: 
+  bzr merge
             
           """%(APPNAME, APPNAME, APPNAME, APPNAME, APPNAME),
           license = 'GPL', 
