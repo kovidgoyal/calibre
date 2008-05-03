@@ -8,8 +8,6 @@ Define a threaded interface for working with devices.
 
 import threading, Queue
 
-from calibre.devices.device import Device
-from calibre.devices.prs500.driver import PRS500
 
 class DeviceManager(object):
     

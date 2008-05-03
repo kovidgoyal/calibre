@@ -90,8 +90,7 @@ def upload_installers():
     if dmg and os.path.exists(dmg):
         check_call('''scp %s divok:%s/'''%(dmg, DOWNLOADS))
         check_call('''ssh divok chmod a+r %s/\*'''%(DOWNLOADS,))
-        check_call('''ssh divok /root/bin/update-installer-links %s %s'''%(exe, dmg))
-
+        
 def upload_docs():
     check_call('''epydoc --config epydoc.conf''')
     check_call('''scp -r docs/html divok:%s/'''%(DOCS,))

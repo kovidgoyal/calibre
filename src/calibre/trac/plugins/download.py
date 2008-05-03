@@ -9,8 +9,8 @@ from trac.web.main import IRequestHandler
 from trac.util import Markup
 
 
-__appname__ = 'libprs500'
-DOWNLOAD_DIR = '/var/www/vhosts/kovidgoyal.net/subdomains/libprs500/httpdocs/downloads'
+__appname__ = 'calibre'
+DOWNLOAD_DIR = '/var/www/calibre.kovidgoyal.net/htdocs/downloads'
 
 
 
