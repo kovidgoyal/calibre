@@ -85,7 +85,7 @@ class Distribution(object):
             if os == 'debian':
                 self.command += '\n'+prefix + 'cp -R /usr/share/pycentral/fonttools/site-packages/FontTools* /usr/lib/python2.5/site-packages/'
                 easy_install = 'easy_install-2.5'
-            self.command += '\n'+prefix+easy_install+' -U TTFQuery libprs500 \n'+prefix+'libprs500_postinstall'
+            self.command += '\n'+prefix+easy_install+' -U TTFQuery calibre \n'+prefix+'calibre_postinstall'
             try:
                 self.manual = Markup(self.MANUAL_MAP[os])
             except KeyError:
@@ -158,7 +158,7 @@ class Download(Component):
     
     def windows(self, req):
         version = self.version_from_filename()
-        file = 'libprs500-%s.exe'%(version,)         
+        file = '%s-%s.exe'%(__appname__, version,)         
         data = dict(version = version, name='windows',
             installer_name='Windows installer', 
             title='Download %s for windows'%(__appname__),
@@ -192,7 +192,7 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
     
     def osx(self, req):
         version = self.version_from_filename()
-        file = 'libprs500-%s.dmg'%(version,) 
+        file = 'calibre-%s.dmg'%(version,) 
         data = dict(version = version, name='osx',
             installer_name='OS X universal dmg', 
             title='Download %s for OS X'%(__appname__),
@@ -217,8 +217,8 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
 </pre>
 The example above is for the German language. Substitute the language code you need. 
 After creating the file you need to log out and log in again for the changes to become
-active. Of course, this will only work if libprs500 has been translated for your language.
-If not, head over to <a href="https://calibre.kovidgoyal.net/wiki/Development#Translations">Translations</a> to see how you can translate it.
+active. Of course, this will only work if calibre has been translated for your language.
+If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Translations">Translations</a> to see how you can translate it.
 </li>
 </ol>
 '''))
