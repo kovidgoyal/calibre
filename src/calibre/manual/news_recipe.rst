@@ -126,9 +126,7 @@ CustomIndexRecipe
 
 .. class:: CustomIndexRecipe
 
-    This class is useful for getting content from websites that don't follow the "multiple articles in several feeds" content model. For example, it is used in the built-in recipe for fetching the `Daily Dilbert` comic strip.
-
-    .. literalinclude:: ../web/feeds/recipes/dilbert.py
+    This class is useful for getting content from websites that don't follow the "multiple articles in several feeds" content model. 
 
 .. automethod:: CustomIndexRecipe.custom_index
 

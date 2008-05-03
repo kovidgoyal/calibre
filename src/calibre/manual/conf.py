@@ -93,8 +93,9 @@ html_last_updated_fmt = '%b %d, %Y'
 # typographically correct entities.
 #html_use_smartypants = True
 
-# Content template for the index page.
-#html_index = ''
+# Overall title of the documentation
+html_title = 'calibre User Manual'
+html_logo  = 'resources/logo.png'
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}

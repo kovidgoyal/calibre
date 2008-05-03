@@ -64,6 +64,11 @@ You should not use both |app| and Connect to transfer books to the reader. You c
   * Unplugging the reader and waiting till the list of books shows up again 
   * Re-connecting the reader and starting the SONY software
 
+Can I use the collections feature of the SONY reader?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|app| has full support for collections. When you add tags to a book's metadata, those tags are turned into collections when you upload the book to the SONY reader. Also, the series information is automatically
+turned into a collection on the reader. Note that the PRS-500 does not support collections for books stored on the SD card. The PRS-505 does. 
+
 Library Management
 ------------------
 
