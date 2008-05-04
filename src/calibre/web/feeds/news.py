@@ -10,7 +10,7 @@ __docformat__ = "restructuredtext en"
 import logging, os, cStringIO, time, traceback, re, urlparse
 from collections import defaultdict
 
-from calibre import browser, __appname__, iswindows
+from calibre import browser, __appname__, iswindows, LoggingInterface
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
@@ -24,7 +24,7 @@ from calibre.ebooks.lrf.web.profiles import FullContentProfile
 from calibre.ptempfile import PersistentTemporaryFile
 
 
-class BasicNewsRecipe(object):
+class BasicNewsRecipe(object, LoggingInterface):
     '''
     Abstract base class that contains logic needed in all feed fetchers.
     '''
@@ -363,17 +363,18 @@ class BasicNewsRecipe(object):
         @param parser:  Command line option parser. Used to intelligently merge options.
         @param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
+        LoggingInterface.__init__(self, logging.getLogger('feeds2disk'))
+        
         for attr in ('username', 'password', 'lrf', 'output_dir', 'verbose', 'debug', 'test'):
             setattr(self, attr, getattr(options, attr))
         self.output_dir = os.path.abspath(self.output_dir)
         if options.test:
             self.max_articles_per_feed = 2
             self.simultaneous_downloads = min(4, self.simultaneous_downloads)
-            
-        self.logger = logging.getLogger('feeds2disk')
+        
         
         if self.debug:
-            self.logger.setLevel(logging.DEBUG)
+            logging.getLogger('feeds2disk').setLevel(logging.DEBUG)
             self.verbose = True
         self.report_progress = progress_reporter
         
@@ -467,20 +468,20 @@ class BasicNewsRecipe(object):
         self.cleanup()
         self.report_progress(1, _('Download finished'))
         if self.failed_downloads:
-            self.logger.warning(_('Failed to download the following articles:'))
+            self.log_warning(_('Failed to download the following articles:'))
             for feed, article, debug in self.failed_downloads:
-                self.logger.warning(article.title+_(' from ')+feed.title)
-                self.logger.debug(article.url)
-                self.logger.debug(debug)
+                self.log_warning(article.title+_(' from ')+feed.title)
+                self.log_debug(article.url)
+                self.log_debug(debug)
         if self.partial_failures:
-            self.logger.warning(_('Failed to download parts of the following articles:'))
+            self.log_warning(_('Failed to download parts of the following articles:'))
             for feed, atitle, aurl, debug in self.partial_failures:
-                self.logger.warning(atitle + _(' from ') + feed)
-                self.logger.debug(aurl)
-                self.logger.warning(_('\tFailed links:'))
+                self.log_warning(atitle + _(' from ') + feed)
+                self.log_debug(aurl)
+                self.log_warning(_('\tFailed links:'))
                 for l, tb in debug:
-                    self.logger.warning(l)
-                    self.logger.debug(tb) 
+                    self.log_warning(l)
+                    self.log_debug(tb) 
         return res
     
     def feeds2index(self, feeds):
@@ -645,8 +646,8 @@ class BasicNewsRecipe(object):
             cu = self.get_cover_url()
         except Exception, err:
             cu = None
-            self.logger.error(_('Could not download cover: %s')%str(err))
-            self.logger.debug(traceback.format_exc())
+            self.log_error(_('Could not download cover: %s')%str(err))
+            self.log_debug(traceback.format_exc())
         if cu is not None:
             ext = cu.rpartition('.')[-1]
             ext = ext.lower() if ext else 'jpg'
@@ -726,7 +727,7 @@ class BasicNewsRecipe(object):
         a = request.requestID[1]        
         
         article = request.article
-        self.logger.debug(_('\nDownloaded article %s from %s\n%s')%(article.title, article.url, request.stream.getvalue().decode('utf-8', 'ignore')))
+        self.log_debug(_('\nDownloaded article %s from %s\n%s')%(article.title, article.url, request.stream.getvalue().decode('utf-8', 'ignore')))
         article.orig_url = article.url
         article.url = 'article_%d/index.html'%a
         article.downloaded = True
@@ -738,11 +739,11 @@ class BasicNewsRecipe(object):
         
     def error_in_article_download(self, request, traceback):
         self.jobs_done += 1
-        self.logger.error(_('Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
+        self.log_error(_('Failed to download article: %s from %s\n')%(request.article.title, request.article.url))
         debug = request.stream.getvalue().decode('utf-8', 'ignore')
-        self.logger.debug(debug)
-        self.logger.debug(traceback)
-        self.logger.debug('\n')
+        self.log_debug(debug)
+        self.log_debug(traceback)
+        self.log_debug('\n')
         self.report_progress(float(self.jobs_done)/len(self.jobs), _('Article download failed: %s')%request.article.title)
         self.failed_downloads.append((request.feed, request.article, debug))
         

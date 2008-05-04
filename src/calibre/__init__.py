@@ -7,7 +7,7 @@ __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
 
 import sys, os, logging, mechanize, locale, copy, cStringIO, re, subprocess, \
-       textwrap, atexit, cPickle
+       textwrap, atexit, cPickle, codecs
 from gettext import GNUTranslations
 from math import floor
 from optparse import OptionParser as _OptionParser
@@ -30,6 +30,13 @@ try:
     locale.setlocale(locale.LC_ALL, '')
 except:
     pass
+
+try:
+    preferred_encoding = locale.getpreferredencoding()
+    codecs.lookup(preferred_encoding)
+except:
+    preferred_encoding = 'utf-8'
+
 
 def osx_version():
     if isosx:
@@ -486,3 +493,37 @@ def english_sort(x, y):
     Comapare two english phrases ignoring starting prepositions.
     '''
     return cmp(_spat.sub('', x), _spat.sub('', y))
+
+class LoggingInterface:
+    
+    def __init__(self, logger):
+        self.__logger = logger
+    
+    def ___log(self, func, msg, args, kwargs):
+        args = [msg] + list(args)
+        for i in range(len(args)):
+            if isinstance(args[i], unicode):
+                args[i] = args[i].encode(preferred_encoding, 'replace')
+                
+        func(*args, **kwargs)
+        
+    def log_debug(self, msg, *args, **kwargs):
+        self.___log(self.__logger.debug, msg, args, kwargs)
+        
+    def log_info(self, msg, *args, **kwargs):
+        self.___log(self.__logger.info, msg, args, kwargs)
+        
+    def log_warning(self, msg, *args, **kwargs):
+        self.___log(self.__logger.warning, msg, args, kwargs)
+        
+    def log_warn(self, msg, *args, **kwargs):
+        self.___log(self.__logger.warning, msg, args, kwargs)
+        
+    def log_error(self, msg, *args, **kwargs):
+        self.___log(self.__logger.error, msg, args, kwargs)
+        
+    def log_critical(self, msg, *args, **kwargs):
+        self.___log(self.__logger.critical, msg, args, kwargs)
+        
+    def log_exception(self, msg, *args):
+        self.___log(self.__logger.exception, msg, args, {})

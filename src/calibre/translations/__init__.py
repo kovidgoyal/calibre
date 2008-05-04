@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Manage translation of user visible strings.
 '''
 
-import sys, os, cStringIO, tempfile, subprocess, functools
+import sys, os, cStringIO, tempfile, subprocess, functools, tarfile
 check_call = functools.partial(subprocess.check_call, shell=True)
 
 from calibre.translations.pygettext import main as pygettext
@@ -35,6 +35,8 @@ def main(args=sys.argv):
     print 'Creating translations template'
     pygettext(buf, ['-p', tdir]+files)
     src = buf.getvalue()
+    tempdir = tempfile.mkdtemp()
+    tf = tarfile.open(os.path.join(tempdir, 'translations.tar.bz2'), 'w:bz2')
     fd, fname = tempfile.mkstemp(suffix='.pot')
     os.write(fd,src)
 
@@ -46,13 +48,17 @@ def main(args=sys.argv):
         else:
             print 'Merging', os.path.basename(po)
             check_call('msgmerge -v -U -N --backup=none '+po + ' ' + fname)
+        tf.add(po, os.path.basename(po))
         buf = cStringIO.StringIO()
         print 'Compiling translations'
         msgfmt(buf, [po])
         translations[tr] = buf.getvalue()
     open(os.path.join(tdir, 'data.py'), 'wb').write('translations = '+repr(translations))
     os.close(fd)
+    tf.add(fname, 'strings.pot')
+    tf.close()
     os.unlink(fname)
+    print 'Translations tarball is in', os.path.join(tempdir, 'translations.tar.bz2')
     return 0
 
 if __name__ == '__main__':

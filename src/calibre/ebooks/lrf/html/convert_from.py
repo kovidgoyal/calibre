@@ -29,7 +29,8 @@ from calibre.ebooks.lrf import Book, entity_to_unicode
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.table import Table 
-from calibre import filename_to_utf8,  setup_cli_handlers, __appname__, fit_image
+from calibre import filename_to_utf8,  setup_cli_handlers, __appname__, \
+                    fit_image, LoggingInterface
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.opf import OPFReader
 from calibre.devices.interface import Device
@@ -77,7 +78,7 @@ def tag_regex(tagname):
     return dict(open=r'(?:<\s*%(t)s\s+[^<>]*?>|<\s*%(t)s\s*>)'%dict(t=tagname), \
                 close=r'</\s*%(t)s\s*>'%dict(t=tagname))
 
-class HTMLConverter(object):
+class HTMLConverter(object, LoggingInterface):
     SELECTOR_PAT   = re.compile(r"([A-Za-z0-9\-\_\:\.]+[A-Za-z0-9\-\_\:\.\s\,]*)\s*\{([^\}]*)\}")
     PAGE_BREAK_PAT = re.compile(r'page-break-(?:after|before)\s*:\s*(\w+)', re.IGNORECASE)
     IGNORED_TAGS   = (Comment, Declaration, ProcessingInstruction)
@@ -159,7 +160,7 @@ class HTMLConverter(object):
     def __getattr__(self, attr):
         if hasattr(self.options, attr):
             return getattr(self.options, attr)
-        return object.__getattr__(self, attr)
+        return object.__getattribute__(self, attr)
     
     def __setattr__(self, attr, val):
         if hasattr(self.options, attr):
@@ -202,7 +203,7 @@ class HTMLConverter(object):
         '''
         # Defaults for various formatting tags        
         object.__setattr__(self, 'options', options)
-        self.logger = logger        
+        LoggingInterface.__init__(self, logger)
         self.fonts = fonts #: dict specifying font families to use
         # Memory 
         self.scaled_images    = {}    #: Temporary files with scaled version of images        
@@ -273,9 +274,9 @@ class HTMLConverter(object):
                         if link['path'] == path:
                             self.links.remove(link)
                             break
-                    self.logger.warn('Could not process '+path)
+                    self.log_warn('Could not process '+path)
                     if self.verbose:
-                        self.logger.exception(' ')
+                        self.log_exception(' ')
             self.links = self.process_links()
             self.link_level += 1
             paths = [link['path'] for link in self.links]
@@ -288,7 +289,7 @@ class HTMLConverter(object):
             self.book.addTocEntry(ascii_text, tb)
             
         if self.base_font_size > 0:
-            self.logger.info('\tRationalizing font sizes...')
+            self.log_info('\tRationalizing font sizes...')
             self.book.rationalize_font_sizes(self.base_font_size)
         
     def is_baen(self, soup):
@@ -304,9 +305,9 @@ class HTMLConverter(object):
         
         if not self.book_designer and self.is_book_designer(raw):
             self.book_designer = True
-            self.logger.info(_('\tBook Designer file detected.'))
+            self.log_info(_('\tBook Designer file detected.'))
         
-        self.logger.info(_('\tParsing HTML...'))
+        self.log_info(_('\tParsing HTML...'))
         
         if self.baen:
             nmassage.extend(HTMLConverter.BAEN)
@@ -328,7 +329,7 @@ class HTMLConverter(object):
         
         if not self.baen and self.is_baen(soup):
             self.baen = True
-            self.logger.info(_('\tBaen file detected. Re-parsing...'))
+            self.log_info(_('\tBaen file detected. Re-parsing...'))
             return self.preprocess(raw)
         if self.book_designer:
             t = soup.find(id='BookTitle')
@@ -344,7 +345,7 @@ class HTMLConverter(object):
             try:
                 dump = open(os.path.join(tdir, 'html2lrf-verbose.html'), 'wb')
                 dump.write(unicode(soup).encode('utf-8'))
-                self.logger.info(_('Written preprocessed HTML to ')+dump.name)
+                self.log_info(_('Written preprocessed HTML to ')+dump.name)
                 dump.close()
             except:
                 pass
@@ -357,7 +358,7 @@ class HTMLConverter(object):
         self.css.update(self.override_css)
         
         self.file_name = os.path.basename(path)
-        self.logger.info(_('Processing %s'), path if self.verbose else self.file_name)
+        self.log_info(_('Processing %s'), path if self.verbose else self.file_name)
         upath = path.encode('utf-8') if isinstance(path, unicode) else path
         if not os.path.exists(upath):
             upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names 
@@ -371,7 +372,7 @@ class HTMLConverter(object):
             raw = xml_to_unicode(raw, self.verbose)[0]
         f.close()
         soup = self.preprocess(raw)
-        self.logger.info(_('\tConverting to BBeB...'))
+        self.log_info(_('\tConverting to BBeB...'))
         self.current_style = {}
         self.page_break_found = False
         self.target_prefix = path
@@ -571,7 +572,7 @@ class HTMLConverter(object):
                hasattr(target.parent, 'objId'): 
                 self.book.addTocEntry(ascii_text, tb)
             else:
-                self.logger.debug(_("Cannot add link %s to TOC"), ascii_text)
+                self.log_debug(_("Cannot add link %s to TOC"), ascii_text)
                 
         
         def get_target_block(fragment, targets):
@@ -891,7 +892,7 @@ class HTMLConverter(object):
         try:
             im = PILImage.open(path)
         except IOError, err:
-            self.logger.warning('Unable to process image: %s\n%s', original_path, err)
+            self.log_warning('Unable to process image: %s\n%s', original_path, err)
             return
         encoding = detect_encoding(im)
 
@@ -913,7 +914,7 @@ class HTMLConverter(object):
                 self.scaled_images[path] = pt
                 return pt.name
             except (IOError, SystemError), err: # PIL chokes on interlaced PNG images as well a some GIF images
-                self.logger.warning(_('Unable to process image %s. Error: %s')%(path, err))
+                self.log_warning(_('Unable to process image %s. Error: %s')%(path, err))
                 return None
         
         pheight = int(self.current_page.pageStyle.attrs['textheight'])
@@ -951,7 +952,7 @@ class HTMLConverter(object):
                 self.rotated_images[path] = pt
                 width, height = im.size
             except IOError: # PIL chokes on interlaced PNG files and since auto-rotation is not critical we ignore the error
-                self.logger.debug(_('Unable to process interlaced PNG %s'), original_path)                 
+                self.log_debug(_('Unable to process interlaced PNG %s'), original_path)                 
             finally:
                 pt.close()
         
@@ -966,7 +967,7 @@ class HTMLConverter(object):
             try:
                 self.images[path] = ImageStream(path, encoding=encoding)
             except LrsError, err:
-                self.logger.warning(_('Could not process image: %s\n%s'), original_path, err)
+                self.log_warning(_('Could not process image: %s\n%s'), original_path, err)
                 return
             
         im = Image(self.images[path], x0=0, y0=0, x1=width, y1=height,\
@@ -1026,7 +1027,7 @@ class HTMLConverter(object):
             
             if number_of_paragraphs > 2:
                 self.end_page()
-                self.logger.debug('Forcing page break at %s', tagname)
+                self.log_debug('Forcing page break at %s', tagname)
         return end_page
     
     def block_properties(self, tag_css):
@@ -1434,7 +1435,7 @@ class HTMLConverter(object):
                                 self.targets[self.target_prefix+tag[key]] = self.current_block
                                 self.current_block.must_append = True
                     else:
-                        self.logger.debug('Could not follow link to '+tag['href'])
+                        self.log_debug('Could not follow link to '+tag['href'])
                         self.process_children(tag, tag_css, tag_pseudo_css)
                 elif tag.has_key('name') or tag.has_key('id'):
                     self.process_anchor(tag, tag_css, tag_pseudo_css)                            
@@ -1453,9 +1454,9 @@ class HTMLConverter(object):
                         dropcaps = tag.has_key('class') and tag['class'] == 'libprs500_dropcaps'
                         self.process_image(path, tag_css, width, height, dropcaps=dropcaps)
                     elif not urlparse(tag['src'])[0]:
-                        self.logger.warn('Could not find image: '+tag['src'])
+                        self.log_warn('Could not find image: '+tag['src'])
                 else:
-                    self.logger.debug("Failed to process: %s", str(tag))
+                    self.log_debug("Failed to process: %s", str(tag))
             elif tagname in ['style', 'link']:
                 ncss, npcss = {}, {}
                 if tagname == 'style':
@@ -1475,7 +1476,7 @@ class HTMLConverter(object):
                             self.page_break_found = True
                         ncss, npcss = self.parse_css(src)
                     except IOError:
-                        self.logger.warn('Could not read stylesheet: '+tag['href'])
+                        self.log_warn('Could not read stylesheet: '+tag['href'])
                 if ncss:
                     update_css(ncss, self.css)
                     self.css.update(self.override_css)
@@ -1605,7 +1606,7 @@ class HTMLConverter(object):
                 
                 if not self.disable_chapter_detection and tagname.startswith('h'):
                     if self.chapter_regex.search(src):
-                        self.logger.debug('Detected chapter %s', src)
+                        self.log_debug('Detected chapter %s', src)
                         self.end_page() 
                         self.page_break_found = True
                 
@@ -1656,9 +1657,9 @@ class HTMLConverter(object):
                 try:
                     self.process_table(tag, tag_css)
                 except Exception, err:
-                    self.logger.warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), str(err))
-                    self.logger.debug('', exc_info=True)
-                    self.logger.debug(_('Bad table:\n%s'), str(tag)[:300])
+                    self.log_warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), str(err))
+                    self.log_debug('', exc_info=True)
+                    self.log_debug(_('Bad table:\n%s'), str(tag)[:300])
                     self.in_table = False
                     self.process_children(tag, tag_css, tag_pseudo_css)
                 finally:

@@ -11,16 +11,10 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
-from calibre import Settings
+from calibre import Settings, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database import LibraryDatabase, SearchToken
 from calibre.gui2 import NONE, TableView, qstring_to_unicode
-
-try:
-    pe = locale.getpreferredencoding()
-    codecs.lookup(pe)
-except:
-    pe = 'utf-8'
 
 class LibraryDelegate(QItemDelegate):
     COLOR = QColor("blue")
@@ -304,7 +298,7 @@ class BooksModel(QAbstractTableModel):
                 dt = self.db.timestamp(row)
                 if dt:
                     dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                    return QVariant(dt.strftime(BooksView.TIME_FMT).decode(pe, 'replace'))
+                    return QVariant(dt.strftime(BooksView.TIME_FMT).decode(preferred_encoding, 'replace'))
             elif col == 4: 
                 r = self.db.rating(row)
                 r = r/2 if r else 0

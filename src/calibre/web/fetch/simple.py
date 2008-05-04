@@ -11,7 +11,8 @@ import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2, thre
 from urllib import url2pathname
 from httplib import responses
 
-from calibre import setup_cli_handlers, browser, sanitize_file_name, OptionParser, relpath
+from calibre import setup_cli_handlers, browser, sanitize_file_name, \
+                    OptionParser, relpath, LoggingInterface
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
 
@@ -47,7 +48,7 @@ def save_soup(soup, target):
     f.close()
 
 
-class RecursiveFetcher(object):
+class RecursiveFetcher(object, LoggingInterface):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in 
                 ('.exe\s*$', '.mp3\s*$', '.ogg\s*$', '^\s*mailto:', '^\s*$'))
     #ADBLOCK_FILTER = tuple(re.compile(i, re.IGNORECASE) for it in
@@ -58,7 +59,7 @@ class RecursiveFetcher(object):
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     
     def __init__(self, options, logger, image_map={}, css_map={}, job_info=None):
-        self.logger = logger
+        LoggingInterface.__init__(self, logger)
         self.base_dir = os.path.abspath(os.path.expanduser(options.dir))
         if not os.path.exists(self.base_dir):
             os.makedirs(self.base_dir)
@@ -130,7 +131,7 @@ class RecursiveFetcher(object):
 
     def fetch_url(self, url):
         f = None
-        self.logger.debug('Fetching %s', url)
+        self.log_debug('Fetching %s', url)
         delta = time.time() - self.last_fetch_at 
         if  delta < self.delay:
             time.sleep(delta)
@@ -140,7 +141,7 @@ class RecursiveFetcher(object):
             if hasattr(err, 'code') and responses.has_key(err.code):
                 raise FetchError, responses[err.code]
             if err.reason[0] == 104: # Connection reset by peer
-                self.logger.debug('Connection reset by peer retrying in 1 second.')
+                self.log_debug('Connection reset by peer retrying in 1 second.')
                 time.sleep(1)
                 f = self.browser.open(url)
             else: 
@@ -152,9 +153,9 @@ class RecursiveFetcher(object):
         
     def start_fetch(self, url):
         soup = BeautifulSoup(u'<a href="'+url+'" />')
-        self.logger.info('Downloading')
+        self.log_info('Downloading')
         res = self.process_links(soup, url, 0, into_dir='')
-        self.logger.info('%s saved to %s', url, res)
+        self.log_info('%s saved to %s', url, res)
         return res
     
     def is_link_ok(self, url):
@@ -191,8 +192,8 @@ class RecursiveFetcher(object):
                 try:
                     f = self.fetch_url(iurl)
                 except Exception, err:
-                    self.logger.warning('Could not fetch stylesheet %s', iurl)
-                    self.logger.debug('Error: %s', str(err), exc_info=True)
+                    self.log_warning('Could not fetch stylesheet %s', iurl)
+                    self.log_debug('Error: %s', str(err), exc_info=True)
                     continue
                 stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                 with self.stylemap_lock:
@@ -214,8 +215,8 @@ class RecursiveFetcher(object):
                         try:
                             f = self.fetch_url(iurl)
                         except Exception, err:
-                            self.logger.warning('Could not fetch stylesheet %s', iurl)
-                            self.logger.debug('Error: %s', str(err), exc_info=True)
+                            self.log_warning('Could not fetch stylesheet %s', iurl)
+                            self.log_debug('Error: %s', str(err), exc_info=True)
                             continue
                         c += 1
                         stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
@@ -234,7 +235,7 @@ class RecursiveFetcher(object):
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
             iurl, ext = tag['src'], os.path.splitext(tag['src'])[1]
             #if not ext:
-            #    self.logger.debug('Skipping extensionless image %s', iurl)
+            #    self.log_debug('Skipping extensionless image %s', iurl)
             #    continue
             if not urlparse.urlsplit(iurl).scheme:
                 iurl = urlparse.urljoin(baseurl, iurl, False)
@@ -245,8 +246,8 @@ class RecursiveFetcher(object):
             try:
                 f = self.fetch_url(iurl)
             except Exception, err:
-                self.logger.warning('Could not fetch image %s', iurl)
-                self.logger.debug('Error: %s', str(err), exc_info=True)
+                self.log_warning('Could not fetch image %s', iurl)
+                self.log_debug('Error: %s', str(err), exc_info=True)
                 continue
             c += 1
             imgpath = os.path.join(diskpath, sanitize_file_name('img'+str(c)+ext))
@@ -263,10 +264,10 @@ class RecursiveFetcher(object):
         if not parts.scheme:
             iurl = urlparse.urljoin(baseurl, iurl, False)
         if not self.is_link_ok(iurl):
-            self.logger.debug('Skipping invalid link: %s', iurl)
+            self.log_debug('Skipping invalid link: %s', iurl)
             return None
         if filter and not self.is_link_wanted(iurl):
-            self.logger.debug('Filtered link: '+iurl)
+            self.log_debug('Filtered link: '+iurl)
             return None
         return iurl
     
@@ -330,7 +331,7 @@ class RecursiveFetcher(object):
                         dsrc = xml_to_unicode(dsrc, self.verbose)[0]
                     
                     soup = self.get_soup(dsrc)
-                    self.logger.debug('Processing images...')
+                    self.log_debug('Processing images...')
                     self.process_images(soup, f.geturl())
                     if self.download_stylesheets:
                         self.process_stylesheets(soup, f.geturl())
@@ -339,11 +340,11 @@ class RecursiveFetcher(object):
                     self.downloaded_paths.append(res)
                     self.filemap[nurl] = res
                     if recursion_level < self.max_recursions:
-                        self.logger.debug('Processing links...')
+                        self.log_debug('Processing links...')
                         self.process_links(soup, iurl, recursion_level+1)
                     else:
                         self.process_return_links(soup, iurl) 
-                        self.logger.debug('Recursion limit reached. Skipping links in %s', iurl)
+                        self.log_debug('Recursion limit reached. Skipping links in %s', iurl)
                     
                     if callable(self.postprocess_html_ext):
                         soup = self.postprocess_html_ext(soup, 
@@ -356,8 +357,8 @@ class RecursiveFetcher(object):
                     self.localize_link(tag, 'href', res)
                 except Exception, err:
                     self.failed_links.append((iurl, traceback.format_exc()))
-                    self.logger.warning('Could not fetch link %s', iurl)
-                    self.logger.debug('Error: %s', str(err), exc_info=True)
+                    self.log_warning('Could not fetch link %s', iurl)
+                    self.log_debug('Error: %s', str(err), exc_info=True)
                 finally:
                     self.current_dir = diskpath
                     self.files += 1                

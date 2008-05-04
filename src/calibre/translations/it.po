@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "POT-Creation-Date: 2008-05-02 17:09+PDT\n"
-"PO-Revision-Date: 2008-04-05 14:25+0200\n"
+"PO-Revision-Date: 2008-05-03 22:51+0200\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
@@ -79,8 +79,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:108
 msgid "Output file name. Default is derived from input filename"
-msgstr ""
-"Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
+msgstr "Nome del file in uscita. Il nome predefinito è preso dal file in ingresso"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:110
 msgid ""
@@ -110,8 +109,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
-msgstr ""
-"Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
+msgstr "Imposta lo spazio tra le parole in punti. Il valore predefinito è %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:120
 msgid "Separate paragraphs by blank lines."
@@ -119,8 +117,7 @@ msgstr "Separa i paragrafi con linee bianche"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:122
 msgid "Add a header to all the pages with title and author."
-msgstr ""
-"Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
+msgstr "Aggiunge a tutte le pagine un'intestazione contenente il titolo e l'autore"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:124
 msgid ""
@@ -219,8 +216,7 @@ msgstr ""
 "ignorati. Predefinita: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
-msgid ""
-"Prevent the automatic insertion of page breaks before detected chapters."
+msgid "Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Previene l'inserimento automatico di interruzioni di pagina prima dei "
 "capitoli individuati"
@@ -253,8 +249,7 @@ msgstr ""
 "perciò ignorata se la pagina corrente ha solo pochi elementi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:186
-msgid ""
-"Force a page break before tags whoose names match this regular expression."
+msgid "Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Forza un'interruzione di pagina prima dei tag i cui nomi corrispondono a "
 "questa espressione regolare"
@@ -384,6 +379,10 @@ msgid ""
 "\n"
 "%prog converts mybook.fb2 to mybook.lrf"
 msgstr ""
+"%prog [opzioni] miolibro.fb2\n"
+"\n"
+"\n"
+"%prog converte miolibro.fb2 in miolibro.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:23
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:22
@@ -582,13 +581,11 @@ msgstr "La categoria a cui questo libro appartiene. Es: Storia"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:559
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr ""
-"Percorso a un'immagine che verrà impostata come miniatura di questo file"
+msgstr "Percorso a un'immagine che verrà impostata come miniatura di questo file"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:562
 msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr ""
-"Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
+msgstr "Percorso a un file TXT contenente il commento che verrà incluso nel file LRF"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:566
 msgid "Extract thumbnail from LRF file"
@@ -1004,8 +1001,7 @@ msgstr "Nessun formato disponibile"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:82
 msgid "Cannot convert %s as this book has no supported formats"
-msgstr ""
-"Impossibile convertire %s perché questo libro non ha formati supportati"
+msgstr "Impossibile convertire %s perché questo libro non ha formati supportati"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:86
 msgid "Choose the format to convert into LRF"
@@ -1149,8 +1145,7 @@ msgstr "Ca&mbia l'immagine di copertina:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:609
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:334
 msgid "Browse for an image to use as the cover of this book."
-msgstr ""
-"Sfoglia per trovare un'immagine da usare come copertina per questo libro"
+msgstr "Sfoglia per trovare un'immagine da usare come copertina per questo libro"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:611
 msgid "Use cover from &source file"
@@ -1517,10 +1512,8 @@ msgid "Fetch cover image from server"
 msgstr "Scarica immagine di copertina dal server"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:337
-msgid ""
-"Change the username and/or password for your account at LibraryThing.com"
-msgstr ""
-"Cambia il nome utente e/o password del proprio account su LibraryThing.com"
+msgid "Change the username and/or password for your account at LibraryThing.com"
+msgstr "Cambia il nome utente e/o password del proprio account su LibraryThing.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:338
 msgid "Change password"
@@ -1811,6 +1804,8 @@ msgid ""
 "For help with writing advanced news recipes, please visit <a href=\"http://"
 "calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
 msgstr ""
+"Per un aiuto su come scrivere formule di notizie avanzate, visitare <a href=\"http://"
+"calibre.kovidgoyal.net/user_manual/news.html\">Formule utente</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:242
 msgid "Recipe source code (python)"
@@ -2287,7 +2282,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:266
 msgid "calibre"
-msgstr ""
+msgstr "calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:267
 msgid ""
@@ -2303,6 +2298,17 @@ msgid ""
 "a><br /><br /><span style=\" font-weight:600;\">calibre</span>: %1 by <span "
 "style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></html>"
 msgstr ""
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Visitare <a href=\"http://calibre.kovidgoyal.net/user_manual\"><span style=\" text-decoration: "
+"underline; color:#0000ff;\">calibre.kovidgoyal.net</span></a> per la "
+"guida<br /><br /><span style=\" font-weight:600;\">calibre</span>: %1 di "
+"<span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></"
+"html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:271
 msgid "Advanced search"
@@ -2535,8 +2541,7 @@ msgstr ""
 msgid ""
 "The directory in which to store the downloaded feeds. Defaults to the "
 "current directory."
-msgstr ""
-"La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
+msgstr "La cartella in cui salvare i feed scaricati. Perdefinita: cartella corrente"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:55
 msgid "Dont show the progress bar"
@@ -2587,8 +2592,7 @@ msgstr "\tLink falliti:"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:549
 msgid "Could not fetch article. Run with --debug to see the reason"
-msgstr ""
-"Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
+msgstr "Impossibile scaricare l'articolo. Eseguire con --debug per vedere la ragione"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:571
 msgid "Got feeds from index page"
@@ -2732,40 +2736,3 @@ msgstr "Non scaricare i fogli di stile CSS"
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Mostra un output dettagliato. Utile per il debugging"
 
-#~ msgid ""
-#~ "For help with writing advanced news recipes, please visit <a href="
-#~ "\"http://libprs500.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
-#~ msgstr ""
-#~ "Per un aiuto su come scrivere formule di notizie avanzate, visitare <a "
-#~ "href=\"http://libprs500.kovidgoyal.net/user_manual/news.html\">Formule "
-#~ "utente</a>"
-
-#~ msgid "libprs500"
-#~ msgstr "libprs500"
-
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href="
-#~ "\"http://libprs500.kovidgoyal.net/user_manual\"><span style=\" text-"
-#~ "decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</span></"
-#~ "a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %1 by "
-#~ "<span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
-#~ "body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Visitare <a href="
-#~ "\"http://libprs500.kovidgoyal.net/user_manual\"><span style=\" text-"
-#~ "decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</span></"
-#~ "a> per la guida<br /><br /><span style=\" font-weight:600;\">libprs500</"
-#~ "span>: %1 di <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />"
-#~ "%3</p></body></html>"
