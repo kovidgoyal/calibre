@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, textwrap, traceback, time, re, sre_constants, urllib, locale, codecs
+import os, textwrap, traceback, time, re, sre_constants, locale, codecs
 from datetime import timedelta, datetime
 from operator import attrgetter
 from math import cos, sin, pi
@@ -11,7 +11,7 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
-from calibre import iswindows, Settings
+from calibre import Settings
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database import LibraryDatabase, SearchToken
 from calibre.gui2 import NONE, TableView, qstring_to_unicode
@@ -373,7 +373,6 @@ class BooksModel(QAbstractTableModel):
             done = True
         return done
 
-        
 class BooksView(TableView):
     TIME_FMT = '%d %b %Y'
     wrapper = textwrap.TextWrapper(width=20)
@@ -412,25 +411,9 @@ class BooksView(TableView):
         Accept a drop event and return a list of paths that can be read from 
         and represent files with extensions.
         '''
-        
-        def url_to_path(url):
-            try:
-                url = urllib.unquote(url)[8 if iswindows else 7:]
-            except:
-                return ''
-            return url.replace('/', os.sep)
-            
-        
         if event.mimeData().hasFormat('text/uri-list'):
-            urls = str(event.mimeData().data('text/uri-list')).replace('\x00', '').splitlines()
-            urls = [urllib.unquote(f.strip()) for f in urls]
-            # Only accept URLs to local files that have extensions
-            urls = [url_to_path(u) for u in urls if os.path.splitext(u)[1] and \
-                            u.startswith('file://')]
-            urls = [u for u in urls if os.access(u, os.R_OK)]
-            return urls
-        
-        
+            urls = [qstring_to_unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+            return [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
     
     def dragEnterEvent(self, event):
         if int(event.possibleActions() & Qt.CopyAction) + \
