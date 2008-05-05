@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
-"POT-Creation-Date: 2008-05-02 17:09+PDT\n"
+"POT-Creation-Date: 2008-05-05 05:15+PDT\n"
 "PO-Revision-Date: 2008-01-20 09:59+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -14,11 +14,11 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
-#: /home/kovid/work/calibre/src/calibre/__init__.py:88
+#: /home/kovid/work/calibre/src/calibre/__init__.py:95
 msgid "%sUsage%s: %s\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/__init__.py:125
+#: /home/kovid/work/calibre/src/calibre/__init__.py:132
 msgid "Created by "
 msgstr "Créé par"
 
@@ -35,7 +35,7 @@ msgstr ""
 "Par défaut : %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:631
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:608
 msgid "Unknown"
 msgstr "Inconnu"
 
@@ -57,7 +57,7 @@ msgstr "Clé de tri pour l'auteur"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:16
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:342
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:336
 msgid "Publisher"
 msgstr "Editeur"
 
@@ -377,90 +377,90 @@ msgstr ""
 msgid "Fetching of recipe failed: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:307
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:308
 msgid "\tBook Designer file detected."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:309
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:310
 msgid "\tParsing HTML..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:331
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:332
 msgid "\tBaen file detected. Re-parsing..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:347
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:348
 msgid "Written preprocessed HTML to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:360
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:361
 msgid "Processing %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:374
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:375
 msgid "\tConverting to BBeB..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:512
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:519
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:513
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:520
 msgid "Could not parse file: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:531
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:532
 msgid "Failed to parse link %s %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:574
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:575
 msgid "Cannot add link %s to TOC"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:916
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:917
 msgid "Unable to process image %s. Error: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:954
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:955
 msgid "Unable to process interlaced PNG %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:969
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:970
 msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1659
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1660
 msgid "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1661
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1662
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1683
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1684
 msgid "Table has cell that is too large"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1713
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1714
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1753
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1754
 msgid "Could not read cover image: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1756
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1757
 msgid "Cannot read from: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1885
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1886
 msgid "Failed to process opf file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1891
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1892
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
@@ -1154,7 +1154,7 @@ msgstr "Livre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:628
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:325
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:224
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:218
 msgid "Comments"
 msgstr "Commentaires"
 
@@ -1446,8 +1446,8 @@ msgid "&Show password"
 msgstr "&Affiche le mot de passe"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:14
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:337
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:701
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:331
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:678
 msgid "Title"
 msgstr "Titre"
 
@@ -1460,13 +1460,13 @@ msgid "Tag"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:18
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:229
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:344
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:338
 msgid "Series"
 msgstr "Séries"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:19
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:635
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:612
 msgid "Format"
 msgstr "Format"
 
@@ -1830,59 +1830,59 @@ msgstr ""
 msgid "Cannot kill waiting jobs."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:207
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:213
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:219
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:223
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:217
 msgid "None"
 msgstr "Aucun"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:214
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:343
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:641
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:705
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:337
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:618
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:682
 msgid "Tags"
 msgstr "Tags"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:220
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:214
 msgid "Formats"
 msgstr "Formats"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:223
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Livre <font face=\"serif\">%s</font> of %s."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:329
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:323
 msgid "Double click to <b>edit</b> me<br><br>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:338
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:702
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:332
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:679
 msgid "Author(s)"
 msgstr "Auteur(s)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:339
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:703
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:333
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:680
 msgid "Size (MB)"
 msgstr "Taille (MB)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:340
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:704
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:334
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:681
 msgid "Date"
 msgstr "Date"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:341
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:335
 msgid "Rating"
 msgstr "Note"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:636
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:613
 msgid "Path"
 msgstr "Chemin"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:640
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:617
 msgid "Timestamp"
 msgstr "Horodatage"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:740
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:717
 msgid "Search (For Advanced Search click the button to the left)"
 msgstr ""
 
@@ -2383,7 +2383,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:88
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:567
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:568
 msgid "Fetching feeds..."
 msgstr ""
 
@@ -2391,131 +2391,131 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:468
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:469
 msgid "Download finished"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:470
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:471
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:472
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:478
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:473
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:479
 msgid " from "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:476
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:477
 msgid "Failed to download parts of the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:480
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:481
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:549
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:550
 msgid "Could not fetch article. Run with --debug to see the reason"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:571
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:572
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:575
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:576
 msgid "Trying to download cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:625
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:626
 msgid "Starting download [%d thread(s)]..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:639
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:640
 msgid "Feeds downloaded to %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:648
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:649
 msgid "Could not download cover: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:653
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:654
 msgid "Downloading cover from %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:688
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:689
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:729
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:730
 msgid ""
 "\n"
 "Downloaded article %s from %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:735
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:736
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:741
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:742
 msgid "Failed to download article: %s from %s\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:746
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:747
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:761
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:762
 msgid "Fetching feed"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:373
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:374
 msgid ""
 "%prog URL\n"
 "\n"
 "Where URL is for example http://google.com"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:376
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:377
 msgid "Base directory into which URL is saved. Default is %default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:379
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:380
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:382
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:383
 msgid ""
 "Maximum number of levels to recurse i.e. depth of links to follow. Default %"
 "default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:385
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:386
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:387
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:388
 msgid ""
 "Minimum interval in seconds between consecutive fetches. Default is %default "
 "s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:389
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:390
 msgid ""
 "The character encoding for the websites you are trying to download. The "
 "default is to try and guess the encoding."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:391
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:392
 msgid ""
 "Only links that match this regular expression will be followed. This option "
 "can be specified multiple times, in which case as long as a link matches any "
 "one regexp, it will be followed. By default all links are followed."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:393
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:394
 msgid ""
 "Any link that matches this regular expression will be ignored. This option "
 "can be specified multiple times, in which case as long as any regexp matches "
@@ -2524,11 +2524,11 @@ msgid ""
 "applied first."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:395
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:396
 msgid "Do not download CSS stylesheets."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:396
+#: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:397
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
 
