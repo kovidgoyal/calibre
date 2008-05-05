@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch cover from LibraryThing.com based on ISBN number.
 '''
 
-import sys, socket, os, re
+import sys, socket, os, re, mechanize
 
 from calibre import browser as _browser, OptionParser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup 
@@ -47,7 +47,7 @@ def cover_from_isbn(isbn, timeout=5.):
             raise ISBNNotFound('ISBN: '+isbn+_(' not found.'))
         url = url.find('img')
         if url is None:
-            raise LibraryThingError(_('Server error. Try again later.'))
+            raise LibraryThingError(_('LibraryThing.com server error. Try again later.'))
         url = re.sub(r'_SX\d+', '', url['src'])
         cover_data = browser.open(url).read()
         return cover_data, url.rpartition('.')[-1]
@@ -75,7 +75,10 @@ def main(args=sys.argv):
         return 1
     isbn = args[1]
     if opts.username and opts.password:
-        login(opts.username, opts.password)
+        try:
+            login(opts.username, opts.password)
+        except mechanize.FormNotFoundError:
+            raise LibraryThingError(_(_('LibraryThing.com server error. Try again later.')))
         
     cover_data, ext = cover_from_isbn(isbn)
     if not ext:
