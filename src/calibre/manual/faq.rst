@@ -129,7 +129,7 @@ Why does |app| show only some of my fonts on OS X?
 
 The graphical user interface of |app| is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If you've never used the graphical user interface before, try deleting the file library1.db (it will be somewhere under :file:`C:\\Documents and Settings` on Windows XP and :file:`C:\\Users` on Windows Vista. If that doesn't fix the problem, locate the file calibre.log (in the same places as library1.db) and post its contents in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion>`_.
+If you've never used the graphical user interface before, try deleting the file library1.db (it will be somewhere under :file:`C:\\Documents and Settings` on Windows XP and :file:`C:\\Users` on Windows Vista. If that doesn't fix the problem, locate the file libprs500.log (in the same places as library1.db) and post its contents in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion>`_.
 
 I want some feature added to |app|. What can I do?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
