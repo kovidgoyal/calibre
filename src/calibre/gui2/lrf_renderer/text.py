@@ -187,7 +187,8 @@ class TextBlock(object):
             self.populate(tb.content)
             self.end_line()
         except TextBlock.HeightExceeded, err:
-            logger.warning('TextBlock height exceeded, skipping line:\n%s'%(err,))
+            pass
+            #logger.warning('TextBlock height exceeded, skipping line:\n%s'%(err,))
         
     def peek(self):
         return self.lines[self.peek_index+1]
