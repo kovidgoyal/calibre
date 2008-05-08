@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import tempfile
 import sys, os, shutil, time
 sys.path.append('src')
 import subprocess
@@ -106,6 +107,14 @@ def upload_user_manual():
         check_call('scp -r .build/html/* divok:%s'%USER_MANUAL)
     finally:
         os.chdir(cwd)
+        
+def build_tarball():
+    cwd = os.getcwd()
+    check_call('bzr export dist/calibre-%s.tar.bz2'%__version__)
+    
+def upload_tarball():
+    check_call('ssh divok rm -f %s/calibre-\*.tar.bz2'%DOWNLOADS)
+    check_call('scp dist/calibre-*.tar.bz2 divok:%s/'%DOWNLOADS)
 
 def main():
     upload = len(sys.argv) < 2
@@ -119,11 +128,13 @@ def main():
     tag_release()
     upload_demo()
     build_installers()
+    build_tarball()
     if upload:
         print 'Uploading installers...'
         upload_installers()
         print 'Uploading to PyPI'
         check_call('''python setup.py register bdist_egg --exclude-source-files upload''')
+        upload_tarball()
         upload_docs()
         upload_user_manual()
         check_call('''rm -rf dist/* build/*''')

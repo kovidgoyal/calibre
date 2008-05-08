@@ -78,7 +78,7 @@ def main(args=sys.argv):
         try:
             login(opts.username, opts.password)
         except mechanize.FormNotFoundError:
-            raise LibraryThingError(_(_('LibraryThing.com server error. Try again later.')))
+            raise LibraryThingError(_('LibraryThing.com server error. Try again later.'))
         
     cover_data, ext = cover_from_isbn(isbn)
     if not ext:
