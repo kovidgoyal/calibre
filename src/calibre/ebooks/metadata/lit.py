@@ -602,6 +602,7 @@ class LitFile(object):
                 size, piece, remaining = encint(piece, remaining)
                 
                 entry = DirectoryEntry(name, section, offset, size)
+                
                 if name == '::DataSpace/NameList':
                     self.read_section_names(entry)
                 elif name == '/manifest':

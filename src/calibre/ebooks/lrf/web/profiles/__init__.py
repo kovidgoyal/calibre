@@ -211,7 +211,7 @@ class DefaultProfile(object):
             src = build_sub_index(category, articles[category])
             open(cfile, 'wb').write(src.encode(encoding))
                         
-        src = '''\
+        src = u'''\
         <html>
         <body>
         <h1>%(title)s</h1>
