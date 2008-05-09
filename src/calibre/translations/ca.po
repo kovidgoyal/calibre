@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-05 05:15+PDT\n"
+"POT-Creation-Date: 2008-05-09 15:40+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: calibre\n"
 "Language-Team: \n"
@@ -675,7 +675,8 @@ msgid " not found."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:50
-msgid "Server error. Try again later."
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:81
+msgid "LibraryThing.com server error. Try again later."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:59
@@ -686,11 +687,11 @@ msgid ""
 "Fetch a cover image for the book identified by ISBN from LibraryThing.com\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:746
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:747
 msgid "Usage: %s file.lit"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:753
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:754
 msgid "Cover saved to"
 msgstr ""
 

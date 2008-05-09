@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-05-05 05:15+PDT\n"
+"POT-Creation-Date: 2008-05-09 15:40+PDT\n"
 "PO-Revision-Date: 2008-05-03 22:51+0200\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
@@ -764,8 +764,9 @@ msgid " not found."
 msgstr " non trovato"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:50
-msgid "Server error. Try again later."
-msgstr "Errore del server. Ritentare più tardi"
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:81
+msgid "LibraryThing.com server error. Try again later."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:59
 msgid ""
@@ -780,11 +781,11 @@ msgstr ""
 "Scarica un'immagine di copertina per il libro identificato dall'ISBN da "
 "LibraryThing.com\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:746
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:747
 msgid "Usage: %s file.lit"
 msgstr "Uso: %s file.lit"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:753
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:754
 msgid "Cover saved to"
 msgstr "Copertina salvata in"
 
@@ -2749,3 +2750,6 @@ msgstr "Non scaricare i fogli di stile CSS"
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:397
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Mostra un output dettagliato. Utile per il debugging"
+
+#~ msgid "Server error. Try again later."
+#~ msgstr "Errore del server. Ritentare più tardi"

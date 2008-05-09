@@ -419,6 +419,12 @@ class Page(LRFStream):
     def __str__(self):
         return unicode(self)
     
+    def to_html(self):
+        s = u''
+        for i in self:
+            s += i.to_html()
+        return s
+    
     
 
 class BlockAttr(StyleObject, LRFObject):
@@ -464,39 +470,7 @@ class BlockAttr(StyleObject, LRFObject):
                  
                  
 
-            
-        
-
-class TextAttr(StyleObject, LRFObject):
-    
-    FONT_MAP = collections.defaultdict(lambda : 'serif')
-    for key, value in PRS500_PROFILE.default_fonts.items():
-        FONT_MAP[value] = key
-        
-    tag_map = {
-        0xF511: ['fontsize', 'w'],
-        0xF512: ['fontwidth', 'w'],
-        0xF513: ['fontescapement', 'w'],
-        0xF514: ['fontorientation', 'w'],
-        0xF515: ['fontweight', 'W'],
-        0xF516: ['fontfacename', 'P'],
-        0xF517: ['textcolor', 'D', Color],
-        0xF518: ['textbgcolor', 'D', Color],
-        0xF519: ['wordspace', 'w'],
-        0xF51A: ['letterspace', 'w'],
-        0xF51B: ['baselineskip', 'w'],
-        0xF51C: ['linespace', 'w'],
-        0xF51D: ['parindent', 'w'],
-        0xF51E: ['parskip', 'w'],
-        0xF53C: ['align', 'W', {1: 'head', 4: 'center', 8: 'foot'}],
-        0xF53D: ['column', 'W'],
-        0xF53E: ['columnsep', 'W'],
-        0xF5DD: ['charspace', 'w'],
-        0xF5F1: ['textlinewidth', 'W'],
-        0xF5F2: ['linecolor', 'D', Color],
-      }
-    tag_map.update(ruby_tags)
-    tag_map.update(LRFObject.tag_map)
+class TextCSS(object):
     
     @classmethod
     def to_css(cls, obj, inline=False):
@@ -537,8 +511,43 @@ class TextAttr(StyleObject, LRFObject):
             
         return ans
 
+                
+        
 
-class Block(LRFStream):
+class TextAttr(StyleObject, LRFObject, TextCSS):
+    
+    FONT_MAP = collections.defaultdict(lambda : 'serif')
+    for key, value in PRS500_PROFILE.default_fonts.items():
+        FONT_MAP[value] = key
+        
+    tag_map = {
+        0xF511: ['fontsize', 'w'],
+        0xF512: ['fontwidth', 'w'],
+        0xF513: ['fontescapement', 'w'],
+        0xF514: ['fontorientation', 'w'],
+        0xF515: ['fontweight', 'W'],
+        0xF516: ['fontfacename', 'P'],
+        0xF517: ['textcolor', 'D', Color],
+        0xF518: ['textbgcolor', 'D', Color],
+        0xF519: ['wordspace', 'w'],
+        0xF51A: ['letterspace', 'w'],
+        0xF51B: ['baselineskip', 'w'],
+        0xF51C: ['linespace', 'w'],
+        0xF51D: ['parindent', 'w'],
+        0xF51E: ['parskip', 'w'],
+        0xF53C: ['align', 'W', {1: 'head', 4: 'center', 8: 'foot'}],
+        0xF53D: ['column', 'W'],
+        0xF53E: ['columnsep', 'W'],
+        0xF5DD: ['charspace', 'w'],
+        0xF5F1: ['textlinewidth', 'W'],
+        0xF5F2: ['linecolor', 'D', Color],
+      }
+    tag_map.update(ruby_tags)
+    tag_map.update(LRFObject.tag_map)
+    
+    
+
+class Block(LRFStream, TextCSS):
     tag_map = {
         0xF503: ['style_id', 'D'],
       }
@@ -593,6 +602,11 @@ class Block(LRFStream):
             s += '</%s>\n'%(self.name,)
             return s
         return s.rstrip() + ' />\n'
+    
+    def to_html(self):
+        if self.name == 'TextBlock':
+            return u'<div class="block%s text%s">%s</div>'%(self.style_id, self.textstyle_id, self.content.to_html())
+        return u''
         
 
 class MiniPage(LRFStream):
@@ -668,8 +682,16 @@ class Text(LRFStream):
                 s += '%s="%s" '%(name, val)
             return s.rstrip() + (u' />' if self.self_closing else u'>')
         
+        def to_html(self):
+            s = u''
+            return s
+        
+        def close_html(self):
+            return u''
+        
     class Span(TextTag):
         pass
+        
     
     linetype_map = {0: 'none', 0x10: 'solid', 0x20: 'dashed', 0x30: 'double', 0x40: 'dotted'}
     adjustment_map = {1: 'top', 2: 'center', 3: 'baseline', 4: 'bottom'}
@@ -830,6 +852,32 @@ class Text(LRFStream):
                 s += unicode(c)
                 if not c.self_closing: 
                     open_containers.append(c)
+        
+        if len(open_containers) > 0:
+            raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],)) 
+        return s
+    
+    def to_html(self):
+        s = u''
+        open_containers = collections.deque()
+        in_p = False
+        for c in self.content:
+            if isinstance(c, basestring):
+                s += c
+            elif c is None:
+                if c.name == 'P':
+                    in_p = False
+                p = open_containers.pop()
+                s += p.close_html() 
+            else:
+                if c.name == 'P':
+                    in_p = True
+                elif c.name == 'CR':
+                    s += '<br />' if in_p else '<p>'
+                else: 
+                    s += c.to_html()
+                    if not c.self_closing: 
+                        open_containers.append(c)
         
         if len(open_containers) > 0:
             raise LRFParseError('Malformed text stream %s'%([i.name for i in open_containers if isinstance(i, Text.TextTag)],)) 
