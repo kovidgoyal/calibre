@@ -7,7 +7,7 @@ from genshi.template import MarkupTemplate
 
 class Template(MarkupTemplate):
     
-    STYLE = '''\
+    STYLE = u'''\
             .article_date {
                 font-size: x-small; color: gray; font-family: monospace;
             }
@@ -29,12 +29,19 @@ class Template(MarkupTemplate):
     def generate(self, *args, **kwargs):
         if not kwargs.has_key('style'):
             kwargs['style'] = self.STYLE
+        for key in kwargs.keys():
+            if isinstance(kwargs[key], basestring) and not isinstance(kwargs[key], unicode):
+                kwargs[key] = unicode(kwargs[key], 'utf-8', 'replace')
+        for arg in args:
+            if isinstance(arg, basestring) and not isinstance(arg, unicode):
+                arg = unicode(arg, 'utf-8', 'replace')
+        
         return MarkupTemplate.generate(self, *args, **kwargs)
     
 class NavBarTemplate(Template):
     
     def __init__(self):
-        Template.__init__(self, '''\
+        Template.__init__(self, u'''\
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" 
@@ -83,7 +90,7 @@ class NavBarTemplate(Template):
 class IndexTemplate(Template):
     
     def __init__(self):
-        Template.__init__(self, '''\
+        Template.__init__(self, u'''\
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" 
@@ -123,7 +130,7 @@ class IndexTemplate(Template):
 class FeedTemplate(Template):
     
     def __init__(self):
-        Template.__init__(self, '''\
+        Template.__init__(self, u'''\
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" 
@@ -173,7 +180,7 @@ class FeedTemplate(Template):
 class EmbeddedContent(Template):
     
     def __init__(self):
-        Template.__init__(self, '''\
+        Template.__init__(self, u'''\
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" 
