@@ -12,7 +12,7 @@ from trac.wiki.macros import WikiMacroBase
 from trac.util import Markup
 
 
-BZR_PATH = '/home/kovid/work/calibre'#'/var/bzr/code/calibre/trunk'
+BZR_PATH = '/var/bzr/code/calibre/trunk'
 
 class ChangelogFormatter(blog.LogFormatter):
     
