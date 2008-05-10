@@ -7,7 +7,7 @@ __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
 
 import sys, os, logging, mechanize, locale, copy, cStringIO, re, subprocess, \
-       textwrap, atexit, cPickle, codecs
+       textwrap, atexit, cPickle, codecs, time
 from gettext import GNUTranslations
 from math import floor
 from optparse import OptionParser as _OptionParser
@@ -527,3 +527,14 @@ class LoggingInterface:
         
     def log_exception(self, msg, *args):
         self.___log(self.__logger.exception, msg, args, {})
+        
+        
+def strftime(fmt, t=time.localtime()):
+    '''
+    A version of strtime that returns unicode strings.
+    '''
+    result = time.strftime(fmt, t)
+    try:
+        return unicode(result, locale.getpreferredencoding(), 'replace')
+    except:
+        return unicode(result, 'utf-8', 'replace')

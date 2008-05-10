@@ -87,10 +87,10 @@ def upload_installers():
     if exe and os.path.exists(exe):
         check_call('''ssh divok rm -f %s/calibre\*.exe'''%(DOWNLOADS,))
         check_call('''scp %s divok:%s/'''%(exe, DOWNLOADS))
-        check_call('''ssh divok rm -f %s/calibre\*.dmg'''%(DOWNLOADS,))
     if dmg and os.path.exists(dmg):
+        check_call('''ssh divok rm -f %s/calibre\*.dmg'''%(DOWNLOADS,)) 
         check_call('''scp %s divok:%s/'''%(dmg, DOWNLOADS))
-        check_call('''ssh divok chmod a+r %s/\*'''%(DOWNLOADS,))
+    check_call('''ssh divok chmod a+r %s/\*'''%(DOWNLOADS,))
         
 def upload_docs():
     check_call('''epydoc --config epydoc.conf''')

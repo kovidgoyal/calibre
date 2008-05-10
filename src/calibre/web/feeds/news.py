@@ -10,7 +10,7 @@ __docformat__ = "restructuredtext en"
 import logging, os, cStringIO, time, traceback, re, urlparse
 from collections import defaultdict
 
-from calibre import browser, __appname__, iswindows, LoggingInterface
+from calibre import browser, __appname__, iswindows, LoggingInterface, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
@@ -364,6 +364,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         @param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
         LoggingInterface.__init__(self, logging.getLogger('feeds2disk'))
+        if not isinstance(self.title, unicode):
+            self.title = unicode(self.title, 'utf-8', 'replace')
         
         for attr in ('username', 'password', 'lrf', 'output_dir', 'verbose', 'debug', 'test'):
             setattr(self, attr, getattr(options, attr))
@@ -661,7 +663,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
-        mi = MetaInformation(self.title + time.strftime(self.timefmt), [__appname__])
+        mi = MetaInformation(self.title + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__
         opf_path = os.path.join(dir, 'index.opf')
@@ -837,7 +839,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
         raise NotImplementedError
     
     def create_opf(self):
-        mi = MetaInformation(self.title + time.strftime(self.timefmt), [__appname__])
+        mi = MetaInformation(self.title + strftime(self.timefmt), [__appname__])
         mi.publisher = __appname__
         mi.author_sort = __appname__        
         mi = OPFCreator(self.output_dir, mi)
