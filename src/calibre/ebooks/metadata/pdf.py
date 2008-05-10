@@ -9,10 +9,7 @@ from calibre.ebooks.pyPdf import PdfFileReader
 
 def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
-    if hasattr(stream, 'name'):
-        title = os.path.splitext(os.path.basename(stream.name))[0]
-    else:
-        title = 'Unknown'
+    title = 'Unknown'
     mi = MetaInformation(title, ['Unknown'])
     stream.seek(0)
     try:
