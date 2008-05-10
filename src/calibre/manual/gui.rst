@@ -2,8 +2,8 @@
 
 .. _gui:
 
-The Grahical User Interface
-============================
+The Graphical User Interface
+=============================
 
 The Graphical User Interface *(GUI)* provides access to all
 library management and ebook format conversion features. The basic workflow
