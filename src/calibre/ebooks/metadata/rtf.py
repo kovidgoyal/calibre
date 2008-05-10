@@ -54,14 +54,14 @@ def get_document_info(stream):
 
 def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
+    title, author, comment, category = None, None, None, None
     stream.seek(0)
     if stream.read(5) != r'{\rtf':
-        name = stream.name if hasattr(stream, 'name') else repr(stream)
-        raise Exception('Not a valid RTF file: '+name)
+        return MetaInformation(None, None)
     block = get_document_info(stream)[0]
     if not block:
         return MetaInformation(None, None)
-    title, author, comment, category = None, None, None, None
+    
     title_match = title_pat.search(block)
     if title_match:
         title = title_match.group(1).strip()
