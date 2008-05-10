@@ -124,3 +124,13 @@ class DeviceManager(QObject):
                 self.device.get_file(path, f)
                 f.close()
         return save_books
+    
+    def view_book_func(self):
+        '''Copy book from device to local hdd for viewing'''
+        def view_book(updater, path, target):
+            self.device.set_progress_reporter(updater)
+            f = open(target, 'wb')
+            self.device.get_file(path, f)
+            f.close()
+            return target
+        return view_book

@@ -751,14 +751,24 @@ class Main(MainWindow, Ui_MainWindow):
         pt.write(self.library_view.model().db.format(row, format))
         pt.close()
         self.persistent_files.append(pt)
-        if format.upper() == 'LRF':
-            args = ['lrfviewer', pt.name]
+        self._view_file(pt.name)
+        
+    def book_downloaded_for_viewing(self, id, description, result, exception, formatted_traceback):
+        if exception:
+            self.device_job_exception(id, description, exception, formatted_traceback)            
+            return
+        print result
+        self._view_file(result)
+    
+    def _view_file(self, name):
+        if name.upper().endswith('.LRF'):
+            args = ['lrfviewer', name]
             self.job_manager.process_server.run('viewer%d'%self.viewer_job_id, 
                                                 'lrfviewer', kwdargs=dict(args=args),
                                                 monitor=False)
             self.viewer_job_id += 1
         else:
-            launch(pt.name)
+            launch(name)
         time.sleep(2) # User feedback
     
     def view_specific_format(self, triggered):
@@ -779,35 +789,44 @@ class Main(MainWindow, Ui_MainWindow):
             return
     
     def view_book(self, triggered):
-        rows = self.library_view.selectionModel().selectedRows()
-        if not rows or len(rows) == 0:
-            d = error_dialog(self, _('Cannot view'), _('No book selected'))            
-            d.exec_()
-            return
-        
-        row = rows[0].row()
-        formats = self.library_view.model().db.formats(row).upper().split(',')
-        title   = self.library_view.model().db.title(row)
-        id      = self.library_view.model().db.id(row)
-        format = None
-        if len(formats) == 1:
-            format = formats[0]
-        if 'LRF' in formats:
-            format = 'LRF'
-        if not formats:
-            d = error_dialog(self, _('Cannot view'), 
-                    _('%s has no available formats.')%(title,))            
-            d.exec_()
-            return
-        if format is None:
-            d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
-            d.exec_()
-            if d.result() == QDialog.Accepted:
-                format = d.format()
-            else:
+        rows = self.current_view().selectionModel().selectedRows()
+        if self.current_view() is self.library_view:
+            if not rows or len(rows) == 0:
+                d = error_dialog(self, _('Cannot view'), _('No book selected'))            
+                d.exec_()
                 return
+            
+            row = rows[0].row()
+            formats = self.library_view.model().db.formats(row).upper().split(',')
+            title   = self.library_view.model().db.title(row)
+            id      = self.library_view.model().db.id(row)
+            format = None
+            if len(formats) == 1:
+                format = formats[0]
+            if 'LRF' in formats:
+                format = 'LRF'
+            if not formats:
+                d = error_dialog(self, _('Cannot view'), 
+                        _('%s has no available formats.')%(title,))            
+                d.exec_()
+                return
+            if format is None:
+                d = ChooseFormatDialog(self, _('Choose the format to view'), formats)
+                d.exec_()
+                if d.result() == QDialog.Accepted:
+                    format = d.format()
+                else:
+                    return
+            
+            self.view_format(row, format)
+        else:
+            paths = self.current_view().model().paths(rows)
+            pt = PersistentTemporaryFile('_viewer_'+os.path.splitext(paths[0])[1])
+            self.persistent_files.append(pt)
+            pt.close()
+            self.job_manager.run_device_job(self.book_downloaded_for_viewing,
+                                self.device_manager.view_book_func(), paths[0], pt.name)
         
-        self.view_format(row, format)
         
     
     ############################################################################
@@ -907,12 +926,12 @@ class Main(MainWindow, Ui_MainWindow):
                 self.action_sync.setEnabled(True)
             self.action_edit.setEnabled(True)
             self.action_convert.setEnabled(True)
-            self.action_view.setEnabled(True)
+            self.view_menu.actions()[1].setEnabled(True)
         else:
             self.action_sync.setEnabled(False)
             self.action_edit.setEnabled(False)
             self.action_convert.setEnabled(False)
-            self.action_view.setEnabled(False)
+            self.view_menu.actions()[1].setEnabled(False)
                 
     def device_job_exception(self, id, description, exception, formatted_traceback):
         '''
