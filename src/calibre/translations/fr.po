@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
-"POT-Creation-Date: 2008-05-09 15:40+PDT\n"
+"POT-Creation-Date: 2008-05-09 22:40+PDT\n"
 "PO-Revision-Date: 2008-01-20 09:59+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -698,11 +698,11 @@ msgstr ""
 msgid "Cover saved to"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:39
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:36
 msgid "Usage: pdf-meta file.pdf"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:40
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:37
 msgid "No filename specified."
 msgstr ""
 
@@ -2089,39 +2089,39 @@ msgstr ""
 msgid "Cannot convert"
 msgstr "Conversion impossible"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:767
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:784
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:777
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:795
 msgid "No book selected"
 msgstr "Aucun livre sélectionné"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:767
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:784
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:798
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:777
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:795
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:809
 msgid "Cannot view"
 msgstr "Impossible de visualiser"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:773
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:803
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:783
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:814
 msgid "Choose the format to view"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:799
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:810
 msgid "%s has no available formats."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:828
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:847
 msgid "Cannot configure"
 msgstr "Configuration impossible"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:828
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:847
 msgid "Cannot configure while there are running jobs."
 msgstr "Impossible de configurer pendant que des travaux sont en cours."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:863
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:882
 msgid "Invalid database"
 msgstr "Base de données invalide"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:864
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:883
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
@@ -2129,15 +2129,15 @@ msgstr ""
 "<p>Une base de données invalide existe déjà ici : %s, spprimez la avant "
 "d'essayer de déplacer la base de données existante.<br>Erreur : %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:872
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:891
 msgid "Could not move database"
 msgstr "Déplacement de la base de données impossible"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:922
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:941
 msgid "Error talking to device"
 msgstr "Erreur pendant la communication avec le lecteur électronique"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:923
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:942
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -2146,7 +2146,7 @@ msgstr ""
 "lecteur électronique. Veuillez déconnecter et reconnecter le lecteur "
 "électronique et redémarrer."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1003
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1022
 msgid ""
 "<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
 "s</a></span>"
@@ -2384,7 +2384,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:88
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:568
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:570
 msgid "Fetching feeds..."
 msgstr ""
 
@@ -2392,79 +2392,79 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:469
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:471
 msgid "Download finished"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:471
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:473
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:473
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:479
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:475
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:481
 msgid " from "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:477
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:479
 msgid "Failed to download parts of the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:481
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:483
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:550
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:552
 msgid "Could not fetch article. Run with --debug to see the reason"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:572
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:574
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:576
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:578
 msgid "Trying to download cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:626
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:628
 msgid "Starting download [%d thread(s)]..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:640
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:642
 msgid "Feeds downloaded to %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:649
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:651
 msgid "Could not download cover: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:654
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:656
 msgid "Downloading cover from %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:689
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:691
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:730
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:732
 msgid ""
 "\n"
 "Downloaded article %s from %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:736
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:742
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:744
 msgid "Failed to download article: %s from %s\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:747
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:749
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:762
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:764
 msgid "Fetching feed"
 msgstr ""
 
