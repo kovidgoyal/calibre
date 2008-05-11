@@ -35,6 +35,7 @@ from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.user_profiles import UserProfiles
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
+from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.library.database import DatabaseLocked
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
@@ -96,6 +97,7 @@ class Main(MainWindow, Ui_MainWindow):
                         Qt.QueuedConnection)
         QObject.connect(self.job_manager, SIGNAL('job_done(int)'), self.status_bar.job_done,
                         Qt.QueuedConnection)
+        QObject.connect(self.status_bar, SIGNAL('show_book_info()'), self.show_book_info)
         
         ####################### Setup Toolbar #####################
         sm = QMenu()
@@ -902,6 +904,20 @@ class Main(MainWindow, Ui_MainWindow):
             if hasattr(d, 'directories'):
                 set_sidebar_directories(d.directories)
             self.library_view.model().read_config()
+    
+    ############################################################################
+    
+    ################################ Book info #################################
+    
+    def show_book_info(self):
+        if self.current_view() is not self.library_view:
+            error_dialog(self, _('No detailed info available'), 
+                         _('No detailed information is available for books on the device.')).exec_()
+            return
+        index = self.library_view.currentIndex()
+        if index.isValid():
+            info = self.library_view.model().get_book_info(index)
+            BookInfo(self, info).show()
     
     ############################################################################
     

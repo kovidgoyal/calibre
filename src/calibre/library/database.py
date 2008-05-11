@@ -908,7 +908,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return self.conn.execute('SELECT title FROM meta WHERE id=?',(index,)).fetchone()[0]
     
     def authors(self, index, index_is_id=False):
-        ''' Authors as a comman separated list or None'''
+        ''' Authors as a comma separated list or None'''
         if not index_is_id:
             return self.data[index][2]
         return self.conn.execute('SELECT authors FROM meta WHERE id=?',(index,)).fetchone()[0]        

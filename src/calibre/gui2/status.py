@@ -4,7 +4,7 @@ import textwrap
 
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy
-from PyQt4.QtCore import Qt, QSize
+from PyQt4.QtCore import Qt, QSize, SIGNAL
 from calibre import fit_image
 from calibre.gui2 import qstring_to_unicode
 
@@ -39,20 +39,29 @@ class BookInfoDisplay(QFrame):
     class BookDataDisplay(QLabel):
         def __init__(self):
             QLabel.__init__(self)
-            self.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            #self.setTextInteractionFlags(Qt.TextSelectableByMouse)
             self.setText('')
+            
+        def mouseReleaseEvent(self, ev):
+            self.emit(SIGNAL('mr(int)'), 1)
     
     def __init__(self, clear_message):
         QFrame.__init__(self)
+        self.setCursor(Qt.PointingHandCursor)
         self.clear_message = clear_message
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
         self.cover_display = BookInfoDisplay.BookCoverDisplay()
         self.layout.addWidget(self.cover_display)        
         self.book_data = BookInfoDisplay.BookDataDisplay()
+        self.connect(self.book_data, SIGNAL('mr(int)'), self.mouseReleaseEvent)
         self.layout.addWidget(self.book_data)
+        self.data = {}
         self.setVisible(False)
         
+    def mouseReleaseEvent(self, ev):
+        self.emit(SIGNAL('show_book_info()'))
+    
     def show_data(self, data):
         if data.has_key('cover'):
             cover_data = data.pop('cover')
@@ -67,8 +76,12 @@ class BookInfoDisplay(QFrame):
             
         rows = u''
         self.book_data.setText('')
+        self.data = data
         for key in data.keys():
-            txt = '<br />\n'.join(textwrap.wrap(data[key], 120))
+            txt = data[key]
+            if len(txt) > 600:
+                txt = txt[:600]+'&hellip;'
+            txt = '<br />\n'.join(textwrap.wrap(txt, 120))
             rows += '<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
         self.book_data.setText('<table>'+rows+'</table>')
         
@@ -115,6 +128,7 @@ class StatusBar(QStatusBar):
         self.movie_button = MovieButton(QMovie(':/images/jobs-animated.mng'), jobs_dialog)
         self.addPermanentWidget(self.movie_button)
         self.book_info = BookInfoDisplay(self.clearMessage)
+        self.connect(self.book_info, SIGNAL('show_book_info()'), self.show_book_info)
         self.addWidget(self.book_info)
     
     def reset_info(self):
@@ -124,6 +138,8 @@ class StatusBar(QStatusBar):
         src = qstring_to_unicode(self.movie_button.jobs.text())
         return int(src.rpartition(':')[2].lstrip())
         
+    def show_book_info(self):
+        self.emit(SIGNAL('show_book_info()'))
     
     def job_added(self, id):
         jobs = self.movie_button.jobs

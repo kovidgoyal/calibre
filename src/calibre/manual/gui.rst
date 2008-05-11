@@ -231,7 +231,8 @@ Book Details
 -------------
 .. image:: images/book_details.png
 
-The Book Details display shows you extra information and the cover for the currently selected book.
+The Book Details display shows you extra information and the cover for the currently selected book. THe comments section is truncated if the comments are too long. To see the full comments as well as
+a larger image of the cover, click anywhere in the Book Details area.
 
 .. _jobs:
 

@@ -194,7 +194,7 @@ class BooksModel(QAbstractTableModel):
     def rowCount(self, parent):
         return self.db.rows() if self.db else 0
     
-    def current_changed(self, current, previous):
+    def current_changed(self, current, previous, emit_signal=True):
         data = {}
         idx = current.row()
         cdata = self.db.cover(idx)
@@ -221,7 +221,22 @@ class BooksModel(QAbstractTableModel):
             sidx = self.db.series_index(idx)
             sidx = self.__class__.roman(sidx) if self.use_roman_numbers else str(sidx)
             data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
-        self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
+        if emit_signal:
+            self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
+        else:
+            return data
+        
+    def get_book_info(self, index):
+        data = self.current_changed(index, None, False)
+        row = index.row()
+        data[_('Title')] = self.db.title(row)
+        au = self.db.authors(row)
+        if not au:
+            au = _('Unknown')
+        au = ', '.join([a.strip() for a in au.split(',')])
+        data[_('Author(s)')] = au
+        return data
+        
     
     def get_metadata(self, rows):
         metadata = []
