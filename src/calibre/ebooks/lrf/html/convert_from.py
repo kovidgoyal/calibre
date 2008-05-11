@@ -256,6 +256,8 @@ class HTMLConverter(object, LoggingInterface):
                 update_css(ncss, self.override_css)
             if npcss:
                 update_css(npcss, self.override_pcss)
+                
+        
         
         paths = [os.path.abspath(path) for path in paths]
         
@@ -355,7 +357,11 @@ class HTMLConverter(object, LoggingInterface):
     def add_file(self, path):
         self.css = HTMLConverter.CSS.copy()
         self.pseudo_css = self.override_pcss.copy()
-        self.css.update(self.override_css)
+        for selector in self.override_css:
+            if self.css.has_key(selector):
+                self.css[selector].update(self.override_css[selector])
+            else:
+                self.css[selector] = self.override_css[selector]
         
         self.file_name = os.path.basename(path)
         self.log_info(_('Processing %s'), path if self.verbose else self.file_name)
@@ -1490,6 +1496,7 @@ class HTMLConverter(object, LoggingInterface):
                 ts = self.current_block.textStyle.copy()
                 self.current_block.textStyle = ts
                 self.current_block.textStyle.attrs['parindent'] = '0'
+                print tag_css
                 if tag.contents:
                     c = tag.contents[0]
                     if isinstance(c, NavigableString):
