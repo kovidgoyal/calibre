@@ -1496,7 +1496,7 @@ class HTMLConverter(object, LoggingInterface):
                 ts = self.current_block.textStyle.copy()
                 self.current_block.textStyle = ts
                 self.current_block.textStyle.attrs['parindent'] = '0'
-                print tag_css
+                
                 if tag.contents:
                     c = tag.contents[0]
                     if isinstance(c, NavigableString):
