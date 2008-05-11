@@ -36,7 +36,7 @@ def generate_html(pathtopdf, logger):
         if ret != 0:
             err = p.stderr.read()
             raise ConversionError, err
-        if os.stat(index).st_size < 100:
+        if not os.path.exists(index) or os.stat(index).st_size < 100:
             raise ConversionError(os.path.basename(pathtopdf) + ' does not allow copying of text.')
     finally:
         os.chdir(cwd)
