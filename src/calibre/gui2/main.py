@@ -257,7 +257,7 @@ class Main(MainWindow, Ui_MainWindow):
         Called once metadata has been read for all books on the device.
         '''
         if exception:
-            if 'ExpatError' in str(exception):
+            if 'not well-formed' in str(exception):
                 error_dialog(self, _('Device database corrupted'),
                 _('''
                 <p>The database of books on the reader is corrupted. Try the following:
