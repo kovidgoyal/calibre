@@ -60,7 +60,7 @@ def human_readable(size):
         divisor, suffix = 1024*1024, "MB"
     elif size < 1024*1024*1024*1024: 
         divisor, suffix = 1024*1024*1024, "GB"
-    size = str(size/divisor)
+    size = str(float(size)/divisor)
     if size.find(".") > -1: 
         size = size[:size.find(".")+2]
     return size + " " + suffix
