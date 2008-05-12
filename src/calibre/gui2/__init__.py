@@ -63,6 +63,8 @@ def human_readable(size):
     size = str(float(size)/divisor)
     if size.find(".") > -1: 
         size = size[:size.find(".")+2]
+    if size.endswith('.0'):
+        size = size[:-2]
     return size + " " + suffix
 
 
