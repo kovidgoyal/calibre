@@ -221,8 +221,7 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         if connected:    
             self.device_manager = DeviceManager(device)
-            func = self.device_manager.info_func()
-            self.job_manager.run_device_job(self.info_read, func)
+            self.job_manager.run_device_job(self.info_read, self.device_manager.info_func())
             self.set_default_thumbnail(device.THUMBNAIL_HEIGHT)
             self.status_bar.showMessage('Device: '+device.__class__.__name__+' detected.', 3000)
             self.action_sync.setEnabled(True)
