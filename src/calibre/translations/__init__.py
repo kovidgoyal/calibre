@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Manage translation of user visible strings.
 '''
 
-import sys, os, cStringIO, tempfile, subprocess, functools, tarfile
+import sys, os, cStringIO, tempfile, subprocess, functools, tarfile, re
 check_call = functools.partial(subprocess.check_call, shell=True)
 
 from calibre.translations.pygettext import main as pygettext
@@ -18,6 +18,7 @@ TRANSLATIONS = [
                 'es',
                 'it',
                 'bg',
+                'nds',
                 ]
 
 def source_files():
@@ -29,7 +30,21 @@ def source_files():
     return ans
                 
 
+def update_po_files(tarball):
+    tf = tarfile.open(tarball, 'r:gz')
+    next = tf.next()
+    while next is not None:
+        if next.name.endswith('.po'):
+            po = re.search(r'-([a-z]{2,3}\.po)', next.name).group(1)
+            print 'Updating', po
+            tf.extract(next, os.path.abspath(po))
+        next = tf.next()
+    
+    return 0
+
 def main(args=sys.argv):
+    if args[-1].endswith('.tar.gz'):
+        return update_po_files(args[-1])
     tdir = os.path.dirname(__file__)
     files = source_files()
     buf = cStringIO.StringIO()

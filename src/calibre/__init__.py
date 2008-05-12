@@ -276,21 +276,23 @@ def set_translator():
     lang = locale.getdefaultlocale()[0]
     if lang is None and os.environ.has_key('LANG'): # Needed for OS X
         try:
-            lang = os.environ['LANG'][:2]
+            lang = os.environ['LANG']
         except:
             pass 
     if lang:
-        lang = lang[:2]
-        buf = None
-        if os.access(lang+'.po', os.R_OK):
-            buf = cStringIO.StringIO()
-            make(lang+'.po', buf)
-            buf = cStringIO.StringIO(buf.getvalue())
-        elif translations.has_key(lang):
-            buf = cStringIO.StringIO(translations[lang])
-        if buf is not None:
-            t = GNUTranslations(buf)
-            t.install(unicode=True)
+        match = re.match('[a-z]{2,3}', lang)
+        if match:
+            lang = match.group()
+            buf = None
+            if os.access(lang+'.po', os.R_OK):
+                buf = cStringIO.StringIO()
+                make(lang+'.po', buf)
+                buf = cStringIO.StringIO(buf.getvalue())
+            elif translations.has_key(lang):
+                buf = cStringIO.StringIO(translations[lang])
+            if buf is not None:
+                t = GNUTranslations(buf)
+                t.install(unicode=True)
         
 set_translator()
 
