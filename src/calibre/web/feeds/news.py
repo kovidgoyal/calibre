@@ -30,69 +30,69 @@ class BasicNewsRecipe(object, LoggingInterface):
     '''
     
     #: The title to use for the ebook
-    title                 = _('Unknown News Source')
+    title                  = _('Unknown News Source')
     
     #: A couple of lines that describe the content this recipe downloads.
     #: This will be used primarily in a GUI that presents a list of recipes.
     description = ''
     
     #: The author of this recipe
-    __author__            = __appname__    
+    __author__             = __appname__    
     
     #: Maximum number of articles to download from each feed. This is primarily
     #: useful for feeds that don't have article dates. For most feeds, you should
     #: use :attr:`BasicNewsRecipe.oldest_article`
-    max_articles_per_feed = 100
+    max_articles_per_feed  = 100
     
     #: Oldest article to download from this news source. In days.
-    oldest_article = 7.0 
+    oldest_article         = 7.0 
     
     #: Number of levels of links to follow on article webpages 
-    recursions        = 0
+    recursions             = 0
     
     #: Delay between consecutive downloads in seconds
-    delay                 = 0
+    delay                  = 0
     
     #: Number of simultaneous downloads. Set to 1 if the server is picky.
     #: Automatically reduced to 1 if :attr:`BasicNewsRecipe.delay` > 0
     simultaneous_downloads = 5
     
     #: Timeout for fetching files from server in seconds
-    timeout               = 120.0
+    timeout                = 120.0
     
     #: The format string for the date shown on the first page.
     #: By default: Day_Name, Day_Number Month_Name Year
-    timefmt               = ' [%a, %d %b %Y]'
+    timefmt                = ' [%a, %d %b %Y]'
     
     #: List of feeds to download
     #: Can be either ``[url1, url2, ...]`` or ``[('title1', url1), ('title2', url2),...]``
     feeds = None
     
     #: Max number of characters in the short description
-    summary_length        = 500
+    summary_length         = 500
     
     #: Convenient flag to disable loading of stylesheets for websites
     #: that have overly complex stylesheets unsuitable for conversion
     #: to ebooks formats
     #: If True stylesheets are not downloaded and processed
-    no_stylesheets        = False
+    no_stylesheets         = False
     
     #: If True the GUI will ask the user for a username and password 
     #: to use while downloading
     #: @type: boolean
-    needs_subscription    = False
+    needs_subscription     = False
     
     #: Specify an override encoding for sites that have an incorrect
     #: charset specification. The most common being specifying ``latin1`` and
     #: using ``cp1252``. If None, try to detect the encoding. 
-    encoding = None
+    encoding               = None
     
     #: Normally we try to guess if a feed has full articles embedded in it
     #: based on the length of the embedded content. If `None`, then the
     #: default guessing is used. If `True` then the we always assume the feeds has 
     #: embedded content and if `False` we always assume the feed does not have
     #: embedded content.
-    use_embedded_content = None
+    use_embedded_content   = None
     
     #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
@@ -102,7 +102,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: 
     #:     extra_css = '.heading { font: serif x-large }'
     #: 
-    extra_css = None
+    extra_css              = None
     
     #: List of regular expressions that determines which links to follow
     #: If empty, it is ignored. For example::
@@ -127,7 +127,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     filter_regexps        = []
     
     #: List of options to pass to html2lrf, to customize generation of LRF ebooks.
-    html2lrf_options   = []
+    html2lrf_options      = []
     
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
@@ -145,7 +145,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: 
     #: This will remove all `<div class="advert">` tags and all 
     #: their children from the downloaded :term:`HTML`.
-    remove_tags = []
+    remove_tags           = []
     
     #: Remove all tags that occur after the specified tag. 
     #: For the format for specifying a tag see :attr:`BasicNewsRecipe.remove_tags`.
@@ -155,7 +155,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     #:
     #: will remove all
     #: tags after the first element with `id="content"`.
-    remove_tags_after = None
+    remove_tags_after     = None
     
     #: Remove all tags that occur before the specified tag.
     #: For the format for specifying a tag see :attr:`BasicNewsRecipe.remove_tags`.
@@ -165,7 +165,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     #:
     #: will remove all
     #: tags before the first element with `id="content"`.
-    remove_tags_before = None
+    remove_tags_before    = None
     
     #: Keep only the specified tags and their children. 
     #: For the format for specifying a tag see :attr:`BasicNewsRecipe.remove_tags`.
@@ -175,7 +175,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     #:     keep_only_tags = [dict(id=['content', 'heading'])]
     #: 
     #: will keep only tags that have an `id` attribute of `"content"` or `"heading"`.
-    keep_only_tags = []
+    keep_only_tags        = []
     
     #: List of :term:`regexp` substitution rules to run on the downloaded :term:`HTML`. 
     #: Each element of the 
@@ -189,7 +189,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     #:     ]
     #:
     #: will remove everythong from `<!--Article ends here-->` to `</body>`.
-    preprocess_regexps = []
+    preprocess_regexps    = []
     
     # See the built-in profiles for examples of these settings.
     

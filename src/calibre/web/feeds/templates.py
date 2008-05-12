@@ -2,7 +2,7 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-
+import datetime, locale
 from genshi.template import MarkupTemplate
 
 class Template(MarkupTemplate):
@@ -108,10 +108,7 @@ class IndexTemplate(Template):
     </head>
     <body>
         <h1>${title}</h1>
-        <?python
-        from datetime import datetime
-        ?>
-        <p style="text-align:right">${datetime.now().strftime(str(datefmt))}</p>
+        <p style="text-align:right">${date}</p>
         <ul>
             <py:for each="i, feed in enumerate(feeds)">
             <li py:if="feed" id="feed_${str(i)}">
@@ -124,7 +121,12 @@ class IndexTemplate(Template):
 ''')
 
     def generate(self, title, datefmt, feeds):
-        return Template.generate(self, title=title, datefmt=datefmt, feeds=feeds)
+        date = datetime.datetime.now().strftime(datefmt)
+        try:
+            date = date.decode(locale.getpreferredencoding())
+        except:
+            date = date.decode('utf-8', 'ascii')
+        return Template.generate(self, title=title, date=date, feeds=feeds)
     
     
 class FeedTemplate(Template):
