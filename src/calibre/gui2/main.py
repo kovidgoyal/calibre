@@ -674,6 +674,12 @@ class Main(MainWindow, Ui_MainWindow):
             pt.close()
             of = PersistentTemporaryFile('.lrf')
             of.close()
+            cover = self.library_view.model().db.cover(row)
+            if cover:
+                cf = PersistentTemporaryFile('.jpeg')
+                cf.write(cover)
+                cf.close()
+                cmdline.extend(['--cover', cf.name])
             cmdline.extend(['-o', of.name])
             cmdline.append(pt.name)
             id = self.job_manager.run_conversion_job(self.book_converted, 
