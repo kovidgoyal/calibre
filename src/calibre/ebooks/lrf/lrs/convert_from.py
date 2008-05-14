@@ -233,11 +233,20 @@ class LrsParser(object):
         bs = self.soup.find('booksetting')
         bs = BookSetting(**self.attrs_to_dict(bs, []))
         
+        settings = {}
+        thumbnail = self.soup.find('cthumbnail')
+        if thumbnail is not None:
+            f = thumbnail['file']
+            if os.access(f, os.R_OK):
+                settings['thumbnail'] = f
+            else:
+                print _('Could not read from thumbnail file:'), f
+        
         self.book = Book(title=title, author=author, publisher=publisher,
                          category=category, classification=classification,
                          freetext=freetext, language=language, creator=creator,
                          producer=producer, bookid=bookid, setdefault=sd,
-                         booksetting=bs)
+                         booksetting=bs, **settings)
         
         for hdr in self.soup.findAll(['header', 'footer']):
             elem = Header if hdr.name == 'header' else Footer
