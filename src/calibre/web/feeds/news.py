@@ -725,6 +725,8 @@ class BasicNewsRecipe(object, LoggingInterface):
     def article_downloaded(self, request, result):
         index = os.path.join(os.path.dirname(result[0]), 'index.html')
         if index != result[0]:
+            if os.path.exists(index):
+                os.remove(index)
             os.rename(result[0], index)
         a = request.requestID[1]        
         
