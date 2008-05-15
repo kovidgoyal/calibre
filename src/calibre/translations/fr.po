@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.22\n"
-"POT-Creation-Date: 2008-05-12 06:21+PDT\n"
+"POT-Creation-Date: 2008-05-14 20:42+PDT\n"
 "PO-Revision-Date: 2008-01-20 09:59+0100\n"
 "Last-Translator: FixB <fix.bornes@free.fr>\n"
 "Language-Team: fr\n"
@@ -480,22 +480,26 @@ msgid ""
 "%prog converts mybook.lit to mybook.lrf"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:254
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:243
+msgid "Could not read from thumbnail file:"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:263
 msgid ""
 "%prog [options] file.lrs\n"
 "Compile an LRS file into an LRF file."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:255
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:264
 msgid "Path to output file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:257
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:266
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:113
 msgid "Verbose processing"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:259
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:268
 msgid "Convert LRS to LRS, useful for debugging."
 msgstr ""
 
@@ -741,7 +745,7 @@ msgid "Comments"
 msgstr "Commentaires"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:66
-msgid "Dialog"
+msgid "Book Information"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:67
@@ -2077,7 +2081,7 @@ msgstr "Erreur à l'édition des metadat"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:502
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:588
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:649
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:708
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:714
 msgid "No books selected"
 msgstr "Aucun livre sélectionné"
 
@@ -2098,43 +2102,43 @@ msgid "News fetched. Uploading to device."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:649
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:708
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:714
 msgid "Cannot convert"
 msgstr "Conversion impossible"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:778
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:796
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:784
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:802
 msgid "No book selected"
 msgstr "Aucun livre sélectionné"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:778
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:796
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:810
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:784
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:802
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:816
 msgid "Cannot view"
 msgstr "Impossible de visualiser"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:784
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:815
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:790
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:821
 msgid "Choose the format to view"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:811
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:817
 msgid "%s has no available formats."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:848
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:854
 msgid "Cannot configure"
 msgstr "Configuration impossible"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:848
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:854
 msgid "Cannot configure while there are running jobs."
 msgstr "Impossible de configurer pendant que des travaux sont en cours."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:883
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:889
 msgid "Invalid database"
 msgstr "Base de données invalide"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:884
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:890
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
@@ -2142,23 +2146,23 @@ msgstr ""
 "<p>Une base de données invalide existe déjà ici : %s, spprimez la avant "
 "d'essayer de déplacer la base de données existante.<br>Erreur : %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:892
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:898
 msgid "Could not move database"
 msgstr "Déplacement de la base de données impossible"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:913
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:919
 msgid "No detailed info available"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:914
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:920
 msgid "No detailed information is available for books on the device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:956
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:962
 msgid "Error talking to device"
 msgstr "Erreur pendant la communication avec le lecteur électronique"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:957
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:963
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -2167,7 +2171,7 @@ msgstr ""
 "lecteur électronique. Veuillez déconnecter et reconnecter le lecteur "
 "électronique et redémarrer."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1037
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1043
 msgid ""
 "<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
 "s</a></span>"
@@ -2466,26 +2470,26 @@ msgstr ""
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:732
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:734
 msgid ""
 "\n"
 "Downloaded article %s from %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:738
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:740
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:744
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:746
 msgid "Failed to download article: %s from %s\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:749
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:751
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:764
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:766
 msgid "Fetching feed"
 msgstr ""
 

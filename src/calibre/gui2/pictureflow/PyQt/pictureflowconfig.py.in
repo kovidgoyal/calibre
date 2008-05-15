@@ -1,0 +1,22 @@
+from PyQt4 import pyqtconfig
+
+class Configuration(pyqtconfig.Configuration):
+
+   def __init__(self, sub_cfg=None):
+        """Initialise an instance of the class.
+
+        sub_cfg is the list of sub-class configurations.  It should be None
+        when called normally.
+        """
+        # This is all standard code to be copied verbatim except for the
+        # name of the module containing the super-class.
+        if sub_cfg:
+            cfg = sub_cfg
+        else:
+            cfg = []
+
+        cfg.append(_pkg_config)
+
+        pyqtconfig.Configuration.__init__(self, cfg)
+
+
