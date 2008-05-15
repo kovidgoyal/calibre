@@ -50,19 +50,9 @@ if __name__ == '__main__':
     from setuptools import setup, find_packages
     import subprocess, glob
     
-    from setuptools.command.egg_info import egg_info
-    
-    class CalibreEggInfo(egg_info):
-    
-        def run(self):
-            files = glob.glob('plugins/*')
-            egg_info.run(self)
-
-    
     entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
     
     setup(
-          cmdclass = { 'egg_info' : CalibreEggInfo, },
           name=APPNAME, 
           packages = find_packages('src'), 
           package_dir = { '' : 'src' }, 
