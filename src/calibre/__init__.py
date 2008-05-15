@@ -540,3 +540,20 @@ def strftime(fmt, t=time.localtime()):
         return unicode(result, locale.getpreferredencoding(), 'replace')
     except:
         return unicode(result, 'utf-8', 'replace')
+    
+if islinux:
+    import pkg_resources
+    if not os.environ.has_key('LD_LIBRARY_PATH'):
+        os.environ['LD_LIBRARY_PATH'] = ''
+    plugins = pkg_resources.resource_filename(__appname__, 'plugins')
+    os.environ['LD_LIBRARY_PATH'] = plugins + ':' + os.environ['LD_LIBRARY_PATH']
+    sys.path.insert(1, plugins)
+    cwd = os.getcwd()
+    os.chdir(plugins)
+    try:
+        import pictureflow
+    except:
+        import traceback
+        traceback.print_exc()
+        pictureflow = None
+    os.chdir(cwd) 

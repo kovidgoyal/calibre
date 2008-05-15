@@ -48,11 +48,21 @@ main_functions = {
 
 if __name__ == '__main__':
     from setuptools import setup, find_packages
-    import subprocess
+    import subprocess, glob
+    
+    from setuptools.command.egg_info import egg_info
+    
+    class CalibreEggInfo(egg_info):
+    
+        def run(self):
+            files = glob.glob('plugins/*')
+            egg_info.run(self)
+
     
     entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
     
     setup(
+          cmdclass = { 'egg_info' : CalibreEggInfo, },
           name=APPNAME, 
           packages = find_packages('src'), 
           package_dir = { '' : 'src' }, 
@@ -61,14 +71,16 @@ if __name__ == '__main__':
           author_email='kovid@kovidgoyal.net', 
           url = 'http://%s.kovidgoyal.net'%APPNAME, 
           include_package_data = True,
+          package_data = {'': ['*.so.*', '*.so']},
           entry_points = entry_points, 
-          zip_safe = True,
+          zip_safe = False,
+          options = { 'bdist_egg' : {'exclude_source_files': True,}, },
           description = 
-                      """
-                      Ebook management application.
-                      """, 
+                      '''
+                      E-book management application.
+                      ''', 
           long_description = 
-          """
+          '''
   %s is an e-book library manager. It can view, convert and catalog e-books in most of the major e-book formats. It can also talk to a few e-book reader devices. It can go out to the internet and fetch metadata for your books. It can download newspapers and convert them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
   
   For screenshots: https://%s.kovidgoyal.net/wiki/Screenshots
@@ -82,7 +94,7 @@ if __name__ == '__main__':
   To update your copy of the source code: 
   bzr merge
             
-          """%(APPNAME, APPNAME, APPNAME, APPNAME, APPNAME),
+          '''%(APPNAME, APPNAME, APPNAME, APPNAME, APPNAME),
           license = 'GPL', 
           classifiers = [
             'Development Status :: 4 - Beta', 

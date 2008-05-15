@@ -123,6 +123,7 @@ Take your pick:
   * Convertor And LIBRary for E-books
   * A high *calibre* product
   * A tribute to the SONY Librie which was the first e-ink based e-book reader
+  * My wife chose it ;-)
 
 Why does |app| show only some of my fonts on OS X?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

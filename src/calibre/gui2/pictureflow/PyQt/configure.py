@@ -32,6 +32,7 @@ makefile = pyqtconfig.QtGuiModuleMakefile (
 # ".dll" extension on Windows).
 makefile.extra_lib_dirs = ['../../.build']
 makefile.extra_libs = ["pictureflow"]
+makefile.extra_lflags = ['-Wl,--rpath=.']
 
 # Generate the Makefile itself.
 makefile.generate()

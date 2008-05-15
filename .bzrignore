@@ -1,6 +1,6 @@
 *_ui.py
 moc_*.cpp
-plugins
+src/calibre/plugins
 src/calibre/gui2/pictureflow/.build/
 src/calibre/gui2/pictureflow/PyQt/.build/
 src/calibre/gui2/pictureflow/Makefile

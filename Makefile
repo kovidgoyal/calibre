@@ -21,7 +21,7 @@ manual:
 	make -C src/calibre/manual clean html
 
 pictureflow :
-	mkdir -p plugins && rm -f plugins/*pictureflow* && \
+	mkdir -p src/calibre/plugins && rm -f src/calibre/plugins/*pictureflow* && \
 	cd src/calibre/gui2/pictureflow && \
 	mkdir -p .build && cd .build && rm -f * && \
 	qmake ../pictureflow-lib.pro && make && \
@@ -30,7 +30,7 @@ pictureflow :
 	cd .build && rm -f * && \
 	python ../configure.py && make && \
 	cd ../../../../../.. && \
-	cp src/calibre/gui2/pictureflow/.build/libpictureflow.so.?.?.? src/calibre/gui2/pictureflow/PyQt/.build/pictureflow.so plugins/ && \
-	python -c "import os, glob; lp = glob.glob('plugins/libpictureflow.so.*')[0]; os.rename(lp, lp[:-4])"
+	cp src/calibre/gui2/pictureflow/.build/libpictureflow.so.?.?.? src/calibre/gui2/pictureflow/PyQt/.build/pictureflow.so src/calibre/plugins/ && \
+	python -c "import os, glob; lp = glob.glob('src/calibre/plugins/libpictureflow.so.*')[0]; os.rename(lp, lp[:-4])"
 
 
