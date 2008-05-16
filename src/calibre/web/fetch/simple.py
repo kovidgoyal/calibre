@@ -140,7 +140,7 @@ class RecursiveFetcher(object, LoggingInterface):
         except urllib2.URLError, err:
             if hasattr(err, 'code') and responses.has_key(err.code):
                 raise FetchError, responses[err.code]
-            if err.reason[0] == 104: # Connection reset by peer
+            if getattr(err, 'reason', [0])[0] == 104: # Connection reset by peer
                 self.log_debug('Connection reset by peer retrying in 1 second.')
                 time.sleep(1)
                 f = self.browser.open(url)
