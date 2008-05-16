@@ -229,7 +229,8 @@ class Main(MainWindow, Ui_MainWindow):
         else:
             self.device_connected = False
             self.job_manager.terminate_device_jobs()
-            self.device_manager.device_removed()
+            if self.device_manager:
+                self.device_manager.device_removed()
             self.location_view.model().update_devices()
             self.action_sync.setEnabled(False)
             self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=' '))
