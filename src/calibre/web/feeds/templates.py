@@ -4,6 +4,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import datetime, locale
 from genshi.template import MarkupTemplate
+from calibre import preferred_encoding
+
 
 class Template(MarkupTemplate):
     
@@ -121,11 +123,10 @@ class IndexTemplate(Template):
 ''')
 
     def generate(self, title, datefmt, feeds):
-        date = datetime.datetime.now().strftime(datefmt)
-        try:
-            date = date.decode(locale.getpreferredencoding())
-        except:
-            date = date.decode('utf-8', 'ascii')
+        if isinstance(datefmt, unicode):
+            datefmt = datefmt.encode(preferred_encoding)
+            date = datetime.datetime.now().strftime(datefmt)
+            date = date.decode(preferred_encoding, 'replace')
         return Template.generate(self, title=title, date=date, feeds=feeds)
     
     
