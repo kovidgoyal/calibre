@@ -44,7 +44,7 @@
       <item>
        <widget class="LocationView" name="location_view" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
+         <sizepolicy vsizetype="Minimum" hsizetype="Expanding" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>

@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, textwrap, traceback, time, re, sre_constants, locale, codecs
+import os, textwrap, traceback, time, re, sre_constants
 from datetime import timedelta, datetime
 from operator import attrgetter
 from math import cos, sin, pi
@@ -17,7 +17,7 @@ from calibre.library.database import LibraryDatabase, SearchToken
 from calibre.gui2 import NONE, TableView, qstring_to_unicode
 
 class LibraryDelegate(QItemDelegate):
-    COLOR = QColor("blue")
+    COLOR    = QColor("blue")
     SIZE     = 16
     PEN      = QPen(COLOR, 1, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin)
     

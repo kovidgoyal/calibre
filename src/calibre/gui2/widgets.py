@@ -6,9 +6,10 @@ Miscellaneous widgets used in the GUI
 import re
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
-                        QSyntaxHighlighter, QCursor, QColor, QWidget
-from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QSize, SIGNAL, \
-                         QObject, QRegExp
+                        QSyntaxHighlighter, QCursor, QColor, QWidget, \
+                        QAbstractItemDelegate, QStyle
+from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QRect, SIGNAL, \
+                         QObject, QRegExp, QSize, QRectF
 
 from calibre.gui2.jobs import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
@@ -77,6 +78,53 @@ class ImageView(QLabel):
         self.setMaximumWidth(width)
         self.setMaximumHeight(height) 
 
+class LocationDelegate(QAbstractItemDelegate):
+    
+    def __init__(self):
+        QAbstractItemDelegate.__init__(self)
+        self.icon_rect = QRect(0, 10, 150, 45)
+        self.buffer = 0
+    
+    def get_rects(self, index, option):
+        row = index.row()
+        irect = QRect(self.icon_rect)
+        irect.translate(row*(irect.width()+self.buffer), 0)
+        trect = irect.translated(0, irect.height())
+        trect.adjust(0, 7, 0, 0)
+        return irect.adjusted(50, 0, -50, 0), trect
+    
+    def sizeHint(self, option, index):
+        irect, trect = self.get_rects(index, option)
+        return irect.united(trect).size()
+    
+    def paint(self, painter, option, index):
+        selected = bool(option.state & QStyle.State_Selected)
+        active = bool(option.state & QStyle.State_Active)
+        font = QFont()
+        font.setBold(True)
+        font.setPointSize(8)
+        mode = QIcon.Active if active else QIcon.Selected if selected else QIcon.Normal
+        icon = QIcon(index.model().data(index, Qt.DecorationRole))
+        text = index.model().data(index, Qt.DisplayRole).toString()
+        painter.save()
+        irect, trect = self.get_rects(index, option)
+        painter.setFont(font)
+        icon.paint(painter, irect, Qt.AlignHCenter|Qt.AlignTop, mode, QIcon.On)
+        if selected:
+            brect = painter.drawText(QRectF(trect), Qt.AlignTop|Qt.AlignHCenter, text)
+            brect.adjust(-3, -0, 3, 0)
+            painter.fillRect(brect, option.palette.highlight())
+            painter.save()
+            painter.setPen(Qt.DotLine)
+            painter.drawRect(brect)
+            painter.restore()
+            painter.setBrush(option.palette.highlightedText())
+        else:
+            painter.setBrush(option.palette.text())
+        
+        painter.drawText(QRectF(trect), Qt.AlignTop|Qt.AlignHCenter, text)
+        painter.restore()
+
 class LocationModel(QAbstractListModel):
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
@@ -101,13 +149,6 @@ class LocationModel(QAbstractListModel):
             data = QVariant(text)
         elif role == Qt.DecorationRole:                
             data = self.icons[row]
-        elif role == Qt.SizeHintRole:
-            if row == 1: 
-                return QVariant(QSize(150, 65))
-        elif role == Qt.FontRole and row == self.highlight_row: 
-            font = QFont()
-            font.setBold(True)
-            data =  QVariant(font)
         return data
     
     def headerData(self, section, orientation, role):
@@ -130,7 +171,9 @@ class LocationView(QListView):
         QListView.__init__(self, parent)
         self.setModel(LocationModel(self))
         self.reset()
-        QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)        
+        QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)
+        self.delegate = LocationDelegate()
+        self.setItemDelegate(self.delegate)        
     
     def current_changed(self, current, previous):
         i = current.row()

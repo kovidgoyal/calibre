@@ -828,11 +828,12 @@ class Main(MainWindow, Ui_MainWindow):
             self.view_format(row, format)
         else:
             paths = self.current_view().model().paths(rows)
-            pt = PersistentTemporaryFile('_viewer_'+os.path.splitext(paths[0])[1])
-            self.persistent_files.append(pt)
-            pt.close()
-            self.job_manager.run_device_job(self.book_downloaded_for_viewing,
-                                self.device_manager.view_book_func(), paths[0], pt.name)
+            if paths:
+                pt = PersistentTemporaryFile('_viewer_'+os.path.splitext(paths[0])[1])
+                self.persistent_files.append(pt)
+                pt.close()
+                self.job_manager.run_device_job(self.book_downloaded_for_viewing,
+                                    self.device_manager.view_book_func(), paths[0], pt.name)
         
         
     
