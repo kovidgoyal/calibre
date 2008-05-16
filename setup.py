@@ -60,7 +60,6 @@ if __name__ == '__main__':
           author='Kovid Goyal', 
           author_email='kovid@kovidgoyal.net', 
           url = 'http://%s.kovidgoyal.net'%APPNAME, 
-          include_package_data = True,
           package_data = {'': ['*.so.*', '*.so']},
           entry_points = entry_points, 
           zip_safe = False,

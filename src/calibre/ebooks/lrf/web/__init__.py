@@ -12,7 +12,6 @@ from calibre.ebooks.lrf.web.profiles.faznet        import FazNet
 from calibre.ebooks.lrf.web.profiles.wsj           import WallStreetJournal
 from calibre.ebooks.lrf.web.profiles.barrons       import Barrons
 from calibre.ebooks.lrf.web.profiles.portfolio     import Portfolio
-from calibre.ebooks.lrf.web.profiles.dilbert       import Dilbert  
 from calibre.ebooks.lrf.web.profiles.cnn           import CNN
 from calibre.ebooks.lrf.web.profiles.chr_mon       import ChristianScienceMonitor
 from calibre.ebooks.lrf.web.profiles.jpost         import JerusalemPost
@@ -28,7 +27,7 @@ from calibre.ebooks.lrf.web.profiles.nasa          import NASA
 
 
 builtin_profiles   = [Atlantic, AssociatedPress, Barrons, BBC, 
-                      ChristianScienceMonitor, CNN, Dilbert, Economist, FazNet, 
+                      ChristianScienceMonitor, CNN, Economist, FazNet, 
                       JerusalemPost, Jutarnji, NASA, Newsweek, NewYorker, 
                       NewYorkReviewOfBooks, NYTimes, UnitedPressInternational, USAToday,  
                       Portfolio, Reuters, SpiegelOnline, WallStreetJournal, 

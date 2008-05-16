@@ -1,6 +1,7 @@
+from calibre.gui2 import choose_files
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import time
+import time, os
 
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QDialog, QMessageBox
@@ -9,7 +10,9 @@ from calibre.web.feeds.recipes import compile_recipe
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, error_dialog, question_dialog
-from calibre.gui2.widgets import PythonHighlighter 
+from calibre.gui2.widgets import PythonHighlighter
+from calibre.utils import sendmail
+from calibre.ptempfile import PersistentTemporaryFile 
 
 class UserProfiles(QDialog, Ui_Dialog):
     
@@ -24,6 +27,10 @@ class UserProfiles(QDialog, Ui_Dialog):
                      self.available_profiles.remove_selected_items)
         self.connect(self.add_feed_button, SIGNAL('clicked(bool)'),
                      self.add_feed)
+        self.connect(self.load_button, SIGNAL('clicked()'), self.load)
+        self.connect(self.share_button, SIGNAL('clicked()'), self.share)
+        self.connect(self.down_button, SIGNAL('clicked()'), self.down)
+        self.connect(self.up_button, SIGNAL('clicked()'), self.up)
         self.connect(self.add_profile_button, SIGNAL('clicked(bool)'),
                      self.add_profile)
         self.connect(self.feed_url, SIGNAL('returnPressed()'), self.add_feed)
@@ -36,7 +43,36 @@ class UserProfiles(QDialog, Ui_Dialog):
         for title, src in feeds:
             self.available_profiles.add_item(title, (title, src), replace=True)
         
+    def up(self):
+        row  = self.added_feeds.currentRow()
+        item = self.added_feeds.takeItem(row)
+        if item is not None:
+            self.added_feeds.insertItem(max(row-1, 0), item)
+            self.added_feeds.setCurrentItem(item)
+            
+    def down(self):
+        row  = self.added_feeds.currentRow()
+        item = self.added_feeds.takeItem(row)
+        if item is not None:
+            self.added_feeds.insertItem(row+1, item)
+            self.added_feeds.setCurrentItem(item) 
+    
+    def share(self):
+        row = self.available_profiles.currentRow()
+        item = self.available_profiles.item(row)
+        if item is None:
+            error_dialog(self, _('No recipe selected'), _('No recipe selected')).exec_()
+            return
+        title, src = item.user_data
+        pt = PersistentTemporaryFile(suffix='.py')
+        pt.write(src.encode('utf-8'))
+        pt.close()
+        sendmail(subject='Recipe for '+title,
+                 attachments=[pt.name],
+                 body='The attached file: %s is a recipe to download %s.'%(os.path.basename(pt.name), title))
         
+                 
+    
     def edit_profile(self, current, previous):
         if not current:
             current = previous
@@ -141,6 +177,28 @@ class %(classname)s(%(base_class)s):
                     _('A custom recipe named %s already exists. Do you want to replace it?')%title)
             if d.exec_() == QMessageBox.Yes:
                 self.available_profiles.add_item(title, (title, profile), replace=True)
+            else:
+                return
+        self.clear()
+        
+    def load(self):
+        files = choose_files(self, 'recipe loader dialog', _('Choose a recipe file'), filters=[(_('Recipes'), '*.py')], all_files=False, select_only_single_file=True)
+        if files:
+            file = files[0]
+            src = open(file, 'rb').read().decode('utf-8')
+            try:
+                title = compile_recipe(src).title
+            except Exception, err:
+                error_dialog(self, _('Invalid input'), 
+                        _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
+                return
+        try:
+            self.available_profiles.add_item(title, (title, src), replace=False)
+        except ValueError:
+            d = question_dialog(self, _('Replace recipe?'), 
+                    _('A custom recipe named %s already exists. Do you want to replace it?')%title)
+            if d.exec_() == QMessageBox.Yes:
+                self.available_profiles.add_item(title, (title, src), replace=True)
             else:
                 return
         self.clear()

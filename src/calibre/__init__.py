@@ -550,10 +550,12 @@ if islinux:
     sys.path.insert(1, plugins)
     cwd = os.getcwd()
     os.chdir(plugins)
-    try:
-        import pictureflow
-    except:
-        import traceback
-        traceback.print_exc()
-        pictureflow = None
+try:
+    import pictureflow
+except:
+    import traceback
+    traceback.print_exc()
+    pictureflow = None
+
+if islinux:
     os.chdir(cwd) 

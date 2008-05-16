@@ -78,6 +78,26 @@
          </property>
         </widget>
        </item>
+       <item>
+        <widget class="QPushButton" name="share_button" >
+         <property name="text" >
+          <string>&amp;Share recipe</string>
+         </property>
+         <property name="icon" >
+          <iconset resource="../images.qrc" >:/images/forward.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="load_button" >
+         <property name="text" >
+          <string>&amp;Load recipe from file</string>
+         </property>
+         <property name="icon" >
+          <iconset resource="../images.qrc" >:/images/chapters.svg</iconset>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="layoutWidget" >
@@ -205,17 +225,41 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QToolButton" name="remove_feed_button" >
-                <property name="toolTip" >
-                 <string>Remove feed from recipe</string>
-                </property>
-                <property name="text" >
-                 <string>...</string>
-                </property>
-                <property name="icon" >
-                 <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
-                </property>
-               </widget>
+               <layout class="QVBoxLayout" >
+                <item>
+                 <widget class="QToolButton" name="up_button" >
+                  <property name="text" >
+                   <string>...</string>
+                  </property>
+                  <property name="icon" >
+                   <iconset resource="../images.qrc" >:/images/arrow-up.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="remove_feed_button" >
+                  <property name="toolTip" >
+                   <string>Remove feed from recipe</string>
+                  </property>
+                  <property name="text" >
+                   <string>...</string>
+                  </property>
+                  <property name="icon" >
+                   <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QToolButton" name="down_button" >
+                  <property name="text" >
+                   <string>...</string>
+                  </property>
+                  <property name="icon" >
+                   <iconset resource="../images.qrc" >:/images/arrow-down.svg</iconset>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
