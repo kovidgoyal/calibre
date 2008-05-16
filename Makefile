@@ -1,6 +1,9 @@
 PYTHON = python
 
-all : gui2 translations resources pictureflow
+all : plugins gui2 translations resources pictureflow
+
+plugins:
+	mkdir -p src/calibre/plugins
 
 clean : 
 	cd src/calibre/gui2 && ${PYTHON} make.py clean

@@ -7,8 +7,15 @@ Manage translation of user visible strings.
 import sys, os, cStringIO, tempfile, subprocess, functools, tarfile, re
 check_call = functools.partial(subprocess.check_call, shell=True)
 
-from calibre.translations.pygettext import main as pygettext
-from calibre.translations.msgfmt import main as msgfmt
+try:
+    from calibre.translations.pygettext import main as pygettext
+    from calibre.translations.msgfmt import main as msgfmt
+except ImportError:
+    sys.path.insert(1, os.path.abspath('..'))
+    from calibre.translations.pygettext import main as pygettext
+    from calibre.translations.msgfmt import main as msgfmt
+
+
 
 TRANSLATIONS = [
                 'sl',
