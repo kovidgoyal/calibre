@@ -125,8 +125,8 @@ class IndexTemplate(Template):
     def generate(self, title, datefmt, feeds):
         if isinstance(datefmt, unicode):
             datefmt = datefmt.encode(preferred_encoding)
-            date = datetime.datetime.now().strftime(datefmt)
-            date = date.decode(preferred_encoding, 'replace')
+        date = datetime.datetime.now().strftime(datefmt)
+        date = date.decode(preferred_encoding, 'replace')
         return Template.generate(self, title=title, date=date, feeds=feeds)
     
     
