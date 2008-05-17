@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
 
 import sys, os, subprocess, logging
-from calibre import isosx, setup_cli_handlers, filename_to_utf8
+from calibre import isosx, setup_cli_handlers, filename_to_utf8, iswindows
 from calibre.ebooks import ConversionError
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
@@ -12,7 +12,8 @@ from calibre.ebooks.lrf.html.convert_from import process_file as html_process_fi
 PDFTOHTML = 'pdftohtml'
 if isosx and hasattr(sys, 'frameworks_dir'):
     PDFTOHTML = os.path.join(getattr(sys, 'frameworks_dir'), PDFTOHTML)
-
+if iswindows and hasattr(sys, 'frozen'):
+        PDFTOHTML = os.path.join(os.path.dirname(sys.executable), 'pdftohtml.exe')
 
 def generate_html(pathtopdf, logger):
     '''
