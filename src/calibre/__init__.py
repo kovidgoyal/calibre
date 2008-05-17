@@ -1,7 +1,7 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.54'
+__version__   = '0.4.55'
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
@@ -552,10 +552,10 @@ if islinux:
     os.chdir(plugins)
 try:
     import pictureflow
-except:
-    import traceback
-    traceback.print_exc()
+    pictureflowerror = ''
+except Exception, err:
     pictureflow = None
+    pictureflowerror = str(err)
 
 if islinux:
     os.chdir(cwd) 

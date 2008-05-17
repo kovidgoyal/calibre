@@ -35,7 +35,7 @@ class AbstractDelayedImage
 {
 public:
   AbstractDelayedImage() : imageptr(0) {};
-  ~AbstractDelayedImage() { free(); }
+  virtual ~AbstractDelayedImage() { free(); }
 
   virtual bool load();
   virtual void unload();

@@ -357,7 +357,7 @@ r'''<?xml version='1.0' encoding='windows-1252'?>
 
 class BuildEXE(build_exe):
     manifest_resource_id = 0
-    QT_PREFIX = r'C:\\Qt\\4.3.3' 
+    QT_PREFIX = r'C:\\Qt\\4.4.0' 
     MANIFEST_TEMPLATE = '''
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0"> 
@@ -379,7 +379,32 @@ class BuildEXE(build_exe):
   </trustInfo>
 </assembly>
 '''
+    def build_plugins(self):
+        cwd = os.getcwd()
+        try:
+            os.chdir(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))
+            subprocess.check_call(['qmake', 'pictureflow-lib.pro'])
+            subprocess.check_call(['mingw32-make', '-f', 'Makefile.Release'])
+            os.chdir('PyQt')
+            if not os.path.exists('.build'):
+                os.mkdir('.build')
+            os.chdir('.build')
+            subprocess.check_call(['python', '..\\configure.py'])
+            subprocess.check_call(['mingw32-make', '-f', 'Makefile'])
+            dd = os.path.join(cwd, self.dist_dir)
+            shutil.copyfile('pictureflow.pyd', os.path.join(dd, 'pictureflow.pyd'))
+            os.chdir('..\\..')
+            shutil.copyfile('release\\pictureflow0.dll', os.path.join(dd, 'pictureflow0.dll'))
+            shutil.rmtree('Release', True)
+            shutil.rmtree('Debug', True)            
+        finally:
+            os.chdir(cwd)
+    
     def run(self):
+        if not os.path.exists(self.dist_dir):
+            os.makedirs(self.dist_dir)
+        print 'Building custom plugins...'
+        self.build_plugins()
         build_exe.run(self)
         qtsvgdll = None
         for other in self.other_depends:
@@ -407,6 +432,8 @@ class BuildEXE(build_exe):
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
+            
+        
         
         print
         print

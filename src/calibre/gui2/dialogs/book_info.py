@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 '''
 import textwrap
 
-from PyQt4.QtCore import Qt
+from PyQt4.QtCore import Qt, QCoreApplication
 from PyQt4.QtGui import QDialog, QPixmap, QGraphicsScene, QIcon
 
 from calibre.gui2.dialogs.book_info_ui import Ui_BookInfo
@@ -25,6 +25,9 @@ class BookInfo(QDialog, Ui_BookInfo):
                                                             Qt.SmoothTransformation)
         
         self.setWindowTitle(info[_('Title')])
+        desktop = QCoreApplication.instance().desktop()
+        screen_height = desktop.availableGeometry().height() - 100
+        self.resize(self.size().width(), screen_height)
         self.title.setText('<b>'+info.pop(_('Title')))
         self.comments.setText(info.pop(_('Comments'), ''))
         

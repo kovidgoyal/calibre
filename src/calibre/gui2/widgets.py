@@ -105,9 +105,12 @@ class LocationDelegate(QAbstractItemDelegate):
         font.setPointSize(8)
         mode = QIcon.Active if active else QIcon.Selected if selected else QIcon.Normal
         icon = QIcon(index.model().data(index, Qt.DecorationRole))
+        highlight = getattr(index.model(), 'highlight_row', -1) == index.row()
         text = index.model().data(index, Qt.DisplayRole).toString()
         painter.save()
         irect, trect = self.get_rects(index, option)
+        if highlight:
+            font.setItalic(True)
         painter.setFont(font)
         icon.paint(painter, irect, Qt.AlignHCenter|Qt.AlignTop, mode, QIcon.On)
         if selected:
@@ -121,7 +124,7 @@ class LocationDelegate(QAbstractItemDelegate):
             painter.setBrush(option.palette.highlightedText())
         else:
             painter.setBrush(option.palette.text())
-        
+                    
         painter.drawText(QRectF(trect), Qt.AlignTop|Qt.AlignHCenter, text)
         painter.restore()
 
