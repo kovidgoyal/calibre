@@ -7,6 +7,7 @@ from urllib import unquote
 
 from calibre import __appname__
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
+from calibre.ebooks.chardet import xml_to_unicode
 
 class NCXSoup(BeautifulStoneSoup):
     
@@ -95,7 +96,9 @@ class TOC(list):
                     
     def read_ncx_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        soup = NCXSoup(open(toc, 'rb').read())
+        print xml_to_unicode(open(toc, 'rb').read(), True)[1]
+        soup = NCXSoup(xml_to_unicode(open(toc, 'rb').read())[0])
+        print unicode(soup).encode('utf8')
         
         def process_navpoint(np, dest):
             play_order = np.get('playOrder', 1)
