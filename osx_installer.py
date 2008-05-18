@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create an OSX installer '''
 
-import sys, re, os, shutil, subprocess, stat
+import sys, re, os, shutil, subprocess, stat, glob
 from setup import VERSION, APPNAME, scripts, main_modules, basenames, main_functions
 from setuptools import setup
 from py2app.build_app import py2app
@@ -132,7 +132,12 @@ _check_symlinks_prescript()
         fp = '@executable_path/../Frameworks/'
         print 'Fixing qt dependencies for:', os.path.basename(path)
         for dep in deps:
-            module = re.search(r'(Qt\w+?)\.framework', dep).group(1)            
+            match = re.search(r'(Qt\w+?)\.framework', dep)
+            if not match:
+                print dep
+                raise Exception('a')
+                continue
+            module = match.group(1)            
             newpath = fp + '%s.framework/Versions/Current/%s'%(module, module)
             cmd = ' '.join(['install_name_tool', '-change', dep, newpath, path])        
             subprocess.check_call(cmd, shell=True)
@@ -156,9 +161,34 @@ _check_symlinks_prescript()
                                             
             
         #deps = BuildAPP.qt_dependencies(path)
+    
+    def build_plugins(self):
+        cwd = os.getcwd()
+        qmake = '/Users/kovid/qt/bin/qmake'
+        files = []
+        try:
+            print 'Building pictureflow'
+            os.chdir('src/calibre/gui2/pictureflow')
+            for f in glob.glob('*.o'): os.unlink(f)
+            subprocess.check_call([qmake, 'pictureflow-lib.pro'])
+            subprocess.check_call(['make'])
+            files.append((os.path.abspath(os.path.realpath('libpictureflow.dylib')), 'libpictureflow.dylib'))
+            os.chdir('PyQt/.build')
+            subprocess.check_call(['python', '../configure.py'])
+            subprocess.check_call(['make'])
+            files.append((os.path.abspath('pictureflow.so'), 'pictureflow.so'))
+            subprocess.check_call(['install_name_tool', '-change', 'libpictureflow.0.dylib', '@executable_path/../Frameworks/libpictureflow.dylib', 'pictureflow.so'])
+            for i in range(2):
+                deps = BuildAPP.qt_dependencies(files[i][0])
+                BuildAPP.fix_qt_dependencies(files[i][0], deps)
+            
+            return files
+        finally:
+            os.chdir(cwd)
             
     
     def run(self):
+        plugin_files = self.build_plugins()
         py2app.run(self)
         self.add_qt_plugins()
         resource_dir = os.path.join(self.dist_dir, 
@@ -188,6 +218,9 @@ _check_symlinks_prescript()
         print 
         print 'Adding pdftohtml'
         os.link(os.path.expanduser('~/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
+        print 'Adding plugins'
+        for src, dest in plugin_files:
+            os.link(src, os.path.join(frameworks_dir, dest))
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]

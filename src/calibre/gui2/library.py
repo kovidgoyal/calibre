@@ -320,7 +320,7 @@ class BooksModel(QAbstractTableModel):
             elif col == 5: 
                 pub = self.db.publisher(row)
                 if pub: 
-                    return QVariant(BooksView.wrap(pub, 20))
+                    return QVariant(pub)
             elif col == 6:
                 tags = self.db.tags(row)
                 if tags:

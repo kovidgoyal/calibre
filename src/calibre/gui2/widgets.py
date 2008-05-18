@@ -9,7 +9,7 @@ from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
                         QAbstractItemDelegate, QStyle
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QRect, SIGNAL, \
-                         QObject, QRegExp, QSize, QRectF
+                         QObject, QRegExp, QRectF
 
 from calibre.gui2.jobs import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
@@ -17,6 +17,8 @@ from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image, get_font_families, Settings
 from calibre.ebooks.metadata.meta import get_filename_pat, metadata_from_filename, \
                                            set_filename_pat
+
+
 
 class FilenamePattern(QWidget, Ui_Form):
     

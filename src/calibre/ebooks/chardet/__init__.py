@@ -40,7 +40,7 @@ def xml_to_unicode(raw, verbose=False):
         return u'', encoding    
     if isinstance(raw, unicode):
         return raw, encoding
-    match = re.compile('^\s*<\?.*encoding=[\'"](.*?)[\'"].*\?>', re.IGNORECASE).match(raw)
+    match = re.compile(r'<[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE).search(raw)
     if match is None:
         match = re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"]', re.IGNORECASE).search(raw)
     if match is not None:

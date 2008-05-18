@@ -33,11 +33,11 @@ class Matches(QAbstractTableModel):
             return NONE
         text = ""
         if orientation == Qt.Horizontal:      
-            if   section == 0: text = "Title"
-            elif section == 1: text = "Author(s)"
-            elif section == 2: text = "Author Sort"
-            elif section == 3: text = "Publisher"
-            elif section == 4: text = "ISBN"
+            if   section == 0: text = _("Title")
+            elif section == 1: text = _("Author(s)")
+            elif section == 2: text = _("Author Sort")
+            elif section == 3: text = _("Publisher")
+            elif section == 4: text = _("ISBN")
             
             return QVariant(self.trUtf8(text))
         else: 
