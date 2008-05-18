@@ -287,8 +287,7 @@ class HTMLConverter(object, LoggingInterface):
             self.book.append(self.current_page)
             
         for text, tb in self.extra_toc_entries:
-            ascii_text = text.encode('ascii', 'ignore')
-            self.book.addTocEntry(ascii_text, tb)
+            self.book.addTocEntry(text, tb)
             
         if self.base_font_size > 0:
             self.log_info('\tRationalizing font sizes...')

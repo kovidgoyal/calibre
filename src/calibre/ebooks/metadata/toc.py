@@ -96,9 +96,7 @@ class TOC(list):
                     
     def read_ncx_toc(self, toc):
         self.base_path = os.path.dirname(toc)
-        print xml_to_unicode(open(toc, 'rb').read(), True)[1]
         soup = NCXSoup(xml_to_unicode(open(toc, 'rb').read())[0])
-        print unicode(soup).encode('utf8')
         
         def process_navpoint(np, dest):
             play_order = np.get('playOrder', 1)
