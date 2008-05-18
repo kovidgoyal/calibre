@@ -298,13 +298,12 @@ class BooksModel(QAbstractTableModel):
             if col == 0:
                 text = self.db.title(row)
                 if text:
-                    return QVariant(BooksView.wrap(text, width=35))
+                    return QVariant(text)
             elif col == 1: 
                 au = self.db.authors(row)
                 if au:
                     au = au.split(',')
-                    jau = [ BooksView.wrap(a, width=30).strip() for a in au ]
-                    return QVariant("\n".join(jau))
+                    return QVariant("\n".join(au))
             elif col == 2:
                 size = self.db.max_size(row)
                 if size:
