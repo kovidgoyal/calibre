@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, shutil, time
-
+from xml.parsers.expat import ExpatError
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QVariant, QThread, QString
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
@@ -16,7 +16,8 @@ from calibre.devices.interface import Device
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
-                           qstring_to_unicode, set_sidebar_directories
+                           qstring_to_unicode, set_sidebar_directories, \
+                           SingleApplication
 from calibre import iswindows, isosx
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
@@ -55,8 +56,13 @@ class Main(MainWindow, Ui_MainWindow):
         p.end()
         self.default_thumbnail = (pixmap.width(), pixmap.height(), pixmap_to_data(pixmap))
     
-    def __init__(self, parent=None):
+    def __init__(self, single_instance, parent=None):
         MainWindow.__init__(self, parent)
+        self.single_instance = single_instance
+        if self.single_instance is not None:
+            self.connect(self.single_instance, SIGNAL('message_received(PyQt_PyObject)'),
+                         self.another_instance_wants_to_talk)
+        
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowTitle(__appname__)
@@ -75,6 +81,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.device_connected = False
         self.viewers = collections.deque()
+        
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -82,7 +89,8 @@ class Main(MainWindow, Ui_MainWindow):
                         self.location_view.location_changed)
         
         ####################### Vanity ########################
-        self.vanity_template = qstring_to_unicode(self.vanity.text().arg(__version__)).replace('%2', '%(version)s').replace('%3', '%(device)s')
+        self.vanity_template  = _('<p>For help visit <a href="http://%s.kovidgoyal.net/user_manual">%s.kovidgoyal.net</a><br>')%(__appname__, __appname__)
+        self.vanity_template += _('<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>')%(__appname__, __version__) 
         self.latest_version = ' '
         self.vanity.setText(self.vanity_template%dict(version=' ', device=' '))
         self.device_info = ' '
@@ -198,6 +206,13 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.news_menu.set_custom_feeds(self.library_view.model().db.get_feeds())
         
+    def another_instance_wants_to_talk(self, msg):
+        if msg.startswith('launched:'):
+            self.setWindowState(self.windowState() & ~Qt.WindowMinimized|Qt.WindowActive)
+            self.show()
+            self.raise_()
+            self.activateWindow()
+            
     
     def current_view(self):
         '''Convenience method that returns the currently visible view '''
@@ -258,7 +273,8 @@ class Main(MainWindow, Ui_MainWindow):
         Called once metadata has been read for all books on the device.
         '''
         if exception:
-            if 'not well-formed' in str(exception):
+            print exception, type(exception)
+            if isinstance(exception, ExpatError):
                 error_dialog(self, _('Device database corrupted'),
                 _('''
                 <p>The database of books on the reader is corrupted. Try the following:
@@ -701,10 +717,6 @@ class Main(MainWindow, Ui_MainWindow):
             warning_dialog(self, 'Could not convert some books', msg).exec_()
             
             
-        
-            
-        
-    
     def set_conversion_defaults(self, checked):
         d = LRFSingleDialog(self, None, None)
         d.exec_()
@@ -1057,13 +1069,18 @@ def main(args=sys.argv):
         app = QApplication(args)    
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
-        if not singleinstance('mainGUI'):
+        single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')
+        if not singleinstance('calibre GUI'):
+            if single_instance is not None and single_instance.is_running() and \
+               single_instance.send_message('launched:'+''.join(sys.argv)):
+                    return 0
+            
             QMessageBox.critical(None, 'Cannot Start '+__appname__, 
                                  '<p>%s is already running.</p>'%__appname__)
             return 1
         initialize_file_icon_provider()
         try:
-            main = Main()
+            main = Main(single_instance)
         except DatabaseLocked, err:
             QMessageBox.critical(None, 'Cannot Start '+__appname__, 
             '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
