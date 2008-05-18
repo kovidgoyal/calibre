@@ -32,7 +32,7 @@ makefile = pyqtconfig.QtGuiModuleMakefile (
 # ".dll" extension on Windows).
 makefile.extra_lib_dirs = ['../../.build', '..\\..\\release', '../../']
 makefile.extra_libs = ['pictureflow0' if 'win' in sys.platform and 'darwin' not in sys.platform else "pictureflow"]
-makefile.extra_cflags = ['-arch i386', '-arch ppc']
+makefile.extra_cflags = ['-arch i386', '-arch ppc'] if 'darwin' in sys.platform else []
 makefile.extra_cxxflags = makefile.extra_cflags
 if 'linux' in sys.platform:
     makefile.extra_lflags = ['-Wl,--rpath=.']

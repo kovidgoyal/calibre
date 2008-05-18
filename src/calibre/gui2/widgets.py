@@ -85,7 +85,7 @@ class LocationDelegate(QAbstractItemDelegate):
     def __init__(self):
         QAbstractItemDelegate.__init__(self)
         self.icon_rect = QRect(0, 10, 150, 45)
-        self.buffer = 0
+        self.buffer = 5
     
     def get_rects(self, index, option):
         row = index.row()
@@ -100,33 +100,21 @@ class LocationDelegate(QAbstractItemDelegate):
         return irect.united(trect).size()
     
     def paint(self, painter, option, index):
-        selected = bool(option.state & QStyle.State_Selected)
-        active = bool(option.state & QStyle.State_Active)
         font = QFont()
-        font.setBold(True)
-        font.setPointSize(8)
-        mode = QIcon.Active if active else QIcon.Selected if selected else QIcon.Normal
+        font.setPointSize(9)
         icon = QIcon(index.model().data(index, Qt.DecorationRole))
         highlight = getattr(index.model(), 'highlight_row', -1) == index.row()
         text = index.model().data(index, Qt.DisplayRole).toString()
         painter.save()
         irect, trect = self.get_rects(index, option)
+        
+        mode =  QIcon.Normal
         if highlight:
-            font.setItalic(True)
+            font.setBold(True)
+            mode = QIcon.Active
+        
         painter.setFont(font)
         icon.paint(painter, irect, Qt.AlignHCenter|Qt.AlignTop, mode, QIcon.On)
-        if selected:
-            brect = painter.drawText(QRectF(trect), Qt.AlignTop|Qt.AlignHCenter, text)
-            brect.adjust(-3, -0, 3, 0)
-            painter.fillRect(brect, option.palette.highlight())
-            painter.save()
-            painter.setPen(Qt.DotLine)
-            painter.drawRect(brect)
-            painter.restore()
-            painter.setBrush(option.palette.highlightedText())
-        else:
-            painter.setBrush(option.palette.text())
-                    
         painter.drawText(QRectF(trect), Qt.AlignTop|Qt.AlignHCenter, text)
         painter.restore()
 
@@ -140,7 +128,12 @@ class LocationModel(QAbstractListModel):
                      _('Reader\n%s available'),
                      _('Card\n%s available')]
         self.free = [-1, -1]
-        self.highlight_row = 0            
+        self.highlight_row = 0
+        self.tooltips = [
+                         _('Click to see the list of books available on your computer'),
+                         _('Click to see the list of books in the main memory of your reader'),
+                         _('Click to see the list of books on the storage card in your reader')
+                         ]            
         
     def rowCount(self, parent):
         return 1 + sum([1 for i in self.free if i >= 0])
@@ -154,6 +147,8 @@ class LocationModel(QAbstractListModel):
             data = QVariant(text)
         elif role == Qt.DecorationRole:                
             data = self.icons[row]
+        elif role == Qt.ToolTipRole:
+            return QVariant(self.tooltips[row])
         return data
     
     def headerData(self, section, orientation, role):
@@ -178,7 +173,8 @@ class LocationView(QListView):
         self.reset()
         QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)
         self.delegate = LocationDelegate()
-        self.setItemDelegate(self.delegate)        
+        self.setItemDelegate(self.delegate)  
+        self.setCursor(Qt.PointingHandCursor)      
     
     def current_changed(self, current, previous):
         i = current.row()

@@ -134,9 +134,10 @@ _check_symlinks_prescript()
         for dep in deps:
             match = re.search(r'(Qt\w+?)\.framework', dep)
             if not match:
-                print dep
-                raise Exception('a')
-                continue
+                match = re.search(r'(phonon)\.framework', dep)
+                if not match:
+                    print dep
+                    raise Exception('Unknown Qt dependency')
             module = match.group(1)            
             newpath = fp + '%s.framework/Versions/Current/%s'%(module, module)
             cmd = ' '.join(['install_name_tool', '-change', dep, newpath, path])        
@@ -188,9 +189,7 @@ _check_symlinks_prescript()
             
     
     def run(self):
-        plugin_files = self.build_plugins()
         py2app.run(self)
-        self.add_qt_plugins()
         resource_dir = os.path.join(self.dist_dir, 
                                     APPNAME + '.app', 'Contents', 'Resources')
         frameworks_dir = os.path.join(os.path.dirname(resource_dir), 'Frameworks')
@@ -208,6 +207,8 @@ _check_symlinks_prescript()
             f.close()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
+        self.add_qt_plugins()
+        plugin_files = self.build_plugins()
             
         print
         print 'Adding clit'
@@ -219,8 +220,12 @@ _check_symlinks_prescript()
         print 'Adding pdftohtml'
         os.link(os.path.expanduser('~/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
         print 'Adding plugins'
+        module_dir = os.path.join(resource_dir, 'lib', 'python2.5', 'lib-dynload')
         for src, dest in plugin_files:
-            os.link(src, os.path.join(frameworks_dir, dest))
+            if 'dylib' in dest:
+                os.link(src, os.path.join(frameworks_dir, dest))
+            else:
+                os.link(src, os.path.join(module_dir, dest))
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]
@@ -264,7 +269,8 @@ def main():
                          'argv_emulation' : True,
                          'iconfile' : 'icons/library.icns',
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
-                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
+                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml', 
+                                       'PyQt4.QtSvg', 
                                        'mechanize', 'ClientForm', 'usbobserver', 
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'IPython.Extensions.*', 'pydoc'],
@@ -284,7 +290,7 @@ def main():
         setup_requires = ['py2app'],
         )
     if auto:
-        subprocess.call(('sudo', 'shutdown', '-h', '+1'))
+        subprocess.call(('sudo', 'shutdown', '-h', '+2'))
     return 0
 
 if __name__ == '__main__':

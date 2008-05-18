@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
 "POT-Creation-Date: 2008-05-18 08:42+PDT\n"
-"PO-Revision-Date: 2008-05-03 22:51+0200\n"
+"PO-Revision-Date: 2008-05-19 22:51+0200\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
@@ -531,7 +531,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:243
 msgid "Could not read from thumbnail file:"
-msgstr ""
+msgstr "Impossibile leggere dal file della miniatura:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:263
 msgid ""
@@ -1782,7 +1782,7 @@ msgstr "Aggiungi il tag a quelli disponibili e applicalo al libro corrente"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:64
 msgid "No recipe selected"
-msgstr ""
+msgstr "Nessuna formula selezionata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:84
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:94
@@ -1843,11 +1843,11 @@ msgstr "Esiste già una formula personalizzata di nome %s. Sovrascriverla?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
 msgid "Choose a recipe file"
-msgstr ""
+msgstr "Scegliere un file di formula"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:185
 msgid "Recipes"
-msgstr ""
+msgstr "Formule"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:194
 msgid "Add custom news source"
@@ -1867,11 +1867,11 @@ msgstr "Rimuo&vi formula"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:198
 msgid "&Share recipe"
-msgstr ""
+msgstr "Condi&vidi formula"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:199
 msgid "&Load recipe from file"
-msgstr ""
+msgstr "Carica formula &da file"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:201
 msgid ""
