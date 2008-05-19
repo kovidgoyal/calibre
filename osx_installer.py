@@ -9,6 +9,8 @@ from setuptools import setup
 from py2app.build_app import py2app
 from modulegraph.find_modules import find_modules
 
+PYTHON = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
+
 class BuildAPP(py2app):
     QT_PREFIX = '/Users/kovid/qt'
     LOADER_TEMPLATE = \
@@ -108,15 +110,15 @@ _check_symlinks_prescript()
         dmg = os.path.join(destdir, volname+'.dmg')
         if os.path.exists(dmg):
             os.unlink(dmg)
-        subprocess.check_call(['hdiutil', 'create', '-srcfolder', os.path.abspath(d), 
+        subprocess.check_call(['/usr/bin/hdiutil', 'create', '-srcfolder', os.path.abspath(d), 
                                '-volname', volname, '-format', format, dmg])
         if internet_enable:
-           subprocess.check_call(['hdiutil', 'internet-enable', '-yes', dmg])
+           subprocess.check_call(['/usr/bin/hdiutil', 'internet-enable', '-yes', dmg])
         return dmg
         
     @classmethod
     def qt_dependencies(cls, path):
-        pipe = subprocess.Popen('otool -L '+path, shell=True, stdout=subprocess.PIPE).stdout
+        pipe = subprocess.Popen('/usr/bin/otool -L '+path, shell=True, stdout=subprocess.PIPE).stdout
         deps = []
         for l in pipe.readlines():
             match = re.search(r'(.*)\(', l)
@@ -140,7 +142,7 @@ _check_symlinks_prescript()
                     raise Exception('Unknown Qt dependency')
             module = match.group(1)            
             newpath = fp + '%s.framework/Versions/Current/%s'%(module, module)
-            cmd = ' '.join(['install_name_tool', '-change', dep, newpath, path])        
+            cmd = ' '.join(['/usr/bin/install_name_tool', '-change', dep, newpath, path])        
             subprocess.check_call(cmd, shell=True)
         
     
@@ -175,11 +177,11 @@ _check_symlinks_prescript()
             subprocess.check_call(['make'])
             files.append((os.path.abspath(os.path.realpath('libpictureflow.dylib')), 'libpictureflow.dylib'))
             os.chdir('PyQt/.build')
-            subprocess.check_call(['python', '../configure.py'])
-            subprocess.check_call(['make'])
+            subprocess.check_call([PYTHON, '../configure.py'])
+            subprocess.check_call(['/usr/bin/make'])
             files.append((os.path.abspath('pictureflow.so'), 'pictureflow.so'))
-            subprocess.check_call(['install_name_tool', '-change', 'libpictureflow.0.dylib', '@executable_path/../Frameworks/libpictureflow.dylib', 'pictureflow.so'])
-            subprocess.check_call(['install_name_tool', '-change', '/System/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', 'pictureflow.so'])
+            subprocess.check_call(['/usr/bin/install_name_tool', '-change', 'libpictureflow.0.dylib', '@executable_path/../Frameworks/libpictureflow.dylib', 'pictureflow.so'])
+            subprocess.check_call(['/usr/bin/install_name_tool', '-change', '/System/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', 'pictureflow.so'])
             for i in range(2):
                 deps = BuildAPP.qt_dependencies(files[i][0])
                 BuildAPP.fix_qt_dependencies(files[i][0], deps)
@@ -251,13 +253,13 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
 
 
 def main():
-    auto = '--auto' in sys.argv
-    if auto:
-        sys.argv.remove('--auto')
-    if auto and not os.path.exists('dist/auto'):
-        print '%s does not exist'%os.path.abspath('dist/auto')
-        return 1
-    
+#    auto = '--auto' in sys.argv
+#    if auto:
+#        sys.argv.remove('--auto')
+#    if auto and not os.path.exists('dist/auto'):
+#        print '%s does not exist'%os.path.abspath('dist/auto')
+#        return 1
+#    
     sys.argv[1:2] = ['py2app']
     setup(
         name = APPNAME,
@@ -290,8 +292,10 @@ def main():
                     },
         setup_requires = ['py2app'],
         )
-    if auto:
-        subprocess.call(('sudo', 'shutdown', '-h', '+2'))
+    subprocess.check_call('scp dist/*.dmg giskard:work/calibre/dist', shell=True)
+#    if '--shutdown' in sys.argv:
+#        print 'Shutting down'
+#        subprocess.call(('/usr/bin/sudo', '/sbin/shutdown', '-h', '+0'))
     return 0
 
 if __name__ == '__main__':

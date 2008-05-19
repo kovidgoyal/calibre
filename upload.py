@@ -64,7 +64,18 @@ def build_windows():
 def build_osx():
     installer = installer_name('dmg')
     vm = '/vmware/Mac OSX/Mac OSX.vmx'
-    return build_installer(installer, vm, 20)
+    vmware = ('vmware', '-q', '-x', '-n', vm)
+    subprocess.Popen(vmware)
+    print 'Waiting for OS X to boot up...'
+    time.sleep(120)
+    print 'Trying to ssh into the OS X server'
+    subprocess.check_call(('ssh', 'osx', '/Users/kovid/bin/build-calibre'))
+    if not os.path.exists(installer):
+        raise Exception('Failed to build installer '+installer)
+    subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', '+1'))
+    return os.path.basename(installer)
+    #return build_installer(installer, vm, 20)
+    
 
 def build_installers():
     return build_windows(), build_osx()
