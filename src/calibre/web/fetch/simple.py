@@ -250,7 +250,10 @@ class RecursiveFetcher(object, LoggingInterface):
                 self.log_debug('Error: %s', str(err), exc_info=True)
                 continue
             c += 1
-            imgpath = os.path.join(diskpath, sanitize_file_name('img'+str(c)+ext))
+            fname = sanitize_file_name('img'+str(c)+ext)
+            if isinstance(fname, unicode):
+                fname = fname.encode('ascii', 'replace')
+            imgpath = os.path.join(diskpath, fname)
             with self.imagemap_lock:
                 self.imagemap[iurl] = imgpath
             open(imgpath, 'wb').write(f.read())

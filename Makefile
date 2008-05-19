@@ -25,7 +25,7 @@ manual:
 
 pictureflow :
 	mkdir -p src/calibre/plugins && rm -f src/calibre/plugins/*pictureflow* && \
-	cd src/calibre/gui2/pictureflow && \
+	cd src/calibre/gui2/pictureflow && rm *.o && \
 	mkdir -p .build && cd .build && rm -f * && \
 	qmake ../pictureflow-lib.pro && make && \
 	cd ../PyQt && \

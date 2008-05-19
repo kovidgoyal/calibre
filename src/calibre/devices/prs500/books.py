@@ -155,6 +155,7 @@ class BookList(_BookList):
                     src = src.decode('latin1')
                 except UnicodeDecodeError:
                     src = src.decode('cp1252')
+            src = src.replace('<cache:', '<xs1:').replace('</cache:', '</xs1:').replace('xmlns:cache', 'xmlns:xs1')
             self.document = dom.parseString(src.encode('utf8'))
             self.root = self.document.documentElement
             self.prefix = ''

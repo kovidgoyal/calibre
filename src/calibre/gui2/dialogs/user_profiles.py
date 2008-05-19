@@ -13,6 +13,7 @@ from calibre.gui2 import qstring_to_unicode, error_dialog, question_dialog
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.utils import sendmail
 from calibre.ptempfile import PersistentTemporaryFile 
+from calibre import isosx
 
 class UserProfiles(QDialog, Ui_Dialog):
     
@@ -69,7 +70,7 @@ class UserProfiles(QDialog, Ui_Dialog):
         pt.close()
         sendmail(subject='Recipe for '+title,
                  attachments=[pt.name],
-                 body='The attached file: %s is a recipe to download %s.'%(os.path.basename(pt.name), title))
+                 body=_('Save the text below into a file named recipe.py and send the file to your friends, to allow them to use this recipe.') if isosx else _('The attached file: %s is a recipe to download %s.')%(os.path.basename(pt.name), title))
         
                  
     

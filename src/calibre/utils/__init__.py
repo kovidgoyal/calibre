@@ -35,7 +35,10 @@ def sendmail(recipient='', subject='', attachments=[], body=''):
             pt.write(open(attachments[0], 'rb').read())
         pt.close()
         
-        subprocess.check_call('open -t '+pt.name, shell=True)
+        try:
+            subprocess.call('open -t '+pt.name, shell=True)
+        except: # For some reason making this call leads to a system call interrupted error
+            pass 
     else:
         body = '"' + body.replace('"', '\\"') + '"'
         subject = '"' + subject.replace('"', '\\"') + '"'

@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create an OSX installer '''
 
-import sys, re, os, shutil, subprocess, stat
+import sys, re, os, shutil, subprocess, stat, glob
 from setup import VERSION, APPNAME, scripts, main_modules, basenames, main_functions
 from setuptools import setup
 from py2app.build_app import py2app
@@ -132,7 +132,13 @@ _check_symlinks_prescript()
         fp = '@executable_path/../Frameworks/'
         print 'Fixing qt dependencies for:', os.path.basename(path)
         for dep in deps:
-            module = re.search(r'(Qt\w+?)\.framework', dep).group(1)            
+            match = re.search(r'(Qt\w+?)\.framework', dep)
+            if not match:
+                match = re.search(r'(phonon)\.framework', dep)
+                if not match:
+                    print dep
+                    raise Exception('Unknown Qt dependency')
+            module = match.group(1)            
             newpath = fp + '%s.framework/Versions/Current/%s'%(module, module)
             cmd = ' '.join(['install_name_tool', '-change', dep, newpath, path])        
             subprocess.check_call(cmd, shell=True)
@@ -156,11 +162,35 @@ _check_symlinks_prescript()
                                             
             
         #deps = BuildAPP.qt_dependencies(path)
+    
+    def build_plugins(self):
+        cwd = os.getcwd()
+        qmake = '/Users/kovid/qt/bin/qmake'
+        files = []
+        try:
+            print 'Building pictureflow'
+            os.chdir('src/calibre/gui2/pictureflow')
+            for f in glob.glob('*.o'): os.unlink(f)
+            subprocess.check_call([qmake, 'pictureflow-lib.pro'])
+            subprocess.check_call(['make'])
+            files.append((os.path.abspath(os.path.realpath('libpictureflow.dylib')), 'libpictureflow.dylib'))
+            os.chdir('PyQt/.build')
+            subprocess.check_call(['python', '../configure.py'])
+            subprocess.check_call(['make'])
+            files.append((os.path.abspath('pictureflow.so'), 'pictureflow.so'))
+            subprocess.check_call(['install_name_tool', '-change', 'libpictureflow.0.dylib', '@executable_path/../Frameworks/libpictureflow.dylib', 'pictureflow.so'])
+            subprocess.check_call(['install_name_tool', '-change', '/System/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', 'pictureflow.so'])
+            for i in range(2):
+                deps = BuildAPP.qt_dependencies(files[i][0])
+                BuildAPP.fix_qt_dependencies(files[i][0], deps)
+            
+            return files
+        finally:
+            os.chdir(cwd)
             
     
     def run(self):
         py2app.run(self)
-        self.add_qt_plugins()
         resource_dir = os.path.join(self.dist_dir, 
                                     APPNAME + '.app', 'Contents', 'Resources')
         frameworks_dir = os.path.join(os.path.dirname(resource_dir), 'Frameworks')
@@ -178,6 +208,8 @@ _check_symlinks_prescript()
             f.close()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
+        self.add_qt_plugins()
+        plugin_files = self.build_plugins()
             
         print
         print 'Adding clit'
@@ -188,6 +220,13 @@ _check_symlinks_prescript()
         print 
         print 'Adding pdftohtml'
         os.link(os.path.expanduser('~/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
+        print 'Adding plugins'
+        module_dir = os.path.join(resource_dir, 'lib', 'python2.5', 'lib-dynload')
+        for src, dest in plugin_files:
+            if 'dylib' in dest:
+                os.link(src, os.path.join(frameworks_dir, dest))
+            else:
+                os.link(src, os.path.join(module_dir, dest))
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]
@@ -231,7 +270,8 @@ def main():
                          'argv_emulation' : True,
                          'iconfile' : 'icons/library.icns',
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
-                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtSvg', 
+                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml', 
+                                       'PyQt4.QtSvg', 
                                        'mechanize', 'ClientForm', 'usbobserver', 
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'IPython.Extensions.*', 'pydoc'],
@@ -251,7 +291,7 @@ def main():
         setup_requires = ['py2app'],
         )
     if auto:
-        subprocess.call(('sudo', 'shutdown', '-h', '+1'))
+        subprocess.call(('sudo', 'shutdown', '-h', '+2'))
     return 0
 
 if __name__ == '__main__':

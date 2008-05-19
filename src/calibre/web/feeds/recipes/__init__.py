@@ -62,9 +62,9 @@ def compile_recipe(src):
         enc = match.group(1) if match else 'utf-8'
         src = src.decode(enc)
     f = open(temp, 'wb')
-    src = '# coding=utf-8\n' + src
     src = 'from %s.web.feeds.news import BasicNewsRecipe, AutomaticNewsRecipe\n'%__appname__ + src
     src = 'from %s.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile\n'%__appname__ + src
+    src = '# coding: utf-8\n' + src
     f.write(src.replace('from libprs500', 'from calibre').encode('utf-8'))
     f.close()
     module = imp.find_module(temp.namebase, [temp.dirname()])
