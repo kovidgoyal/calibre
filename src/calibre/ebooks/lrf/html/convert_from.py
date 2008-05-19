@@ -1426,6 +1426,11 @@ class HTMLConverter(object, LoggingInterface):
                     path = munge_paths(self.target_prefix, tag['href'])[0]
                     ext = os.path.splitext(path)[1]
                     if ext: ext = ext[1:].lower()
+                    enc = sys.getfilesystemencoding()
+                    if not enc:
+                        enc = 'utf8'
+                    if isinstance(path, unicode):
+                        path = path.encode(enc, 'replace')
                     if os.access(path, os.R_OK) and os.path.isfile(path):
                         if ext in ['png', 'jpg', 'bmp', 'jpeg']:
                             self.process_image(path, tag_css)

@@ -179,6 +179,7 @@ _check_symlinks_prescript()
             subprocess.check_call(['make'])
             files.append((os.path.abspath('pictureflow.so'), 'pictureflow.so'))
             subprocess.check_call(['install_name_tool', '-change', 'libpictureflow.0.dylib', '@executable_path/../Frameworks/libpictureflow.dylib', 'pictureflow.so'])
+            subprocess.check_call(['install_name_tool', '-change', '/System/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', 'pictureflow.so'])
             for i in range(2):
                 deps = BuildAPP.qt_dependencies(files[i][0])
                 BuildAPP.fix_qt_dependencies(files[i][0], deps)
