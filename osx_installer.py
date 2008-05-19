@@ -165,6 +165,11 @@ _check_symlinks_prescript()
             
         #deps = BuildAPP.qt_dependencies(path)
     
+    def fix_python_dependencies(self, files):
+        for f in files:
+            subprocess.check_call(['/usr/bin/install_name_tool', '-change', '/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', f])
+            
+    
     def build_plugins(self):
         cwd = os.getcwd()
         qmake = '/Users/kovid/qt/bin/qmake'
@@ -181,7 +186,7 @@ _check_symlinks_prescript()
             subprocess.check_call(['/usr/bin/make'])
             files.append((os.path.abspath('pictureflow.so'), 'pictureflow.so'))
             subprocess.check_call(['/usr/bin/install_name_tool', '-change', 'libpictureflow.0.dylib', '@executable_path/../Frameworks/libpictureflow.dylib', 'pictureflow.so'])
-            subprocess.check_call(['/usr/bin/install_name_tool', '-change', '/System/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', 'pictureflow.so'])
+            self.fix_python_dependencies((files[0][0], files[1][0]))
             for i in range(2):
                 deps = BuildAPP.qt_dependencies(files[i][0])
                 BuildAPP.fix_qt_dependencies(files[i][0], deps)
