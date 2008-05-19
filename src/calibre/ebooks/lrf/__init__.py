@@ -90,9 +90,9 @@ def option_parser(usage, gui_mode=False):
                     dest="author", help=_("Set the author(s). Multiple authors should be set as a comma separated list. Default: %default"), 
                     default=_('Unknown'))
     metadata.add_option("--comment", action="store", type="string", \
-                    dest="freetext", help=_("Set the comment."), default='  ')
+                    dest="freetext", help=_("Set the comment."), default='Unknown')
     metadata.add_option("--category", action="store", type="string", \
-                    dest="category", help=_("Set the category"), default='  ')    
+                    dest="category", help=_("Set the category"), default='Unknown')    
     metadata.add_option('--title-sort', action='store', default='', dest='title_sort',
                       help=_('Sort key for the title'))
     metadata.add_option('--author-sort', action='store', default='', dest='author_sort',

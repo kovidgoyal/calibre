@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, collections
 
 from calibre.ebooks.metadata.rtf  import get_metadata as rtf_metadata
+from calibre.ebooks.metadata.fb2  import get_metadata as fb2_metadata
 from calibre.ebooks.lrf.meta      import get_metadata as lrf_metadata
 from calibre.ebooks.metadata.pdf  import get_metadata as pdf_metadata
 from calibre.ebooks.metadata.lit  import get_metadata as lit_metadata
@@ -18,7 +19,7 @@ from calibre.ebooks.metadata import MetaInformation
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
-                       'rtf', 'pdf', 'prc',
+                       'rtf', 'fb2', 'pdf', 'prc',
                        'epub', 'lit', 'lrf', 'mobi',
                       ]
 

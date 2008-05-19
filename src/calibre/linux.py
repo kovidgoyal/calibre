@@ -37,6 +37,7 @@ entry_points = {
                              'pdf2lrf   = calibre.ebooks.lrf.pdf.convert_from:main',
                              'mobi2lrf  = calibre.ebooks.lrf.mobi.convert_from:main',
                              'fb22lrf   = calibre.ebooks.lrf.fb2.convert_from:main',
+                             'fb2-meta  = calibre.ebooks.metadata.fb2:main',
                              'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
                              'lrf2lrs   = calibre.ebooks.lrf.parser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
@@ -45,7 +46,7 @@ entry_points = {
                              'librarything = calibre.ebooks.metadata.library_thing:main',
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
-                             'calibre-debug = calibre.debug:main',                             
+                             'calibre-debug = calibre.debug:main',
                            ], 
         'gui_scripts'    : [ 
                             __appname__+' = calibre.gui2.main:main',
@@ -347,7 +348,7 @@ def install_man_pages(fatal_errors):
     for src in entry_points['console_scripts']:
         prog = src[:src.index('=')].strip()
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta', 
-                    'markdown-calibre', 'calibre-debug'):
+                    'markdown-calibre', 'calibre-debug', 'fb2-meta'):
             continue
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
                     '--section', '1', '--no-info', '--include',

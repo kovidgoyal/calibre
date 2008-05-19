@@ -7,6 +7,7 @@ import os, sys, tempfile, subprocess, shutil, logging, glob
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre import setup_cli_handlers, __appname__
@@ -59,16 +60,29 @@ def process_file(path, options, logger=None):
         logger = logging.getLogger('fb22lrf')
         setup_cli_handlers(logger, level)
     fb2 = os.path.abspath(os.path.expanduser(path))
+    f = open(fb2, 'rb')
+    mi = get_metadata(f, 'fb2')
+    f.close()
     htmlfile = generate_html(fb2, options.encoding, logger)
     tdir = os.path.dirname(htmlfile)
     cwd = os.getcwdu()
     try:
-	if not options.output:
-	    ext = '.lrs' if options.lrs else '.lrf'
-	    options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
-	options.output = os.path.abspath(os.path.expanduser(options.output))
+        if not options.output:
+            ext = '.lrs' if options.lrs else '.lrf'
+            options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
+        options.output = os.path.abspath(os.path.expanduser(options.output))
+        if not mi.title:
+            mi.title = os.path.splitext(os.path.basename(rtf))[0]
+        if (not options.title or options.title == 'Unknown'):
+            options.title = mi.title
+        if (not options.author or options.author == 'Unknown') and mi.authors:
+            options.author = mi.authors.pop()
+        if (not options.category or options.category == 'Unknown') and mi.category:
+            options.category = mi.category
+        if (not options.freetext or options.freetext == 'Unknown') and mi.comments:
+            options.freetext = mi.comments
         os.chdir(tdir)
-	html_process_file(htmlfile, options, logger)
+        html_process_file(htmlfile, options, logger)
     finally:
         os.chdir(cwd)
         if hasattr(options, 'keep_intermediate_files') and options.keep_intermediate_files:
