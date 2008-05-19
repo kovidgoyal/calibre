@@ -26,6 +26,7 @@ TRANSLATIONS = [
                 'it',
                 'bg',
                 'nds',
+                'ru',
                 ]
 
 def source_files():
@@ -38,6 +39,8 @@ def source_files():
                 
 
 def update_po_files(tarball):
+    if not os.getcwd().endswith('translations'):
+        os.chdir('translations')
     tf = tarfile.open(tarball, 'r:gz')
     next = tf.next()
     while next is not None:

@@ -71,7 +71,7 @@ def handle_archive(path):
     files = []
     cdir = traverse_subdirs(tdir)
     file = None
-    for ext in ('lit', 'rtf', 'pdf', 'txt', 'epub', 'mobi', 'prc'):
+    for ext in ('lit', 'rtf', 'fb2','pdf', 'txt', 'epub', 'mobi', 'prc'):
         pat = os.path.join(cdir, '*.'+ext)
         files.extend(glob.glob(pat))
     file = largest_file(files)
