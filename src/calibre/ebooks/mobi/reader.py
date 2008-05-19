@@ -270,12 +270,17 @@ class MobiReader(object):
             im.convert('RGB').save(open(path, 'wb'), format='JPEG')
             
         def fix_images(match):
-            one = re.compile(r'src=["\']{0,1}[^\'"]+["\']{0,1}', re.IGNORECASE).sub('', match.group(1)).strip()
-            return '<img'+one+' src="images/%s.jpg"'%match.group(2)
+            tag = match.group()
+            for pat in (r'\shirecindex=[\'"](\d+)[\'"]', '\srecindex=[\'"](\d+)[\'"]', '\slorecindex=[\'"](\d+)[\'"]'):
+                pat = re.compile(pat)
+                m = pat.search(tag)
+                if m:
+                    return pat.sub(' src="images/%s.jpg"'%m.group(1), tag)
+                    
         
         if hasattr(self, 'processed_html'):
             self.processed_html = \
-            re.compile(r'<img(.+?)recindex=[\'"]{0,1}(\d+)[\'"]{0,1}', re.IGNORECASE|re.DOTALL)\
+            re.compile(r'<img (.*?)>', re.IGNORECASE|re.DOTALL)\
                 .sub(fix_images, self.processed_html)
 
 def get_metadata(stream):
