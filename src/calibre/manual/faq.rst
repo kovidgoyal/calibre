@@ -82,8 +82,8 @@ What formats does |app| read metadata from?
 |app| reads metadata from the following formats: LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB. In addition it can write metadata to: LRF, RTF, OPF
 
 Where are the book files stored?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When you import books into the library, they are stored in a database. The database location can be found out by clicking the configuration button (The button with the icon of a hammer next to the search bar). 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|app| use a database to store all books. When you import new books or convert an existing book, the book files are stored in compressed form in the database. The database is a single file named `library1.db` and you can see where it is (or change its location) by clicking the configuration button (the button with the icon of a hammer next to the search bar). 
 
 Can I save my books to the disk?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

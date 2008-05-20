@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: libprs500 0.4.17\n"
-"POT-Creation-Date: 2008-05-18 16:39+PDT\n"
+"POT-Creation-Date: 2008-05-20 11:42+PDT\n"
 "PO-Revision-Date: 2008-04-05 00:04+0100\n"
 "Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
 "Language-Team: de\n"
@@ -379,7 +379,7 @@ msgstr ""
 "        \n"
 "%prog konvertiert dateiname.epub in dateiname.lrf"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:18
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:19
 msgid ""
 "%prog [options] mybook.fb2\n"
 "\n"
@@ -387,7 +387,7 @@ msgid ""
 "%prog converts mybook.fb2 to mybook.lrf"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:23
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:22
 msgid "Print generated HTML to stdout and quit."
 msgstr "Gebe erstellte HTML auf stdout aus und beende das Programm."
@@ -457,13 +457,13 @@ msgstr ""
 "Konnte Bild nicht verarbeiten: %s\n"
 "%s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1666
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1671
 msgid "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
 "Ein Fehler trat während der Bearbeitung einer Tabelle auf: %s. "
 "Tabellenformat wird ignoriert."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1668
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1673
 msgid ""
 "Bad table:\n"
 "%s"
@@ -471,11 +471,11 @@ msgstr ""
 "Schlechte Tabelle:\n"
 "%s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1690
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1695
 msgid "Table has cell that is too large"
 msgstr "Tabelle enthält Zelle, die zu groß ist"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1720
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1725
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
@@ -483,19 +483,19 @@ msgstr ""
 "Sichern Sie die Website %s zuerst als HTML Datei und benutzen Sie dann "
 "html2lrf mit der gespeicherten HTML Datei."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1760
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1765
 msgid "Could not read cover image: %s"
 msgstr "Konnte Umschlagbild nicht lesen: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1763
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1768
 msgid "Cannot read from: %s"
 msgstr "Lesen nicht möglich von: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1892
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
 msgid "Failed to process opf file"
 msgstr "Verarbeitung der OPF Datei schlug fehl"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1898
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1903
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
@@ -707,12 +707,13 @@ msgid "Set the comment"
 msgstr "Gebe Kommentar ein"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:100
-msgid "Usage:"
-msgstr "Benutzung:"
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:100
 msgid "mybook.epub"
 msgstr "dateiname.epub"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:100
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:34
+msgid "Usage:"
+msgstr "Benutzung:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:95
 msgid ""
@@ -801,19 +802,19 @@ msgstr "Benutzung: pdf-meta dateiname.pdf"
 msgid "No filename specified."
 msgstr "Kein Dateiname angegeben."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:299
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:304
 msgid "%prog [options] myebook.mobi"
 msgstr "%prog [options] dateiname.mobi"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:301
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:306
 msgid "Output directory. Defaults to current directory."
 msgstr "Ausgabeverzeichnis. Voreinstellung ist akutelles Verzeichnis."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:325
 msgid "Raw MOBI HTML saved in"
 msgstr "Original MOBI HTML gespeichert in"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:322
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:327
 msgid "OEB ebook created in"
 msgstr "OEB eBook erstellt in"
 

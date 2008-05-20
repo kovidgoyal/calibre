@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ca\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-18 16:39+PDT\n"
+"POT-Creation-Date: 2008-05-20 11:42+PDT\n"
 "PO-Revision-Date: 2007-11-16 09:07+0100\n"
 "Last-Translator: calibre\n"
 "Language-Team: \n"
@@ -355,7 +355,7 @@ msgid ""
 "%prog converts mybook.epub to mybook.lrf"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:18
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:19
 msgid ""
 "%prog [options] mybook.fb2\n"
 "\n"
@@ -363,7 +363,7 @@ msgid ""
 "%prog converts mybook.fb2 to mybook.lrf"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:23
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:22
 msgid "Print generated HTML to stdout and quit."
 msgstr ""
@@ -431,39 +431,39 @@ msgid ""
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1666
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1671
 msgid "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1668
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1673
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1690
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1695
 msgid "Table has cell that is too large"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1720
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1725
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1760
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1765
 msgid "Could not read cover image: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1763
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1768
 msgid "Cannot read from: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1892
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
 msgid "Failed to process opf file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1898
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1903
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
@@ -633,11 +633,12 @@ msgid "Set the comment"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:100
-msgid "Usage:"
+msgid "mybook.epub"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:100
-msgid "mybook.epub"
+#: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:34
+msgid "Usage:"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:95
@@ -709,19 +710,19 @@ msgstr ""
 msgid "No filename specified."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:299
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:304
 msgid "%prog [options] myebook.mobi"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:301
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:306
 msgid "Output directory. Defaults to current directory."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:320
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:325
 msgid "Raw MOBI HTML saved in"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:322
+#: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:327
 msgid "OEB ebook created in"
 msgstr ""
 
