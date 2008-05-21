@@ -17,7 +17,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            qstring_to_unicode, set_sidebar_directories, \
-                           SingleApplication
+                           SingleApplication, Application
 from calibre import iswindows, isosx
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
@@ -238,7 +238,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.device_manager = DeviceManager(device)
             self.job_manager.run_device_job(self.info_read, self.device_manager.info_func())
             self.set_default_thumbnail(device.THUMBNAIL_HEIGHT)
-            self.status_bar.showMessage('Device: '+device.__class__.__name__+' detected.', 3000)
+            self.status_bar.showMessage(_('Device: ')+device.__class__.__name__+_(' detected.'), 3000)
             self.action_sync.setEnabled(True)
             self.device_connected = True
         else:
@@ -369,7 +369,7 @@ class Main(MainWindow, Ui_MainWindow):
         to_device = self.stack.currentIndex() != 0
         self._add_books(books, to_device)
         if to_device:
-            self.status_bar.showMessage('Uploading books to device.', 2000)
+            self.status_bar.showMessage(_('Uploading books to device.'), 2000)
         
     def _add_books(self, paths, to_device):
         on_card = False if self.stack.currentIndex() != 2 else True
@@ -463,7 +463,7 @@ class Main(MainWindow, Ui_MainWindow):
             id = self.remove_paths(paths)
             self.delete_memory[id] = (paths, view.model())
             view.model().mark_for_deletion(id, rows)
-            self.status_bar.showMessage('Deleting books from device.', 1000)
+            self.status_bar.showMessage(_('Deleting books from device.'), 1000)
             
     def remove_paths(self, paths):
         return self.job_manager.run_device_job(self.books_deleted,
@@ -585,11 +585,11 @@ class Main(MainWindow, Ui_MainWindow):
                     prefix = prefix.decode('ascii', 'ignore').encode('ascii', 'ignore')
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f.name)[1]))
         self.upload_books(gf, names, good, on_card)
-        self.status_bar.showMessage('Sending books to device.', 5000)
+        self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
-            d = warning_dialog(self, 'No suitable formats', 
-                    'Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>'%(bad,))
+            d = warning_dialog(self, _('No suitable formats'), 
+                    _('Could not upload the following books to the device, as no suitable formats were found:<br><ul>%s</ul>')%(bad,))
             d.exec_()
                 
             
@@ -605,7 +605,7 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot save to disk'), _('No books selected'))
             d.exec_()
             return
-        dir = choose_dir(self, 'save to disk dialog', 'Choose destination directory')
+        dir = choose_dir(self, 'save to disk dialog', ('Choose destination directory'))
         if not dir:
             return
         if self.current_view() == self.library_view:
@@ -672,7 +672,7 @@ class Main(MainWindow, Ui_MainWindow):
             return
         bad_rows = []
         
-        self.status_bar.showMessage('Starting Bulk conversion of %d books'%len(rows), 2000)
+        self.status_bar.showMessage(_('Starting Bulk conversion of %d books')%len(rows), 2000)
         
         for i, row in enumerate([r.row() for r in rows]):
             cmdline = list(d.cmdline)
@@ -762,7 +762,7 @@ class Main(MainWindow, Ui_MainWindow):
         data = open(of.name, 'rb')
         self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
         data.close()
-        self.status_bar.showMessage(description + ' completed', 2000)
+        self.status_bar.showMessage(description + (' completed'), 2000)
     
     #############################View book######################################
     
@@ -885,7 +885,7 @@ class Main(MainWindow, Ui_MainWindow):
                             os.makedirs(dirname)
                         dest = open(newloc, 'wb')
                         if os.access(self.database_path, os.R_OK):
-                            self.status_bar.showMessage('Copying database to '+newloc)
+                            self.status_bar.showMessage(_('Copying database to ')+newloc)
                             self.setCursor(Qt.BusyCursor)
                             self.library_view.setEnabled(False)
                             self.library_view.close()
@@ -1061,12 +1061,11 @@ class Main(MainWindow, Ui_MainWindow):
         
 
 def main(args=sys.argv):
-    from PyQt4.Qt import QApplication
     from calibre import singleinstance
     
     pid = os.fork() if islinux else -1
     if pid <= 0:
-        app = QApplication(args)    
+        app = Application(args)    
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')

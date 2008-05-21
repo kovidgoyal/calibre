@@ -3,13 +3,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, \
-                         QByteArray, QLocale, QTranslator, QUrl
+                         QByteArray, QLocale, QTranslator, QUrl, QTranslator
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QTableView, QDialogButtonBox
+                        QIcon, QTableView, QDialogButtonBox, QApplication
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import __author__, islinux, iswindows, Settings, isosx
+from calibre import __author__, islinux, iswindows, Settings, isosx, get_lang
+import calibre.resources as resources
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
@@ -340,41 +341,23 @@ def pixmap_to_data(pixmap, format='JPEG'):
     pixmap.save(buf, format)
     return str(ba.data())
 
-class TranslatedDialogButtonBox(QDialogButtonBox):
-    
-    STRINGS = {
-               QDialogButtonBox.Ok              : (_('&OK'), QDialogButtonBox.AcceptRole), 
-               QDialogButtonBox.Open            : (_('&Open'), QDialogButtonBox.AcceptRole),
-               QDialogButtonBox.Save            : (_('&Save'), QDialogButtonBox.AcceptRole),
-               QDialogButtonBox.Cancel          : (_('Cancel'), QDialogButtonBox.RejectRole),
-               QDialogButtonBox.Close           : (_('&Close'), QDialogButtonBox.RejectRole),
-               QDialogButtonBox.Discard         : (_("&Don't Save") if isosx else _('&Discard'), QDialogButtonBox.DestructiveRole),
-               QDialogButtonBox.Apply           : (_('&Apply'), QDialogButtonBox.ApplyRole),
-               QDialogButtonBox.Reset           : (_('&Reset'), QDialogButtonBox.ResetRole),
-               QDialogButtonBox.RestoreDefaults : (_('Restore &Defaults'), QDialogButtonBox.ResetRole),
-               QDialogButtonBox.Help            : (_('&Help'), QDialogButtonBox.HelpRole),
-               QDialogButtonBox.SaveAll         : (_('Save &All'), QDialogButtonBox.AcceptRole),
-               QDialogButtonBox.Yes             : (_('&Yes'), QDialogButtonBox.YesRole),
-               QDialogButtonBox.YesToAll        : (_('Yes to &All'), QDialogButtonBox.YesRole),
-               QDialogButtonBox.No              : (_('&No'), QDialogButtonBox.NoRole),
-               QDialogButtonBox.NoToAll         : (_('N&o to All'), QDialogButtonBox.NoRole),
-               QDialogButtonBox.Abort           : (_('A&bort'), QDialogButtonBox.RejectRole),
-               QDialogButtonBox.Retry           : (_('Re&try'), QDialogButtonBox.AcceptRole),
-               QDialogButtonBox.Ignore          : (_('I&gnore'), QDialogButtonBox.AcceptRole),
-               }
-    
-    def setStandardButtons(self, buttons):
-        default = False
-        for i in self.STRINGS.keys():
-            if i & buttons:
-                msg, role = self.STRINGS[i]
-                button = self.addButton(msg, role)
-                if not default:
-                    default = True
-                    button.setDefault(True)
-
 
 try:
     from calibre.utils.single_qt_application import SingleApplication
 except:
     SingleApplication = None
+    
+class Application(QApplication):
+    
+    def __init__(self, args):
+        QApplication.__init__(self, args)
+        self.translator = QTranslator(self)
+        lang = get_lang()
+        if lang:
+            data = getattr(resources, 'qt_'+lang, None)
+            if data:
+                self.translator.loadFromData(data)
+                self.installTranslator(self.translator)
+                
+         
+        

@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
-"POT-Creation-Date: 2008-05-20 11:42+PDT\n"
-"PO-Revision-Date: 2008-05-05 05:15+PDT\n"
+"POT-Creation-Date: 2008-05-20 12:53+PDT\n"
+"PO-Revision-Date: 2008-05-20 12:53+PDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
@@ -2065,6 +2065,14 @@ msgstr ""
 msgid "Bulk convert"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:241
+msgid " detected."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:241
+msgid "Device: "
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:278
 msgid "Device database corrupted"
 msgstr ""
@@ -2097,12 +2105,20 @@ msgstr ""
 msgid "Duplicates found!"
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:372
+msgid "Uploading books to device."
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:430
 msgid "No space on device"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:431
 msgid "<p>Cannot upload books to device there is no more free space available "
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:466
+msgid "Deleting books from device."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:500
@@ -2116,6 +2132,20 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:666
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:727
 msgid "No books selected"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:588
+msgid "Sending books to device."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:591
+msgid "No suitable formats"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:592
+msgid ""
+"Could not upload the following books to the device, as no suitable formats "
+"were found:<br><ul>%s</ul>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:605
@@ -2137,6 +2167,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:666
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:727
 msgid "Cannot convert"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:675
+msgid "Starting Bulk conversion of %d books"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:797
@@ -2165,6 +2199,10 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:868
 msgid "Cannot configure while there are running jobs."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:888
+msgid "Copying database to "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:903

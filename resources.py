@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Compile resource files.
 '''
-import os, sys
+import os, sys, glob
 sys.path.insert(1, os.path.join(os.getcwd(), 'src'))
 from calibre import __appname__
 
@@ -21,6 +21,19 @@ def main(args=sys.argv):
         path = value.replace('%p', 'src'+os.sep+__appname__)
         bytes = repr(open(path, 'rb').read())
         data += key + ' = ' + bytes + '\n\n'
+    
+    TPATH = '/usr/share/qt4/translations'
+    if os.path.exists(TPATH):
+         files = glob.glob(TPATH + '/qt_??.qm')
+    
+         for f in files:
+             key = os.path.basename(f).partition('.')[0]
+             bytes = repr(open(f, 'rb').read())
+             data += key + ' = ' + bytes + '\n\n'
+         
+    else:
+        print 'WARNING: Could not find Qt transations in', TPATH
+    
     open('src'+os.sep+__appname__+os.sep+'/resources.py', 'wb').write(data) 
     return 0
 

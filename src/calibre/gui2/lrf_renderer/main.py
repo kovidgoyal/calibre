@@ -2,14 +2,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os, traceback, time, cPickle
 
-from PyQt4.QtGui import QApplication, QKeySequence, QPainter, QDialog
+from PyQt4.QtGui import QKeySequence, QPainter, QDialog
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread, \
                          QVariant
 
 from calibre import __appname__, __version__, __author__, setup_cli_handlers, islinux, Settings
 from calibre.ebooks.lrf.parser import LRFDocument
 
-from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, choose_files
+from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, choose_files, Application
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.gui2.lrf_renderer.main_ui import Ui_MainWindow
 from calibre.gui2.lrf_renderer.config_ui import Ui_ViewerConfig
@@ -60,7 +60,7 @@ class Main(MainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)        
         self.setupUi(self)
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.setWindowTitle(__appname__ + ' - LRF Viewer')
+        self.setWindowTitle(__appname__ + _(' - LRF Viewer'))
     
         self.logger = logger
         self.opts = opts
@@ -294,7 +294,7 @@ def main(args=sys.argv, logger=None):
         return 1
     pid = os.fork() if islinux else -1
     if pid <= 0:
-        app = QApplication(args)
+        app = Application(args)
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         opts = normalize_settings(parser, opts)

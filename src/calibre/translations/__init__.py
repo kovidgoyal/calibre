@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Manage translation of user visible strings.
 '''
 
-import sys, os, cStringIO, tempfile, subprocess, functools, tarfile, re
+import sys, os, cStringIO, tempfile, subprocess, functools, tarfile, re, time
 check_call = functools.partial(subprocess.check_call, shell=True)
 
 try:
@@ -74,6 +74,9 @@ def main(args=sys.argv):
         else:
             print 'Merging', os.path.basename(po)
             check_call('msgmerge -v -U -N --backup=none '+po + ' ' + fname)
+            raw = re.sub('"PO-Revision-Date.*?"', '"PO-Revision-Date: %s\\\\n"'%time.strftime('%Y-%m-%d %H:%M+%Z'), open(po).read())
+            open(po, 'wb').write(raw)
+            
         tf.add(po, os.path.basename(po))
         buf = cStringIO.StringIO()
         print 'Compiling translations'

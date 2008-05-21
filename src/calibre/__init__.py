@@ -269,30 +269,35 @@ def fit_image(width, height, pwidth, pheight):
                             
     return scaled, int(width), int(height)
 
-def set_translator():
-    # To test different translations invoke as
-    # LC_ALL=de_DE.utf8 program
-    from calibre.translations.data import translations
+def get_lang():
     lang = locale.getdefaultlocale()[0]
     if lang is None and os.environ.has_key('LANG'): # Needed for OS X
         try:
             lang = os.environ['LANG']
         except:
-            pass 
+            pass
     if lang:
         match = re.match('[a-z]{2,3}', lang)
         if match:
             lang = match.group()
-            buf = None
-            if os.access(lang+'.po', os.R_OK):
-                buf = cStringIO.StringIO()
-                make(lang+'.po', buf)
-                buf = cStringIO.StringIO(buf.getvalue())
-            elif translations.has_key(lang):
-                buf = cStringIO.StringIO(translations[lang])
-            if buf is not None:
-                t = GNUTranslations(buf)
-                t.install(unicode=True)
+    return lang
+
+def set_translator():
+    # To test different translations invoke as
+    # LC_ALL=de_DE.utf8 program
+    from calibre.translations.data import translations
+    lang = get_lang() 
+    if lang:
+        buf = None
+        if os.access(lang+'.po', os.R_OK):
+            buf = cStringIO.StringIO()
+            make(lang+'.po', buf)
+            buf = cStringIO.StringIO(buf.getvalue())
+        elif translations.has_key(lang):
+            buf = cStringIO.StringIO(translations[lang])
+        if buf is not None:
+            t = GNUTranslations(buf)
+            t.install(unicode=True)
         
 set_translator()
 
