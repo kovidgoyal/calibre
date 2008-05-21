@@ -53,7 +53,7 @@ class NavBarTemplate(Template):
        
 >
     <body>
-        <div class="navbar" style="text-align:center; font-family:monospace; font-size:8pt">
+        <div class="navbar" style="text-align:${'center' if center else 'left'}; font-family:monospace; font-size:8pt">
             <hr py:if="bottom" />
             <p py:if="bottom" style="text-align:left">
                 This article was downloaded by <b>${__appname__}</b> from <a href="${url}">${url}</a>
@@ -80,13 +80,14 @@ class NavBarTemplate(Template):
 ''')
 
     def generate(self, bottom, feed, art, number_of_articles_in_feed, 
-                 two_levels, url, __appname__, prefix=''):
+                 two_levels, url, __appname__, prefix='', center=True):
         if prefix and not prefix.endswith('/'):
             prefix += '/'
         return Template.generate(self, bottom=bottom, art=art, feed=feed,
                                  num=number_of_articles_in_feed, 
                                  two_levels=two_levels, url=url,
-                                 __appname__=__appname__, prefix=prefix)
+                                 __appname__=__appname__, prefix=prefix,
+                                 center=center)
     
 
 class IndexTemplate(Template):

@@ -82,6 +82,9 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: @type: boolean
     needs_subscription     = False
     
+    #: If True the navigation bar is center aligned, otherwise it is left aligned
+    center_navbar = True
+    
     #: Specify an override encoding for sites that have an incorrect
     #: charset specification. The most common being specifying ``latin1`` and
     #: using ``cp1252``. If None, try to detect the encoding. 
@@ -451,7 +454,7 @@ class BasicNewsRecipe(object, LoggingInterface):
             if body is not None:
                 templ = self.navbar.generate(False, f, a, feed_len, 
                                              not self.has_single_feed, 
-                                             url, __appname__)
+                                             url, __appname__, center=self.center_navbar)
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
             
@@ -522,10 +525,13 @@ class BasicNewsRecipe(object, LoggingInterface):
                     bn = bn.rpartition('/')[-1]
                     if bn:
                         img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
-                        open(img, 'wb').write(self.browser.open(feed.image_url).read())
-                        self.image_counter += 1
-                        feed.image_url = img
-                        self.image_map[feed.image_url] = img
+                        try:
+                            open(img, 'wb').write(self.browser.open(feed.image_url).read())
+                            self.image_counter += 1
+                            feed.image_url = img
+                            self.image_map[feed.image_url] = img
+                        except:
+                            pass
                 
         templ = templates.FeedTemplate()
         return templ.generate(feed, self.description_limiter).render(doctype='xhtml')
@@ -606,6 +612,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                     url = self.print_version(article.url)
                 except NotImplementedError:
                     url = article.url
+                if not url:
+                    continue
                     
                 func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \
                             (self.fetch_article, url)
@@ -703,7 +711,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                         prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
                         templ = self.navbar.generate(True, num, j, len(f), 
                                          not self.has_single_feed, 
-                                         a.orig_url, __appname__, prefix=prefix)
+                                         a.orig_url, __appname__, prefix=prefix,
+                                         center=self.center_navbar)
                         elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                         body.insert(len(body.contents), elem)
                         open(last, 'wb').write(unicode(soup).encode('utf-8'))
