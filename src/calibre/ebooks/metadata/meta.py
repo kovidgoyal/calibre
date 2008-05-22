@@ -75,7 +75,7 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
         base.title = 'Unknown'
     base.smart_update(mi)
     if opf is not None:
-        base.update(opf)
+        base.smart_update(opf)
         
     return base
 

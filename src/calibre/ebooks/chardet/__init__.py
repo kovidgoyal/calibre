@@ -20,7 +20,7 @@ __version__ = "1.0"
 import re
 
 def detect(aBuf):
-    import universaldetector
+    import calibre.ebooks.chardet.universaldetector as universaldetector
     u = universaldetector.UniversalDetector()
     u.reset()
     u.feed(aBuf)

@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.51\n"
-"POT-Creation-Date: 2008-05-20 12:53+PDT\n"
-"PO-Revision-Date: 2008-05-20 12:53+PDT\n"
+"POT-Creation-Date: 2008-05-21 12:42+PDT\n"
+"PO-Revision-Date: 2008-05-21 13:04+PDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: bg\n"
 "MIME-Version: 1.0\n"
@@ -662,82 +662,6 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:327
 msgid "OEB ebook created in"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:346
-msgid "&OK"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:347
-msgid "&Open"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:348
-msgid "&Save"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:349
-msgid "Cancel"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:350
-msgid "&Close"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:351
-msgid "&Discard"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:351
-msgid "&Don't Save"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:352
-msgid "&Apply"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:353
-msgid "&Reset"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:354
-msgid "Restore &Defaults"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:355
-msgid "&Help"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:356
-msgid "Save &All"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:357
-msgid "&Yes"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:358
-msgid "Yes to &All"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:359
-msgid "&No"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:360
-msgid "N&o to All"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:361
-msgid "A&bort"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:362
-msgid "Re&try"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:363
-msgid "I&gnore"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:27
@@ -1949,6 +1873,10 @@ msgstr ""
 msgid "<b>Changes will only take affect after a restart."
 msgstr ""
 
+#: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:63
+msgid " - LRF Viewer"
+msgstr ""
+
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:152
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
 msgstr ""
@@ -2464,7 +2392,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:84
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:88
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:570
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:576
 msgid "Fetching feeds..."
 msgstr ""
 
@@ -2472,79 +2400,79 @@ msgstr ""
 msgid "Unknown News Source"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:471
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:474
 msgid "Download finished"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:473
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:476
 msgid "Failed to download the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:475
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:481
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:478
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:484
 msgid " from "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:479
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:482
 msgid "Failed to download parts of the following articles:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:483
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:486
 msgid "\tFailed links:"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:552
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:558
 msgid "Could not fetch article. Run with --debug to see the reason"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:574
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:580
 msgid "Got feeds from index page"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:578
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:584
 msgid "Trying to download cover..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:628
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:636
 msgid "Starting download [%d thread(s)]..."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:642
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:650
 msgid "Feeds downloaded to %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:651
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:659
 msgid "Could not download cover: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:656
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:664
 msgid "Downloading cover from %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:691
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:699
 msgid "Untitled Article"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:734
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:743
 msgid ""
 "\n"
 "Downloaded article %s from %s\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:740
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:749
 msgid "Article downloaded: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:746
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:755
 msgid "Failed to download article: %s from %s\n"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:751
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:760
 msgid "Article download failed: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:766
+#: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:775
 msgid "Fetching feed"
 msgstr ""
 
