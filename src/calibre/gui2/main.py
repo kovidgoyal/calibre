@@ -1013,6 +1013,15 @@ class Main(MainWindow, Ui_MainWindow):
         dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
         self.database_path = qstring_to_unicode(settings.value("database path", 
                 QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
+        if not os.access(os.path.dirname(self.database_path), os.W_OK):
+            error_dialog(self, _('Database does not exist'), _('The directory in which the database should be: %s no longer exists. Please choose a new database location.')%self.database_path).exec_()
+            self.database_path = choose_dir(self, 'database path dialog', 'Choose new location for database')
+            if not self.database_path:
+                self.database_path = os.path.expanduser('~').decode(sys.getfilesystemencoding())
+            if not os.path.exists(self.database_path):
+                os.makedirs(self.database_path)
+            self.database_path = os.path.join(self.database_path, 'library1.db')
+            settings.setValue('database path', QVariant(QString.fromUtf8(self.database_path.encode('utf-8'))))
         set_sidebar_directories(None)
         set_filename_pat(qstring_to_unicode(settings.value('filename pattern', QVariant(get_filename_pat())).toString()))
         
