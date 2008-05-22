@@ -3,6 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''''''
 
 import sys, os, subprocess, logging
+from functools import partial
 from calibre import isosx, setup_cli_handlers, filename_to_utf8, iswindows
 from calibre.ebooks import ConversionError
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -10,10 +11,13 @@ from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 
 PDFTOHTML = 'pdftohtml'
+popen = subprocess.Popen
 if isosx and hasattr(sys, 'frameworks_dir'):
     PDFTOHTML = os.path.join(getattr(sys, 'frameworks_dir'), PDFTOHTML)
 if iswindows and hasattr(sys, 'frozen'):
         PDFTOHTML = os.path.join(os.path.dirname(sys.executable), 'pdftohtml.exe')
+        popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
+
 
 def generate_html(pathtopdf, logger):
     '''
@@ -25,13 +29,12 @@ def generate_html(pathtopdf, logger):
     tdir = PersistentTemporaryDirectory('pdftohtml')
     index = os.path.join(tdir, 'index.html')
     # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
-    cmd = PDFTOHTML + ' -enc UTF-8 -noframes -p -nomerge "%s" "%s"'%(pathtopdf, os.path.basename(index))
+    cmd = (PDFTOHTML, '-enc', 'UTF-8',  '-noframes',  '-p',  '-nomerge',  pathtopdf, os.path.basename(index))
     cwd = os.getcwd()
     
     try:
         os.chdir(tdir)
-        p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, 
-                             stdout=subprocess.PIPE)
+        p = popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         logger.info(p.stdout.read())
         ret = p.wait()
         if ret != 0:
