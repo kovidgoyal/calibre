@@ -208,6 +208,11 @@ class Main(MainWindow, Ui_MainWindow):
         
     def another_instance_wants_to_talk(self, msg):
         if msg.startswith('launched:'):
+            argv = eval(msg[len('launched:'):])
+            if len(argv) > 1:
+                path = os.path.abspath(argv[1])
+                if os.access(path, os.R_OK):
+                    self.add_filesystem_book(path)
             self.setWindowState(self.windowState() & ~Qt.WindowMinimized|Qt.WindowActive)
             self.show()
             self.raise_()
@@ -357,6 +362,14 @@ class Main(MainWindow, Ui_MainWindow):
         to_device = self.stack.currentIndex() != 0
         self._add_books(paths, to_device)
         
+    
+    def add_filesystem_book(self, path):
+        if os.access(path, os.R_OK):
+            books = [os.path.abspath(path)]
+        to_device = self.stack.currentIndex() != 0
+        self._add_books(books, to_device)
+        if to_device:
+            self.status_bar.showMessage(_('Uploading books to device.'), 2000)
     
     def add_books(self, checked):
         '''
@@ -1080,7 +1093,7 @@ def main(args=sys.argv):
         single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')
         if not singleinstance('calibre GUI'):
             if single_instance is not None and single_instance.is_running() and \
-               single_instance.send_message('launched:'+''.join(sys.argv)):
+               single_instance.send_message('launched:'+repr(sys.argv)):
                     return 0
             
             QMessageBox.critical(None, 'Cannot Start '+__appname__, 
@@ -1093,7 +1106,9 @@ def main(args=sys.argv):
             QMessageBox.critical(None, 'Cannot Start '+__appname__, 
             '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
             return 1
-        sys.excepthook = main.unhandled_exception    
+        sys.excepthook = main.unhandled_exception
+        if len(sys.argv) > 1:
+            main.add_filesystem_book(sys.argv[1])    
         return app.exec_()
     return 0
     
