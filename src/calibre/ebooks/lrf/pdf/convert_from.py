@@ -41,7 +41,10 @@ def generate_html(pathtopdf, logger):
             err = p.stderr.read()
             raise ConversionError, err
         if not os.path.exists(index) or os.stat(index).st_size < 100:
-            raise ConversionError(os.path.basename(pathtopdf) + ' does not allow copying of text.')
+            raise ConversionError(os.path.basename(pathtopdf) + _(' does not allow copying of text.'))
+        raw = open(index).read(4000)
+        if not '<br' in raw:
+            raise ConversionError(os.path.basename(pathtopdf) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'))
     finally:
         os.chdir(cwd)
     return index
