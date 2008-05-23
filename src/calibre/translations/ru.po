@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
-"POT-Creation-Date: 2008-05-21 12:42+PDT\n"
-"PO-Revision-Date: 2008-05-21 13:04+PDT\n"
+"POT-Creation-Date: 2008-05-22 12:50+PDT\n"
+"PO-Revision-Date: 2008-05-22 13:04+PDT\n"
 "Last-Translator: Automatically generated\n"
 "Language-Team: ru\n"
 "MIME-Version: 1.0\n"
@@ -524,7 +524,7 @@ msgstr ""
 msgid "LRS written to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:48
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:51
 msgid ""
 "%prog [options] mybook.pdf\n"
 "\n"
@@ -2165,7 +2165,17 @@ msgid ""
 "reconnect the device and or reboot."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1057
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1017
+msgid "Database does not exist"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1017
+msgid ""
+"The directory in which the database should be: %s no longer exists. Please "
+"choose a new database location."
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1066
 msgid ""
 "<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
 "s</a></span>"
