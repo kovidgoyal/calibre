@@ -1,8 +1,39 @@
+/****************************************************************************
+**
+* (C) Copyright 2007 Trolltech ASA  
+*  All rights reserved.
+**
+* This is version of the Pictureflow animated image show widget modified by Trolltech ASA.
+*
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the <organization> nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY TROLLTECH ASA ``AS IS'' AND ANY
+* EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+* WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL <copyright holder> BE LIABLE FOR ANY
+* DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+* (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+* LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+* (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+* SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+****************************************************************************/
 /*
+  ORIGINAL COPYRIGHT HEADER
   PictureFlow - animated image show widget
   http://pictureflow.googlecode.com
 
-  Copyright (C) 2008 Ariya Hidayat (ariya@kde.org)
   Copyright (C) 2007 Ariya Hidayat (ariya@kde.org)
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,87 +58,47 @@
 #ifndef PICTUREFLOW_H
 #define PICTUREFLOW_H
 
-#include <QImage>
-#include <QPixmap>
 #include <QWidget>
 
-class AbstractDelayedImage
+class FlowImages : public QObject
 {
+Q_OBJECT
+
 public:
-  AbstractDelayedImage() : imageptr(0) {};
-  virtual ~AbstractDelayedImage() { free(); }
+	virtual int count();
+	virtual QImage image(int index);
+	virtual QString caption(int index);
 
-  virtual bool load();
-  virtual void unload();
-  virtual void free();
-  virtual bool isLoaded();
-  virtual QImage* image();
-
-protected:
-  QImage *imageptr;
+signals:
+	void dataChanged();
 
 };
-
-class FileDelayedImage : public AbstractDelayedImage
-{
-public:
-  FileDelayedImage(QString path) : file_path(path) { imageptr = 0; }
-
-  bool load();
-
-private:
-  QString file_path;
-};
-
-class PreLoadedImage : public AbstractDelayedImage
-{
-public:
-  PreLoadedImage(const QImage& image);  
-  PreLoadedImage(const QPixmap& image);
-
-  bool load();
-  void free();
-
-
-private:
-  QImage *memory;
-};
-
 
 class PictureFlowPrivate;
 
 /*!
-  Class PictureFlow implements an image show widget with animation effect
-  like Apple's CoverFlow (in iTunes and iPod). Images are arranged in form
-  of slides, one main slide is shown at the center with few slides on
-  the left and right sides of the center slide. When the next or previous
-  slide is brought to the front, the whole slides flow to the right or
-  the right with smooth animation effect; until the new slide is finally
+  Class PictureFlow implements an image show widget with animation effect 
+  like Apple's CoverFlow (in iTunes and iPod). Images are arranged in form 
+  of slides, one main slide is shown at the center with few slides on 
+  the left and right sides of the center slide. When the next or previous 
+  slide is brought to the front, the whole slides flow to the right or 
+  the right with smooth animation effect; until the new slide is finally 
   placed at the center.
 
- */
+ */ 
 class PictureFlow : public QWidget
 {
 Q_OBJECT
 
-  Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor)
+  Q_PROPERTY(int currentSlide READ currentSlide WRITE setCurrentSlide)
   Q_PROPERTY(QSize slideSize READ slideSize WRITE setSlideSize)
-  Q_PROPERTY(int slideCount READ slideCount)
-  Q_PROPERTY(int centerIndex READ centerIndex WRITE setCenterIndex)
+  Q_PROPERTY(int zoomFactor READ zoomFactor WRITE setZoomFactor)
 
 public:
-
-  enum ReflectionEffect
-  {
-    NoReflection,
-    PlainReflection,
-    BlurredReflection
-  };
-
   /*!
     Creates a new PictureFlow widget.
-  */
-  PictureFlow(QWidget* parent = 0, int loadBuffer = 10);
+  */  
+  PictureFlow(QWidget* parent = 0);
 
   /*!
     Destroys the widget.
@@ -115,74 +106,60 @@ public:
   ~PictureFlow();
 
   /*!
-    Returns the background color.
+    Set the images to be displayed by this widget.
   */
-  QColor backgroundColor() const;
-
-  /*!
-    Sets the background color. By default it is black.
-  */
-  void setBackgroundColor(const QColor& c);
-
+  void setImages(FlowImages *images);
+  
   /*!
     Returns the dimension of each slide (in pixels).
-  */
+  */  
   QSize slideSize() const;
 
   /*!
     Sets the dimension of each slide (in pixels).
-  */
+  */  
   void setSlideSize(QSize size);
 
   /*!
-    Returns the total number of slides.
-  */
-  int slideCount() const;
+    Sets the zoom factor (in percent).
+  */ 
+  void setZoomFactor(int zoom);
 
   /*!
-    Returns AbstractDelayedImage of specified slide.
+    Returns the zoom factor (in percent).
   */
-  AbstractDelayedImage slide(int index) const;
+  int zoomFactor() const;
+
+  /*!
+    Clears any caches held to free up memory
+  */
+  void clearCaches();
+
+  /*!
+    Returns QImage of specified slide.
+    This function will be called only whenever necessary, e.g. the 100th slide
+    will not be retrived when only the first few slides are visible.
+  */  
+  virtual QImage slide(int index) const;
 
   /*!
     Returns the index of slide currently shown in the middle of the viewport.
-  */
-  int centerIndex() const;
-
-  /*!
-    Returns the effect applied to the reflection.
-  */
-  ReflectionEffect reflectionEffect() const;
-
-  /*!
-    Sets the effect applied to the reflection. The default is PlainReflection.
-  */
-  void setReflectionEffect(ReflectionEffect effect);
-
+  */  
+  int currentSlide() const;
 
 public slots:
 
   /*!
-    Adds a new slide.
-  */
-  void addSlide(AbstractDelayedImage *image);
-
-  /*!
-    Sets an image for specified slide. If the slide already exists,
-    it will be replaced.
-  */
-  void setSlide(int index, AbstractDelayedImage *image);
-
-  /*!
-    Sets slide to be shown in the middle of the viewport. No animation
+    Sets slide to be shown in the middle of the viewport. No animation 
     effect will be produced, unlike using showSlide.
-  */
-  void setCenterIndex(int index);
+  */  
+  void setCurrentSlide(int index);
 
   /*!
-    Clears all slides.
+    Rerender the widget. Normally this function will be automatically invoked
+    whenever necessary, e.g. during the transition animation.
   */
-  void clear();
+  void render();
 
   /*!
     Shows previous slide using animation effect.
@@ -198,41 +175,30 @@ public slots:
     Go to specified slide using animation effect.
   */
   void showSlide(int index);
-
+  
   /*!
-    Rerender the widget. Normally this function will be automatically invoked
-    whenever necessary, e.g. during the transition animation.
+    Clear all caches and redraw
   */
-  void render();
-
-  /*!
-    Load and images that are in the load buffer. This function is automatically
-    caled peridically.
-  */
-  void load();
-
-  /*!
-    Schedules a rendering update. Unlike render(), this function does not cause
-    immediate rendering.
-  */
-  void triggerRender();
+  void dataChanged();
+  
+  void emitcurrentChanged(int index);
 
 signals:
-  void centerIndexChanged(int index);
+  void itemActivated(int index);
+  void inputReceived();
+  void currentChanged(int index);
 
 protected:
   void paintEvent(QPaintEvent *event);
   void keyPressEvent(QKeyEvent* event);
+  void mouseMoveEvent(QMouseEvent* event);
   void mousePressEvent(QMouseEvent* event);
+  void mouseReleaseEvent(QMouseEvent* event);
   void resizeEvent(QResizeEvent* event);
-
-private slots:
-  void updateAnimation();
+  void timerEvent(QTimerEvent* event);
 
 private:
   PictureFlowPrivate* d;
-  void updateBuffer(int old_center, int new_center);
 };
 
 #endif // PICTUREFLOW_H
-

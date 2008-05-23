@@ -25,7 +25,7 @@ manual:
 
 pictureflow :
 	mkdir -p src/calibre/plugins && rm -f src/calibre/plugins/*pictureflow* && \
-	cd src/calibre/gui2/pictureflow && rm *.o && \
+	cd src/calibre/gui2/pictureflow && rm -f *.o *.so* && \
 	mkdir -p .build && cd .build && rm -f * && \
 	qmake ../pictureflow-lib.pro && make && \
 	cd ../PyQt && \
@@ -33,7 +33,7 @@ pictureflow :
 	cd .build && rm -f * && \
 	python ../configure.py && make && \
 	cd ../../../../../.. && \
-	cp src/calibre/gui2/pictureflow/.build/libpictureflow.so.?.?.? src/calibre/gui2/pictureflow/PyQt/.build/pictureflow.so src/calibre/plugins/ && \
+	cp src/calibre/gui2/pictureflow/libpictureflow.so.?.?.? src/calibre/gui2/pictureflow/PyQt/.build/pictureflow.so src/calibre/plugins/ && \
 	python -c "import os, glob; lp = glob.glob('src/calibre/plugins/libpictureflow.so.*')[0]; os.rename(lp, lp[:-4])"
 
 

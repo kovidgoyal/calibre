@@ -92,7 +92,7 @@ class BooksModel(QAbstractTableModel):
                 num -= d
         return ''.join(result)
 
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'tags', 'series']
@@ -291,6 +291,12 @@ class BooksModel(QAbstractTableModel):
     
     def id(self, row):
         return self.db.id(row.row())
+    
+    def title(self, row_number):
+        return self.db.title(row_number)
+    
+    def cover(self, row_number):
+        return self.db.cover(row_number)
     
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:      

@@ -1,5 +1,6 @@
 TARGET = pictureflow
-TEMPLATE = app
+TEMPLATE = lib
 HEADERS = pictureflow.h
-SOURCES = pictureflow.cpp main.cpp
+SOURCES = pictureflow.cpp 
 VERSION = 0.2.0
+CONFIG += x86 ppc

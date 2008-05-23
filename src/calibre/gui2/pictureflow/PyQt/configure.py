@@ -30,7 +30,7 @@ makefile = pyqtconfig.QtGuiModuleMakefile (
 # Add the library we are wrapping.  The name doesn't include any platform
 # specific prefixes or extensions (e.g. the "lib" prefix on UNIX, or the
 # ".dll" extension on Windows).
-makefile.extra_lib_dirs = ['../../.build', '..\\..\\release', '../../']
+makefile.extra_lib_dirs = ['../..', '..\\..\\release']
 makefile.extra_libs = ['pictureflow0' if 'win' in sys.platform and 'darwin' not in sys.platform else "pictureflow"]
 makefile.extra_cflags = ['-arch i386', '-arch ppc'] if 'darwin' in sys.platform else []
 makefile.extra_cxxflags = makefile.extra_cflags

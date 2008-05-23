@@ -178,7 +178,7 @@ _check_symlinks_prescript()
             print 'Building pictureflow'
             os.chdir('src/calibre/gui2/pictureflow')
             for f in glob.glob('*.o'): os.unlink(f)
-            subprocess.check_call([qmake, 'pictureflow-lib.pro'])
+            subprocess.check_call([qmake, 'pictureflow.pro'])
             subprocess.check_call(['make'])
             files.append((os.path.abspath(os.path.realpath('libpictureflow.dylib')), 'libpictureflow.dylib'))
             os.chdir('PyQt/.build')

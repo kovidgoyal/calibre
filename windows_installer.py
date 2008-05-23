@@ -545,7 +545,7 @@ class BuildEXE(build_exe):
                 shutil.rmtree('release')
             if os.path.exists('debug'):
                 shutil.rmtree('debug')
-            subprocess.check_call(['qmake', 'pictureflow-lib.pro'])
+            subprocess.check_call(['qmake', 'pictureflow.pro'])
             subprocess.check_call(['mingw32-make', '-f', 'Makefile.Release'])
             os.chdir('PyQt')
             if not os.path.exists('.build'):
