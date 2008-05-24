@@ -163,6 +163,10 @@ def option_parser(usage, gui_mode=False):
     link.add_option('--link-exclude', dest='link_exclude', default='@',
                       help=_('''A regular expression. <a> tags whoose href '''
                       '''matches will be ignored. Defaults to %default'''))
+    link.add_option('--no-links-in-toc', action='store_true', default=False,
+                      dest='no_links_in_toc',
+                      help=_('''Does not add discovered links to the table'''
+                      ''' of contents.'''))
     chapter = parser.add_option_group('CHAPTER OPTIONS')
     chapter.add_option('--disable-chapter-detection', action='store_true', 
                       default=False, dest='disable_chapter_detection', 
@@ -186,6 +190,9 @@ def option_parser(usage, gui_mode=False):
                        default='$', help=_('Force a page break before tags whoose names match this regular expression.'))
     chapter.add_option('--force-page-break-before-attr', dest='force_page_break_attr',
                        default='$,,$', help=_('Force a page break before an element having the specified attribute. The format for this option is tagname regexp,attribute name,attribute value regexp. For example to match all heading tags that have the attribute class="chapter" you would use "h\d,class,chapter". Default is %default'''))
+    chapter.add_option('--add-chapters-to-toc', action='store_true', 
+                      default=False, dest='add_chapters_to_toc', 
+                      help=_('''Add detected chapters to the table of contents.'''))
     prepro = parser.add_option_group('PREPROCESSING OPTIONS')
     prepro.add_option('--baen', action='store_true', default=False, dest='baen',
                       help=_('''Preprocess Baen HTML files to improve generated LRF.'''))
