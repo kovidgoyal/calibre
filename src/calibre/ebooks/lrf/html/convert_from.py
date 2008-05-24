@@ -45,7 +45,9 @@ def update_css(ncss, ocss):
             ocss[key] = ncss[key]
             
 def munge_paths(basepath, url):
-    purl = urlparse(unquote(url),)
+    purl = urlparse(unquote(url))
+    if purl[0] not in ('', 'file'):
+        return ('','')
     path, fragment = purl[2], purl[5]
     if path:
         path = path.replace('/', os.sep)
