@@ -4,7 +4,7 @@ import shutil
 ''' Post installation script for linux '''
 import sys, os, re
 
-from subprocess import check_call
+from subprocess import check_call, call
 from calibre import __version__, __appname__
 
 from calibre.devices import devices
@@ -301,16 +301,15 @@ def setup_udev_rules(group_file, reload, fatal_errors):
     fdi.write('\n</deviceinfo>\n')
     fdi.close()
     if reload:
-        try:
-            check_call('/etc/init.d/hald restart', shell=True)
-        except:
-            try:
-                check_call('/etc/init.d/hal restart', shell=True)
-            except:
-                try:
-                    check_call('/etc/init.d/haldaemon restart', shell=True)
-                except:
-                    check_call('/etc/rc.d/rc.hald restart', shell=True)
+        called = False
+        for hal in ('hald', 'hal', 'haldaemon'):
+            hal = os.path.join('/etc/init.d', hal)
+            if os.access(hal, os.X_OK):
+                call((hal, 'restart'))
+                called = True
+                break
+        if not called and os.access('/etc/rc.d/rc.hald', os.X_OK):
+            call(('/etc/rc.d/rc.hald', 'restart'))
         
         try:
             check_call('udevcontrol reload_rules', shell=True)
