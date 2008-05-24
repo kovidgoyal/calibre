@@ -13,8 +13,6 @@ config = pyqtconfig.Configuration()
 # module's specification files using the -I flag.
 sip = [config.sip_bin, "-c", ".", "-b", build_file, "-I",
        config.pyqt_sip_dir, config.pyqt_sip_flags, "../pictureflow.sip"]
-if 'darwin' in sys.platform:
-    sip.append('-n')
 os.system(" ".join(sip))
 
 
