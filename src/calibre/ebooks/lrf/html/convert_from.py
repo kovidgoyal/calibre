@@ -547,7 +547,8 @@ class HTMLConverter(object, LoggingInterface):
         
         path, fragment = munge_paths(self.target_prefix, tag['href'])
         return {'para':para, 'text':text, 'path':os.path.abspath(path), 
-                'fragment':fragment, 'in toc': (self.link_level == 0 and not self.use_spine)}
+                'fragment':fragment, 'in toc': (self.link_level == 0 and
+                    not self.use_spine and not self.options.no_links_in_toc)}
         
     
     def get_text(self, tag, limit=None):
@@ -1620,6 +1621,10 @@ class HTMLConverter(object, LoggingInterface):
                         self.log_debug('Detected chapter %s', src)
                         self.end_page() 
                         self.page_break_found = True
+
+                        if self.options.add_chapters_to_toc:
+                            self.extra_toc_entries.append((self.get_text(tag,
+                                limit=1000), self.current_block))
                 
                 if self.current_para.has_text():
                     self.current_para.append_to(self.current_block)

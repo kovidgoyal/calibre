@@ -132,6 +132,7 @@
        </widget>
       </item>
      </layout>
+     <zorder>categoryList</zorder>
     </widget>
    </item>
    <item>
@@ -473,8 +474,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>100</width>
-               <height>30</height>
+               <width>622</width>
+               <height>454</height>
               </rect>
              </property>
              <layout class="QGridLayout" >
@@ -739,8 +740,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>100</width>
-               <height>30</height>
+               <width>622</width>
+               <height>454</height>
               </rect>
              </property>
              <layout class="QGridLayout" >
@@ -863,8 +864,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>100</width>
-               <height>30</height>
+               <width>622</width>
+               <height>454</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" >
@@ -873,8 +874,8 @@
                 <property name="title" >
                  <string>Title based detection</string>
                 </property>
-                <layout class="QGridLayout" >
-                 <item row="0" column="0" >
+                <layout class="QGridLayout" name="gridLayout" >
+                 <item row="0" column="0" colspan="2" >
                   <widget class="QCheckBox" name="gui_disable_chapter_detection" >
                    <property name="text" >
                     <string>&amp;Disable chapter detection</string>
@@ -893,6 +894,20 @@
                  </item>
                  <item row="1" column="1" >
                   <widget class="QLineEdit" name="gui_chapter_regex" />
+                 </item>
+                 <item row="2" column="0" colspan="2" >
+                  <widget class="QCheckBox" name="gui_add_chapters_to_toc" >
+                   <property name="text" >
+                    <string>Add &amp;chapters to table of contents</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0" colspan="2" >
+                  <widget class="QCheckBox" name="gui_no_links_in_toc" >
+                   <property name="text" >
+                    <string>Don't add &amp;links to the table of contents</string>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -1066,8 +1081,8 @@ p, li { white-space: pre-wrap; }
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>584</x>
-     <y>661</y>
+     <x>794</x>
+     <y>660</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
@@ -1082,8 +1097,8 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>245</x>
-     <y>199</y>
+     <x>191</x>
+     <y>236</y>
     </hint>
     <hint type="destinationlabel" >
      <x>368</x>
@@ -1098,12 +1113,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>439</x>
-     <y>97</y>
+     <x>428</x>
+     <y>89</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>539</x>
-     <y>149</y>
+     <x>788</x>
+     <y>140</y>
     </hint>
    </hints>
   </connection>
@@ -1114,12 +1129,28 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>398</x>
-     <y>177</y>
+     <x>348</x>
+     <y>340</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>476</x>
-     <y>211</y>
+     <x>823</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gui_disable_chapter_detection</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gui_add_chapters_to_toc</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>321</x>
+     <y>78</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>322</x>
+     <y>172</y>
     </hint>
    </hints>
   </connection>
