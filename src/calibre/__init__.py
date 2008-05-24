@@ -285,7 +285,10 @@ def get_lang():
 def set_translator():
     # To test different translations invoke as
     # LC_ALL=de_DE.utf8 program
-    from calibre.translations.data import translations
+    try:
+        from calibre.translations.compiled import translations
+    except:
+        return
     lang = get_lang() 
     if lang:
         buf = None

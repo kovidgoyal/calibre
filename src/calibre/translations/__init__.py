@@ -4,7 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Manage translation of user visible strings.
 '''
 
-import sys, os, cStringIO, tempfile, subprocess, functools, tarfile, re, time
+import sys, os, cStringIO, tempfile, subprocess, functools, tarfile, re, time, \
+       glob, urllib2, shutil 
 check_call = functools.partial(subprocess.check_call, shell=True)
 
 try:
@@ -16,22 +17,9 @@ except ImportError:
     from calibre.translations.msgfmt import main as msgfmt
 
 
-
-TRANSLATIONS = [
-                'sl',
-                'de',
-                'ca',
-                'fr',
-                'es',
-                'it',
-                'bg',
-                'nds',
-                'ru',
-                ]
-
 def source_files():
     ans = []
-    for root, dirs, files in os.walk(os.getcwdu()):
+    for root, dirs, files in os.walk(os.path.dirname(os.getcwdu())):
         for name in files:
             if name.endswith('.py'):
                 ans.append(os.path.abspath(os.path.join(root, name)))
@@ -41,7 +29,39 @@ def source_files():
 def update_po_files(tarball):
     if not os.getcwd().endswith('translations'):
         os.chdir('translations')
-    tf = tarfile.open(tarball, 'r:gz')
+    
+
+def create_pot():
+    files = source_files()
+    buf = cStringIO.StringIO()
+    print 'Creating translations template'
+    tempdir = tempfile.mkdtemp()
+    pygettext(buf, ['-p', tempdir]+files)
+    src = buf.getvalue()
+    pot = os.path.join(tempdir, 'calibre.pot')
+    f = open(pot, 'wb')
+    f.write(src)
+    f.close()
+    print 'Translations template:', pot
+    return pot
+    
+
+def compile_translations():
+    translations = {}
+    print 'Compiling translations...'
+    for po in glob.glob('*.po'):
+        lang = os.path.basename(po).partition('.')[0]
+        buf = cStringIO.StringIO()
+        print 'Compiling', lang
+        msgfmt(buf, [po])
+        translations[lang] = buf.getvalue()
+        open('compiled.py', 'wb').write('translations = '+repr(translations))
+
+def import_from_launchpad(url):
+    f = open('/tmp/launchpad_export.tar.gz', 'wb')
+    shutil.copyfileobj(urllib2.urlopen(url), f)
+    f.close()
+    tf = tarfile.open('/tmp/launchpad_export.tar.gz', 'r:gz')
     next = tf.next()
     while next is not None:
         if next.name.endswith('.po'):
@@ -53,42 +73,14 @@ def update_po_files(tarball):
     return 0
 
 def main(args=sys.argv):
-    if args[-1].endswith('.tar.gz'):
-        return update_po_files(args[-1])
-    tdir = os.path.dirname(__file__)
-    files = source_files()
-    buf = cStringIO.StringIO()
-    print 'Creating translations template'
-    pygettext(buf, ['-p', tdir]+files)
-    src = buf.getvalue()
-    tempdir = tempfile.mkdtemp()
-    tf = tarfile.open(os.path.join(tempdir, 'translations.tar.bz2'), 'w:bz2')
-    fd, fname = tempfile.mkstemp(suffix='.pot')
-    os.write(fd,src)
-
-    translations = {}
-    for tr in TRANSLATIONS:
-        po = os.path.join(tdir, tr+'.po')
-        if not os.path.exists(po):
-            open(po, 'wb').write(src.replace('LANGUAGE', tr))
+    if len(args) > 1:
+        if args[1] == 'pot':
+            create_pot()
         else:
-            print 'Merging', os.path.basename(po)
-            check_call('msgmerge -v -U -N --backup=none '+po + ' ' + fname)
-            raw = re.sub('"PO-Revision-Date.*?"', '"PO-Revision-Date: %s\\\\n"'%time.strftime('%Y-%m-%d %H:%M+%Z'), open(po).read())
-            open(po, 'wb').write(raw)
-            
-        tf.add(po, os.path.basename(po))
-        buf = cStringIO.StringIO()
-        print 'Compiling translations'
-        msgfmt(buf, [po])
-        translations[tr] = buf.getvalue()
-    open(os.path.join(tdir, 'data.py'), 'wb').write('translations = '+repr(translations))
-    os.close(fd)
-    tf.add(fname, 'strings.pot')
-    tf.close()
-    os.unlink(fname)
-    print 'Translations tarball is in', os.path.join(tempdir, 'translations.tar.bz2')
+            import_from_launchpad(args[1])            
+    else:
+        compile_translations()
     return 0
-
+        
 if __name__ == '__main__':
     sys.exit(main())

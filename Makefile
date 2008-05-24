@@ -15,7 +15,7 @@ test : gui2
 	cd src/calibre/gui2 && ${PYTHON} make.py test
 
 translations :
-	cd src/calibre && ${PYTHON} translations/__init__.py
+	cd src/calibre/translations && ${PYTHON} __init__.py
 
 resources:	
 	${PYTHON} resources.py
@@ -38,4 +38,5 @@ pictureflow :
 	rm -rf src/calibre/gui2/pictureflow/.build rm -rf src/calibre/gui2/pictureflow/PyQt/.build
 
 
-
+pot :
+	cd src/calibre/translations && ${PYTHON} __init__.py pot
