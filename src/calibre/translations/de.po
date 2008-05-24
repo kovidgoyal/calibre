@@ -1,18 +1,20 @@
+# translation of de.po to English
 # Translation template file..
 # Copyright (C) 2007 Kovid Goyal
-# Kovid Goyal <kovid@kovidgoyal.net>, 2007.
 #
+# Kovid Goyal <kovid@kovidgoyal.net>, 2007, 2008.
 msgid ""
 msgstr ""
-"Project-Id-Version: libprs500 0.4.17\n"
+"Project-Id-Version: de\n"
 "POT-Creation-Date: 2008-05-23 21:23+PDT\n"
-"PO-Revision-Date: 2008-05-23 21:23+PDT\n"
-"Last-Translator: S. Dorscht <stdoonline@googlemail.com>\n"
-"Language-Team: de\n"
+"PO-Revision-Date: 2008-05-24 08:58-0700\n"
+"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"Language-Team: English <kovid@kovidgoyal.net>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
+"X-Generator: KBabel 1.11.4\n"
 
 #: /home/kovid/work/calibre/src/calibre/__init__.py:95
 msgid "%sUsage%s: %s\n"
@@ -102,8 +104,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:115
 msgid "Enable autorotation of images that are wider than the screen width."
-msgstr ""
-"Automatische Rotation von Bildern, die breiter als die Bildschirmbreite sind."
+msgstr "Automatische Rotation von Bildern, die breiter als die Bildschirmbreite sind."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
@@ -167,8 +168,7 @@ msgstr ""
 msgid ""
 "Render all content as black on white instead of the colors specified by the "
 "HTML or CSS."
-msgstr ""
-"Inhalt schwarz-weiß rendern anstatt in den in HTML oder CSS angegeben Farben."
+msgstr "Inhalt schwarz-weiß rendern anstatt in den in HTML oder CSS angegeben Farben."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:144
 msgid ""
@@ -216,8 +216,7 @@ msgstr ""
 "Voreinstellung %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
-msgid ""
-"Prevent the automatic insertion of page breaks before detected chapters."
+msgid "Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Automatisches Einfügen von Seitenumbrüchen vor ermittelten Kapiteln "
 "verhindern."
@@ -250,8 +249,7 @@ msgstr ""
 "ignoriert, wenn die aktuelle Seite nur wenige Elemente enthält."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:186
-msgid ""
-"Force a page break before tags whoose names match this regular expression."
+msgid "Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Seitenumbruch erzwingen vor Elementen, deren Namen diesem regulären Ausdruck "
 "entsprechen. "
@@ -271,8 +269,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:191
 msgid "Preprocess Baen HTML files to improve generated LRF."
-msgstr ""
-"Baen HTML Dateien vorbearbeiten, um die erstellte LRF Datei zu verbessern."
+msgstr "Baen HTML Dateien vorbearbeiten, um die erstellte LRF Datei zu verbessern."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:193
 msgid ""
@@ -386,6 +383,8 @@ msgid ""
 "\n"
 "%prog converts mybook.fb2 to mybook.lrf"
 msgstr ""
+"%prog [options] dateiname.fb2"
+"%prog ckonvertiert dateiname.fb2 in dateiname.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:22
@@ -528,6 +527,8 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:243
 msgid "Could not read from thumbnail file:"
 msgstr ""
+"%prog [options] datei.lrs"
+"Erstellt eine LRF Datei aus einer LRS Datei."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:263
 msgid ""
@@ -648,12 +649,11 @@ msgstr "LRS gespeichert in"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:44
 msgid " does not allow copying of text."
-msgstr ""
+msgstr " lässt das Kopieren von Text nicht zu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:47
-msgid ""
-" is an image based PDF. Only conversion of text based PDFs is supported."
-msgstr ""
+msgid " is an image based PDF. Only conversion of text based PDFs is supported."
+msgstr " ist ein PDF, das aus Bildern hergestellt wurde. Es wird aber nur die Konvertierung von aus Text aufgebauten PDF Dateien unterstützt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:54
 msgid ""
@@ -780,7 +780,7 @@ msgstr " nicht gefunden."
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:50
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:81
 msgid "LibraryThing.com server error. Try again later."
-msgstr ""
+msgstr "LibraryThing.com Server Fehler. Versuchen Sie es später."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:59
 msgid ""
@@ -847,7 +847,7 @@ msgstr "Bemerkung"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:55
 msgid "Dialog"
-msgstr ""
+msgstr "Dialog"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:57
@@ -963,13 +963,11 @@ msgstr "Häufig benutzte Verzeichnisse"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:201
 msgid "Add a directory to the frequently used directories list"
-msgstr ""
-"Ein Verzeichnis zur Liste der häufig genutzten Verzeichnisse hinzufügen"
+msgstr "Ein Verzeichnis zur Liste der häufig genutzten Verzeichnisse hinzufügen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:203
 msgid "Remove a directory from the frequently used directories list"
-msgstr ""
-"Ein Verzeichnis von der Liste der häufig genutzten Verzeichnisse entfernen"
+msgstr "Ein Verzeichnis von der Liste der häufig genutzten Verzeichnisse entfernen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:205
 msgid "Select visible &columns in library view"
@@ -1000,11 +998,11 @@ msgstr "Autor(en)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:38
 msgid "Author Sort"
-msgstr ""
+msgstr "Sortierung nach Autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:40
 msgid "ISBN"
-msgstr ""
+msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:101
 msgid "Cannot connect"
@@ -1453,6 +1451,16 @@ msgid ""
 "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
 "family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
+"family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:108
 msgid "Edit Meta information"
@@ -1504,8 +1512,7 @@ msgstr "Etiketten entfe&rnen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:123
 msgid "Comma separated list of tags to remove from the books. "
-msgstr ""
-"Durch getrennte Liste der Etiketten, die von den Büchern entfernt werden."
+msgstr "Durch getrennte Liste der Etiketten, die von den Büchern entfernt werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:224
 msgid ""
@@ -1571,10 +1578,8 @@ msgid "Fetch cover image from server"
 msgstr "Umschlagbild vom Server abrufen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:290
-msgid ""
-"Change the username and/or password for your account at LibraryThing.com"
-msgstr ""
-"Benutzername und/oder Passwort Ihres Kontos bei LibraryThing.com ändern"
+msgid "Change the username and/or password for your account at LibraryThing.com"
+msgstr "Benutzername und/oder Passwort Ihres Kontos bei LibraryThing.com ändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:291
 msgid "Change password"
@@ -1718,17 +1723,17 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:65
 msgid "No recipe selected"
-msgstr ""
+msgstr "Kein Rezept ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:73
 msgid ""
 "Save the text below into a file named recipe.py and send the file to your "
 "friends, to allow them to use this recipe."
-msgstr ""
+msgstr "Speichern Sie den unten stehenden Text als Rezept.py Datei und senden Sie die Datei an Freunde, damit sie dieses Rezept ebenfalls benutzen können."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:73
 msgid "The attached file: %s is a recipe to download %s."
-msgstr ""
+msgstr "Die beigefügte Datei: %s ist ein Rezept zum Download von %s."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:85
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:95
@@ -1785,16 +1790,15 @@ msgstr "Rezept ersetzen?"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:200
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
-msgstr ""
-"Es gibt schon ein erstelltes Rezept mit dem Namen %s. Soll es ersetzt werden?"
+msgstr "Es gibt schon ein erstelltes Rezept mit dem Namen %s. Soll es ersetzt werden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:186
 msgid "Choose a recipe file"
-msgstr ""
+msgstr "Eine Rezept Datei auswählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:186
 msgid "Recipes"
-msgstr ""
+msgstr "Rezepte"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:212
 msgid "Add custom news source"
@@ -1814,11 +1818,11 @@ msgstr "Rezept entfe&rnen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:216
 msgid "&Share recipe"
-msgstr ""
+msgstr "Rezept ver&teilen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:217
 msgid "&Load recipe from file"
-msgstr ""
+msgstr "Rezept aus Datei &laden"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:219
 msgid ""
@@ -1898,7 +1902,7 @@ msgstr "Feed &anfügen"
 msgid ""
 "For help with writing advanced news recipes, please visit <a href=\"http://"
 "calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
-msgstr ""
+msgstr "Wenn Sie Hilfe zur Erstellung Erweiterter Nachrichten Rezepte benötigen, besuchen Sie die englischsprachige Seite <a href=\"http://calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:240
 msgid "Recipe source code (python)"
@@ -2105,7 +2109,7 @@ msgstr "<b>Änderungen treten erst nach einem Neustart in Kraft."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:63
 msgid " - LRF Viewer"
-msgstr ""
+msgstr " - LRF Vorschau"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:152
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
@@ -2159,11 +2163,11 @@ msgstr "Fehler bei der Kommunikation mit dem Gerät"
 msgid ""
 "<p>For help visit <a href=\"http://%s.kovidgoyal.net/user_manual\">%s."
 "kovidgoyal.net</a><br>"
-msgstr ""
+msgstr "<p>Hilfe gibt es online bei <a href=\"http://%s.kovidgoyal.net/user_manual\">%s.kovidgoyal.net</a><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:94
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
-msgstr ""
+msgstr "<b>%s</b>: %s von <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:113
 msgid "Send to main memory"
@@ -2229,11 +2233,11 @@ msgstr "Auf einmal konvertieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:289
 msgid " detected."
-msgstr ""
+msgstr " gefunden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:289
 msgid "Device: "
-msgstr ""
+msgstr "Gerät:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:326
 msgid "Device database corrupted"
@@ -2286,7 +2290,7 @@ msgstr "Duplikate gefunden"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:415
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:428
 msgid "Uploading books to device."
-msgstr ""
+msgstr "Lade Bücher auf das Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:486
 msgid "No space on device"
@@ -2300,7 +2304,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:522
 msgid "Deleting books from device."
-msgstr ""
+msgstr "Lösche Bücher vom Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:556
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:575
@@ -2317,17 +2321,17 @@ msgstr "Keine Bücher ausgewählt"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:644
 msgid "Sending books to device."
-msgstr ""
+msgstr "Sende Bücher an das Gerät."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:647
 msgid "No suitable formats"
-msgstr ""
+msgstr "Keine geeigneten Formate"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:648
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found:<br><ul>%s</ul>"
-msgstr ""
+msgstr "Die folgenden Bücher konnten nicht auf das Gerät geladen werden, da keine geeigneten Formate vorhanden sind:<br><ul>%s</ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:661
 msgid "Cannot save to disk"
@@ -2352,7 +2356,7 @@ msgstr "Konvertierung nicht möglich"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:731
 msgid "Starting Bulk conversion of %d books"
-msgstr ""
+msgstr "Starte Massenkonvertierung von %d Büchern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:853
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:871
@@ -2384,7 +2388,7 @@ msgstr "Konfiguration nicht möglich während Aufträge abgearbeitet werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:944
 msgid "Copying database to "
-msgstr ""
+msgstr "Kopiere Datenbank nach "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:959
 msgid "Invalid database"
@@ -2404,11 +2408,11 @@ msgstr "Konnte Datenbank nicht verschieben"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:989
 msgid "No detailed info available"
-msgstr ""
+msgstr "Es ist keine weitere Information verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:990
 msgid "No detailed information is available for books on the device."
-msgstr ""
+msgstr "Es ist keine weitere Information über Bücher auf dem Gerät verfügbar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1032
 msgid "Error talking to device"
@@ -2424,13 +2428,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1073
 msgid "Database does not exist"
-msgstr ""
+msgstr "Datenbank existiert nicht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1073
 msgid ""
 "The directory in which the database should be: %s no longer exists. Please "
 "choose a new database location."
-msgstr ""
+msgstr "Das Verzeichnis, in dem die Datenbank sein sollte: %s existiert nicht mehr. Bitte wählen Sie einen neuen Ort für die Datenbank aus."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1122
 msgid ""
@@ -2442,7 +2446,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:249
 msgid "calibre"
-msgstr ""
+msgstr "calibre"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:250
 msgid "Advanced search"
@@ -2541,17 +2545,17 @@ msgstr "Ein Klick zeigt die aktiven Aufträge."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:132
 msgid "Click to browse books by their covers"
-msgstr ""
+msgstr "Klicken Sie, um die Bücher in der Cover-Ansicht zu durchsuchen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:132
 msgid "Click to turn off Cover Browsing"
-msgstr ""
+msgstr "Klicken Sie, um die Cover-Ansicht zu verlassen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:137
 msgid ""
 "<p>Browsing books by their covers is disabled.<br>Import of pictureflow "
 "module failed:<br>"
-msgstr ""
+msgstr "<p>Die Cover-Ansicht ist gesperrt.<br>Der Import des Pictureflow Moduls schlug fehl:<br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:37
 msgid "Invalid regular expression"
@@ -2583,15 +2587,15 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:133
 msgid "Click to see the list of books available on your computer"
-msgstr ""
+msgstr "Ein Klick zeigt die Liste der auf dem Computer vorhandenen Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:134
 msgid "Click to see the list of books in the main memory of your reader"
-msgstr ""
+msgstr "Ein Klick zeigt die Liste der im Hauptspeicher des Geräts vorhandenen Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:135
 msgid "Click to see the list of books on the storage card in your reader"
-msgstr ""
+msgstr "Ein Klick zeigt die Liste der auf der Speicherkarte des Geräts vorhandenen Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/parallel.py:114
 msgid "Job killed by user"
@@ -2649,8 +2653,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:37
 msgid "Options to control web2disk (used to fetch websites linked from feeds)"
-msgstr ""
-"Einstellungen für web2disk (um von Feeds verlinkte Webseiten abzurufen)"
+msgstr "Einstellungen für web2disk (um von Feeds verlinkte Webseiten abzurufen)"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:40
 msgid ""
@@ -2680,13 +2683,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:47
 msgid "Username for sites that require a login to access content."
-msgstr ""
-"Benutzername für Webseiten, die einen Login für den Inhaltsabruf benötigen."
+msgstr "Benutzername für Webseiten, die einen Login für den Inhaltsabruf benötigen."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:48
 msgid "Password for sites that require a login to access content."
-msgstr ""
-"Passwort für Webseiten, die einen Login für den Inhaltsabruf benötigen."
+msgstr "Passwort für Webseiten, die einen Login für den Inhaltsabruf benötigen."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:51
 msgid ""
@@ -2900,278 +2901,3 @@ msgstr "Lade CSS Stylesheets nicht herunter."
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
 
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; "
-#~ "font-family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; "
-#~ "font-family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
-
-#~ msgid "Server error. Try again later."
-#~ msgstr "Server-Fehler. Bitte versuchen Sie es später wieder."
-
-#~ msgid ""
-#~ "For help with writing advanced news recipes, please visit <a href="
-#~ "\"http://libprs500.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
-#~ msgstr ""
-#~ "Wenn Sie Hilfe zur Erstellung Erweiterter Nachrichten Rezepte benötigen, "
-#~ "besuchen Sie die englischsprachige Seite <a href=\"http://libprs500."
-#~ "kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
-
-#~ msgid "libprs500"
-#~ msgstr "libprs500"
-
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href="
-#~ "\"http://libprs500.kovidgoyal.net/user_manual\"><span style=\" text-"
-#~ "decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</span></"
-#~ "a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %1 by "
-#~ "<span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
-#~ "body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Hilfe gibt es online "
-#~ "bei <a href=\"http://libprs500.kovidgoyal.net/user_manual\"><span style="
-#~ "\" text-decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</"
-#~ "span></a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %"
-#~ "1 by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
-#~ "body></html>"
-
-#~ msgid ""
-#~ "\n"
-#~ "                <p>The database of books on the reader is corrupted. Try "
-#~ "the following:\n"
-#~ "                <ol>\n"
-#~ "                <li>Unplug the reader. Wait for it to finish regenerating "
-#~ "the database (i.e. wait till it is ready to be used). Plug it back in. "
-#~ "Now it should work with %(app)s. If not try the next step.</li>\n"
-#~ "                <li>Quit %(app)s. Find the file media.xml in the reader's "
-#~ "main memory. Delete it. Unplug the reader. Wait for it to regenrate the "
-#~ "file. Re-connect it and start %(app)s.</li>\n"
-#~ "                </ol>\n"
-#~ "                "
-#~ msgstr ""
-#~ "\n"
-#~ "                <p>Die Bücherdatenbank des eBook Readers ist beschädigt. "
-#~ "Versuchen Sie folgendes:\n"
-#~ "                <ol>\n"
-#~ "                <li>Entfernen Sie das Gerät. Warten Sie, bis das Gerät "
-#~ "die Datenbank wiederhergestellt hat (d.h. warten Sie, bis das Gerät "
-#~ "wieder benutzt werden kann). Stecken Sie das Gerät wieder an. Nun sollte "
-#~ "es mit %(app)s funktionieren. Falls nicht, versuchen Sie den nächsten "
-#~ "Schritt.</li>\n"
-#~ "                <li>Schließen Sie %(app)s. Suchen Sie die Datei media.xml "
-#~ "im Hauptspeicher des eBook Readers. Löschen Sie sie. Entfernen Sie das "
-#~ "Gerät. Warten Sie, bis das Gerät die Datei wiederhergestellt hat. Stecken "
-#~ "Sie das Gerät wieder an und starten Sie %(app)s.</li>\n"
-#~ "                </ol>\n"
-
-#~ msgid "Available user profiles"
-#~ msgstr "Verfügbare Benutzerprofile"
-
-#~ msgid "Add/Update &profile"
-#~ msgstr "&Profil hinzufügen/aktualisieren"
-
-#~ msgid "&Remove profile"
-#~ msgstr "Profil entfe&rnen"
-
-#~ msgid "Profile &title:"
-#~ msgstr "Profil&titel:"
-
-#~ msgid "Feeds in profile"
-#~ msgstr "Feeds im Profil"
-
-#~ msgid "Remove feed from profile"
-#~ msgstr "Feeds aus dem Profil entfernen"
-
-#~ msgid "Add feed to profile"
-#~ msgstr "Neuen Feed zum Profil hinzufügen"
-
-#~ msgid "Profile source code (python)"
-#~ msgstr "Profil-Quellcode (Python)"
-
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news "
-#~ "profile, by adding RSS feeds to it. <br />For most feeds, you will have "
-#~ "to use the \"Advanced\" setting to further customize the fetch process."
-#~ "<br />The Basic tab is useful mainly for feeds that have the full article "
-#~ "content embedded within them.</p></body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Erstellen Sie ein "
-#~ "Nachrichten-Grundprofil, indem Sie RSS Feeds hinzufügen. <br />Für die "
-#~ "meisten Feeds müssen Sie die \"Erweitert\" Einstellung verwenden, um den "
-#~ "Abruf weiter anzupassen.<br />Die Einstellung \"Einfach\" ist für Feeds "
-#~ "ausreichend, die den vollständigen Nachrichten-Inhalt im Feed schon "
-#~ "eingebettet haben.</p></body></html>"
-
-#~ msgid "&Summary length:"
-#~ msgstr "Länge der Zu&sammenfassung:"
-
-#~ msgid " characters"
-#~ msgstr " Zeichen"
-
-#~ msgid ""
-#~ "Try to follow links in the RSS feed to full articles on the web. If you "
-#~ "enable this option, you're probably going to end up having to use the "
-#~ "advanced mode."
-#~ msgstr ""
-#~ "Verknüpfungen im RSS Feed bis zu den vollständigen Artikeln im Netz "
-#~ "verfolgen. Falls Sie diese Option wählen, müssen Sie in den meisten "
-#~ "Fällen den erweiterten Modus zur Konfiguration benutzen."
-
-#~ msgid "Try to download &full articles"
-#~ msgstr "Versuche &vollständige Artikel zu laden"
-
-#~ msgid ""
-#~ "For help with writing advanced news profiles, please visit <a href="
-#~ "\"https://libprs500.kovidgoyal.net/wiki/UserProfiles\">UserProfiles</a>"
-#~ msgstr ""
-#~ "Benötigen Sie Hilfe beim Erstellen von weiteren Nachrichten-Profilen? "
-#~ "Schauen Sie hier vorbei: <a href=\"https://libprs500.kovidgoyal.net/wiki/"
-#~ "UserProfiles\">UserProfiles</a>"
-
-#~ msgid "Add custom RSS feed"
-#~ msgstr "Individuellen RSS feed hinzufügen"
-
-#~ msgid ""
-#~ "Set the default timeout for network fetches (i.e. anytime libprs500 foes "
-#~ "out to the internet to get information)"
-#~ msgstr ""
-#~ "Geben Sie die Vorgabe für die Zeitüberschreitung bei Netzwerkzugriffen an "
-#~ "(immer dann, wenn libprs500 zur Informationsbeschaffung auf das Internet "
-#~ "zugreift)"
-
-#~ msgid ""
-#~ "<p>Set a regular expression pattern to use when trying to guess ebook "
-#~ "metadata from filenames. <p>A <a href=\"http://docs.python.org/lib/re-"
-#~ "syntax.html\">reference</a> on the syntax of regular expressions is "
-#~ "available.<p>Use the <b>Test</b> functionality below to test you regular "
-#~ "expression on a few sample filenames."
-#~ msgstr ""
-#~ "<p>Ein Muster von regulären Ausdrücken festlegen, die zum Auslesen der "
-#~ "Meta-Daten von eBooks aus deren Dateinamen verwendet werden sollen. "
-#~ "<p>Zur Unterstützung gibt es eine englische <a href=\"http://docs.python."
-#~ "org/lib/re-syntax.html\">Referenz</a> der Syntax von regulären "
-#~ "Ausdrücken. <p>Benutzen Sie die <b>Test</b>-Funktionalität unten zur "
-#~ "Überprüfung der regulären Ausdrücke bei einigen Beispiel-Dateinamen."
-
-#~ msgid "%s is not available in LRF format. Please convert it first."
-#~ msgstr ""
-#~ "%s ist noch nicht im LFR Format verfügbar. Bitte konvertieren Sie es "
-#~ "zunächst."
-
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href="
-#~ "\"https://libprs500.kovidgoyal.net/wiki/WikiStart#Usage\"><span style=\" "
-#~ "text-decoration: underline; color:#0000ff;\">libprs500.kovidgoyal.net</"
-#~ "span></a><br /><br /><span style=\" font-weight:600;\">libprs500</span>: %"
-#~ "1 by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
-#~ "body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Hilfe gibt es bei <a "
-#~ "href=\"https://libprs500.kovidgoyal.net/wiki/WikiStart#Usage\"><span "
-#~ "style=\" text-decoration: underline; color:#0000ff;\">libprs500."
-#~ "kovidgoyal.net</span></a><br /><br /><span style=\" font-weight:600;"
-#~ "\">libprs500</span>: %1 by <span style=\" font-weight:600;\">Kovid Goyal</"
-#~ "span> %2<br />%3</p></body></html>"
-
-#~ msgid "Not yet implemented."
-#~ msgstr "Noch nicht eingeführt."
-
-#~ msgid "RTF conversion not supported"
-#~ msgstr "RTF Konvertierung wird nicht unterstützt"
-
-#~ msgid ""
-#~ "Conversion of RTF files is not supported on OS X Leopard and higher. This "
-#~ "is because unrtf, the underlying program does not work. If you are "
-#~ "willing to port unrtf to Leopard, contact me."
-#~ msgstr ""
-#~ "Die Konvertierung von RTF Dateien wird unter Mac OS X Leopard und höher "
-#~ "nicht unterstützt. Das liegt daran, dass unrtf, das dafür zuständige "
-#~ "Programm nicht funktioniert. Bitte kontaktieren Sie mich, wenn Sie unrtf "
-#~ "für Leopard portieren möchten."
-
-#~ msgid ""
-#~ "If the tag you want is not in the available list, you can add it here. "
-#~ "Accepts a comman separated list of tags."
-#~ msgstr ""
-#~ "Falls das Etikett nciht in der Liste enthalten ist, können Sie es hier "
-#~ "hinzufügen. Es werden durch Kommata separierte Listen mit Etiketten "
-#~ "akzeptiert."
-
-#~ msgid "Search by title, author, publisher, tags, series and comments"
-#~ msgstr ""
-#~ "Liste der Bücher nach Titel, Autor, Herausgeber, Etiketten und "
-#~ "Bemerkungen durchsuchen"
-
-#~ msgid "Done"
-#~ msgstr "Erledigt!"
-
-#~ msgid "Use &metadata cover"
-#~ msgstr "Benutze &Meta-Daten Umschlagbild"
-
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"
-#~ "\"></p></body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"
-#~ "\"></p></body></html>"

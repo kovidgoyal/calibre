@@ -11,7 +11,11 @@ config = pyqtconfig.Configuration()
 
 # Run SIP to generate the code.  Note that we tell SIP where to find the qt
 # module's specification files using the -I flag.
-os.system(" ".join([config.sip_bin, "-c", ".", "-b", build_file, "-I", config.pyqt_sip_dir, config.pyqt_sip_flags, "../pictureflow.sip"]))
+sip = [config.sip_bin, "-c", ".", "-b", build_file, "-I",
+       config.pyqt_sip_dir, config.pyqt_sip_flags, "../pictureflow.sip"]
+if 'darwin' in sys.platform:
+    sip.append('-n')
+os.system(" ".join(sip))
 
 
 

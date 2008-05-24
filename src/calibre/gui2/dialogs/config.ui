@@ -13,7 +13,8 @@
    <string>Configuration</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/config.svg</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" >
@@ -66,14 +67,16 @@
         <bool>true</bool>
        </property>
        <property name="currentRow" >
-        <number>0</number>
+        <number>-1</number>
        </property>
        <item>
         <property name="text" >
          <string>Basic</string>
         </property>
         <property name="icon" >
-         <iconset resource="../images.qrc" >:/images/metadata.svg</iconset>
+         <iconset resource="../images.qrc" >
+          <normaloff>:/images/metadata.svg</normaloff>
+          <normalon>:/images/metadata.svg</normalon>:/images/metadata.svg</iconset>
         </property>
        </item>
        <item>
@@ -81,7 +84,9 @@
          <string>Advanced</string>
         </property>
         <property name="icon" >
-         <iconset resource="../images.qrc" >:/images/view.svg</iconset>
+         <iconset resource="../images.qrc" >
+          <normaloff>:/images/view.svg</normaloff>
+          <normalon>:/images/view.svg</normalon>:/images/view.svg</iconset>
         </property>
        </item>
       </widget>
@@ -92,6 +97,14 @@
         <number>0</number>
        </property>
        <widget class="QWidget" name="page" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>583</width>
+          <height>625</height>
+         </rect>
+        </property>
         <layout class="QGridLayout" >
          <item row="0" column="0" >
           <layout class="QVBoxLayout" >
@@ -119,7 +132,8 @@
                 <string>...</string>
                </property>
                <property name="icon" >
-                <iconset resource="../images.qrc" >:/images/mimetypes/dir.svg</iconset>
+                <iconset resource="../images.qrc" >
+                 <normaloff>:/images/mimetypes/dir.svg</normaloff>:/images/mimetypes/dir.svg</iconset>
                </property>
               </widget>
              </item>
@@ -215,7 +229,7 @@
                   <property name="orientation" >
                    <enum>Qt::Vertical</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>20</width>
                     <height>40</height>
@@ -232,7 +246,8 @@
                    <string>...</string>
                   </property>
                   <property name="icon" >
-                   <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
+                   <iconset resource="../images.qrc" >
+                    <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                   </property>
                  </widget>
                 </item>
@@ -241,7 +256,7 @@
                   <property name="orientation" >
                    <enum>Qt::Vertical</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>20</width>
                     <height>40</height>
@@ -258,7 +273,8 @@
                    <string>...</string>
                   </property>
                   <property name="icon" >
-                   <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+                   <iconset resource="../images.qrc" >
+                    <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
                   </property>
                  </widget>
                 </item>
@@ -267,7 +283,7 @@
                   <property name="orientation" >
                    <enum>Qt::Vertical</enum>
                   </property>
-                  <property name="sizeHint" >
+                  <property name="sizeHint" stdset="0" >
                    <size>
                     <width>20</width>
                     <height>40</height>
@@ -287,7 +303,7 @@
            <property name="orientation" >
             <enum>Qt::Vertical</enum>
            </property>
-           <property name="sizeHint" >
+           <property name="sizeHint" stdset="0" >
             <size>
              <width>392</width>
              <height>16</height>
@@ -314,6 +330,14 @@
         </layout>
        </widget>
        <widget class="QWidget" name="page_2" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>100</width>
+          <height>30</height>
+         </rect>
+        </property>
         <layout class="QVBoxLayout" >
          <item>
           <layout class="QHBoxLayout" >
@@ -322,7 +346,7 @@
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>40</width>
                <height>20</height>
@@ -345,7 +369,7 @@
              <property name="orientation" >
               <enum>Qt::Horizontal</enum>
              </property>
-             <property name="sizeHint" >
+             <property name="sizeHint" stdset="0" >
               <size>
                <width>40</width>
                <height>20</height>
@@ -366,7 +390,7 @@
               <property name="orientation" >
                <enum>Qt::Vertical</enum>
               </property>
-              <property name="sizeHint" >
+              <property name="sizeHint" stdset="0" >
                <size>
                 <width>20</width>
                 <height>40</height>
@@ -389,7 +413,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
