@@ -6,14 +6,15 @@
     <x>0</x>
     <y>0</y>
     <width>866</width>
-    <height>570</height>
+    <height>671</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Convert to LRF</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/convert.svg</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/convert.svg</normaloff>:/images/convert.svg</iconset>
   </property>
   <layout class="QHBoxLayout" >
    <item>
@@ -88,14 +89,16 @@
          <bool>true</bool>
         </property>
         <property name="currentRow" >
-         <number>0</number>
+         <number>-1</number>
         </property>
         <item>
          <property name="text" >
           <string>Metadata</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >:/images/metadata.svg</iconset>
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/metadata.svg</normaloff>
+           <normalon>:/images/dialog_information.svg</normalon>:/images/metadata.svg</iconset>
          </property>
         </item>
         <item>
@@ -103,7 +106,9 @@
           <string>Look &amp; Feel</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >:/images/lookfeel.svg</iconset>
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/lookfeel.svg</normaloff>
+           <normalon>:/images/chapters.svg</normalon>:/images/lookfeel.svg</iconset>
          </property>
         </item>
         <item>
@@ -111,7 +116,8 @@
           <string>Page Setup</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >:/images/page.svg</iconset>
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/page.svg</normaloff>:/images/page.svg</iconset>
          </property>
         </item>
         <item>
@@ -119,7 +125,8 @@
           <string>Chapter Detection</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >:/images/chapters.svg</iconset>
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
          </property>
         </item>
        </widget>
@@ -149,6 +156,14 @@
              <number>0</number>
             </property>
             <widget class="QWidget" name="metadata_page" >
+             <property name="geometry" >
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>622</width>
+               <height>454</height>
+              </rect>
+             </property>
              <layout class="QHBoxLayout" >
               <item>
                <widget class="QGroupBox" name="groupBox_4" >
@@ -181,16 +196,7 @@
                    <property name="spacing" >
                     <number>6</number>
                    </property>
-                   <property name="leftMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin" >
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin" >
+                   <property name="margin" >
                     <number>0</number>
                    </property>
                    <item>
@@ -208,16 +214,7 @@
                      <property name="spacing" >
                       <number>6</number>
                      </property>
-                     <property name="leftMargin" >
-                      <number>0</number>
-                     </property>
-                     <property name="topMargin" >
-                      <number>0</number>
-                     </property>
-                     <property name="rightMargin" >
-                      <number>0</number>
-                     </property>
-                     <property name="bottomMargin" >
+                     <property name="margin" >
                       <number>0</number>
                      </property>
                      <item>
@@ -236,7 +233,8 @@
                         <string>...</string>
                        </property>
                        <property name="icon" >
-                        <iconset resource="../images.qrc" >:/images/document_open.svg</iconset>
+                        <iconset resource="../images.qrc" >
+                         <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
                        </property>
                       </widget>
                      </item>
@@ -471,6 +469,14 @@
              </layout>
             </widget>
             <widget class="QWidget" name="lookandfeel_page" >
+             <property name="geometry" >
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>100</width>
+               <height>30</height>
+              </rect>
+             </property>
              <layout class="QGridLayout" >
               <item row="0" column="0" >
                <widget class="QLabel" name="label_8" >
@@ -729,6 +735,14 @@
              </layout>
             </widget>
             <widget class="QWidget" name="pagesetup_page" >
+             <property name="geometry" >
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>100</width>
+               <height>30</height>
+              </rect>
+             </property>
              <layout class="QGridLayout" >
               <item row="0" column="0" >
                <widget class="QLabel" name="label_11" >
@@ -845,6 +859,14 @@
              </layout>
             </widget>
             <widget class="QWidget" name="chapterdetection_page" >
+             <property name="geometry" >
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>100</width>
+               <height>30</height>
+              </rect>
+             </property>
              <layout class="QVBoxLayout" >
               <item>
                <widget class="QGroupBox" name="groupBox_6" >
@@ -925,7 +947,16 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page_5" />
+            <widget class="QWidget" name="page_5" >
+             <property name="geometry" >
+              <rect>
+               <x>0</x>
+               <y>0</y>
+               <width>100</width>
+               <height>30</height>
+              </rect>
+             </property>
+            </widget>
            </widget>
           </item>
           <item row="1" column="0" >
@@ -933,7 +964,7 @@
             <property name="orientation" >
              <enum>Qt::Vertical</enum>
             </property>
-            <property name="sizeHint" >
+            <property name="sizeHint" stdset="0" >
              <size>
               <width>20</width>
               <height>40</height>
@@ -971,7 +1002,8 @@
              </size>
             </property>
             <property name="html" >
-             <string>&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+             <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
 &lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif'; font-size:9pt;">&lt;/p>&lt;/body>&lt;/html></string>
@@ -989,7 +1021,7 @@ p, li { white-space: pre-wrap; }
         <enum>Qt::Horizontal</enum>
        </property>
        <property name="standardButtons" >
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+        <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
        </property>
        <property name="centerButtons" >
         <bool>false</bool>
