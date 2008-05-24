@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: it\n"
-"POT-Creation-Date: 2008-05-23 19:24+PDT\n"
-"PO-Revision-Date: 2008-05-23 19:24+PDT\n"
+"POT-Creation-Date: 2008-05-23 21:23+PDT\n"
+"PO-Revision-Date: 2008-05-23 21:23+PDT\n"
 "Last-Translator: Iacopo Benesperi <iacchi@iacchi.org>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
@@ -841,7 +841,7 @@ msgstr "Titolo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:536
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:254
 msgid "Comments"
@@ -911,7 +911,7 @@ msgstr "Sfoglia per specificare una nuova posizione del database"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:202
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:204
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:503
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:518
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:273
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:282
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:284
@@ -1137,7 +1137,7 @@ msgstr ""
 "aggiornati nel database e nel file LRF generato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:281
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:488
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:496
 msgid "Metadata"
 msgstr "Metadati"
 
@@ -1150,7 +1150,7 @@ msgstr ""
 "come la dimensione dei caratteri e la spaziatura tra le parole"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:282
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:491
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:500
 msgid "Look & Feel"
 msgstr "Visualizzazione"
 
@@ -1163,7 +1163,7 @@ msgstr ""
 "schermo del dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:283
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:494
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:505
 msgid "Page Setup"
 msgstr "Imposta pagina"
 
@@ -1174,7 +1174,7 @@ msgstr ""
 "e delle sezioni"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:284
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:497
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:510
 msgid "Chapter Detection"
 msgstr "Individuazione capitoli"
 
@@ -1186,56 +1186,56 @@ msgstr "<font color=\"gray\">Nessun aiuto disponibile</font>"
 msgid "Bulk convert ebooks to LRF"
 msgstr "Conversione in gruppo di libri in LRF"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:484
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:491
 msgid "Convert to LRF"
 msgstr "Converti in LRF"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:485
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:492
 msgid "Category"
 msgstr "Categoria"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:499
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:514
 msgid "Options"
 msgstr "Opzioni"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:515
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:285
 msgid "Book Cover"
 msgstr "Copertina del libro"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:501
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:516
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:286
 msgid "Change &cover image:"
 msgstr "Ca&mbia l'immagine di copertina:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:502
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:287
 msgid "Browse for an image to use as the cover of this book."
 msgstr ""
 "Sfoglia per trovare un'immagine da usare come copertina per questo libro"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:504
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:519
 msgid "Use cover from &source file"
 msgstr "Usa copertina del file di &origine"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:520
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:253
 msgid "&Title: "
 msgstr "&Titolo: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:506
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:521
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:254
 msgid "Change the title of this book"
 msgstr "Cambia il titolo di questo libro"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:507
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:522
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:255
 msgid "&Author(s): "
 msgstr "A&utore(i): "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:508
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:510
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:523
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:525
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:256
 msgid ""
@@ -1245,28 +1245,28 @@ msgstr ""
 "Cambia l'autore di questo libro. Autori multipli devono essere separati da "
 "una virgola"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:509
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:524
 msgid "Author So&rt:"
 msgstr "Classifica&zione autore:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:511
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:526
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:263
 msgid "&Publisher: "
 msgstr "&Editore: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:512
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:527
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:264
 msgid "Change the publisher of this book"
 msgstr "Cambia l'editore di questo libro"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:513
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:528
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:265
 msgid "Ta&gs: "
 msgstr "T&ag: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:514
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:529
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:266
 msgid ""
@@ -1277,14 +1277,14 @@ msgstr ""
 "ricerche. <br>Possono essere qualsiasi parola o frase, separati da una "
 "virgola"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:530
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:269
 msgid "&Series:"
 msgstr "&Serie:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:516
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:532
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:270
@@ -1292,153 +1292,155 @@ msgstr "&Serie:"
 msgid "List of known series. You can add new series."
 msgstr "Lista di serie conosciute. È possibile aggiungere nuove serie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:518
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:519
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:533
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:534
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:275
 msgid "Series index."
 msgstr "Indice serie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:520
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:535
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:276
 msgid "Book "
 msgstr "Libro "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:537
 msgid "Base &font size:"
 msgstr "&Grandezza caratteri di base:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:523
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:530
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:538
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:545
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:547
 msgid " pts"
 msgstr " pt"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:539
 msgid "Embedded Fonts"
 msgstr "Caratteri inclusi"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:540
 msgid "&Serif:"
 msgstr "&Con grazie:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:541
 msgid "S&ans-serif:"
 msgstr "&Senza grazie:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:527
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:542
 msgid "&Monospace:"
 msgstr "&Dimensione fissa:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:543
 msgid "Source en&coding:"
 msgstr "C&odifica sorgente:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:544
 msgid "Minimum &indent:"
 msgstr "I&ndentazione minima:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:531
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:546
 msgid "&Word spacing:"
 msgstr "Spaziat&ura caratteri:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:533
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:548
 msgid "Enable auto &rotation of images"
 msgstr "Abilita &rotazione automatica delle immagini"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:549
 msgid "Insert &blank lines between paragraphs"
 msgstr "Ins&erisci linee bianche tra i paragrafi"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:550
 msgid "Ignore &tables"
 msgstr "Ignora ta&belle"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:551
 msgid "Ignore &colors"
 msgstr "Ignor&a colori"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:537
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:552
 msgid "&Preprocess:"
 msgstr "&Preprocessamento:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:538
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:553
 msgid "Header"
 msgstr "Intestazione"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:539
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:554
 msgid "&Show header"
 msgstr "&Mostra intestazione"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:555
 msgid "&Header format:"
 msgstr "&Formato intestazione:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:556
 msgid "Override<br>CSS"
 msgstr "Sovrascrivi<br>CSS"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:557
 msgid "&Profile:"
 msgstr "&Profilo:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:543
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:558
 msgid "&Left Margin:"
 msgstr "Margine &sinistro:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:544
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:546
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:548
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:550
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:561
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:563
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:565
 msgid " px"
 msgstr " px"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:545
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:560
 msgid "&Right Margin:"
 msgstr "Margine &destro:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:547
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:562
 msgid "&Top Margin:"
 msgstr "Margine s&uperiore:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:549
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:564
 msgid "&Bottom Margin:"
 msgstr "Margine i&nferiore:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:566
 msgid "Title based detection"
 msgstr "Individuazione basata sul titolo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:567
 msgid "&Disable chapter detection"
 msgstr "&Disabilita l'individuazione del capitoli"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:553
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:568
 msgid "&Regular expression:"
 msgstr "&Espressione regolare:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:554
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:569
 msgid "Tag based detection"
 msgstr "Individuazione basata sui tag"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:555
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:570
 msgid "&Page break before tag:"
 msgstr "I&nterruzione di pagina prima del tag:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:556
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:571
 msgid "&Force page break before tag:"
 msgstr "&Forza interruzione di pagina prima del tag:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:572
 msgid "Force page break before &attribute:"
 msgstr "Forza interruzione di pagina prima dell'&attributo:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:558
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:573
 msgid "Help on item"
 msgstr "Aiuto per l'elemento"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:559
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:574
 msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
 "\">\n"
 "p, li { white-space: pre-wrap; }\n"
@@ -1448,14 +1450,6 @@ msgid ""
 "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
 "family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 msgstr ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
-"\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-"font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
-"family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:108
 msgid "Edit Meta information"
@@ -2894,6 +2888,25 @@ msgstr "Non scaricare i fogli di stile CSS"
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:400
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Mostra un output dettagliato. Utile per il debugging"
+
+#~ msgid ""
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
+#~ "css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; "
+#~ "font-family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
+#~ msgstr ""
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
+#~ "css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; "
+#~ "font-family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 
 #~ msgid ""
 #~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
