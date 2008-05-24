@@ -105,7 +105,7 @@ key is the account key you generate after signing up for a free account from isb
     parser.add_option('-i', '--isbn', default=None, dest='isbn',
                       help=_('The ISBN ID of the book you want metadata for.'))
     parser.add_option('-a', '--author', dest='author',
-                      default=None, help=_('The author whoose book to search for.'))
+                      default=None, help=_('The author whose book to search for.'))
     parser.add_option('-t', '--title', dest='title',
                       default=None, help=_('The title of the book to search for.'))
     parser.add_option('-p', '--publisher', default=None, dest='publisher',

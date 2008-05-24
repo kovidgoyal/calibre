@@ -81,7 +81,7 @@ def compile_recipe(src):
 
 def get_builtin_recipe(title):
     '''
-    Return a builtin recipe/profile class whoose title == C{title} or None if no such
+    Return a builtin recipe/profile class whose title == C{title} or None if no such
     recipe exists. Also returns a flag that is True iff the found recipe is really
     an old-style Profile.
     

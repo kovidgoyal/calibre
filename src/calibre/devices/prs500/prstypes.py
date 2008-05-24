@@ -353,7 +353,7 @@ class SetTime(Command):
 
 class ShortCommand(Command):  
     
-    """ A L{Command} whoose data section is 4 bytes long """  
+    """ A L{Command} whose data section is 4 bytes long """  
     
     SIZE = 20 #: Packet size in bytes
     # Usually carries additional information
@@ -431,7 +431,7 @@ class UnlockDevice(Command):
 
 class LongCommand(Command):
     
-    """ A L{Command} whoose data section is 16 bytes long """
+    """ A L{Command} whose data section is 16 bytes long """
     
     SIZE = 32 #: Size in bytes of C{LongCommand} packets
     
