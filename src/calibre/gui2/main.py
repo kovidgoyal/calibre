@@ -5,7 +5,7 @@ from xml.parsers.expat import ExpatError
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QVariant, QThread, QString
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton, QDialog
+                        QToolButton, QDialog, QSizePolicy
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, launch, \
@@ -19,7 +19,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            qstring_to_unicode, set_sidebar_directories, \
                            SingleApplication, Application
-from calibre.gui2.cover_flow import CoverFlow
+from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow
@@ -199,6 +199,25 @@ class Main(MainWindow, Ui_MainWindow):
         self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
         
+        ########################### Cover Flow ################################
+        self.cover_flow = None
+        if CoverFlow is not None:
+            self.cover_flow = CoverFlow(height=220)
+            self.cover_flow.setVisible(False)
+            self.library.layout().addWidget(self.cover_flow)
+            self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), self.sync_cf_to_listview)
+            self.library_view.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding))
+            self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), self.show_book_info)
+            self.connect(self.status_bar.cover_flow_button, SIGNAL('toggled(bool)'), self.toggle_cover_flow)
+            QObject.connect(self.library_view.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
+                        self.sync_cf_to_listview)
+            self.db_images = DatabaseImages(self.library_view.model())
+            self.cover_flow.setImages(self.db_images)
+        else:
+            self.status_bar.cover_flow_button.disable(pictureflowerror)
+            
+             
+        
         ####################### Setup device detection ########################
         self.detector = DeviceDetector(sleep_time=2000)
         QObject.connect(self.detector, SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), 
@@ -207,6 +226,29 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.news_menu.set_custom_feeds(self.library_view.model().db.get_feeds())
         
+    def toggle_cover_flow(self, show):
+        if show:
+            self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
+            self.cover_flow.setVisible(True)
+            self.cover_flow.setFocus(Qt.OtherFocusReason)
+            self.status_bar.book_info.book_data.setMaximumHeight(100)
+            self.status_bar.setMaximumHeight(120)
+            self.library_view.scrollTo(self.library_view.currentIndex())
+        else:
+            self.cover_flow.setVisible(False)
+            self.status_bar.book_info.book_data.setMaximumHeight(1000)
+            self.status_bar.setMaximumHeight(1200)
+            
+            
+                    
+        
+    def sync_cf_to_listview(self, index, *args):
+        if not hasattr(index, 'row') and self.library_view.currentIndex().row() != index:
+            index = self.library_view.model().index(index, 0)
+            self.library_view.setCurrentIndex(index)
+        if hasattr(index, 'row') and self.cover_flow.isVisible() and self.cover_flow.currentSlide() != index.row():
+            self.cover_flow.setCurrentSlide(index.row()) 
+    
     def another_instance_wants_to_talk(self, msg):
         if msg.startswith('launched:'):
             argv = eval(msg[len('launched:'):])
@@ -942,7 +984,7 @@ class Main(MainWindow, Ui_MainWindow):
     
     ################################ Book info #################################
     
-    def show_book_info(self):
+    def show_book_info(self, *args):
         if self.current_view() is not self.library_view:
             error_dialog(self, _('No detailed info available'), 
                          _('No detailed information is available for books on the device.')).exec_()

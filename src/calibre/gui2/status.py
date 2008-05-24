@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import textwrap
 
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
-                        QVBoxLayout, QSizePolicy
+                        QVBoxLayout, QSizePolicy, QToolButton, QIcon
 from PyQt4.QtCore import Qt, QSize, SIGNAL
 from calibre import fit_image
 from calibre.gui2 import qstring_to_unicode
@@ -64,13 +64,7 @@ class BookInfoDisplay(QFrame):
     
     def show_data(self, data):
         if data.has_key('cover'):
-            cover_data = data.pop('cover')
-            pixmap = QPixmap()
-            pixmap.loadFromData(cover_data)
-            if pixmap.isNull():
-                self.cover_display.setPixmap(self.cover_display.default_pixmap)
-            else:
-                self.cover_display.setPixmap(pixmap)
+            self.cover_display.setPixmap(QPixmap.fromImage(data.pop('cover')))
         else:
             self.cover_display.setPixmap(self.cover_display.default_pixmap)
             
@@ -120,16 +114,39 @@ class MovieButton(QFrame):
             self.jobs_dialog.jobs_view.read_settings()
             self.jobs_dialog.show()
             self.jobs_dialog.jobs_view.restore_column_widths()
+
+class CoverFlowButton(QToolButton):
+    
+    def __init__(self, parent=None):
+        QToolButton.__init__(self, parent)
+        self.setIconSize(QSize(80, 80))
+        self.setIcon(QIcon(':/images/cover_flow.svg'))
+        self.setCheckable(True)
+        self.setChecked(False)
+        self.setAutoRaise(True)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding))
+        self.connect(self, SIGNAL('toggled(bool)'), self.adjust_tooltip)
+        self.adjust_tooltip(False)
         
+    def adjust_tooltip(self, on):
+        tt = _('Click to turn off Cover Browsing') if on else _('Click to browse books by their covers')
+        self.setToolTip(tt)
+        
+    def disable(self, reason):
+        self.setDisabled(True)
+        self.setToolTip(_('<p>Browsing books by their covers is disabled.<br>Import of pictureflow module failed:<br>')+reason)
 
 class StatusBar(QStatusBar):
     def __init__(self, jobs_dialog):
         QStatusBar.__init__(self)
         self.movie_button = MovieButton(QMovie(':/images/jobs-animated.mng'), jobs_dialog)
+        self.cover_flow_button = CoverFlowButton()
+        self.addPermanentWidget(self.cover_flow_button)
         self.addPermanentWidget(self.movie_button)
         self.book_info = BookInfoDisplay(self.clearMessage)
         self.connect(self.book_info, SIGNAL('show_book_info()'), self.show_book_info)
         self.addWidget(self.book_info)
+        self.setMinimumHeight(120)
     
     def reset_info(self):
         self.book_info.show_data({})

@@ -555,6 +555,9 @@ if islinux:
     sys.path.insert(1, plugins)
     cwd = os.getcwd()
     os.chdir(plugins)
+if iswindows and hasattr(sys, 'frozen'):
+    sys.path.insert(1, os.path.dirname(sys.executable))
+    
 try:
     import pictureflow
     pictureflowerror = ''

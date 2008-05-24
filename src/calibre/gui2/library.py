@@ -3,13 +3,15 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, textwrap, traceback, time, re, sre_constants
 from datetime import timedelta, datetime
 from operator import attrgetter
+from collections import deque 
 from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
-                        QPalette
+                        QPalette, QImage
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
+                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
+                         QTimer
 
 from calibre import Settings, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
@@ -92,15 +94,25 @@ class BooksModel(QAbstractTableModel):
                 num -= d
         return ''.join(result)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, buffer=20):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'tags', 'series']
         self.editable_cols = [0, 1, 4, 5, 6]
+        self.default_image = QImage(':/images/book.svg')
         self.sorted_on = (3, Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
         self.read_config()
-            
+        self.buffer_size = buffer
+        self.clear_caches()
+        self.load_timer = QTimer()
+        self.connect(self.load_timer, SIGNAL('timeout()'), self.load)
+        self.load_timer.start(50)
+        
+    def clear_caches(self):
+        self.buffer = {}
+        self.load_queue = deque()
+        
     def read_config(self):
         self.use_roman_numbers = bool(Settings().value('use roman numerals for series number',
                                                    QVariant(True)).toBool())
@@ -164,6 +176,7 @@ class BooksModel(QAbstractTableModel):
         self.db.filter(tokens, refilter=refinement, OR=OR)
         self.last_search = text
         if reset:
+            self.clear_caches()
             self.reset()
             
     def sort(self, col, order, reset=True):
@@ -173,6 +186,7 @@ class BooksModel(QAbstractTableModel):
         self.db.refresh(self.cols[col], ascending)
         self.research()
         if reset:
+            self.clear_caches()
             self.reset()     
         self.sorted_on = (col, order)
         
@@ -194,10 +208,32 @@ class BooksModel(QAbstractTableModel):
     def rowCount(self, parent):
         return self.db.rows() if self.db else 0
     
+    def count(self):
+        return self.rowCount(None)
+    
+    def load(self):
+        if self.load_queue:
+            index = self.load_queue.popleft()
+            if self.buffer.has_key(index):
+                return
+            data = self.db.cover(index)
+            img = QImage()
+            img.loadFromData(data)
+            if img.isNull():
+                img = self.default_image
+            self.buffer[index] = img
+    
     def current_changed(self, current, previous, emit_signal=True):
         data = {}
         idx = current.row()
-        cdata = self.db.cover(idx)
+        cdata = self.cover(idx)
+        for key in self.buffer.keys():
+            if abs(key - idx) > self.buffer_size:
+                self.buffer.pop(key)
+        for i in range(max(0, idx-self.buffer_size), min(self.count(), idx+self.buffer_size)):
+            if not self.buffer.has_key(i):
+                self.load_queue.append(i)
+        
         if cdata:
             data['cover'] = cdata
         tags = self.db.tags(idx)
@@ -296,7 +332,15 @@ class BooksModel(QAbstractTableModel):
         return self.db.title(row_number)
     
     def cover(self, row_number):
-        return self.db.cover(row_number)
+        img = self.buffer.get(row_number, -1)
+        if img == -1:
+            data = self.db.cover(row_number)
+            img = QImage()
+            img.loadFromData(data)
+            if img.isNull():
+                img = self.default_image
+            self.buffer[row_number] = img
+        return img
     
     def data(self, index, role):
         if role == Qt.DisplayRole or role == Qt.EditRole:      

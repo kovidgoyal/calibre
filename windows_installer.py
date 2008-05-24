@@ -539,26 +539,27 @@ class BuildEXE(build_exe):
 '''
     def build_plugins(self):
         cwd = os.getcwd()
+        dd = os.path.join(cwd, self.dist_dir)
         try:
             os.chdir(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))
-            if os.path.exists('release'):
-                shutil.rmtree('release')
-            if os.path.exists('debug'):
-                shutil.rmtree('debug')
-            subprocess.check_call(['qmake', 'pictureflow.pro'])
+            if os.path.exists('.build'):
+                shutil.rmtree('.build')
+            os.mkdir('.build')
+            os.chdir('.build')
+            subprocess.check_call(['qmake', '../pictureflow.pro'])
             subprocess.check_call(['mingw32-make', '-f', 'Makefile.Release'])
-            os.chdir('PyQt')
+            shutil.copyfile('release\\pictureflow0.dll', os.path.join(dd, 'pictureflow0.dll'))
+            os.chdir('..\\PyQt')
             if not os.path.exists('.build'):
                 os.mkdir('.build')
             os.chdir('.build')
             subprocess.check_call(['python', '..\\configure.py'])
             subprocess.check_call(['mingw32-make', '-f', 'Makefile'])
-            dd = os.path.join(cwd, self.dist_dir)
             shutil.copyfile('pictureflow.pyd', os.path.join(dd, 'pictureflow.pyd'))
-            os.chdir('..\\..')
-            shutil.copyfile('release\\pictureflow0.dll', os.path.join(dd, 'pictureflow0.dll'))
-            shutil.rmtree('Release', True)
-            shutil.rmtree('Debug', True)            
+            os.chdir('..')
+            shutil.rmtree('.build')
+            os.chdir('..')
+            shutil.rmtree('.build')
         finally:
             os.chdir(cwd)
     
