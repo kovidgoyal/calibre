@@ -668,7 +668,11 @@ class DeviceBooksModel(BooksModel):
         item = self.db[self.map[current.row()]]
         cdata = item.thumbnail
         if cdata:
-            data['cover'] = cdata
+            img = QImage()
+            img.loadFromData(cdata)
+            if img.isNull():
+                img = self.default_image
+            data['cover'] = img
         type = _('Unknown')
         ext = os.path.splitext(item.path)[1]
         if ext:
