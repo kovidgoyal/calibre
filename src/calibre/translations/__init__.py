@@ -26,11 +26,6 @@ def source_files():
     return ans
                 
 
-def update_po_files(tarball):
-    if not os.getcwd().endswith('translations'):
-        os.chdir('translations')
-    
-
 def create_pot():
     files = source_files()
     buf = cStringIO.StringIO()
