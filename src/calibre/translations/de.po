@@ -6,8 +6,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"POT-Creation-Date: 2008-05-23 21:23+PDT\n"
-"PO-Revision-Date: 2008-05-24 08:58-0700\n"
+"POT-Creation-Date: 2008-05-24 09:20+PDT\n"
+"PO-Revision-Date: 2008-05-24 09:20+PDT\n"
 "Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
 "Language-Team: English <kovid@kovidgoyal.net>\n"
 "MIME-Version: 1.0\n"
@@ -104,7 +104,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:115
 msgid "Enable autorotation of images that are wider than the screen width."
-msgstr "Automatische Rotation von Bildern, die breiter als die Bildschirmbreite sind."
+msgstr ""
+"Automatische Rotation von Bildern, die breiter als die Bildschirmbreite sind."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:118
 msgid "Set the space between words in pts. Default is %default"
@@ -168,7 +169,8 @@ msgstr ""
 msgid ""
 "Render all content as black on white instead of the colors specified by the "
 "HTML or CSS."
-msgstr "Inhalt schwarz-weiß rendern anstatt in den in HTML oder CSS angegeben Farben."
+msgstr ""
+"Inhalt schwarz-weiß rendern anstatt in den in HTML oder CSS angegeben Farben."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:144
 msgid ""
@@ -216,7 +218,8 @@ msgstr ""
 "Voreinstellung %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
-msgid "Prevent the automatic insertion of page breaks before detected chapters."
+msgid ""
+"Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Automatisches Einfügen von Seitenumbrüchen vor ermittelten Kapiteln "
 "verhindern."
@@ -249,7 +252,8 @@ msgstr ""
 "ignoriert, wenn die aktuelle Seite nur wenige Elemente enthält."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:186
-msgid "Force a page break before tags whoose names match this regular expression."
+msgid ""
+"Force a page break before tags whoose names match this regular expression."
 msgstr ""
 "Seitenumbruch erzwingen vor Elementen, deren Namen diesem regulären Ausdruck "
 "entsprechen. "
@@ -269,7 +273,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:191
 msgid "Preprocess Baen HTML files to improve generated LRF."
-msgstr "Baen HTML Dateien vorbearbeiten, um die erstellte LRF Datei zu verbessern."
+msgstr ""
+"Baen HTML Dateien vorbearbeiten, um die erstellte LRF Datei zu verbessern."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:193
 msgid ""
@@ -383,8 +388,8 @@ msgid ""
 "\n"
 "%prog converts mybook.fb2 to mybook.lrf"
 msgstr ""
-"%prog [options] dateiname.fb2"
-"%prog ckonvertiert dateiname.fb2 in dateiname.lrf"
+"%prog [options] dateiname.fb2%prog ckonvertiert dateiname.fb2 in dateiname."
+"lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:22
@@ -526,9 +531,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:243
 msgid "Could not read from thumbnail file:"
-msgstr ""
-"%prog [options] datei.lrs"
-"Erstellt eine LRF Datei aus einer LRS Datei."
+msgstr "%prog [options] datei.lrsErstellt eine LRF Datei aus einer LRS Datei."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:263
 msgid ""
@@ -652,8 +655,11 @@ msgid " does not allow copying of text."
 msgstr " lässt das Kopieren von Text nicht zu."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:47
-msgid " is an image based PDF. Only conversion of text based PDFs is supported."
-msgstr " ist ein PDF, das aus Bildern hergestellt wurde. Es wird aber nur die Konvertierung von aus Text aufgebauten PDF Dateien unterstützt."
+msgid ""
+" is an image based PDF. Only conversion of text based PDFs is supported."
+msgstr ""
+" ist ein PDF, das aus Bildern hergestellt wurde. Es wird aber nur die "
+"Konvertierung von aus Text aufgebauten PDF Dateien unterstützt."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:54
 msgid ""
@@ -885,30 +891,30 @@ msgstr "Verdichte Datenbank. Das kann dauern..."
 msgid "Compacting..."
 msgstr "Verdichte Datenbank..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:258
 msgid "Configuration"
 msgstr "Konfiguration"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:191
 msgid "Basic"
 msgstr "Einfach"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:196
 msgid "Advanced"
 msgstr "Erweitert"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:192
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:200
 msgid "&Location of books database (library1.db)"
 msgstr "Speicherort der Bücherdatenbank (&library1.db)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:201
 msgid "Browse for the new database location"
 msgstr "Zu einem neuen Ort der Datenbank wechseln"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:204
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:212
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:518
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:273
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:282
@@ -933,15 +939,15 @@ msgstr "Zu einem neuen Ort der Datenbank wechseln"
 msgid "..."
 msgstr "..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:203
 msgid "Use &Roman numerals for series number"
 msgstr "&Römische Ziffern für Serien Nummerierung verwenden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:204
 msgid "Default network &timeout:"
 msgstr "Voreinstellung für Zei&tüberschreitung bei Netzwerkverbindungen:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:205
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
@@ -949,39 +955,41 @@ msgstr ""
 "Voreinstellung der Zeitüberschreitung für Netzwerkabrufe festsetzen (Gilt "
 "immer dann, wenn aus dem Internet Informationen abgerufen werden sollen) "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:198
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:206
 msgid " seconds"
 msgstr " Sekunden"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:207
 msgid "&Priority for conversion jobs:"
 msgstr "&Priorität der Konvertierungsaufträge:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:200
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:208
 msgid "Frequently used directories"
 msgstr "Häufig benutzte Verzeichnisse"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:209
 msgid "Add a directory to the frequently used directories list"
-msgstr "Ein Verzeichnis zur Liste der häufig genutzten Verzeichnisse hinzufügen"
+msgstr ""
+"Ein Verzeichnis zur Liste der häufig genutzten Verzeichnisse hinzufügen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:211
 msgid "Remove a directory from the frequently used directories list"
-msgstr "Ein Verzeichnis von der Liste der häufig genutzten Verzeichnisse entfernen"
+msgstr ""
+"Ein Verzeichnis von der Liste der häufig genutzten Verzeichnisse entfernen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:213
 msgid "Select visible &columns in library view"
 msgstr "Si&chtbare Spalten in Bibliothek-Ansicht wählen"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:214
 msgid "Free unused diskspace from the database"
 msgstr "Freier unbenutzter Festplattenspeicher der Datenbank"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:215
 msgid "&Compact database"
 msgstr "Datenbank verdi&chten"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:216
 msgid "&Metadata from file name"
 msgstr "&Meta-Daten aus dem Dateinamen"
 
@@ -1512,7 +1520,8 @@ msgstr "Etiketten entfe&rnen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:123
 msgid "Comma separated list of tags to remove from the books. "
-msgstr "Durch getrennte Liste der Etiketten, die von den Büchern entfernt werden."
+msgstr ""
+"Durch getrennte Liste der Etiketten, die von den Büchern entfernt werden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:224
 msgid ""
@@ -1578,8 +1587,10 @@ msgid "Fetch cover image from server"
 msgstr "Umschlagbild vom Server abrufen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:290
-msgid "Change the username and/or password for your account at LibraryThing.com"
-msgstr "Benutzername und/oder Passwort Ihres Kontos bei LibraryThing.com ändern"
+msgid ""
+"Change the username and/or password for your account at LibraryThing.com"
+msgstr ""
+"Benutzername und/oder Passwort Ihres Kontos bei LibraryThing.com ändern"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:291
 msgid "Change password"
@@ -1729,7 +1740,9 @@ msgstr "Kein Rezept ausgewählt"
 msgid ""
 "Save the text below into a file named recipe.py and send the file to your "
 "friends, to allow them to use this recipe."
-msgstr "Speichern Sie den unten stehenden Text als Rezept.py Datei und senden Sie die Datei an Freunde, damit sie dieses Rezept ebenfalls benutzen können."
+msgstr ""
+"Speichern Sie den unten stehenden Text als Rezept.py Datei und senden Sie "
+"die Datei an Freunde, damit sie dieses Rezept ebenfalls benutzen können."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:73
 msgid "The attached file: %s is a recipe to download %s."
@@ -1790,7 +1803,8 @@ msgstr "Rezept ersetzen?"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:178
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:200
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
-msgstr "Es gibt schon ein erstelltes Rezept mit dem Namen %s. Soll es ersetzt werden?"
+msgstr ""
+"Es gibt schon ein erstelltes Rezept mit dem Namen %s. Soll es ersetzt werden?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:186
 msgid "Choose a recipe file"
@@ -1902,7 +1916,10 @@ msgstr "Feed &anfügen"
 msgid ""
 "For help with writing advanced news recipes, please visit <a href=\"http://"
 "calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
-msgstr "Wenn Sie Hilfe zur Erstellung Erweiterter Nachrichten Rezepte benötigen, besuchen Sie die englischsprachige Seite <a href=\"http://calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
+msgstr ""
+"Wenn Sie Hilfe zur Erstellung Erweiterter Nachrichten Rezepte benötigen, "
+"besuchen Sie die englischsprachige Seite <a href=\"http://calibre.kovidgoyal."
+"net/user_manual/news.html\">User Recipes</a>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:240
 msgid "Recipe source code (python)"
@@ -2163,7 +2180,9 @@ msgstr "Fehler bei der Kommunikation mit dem Gerät"
 msgid ""
 "<p>For help visit <a href=\"http://%s.kovidgoyal.net/user_manual\">%s."
 "kovidgoyal.net</a><br>"
-msgstr "<p>Hilfe gibt es online bei <a href=\"http://%s.kovidgoyal.net/user_manual\">%s.kovidgoyal.net</a><br>"
+msgstr ""
+"<p>Hilfe gibt es online bei <a href=\"http://%s.kovidgoyal.net/user_manual\">"
+"%s.kovidgoyal.net</a><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:94
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
@@ -2331,7 +2350,9 @@ msgstr "Keine geeigneten Formate"
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found:<br><ul>%s</ul>"
-msgstr "Die folgenden Bücher konnten nicht auf das Gerät geladen werden, da keine geeigneten Formate vorhanden sind:<br><ul>%s</ul>"
+msgstr ""
+"Die folgenden Bücher konnten nicht auf das Gerät geladen werden, da keine "
+"geeigneten Formate vorhanden sind:<br><ul>%s</ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:661
 msgid "Cannot save to disk"
@@ -2434,7 +2455,9 @@ msgstr "Datenbank existiert nicht"
 msgid ""
 "The directory in which the database should be: %s no longer exists. Please "
 "choose a new database location."
-msgstr "Das Verzeichnis, in dem die Datenbank sein sollte: %s existiert nicht mehr. Bitte wählen Sie einen neuen Ort für die Datenbank aus."
+msgstr ""
+"Das Verzeichnis, in dem die Datenbank sein sollte: %s existiert nicht mehr. "
+"Bitte wählen Sie einen neuen Ort für die Datenbank aus."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1122
 msgid ""
@@ -2555,7 +2578,9 @@ msgstr "Klicken Sie, um die Cover-Ansicht zu verlassen"
 msgid ""
 "<p>Browsing books by their covers is disabled.<br>Import of pictureflow "
 "module failed:<br>"
-msgstr "<p>Die Cover-Ansicht ist gesperrt.<br>Der Import des Pictureflow Moduls schlug fehl:<br>"
+msgstr ""
+"<p>Die Cover-Ansicht ist gesperrt.<br>Der Import des Pictureflow Moduls "
+"schlug fehl:<br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:37
 msgid "Invalid regular expression"
@@ -2591,11 +2616,14 @@ msgstr "Ein Klick zeigt die Liste der auf dem Computer vorhandenen Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:134
 msgid "Click to see the list of books in the main memory of your reader"
-msgstr "Ein Klick zeigt die Liste der im Hauptspeicher des Geräts vorhandenen Bücher"
+msgstr ""
+"Ein Klick zeigt die Liste der im Hauptspeicher des Geräts vorhandenen Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:135
 msgid "Click to see the list of books on the storage card in your reader"
-msgstr "Ein Klick zeigt die Liste der auf der Speicherkarte des Geräts vorhandenen Bücher"
+msgstr ""
+"Ein Klick zeigt die Liste der auf der Speicherkarte des Geräts vorhandenen "
+"Bücher"
 
 #: /home/kovid/work/calibre/src/calibre/parallel.py:114
 msgid "Job killed by user"
@@ -2653,7 +2681,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:37
 msgid "Options to control web2disk (used to fetch websites linked from feeds)"
-msgstr "Einstellungen für web2disk (um von Feeds verlinkte Webseiten abzurufen)"
+msgstr ""
+"Einstellungen für web2disk (um von Feeds verlinkte Webseiten abzurufen)"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:40
 msgid ""
@@ -2683,11 +2712,13 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:47
 msgid "Username for sites that require a login to access content."
-msgstr "Benutzername für Webseiten, die einen Login für den Inhaltsabruf benötigen."
+msgstr ""
+"Benutzername für Webseiten, die einen Login für den Inhaltsabruf benötigen."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:48
 msgid "Password for sites that require a login to access content."
-msgstr "Passwort für Webseiten, die einen Login für den Inhaltsabruf benötigen."
+msgstr ""
+"Passwort für Webseiten, die einen Login für den Inhaltsabruf benötigen."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:51
 msgid ""
@@ -2900,4 +2931,3 @@ msgstr "Lade CSS Stylesheets nicht herunter."
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:400
 msgid "Show detailed output information. Useful for debugging"
 msgstr "Zeige detailierte Ausgabeinformation. Hilfreich zur Fehlersuche."
-
