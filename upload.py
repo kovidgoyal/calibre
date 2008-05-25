@@ -22,7 +22,7 @@ check_call = partial(_check_call, shell=True)
 def tag_release():
     print 'Tagging release'
     check_call('bzr tag '+__version__)
-    check_call('bzr commit -m "Updated translations"') 
+    check_call('bzr commit --unchanged -m "IGN:Tag release"')
             
 def build_installer(installer, vm, timeout=25):
     if os.path.exists(installer):
