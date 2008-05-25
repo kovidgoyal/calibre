@@ -12,7 +12,7 @@ to get and set meta information. For example:
 >>> lrf.category = "History"
 """
 
-import struct, zlib, sys
+import struct, zlib, sys, os
 from shutil import copyfileobj
 from cStringIO import StringIO
 import xml.dom.minidom as dom
@@ -147,6 +147,7 @@ class xml_field(object):
         if not val:
             val = ''
         document = obj.info
+        
         def create_elem():
             elem = document.createElement(self.tag_name)
             parent = document.getElementsByTagName(self.parent)[0]
@@ -173,6 +174,7 @@ class xml_field(object):
         else:
             elem = create_elem()  
         elem.appendChild(document.createTextNode(val))
+        
         obj.info = document
             
     
@@ -370,6 +372,7 @@ class LRFMetaFile(object):
             self.compressed_info_size = len(stream) + 4
             delta = insert_into_file(self._file, stream, self.info_start, \
                                      self.info_start + orig_size - 4)
+            
             self.toc_object_offset   += delta
             self.object_index_offset += delta
             self.update_object_offsets(delta)
@@ -440,28 +443,17 @@ class LRFMetaFile(object):
     @safe
     def update_object_offsets(self, delta):
         """ Run through the LRF Object index changing the offset by C{delta}. """
-        self._file.seek(self.object_index_offset)    
-        while(True):
-            try: 
-                self._file.read(4)
-            except EOFError: 
-                break
-            pos = self._file.tell()
-            try: 
-                offset = self.unpack(fmt=DWORD, start=pos)[0] + delta
-            except struct.error: 
-                break
-            if offset >= (2**8)**4:
-                # New offset is larger than a DWORD, so leave 
-                # offset unchanged. I'm assuming offset is an offset from
-                # the previous object, otherwise this would impose a ~ 4MB limit
-                # on LRF files.
-                offset -= delta
-            self.pack(offset, fmt=DWORD, start=pos)            
-            try: 
-                self._file.read(12)
-            except EOFError: 
-                break
+        self._file.seek(self.object_index_offset)
+        count = self.number_of_objects
+        while count > 0:
+            raw = self._file.read(8)
+            new_offset = struct.unpack(DWORD, raw[4:8])[0] + delta
+            if new_offset >= (2**8)**4 or new_offset < 0x4C:
+                raise LRFException(_('Invalid LRF file. Could not set metadata.'))
+            self._file.seek(-4, os.SEEK_CUR)
+            self._file.write(struct.pack(DWORD, new_offset))
+            self._file.seek(8, os.SEEK_CUR)
+            count -= 1
         self._file.flush()
     
     @safe
@@ -473,7 +465,6 @@ class LRFMetaFile(object):
         @param start: Position in file from which to decode
         """
         end = start + struct.calcsize(fmt)
-        self._file.seek(start)
         self._file.seek(start)
         ret =  struct.unpack(fmt, self._file.read(end-start))
         return ret
