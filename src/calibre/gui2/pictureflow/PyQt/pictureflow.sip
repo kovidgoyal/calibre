@@ -64,6 +64,7 @@ signals:
   void itemActivated(int index);
   void inputReceived();
   void currentChanged(int index);
+  void stop();
 
 protected:
   void paintEvent(QPaintEvent *event);

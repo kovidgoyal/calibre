@@ -18,7 +18,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            qstring_to_unicode, set_sidebar_directories, \
-                           SingleApplication, Application
+                           SingleApplication, Application, available_height
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
@@ -31,7 +31,7 @@ from calibre.gui2.news import NewsMenu
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
-from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog 
+from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
@@ -202,13 +202,14 @@ class Main(MainWindow, Ui_MainWindow):
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
-            self.cover_flow = CoverFlow(height=220)
+            self.cover_flow = CoverFlow(height=220 if available_height() > 800 else 170)
             self.cover_flow.setVisible(False)
             self.library.layout().addWidget(self.cover_flow)
             self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), self.sync_cf_to_listview)
             self.library_view.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding))
             self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), self.show_book_info)
             self.connect(self.status_bar.cover_flow_button, SIGNAL('toggled(bool)'), self.toggle_cover_flow)
+            self.connect(self.cover_flow, SIGNAL('stop()'), self.status_bar.cover_flow_button.toggle)
             QObject.connect(self.library_view.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self.sync_cf_to_listview)
             self.db_images = DatabaseImages(self.library_view.model())
@@ -228,7 +229,7 @@ class Main(MainWindow, Ui_MainWindow):
         
     def toggle_cover_flow(self, show):
         if show:
-            self.cover_flow.setCurrentSlide(self.library_view.currentIndex().row())
+            self.library_view.setCurrentIndex(self.library_view.currentIndex())
             self.cover_flow.setVisible(True)
             self.cover_flow.setFocus(Qt.OtherFocusReason)
             self.status_bar.book_info.book_data.setMaximumHeight(100)

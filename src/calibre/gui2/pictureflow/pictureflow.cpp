@@ -1213,6 +1213,13 @@ void PictureFlow::keyPressEvent(QKeyEvent* event)
     return;
   }
 
+  if(event->key() == Qt::Key_Escape)
+  {
+      emit stop();
+      event->accept();
+      return;
+  }
+
   event->ignore();
 }
 

@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, \
-                         QByteArray, QLocale, QTranslator, QUrl, QTranslator
+                         QByteArray, QLocale, QTranslator, QUrl, QTranslator, QCoreApplication
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QDialogButtonBox, QApplication
 
@@ -20,6 +20,10 @@ if iswindows:
     import warnings
     warnings.simplefilter('ignore', DeprecationWarning)
 
+
+def available_height():
+    desktop       = QCoreApplication.instance().desktop()
+    return desktop.availableGeometry().height()
 
 def extension(path):
     return os.path.splitext(path)[1][1:].lower()
