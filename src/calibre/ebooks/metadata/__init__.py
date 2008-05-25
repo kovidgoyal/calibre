@@ -63,6 +63,7 @@ class MetaInformation(object):
         self.rating       = None if not mi else mi.rating
         self.isbn         = None if not mi else mi.isbn
         self.tags         = []  if not mi else mi.tags
+        #: mi.cover_data = (ext, data)
         self.cover_data   = mi.cover_data if (mi and hasattr(mi, 'cover_data')) else (None, None)
         self.application_id    = mi.application_id  if (mi and hasattr(mi, 'application_id')) else None
         self.manifest = getattr(mi, 'manifest', None) 

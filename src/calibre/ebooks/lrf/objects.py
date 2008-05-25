@@ -984,7 +984,8 @@ class ImageStream(LRFStream):
     def end_stream(self, *args):
         LRFStream.end_stream(self, *args)
         self.file = str(self.id) + '.' + self.encoding.lower()
-        self._document.image_map[self.id] = self
+        if self._document is not None:
+            self._document.image_map[self.id] = self
         
     def __unicode__(self):
         return u'<ImageStream objid="%s" encoding="%s" file="%s" />\n'%\

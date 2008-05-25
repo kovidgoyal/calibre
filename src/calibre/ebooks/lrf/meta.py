@@ -230,6 +230,7 @@ def get_metadata(stream):
     mi.comments = lrf.free_text.strip()
     mi.category = lrf.category.strip()+', '+lrf.classification.strip()
     mi.publisher = lrf.publisher.strip()
+    mi.cover_data = lrf.get_cover()
     try:
         mi.title_sort = lrf.title_reading.strip()
         if not mi.title_sort:
@@ -253,6 +254,7 @@ def get_metadata(stream):
     if not mi.publisher or 'unknown' in mi.publisher.lower() or \
             'some publisher' in mi.publisher.lower():
         mi.publisher = None
+    
     return mi
 
 class LRFMetaFile(object):
@@ -524,6 +526,54 @@ class LRFMetaFile(object):
         """ See L{file.write} """
         self._file.write(val)
         
+    def objects(self):
+        self._file.seek(self.object_index_offset)
+        c = self.number_of_objects
+        while c > 0:
+            c -= 1
+            raw = self._file.read(16)
+            pos = self._file.tell()
+            yield struct.unpack('<IIII', raw)[:3]
+            self._file.seek(pos)
+    
+    def get_objects_by_type(self, type):
+        from calibre.ebooks.lrf.tags import Tag
+        objects = []
+        for id, offset, size in self.objects():
+            self._file.seek(offset)
+            tag = Tag(self._file)
+            if tag.id == 0xF500:
+                obj_id, obj_type = struct.unpack("<IH", tag.contents)
+                if obj_type == type:
+                    objects.append((obj_id, offset, size))
+        return objects
+    
+    def get_object_by_id(self, tid):
+        from calibre.ebooks.lrf.tags import Tag
+        for id, offset, size in self.objects():
+            self._file.seek(offset)
+            tag = Tag(self._file)
+            if tag.id == 0xF500:
+                obj_id, obj_type = struct.unpack("<IH", tag.contents)
+                if obj_id == tid:
+                    return obj_id, offset, size, obj_type
+        return (False, False, False, False)
+    
+    @safe
+    def get_cover(self):
+        from calibre.ebooks.lrf.objects import get_object
+        
+        for id, offset, size in self.get_objects_by_type(0x06): #Blocks
+            block =  get_object(None, self._file, id, offset, size, self.xor_key)
+            tid, ref = struct.unpack('<HI', block.stream)
+            if tid == 0xF503:
+                obj_id, offset, size, obj_type = self.get_object_by_id(ref)
+                if obj_type == 0x0C: # Image
+                    image = get_object(None, self._file, obj_id, offset, size, self.xor_key)
+                    id, offset, size = self.get_object_by_id(image.refstream)[:3]
+                    image_stream = get_object(None, self._file, id, offset, size, self.xor_key)
+                    return image_stream.file.rpartition('.')[-1], image_stream.stream
+        return (None, None)
 
 def option_parser():
     from optparse import OptionParser
@@ -555,6 +605,8 @@ Show/edit the metadata in an LRF file.\n\n'''),
     parser.add_option("--get-thumbnail", action="store_true", \
                     dest="get_thumbnail", default=False, \
                     help=_("Extract thumbnail from LRF file"))
+    parser.add_option('--get-cover', action='store_true', default=False, 
+                      help=_('Extract cover from LRF file. Note that the LRF format has no defined cover, so we use some heuristics to guess the cover.'))
     parser.add_option('--bookid', action='store', type='string', default=None,
                       dest='book_id', help=_('Set book ID'))
     parser.add_option("-p", "--page", action="store", type="string", \
@@ -586,6 +638,7 @@ def main(args=sys.argv):
         print 'No lrf file specified'
         return 1
     lrf = LRFMetaFile(open(args[1], "r+b"))
+    
     if options.title:
         lrf.title        = options.title
     if options.title_reading != None:
@@ -612,7 +665,7 @@ def main(args=sys.argv):
         t = lrf.thumbnail
         td = "None"
         if t and len(t) > 0:
-            td = os.path.basename(args[0])+"_thumbnail_."+lrf.thumbail_extension()
+            td = os.path.basename(args[1])+"_thumbnail."+lrf.thumbail_extension()
             f = open(td, "w")
             f.write(t)
             f.close()
@@ -624,6 +677,14 @@ def main(args=sys.argv):
             print str(f[1]) + ":", lrf.__getattribute__(f[0]).encode('utf-8')
     if options.get_thumbnail: 
         print "Thumbnail:", td
+    if options.get_cover:
+        ext, data = lrf.get_cover()
+        if data:
+            cover = os.path.basename(args[1])+"_cover."+ext
+            open(cover, 'wb').write(data)
+            print 'Cover:', cover
+        else:
+            print 'Could not find cover in the LRF file'
         
 if __name__ == '__main__':
     sys.exit(main())
