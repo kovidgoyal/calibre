@@ -713,7 +713,8 @@ void PictureFlowPrivate::render()
     painter.setPen(Qt::white);
     //painter.setPen(QColor(255,255,255,127));
 
-    painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
+    if (centerIndex < slideCount()) 
+    	painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
                       Qt::AlignCenter, slideImages->caption(centerIndex));
 
     painter.end();
