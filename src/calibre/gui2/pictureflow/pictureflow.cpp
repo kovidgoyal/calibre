@@ -713,7 +713,7 @@ void PictureFlowPrivate::render()
     painter.setPen(Qt::white);
     //painter.setPen(QColor(255,255,255,127));
 
-    if (centerIndex < slideCount()) 
+    if (centerIndex < slideCount() and centerIndex > -1) 
     	painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
                       Qt::AlignCenter, slideImages->caption(centerIndex));
 
@@ -762,13 +762,16 @@ void PictureFlowPrivate::render()
     painter.setFont(font);
 
     int leftTextIndex = (step>0) ? centerIndex : centerIndex-1;
+    int sc = slideCount();
 
     painter.setPen(QColor(255,255,255, (255-fade) ));
-    painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
+    if (leftTextIndex < sc and leftTextIndex > -1)
+    	painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex));
 
     painter.setPen(QColor(255,255,255, fade));
-    painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
+    if (leftTextIndex+1 < sc and leftTextIndex > -2)
+    	painter.drawText( QRect(0,0, buffer.width(), (buffer.height() - slideSize().height())/2),
                       Qt::AlignCenter, slideImages->caption(leftTextIndex+1));
 
 
