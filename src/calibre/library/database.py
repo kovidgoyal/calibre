@@ -857,7 +857,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         sort = field + ' ' + order
         if field == 'series':
             sort += ',series_index '+order
-        
+        elif field == 'title':
+            sort += ',author_sort ' + order
+        else:
+            sort += ',title '+order
         
         self.cache = self.conn.execute('SELECT * from meta ORDER BY '+sort).fetchall()
         self.data  = self.cache
