@@ -1423,7 +1423,8 @@ class HTMLConverter(object, LoggingInterface):
             if tagname in ["title", "script", "meta", 'del', 'frameset']:            
                 pass
             elif tagname == 'a' and self.link_levels >= 0:
-                if tag.has_key('href') and not self.link_exclude.match(tag['href']):
+                if tag.has_key('href') and not self.link_exclude.match(tag['href'])\
+                   and urlparse(tag['href'])[0] in ('', 'file'):
                     path = munge_paths(self.target_prefix, tag['href'])[0]
                     ext = os.path.splitext(path)[1]
                     if ext: ext = ext[1:].lower()
