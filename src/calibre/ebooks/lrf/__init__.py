@@ -161,7 +161,7 @@ def option_parser(usage, gui_mode=False):
                               '''links. A value of 0 means thats links are not followed. '''
                               '''A negative value means that <a> tags are ignored.'''))
     link.add_option('--link-exclude', dest='link_exclude', default='@',
-                      help=_('''A regular expression. <a> tags whoose href '''
+                      help=_('''A regular expression. <a> tags whose href '''
                       '''matches will be ignored. Defaults to %default'''))
     link.add_option('--no-links-in-toc', action='store_true', default=False,
                       dest='no_links_in_toc',
@@ -186,7 +186,7 @@ def option_parser(usage, gui_mode=False):
                       '''turn performance of the LRF. Thus this option is ignored '''
                       '''if the current page has only a few elements.'''))
     chapter.add_option('--force-page-break-before-tag', dest='force_page_break',
-                       default='$', help=_('Force a page break before tags whoose names match this regular expression.'))
+                       default='$', help=_('Force a page break before tags whose names match this regular expression.'))
     chapter.add_option('--force-page-break-before-attr', dest='force_page_break_attr',
                        default='$,,$', help=_('Force a page break before an element having the specified attribute. The format for this option is tagname regexp,attribute name,attribute value regexp. For example to match all heading tags that have the attribute class="chapter" you would use "h\d,class,chapter". Default is %default'''))
     chapter.add_option('--add-chapters-to-toc', action='store_true', 
