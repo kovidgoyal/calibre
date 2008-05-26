@@ -34,7 +34,13 @@ def generate_html(pathtopdf, logger):
     
     try:
         os.chdir(tdir)
-        p = popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        try:
+            p = popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+        except OSError, err:
+            if err.errno == 2:
+                raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
+            else:
+                raise
         logger.info(p.stdout.read())
         ret = p.wait()
         if ret != 0:
