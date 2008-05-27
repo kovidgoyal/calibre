@@ -10,18 +10,107 @@ msgid ""
 msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-23 21:23+PDT\n"
-"PO-Revision-Date: 2008-05-23 22:13+PDT\n"
-"Last-Translator: calibre\n"
+"POT-Creation-Date: 2008-05-25 20:09+0000\n"
+"PO-Revision-Date: 2008-05-26 04:48+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: KBabel 1.11.4\n"
+"X-Launchpad-Export-Date: 2008-05-27 02:20+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+# ???
+#~ msgid ""
+#~ "A regular expression. <a> tags whoose href matches will be ignored. Defaults "
+#~ "to %default"
+#~ msgstr ""
+#~ "Expresión regular. Las marcas <a> que tengan href coincidentes, son "
+#~ "ignoradas. Por defecto: %default"
+
+#~ msgid ""
+#~ "Force a page break before tags whoose names match this regular expression."
+#~ msgstr ""
+#~ "Fuerza un salto de página antes de las marcas cuyo nombre coincida con la "
+#~ "expresión regular."
+
+#~ msgid "%s is not available in LRF format. Please convert it first."
+#~ msgstr "\"%s\" no es un archivo LRF. Conviértalo primero."
+
+#~ msgid "Not yet implemented."
+#~ msgstr "No implementado"
+
+#~ msgid "RTF conversion not supported"
+#~ msgstr "Conversión RTF no soportada"
+
+#~ msgid ""
+#~ "Conversion of RTF files is not supported on OS X Leopard and higher. This is "
+#~ "because unrtf, the underlying program does not work. If you are willing to "
+#~ "port unrtf to Leopard, contact me."
+#~ msgstr ""
+#~ "La conversión de archivos RTF no está soportada en OS X Leopard o "
+#~ "superior,porque unrtf, el programa de conversión, no funciona. Si quieres "
+#~ "colaboraren portar unrtf, ponte en contacto con Kovid."
+
+#~ msgid "Search by title, author, publisher, tags, series and comments"
+#~ msgstr "Buscar por título, autor, editorial, etiquetas, series y comentarios"
+
+#~ msgid "Done"
+#~ msgstr "Terminado"
+
+#~ msgid "Use &metadata cover"
+#~ msgstr "Utilizar la portada de los &metadatos"
+
+#~ msgid ""
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+#~ "type=\"text/css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+#~ "weight:400; font-style:normal;\">\n"
+#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-"
+#~ "indent:0px;\"></p></body></html>"
+#~ msgstr ""
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+#~ "type=\"text/css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+#~ "weight:400; font-style:normal;\">\n"
+#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-"
+#~ "indent:0px;\"></p></body></html>"
+
+#~ msgid ""
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+#~ "type=\"text/css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+#~ "weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a "
+#~ "href=\"https://calibre.kovidgoyal.net/wiki/WikiStart#Usage\"><span style=\" "
+#~ "text-decoration: underline; "
+#~ "color:#0000ff;\">calibre.kovidgoyal.net</span></a><br /><br /><span style=\" "
+#~ "font-weight:600;\">calibre</span>: %1 by <span style=\" font-"
+#~ "weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></html>"
+#~ msgstr ""
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+#~ "type=\"text/css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; font-"
+#~ "weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Para más información "
+#~ "visite  (en inglés) <a "
+#~ "href=\"https://calibre.kovidgoyal.net/wiki/WikiStart#Usage\"><span style=\" "
+#~ "text-decoration: underline; "
+#~ "color:#0000ff;\">calibre.kovidgoyal.net</span></a><br /><br /><span style=\" "
+#~ "font-weight:600;\">calibre</span>: %1 de <span style=\" font-"
+#~ "weight:600;\">Kovid Goyal</span> %2<br />%3</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/__init__.py:95
 msgid "%sUsage%s: %s\n"
-msgstr ""
+msgstr "%sUso%s: %s\n"
 
 #: /home/kovid/work/calibre/src/calibre/__init__.py:132
 msgid "Created by "
@@ -41,7 +130,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:271
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:672
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:676
 msgid "Unknown"
 msgstr "Desconocido"
 
@@ -51,7 +140,7 @@ msgstr "Insertar comentarios."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:95
 msgid "Set the category"
-msgstr "Insertar categorí­a."
+msgstr "Seleccione categorí­a."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:97
 msgid "Sort key for the title"
@@ -59,7 +148,7 @@ msgstr "Clave de orden por tí­tulo."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:99
 msgid "Sort key for the author"
-msgstr "Clave de orden por autor"
+msgstr "Clave de orden para el autor"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:39
@@ -100,8 +189,8 @@ msgid ""
 "use --font-delta, set this to 0."
 msgstr ""
 "Especifica el tamaño de fuente en puntos. Todas las fuentes se reescalan "
-"según este valo. Esta opción sustituye a --font-delta que se considera "
-"obsoleta. Para user ---font-delta, asigne 0 aquí."
+"según este valor. Esta opción sustituye a --font-delta que se considera "
+"obsoleta. Para usar ---font-delta, asigne 0 aquí."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:115
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -152,6 +241,8 @@ msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
+"Sangrado mínimo para párrafos (el sangrado de la primera línea de cada "
+"párrafo) en ptos. Por defecto: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:132
 msgid ""
@@ -159,15 +250,17 @@ msgid ""
 "FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
 "font size is decreased."
 msgstr ""
-"Aumenta el tamaño de la fuente en 2 * FONT_DELTA puntos y el espacio de lí­"
-"nea en FONT_DELTA puntos. FONT_DELTA puede ser una fracción. Si es un valor "
-"negativo, el tamaño de la fuente disminuye."
+"Aumenta el tamaño de la fuente en 2 * FONT_DELTA puntos y el espacio de "
+"lí­nea en FONT_DELTA puntos. FONT_DELTA puede ser una fracción. Si es un "
+"valor negativo, el tamaño de la fuente disminuye."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:137
 msgid ""
 "Render all content as black on white instead of the colors specified by the "
 "HTML or CSS."
 msgstr ""
+"Generar todo el contenido en negro sobre blanco en lugar de los colores "
+"indicados por el HTML o CSS."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:144
 msgid ""
@@ -177,7 +270,7 @@ msgid ""
 msgstr ""
 "Perfil del dispositivo para el cual se genera el archivo LRF. Este perfil "
 "determina, entre otras cosas, la resolución y el tamaño de la pantalla del "
-"dispositivo. Por defecto: %s Perfiles soportados:"
+"dispositivo. Por defecto: %s Perfiles soportados: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:150
 msgid "Left margin of page. Default is %default px."
@@ -204,23 +297,26 @@ msgstr ""
 "Número máximo de niveles para procesar enlaces recursivamente. El valor 0 "
 "(cero) indica que no se seguirán. Un valor negativo, ignora las marcas <a>."
 
-# ???
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:164
 msgid ""
-"A regular expression. <a> tags whoose href matches will be ignored. Defaults "
+"A regular expression. <a> tags whose href matches will be ignored. Defaults "
 "to %default"
 msgstr ""
-"Expresión regular. Las marcas <a> que tengan href coincidentes, son "
-"ignoradas. Por defecto: %default"
+"Una expresión regular. Las etiquetas <a> cuyos atributos href coincidan "
+"serán ignoradas.  Por defecto es %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:168
+msgid "Don't add links to the table of contents."
+msgstr "No incluir enlaces en el índice de contenidos"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:172
 msgid ""
 "Prevent the automatic insertion of page breaks before detected chapters."
 msgstr ""
 "Evita la inserción automática de saltos de página delante de los capítulos "
 "detectados."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:173
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:176
 msgid ""
 "The regular expression used to detect chapter titles. It is searched for in "
 "heading tags (h1-h6). Defaults to %default"
@@ -228,7 +324,7 @@ msgstr ""
 "Expressión regular utilizada para detectar los títulos de los capítulos. "
 "Busca las marcas de encabezado (h1-h6). Por defecto: %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:176
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:179
 msgid ""
 "If html2lrf does not find any page breaks in the html file and cannot detect "
 "chapter headings, it will automatically insert page-breaks before the tags "
@@ -246,31 +342,35 @@ msgstr ""
 "cambio de página en el archivo LRF. Esta opción se ignora si la página "
 "actual tiene pocos elementos."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:186
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:189
 msgid ""
-"Force a page break before tags whoose names match this regular expression."
+"Force a page break before tags whose names match this regular expression."
 msgstr ""
-"Fuerza un salto de página antes de las marcas cuyo nombre coincida con la "
-"expresión regular."
+"Forzar un salto de página previo a las etiquetas cuyos nombres coincidan con "
+"esta expresión regular."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:188
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:191
 msgid ""
 "Force a page break before an element having the specified attribute. The "
 "format for this option is tagname regexp,attribute name,attribute value "
-"regexp. For example to match all heading tags that have the attribute class="
-"\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
+"regexp. For example to match all heading tags that have the attribute "
+"class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
 msgstr ""
 "Fuerza un salto de página antes de un elemento con un atributo concreto. El "
 "formato de esta opción es regexp_marca,nom_atribut,tegexp_valor_atribut. Por "
 "ejemplo, \"h\\d,class,chapter\", coincide con todas las marcas de encabezado "
 "que tienen el atributo class=\"chapter\". Por defecto: %default"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:191
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:194
+msgid "Add detected chapters to the table of contents."
+msgstr "Incluir capítulos detectados en el índice de contenidos."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:197
 msgid "Preprocess Baen HTML files to improve generated LRF."
 msgstr ""
 "Preprocesa los archivos Baen HTML para mejorar el archivo LRF generado."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:193
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:199
 msgid ""
 "You must add this option if processing files generated by pdftohtml, "
 "otherwise conversion will fail."
@@ -278,11 +378,11 @@ msgstr ""
 "Es necesario activar esta opción para archivos generados con pdftohtml, para "
 "evitar que la conversión falle."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:195
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:201
 msgid "Use this option on html0 files from Book Designer."
 msgstr "Utilice esta opción para archivos html0 de Book Designer."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:198
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:204
 msgid ""
 "Specify trutype font families for serif, sans-serif and monospace fonts. "
 "These fonts will be embedded in the LRF file. Note that custom fonts lead to "
@@ -297,27 +397,27 @@ msgstr ""
 "fuents, familia\" ( --serif-family \"%s, Times New Roman\")\n"
 "    "
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:207
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:213
 msgid "The serif family of fonts to embed"
 msgstr "Familia de fuentes serif per a incrustar."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:210
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:216
 msgid "The sans-serif family of fonts to embed"
 msgstr "Familia de fuentes sans-serif a incrustar."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:213
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:219
 msgid "The monospace family of fonts to embed"
 msgstr "Familia de fuentes monoespaiadas a incrustar."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:217
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:223
 msgid "Be verbose while processing"
-msgstr ""
+msgstr "Ser prolijo al procesar"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:219
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:225
 msgid "Convert to LRS"
-msgstr ""
+msgstr "Convertir a LRS"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:221
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:227
 msgid ""
 "Minimize memory usage at the cost of longer processing times. Use this "
 "option if you are on a memory constrained machine."
@@ -325,13 +425,18 @@ msgstr ""
 "Minimizar el uso de memoria, a cambio de mayor tiempo de procesador. Usar "
 "esta opción si el equipo no dispone de mucha RAM."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:223
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:229
 msgid ""
 "Specify the character encoding of the source file. If the output LRF file "
 "contains strange characters, try changing this option. A common encoding for "
 "files from windows computers is cp-1252. Another common choice is utf-8. The "
 "default is to try and guess the encoding."
 msgstr ""
+"Seleccione la codificación de caracteres del archivo de entrada. Si el "
+"archivo LRF de salida contiene caracteres extraños, pruebe a cambiar esta "
+"opción. Una codificación habitual para archivos de ordenadores con windows "
+"es cp-1252. Otra opción habitual es utf-8. La opción por defecto es intentar "
+"adivinar la codificación."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:143
 msgid ""
@@ -346,7 +451,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/any/convert_from.py:158
 msgid "No file to convert specified."
-msgstr ""
+msgstr "No se ha especificado ningun fichero para convertir"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/epub/convert_from.py:17
 msgid ""
@@ -355,6 +460,10 @@ msgid ""
 "        \n"
 "%prog converts mybook.epub to mybook.lrf"
 msgstr ""
+"Uso: %prog [options] mybook.epub\n"
+"        \n"
+"        \n"
+"%prog converte mybook.epub a mybook.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:19
 msgid ""
@@ -363,108 +472,121 @@ msgid ""
 "\n"
 "%prog converts mybook.fb2 to mybook.lrf"
 msgstr ""
+"%prog [options] mybook.fb2\n"
+"\n"
+"\n"
+"%prog converte mybook.fb2 a mybook.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/fb2/convert_from.py:24
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:22
 msgid "Print generated HTML to stdout and quit."
-msgstr ""
+msgstr "Imprimir el HTML generado por la salida estándar y salir."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:20
 msgid "Options to control the behavior of feeds2disk"
-msgstr ""
+msgstr "Opciones para controlar el comportamiento de feeds2disk"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:22
 msgid "Options to control the behavior of html2lrf"
-msgstr ""
+msgstr "Opciones para controlar el comportamiento de html2rtf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/feeds/convert_from.py:44
 msgid "Fetching of recipe failed: "
-msgstr ""
+msgstr "Obtención fallida de la receta: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:309
 msgid "\tBook Designer file detected."
-msgstr ""
+msgstr "\tBook Designer archivo detectado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:311
 msgid "\tParsing HTML..."
-msgstr ""
+msgstr "\tAnalizando HTML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:333
 msgid "\tBaen file detected. Re-parsing..."
-msgstr ""
+msgstr "\tBaen archivo detectado. Volver a analizar..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:349
 msgid "Written preprocessed HTML to "
-msgstr ""
+msgstr "HTML preprocesado escrito en "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:366
 msgid "Processing %s"
-msgstr ""
+msgstr "Procesando %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:380
 msgid "\tConverting to BBeB..."
-msgstr ""
+msgstr "\tConversión a BBeB..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:518
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:525
 msgid "Could not parse file: %s"
-msgstr ""
+msgstr "No se pudo analizar el archivo: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:537
 msgid "Failed to parse link %s %s"
-msgstr ""
+msgstr "No se pudo analizar el enlace %s %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:580
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:581
 msgid "Cannot add link %s to TOC"
-msgstr ""
+msgstr "No se puedo añadir el enlac %s al TOC"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:922
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:923
 msgid "Unable to process image %s. Error: %s"
-msgstr ""
+msgstr "Incapaz de procesar imagen %s. Error: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:960
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:961
 msgid "Unable to process interlaced PNG %s"
-msgstr ""
+msgstr "Incapaz de procesar PNG entrelazado %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:975
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:976
 msgid ""
 "Could not process image: %s\n"
 "%s"
 msgstr ""
+"No se puedo procesar imagen: %s\n"
+"%s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1671
-msgid "An error occurred while processing a table: %s. Ignoring table markup."
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1677
+msgid ""
+"An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
+"Ocurrió un error al procesar la tabla: %s. Se ignora la identificación de la "
+"tabla."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1673
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1679
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
+"Tabla errónea:\n"
+"%s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1695
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1701
 msgid "Table has cell that is too large"
-msgstr ""
+msgstr "La tabla contiene una celda demasiado larga"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1725
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1731
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
 msgstr ""
+"Primero debe guardar la página web %s como un archivo html y después "
+"ejecutar html2rtf sobre él."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1765
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1771
 msgid "Could not read cover image: %s"
-msgstr ""
+msgstr "No se puedo leer la imagen de portada: %s"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1768
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
 msgid "Cannot read from: %s"
-msgstr ""
-
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1897
-msgid "Failed to process opf file"
-msgstr ""
+msgstr "No se puedo leer de: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1903
+msgid "Failed to process opf file"
+msgstr "Incapaz de procesar el archivo opf"
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1909
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
@@ -474,6 +596,14 @@ msgid ""
 "to local files recursively. Thus, you can use it to \n"
 "convert a whole tree of HTML files."
 msgstr ""
+"Uso: %prog [opciones] milibro.html\n"
+"\n"
+"\n"
+"%prog convierte milibro.html en milibro.lrf. \n"
+"%prog sigue todos los enlaces en milibro.html que \n"
+"apuntan a archivos locales de forma recursiva. \n"
+"De esta forma, puede usarlo para convertir un \n"
+"árbol completo de archivos HTML."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lit/convert_from.py:19
 msgid ""
@@ -482,31 +612,41 @@ msgid ""
 "\n"
 "%prog converts mybook.lit to mybook.lrf"
 msgstr ""
+"Uso: %prog [opciones] milibro.lit\n"
+"\n"
+"\n"
+"%prog convierte milibro.lit en milibro.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:243
 msgid "Could not read from thumbnail file:"
-msgstr ""
+msgstr "No se pudo leer el archivo de miniatura:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:263
 msgid ""
 "%prog [options] file.lrs\n"
 "Compile an LRS file into an LRF file."
 msgstr ""
+"%prog [opciones] archivo.lrs\n"
+"Compila un archivo LRS a un archivo LRF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:264
 msgid "Path to output file"
-msgstr ""
+msgstr "Directorio del archivo de salida"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:266
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:113
 msgid "Verbose processing"
-msgstr ""
+msgstr "Procesado detallado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/lrs/convert_from.py:268
 msgid "Convert LRS to LRS, useful for debugging."
-msgstr ""
+msgstr "Convierte LRS a LRS, útil para depurar."
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:541
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:454
+msgid "Invalid LRF file. Could not set metadata."
+msgstr "Archivo LRF no válido. No se pudo asignar metadatos."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:582
 msgid ""
 "%prog [options] mybook.lrf\n"
 "\n"
@@ -514,47 +654,61 @@ msgid ""
 "Show/edit the metadata in an LRF file.\n"
 "\n"
 msgstr ""
+"%prog [opciones] milibro.lrf\n"
+"\n"
+"\n"
+"Ver/editar los metadatos en un archivo LRF.\n"
+"\n"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:548
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:589
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:18
 msgid "Set the book title"
 msgstr "Insertar el nombre del libro"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:550
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:591
 msgid "Set sort key for the title"
 msgstr "Insertar la clave de orden por título"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:552
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:593
 msgid "Set the author"
 msgstr "Insertar el autor"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:554
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:595
 msgid "Set sort key for the author"
 msgstr "Insertar la clave de orden por autor"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:556
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:597
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:22
 msgid "The category this book belongs to. E.g.: History"
 msgstr "Categoria a la que pertenece el libro. Por ejemplo, Historia"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:559
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:600
 msgid "Path to a graphic that will be set as this files' thumbnail"
 msgstr "Ruta al archivo de imagen que se utilizará como miniatura"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:562
-msgid "Path to a txt file containing the comment to be stored in the lrf file."
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:603
+msgid ""
+"Path to a txt file containing the comment to be stored in the lrf file."
 msgstr ""
 "Ruta al archivo txt que contiene el comentaria a guardar en el archivo LRF"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:566
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:607
 msgid "Extract thumbnail from LRF file"
 msgstr "Extraer la miniatura del archivo LRF"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:568
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609
+msgid ""
+"Extract cover from LRF file. Note that the LRF format has no defined cover, "
+"so we use some heuristics to guess the cover."
+msgstr ""
+"Extraer portada de un archivo LRF. Nótese que el formato LRF no contiene una "
+"portada predefinida, así que se usa heurística para encontrar la portada."
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:611
 msgid "Set book ID"
 msgstr "Insertar el ID del libro"
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:570
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:613
 msgid "Don't know what this is for"
 msgstr "No sé para qué sirve esto"
 
@@ -565,24 +719,30 @@ msgid ""
 "\n"
 "%prog converts mybook.mobi to mybook.lrf"
 msgstr ""
+"Uso: %prog [opciones]milibro.mobi|prc\n"
+"\n"
+"\n"
+"%prog convierte milibro.mobi en milibro.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/parser.py:132
 msgid ""
 "%prog book.lrf\n"
 "Convert an LRF file into an LRS (XML UTF-8 encoded) file"
 msgstr ""
+"%prog libro.lrf\n"
+"Convierte un archivo LRF en un archivo LRS (XML codificado en UTF-8)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/parser.py:133
 msgid "Output LRS file"
-msgstr ""
+msgstr "Archivo LRS de salida"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/parser.py:151
 msgid "Parsing LRF..."
-msgstr ""
+msgstr "Analizando LRF..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/parser.py:154
 msgid "Creating XML..."
-msgstr ""
+msgstr "Creando XML..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/parser.py:156
 msgid "LRS written to "
@@ -590,12 +750,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:44
 msgid " does not allow copying of text."
-msgstr ""
+msgstr " no permite copiar texto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:47
 msgid ""
 " is an image based PDF. Only conversion of text based PDFs is supported."
-msgstr ""
+msgstr " es un PDF con imágenes. Sólo son válidos PDFs con texto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:54
 msgid ""
@@ -604,20 +764,26 @@ msgid ""
 "\n"
 "%prog converts mybook.pdf to mybook.lrf"
 msgstr ""
+"%prog [opciones] milibro.pdf\n"
+"\n"
+"\n"
+"%prog convierte milibro.pdf en milibro.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/reflow.py:402
 msgid ""
 "Path to output directory in which to create the HTML file. Defaults to "
 "current directory."
 msgstr ""
+"Directorio de salida en donde crear el archivo HTML. Por defecto es el "
+"directorio actual."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/reflow.py:404
 msgid "Be more verbose."
-msgstr ""
+msgstr "Más detallado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/reflow.py:416
 msgid "You must specify a single PDF file."
-msgstr ""
+msgstr "Debe seleccionar un único archivo PDF."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/rtf/convert_from.py:20
 msgid ""
@@ -626,6 +792,10 @@ msgid ""
 "\n"
 "%prog converts mybook.rtf to mybook.lrf"
 msgstr ""
+"%prog [opciones] milibro.rtf\n"
+"\n"
+"\n"
+"%prog convierte milibro.rtf en milibro.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/txt/convert_from.py:17
 msgid ""
@@ -634,23 +804,27 @@ msgid ""
 "\n"
 "%prog converts mybook.txt to mybook.lrf"
 msgstr ""
+"%prog [opciones] milibro.txt\n"
+"\n"
+"\n"
+"%prog convierte milibro.txt en milibro.lrf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:20
 msgid "Set the authors"
-msgstr ""
+msgstr "Introduzca los autores"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:24
 msgid "Set the comment"
-msgstr ""
+msgstr "Vea el comentario"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:100
 msgid "mybook.epub"
-msgstr ""
+msgstr "milibro.epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:34
 msgid "Usage:"
-msgstr ""
+msgstr "Uso:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:95
 msgid ""
@@ -668,34 +842,36 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:106
 msgid "The ISBN ID of the book you want metadata for."
-msgstr ""
+msgstr "El ID de ISBN del libro del cual desea los metadatos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:108
-msgid "The author whoose book to search for."
+msgid "The author whose book to search for."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:110
 msgid "The title of the book to search for."
-msgstr ""
+msgstr "El título del libro que busca."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:112
 msgid "The publisher of the book to search for."
-msgstr ""
+msgstr "El editor del libro que busca."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:46
 msgid ""
 "Could not fetch cover as server is experiencing high load. Please try again "
 "later."
 msgstr ""
+"No se pudo obtener la portada debido a que el servidor sufre una carga "
+"excesiva. Por favor, inténtelo de nuevo más tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:47
 msgid " not found."
-msgstr ""
+msgstr " no encontrado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:50
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:81
 msgid "LibraryThing.com server error. Try again later."
-msgstr ""
+msgstr "Error del servidor LibraryThing.com. Pruebe de nuevo más tarde."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:59
 msgid ""
@@ -707,35 +883,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:747
 msgid "Usage: %s file.lit"
-msgstr ""
+msgstr "Uso: %s archivo.lit"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/lit.py:754
 msgid "Cover saved to"
-msgstr ""
+msgstr "Portada guardada en"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:36
 msgid "Usage: pdf-meta file.pdf"
-msgstr ""
+msgstr "Uso: pdf-meta archivo.pdf"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/pdf.py:37
 msgid "No filename specified."
-msgstr ""
+msgstr "Nombre de archivo sin especificar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:304
 msgid "%prog [options] myebook.mobi"
-msgstr ""
+msgstr "%prog [opciones] miebook.mobi"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:306
 msgid "Output directory. Defaults to current directory."
-msgstr ""
+msgstr "Directorio de salida. Por defecto es el directorio actual"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:325
 msgid "Raw MOBI HTML saved in"
-msgstr ""
+msgstr "HTML MOBI en bruto guardado en"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:327
 msgid "OEB ebook created in"
-msgstr ""
+msgstr "Ebook OEB creado en"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:22
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:26
@@ -743,13 +919,13 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:14
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:268
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:395
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:742
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:746
 msgid "Title"
 msgstr "Título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:536
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:529
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:278
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:254
 msgid "Comments"
@@ -757,7 +933,7 @@ msgstr "Comentarios"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:55
 msgid "Dialog"
-msgstr ""
+msgstr "Diálogo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:57
@@ -776,7 +952,7 @@ msgstr "<br>Debe ser un directorio."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:89
 msgid "Invalid database location "
-msgstr "Ubicación no válida"
+msgstr "Ubicación no válida "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:89
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:92
@@ -789,37 +965,37 @@ msgstr "Ubicación no válida.<br>Imposible escribir en "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:104
 msgid "Compacting database. This may take a while."
-msgstr ""
+msgstr "Compactando base de datos. Esto podría durar un rato"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:104
 msgid "Compacting..."
-msgstr ""
+msgstr "Compactando..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:184
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:258
 msgid "Configuration"
 msgstr "Configuración"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:191
 msgid "Basic"
-msgstr ""
+msgstr "Básico"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:190
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:196
 msgid "Advanced"
-msgstr ""
+msgstr "Avanzada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:192
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:200
 msgid "&Location of books database (library1.db)"
 msgstr "&Ubicación de la base de datos (library1.db)"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:193
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:201
 msgid "Browse for the new database location"
 msgstr "Navegar a la nueva ubicación de la base de datos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:194
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:202
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:204
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:518
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:210
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:511
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:273
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:282
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:284
@@ -843,53 +1019,53 @@ msgstr "Navegar a la nueva ubicación de la base de datos"
 msgid "..."
 msgstr "..."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:195
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:203
 msgid "Use &Roman numerals for series number"
-msgstr ""
+msgstr "Uso de numerales &romanos para números de serie"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:196
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:204
 msgid "Default network &timeout:"
-msgstr ""
+msgstr "&timeout por defecto de la red:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:197
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:205
 msgid ""
 "Set the default timeout for network fetches (i.e. anytime we go out to the "
 "internet to get information)"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:198
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:206
 msgid " seconds"
-msgstr ""
+msgstr " segundos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:199
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:207
 msgid "&Priority for conversion jobs:"
-msgstr ""
+msgstr "&Prioridad para los trabajos de conversión:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:200
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:208
 msgid "Frequently used directories"
 msgstr "Directorios usados con frecuencia"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:201
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:209
 msgid "Add a directory to the frequently used directories list"
 msgstr "Añadir directorio a la lista de directorios frecuentes"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:203
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:211
 msgid "Remove a directory from the frequently used directories list"
 msgstr "Eliminar directorio a la lista de directorios frecuentes"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:205
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:213
 msgid "Select visible &columns in library view"
-msgstr ""
+msgstr "Seleccione las &columnas visibles en la vista de biblioteca"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:206
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:214
 msgid "Free unused diskspace from the database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:207
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:215
 msgid "&Compact database"
-msgstr ""
+msgstr "&Compactar base de datos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:208
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:216
 msgid "&Metadata from file name"
 msgstr ""
 
@@ -900,17 +1076,17 @@ msgstr "ERROR"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:273
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:396
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:743
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:747
 msgid "Author(s)"
 msgstr "Autor(es)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:38
 msgid "Author Sort"
-msgstr ""
+msgstr "Ordenación por autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:40
 msgid "ISBN"
-msgstr ""
+msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:101
 msgid "Cannot connect"
@@ -930,11 +1106,12 @@ msgstr "Buscando metadatos para <b>%1</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:79
 msgid ""
-"Sign up for a free account from <a href=\"http://www.isbndb.com\">ISBNdb."
-"com</a> to get an access key."
+"Sign up for a free account from <a "
+"href=\"http://www.isbndb.com\">ISBNdb.com</a> to get an access key."
 msgstr ""
-"Registraros gratuitamente en <a href=\"http://www.isbndb.com\">ISBNdb.com</"
-"a> para obtenir una clave de acceso."
+"Registraros gratuitamente en <a "
+"href=\"http://www.isbndb.com\">ISBNdb.com</a> para obtenir una clave de "
+"acceso."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:80
 msgid "&Access Key;"
@@ -949,12 +1126,13 @@ msgid "Matches"
 msgstr "Coincidencias"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:83
-msgid "Select the book that most closely matches your copy from the list below"
+msgid ""
+"Select the book that most closely matches your copy from the list below"
 msgstr "Seleccionar el libro que más se aproxime al listado mostrado abajo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:30
 msgid "Details of job"
-msgstr ""
+msgstr "Detalles del trabajo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Active Jobs"
@@ -962,7 +1140,7 @@ msgstr "Trebajos activos"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:39
 msgid "&Stop selected job"
-msgstr ""
+msgstr "&Detener trabajo seleccionado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:81
 msgid "No available formats"
@@ -1041,7 +1219,7 @@ msgstr ""
 "actualiza tanto en la base de datos como en el archivo LRF."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:281
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:496
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:492
 msgid "Metadata"
 msgstr "Metadatos"
 
@@ -1054,7 +1232,7 @@ msgstr ""
 "fuente y el espaciado entre palabras."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:282
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:500
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:496
 msgid "Look & Feel"
 msgstr "Apariencia"
 
@@ -1066,7 +1244,7 @@ msgstr ""
 "Configuración de página del dispositivo: márgenes y tamaño de la pantalla"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:283
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:505
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:500
 msgid "Page Setup"
 msgstr "Configuración de página"
 
@@ -1075,7 +1253,7 @@ msgid "Fine tune the detection of chapter and section headings."
 msgstr "Afinar la detección de capítulos y secciones."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:284
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:510
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:505
 msgid "Chapter Detection"
 msgstr "Detección de capítulos"
 
@@ -1085,88 +1263,88 @@ msgstr "<font color=\"gray\">Ayuda no disponible</font>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:396
 msgid "Bulk convert ebooks to LRF"
-msgstr ""
+msgstr "Convertir ebooks a LRF en masa"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:491
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:488
 msgid "Convert to LRF"
 msgstr "Convertir a LRF"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:492
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:489
 msgid "Category"
 msgstr "Categoría"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:514
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:507
 msgid "Options"
 msgstr "Opciones"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:515
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:508
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:285
 msgid "Book Cover"
 msgstr "Portada"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:516
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:509
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:286
 msgid "Change &cover image:"
 msgstr "Cambia la imagen de &portada:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:510
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:287
 msgid "Browse for an image to use as the cover of this book."
 msgstr "Localizar una imagen a utilizar como portada de este libro."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:519
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:512
 msgid "Use cover from &source file"
-msgstr ""
+msgstr "Usar portada del archivo &fuente"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:520
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:513
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:253
 msgid "&Title: "
-msgstr "&Título:"
+msgstr "&Título: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:521
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:514
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:254
 msgid "Change the title of this book"
 msgstr "Cambiar el título del libro"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:515
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:110
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:255
 msgid "&Author(s): "
-msgstr "&Autor(es):"
+msgstr "&Autor(es): "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:523
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:525
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:516
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:518
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:111
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:256
 msgid ""
 "Change the author(s) of this book. Multiple authors should be separated by a "
 "comma"
 msgstr ""
-"Cambia el(los) autor(es). Para especificar más de uno, separarlos mediante  "
+"Cambia el(los) autor(es). Para especificar más de uno, sepárelos mediante "
 "comas."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:517
 msgid "Author So&rt:"
 msgstr "O&rd&en por autor:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:519
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:118
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:263
 msgid "&Publisher: "
-msgstr "&Editorial:"
+msgstr "&Editorial: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:527
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:520
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:264
 msgid "Change the publisher of this book"
 msgstr "Cambia la editorial del libro"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:528
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:521
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:265
 msgid "Ta&gs: "
-msgstr "Etique&tas:"
+msgstr "Etique&tas: "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:529
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:522
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:121
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:266
 msgid ""
@@ -1176,14 +1354,14 @@ msgstr ""
 "Etiquetas para categorizar el libr (muy útil en búsquedas). <br><br>Puede "
 "utilizarse qualquier palabra o frase, separada medante comas."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:530
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:523
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:124
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:269
 msgid "&Series:"
 msgstr "&Series:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:531
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:532
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:524
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:525
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:125
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:126
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:270
@@ -1191,157 +1369,165 @@ msgstr "&Series:"
 msgid "List of known series. You can add new series."
 msgstr "Listado de series conocidas. Se puede añadir nuevas series."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:533
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:534
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:526
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:527
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:274
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:275
 msgid "Series index."
 msgstr "Índice de serie."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:535
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:528
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:276
 msgid "Book "
 msgstr "Libro "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:537
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:530
 msgid "Base &font size:"
 msgstr "Tamaño de la &fuente base:"
 
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:531
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:538
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:545
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:547
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:540
 msgid " pts"
 msgstr " puntos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:539
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:532
 msgid "Embedded Fonts"
 msgstr "Fuentes incrustadas"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:540
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:533
 msgid "&Serif:"
 msgstr "&Serif:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:541
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:534
 msgid "S&ans-serif:"
 msgstr "S&ans-serif:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:542
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:535
 msgid "&Monospace:"
 msgstr "&Monospace:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:543
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:536
 msgid "Source en&coding:"
-msgstr ""
+msgstr "&Codificación de la fuente:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:544
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:537
 msgid "Minimum &indent:"
-msgstr ""
+msgstr "&Sangrado mínimo:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:546
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:539
 msgid "&Word spacing:"
 msgstr "&Espaciado de palabras:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:548
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:541
 msgid "Enable auto &rotation of images"
 msgstr "Activa la &rotación automática de imágenes"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:549
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:542
 msgid "Insert &blank lines between paragraphs"
 msgstr "Inserta líneas en &blanco entre párrafos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:550
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:543
 msgid "Ignore &tables"
 msgstr "Ignora las &tablas"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:551
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:544
 msgid "Ignore &colors"
-msgstr ""
+msgstr "Ignorar &colores"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:545
 msgid "&Preprocess:"
 msgstr "&Preprocesamiento:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:553
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:546
 msgid "Header"
 msgstr "Encabezado"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:554
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:547
 msgid "&Show header"
 msgstr "&Mostrar encabezado"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:555
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:548
 msgid "&Header format:"
 msgstr "&Formato del encabezado:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:556
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:549
 msgid "Override<br>CSS"
 msgstr "Substituye<br>CSS"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:550
 msgid "&Profile:"
 msgstr "&Perfil:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:558
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:551
 msgid "&Left Margin:"
 msgstr "Margen &Izquierdo:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:559
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:561
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:563
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:565
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:552
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:554
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:556
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:558
 msgid " px"
 msgstr " Píxeles"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:560
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:553
 msgid "&Right Margin:"
 msgstr "Margen &Derecho:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:562
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:555
 msgid "&Top Margin:"
 msgstr "Margen &Superior:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:564
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:557
 msgid "&Bottom Margin:"
 msgstr "Margen &Inferior:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:566
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:559
 msgid "Title based detection"
 msgstr "Detección basada en el título"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:567
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:560
 msgid "&Disable chapter detection"
 msgstr "&Desactivar detección de capítulos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:568
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:561
 msgid "&Regular expression:"
 msgstr "Expresión &Regular:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:569
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:562
+msgid "Add &chapters to table of contents"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:563
+msgid "Don't add &links to the table of contents"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:564
 msgid "Tag based detection"
 msgstr "Detección basada en etiquetas"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:570
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:565
 msgid "&Page break before tag:"
 msgstr "Inserta un salto de &página delante de la marca:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:571
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:566
 msgid "&Force page break before tag:"
 msgstr "&Fuerza un salto de página delante de la marca:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:572
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:567
 msgid "Force page break before &attribute:"
 msgstr "Fuerza un salto de página delante del &atributo:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:573
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:568
 msgid "Help on item"
 msgstr "Ayuda con el ítem"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:574
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:569
 msgid ""
-"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
-"REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
-"\">\n"
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
 "font-weight:400; font-style:normal;\">\n"
@@ -1362,7 +1548,7 @@ msgstr "Meta-información"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:257
 msgid "Author S&ort: "
-msgstr "&Ordenar autores:"
+msgstr "&Ordenar autores: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:113
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:258
@@ -1490,7 +1676,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:15
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:17
 msgid "Tag"
@@ -1503,7 +1689,7 @@ msgid "Series"
 msgstr "Series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:19
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:676
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:680
 msgid "Format"
 msgstr "Formato"
 
@@ -1518,7 +1704,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:36
 msgid "contains"
-msgstr ""
+msgstr "contiene"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_item_ui.py:37
 msgid "The text to search for. It is interpreted as a regular expression."
@@ -1536,7 +1722,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:73
 msgid "Advanced Search"
-msgstr ""
+msgstr "Búsqueda avanzada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search_ui.py:74
 msgid "Match a&ll of the following criteria"
@@ -1629,11 +1815,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:109
 msgid "The feed must have a title"
-msgstr ""
+msgstr "Newsfeed tiene que aver un título"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:113
 msgid "Feed must have a URL"
-msgstr ""
+msgstr "El feed ha de tener una URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:114
 msgid "The feed %s must have a URL"
@@ -1703,16 +1889,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:219
 msgid ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
-"\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
 "font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Create a basic news "
 "recipe, by adding RSS feeds to it. <br />For most feeds, you will have to "
-"use the \"Advanced mode\" to further customize the fetch process.</p></"
-"body></html>"
+"use the \"Advanced mode\" to further customize the fetch "
+"process.</p></body></html>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:223
@@ -1729,7 +1915,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:226
 msgid " days"
-msgstr ""
+msgstr " días"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:227
 msgid "&Max. number of articles per feed:"
@@ -1754,11 +1940,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:235
 msgid "&Feed title:"
-msgstr ""
+msgstr "&Título del newsfeed:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:236
 msgid "Feed &URL:"
-msgstr ""
+msgstr "Newsfeed &URL:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:238
 msgid "&Add feed"
@@ -1766,8 +1952,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:239
 msgid ""
-"For help with writing advanced news recipes, please visit <a href=\"http://"
-"calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
+"For help with writing advanced news recipes, please visit <a "
+"href=\"http://calibre.kovidgoyal.net/user_manual/news.html\">User Recipes</a>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:240
@@ -1777,10 +1963,10 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:90
 msgid ""
 "<p>Set a regular expression pattern to use when trying to guess ebook "
-"metadata from filenames. <p>A <a href=\"http://docs.python.org/lib/re-syntax."
-"html\">reference</a> on the syntax of regular expressions is available."
-"<p>Use the <b>Test</b> functionality below to test your regular expression "
-"on a few sample filenames."
+"metadata from filenames. <p>A <a href=\"http://docs.python.org/lib/re-"
+"syntax.html\">reference</a> on the syntax of regular expressions is "
+"available.<p>Use the <b>Test</b> functionality below to test your regular "
+"expression on a few sample filenames."
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:91
@@ -1789,7 +1975,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:92
 msgid "&Test"
-msgstr ""
+msgstr "&Prueba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:93
 msgid "File &name:"
@@ -1797,11 +1983,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:94
 msgid "Test"
-msgstr ""
+msgstr "Prueba"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:95
 msgid "Title:"
-msgstr ""
+msgstr "Título:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:96
 msgid "Regular expression group name (?P<title>)"
@@ -1820,7 +2006,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:98
 msgid "Authors:"
-msgstr ""
+msgstr "Autores:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:99
 msgid "Regular expression group name (?P<authors>)"
@@ -1828,7 +2014,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:101
 msgid "Series:"
-msgstr ""
+msgstr "Series:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:102
 msgid "Regular expression group name (?P<series>)"
@@ -1836,7 +2022,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:104
 msgid "Series index:"
-msgstr ""
+msgstr "Índice de serie:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:105
 msgid "Regular expression group name (?P<series_index>)"
@@ -1860,7 +2046,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:310
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:310
 msgid "Finished"
@@ -1906,8 +2092,8 @@ msgstr "Ninguno"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:244
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:401
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:682
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:746
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:686
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:750
 msgid "Tags"
 msgstr "Etiquetas"
 
@@ -1924,12 +2110,12 @@ msgid "Double click to <b>edit</b> me<br><br>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:397
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:744
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:748
 msgid "Size (MB)"
 msgstr "Tamaño (MB)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:398
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:745
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:749
 msgid "Date"
 msgstr "Fecha"
 
@@ -1937,15 +2123,15 @@ msgstr "Fecha"
 msgid "Rating"
 msgstr "Valoración"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:677
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:681
 msgid "Path"
 msgstr "Ruta"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:681
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:685
 msgid "Timestamp"
 msgstr "Marca de tiempo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/library.py:781
+#: /home/kovid/work/calibre/src/calibre/gui2/library.py:785
 msgid "Search (For Advanced Search click the button to the left)"
 msgstr ""
 
@@ -2019,8 +2205,8 @@ msgstr "Error en la comunicación con el dispositivo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:93
 msgid ""
-"<p>For help visit <a href=\"http://%s.kovidgoyal.net/user_manual\">%s."
-"kovidgoyal.net</a><br>"
+"<p>For help visit <a "
+"href=\"http://%s.kovidgoyal.net/user_manual\">%s.kovidgoyal.net</a><br>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:94
@@ -2085,19 +2271,19 @@ msgstr "Convertir individualmente"
 msgid "Bulk convert"
 msgstr "Convertir en bloque"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:289
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:290
 msgid " detected."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:289
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:290
 msgid "Device: "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:326
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:327
 msgid "Device database corrupted"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:327
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:328
 msgid ""
 "\n"
 "                <p>The database of books on the reader is corrupted. Try the "
@@ -2113,147 +2299,148 @@ msgid ""
 "                "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:379
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:453
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:380
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:454
 msgid ""
 "<p>Books with the same title as the following already exist in the database. "
 "Add them anyway?<ul>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:382
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:456
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:383
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:457
 msgid "Duplicates found!"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:415
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:428
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:416
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:429
 msgid "Uploading books to device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:486
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:487
 msgid "No space on device"
 msgstr "No hay espacio en el dispositivo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:487
-msgid "<p>Cannot upload books to device there is no more free space available "
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:488
+msgid ""
+"<p>Cannot upload books to device there is no more free space available "
 msgstr ""
 "<p>No se pueden guardar los libros porque no hay espacio en el dispositivo "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:522
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:523
 msgid "Deleting books from device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:556
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:575
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:576
 msgid "Cannot edit metadata"
 msgstr "No se pueden editar los metadatos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:556
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:575
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:661
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:722
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:783
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:557
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:576
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:662
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:723
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:784
 msgid "No books selected"
 msgstr "No hay libros seleccionados"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:644
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:645
 msgid "Sending books to device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:647
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:648
 msgid "No suitable formats"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:648
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:649
 msgid ""
 "Could not upload the following books to the device, as no suitable formats "
 "were found:<br><ul>%s</ul>"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:661
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:662
 msgid "Cannot save to disk"
 msgstr "No se puede guardar en disco"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:700
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:701
 msgid "Fetch news from "
-msgstr ""
+msgstr "Busca noticias de "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:702
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:703
 msgid "Fetching news from "
-msgstr ""
+msgstr "Buscando noticias de "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:712
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:713
 msgid "News fetched. Uploading to device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:722
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:783
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:723
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:784
 msgid "Cannot convert"
 msgstr "No se puede convertir"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:731
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:732
 msgid "Starting Bulk conversion of %d books"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:853
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:871
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:854
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:872
 msgid "No book selected"
 msgstr "Seleccione un libro"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:853
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:871
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:885
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:854
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:872
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:886
 msgid "Cannot view"
 msgstr "No se puede visualizar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:859
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:890
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:860
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:891
 msgid "Choose the format to view"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:886
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:887
 msgid "%s has no available formats."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:924
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:925
 msgid "Cannot configure"
 msgstr "No se puede configurar"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:924
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:925
 msgid "Cannot configure while there are running jobs."
 msgstr "No se puede configurar con trabajos en proceso."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:944
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:945
 msgid "Copying database to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:959
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:960
 msgid "Invalid database"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:960
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:961
 msgid ""
 "<p>An invalid database already exists at %s, delete it before trying to move "
 "the existing database.<br>Error: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:968
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:969
 msgid "Could not move database"
 msgstr "No se puede mover la base de datos"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:989
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:990
 msgid "No detailed info available"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:990
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:991
 msgid "No detailed information is available for books on the device."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1032
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1033
 msgid "Error talking to device"
 msgstr "Error de comunicación con el dispositivo"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1033
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1034
 msgid ""
 "There was a temporary error talking to the device. Please unplug and "
 "reconnect the device and or reboot."
@@ -2261,20 +2448,20 @@ msgstr ""
 "Hubo un error de comunicación con el dispositivo. Desconecte, vuelva a "
 "conectar el dispositivo y reinicie la aplicación."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1073
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1074
 msgid "Database does not exist"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1073
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1074
 msgid ""
 "The directory in which the database should be: %s no longer exists. Please "
 "choose a new database location."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1122
+#: /home/kovid/work/calibre/src/calibre/gui2/main.py:1123
 msgid ""
-"<span style=\"color:red; font-weight:bold\">Latest version: <a href=\"%s\">%"
-"s</a></span>"
+"<span style=\"color:red; font-weight:bold\">Latest version: <a "
+"href=\"%s\">%s</a></span>"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:249
@@ -2287,7 +2474,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:252
 msgid "Alt+S"
-msgstr ""
+msgstr "Alt+S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:253
 msgid "&Search:"
@@ -2433,12 +2620,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:56
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:77
 msgid "Unknown feed"
-msgstr ""
+msgstr "Newsfeed desconocido"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:95
 #: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:115
 msgid "Untitled article"
-msgstr ""
+msgstr "Artículo sin título"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:15
 msgid ""
@@ -2462,14 +2649,15 @@ msgid ""
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:37
-msgid "Options to control web2disk (used to fetch websites linked from feeds)"
+msgid ""
+"Options to control web2disk (used to fetch websites linked from feeds)"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:40
 msgid ""
 "Specify a list of feeds to download. For example: \n"
-"\"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/"
-"headlines/politics']\"\n"
+"\"['http://feeds.newsweek.com/newsweek/TopNews', "
+"'http://feeds.newsweek.com/headlines/politics']\"\n"
 "If you specify this option, any argument to %prog is ignored and a default "
 "recipe is used to download the feeds."
 msgstr ""
@@ -2491,12 +2679,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:48
 msgid "Password for sites that require a login to access content."
 msgstr ""
+"Contraseña para sitios que requieren login para acceder al contenido."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:51
 msgid ""
 "Number of levels of links to follow on webpages that are linked to from "
 "feeds. Defaul %default"
 msgstr ""
+"Número de niveles de enlaces a profundizar en páginas web que son enlazadas "
+"desde feeds. Por defecto %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:53
 msgid ""
@@ -2522,7 +2713,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:88
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:576
 msgid "Fetching feeds..."
-msgstr ""
+msgstr "Buscando newsfeeds..."
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:33
 msgid "Unknown News Source"
@@ -2539,7 +2730,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:478
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:484
 msgid " from "
-msgstr ""
+msgstr " de "
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:482
 msgid "Failed to download parts of the following articles:"
@@ -2579,7 +2770,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:699
 msgid "Untitled Article"
-msgstr ""
+msgstr "Artículo sin título"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:743
 msgid ""
@@ -2590,11 +2781,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:749
 msgid "Article downloaded: %s"
-msgstr ""
+msgstr "Artículo descargado: %s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:755
 msgid "Failed to download article: %s from %s\n"
-msgstr ""
+msgstr "No se ha podido descargar el artículo: %s de %s\n"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:760
 msgid "Article download failed: %s"
@@ -2602,7 +2793,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:775
 msgid "Fetching feed"
-msgstr ""
+msgstr "Buscando newsfeed"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:377
 msgid ""
@@ -2623,8 +2814,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:386
 msgid ""
-"Maximum number of levels to recurse i.e. depth of links to follow. Default %"
-"default"
+"Maximum number of levels to recurse i.e. depth of links to follow. Default "
+"%default"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:389
@@ -2668,77 +2859,3 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:400
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
-
-#~ msgid "%s is not available in LRF format. Please convert it first."
-#~ msgstr "\"%s\" no es un archivo LRF. Conviértalo primero."
-
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">For help visit <a href="
-#~ "\"https://calibre.kovidgoyal.net/wiki/WikiStart#Usage\"><span style=\" "
-#~ "text-decoration: underline; color:#0000ff;\">calibre.kovidgoyal.net</"
-#~ "span></a><br /><br /><span style=\" font-weight:600;\">calibre</span>: %1 "
-#~ "by <span style=\" font-weight:600;\">Kovid Goyal</span> %2<br />%3</p></"
-#~ "body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Para más información "
-#~ "visite  (en inglés) <a href=\"https://calibre.kovidgoyal.net/wiki/"
-#~ "WikiStart#Usage\"><span style=\" text-decoration: underline; color:"
-#~ "#0000ff;\">calibre.kovidgoyal.net</span></a><br /><br /><span style=\" "
-#~ "font-weight:600;\">calibre</span>: %1 de <span style=\" font-weight:600;"
-#~ "\">Kovid Goyal</span> %2<br />%3</p></body></html>"
-
-#~ msgid "Not yet implemented."
-#~ msgstr "No implementado"
-
-#~ msgid "RTF conversion not supported"
-#~ msgstr "Conversión RTF no soportada"
-
-#~ msgid ""
-#~ "Conversion of RTF files is not supported on OS X Leopard and higher. This "
-#~ "is because unrtf, the underlying program does not work. If you are "
-#~ "willing to port unrtf to Leopard, contact me."
-#~ msgstr ""
-#~ "La conversión de archivos RTF no está soportada en OS X Leopard o "
-#~ "superior,porque unrtf, el programa de conversión, no funciona. Si quieres "
-#~ "colaboraren portar unrtf, ponte en contacto con Kovid."
-
-#~ msgid "Search by title, author, publisher, tags, series and comments"
-#~ msgstr ""
-#~ "Buscar por título, autor, editorial, etiquetas, series y comentarios"
-
-#~ msgid "Done"
-#~ msgstr "Terminado"
-
-#~ msgid "Use &metadata cover"
-#~ msgstr "Utilizar la portada de los &metadatos"
-
-#~ msgid ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"
-#~ "\"></p></body></html>"
-#~ msgstr ""
-#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
-#~ "css\">\n"
-#~ "p, li { white-space: pre-wrap; }\n"
-#~ "</style></head><body style=\" font-family:'Sans Serif'; font-size:9pt; "
-#~ "font-weight:400; font-style:normal;\">\n"
-#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"
-#~ "\"></p></body></html>"

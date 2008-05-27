@@ -59,10 +59,11 @@ def import_from_launchpad(url):
     tf = tarfile.open('/tmp/launchpad_export.tar.gz', 'r:gz')
     next = tf.next()
     while next is not None:
-        if next.name.endswith('.po'):
+        if next.isfile() and next.name.endswith('.po'):
             po = re.search(r'-([a-z]{2,3}\.po)', next.name).group(1)
-            print 'Updating', po
-            tf.extract(next, os.path.abspath(po))
+            out = os.path.abspath(os.path.join('.', os.path.basename(po)))
+            print 'Updating', '%6s'%po, '-->', out
+            open(out, 'wb').write(tf.extractfile(next).read())
         next = tf.next()
     
     return 0
