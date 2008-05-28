@@ -62,8 +62,20 @@
       <pre class="wiki">prs500 info</pre>
       <p>
         This should return some miscellaneous information about your reader. If it works you're all set. 
-        On some distributions, you have to give non-root users access to the SONY Reader devices. Add yourself to the plugdev group (as root)
-        <pre class="wiki">gpasswd -a username plugdev</pre>
+        On some distributions, you have to give non-root users access to the SONY Reader devices.
+        First check what group the SONY reader devices are assigned to by 
+        <pre class="wiki">ls -l /dev/sd?</pre>
+        If you've just plugged in your reader, the reader devices should be at the bottom of the list. On
+        my system I get 
+        <pre class="wiki">
+brw-r----- 1 root disk 8,  0 2008-05-27 13:50 /dev/sda
+brw-r----- 1 root disk 8, 16 2008-05-27 13:50 /dev/sdb
+brw-r----- 1 root disk 8, 32 2008-05-28 07:43 /dev/sdc
+brw-r----- 1 root disk 8, 48 2008-05-28 07:43 /dev/sdd
+brw-r----- 1 root disk 8, 64 2008-05-28 07:43 /dev/sde
+        </pre>
+        Thus the group needed is disk. Add yourself to the group with the command          
+        <pre class="wiki">gpasswd -a username groupname</pre>
       </p>
       Now reboot and you're done!
     </div>
