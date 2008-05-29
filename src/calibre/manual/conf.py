@@ -94,8 +94,9 @@ html_last_updated_fmt = '%b %d, %Y'
 #html_use_smartypants = True
 
 # Overall title of the documentation
-html_title = 'calibre User Manual'
-html_logo  = 'resources/logo.png'
+html_title       = 'calibre User Manual'
+html_short_title = 'Start'
+html_logo        = 'resources/logo.png'
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
@@ -113,6 +114,7 @@ html_copy_source = False
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'calibredoc'
 
+html_use_opensearch = 'http://calibre.kovidgoyal.net/user_manual'
 
 # Options for LaTeX output
 # ------------------------
