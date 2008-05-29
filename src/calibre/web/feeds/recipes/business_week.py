@@ -14,13 +14,14 @@ class BusinessWeek(BasicNewsRecipe):
     description    = 'Business News, Stock Market and Financial Advice'
     __author__     = 'ChuckEggDotCom'
     oldest_article = 7
-    max_articles_per_feed = 100
+    max_articles_per_feed = 10
 
     remove_tags_before = dict(name='h1')
     remove_tags_after  = dict(id='footer')
     remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool']}), 
                    dict(id=['footer', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']), 
-                   dict(name=['script', 'noscript'])]
+                   dict(name='h2', attrs={'class':'listspace'}),
+                   ]
     
     feeds          = [
                       (u'Top Stories', u'http://www.businessweek.com/topStories/rss/topStories.rss'), 
@@ -45,5 +46,11 @@ class BusinessWeek(BasicNewsRecipe):
                       (u'CEO Guide to Tech', u'http://www.businessweek.com/rss/ceo_guide_tech.rss'),
                       ]
 
+    def get_article_url(self, article):
+        url = article.get('guid', None)
+        if 'podcasts' in url:
+            url = None
+        return url
+    
     def print_version(self, url):
         return url.replace('http://www.businessweek.com/', 'http://www.businessweek.com/print/')

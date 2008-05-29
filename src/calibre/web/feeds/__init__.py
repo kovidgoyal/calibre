@@ -124,6 +124,8 @@ class Feed(object):
         content = '\n'.join(i.value for i in item.get('content', []))
         if not content.strip():
             content = None
+        if not link and not content:
+            return
         
         article = Article(id, title, link, description, published, content)
         delta = datetime.utcnow() - article.utctime
