@@ -563,17 +563,14 @@ class LRFMetaFile(object):
     def get_cover(self):
         from calibre.ebooks.lrf.objects import get_object
         
-        for id, offset, size in self.get_objects_by_type(0x06): #Blocks
-            block =  get_object(None, self._file, id, offset, size, self.xor_key)
-            tid, ref = struct.unpack('<HI', block.stream)
-            if tid == 0xF503:
-                obj_id, offset, size, obj_type = self.get_object_by_id(ref)
-                if obj_type == 0x0C: # Image
-                    image = get_object(None, self._file, obj_id, offset, size, self.xor_key)
-                    id, offset, size = self.get_object_by_id(image.refstream)[:3]
-                    image_stream = get_object(None, self._file, id, offset, size, self.xor_key)
-                    return image_stream.file.rpartition('.')[-1], image_stream.stream
-        return (None, None)
+        for id, offset, size in self.get_objects_by_type(0x0C):
+            image = get_object(None, self._file, id, offset, size, self.xor_key)
+            id, offset, size = self.get_object_by_id(image.refstream)[:3]
+            image_stream = get_object(None, self._file, id, offset, size, self.xor_key)
+            return image_stream.file.rpartition('.')[-1], image_stream.stream
+        return None
+        
+        
 
 def option_parser():
     from optparse import OptionParser
@@ -680,7 +677,7 @@ def main(args=sys.argv):
     if options.get_cover:
         ext, data = lrf.get_cover()
         if data:
-            cover = os.path.basename(args[1])+"_cover."+ext
+            cover = os.path.splitext(os.path.basename(args[1]))[0]+"_cover."+ext
             open(cover, 'wb').write(data)
             print 'Cover:', cover
         else:
