@@ -110,7 +110,7 @@ def option_parser(usage, gui_mode=False):
                       help=_('Render HTML tables as blocks of text instead of actual tables. This is neccessary if the HTML contains very large or complex tables.'))
     laf = parser.add_option_group('LOOK AND FEEL')
     laf.add_option('--base-font-size', action='store', type='float', default=10.,
-                   help=_('''Specify the base font size in pts. All fonts are rescaled accordingly. This option obsoletes the --font-delta option and takes precedence over it. To use --font-delta, set this to 0.'''))
+                   help=_('''Specify the base font size in pts. All fonts are rescaled accordingly. This option obsoletes the --font-delta option and takes precedence over it. To use --font-delta, set this to 0. Default: %defaultpt'''))
     laf.add_option('--enable-autorotation', action='store_true', default=False, 
                    help=_('Enable autorotation of images that are wider than the screen width.'), 
                    dest='autorotation')
@@ -324,32 +324,4 @@ def Book(options, logger, font_delta=0, header=None,
             raise ConversionError, 'Could not find the normal version of the ' + family + ' font'
     return book, fonts
 
-def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
-    '''
-    @param match: A match object such that '&'+match.group(1)';' is the entity.
-    @param exceptions: A list of entities to not convert (Each entry is the name of the entity, for e.g. 'apos' or '#1234' 
-    @param encoding: The encoding to use to decode numeric entities between 128 and 256. 
-    If None, the Unicode UCS encoding is used. A common encoding is cp1252.
-    '''
-    ent = match.group(1)
-    if ent in exceptions:
-        return '&'+ent+';'
-    if ent == 'apos':
-        return "'"
-    if ent.startswith(u'#x'):
-        num = int(ent[2:], 16)
-        if encoding is None or num > 255:
-            return unichr(num)
-        return chr(num).decode(encoding)
-    if ent.startswith(u'#'):
-        num = int(ent[1:])
-        if encoding is None or num > 255:
-            return unichr(num)
-        try:
-            return chr(num).decode(encoding)
-        except UnicodeDecodeError:
-            return unichr(num)
-    try:
-        return unichr(name2codepoint[ent])
-    except KeyError:
-        return '&'+ent+';'
+from calibre import entity_to_unicode

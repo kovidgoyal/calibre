@@ -37,6 +37,7 @@
 #                           EmpLine, EmpDots
 
 import os, re, codecs, operator
+from xml.sax.saxutils import escape
 from datetime import date
 try:
     from elementtree.ElementTree import (Element, SubElement)
@@ -53,6 +54,7 @@ DEFAULT_SOURCE_ENCODING = "cp1252"      # defualt is us-windows character set
 DEFAULT_GENREADING      = "fs"          # default is yes to both lrf and lrs
 
 from calibre import __appname__, __version__
+from calibre import entity_to_unicode
 
 class LrsError(Exception):
     pass
@@ -786,7 +788,7 @@ class TableOfContents(object):
 
 class TocLabel(object):
     def __init__(self, label, textBlock):
-        self.label = label
+        self.label = escape(re.sub(r'&(\S+);', entity_to_unicode, label))
         self.textBlock = textBlock
         
         

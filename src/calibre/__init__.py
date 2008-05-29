@@ -9,6 +9,7 @@ __appname__   = 'calibre'
 import sys, os, logging, mechanize, locale, copy, cStringIO, re, subprocess, \
        textwrap, atexit, cPickle, codecs, time
 from gettext import GNUTranslations
+from htmlentitydefs import name2codepoint
 from math import floor
 from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
@@ -569,4 +570,35 @@ except Exception, err:
     pictureflowerror = str(err)
 
 if islinux:
-    os.chdir(cwd) 
+    os.chdir(cwd)
+    
+def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
+    '''
+    @param match: A match object such that '&'+match.group(1)';' is the entity.
+    @param exceptions: A list of entities to not convert (Each entry is the name of the entity, for e.g. 'apos' or '#1234' 
+    @param encoding: The encoding to use to decode numeric entities between 128 and 256. 
+    If None, the Unicode UCS encoding is used. A common encoding is cp1252.
+    '''
+    ent = match.group(1)
+    if ent in exceptions:
+        return '&'+ent+';'
+    if ent == 'apos':
+        return "'"
+    if ent.startswith(u'#x'):
+        num = int(ent[2:], 16)
+        if encoding is None or num > 255:
+            return unichr(num)
+        return chr(num).decode(encoding)
+    if ent.startswith(u'#'):
+        num = int(ent[1:])
+        if encoding is None or num > 255:
+            return unichr(num)
+        try:
+            return chr(num).decode(encoding)
+        except UnicodeDecodeError:
+            return unichr(num)
+    try:
+        return unichr(name2codepoint[ent])
+    except KeyError:
+        return '&'+ent+';'
+ 
