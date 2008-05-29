@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create an OSX installer '''
 
-import sys, re, os, shutil, subprocess, stat, glob
+import sys, re, os, shutil, subprocess, stat, glob, zipfile
 from setup import VERSION, APPNAME, scripts, main_modules, basenames, main_functions
 from setuptools import setup
 from py2app.build_app import py2app
@@ -28,7 +28,7 @@ loader = open(loader_path, 'w')
 site_packages = glob.glob(dirpath+'/*/*/site-packages.zip')[0]
 print >>loader, '#!'+python
 print >>loader, 'import sys'
-print >>loader, 'sys.path.append(', repr(site_packages), ')'
+print >>loader, 'sys.path.insert(0, ', repr(site_packages), ')'
 print >>loader, 'sys.frozen = "macosx_app"'
 print >>loader, 'sys.frameworks_dir =', repr(frameworks_dir)
 print >>loader, 'import os'
@@ -258,6 +258,11 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         f = open(launcher_path, 'w')
         print >>f, 'import sys, os'
         f.write(src)
+        f.close()
+        print 
+        print 'Adding GUI main.py'
+        f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python2.5', 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
+        f.write('src/calibre/gui2/main.py', 'calibre/gui2/main.py')
         f.close()
         print
         print 'Building disk image'

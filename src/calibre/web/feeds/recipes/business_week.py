@@ -22,7 +22,28 @@ class BusinessWeek(BasicNewsRecipe):
                    dict(id=['footer', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']), 
                    dict(name=['script', 'noscript'])]
     
-    feeds          = [(u'Top Stories', u'http://www.businessweek.com/topStories/rss/topStories.rss'), (u'Top News', u'http://www.businessweek.com/rss/bwdaily.rss'), (u'Asia', u'http://www.businessweek.com/rss/asia.rss'), (u'Autos', u'http://www.businessweek.com/rss/autos/index.rss'), (u'Classic Cars', u'http://www.businessweek.com/rss/autos/classic_cars/index.rss'), (u'Europe', u'http://www.businessweek.com/rss/europe.rss'), (u'Hybrids', u'http://www.businessweek.com/rss/hybrids/index.rss'), (u'Auto Reviews', u'http://www.businessweek.com/rss/autos/reviews/index.rss'), (u'Innovation & Design', u'http://www.businessweek.com/rss/innovate.rss'), (u'Architecture', u'http://www.businessweek.com/rss/architecture.rss'), (u'Brand Equity', u'http://www.businessweek.com/rss/brandequity.rss'), (u'Auto Design', u'http://www.businessweek.com/rss/carbuff.rss'), (u'Game Room', u'http://www.businessweek.com/rss/gameroom.rss'), (u'Technology', u'http://www.businessweek.com/rss/technology.rss'), (u'Investing', u'http://www.businessweek.m/rss/investor.rss'), (u'Small Business', u'http://www.businessweek.com/rss/smallbiz.rss'), (u'Careers', u'http://www.businessweek.com/rss/careers.rss'), (u'B-Schools', u'http://www.businessweek.com/rss/bschools.rss'), (u'Magazine Selections', u'http://www.businessweek.com/rss/magazine.rss'), (u'CEO Guide to Tech', u'http://www.businessweek.com/rss/ceo_guide_tech.rss')]
+    feeds          = [
+                      (u'Top Stories', u'http://www.businessweek.com/topStories/rss/topStories.rss'), 
+                      (u'Top News', u'http://www.businessweek.com/rss/bwdaily.rss'), 
+                      (u'Asia', u'http://www.businessweek.com/rss/asia.rss'), 
+                      (u'Autos', u'http://www.businessweek.com/rss/autos/index.rss'), 
+                      (u'Classic Cars', u'http://www.businessweek.com/rss/autos/classic_cars/index.rss'),
+                      (u'Hybrids', u'http://www.businessweek.com/rss/hybrids/index.rss'),  
+                      (u'Europe', u'http://www.businessweek.com/rss/europe.rss'), 
+                      (u'Auto Reviews', u'http://www.businessweek.com/rss/autos/reviews/index.rss'), 
+                      (u'Innovation & Design', u'http://www.businessweek.com/rss/innovate.rss'), 
+                      (u'Architecture', u'http://www.businessweek.com/rss/architecture.rss'), 
+                      (u'Brand Equity', u'http://www.businessweek.com/rss/brandequity.rss'), 
+                      (u'Auto Design', u'http://www.businessweek.com/rss/carbuff.rss'), 
+                      (u'Game Room', u'http://www.businessweek.com/rss/gameroom.rss'), 
+                      (u'Technology', u'http://www.businessweek.com/rss/technology.rss'), 
+                      (u'Investing', u'http://www.businessweek.m/rss/investor.rss'), 
+                      (u'Small Business', u'http://www.businessweek.com/rss/smallbiz.rss'), 
+                      (u'Careers', u'http://www.businessweek.com/rss/careers.rss'), 
+                      (u'B-Schools', u'http://www.businessweek.com/rss/bschools.rss'), 
+                      (u'Magazine Selections', u'http://www.businessweek.com/rss/magazine.rss'), 
+                      (u'CEO Guide to Tech', u'http://www.businessweek.com/rss/ceo_guide_tech.rss'),
+                      ]
 
     def print_version(self, url):
         return url.replace('http://www.businessweek.com/', 'http://www.businessweek.com/print/')

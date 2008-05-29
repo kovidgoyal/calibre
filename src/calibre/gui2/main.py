@@ -1131,7 +1131,8 @@ def main(args=sys.argv):
     
     pid = os.fork() if islinux else -1
     if pid <= 0:
-        app = Application(args)    
+        app = Application(args)
+        app.setWindowIcon(QIcon(':/library'))    
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')
