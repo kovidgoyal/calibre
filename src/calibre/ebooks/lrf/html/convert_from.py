@@ -1423,32 +1423,34 @@ class HTMLConverter(object, LoggingInterface):
             if tagname in ["title", "script", "meta", 'del', 'frameset']:            
                 pass
             elif tagname == 'a' and self.link_levels >= 0:
-                if tag.has_key('href') and not self.link_exclude.match(tag['href'])\
-                   and urlparse(tag['href'])[0] in ('', 'file'):
-                    path = munge_paths(self.target_prefix, tag['href'])[0]
-                    ext = os.path.splitext(path)[1]
-                    if ext: ext = ext[1:].lower()
-                    enc = sys.getfilesystemencoding()
-                    if not enc:
-                        enc = 'utf8'
-                    if isinstance(path, unicode):
-                        path = path.encode(enc, 'replace')
-                    if os.access(path, os.R_OK) and os.path.isfile(path):
-                        if ext in ['png', 'jpg', 'bmp', 'jpeg']:
-                            self.process_image(path, tag_css)
-                        else:
-                            text = self.get_text(tag, limit=1000)
-                            if not text.strip():
-                                text = "Link"
-                            self.add_text(text, tag_css, {}, force_span_use=True)
-                            self.links.append(self.create_link(self.current_para.contents, tag))
-                            if tag.has_key('id') or tag.has_key('name'):
-                                key = 'name' if tag.has_key('name') else 'id'
-                                self.targets[self.target_prefix+tag[key]] = self.current_block
-                                self.current_block.must_append = True
-                    else:
-                        self.log_debug('Could not follow link to '+tag['href'])
+                if tag.has_key('href') and not self.link_exclude.match(tag['href']):
+                    if  urlparse(tag['href'])[0] not in ('', 'file'):
                         self.process_children(tag, tag_css, tag_pseudo_css)
+                    else:
+                        path = munge_paths(self.target_prefix, tag['href'])[0]
+                        ext = os.path.splitext(path)[1]
+                        if ext: ext = ext[1:].lower()
+                        enc = sys.getfilesystemencoding()
+                        if not enc:
+                            enc = 'utf8'
+                        if isinstance(path, unicode):
+                            path = path.encode(enc, 'replace')
+                        if os.access(path, os.R_OK) and os.path.isfile(path):
+                            if ext in ['png', 'jpg', 'bmp', 'jpeg']:
+                                self.process_image(path, tag_css)
+                            else:
+                                text = self.get_text(tag, limit=1000)
+                                if not text.strip():
+                                    text = "Link"
+                                self.add_text(text, tag_css, {}, force_span_use=True)
+                                self.links.append(self.create_link(self.current_para.contents, tag))
+                                if tag.has_key('id') or tag.has_key('name'):
+                                    key = 'name' if tag.has_key('name') else 'id'
+                                    self.targets[self.target_prefix+tag[key]] = self.current_block
+                                    self.current_block.must_append = True
+                        else:
+                            self.log_debug('Could not follow link to '+tag['href'])
+                            self.process_children(tag, tag_css, tag_pseudo_css)
                 elif tag.has_key('name') or tag.has_key('id'):
                     self.process_anchor(tag, tag_css, tag_pseudo_css)                            
             elif tagname == 'img':
