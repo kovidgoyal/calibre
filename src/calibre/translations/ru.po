@@ -6,14 +6,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-05-25 20:09+0000\n"
+"POT-Creation-Date: 2008-05-29 12:18+0000\n"
 "PO-Revision-Date: 2008-05-24 06:25+0000\n"
 "Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-05-27 02:20+0000\n"
+"X-Launchpad-Export-Date: 2008-05-30 16:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -380,40 +380,40 @@ msgid ""
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1677
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1679
 msgid ""
 "An error occurred while processing a table: %s. Ignoring table markup."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1679
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1681
 msgid ""
 "Bad table:\n"
 "%s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1701
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1703
 msgid "Table has cell that is too large"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1731
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1733
 msgid ""
 "You have to save the website %s as an html file first and then run html2lrf "
 "on it."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1771
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1773
 msgid "Could not read cover image: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1774
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1776
 msgid "Cannot read from: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1903
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1905
 msgid "Failed to process opf file"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1909
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1911
 msgid ""
 "Usage: %prog [options] mybook.html\n"
 "\n"
@@ -547,16 +547,20 @@ msgstr ""
 msgid "LRS written to "
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:44
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:41
+msgid "Could not find pdftohtml, check it is in your PATH"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:50
 msgid " does not allow copying of text."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:47
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:53
 msgid ""
 " is an image based PDF. Only conversion of text based PDFs is supported."
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:54
+#: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:60
 msgid ""
 "%prog [options] mybook.pdf\n"
 "\n"
