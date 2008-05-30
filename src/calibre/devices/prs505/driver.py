@@ -330,6 +330,7 @@ class PRS505(Device):
                  
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
+        path = path.replace('/', os.sep)
         if os.path.isdir(path):
             path = os.path.join(path, infile.name)
         if not replace_file and os.path.exists(path):
