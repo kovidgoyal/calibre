@@ -590,7 +590,10 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
             return unichr(num)
         return chr(num).decode(encoding)
     if ent.startswith(u'#'):
-        num = int(ent[1:])
+        try:
+            num = int(ent[1:])
+        except ValueError:
+            return '&'+ent+';'
         if encoding is None or num > 255:
             return unichr(num)
         try:
