@@ -9,7 +9,7 @@ import tempfile, time, calendar, re, operator, atexit, shutil, os
 from htmlentitydefs import name2codepoint
 from email.utils import formatdate
 
-from calibre import __appname__, iswindows, browser
+from calibre import __appname__, iswindows, browser, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, CData, Tag
 
 
@@ -211,6 +211,9 @@ class DefaultProfile(object):
             src = build_sub_index(category, articles[category])
             open(cfile, 'wb').write(src.encode(encoding))
                         
+        title = self.title
+        if not isinstance(title, unicode):
+            title = unicode(title, 'utf-8', 'replace')
         src = u'''\
         <html>
         <body>
@@ -221,8 +224,8 @@ class DefaultProfile(object):
         </ul>
         </body>
         </html>
-        '''%dict(date=time.strftime('%a, %d %B, %Y', time.localtime()), 
-                 categories=clist, title=self.title)
+        '''%dict(date=strftime('%a, %d %B, %Y'), 
+                 categories=clist, title=title)
         index = os.path.join(self.temp_dir, 'index.html')
         open(index, 'wb').write(src.encode(encoding))
         
