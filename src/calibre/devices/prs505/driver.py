@@ -330,7 +330,6 @@ class PRS505(Device):
                  
     def put_file(self, infile, path, replace_file=False, end_session=True):
         path = self.munge_path(path)
-        path = path.replace('/', os.sep)
         if os.path.isdir(path):
             path = os.path.join(path, infile.name)
         if not replace_file and os.path.exists(path):
@@ -353,7 +352,7 @@ class PRS505(Device):
             
     def upload_books(self, files, names, on_card=False, end_session=True):
         path = os.path.join(self._card_prefix, self.CARD_PATH_PREFIX) if on_card \
-               else os.path.join(self._main_prefix, 'database/media/books')
+               else os.path.join(self._main_prefix, 'database', 'media', 'books')
         infiles = [file if hasattr(file, 'read') else open(file, 'rb') for file in files]
         for f in infiles: f.seek(0, 2)
         sizes = [f.tell() for f in infiles]
@@ -375,8 +374,8 @@ class PRS505(Device):
             infile.seek(0)            
             name = names.next()
             paths.append(os.path.join(path, name))
-            if on_card and not os.path.exists(os.path.dirname(paths[-1])):
-                os.mkdir(os.path.dirname(paths[-1]))
+            if not os.path.exists(os.path.dirname(paths[-1])):
+                os.makedirs(os.path.dirname(paths[-1]))
             self.put_file(infile, paths[-1], replace_file=True)
             ctimes.append(os.path.getctime(paths[-1]))
         return zip(paths, sizes, ctimes, cycle([on_card]))
