@@ -141,8 +141,9 @@ def process_profile(args, options, logger=None):
         
         htmlfile, tdir = fetch_website(options, logger)
         options.encoding = 'utf-8'
-        cwd = os.getcwdu()
+        cwd = os.getcwd()
         if not options.output:
+            title = options.title.encode(sys.getfilesystemencoding()) if isinstance(options.title, unicode) else options.title
             options.output = os.path.join(cwd, options.title+('.lrs' if options.lrs else '.lrf'))
         if not os.path.isabs(options.output):
             options.output = os.path.join(cwd, options.output)
