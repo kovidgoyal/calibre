@@ -186,8 +186,9 @@ class %(classname)s(%(base_class)s):
         files = choose_files(self, 'recipe loader dialog', _('Choose a recipe file'), filters=[(_('Recipes'), '*.py')], all_files=False, select_only_single_file=True)
         if files:
             file = files[0]
-            src = open(file, 'rb').read().decode('utf-8')
+            raise Exception('a')
             try:
+                src = open(file, 'rb').read().decode('utf-8')
                 title = compile_recipe(src).title
             except Exception, err:
                 error_dialog(self, _('Invalid input'), 

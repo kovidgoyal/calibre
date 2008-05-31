@@ -13,7 +13,8 @@
    <string>ERROR</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/library</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/library</normaloff>:/library</iconset>
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" >
@@ -34,7 +35,7 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="sizeHint" >
+     <property name="sizeHint" stdset="0" >
       <size>
        <width>20</width>
        <height>40</height>
@@ -42,10 +43,50 @@
      </property>
     </spacer>
    </item>
+   <item row="2" column="1" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources>
   <include location="../images.qrc" />
  </resources>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ConversionErrorDialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>246</x>
+     <y>491</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>64</x>
+     <y>497</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ConversionErrorDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>165</x>
+     <y>480</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>32</x>
+     <y>428</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
