@@ -19,25 +19,26 @@ import os, sys, glob
 path = os.path.abspath(os.path.realpath(__file__))
 dirpath = os.path.dirname(path)
 name = os.path.basename(path)
-base_dir = os.path.dirname(dirpath)
+base_dir = os.path.dirname(os.path.dirname(dirpath))
+resources_dir = os.path.join(base_dir, 'Resources')
 frameworks_dir = os.path.join(base_dir, 'Frameworks')
 base_name = os.path.splitext(name)[0]
 python = os.path.join(base_dir, 'MacOS', 'python')
 loader_path = os.path.join(dirpath, base_name+'.py')
 loader = open(loader_path, 'w')
-site_packages = glob.glob(dirpath+'/*/*/site-packages.zip')[0]
+site_packages = glob.glob(resources_dir+'/lib/python*/site-packages.zip')[0]
 print >>loader, '#!'+python
 print >>loader, 'import sys'
-print >>loader, 'sys.path.insert(0, ', repr(site_packages), ')'
+print >>loader, 'sys.path.remove('+repr(dirpath)+')'
+print >>loader, 'sys.path.append(', repr(site_packages), ')'
 print >>loader, 'sys.frozen = "macosx_app"'
 print >>loader, 'sys.frameworks_dir =', repr(frameworks_dir)
 print >>loader, 'import os'
-print >>loader, 'base =', repr(dirpath)
 print >>loader, 'from %(module)s import %(function)s'
 print >>loader, '%(function)s()'
 loader.close()
 os.chmod(loader_path, 0700)
-os.environ['PYTHONHOME'] = dirpath
+os.environ['PYTHONHOME'] = resources_dir
 os.execv(loader_path, sys.argv)
     '''
     CHECK_SYMLINKS_PRESCRIPT = \
@@ -64,7 +65,7 @@ for s, l in zip(scripts, links):
     resources_path = os.environ['RESOURCEPATH']
     scripts = %(scripts)s    
     links   = [os.path.join(dest_path, i) for i in scripts]
-    scripts = [os.path.join(resources_path, i) for i in scripts]
+    scripts = [os.path.join(resources_path, 'loaders', i) for i in scripts]
     
     bad = False
     for s, l in zip(scripts, links):
@@ -213,8 +214,11 @@ _check_symlinks_prescript()
         all_modules   = main_modules['console'] + main_modules['gui']
         all_functions = main_functions['console'] + main_functions['gui']
         print
+        loader_path = os.path.join(resource_dir, 'loaders')
+        if not os.path.exists(loader_path):
+            os.mkdir(loader_path)
         for name, module, function in zip(all_names, all_modules, all_functions):
-            path = os.path.join(resource_dir, name)
+            path = os.path.join(loader_path, name)
             print 'Creating loader:', path
             f = open(path, 'w')
             f.write(BuildAPP.LOADER_TEMPLATE % dict(module=module, 
