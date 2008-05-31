@@ -1,8 +1,9 @@
+from calibre.gui2.library import SearchBox
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os, traceback, time, cPickle
 
-from PyQt4.QtGui import QKeySequence, QPainter, QDialog
+from PyQt4.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread, \
                          QVariant
 
@@ -66,6 +67,14 @@ class Main(MainWindow, Ui_MainWindow):
         self.opts = opts
         self.document = None
         self.document = Document(self.logger, self.opts)
+        self.spin_box_action = self.spin_box = QSpinBox()
+        self.tool_bar.addWidget(self.spin_box)
+        self.tool_bar.addSeparator()
+        self.slider_action = self.slider = QSlider(Qt.Horizontal)
+        self.tool_bar.addWidget(self.slider)
+        self.tool_bar.addSeparator()
+        self.search = SearchBox(self)
+        self.search_action = self.tool_bar.addWidget(self.search)
         QObject.connect(self.document, SIGNAL('chapter_rendered(int)'), self.chapter_rendered)
         QObject.connect(self.document, SIGNAL('page_changed(PyQt_PyObject)'), self.page_changed)
         
@@ -85,12 +94,6 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.spin_box, SIGNAL('valueChanged(int)'), self.go_to_page)
         QObject.connect(self.slider, SIGNAL('valueChanged(int)'), self.go_to_page)
         
-        self.next_button.setDefaultAction(self.action_next_page)
-        self.previous_button.setDefaultAction(self.action_previous_page)
-        self.back_button.setDefaultAction(self.action_back)
-        self.forward_button.setDefaultAction(self.action_forward)
-        self.open_button.setDefaultAction(self.action_open_ebook)
-        self.configure_button.setDefaultAction(self.action_configure)
         
         self.graphics_view.setRenderHint(QPainter.Antialiasing, True)
         self.graphics_view.setRenderHint(QPainter.TextAntialiasing, True)
