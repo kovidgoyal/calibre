@@ -202,7 +202,7 @@ class Main(MainWindow, Ui_MainWindow):
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
-            self.cover_flow = CoverFlow(height=220 if available_height() > 800 else 170)
+            self.cover_flow = CoverFlow(height=220 if available_height() > 950 else 170 if available_height() > 850 else 140)
             self.cover_flow.setVisible(False)
             self.library.layout().addWidget(self.cover_flow)
             self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), self.sync_cf_to_listview)
@@ -217,6 +217,8 @@ class Main(MainWindow, Ui_MainWindow):
         else:
             self.status_bar.cover_flow_button.disable(pictureflowerror)
             
+        
+        self.setMaximumHeight(available_height())    
              
         
         ####################### Setup device detection ########################
@@ -238,7 +240,7 @@ class Main(MainWindow, Ui_MainWindow):
         else:
             self.cover_flow.setVisible(False)
             self.status_bar.book_info.book_data.setMaximumHeight(1000)
-            self.status_bar.setMaximumHeight(1200)
+        self.setMaximumHeight(available_height())
             
             
                     
