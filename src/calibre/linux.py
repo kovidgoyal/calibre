@@ -47,6 +47,7 @@ entry_points = {
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
                              'calibre-debug = calibre.debug:main',
+                             'calibredb = calibre.library.cli:main',
                            ], 
         'gui_scripts'    : [ 
                             __appname__+' = calibre.gui2.main:main',

@@ -43,6 +43,11 @@ def metadata_from_formats(formats):
         if getattr(mi, 'application_id', None) is not None:
             return mi
     
+    if not mi.title:
+        mi.title = 'Unknown'
+    if not mi.authors:
+        mi.authors = ['Unknown']
+
     return mi
 
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):

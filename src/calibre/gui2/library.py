@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, textwrap, traceback, time, re, sre_constants
+import os, textwrap, traceback, time
 from datetime import timedelta, datetime
 from operator import attrgetter
 from collections import deque 
@@ -15,7 +15,7 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
 
 from calibre import Settings, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.library.database import LibraryDatabase, SearchToken
+from calibre.library.database import LibraryDatabase, text_to_tokens
 from calibre.gui2 import NONE, TableView, qstring_to_unicode
 
 class LibraryDelegate(QItemDelegate):
@@ -149,27 +149,11 @@ class BooksModel(QAbstractTableModel):
             self.beginRemoveRows(QModelIndex(), row, row)
             self.db.delete_book(id)
             self.endRemoveRows()
+        self.clear_caches()
+        self.reset()
     
     def search_tokens(self, text):
-        OR = False
-        match = re.match(r'\[(.*)\]', text)
-        if match:
-            text = match.group(1)
-            OR = True
-        tokens = []
-        quot = re.search('"(.*?)"', text)
-        while quot:
-            tokens.append(quot.group(1))
-            text = text.replace('"'+quot.group(1)+'"', '')
-            quot = re.search('"(.*?)"', text)
-        tokens += text.split(' ')
-        ans = []
-        for i in tokens:
-            try:
-                ans.append(SearchToken(i))
-            except sre_constants.error:
-                continue
-        return ans, OR
+        return text_to_tokens(text)
             
     def search(self, text, refinement, reset=True):
         tokens, OR = self.search_tokens(text)

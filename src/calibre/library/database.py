@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Backend that implements storage of ebooks in an sqlite database.
 '''
 import sqlite3 as sqlite
-import datetime, re, os, cPickle, traceback
+import datetime, re, os, cPickle, traceback, sre_constants
 from zlib import compress, decompress
 
 from calibre import sanitize_file_name
@@ -802,9 +802,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             if os.path.exists(_lock_file.name):
                 os.unlink(_lock_file.name) 
     
-    def __init__(self, dbpath):
+    def __init__(self, dbpath, row_factory=False):
         self.dbpath = dbpath
         self.conn = _connect(dbpath)
+        if row_factory:
+            self.conn.row_factory = sqlite.Row
         self.cache = []
         self.data  = []
         if self.user_version == 0: # No tables have been created
@@ -846,6 +848,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                   'publisher': 'publisher',
                   'size': 'size',
                   'date': 'timestamp',
+                  'timestamp':'timestamp',
+                  'formats':'formats',
                   'rating': 'rating',
                   'tags':'tags',
                   'series': 'series',
@@ -870,7 +874,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         '''
         Filter data based on filters. All the filters must match for an item to
         be accepted. Matching is case independent regexp matching.
-        @param filters: A list of compiled regexps
+        @param filters: A list of SearchToken objects
         @param refilter: If True filters are applied to the results of the previous
                          filtering.
         @param OR: If True, keeps a match if any one of the filters matches. If False,
@@ -1279,7 +1283,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 uri = uris.next()
             except StopIteration:
                 uri = None
-            if not add_duplicates and self.conn.execute('SELECT id FROM books where title=?', (mi.title,)).fetchone():
+            if not add_duplicates and self.has_book(mi):
                 duplicates.append((path, format, mi, uri))
                 continue
             series_index = 1 if mi.series_index is None else mi.series_index
@@ -1429,6 +1433,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     
     def import_book(self, mi, formats):
         series_index = 1 if mi.series_index is None else mi.series_index
+        if not mi.authors:
+            mi.authors = ['Unknown']
         aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
         obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
                           (mi.title, None, series_index, aus))
@@ -1551,6 +1557,27 @@ class SearchToken(object):
         else:
             text = ' '.join([item[i] if item[i] else '' for i in self.FIELD_MAP.values()])
         return bool(self.pattern.search(text)) ^ self.negate
+
+def text_to_tokens(text):
+    OR = False
+    match = re.match(r'\[(.*)\]', text)
+    if match:
+        text = match.group(1)
+        OR = True
+    tokens = []
+    quot = re.search('"(.*?)"', text)
+    while quot:
+        tokens.append(quot.group(1))
+        text = text.replace('"'+quot.group(1)+'"', '')
+        quot = re.search('"(.*?)"', text)
+    tokens += text.split(' ')
+    ans = []
+    for i in tokens:
+        try:
+            ans.append(SearchToken(i))
+        except sre_constants.error:
+            continue
+    return ans, OR
 
 if __name__ == '__main__':
     sqlite.enable_callback_tracebacks(True)

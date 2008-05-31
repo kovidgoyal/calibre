@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, glob
+import os, glob, sys
 from urlparse import urlparse
 from urllib import unquote
 
@@ -85,7 +85,7 @@ class TOC(list):
                 except:
                     print 'WARNING: Could not read Table of Contents:'
                     import traceback
-                    traceback.print_exc()
+                    traceback.print_exc(file=sys.stdout)
                     print 'Continuing anyway'
             else:
                 cwd = os.path.abspath(self.base_path)

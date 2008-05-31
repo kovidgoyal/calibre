@@ -261,6 +261,9 @@ class Main(MainWindow, Ui_MainWindow):
             self.show()
             self.raise_()
             self.activateWindow()
+        elif msg.startswith('refreshdb:'):
+            self.library_view.model().resort()
+            self.library_view.model().research()
             
     
     def current_view(self):
