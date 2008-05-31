@@ -18,7 +18,7 @@ class ChangelogFormatter(blog.LogFormatter):
     
     supports_tags = True
     
-    def __init__(self, num_of_versions=10):
+    def __init__(self, num_of_versions=20):
         self.num_of_versions = num_of_versions
         self.messages = collections.deque()
         self.entries = []
