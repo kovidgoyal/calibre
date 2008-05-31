@@ -626,7 +626,9 @@ class Main(MainWindow, Ui_MainWindow):
                 for a in aus:
                     aus2.extend(a.split('&'))
                 try:
-                    set_metadata(f, MetaInformation(mi['title'], aus2), f.name.rpartition('.')[2])
+                    smi = MetaInformation(mi['title'], aus2)
+                    smi.comments = mi.get('comments', None)
+                    set_metadata(f, smi, f.name.rpartition('.')[2])
                 except:
                     print 'Error setting metadata in book:', mi['title']
                     traceback.print_exc()

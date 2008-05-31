@@ -285,6 +285,7 @@ class BooksModel(QAbstractTableModel):
                   'authors' : au,
                   'cover'   : self.db.cover(row),
                   'tags'    : tags,
+                  'comments': self.db.comments(row),
                   }
             if series is not None:
                 mi['tag order'] = {series:self.db.books_in_series_of(row)} 
