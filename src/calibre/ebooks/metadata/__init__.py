@@ -93,7 +93,7 @@ class MetaInformation(object):
         self.tags += mi.tags
         self.tags = list(set(self.tags))
         
-        if hasattr(mi, 'cover_data') and mi.cover_data[0] is not None:
+        if getattr(mi, 'cover_data', None) and mi.cover_data[0] is not None:
             self.cover_data = mi.cover_data
             
             
