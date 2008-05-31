@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, shutil, time
 from xml.parsers.expat import ExpatError
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QVariant, QThread, QString
+                         QVariant, QThread, QString, QSize
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog, QSizePolicy
 from PyQt4.QtSvg import QSvgRenderer
@@ -939,6 +939,9 @@ class Main(MainWindow, Ui_MainWindow):
         d.exec_()
         if d.result() == d.Accepted:
             self.library_view.set_visible_columns(d.final_columns)
+            settings = Settings()
+            self.tool_bar.setIconSize(settings.value('toolbar icon size', QVariant(QSize(48, 48))).toSize())
+            self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if settings.get('show text in toolbar', True) else Qt.ToolButtonIconOnly)
             
             if os.path.dirname(self.database_path) != d.database_location:
                 try:
@@ -1088,6 +1091,8 @@ class Main(MainWindow, Ui_MainWindow):
             settings.setValue('database path', QVariant(QString.fromUtf8(self.database_path.encode('utf-8'))))
         set_sidebar_directories(None)
         set_filename_pat(qstring_to_unicode(settings.value('filename pattern', QVariant(get_filename_pat())).toString()))
+        self.tool_bar.setIconSize(settings.value('toolbar icon size', QVariant(QSize(48, 48))).toSize())
+        self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if settings.get('show text in toolbar', True) else Qt.ToolButtonIconOnly)
         
     
     def write_settings(self):

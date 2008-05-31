@@ -327,6 +327,54 @@
            </layout>
           </widget>
          </item>
+         <item row="4" column="0" >
+          <widget class="QGroupBox" name="groupBox_2" >
+           <property name="title" >
+            <string>Toolbar</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout" >
+            <item row="0" column="1" >
+             <widget class="QComboBox" name="toolbar_button_size" >
+              <item>
+               <property name="text" >
+                <string>Large</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Medium</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Small</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_4" >
+              <property name="text" >
+               <string>&amp;Button size in toolbar</string>
+              </property>
+              <property name="buddy" >
+               <cstring>toolbar_button_size</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="show_toolbar_text" >
+              <property name="text" >
+               <string>Show &amp;text in toolbar buttons</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="page_2" >
@@ -334,8 +382,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>100</width>
-          <height>30</height>
+          <width>583</width>
+          <height>625</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" >

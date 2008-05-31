@@ -10,11 +10,14 @@ from calibre.gui2.dialogs.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog
 from calibre.gui2.widgets import FilenamePattern
 
+
+
 class ConfigDialog(QDialog, Ui_Dialog):
     
     def __init__(self, window, db, columns):
         QDialog.__init__(self, window)
         Ui_Dialog.__init__(self)
+        self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self.setupUi(self)
         
         self.db = db
@@ -54,6 +57,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
         
+        icons = settings.value('toolbar icon size', QVariant(self.ICON_SIZES[0])).toSize()
+        self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
+        self.show_toolbar_text.setChecked(settings.get('show text in toolbar', True))
             
         
     def compact(self, toggled):
@@ -81,7 +87,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         settings.setValue('network timeout', QVariant(self.timeout.value()))
         path = qstring_to_unicode(self.location.text())
         self.final_columns = [self.columns.item(i).checkState() == Qt.Checked for i in range(self.columns.count())]
-        
+        settings.setValue('toolbar icon size', QVariant(self.ICON_SIZES[self.toolbar_button_size.currentIndex()]))
+        settings.set('show text in toolbar', bool(self.show_toolbar_text.isChecked()))
         pattern = self.filename_pattern.commit()
         settings.setValue('filename pattern', QVariant(pattern))
            
