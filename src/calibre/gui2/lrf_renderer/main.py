@@ -158,7 +158,8 @@ class Main(MainWindow, Ui_MainWindow):
         if not self.renderer.aborted and self.renderer.lrf is not None:
             width, height =  self.renderer.lrf.device_info.width, \
                                             self.renderer.lrf.device_info.height
-            hdelta = self.viewer_page.size().height() - self.graphics_view.size().height()
+            hdelta = self.tool_bar.height()+3
+            
             from PyQt4.QtGui import QScrollBar
             s = QScrollBar(self)
             scrollbar_adjust = min(s.width(), s.height())
