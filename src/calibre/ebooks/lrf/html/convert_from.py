@@ -517,7 +517,13 @@ class HTMLConverter(object, LoggingInterface):
                             return c
                 raise ConversionError(_('Could not parse file: %s')%self.file_name)
             else:
-                index = self.book.pages().index(opage)
+                try:
+                    index = self.book.pages().index(opage)
+                except ValueError:
+                    self.log_warning(_('%s is an empty file')%self.file_name)
+                    tb = self.book.create_text_block()
+                    self.current_page.append(tb)
+                    return tb
                 for page in list(self.book.pages()[index+1:]):
                     for c in page.contents:
                         if isinstance(c, (TextBlock, ImageBlock)):
