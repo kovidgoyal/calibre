@@ -57,16 +57,15 @@ def qstring_to_unicode(q):
 
 def human_readable(size):
     """ Convert a size in bytes into a human readable form """
-    if size < 1024: 
-        divisor, suffix = 1, "B"
-    elif size < 1024*1024: 
+    divisor, suffix = 1, "B"
+    if size < 1024*1024:
         divisor, suffix = 1024., "KB"
-    elif size < 1024*1024*1024: 
+    elif size < 1024*1024*1024:
         divisor, suffix = 1024*1024, "MB"
-    elif size < 1024*1024*1024*1024: 
+    elif size < 1024*1024*1024*1024:
         divisor, suffix = 1024*1024*1024, "GB"
     size = str(float(size)/divisor)
-    if size.find(".") > -1: 
+    if size.find(".") > -1:
         size = size[:size.find(".")+2]
     if size.endswith('.0'):
         size = size[:-2]

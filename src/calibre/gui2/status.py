@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import textwrap
+import textwrap, re
 
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon
@@ -153,7 +153,7 @@ class StatusBar(QStatusBar):
     
     def jobs(self):
         src = qstring_to_unicode(self.movie_button.jobs.text())
-        return int(src.rpartition(':')[2].lstrip())
+        return int(re.search(r'\d+', src).group())
         
     def show_book_info(self):
         self.emit(SIGNAL('show_book_info()'))
