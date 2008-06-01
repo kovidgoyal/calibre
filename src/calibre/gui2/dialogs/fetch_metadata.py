@@ -7,7 +7,7 @@ GUI for fetching metadata from servers.
 import logging, cStringIO
 
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, \
-                         QAbstractTableModel, QCoreApplication
+                         QAbstractTableModel, QCoreApplication, QTimer
 from PyQt4.QtGui import QDialog, QItemSelectionModel
 
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
@@ -85,6 +85,10 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.author = author.strip()
         self.publisher = publisher
         self.previous_row = None
+        self.connect(self.matches, SIGNAL('activated(QModelIndex)'), self.chosen)
+        key = str(self.key.text())
+        if key:
+            QTimer.singleShot(100, self.fetch.click)
         
         
         
@@ -152,3 +156,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
             return self.matches.model().matches[self.matches.currentIndex().row()]
         except:
             return None
+        
+    def chosen(self, index):
+        self.matches.setCurrentIndex(index)
+        self.accept()
