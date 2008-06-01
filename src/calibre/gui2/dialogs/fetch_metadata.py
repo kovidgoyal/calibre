@@ -11,7 +11,7 @@ from PyQt4.QtCore import Qt, QObject, SIGNAL, QVariant, \
 from PyQt4.QtGui import QDialog, QItemSelectionModel
 
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
-from calibre.gui2 import error_dialog, NONE
+from calibre.gui2 import error_dialog, NONE, info_dialog
 from calibre.ebooks.metadata.isbndb import create_books, option_parser
 from calibre import Settings
 
@@ -137,6 +137,9 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         books = create_books(opts, args, self.logger, self.timeout)
         
         self.model = Matches(books)
+        if self.model.rowCount() < 1:
+            info_dialog(self, _('No metadata found'), _('No metadata found, try adjusting the title and author or the ISBN key.')).exec_()
+            self.reject()
         
         self.matches.setModel(self.model)
         QObject.connect(self.matches.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
