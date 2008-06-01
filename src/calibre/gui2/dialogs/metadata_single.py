@@ -128,6 +128,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.cover_changed = False
         self.cpixmap = None
         self.changed = False
+        self.cover.setAcceptDrops(True)
+        self.connect(self.cover, SIGNAL('cover_changed()'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
                                                     self.select_cover)
         QObject.connect(self.add_format_button, SIGNAL("clicked(bool)"), \
@@ -186,6 +188,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
 
         self.exec_()
 
+    def cover_dropped(self):
+        self.cover_changed = True
+    
     def initialize_series(self):
         all_series = self.db.all_series()
         all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))

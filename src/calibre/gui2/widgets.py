@@ -3,11 +3,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re
+import re, os
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QAbstractItemDelegate, QStyle
+                        QAbstractItemDelegate, QPixmap
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QRect, SIGNAL, \
                          QObject, QRegExp, QRectF
 
@@ -73,6 +73,41 @@ class ImageView(QLabel):
     
     MAX_WIDTH  = 400
     MAX_HEIGHT = 300
+    DROPABBLE_EXTENSIONS = ('jpg', 'jpeg', 'gif', 'png', 'bmp')
+    
+    @classmethod
+    def paths_from_event(cls, event):
+        ''' 
+        Accept a drop event and return a list of paths that can be read from 
+        and represent files with extensions.
+        '''
+        if event.mimeData().hasFormat('text/uri-list'):
+            urls = [qstring_to_unicode(u.toLocalFile()) for u in event.mimeData().urls()]
+            urls = [u for u in urls if os.path.splitext(u)[1] and os.access(u, os.R_OK)]
+            return [u for u in urls if os.path.splitext(u)[1][1:].lower() in cls.DROPABBLE_EXTENSIONS]
+        
+    def dragEnterEvent(self, event):
+        if int(event.possibleActions() & Qt.CopyAction) + \
+           int(event.possibleActions() & Qt.MoveAction) == 0:
+            return
+        paths = self.paths_from_event(event)
+        if paths:
+            event.acceptProposedAction()
+            
+    def dropEvent(self, event):
+        paths = self.paths_from_event(event)
+        event.setDropAction(Qt.CopyAction)
+        for path in paths:
+            pmap = QPixmap()
+            pmap.load(path)
+            if not pmap.isNull():
+                self.setPixmap(pmap)
+                event.accept()
+                self.emit(SIGNAL('cover_changed()'), paths, Qt.QueuedConnection)
+                break
+    
+    def dragMoveEvent(self, event):
+        event.acceptProposedAction()
     
     def setPixmap(self, pixmap):
         QLabel.setPixmap(self, pixmap)
