@@ -60,7 +60,11 @@ def import_from_launchpad(url):
     next = tf.next()
     while next is not None:
         if next.isfile() and next.name.endswith('.po'):
-            po = re.search(r'-([a-z]{2,3}\.po)', next.name).group(1)
+            try:
+                po = re.search(r'-([a-z]{2,3}\.po)', next.name).group(1)
+            except:
+                next = tf.next()
+                continue
             out = os.path.abspath(os.path.join('.', os.path.basename(po)))
             print 'Updating', '%6s'%po, '-->', out
             open(out, 'wb').write(tf.extractfile(next).read())
