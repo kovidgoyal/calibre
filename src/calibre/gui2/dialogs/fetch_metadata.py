@@ -39,7 +39,7 @@ class Matches(QAbstractTableModel):
             elif section == 3: text = _("Publisher")
             elif section == 4: text = _("ISBN")
             
-            return QVariant(self.trUtf8(text))
+            return QVariant(text)
         else: 
             return QVariant(section+1)
         
