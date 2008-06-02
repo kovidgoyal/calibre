@@ -68,7 +68,7 @@ def connect_to_url(url, getpw=portable_getpass, mode='r+', bufsize=-1):
         raise Exception(_('Failed to negotiate SSH session: ') + str(t.get_exception()))
     if not agent_auth(t, username):
         if not password_auth(t, username, host, getpw):
-            raise ValueError(_('Failed to authenticate with server: %s'%url))
+            raise ValueError(_('Failed to authenticate with server: %s')%url)
     sftp = paramiko.SFTPClient.from_transport(t)
     return sftp, sftp.open(path, mode=mode, bufsize=bufsize)
 
