@@ -177,7 +177,7 @@ class MobiReader(object):
             opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'))
         
     def cleanup(self):
-        self.processed_html = re.sub(r'<div height="0em"></div>', '', self.processed_html)
+        self.processed_html = re.sub(r'<div height="0(em|%)"></div>', '', self.processed_html)
     
     def create_opf(self, htmlfile):
         mi = self.book_header.exth.mi

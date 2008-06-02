@@ -2293,7 +2293,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:94
 msgid "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
-msgstr "<b>%s</b>: %s by <b>Kovid Goyal %%(versión)s</b><br>%%(device)s</p>"
+msgstr "<b>%s</b>: %s by <b>Kovid Goyal %%(version)s</b><br>%%(device)s</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:113
 msgid "Send to main memory"
