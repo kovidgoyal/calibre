@@ -334,19 +334,23 @@ class RecursiveFetcher(object, LoggingInterface):
                         dsrc = xml_to_unicode(dsrc, self.verbose)[0]
                     
                     soup = self.get_soup(dsrc)
+                    newbaseurl = f.geturl()
+                    base = soup.find('base', href=True)
+                    if base is not None:
+                        newbaseurl = base['href']
                     self.log_debug('Processing images...')
-                    self.process_images(soup, f.geturl())
+                    self.process_images(soup, newbaseurl)
                     if self.download_stylesheets:
-                        self.process_stylesheets(soup, f.geturl())
+                        self.process_stylesheets(soup, newbaseurl)
                     
                     res = os.path.join(linkdiskpath, basename(iurl))
                     self.downloaded_paths.append(res)
                     self.filemap[nurl] = res
                     if recursion_level < self.max_recursions:
                         self.log_debug('Processing links...')
-                        self.process_links(soup, iurl, recursion_level+1)
+                        self.process_links(soup, newbaseurl, recursion_level+1)
                     else:
-                        self.process_return_links(soup, iurl) 
+                        self.process_return_links(soup, newbaseurl) 
                         self.log_debug('Recursion limit reached. Skipping links in %s', iurl)
                     
                     if callable(self.postprocess_html_ext):
