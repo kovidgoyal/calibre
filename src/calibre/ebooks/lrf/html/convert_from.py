@@ -1458,7 +1458,9 @@ class HTMLConverter(object, LoggingInterface):
                             self.log_debug('Could not follow link to '+tag['href'])
                             self.process_children(tag, tag_css, tag_pseudo_css)
                 elif tag.has_key('name') or tag.has_key('id'):
-                    self.process_anchor(tag, tag_css, tag_pseudo_css)                            
+                    self.process_anchor(tag, tag_css, tag_pseudo_css)
+                else:
+                    self.process_children(tag, tag_css, tag_pseudo_css)                            
             elif tagname == 'img':
                 if tag.has_key('src'):
                     path = munge_paths(self.target_prefix, tag['src'])[0]
