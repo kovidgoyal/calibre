@@ -73,6 +73,14 @@ if pictureflow is not None:
             self.setMinimumSize(QSize(int(2.35*0.67*height), (5/3.)*height+25))
             self.setFocusPolicy(Qt.WheelFocus)
             self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+            
+        def wheelEvent(self, ev):
+            ev.accept()
+            if ev.delta() > 0:
+                self.showNext()
+            elif ev.delta() < 0:
+                self.showPrevious()
+            
         
 else:
     CoverFlow = None

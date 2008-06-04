@@ -1347,7 +1347,6 @@ void PictureFlow::mouseReleaseEvent(QMouseEvent* event)
   emit inputReceived();
 }
 
-
 void PictureFlow::paintEvent(QPaintEvent* event)
 {
   Q_UNUSED(event);
