@@ -167,7 +167,7 @@ class UnBinary(object):
         self.buf = cStringIO.StringIO()
         self.ampersands = []
         self.binary_to_text()
-        self.raw = self.buf.getvalue().lstrip().decode('utf-8') 
+        self.raw = self.buf.getvalue().lstrip().decode('utf-8')
         self.escape_ampersands() 
 
     def escape_ampersands(self):
@@ -267,8 +267,8 @@ class UnBinary(object):
                     
                     self.buf.write(unicode(tag_name).encode('utf-8'))
                 elif flags & FLAG_CLOSING:
-                    if depth == 0:
-                        raise LitReadError('Extra closing tag')
+                    #if depth == 0:
+                    #    raise LitReadError('Extra closing tag')
                     self.lingering_space = space_enabled
                     return index
             elif state == 'get attr':
