@@ -250,7 +250,7 @@ class Main(MainWindow, Ui_MainWindow):
             index = self.library_view.model().index(index, 0)
             self.library_view.setCurrentIndex(index)
         if hasattr(index, 'row') and self.cover_flow.isVisible() and self.cover_flow.currentSlide() != index.row():
-            self.cover_flow.setCurrentSlide(index.row()) 
+            self.cover_flow.setCurrentSlide(index.row())
     
     def another_instance_wants_to_talk(self, msg):
         if msg.startswith('launched:'):
@@ -266,6 +266,16 @@ class Main(MainWindow, Ui_MainWindow):
         elif msg.startswith('refreshdb:'):
             self.library_view.model().resort()
             self.library_view.model().research()
+        elif msg.startswith('progress:'):
+            try:
+                fields = msg.split(':')
+                job_id, percent = fields[1:3]
+                job_id, percent = int(job_id), float(percent)
+                self.job_manager.update_progress(job_id, percent)
+            except:
+                pass
+        else:
+            print msg
             
     
     def current_view(self):
@@ -288,7 +298,7 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         Called when a device is connected to the computer.
         '''
-        if connected:    
+        if connected:
             self.device_manager = DeviceManager(device)
             self.job_manager.run_device_job(self.info_read, self.device_manager.info_func())
             self.set_default_thumbnail(device.THUMBNAIL_HEIGHT)

@@ -35,7 +35,7 @@ def main(args=sys.argv, notification=None, handler=None):
     recipe_arg = args[1] if len(args) > 1 else None
     
     tdir            = PersistentTemporaryDirectory('_feeds2lrf')
-    opts.output_dir = tdir 
+    opts.output_dir = tdir
     
     recipe = run_recipe(opts, recipe_arg, parser, notification=notification, handler=handler)
     

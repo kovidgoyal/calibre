@@ -9,7 +9,7 @@ applications using a local socket.
 '''
 import atexit
 
-from PyQt4.QtCore import QByteArray, QDataStream, QIODevice, SIGNAL, QObject, Qt
+from PyQt4.QtCore import QByteArray, QDataStream, QIODevice, SIGNAL, QObject, Qt, QString
 from PyQt4.QtNetwork import QLocalSocket, QLocalServer
 
 timeout_read    = 5000
@@ -20,7 +20,7 @@ def write_message(socket, message, timeout = 5000):
     out = QDataStream(block, QIODevice.WriteOnly)
 
     out.writeInt32(0)
-    out.writeString(message)
+    out.writeString(QString(message))
     out.device().seek(0)
     out.writeInt32(len(message))
 

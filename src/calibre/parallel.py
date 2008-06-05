@@ -12,12 +12,25 @@ from calibre.ebooks.lrf.web.convert_from import main as web2lrf
 from calibre.ebooks.lrf.feeds.convert_from import main as feeds2lrf
 from calibre.gui2.lrf_renderer.main import main as lrfviewer
 from calibre import iswindows, __appname__
+try:
+    from calibre.utils.single_qt_application import SingleApplication
+except:
+    SingleApplication = None
+
+sa = None
+job_id = None
+
+def report_progress(percent, msg=''):
+    if sa is not None and job_id is not None:
+        msg = 'progress:%s:%f:%s'%(job_id, percent, msg)
+        sa.send_message(msg)
+
 
 PARALLEL_FUNCS = {
                   'any2lrf'   : partial(any2lrf, gui_mode=True),
                   'web2lrf'   : web2lrf,
                   'lrfviewer' : lrfviewer,
-                  'feeds2lrf' : feeds2lrf,
+                  'feeds2lrf' : partial(feeds2lrf, notification=report_progress),
                   }
 
 python = sys.executable
@@ -46,7 +59,7 @@ class Server(object):
     def __init__(self):
         self.tdir = tempfile.mkdtemp('', '%s_IPC_'%__appname__)
         atexit.register(cleanup, self.tdir)
-        self.kill_jobs = [] 
+        self.kill_jobs = []
         
     def kill(self, job_id):
         '''
@@ -90,7 +103,7 @@ class Server(object):
         os.mkdir(job_dir)
         
         job_data = os.path.join(job_dir, 'job_data.pickle')
-        cPickle.dump((func, args, kwdargs), open(job_data, 'wb'), -1)
+        cPickle.dump((job_id, func, args, kwdargs), open(job_data, 'wb'), -1)
         prefix = ''
         if hasattr(sys, 'frameworks_dir'):
             fd = getattr(sys, 'frameworks_dir')
@@ -116,23 +129,26 @@ class Server(object):
             p.poll()
         
              
-        output.close()     
+        output.close()
         job_result = os.path.join(job_dir, 'job_result.pickle')
         if not os.path.exists(job_result):
-            result, exception, traceback = None, ('ParallelRuntimeError', 
+            result, exception, traceback = None, ('ParallelRuntimeError',
                                                   'The worker process died unexpectedly.'), ''
-        else:              
+        else:
             result, exception, traceback = cPickle.load(open(job_result, 'rb'))
         log = open(output.name, 'rb').read()
         
         return result, exception, traceback, log
             
-    
+
 def run_job(job_data):
+    global sa, job_id
+    if SingleApplication is not None:
+        sa = SingleApplication('calibre GUI')
     job_data = binascii.unhexlify(job_data)
     base = os.path.dirname(job_data)
     job_result = os.path.join(base, 'job_result.pickle')
-    func, args, kwdargs = cPickle.load(open(job_data, 'rb'))
+    job_id, func, args, kwdargs = cPickle.load(open(job_data, 'rb'))
     func = PARALLEL_FUNCS[func]
     exception, tb = None, None
     try:
@@ -154,3 +170,5 @@ def main():
     
 if __name__ == '__main__':
     sys.exit(main())
+
+from calibre.utils.single_qt_application import SingleApplication

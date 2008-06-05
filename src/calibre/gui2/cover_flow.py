@@ -10,7 +10,7 @@ Module to implement the Cover Flow feature
 import sys, os
 
 from PyQt4.QtGui import QImage, QSizePolicy
-from PyQt4.QtCore import Qt, QSize, SIGNAL
+from PyQt4.QtCore import Qt, QSize, SIGNAL, QObject
 
 from calibre import pictureflow
 
@@ -49,7 +49,7 @@ if pictureflow is not None:
         def __init__(self, model, buffer=20):
             pictureflow.FlowImages.__init__(self)
             self.model = model
-            self.connect(self.model, SIGNAL('modelReset()'), self.reset)
+            QObject.connect(self.model, SIGNAL('modelReset()'), self.reset)
             
         def count(self):
             return self.model.count()
@@ -76,9 +76,9 @@ if pictureflow is not None:
             
         def wheelEvent(self, ev):
             ev.accept()
-            if ev.delta() > 0:
+            if ev.delta() < 0:
                 self.showNext()
-            elif ev.delta() < 0:
+            elif ev.delta() > 0:
                 self.showPrevious()
             
         

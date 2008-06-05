@@ -224,6 +224,18 @@ class JobManager(QAbstractTableModel):
             if isinstance(job, ConversionJob):
                 yield job
                 
+    def update_progress(self, id, percent):
+        row = -1
+        for collection in (self.running_jobs, self.waiting_jobs, self.finished_jobs):
+            for job in collection:
+                row += 1
+                if job.id == id:
+                    job.percent_done = percent
+                    index = self.index(row, 2)
+                    self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), index, index)
+                    return
+            
+                
     def create_job(self, job_class, description, slot, priority, *args, **kwargs):
         self.next_id += 1
         id = self.next_id
@@ -312,8 +324,7 @@ class JobManager(QAbstractTableModel):
                     st = [_('Working'), _('Waiting')][status] 
                 return QVariant(st)
             if col == 2:
-                p = str(job.percent_done) + r'%' if job.percent_done > 0 else _('Unavailable')
-                return QVariant(p)
+                return QVariant(int(100*job.percent_done))
             if col == 3:
                 if job.start_time is None:
                     return NONE
