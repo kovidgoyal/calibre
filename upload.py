@@ -127,6 +127,17 @@ def upload_tarball():
     check_call('ssh divok rm -f %s/calibre-\*.tar.bz2'%DOWNLOADS)
     check_call('scp dist/calibre-*.tar.bz2 divok:%s/'%DOWNLOADS)
 
+def pypi():
+    vm = '/vmware/linux/libprs500-gentoo.vmx'
+    vmware = ('vmware', '-q', '-x', '-n', vm)
+    subprocess.Popen(vmware)
+    print 'Waiting for linux to boot up...'
+    time.sleep(60)
+    check_call('scp ~/.pypirc linux:')
+    check_call('ssh linux make -C /mnt/hgfs/giskard/work/calibre egg')
+    check_call('ssh linux rm -f ~/.pypirc')
+    check_call('ssh linux sudo poweroff')
+
 def main():
     upload = len(sys.argv) < 2
     shutil.rmtree('build')
@@ -144,7 +155,7 @@ def main():
         print 'Uploading installers...'
         upload_installers()
         print 'Uploading to PyPI'
-        check_call('''python setup.py register bdist_egg --exclude-source-files upload''')
+        pypi()
         upload_tarball()
         upload_docs()
         upload_user_manual()

@@ -35,7 +35,7 @@ class LibraryDelegate(QItemDelegate):
         gradient = QLinearGradient(0, 0, 0, 100)
         gradient.setColorAt(0.0, self.COLOR)
         gradient.setColorAt(1.0, self.COLOR)
-        self. brush = QBrush(gradient)
+        self.brush = QBrush(gradient)
         self.factor = self.SIZE/100.
 
     def sizeHint(self, option, index):

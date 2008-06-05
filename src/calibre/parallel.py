@@ -171,4 +171,4 @@ def main():
 if __name__ == '__main__':
     sys.exit(main())
 
-from calibre.utils.single_qt_application import SingleApplication
+
