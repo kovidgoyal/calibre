@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-02 04:10+0000\n"
-"PO-Revision-Date: 2008-06-02 14:47+0000\n"
+"PO-Revision-Date: 2008-06-04 15:19+0000\n"
 "Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-06-02 19:08+0000\n"
+"X-Launchpad-Export-Date: 2008-06-05 05:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #~ msgid ""
@@ -533,7 +533,7 @@ msgstr "No se pudo analizar el archivo: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:523
 msgid "%s is an empty file"
-msgstr ""
+msgstr "%s es un archivo vacío"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:543
 msgid "Failed to parse link %s %s"
@@ -1101,11 +1101,11 @@ msgstr "Pequeño"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:224
 msgid "&Button size in toolbar"
-msgstr ""
+msgstr "Tamaño de &botón en la barra de herramientas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:225
 msgid "Show &text in toolbar buttons"
-msgstr ""
+msgstr "Mostrar &texto en los botones de la barra de herramientas"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:226
 #, fuzzy
@@ -2008,7 +2008,7 @@ msgstr "&Título de la receta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:224
 msgid "&Oldest article:"
-msgstr "&Artt"
+msgstr "&Artículo más antiguo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:225
 msgid "The oldest article to download"
@@ -2286,7 +2286,7 @@ msgstr "Analizando el archivo LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:130
 msgid "LRF Viewer toolbar"
-msgstr ""
+msgstr "Barra de herramientas del Visor LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 msgid "Next Page"
@@ -2809,11 +2809,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:101
 msgid "Invalid fields. Available fields:"
-msgstr ""
+msgstr "Campos no válidos. Los campos disponibles:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:108
 msgid "Invalid sort field. Available fields:"
-msgstr ""
+msgstr "Campo de clasificación no válido. Los campos disponibles:"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:170
 msgid ""
@@ -2838,7 +2838,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:206
 msgid "Process directories recursively"
-msgstr ""
+msgstr "Proceso de directorios recursivamente"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:208
 msgid ""
