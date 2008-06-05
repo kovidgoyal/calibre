@@ -4,7 +4,7 @@ import os, cPickle, codecs
 
 from PyQt4.QtCore import QObject, SIGNAL, Qt, QVariant, QByteArray
 from PyQt4.QtGui import QAbstractSpinBox, QLineEdit, QCheckBox, QDialog, \
-                        QPixmap, QTextEdit
+                        QPixmap, QTextEdit, QListWidgetItem, QIcon
 
 from calibre.gui2.dialogs.lrf_single_ui import Ui_LRFSingleDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
@@ -52,6 +52,10 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         QDialog.__init__(self, window)
         Ui_LRFSingleDialog.__init__(self)        
         self.setupUi(self)
+        self.item1 = QListWidgetItem(QIcon(':/images/dialog_information.svg'), _("Metadata"), self.categoryList)
+        self.item2 = QListWidgetItem(QIcon(':/images/lookfeel.svg'), _('Look & Feel'), self.categoryList)
+        self.item3 = QListWidgetItem(QIcon(':/images/page.svg'), _('Page Setup'), self.categoryList)
+        self.item4 = QListWidgetItem(QIcon(':/images/chapters.svg'), _('Chapter Detection'), self.categoryList)
         self.categoryList.setCurrentRow(0)
         QObject.connect(self.categoryList, SIGNAL('itemEntered(QListWidgetItem *)'),
                         self.show_category_help)

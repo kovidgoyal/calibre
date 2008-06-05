@@ -91,48 +91,9 @@
         <property name="currentRow" >
          <number>-1</number>
         </property>
-        <item>
-         <property name="text" >
-          <string>Metadata</string>
-         </property>
-         <property name="icon" >
-          <iconset resource="../images.qrc" >
-           <normaloff>:/images/metadata.svg</normaloff>
-           <normalon>:/images/dialog_information.svg</normalon>:/images/metadata.svg</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>Look &amp; Feel</string>
-         </property>
-         <property name="icon" >
-          <iconset resource="../images.qrc" >
-           <normaloff>:/images/lookfeel.svg</normaloff>
-           <normalon>:/images/chapters.svg</normalon>:/images/lookfeel.svg</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>Page Setup</string>
-         </property>
-         <property name="icon" >
-          <iconset resource="../images.qrc" >
-           <normaloff>:/images/page.svg</normaloff>:/images/page.svg</iconset>
-         </property>
-        </item>
-        <item>
-         <property name="text" >
-          <string>Chapter Detection</string>
-         </property>
-         <property name="icon" >
-          <iconset resource="../images.qrc" >
-           <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
-         </property>
-        </item>
        </widget>
       </item>
      </layout>
-     <zorder>categoryList</zorder>
     </widget>
    </item>
    <item>

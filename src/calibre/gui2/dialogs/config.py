@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 
-from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem
+from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon
 from PyQt4.QtCore import QVariant, SIGNAL, QStringList, QTimer, Qt, QSize
 
 from calibre import islinux, Settings
@@ -19,7 +19,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         Ui_Dialog.__init__(self)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self.setupUi(self)
-        
+        self.item1 = QListWidgetItem(QIcon(':/images/metadata.svg'), _('Basic'), self.category_list)
+        self.item2 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
         self.db = db
         self.current_cols = columns
         settings = Settings()

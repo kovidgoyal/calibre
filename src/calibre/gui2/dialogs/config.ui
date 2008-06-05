@@ -20,7 +20,7 @@
    <item row="0" column="0" >
     <layout class="QHBoxLayout" >
      <item>
-      <widget class="QListWidget" name="listWidget" >
+      <widget class="QListWidget" name="category_list" >
        <property name="sizePolicy" >
         <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
          <horstretch>0</horstretch>
@@ -69,26 +69,6 @@
        <property name="currentRow" >
         <number>-1</number>
        </property>
-       <item>
-        <property name="text" >
-         <string>Basic</string>
-        </property>
-        <property name="icon" >
-         <iconset resource="../images.qrc" >
-          <normaloff>:/images/metadata.svg</normaloff>
-          <normalon>:/images/metadata.svg</normalon>:/images/metadata.svg</iconset>
-        </property>
-       </item>
-       <item>
-        <property name="text" >
-         <string>Advanced</string>
-        </property>
-        <property name="icon" >
-         <iconset resource="../images.qrc" >
-          <normaloff>:/images/view.svg</normaloff>
-          <normalon>:/images/view.svg</normalon>:/images/view.svg</iconset>
-        </property>
-       </item>
       </widget>
      </item>
      <item>
@@ -504,7 +484,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>listWidget</sender>
+   <sender>category_list</sender>
    <signal>currentRowChanged(int)</signal>
    <receiver>stackedWidget</receiver>
    <slot>setCurrentIndex(int)</slot>
