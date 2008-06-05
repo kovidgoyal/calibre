@@ -1051,6 +1051,8 @@ class Main(MainWindow, Ui_MainWindow):
             msg += u'<p>Failed to perform <b>job</b>: '+description
             msg += u'<p>Further device related error messages will not be shown while this message is visible.'
             msg += u'<p>Detailed <b>traceback</b>:<pre>'
+            if isinstance(formatted_traceback, str):
+                formatted_traceback = unicode(formatted_traceback, 'utf8', 'replace')
             msg += formatted_traceback
             self.device_error_dialog.set_message(msg)
             self.device_error_dialog.show()
