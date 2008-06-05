@@ -13,10 +13,11 @@ class SearchItem(Ui_Form, QWidget):
     FIELDS = {
               _('Title')     : 'title:',
               _('Author')    : 'author:',
-              _('Publisher') :'publisher:',
-              _('Tag')       :'tag',
-              _('Series')    :'series:',
-              _('Format')    :'format:',
+              _('Publisher') : 'publisher:',
+              _('Tag')       : 'tag:',
+              _('Series')    : 'series:',
+              _('Format')    : 'format:',
+              _('Comments')  : 'comments:',
               _('Any')       :''
               }
     
