@@ -1076,6 +1076,9 @@ class Main(MainWindow, Ui_MainWindow):
             print >>sys.stderr, formatted_traceback.encode('utf8', 'ignore') if isinstance(formatted_traceback, unicode) else formatted_traceback
         except:
             pass
+        if getattr(exception, 'only_msg', False):
+            error_dialog(self, _('Conversion Error'), unicode(exception)).exec_()
+            return
         msg =  u'<p><b>%s</b>: %s</p>'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'

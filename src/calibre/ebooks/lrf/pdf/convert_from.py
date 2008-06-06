@@ -38,7 +38,7 @@ def generate_html(pathtopdf, logger):
             p = popen(cmd, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
         except OSError, err:
             if err.errno == 2:
-                raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'))
+                raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'), True)
             else:
                 raise
         logger.info(p.stdout.read())
@@ -47,10 +47,10 @@ def generate_html(pathtopdf, logger):
             err = p.stderr.read()
             raise ConversionError, err
         if not os.path.exists(index) or os.stat(index).st_size < 100:
-            raise ConversionError(os.path.basename(pathtopdf) + _(' does not allow copying of text.'))
+            raise ConversionError(os.path.basename(pathtopdf) + _(' does not allow copying of text.'), True)
         raw = open(index).read(4000)
         if not '<br' in raw:
-            raise ConversionError(os.path.basename(pathtopdf) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'))
+            raise ConversionError(os.path.basename(pathtopdf) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'), True)
     finally:
         os.chdir(cwd)
     return index

@@ -7,7 +7,10 @@ from various formats.
 '''
 
 class ConversionError(Exception):
-    pass
+    
+    def __init__(self, msg, only_msg=False):
+        Exception.__init__(self, msg)
+        self.only_msg = only_msg
 
 class UnknownFormatError(Exception):
     pass
