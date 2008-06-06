@@ -72,7 +72,7 @@ if pictureflow is not None:
             self.setSlideSize(QSize(int(2/3. * height), height))
             self.setMinimumSize(QSize(int(2.35*0.67*height), (5/3.)*height+25))
             self.setFocusPolicy(Qt.WheelFocus)
-            self.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
+            self.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
             
         def wheelEvent(self, ev):
             ev.accept()

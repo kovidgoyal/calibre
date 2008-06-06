@@ -194,7 +194,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.stack.setCurrentIndex(0)
         self.library_view.migrate_database()
         self.library_view.sortByColumn(3, Qt.DescendingOrder)
-        if not self.library_view.restore_column_widths():        
+        if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
         self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
@@ -206,7 +206,6 @@ class Main(MainWindow, Ui_MainWindow):
             self.cover_flow.setVisible(False)
             self.library.layout().addWidget(self.cover_flow)
             self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), self.sync_cf_to_listview)
-            self.library_view.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Expanding))
             self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), self.show_book_info)
             self.connect(self.status_bar.cover_flow_button, SIGNAL('toggled(bool)'), self.toggle_cover_flow)
             self.connect(self.cover_flow, SIGNAL('stop()'), self.status_bar.cover_flow_button.toggle)
@@ -218,7 +217,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.status_bar.cover_flow_button.disable(pictureflowerror)
             
         
-        self.setMaximumHeight(available_height())    
+        self.setMaximumHeight(available_height())
              
         
         ####################### Setup device detection ########################

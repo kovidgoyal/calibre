@@ -18,7 +18,7 @@ from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.password import PasswordDialog
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
-from calibre import Settings
+from calibre import Settings, islinux
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, size, path=None):
@@ -165,11 +165,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         comments = self.db.comments(row)
         self.comments.setPlainText(comments if comments else '')
         cover = self.db.cover(row)
-        if cover:
-            pm = QPixmap()
-            pm.loadFromData(cover)
-            if not pm.isNull(): 
-                self.cover.setPixmap(pm)
+        
         exts = self.db.formats(row)
         if exts:
             exts = exts.split(',')        
@@ -186,7 +182,18 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.enable_series_index)
         QObject.connect(self.password_button, SIGNAL('clicked()'), self.change_password) 
 
-        self.exec_()
+        self.show()
+        height_of_rest = self.frameGeometry().height() - self.cover.height()
+        width_of_rest  = self.frameGeometry().width() - self.cover.width()
+        ag = QCoreApplication.instance().desktop().availableGeometry(self)
+        self.cover.MAX_HEIGHT = ag.height()-(25 if islinux else 0)-height_of_rest
+        self.cover.MAX_WIDTH = ag.width()-(25 if islinux else 0)-width_of_rest
+        if cover:
+            pm = QPixmap()
+            pm.loadFromData(cover)
+            if not pm.isNull(): 
+                self.cover.setPixmap(pm)
+        
 
     def cover_dropped(self):
         self.cover_changed = True

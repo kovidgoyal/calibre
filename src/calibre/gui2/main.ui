@@ -20,25 +20,25 @@
    <string>__appname__</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="images.qrc" >:/library</iconset>
+   <iconset resource="images.qrc" >
+    <normaloff>:/library</normaloff>:/library</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>74</y>
+     <width>865</width>
+     <height>723</height>
+    </rect>
+   </property>
    <layout class="QGridLayout" >
     <item row="0" column="0" >
      <layout class="QHBoxLayout" >
       <property name="spacing" >
        <number>6</number>
       </property>
-      <property name="leftMargin" >
-       <number>0</number>
-      </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
       <item>
@@ -102,7 +102,7 @@
          </size>
         </property>
         <property name="text" >
-            <string></string>
+         <string/>
         </property>
         <property name="textFormat" >
          <enum>Qt::RichText</enum>
@@ -119,16 +119,7 @@
       <property name="spacing" >
        <number>6</number>
       </property>
-      <property name="leftMargin" >
-       <number>0</number>
-      </property>
-      <property name="topMargin" >
-       <number>0</number>
-      </property>
-      <property name="rightMargin" >
-       <number>0</number>
-      </property>
-      <property name="bottomMargin" >
+      <property name="margin" >
        <number>0</number>
       </property>
       <item>
@@ -140,7 +131,8 @@
          <string>...</string>
         </property>
         <property name="icon" >
-         <iconset resource="images.qrc" >:/images/search.svg</iconset>
+         <iconset resource="images.qrc" >
+          <normaloff>:/images/search.svg</normaloff>:/images/search.svg</iconset>
         </property>
         <property name="shortcut" >
          <string>Alt+S</string>
@@ -197,7 +189,8 @@
          <string>...</string>
         </property>
         <property name="icon" >
-         <iconset resource="images.qrc" >:/images/clear_left.svg</iconset>
+         <iconset resource="images.qrc" >
+          <normaloff>:/images/clear_left.svg</normaloff>:/images/clear_left.svg</iconset>
         </property>
        </widget>
       </item>
@@ -213,7 +206,7 @@
         <property name="orientation" >
          <enum>Qt::Horizontal</enum>
         </property>
-        <property name="sizeHint" >
+        <property name="sizeHint" stdset="0" >
          <size>
           <width>20</width>
           <height>20</height>
@@ -230,7 +223,8 @@
          <string>...</string>
         </property>
         <property name="icon" >
-         <iconset resource="images.qrc" >:/images/config.svg</iconset>
+         <iconset resource="images.qrc" >
+          <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
         </property>
        </widget>
       </item>
@@ -248,6 +242,14 @@
        <number>2</number>
       </property>
       <widget class="QWidget" name="library" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>100</width>
+         <height>30</height>
+        </rect>
+       </property>
        <layout class="QVBoxLayout" >
         <item>
          <widget class="BooksView" name="library_view" >
@@ -283,6 +285,14 @@
        </layout>
       </widget>
       <widget class="QWidget" name="main_memory" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>100</width>
+         <height>30</height>
+        </rect>
+       </property>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="DeviceBooksView" name="memory_view" >
@@ -318,12 +328,20 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page" >
+       <property name="geometry" >
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>857</width>
+         <height>571</height>
+        </rect>
+       </property>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="DeviceBooksView" name="card_view" >
           <property name="sizePolicy" >
-           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-            <horstretch>100</horstretch>
+           <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+            <horstretch>10</horstretch>
             <verstretch>10</verstretch>
            </sizepolicy>
           </property>
@@ -357,6 +375,14 @@
    </layout>
   </widget>
   <widget class="QToolBar" name="tool_bar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>865</width>
+     <height>74</height>
+    </rect>
+   </property>
    <property name="minimumSize" >
     <size>
      <width>0</width>
@@ -396,13 +422,22 @@
    <addaction name="action_view" />
   </widget>
   <widget class="QStatusBar" name="statusBar" >
+   <property name="geometry" >
+    <rect>
+     <x>0</x>
+     <y>797</y>
+     <width>865</width>
+     <height>25</height>
+    </rect>
+   </property>
    <property name="mouseTracking" >
     <bool>true</bool>
    </property>
   </widget>
   <action name="action_add" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/plus.svg</iconset>
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
    </property>
    <property name="text" >
     <string>Add books</string>
@@ -416,7 +451,8 @@
   </action>
   <action name="action_del" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/trash.svg</iconset>
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
    </property>
    <property name="text" >
     <string>Remove books</string>
@@ -430,7 +466,8 @@
   </action>
   <action name="action_edit" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/edit_input.svg</iconset>
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
    </property>
    <property name="text" >
     <string>Edit meta information</string>
@@ -447,7 +484,8 @@
     <bool>false</bool>
    </property>
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/sync.svg</iconset>
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/sync.svg</normaloff>:/images/sync.svg</iconset>
    </property>
    <property name="text" >
     <string>Send to device</string>
@@ -455,7 +493,8 @@
   </action>
   <action name="action_save" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/save.svg</iconset>
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/save.svg</normaloff>:/images/save.svg</iconset>
    </property>
    <property name="text" >
     <string>Save to disk</string>
@@ -463,7 +502,8 @@
   </action>
   <action name="action_news" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/news.svg</iconset>
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/news.svg</normaloff>:/images/news.svg</iconset>
    </property>
    <property name="text" >
     <string>Fetch news</string>
@@ -471,7 +511,8 @@
   </action>
   <action name="action_convert" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/convert.svg</iconset>
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/convert.svg</normaloff>:/images/convert.svg</iconset>
    </property>
    <property name="text" >
     <string>Convert E-books</string>
@@ -479,7 +520,8 @@
   </action>
   <action name="action_view" >
    <property name="icon" >
-    <iconset resource="images.qrc" >:/images/view.svg</iconset>
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/view.svg</normaloff>:/images/view.svg</iconset>
    </property>
    <property name="text" >
     <string>View</string>

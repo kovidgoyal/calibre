@@ -5,18 +5,31 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>777</width>
-    <height>656</height>
+    <width>668</width>
+    <height>663</height>
    </rect>
+  </property>
+  <property name="sizePolicy" >
+   <sizepolicy vsizetype="MinimumExpanding" hsizetype="MinimumExpanding" >
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="windowTitle" >
    <string>Edit Meta Information</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/edit_input.svg</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/edit_input.svg</normaloff>:/images/edit_input.svg</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" >
+  <property name="sizeGripEnabled" >
+   <bool>true</bool>
+  </property>
+  <property name="modal" >
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3" >
+   <item>
     <widget class="QSplitter" name="splitter" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
@@ -172,7 +185,8 @@
                <string>Open Tag Editor</string>
               </property>
               <property name="icon" >
-               <iconset resource="../images.qrc" >:/images/chapters.svg</iconset>
+               <iconset resource="../images.qrc" >
+                <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
               </property>
              </widget>
             </item>
@@ -233,7 +247,8 @@
                <string>...</string>
               </property>
               <property name="icon" >
-               <iconset resource="../images.qrc" >:/images/trash.svg</iconset>
+               <iconset resource="../images.qrc" >
+                <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
               </property>
              </widget>
             </item>
@@ -301,185 +316,130 @@
        </item>
       </layout>
      </widget>
-     <widget class="QGroupBox" name="groupBox_3" >
-      <property name="title" >
-       <string>Available Formats</string>
-      </property>
-      <layout class="QVBoxLayout" >
+     <widget class="QWidget" name="" >
+      <layout class="QVBoxLayout" name="verticalLayout_2" >
        <item>
-        <layout class="QHBoxLayout" >
-         <item>
-          <widget class="QListWidget" name="formats" >
-           <property name="sizePolicy" >
-            <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="iconSize" >
-            <size>
-             <width>64</width>
-             <height>64</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" >
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>51</width>
-               <height>61</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QToolButton" name="add_format_button" >
-             <property name="toolTip" >
-              <string>Add a new format for this book to the database</string>
-             </property>
-             <property name="text" >
-              <string>...</string>
-             </property>
-             <property name="icon" >
-              <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
-             </property>
-             <property name="iconSize" >
-              <size>
-               <width>32</width>
-               <height>32</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeType" >
-              <enum>QSizePolicy::Fixed</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>21</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QToolButton" name="remove_format_button" >
-             <property name="toolTip" >
-              <string>Remove the selected formats for this book from the database.</string>
-             </property>
-             <property name="text" >
-              <string>...</string>
-             </property>
-             <property name="icon" >
-              <iconset resource="../images.qrc" >:/images/trash.svg</iconset>
-             </property>
-             <property name="iconSize" >
-              <size>
-               <width>32</width>
-               <height>32</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>20</width>
-               <height>61</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QGroupBox" name="groupBox_4" >
-         <property name="title" >
-          <string>Book Cover</string>
+        <widget class="QGroupBox" name="af_group_box" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Minimum" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <layout class="QVBoxLayout" >
+         <property name="title" >
+          <string>Available Formats</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout" >
           <item>
-           <layout class="QHBoxLayout" >
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" >
-               <size>
-                <width>81</width>
-                <height>181</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="ImageView" name="cover" >
+           <layout class="QGridLayout" name="gridLayout" >
+            <item rowspan="2" row="0" column="0" >
+             <widget class="QListWidget" name="formats" >
               <property name="sizePolicy" >
-               <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+               <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
-              <property name="text" >
-               <string/>
+              <property name="maximumSize" >
+               <size>
+                <width>16777215</width>
+                <height>130</height>
+               </size>
               </property>
-              <property name="pixmap" >
-               <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
-              </property>
-              <property name="scaledContents" >
-               <bool>true</bool>
+              <property name="iconSize" >
+               <size>
+                <width>64</width>
+                <height>64</height>
+               </size>
               </property>
              </widget>
             </item>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
+            <item row="0" column="1" >
+             <widget class="QToolButton" name="add_format_button" >
+              <property name="toolTip" >
+               <string>Add a new format for this book to the database</string>
               </property>
-              <property name="sizeHint" >
+              <property name="text" >
+               <string>...</string>
+              </property>
+              <property name="icon" >
+               <iconset resource="../images.qrc" >
+                <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
+              </property>
+              <property name="iconSize" >
                <size>
-                <width>71</width>
-                <height>181</height>
+                <width>32</width>
+                <height>32</height>
                </size>
               </property>
-             </spacer>
+             </widget>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QToolButton" name="remove_format_button" >
+              <property name="toolTip" >
+               <string>Remove the selected formats for this book from the database.</string>
+              </property>
+              <property name="text" >
+               <string>...</string>
+              </property>
+              <property name="icon" >
+               <iconset resource="../images.qrc" >
+                <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+              </property>
+              <property name="iconSize" >
+               <size>
+                <width>32</width>
+                <height>32</height>
+               </size>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
-          <item>
+         </layout>
+         <zorder></zorder>
+         <zorder></zorder>
+         <zorder></zorder>
+         <zorder>groupBox_4</zorder>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_4" >
+         <property name="sizePolicy" >
+          <sizepolicy vsizetype="Expanding" hsizetype="Preferred" >
+           <horstretch>0</horstretch>
+           <verstretch>10</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title" >
+          <string>Book Cover</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2" >
+          <item row="0" column="0" >
+           <widget class="ImageView" name="cover" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="pixmap" >
+             <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
+            </property>
+            <property name="scaledContents" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
            <layout class="QVBoxLayout" >
             <property name="spacing" >
              <number>6</number>
             </property>
-            <property name="leftMargin" >
-             <number>0</number>
-            </property>
-            <property name="topMargin" >
-             <number>0</number>
-            </property>
-            <property name="rightMargin" >
-             <number>0</number>
-            </property>
-            <property name="bottomMargin" >
+            <property name="margin" >
              <number>0</number>
             </property>
             <item>
@@ -497,16 +457,7 @@
               <property name="spacing" >
                <number>6</number>
               </property>
-              <property name="leftMargin" >
-               <number>0</number>
-              </property>
-              <property name="topMargin" >
-               <number>0</number>
-              </property>
-              <property name="rightMargin" >
-               <number>0</number>
-              </property>
-              <property name="bottomMargin" >
+              <property name="margin" >
                <number>0</number>
               </property>
               <item>
@@ -525,7 +476,8 @@
                  <string>...</string>
                 </property>
                 <property name="icon" >
-                 <iconset resource="../images.qrc" >:/images/document_open.svg</iconset>
+                 <iconset resource="../images.qrc" >
+                  <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
                 </property>
                </widget>
               </item>
@@ -533,7 +485,7 @@
             </item>
            </layout>
           </item>
-          <item>
+          <item row="2" column="0" >
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QPushButton" name="fetch_cover_button" >
@@ -561,13 +513,13 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0" >
+   <item>
     <widget class="QDialogButtonBox" name="button_box" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>

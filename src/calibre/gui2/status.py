@@ -41,6 +41,9 @@ class BookInfoDisplay(QFrame):
             QLabel.__init__(self)
             #self.setTextInteractionFlags(Qt.TextSelectableByMouse)
             self.setText('')
+            self.setWordWrap(True)
+            self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum))
+            self.setMaximumHeight(100)
             
         def mouseReleaseEvent(self, ev):
             self.emit(SIGNAL('mr(int)'), 1)
@@ -52,7 +55,7 @@ class BookInfoDisplay(QFrame):
         self.layout = QHBoxLayout()
         self.setLayout(self.layout)
         self.cover_display = BookInfoDisplay.BookCoverDisplay()
-        self.layout.addWidget(self.cover_display)        
+        self.layout.addWidget(self.cover_display)
         self.book_data = BookInfoDisplay.BookDataDisplay()
         self.connect(self.book_data, SIGNAL('mr(int)'), self.mouseReleaseEvent)
         self.layout.addWidget(self.book_data)
@@ -73,9 +76,7 @@ class BookInfoDisplay(QFrame):
         self.data = data
         for key in data.keys():
             txt = data[key]
-            if len(txt) > 600:
-                txt = txt[:600]+'&hellip;'
-            txt = '<br />\n'.join(textwrap.wrap(txt, 120))
+            #txt = '<br />\n'.join(textwrap.wrap(txt, 120))
             rows += '<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
         self.book_data.setText('<table>'+rows+'</table>')
         
@@ -89,7 +90,7 @@ class MovieButton(QFrame):
         self.setLayout(QVBoxLayout())
         self.movie_widget = QLabel()
         self.movie_widget.setMovie(movie)
-        self.movie = movie        
+        self.movie = movie
         self.layout().addWidget(self.movie_widget)
         self.jobs = QLabel('<b>'+_('Jobs:')+' 0')
         self.jobs.setAlignment(Qt.AlignHCenter|Qt.AlignBottom)  
