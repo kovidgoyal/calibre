@@ -549,16 +549,12 @@ def strftime(fmt, t=time.localtime()):
         return unicode(result, locale.getpreferredencoding(), 'replace')
     except:
         return unicode(result, 'utf-8', 'replace')
-    
-if islinux:
+
+if islinux and not getattr(sys, 'frozen', False):
     import pkg_resources
-    if not os.environ.has_key('LD_LIBRARY_PATH'):
-        os.environ['LD_LIBRARY_PATH'] = ''
     plugins = pkg_resources.resource_filename(__appname__, 'plugins')
-    os.environ['LD_LIBRARY_PATH'] = plugins + ':' + os.environ['LD_LIBRARY_PATH']
     sys.path.insert(1, plugins)
-    cwd = os.getcwd()
-    os.chdir(plugins)
+    
 if iswindows and hasattr(sys, 'frozen'):
     sys.path.insert(1, os.path.dirname(sys.executable))
     
@@ -569,8 +565,6 @@ except Exception, err:
     pictureflow = None
     pictureflowerror = str(err)
 
-if islinux:
-    os.chdir(cwd)
     
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''

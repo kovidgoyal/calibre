@@ -8,7 +8,7 @@ from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread, \
                          QVariant
 
 from calibre import __appname__, __version__, __author__, setup_cli_handlers, islinux, Settings
-from calibre.ebooks.lrf.parser import LRFDocument
+from calibre.ebooks.lrf.lrfparser import LRFDocument
 
 from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, choose_files, Application
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog

@@ -8,11 +8,13 @@ from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.ebooks.metadata.opf import OPFReader
-from calibre import isosx, __appname__, setup_cli_handlers, iswindows
+from calibre import isosx, __appname__, setup_cli_handlers, iswindows, islinux
 
 CLIT = 'clit'
 if isosx and hasattr(sys, 'frameworks_dir'):
     CLIT = os.path.join(getattr(sys, 'frameworks_dir'), CLIT)
+if islinux and getattr(sys, 'frozen_path', False):
+    CLIT = os.path.join(getattr(sys, 'frozen_path'), 'clit')
 
 def option_parser():
     return lrf_option_parser(

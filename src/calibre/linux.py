@@ -39,7 +39,7 @@ entry_points = {
                              'fb22lrf   = calibre.ebooks.lrf.fb2.convert_from:main',
                              'fb2-meta  = calibre.ebooks.metadata.fb2:main',
                              'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
-                             'lrf2lrs   = calibre.ebooks.lrf.parser:main',
+                             'lrf2lrs   = calibre.ebooks.lrf.lrfparser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
                              'pdfreflow = calibre.ebooks.lrf.pdf.reflow:main',
                              'isbndb    = calibre.ebooks.metadata.isbndb:main',
@@ -154,7 +154,7 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.lrf.html.convert_from import option_parser as htmlop
         from calibre.ebooks.lrf.txt.convert_from import option_parser as txtop
         from calibre.ebooks.lrf.meta import option_parser as metaop
-        from calibre.ebooks.lrf.parser import option_parser as lrf2lrsop
+        from calibre.ebooks.lrf.lrfparser import option_parser as lrf2lrsop
         from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
         from calibre.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
         from calibre.ebooks.mobi.reader import option_parser as mobioeb
@@ -313,14 +313,17 @@ def setup_udev_rules(group_file, reload, fatal_errors):
             call(('/etc/rc.d/rc.hald', 'restart'))
         
         try:
-            check_call('udevcontrol reload_rules', shell=True)
+            check_call('udevadm control --reload_rules', shell=True)
         except:
             try:
-                check_call('/etc/init.d/udev reload', shell=True)
+                check_call('udevcontrol reload_rules', shell=True)
             except:
-                if fatal_errors:
-                    raise Exception("Couldn't reload udev, you may have to reboot")
-                print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
+                try:
+                    check_call('/etc/init.d/udev reload', shell=True)
+                except:
+                    if fatal_errors:
+                        raise Exception("Couldn't reload udev, you may have to reboot")
+                    print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
 
 def option_parser():
     from optparse import OptionParser
@@ -428,6 +431,19 @@ MIME = '''\
 </mime-info>
 '''
 
+def render_svg(image, dest):
+    from PyQt4.QtGui import QPainter, QImage
+    from PyQt4.QtSvg import QSvgRenderer
+    svg = QSvgRenderer(image.readAll())
+    painter = QPainter()
+    image = QImage(128,128,QImage.Format_ARGB32_Premultiplied)
+    painter.begin(image)
+    painter.setRenderHints(QPainter.Antialiasing|QPainter.TextAntialiasing|QPainter.SmoothPixmapTransform|QPainter.HighQualityAntialiasing)
+    painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+    svg.render(painter)
+    painter.end()
+    image.save(dest)
+
 def setup_desktop_integration(fatal_errors):
     try:
         from PyQt4.QtCore import QFile
@@ -438,25 +454,16 @@ def setup_desktop_integration(fatal_errors):
         
         
         tdir = mkdtemp()
-        rsvg = 'rsvg --dpi-x 600 --dpi-y 600 -w 128 -h 128 -f png '
         cwd = os.getcwdu()
         try:
             os.chdir(tdir)
-            if QFile(':/images/mimetypes/lrf.svg').copy(os.path.join(tdir, 'calibre-lrf.svg')):
-                check_call(rsvg + 'calibre-lrf.svg calibre-lrf.png', shell=True)
-                check_call('xdg-icon-resource install --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
-                check_call('xdg-icon-resource install --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
-            else:
-                raise Exception('Could not create LRF mimetype icon')
-            if QFile(':library').copy(os.path.join(tdir, 'calibre-gui.png')):
-                check_call('xdg-icon-resource install --size 128 calibre-gui.png calibre-gui', shell=True)
-            else:
-                raise Exception('Could not creaet GUI icon')
-            if QFile(':/images/viewer.svg').copy(os.path.join(tdir, 'calibre-viewer.svg')):
-                check_call(rsvg + 'calibre-viewer.svg calibre-viewer.png', shell=True)
-                check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-            else:
-                raise Exception('Could not creaet viewer icon')
+            render_svg(QFile(':/images/mimetypes/lrf.svg'), os.path.join(tdir, 'calibre-lrf.png'))
+            check_call('xdg-icon-resource install --context mimetypes --size 128 calibre-lrf.png application-lrf', shell=True)
+            check_call('xdg-icon-resource install --context mimetypes --size 128 calibre-lrf.png text-lrs', shell=True)
+            QFile(':library').copy(os.path.join(tdir, 'calibre-gui.png'))
+            check_call('xdg-icon-resource install --size 128 calibre-gui.png calibre-gui', shell=True)
+            render_svg(QFile(':/images/viewer.svg'), os.path.join(tdir, 'calibre-viewer.png'))
+            check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
             
             f = open('calibre-lrfviewer.desktop', 'wb')
             f.write(VIEWER)

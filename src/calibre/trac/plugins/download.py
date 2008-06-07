@@ -11,7 +11,7 @@ from trac.util import Markup
 
 __appname__ = 'calibre'
 DOWNLOAD_DIR = '/var/www/calibre.kovidgoyal.net/htdocs/downloads'
-
+LINUX_INSTALLER = '/var/www/calibre.kovidgoyal.net/calibre/src/calibre/linux_installer.py'
 
 
 class OS(dict):
@@ -38,7 +38,6 @@ class Distribution(object):
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('convertlit', '1.8', 'convertlit', None, None),
         ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
-        ('librsvg', '2.0.0', 'librsvg', 'librsvg2-bin', 'librsvg2'),
         ('genshi', '0.4.4', 'genshi', 'python-genshi', 'python-genshi'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
@@ -120,6 +119,8 @@ class Download(Component):
         add_stylesheet(req, 'dl/css/download.css')
         if req.path_info == '/download':
             return self.top_level(req)
+        elif req.path_info == '/download_linux_binary_installer':
+            req.send(open(LINUX_INSTALLER).read(), 'text/x-python')
         else:
             match = re.match(r'\/download_(\S+)', req.path_info)
             if match:

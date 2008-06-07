@@ -107,7 +107,6 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.job_manager, SIGNAL('job_done(int)'), self.status_bar.job_done,
                         Qt.QueuedConnection)
         QObject.connect(self.status_bar, SIGNAL('show_book_info()'), self.show_book_info)
-        
         ####################### Setup Toolbar #####################
         sm = QMenu()
         sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory'))
@@ -198,7 +197,6 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.resizeColumnsToContents()
         self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
-        
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -219,7 +217,6 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.setMaximumHeight(available_height())
              
-        
         ####################### Setup device detection ########################
         self.detector = DeviceDetector(sleep_time=2000)
         QObject.connect(self.detector, SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), 
@@ -1161,7 +1158,7 @@ def main(args=sys.argv):
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = Application(args)
-        app.setWindowIcon(QIcon(':/library'))    
+        app.setWindowIcon(QIcon(':/library'))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')
@@ -1170,19 +1167,19 @@ def main(args=sys.argv):
                single_instance.send_message('launched:'+repr(sys.argv)):
                     return 0
             
-            QMessageBox.critical(None, 'Cannot Start '+__appname__, 
+            QMessageBox.critical(None, 'Cannot Start '+__appname__,
                                  '<p>%s is already running.</p>'%__appname__)
             return 1
         initialize_file_icon_provider()
         try:
             main = Main(single_instance)
         except DatabaseLocked, err:
-            QMessageBox.critical(None, 'Cannot Start '+__appname__, 
+            QMessageBox.critical(None, 'Cannot Start '+__appname__,
             '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
             return 1
         sys.excepthook = main.unhandled_exception
         if len(sys.argv) > 1:
-            main.add_filesystem_book(sys.argv[1])    
+            main.add_filesystem_book(sys.argv[1])
         return app.exec_()
     return 0
     
