@@ -226,7 +226,7 @@ def create_launchers(destdir, bindir='/usr/bin'):
         lp = os.path.join(bindir, launcher)
         print 'Creating', lp
         open(lp, 'wb').write(LAUNCHER%(destdir, launcher))
-        os.chmod(lp, stat.S_IXUSR|stat.S_IXOTH|stat.S_IXGRP|stat.S_IREAD|stat.S_IWRITE)
+        os.chmod(lp, stat.S_IXUSR|stat.S_IXOTH|stat.S_IXGRP|stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
         
 def do_postinstall(destdir):
     cwd = os.getcwd()
