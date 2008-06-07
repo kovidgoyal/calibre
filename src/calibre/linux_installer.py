@@ -204,12 +204,12 @@ class ProgressBar:
 
 
 LAUNCHER='''\
-#!/bin/sh
+#!/bin/bash
 frozen_path=%s
 export ORIGWD=`pwd`
 export LD_LIBRARY_PATH=$frozen_path:$LD_LIBRARY_PATH
 cd $frozen_path
-./%s $*
+./%s "$@"
 '''
 
 def extract_tarball(tar, destdir):

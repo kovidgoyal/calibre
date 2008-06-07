@@ -125,7 +125,8 @@ open(hook, 'wb').write('hiddenimports = %%s'%%repr(temp) + '\\n')
 sys.path.insert(0, CALIBRESRC)
 from calibre.linux import entry_points
 
-executables, scripts = ['calibre_postinstall'], [os.path.join(CALIBRESRC, 'calibre', 'linux.py')]
+executables, scripts = ['calibre_postinstall', 'parallel'], 
+                       [os.path.join(CALIBRESRC, 'calibre', 'linux.py'), os.path.join(CALIBRESRC, 'calibre', 'parallel.py')]
 
 for entry in entry_points['console_scripts'] + entry_points['gui_scripts']:
     fields = entry.split('=')
