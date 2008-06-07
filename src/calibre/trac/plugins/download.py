@@ -130,7 +130,9 @@ class Download(Component):
                 elif os == 'osx':
                     return self.osx(req)
                 elif os == 'linux':
-                    return self.linux(req) 
+                    return self.linux(req)
+                elif 'binary' in os:
+                    return self.linux_binary(req) 
                 else:
                     return self.linux_distro(req, os)       
     
@@ -191,6 +193,10 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
 '''%dict(appname=__appname__)))
         return 'binary.html', data, None
     
+    def linux_binary(self, req):
+        version = self.version_from_filename()
+        return 'pyinstaller.html', {'app':__appname__, 'version':version}, None
+    
     def osx(self, req):
         version = self.version_from_filename()
         file = 'calibre-%s.dmg'%(version,) 
@@ -227,6 +233,7 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
     
     def linux(self, req):
         operating_systems = [
+            OS({'name' : 'binary', 'title': 'All distros'}),
             OS({'name' : 'gentoo', 'title': 'Gentoo'}),
             OS({'name' : 'ubuntu', 'title': 'Ubuntu'}),
             OS({'name' : 'fedora', 'title': 'Fedora'}),
