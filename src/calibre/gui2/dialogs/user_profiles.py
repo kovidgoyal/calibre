@@ -1,17 +1,15 @@
-from calibre.gui2 import choose_files
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, os
 
-from PyQt4.QtCore import SIGNAL
-from PyQt4.QtGui import QDialog, QMessageBox
+from PyQt4.QtCore import SIGNAL, QUrl
+from PyQt4.QtGui import QDialog, QMessageBox, QDesktopServices
 
 from calibre.web.feeds.recipes import compile_recipe
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode, error_dialog, question_dialog
+from calibre.gui2 import qstring_to_unicode, error_dialog, question_dialog, choose_files
 from calibre.gui2.widgets import PythonHighlighter
-from calibre.utils import sendmail
 from calibre.ptempfile import PersistentTemporaryFile 
 from calibre import isosx
 
@@ -68,10 +66,13 @@ class UserProfiles(QDialog, Ui_Dialog):
         pt = PersistentTemporaryFile(suffix='.py')
         pt.write(src.encode('utf-8'))
         pt.close()
-        sendmail(subject='Recipe for '+title,
-                 attachments=[pt.name],
-                 body=_('Save the text below into a file named recipe.py and send the file to your friends, to allow them to use this recipe.') if isosx else _('The attached file: %s is a recipe to download %s.')%(os.path.basename(pt.name), title))
-        
+        body = _('The attached file: %s is a recipe to download %s.')%(os.path.basename(pt.name), title)
+        subject = _('Recipe for ')+title
+        url = QUrl('mailto:')
+        url.addQueryItem('subject', subject)
+        url.addQueryItem('body', body)
+        url.addQueryItem('attachment', pt.name)
+        QDesktopServices.openUrl(url)
                  
     
     def edit_profile(self, current, previous):

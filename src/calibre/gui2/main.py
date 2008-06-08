@@ -3,9 +3,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, shutil, time
 from xml.parsers.expat import ExpatError
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QVariant, QThread, QString, QSize
+                         QVariant, QThread, QString, QSize, QUrl
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton, QDialog, QSizePolicy
+                        QToolButton, QDialog, QSizePolicy, QDesktopServices
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, launch, \
@@ -858,7 +858,7 @@ class Main(MainWindow, Ui_MainWindow):
                                                 monitor=False)
             self.viewer_job_id += 1
         else:
-            launch(name)
+            QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
         time.sleep(2) # User feedback
     
     def view_specific_format(self, triggered):

@@ -78,7 +78,7 @@ def build_osx():
     return os.path.basename(installer)
     #return build_installer(installer, vm, 20)
   
-def build_linux():
+def _build_linux():
     cwd = os.getcwd()
     tbz2 = os.path.join(cwd, installer_name('tar.bz2'))
     SPEC="""\
@@ -125,7 +125,7 @@ open(hook, 'wb').write('hiddenimports = %%s'%%repr(temp) + '\\n')
 sys.path.insert(0, CALIBRESRC)
 from calibre.linux import entry_points
 
-executables, scripts = ['calibre_postinstall', 'parallel'], 
+executables, scripts = ['calibre_postinstall', 'parallel'], \
                        [os.path.join(CALIBRESRC, 'calibre', 'linux.py'), os.path.join(CALIBRESRC, 'calibre', 'parallel.py')]
 
 for entry in entry_points['console_scripts'] + entry_points['gui_scripts']:
@@ -198,7 +198,7 @@ os.chdir(os.path.join(HOMEPATH, 'calibre', 'dist'))
 for f in os.listdir('.'):
     tf.add(f)
     
-"""%('/home/kovid', tbz2)
+"""%('/mnt/hgfs/giskard/', tbz2)
     os.chdir(os.path.expanduser('~/build/pyinstaller'))
     open('calibre/calibre.spec', 'wb').write(SPEC)
     try:
@@ -207,8 +207,17 @@ for f in os.listdir('.'):
         os.chdir(cwd)
     return os.path.basename(tbz2)
 
+def build_linux():
+    vm = '/vmware/linux/libprs500-gentoo.vmx'
+    vmware = ('vmware', '-q', '-x', '-n', vm)
+    subprocess.Popen(vmware)
+    print 'Waiting for linux to boot up...'
+    time.sleep(60)
+    check_call('ssh linux make -C /mnt/hgfs/giskard/work/calibre all egg linux_binary')
+    check_call('ssh sudo poweroff')
+
 def build_installers():
-    return build_windows(), build_osx()
+    return build_linux(), build_windows(), build_osx()
 
 def upload_demo():
     check_call('''html2lrf --title='Demonstration of html2lrf' --author='Kovid Goyal' '''
@@ -232,7 +241,7 @@ def upload_installers():
         check_call('''ssh divok rm -f %s/calibre\*.dmg'''%(DOWNLOADS,)) 
         check_call('''scp %s divok:%s/'''%(dmg, DOWNLOADS))
     if tbz2 and os.path.exists(tbz2):
-        check_call('''ssh divok rm -f %s/calibre-\*-i686.tar.bz2'''%(DOWNLOADS,))
+        check_call('''ssh divok rm -f %s/calibre-\*-i686.tar.bz2 %s/latest-linux-binary.tar.bz2'''%(DOWNLOADS,DOWNLOADS))
         check_call('''scp %s divok:%s/'''%(tbz2, DOWNLOADS))
         check_call('''ssh divok ln -s %s/calibre-\*-i686.tar.bz2 %s/latest-linux-binary.tar.bz2'''%(DOWNLOADS,DOWNLOADS))
     check_call('''ssh divok chmod a+r %s/\*'''%(DOWNLOADS,))
@@ -261,16 +270,7 @@ def upload_tarball():
     check_call('ssh divok rm -f %s/calibre-\*.tar.bz2'%DOWNLOADS)
     check_call('scp dist/calibre-*.tar.bz2 divok:%s/'%DOWNLOADS)
 
-def pypi():
-    vm = '/vmware/linux/libprs500-gentoo.vmx'
-    vmware = ('vmware', '-q', '-x', '-n', vm)
-    subprocess.Popen(vmware)
-    print 'Waiting for linux to boot up...'
-    time.sleep(60)
-    check_call('scp ~/.pypirc linux:')
-    check_call('ssh linux make -C /mnt/hgfs/giskard/work/calibre egg')
-    check_call('ssh linux rm -f ~/.pypirc')
-    check_call('ssh linux sudo poweroff')
+    
 
 def main():
     upload = len(sys.argv) < 2
@@ -289,10 +289,11 @@ def main():
         print 'Uploading installers...'
         upload_installers()
         print 'Uploading to PyPI'
-        pypi()
         upload_tarball()
         upload_docs()
         upload_user_manual()
+        check_call('rm -f dist/*.bz2 dist/*.exe dist/*.dmg')
+        check_call('python setup.py register upload')
         check_call('''rm -rf dist/* build/*''')
     
 if __name__ == '__main__':

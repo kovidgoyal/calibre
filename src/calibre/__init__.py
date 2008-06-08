@@ -16,7 +16,8 @@ from optparse import IndentedHelpFormatter
 from logging import Formatter
 
 from ttfquery import findsystem, describe
-from PyQt4.QtCore import QSettings, QVariant
+from PyQt4.QtCore import QSettings, QVariant, QUrl
+from PyQt4.QtGui import QDesktopServices
 
 from calibre.translations.msgfmt import make
 from calibre.ebooks.chardet import detect
@@ -389,13 +390,9 @@ def detect_ncpus():
 
 
 def launch(path_or_url):
-    if islinux:
-        subprocess.Popen(('xdg-open', path_or_url))
-    elif isosx:
-        subprocess.Popen(('open', path_or_url))
-    elif iswindows:
-        win32api = __import__('win32api', globals(), locals(), [], -1)
-        win32api.ShellExecute(0, 'open', path_or_url, None, os.getcwd(), 1)
+    if os.path.exists(path_or_url):
+        path_or_url = 'file:'+path_or_url
+    QDesktopServices.openUrl(QUrl(path_or_url))
         
 def relpath(target, base=os.curdir):
     """

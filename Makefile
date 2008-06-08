@@ -40,6 +40,8 @@ pictureflow :
 pot :
 	cd src/calibre/translations && ${PYTHON} __init__.py pot
 
-egg : all
-	${PYTHON} setup.py register bdist_egg --exclude-source-files upload
+egg : 
+	${PYTHON} setup.py bdist_egg --exclude-source-files
 
+linux_binary:
+	${PYTHON} -c "import upload; upload._build_linux()"
