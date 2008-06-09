@@ -46,6 +46,7 @@ BrandingText "${PRODUCT_NAME} created by Kovid Goyal"
 !define CLIT         "C:\clit\clit.exe"
 !define PDFTOHTML    "C:\pdftohtml\pdftohtml.exe"
 !define IMAGEMAGICK  "C:\ImageMagick"
+!DEFINE FONTCONFIG   "C:\fontconfig"
 
 
 ; ---------------PATH manipulation -----------------------------------------------------------------
@@ -283,6 +284,7 @@ Section "Main" "secmain"
   File /r "${PY2EXE_DIR}\*"
   File "${CLIT}"
   File "${PDFTOHTML}"
+  File /r "${FONTCONFIG}\*"
   
   SetOutPath "$INSTDIR\ImageMagick"
   File /r "${IMAGEMAGICK}\*"

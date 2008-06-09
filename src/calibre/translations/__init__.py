@@ -85,7 +85,6 @@ def main(args=sys.argv):
 if __name__ == '__main__':
     cwd = os.getcwd()
     sys.path.insert(0, os.path.dirname(os.path.dirname(cwd)))
-    print sys.path[0]
 
     sys.exit(main())
 

@@ -15,15 +15,14 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from logging import Formatter
 
-from ttfquery import findsystem, describe
 from PyQt4.QtCore import QSettings, QVariant, QUrl
 from PyQt4.QtGui import QDesktopServices
 
 from calibre.translations.msgfmt import make
 from calibre.ebooks.chardet import detect
 from calibre.terminfo import TerminalController
-terminal_controller = TerminalController(sys.stdout)
 
+terminal_controller = TerminalController(sys.stdout)
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx)
@@ -306,44 +305,6 @@ def set_translator():
         
 set_translator()
 
-font_families = {}
-def get_font_families(cached=None):
-    global font_families
-    if cached is not None:
-        font_families = cached
-    if not font_families:
-        try:
-            ffiles = findsystem.findFonts()
-        except Exception, err:
-            print 'WARNING: Could not find fonts on your system.'
-            print err
-        else:
-            zlist = []
-            for ff in ffiles:
-                try:
-                    if 'Optane' in str(ff):
-                        font = describe.openFont(ff)
-                        wt, italic = describe.modifiers(font)
-                except:
-                    pass
-                try:
-                    font = describe.openFont(ff)
-                except: # Some font files cause ttfquery to raise an exception, in which case they are ignored
-                    continue
-                try:
-                    wt, italic = describe.modifiers(font)
-                except:
-                    wt, italic = 0, 0
-                if wt == 400 and italic == 0:
-                    try:
-                        family = describe.shortName(font)[1].strip()
-                    except: # Windows strikes again!
-                        continue
-                    zlist.append((family, ff))
-            font_families = dict(zlist)
-            
-    return font_families
-
 def sanitize_file_name(name):
     '''
     Remove characters that are illegal in filenames from name. 
@@ -596,3 +557,12 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     except KeyError:
         return '&'+ent+';'
  
+if isosx:
+    fdir = os.path.expanduser('~/.fonts')
+    if not os.path.exists(fdir):
+        os.makedirs(fdir)
+    if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
+        from calibre.ebooks.lrf.fonts.liberation import __all__ as fonts
+        for font in fonts:
+            exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data'
+            open(os.path.join(fdir, font+'.ttf'), 'wb').write(font_data)

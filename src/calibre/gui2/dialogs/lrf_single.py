@@ -143,7 +143,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         for opt in ('--serif-family', '--sans-family', '--mono-family'):
             if opt in cmdline:
                 print 'in'
-                family = cmdline[cmdline.index(opt)+1].split(',')[1].strip()
+                family = cmdline[cmdline.index(opt)+1].split(',')[-1].strip()
                 obj = getattr(self, 'gui_'+opt[2:].replace('-', '_'))
                 try:
                     obj.setCurrentIndex(self.font_family_model.index_of(family))
@@ -332,12 +332,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         for opt in ('--serif-family', '--sans-family', '--mono-family'):
             obj = getattr(self, 'gui_'+opt[2:].replace('-', '_'))
             family = qstring_to_unicode(obj.itemText(obj.currentIndex())).strip()
-            try:
-                path = self.font_family_model.path_of(family)
-            except KeyError:
-                continue
-            if path:
-                cmd.extend([opt, os.path.dirname(path)+', '+family])
+            if family != 'None':
+                cmd.extend([opt, family])
         
         return cmd        
     
