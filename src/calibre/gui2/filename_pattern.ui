@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>349</width>
-    <height>441</height>
+    <width>335</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -39,6 +39,8 @@
        <widget class="QLineEdit" name="re" />
       </item>
      </layout>
+     <zorder>re</zorder>
+     <zorder>label</zorder>
     </widget>
    </item>
    <item>
@@ -46,7 +48,7 @@
      <property name="title" >
       <string>&amp;Test</string>
      </property>
-     <layout class="QVBoxLayout" >
+     <layout class="QVBoxLayout" name="verticalLayout" >
       <item>
        <layout class="QHBoxLayout" >
         <item>
@@ -76,7 +78,7 @@
        </layout>
       </item>
       <item>
-       <layout class="QGridLayout" >
+       <layout class="QGridLayout" name="gridLayout" >
         <item row="0" column="0" >
          <widget class="QLabel" name="label_3" >
           <property name="text" >
@@ -84,7 +86,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="1" >
+        <item row="0" column="1" colspan="2" >
          <widget class="QLineEdit" name="title" >
           <property name="toolTip" >
            <string>Regular expression group name (?P&lt;title>)</string>
@@ -104,7 +106,7 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="1" >
+        <item row="1" column="1" colspan="2" >
          <widget class="QLineEdit" name="authors" >
           <property name="toolTip" >
            <string>Regular expression group name (?P&lt;authors>)</string>
@@ -124,7 +126,7 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1" >
+        <item row="2" column="1" colspan="2" >
          <widget class="QLineEdit" name="series" >
           <property name="toolTip" >
            <string>Regular expression group name (?P&lt;series>)</string>
@@ -137,15 +139,35 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0" >
+        <item rowspan="2" row="3" column="0" >
          <widget class="QLabel" name="label_6" >
           <property name="text" >
            <string>Series index:</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1" >
+        <item rowspan="2" row="3" column="1" colspan="2" >
          <widget class="QLineEdit" name="series_index" >
+          <property name="toolTip" >
+           <string>Regular expression group name (?P&lt;series_index>)</string>
+          </property>
+          <property name="text" >
+           <string>No match</string>
+          </property>
+          <property name="readOnly" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" >
+         <widget class="QLabel" name="label_7" >
+          <property name="text" >
+           <string>ISBN:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" >
+         <widget class="QLineEdit" name="isbn" >
           <property name="toolTip" >
            <string>Regular expression group name (?P&lt;series_index>)</string>
           </property>
