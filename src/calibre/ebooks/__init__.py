@@ -17,4 +17,4 @@ class UnknownFormatError(Exception):
 
 BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'xhtm', 
                    'html', 'xhtml', 'epub', 'pdf', 'prc', 'mobi', 'azw', 
-                   'epub', 'fb2']
+                   'epub', 'fb2', 'djvu']

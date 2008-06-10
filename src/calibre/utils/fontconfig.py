@@ -120,7 +120,6 @@ lib.FcFontRenderPrepare.restype = POINTER(FcPattern)
 if not lib.FcInit():
     raise RuntimeError(_('Could not initialize the fontconfig library'))
 
-
 def find_font_families(allowed_extensions=['ttf']):
     '''
     Return an alphabetically sorted list of font families available on the system.

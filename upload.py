@@ -82,20 +82,24 @@ def _build_linux():
     cwd = os.getcwd()
     tbz2 = os.path.join(cwd, installer_name('tar.bz2'))
     SPEC="""\
+import os
 HOME           = '%s'
-PYINSTALLER    = HOME+'/build/pyinstaller'
+PYINSTALLER    = os.path.expanduser('~/build/pyinstaller')
 CALIBREPREFIX  = HOME+'/work/calibre'
 CLIT           = '/usr/bin/clit'
 PDFTOHTML      = '/usr/bin/pdftohtml'
 LIBUNRAR       = '/usr/lib/libunrar.so'
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml')
+EXTRAS         = ('/usr/lib/python2.5/site-packages/PIL', os.path.expanduser('~/ipython/IPython'))
 
 import glob, sys, subprocess, tarfile
 CALIBRESRC     = os.path.join(CALIBREPREFIX, 'src')
 CALIBREPLUGINS = os.path.join(CALIBRESRC, 'calibre', 'plugins')
 
 subprocess.check_call(('/usr/bin/sudo', 'chown', '-R', 'kovid:users', glob.glob('/usr/lib/python*/site-packages/')[-1]))
+subprocess.check_call('rm -rf %%(py)s/dist/* %%(py)s/build/*'%%dict(py=PYINSTALLER), shell=True)
+
 
 loader = os.path.join('/tmp', 'calibre_installer_loader.py')
 if not os.path.exists(loader):
@@ -112,8 +116,8 @@ excludes = ['gtk._gtk', 'gtk.glade', 'qt', 'matplotlib.nxutils', 'matplotlib._cn
             'matplotlib.ttconv', 'matplotlib._image', 'matplotlib.ft2font',
             'matplotlib._transforms', 'matplotlib._agg', 'matplotlib.backends._backend_agg',
             'matplotlib.axes', 'matplotlib', 'matplotlib.pyparsing',
-            'TKinter', 'atk', 'gobject._gobject', 'pango']
-temp = ['IPython.Extensions.ipy_profile_none']
+            'TKinter', 'atk', 'gobject._gobject', 'pango', 'PIL', 'Image', 'IPython']
+temp = ['keyword', 'codeop']
 
 recipes = ['calibre', 'web', 'feeds', 'recipes']
 prefix  = '.'.join(recipes)+'.'
@@ -192,9 +196,13 @@ coll = COLLECT(binaries, pyz, [('manifest', manifest, 'DATA'), ('version', versi
                excludes=excludes,
                name='dist'))
 
+os.chdir(os.path.join(HOMEPATH, 'calibre', 'dist'))
+for folder in EXTRAS:
+    subprocess.check_call('cp -rf %%s .'%%folder, shell=True)
+
 print 'Building tarball...'
 tf = tarfile.open('%s', 'w:bz2')
-os.chdir(os.path.join(HOMEPATH, 'calibre', 'dist'))
+
 for f in os.listdir('.'):
     tf.add(f)
     
@@ -214,7 +222,7 @@ def build_linux():
     print 'Waiting for linux to boot up...'
     time.sleep(60)
     check_call('ssh linux make -C /mnt/hgfs/giskard/work/calibre all egg linux_binary')
-    check_call('ssh sudo poweroff')
+    check_call('ssh linux sudo poweroff')
 
 def build_installers():
     return build_linux(), build_windows(), build_osx()
