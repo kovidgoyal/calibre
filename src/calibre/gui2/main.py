@@ -1151,11 +1151,10 @@ class Main(MainWindow, Ui_MainWindow):
                                                     device=self.device_info)))
         self.vanity.update()
         s = Settings()
-        if True or s.get('update to version %s'%version, True):
+        if s.get('update to version %s'%version, True):
             d = question_dialog(self, _('Update available'), _('%s has been updated to version %s. Visit the download page?')%(__appname__, version))
             if d.exec_() == QMessageBox.Yes:
                 url = 'http://calibre.kovidgoyal.net/download_'+('windows' if iswindows else 'osx' if isosx else 'linux')
-                print url
                 QDesktopServices.openUrl(QUrl(url))
             s.set('update to version %s'%version, False)
         
