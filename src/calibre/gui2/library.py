@@ -822,7 +822,7 @@ class SearchBox(QLineEdit):
         QLineEdit.mouseReleaseEvent(self, event)
     
     def text_edited_slot(self, text):
-        text = str(text)
+        text = qstring_to_unicode(text) if isinstance(text, QString) else unicode(text)
         self.prev_text = text
         self.timer = self.startTimer(self.__class__.INTERVAL)
         
