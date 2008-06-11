@@ -1454,8 +1454,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             stream.seek(0, 2)
             usize = stream.tell()
             stream.seek(0)
-            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
-                              (id, ext, usize, sqlite.Binary(compress(stream.read()))))
+            data = sqlite.Binary(compress(stream.read()))
+            try:
+                self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
+                              (id, ext, usize, data))
+            except sqlite.IntegrityError:
+                self.conn.execute('UPDATE data SET uncompressed_size=?, data=? WHERE book=? AND format=?',
+                                  (usize, data, id, ext))
         self.conn.commit()
     
     def import_book_directory_multiple(self, dirpath):
