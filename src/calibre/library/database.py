@@ -869,7 +869,14 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.cache = self.conn.execute('SELECT * from meta ORDER BY '+sort).fetchall()
         self.data  = self.cache
         self.conn.commit()
-        
+    
+    def refresh_ids(self, ids):
+        indices = map(self.index, ids)
+        for id, idx in zip(ids, indices):
+            row = self.conn.execute('SELECT * from meta WHERE id=?', (id,)).fetchone()
+            self.data[idx] = row
+        return indices
+    
     def filter(self, filters, refilter=False, OR=False):
         '''
         Filter data based on filters. All the filters must match for an item to

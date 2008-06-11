@@ -125,6 +125,11 @@ class BooksModel(QAbstractTableModel):
             db = LibraryDatabase(os.path.expanduser(db))
         self.db = db
         
+    def refresh_ids(self, ids):
+        rows = self.db.refresh_ids(ids)
+        for row in rows:
+            self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), self.index(row, 0), self.index(row, self.columnCount(None)-1))
+        
     def close(self):
         self.db.close()
         self.db = None

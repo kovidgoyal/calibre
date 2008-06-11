@@ -2,13 +2,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, shutil, time
 from xml.parsers.expat import ExpatError
+from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
                          QVariant, QThread, QString, QSize, QUrl
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton, QDialog, QSizePolicy, QDesktopServices
+                        QToolButton, QDialog, QDesktopServices
 from PyQt4.QtSvg import QSvgRenderer
 
-from calibre import __version__, __appname__, islinux, sanitize_file_name, launch, \
+from calibre import __version__, __appname__, islinux, sanitize_file_name, \
                     Settings, pictureflowerror, iswindows, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
@@ -75,6 +76,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.delete_memory = {}
         self.conversion_jobs = {}
         self.persistent_files = []
+        self.metadata_dialogs = []
         self.viewer_job_id = 1
         self.default_thumbnail = None
         self.device_error_dialog = ConversionErrorDialog(self, _('Error communicating with device'), ' ')
@@ -568,16 +570,14 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot edit metadata'), _('No books selected'))
             d.exec_()
             return
-        changed = False
         for row in rows:
-            if MetadataSingleDialog(self, row.row(), 
-                                    self.library_view.model().db).changed:
-                changed = True                        
-        
-        if changed:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
+            d = MetadataSingleDialog(self, row.row(), 
+                                    self.library_view.model().db)
+            self.connect(d, SIGNAL('accepted()'), partial(self.metadata_edited, d.id), Qt.QueuedConnection)
             
+    def metadata_edited(self, id):
+        self.library_view.model().refresh_ids([id])
+    
     def edit_bulk_metadata(self, checked):
         '''
         Edit metadata of selected books in library in bulk.

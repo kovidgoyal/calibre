@@ -220,7 +220,7 @@ def build_linux():
     vmware = ('vmware', '-q', '-x', '-n', vm)
     subprocess.Popen(vmware)
     print 'Waiting for linux to boot up...'
-    time.sleep(60)
+    time.sleep(75)
     check_call('ssh linux make -C /mnt/hgfs/giskard/work/calibre all egg linux_binary')
     check_call('ssh linux sudo poweroff')
 
@@ -301,7 +301,7 @@ def main():
         upload_docs()
         upload_user_manual()
         check_call('rm -f dist/*.bz2 dist/*.exe dist/*.dmg')
-        check_call('python setup.py register upload')
+        check_call('python setup.py register bdist_egg --exclude-source-files upload')
         check_call('''rm -rf dist/* build/*''')
     
 if __name__ == '__main__':
