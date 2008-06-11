@@ -163,7 +163,7 @@ class JobManager(QAbstractTableModel):
                     job = self.add_queue.pop()
                     self.waiting_jobs.append(job)
                     self.emit(SIGNAL('job_added(int)'), job.id, Qt.QueuedConnection)
-                    
+                    refresh = True
                 
                 for job in [job for job in self.running_jobs if job.isFinished()]:
                     self.running_jobs.remove(job)
