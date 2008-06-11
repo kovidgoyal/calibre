@@ -352,7 +352,8 @@ def install_man_pages(fatal_errors):
     for src in entry_points['console_scripts']:
         prog = src[:src.index('=')].strip()
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta', 
-                    'markdown-calibre', 'calibre-debug', 'fb2-meta'):
+                    'markdown-calibre', 'calibre-debug', 'fb2-meta',
+                    'calibre-fontconfig'):
             continue
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
                     '--section', '1', '--no-info', '--include',

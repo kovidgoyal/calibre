@@ -44,7 +44,10 @@ def load_library():
     elif iswindows:
         return cdll.LoadLibrary('libfontconfig-1')
     else:
-        return cdll.LoadLibrary('libfontconfig.so')
+        try:
+            return cdll.LoadLibrary('libfontconfig.so')
+        except:
+            return cdll.LoadLibrary('libfontconfig.so.1')
 
 class FcPattern(Structure):
     _fields_ = [

@@ -125,10 +125,14 @@ class BooksModel(QAbstractTableModel):
             db = LibraryDatabase(os.path.expanduser(db))
         self.db = db
         
-    def refresh_ids(self, ids):
+    def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
         for row in rows:
-            self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), self.index(row, 0), self.index(row, self.columnCount(None)-1))
+            if row == current_row:
+                self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), 
+                          self.get_book_display_info(row))
+            self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), 
+                      self.index(row, 0), self.index(row, self.columnCount(None)-1))
         
     def close(self):
         self.db.close()
@@ -212,17 +216,9 @@ class BooksModel(QAbstractTableModel):
                 img = self.default_image
             self.buffer[index] = img
     
-    def current_changed(self, current, previous, emit_signal=True):
+    def get_book_display_info(self, idx):
         data = {}
-        idx = current.row()
         cdata = self.cover(idx)
-        for key in self.buffer.keys():
-            if abs(key - idx) > self.buffer_size:
-                self.buffer.pop(key)
-        for i in range(max(0, idx-self.buffer_size), min(self.count(), idx+self.buffer_size)):
-            if not self.buffer.has_key(i):
-                self.load_queue.append(i)
-        
         if cdata:
             data['cover'] = cdata
         tags = self.db.tags(idx)
@@ -246,6 +242,21 @@ class BooksModel(QAbstractTableModel):
             sidx = self.db.series_index(idx)
             sidx = self.__class__.roman(sidx) if self.use_roman_numbers else str(sidx)
             data[_('Series')] = _('Book <font face="serif">%s</font> of %s.')%(sidx, series)
+            
+        return data
+    
+    def current_changed(self, current, previous, emit_signal=True):
+        
+        idx = current.row()
+        
+        for key in self.buffer.keys():
+            if abs(key - idx) > self.buffer_size:
+                self.buffer.pop(key)
+        for i in range(max(0, idx-self.buffer_size), min(self.count(), idx+self.buffer_size)):
+            if not self.buffer.has_key(i):
+                self.load_queue.append(i)
+        
+        data = self.get_book_display_info(idx)
         if emit_signal:
             self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
         else:
