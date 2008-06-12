@@ -300,7 +300,6 @@ def main():
         upload_tarball()
         upload_docs()
         upload_user_manual()
-        check_call('rm -f dist/*.bz2 dist/*.exe dist/*.dmg')
         check_call('python setup.py register bdist_egg --exclude-source-files upload')
         check_call('''rm -rf dist/* build/*''')
     
