@@ -423,10 +423,10 @@ class Main(MainWindow, Ui_MainWindow):
     def add_filesystem_book(self, path):
         if os.access(path, os.R_OK):
             books = [os.path.abspath(path)]
-        to_device = self.stack.currentIndex() != 0
-        self._add_books(books, to_device)
-        if to_device:
-            self.status_bar.showMessage(_('Uploading books to device.'), 2000)
+            to_device = self.stack.currentIndex() != 0
+            self._add_books(books, to_device)
+            if to_device:
+                self.status_bar.showMessage(_('Uploading books to device.'), 2000)
     
     def add_books(self, checked):
         '''
@@ -1152,7 +1152,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.vanity.update()
         s = Settings()
         if s.get('update to version %s'%version, True):
-            d = question_dialog(self, _('Update available'), _('%s has been updated to version %s. Visit the download page?')%(__appname__, version))
+            d = question_dialog(self, _('Update available'), _('%s has been updated to version %s. See the <a href="http://calibre.kovidgoyal.net/wiki/Changelog">new features</a>. Visit the download page?')%(__appname__, version))
             if d.exec_() == QMessageBox.Yes:
                 url = 'http://calibre.kovidgoyal.net/download_'+('windows' if iswindows else 'osx' if isosx else 'linux')
                 QDesktopServices.openUrl(QUrl(url))
