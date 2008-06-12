@@ -325,7 +325,7 @@ class Main(MainWindow, Ui_MainWindow):
             return
         info, cp, fs = result
         self.location_view.model().update_devices(cp, fs)
-        self.device_info = 'Connected '+' '.join(info[:-1])
+        self.device_info = _('Connected ')+' '.join(info[:-1])
         self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=self.device_info))
         func = self.device_manager.books_func()
         self.job_manager.run_device_job(self.metadata_downloaded, func)
