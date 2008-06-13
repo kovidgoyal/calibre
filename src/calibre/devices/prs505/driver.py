@@ -109,7 +109,7 @@ class PRS505(Device):
             devname = re.search(r'BSD Name.*=\s+"(\S+)"', src).group(1)
             self._main_prefix = re.search('/dev/%s(\w*)\s+on\s+([^\(]+)\s+'%(devname,), mount).group(2) + os.sep
         except:
-            raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
+            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
         try:
             src = subprocess.Popen('ioreg -n "%s"'%(self.OSX_SD_NAME,), 
                                shell=True, stdout=subprocess.PIPE).stdout.read()
@@ -143,7 +143,7 @@ class PRS505(Device):
                 
                 
         if not drives:
-            raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
+            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
         
         drives.sort(cmp=lambda a, b: cmp(a[0], b[0]))
         self._main_prefix = drives[0][1]
@@ -171,7 +171,7 @@ class PRS505(Device):
         
         mm = hm.FindDeviceStringMatch(__appname__+'.mainvolume', self.__class__.__name__)
         if not mm:
-            raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
+            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%(self.__class__.__name__,))
         self._main_prefix = None
         for dev in mm:
             try:

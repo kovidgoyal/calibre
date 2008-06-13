@@ -1750,7 +1750,7 @@ def process_file(path, options, logger=None):
     tpath = '' 
     try_opf(path, options, logger)
     if getattr(options, 'cover', None):
-        options.cover = os.path.expanduser(options.cover)            
+        options.cover = os.path.expanduser(options.cover)
         if not os.path.isabs(options.cover):
             options.cover = os.path.join(dirpath, options.cover)
         if os.access(options.cover, os.R_OK):
@@ -1768,7 +1768,7 @@ def process_file(path, options, logger=None):
                 cim = im.resize((width, height), PILImage.BICUBIC).convert('RGB') if \
                       scaled else im
                 cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
-                cf.close()                
+                cf.close()
                 cim.save(cf.name)
                 options.cover = cf.name
                 

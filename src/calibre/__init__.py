@@ -1,7 +1,7 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.68'
+__version__   = '0.4.70'
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
@@ -15,14 +15,14 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from logging import Formatter
 
-from ttfquery import findsystem, describe
-from PyQt4.QtCore import QSettings, QVariant
+from PyQt4.QtCore import QSettings, QVariant, QUrl
+from PyQt4.QtGui import QDesktopServices
 
 from calibre.translations.msgfmt import make
 from calibre.ebooks.chardet import detect
 from calibre.terminfo import TerminalController
-terminal_controller = TerminalController(sys.stdout)
 
+terminal_controller = TerminalController(sys.stdout)
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx)
@@ -305,44 +305,6 @@ def set_translator():
         
 set_translator()
 
-font_families = {}
-def get_font_families(cached=None):
-    global font_families
-    if cached is not None:
-        font_families = cached
-    if not font_families:
-        try:
-            ffiles = findsystem.findFonts()
-        except Exception, err:
-            print 'WARNING: Could not find fonts on your system.'
-            print err
-        else:
-            zlist = []
-            for ff in ffiles:
-                try:
-                    if 'Optane' in str(ff):
-                        font = describe.openFont(ff)
-                        wt, italic = describe.modifiers(font)
-                except:
-                    pass
-                try:
-                    font = describe.openFont(ff)
-                except: # Some font files cause ttfquery to raise an exception, in which case they are ignored
-                    continue
-                try:
-                    wt, italic = describe.modifiers(font)
-                except:
-                    wt, italic = 0, 0
-                if wt == 400 and italic == 0:
-                    try:
-                        family = describe.shortName(font)[1].strip()
-                    except: # Windows strikes again!
-                        continue
-                    zlist.append((family, ff))
-            font_families = dict(zlist)
-            
-    return font_families
-
 def sanitize_file_name(name):
     '''
     Remove characters that are illegal in filenames from name. 
@@ -389,13 +351,9 @@ def detect_ncpus():
 
 
 def launch(path_or_url):
-    if islinux:
-        subprocess.Popen(('xdg-open', path_or_url))
-    elif isosx:
-        subprocess.Popen(('open', path_or_url))
-    elif iswindows:
-        win32api = __import__('win32api', globals(), locals(), [], -1)
-        win32api.ShellExecute(0, 'open', path_or_url, None, os.getcwd(), 1)
+    if os.path.exists(path_or_url):
+        path_or_url = 'file:'+path_or_url
+    QDesktopServices.openUrl(QUrl(path_or_url))
         
 def relpath(target, base=os.curdir):
     """
@@ -549,16 +507,12 @@ def strftime(fmt, t=time.localtime()):
         return unicode(result, locale.getpreferredencoding(), 'replace')
     except:
         return unicode(result, 'utf-8', 'replace')
-    
-if islinux:
+
+if islinux and not getattr(sys, 'frozen', False):
     import pkg_resources
-    if not os.environ.has_key('LD_LIBRARY_PATH'):
-        os.environ['LD_LIBRARY_PATH'] = ''
     plugins = pkg_resources.resource_filename(__appname__, 'plugins')
-    os.environ['LD_LIBRARY_PATH'] = plugins + ':' + os.environ['LD_LIBRARY_PATH']
     sys.path.insert(1, plugins)
-    cwd = os.getcwd()
-    os.chdir(plugins)
+    
 if iswindows and hasattr(sys, 'frozen'):
     sys.path.insert(1, os.path.dirname(sys.executable))
     
@@ -569,8 +523,6 @@ except Exception, err:
     pictureflow = None
     pictureflowerror = str(err)
 
-if islinux:
-    os.chdir(cwd)
     
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''
@@ -605,3 +557,12 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     except KeyError:
         return '&'+ent+';'
  
+if isosx:
+    fdir = os.path.expanduser('~/.fonts')
+    if not os.path.exists(fdir):
+        os.makedirs(fdir)
+    if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
+        from calibre.ebooks.lrf.fonts.liberation import __all__ as fonts
+        for font in fonts:
+            exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data'
+            open(os.path.join(fdir, font+'.ttf'), 'wb').write(font_data)

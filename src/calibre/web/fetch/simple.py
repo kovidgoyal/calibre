@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch a webpage and its links recursively. The webpages are saved to disk in
 UTF-8 encoding with any charset declarations removed.
 '''
-import sys, socket, os, urlparse, codecs, logging, re, time, copy, urllib2, threading, traceback
+import sys, socket, os, urlparse, logging, re, time, copy, urllib2, threading, traceback
 from urllib import url2pathname
 from httplib import responses
 
@@ -43,8 +43,9 @@ def save_soup(soup, target):
             if path and os.path.isfile(path) and os.path.exists(path) and os.path.isabs(path):
                 tag[key] = relpath(path, selfdir).replace(os.sep, '/')
     
-    f = codecs.open(target, 'w', 'utf-8')
-    f.write(unicode(soup))
+    f = open(target, 'wb')
+    html = unicode(soup)
+    f.write(html.encode('utf-8'))
     f.close()
 
 

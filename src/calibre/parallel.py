@@ -11,7 +11,7 @@ from calibre.ebooks.lrf.any.convert_from import main as any2lrf
 from calibre.ebooks.lrf.web.convert_from import main as web2lrf
 from calibre.ebooks.lrf.feeds.convert_from import main as feeds2lrf
 from calibre.gui2.lrf_renderer.main import main as lrfviewer
-from calibre import iswindows, __appname__
+from calibre import iswindows, __appname__, islinux
 try:
     from calibre.utils.single_qt_application import SingleApplication
 except:
@@ -41,7 +41,11 @@ if iswindows:
         python = os.path.join(os.path.dirname(python), 'parallel.exe')
     else:
         python = os.path.join(os.path.dirname(python), 'Scripts\\parallel.exe')
-    popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up 
+    popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
+
+if islinux and hasattr(sys, 'frozen_path'):
+    python = os.path.join(getattr(sys, 'frozen_path'), 'parallel')
+    popen = partial(subprocess.Popen, cwd=getattr(sys, 'frozen_path')) 
 
 def cleanup(tdir):
     try:

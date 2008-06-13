@@ -100,12 +100,21 @@ class MetaInformation(object):
     def __str__(self):
         ans = u''
         ans += u'Title    : ' + unicode(self.title) + u'\n'
-        ans += u'Author   : ' + (', '.join(self.authors) if self.authors is not None else u'None')
-        ans += ((' (' + self.author_sort + ')') if self.author_sort else '') + u'\n'
-        ans += u'Publisher: '+ unicode(self.publisher) + u'\n' 
-        ans += u'Category : ' + unicode(self.category) + u'\n'
-        ans += u'Comments : ' + unicode(self.comments) + u'\n'
-        ans += u'ISBN     : '     + unicode(self.isbn) + u'\n'
+        if self.authors:
+            ans += u'Author   : ' + (', '.join(self.authors) if self.authors is not None else u'None')
+            ans += ((' (' + self.author_sort + ')') if self.author_sort else '') + u'\n'
+        if self.publisher:
+            ans += u'Publisher: '+ unicode(self.publisher) + u'\n'
+        if self.category: 
+            ans += u'Category : ' + unicode(self.category) + u'\n'
+        if self.comments:
+            ans += u'Comments : ' + unicode(self.comments) + u'\n'
+        if self.isbn:
+            ans += u'ISBN     : '     + unicode(self.isbn) + u'\n'
+        if self.tags:
+            ans += u'Tags     : ' +unicode(self.tags) + '\n'
+        if self.series:
+            ans += u'Series   : '+unicode(self.series) + '(%d)'%self.series_index  
         return ans.strip()
     
     def __nonzero__(self):

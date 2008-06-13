@@ -11,7 +11,7 @@ from trac.util import Markup
 
 __appname__ = 'calibre'
 DOWNLOAD_DIR = '/var/www/calibre.kovidgoyal.net/htdocs/downloads'
-
+LINUX_INSTALLER = '/var/www/calibre.kovidgoyal.net/calibre/src/calibre/linux_installer.py'
 
 
 class OS(dict):
@@ -31,14 +31,12 @@ class Distribution(object):
         ('libusb', '0.1.12', None, None, None),
         ('Qt', '4.4.0', 'qt', 'libqt4-core libqt4-gui', 'qt4'),
         ('PyQt', '4.4.2', 'PyQt4', 'python-qt4', 'PyQt4'),
-        ('fonttools', '2.0-beta1', 'fonttools', 'fonttools', 'fonttools'),
         ('mechanize for python', '0.1.7b', 'dev-python/mechanize', 'python-mechanize', 'python-mechanize'),
         ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('convertlit', '1.8', 'convertlit', None, None),
         ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
-        ('librsvg', '2.0.0', 'librsvg', 'librsvg2-bin', 'librsvg2'),
         ('genshi', '0.4.4', 'genshi', 'python-genshi', 'python-genshi'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
@@ -120,6 +118,8 @@ class Download(Component):
         add_stylesheet(req, 'dl/css/download.css')
         if req.path_info == '/download':
             return self.top_level(req)
+        elif req.path_info == '/download_linux_binary_installer':
+            req.send(open(LINUX_INSTALLER).read(), 'text/x-python')
         else:
             match = re.match(r'\/download_(\S+)', req.path_info)
             if match:
@@ -129,7 +129,9 @@ class Download(Component):
                 elif os == 'osx':
                     return self.osx(req)
                 elif os == 'linux':
-                    return self.linux(req) 
+                    return self.linux(req)
+                elif 'binary' in os:
+                    return self.linux_binary(req) 
                 else:
                     return self.linux_distro(req, os)       
     
@@ -190,6 +192,10 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
 '''%dict(appname=__appname__)))
         return 'binary.html', data, None
     
+    def linux_binary(self, req):
+        version = self.version_from_filename()
+        return 'pyinstaller.html', {'app':__appname__, 'version':version}, None
+    
     def osx(self, req):
         version = self.version_from_filename()
         file = 'calibre-%s.dmg'%(version,) 
@@ -226,6 +232,7 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
     
     def linux(self, req):
         operating_systems = [
+            OS({'name' : 'binary', 'title': 'All distros'}),
             OS({'name' : 'gentoo', 'title': 'Gentoo'}),
             OS({'name' : 'ubuntu', 'title': 'Ubuntu'}),
             OS({'name' : 'fedora', 'title': 'Fedora'}),

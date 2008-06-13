@@ -435,7 +435,7 @@ class BasicNewsRecipe(object, LoggingInterface):
             self.simultaneous_downloads = 1
             
         self.navbar = templates.NavBarTemplate()
-        self.html2lrf_options.extend(['--page-break-before', '$', '--use-spine', '--header'])
+        self.html2lrf_options.extend(['--page-break-before', '$', '--use-spine', '--header', '--encoding', 'utf-8'])
         if '--base-font-size' not in self.html2lrf_options:
             self.html2lrf_options.extend(['--base-font-size', '12'])
         self.failed_downloads = []
@@ -645,9 +645,9 @@ class BasicNewsRecipe(object, LoggingInterface):
             html = self.feed2index(feed)
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
             open(os.path.join(feed_dir, 'index.html'), 'wb').write(html)
-        
         self.create_opf(feeds)
         self.report_progress(1, _('Feeds downloaded to %s')%index)
+        
         return index
     
     def download_cover(self):
@@ -704,7 +704,7 @@ class BasicNewsRecipe(object, LoggingInterface):
                         entries.append(relp.replace(os.sep, '/'))
                         last = sp
                     
-                    src = open(last, 'rb').read()
+                    src = open(last, 'rb').read().decode('utf-8')
                     soup = BeautifulSoup(src)
                     body = soup.find('body')
                     if body is not None:

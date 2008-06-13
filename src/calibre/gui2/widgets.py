@@ -14,7 +14,8 @@ from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QRect, SIGNAL, \
 from calibre.gui2.jobs import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
-from calibre import fit_image, get_font_families, Settings
+from calibre import fit_image, Settings
+from calibre.utils.fontconfig import find_font_families
 from calibre.ebooks.metadata.meta import get_filename_pat, metadata_from_filename, \
                                            set_filename_pat
 
@@ -56,6 +57,9 @@ class FilenamePattern(QWidget, Ui_Form):
             self.series_index.setText(str(mi.series_index))
         else:
             self.series_index.setText(_('No match'))
+            
+        self.isbn.setText(_('No match') if mi.isbn is None else str(mi.isbn))
+            
     
     def pattern(self):
         pat = qstring_to_unicode(self.re.text())
@@ -236,8 +240,7 @@ class FontFamilyModel(QAbstractListModel):
     
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
-        self.family_map = get_font_families()
-        self.families = self.family_map.keys()
+        self.families = find_font_families()
         self.families.sort()
         self.families[:0] = ['None']
         
@@ -256,11 +259,6 @@ class FontFamilyModel(QAbstractListModel):
         if role == Qt.FontRole:
             return QVariant(QFont(family))
         return NONE
-    
-    def path_of(self, family):
-        if family != None:
-            return self.family_map[family]
-        return None
     
     def index_of(self, family):
         return self.families.index(family.strip())

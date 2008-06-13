@@ -289,7 +289,9 @@ class FileDialog(QObject):
         
         
     
-    def get_files(self): 
+    def get_files(self):
+        if islinux and self.fd.result() != self.fd.Accepted:
+            return tuple() 
         if self.selected_files is None:       
             return tuple(os.path.abspath(qstring_to_unicode(i)) for i in self.fd.selectedFiles())
         return tuple(self.selected_files)

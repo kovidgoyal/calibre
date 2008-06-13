@@ -869,7 +869,14 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.cache = self.conn.execute('SELECT * from meta ORDER BY '+sort).fetchall()
         self.data  = self.cache
         self.conn.commit()
-        
+    
+    def refresh_ids(self, ids):
+        indices = map(self.index, ids)
+        for id, idx in zip(ids, indices):
+            row = self.conn.execute('SELECT * from meta WHERE id=?', (id,)).fetchone()
+            self.data[idx] = row
+        return indices
+    
     def filter(self, filters, refilter=False, OR=False):
         '''
         Filter data based on filters. All the filters must match for an item to
@@ -1447,8 +1454,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             stream.seek(0, 2)
             usize = stream.tell()
             stream.seek(0)
-            self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
-                              (id, ext, usize, sqlite.Binary(compress(stream.read()))))
+            data = sqlite.Binary(compress(stream.read()))
+            try:
+                self.conn.execute('INSERT INTO data(book, format, uncompressed_size, data) VALUES (?,?,?,?)',
+                              (id, ext, usize, data))
+            except sqlite.IntegrityError:
+                self.conn.execute('UPDATE data SET uncompressed_size=?, data=? WHERE book=? AND format=?',
+                                  (usize, data, id, ext))
         self.conn.commit()
     
     def import_book_directory_multiple(self, dirpath):

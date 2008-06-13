@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os, subprocess, logging
 from functools import partial
-from calibre import isosx, setup_cli_handlers, filename_to_utf8, iswindows
+from calibre import isosx, setup_cli_handlers, filename_to_utf8, iswindows, islinux
 from calibre.ebooks import ConversionError
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
@@ -15,9 +15,10 @@ popen = subprocess.Popen
 if isosx and hasattr(sys, 'frameworks_dir'):
     PDFTOHTML = os.path.join(getattr(sys, 'frameworks_dir'), PDFTOHTML)
 if iswindows and hasattr(sys, 'frozen'):
-        PDFTOHTML = os.path.join(os.path.dirname(sys.executable), 'pdftohtml.exe')
-        popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
-
+    PDFTOHTML = os.path.join(os.path.dirname(sys.executable), 'pdftohtml.exe')
+    popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
+if islinux and getattr(sys, 'frozen_path', False):
+    PDFTOHTML = os.path.join(getattr(sys, 'frozen_path'), 'pdftohtml')
 
 def generate_html(pathtopdf, logger):
     '''

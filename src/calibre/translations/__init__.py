@@ -3,16 +3,16 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Manage translation of user visible strings.
 '''
-
 import sys, os, cStringIO, tempfile, subprocess, functools, tarfile, re, time, \
-       glob, urllib2, shutil 
+       glob, urllib2, shutil
 check_call = functools.partial(subprocess.check_call, shell=True)
 
 try:
     from calibre.translations.pygettext import main as pygettext
     from calibre.translations.msgfmt import main as msgfmt
 except ImportError:
-    sys.path.insert(1, os.path.abspath('..'))
+    cwd = os.getcwd()
+    sys.path.insert(0, os.path.dirname(os.path.dirname(cwd)))
     from calibre.translations.pygettext import main as pygettext
     from calibre.translations.msgfmt import main as msgfmt
 
@@ -77,10 +77,14 @@ def main(args=sys.argv):
         if args[1] == 'pot':
             create_pot()
         else:
-            import_from_launchpad(args[1])            
+            import_from_launchpad(args[1])
     else:
         compile_translations()
     return 0
         
 if __name__ == '__main__':
+    cwd = os.getcwd()
+    sys.path.insert(0, os.path.dirname(os.path.dirname(cwd)))
+
     sys.exit(main())
+

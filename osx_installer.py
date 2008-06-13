@@ -240,6 +240,9 @@ _check_symlinks_prescript()
         os.link(os.path.expanduser('~/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
         print 'Adding plugins'
         module_dir = os.path.join(resource_dir, 'lib', 'python2.5', 'lib-dynload')
+        print 'Adding fontconfig'
+        for f in glob.glob(os.path.expanduser('~/fontconfig/*')):
+            os.link(f, os.path.join(frameworks_dir, os.path.basename(f)))
         for src, dest in plugin_files:
             if 'dylib' in dest:
                 os.link(src, os.path.join(frameworks_dir, dest))

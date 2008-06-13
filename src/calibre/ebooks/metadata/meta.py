@@ -133,6 +133,11 @@ def metadata_from_filename(name, pat=None):
             mi.series_index = int(si)
         except IndexError, ValueError:
             pass
+        try:
+            si = match.group('isbn')
+            mi.isbn = si
+        except IndexError, ValueError:
+            pass
     if not mi.title:
         mi.title = name
     return mi

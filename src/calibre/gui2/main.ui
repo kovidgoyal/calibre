@@ -27,9 +27,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>74</y>
+     <y>86</y>
      <width>865</width>
-     <height>723</height>
+     <height>712</height>
     </rect>
    </property>
    <layout class="QGridLayout" >
@@ -332,8 +332,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>857</width>
-         <height>571</height>
+         <width>847</width>
+         <height>553</height>
         </rect>
        </property>
        <layout class="QGridLayout" >
@@ -380,7 +380,7 @@
      <x>0</x>
      <y>0</y>
      <width>865</width>
-     <height>74</height>
+     <height>86</height>
     </rect>
    </property>
    <property name="minimumSize" >
@@ -425,9 +425,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>797</y>
+     <y>798</y>
      <width>865</width>
-     <height>25</height>
+     <height>24</height>
     </rect>
    </property>
    <property name="mouseTracking" >
@@ -499,6 +499,9 @@
    <property name="text" >
     <string>Save to disk</string>
    </property>
+   <property name="shortcut" >
+    <string>S</string>
+   </property>
   </action>
   <action name="action_news" >
    <property name="icon" >
@@ -507,6 +510,9 @@
    </property>
    <property name="text" >
     <string>Fetch news</string>
+   </property>
+   <property name="shortcut" >
+    <string>F</string>
    </property>
   </action>
   <action name="action_convert" >
@@ -517,6 +523,9 @@
    <property name="text" >
     <string>Convert E-books</string>
    </property>
+   <property name="shortcut" >
+    <string>C</string>
+   </property>
   </action>
   <action name="action_view" >
    <property name="icon" >
@@ -525,6 +534,9 @@
    </property>
    <property name="text" >
     <string>View</string>
+   </property>
+   <property name="shortcut" >
+    <string>V</string>
    </property>
   </action>
  </widget>

@@ -27,20 +27,21 @@ pictureflow :
 	mkdir -p src/calibre/plugins && rm -f src/calibre/plugins/*pictureflow* && \
 	cd src/calibre/gui2/pictureflow && rm -f *.o && \
 	mkdir -p .build && cd .build && rm -f * && \
-	qmake ../pictureflow.pro && make && \
+	qmake ../pictureflow.pro && make staticlib && \
 	cd ../PyQt && \
 	mkdir -p .build && \
 	cd .build && rm -f * && \
 	python ../configure.py && make && \
 	cd ../../../../../.. && \
-	cp src/calibre/gui2/pictureflow/.build/libpictureflow.so.?.?.? src/calibre/gui2/pictureflow/PyQt/.build/pictureflow.so src/calibre/plugins/ && \
-	python -c "import os, glob; lp = glob.glob('src/calibre/plugins/libpictureflow.so.*')[0]; os.rename(lp, lp[:-4])" && \
+	cp src/calibre/gui2/pictureflow/PyQt/.build/pictureflow.so src/calibre/plugins/ && \
 	rm -rf src/calibre/gui2/pictureflow/.build rm -rf src/calibre/gui2/pictureflow/PyQt/.build
 
 
 pot :
 	cd src/calibre/translations && ${PYTHON} __init__.py pot
 
-egg : all
-	${PYTHON} setup.py register bdist_egg --exclude-source-files upload
+egg : 
+	${PYTHON} setup.py bdist_egg --exclude-source-files
 
+linux_binary:
+	${PYTHON} -c "import upload; upload._build_linux()"

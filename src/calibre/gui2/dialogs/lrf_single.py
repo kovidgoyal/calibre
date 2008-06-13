@@ -50,12 +50,17 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     
     def __init__(self, window, db, row):
         QDialog.__init__(self, window)
-        Ui_LRFSingleDialog.__init__(self)        
+        Ui_LRFSingleDialog.__init__(self)
         self.setupUi(self)
-        self.item1 = QListWidgetItem(QIcon(':/images/dialog_information.svg'), _("Metadata"), self.categoryList)
-        self.item2 = QListWidgetItem(QIcon(':/images/lookfeel.svg'), _('Look & Feel'), self.categoryList)
-        self.item3 = QListWidgetItem(QIcon(':/images/page.svg'), _('Page Setup'), self.categoryList)
-        self.item4 = QListWidgetItem(QIcon(':/images/chapters.svg'), _('Chapter Detection'), self.categoryList)
+        self.__w = []
+        self.__w.append(QIcon(':/images/dialog_information.svg'))
+        self.item1 = QListWidgetItem(self.__w[-1], _("Metadata"), self.categoryList)
+        self.__w.append(QIcon(':/images/lookfeel.svg'))
+        self.item2 = QListWidgetItem(self.__w[-1], _('Look & Feel'), self.categoryList)
+        self.__w.append(QIcon(':/images/page.svg'))
+        self.item3 = QListWidgetItem(self.__w[-1], _('Page Setup'), self.categoryList)
+        self.__w.append(QIcon(':/images/chapters.svg'))
+        self.item4 = QListWidgetItem(self.__w[-1], _('Chapter Detection'), self.categoryList)
         self.categoryList.setCurrentRow(0)
         QObject.connect(self.categoryList, SIGNAL('itemEntered(QListWidgetItem *)'),
                         self.show_category_help)
@@ -70,7 +75,6 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.cpixmap = None
         self.changed = False
         
-        
         if db:
             self.id = self.db.id(self.row)
             self.read_saved_options()
@@ -82,7 +86,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             except ValueError:
                 pass        
             if not formats:
-                d = error_dialog(window, _('No available formats'), 
+                d = error_dialog(window, _('No available formats'),
                         _('Cannot convert %s as this book has no supported formats')%(self.gui_title.text()))
                 d.exec_()
         
@@ -143,7 +147,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         for opt in ('--serif-family', '--sans-family', '--mono-family'):
             if opt in cmdline:
                 print 'in'
-                family = cmdline[cmdline.index(opt)+1].split(',')[1].strip()
+                family = cmdline[cmdline.index(opt)+1].split(',')[-1].strip()
                 obj = getattr(self, 'gui_'+opt[2:].replace('-', '_'))
                 try:
                     obj.setCurrentIndex(self.font_family_model.index_of(family))
@@ -332,12 +336,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         for opt in ('--serif-family', '--sans-family', '--mono-family'):
             obj = getattr(self, 'gui_'+opt[2:].replace('-', '_'))
             family = qstring_to_unicode(obj.itemText(obj.currentIndex())).strip()
-            try:
-                path = self.font_family_model.path_of(family)
-            except KeyError:
-                continue
-            if path:
-                cmd.extend([opt, os.path.dirname(path)+', '+family])
+            if family != 'None':
+                cmd.extend([opt, family])
         
         return cmd        
     

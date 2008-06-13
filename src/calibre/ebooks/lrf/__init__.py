@@ -9,7 +9,6 @@ from optparse import OptionValueError
 from htmlentitydefs import name2codepoint
 from uuid import uuid4
 
-from ttfquery import describe, findsystem
 from fontTools.ttLib import TTLibError
 
 from calibre.ebooks.lrf.pylrs.pylrs import Book as _Book
@@ -66,20 +65,6 @@ def profile_from_string(option, opt_str, value, parser):
         setattr(parser.values, option.dest, profile)
     except KeyError:
         raise OptionValueError('Profile: '+value+' is not implemented. Implemented profiles: %s'%(profile_map.keys()))
-    
-def font_family(option, opt_str, value, parser):
-    if value:
-        value = value.split(',')
-        if len(value) != 2:
-            raise OptionValueError('Font family specification must be of the form'+\
-                                   ' "path to font directory, font family"')
-        path, family = tuple(value)
-        if not os.path.isdir(path) or not os.access(path, os.R_OK|os.X_OK):
-            raise OptionValueError('Cannot read from ' + path)
-        setattr(parser.values, option.dest, (path, family))
-    else:
-        setattr(parser.values, option.dest, tuple())
-            
     
 def option_parser(usage, gui_mode=False):
     parser = OptionParser(usage=usage, gui_mode=gui_mode)
@@ -203,18 +188,17 @@ def option_parser(usage, gui_mode=False):
     fonts = parser.add_option_group('FONT FAMILIES', 
     _('''Specify trutype font families for serif, sans-serif and monospace fonts. '''
     '''These fonts will be embedded in the LRF file. Note that custom fonts lead to '''
-    '''slower page turns. Each family specification is of the form: '''
-    '''"path to fonts directory, family" '''
+    '''slower page turns. '''
     '''For example: '''
-    '''--serif-family "%s, Times New Roman"
-    ''') % ('C:\Windows\Fonts' if iswindows else '/usr/share/fonts/corefonts'))
-    fonts.add_option('--serif-family', action='callback', callback=font_family, 
+    '''--serif-family "Times New Roman"
+    '''))
+    fonts.add_option('--serif-family',  
                      default=None, dest='serif_family', type='string',
                      help=_('The serif family of fonts to embed'))
-    fonts.add_option('--sans-family',  action='callback', callback=font_family, 
+    fonts.add_option('--sans-family',   
                      default=None, dest='sans_family', type='string',
                      help=_('The sans-serif family of fonts to embed'))
-    fonts.add_option('--mono-family',  action='callback', callback=font_family, 
+    fonts.add_option('--mono-family',   
                      default=None, dest='mono_family', type='string',
                      help=_('The monospace family of fonts to embed'))
     
@@ -231,45 +215,25 @@ def option_parser(usage, gui_mode=False):
     return parser
 
 def find_custom_fonts(options, logger):
+    from calibre.utils.fontconfig import files_for_family
     fonts = {'serif' : None, 'sans' : None, 'mono' : None}
-    def find_family(option):
-        path, family = option
-        paths = findsystem.findFonts([path])
-        results = {}
-        for path in paths:
-            if len(results.keys()) == 4:
-                break
-            f = describe.openFont(path)
-            name, cfamily = describe.shortName(f)
-            if cfamily.lower().strip() != family.lower().strip():
-                continue
-            try:
-                wt, italic = describe.modifiers(f)
-            except TTLibError:
-                logger.exception('Could not process fonts in %s', path)
-                wt, italic = 0, 0
-            result = (path, name)
-            if wt == 400 and italic == 0:
-                results['normal'] = result
-            elif wt == 400 and italic > 0:
-                results['italic'] = result
-            elif wt >= 700 and italic == 0:
-                results['bold'] = result
-            elif wt >= 700 and italic > 0:
-                results['bi'] = result
-        return results
+    def family(cmd):
+        return cmd.split(',')[-1].strip()
     if options.serif_family:
-        fonts['serif'] = find_family(options.serif_family)
+        f = family(options.serif_family)
+        fonts['serif'] = files_for_family(f)
         if not fonts['serif']:
-            logger.warn('Unable to find serif family %s in %s'%(options.serif_family[1].strip(), options.serif_family[0]))
+            logger.warn('Unable to find serif family %s'%f)
     if options.sans_family:
-        fonts['sans'] = find_family(options.sans_family)
+        f = family(options.sans_family)
+        fonts['sans'] = files_for_family(f)
         if not fonts['sans']:
-            logger.warn('Unable to find sans family %s in %s'%(options.sans_family[1].strip(), options.sans_family[0]))        
+            logger.warn('Unable to find sans family %s'%f)        
     if options.mono_family:
-        fonts['mono'] = find_family(options.mono_family)
+        f = family(options.mono_family)
+        fonts['mono'] = files_for_family(f)
         if not fonts['mono']:
-            logger.warn('Unable to find mono family %s in %s'%(options.mono_family[1].strip(), options.mono_family[0]))        
+            logger.warn('Unable to find mono family %s'%f)        
     return fonts
     
         

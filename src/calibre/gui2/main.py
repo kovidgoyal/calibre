@@ -2,13 +2,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, shutil, time
 from xml.parsers.expat import ExpatError
+from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QVariant, QThread, QString, QSize
+                         QVariant, QThread, QString, QSize, QUrl
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton, QDialog, QSizePolicy
+                        QToolButton, QDialog, QDesktopServices
 from PyQt4.QtSvg import QSvgRenderer
 
-from calibre import __version__, __appname__, islinux, sanitize_file_name, launch, \
+from calibre import __version__, __appname__, islinux, sanitize_file_name, \
                     Settings, pictureflowerror, iswindows, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
@@ -75,6 +76,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.delete_memory = {}
         self.conversion_jobs = {}
         self.persistent_files = []
+        self.metadata_dialogs = []
         self.viewer_job_id = 1
         self.default_thumbnail = None
         self.device_error_dialog = ConversionErrorDialog(self, _('Error communicating with device'), ' ')
@@ -107,7 +109,6 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.job_manager, SIGNAL('job_done(int)'), self.status_bar.job_done,
                         Qt.QueuedConnection)
         QObject.connect(self.status_bar, SIGNAL('show_book_info()'), self.show_book_info)
-        
         ####################### Setup Toolbar #####################
         sm = QMenu()
         sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory'))
@@ -198,7 +199,6 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.resizeColumnsToContents()
         self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
-        
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -219,7 +219,6 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.setMaximumHeight(available_height())
              
-        
         ####################### Setup device detection ########################
         self.detector = DeviceDetector(sleep_time=2000)
         QObject.connect(self.detector, SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), 
@@ -326,7 +325,7 @@ class Main(MainWindow, Ui_MainWindow):
             return
         info, cp, fs = result
         self.location_view.model().update_devices(cp, fs)
-        self.device_info = 'Connected '+' '.join(info[:-1])
+        self.device_info = _('Connected ')+' '.join(info[:-1])
         self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=self.device_info))
         func = self.device_manager.books_func()
         self.job_manager.run_device_job(self.metadata_downloaded, func)
@@ -424,10 +423,10 @@ class Main(MainWindow, Ui_MainWindow):
     def add_filesystem_book(self, path):
         if os.access(path, os.R_OK):
             books = [os.path.abspath(path)]
-        to_device = self.stack.currentIndex() != 0
-        self._add_books(books, to_device)
-        if to_device:
-            self.status_bar.showMessage(_('Uploading books to device.'), 2000)
+            to_device = self.stack.currentIndex() != 0
+            self._add_books(books, to_device)
+            if to_device:
+                self.status_bar.showMessage(_('Uploading books to device.'), 2000)
     
     def add_books(self, checked):
         '''
@@ -571,16 +570,14 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot edit metadata'), _('No books selected'))
             d.exec_()
             return
-        changed = False
         for row in rows:
-            if MetadataSingleDialog(self, row.row(), 
-                                    self.library_view.model().db).changed:
-                changed = True                        
-        
-        if changed:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
+            d = MetadataSingleDialog(self, row.row(), 
+                                    self.library_view.model().db)
+            self.connect(d, SIGNAL('accepted()'), partial(self.metadata_edited, d.id), Qt.QueuedConnection)
             
+    def metadata_edited(self, id):
+        self.library_view.model().refresh_ids([id], self.library_view.currentIndex().row())
+    
     def edit_bulk_metadata(self, checked):
         '''
         Edit metadata of selected books in library in bulk.
@@ -861,7 +858,7 @@ class Main(MainWindow, Ui_MainWindow):
                                                 monitor=False)
             self.viewer_job_id += 1
         else:
-            launch(name)
+            QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
         time.sleep(2) # User feedback
     
     def view_specific_format(self, triggered):
@@ -1153,6 +1150,13 @@ class Main(MainWindow, Ui_MainWindow):
         self.vanity.setText(self.vanity_template%(dict(version=self.latest_version, 
                                                     device=self.device_info)))
         self.vanity.update()
+        s = Settings()
+        if s.get('update to version %s'%version, True):
+            d = question_dialog(self, _('Update available'), _('%s has been updated to version %s. See the <a href="http://calibre.kovidgoyal.net/wiki/Changelog">new features</a>. Visit the download page?')%(__appname__, version))
+            if d.exec_() == QMessageBox.Yes:
+                url = 'http://calibre.kovidgoyal.net/download_'+('windows' if iswindows else 'osx' if isosx else 'linux')
+                QDesktopServices.openUrl(QUrl(url))
+            s.set('update to version %s'%version, False)
         
 
 def main(args=sys.argv):
@@ -1161,7 +1165,7 @@ def main(args=sys.argv):
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = Application(args)
-        app.setWindowIcon(QIcon(':/library'))    
+        app.setWindowIcon(QIcon(':/library'))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')
@@ -1170,19 +1174,19 @@ def main(args=sys.argv):
                single_instance.send_message('launched:'+repr(sys.argv)):
                     return 0
             
-            QMessageBox.critical(None, 'Cannot Start '+__appname__, 
+            QMessageBox.critical(None, 'Cannot Start '+__appname__,
                                  '<p>%s is already running.</p>'%__appname__)
             return 1
         initialize_file_icon_provider()
         try:
             main = Main(single_instance)
         except DatabaseLocked, err:
-            QMessageBox.critical(None, 'Cannot Start '+__appname__, 
+            QMessageBox.critical(None, 'Cannot Start '+__appname__,
             '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
             return 1
         sys.excepthook = main.unhandled_exception
         if len(sys.argv) > 1:
-            main.add_filesystem_book(sys.argv[1])    
+            main.add_filesystem_book(sys.argv[1])
         return app.exec_()
     return 0
     

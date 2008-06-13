@@ -13,6 +13,8 @@ from calibre import sanitize_file_name
 
 import sys, os, time
 
+import parser
+
 def option_parser():
     parser = feeds_option_parser()
     parser.remove_option('--output-dir')

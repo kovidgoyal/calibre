@@ -556,47 +556,26 @@ class Book(Delegator):
         pages = [obj for obj in main.contents if isinstance(obj, Page)]
         
         text_blocks = []
-        for p in pages:
-            for obj in p.contents:
-                if isinstance(obj, TextBlock):
-                    text_blocks.append(obj)
-                elif isinstance(obj, Canvas):
-                    for o in obj.contents:
-                        if isinstance(o.content, TextBlock):
-                            text_blocks.append(o.content)
-            
-        text_styles = set([t.textStyle for t in text_blocks])
-        important_text_styles = []
-        for ts in text_styles:
-            temp = [len(tb.contents) for tb in text_blocks if tb.textStyle == ts]
-            avg_content_length = 0
-            if len(temp) > 0:
-                avg_content_length = sum(temp)/len(temp)
-            if avg_content_length > 4:
-                important_text_styles.append(ts)
-                
+        for page in pages:
+            text_blocks.extend(
+                page.get_all(lambda x: isinstance(x, TextBlock)))
+
         fonts = {}
-        if not important_text_styles:
-            important_text_styles = text_styles
-        
-        for ts in important_text_styles:
-            fs = int(ts.attrs['fontsize'])
-            if fonts.has_key(fs):
-                fonts[fs] += 1
-            else:
-                fonts[fs] = 1
-        
+        for tb in text_blocks:
+            fs = int(tb.textStyle.attrs['fontsize'])
+            text = tb.get_all(lambda x: isinstance(x, Text))
+            length = sum(len(t.text) for t in text)
+            fonts[fs] = fonts.get(fs, 0) + length
         if not fonts:
             print 'WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.'
             return
         
-        old_base_font_size = float(max(zip(fonts.keys(), fonts.values()), key=operator.itemgetter(1))[0])
-        
-        factor = base_font_size/old_base_font_size
-        
+        old_base_font_size = float(max(fonts.items(), key=operator.itemgetter(1))[0])
+        factor = base_font_size / old_base_font_size
         def rescale(old):
             return str(int(int(old) * factor))
-            
+
+        text_styles = set(t.textStyle for t in text_blocks)
         for ts in text_styles:
             ts.attrs['fontsize'] = rescale(ts.attrs['fontsize'])
             ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])

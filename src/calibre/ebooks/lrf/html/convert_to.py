@@ -5,7 +5,7 @@ import sys, logging, os
 from calibre import setup_cli_handlers, OptionParser
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.meta import get_metadata
-from calibre.ebooks.lrf.parser import LRFDocument
+from calibre.ebooks.lrf.lrfparser import LRFDocument
 from calibre.ebooks.metadata.opf import OPFCreator
 
 from calibre.ebooks.lrf.objects import PageAttr, BlockAttr, TextAttr

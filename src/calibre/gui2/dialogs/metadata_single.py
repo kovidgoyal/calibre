@@ -127,7 +127,6 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.formats_changed = False
         self.cover_changed = False
         self.cpixmap = None
-        self.changed = False
         self.cover.setAcceptDrops(True)
         self.connect(self.cover, SIGNAL('cover_changed()'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
@@ -331,6 +330,4 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()))
         if self.cover_changed:
             self.db.set_cover(self.id, pixmap_to_data(self.cover.pixmap()))
-        self.changed = True
         QDialog.accept(self)
-    
