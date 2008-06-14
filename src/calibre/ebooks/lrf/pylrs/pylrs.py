@@ -553,54 +553,40 @@ class Book(Delegator):
             if isinstance(obj, Main):
                 main = obj
                 break
-        pages = [obj for obj in main.contents if isinstance(obj, Page)]
-        
-        text_blocks = []
-        for p in pages:
-            for obj in p.contents:
-                if isinstance(obj, TextBlock):
-                    text_blocks.append(obj)
-                elif isinstance(obj, Canvas):
-                    for o in obj.contents:
-                        if isinstance(o.content, TextBlock):
-                            text_blocks.append(o.content)
-            
-        text_styles = set([t.textStyle for t in text_blocks])
-        important_text_styles = []
-        for ts in text_styles:
-            temp = [len(tb.contents) for tb in text_blocks if tb.textStyle == ts]
-            avg_content_length = 0
-            if len(temp) > 0:
-                avg_content_length = sum(temp)/len(temp)
-            if avg_content_length > 4:
-                important_text_styles.append(ts)
-                
+
         fonts = {}
-        if not important_text_styles:
-            important_text_styles = text_styles
-        
-        for ts in important_text_styles:
-            fs = int(ts.attrs['fontsize'])
-            if fonts.has_key(fs):
-                fonts[fs] += 1
-            else:
-                fonts[fs] = 1
-        
+        for text in main.get_all(lambda x: isinstance(x, Text)):
+            fs = base_font_size
+            ancestor = text.parent
+            while ancestor:
+                try:
+                    fs = int(ancestor.attrs['fontsize'])
+                    break
+                except (AttributeError, KeyError):
+                    pass
+                try: 
+                    fs = int(ancestor.textSettings['fontsize'])
+                    break
+                except (AttributeError, KeyError):
+                    pass
+                try:
+                    fs = int(ancestor.textStyle.attrs['fontsize'])
+                    break
+                except (AttributeError, KeyError):
+                    pass
+                ancestor = ancestor.parent
+            length = len(text.text)
+            fonts[fs] = fonts.get(fs, 0) + length
         if not fonts:
             print 'WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.'
             return
         
-        old_base_font_size = float(max(zip(fonts.keys(), fonts.values()), key=operator.itemgetter(1))[0])
-        
-        factor = base_font_size/old_base_font_size
-        
+        old_base_font_size = float(max(fonts.items(), key=operator.itemgetter(1))[0])
+        factor = base_font_size / old_base_font_size
         def rescale(old):
             return str(int(int(old) * factor))
-            
-        for ts in text_styles:
-            ts.attrs['fontsize'] = rescale(ts.attrs['fontsize'])
-            ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
-        
+
+        text_blocks = list(main.get_all(lambda x: isinstance(x, TextBlock)))
         for tb in text_blocks:
             if tb.textSettings.has_key('fontsize'):
                 tb.textSettings['fontsize'] = rescale(tb.textSettings['fontsize'])
@@ -609,7 +595,12 @@ class Book(Delegator):
                     span.attrs['fontsize'] = rescale(span.attrs['fontsize'])
                 if span.attrs.has_key('baselineskip'):
                     span.attrs['baselineskip'] = rescale(span.attrs['baselineskip'])
-                
+
+        text_styles = set(tb.textStyle for tb in text_blocks)
+        for ts in text_styles:
+            ts.attrs['fontsize'] = rescale(ts.attrs['fontsize'])
+            ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
+        
     
     def renderLrs(self, lrsFile, encoding="UTF-8"):
         if isinstance(lrsFile, basestring): 
@@ -1603,6 +1594,8 @@ class Paragraph(LrsContainer):
         LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
                                      LrsSimpleChar1, basestring])
         if text is not None:
+            if isinstance(text, basestring):
+                text = Text(text)
             self.append(text)
         
     def CR(self):
@@ -1923,6 +1916,8 @@ class Span(LrsSimpleChar1, LrsContainer):
     def __init__(self, text=None, **attrs):
         LrsContainer.__init__(self, [LrsSimpleChar1, Text, basestring])
         if text is not None:
+            if isinstance(text, basestring):
+                text = Text(text)
             self.append(text)
 
         for attrname in attrs.keys():
