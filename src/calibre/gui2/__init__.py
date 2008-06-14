@@ -83,17 +83,12 @@ class TableView(QTableView):
         
     
     def read_settings(self):
-        self.cw = str(Settings().value(self.__class__.__name__ + ' column widths', QVariant('')).toString())
-        try:
-            self.cw = tuple(int(i) for i in self.cw.split(','))
-        except ValueError:
-            self.cw = None
+        self.cw = Settings().get(self.__class__.__name__ + ' column widths')
     
     def write_settings(self):
         settings = Settings()
-        settings.setValue(self.__class__.__name__ + ' column widths',
-                          QVariant(','.join(str(self.columnWidth(i))
-                             for i in range(self.model().columnCount(None)))))
+        settings.set(self.__class__.__name__ + ' column widths',
+                     tuple([int(self.columnWidth(i)) for i in range(self.model().columnCount(None))]))
     
     def restore_column_widths(self):
         if self.cw and len(self.cw):
@@ -107,14 +102,10 @@ class TableView(QTableView):
         is hidden, if True it is shown. 
         '''
         if cols:
-            Settings().setValue(self.__class__.__name__ + ' visible columns',
-                             QVariant(repr(cols)))
+            Settings().set(self.__class__.__name__ + ' visible columns', cols)
         else:
-            cols = qstring_to_unicode(Settings().value(self.__class__.__name__ + ' visible columns', 
-                                        QVariant('')).toString())
-            if cols:
-                cols = eval(cols)
-            else:
+            cols = Settings().get(self.__class__.__name__ + ' visible columns')
+            if not cols:
                 cols = [True for i in range(self.model().columnCount(self))]
         
         for i in range(len(cols)):
@@ -217,7 +208,7 @@ _sidebar_directories = []
 def set_sidebar_directories(dirs):
     global _sidebar_directories
     if dirs is None:
-        dirs = Settings().value('frequently used directories', QVariant([])).toStringList()        
+        dirs = Settings().get('frequently used directories', [])        
     _sidebar_directories = [QUrl.fromLocalFile(i) for i in dirs]
         
 class FileDialog(QObject):
@@ -251,7 +242,7 @@ class FileDialog(QObject):
             self.fd.setModal(modal)            
             self.fd.setFilter(ftext)
             self.fd.setWindowTitle(title)
-            state = settings.value(name, QVariant()).toByteArray()
+            state = settings.get(self.dialog_name, QByteArray())
             if not self.fd.restoreState(state):
                 self.fd.setDirectory(os.path.expanduser('~'))
             osu = [i for i in self.fd.sidebarUrls()]
@@ -259,7 +250,7 @@ class FileDialog(QObject):
             QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
             self.accepted = self.fd.exec_() == QFileDialog.Accepted
         else:
-            dir = settings.value(self.dialog_name, QVariant(os.path.expanduser('~'))).toString()
+            dir = settings.get(self.dialog_name, os.path.expanduser('~'))
             self.selected_files = []
             if mode == QFileDialog.AnyFile:
                 f = qstring_to_unicode(
@@ -284,7 +275,7 @@ class FileDialog(QObject):
                     self.selected_files.append(f)
             if self.selected_files:
                 self.selected_files = [qstring_to_unicode(q) for q in self.selected_files]
-                settings.setValue(self.dialog_name, QVariant(os.path.dirname(self.selected_files[0])))
+                settings.set(self.dialog_name, os.path.dirname(self.selected_files[0]))
             self.accepted = bool(self.selected_files)        
         
         
@@ -299,7 +290,7 @@ class FileDialog(QObject):
     def save_dir(self):
         if self.fd:
             settings = Settings()
-            settings.setValue(self.dialog_name, QVariant(self.fd.saveState()))
+            settings.set(self.dialog_name, self.fd.saveState())
         
 
 def choose_dir(window, name, title):

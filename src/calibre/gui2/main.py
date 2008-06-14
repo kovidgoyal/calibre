@@ -4,7 +4,7 @@ import os, sys, textwrap, collections, traceback, shutil, time
 from xml.parsers.expat import ExpatError
 from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QVariant, QThread, QString, QSize, QUrl
+                         QVariant, QThread, QSize, QUrl
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog, QDesktopServices
 from PyQt4.QtSvg import QSvgRenderer
@@ -18,7 +18,7 @@ from calibre.devices.interface import Device
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
-                           qstring_to_unicode, set_sidebar_directories, \
+                           set_sidebar_directories, \
                            SingleApplication, Application, available_height
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
 from calibre.library.database import LibraryDatabase
@@ -979,7 +979,7 @@ class Main(MainWindow, Ui_MainWindow):
                             newloc = self.database_path
                     self.database_path = newloc
                     settings = Settings()
-                    settings.setValue("database path", QVariant(self.database_path))
+                    settings.set('database path', self.database_path)
                 except Exception, err:
                     traceback.print_exc()
                     d = error_dialog(self, _('Could not move database'), unicode(err))
@@ -1087,13 +1087,11 @@ class Main(MainWindow, Ui_MainWindow):
     
     def read_settings(self):
         settings = Settings()
-        settings.beginGroup("Main Window")
+        settings.beginGroup('Main Window')
         geometry = settings.value('main window geometry', QVariant()).toByteArray()
         self.restoreGeometry(geometry)
         settings.endGroup()
-        dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
-        self.database_path = qstring_to_unicode(settings.value("database path", 
-                QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
+        self.database_path = settings.get('database path')
         if not os.access(os.path.dirname(self.database_path), os.W_OK):
             error_dialog(self, _('Database does not exist'), _('The directory in which the database should be: %s no longer exists. Please choose a new database location.')%self.database_path).exec_()
             self.database_path = choose_dir(self, 'database path dialog', 'Choose new location for database')
@@ -1102,10 +1100,10 @@ class Main(MainWindow, Ui_MainWindow):
             if not os.path.exists(self.database_path):
                 os.makedirs(self.database_path)
             self.database_path = os.path.join(self.database_path, 'library1.db')
-            settings.setValue('database path', QVariant(QString.fromUtf8(self.database_path.encode('utf-8'))))
+            settings.set('database path', self.database_path)
         set_sidebar_directories(None)
-        set_filename_pat(qstring_to_unicode(settings.value('filename pattern', QVariant(get_filename_pat())).toString()))
-        self.tool_bar.setIconSize(settings.value('toolbar icon size', QVariant(QSize(48, 48))).toSize())
+        set_filename_pat(settings.get('filename pattern', get_filename_pat()))
+        self.tool_bar.setIconSize(settings.get('toolbar icon size', QSize(48, 48)))
         self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if settings.get('show text in toolbar', True) else Qt.ToolButtonIconOnly)
         
     

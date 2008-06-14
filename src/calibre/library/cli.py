@@ -330,7 +330,7 @@ For help on an individual command: %%prog command --help
         return 1
     
     command = eval('command_'+args[1])
-    dbpath = unicode(Settings().value('database path', QVariant(os.path.expanduser('~/library1.db'))).toString())
+    dbpath = Settings().get('database path')
     
     return command(args[2:], dbpath)
 

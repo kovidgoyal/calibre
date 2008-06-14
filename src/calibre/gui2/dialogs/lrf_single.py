@@ -106,9 +106,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             
     
     def load_saved_global_defaults(self):
-        cmdline = Settings().value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
+        cmdline = Settings().get('LRF conversion defaults')
         if cmdline:
-            cmdline = cPickle.loads(cmdline)
             self.set_options_from_cmdline(cmdline)
     
     def set_options_from_cmdline(self, cmdline):
@@ -382,7 +381,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 cmdline.extend([u'--cover', self.cover_file.name])
             self.cmdline = [unicode(i) for i in cmdline]
         else:
-            Settings().setValue('LRF conversion defaults', QVariant(QByteArray(cPickle.dumps(cmdline))))
+            Settings().set('LRF conversion defaults', cmdline)
         QDialog.accept(self)
         
 class LRFBulkDialog(LRFSingleDialog):

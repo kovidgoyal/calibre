@@ -16,8 +16,8 @@ class PasswordDialog(QDialog, Ui_Dialog):
         self.setupUi(self)
         
         settings = Settings()
-        un = settings.value(name+': un', QVariant('')).toString()
-        pw = settings.value(name+': pw', QVariant('')).toString()
+        un = settings.get(name+': un', u'')
+        pw = settings.get(name+': pw', u'')
         self.gui_username.setText(un)
         self.gui_password.setText(pw)
         self.sname = name 
@@ -38,6 +38,6 @@ class PasswordDialog(QDialog, Ui_Dialog):
     
     def accept(self):
         settings = Settings()
-        settings.setValue(self.sname+': un', QVariant(self.gui_username.text()))
-        settings.setValue(self.sname+': pw', QVariant(self.gui_password.text()))
+        settings.set(self.sname+': un', unicode(self.gui_username.text()))
+        settings.set(self.sname+': pw', unicode(self.gui_password.text()))
         QDialog.accept(self)

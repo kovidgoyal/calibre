@@ -258,8 +258,7 @@ class JobManager(QAbstractTableModel):
         desc = kwargs.pop('job_description', '')
         if args and hasattr(args[0], 'append') and '--verbose' not in args[0]:
             args[0].append('--verbose')
-        priority = self.PRIORITY[str(Settings().value('conversion job priority', 
-                            QVariant('Normal')).toString())]
+        priority = self.PRIORITY[Settings().get('conversion job priority', 'Normal')]
         job = self.create_job(ConversionJob, desc, slot, priority,
                               callable, *args, **kwargs)
         return job.id

@@ -5,6 +5,7 @@ from datetime import timedelta, datetime
 from operator import attrgetter
 from collections import deque 
 from math import cos, sin, pi
+from itertools import repeat
 from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
@@ -114,8 +115,7 @@ class BooksModel(QAbstractTableModel):
         self.load_queue = deque()
         
     def read_config(self):
-        self.use_roman_numbers = bool(Settings().value('use roman numerals for series number',
-                                                   QVariant(True)).toBool())
+        self.use_roman_numbers = Settings().get('use roman numerals for series number', True)
         
     
     def set_database(self, db):
@@ -594,7 +594,7 @@ class DeviceBooksModel(BooksModel):
         base = self.map if refinement else self.sorted_map
         result = []
         for i in base:
-            q = ['', self.db[i].title, self.db[i].authors, '', ', '.join(self.db[i].tags)] + ['' for j in range(10)]
+            q = ['', self.db[i].title, self.db[i].authors, '', ', '.join(self.db[i].tags)] + list(repeat('', 10))
             if OR:
                 add = False
                 for token in tokens:
