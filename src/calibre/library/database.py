@@ -794,14 +794,6 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         conn.commit()
         
         
-    def __del__(self):
-        global _lock_file
-        import os
-        if _lock_file is not None:
-            _lock_file.close()
-            if os.path.exists(_lock_file.name):
-                os.unlink(_lock_file.name) 
-    
     def __init__(self, dbpath, row_factory=False):
         self.dbpath = dbpath
         self.conn = _connect(dbpath)

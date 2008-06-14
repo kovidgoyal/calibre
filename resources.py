@@ -10,9 +10,10 @@ sys.path.insert(1, os.path.join(os.getcwd(), 'src'))
 from calibre import __appname__
 
 RESOURCES = dict(
-    opf_template = '%p/ebooks/metadata/opf.xml',
-    ncx_template = '%p/ebooks/metadata/ncx.xml',
-    fb2_xsl      = '%p/ebooks/lrf/fb2/fb2.xsl',
+    opf_template    = '%p/ebooks/metadata/opf.xml',
+    ncx_template    = '%p/ebooks/metadata/ncx.xml',
+    fb2_xsl         = '%p/ebooks/lrf/fb2/fb2.xsl',
+    metadata_sqlite = '%p/library/metadata_sqlite.sql', 
                  )
 
 def main(args=sys.argv):

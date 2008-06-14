@@ -24,11 +24,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.db = db
         self.current_cols = columns
         settings = Settings()
-        path = qstring_to_unicode(\
-        settings.value("database path", 
-                QVariant(os.path.join(os.path.expanduser('~'),'library1.db'))).toString())
-        
-        self.location.setText(os.path.dirname(path))
+        path = settings.get('library path')
+        self.location.setText(path)
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         self.connect(self.compact_button, SIGNAL('clicked(bool)'), self.compact)
         
@@ -94,10 +91,12 @@ class ConfigDialog(QDialog, Ui_Dialog):
         settings.setValue('filename pattern', QVariant(pattern))
            
         if not path or not os.path.exists(path) or not os.path.isdir(path):
-            d = error_dialog(self, _('Invalid database location'), _('Invalid database location ')+path+_('<br>Must be a directory.'))
+            d = error_dialog(self, _('Invalid database location'), 
+                             _('Invalid database location ')+path+_('<br>Must be a directory.'))
             d.exec_()
         elif not os.access(path, os.W_OK):
-            d = error_dialog(self, _('Invalid database location'), _('Invalid database location.<br>Cannot write to ')+path)
+            d = error_dialog(self, _('Invalid database location'), 
+                             _('Invalid database location.<br>Cannot write to ')+path)
             d.exec_()
         else:
             self.database_location = os.path.abspath(path)

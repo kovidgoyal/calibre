@@ -81,8 +81,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>583</width>
-          <height>625</height>
+          <width>595</width>
+          <height>638</height>
          </rect>
         </property>
         <layout class="QGridLayout" >
@@ -91,7 +91,10 @@
            <item>
             <widget class="QLabel" name="label" >
              <property name="text" >
-              <string>&amp;Location of books database (library1.db)</string>
+              <string>&amp;Location of ebooks (The ebooks are stored in folders sorted by author and metadata is stored in the file metadata.db)</string>
+             </property>
+             <property name="wordWrap" >
+              <bool>true</bool>
              </property>
              <property name="buddy" >
               <cstring>location</cstring>

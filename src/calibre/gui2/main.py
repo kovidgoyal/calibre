@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, sys, textwrap, collections, traceback, shutil, time
+import os, sys, textwrap, collections, traceback, time
 from xml.parsers.expat import ExpatError
 from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
@@ -44,7 +44,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
-
+from calibre.library.database2 import LibraryDatabase2, CoverCache
 
 
 class Main(MainWindow, Ui_MainWindow):
@@ -178,7 +178,6 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
                 
         ####################### Library view ########################
-        self.library_view.set_database(self.database_path)
         QObject.connect(self.library_view, SIGNAL('files_dropped(PyQt_PyObject)'),
                         self.files_dropped)
         for func, target in [
@@ -193,12 +192,26 @@ class Main(MainWindow, Ui_MainWindow):
         
         self.show()
         self.stack.setCurrentIndex(0)
-        self.library_view.migrate_database()
+        db = LibraryDatabase2(self.library_path)
+        self.library_view.set_database(db)
+        if self.olddb is not None:
+            from PyQt4.QtGui import QProgressDialog
+            pd = QProgressDialog('', '', 0, 100, self)
+            pd.setWindowModality(Qt.ApplicationModal)
+            pd.setCancelButton(None)
+            pd.setWindowTitle(_('Migrating database'))
+            pd.show()
+            db.migrate_old(self.olddb, pd)
+            self.olddb = None
+            Settings().set('library path', self.library_path)
         self.library_view.sortByColumn(3, Qt.DescendingOrder)
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
         self.library_view.resizeRowsToContents()
         self.search.setFocus(Qt.OtherFocusReason)
+        self.cover_cache = CoverCache(self.library_path)
+        self.cover_cache.start()
+        self.library_view.model().cover_cache = self.cover_cache
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -949,37 +962,26 @@ class Main(MainWindow, Ui_MainWindow):
             self.tool_bar.setIconSize(settings.value('toolbar icon size', QVariant(QSize(48, 48))).toSize())
             self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if settings.get('show text in toolbar', True) else Qt.ToolButtonIconOnly)
             
-            if os.path.dirname(self.database_path) != d.database_location:
+            if self.library_path != d.database_location:
                 try:
-                    newloc = os.path.join(d.database_location, os.path.basename(self.database_path))
-                    if not os.path.exists(newloc):
-                        dirname = os.path.dirname(newloc)
-                        if not os.path.isdir(dirname):
-                            os.makedirs(dirname)
-                        dest = open(newloc, 'wb')
-                        if os.access(self.database_path, os.R_OK):
-                            self.status_bar.showMessage(_('Copying database to ')+newloc)
+                    newloc = d.database_location
+                    if not os.path.exists(os.path.join(newloc, 'metadata.db')):
+                        if os.access(self.library_path, os.R_OK):
+                            self.status_bar.showMessage(_('Copying library to ')+newloc)
                             self.setCursor(Qt.BusyCursor)
                             self.library_view.setEnabled(False)
-                            self.library_view.close()
-                            src = open(self.database_path, 'rb')
-                            shutil.copyfileobj(src, dest)
-                            src.close()
-                            dest.close()
-                            os.unlink(self.database_path)
+                            self.library_view.model().db.move_library_to(newloc)
                     else:
                         try:
-                            db = LibraryDatabase(newloc)
-                            db.close()
+                            db = LibraryDatabase2(newloc)
+                            self.library_view.set_database(db)
                         except Exception, err:
                             traceback.print_exc()
                             d = error_dialog(self, _('Invalid database'), 
                                              _('<p>An invalid database already exists at %s, delete it before trying to move the existing database.<br>Error: %s')%(newloc, str(err)))
                             d.exec_()
-                            newloc = self.database_path
-                    self.database_path = newloc
-                    settings = Settings()
-                    settings.setValue("database path", QVariant(self.database_path))
+                    self.library_path = self.library_view.model().db.library_path
+                    Settings().set('library path', self.library_path)
                 except Exception, err:
                     traceback.print_exc()
                     d = error_dialog(self, _('Could not move database'), unicode(err))
@@ -990,7 +992,6 @@ class Main(MainWindow, Ui_MainWindow):
                     self.status_bar.clearMessage()
                     self.search.clear_to_help()
                     self.status_bar.reset_info()
-                    self.library_view.set_database(self.database_path)
                     self.library_view.sortByColumn(3, Qt.DescendingOrder)
                     self.library_view.resizeRowsToContents()
             if hasattr(d, 'directories'):
@@ -1085,24 +1086,41 @@ class Main(MainWindow, Ui_MainWindow):
         ConversionErrorDialog(self, 'Conversion Error', msg, show=True)
         
     
+    def initialize_database(self, settings):
+        self.library_path = settings.get('library path', None)
+        self.olddb = None
+        if self.library_path is None: # Need to migrate to new database layout
+            dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
+            self.database_path = qstring_to_unicode(settings.value("database path", 
+                    QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
+            if not os.access(os.path.dirname(self.database_path), os.W_OK):
+                error_dialog(self, _('Database does not exist'), _('The directory in which the database should be: %s no longer exists. Please choose a new database location.')%self.database_path).exec_()
+                self.database_path = choose_dir(self, 'database path dialog', 'Choose new location for database')
+                if not self.database_path:
+                    self.database_path = os.path.expanduser('~').decode(sys.getfilesystemencoding())
+                if not os.path.exists(self.database_path):
+                    os.makedirs(self.database_path)
+                self.database_path = os.path.join(self.database_path, 'library1.db')
+                settings.setValue('database path', QVariant(QString.fromUtf8(self.database_path.encode('utf-8'))))
+            home = os.path.dirname(self.database_path)
+            if not os.path.exists(home):
+                home = os.getcwd()
+            from PyQt4.QtGui import QFileDialog
+            dir = qstring_to_unicode(QFileDialog.getExistingDirectory(self, _('Choose a location for your ebook library.'), home))
+            if not dir:
+                dir = os.path.dirname(self.database_path)
+            self.library_path = os.path.abspath(dir)
+            self.olddb = LibraryDatabase(self.database_path) 
+        
+            
+    
     def read_settings(self):
         settings = Settings()
         settings.beginGroup("Main Window")
         geometry = settings.value('main window geometry', QVariant()).toByteArray()
         self.restoreGeometry(geometry)
         settings.endGroup()
-        dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
-        self.database_path = qstring_to_unicode(settings.value("database path", 
-                QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
-        if not os.access(os.path.dirname(self.database_path), os.W_OK):
-            error_dialog(self, _('Database does not exist'), _('The directory in which the database should be: %s no longer exists. Please choose a new database location.')%self.database_path).exec_()
-            self.database_path = choose_dir(self, 'database path dialog', 'Choose new location for database')
-            if not self.database_path:
-                self.database_path = os.path.expanduser('~').decode(sys.getfilesystemencoding())
-            if not os.path.exists(self.database_path):
-                os.makedirs(self.database_path)
-            self.database_path = os.path.join(self.database_path, 'library1.db')
-            settings.setValue('database path', QVariant(QString.fromUtf8(self.database_path.encode('utf-8'))))
+        self.initialize_database(settings)
         set_sidebar_directories(None)
         set_filename_pat(qstring_to_unicode(settings.value('filename pattern', QVariant(get_filename_pat())).toString()))
         self.tool_bar.setIconSize(settings.value('toolbar icon size', QVariant(QSize(48, 48))).toSize())
@@ -1138,9 +1156,11 @@ class Main(MainWindow, Ui_MainWindow):
         self.job_manager.terminate_all_jobs()
         self.write_settings()
         self.detector.keep_going = False
+        self.cover_cache.stop()
         self.hide()
         time.sleep(2)
         self.detector.terminate()
+        self.cover_cache.terminate()
         e.accept()
         
     def update_found(self, version):

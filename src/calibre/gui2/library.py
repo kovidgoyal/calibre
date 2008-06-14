@@ -3,15 +3,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, textwrap, traceback, time
 from datetime import timedelta, datetime
 from operator import attrgetter
-from collections import deque 
+
 from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
                         QPalette, QImage
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
-                         QTimer
+                         QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
 from calibre import Settings, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
@@ -94,7 +93,7 @@ class BooksModel(QAbstractTableModel):
                 num -= d
         return ''.join(result)
 
-    def __init__(self, parent=None, buffer=20):
+    def __init__(self, parent=None, buffer=40):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'tags', 'series']
@@ -104,14 +103,11 @@ class BooksModel(QAbstractTableModel):
         self.last_search = '' # The last search performed on this model
         self.read_config()
         self.buffer_size = buffer
-        self.clear_caches()
-        self.load_timer = QTimer()
-        self.connect(self.load_timer, SIGNAL('timeout()'), self.load)
-        self.load_timer.start(50)
+        self.cover_cache = None
         
     def clear_caches(self):
-        self.buffer = {}
-        self.load_queue = deque()
+        if self.cover_cache:
+            self.cover_cache.clear_cache()
         
     def read_config(self):
         self.use_roman_numbers = bool(Settings().value('use roman numerals for series number',
@@ -204,18 +200,6 @@ class BooksModel(QAbstractTableModel):
     def count(self):
         return self.rowCount(None)
     
-    def load(self):
-        if self.load_queue:
-            index = self.load_queue.popleft()
-            if self.buffer.has_key(index):
-                return
-            data = self.db.cover(index)
-            img = QImage()
-            img.loadFromData(data)
-            if img.isNull():
-                img = self.default_image
-            self.buffer[index] = img
-    
     def get_book_display_info(self, idx):
         data = {}
         cdata = self.cover(idx)
@@ -245,17 +229,22 @@ class BooksModel(QAbstractTableModel):
             
         return data
     
+    def set_cache(self, idx):
+        l, r = 0, self.count()-1
+        if self.cover_cache:
+            l = max(l, idx-self.buffer_size)
+            r = min(r, idx+self.buffer_size)
+            k = min(r-idx, idx-l)
+            ids = [idx]
+            for i in range(1, k):
+                ids.extend([idx-i, idx+i])
+            ids = ids + [i for i in range(l, r, 1) if i not in ids]
+            ids = [self.db.id(i) for i in ids]
+            self.cover_cache.set_cache(ids)
+    
     def current_changed(self, current, previous, emit_signal=True):
-        
         idx = current.row()
-        
-        for key in self.buffer.keys():
-            if abs(key - idx) > self.buffer_size:
-                self.buffer.pop(key)
-        for i in range(max(0, idx-self.buffer_size), min(self.count(), idx+self.buffer_size)):
-            if not self.buffer.has_key(i):
-                self.load_queue.append(i)
-        
+        self.set_cache(idx)
         data = self.get_book_display_info(idx)
         if emit_signal:
             self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
@@ -333,14 +322,22 @@ class BooksModel(QAbstractTableModel):
         return self.db.title(row_number)
     
     def cover(self, row_number):
-        img = self.buffer.get(row_number, -1)
-        if img == -1:
+        id = self.db.id(row_number)
+        data = None
+        if self.cover_cache:
+            img = self.cover_cache.cover(id)
+            if img:
+                if img.isNull():
+                    img = self.default_image
+                return img
+        if not data:
             data = self.db.cover(row_number)
-            img = QImage()
-            img.loadFromData(data)
-            if img.isNull():
-                img = self.default_image
-            self.buffer[row_number] = img
+        if not data:
+            return self.default_image
+        img = QImage()
+        img.loadFromData(data)
+        if img.isNull():
+            img = self.default_image
         return img
     
     def data(self, index, role):

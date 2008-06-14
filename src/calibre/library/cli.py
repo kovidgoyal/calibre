@@ -10,26 +10,26 @@ Command line interface to the calibre database.
 import sys, os
 from textwrap import TextWrapper
 
-from PyQt4.QtCore import QVariant
-
 from calibre import OptionParser, Settings, terminal_controller, preferred_encoding
 from calibre.gui2 import SingleApplication
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.library.database import LibraryDatabase, text_to_tokens
+from calibre.library.database2 import LibraryDatabase2
+from calibre.library.database import text_to_tokens
 
 FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats'])
 
 def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group('GLOBAL OPTIONS')
-    go.add_option('--database', default=None, help=_('Path to the calibre database. Default is to use the path stored in the settings.'))
+    go.add_option('--library-path', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
     return parser
 
 def get_db(dbpath, options):
-    if options.database is not None:
-        dbpath = options.database
+    if options.library_path is not None:
+        dbpath = options.library_path
     dbpath = os.path.abspath(dbpath)
-    return LibraryDatabase(dbpath, row_factory=True)
+    print _('Using library at'), dbpath
+    return LibraryDatabase2(dbpath, row_factory=True)
 
 def do_list(db, fields, sort_by, ascending, search_text):
     db.refresh(sort_by, ascending)
@@ -330,7 +330,7 @@ For help on an individual command: %%prog command --help
         return 1
     
     command = eval('command_'+args[1])
-    dbpath = unicode(Settings().value('database path', QVariant(os.path.expanduser('~/library1.db'))).toString())
+    dbpath = Settings().get('library path', os.path.expanduser('~'))
     
     return command(args[2:], dbpath)
 
