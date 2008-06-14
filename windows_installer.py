@@ -621,6 +621,7 @@ def main():
     sys.argv[1:2] = ['py2exe']
     if '--verbose' not in sys.argv:
         sys.argv.append('--quiet') #py2exe produces too much output by default
+    subprocess.check_call('python setup.py develop', shell=True)
     if auto and not os.path.exists('dist\\auto'):
         print os.path.abspath('dist\\auto'), 'does not exist'
         return 1

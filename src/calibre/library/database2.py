@@ -25,7 +25,7 @@ def sanitize_file_name(name, substitute='_'):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
     The set of invalid characters is the union of the invalid characters in Windows,
-    OS X and Linux.
+    OS X and Linux. Also removes leading an trailing whitespace.
     **WARNING:** This function also replaces path separators, so only pass file names
     and not full paths to it.
     *NOTE:* This function always returns byte strings, not unicode objects. The byte strings
@@ -33,7 +33,8 @@ def sanitize_file_name(name, substitute='_'):
     '''
     if isinstance(name, unicode):
         name = name.encode(filesystem_encoding, 'ignore')
-    return _filename_sanitize.sub(substitute, name)
+    one = _filename_sanitize.sub(substitute, name)
+    return re.sub(r'\s', ' ', one).strip()
 
 class CoverCache(QThread):
     
@@ -305,7 +306,7 @@ class LibraryDatabase2(LibraryDatabase):
         name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()
         if name:
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format))
-        name   = title + ' - ' + author 
+        name   = title + ' - ' + author
         ext = ('.' + format.lower()) if format else ''
         shutil.copyfileobj(stream, open(os.path.join(path, name+ext), 'wb'))
         stream.seek(0, 2)
@@ -479,11 +480,13 @@ class LibraryDatabase2(LibraryDatabase):
     
     def migrate_old(self, db, progress):
         header = _(u'<p>Migrating old database to ebook library in %s<br><center>')%self.library_path
+        progress.setValue(0)
+        progress.setLabelText(header)
+        QCoreApplication.processEvents()
         db.conn.row_factory = lambda cursor, row : tuple(row)
         books = db.conn.execute('SELECT id, title, sort, timestamp, uri, series_index, author_sort, isbn FROM books ORDER BY id ASC').fetchall()
         progress.setRange(0, len(books))
-        progress.setValue(0)
-        progress.setLabelText(header)
+        
         for book in books:
             self.conn.execute('INSERT INTO books(id, title, sort, timestamp, uri, series_index, author_sort, isbn) VALUES(?, ?, ?, ?, ?, ?, ?, ?);', book)
             
