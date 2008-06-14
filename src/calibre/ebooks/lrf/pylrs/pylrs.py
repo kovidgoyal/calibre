@@ -553,18 +553,29 @@ class Book(Delegator):
             if isinstance(obj, Main):
                 main = obj
                 break
-        pages = [obj for obj in main.contents if isinstance(obj, Page)]
-        
-        text_blocks = []
-        for page in pages:
-            text_blocks.extend(
-                page.get_all(lambda x: isinstance(x, TextBlock)))
 
         fonts = {}
-        for tb in text_blocks:
-            fs = int(tb.textStyle.attrs['fontsize'])
-            text = tb.get_all(lambda x: isinstance(x, Text))
-            length = sum(len(t.text) for t in text)
+        for text in main.get_all(lambda x: isinstance(x, Text)):
+            fs = base_font_size
+            ancestor = text.parent
+            while ancestor:
+                try:
+                    fs = int(ancestor.attrs['fontsize'])
+                    break
+                except (AttributeError, KeyError):
+                    pass
+                try: 
+                    fs = int(ancestor.textSettings['fontsize'])
+                    break
+                except (AttributeError, KeyError):
+                    pass
+                try:
+                    fs = int(ancestor.textStyle.attrs['fontsize'])
+                    break
+                except (AttributeError, KeyError):
+                    pass
+                ancestor = ancestor.parent
+            length = len(text.text)
             fonts[fs] = fonts.get(fs, 0) + length
         if not fonts:
             print 'WARNING: LRF seems to have no textual content. Cannot rationalize font sizes.'
@@ -575,11 +586,7 @@ class Book(Delegator):
         def rescale(old):
             return str(int(int(old) * factor))
 
-        text_styles = set(t.textStyle for t in text_blocks)
-        for ts in text_styles:
-            ts.attrs['fontsize'] = rescale(ts.attrs['fontsize'])
-            ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
-        
+        text_blocks = list(main.get_all(lambda x: isinstance(x, TextBlock)))
         for tb in text_blocks:
             if tb.textSettings.has_key('fontsize'):
                 tb.textSettings['fontsize'] = rescale(tb.textSettings['fontsize'])
@@ -588,7 +595,12 @@ class Book(Delegator):
                     span.attrs['fontsize'] = rescale(span.attrs['fontsize'])
                 if span.attrs.has_key('baselineskip'):
                     span.attrs['baselineskip'] = rescale(span.attrs['baselineskip'])
-                
+
+        text_styles = set(tb.textStyle for tb in text_blocks)
+        for ts in text_styles:
+            ts.attrs['fontsize'] = rescale(ts.attrs['fontsize'])
+            ts.attrs['baselineskip'] = rescale(ts.attrs['baselineskip'])
+        
     
     def renderLrs(self, lrsFile, encoding="UTF-8"):
         if isinstance(lrsFile, basestring): 
