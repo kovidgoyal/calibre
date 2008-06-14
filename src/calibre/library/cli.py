@@ -41,13 +41,13 @@ def do_list(db, fields, sort_by, ascending, search_text):
     for i in db.data:
         for j, field in enumerate(fields):
             widths[j] = max(widths[j], len(unicode(i[field])))
-    
+
     screen_width = terminal_controller.COLS
     if not screen_width:
         screen_width = 80
     field_width = screen_width//len(fields)
     base_widths = map(lambda x: min(x+1, field_width), widths)
-    
+
     while sum(base_widths) < screen_width:
         adjusted = False
         for i in range(len(widths)):
@@ -57,13 +57,13 @@ def do_list(db, fields, sort_by, ascending, search_text):
                 break
         if not adjusted:
             break
-    
+
     widths = list(base_widths)
     titles = map(lambda x, y: '%-*s'%(x, y), widths, fields)
     print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
-    
+
     wrappers = map(lambda x: TextWrapper(x-1), widths)
-    
+
     for record in db.data:
         text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
         lines = max(map(len, text))
@@ -74,46 +74,46 @@ def do_list(db, fields, sort_by, ascending, search_text):
                 sys.stdout.write(ft)
                 sys.stdout.write(filler)
             print
-        
+
 
 def command_list(args, dbpath):
     parser = get_parser(_(
 '''\
 %prog list [options]
 
-List the books available in the calibre database. 
-'''                      
+List the books available in the calibre database.
+'''
                             ))
-    parser.add_option('-f', '--fields', default='title,authors', 
+    parser.add_option('-f', '--fields', default='title,authors',
                       help=_('The fields to display when listing books in the database. Should be a comma separated list of fields.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
-    parser.add_option('--sort-by', default='timestamp', 
+    parser.add_option('--sort-by', default='timestamp',
                       help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
     parser.add_option('--ascending', default=False, action='store_true',
                       help=_('Sort results in ascending order'))
-    parser.add_option('-s', '--search', default=None, 
+    parser.add_option('-s', '--search', default=None,
                       help=_('Filter the results by the search query. For the format of the search query, please see the search related documentation in the User Manual. Default is to do no filtering.'))
     opts, args = parser.parse_args(sys.argv[:1] + args)
     fields = [f.strip().lower() for f in opts.fields.split(',')]
-    
+
     if not set(fields).issubset(FIELDS):
         parser.print_help()
         print
         print _('Invalid fields. Available fields:'), ','.join(FIELDS)
         return 1
-    
+
     db = get_db(dbpath, opts)
     if not opts.sort_by in FIELDS:
         parser.print_help()
         print
         print _('Invalid sort field. Available fields:'), ','.join(FIELDS)
         return 1
-    
+
     do_list(db, fields, opts.sort_by, opts.ascending, opts.search)
     return 0
-        
+
 
 class DevNull(object):
-    
+
     def write(self, msg):
         pass
 NULL = DevNull()
@@ -128,7 +128,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                 dirs.append(path)
             else:
                 files.append(path)
-                
+
         formats, metadata = [], []
         for book in files:
             format = os.path.splitext(book)[1]
@@ -141,15 +141,15 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                 mi.title = os.path.splitext(os.path.basename(book))[0]
             if not mi.authors:
                 mi.authors = ['Unknown']
- 
+
             formats.append(format)
             metadata.append(mi)
-           
+
         file_duplicates = db.add_books(files, formats, metadata, add_duplicates=add_duplicates)
         if not file_duplicates:
             file_duplicates = []
-        
-        
+
+
         dir_dups = []
         for dir in dirs:
             if recurse:
@@ -160,9 +160,9 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                 if not dups:
                     dups = []
                 dir_dups.extend(dups)
-                
+
         sys.stdout = sys.__stdout__
-        
+
         if add_duplicates:
             for mi, formats in dir_dups:
                 db.import_book(mi, formats)
@@ -182,23 +182,23 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                         title = title.encode(preferred_encoding)
                     print '\t', title+':'
                     print '\t\t ', path
-                
+
         if SingleApplication is not None:
             sa = SingleApplication('calibre GUI')
             sa.send_message('refreshdb:')
     finally:
         sys.stdout = sys.__stdout__
-            
-            
-    
+
+
+
 def command_add(args, dbpath):
     parser = get_parser(_(
 '''\
 %prog add [options] file1 file2 file3 ...
 
 Add the specified files as books to the database. You can also specify directories, see
-the directory related options below. 
-'''                      
+the directory related options below.
+'''
                             ))
     parser.add_option('-1', '--one-book-per-directory', action='store_true', default=False,
                       help=_('Assume that each directory has only a single logical book and that all files in it are different e-book formats of that book'))
@@ -222,7 +222,7 @@ def do_remove(db, ids):
         else:
             for y in x:
                 db.delete_book(y)
-    
+
     if SingleApplication is not None:
         sa = SingleApplication('calibre GUI')
         sa.send_message('refreshdb:')
@@ -242,7 +242,7 @@ list of id numbers (you can get id numbers by using the list command). For examp
         print
         print _('You must specify at least one book to remove')
         return 1
-    
+
     ids = []
     for x in args[1].split(','):
         y = x.split('-')
@@ -250,9 +250,9 @@ list of id numbers (you can get id numbers by using the list command). For examp
             ids.append(range(int(y[0], int(y[1]))))
         else:
             ids.append(int(y[0]))
-    
+
     do_remove(get_db(dbpath, opts), ids)
-    
+
     return 0
 
 def do_add_format(db, id, fmt, buffer):
@@ -273,7 +273,7 @@ by id. You can get id by using the list command. If the format already exists, i
         print
         print _('You must specify an id and an ebook file')
         return 1
-    
+
     id, file, fmt = int(args[1]), open(args[2], 'rb'), os.path.splitext(args[2])[-1]
     if not fmt:
         print _('ebook file must have an extension')
@@ -299,7 +299,7 @@ do nothing.
         print
         print _('You must specify an id and a format')
         return 1
-    
+
     id, fmt = int(args[1]), args[2].upper()
     do_remove_format(get_db(dbpath, opts), id, fmt)
     return 0
@@ -311,11 +311,11 @@ def main(args=sys.argv):
 '''\
 %%prog command [options] [arguments]
 
-%%prog is the command line interface to the calibre books database. 
+%%prog is the command line interface to the calibre books database.
 
 command is one of:
   %s
-  
+
 For help on an individual command: %%prog command --help
 '''
                           )%'\n  '.join(commands))
@@ -328,10 +328,10 @@ For help on an individual command: %%prog command --help
             return 0
         parser.print_help()
         return 1
-    
+
     command = eval('command_'+args[1])
     dbpath = Settings().get('library path', os.path.expanduser('~'))
-    
+
     return command(args[2:], dbpath)
 
 if __name__ == '__main__':

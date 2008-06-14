@@ -46,7 +46,10 @@ def xml_to_unicode(raw, verbose=False):
     if match is not None:
         encoding = match.group(1) 
     if encoding is None:
-        chardet = detect(raw)
+        try:
+            chardet = detect(raw)
+        except:
+            chardet = {'encoding':'utf-8', 'confidence':0}
         encoding = chardet['encoding']
         if chardet['confidence'] < 1 and verbose:
             print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)

@@ -316,10 +316,6 @@ def main():
                     },
         setup_requires = ['py2app'],
         )
-    subprocess.check_call('scp dist/*.dmg giskard:work/calibre/dist', shell=True)
-#    if '--shutdown' in sys.argv:
-#        print 'Shutting down'
-#        subprocess.call(('/usr/bin/sudo', '/sbin/shutdown', '-h', '+0'))
     return 0
 
 if __name__ == '__main__':

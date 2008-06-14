@@ -15,7 +15,7 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from logging import Formatter
 
-from PyQt4.QtCore import QSettings, QVariant, QUrl, QByteArray
+from PyQt4.QtCore import QSettings, QVariant, QUrl, QByteArray, QString
 from PyQt4.QtGui import QDesktopServices
 
 from calibre.translations.msgfmt import make
@@ -46,7 +46,7 @@ def osx_version():
         m = re.match(r'(\d+)\.(\d+)\.(\d+)', src)
         if m:
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
-        
+
 
 # Default translation is NOOP
 import __builtin__
@@ -56,7 +56,7 @@ class CommandLineError(Exception):
     pass
 
 class ColoredFormatter(Formatter):
-    
+
     def format(self, record):
         ln = record.__dict__['levelname']
         col = ''
@@ -72,7 +72,7 @@ class ColoredFormatter(Formatter):
             col = terminal_controller.CYAN
         record.__dict__['levelname'] = col + record.__dict__['levelname'] + terminal_controller.NORMAL
         return Formatter.format(self, record)
-         
+
 
 def setup_cli_handlers(logger, level):
     logger.setLevel(level)
@@ -91,31 +91,31 @@ def setup_cli_handlers(logger, level):
     logger.addHandler(handler)
 
 class CustomHelpFormatter(IndentedHelpFormatter):
-    
+
     def format_usage(self, usage):
         return _("%sUsage%s: %s\n") % (terminal_controller.BLUE, terminal_controller.NORMAL, usage)
-    
+
     def format_heading(self, heading):
-        return "%*s%s%s%s:\n" % (self.current_indent, terminal_controller.BLUE, 
+        return "%*s%s%s%s:\n" % (self.current_indent, terminal_controller.BLUE,
                                  "", heading, terminal_controller.NORMAL)
-        
+
     def format_option(self, option):
         result = []
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
-            opts = "%*s%s\n" % (self.current_indent, "", 
+            opts = "%*s%s\n" % (self.current_indent, "",
                                     terminal_controller.GREEN+opts+terminal_controller.NORMAL)
             indent_first = self.help_position
         else:                       # start help on same line as opts
-            opts = "%*s%-*s  " % (self.current_indent, "", opt_width + len(terminal_controller.GREEN + terminal_controller.NORMAL), 
+            opts = "%*s%-*s  " % (self.current_indent, "", opt_width + len(terminal_controller.GREEN + terminal_controller.NORMAL),
                                   terminal_controller.GREEN + opts + terminal_controller.NORMAL)
             indent_first = 0
         result.append(opts)
         if option.help:
             help_text = self.expand_default(option).split('\n')
             help_lines = []
-            
+
             for line in help_text:
                 help_lines.extend(textwrap.wrap(line, self.help_width))
             result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
@@ -126,7 +126,7 @@ class CustomHelpFormatter(IndentedHelpFormatter):
         return "".join(result)+'\n'
 
 class OptionParser(_OptionParser):
-    
+
     def __init__(self,
                  usage='%prog [options] filename',
                  version='%%prog (%s %s)'%(__appname__, __version__),
@@ -136,16 +136,16 @@ class OptionParser(_OptionParser):
                  **kwds):
         usage += '''\n\nWhenever you pass arguments to %prog that have spaces in them, '''\
                  '''enclose the arguments in quotation marks.'''
-        _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, 
-                               formatter=CustomHelpFormatter(), 
+        _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog,
+                               formatter=CustomHelpFormatter(),
                                conflict_handler=conflict_handler, **kwds)
         self.gui_mode = gui_mode
-        
+
     def error(self, msg):
         if self.gui_mode:
             raise Exception(msg)
         _OptionParser.error(self, msg)
-        
+
     def merge(self, parser):
         '''
         Add options from parser to self. In case of conflicts, confilicting options from
@@ -153,18 +153,18 @@ class OptionParser(_OptionParser):
         '''
         opts   = list(parser.option_list)
         groups = list(parser.option_groups)
-        
+
         def merge_options(options, container):
             for opt in copy.deepcopy(options):
                 if not self.has_option(opt.get_opt_string()):
                     container.add_option(opt)
-                
+
         merge_options(opts, self)
-        
+
         for group in groups:
             g = self.add_option_group(group.title)
             merge_options(group.option_list, g)
-        
+
     def subsume(self, group_name, msg=''):
         '''
         Move all existing options into a subgroup named
@@ -176,7 +176,7 @@ class OptionParser(_OptionParser):
         for opt in opts:
             self.remove_option(opt.get_opt_string())
             subgroup.add_option(opt)
-        
+
     def options_iter(self):
         for opt in self.option_list:
             if str(opt).strip():
@@ -185,12 +185,12 @@ class OptionParser(_OptionParser):
             for opt in gr.option_list:
                 if str(opt).strip():
                     yield opt
-                
+
     def option_by_dest(self, dest):
         for opt in self.options_iter():
             if opt.dest == dest:
                 return opt
-    
+
     def merge_options(self, lower, upper):
         '''
         Merge options in lower and upper option lists into upper.
@@ -204,7 +204,7 @@ class OptionParser(_OptionParser):
             if lower.__dict__[dest] != opt.default and \
                upper.__dict__[dest] == opt.default:
                 upper.__dict__[dest] = lower.__dict__[dest]
-        
+
 
 def load_library(name, cdll):
     if iswindows:
@@ -250,12 +250,12 @@ def browser(honor_time=False):
 
 def fit_image(width, height, pwidth, pheight):
     '''
-    Fit image in box of width pwidth and height pheight. 
+    Fit image in box of width pwidth and height pheight.
     @param width: Width of image
     @param height: Height of image
-    @param pwidth: Width of box 
+    @param pwidth: Width of box
     @param pheight: Height of box
-    @return: scaled, new_width, new_height. scaled is True iff new_widdth and/or new_height is different from width or height.  
+    @return: scaled, new_width, new_height. scaled is True iff new_widdth and/or new_height is different from width or height.
     '''
     scaled = height > pheight or width > pwidth
     if height > pheight:
@@ -267,7 +267,7 @@ def fit_image(width, height, pwidth, pheight):
     if height > pheight:
         corrf = pheight/float(height)
         width, height = floor(corrf*width), pheight
-                            
+
     return scaled, int(width), int(height)
 
 def get_lang():
@@ -290,7 +290,7 @@ def set_translator():
         from calibre.translations.compiled import translations
     except:
         return
-    lang = get_lang() 
+    lang = get_lang()
     if lang:
         buf = None
         if os.access(lang+'.po', os.R_OK):
@@ -302,12 +302,12 @@ def set_translator():
         if buf is not None:
             t = GNUTranslations(buf)
             t.install(unicode=True)
-        
+
 set_translator()
 
 def sanitize_file_name(name):
     '''
-    Remove characters that are illegal in filenames from name. 
+    Remove characters that are illegal in filenames from name.
     Also remove path separators. All illegal characters are replaced by
     underscores.
     '''
@@ -340,7 +340,7 @@ def detect_ncpus():
                     return 1
             except ValueError: # On some systems the sysctl call fails
                 return 1
-                
+
     #for Windows
     if os.environ.has_key("NUMBER_OF_PROCESSORS"):
         ncpus = int(os.environ["NUMBER_OF_PROCESSORS"]);
@@ -354,7 +354,7 @@ def launch(path_or_url):
     if os.path.exists(path_or_url):
         path_or_url = 'file:'+path_or_url
     QDesktopServices.openUrl(QUrl(path_or_url))
-        
+
 def relpath(target, base=os.curdir):
     """
     Return a relative path to the target from either the current dir or an optional base dir.
@@ -396,13 +396,13 @@ def _clean_lock_file(file):
         os.remove(file.name)
     except:
         pass
-    
+
 def singleinstance(name):
     '''
-    Return True if no other instance of the application identified by name is running, 
+    Return True if no other instance of the application identified by name is running,
     False otherwise.
     @param name: The name to lock.
-    @type name: string 
+    @type name: string
     '''
     if iswindows:
         from win32event import CreateMutex
@@ -424,19 +424,15 @@ def singleinstance(name):
             return True
         except IOError:
             return False
-        
+
     return False
 
 class Settings(QSettings):
-    
-    def __init__(self):
+
+    def __init__(self, name='calibre2'):
         QSettings.__init__(self, QSettings.IniFormat, QSettings.UserScope,
-                           'kovidgoyal.net', 'calibre')
-        
-    def migrate(self, settings):
-        for key in settings.allKeys():
-            self.setValue(key, settings.value(key, QVariant()))
-                          
+                           'kovidgoyal.net', name)
+
     def get(self, key, default=None):
         key = str(key)
         if not self.contains(key):
@@ -445,17 +441,30 @@ class Settings(QSettings):
         if not val:
             return None
         return cPickle.loads(val)
-    
+
     def set(self, key, val):
         val = cPickle.dumps(val, -1)
         self.setValue(str(key), QVariant(QByteArray(val)))
-        
+
 _settings = Settings()
-if not _settings.get('migrated from QSettings'):
-    _settings.migrate(QSettings('KovidsBrain', 'libprs500'))
-    _settings.set('migrated from QSettings', True)
-    _settings.sync()
-    
+if not _settings.get('rationalized'):
+    __settings = Settings(name='calibre')
+    dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
+    dbpath = unicode(__settings.value('database path',
+                    QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
+    cmdline   = __settings.value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
+
+
+    _settings.set('database path', dbpath)
+    if cmdline:
+        cmdline = cPickle.loads(cmdline)
+        _settings.set('LRF conversion defaults', cmdline)
+    _settings.set('rationalized', True)
+    try:
+        os.unlink(unicode(__settings.fileName()))
+    except:
+        pass
+
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 def english_sort(x, y):
     '''
@@ -464,40 +473,40 @@ def english_sort(x, y):
     return cmp(_spat.sub('', x), _spat.sub('', y))
 
 class LoggingInterface:
-    
+
     def __init__(self, logger):
         self.__logger = logger
-    
+
     def ___log(self, func, msg, args, kwargs):
         args = [msg] + list(args)
         for i in range(len(args)):
             if isinstance(args[i], unicode):
                 args[i] = args[i].encode(preferred_encoding, 'replace')
-                
+
         func(*args, **kwargs)
-        
+
     def log_debug(self, msg, *args, **kwargs):
         self.___log(self.__logger.debug, msg, args, kwargs)
-        
+
     def log_info(self, msg, *args, **kwargs):
         self.___log(self.__logger.info, msg, args, kwargs)
-        
+
     def log_warning(self, msg, *args, **kwargs):
         self.___log(self.__logger.warning, msg, args, kwargs)
-        
+
     def log_warn(self, msg, *args, **kwargs):
         self.___log(self.__logger.warning, msg, args, kwargs)
-        
+
     def log_error(self, msg, *args, **kwargs):
         self.___log(self.__logger.error, msg, args, kwargs)
-        
+
     def log_critical(self, msg, *args, **kwargs):
         self.___log(self.__logger.critical, msg, args, kwargs)
-        
+
     def log_exception(self, msg, *args):
         self.___log(self.__logger.exception, msg, args, {})
-        
-        
+
+
 def strftime(fmt, t=time.localtime()):
     '''
     A version of strtime that returns unicode strings.
@@ -512,10 +521,10 @@ if islinux and not getattr(sys, 'frozen', False):
     import pkg_resources
     plugins = pkg_resources.resource_filename(__appname__, 'plugins')
     sys.path.insert(1, plugins)
-    
+
 if iswindows and hasattr(sys, 'frozen'):
     sys.path.insert(1, os.path.dirname(sys.executable))
-    
+
 try:
     import pictureflow
     pictureflowerror = ''
@@ -523,12 +532,12 @@ except Exception, err:
     pictureflow = None
     pictureflowerror = str(err)
 
-    
+
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''
     @param match: A match object such that '&'+match.group(1)';' is the entity.
-    @param exceptions: A list of entities to not convert (Each entry is the name of the entity, for e.g. 'apos' or '#1234' 
-    @param encoding: The encoding to use to decode numeric entities between 128 and 256. 
+    @param exceptions: A list of entities to not convert (Each entry is the name of the entity, for e.g. 'apos' or '#1234'
+    @param encoding: The encoding to use to decode numeric entities between 128 and 256.
     If None, the Unicode UCS encoding is used. A common encoding is cp1252.
     '''
     ent = match.group(1)
@@ -556,7 +565,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
         return unichr(name2codepoint[ent])
     except KeyError:
         return '&'+ent+';'
- 
+
 if isosx:
     fdir = os.path.expanduser('~/.fonts')
     if not os.path.exists(fdir):

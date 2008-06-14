@@ -1,11 +1,14 @@
 #!/usr/bin/python
-import tempfile
-import sys, os, shutil, time
+import sys, os, shutil, time, tempfile, socket
 sys.path.append('src')
 import subprocess
 from subprocess import check_call as _check_call
 from functools import partial
 #from pyvix.vix import Host, VIX_SERVICEPROVIDER_VMWARE_WORKSTATION
+s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.connect(('google.com', 0))
+HOST=s.getsockname()[0]
+PROJECT=os.path.basename(os.getcwd())
 
 from calibre import __version__, __appname__
 
@@ -15,6 +18,15 @@ DOCS = PREFIX+"/htdocs/apidocs"
 USER_MANUAL = PREFIX+'/htdocs/user_manual'
 HTML2LRF = "src/calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
+BUILD_SCRIPT ='''\
+#!/bin/bash
+cd ~/build && \
+rsync -avz --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
+cd %(project)s && \
+mkdir -p build dist && \
+rm -rf build/* dist/* && \
+python %%s
+'''%dict(host=HOST, project=PROJECT) 
 check_call = partial(_check_call, shell=True)
 #h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
 
@@ -24,68 +36,53 @@ def tag_release():
     check_call('bzr tag '+__version__)
     check_call('bzr commit --unchanged -m "IGN:Tag release"')
             
-def build_installer(installer, vm, timeout=25):
-    if os.path.exists(installer):
-        os.unlink(installer)
-    f = open('dist/auto', 'wb')
-    f.write('\n')
-    f.close()
-    print 'Building installer %s ...'%installer
-    vmware = ('vmware', '-q', '-x', '-n', vm)
-    try:
-        p = subprocess.Popen(vmware)
-        print 'Waiting...',
-        minutes = 0
-        sys.stdout.flush()
-        while p.returncode is None and minutes < timeout and not os.path.exists(installer):
-            p.poll()
-            time.sleep(60)
-            minutes += 1
-            print minutes,
-            sys.stdout.flush()
-        print
-        if not os.path.exists(installer):
-            raise Exception('Failed to build installer '+installer)
-    finally:
-        os.unlink('dist/auto')
-    
-        
-    return os.path.basename(installer)
-
 def installer_name(ext):
     if ext in ('exe', 'dmg'):
         return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
     return 'dist/%s-%s-i686.%s'%(__appname__, __version__, ext)
 
+def start_vm(vm, ssh_host, build_script, sleep):
+    vmware = ('vmware', '-q', '-x', '-n', vm)
+    subprocess.Popen(vmware)
+    t = tempfile.NamedTemporaryFile(suffix='.sh')
+    t.write(build_script)
+    t.flush()
+    print 'Waiting for VM to startup'
+    time.sleep(sleep)
+    print 'Trying to SSH into VM'
+    subprocess.check_call(('scp', t.name, ssh_host+':build-'+PROJECT))
+
 def build_windows():
     installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
-    return build_installer(installer, vm, 20)
-    
+    start_vm(vm, 'windows', BUILD_SCRIPT%'windows_installer.py', 75)
+    subprocess.check_call(('ssh', 'windows', '/bin/bash', '~/build-'+PROJECT))
+    subprocess.check_call(('scp', 'windows:build/%s/dist/*.exe'%PROJECT, 'dist'))
+    if not os.path.exists(installer):
+        raise Exception('Failed to build installer '+installer)
+    subprocess.Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
+    return os.path.basename(installer)
 
 def build_osx():
     installer = installer_name('dmg')
     vm = '/vmware/Mac OSX/Mac OSX.vmx'
     vmware = ('vmware', '-q', '-x', '-n', vm)
-    subprocess.Popen(vmware)
-    print 'Waiting for OS X to boot up...'
-    time.sleep(120)
-    print 'Trying to ssh into the OS X server'
-    subprocess.check_call(('ssh', 'osx', '/Users/kovid/bin/build-calibre'))
+    start_vm(vm, 'osx', BUILD_SCRIPT%'osx_installer.py', 120)
+    subprocess.check_call(('ssh', 'osx', '/bin/bash', '~/build-'+PROJECT))
+    subprocess.check_call(('scp', 'windows:build/%s/dist/*.dmg'%PROJECT, 'dist'))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
-    subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', '+1'))
+    subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', 'now'))
     return os.path.basename(installer)
-    #return build_installer(installer, vm, 20)
   
 def _build_linux():
     cwd = os.getcwd()
     tbz2 = os.path.join(cwd, installer_name('tar.bz2'))
     SPEC="""\
 import os
-HOME           = '%s'
+HOME           = '%(home)s'
 PYINSTALLER    = os.path.expanduser('~/build/pyinstaller')
-CALIBREPREFIX  = HOME+'/work/calibre'
+CALIBREPREFIX  = HOME+'/work/%(project)s'
 CLIT           = '/usr/bin/clit'
 PDFTOHTML      = '/usr/bin/pdftohtml'
 LIBUNRAR       = '/usr/lib/libunrar.so'
@@ -201,12 +198,12 @@ for folder in EXTRAS:
     subprocess.check_call('cp -rf %%s .'%%folder, shell=True)
 
 print 'Building tarball...'
-tf = tarfile.open('%s', 'w:bz2')
+tf = tarfile.open('%(tarfile)s', 'w:bz2')
 
 for f in os.listdir('.'):
     tf.add(f)
     
-"""%('/mnt/hgfs/giskard/', tbz2)
+"""%dict(home='/mnt/hgfs/giskard/', tarfile=tbz2, project=PROJECT)
     os.chdir(os.path.expanduser('~/build/pyinstaller'))
     open('calibre/calibre.spec', 'wb').write(SPEC)
     try:
@@ -221,7 +218,7 @@ def build_linux():
     subprocess.Popen(vmware)
     print 'Waiting for linux to boot up...'
     time.sleep(75)
-    check_call('ssh linux make -C /mnt/hgfs/giskard/work/calibre all egg linux_binary')
+    check_call('ssh linux make -C /mnt/hgfs/giskard/work/%s all egg linux_binary'%PROJECT)
     check_call('ssh linux sudo poweroff')
 
 def build_installers():

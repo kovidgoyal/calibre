@@ -122,8 +122,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>622</width>
-               <height>454</height>
+               <width>642</width>
+               <height>458</height>
               </rect>
              </property>
              <layout class="QHBoxLayout" >
@@ -435,8 +435,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>622</width>
-               <height>454</height>
+               <width>642</width>
+               <height>458</height>
               </rect>
              </property>
              <layout class="QGridLayout" >
@@ -701,8 +701,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>622</width>
-               <height>454</height>
+               <width>642</width>
+               <height>458</height>
               </rect>
              </property>
              <layout class="QGridLayout" >
@@ -825,8 +825,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>622</width>
-               <height>454</height>
+               <width>642</width>
+               <height>458</height>
               </rect>
              </property>
              <layout class="QVBoxLayout" >
@@ -923,16 +923,6 @@
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="page_5" >
-             <property name="geometry" >
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>100</width>
-               <height>30</height>
-              </rect>
-             </property>
-            </widget>
            </widget>
           </item>
           <item row="1" column="0" >
@@ -981,7 +971,7 @@
              <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Candara'; font-size:11pt; font-weight:400; font-style:normal;">
 &lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif'; font-size:9pt;">&lt;/p>&lt;/body>&lt;/html></string>
             </property>
            </widget>
