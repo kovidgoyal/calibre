@@ -15,7 +15,7 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from logging import Formatter
 
-from PyQt4.QtCore import QSettings, QVariant, QUrl
+from PyQt4.QtCore import QSettings, QVariant, QUrl, QByteArray
 from PyQt4.QtGui import QDesktopServices
 
 from calibre.translations.msgfmt import make
@@ -448,7 +448,7 @@ class Settings(QSettings):
     
     def set(self, key, val):
         val = cPickle.dumps(val, -1)
-        self.setValue(str(key), QVariant(val))
+        self.setValue(str(key), QVariant(QByteArray(val)))
         
 _settings = Settings()
 if not _settings.get('migrated from QSettings'):

@@ -24,34 +24,6 @@ def tag_release():
     check_call('bzr tag '+__version__)
     check_call('bzr commit --unchanged -m "IGN:Tag release"')
             
-def build_installer(installer, vm, timeout=25):
-    if os.path.exists(installer):
-        os.unlink(installer)
-    f = open('dist/auto', 'wb')
-    f.write('\n')
-    f.close()
-    print 'Building installer %s ...'%installer
-    vmware = ('vmware', '-q', '-x', '-n', vm)
-    try:
-        p = subprocess.Popen(vmware)
-        print 'Waiting...',
-        minutes = 0
-        sys.stdout.flush()
-        while p.returncode is None and minutes < timeout and not os.path.exists(installer):
-            p.poll()
-            time.sleep(60)
-            minutes += 1
-            print minutes,
-            sys.stdout.flush()
-        print
-        if not os.path.exists(installer):
-            raise Exception('Failed to build installer '+installer)
-    finally:
-        os.unlink('dist/auto')
-    
-        
-    return os.path.basename(installer)
-
 def installer_name(ext):
     if ext in ('exe', 'dmg'):
         return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
@@ -60,8 +32,16 @@ def installer_name(ext):
 def build_windows():
     installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
-    return build_installer(installer, vm, 20)
-    
+    vmware = ('vmware', '-q', '-x', '-n', vm)
+    subprocess.Popen(vmware)
+    print 'Waiting for Windows to boot up...'
+    time.sleep(75)
+    print 'Trying to ssh into the Windows SSH server'
+    subprocess.check_call(('ssh', 'windows', '/usr/local/bin/build-calibre', os.path.basename(os.getcwd())))
+    if not os.path.exists(installer):
+        raise Exception('Failed to build installer '+installer)
+    subprocess.Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
+    return os.path.basename(installer)
 
 def build_osx():
     installer = installer_name('dmg')
@@ -70,13 +50,12 @@ def build_osx():
     subprocess.Popen(vmware)
     print 'Waiting for OS X to boot up...'
     time.sleep(120)
-    print 'Trying to ssh into the OS X server'
-    subprocess.check_call(('ssh', 'osx', '/Users/kovid/bin/build-calibre'))
+    print 'Trying to ssh into the OS X SSH server'
+    subprocess.check_call(('ssh', 'osx', '/Users/kovid/bin/build-calibre', os.path.basename(os.getcwd())))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
-    subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', '+1'))
+    subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', 'now'))
     return os.path.basename(installer)
-    #return build_installer(installer, vm, 20)
   
 def _build_linux():
     cwd = os.getcwd()
