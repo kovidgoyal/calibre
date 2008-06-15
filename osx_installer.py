@@ -99,8 +99,7 @@ _check_symlinks_prescript()
             includes=list(self.includes) + main_modules['console'],
             packages=self.packages,
             excludes=self.excludes,
-            debug=debug
-        )
+            debug=debug)
         
     @classmethod
     def makedmg(cls, d, volname, 
@@ -249,6 +248,11 @@ _check_symlinks_prescript()
             else:
                 os.link(src, os.path.join(module_dir, dest))
         print
+        print 'Adding IPython'
+        dst = os.path.join(resource_dir, 'lib', 'python2.5', 'IPython')
+        if os.path.exists(dst): shutil.rmtree(dst)
+        shutil.copytree(os.path.expanduser('~/build/ipython/IPython'), dst)
+        print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]
         cs = BuildAPP.CHECK_SYMLINKS_PRESCRIPT % dict(dest_path=repr('/usr/bin'),
@@ -294,12 +298,12 @@ def main():
                                        'PyQt4.QtSvg', 
                                        'mechanize', 'ClientForm', 'usbobserver', 
                                        'genshi', 'calibre.web.feeds.recipes.*',
-                                       'IPython.Extensions.*', 'pydoc'],
+                                       'keyword', 'codeop', 'pydoc'],
                          'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
-                         'excludes' : [],
+                         'excludes' : ['IPython'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
                                         ''' Visit http://calibre.kovidgoyal.net for details.''',
-                                        'CFBundleIdentifier':'net.kovidgoyal.librs500',
+                                        'CFBundleIdentifier':'net.kovidgoyal.calibre',
                                         'CFBundleShortVersionString':VERSION,
                                         'CFBundleVersion':APPNAME + ' ' + VERSION,
                                         'LSMinimumSystemVersion':'10.4.3',

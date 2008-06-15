@@ -1,8 +1,10 @@
 PYTHON = python
 
-all : plugins pictureflow gui2 translations resources 
+all : plugins gui2 translations resources 
 
-plugins:
+plugins : src/calibre/plugins pictureflow
+
+src/calibre/plugins:
 	mkdir -p src/calibre/plugins
 
 clean : 

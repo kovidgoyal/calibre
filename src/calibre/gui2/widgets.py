@@ -7,9 +7,9 @@ import re, os
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QAbstractItemDelegate, QPixmap, QStyle
+                        QAbstractItemDelegate, QPixmap, QStyle, QFontMetrics
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
-                         QObject, QRegExp, QRectF, QString
+                         QObject, QRegExp, QString
 
 from calibre.gui2.jobs import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
@@ -128,8 +128,10 @@ class LocationDelegate(QAbstractItemDelegate):
     
     def rects(self, option):
         style = QApplication.style()
+        font = QFont(option.font)
+        font.setBold(True)
         irect = style.itemPixmapRect(option.rect, Qt.AlignHCenter|Qt.AlignTop, self.pixmap)
-        trect = style.itemTextRect(option.fontMetrics, option.rect, 
+        trect = style.itemTextRect(QFontMetrics(font), option.rect, 
                                    Qt.AlignHCenter|Qt.AlignTop, True, self.text)
         trect.moveTop(irect.bottom())
         return irect, trect
