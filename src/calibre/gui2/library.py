@@ -9,7 +9,7 @@ from itertools import repeat
 from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, QApplication, \
-                        QPalette, QImage
+                        QPalette, QImage, QStyleOptionFocusRect, QApplication
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
                          QTimer
@@ -55,9 +55,8 @@ class LibraryDelegate(QItemDelegate):
             painter.restore()
         
         painter.save()
+        QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
         try:
-            if option.state & QStyle.State_Selected:
-                painter.fillRect(option.rect, option.palette.highlight())
             painter.setRenderHint(QPainter.Antialiasing)
             y = option.rect.center().y()-self.SIZE/2. 
             x = option.rect.right()  - self.SIZE

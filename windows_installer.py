@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create a windows installer '''
-import sys, re, os, shutil, subprocess
+import sys, re, os, shutil, subprocess, zipfile
 from setup import VERSION, APPNAME, entry_points, scripts, basenames
 from distutils.core import setup
 from distutils.filelist import FileList
@@ -508,7 +508,11 @@ class BuildEXE(build_exe):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
             
-        
+        print 
+        print 'Adding GUI main.py'
+        f = zipfile.ZipFile(os.path.join('build', 'py2exe', 'library.zip'), 'a', zipfile.ZIP_DEFLATED)
+        f.write('src\\calibre\\gui2\\main.py', 'calibre\\gui2\\main.py')
+        f.close()
         
         print
         print
@@ -525,18 +529,11 @@ class BuildEXE(build_exe):
 
     
 def main():
-    auto = '--auto' in sys.argv
-    if auto:
-        sys.argv.remove('--auto')
     sys.argv[1:2] = ['py2exe']
-    if '--verbose' not in sys.argv:
-        sys.argv.append('--quiet') #py2exe produces too much output by default
-    if auto and not os.path.exists('dist\\auto'):
-        print os.path.abspath('dist\\auto'), 'does not exist'
-        return 1
+    
     console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i]) 
                for i in range(len(scripts['console']))]
-    
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     setup(
           cmdclass = {'py2exe': BuildEXE},
           windows = [
@@ -572,8 +569,6 @@ def main():
                     },
           
           )
-    if auto:
-        subprocess.call(('shutdown', '-s', '-f', '-t', '01')) 
     return 0
 
 if __name__ == '__main__':

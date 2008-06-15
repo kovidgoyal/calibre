@@ -447,15 +447,14 @@ class Settings(QSettings):
         self.setValue(str(key), QVariant(QByteArray(val)))
         
 _settings = Settings()
+
 if not _settings.get('rationalized'):
     __settings = Settings(name='calibre')
     dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
     dbpath = unicode(__settings.value('database path', 
                     QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
     cmdline   = __settings.value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
-
     
-    _settings.set('database path', dbpath)
     if cmdline:
         cmdline = cPickle.loads(cmdline)
         _settings.set('LRF conversion defaults', cmdline)
@@ -464,6 +463,7 @@ if not _settings.get('rationalized'):
         os.unlink(unicode(__settings.fileName()))
     except:
         pass
+    _settings.set('database path', dbpath)
 
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 def english_sort(x, y):

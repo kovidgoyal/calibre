@@ -99,7 +99,7 @@ _check_symlinks_prescript()
             includes=list(self.includes) + main_modules['console'],
             packages=self.packages,
             excludes=self.excludes,
-            debug=debug,
+            debug=debug
         )
         
     @classmethod
@@ -277,13 +277,7 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
 
 
 def main():
-#    auto = '--auto' in sys.argv
-#    if auto:
-#        sys.argv.remove('--auto')
-#    if auto and not os.path.exists('dist/auto'):
-#        print '%s does not exist'%os.path.abspath('dist/auto')
-#        return 1
-#    
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     sys.argv[1:2] = ['py2app']
     setup(
         name = APPNAME,

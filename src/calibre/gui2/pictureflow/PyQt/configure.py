@@ -1,4 +1,4 @@
-import os, sys, glob
+import os, sys, glob, shutil
 import sipconfig
 if os.environ.get('PYQT4PATH', None):
     print os.environ['PYQT4PATH']
@@ -37,7 +37,7 @@ makefile = pyqtconfig.QtGuiModuleMakefile (
 # ".dll" extension on Windows).
 if 'linux' in sys.platform:
     for f in glob.glob('../../.build/libpictureflow.a'):
-        os.link(f, './'+os.path.basename(f))
+        shutil.copyfile(f, os.path.basename(f))
     makefile.extra_lib_dirs = ['.']
 else:
     makefile.extra_lib_dirs = ['..\\..\\.build\\release', '../../.build', '.']

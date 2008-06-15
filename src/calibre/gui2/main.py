@@ -4,7 +4,7 @@ import os, sys, textwrap, collections, traceback, shutil, time
 from xml.parsers.expat import ExpatError
 from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QVariant, QThread, QSize, QUrl
+                         QVariant, QThread, QUrl, QSize
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog, QDesktopServices
 from PyQt4.QtSvg import QSvgRenderer
@@ -1190,4 +1190,14 @@ def main(args=sys.argv):
     
         
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except:
+        if not iswindows: raise
+        from PyQt4.QtGui import QErrorMessage
+        logfile = os.path.expanduser('~/calibre.log')
+        if os.path.exists(logfile): 
+            log = open(logfile).read()
+            if log.strip():
+                d = QErrorMessage()
+                d.showMessage(log)
