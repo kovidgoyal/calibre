@@ -8,7 +8,7 @@ from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
                         QAbstractItemDelegate, QPixmap, QStyle
-from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QRect, SIGNAL, \
+from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
                          QObject, QRegExp, QRectF, QString
 
 from calibre.gui2.jobs import DetailView
@@ -149,28 +149,14 @@ class LocationDelegate(QAbstractItemDelegate):
         text = index.model().data(index, Qt.DisplayRole).toString()
         irect, trect = self.rects(option)
         style.drawItemPixmap(painter, irect, Qt.AlignHCenter|Qt.AlignTop, pixmap)
-        painter.setFont(option.font)
+        font = QFont(option.font)
+        font.setBold(highlight)
+        painter.setFont(font)
         style.drawItemText(painter, trect, Qt.AlignHCenter|Qt.AlignBottom,
                            option.palette, True, text)
         painter.restore()
-        return
-        #font = QFont()
-        #font.setPointSize(9)
         
         
-        text = index.model().data(index, Qt.DisplayRole).toString()
-        irect, trect = self.get_rects(index, option)
-        
-        mode =  QIcon.Normal
-        if highlight:
-            font.setBold(True)
-            mode = QIcon.Active
-        
-        painter.setFont(font)
-        icon.paint(painter, irect, Qt.AlignHCenter|Qt.AlignTop, mode, QIcon.On)
-        painter.drawText(QRectF(trect), Qt.AlignTop|Qt.AlignHCenter, text)
-        painter.restore()
-
 class LocationModel(QAbstractListModel):
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
