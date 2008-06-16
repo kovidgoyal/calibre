@@ -127,6 +127,7 @@ class BooksModel(QAbstractTableModel):
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
         for row in rows:
+            self.buffer.pop(row, None)
             if row == current_row:
                 self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), 
                           self.get_book_display_info(row))
