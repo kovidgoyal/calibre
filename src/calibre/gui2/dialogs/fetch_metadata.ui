@@ -47,7 +47,7 @@
      <item>
       <widget class="QLabel" name="label_2" >
        <property name="text" >
-        <string>&amp;Access Key;</string>
+        <string>&amp;Access Key:</string>
        </property>
        <property name="buddy" >
         <cstring>key</cstring>

@@ -109,6 +109,8 @@ class Feed(object):
         if id in self.added_articles:
             return
         published = item.get('date_parsed', time.gmtime())
+        if not published:
+            published = time.gmtime()
         self.id_counter += 1
         self.added_articles.append(id)
         

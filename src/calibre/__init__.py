@@ -1,7 +1,7 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.70'
+__version__   = '0.4.72'
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
@@ -447,14 +447,13 @@ class Settings(QSettings):
         self.setValue(str(key), QVariant(QByteArray(val)))
 
 _settings = Settings()
+
 if not _settings.get('rationalized'):
     __settings = Settings(name='calibre')
     dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
     dbpath = unicode(__settings.value('database path',
                     QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
     cmdline   = __settings.value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
-
-
     _settings.set('database path', dbpath)
     if cmdline:
         cmdline = cPickle.loads(cmdline)
@@ -464,6 +463,7 @@ if not _settings.get('rationalized'):
         os.unlink(unicode(__settings.fileName()))
     except:
         pass
+    _settings.set('database path', dbpath)
 
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 def english_sort(x, y):

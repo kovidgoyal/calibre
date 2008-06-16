@@ -7,9 +7,9 @@ import re, os
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
-                        QAbstractItemDelegate, QPixmap
-from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, QRect, SIGNAL, \
-                         QObject, QRegExp, QRectF
+                        QAbstractItemDelegate, QPixmap, QStyle, QFontMetrics
+from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
+                         QObject, QRegExp, QString
 
 from calibre.gui2.jobs import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
@@ -123,40 +123,43 @@ class LocationDelegate(QAbstractItemDelegate):
     
     def __init__(self):
         QAbstractItemDelegate.__init__(self)
-        self.icon_rect = QRect(0, 10, 150, 45)
-        self.buffer = 5
+        self.pixmap = QPixmap(40, 40)
+        self.text = QString('Reader\n999.9 MB Available202')
     
-    def get_rects(self, index, option):
-        row = index.row()
-        irect = QRect(self.icon_rect)
-        irect.translate(row*(irect.width()+self.buffer), 0)
-        trect = irect.translated(0, irect.height())
-        trect.adjust(0, 7, 0, 0)
-        return irect.adjusted(50, 0, -50, 0), trect
+    def rects(self, option):
+        style = QApplication.style()
+        font = QFont(option.font)
+        font.setBold(True)
+        irect = style.itemPixmapRect(option.rect, Qt.AlignHCenter|Qt.AlignTop, self.pixmap)
+        trect = style.itemTextRect(QFontMetrics(font), option.rect, 
+                                   Qt.AlignHCenter|Qt.AlignTop, True, self.text)
+        trect.moveTop(irect.bottom())
+        return irect, trect
     
     def sizeHint(self, option, index):
-        irect, trect = self.get_rects(index, option)
+        irect, trect = self.rects(option) 
         return irect.united(trect).size()
     
     def paint(self, painter, option, index):
-        font = QFont()
-        font.setPointSize(9)
-        icon = QIcon(index.model().data(index, Qt.DecorationRole))
-        highlight = getattr(index.model(), 'highlight_row', -1) == index.row()
-        text = index.model().data(index, Qt.DisplayRole).toString()
+        style = QApplication.style()
         painter.save()
-        irect, trect = self.get_rects(index, option)
-        
-        mode =  QIcon.Normal
-        if highlight:
-            font.setBold(True)
-            mode = QIcon.Active
-        
+        if hasattr(QStyle, 'CE_ItemViewItem'):
+            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
+        highlight = getattr(index.model(), 'highlight_row', -1) == index.row()
+        mode = QIcon.Active if highlight else QIcon.Normal
+        pixmap = QIcon(index.model().data(index, Qt.DecorationRole)).pixmap(self.pixmap.size())
+        pixmap = style.generatedIconPixmap(mode, pixmap, option)
+        text = index.model().data(index, Qt.DisplayRole).toString()
+        irect, trect = self.rects(option)
+        style.drawItemPixmap(painter, irect, Qt.AlignHCenter|Qt.AlignTop, pixmap)
+        font = QFont(option.font)
+        font.setBold(highlight)
         painter.setFont(font)
-        icon.paint(painter, irect, Qt.AlignHCenter|Qt.AlignTop, mode, QIcon.On)
-        painter.drawText(QRectF(trect), Qt.AlignTop|Qt.AlignHCenter, text)
+        style.drawItemText(painter, trect, Qt.AlignHCenter|Qt.AlignBottom,
+                           option.palette, True, text)
         painter.restore()
-
+        
+        
 class LocationModel(QAbstractListModel):
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
