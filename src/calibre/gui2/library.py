@@ -8,8 +8,8 @@ from math import cos, sin, pi
 from itertools import repeat
 from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
-                        QPen, QStyle, QPainter, QLineEdit, QApplication, \
-                        QPalette, QImage, QStyleOptionFocusRect, QApplication
+                        QPen, QStyle, QPainter, QLineEdit, \
+                        QPalette, QImage, QApplication
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
                          QTimer
@@ -55,7 +55,10 @@ class LibraryDelegate(QItemDelegate):
             painter.restore()
         
         painter.save()
-        QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
+        if hasattr(QStyle, 'CE_ItemViewItem'):
+            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
+        elif option.state & QStyle.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
         try:
             painter.setRenderHint(QPainter.Antialiasing)
             y = option.rect.center().y()-self.SIZE/2. 
