@@ -337,6 +337,9 @@ def do_set_metadata(db, id, stream):
     mi = OPFReader(stream)
     db.set_metadata(id, mi)
     do_show_metadata(db, id, False)
+    if SingleApplication is not None:
+        sa = SingleApplication('calibre GUI')
+        sa.send_message('refreshdb:')
 
 def command_set_metadata(args, dbpath):
     parser = get_parser(_(
