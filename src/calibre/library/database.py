@@ -919,13 +919,19 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def title(self, index, index_is_id=False):
         if not index_is_id:
             return self.data[index][1]
-        return self.conn.execute('SELECT title FROM meta WHERE id=?',(index,)).fetchone()[0]
+        try:
+            return self.conn.execute('SELECT title FROM meta WHERE id=?',(index,)).fetchone()[0]
+        except:
+            return _('Unknown')
     
     def authors(self, index, index_is_id=False):
         ''' Authors as a comma separated list or None'''
         if not index_is_id:
             return self.data[index][2]
-        return self.conn.execute('SELECT authors FROM meta WHERE id=?',(index,)).fetchone()[0]        
+        try:
+            return self.conn.execute('SELECT authors FROM meta WHERE id=?',(index,)).fetchone()[0]
+        except:
+            pass        
     
     def isbn(self, idx, index_is_id=False):
         id = idx if index_is_id else self.id(idx)
@@ -937,22 +943,22 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             
     def publisher(self, index, index_is_id=False):
         if index_is_id:
-            return self.conn.execute('SELECT publisher FROM meta WHERE id=?', (id,)).fetchone()[0]
+            return self.conn.execute('SELECT publisher FROM meta WHERE id=?', (index,)).fetchone()[0]
         return self.data[index][3]
     
     def rating(self, index, index_is_id=False):
         if index_is_id:
-            return self.conn.execute('SELECT rating FROM meta WHERE id=?', (id,)).fetchone()[0]
+            return self.conn.execute('SELECT rating FROM meta WHERE id=?', (index,)).fetchone()[0]
         return self.data[index][4]
         
     def timestamp(self, index, index_is_id=False):
         if index_is_id:
-            return self.conn.execute('SELECT timestamp FROM meta WHERE id=?', (id,)).fetchone()[0]
+            return self.conn.execute('SELECT timestamp FROM meta WHERE id=?', (index,)).fetchone()[0]
         return self.data[index][5]
         
     def max_size(self, index, index_is_id=False):
         if index_is_id:
-            return self.conn.execute('SELECT size FROM meta WHERE id=?', (id,)).fetchone()[0]
+            return self.conn.execute('SELECT size FROM meta WHERE id=?', (index,)).fetchone()[0]
         return self.data[index][6]
     
     def cover(self, index, index_is_id=False):
@@ -1259,6 +1265,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         '''
         Set metadata for the book C{id} from the L{MetaInformation} object C{mi} 
         '''
+        if mi.title:
+            self.set_title(id, mi.title)
         if not mi.authors:
                 mi.authors = ['Unknown']
         authors = []
@@ -1523,6 +1531,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     
     def has_book(self, mi):
         return bool(self.conn.execute('SELECT id FROM books where title=?', (mi.title,)).fetchone())
+    
+    def has_id(self, id):
+        return self.conn.execute('SELECT id FROM books where id=?', (id,)).fetchone() is not None
     
     def recursive_import(self, root, single_book_per_directory=True):
         root = os.path.abspath(root)
