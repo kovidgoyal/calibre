@@ -117,17 +117,20 @@ class BooksModel(QAbstractTableModel):
     def set_database(self, db):
         if isinstance(db, (QString, basestring)):
             if isinstance(db, QString):
-                db = qstring_to_unicode(db)    
+                db = qstring_to_unicode(db)
             db = LibraryDatabase(os.path.expanduser(db))
         self.db = db
         
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
         for row in rows:
+            if self.cover_cache:
+                id = self.db.id(row)
+                self.cover_cache.refresh(id)
             if row == current_row:
-                self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), 
+                self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
                           self.get_book_display_info(row))
-            self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), 
+            self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
                       self.index(row, 0), self.index(row, self.columnCount(None)-1))
         
     def close(self):
@@ -136,7 +139,7 @@ class BooksModel(QAbstractTableModel):
         self.reset()
         
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=False):
-        return self.db.add_books(paths, formats, metadata, uris, 
+        return self.db.add_books(paths, formats, metadata, uris,
                                  add_duplicates=add_duplicates)
         
     def row_indices(self, index):

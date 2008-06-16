@@ -130,7 +130,17 @@ class CoverCache(QThread):
     def clear_cache(self):
         self.cache_lock.lockForWrite()
         self.cache = {}
-        self.cache_lock.unlock()        
+        self.cache_lock.unlock()
+
+    def refresh(self, ids):
+        self.cache_lock.lockForWrite()
+        for id in ids:
+            self.cache.pop(id, None)
+        self.cache_lock.unlock()
+        self.load_queue_lock.lockForWrite()
+        for id in ids:
+            self.load_queue.append_left(id)
+        self.load_queue_lock.unlock()
     
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
