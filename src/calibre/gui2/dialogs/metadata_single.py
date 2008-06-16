@@ -6,7 +6,7 @@ add/remove formats
 '''
 import os
 
-from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt, QVariant
+from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt
 from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 
