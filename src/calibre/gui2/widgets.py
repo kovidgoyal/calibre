@@ -143,7 +143,8 @@ class LocationDelegate(QAbstractItemDelegate):
     def paint(self, painter, option, index):
         style = QApplication.style()
         painter.save()
-        QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
+        if hasattr(QStyle.CE_ItemViewItem):
+            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
         highlight = getattr(index.model(), 'highlight_row', -1) == index.row()
         mode = QIcon.Active if highlight else QIcon.Normal
         pixmap = QIcon(index.model().data(index, Qt.DecorationRole)).pixmap(self.pixmap.size())
