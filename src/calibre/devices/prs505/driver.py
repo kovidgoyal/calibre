@@ -275,10 +275,10 @@ class PRS505(Device):
         if not iswindows:
             if self._main_prefix is not None:
                 stats = os.statvfs(self._main_prefix)
-                msz = stats.f_bsize * stats.f_bavail
+                msz = stats.f_frsize * stats.f_bavail
             if self._card_prefix is not None:
                 stats = os.statvfs(self._card_prefix)
-                csz = stats.f_bsize * stats.f_bavail
+                csz = stats.f_frsize * stats.f_bavail
         else:
             msz = self._windows_space(self._main_prefix)[1]
             csz = self._windows_space(self._card_prefix)[1]

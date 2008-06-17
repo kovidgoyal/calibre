@@ -12,7 +12,7 @@ from PyQt4.QtGui import QDialog, QItemSelectionModel
 
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
 from calibre.gui2 import error_dialog, NONE, info_dialog
-from calibre.ebooks.metadata.isbndb import create_books, option_parser
+from calibre.ebooks.metadata.isbndb import create_books, option_parser, ISBNDBError
 from calibre import Settings
 
 class Matches(QAbstractTableModel):
@@ -76,7 +76,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.timeout = timeout
         QObject.connect(self.fetch, SIGNAL('clicked()'), self.fetch_metadata)
         
-        self.key.setText(Settings().value('isbndb.com key', QVariant('')).toString())
+        self.key.setText(Settings().get('isbndb.com key', ''))
         
         self.setWindowTitle(title if title else 'Unknown')
         self.tlabel.setText(self.tlabel.text().arg(title if title else 'Unknown'))
@@ -88,8 +88,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.connect(self.matches, SIGNAL('activated(QModelIndex)'), self.chosen)
         key = str(self.key.text())
         if key:
-            QTimer.singleShot(100, self.fetch.click)
-        
+            QTimer.singleShot(100, self.fetch_metadata)
         
         
     def show_summary(self, current, previous):
@@ -106,7 +105,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
                          _('You must specify a valid access key for isbndb.com'))
             return
         else:
-            Settings().setValue('isbndb.com key', QVariant(self.key.text()))
+            Settings().set('isbndb.com key', key)
             
         args = ['isbndb']
         if self.isbn:
@@ -121,36 +120,41 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.fetch.setEnabled(False)
         self.setCursor(Qt.WaitCursor)
         QCoreApplication.instance().processEvents()
-        
-        args.append(key)
-        parser = option_parser()
-        opts, args = parser.parse_args(args)
-        
-        self.logger = logging.getLogger('Job #'+str(id))
-        self.logger.setLevel(logging.DEBUG)
-        self.log_dest = cStringIO.StringIO()
-        handler = logging.StreamHandler(self.log_dest)
-        handler.setLevel(logging.DEBUG)
-        handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
-        self.logger.addHandler(handler)
-        
-        books = create_books(opts, args, self.logger, self.timeout)
-        
-        self.model = Matches(books)
-        if self.model.rowCount() < 1:
-            info_dialog(self, _('No metadata found'), _('No metadata found, try adjusting the title and author or the ISBN key.')).exec_()
-            self.reject()
-        
-        self.matches.setModel(self.model)
-        QObject.connect(self.matches.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
-                     self.show_summary)
-        self.model.reset()
-        self.matches.selectionModel().select(self.model.index(0, 0), 
-                              QItemSelectionModel.Select | QItemSelectionModel.Rows)
-        self.matches.setCurrentIndex(self.model.index(0, 0))
-        self.fetch.setEnabled(True)
-        self.unsetCursor()
-        self.matches.resizeColumnsToContents()
+        try:
+            args.append(key)
+            parser = option_parser()
+            opts, args = parser.parse_args(args)
+            
+            self.logger = logging.getLogger('Job #'+str(id))
+            self.logger.setLevel(logging.DEBUG)
+            self.log_dest = cStringIO.StringIO()
+            handler = logging.StreamHandler(self.log_dest)
+            handler.setLevel(logging.DEBUG)
+            handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
+            self.logger.addHandler(handler)
+            
+            try:
+                books = create_books(opts, args, self.logger, self.timeout)
+            except ISBNDBError, err:
+                error_dialog(self, _('Error fetching metadata'), str(err)).exec_()
+                return
+            
+            self.model = Matches(books)
+            if self.model.rowCount() < 1:
+                info_dialog(self, _('No metadata found'), _('No metadata found, try adjusting the title and author or the ISBN key.')).exec_()
+                self.reject()
+            
+            self.matches.setModel(self.model)
+            QObject.connect(self.matches.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
+                         self.show_summary)
+            self.model.reset()
+            self.matches.selectionModel().select(self.model.index(0, 0), 
+                                  QItemSelectionModel.Select | QItemSelectionModel.Rows)
+            self.matches.setCurrentIndex(self.model.index(0, 0))
+        finally:
+            self.fetch.setEnabled(True)
+            self.unsetCursor()
+            self.matches.resizeColumnsToContents()
         
 
 

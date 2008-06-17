@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create a windows installer '''
-import sys, re, os, shutil, subprocess
+import sys, re, os, shutil, subprocess, zipfile
 from setup import VERSION, APPNAME, entry_points, scripts, basenames
 from distutils.core import setup
 from distutils.filelist import FileList
@@ -424,96 +424,6 @@ SectionEnd
         else:
             os.remove(path)
 
-class WixInstaller(object):
-    '''
-    Make a .msi installer. Can't get the driver installation to play well with
-    an existing installation of the connect USB driver. Pick this up again when
-    libusb1.dll is released based on winusb.
-    '''
-    TEMPLATE=\
-r'''<?xml version='1.0' encoding='windows-1252'?>
-<Wix xmlns='http://schemas.microsoft.com/wix/2003/01/wi'>
-
-  <Product Name='%(appname)s' Id='955DF7A2-8861-46A9-8710-56A4BDEA8E29'
-    Language='1033' Codepage='1252' Version='%(version)s' Manufacturer='Kovid Goyal'>
-
-    <Package Id='????????-????-????-????-????????????' Keywords='Installer'
-      Description="Ebook management software"
-      Manufacturer='Kovid Goyal'
-      InstallerVersion='100' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
-    <Icon Id="appicon.ico" SourceFile="icons\library.ico" />
-    <Binary Id="devcon" SourceFile="C:\devcon\i386\devcon.exe" />
-    <Condition Message="You need to be an administrator to install this product.">
-      Privileged
-    </Condition>
-    <Property Id='ARPNOMODIFY'>1</Property>
-    <Property Id='ARPURLINFOABOUT'>http://calibre.kovidgoyal.net</Property>
-    <Property Id='ARPPRODUCTICON'>appicon.ico</Property>
-    <Media Id='1' Cabinet='%(appname)s.cab' EmbedCab='yes' />
-    <Directory Id='TARGETDIR' Name='SourceDir'>
-      <Directory Id='ProgramFilesFolder' Name='PFiles'>
-        <Directory Id='INSTALLDIR' Name='libprs' LongName='%(appname)s'>
-          %(py2exefiles)s
-            <Directory Id='driver' Name='driver' FileSource="C:\libusb-prs500">
-              <Component Id="usbdriver" DriverSequence="0" Guid="1169D502-DE59-4153-BC0D-712894C37FEF">
-                <File Id='libusb0.dll' Name='libusb0.dll' Vital='yes' Compressed='yes' DiskId="1" />
-                <File Id='libusb0.sys' Name='libusb0.sys' Vital='yes' Compressed='yes' DiskId="1" />
-                <File Id='libusb0_x64.dll' Name='a' LongName='libusb0_x64.dll' Vital='yes' Compressed='yes' DiskId="1" />
-                <File Id='libusb0_x64.sys' Name='b' LongName='libusb0_x64.sys' Vital='yes' Compressed='yes' DiskId="1" />
-                <File Id='prs500.inf' Name='prs500.inf' Vital='yes' Compressed='yes' DiskId="1" />
-              </Component>
-            </Directory>
-        </Directory>
-      </Directory>
-      <Component Id='misc' Guid=''>
-        <Environment Id='UpdatePath' Name='PATH' Action='create' System='yes' 
-                 Part='last' Value='[INSTALLDIR]' Permanent="no"/>
-      </Component>
-    </Directory>
-    
-    <Feature Id='Complete' Title="%(appname)s" Description="The complete package">
-      <ComponentRef Id='py2exe' />
-      <ComponentRef Id='usbdriver' />
-      <ComponentRef Id='misc' />
-    </Feature>
-  </Product>
-   
-</Wix>
-    '''
-    CANDLE=r'C:\wix\candle.exe '
-    LIGHT=r'C:\wix\light.exe -out %s -loc C:\wix\WixUI_en-us.wxl %s c:\wix\wixui.wixlib "C:\Program Files\Driver Installation Tools 2.01\DIFxApp\English-US\WiXLib\x86\DIFxApp.wixlib"'
-    
-    def __init__(self, py2exe_dir, dest_dir='dist'):
-        self.py2exe_dir = py2exe_dir
-        self.dest_dir = dest_dir
-        filelist = []
-        print self.py2exe_dir
-        for root, dirs, files in os.walk(self.py2exe_dir):
-            for name in files:
-                path = os.path.abspath(os.path.join(root, name))
-                filelist.append(path)
-        component = "<Component Id='py2exe' DiskId='1' Guid='0248CACF-FDF5-4E68-B898-227C16F1C7B8'>\n"
-        counter = 0
-        for path in filelist:
-            entry = '<File Id="file%d" Name="fn%d" Compressed="yes" Vital="yes" Source="%s" LongName="%s" />'%\
-                    (counter, counter, path, os.path.basename(path))
-            component += entry + "\n"
-            counter += 1
-        component += '</Component>'
-        self.installer = self.TEMPLATE%dict(appname=APPNAME, version=VERSION, 
-                                            py2exefiles=component)
-        
-    def build(self):
-        f = open('installer.wxs', 'w')
-        f.write(self.installer)
-        f.close()
-        subprocess.check_call(self.CANDLE + ' ' + f.name, shell=True)
-        subprocess.check_call(self.LIGHT%(os.path.join(self.dest_dir, APPNAME + '-' + VERSION + '.msi'),
-                                          ' installer.wixobj'), shell=True)
-        
-        os.remove('installer.wxs')
-        os.remove('installer.wixobj')    
-        
 
 class BuildEXE(build_exe):
     manifest_resource_id = 0
@@ -559,9 +469,9 @@ class BuildEXE(build_exe):
             subprocess.check_call(['mingw32-make', '-f', 'Makefile'])
             shutil.copyfile('pictureflow.pyd', os.path.join(dd, 'pictureflow.pyd'))
             os.chdir('..')
-            shutil.rmtree('.build')
+            shutil.rmtree('.build', True)
             os.chdir('..')
-            shutil.rmtree('.build')
+            shutil.rmtree('.build', True)
         finally:
             os.chdir(cwd)
     
@@ -598,7 +508,11 @@ class BuildEXE(build_exe):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
             
-        
+        print 
+        print 'Adding GUI main.py'
+        f = zipfile.ZipFile(os.path.join('build', 'py2exe', 'library.zip'), 'a', zipfile.ZIP_DEFLATED)
+        f.write('src\\calibre\\gui2\\main.py', 'calibre\\gui2\\main.py')
+        f.close()
         
         print
         print
@@ -615,18 +529,11 @@ class BuildEXE(build_exe):
 
     
 def main():
-    auto = '--auto' in sys.argv
-    if auto:
-        sys.argv.remove('--auto')
     sys.argv[1:2] = ['py2exe']
-    if '--verbose' not in sys.argv:
-        sys.argv.append('--quiet') #py2exe produces too much output by default
-    if auto and not os.path.exists('dist\\auto'):
-        print os.path.abspath('dist\\auto'), 'does not exist'
-        return 1
+    
     console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i]) 
                for i in range(len(scripts['console']))]
-    
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     setup(
           cmdclass = {'py2exe': BuildEXE},
           windows = [
@@ -662,8 +569,6 @@ def main():
                     },
           
           )
-    if auto:
-        subprocess.call(('shutdown', '-s', '-f', '-t', '01')) 
     return 0
 
 if __name__ == '__main__':

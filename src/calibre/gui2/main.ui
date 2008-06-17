@@ -27,9 +27,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>86</y>
+     <y>79</y>
      <width>865</width>
-     <height>712</height>
+     <height>716</height>
     </rect>
    </property>
    <layout class="QGridLayout" >
@@ -44,7 +44,7 @@
       <item>
        <widget class="LocationView" name="location_view" >
         <property name="sizePolicy" >
-         <sizepolicy vsizetype="Minimum" hsizetype="Expanding" >
+         <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
@@ -52,19 +52,25 @@
         <property name="maximumSize" >
          <size>
           <width>10000</width>
-          <height>100</height>
+          <height>110</height>
          </size>
         </property>
         <property name="verticalScrollBarPolicy" >
          <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
         <property name="horizontalScrollBarPolicy" >
-         <enum>Qt::ScrollBarAlwaysOff</enum>
+         <enum>Qt::ScrollBarAsNeeded</enum>
+        </property>
+        <property name="tabKeyNavigation" >
+         <bool>true</bool>
+        </property>
+        <property name="showDropIndicator" stdset="0" >
+         <bool>true</bool>
         </property>
         <property name="iconSize" >
          <size>
-          <width>32</width>
-          <height>32</height>
+          <width>40</width>
+          <height>40</height>
          </size>
         </property>
         <property name="movement" >
@@ -77,13 +83,10 @@
          <bool>false</bool>
         </property>
         <property name="spacing" >
-         <number>20</number>
+         <number>10</number>
         </property>
         <property name="viewMode" >
          <enum>QListView::IconMode</enum>
-        </property>
-        <property name="uniformItemSizes" >
-         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -332,8 +335,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>847</width>
-         <height>553</height>
+         <width>857</width>
+         <height>552</height>
         </rect>
        </property>
        <layout class="QGridLayout" >
@@ -380,7 +383,7 @@
      <x>0</x>
      <y>0</y>
      <width>865</width>
-     <height>86</height>
+     <height>79</height>
     </rect>
    </property>
    <property name="minimumSize" >
@@ -425,9 +428,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>798</y>
+     <y>795</y>
      <width>865</width>
-     <height>24</height>
+     <height>27</height>
     </rect>
    </property>
    <property name="mouseTracking" >

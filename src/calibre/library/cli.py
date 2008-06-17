@@ -10,11 +10,10 @@ Command line interface to the calibre database.
 import sys, os
 from textwrap import TextWrapper
 
-from PyQt4.QtCore import QVariant
-
 from calibre import OptionParser, Settings, terminal_controller, preferred_encoding
 from calibre.gui2 import SingleApplication
 from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata.opf import OPFCreator, OPFReader
 from calibre.library.database import LibraryDatabase, text_to_tokens
 
 FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats'])
@@ -304,9 +303,64 @@ do nothing.
     do_remove_format(get_db(dbpath, opts), id, fmt)
     return 0
 
+def do_show_metadata(db, id, as_opf):
+    if not db.has_id(id):
+        raise ValueError('Id #%d is not present in database.'%id)
+    mi = db.get_metadata(id, index_is_id=True)
+    if as_opf:
+        mi = OPFCreator(os.getcwd(), mi)
+        mi.render(sys.stdout)
+    else:
+        print mi
+    
+def command_show_metadata(args, dbpath):
+    parser = get_parser(_(
+'''
+%prog show_metadata [options] id
 
+Show the metadata stored in the calibre database for the book identified by id. 
+id is an id number from the list command. 
+'''))
+    parser.add_option('--as-opf', default=False, action='store_true',
+                      help=_('Print metadata in OPF form (XML)'))
+    opts, args = parser.parse_args(sys.argv[1:]+args)
+    if len(args) < 2:
+        parser.print_help()
+        print 
+        print _('You must specify an id')
+        return 1
+    id = int(args[1])
+    do_show_metadata(get_db(dbpath, opts), id, opts.as_opf)
+    return 0
+
+def do_set_metadata(db, id, stream):
+    mi = OPFReader(stream)
+    db.set_metadata(id, mi)
+    do_show_metadata(db, id, False)
+
+def command_set_metadata(args, dbpath):
+    parser = get_parser(_(
+'''
+%prog set_metadata [options] id /path/to/metadata.opf
+
+Set the metadata stored in the calibre database for the book identified by id
+from the OPF file metadata.opf. id is an id number from the list command. You 
+can get a quick feel for the OPF format by using the --as-opf switch to the
+show_metadata command.
+'''))
+    opts, args = parser.parse_args(sys.argv[1:]+args)
+    if len(args) < 3:
+        parser.print_help()
+        print 
+        print _('You must specify an id and a metadata file')
+        return 1
+    id, opf = int(args[1]), open(args[2], 'rb')
+    do_set_metadata(get_db(dbpath, opts), id, opf)
+    return 0
+    
 def main(args=sys.argv):
-    commands = ('list', 'add', 'remove', 'add_format', 'remove_format')
+    commands = ('list', 'add', 'remove', 'add_format', 'remove_format', 
+                'show_metadata', 'set_metadata')
     parser = OptionParser(_(
 '''\
 %%prog command [options] [arguments]
@@ -330,7 +384,7 @@ For help on an individual command: %%prog command --help
         return 1
     
     command = eval('command_'+args[1])
-    dbpath = unicode(Settings().value('database path', QVariant(os.path.expanduser('~/library1.db'))).toString())
+    dbpath = Settings().get('database path')
     
     return command(args[2:], dbpath)
 

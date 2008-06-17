@@ -1594,6 +1594,8 @@ class Paragraph(LrsContainer):
         LrsContainer.__init__(self, [Text, CR, DropCaps, CharButton,
                                      LrsSimpleChar1, basestring])
         if text is not None:
+            if isinstance(text, basestring):
+                text = Text(text)
             self.append(text)
         
     def CR(self):
@@ -1914,6 +1916,8 @@ class Span(LrsSimpleChar1, LrsContainer):
     def __init__(self, text=None, **attrs):
         LrsContainer.__init__(self, [LrsSimpleChar1, Text, basestring])
         if text is not None:
+            if isinstance(text, basestring):
+                text = Text(text)
             self.append(text)
 
         for attrname in attrs.keys():

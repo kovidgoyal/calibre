@@ -1,7 +1,7 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.70'
+__version__   = '0.4.72'
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
@@ -15,7 +15,7 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from logging import Formatter
 
-from PyQt4.QtCore import QSettings, QVariant, QUrl
+from PyQt4.QtCore import QSettings, QVariant, QUrl, QByteArray, QString
 from PyQt4.QtGui import QDesktopServices
 
 from calibre.translations.msgfmt import make
@@ -429,14 +429,10 @@ def singleinstance(name):
 
 class Settings(QSettings):
     
-    def __init__(self):
+    def __init__(self, name='calibre2'):
         QSettings.__init__(self, QSettings.IniFormat, QSettings.UserScope,
-                           'kovidgoyal.net', 'calibre')
+                           'kovidgoyal.net', name)
         
-    def migrate(self, settings):
-        for key in settings.allKeys():
-            self.setValue(key, settings.value(key, QVariant()))
-                          
     def get(self, key, default=None):
         key = str(key)
         if not self.contains(key):
@@ -448,14 +444,27 @@ class Settings(QSettings):
     
     def set(self, key, val):
         val = cPickle.dumps(val, -1)
-        self.setValue(str(key), QVariant(val))
+        self.setValue(str(key), QVariant(QByteArray(val)))
         
 _settings = Settings()
-if not _settings.get('migrated from QSettings'):
-    _settings.migrate(QSettings('KovidsBrain', 'libprs500'))
-    _settings.set('migrated from QSettings', True)
-    _settings.sync()
+
+if not _settings.get('rationalized'):
+    __settings = Settings(name='calibre')
+    dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
+    dbpath = unicode(__settings.value('database path', 
+                    QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
+    cmdline   = __settings.value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
     
+    if cmdline:
+        cmdline = cPickle.loads(cmdline)
+        _settings.set('LRF conversion defaults', cmdline)
+    _settings.set('rationalized', True)
+    try:
+        os.unlink(unicode(__settings.fileName()))
+    except:
+        pass
+    _settings.set('database path', dbpath)
+
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 def english_sort(x, y):
     '''

@@ -1,11 +1,20 @@
 #!/usr/bin/python
-import tempfile
-import sys, os, shutil, time
+import sys, os, shutil, time, tempfile, socket, fcntl, struct
 sys.path.append('src')
 import subprocess
 from subprocess import check_call as _check_call
 from functools import partial
 #from pyvix.vix import Host, VIX_SERVICEPROVIDER_VMWARE_WORKSTATION
+def get_ip_address(ifname):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
+    
+HOST=get_ip_address('eth0')
+PROJECT=os.path.basename(os.getcwd())
 
 from calibre import __version__, __appname__
 
@@ -15,6 +24,16 @@ DOCS = PREFIX+"/htdocs/apidocs"
 USER_MANUAL = PREFIX+'/htdocs/user_manual'
 HTML2LRF = "src/calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
+BUILD_SCRIPT ='''\
+#!/bin/bash
+cd ~/build && \
+rsync -avz --exclude src/calibre/plugins --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
+cd %(project)s && \
+mkdir -p build dist src/calibre/plugins && \
+%%s && \
+rm -rf build/* dist/* && \
+%%s %%s
+'''%dict(host=HOST, project=PROJECT) 
 check_call = partial(_check_call, shell=True)
 #h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
 
@@ -24,205 +43,56 @@ def tag_release():
     check_call('bzr tag '+__version__)
     check_call('bzr commit --unchanged -m "IGN:Tag release"')
             
-def build_installer(installer, vm, timeout=25):
-    if os.path.exists(installer):
-        os.unlink(installer)
-    f = open('dist/auto', 'wb')
-    f.write('\n')
-    f.close()
-    print 'Building installer %s ...'%installer
-    vmware = ('vmware', '-q', '-x', '-n', vm)
-    try:
-        p = subprocess.Popen(vmware)
-        print 'Waiting...',
-        minutes = 0
-        sys.stdout.flush()
-        while p.returncode is None and minutes < timeout and not os.path.exists(installer):
-            p.poll()
-            time.sleep(60)
-            minutes += 1
-            print minutes,
-            sys.stdout.flush()
-        print
-        if not os.path.exists(installer):
-            raise Exception('Failed to build installer '+installer)
-    finally:
-        os.unlink('dist/auto')
-    
-        
-    return os.path.basename(installer)
-
 def installer_name(ext):
     if ext in ('exe', 'dmg'):
         return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
     return 'dist/%s-%s-i686.%s'%(__appname__, __version__, ext)
 
+def start_vm(vm, ssh_host, build_script, sleep=75):
+    vmware = ('vmware', '-q', '-x', '-n', vm)
+    subprocess.Popen(vmware)
+    t = tempfile.NamedTemporaryFile(suffix='.sh')
+    t.write(build_script)
+    t.flush()
+    print 'Waiting for VM to startup'
+    while subprocess.call('ping -q -c1 '+ssh_host, shell=True, stdout=open('/dev/null', 'w')) != 0:
+        time.sleep(5)
+    time.sleep(20)
+    print 'Trying to SSH into VM'
+    subprocess.check_call(('scp', t.name, ssh_host+':build-'+PROJECT))
+    subprocess.check_call('ssh -t %s bash build-%s'%(ssh_host, PROJECT), shell=True)
+
 def build_windows():
     installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
-    return build_installer(installer, vm, 20)
-    
+    start_vm(vm, 'windows', BUILD_SCRIPT%('python setup.py develop', 'python','windows_installer.py'))
+    subprocess.check_call(('scp', 'windows:build/%s/dist/*.exe'%PROJECT, 'dist'))
+    if not os.path.exists(installer):
+        raise Exception('Failed to build installer '+installer)
+    subprocess.Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
+    return os.path.basename(installer)
 
 def build_osx():
     installer = installer_name('dmg')
     vm = '/vmware/Mac OSX/Mac OSX.vmx'
-    vmware = ('vmware', '-q', '-x', '-n', vm)
-    subprocess.Popen(vmware)
-    print 'Waiting for OS X to boot up...'
-    time.sleep(120)
-    print 'Trying to ssh into the OS X server'
-    subprocess.check_call(('ssh', 'osx', '/Users/kovid/bin/build-calibre'))
+    python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python' 
+    start_vm(vm, 'osx', BUILD_SCRIPT%('sudo %s setup.py develop'%python, python, 'osx_installer.py'))
+    subprocess.check_call(('scp', 'osx:build/%s/dist/*.dmg'%PROJECT, 'dist'))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
-    subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', '+1'))
+    subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', 'now'))
     return os.path.basename(installer)
-    #return build_installer(installer, vm, 20)
   
-def _build_linux():
-    cwd = os.getcwd()
-    tbz2 = os.path.join(cwd, installer_name('tar.bz2'))
-    SPEC="""\
-import os
-HOME           = '%s'
-PYINSTALLER    = os.path.expanduser('~/build/pyinstaller')
-CALIBREPREFIX  = HOME+'/work/calibre'
-CLIT           = '/usr/bin/clit'
-PDFTOHTML      = '/usr/bin/pdftohtml'
-LIBUNRAR       = '/usr/lib/libunrar.so'
-QTDIR          = '/usr/lib/qt4'
-QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml')
-EXTRAS         = ('/usr/lib/python2.5/site-packages/PIL', os.path.expanduser('~/ipython/IPython'))
-
-import glob, sys, subprocess, tarfile
-CALIBRESRC     = os.path.join(CALIBREPREFIX, 'src')
-CALIBREPLUGINS = os.path.join(CALIBRESRC, 'calibre', 'plugins')
-
-subprocess.check_call(('/usr/bin/sudo', 'chown', '-R', 'kovid:users', glob.glob('/usr/lib/python*/site-packages/')[-1]))
-subprocess.check_call('rm -rf %%(py)s/dist/* %%(py)s/build/*'%%dict(py=PYINSTALLER), shell=True)
-
-
-loader = os.path.join('/tmp', 'calibre_installer_loader.py')
-if not os.path.exists(loader):
-    open(loader, 'wb').write('''
-import sys, os
-sys.frozen_path = os.getcwd()
-os.chdir(os.environ.get("ORIGWD", "."))
-sys.path.insert(0, os.path.join(sys.frozen_path, "library.pyz"))
-sys.path.insert(0, sys.frozen_path)
-from PyQt4.QtCore import QCoreApplication
-QCoreApplication.setLibraryPaths([sys.frozen_path, os.path.join(sys.frozen_path, "plugins")])
-''')
-excludes = ['gtk._gtk', 'gtk.glade', 'qt', 'matplotlib.nxutils', 'matplotlib._cntr',
-            'matplotlib.ttconv', 'matplotlib._image', 'matplotlib.ft2font',
-            'matplotlib._transforms', 'matplotlib._agg', 'matplotlib.backends._backend_agg',
-            'matplotlib.axes', 'matplotlib', 'matplotlib.pyparsing',
-            'TKinter', 'atk', 'gobject._gobject', 'pango', 'PIL', 'Image', 'IPython']
-temp = ['keyword', 'codeop']
-
-recipes = ['calibre', 'web', 'feeds', 'recipes']
-prefix  = '.'.join(recipes)+'.'
-for f in glob.glob(os.path.join(CALIBRESRC, *(recipes+['*.py']))):
-    temp.append(prefix + os.path.basename(f).partition('.')[0])
-hook = '/tmp/hook-calibre.py'
-open(hook, 'wb').write('hiddenimports = %%s'%%repr(temp) + '\\n')
-
-sys.path.insert(0, CALIBRESRC)
-from calibre.linux import entry_points
-
-executables, scripts = ['calibre_postinstall', 'parallel'], \
-                       [os.path.join(CALIBRESRC, 'calibre', 'linux.py'), os.path.join(CALIBRESRC, 'calibre', 'parallel.py')]
-
-for entry in entry_points['console_scripts'] + entry_points['gui_scripts']:
-    fields = entry.split('=')
-    executables.append(fields[0].strip())
-    scripts.append(os.path.join(CALIBRESRC, *map(lambda x: x.strip(), fields[1].split(':')[0].split('.')))+'.py')
-
-recipes = Analysis(glob.glob(os.path.join(CALIBRESRC, 'calibre', 'web', 'feeds', 'recipes', '*.py')),
-                   pathex=[CALIBRESRC], hookspath=[os.path.dirname(hook)], excludes=excludes)
-analyses = [Analysis([os.path.join(HOMEPATH,'support/_mountzlib.py'), os.path.join(HOMEPATH,'support/useUnicode.py'), loader, script],
-             pathex=[PYINSTALLER, CALIBRESRC, CALIBREPLUGINS], excludes=excludes) for script in scripts]
-
-pyz = TOC()
-binaries = TOC()
-
-for a in analyses:
-    pyz = a.pure + pyz
-    binaries = a.binaries + binaries
-pyz = PYZ(pyz + recipes.pure, name='library.pyz')
-
-built_executables = []
-for script, exe, a in zip(scripts, executables, analyses):
-    built_executables.append(EXE(PYZ(TOC()),
-    a.scripts+[('O','','OPTION'),],
-    exclude_binaries=1,
-    name=os.path.join('buildcalibre', exe),
-    debug=False,
-    strip=True,
-    upx=False,
-    excludes=excludes,
-    console=1))
-
-print 'Adding plugins...'
-for f in glob.glob(os.path.join(CALIBREPLUGINS, '*.so')):
-    binaries += [(os.path.basename(f), f, 'BINARY')]
-
-print 'Adding external programs...'
-binaries += [('clit', CLIT, 'BINARY'), ('pdftohtml', PDFTOHTML, 'BINARY'),
-             ('libunrar.so', LIBUNRAR, 'BINARY')]
-qt = []
-for dll in QTDLLS:
-    path = os.path.join(QTDIR, 'lib'+dll+'.so.4')
-    qt.append((os.path.basename(path), path, 'BINARY'))
-binaries += qt
-
-plugins = []
-plugdir = os.path.join(QTDIR, 'plugins')
-for dirpath, dirnames, filenames in os.walk(plugdir):
-    for f in filenames:
-        if not f.endswith('.so') or 'designer' in dirpath or 'codcs' in dirpath or 'sqldrivers' in dirpath : continue
-        f = os.path.join(dirpath, f)
-        plugins.append(('plugins/'+f.replace(plugdir, ''), f, 'BINARY'))
-binaries += plugins
-
-manifest = '/tmp/manifest'
-open(manifest, 'wb').write('\\n'.join(executables))
-from calibre import __version__
-version = '/tmp/version'
-open(version, 'wb').write(__version__)
-coll = COLLECT(binaries, pyz, [('manifest', manifest, 'DATA'), ('version', version, 'DATA')],
-               *built_executables,
-               **dict(strip=True,
-               upx=False,
-               excludes=excludes,
-               name='dist'))
-
-os.chdir(os.path.join(HOMEPATH, 'calibre', 'dist'))
-for folder in EXTRAS:
-    subprocess.check_call('cp -rf %%s .'%%folder, shell=True)
-
-print 'Building tarball...'
-tf = tarfile.open('%s', 'w:bz2')
-
-for f in os.listdir('.'):
-    tf.add(f)
-    
-"""%('/mnt/hgfs/giskard/', tbz2)
-    os.chdir(os.path.expanduser('~/build/pyinstaller'))
-    open('calibre/calibre.spec', 'wb').write(SPEC)
-    try:
-        subprocess.check_call(('/usr/bin/python', '-O', 'Build.py', 'calibre/calibre.spec'))
-    finally:
-        os.chdir(cwd)
-    return os.path.basename(tbz2)
 
 def build_linux():
+    installer = installer_name('tar.bz2')
     vm = '/vmware/linux/libprs500-gentoo.vmx'
-    vmware = ('vmware', '-q', '-x', '-n', vm)
-    subprocess.Popen(vmware)
-    print 'Waiting for linux to boot up...'
-    time.sleep(75)
-    check_call('ssh linux make -C /mnt/hgfs/giskard/work/calibre all egg linux_binary')
-    check_call('ssh linux sudo poweroff')
+    start_vm(vm, 'linux', BUILD_SCRIPT%('sudo python setup.py develop', 'python','linux_installer.py'))
+    subprocess.check_call(('scp', 'linux:/tmp/%s'%os.path.basename(installer), 'dist'))
+    if not os.path.exists(installer):
+        raise Exception('Failed to build installer '+installer)
+    subprocess.Popen(('ssh', 'linux', 'sudo', '/sbin/poweroff'))
+    return os.path.basename(installer)
 
 def build_installers():
     return build_linux(), build_windows(), build_osx()
@@ -270,18 +140,14 @@ def upload_user_manual():
     finally:
         os.chdir(cwd)
         
-def build_tarball():
-    cwd = os.getcwd()
+def build_src_tarball():
     check_call('bzr export dist/calibre-%s.tar.bz2'%__version__)
     
-def upload_tarball():
+def upload_src_tarball():
     check_call('ssh divok rm -f %s/calibre-\*.tar.bz2'%DOWNLOADS)
     check_call('scp dist/calibre-*.tar.bz2 divok:%s/'%DOWNLOADS)
 
-    
-
-def main():
-    upload = len(sys.argv) < 2
+def stage_one():
     shutil.rmtree('build')
     os.mkdir('build')
     shutil.rmtree('docs')
@@ -291,17 +157,32 @@ def main():
     check_call('make', shell=True)
     tag_release()
     upload_demo()
+    
+def stage_two():
+    subprocess.check_call('rm -rf dist/*', shell=True)
     build_installers()
-    build_tarball()
-    if upload:
-        print 'Uploading installers...'
-        upload_installers()
-        print 'Uploading to PyPI'
-        upload_tarball()
-        upload_docs()
-        upload_user_manual()
-        check_call('python setup.py register bdist_egg --exclude-source-files upload')
-        check_call('''rm -rf dist/* build/*''')
+    build_src_tarball()    
+
+def stage_three():
+    print 'Uploading installers...'
+    upload_installers()
+    print 'Uploading to PyPI'
+    upload_src_tarball()
+    upload_docs()
+    upload_user_manual()
+    check_call('python setup.py register bdist_egg --exclude-source-files upload')
+    check_call('''rm -rf dist/* build/*''')
+
+def main(args=sys.argv):
+    print 'Starting stage one...'
+    stage_one()
+    print 'Starting stage two...'
+    stage_two()
+    print 'Starting stage three...'
+    stage_three()
+    print 'Finished'
+    return 0    
+        
     
 if __name__ == '__main__':
-    main()
+    sys.exit(main())

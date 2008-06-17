@@ -5,10 +5,11 @@ from datetime import timedelta, datetime
 from operator import attrgetter
 from collections import deque 
 from math import cos, sin, pi
+from itertools import repeat
 from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
-                        QPen, QStyle, QPainter, QLineEdit, QApplication, \
-                        QPalette, QImage
+                        QPen, QStyle, QPainter, QLineEdit, \
+                        QPalette, QImage, QApplication
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex, \
                          QTimer
@@ -54,9 +55,11 @@ class LibraryDelegate(QItemDelegate):
             painter.restore()
         
         painter.save()
+        if hasattr(QStyle, 'CE_ItemViewItem'):
+            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
+        elif option.state & QStyle.State_Selected:
+            painter.fillRect(option.rect, option.palette.highlight())
         try:
-            if option.state & QStyle.State_Selected:
-                painter.fillRect(option.rect, option.palette.highlight())
             painter.setRenderHint(QPainter.Antialiasing)
             y = option.rect.center().y()-self.SIZE/2. 
             x = option.rect.right()  - self.SIZE
@@ -114,8 +117,7 @@ class BooksModel(QAbstractTableModel):
         self.load_queue = deque()
         
     def read_config(self):
-        self.use_roman_numbers = bool(Settings().value('use roman numerals for series number',
-                                                   QVariant(True)).toBool())
+        self.use_roman_numbers = Settings().get('use roman numerals for series number', True)
         
     
     def set_database(self, db):
@@ -128,6 +130,7 @@ class BooksModel(QAbstractTableModel):
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
         for row in rows:
+            self.buffer.pop(row, None)
             if row == current_row:
                 self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), 
                           self.get_book_display_info(row))
@@ -594,7 +597,7 @@ class DeviceBooksModel(BooksModel):
         base = self.map if refinement else self.sorted_map
         result = []
         for i in base:
-            q = ['', self.db[i].title, self.db[i].authors, '', ', '.join(self.db[i].tags)] + ['' for j in range(10)]
+            q = ['', self.db[i].title, self.db[i].authors, '', ', '.join(self.db[i].tags)] + list(repeat('', 10))
             if OR:
                 add = False
                 for token in tokens:
