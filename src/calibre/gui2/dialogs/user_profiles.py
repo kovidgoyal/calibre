@@ -84,6 +84,7 @@ class UserProfiles(QDialog, Ui_Dialog):
             self.populate_options(recipe)
             self.stacks.setCurrentIndex(0)
             self.toggle_mode_button.setText(_('Switch to Advanced mode'))
+            self.source_code.setPlainText('')
         else:
             self.source_code.setPlainText(src)
             self.highlighter = PythonHighlighter(self.source_code.document())
