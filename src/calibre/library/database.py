@@ -1422,7 +1422,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 mi = OPFCreator(base, self.get_metadata(idx, index_is_id=index_is_id))
                 cover = self.cover(idx, index_is_id=index_is_id)
                 if cover is not None:
-                    cname = name + '.jpg'
+                    cname = sanitize_file_name(name) + '.jpg'
                     cpath = os.path.join(base, cname)
                     open(cpath, 'wb').write(cover)
                     mi.cover = cname
