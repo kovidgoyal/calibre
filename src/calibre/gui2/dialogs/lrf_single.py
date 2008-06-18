@@ -48,10 +48,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.gui_mono_family.setModel(self.font_family_model)
         self.load_saved_global_defaults()
     
-    def __init__(self, window, db, row):
-        QDialog.__init__(self, window)
-        Ui_LRFSingleDialog.__init__(self)
-        self.setupUi(self)
+    def populate_list(self):
         self.__w = []
         self.__w.append(QIcon(':/images/dialog_information.svg'))
         self.item1 = QListWidgetItem(self.__w[-1], _("Metadata"), self.categoryList)
@@ -61,6 +58,12 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.item3 = QListWidgetItem(self.__w[-1], _('Page Setup'), self.categoryList)
         self.__w.append(QIcon(':/images/chapters.svg'))
         self.item4 = QListWidgetItem(self.__w[-1], _('Chapter Detection'), self.categoryList)
+    
+    def __init__(self, window, db, row):
+        QDialog.__init__(self, window)
+        Ui_LRFSingleDialog.__init__(self)
+        self.setupUi(self)
+        self.populate_list()
         self.categoryList.setCurrentRow(0)
         QObject.connect(self.categoryList, SIGNAL('itemEntered(QListWidgetItem *)'),
                         self.show_category_help)
@@ -383,15 +386,15 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             self.cmdline = [unicode(i) for i in cmdline]
         else:
             Settings().set('LRF conversion defaults', cmdline)
-        print self.cmdline
         QDialog.accept(self)
         
 class LRFBulkDialog(LRFSingleDialog):
     
     def __init__(self, window):
         QDialog.__init__(self, window)
-        Ui_LRFSingleDialog.__init__(self)        
+        Ui_LRFSingleDialog.__init__(self)
         self.setupUi(self)
+        self.populate_list()
         
         self.categoryList.takeItem(0)
         self.stack.removeWidget(self.stack.widget(0))
@@ -401,7 +404,14 @@ class LRFBulkDialog(LRFSingleDialog):
         self.setWindowTitle(_('Bulk convert ebooks to LRF'))
         
     def accept(self):
-        self.cmdline = self.cmdline = [unicode(i) for i in self.build_commandline()]
+        self.cmdline = [unicode(i) for i in self.build_commandline()]
+        for meta in ('--title', '--author', '--publisher', '--comment'):
+            try:
+                index = self.cmdline.index(meta)
+                self.cmdline[index:index+2] = []
+            except ValueError:
+                continue
+                
         self.cover_file = None
         QDialog.accept(self)
     

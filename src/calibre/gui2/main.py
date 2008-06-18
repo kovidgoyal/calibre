@@ -746,6 +746,15 @@ class Main(MainWindow, Ui_MainWindow):
         
         for i, row in enumerate([r.row() for r in rows]):
             cmdline = list(d.cmdline)
+            mi = self.library_view.model().db.get_metadata(row)
+            if mi.title:
+                cmdline.extend(['--title', mi.title])
+            if mi.authors:
+                cmdline.extend(['--author', ','.join(mi.authors)])
+            if mi.publisher:
+                cmdline.extend(['--publisher', mi.publisher])
+            if mi.comments:
+                cmdline.extend(['--comment', mi.comments])
             data = None
             for fmt in LRF_PREFERRED_SOURCE_FORMATS:
                 try:

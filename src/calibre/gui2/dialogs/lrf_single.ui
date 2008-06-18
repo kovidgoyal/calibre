@@ -115,7 +115,7 @@
           <item row="0" column="0" >
            <widget class="QStackedWidget" name="stack" >
             <property name="currentIndex" >
-             <number>0</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="metadata_page" >
              <property name="geometry" >
@@ -1164,6 +1164,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel" >
      <x>823</x>
      <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gui_disable_chapter_detection</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gui_chapter_attr</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>344</x>
+     <y>107</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>489</x>
+     <y>465</y>
     </hint>
    </hints>
   </connection>
