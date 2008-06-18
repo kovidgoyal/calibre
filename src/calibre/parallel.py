@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Used to run jobs in parallel in separate processes.
 '''
-import re, sys, tempfile, os, cPickle, traceback, atexit, binascii, time, subprocess
+import sys, tempfile, os, cPickle, traceback, atexit, binascii, time, subprocess
 from functools import partial
 
 
@@ -11,6 +11,7 @@ from calibre.ebooks.lrf.any.convert_from import main as any2lrf
 from calibre.ebooks.lrf.web.convert_from import main as web2lrf
 from calibre.ebooks.lrf.feeds.convert_from import main as feeds2lrf
 from calibre.gui2.lrf_renderer.main import main as lrfviewer
+from calibre.ebooks.lrf.html.table_as_image import do_render as render_table
 from calibre import iswindows, __appname__, islinux
 try:
     from calibre.utils.single_qt_application import SingleApplication
@@ -31,6 +32,7 @@ PARALLEL_FUNCS = {
                   'web2lrf'   : web2lrf,
                   'lrfviewer' : lrfviewer,
                   'feeds2lrf' : partial(feeds2lrf, notification=report_progress),
+                  'render_table': render_table,
                   }
 
 python = sys.executable
@@ -88,7 +90,8 @@ class Server(object):
         
         
     
-    def run(self, job_id, func, args=[], kwdargs={}, monitor=True):
+    def run(self, job_id, func, args=[], kwdargs={}, monitor=True, 
+            report_progress=True, qapp=True):
         '''
         Run a job in a separate process.
         @param job_id: A unique (per server) identifier
@@ -96,6 +99,8 @@ class Server(object):
         @param args: A list of arguments to pass of C{func}
         @param kwdargs: A dictionary of keyword arguments to pass to C{func}
         @param monitor: If False launch the child process and return. Do not monitor/communicate with it.
+        @param report_progess: If True progress is reported to the GUI
+        @param qapp: If True, A QApplication is created. If False, progress reporting will also be disabled.
         @return: (result, exception, formatted_traceback, log) where log is the combined
         stdout + stderr of the child process; or None if monitor is True. If a job is killed
         by a call to L{kill()} then result will be L{KILL_RESULT}
@@ -107,14 +112,15 @@ class Server(object):
         os.mkdir(job_dir)
         
         job_data = os.path.join(job_dir, 'job_data.pickle')
-        cPickle.dump((job_id, func, args, kwdargs), open(job_data, 'wb'), -1)
+        cPickle.dump((job_id, func, args, kwdargs, report_progress, qapp), 
+                     open(job_data, 'wb'), -1)
         prefix = ''
         if hasattr(sys, 'frameworks_dir'):
             fd = getattr(sys, 'frameworks_dir')
             prefix = 'import sys; sys.frameworks_dir = "%s"; sys.frozen = "macosx_app"; '%fd
             if fd not in os.environ['PATH']:
                 os.environ['PATH'] += ':'+fd
-        cmd = prefix + 'from calibre.parallel import run_job; run_job(\'%s\')'%binascii.hexlify(job_data)
+        cmd = prefix + 'from calibre.parallel import main; main(\'%s\')'%binascii.hexlify(job_data)
         
         if not monitor:
             popen([python, '-c', cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
@@ -145,14 +151,12 @@ class Server(object):
         return result, exception, traceback, log
             
 
-def run_job(job_data):
-    global sa, job_id
-    if SingleApplication is not None:
-        sa = SingleApplication('calibre GUI')
-    job_data = binascii.unhexlify(job_data)
-    base = os.path.dirname(job_data)
+def run_job(base, id, func, args, kwdargs):
+    global job_id
+    job_id = id
+    
     job_result = os.path.join(base, 'job_result.pickle')
-    job_id, func, args, kwdargs = cPickle.load(open(job_data, 'rb'))
+    
     func = PARALLEL_FUNCS[func]
     exception, tb = None, None
     try:
@@ -165,14 +169,22 @@ def run_job(job_data):
     if os.path.exists(os.path.dirname(job_result)):
         cPickle.dump((result, exception, tb), open(job_result, 'wb'))
     
-def main():
-    src = sys.argv[2]
-    job_data = re.search(r'run_job\(\'([a-f0-9A-F]+)\'\)', src).group(1)
-    run_job(job_data)
+def main(src):
+    from PyQt4.QtGui import QApplication
+    job_data = binascii.unhexlify(src)
+    global sa
+    job_id, func, args, kwdargs, rp, qapp = cPickle.load(open(job_data, 'rb'))
+    
+    if qapp and QApplication.instance() is None:
+        QApplication([])
+    if SingleApplication is not None and rp and QApplication.instance() is not None:
+        sa = SingleApplication('calibre GUI')
+    
+    run_job(os.path.dirname(job_data), job_id, func, args, kwdargs)
     
     return 0
     
 if __name__ == '__main__':
-    sys.exit(main())
+    sys.exit(main(sys.argv[2]))
 
 

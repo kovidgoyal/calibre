@@ -120,7 +120,6 @@ def option_parser(usage, gui_mode=False):
                   dest='font_delta')
     laf.add_option('--ignore-colors', action='store_true', default=False, dest='ignore_colors',
                       help=_('Render all content as black on white instead of the colors specified by the HTML or CSS.'))
-
     
     page = parser.add_option_group('PAGE OPTIONS')
     profiles = profile_map.keys()
@@ -139,6 +138,11 @@ def option_parser(usage, gui_mode=False):
                     help=_('''Top margin of page. Default is %default px.'''))
     page.add_option('--bottom-margin', default=0, dest='bottom_margin', type='int',
                     help=_('''Bottom margin of page. Default is %default px.'''))
+    page.add_option('--render-tables-as-images', default=False, action='store_true',
+                   help=_('Render tables in the HTML as images (useful if the document has large or complex tables)'))
+    page.add_option('--text-size-multiplier-for-rendered-tables', type='float', default=1.0,
+                   help=_('Multiply the size of text in rendered tables by this factor. Default is %default'))
+    
     link = parser.add_option_group('LINK PROCESSING OPTIONS')
     link.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
                       dest='link_levels',

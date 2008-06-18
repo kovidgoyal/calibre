@@ -382,6 +382,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             self.cmdline = [unicode(i) for i in cmdline]
         else:
             Settings().set('LRF conversion defaults', cmdline)
+        print self.cmdline
         QDialog.accept(self)
         
 class LRFBulkDialog(LRFSingleDialog):

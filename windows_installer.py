@@ -514,6 +514,12 @@ class BuildEXE(build_exe):
         f.write('src\\calibre\\gui2\\main.py', 'calibre\\gui2\\main.py')
         f.close()
         
+        print 
+        print 'Doing DLL redirection' # See http://msdn.microsoft.com/en-us/library/ms682600(VS.85).aspx
+        for f in glob.glob(os.path.join('build', 'py2exe', '*.exe')):
+            open(f + '.local', 'wb').write('\n')
+        
+        
         print
         print
         print 'Building Installer'
@@ -558,12 +564,12 @@ def main():
                                              'win32file', 'pythoncom', 'rtf2xml', 
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
-                                             'calibre.web.feeds.recipes.*', 'pydoc',
+                                             'calibre.web.feeds.recipes.*', 
                                              ],                                
                                   'packages'  : ['PIL'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
-                                                 "_imagingtk", "ImageTk", "FixTk", 
-                                                 'pydoc'],
+                                                 "_imagingtk", "ImageTk", "FixTk"
+                                                ],
                                   'dll_excludes' : ['mswsock.dll'],
                                  },
                     },
