@@ -11,7 +11,10 @@ from calibre.ebooks.lrf.any.convert_from import main as any2lrf
 from calibre.ebooks.lrf.web.convert_from import main as web2lrf
 from calibre.ebooks.lrf.feeds.convert_from import main as feeds2lrf
 from calibre.gui2.lrf_renderer.main import main as lrfviewer
-from calibre.ebooks.lrf.html.table_as_image import do_render as render_table
+try:
+    from calibre.ebooks.lrf.html.table_as_image import do_render as render_table
+except: # Dont fail is PyQt4.4 not present
+    render_table = None
 from calibre import iswindows, __appname__, islinux
 try:
     from calibre.utils.single_qt_application import SingleApplication

@@ -30,7 +30,7 @@ from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.table import Table 
 from calibre import filename_to_utf8,  setup_cli_handlers, __appname__, \
-                    fit_image, LoggingInterface
+                    fit_image, LoggingInterface, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.opf import OPFReader
 from calibre.devices.interface import Device
@@ -1853,6 +1853,8 @@ def process_file(path, options, logger=None):
     options.force_page_break = fpb
     options.link_exclude = le
     options.page_break = pb
+    if not isinstance(options.chapter_regex, unicode):
+        options.chapter_regex = options.chapter_regex.decode(preferred_encoding)
     options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
     fpba = options.force_page_break_attr.split(',')
     if len(fpba) != 3:
@@ -1969,7 +1971,8 @@ def main(args=sys.argv):
     except Exception, err:
         print >> sys.stderr, err
         return 1
-    
+    if not isinstance(src, unicode):
+        src = src.decode(sys.getfilesystemencoding())
     process_file(src, options)
     return 0
 
