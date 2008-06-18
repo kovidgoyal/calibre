@@ -101,7 +101,9 @@ class Server(object):
         @param func: One of C{PARALLEL_FUNCS.keys()}
         @param args: A list of arguments to pass of C{func}
         @param kwdargs: A dictionary of keyword arguments to pass to C{func}
-        @param monitor: If False launch the child process and return. Do not monitor/communicate with it.
+        @param monitor: If False launch the child process and return. 
+                        Do not monitor/communicate with it. Automatically sets
+                        `report_progress` and `qapp` to False.
         @param report_progess: If True progress is reported to the GUI
         @param qapp: If True, A QApplication is created. If False, progress reporting will also be disabled.
         @return: (result, exception, formatted_traceback, log) where log is the combined
@@ -115,6 +117,8 @@ class Server(object):
         os.mkdir(job_dir)
         
         job_data = os.path.join(job_dir, 'job_data.pickle')
+        if not monitor:
+            report_progress = qapp = False
         cPickle.dump((job_id, func, args, kwdargs, report_progress, qapp), 
                      open(job_data, 'wb'), -1)
         prefix = ''
@@ -126,8 +130,7 @@ class Server(object):
         cmd = prefix + 'from calibre.parallel import main; main(\'%s\')'%binascii.hexlify(job_data)
         
         if not monitor:
-            popen([python, '-c', cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                  stderr=subprocess.PIPE)
+            popen([python, '-c', cmd])
             return
         
         output = open(os.path.join(job_dir, 'output.txt'), 'wb')
@@ -157,7 +160,6 @@ class Server(object):
 def run_job(base, id, func, args, kwdargs):
     global job_id
     job_id = id
-    
     job_result = os.path.join(base, 'job_result.pickle')
     
     func = PARALLEL_FUNCS[func]
