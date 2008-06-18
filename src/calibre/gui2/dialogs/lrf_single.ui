@@ -115,7 +115,7 @@
           <item row="0" column="0" >
            <widget class="QStackedWidget" name="stack" >
             <property name="currentIndex" >
-             <number>2</number>
+             <number>0</number>
             </property>
             <widget class="QWidget" name="metadata_page" >
              <property name="geometry" >
@@ -950,6 +950,19 @@
                  </item>
                  <item row="2" column="1" >
                   <widget class="QLineEdit" name="gui_force_page_break_before_attr" />
+                 </item>
+                 <item row="3" column="0" >
+                  <widget class="QLabel" name="label_28" >
+                   <property name="text" >
+                    <string>Detect chapter &amp;at tag:</string>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>gui_chapter_attr</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1" >
+                  <widget class="QLineEdit" name="gui_chapter_attr" />
                  </item>
                 </layout>
                </widget>

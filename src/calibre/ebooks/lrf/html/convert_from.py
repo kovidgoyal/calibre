@@ -1427,6 +1427,18 @@ class HTMLConverter(object, LoggingInterface):
                 return
         except KeyError:
             pass
+        if not self.disable_chapter_detection and \
+           (self.chapter_attr[0].match(tagname) and \
+           tag.has_key(self.chapter_attr[1]) and \
+           self.chapter_attr[2].match(tag[self.chapter_attr[1]])):
+                self.log_debug('Detected chapter %s', tagname)
+                self.end_page() 
+                self.page_break_found = True
+
+                if self.options.add_chapters_to_toc:
+                    self.extra_toc_entries.append((self.get_text(tag,
+                        limit=1000), self.current_block))
+
         end_page = self.process_page_breaks(tag, tagname, tag_css)
         try:
             if tagname in ["title", "script", "meta", 'del', 'frameset']:            
@@ -1850,6 +1862,9 @@ def process_file(path, options, logger=None):
          re.compile('$')
     fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
          re.compile('$')
+    cq = options.chapter_attr.split(',')
+    options.chapter_attr = [re.compile(cq[0], re.IGNORECASE), cq[1], 
+                            re.compile(cq[2], re.IGNORECASE)]
     options.force_page_break = fpb
     options.link_exclude = le
     options.page_break = pb
