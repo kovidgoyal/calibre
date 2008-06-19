@@ -260,6 +260,7 @@ class HTMLConverter(object, LoggingInterface):
         
         
         paths = [os.path.abspath(path) for path in paths]
+        paths = [path.decode(sys.getfilesystemencoding()) if not isinstance(path, unicode) else path for path in paths]
         
         while len(paths) > 0 and self.link_level <= self.link_levels:
             for path in paths:
@@ -380,6 +381,8 @@ class HTMLConverter(object, LoggingInterface):
         self.log_info(_('\tConverting to BBeB...'))
         self.current_style = {}
         self.page_break_found = False
+        if not isinstance(path, unicode):
+            path = path.decode(sys.getfilesystemencoding())
         self.target_prefix = path
         self.previous_text = '\n'
         self.tops[path] = self.parse_file(soup)
@@ -628,6 +631,8 @@ class HTMLConverter(object, LoggingInterface):
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
             ascii_text = text
             
+            if not isinstance(path, unicode):
+                path = path.decode(sys.getfilesystemencoding())
             if path in self.processed_files:
                 if path+fragment in self.targets.keys():
                     tb = get_target_block(path+fragment, self.targets)
