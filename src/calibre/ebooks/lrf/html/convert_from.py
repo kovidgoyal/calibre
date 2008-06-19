@@ -1784,6 +1784,8 @@ def process_file(path, options, logger=None):
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('html2lrf')
         setup_cli_handlers(logger, level)
+    if not isinstance(path, unicode):
+        path = path.decode(sys.getfilesystemencoding())
     path = os.path.abspath(path)
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
     dirpath = os.path.dirname(path)
