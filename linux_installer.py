@@ -74,7 +74,7 @@ f.write(hook_script)
 sys.path.insert(0, CALIBRESRC)
 from calibre.linux import entry_points
 
-executables, scripts = ['calibre_postinstall', 'parallel'], \
+executables, scripts = ['calibre_postinstall', 'calibre-parallel'], \
                        [os.path.join(CALIBRESRC, 'calibre', 'linux.py'), os.path.join(CALIBRESRC, 'calibre', 'parallel.py')]
 
 for entry in entry_points['console_scripts'] + entry_points['gui_scripts']:
