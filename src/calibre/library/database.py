@@ -1427,6 +1427,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     open(cpath, 'wb').write(cover)
                     mi.cover = cname
                 f = open(os.path.join(base, sanitize_file_name(name)+'.opf'), 'wb')
+                if not mi.authors:
+                    mi.authors = [_('Unknown')]
                 mi.render(f)
                 f.close()
                 

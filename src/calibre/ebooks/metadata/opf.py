@@ -511,6 +511,8 @@ class OPFCreator(MetaInformation):
                 path = path[len(self.base_path)+1:]
                 manifest.append((path, mt))
             self.manifest = manifest
+        if not self.authors:
+            self.authors = [_('Unknown')]
     
     def create_manifest(self, entries):
         '''
