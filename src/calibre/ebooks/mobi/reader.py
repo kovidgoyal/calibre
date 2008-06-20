@@ -44,27 +44,29 @@ class EXTHHeader(object):
                 self.cover_offset, = struct.unpack('>L', content)
             elif id == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
-        pos += 3
-        stop = raw[pos:].find('\x00')
-        if stop > -1:
-            self.mi.title = raw[pos:pos+stop].decode(codec, 'ignore')
+        title = re.search(r'\0+([^\0]+)\0+', raw[pos:])
+        if title:
+            self.mi.title = title.group(1).decode(codec, 'ignore')
             
                 
     def process_metadata(self, id, content, codec):
         if id == 100:
             aus = content.split(',')
-            authors = []
-            for a in aus:
-                authors.extend(a.split('&'))
-            self.mi.authors = [i.decode(codec, 'ignore') for i in authors]
+            if len(aus) > 0:
+                self.mi.author_sort = aus[0].decode(codec, 'ignore').strip()
+                self.mi.authors     = [aus[1].decode(codec, 'ignore').strip()]
+            else:
+                self.mi.authors    = [aus[0].decode(codec, 'ignore').strip()]
         elif id == 101:
-            self.mi.publisher = content.decode(codec, 'ignore')
+            self.mi.publisher = content.decode(codec, 'ignore').strip()
         elif id == 103:
             self.mi.comments = content.decode(codec, 'ignore')
         elif id == 104:
             self.mi.isbn = content.decode(codec, 'ignore').strip().replace('-', '')
         elif id == 105:
-            self.mi.category = content.decode(codec, 'ignore')
+            if not self.mi.tags:
+                self.mi.tags = []
+            self.mi.tags.append(content.decode(codec, 'ignore'))
          
             
 
