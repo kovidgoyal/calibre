@@ -46,9 +46,11 @@ class HTMLTableRenderer(QObject):
             painter = QPainter(image)
             self.page.mainFrame().render(painter)
             painter.end()
+            cheight = image.height()
+            cwidth = image.width()
             pos = 0
             while pos < cheight:
-                img = image.copy(0, pos, cwidth, cutoff_height)
+                img = image.copy(0, pos, cwidth, min(cheight-pos, cutoff_height))
                 pos += cutoff_height-20
                 if cwidth > self.width:
                     img = img.scaledToWidth(self.width, Qt.SmoothTransform)
@@ -70,7 +72,7 @@ def render_table(server, soup, table, css, base_dir, width, height, dpi, factor=
     <head>
         %s
     </head>
-    <body style="width: %dpx">
+    <body style="width: %dpx; background: white">
         <style type="text/css">
             table {%s}
         </style>
