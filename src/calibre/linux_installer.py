@@ -8,6 +8,8 @@ Download and install the linux binary.
 '''
 import sys, os, shutil, tarfile, subprocess, tempfile, urllib2, re, stat
 
+MOBILEREAD='https://dev.mobileread.com/dist/kovid/calibre/'
+
 class TerminalController:
     """
     A class that can be used to portably generate formatted output to
@@ -239,7 +241,7 @@ def do_postinstall(destdir):
 
 def download_tarball():
     pb  = ProgressBar(TerminalController(sys.stdout), 'Downloading calibre...')
-    src = urllib2.urlopen('http://calibre.kovidgoyal.net/downloads/latest-linux-binary.tar.bz2')
+    src = urllib2.urlopen(MOBILEREAD+'calibre-%version-i686.tar.bz2')
     size = int(src.info()['content-length'])
     f = tempfile.NamedTemporaryFile()
     while f.tell() < size:

@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import re, glob
+import re
 from pkg_resources import resource_filename
 
 from trac.core import Component, implements
@@ -12,7 +12,7 @@ from trac.util import Markup
 __appname__ = 'calibre'
 DOWNLOAD_DIR = '/var/www/calibre.kovidgoyal.net/htdocs/downloads'
 LINUX_INSTALLER = '/var/www/calibre.kovidgoyal.net/calibre/src/calibre/linux_installer.py'
-
+MOBILEREAD = 'https://dev.mobileread.com/dist/kovid/calibre/'
 
 class OS(dict):
     """Dictionary with a default value for unknown keys."""
@@ -119,7 +119,7 @@ class Download(Component):
         if req.path_info == '/download':
             return self.top_level(req)
         elif req.path_info == '/download_linux_binary_installer':
-            req.send(open(LINUX_INSTALLER).read(), 'text/x-python')
+            req.send(open(LINUX_INSTALLER).read().replace('%version', self.version_from_filename()), 'text/x-python')
         else:
             match = re.match(r'\/download_(\S+)', req.path_info)
             if match:
@@ -153,8 +153,7 @@ class Download(Component):
     
     def version_from_filename(self):
         try:
-            file = glob.glob(DOWNLOAD_DIR+'/*.exe')[0]
-            return re.search(r'\S+-(\d+\.\d+\.\d+)\.', file).group(1)
+            return open(DOWNLOAD_DIR+'/latest_version', 'rb').read().strip()
         except:
             return '0.0.0'
     
@@ -165,7 +164,7 @@ class Download(Component):
             installer_name='Windows installer', 
             title='Download %s for windows'%(__appname__),
             compatibility='%s works on Windows XP and Windows Vista.'%(__appname__,),
-            path='/downloads/'+file, app=__appname__,
+            path=MOBILEREAD+file, app=__appname__,
             note=Markup(\
 '''
 <p>If you are using the <b>SONY PRS-500</b> and %(appname)s does not detect your reader, read on:</p>
@@ -203,7 +202,7 @@ You can uninstall a driver by right clicking on it and selecting uninstall.
             installer_name='OS X universal dmg', 
             title='Download %s for OS X'%(__appname__),
             compatibility='%s works on OS X Tiger and above.'%(__appname__,),
-            path='/downloads/'+file, app=__appname__,
+            path=MOBILEREAD+file, app=__appname__,
             note=Markup(\
 '''
 <ol>

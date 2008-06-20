@@ -306,7 +306,7 @@ def main():
                          'iconfile' : 'icons/library.icns',
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml', 
-                                       'PyQt4.QtSvg', 
+                                       'PyQt4.QtSvg', 'PyQt4.QtWebKit',
                                        'mechanize', 'ClientForm', 'usbobserver', 
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'keyword', 'codeop', 'pydoc'],

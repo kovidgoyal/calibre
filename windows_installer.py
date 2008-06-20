@@ -564,7 +564,7 @@ def main():
                                              'win32file', 'pythoncom', 'rtf2xml', 
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
-                                             'calibre.web.feeds.recipes.*', 
+                                             'calibre.web.feeds.recipes.*', 'PyQt4.QtWebKit',
                                              ],                                
                                   'packages'  : ['PIL'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
