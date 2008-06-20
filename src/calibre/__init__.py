@@ -88,6 +88,9 @@ def setup_cli_handlers(logger, level):
         handler = logging.StreamHandler(sys.stderr)
         handler.setLevel(logging.DEBUG)
         handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
+    for hdlr in logger.handlers:
+        if hdlr.__class__ == handler.__class__:
+            logger.removeHandler(hdlr)
     logger.addHandler(handler)
 
 class CustomHelpFormatter(IndentedHelpFormatter):

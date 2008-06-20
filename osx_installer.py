@@ -51,6 +51,7 @@ def _check_symlinks_prescript():
 import os
 scripts = %(sp)s
 links = %(sp)s
+fonts_conf = %(sp)s
 os.setuid(0)
 for s, l in zip(scripts, links):
     if os.path.lexists(l):
@@ -59,6 +60,11 @@ for s, l in zip(scripts, links):
     omask = os.umask(022)
     os.symlink(s, l)
     os.umask(omask)
+if not os.path.exists('/etc/fonts/fonts.conf'):
+    print 'Creating default fonts.conf'
+    if not os.path.exists('/etc/fonts'):
+        os.makedirs('/etc/fonts')
+    os.link(fonts_conf, '/etc/fonts/fonts.conf')
 """
     
     dest_path = %(dest_path)s
@@ -66,6 +72,7 @@ for s, l in zip(scripts, links):
     scripts = %(scripts)s    
     links   = [os.path.join(dest_path, i) for i in scripts]
     scripts = [os.path.join(resources_path, 'loaders', i) for i in scripts]
+    fonts_conf = os.path.join(resources_path, 'fonts.conf')
     
     bad = False
     for s, l in zip(scripts, links):
@@ -73,10 +80,12 @@ for s, l in zip(scripts, links):
             continue
         bad = True
         break
+    if not bad:
+        bad = os.path.exists('/etc/fonts/fonts.conf')
     if bad:
         auth = Authorization(destroyflags=(kAuthorizationFlagDestroyRights,))
         fd, name = tempfile.mkstemp('.py')
-        os.write(fd, AUTHTOOL %(pp)s (sys.executable, repr(scripts), repr(links)))
+        os.write(fd, AUTHTOOL %(pp)s (sys.executable, repr(scripts), repr(links), repr(fonts_conf)))
         os.close(fd)
         os.chmod(name, 0700)
         try:
@@ -276,9 +285,11 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         f.write('src/calibre/gui2/main.py', 'calibre/gui2/main.py')
         f.close()
         print
+        print 'Adding default fonts.conf'
+        open(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'fonts.conf'), 'wb').write(open('/etc/fonts/fonts.conf').read())
+        print
         print 'Building disk image'
         BuildAPP.makedmg(os.path.join(self.dist_dir, APPNAME+'.app'), APPNAME+'-'+VERSION)
-
 
 def main():
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
@@ -295,7 +306,7 @@ def main():
                          'iconfile' : 'icons/library.icns',
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml', 
-                                       'PyQt4.QtSvg', 
+                                       'PyQt4.QtSvg', 'PyQt4.QtWebKit',
                                        'mechanize', 'ClientForm', 'usbobserver', 
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'keyword', 'codeop', 'pydoc'],

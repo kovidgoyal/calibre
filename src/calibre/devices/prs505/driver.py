@@ -353,9 +353,16 @@ class PRS505(Device):
     def upload_books(self, files, names, on_card=False, end_session=True):
         path = os.path.join(self._card_prefix, self.CARD_PATH_PREFIX) if on_card \
                else os.path.join(self._main_prefix, 'database', 'media', 'books')
-        infiles = [file if hasattr(file, 'read') else open(file, 'rb') for file in files]
-        for f in infiles: f.seek(0, 2)
-        sizes = [f.tell() for f in infiles]
+               
+        def get_size(obj):
+            if hasattr(obj, 'seek'):
+                obj.seek(0, 2)
+                size = obj.tell()
+                obj.seek(0)
+                return size
+            return os.path.getsize(obj)
+        
+        sizes = map(get_size, files)
         size = sum(sizes)
         space = self.free_space()
         mspace = space[0]
@@ -370,13 +377,18 @@ class PRS505(Device):
         paths, ctimes = [], []
         
         names = iter(names)
-        for infile in infiles:
+        for infile in files:
+            close = False
+            if not hasattr(infile, 'read'):
+                infile, close = open(infile, 'rb'), True
             infile.seek(0)            
             name = names.next()
             paths.append(os.path.join(path, name))
             if not os.path.exists(os.path.dirname(paths[-1])):
                 os.makedirs(os.path.dirname(paths[-1]))
             self.put_file(infile, paths[-1], replace_file=True)
+            if close:
+                infile.close()
             ctimes.append(os.path.getctime(paths[-1]))
         return zip(paths, sizes, ctimes, cycle([on_card]))
     

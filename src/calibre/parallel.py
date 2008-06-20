@@ -1,21 +1,26 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Used to run jobs in parallel in separate processes.
 '''
-import re, sys, tempfile, os, cPickle, traceback, atexit, binascii, time, subprocess
+import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, \
+       subprocess, socket, collections, binascii
+from select import select
 from functools import partial
-
+from threading import RLock, Thread, Event
 
 from calibre.ebooks.lrf.any.convert_from import main as any2lrf
 from calibre.ebooks.lrf.web.convert_from import main as web2lrf
 from calibre.ebooks.lrf.feeds.convert_from import main as feeds2lrf
 from calibre.gui2.lrf_renderer.main import main as lrfviewer
-from calibre import iswindows, __appname__, islinux
+from calibre.ptempfile import PersistentTemporaryFile
+
 try:
-    from calibre.utils.single_qt_application import SingleApplication
-except:
-    SingleApplication = None
+    from calibre.ebooks.lrf.html.table_as_image import do_render as render_table
+except: # Dont fail is PyQt4.4 not present
+    render_table = None
+from calibre import iswindows, islinux, detect_ncpus
 
 sa = None
 job_id = None
@@ -25,12 +30,14 @@ def report_progress(percent, msg=''):
         msg = 'progress:%s:%f:%s'%(job_id, percent, msg)
         sa.send_message(msg)
 
+_notify = 'fskjhwseiuyweoiu987435935-0342'
 
 PARALLEL_FUNCS = {
                   'any2lrf'   : partial(any2lrf, gui_mode=True),
                   'web2lrf'   : web2lrf,
                   'lrfviewer' : lrfviewer,
-                  'feeds2lrf' : partial(feeds2lrf, notification=report_progress),
+                  'feeds2lrf' : partial(feeds2lrf, notification=_notify),
+                  'render_table': render_table,
                   }
 
 python = sys.executable
@@ -41,138 +48,463 @@ if iswindows:
         python = os.path.join(os.path.dirname(python), 'parallel.exe')
     else:
         python = os.path.join(os.path.dirname(python), 'Scripts\\parallel.exe')
-    popen = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
+    open = partial(subprocess.Popen, creationflags=0x08) # CREATE_NO_WINDOW=0x08 so that no ugly console is popped up
 
 if islinux and hasattr(sys, 'frozen_path'):
-    python = os.path.join(getattr(sys, 'frozen_path'), 'parallel')
+    python = os.path.join(getattr(sys, 'frozen_path'), 'calibre-parallel')
     popen = partial(subprocess.Popen, cwd=getattr(sys, 'frozen_path')) 
 
-def cleanup(tdir):
-    try:
-        import shutil
-        shutil.rmtree(tdir, True)
-    except:
-        pass
+prefix = 'import sys; sys.in_worker = True; '
+if hasattr(sys, 'frameworks_dir'):
+    fd = getattr(sys, 'frameworks_dir')
+    prefix += 'sys.frameworks_dir = "%s"; sys.frozen = "macosx_app"; '%fd
+    if fd not in os.environ['PATH']:
+        os.environ['PATH'] += ':'+fd
+if 'parallel' in python:
+    executable          = [python]
+    worker_command      = '%s:%s'
+    free_spirit_command = '%s'
+else:
+    executable          = [python, '-c']
+    worker_command      = prefix + 'from calibre.parallel import worker; worker(%s, %s)'
+    free_spirit_command = prefix + 'from calibre.parallel import free_spirit; free_spirit(%s)' 
 
-class Server(object):
+def write(socket, msg, timeout=5):
+    if isinstance(msg, unicode):
+        msg = msg.encode('utf-8')
+    length = None
+    while len(msg) > 0:
+        if length is None:
+            length = len(msg)
+            chunk = ('%-12d'%length) + msg[:4096-12]
+            msg = msg[4096-12:]
+        else:
+            chunk, msg = msg[:4096], msg[4096:]
+        w = select([], [socket], [], timeout)[1]
+        if not w:
+            raise RuntimeError('Write to socket timed out')
+        if socket.sendall(chunk) is not None:
+            raise RuntimeError('Failed to write chunk to socket')
+        
     
-    #: Interval in seconds at which child processes are polled for status information
-    INTERVAL = 0.1
+def read(socket, timeout=5):
+    buf = cStringIO.StringIO()
+    length = None
+    while select([socket],[],[],timeout)[0]:
+        msg = socket.recv(4096)
+        if not msg:
+            break
+        if length is None:
+            length, msg = int(msg[:12]), msg[12:]
+        buf.write(msg)
+        if buf.tell() >= length:
+            break
+    if not length:
+        return ''
+    msg = buf.getvalue()[:length]
+    if len(msg) < length:
+        raise RuntimeError('Corrupted packet received')
+    
+    return msg    
+
+class RepeatingTimer(Thread):
+    
+    def repeat(self):
+        while True:
+            self.event.wait(self.interval)
+            if self.event.isSet():
+                break
+            self.action()
+    
+    def __init__(self, interval, func):
+        self.event    = Event()
+        self.interval = interval
+        self.action = func  
+        Thread.__init__(self, target=self.repeat)
+        self.setDaemon(True)
+    
+class ControlError(Exception):
+    pass
+
+class Overseer(object):
+    
     KILL_RESULT = 'Server: job killed by user|||#@#$%&*)*(*$#$%#$@&'
+    INTERVAL    = 0.1
     
-    def __init__(self):
-        self.tdir = tempfile.mkdtemp('', '%s_IPC_'%__appname__)
-        atexit.register(cleanup, self.tdir)
-        self.kill_jobs = []
+    def __init__(self, server, port, timeout=5):
+        self.cmd = worker_command%(repr('127.0.0.1'), repr(port))
+        self.process = popen(executable + [self.cmd])
+        self.socket = server.accept()[0]
         
-    def kill(self, job_id):
-        '''
-        Kill the job identified by job_id.
-        '''
-        self.kill_jobs.append(str(job_id))
+        self.working = False
+        self.timeout = timeout
+        self.last_job_time = time.time()
+        self.job_id = None
+        self._stop = False
+        if not select([self.socket], [], [], 120)[0]:
+            raise RuntimeError(_('Could not launch worker process.'))
+        ID = self.read().split(':') 
+        if ID[0] != 'CALIBRE_WORKER':
+            raise RuntimeError('Impostor')
+        self.worker_pid = int(ID[1])
+        self.write('OK')
+        if self.read() != 'WAITING':
+            raise RuntimeError('Worker sulking')
         
-    def _terminate(self, process):
+    def terminate(self):
         '''
         Kill process.
         '''
+        try:
+            if self.socket:
+                self.write('STOP:')
+                time.sleep(1)
+                self.socket.shutdown(socket.SHUT_RDWR)
+        except:
+            pass
         if iswindows:
             win32api = __import__('win32api')
             try:
-                win32api.TerminateProcess(int(process.pid), -1)
+                handle = win32api.OpenProcess(1, False, self.worker_pid)
+                win32api.TerminateProcess(handle, -1)
             except:
                 pass
         else:
             import signal
-            os.kill(process.pid, signal.SIGKILL)
-            time.sleep(0.05)
-        
-        
+            try:
+                os.kill(self.worker_pid, signal.SIGKILL)
+                time.sleep(0.05)
+            except:
+                pass
     
-    def run(self, job_id, func, args=[], kwdargs={}, monitor=True):
-        '''
-        Run a job in a separate process.
-        @param job_id: A unique (per server) identifier
-        @param func: One of C{PARALLEL_FUNCS.keys()}
-        @param args: A list of arguments to pass of C{func}
-        @param kwdargs: A dictionary of keyword arguments to pass to C{func}
-        @param monitor: If False launch the child process and return. Do not monitor/communicate with it.
-        @return: (result, exception, formatted_traceback, log) where log is the combined
-        stdout + stderr of the child process; or None if monitor is True. If a job is killed
-        by a call to L{kill()} then result will be L{KILL_RESULT}
-        '''
-        job_id = str(job_id)
-        job_dir = os.path.join(self.tdir, job_id)
-        if os.path.exists(job_dir):
-            raise ValueError('Cannot run job. The job_id %s has already been used.'%job_id)
-        os.mkdir(job_dir)
         
-        job_data = os.path.join(job_dir, 'job_data.pickle')
-        cPickle.dump((job_id, func, args, kwdargs), open(job_data, 'wb'), -1)
-        prefix = ''
-        if hasattr(sys, 'frameworks_dir'):
-            fd = getattr(sys, 'frameworks_dir')
-            prefix = 'import sys; sys.frameworks_dir = "%s"; sys.frozen = "macosx_app"; '%fd
-            if fd not in os.environ['PATH']:
-                os.environ['PATH'] += ':'+fd
-        cmd = prefix + 'from calibre.parallel import run_job; run_job(\'%s\')'%binascii.hexlify(job_data)
+    def write(self, msg, timeout=None):
+        write(self.socket, msg, timeout=self.timeout if timeout is None else timeout)
         
-        if not monitor:
-            popen([python, '-c', cmd], stdout=subprocess.PIPE, stdin=subprocess.PIPE,
-                  stderr=subprocess.PIPE)
+    def read(self, timeout=None):
+        return read(self.socket, timeout=self.timeout if timeout is None else timeout)
+        
+    def __eq__(self, other):
+        return hasattr(other, 'process') and hasattr(other, 'worker_pid') and self.worker_pid == other.worker_pid
+    
+    def __bool__(self):
+        self.process.poll()
+        return self.process.returncode is None
+    
+    def pid(self):
+        return self.worker_pid
+    
+    def select(self, timeout=0):
+        return select([self.socket], [self.socket], [self.socket], timeout)
+    
+    def initialize_job(self, job):
+        self.job_id = job.job_id
+        self.working = True
+        self.write('JOB:'+cPickle.dumps((job.func, job.args, job.kwdargs), -1))
+        msg = self.read()
+        if msg != 'OK':
+            raise ControlError('Failed to initialize job on worker %d:%s'%(self.worker_pid, msg))
+        self.output = job.output if callable(job.output) else sys.stdout.write
+        self.progress = job.progress if callable(job.progress) else None
+        self.job =  job
+    
+    def control(self):
+        try:
+            if select([self.socket],[],[],0)[0]:
+                msg = self.read()
+                word, msg = msg.partition(':')[0], msg.partition(':')[-1]
+                if word == 'RESULT':
+                    self.write('OK')
+                    return Result(cPickle.loads(msg), None, None)
+                elif word == 'OUTPUT':
+                    self.write('OK')
+                    try:
+                        self.output(''.join(cPickle.loads(msg)))
+                    except:
+                        self.output('Bad output message: '+ repr(msg))
+                elif word == 'PROGRESS':
+                    self.write('OK')
+                    percent = None
+                    try:
+                        percent, msg = cPickle.loads(msg)[-1]
+                    except:
+                        print 'Bad progress update:', repr(msg)
+                    if self.progress and percent is not None:
+                        self.progress(percent, msg)
+                elif word == 'ERROR':
+                    self.write('OK')
+                    return Result(None, *cPickle.loads(msg))
+                else:
+                    self.terminate()
+                    return Result(None, ControlError('Worker sent invalid msg: %s', repr(msg)), '')
+            self.process.poll()
+            if self.process.returncode is not None:
+                return Result(None, ControlError('Worker process died unexpectedly with returncode: %d'%self.process.returncode), '')
+        finally:
+            self.working = False
+            self.last_job_time = time.time()
+                        
+class Job(object):
+    
+    def __init__(self, job_id, func, args, kwdargs, output, progress, done):
+        self.job_id = job_id
+        self.func = func
+        self.args = args
+        self.kwdargs = kwdargs
+        self.output = output
+        self.progress = progress
+        self.done = done
+        
+class Result(object):
+    
+    def __init__(self, result, exception, traceback):
+        self.result = result
+        self.exception = exception
+        self.traceback = traceback
+        
+    def __len__(self):
+        return 3
+    
+    def __item__(self, i):
+        return (self.result, self.exception, self.traceback)[i]
+    
+    def __iter__(self):
+        return iter((self.result, self.exception, self.traceback))
+
+class Server(Thread):
+    
+    KILL_RESULT = Overseer.KILL_RESULT
+    START_PORT = 10013
+    
+    def __init__(self, number_of_workers=detect_ncpus()):
+        Thread.__init__(self)
+        self.setDaemon(True)
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.port = self.START_PORT
+        while True:
+            try:
+                self.server_socket.bind(('localhost', self.port))
+                break
+            except:
+                self.port += 1
+        self.server_socket.listen(5)
+        self.number_of_workers = number_of_workers 
+        self.pool, self.jobs, self.working, self.results = [], collections.deque(), [], {}
+        atexit.register(self.killall)
+        atexit.register(self.close)
+        self.job_lock = RLock()
+        self.overseer_lock = RLock()
+        self.working_lock = RLock()
+        self.result_lock = RLock()
+        self.pool_lock = RLock()
+        self.start()
+        
+    def close(self):
+        try:
+            self.server_socket.shutdown(socket.SHUT_RDWR)
+        except:
+            pass
+    
+    def add_job(self, job):
+        with self.job_lock:
+            self.jobs.append(job)
+            
+    def store_result(self, result, id=None):
+        if id:
+            with self.job_lock:
+                self.results[id] = result
+                
+    def result(self, id):
+        with self.result_lock:
+            return self.results.pop(id, None)
+    
+    def run(self):
+        while True:
+            job = None
+            with self.job_lock:
+                if len(self.jobs) > 0 and len(self.working) < self.number_of_workers:
+                    job = self.jobs.popleft()
+                    with self.pool_lock:
+                        o = self.pool.pop() if self.pool else Overseer(self.server_socket, self.port)
+                    try:
+                        o.initialize_job(job)
+                    except Exception, err:
+                        res = Result(None, unicode(err), traceback.format_exc())
+                        job.done(res)
+                        o.terminate()
+                        o = None
+                    if o:
+                        with self.working_lock:
+                            self.working.append(o)
+                    
+            with self.working_lock:
+                done = []
+                for o in self.working:
+                    try:
+                        res = o.control()
+                    except Exception, err:
+                        res = Result(None, unicode(err), traceback.format_exc())
+                        o.terminate()
+                    if isinstance(res, Result):
+                        o.job.done(res)
+                        done.append(o)
+                for o in done:
+                    self.working.remove(o)
+                    if o:
+                        with self.pool_lock:
+                            self.pool.append(o)
+                            
+            time.sleep(1)            
+                
+    
+    def killall(self):
+        with self.pool_lock:
+            map(lambda x: x.terminate(), self.pool)
+            self.pool = []
+        
+        
+    def kill(self, job_id):
+        with self.working_lock:
+            pop = None
+            for o in self.working:
+                if o.job_id == job_id:
+                    o.terminate()
+                    o.job.done(Result(self.KILL_RESULT, None, ''))
+                    pop = o
+                    break
+            if pop is not None:
+                self.working.remove(pop)
+                
+                
+        
+    def run_job(self, job_id, func, args=[], kwdargs={}, 
+                output=None, progress=None, done=None):
+        '''
+        Run a job in a separate process. Supports job control, output redirection 
+        and progress reporting.
+        '''
+        if done is None:
+            done = partial(self.store_result, id=job_id)
+        job = Job(job_id, func, args, kwdargs, output, progress, done)
+        with self.job_lock:
+            self.jobs.append(job)
+            
+    def run_free_job(self, func, args=[], kwdargs={}):
+        pt = PersistentTemporaryFile('.pickle', '_IPC_')
+        pt.write(cPickle.dumps((func, args, kwdargs)))
+        pt.close()
+        cmd = free_spirit_command%repr(binascii.hexlify(pt.name))
+        popen(executable + [cmd])
+
+##########################################################################################
+##################################### CLIENT CODE #####################################
+##########################################################################################
+
+class BufferedSender(object):
+    
+    def __init__(self, socket):
+        self.socket = socket
+        self.wbuf, self.pbuf    = [], []
+        self.wlock, self.plock   = RLock(), RLock()
+        self.timer  = RepeatingTimer(0.5, self.send)
+        self.prefix = prefix
+        self.timer.start()
+        
+    def write(self, msg):
+        if not isinstance(msg, basestring):
+            msg = unicode(msg)
+        with self.wlock:
+            self.wbuf.append(msg)
+    
+    def send(self):
+        if not select([], [self.socket], [], 30)[1]:
+            print >>sys.__stderr__, 'Cannot pipe to overseer'
             return
         
-        output = open(os.path.join(job_dir, 'output.txt'), 'wb')
-        p = popen([python, '-c', cmd], stdout=output, stderr=output,
-                             stdin=subprocess.PIPE)
-        p.stdin.close()
-        while p.returncode is None:
-            if job_id in self.kill_jobs:
-                self._terminate(p)
-                return self.KILL_RESULT, None, None, _('Job killed by user')
-            time.sleep(0.1)
-            p.poll()
+        with self.wlock:
+            if self.wbuf:
+                msg = cPickle.dumps(self.wbuf, -1)
+                self.wbuf = []
+                write(self.socket, 'OUTPUT:'+msg)
+                read(self.socket, 10)
+                
+        with self.plock:
+            if self.pbuf:
+                msg = cPickle.dumps(self.pbuf, -1)
+                self.pbuf = []
+                write(self.socket, 'PROGRESS:'+msg)
+                read(self.socket, 10)        
+                
+    def notify(self, percent, msg=''):
+        with self.plock:
+            self.pbuf.append((percent, msg))
         
-             
-        output.close()
-        job_result = os.path.join(job_dir, 'job_result.pickle')
-        if not os.path.exists(job_result):
-            result, exception, traceback = None, ('ParallelRuntimeError',
-                                                  'The worker process died unexpectedly.'), ''
-        else:
-            result, exception, traceback = cPickle.load(open(job_result, 'rb'))
-        log = open(output.name, 'rb').read()
-        
-        return result, exception, traceback, log
-            
+    def flush(self):
+        pass
 
-def run_job(job_data):
-    global sa, job_id
-    if SingleApplication is not None:
-        sa = SingleApplication('calibre GUI')
-    job_data = binascii.unhexlify(job_data)
-    base = os.path.dirname(job_data)
-    job_result = os.path.join(base, 'job_result.pickle')
-    job_id, func, args, kwdargs = cPickle.load(open(job_data, 'rb'))
+def work(client_socket, func, args, kwdargs):
     func = PARALLEL_FUNCS[func]
-    exception, tb = None, None
+    if hasattr(func, 'keywords'):
+        for key, val in func.keywords.items():
+            if val == _notify and hasattr(sys.stdout, 'notify'):
+                func.keywords[key] = sys.stdout.notify
+    res = func(*args, **kwdargs)
+    if hasattr(sys.stdout, 'send'): 
+        sys.stdout.send()
+    return res
+    
+
+def worker(host, port):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((host, port))
+    write(client_socket, 'CALIBRE_WORKER:%d'%os.getpid())
+    msg = read(client_socket, timeout=10)
+    if msg != 'OK':
+        return 1
+    write(client_socket, 'WAITING')
+    
+    sys.stdout = BufferedSender(client_socket)
+    sys.stderr = sys.stdout
+    
+    while True:
+        msg = read(client_socket, timeout=60)
+        if msg.startswith('JOB:'):
+            func, args, kwdargs = cPickle.loads(msg[4:])
+            write(client_socket, 'OK')
+            try:
+                result = work(client_socket, func, args, kwdargs)
+                write(client_socket, 'RESULT:'+ cPickle.dumps(result))
+            except (Exception, SystemExit), err:
+                exception = (err.__class__.__name__, unicode(str(err), 'utf-8', 'replace'))
+                tb = traceback.format_exc()
+                write(client_socket, 'ERROR:'+cPickle.dumps((exception, tb),-1))
+            if read(client_socket, 10) != 'OK':
+                break
+            gc.collect()
+        elif msg == 'STOP:':
+            return 0
+        elif not msg:
+            time.sleep(1)
+        else:
+            print >>sys.__stderr__, 'Invalid protocols message', msg
+            return 1
+    
+def free_spirit(path):
+    func, args, kwdargs = cPickle.load(open(binascii.unhexlify(path), 'rb'))
     try:
-        result = func(*args, **kwdargs)
-    except (Exception, SystemExit), err:
-        result = None
-        exception = (err.__class__.__name__, unicode(str(err), 'utf-8', 'replace'))
-        tb = traceback.format_exc()
+        os.unlink(path)
+    except:
+        pass
+    PARALLEL_FUNCS[func](*args, **kwdargs)
     
-    if os.path.exists(os.path.dirname(job_result)):
-        cPickle.dump((result, exception, tb), open(job_result, 'wb'))
-    
-def main():
-    src = sys.argv[2]
-    job_data = re.search(r'run_job\(\'([a-f0-9A-F]+)\'\)', src).group(1)
-    run_job(job_data)
-    
+def main(args=sys.argv):
+    args = args[1].split(':')
+    if len(args) == 1:
+        free_spirit(args[0].replace("'", ''))
+    else:
+        worker(args[0].replace("'", ''), int(args[1])) 
     return 0
-    
+
 if __name__ == '__main__':
     sys.exit(main())
-
-
+    

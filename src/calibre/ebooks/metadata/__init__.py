@@ -38,7 +38,7 @@ class MetaInformation(object):
                 setattr(ans, attr, getattr(mi, attr))
         
     
-    def __init__(self, title, authors=['Unknown']):
+    def __init__(self, title, authors=[_('Unknown')]):
         '''
         @param title: title or "Unknown" or a MetaInformation object
         @param authors: List of strings or []

@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import sys, os, shutil, time, tempfile, socket, fcntl, struct
+import sys, os, shutil, time, tempfile, socket, fcntl, struct, cStringIO, pycurl, re
 sys.path.append('src')
 import subprocess
 from subprocess import check_call as _check_call
@@ -24,6 +24,7 @@ DOCS = PREFIX+"/htdocs/apidocs"
 USER_MANUAL = PREFIX+'/htdocs/user_manual'
 HTML2LRF = "src/calibre/ebooks/lrf/html/demo"
 TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
+MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
 BUILD_SCRIPT ='''\
 #!/bin/bash
 cd ~/build && \
@@ -110,19 +111,72 @@ def upload_demo():
     check_call('cd src/calibre/ebooks/lrf/txt/demo/ && zip -j /tmp/txt-demo.zip * /tmp/txt2lrf.lrf')
     check_call('''scp /tmp/txt-demo.zip divok:%s/'''%(DOWNLOADS,))
 
+def curl_list_dir(url=MOBILEREAD, listonly=1):
+    c = pycurl.Curl()
+    c.setopt(pycurl.URL, url)
+    c.setopt(c.FTP_USE_EPSV, 1)
+    c.setopt(c.NETRC, c.NETRC_REQUIRED)
+    c.setopt(c.FTPLISTONLY, listonly)
+    c.setopt(c.FTP_CREATE_MISSING_DIRS, 1)
+    b = cStringIO.StringIO()
+    c.setopt(c.WRITEFUNCTION, b.write)
+    c.perform()
+    c.close()
+    return b.getvalue().split() if listonly else b.getvalue().splitlines()
+
+def curl_delete_file(path, url=MOBILEREAD):
+    c = pycurl.Curl()
+    c.setopt(pycurl.URL, url)
+    c.setopt(c.FTP_USE_EPSV, 1)
+    c.setopt(c.NETRC, c.NETRC_REQUIRED)
+    print 'Deleting file %s on %s'%(path, url)
+    c.setopt(c.QUOTE, ['dele '+ path])
+    c.perform()
+    c.close()
+    
+
+def curl_upload_file(stream, url):
+    c = pycurl.Curl()
+    c.setopt(pycurl.URL, url)
+    c.setopt(pycurl.UPLOAD, 1)
+    c.setopt(c.NETRC, c.NETRC_REQUIRED)
+    c.setopt(pycurl.READFUNCTION, stream.read)
+    stream.seek(0, 2)
+    c.setopt(pycurl.INFILESIZE_LARGE, stream.tell())
+    stream.seek(0)
+    c.setopt(c.NOPROGRESS, 0)
+    c.setopt(c.FTP_CREATE_MISSING_DIRS, 1)
+    print 'Uploading file %s to url %s' % (getattr(stream, 'name', ''), url)
+    try:
+        c.perform()
+        c.close()
+    except:
+        pass
+    files = curl_list_dir(listonly=0)
+    for line in files:
+        line = line.split()
+        if url.endswith(line[-1]):
+            size = long(line[4])
+            stream.seek(0,2)
+            if size != stream.tell():
+                raise RuntimeError('curl failed to upload %s correctly'%getattr(stream, 'name', ''))
+                             
+        
+    
+def upload_installer(name):
+    bname = os.path.basename(name)
+    pat = re.compile(bname.replace(__version__, r'\d+\.\d+\.\d+'))
+    for f in curl_list_dir():
+        if pat.search(f):
+            curl_delete_file('/calibre/'+f)
+    curl_upload_file(open(name, 'rb'), MOBILEREAD+os.path.basename(name))
+
 def upload_installers():
-    exe, dmg, tbz2 = installer_name('exe'), installer_name('dmg'), installer_name('tar.bz2')
-    if exe and os.path.exists(exe):
-        check_call('''ssh divok rm -f %s/calibre\*.exe'''%(DOWNLOADS,))
-        check_call('''scp %s divok:%s/'''%(exe, DOWNLOADS))
-    if dmg and os.path.exists(dmg):
-        check_call('''ssh divok rm -f %s/calibre\*.dmg'''%(DOWNLOADS,)) 
-        check_call('''scp %s divok:%s/'''%(dmg, DOWNLOADS))
-    if tbz2 and os.path.exists(tbz2):
-        check_call('''ssh divok rm -f %s/calibre-\*-i686.tar.bz2 %s/latest-linux-binary.tar.bz2'''%(DOWNLOADS,DOWNLOADS))
-        check_call('''scp %s divok:%s/'''%(tbz2, DOWNLOADS))
-        check_call('''ssh divok ln -s %s/calibre-\*-i686.tar.bz2 %s/latest-linux-binary.tar.bz2'''%(DOWNLOADS,DOWNLOADS))
-    check_call('''ssh divok chmod a+r %s/\*'''%(DOWNLOADS,))
+    for i in ('dmg', 'exe', 'tar.bz2'):
+        upload_installer(installer_name(i))
+        
+    check_call('''ssh divok echo %s \\> %s/latest_version'''%(__version__, DOWNLOADS))
+        
         
 def upload_docs():
     check_call('''epydoc --config epydoc.conf''')

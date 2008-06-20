@@ -11,7 +11,10 @@ import sys, os
 from textwrap import TextWrapper
 
 from calibre import OptionParser, Settings, terminal_controller, preferred_encoding
-from calibre.gui2 import SingleApplication
+try:
+    from calibre.utils.single_qt_application import send_message
+except:
+    send_message = None
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.database import text_to_tokens
@@ -184,9 +187,8 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
                     print '\t', title+':'
                     print '\t\t ', path
 
-        if SingleApplication is not None:
-            sa = SingleApplication('calibre GUI')
-            sa.send_message('refreshdb:')
+        if send_message is not None:
+            send_message('refreshdb:', 'calibre GUI')
     finally:
         sys.stdout = sys.__stdout__
 
@@ -224,9 +226,9 @@ def do_remove(db, ids):
             for y in x:
                 db.delete_book(y)
 
-    if SingleApplication is not None:
-        sa = SingleApplication('calibre GUI')
-        sa.send_message('refreshdb:')
+    if send_message is not None:
+        send_message('refreshdb:', 'calibre GUI')
+
 
 def command_remove(args, dbpath):
     parser = get_parser(_(
@@ -339,9 +341,8 @@ def do_set_metadata(db, id, stream):
     mi = OPFReader(stream)
     db.set_metadata(id, mi)
     do_show_metadata(db, id, False)
-    if SingleApplication is not None:
-        sa = SingleApplication('calibre GUI')
-        sa.send_message('refreshdb:')
+    if send_message is not None:
+        send_message('refreshdb:', 'calibre GUI')
 
 def command_set_metadata(args, dbpath):
     parser = get_parser(_(

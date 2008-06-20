@@ -158,7 +158,10 @@ def main(args=sys.argv, logger=None, gui_mode=False):
         print _('No file to convert specified.')
         return 1
     
-    return process_file(args[1], options, logger)
+    src = args[1]
+    if not isinstance(src, unicode):
+        src = src.decode(sys.getfilesystemencoding())
+    return process_file(src, options, logger)
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -1,8 +1,8 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, cPickle, codecs
+import os, codecs
 
-from PyQt4.QtCore import QObject, SIGNAL, Qt, QVariant, QByteArray
+from PyQt4.QtCore import QObject, SIGNAL, Qt
 from PyQt4.QtGui import QAbstractSpinBox, QLineEdit, QCheckBox, QDialog, \
                         QPixmap, QTextEdit, QListWidgetItem, QIcon
 
@@ -48,10 +48,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.gui_mono_family.setModel(self.font_family_model)
         self.load_saved_global_defaults()
     
-    def __init__(self, window, db, row):
-        QDialog.__init__(self, window)
-        Ui_LRFSingleDialog.__init__(self)
-        self.setupUi(self)
+    def populate_list(self):
         self.__w = []
         self.__w.append(QIcon(':/images/dialog_information.svg'))
         self.item1 = QListWidgetItem(self.__w[-1], _("Metadata"), self.categoryList)
@@ -61,11 +58,17 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.item3 = QListWidgetItem(self.__w[-1], _('Page Setup'), self.categoryList)
         self.__w.append(QIcon(':/images/chapters.svg'))
         self.item4 = QListWidgetItem(self.__w[-1], _('Chapter Detection'), self.categoryList)
+    
+    def __init__(self, window, db, row):
+        QDialog.__init__(self, window)
+        Ui_LRFSingleDialog.__init__(self)
+        self.setupUi(self)
+        self.populate_list()
         self.categoryList.setCurrentRow(0)
         QObject.connect(self.categoryList, SIGNAL('itemEntered(QListWidgetItem *)'),
                         self.show_category_help)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), self.select_cover)
-        self.categoryList.leaveEvent = self.reset_help
+        #self.categoryList.leaveEvent = self.reset_help
         self.reset_help()
         self.selected_format = None
         self.initialize_common()
@@ -277,9 +280,9 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 obj.setWhatsThis(help)
                 self.option_map[guiname] = opt
                 obj.__class__.enterEvent = show_item_help
-                obj.leaveEvent = self.reset_help
+                #obj.leaveEvent = self.reset_help
         self.preprocess.__class__.enterEvent = show_item_help
-        self.preprocess.leaveEvent = self.reset_help
+        #self.preprocess.leaveEvent = self.reset_help
             
     
     def show_category_help(self, item):
@@ -293,7 +296,8 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.set_help(help[text])
         
     def set_help(self, msg):
-        self.help_view.setHtml('<html><body>%s</body></html>'%(msg,))
+        if msg and getattr(msg, 'strip', lambda:True)():
+            self.help_view.setHtml('<html><body>%s</body></html>'%(msg,))
     
     def reset_help(self, *args):
         self.set_help(_('<font color="gray">No help available</font>'))
@@ -388,8 +392,9 @@ class LRFBulkDialog(LRFSingleDialog):
     
     def __init__(self, window):
         QDialog.__init__(self, window)
-        Ui_LRFSingleDialog.__init__(self)        
+        Ui_LRFSingleDialog.__init__(self)
         self.setupUi(self)
+        self.populate_list()
         
         self.categoryList.takeItem(0)
         self.stack.removeWidget(self.stack.widget(0))
@@ -399,7 +404,14 @@ class LRFBulkDialog(LRFSingleDialog):
         self.setWindowTitle(_('Bulk convert ebooks to LRF'))
         
     def accept(self):
-        self.cmdline = self.cmdline = [unicode(i) for i in self.build_commandline()]
+        self.cmdline = [unicode(i) for i in self.build_commandline()]
+        for meta in ('--title', '--author', '--publisher', '--comment'):
+            try:
+                index = self.cmdline.index(meta)
+                self.cmdline[index:index+2] = []
+            except ValueError:
+                continue
+                
         self.cover_file = None
         QDialog.accept(self)
     

@@ -303,7 +303,7 @@ class BooksModel(QAbstractTableModel):
             metadata.append(mi)
         return metadata
 
-    def get_preferred_formats(self, rows, formats):
+    def get_preferred_formats(self, rows, formats, paths=False):
         ans = []
         for row in (row.row() for row in rows):
             format = None
@@ -314,7 +314,8 @@ class BooksModel(QAbstractTableModel):
             if format:
                 pt = PersistentTemporaryFile(suffix='.'+format)
                 pt.write(self.db.format(row, format))
-                pt.seek(0)
+                pt.flush()
+                pt.close() if paths else pt.seek(0)
                 ans.append(pt)
             else:
                 ans.append(None)

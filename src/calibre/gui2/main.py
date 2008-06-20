@@ -77,7 +77,6 @@ class Main(MainWindow, Ui_MainWindow):
         self.conversion_jobs = {}
         self.persistent_files = []
         self.metadata_dialogs = []
-        self.viewer_job_id = 1
         self.default_thumbnail = None
         self.device_error_dialog = ConversionErrorDialog(self, _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
@@ -277,14 +276,6 @@ class Main(MainWindow, Ui_MainWindow):
         elif msg.startswith('refreshdb:'):
             self.library_view.model().resort()
             self.library_view.model().research()
-        elif msg.startswith('progress:'):
-            try:
-                fields = msg.split(':')
-                job_id, percent = fields[1:3]
-                job_id, percent = int(job_id), float(percent)
-                self.job_manager.update_progress(job_id, percent)
-            except:
-                pass
         else:
             print msg
 
@@ -488,7 +479,7 @@ class Main(MainWindow, Ui_MainWindow):
         else:
             self.upload_books(paths, names, infos, on_card=on_card)
 
-    def upload_books(self, files, names, metadata, on_card=False):
+    def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
         Upload books to device.
         @param files: List of either paths to files or file like objects
@@ -499,13 +490,13 @@ class Main(MainWindow, Ui_MainWindow):
                                         files, names, on_card=on_card,
                                         job_extra_description=titles
                                         )
-        self.upload_memory[id] = (metadata, on_card)
+        self.upload_memory[id] = (metadata, on_card, memory)
 
     def books_uploaded(self, id, description, result, exception, formatted_traceback):
         '''
         Called once books have been uploaded.
         '''
-        metadata, on_card = self.upload_memory.pop(id)
+        metadata, on_card = self.upload_memory.pop(id)[:2]
         if exception:
             if isinstance(exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
@@ -633,8 +624,9 @@ class Main(MainWindow, Ui_MainWindow):
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata = iter(metadata)
-        files = self.library_view.model().get_preferred_formats(rows,
-                                    self.device_manager.device_class.FORMATS)
+        _files = self.library_view.model().get_preferred_formats(rows,
+                                    self.device_manager.device_class.FORMATS, paths=True)
+        files = [f.name for f in _files]
         bad, good, gf, names = [], [], [], []
         for f in files:
             mi = metadata.next()
@@ -649,7 +641,9 @@ class Main(MainWindow, Ui_MainWindow):
                 try:
                     smi = MetaInformation(mi['title'], aus2)
                     smi.comments = mi.get('comments', None)
-                    set_metadata(f, smi, f.name.rpartition('.')[2])
+                    _f = open(f, 'r+b')
+                    set_metadata(_f, smi, f.rpartition('.')[2])
+                    _f.close()
                 except:
                     print 'Error setting metadata in book:', mi['title']
                     traceback.print_exc()
@@ -666,8 +660,8 @@ class Main(MainWindow, Ui_MainWindow):
                     prefix = prefix.encode('ascii', 'ignore')
                 else:
                     prefix = prefix.decode('ascii', 'ignore').encode('ascii', 'ignore')
-                names.append('%s_%d%s'%(prefix, id, os.path.splitext(f.name)[1]))
-        self.upload_books(gf, names, good, on_card)
+                names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
+        self.upload_books(gf, names, good, on_card, memory=_files)
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
@@ -759,6 +753,15 @@ class Main(MainWindow, Ui_MainWindow):
 
         for i, row in enumerate([r.row() for r in rows]):
             cmdline = list(d.cmdline)
+            mi = self.library_view.model().db.get_metadata(row)
+            if mi.title:
+                cmdline.extend(['--title', mi.title])
+            if mi.authors:
+                cmdline.extend(['--author', ','.join(mi.authors)])
+            if mi.publisher:
+                cmdline.extend(['--publisher', mi.publisher])
+            if mi.comments:
+                cmdline.extend(['--comment', mi.comments])
             data = None
             for fmt in LRF_PREFERRED_SOURCE_FORMATS:
                 try:
@@ -784,7 +787,7 @@ class Main(MainWindow, Ui_MainWindow):
             cmdline.append(pt.name)
             id = self.job_manager.run_conversion_job(self.book_converted,
                                                         'any2lrf', args=[cmdline],
-                                    job_description='Convert book %d of %d'%(i, len(rows)))
+                                    job_description='Convert book %d of %d'%(i+1, len(rows)))
 
 
             self.conversion_jobs[id] = (d.cover_file, pt, of, d.output_format,
@@ -864,15 +867,16 @@ class Main(MainWindow, Ui_MainWindow):
         self._view_file(result)
 
     def _view_file(self, name):
-        if name.upper().endswith('.LRF'):
-            args = ['lrfviewer', name]
-            self.job_manager.process_server.run('viewer%d'%self.viewer_job_id,
-                                                'lrfviewer', kwdargs=dict(args=args),
-                                                monitor=False)
-            self.viewer_job_id += 1
-        else:
-            QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
-        time.sleep(2) # User feedback
+        self.setCursor(Qt.BusyCursor)
+        try:
+            if name.upper().endswith('.LRF'):
+                args = ['lrfviewer', name]
+                self.job_manager.process_server.run_free_job('lrfviewer', kwdargs=dict(args=args))
+            else:
+                QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
+            time.sleep(5) # User feedback
+        finally:
+            self.unsetCursor()
 
     def view_specific_format(self, triggered):
         rows = self.library_view.selectionModel().selectedRows()
@@ -1076,7 +1080,7 @@ class Main(MainWindow, Ui_MainWindow):
         if getattr(exception, 'only_msg', False):
             error_dialog(self, _('Conversion Error'), unicode(exception)).exec_()
             return
-        msg =  u'<p><b>%s</b>: %s</p>'%exception
+        msg =  u'<p><b>%s</b>: </p>'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
         msg += formatted_traceback + '</pre>'
@@ -1216,7 +1220,7 @@ if __name__ == '__main__':
         if not iswindows: raise
         from PyQt4.QtGui import QErrorMessage
         logfile = os.path.expanduser('~/calibre.log')
-        if os.path.exists(logfile): 
+        if os.path.exists(logfile):
             log = open(logfile).read()
             if log.strip():
                 d = QErrorMessage()

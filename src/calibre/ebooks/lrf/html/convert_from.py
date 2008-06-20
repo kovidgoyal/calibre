@@ -30,7 +30,7 @@ from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.table import Table 
 from calibre import filename_to_utf8,  setup_cli_handlers, __appname__, \
-                    fit_image, LoggingInterface
+                    fit_image, LoggingInterface, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.opf import OPFReader
 from calibre.devices.interface import Device
@@ -242,6 +242,7 @@ class HTMLConverter(object, LoggingInterface):
         
         self.override_css = {}
         self.override_pcss = {}
+        self.table_render_job_server = None
          
         if self._override_css is not None:
             if os.access(self._override_css, os.R_OK):
@@ -260,38 +261,43 @@ class HTMLConverter(object, LoggingInterface):
         
         
         paths = [os.path.abspath(path) for path in paths]
+        paths = [path.decode(sys.getfilesystemencoding()) if not isinstance(path, unicode) else path for path in paths]
         
-        while len(paths) > 0 and self.link_level <= self.link_levels:
-            for path in paths:
-                if path in self.processed_files:
-                    continue
-                try:
-                    self.add_file(path)
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    if self.link_level == 0: # Die on errors in the first level
+        try:
+            while len(paths) > 0 and self.link_level <= self.link_levels:
+                for path in paths:
+                    if path in self.processed_files:
+                        continue
+                    try:
+                        self.add_file(path)
+                    except KeyboardInterrupt:
                         raise
-                    for link in self.links:
-                        if link['path'] == path:
-                            self.links.remove(link)
-                            break
-                    self.log_warn('Could not process '+path)
-                    if self.verbose:
-                        self.log_exception(' ')
-            self.links = self.process_links()
-            self.link_level += 1
-            paths = [link['path'] for link in self.links]
-            
-        if self.current_page is not None and self.current_page.has_text():
-            self.book.append(self.current_page)
-            
-        for text, tb in self.extra_toc_entries:
-            self.book.addTocEntry(text, tb)
-            
-        if self.base_font_size > 0:
-            self.log_info('\tRationalizing font sizes...')
-            self.book.rationalize_font_sizes(self.base_font_size)
+                    except:
+                        if self.link_level == 0: # Die on errors in the first level
+                            raise
+                        for link in self.links:
+                            if link['path'] == path:
+                                self.links.remove(link)
+                                break
+                        self.log_warn('Could not process '+path)
+                        if self.verbose:
+                            self.log_exception(' ')
+                self.links = self.process_links()
+                self.link_level += 1
+                paths = [link['path'] for link in self.links]
+                
+            if self.current_page is not None and self.current_page.has_text():
+                self.book.append(self.current_page)
+                
+            for text, tb in self.extra_toc_entries:
+                self.book.addTocEntry(text, tb)
+                
+            if self.base_font_size > 0:
+                self.log_info('\tRationalizing font sizes...')
+                self.book.rationalize_font_sizes(self.base_font_size)
+        finally:
+            if self.table_render_job_server is not None:
+                self.table_render_job_server.killall()
         
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
@@ -380,10 +386,13 @@ class HTMLConverter(object, LoggingInterface):
         self.log_info(_('\tConverting to BBeB...'))
         self.current_style = {}
         self.page_break_found = False
+        if not isinstance(path, unicode):
+            path = path.decode(sys.getfilesystemencoding())
         self.target_prefix = path
         self.previous_text = '\n'
         self.tops[path] = self.parse_file(soup)
-        self.processed_files.append(path)        
+        self.processed_files.append(path)
+                
             
         
     def parse_css(self, style):
@@ -494,7 +503,9 @@ class HTMLConverter(object, LoggingInterface):
         top = self.current_block
         self.current_block.must_append = True
         
+        self.soup = soup
         self.process_children(soup, {}, {})
+        self.soup = None
         
         if self.current_para and self.current_block:
             self.current_para.append_to(self.current_block)
@@ -625,6 +636,8 @@ class HTMLConverter(object, LoggingInterface):
             para, text, path, fragment = link['para'], link['text'], link['path'], link['fragment']
             ascii_text = text
             
+            if not isinstance(path, unicode):
+                path = path.decode(sys.getfilesystemencoding())
             if path in self.processed_files:
                 if path+fragment in self.targets.keys():
                     tb = get_target_block(path+fragment, self.targets)
@@ -1424,6 +1437,18 @@ class HTMLConverter(object, LoggingInterface):
                 return
         except KeyError:
             pass
+        if not self.disable_chapter_detection and \
+           (self.chapter_attr[0].match(tagname) and \
+           tag.has_key(self.chapter_attr[1]) and \
+           self.chapter_attr[2].match(tag[self.chapter_attr[1]])):
+                self.log_debug('Detected chapter %s', tagname)
+                self.end_page() 
+                self.page_break_found = True
+
+                if self.options.add_chapters_to_toc:
+                    self.extra_toc_entries.append((self.get_text(tag,
+                        limit=1000), self.current_block))
+
         end_page = self.process_page_breaks(tag, tagname, tag_css)
         try:
             if tagname in ["title", "script", "meta", 'del', 'frameset']:            
@@ -1680,18 +1705,48 @@ class HTMLConverter(object, LoggingInterface):
                     self.previous_text = ' '
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'table' and not self.ignore_tables and not self.in_table:
-                tag_css = self.tag_css(tag)[0] # Table should not inherit CSS
-                try:
-                    self.process_table(tag, tag_css)
-                except Exception, err:
-                    self.log_warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), str(err))
-                    self.log_debug('', exc_info=True)
-                    self.log_debug(_('Bad table:\n%s'), str(tag)[:300])
-                    self.in_table = False
-                    self.process_children(tag, tag_css, tag_pseudo_css)
-                finally:
-                    if self.minimize_memory_usage:                
-                        tag.extract()
+                if self.render_tables_as_images:
+                    if self.table_render_job_server is None:
+                        from calibre.parallel import Server
+                        self.table_render_job_server = Server(number_of_workers=1)
+                    print 'Rendering table...'
+                    from calibre.ebooks.lrf.html.table_as_image import render_table
+                    pheight = int(self.current_page.pageStyle.attrs['textheight'])
+                    pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
+                    images = render_table(self.table_render_job_server,
+                                          self.soup, tag, tag_css, 
+                                          os.path.dirname(self.target_prefix), 
+                                          pwidth, pheight, self.profile.dpi, 
+                                          self.text_size_multiplier_for_rendered_tables)
+                    for path, width, height in images:
+                        stream = ImageStream(path, encoding='PNG')
+                        im = Image(stream, x0=0, y0=0, x1=width, y1=height,\
+                               xsize=width, ysize=height)
+                        pb = self.current_block
+                        self.end_current_para()
+                        self.process_alignment(tag_css)                    
+                        self.current_para.append(Plot(im, xsize=width*720./self.profile.dpi, 
+                                                      ysize=height*720./self.profile.dpi))
+                        self.current_block.append(self.current_para)
+                        self.current_page.append(self.current_block)                    
+                        self.current_block = self.book.create_text_block(
+                                                        textStyle=pb.textStyle,
+                                                        blockStyle=pb.blockStyle)
+                        self.current_para = Paragraph()
+                        
+                else:
+                    tag_css = self.tag_css(tag)[0] # Table should not inherit CSS
+                    try:
+                        self.process_table(tag, tag_css)
+                    except Exception, err:
+                        self.log_warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), str(err))
+                        self.log_debug('', exc_info=True)
+                        self.log_debug(_('Bad table:\n%s'), str(tag)[:300])
+                        self.in_table = False
+                        self.process_children(tag, tag_css, tag_pseudo_css)
+                    finally:
+                        if self.minimize_memory_usage:                
+                            tag.extract()
             else:
                 self.process_children(tag, tag_css, tag_pseudo_css)
         finally:        
@@ -1743,6 +1798,8 @@ def process_file(path, options, logger=None):
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('html2lrf')
         setup_cli_handlers(logger, level)
+    if not isinstance(path, unicode):
+        path = path.decode(sys.getfilesystemencoding())
     path = os.path.abspath(path)
     default_title = filename_to_utf8(os.path.splitext(os.path.basename(path))[0])
     dirpath = os.path.dirname(path)
@@ -1821,9 +1878,14 @@ def process_file(path, options, logger=None):
          re.compile('$')
     fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
          re.compile('$')
+    cq = options.chapter_attr.split(',')
+    options.chapter_attr = [re.compile(cq[0], re.IGNORECASE), cq[1], 
+                            re.compile(cq[2], re.IGNORECASE)]
     options.force_page_break = fpb
     options.link_exclude = le
     options.page_break = pb
+    if not isinstance(options.chapter_regex, unicode):
+        options.chapter_regex = options.chapter_regex.decode(preferred_encoding)
     options.chapter_regex = re.compile(options.chapter_regex, re.IGNORECASE)
     fpba = options.force_page_break_attr.split(',')
     if len(fpba) != 3:
@@ -1940,7 +2002,8 @@ def main(args=sys.argv):
     except Exception, err:
         print >> sys.stderr, err
         return 1
-    
+    if not isinstance(src, unicode):
+        src = src.decode(sys.getfilesystemencoding())
     process_file(src, options)
     return 0
 

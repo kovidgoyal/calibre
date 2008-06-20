@@ -156,7 +156,7 @@ class MobiReader(object):
         
         processed_records = self.extract_text()
         self.add_anchors()
-        self.processed_html = self.processed_html.decode(self.book_header.codec)
+        self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup()
@@ -177,7 +177,7 @@ class MobiReader(object):
             opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'))
         
     def cleanup(self):
-        self.processed_html = re.sub(r'<div height="0(em|%)"></div>', '', self.processed_html)
+        self.processed_html = re.sub(r'<div height="0(em|%){0,1}"></div>', '', self.processed_html)
     
     def create_opf(self, htmlfile):
         mi = self.book_header.exth.mi
