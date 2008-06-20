@@ -466,7 +466,7 @@ class Main(MainWindow, Ui_MainWindow):
         else:
             self.upload_books(paths, names, infos, on_card=on_card)            
     
-    def upload_books(self, files, names, metadata, on_card=False):
+    def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
         Upload books to device.
         @param files: List of either paths to files or file like objects
@@ -477,13 +477,13 @@ class Main(MainWindow, Ui_MainWindow):
                                         files, names, on_card=on_card,
                                         job_extra_description=titles 
                                         )
-        self.upload_memory[id] = (metadata, on_card)
+        self.upload_memory[id] = (metadata, on_card, memory)
     
     def books_uploaded(self, id, description, result, exception, formatted_traceback):
         '''
         Called once books have been uploaded.
         '''
-        metadata, on_card = self.upload_memory.pop(id)
+        metadata, on_card = self.upload_memory.pop(id)[:2]
         if exception:
             if isinstance(exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
@@ -611,8 +611,9 @@ class Main(MainWindow, Ui_MainWindow):
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata = iter(metadata)
-        files = self.library_view.model().get_preferred_formats(rows, 
-                                    self.device_manager.device_class.FORMATS)
+        _files = self.library_view.model().get_preferred_formats(rows, 
+                                    self.device_manager.device_class.FORMATS, paths=True)
+        files = [f.name for f in _files]
         bad, good, gf, names = [], [], [], []
         for f in files:
             mi = metadata.next()
@@ -627,7 +628,9 @@ class Main(MainWindow, Ui_MainWindow):
                 try:
                     smi = MetaInformation(mi['title'], aus2)
                     smi.comments = mi.get('comments', None)
-                    set_metadata(f, smi, f.name.rpartition('.')[2])
+                    _f = open(f, 'r+b')
+                    set_metadata(_f, smi, f.rpartition('.')[2])
+                    _f.close()
                 except:
                     print 'Error setting metadata in book:', mi['title']
                     traceback.print_exc()
@@ -644,8 +647,8 @@ class Main(MainWindow, Ui_MainWindow):
                     prefix = prefix.encode('ascii', 'ignore')
                 else:
                     prefix = prefix.decode('ascii', 'ignore').encode('ascii', 'ignore')
-                names.append('%s_%d%s'%(prefix, id, os.path.splitext(f.name)[1]))
-        self.upload_books(gf, names, good, on_card)
+                names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
+        self.upload_books(gf, names, good, on_card, memory=_files)
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)

@@ -4,7 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Used to run jobs in parallel in separate processes.
 '''
-import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, subprocess, socket, collections
+import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, \
+       subprocess, socket, collections, binascii
 from select import select
 from functools import partial
 from threading import RLock, Thread, Event
@@ -392,7 +393,7 @@ class Server(Thread):
         pt = PersistentTemporaryFile('.pickle', '_IPC_')
         pt.write(cPickle.dumps((func, args, kwdargs)))
         pt.close()
-        cmd = free_spirit_command%repr(pt.name)
+        cmd = free_spirit_command%repr(binascii.hexlify(pt.name))
         popen(executable + [cmd])
 
 ##########################################################################################
@@ -484,9 +485,12 @@ def worker(host, port):
             return 0
         elif not msg:
             time.sleep(1)
+        else:
+            print >>sys.__stderr__, 'Invalid protocols message', msg
+            return 1
     
 def free_spirit(path):
-    func, args, kwdargs = cPickle.load(open(path, 'rb'))
+    func, args, kwdargs = cPickle.load(open(binascii.unhexlify(path), 'rb'))
     try:
         os.unlink(path)
     except:
@@ -496,7 +500,7 @@ def free_spirit(path):
 def main(args=sys.argv):
     args = args[1].split(':')
     if len(args) == 1:
-        free_spirit(args[0])
+        free_spirit(args[0].replace("'", ''))
     else:
         worker(args[0].replace("'", ''), int(args[1])) 
     return 0
