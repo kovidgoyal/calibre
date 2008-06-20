@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Render HTML tables as images.
 '''
-import os, tempfile, atexit, shutil
+import os, tempfile, atexit, shutil, time
 from PyQt4.Qt import QWebPage, QUrl, QApplication, QSize, \
                      SIGNAL, QPainter, QImage, QObject, Qt
 
@@ -58,7 +58,7 @@ class HTMLTableRenderer(QObject):
         finally:
             QApplication.quit()
         
-def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
+def render_table(server, soup, table, css, base_dir, width, height, dpi, factor=1.0):
     head = ''
     for e in soup.findAll(['link', 'style']):
         head += unicode(e)+'\n\n'
@@ -78,14 +78,17 @@ def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
     </body>
 </html>
     '''%(head, width-10, style, unicode(table))
-    from calibre.parallel import Server
-    s = Server()
-    result, exception, traceback, log = s.run(1, 'render_table', qapp=True, report_progress=False, 
-                                              args=[html, base_dir, width, height, dpi, factor])
+    server.run_job(1, 'render_table', 
+                            args=[html, base_dir, width, height, dpi, factor])
+    res = None
+    while res is None:
+        time.sleep(2)
+        res = server.result(1)
+    result, exception, traceback = res
     if exception:
         print 'Failed to render table'
+        print exception
         print traceback
-        print log
     images, tdir = result
     atexit.register(shutil.rmtree, tdir)
     return images

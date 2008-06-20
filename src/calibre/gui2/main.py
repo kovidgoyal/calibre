@@ -77,7 +77,6 @@ class Main(MainWindow, Ui_MainWindow):
         self.conversion_jobs = {}
         self.persistent_files = []
         self.metadata_dialogs = []
-        self.viewer_job_id = 1
         self.default_thumbnail = None
         self.device_error_dialog = ConversionErrorDialog(self, _('Error communicating with device'), ' ')
         self.device_error_dialog.setModal(Qt.NonModal)
@@ -264,14 +263,6 @@ class Main(MainWindow, Ui_MainWindow):
         elif msg.startswith('refreshdb:'):
             self.library_view.model().resort()
             self.library_view.model().research()
-        elif msg.startswith('progress:'):
-            try:
-                fields = msg.split(':')
-                job_id, percent = fields[1:3]
-                job_id, percent = int(job_id), float(percent)
-                self.job_manager.update_progress(job_id, percent)
-            except:
-                pass
         else:
             print msg
             
@@ -780,7 +771,7 @@ class Main(MainWindow, Ui_MainWindow):
             cmdline.append(pt.name)
             id = self.job_manager.run_conversion_job(self.book_converted, 
                                                         'any2lrf', args=[cmdline],
-                                    job_description='Convert book %d of %d'%(i, len(rows)))
+                                    job_description='Convert book %d of %d'%(i+1, len(rows)))
                     
                     
             self.conversion_jobs[id] = (d.cover_file, pt, of, d.output_format, 
@@ -860,15 +851,16 @@ class Main(MainWindow, Ui_MainWindow):
         self._view_file(result)
     
     def _view_file(self, name):
-        if name.upper().endswith('.LRF'):
-            args = ['lrfviewer', name]
-            self.job_manager.process_server.run('viewer%d'%self.viewer_job_id, 
-                                                'lrfviewer', kwdargs=dict(args=args),
-                                                monitor=False)
-            self.viewer_job_id += 1
-        else:
-            QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
-        time.sleep(2) # User feedback
+        self.setCursor(Qt.BusyCursor)
+        try:
+            if name.upper().endswith('.LRF'):
+                args = ['lrfviewer', name]
+                self.job_manager.process_server.run_free_job('lrfviewer', kwdargs=dict(args=args))
+            else:
+                QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
+            time.sleep(5) # User feedback
+        finally:
+            self.unsetCursor()
     
     def view_specific_format(self, triggered):
         rows = self.library_view.selectionModel().selectedRows()
@@ -1084,7 +1076,7 @@ class Main(MainWindow, Ui_MainWindow):
         if getattr(exception, 'only_msg', False):
             error_dialog(self, _('Conversion Error'), unicode(exception)).exec_()
             return
-        msg =  u'<p><b>%s</b>: %s</p>'%exception
+        msg =  u'<p><b>%s</b>: </p>'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
         msg += formatted_traceback + '</pre>'

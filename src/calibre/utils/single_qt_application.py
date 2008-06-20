@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Enforces running of only a single application instance and allows for messaging between
 applications using a local socket.
 '''
-import atexit
+import atexit, os
 
 from PyQt4.QtCore import QByteArray, QDataStream, QIODevice, SIGNAL, QObject, Qt, QString
 from PyQt4.QtNetwork import QLocalSocket, QLocalServer
@@ -93,6 +93,16 @@ class LocalServer(QLocalServer):
                 
         for conn in pop:
             self.connections.remove(conn)
+            
+    def listen(self, name):
+        if not QLocalServer.listen(self, name):
+            try:
+                os.unlink(self.fullServerName())
+            except:
+                pass
+            return QLocalServer.listen(self, name)
+        return True
+        
                 
         
         
@@ -124,8 +134,7 @@ class SingleApplication(QObject):
                          self.mr, Qt.QueuedConnection)
             
             if not self.server.listen(self.server_name):
-                if not self.server.listen(self.server_name):
-                    self.server = None
+                self.server = None
         if self.server is not None:
             atexit.register(self.server.close)
                 

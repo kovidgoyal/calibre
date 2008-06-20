@@ -80,6 +80,8 @@ if not os.path.exists('/etc/fonts/fonts.conf'):
             continue
         bad = True
         break
+    if not bad:
+        bad = os.path.exists('/etc/fonts/fonts.conf')
     if bad:
         auth = Authorization(destroyflags=(kAuthorizationFlagDestroyRights,))
         fd, name = tempfile.mkstemp('.py')
