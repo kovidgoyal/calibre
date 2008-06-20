@@ -33,7 +33,7 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id',
-                     'manifest', 'spine', 'toc', 'cover'):
+                     'manifest', 'spine', 'toc', 'cover', 'language'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
         
@@ -63,6 +63,7 @@ class MetaInformation(object):
         self.rating       = None if not mi else mi.rating
         self.isbn         = None if not mi else mi.isbn
         self.tags         = []  if not mi else mi.tags
+        self.language     = None if not mi else mi.language # Typically a string describing the language
         #: mi.cover_data = (ext, data)
         self.cover_data   = mi.cover_data if (mi and hasattr(mi, 'cover_data')) else (None, None)
         self.application_id    = mi.application_id  if (mi and hasattr(mi, 'application_id')) else None
@@ -84,7 +85,8 @@ class MetaInformation(object):
             
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'application_id', 'manifest', 'spine', 'toc', 'cover'):
+                     'isbn', 'application_id', 'manifest', 'spine', 'toc', 
+                     'cover', 'language'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
@@ -115,6 +117,8 @@ class MetaInformation(object):
             ans += u'Tags     : ' +unicode(self.tags) + '\n'
         if self.series:
             ans += u'Series   : '+unicode(self.series) + '(%d)'%self.series_index  
+        if self.language:
+            ans += u'Language : '     + unicode(self.language) + u'\n'
         return ans.strip()
     
     def __nonzero__(self):

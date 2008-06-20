@@ -17,6 +17,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.mobi.palmdoc import decompress_doc
+from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFCreator
 
@@ -51,18 +52,13 @@ class EXTHHeader(object):
                 
     def process_metadata(self, id, content, codec):
         if id == 100:
-            aus = content.split(',')
-            if len(aus) > 0:
-                self.mi.author_sort = aus[0].decode(codec, 'ignore').strip()
-                self.mi.authors     = [aus[1].decode(codec, 'ignore').strip()]
-            else:
-                self.mi.authors    = [aus[0].decode(codec, 'ignore').strip()]
+            self.mi.authors   = [content.decode(codec, 'ignore').strip()]
         elif id == 101:
             self.mi.publisher = content.decode(codec, 'ignore').strip()
         elif id == 103:
-            self.mi.comments = content.decode(codec, 'ignore')
+            self.mi.comments  = content.decode(codec, 'ignore')
         elif id == 104:
-            self.mi.isbn = content.decode(codec, 'ignore').strip().replace('-', '')
+            self.mi.isbn      = content.decode(codec, 'ignore').strip().replace('-', '')
         elif id == 105:
             if not self.mi.tags:
                 self.mi.tags = []
@@ -76,6 +72,7 @@ class BookHeader(object):
         self.compression_type = raw[:2]
         self.records, self.records_size = struct.unpack('>HH', raw[8:12])
         self.encryption_type, = struct.unpack('>H', raw[12:14])
+        
         self.doctype = raw[16:20]
         self.length, self.type, self.codepage, self.unique_id, self.version = \
                  struct.unpack('>LLLLL', raw[20:40])
@@ -100,11 +97,18 @@ class BookHeader(object):
         if self.compression_type == 'DH':
             self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78]) 
         
+        langcode  = struct.unpack('!L', raw[0x5C:0x60])[0]
+        langid    = langcode & 0xFF
+        sublangid = (langcode >> 10) & 0xFF
+        self.language = main_language.get(langid, 'ENGLISH')
+        self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+        
         self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
         self.exth = None
         if self.exth_flag & 0x40:
             self.exth = EXTHHeader(raw[16+self.length:], self.codec)
             self.exth.mi.uid = self.unique_id
+            self.exth.mi.language = self.language
             
 
 class MobiReader(object):
