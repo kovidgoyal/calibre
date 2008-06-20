@@ -156,7 +156,7 @@ class MobiReader(object):
         
         processed_records = self.extract_text()
         self.add_anchors()
-        self.processed_html = self.processed_html.decode(self.book_header.codec)
+        self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup()
