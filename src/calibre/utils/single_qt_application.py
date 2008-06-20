@@ -104,7 +104,12 @@ class LocalServer(QLocalServer):
         return True
         
                 
-        
+def send_message(msg, name, server_name='calibre_server', timeout=5000):
+    socket = QLocalSocket()
+    socket.connectToServer(server_name)
+    if socket.waitForConnected(timeout_connect):
+        if read_message(socket) == name:
+            write_message(socket, name+':'+msg, timeout)
         
 class SingleApplication(QObject):
     
