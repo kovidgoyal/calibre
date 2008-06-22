@@ -23,7 +23,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
-from calibre.gui2.main_window import MainWindow
+from calibre.gui2.main_window import MainWindow, option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceDetector, DeviceManager
 from calibre.gui2.status import StatusBar
@@ -58,8 +58,8 @@ class Main(MainWindow, Ui_MainWindow):
         p.end()
         self.default_thumbnail = (pixmap.width(), pixmap.height(), pixmap_to_data(pixmap))
     
-    def __init__(self, single_instance, parent=None):
-        MainWindow.__init__(self, parent)
+    def __init__(self, single_instance, opts, parent=None):
+        MainWindow.__init__(self, opts, parent)
         self.single_instance = single_instance
         if self.single_instance is not None:
             self.connect(self.single_instance, SIGNAL('message_received(PyQt_PyObject)'),
@@ -1079,7 +1079,7 @@ class Main(MainWindow, Ui_MainWindow):
         if getattr(exception, 'only_msg', False):
             error_dialog(self, _('Conversion Error'), unicode(exception)).exec_()
             return
-        msg =  u'<p><b>%s</b>: </p>'%exception
+        msg =  u'<p><b>%s</b>:'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
         msg += formatted_traceback + '</pre>'
@@ -1166,6 +1166,13 @@ def main(args=sys.argv):
     
     pid = os.fork() if islinux else -1
     if pid <= 0:
+        parser = option_parser('''\
+%prog [opts] [path_to_ebook]
+
+Launch the main calibre Graphical User Interface and optionally add the ebook at
+path_to_ebook to the database.
+''')
+        opts, args = parser.parse_args(args)
         app = Application(args)
         app.setWindowIcon(QIcon(':/library'))
         QCoreApplication.setOrganizationName(ORG_NAME)
@@ -1173,7 +1180,7 @@ def main(args=sys.argv):
         single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')
         if not singleinstance('calibre GUI'):
             if single_instance is not None and single_instance.is_running() and \
-               single_instance.send_message('launched:'+repr(sys.argv)):
+               single_instance.send_message('launched:'+repr(args)):
                     return 0
             
             QMessageBox.critical(None, 'Cannot Start '+__appname__,
@@ -1181,14 +1188,14 @@ def main(args=sys.argv):
             return 1
         initialize_file_icon_provider()
         try:
-            main = Main(single_instance)
+            main = Main(single_instance, opts)
         except DatabaseLocked, err:
             QMessageBox.critical(None, 'Cannot Start '+__appname__,
             '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
             return 1
         sys.excepthook = main.unhandled_exception
-        if len(sys.argv) > 1:
-            main.add_filesystem_book(sys.argv[1])
+        if len(args) > 1:
+            main.add_filesystem_book(args)
         return app.exec_()
     return 0
     
@@ -1199,7 +1206,7 @@ if __name__ == '__main__':
     except:
         if not iswindows: raise
         from PyQt4.QtGui import QErrorMessage
-        logfile = os.path.expanduser('~/calibre.log')
+        logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile): 
             log = open(logfile).read()
             if log.strip():

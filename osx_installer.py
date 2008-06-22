@@ -48,7 +48,7 @@ def _check_symlinks_prescript():
     from Authorization import Authorization, kAuthorizationFlagDestroyRights
     
     AUTHTOOL="""#!%(sp)s
-import os
+import os, shutil
 scripts = %(sp)s
 links = %(sp)s
 fonts_conf = %(sp)s
@@ -64,7 +64,8 @@ if not os.path.exists('/etc/fonts/fonts.conf'):
     print 'Creating default fonts.conf'
     if not os.path.exists('/etc/fonts'):
         os.makedirs('/etc/fonts')
-    os.link(fonts_conf, '/etc/fonts/fonts.conf')
+    shutil.copyfile(fonts_conf, '/etc/fonts/fonts.conf')
+    shutil.copyfile(fonts_conf.replace('conf', 'dtd'), '/etc/fonts/fonts.dtd')
 """
     
     dest_path = %(dest_path)s
@@ -80,8 +81,7 @@ if not os.path.exists('/etc/fonts/fonts.conf'):
             continue
         bad = True
         break
-    if not bad:
-        bad = os.path.exists('/etc/fonts/fonts.conf')
+    bad = bad or not os.path.exists('/etc/fonts/fonts.conf')
     if bad:
         auth = Authorization(destroyflags=(kAuthorizationFlagDestroyRights,))
         fd, name = tempfile.mkstemp('.py')
@@ -280,13 +280,15 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         f.write(src)
         f.close()
         print 
-        print 'Adding GUI main.py'
+        print 'Adding GUI scripts to site-packages'
         f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python2.5', 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
-        f.write('src/calibre/gui2/main.py', 'calibre/gui2/main.py')
+        for script in scripts['gui']:
+            f.write(script, script.partition('/')[-1])
         f.close()
         print
         print 'Adding default fonts.conf'
         open(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'fonts.conf'), 'wb').write(open('/etc/fonts/fonts.conf').read())
+        open(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'fonts.dtd'), 'wb').write(open('/etc/fonts/fonts.dtd').read())
         print
         print 'Building disk image'
         BuildAPP.makedmg(os.path.join(self.dist_dir, APPNAME+'.app'), APPNAME+'-'+VERSION)
