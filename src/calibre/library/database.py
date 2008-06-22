@@ -1384,6 +1384,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('VACUUM;')
         self.conn.commit()
     
+    def all_ids(self):
+        return [i[0] for i in self.conn.execute('SELECT id FROM books').fetchall()]
+    
     def export_to_dir(self, dir, indices, byauthor=False, single_dir=False,
                       index_is_id=False):
         if not os.path.exists(dir):
