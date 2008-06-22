@@ -509,9 +509,10 @@ class BuildEXE(build_exe):
             shutil.copytree(imfd, tg)
             
         print 
-        print 'Adding GUI main.py'
+        print 'Adding main scripts'
         f = zipfile.ZipFile(os.path.join('build', 'py2exe', 'library.zip'), 'a', zipfile.ZIP_DEFLATED)
-        f.write('src\\calibre\\gui2\\main.py', 'calibre\\gui2\\main.py')
+        for i in scripts['console'] + scripts['gui']:
+            f.write(i, i.partition('\\')[-1])
         f.close()
         
         print 
@@ -559,17 +560,18 @@ def main():
                                   'optimize'  : 2,
                                   'dist_dir'  : PY2EXE_DIR,
                                   'includes'  : [
-                                             'sip', 'pkg_resources', 'PyQt4.QtSvg', 
-                                             'mechanize', 'ClientForm', 'wmi', 
+                                             'sip', 'pkg_resources', 'PyQt4.QtSvg',
+                                             'mechanize', 'ClientForm', 'wmi',
                                              'win32file', 'pythoncom', 'rtf2xml',
                                              'win32process', 'win32api', 'msvcrt',
-                                             'win32event', 
+                                             'win32event', 'calibre.ebooks.lrf.any.*',
+                                             'calibre.ebooks.lrf.feeds.*',
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*', 'PyQt4.QtWebKit',
                                              ],
                                   'packages'  : ['PIL'],
-                                  'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
+                                  'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],
                                   'dll_excludes' : ['mswsock.dll'],

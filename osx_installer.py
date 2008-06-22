@@ -280,9 +280,9 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         f.write(src)
         f.close()
         print 
-        print 'Adding GUI scripts to site-packages'
+        print 'Adding main scripts to site-packages'
         f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python2.5', 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
-        for script in scripts['gui']:
+        for script in scripts['gui']+scripts['console']:
             f.write(script, script.partition('/')[-1])
         f.close()
         print
@@ -307,10 +307,11 @@ def main():
                          'argv_emulation' : True,
                          'iconfile' : 'icons/library.icns',
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
-                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml', 
+                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml',
                                        'PyQt4.QtSvg', 'PyQt4.QtWebKit',
-                                       'mechanize', 'ClientForm', 'usbobserver', 
+                                       'mechanize', 'ClientForm', 'usbobserver',
                                        'genshi', 'calibre.web.feeds.recipes.*',
+                                       'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
                                        'keyword', 'codeop', 'pydoc'],
                          'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
                          'excludes' : ['IPython'],

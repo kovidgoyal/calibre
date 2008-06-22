@@ -1079,7 +1079,10 @@ class Main(MainWindow, Ui_MainWindow):
         if getattr(exception, 'only_msg', False):
             error_dialog(self, _('Conversion Error'), unicode(exception)).exec_()
             return
-        msg =  u'<p><b>%s</b>:'%exception
+        try:
+            msg =  u'<p><b>%s</b>:'%exception
+        except:
+            msg = u'<p><b>%s</b>: %s'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
         msg += formatted_traceback + '</pre>'
