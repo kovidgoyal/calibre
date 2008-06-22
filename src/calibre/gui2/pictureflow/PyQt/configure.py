@@ -43,6 +43,7 @@ else:
     makefile.extra_lib_dirs = ['..\\..\\.build\\release', '../../.build', '.']
 makefile.extra_libs = ['pictureflow0' if 'win' in sys.platform and 'darwin' not in sys.platform else "pictureflow"]
 makefile.extra_cflags = ['-arch i386', '-arch ppc'] if 'darwin' in sys.platform else []
+makefile.extra_lflags = ['-arch i386', '-arch ppc'] if 'darwin' in sys.platform else []
 makefile.extra_cxxflags = makefile.extra_cflags
 
 # Generate the Makefile itself.

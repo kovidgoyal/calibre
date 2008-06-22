@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os, traceback, time
 
-from PyQt4.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider
+from PyQt4.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
 
 from calibre import __appname__, setup_cli_handlers, islinux, Settings
@@ -300,6 +300,7 @@ def main(args=sys.argv, logger=None):
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = Application(args)
+        app.setWindowIcon(QIcon(':/images/viewer.svg'))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         opts = normalize_settings(parser, opts)

@@ -539,7 +539,10 @@ class Server(Thread):
                         with self.pool_lock:
                             self.pool.append(o)
                             
-            time.sleep(1)            
+            try:
+                time.sleep(1)
+            except:
+                return            
                 
     
     def killall(self):
