@@ -1198,7 +1198,7 @@ path_to_ebook to the database.
             return 1
         sys.excepthook = main.unhandled_exception
         if len(args) > 1:
-            main.add_filesystem_book(args)
+            main.add_filesystem_book(args[1])
         return app.exec_()
     return 0
     
