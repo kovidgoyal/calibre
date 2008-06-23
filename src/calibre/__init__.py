@@ -38,6 +38,23 @@ try:
 except:
     preferred_encoding = 'utf-8'
 
+_abspath = os.path.abspath
+def my_abspath(path, encoding=sys.getfilesystemencoding()):
+    '''
+    Work around for buggy os.path.abspath. This function accepts either byte strings,
+    in which it calls os.path.abspath, or unicode string, in which case it first converts
+    to byte strings using `encoding`, calls abspath and then decodes back to unicode.
+    '''
+    to_unicode = False
+    if isinstance(path, unicode):
+        path = path.encode(encoding)
+        to_unicode = True
+    res = _abspath(path)
+    if to_unicode:
+        res = res.decode(encoding)
+    return res
+
+os.path.abspath = my_abspath
 
 def osx_version():
     if isosx:
