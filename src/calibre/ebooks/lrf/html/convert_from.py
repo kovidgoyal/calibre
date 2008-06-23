@@ -870,11 +870,12 @@ class HTMLConverter(object, LoggingInterface):
                 append_text(src)    
         else:
             srcs = src.split('\n')
-            for src in srcs:
-                if src:
-                    append_text(src)
-                    if len(srcs) > 1:                
-                        self.line_break()
+            for src in srcs[:-1]:
+                append_text(src)
+                self.line_break()
+            last = srcs[-1]
+            if len(last):
+                append_text(last)
         
     def line_break(self):
         self.current_para.append(CR())
