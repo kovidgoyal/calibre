@@ -128,7 +128,7 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.add_menu.actions()[2], SIGNAL("triggered(bool)"), self.add_recursive_multiple)
         QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit_metadata)
-        QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), self.edit_metadata)
+        QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), partial(self.edit_metadata, bulk=False))
         QObject.connect(md.actions()[1], SIGNAL('triggered(bool)'), self.edit_bulk_metadata)
         QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)        
         QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
@@ -550,17 +550,19 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
     
     ############################### Edit metadata ##############################
-    def edit_metadata(self, checked):
+    def edit_metadata(self, checked, bulk=None):
         '''
-        Edit metadata of selected books in library individually.
+        Edit metadata of selected books in library.
         '''
         rows = self.library_view.selectionModel().selectedRows()
-        if len(rows) > 1:
-            return self.edit_bulk_metadata(checked)
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot edit metadata'), _('No books selected'))
             d.exec_()
             return
+        
+        if bulk or (bulk is None and len(rows) > 1):
+            return self.edit_bulk_metadata(checked)
+        
         for row in rows:
             d = MetadataSingleDialog(self, row.row(), 
                                     self.library_view.model().db)
