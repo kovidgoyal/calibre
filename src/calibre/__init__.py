@@ -55,6 +55,23 @@ def my_abspath(path, encoding=sys.getfilesystemencoding()):
     return res
 
 os.path.abspath = my_abspath
+_join = os.path.join
+def my_join(a, *p):
+    encoding=sys.getfilesystemencoding()
+    p = [a] + list(p)
+    _unicode = False
+    for i in p:
+        if isinstance(i, unicode):
+            _unicode = True
+            break
+    p = [i.encode(encoding) if isinstance(i, unicode) else i for i in p]
+    
+    res = _join(*p)
+    if _unicode:
+        res = res.decode(encoding)
+    return res
+
+os.path.join = my_join        
 
 def osx_version():
     if isosx:
