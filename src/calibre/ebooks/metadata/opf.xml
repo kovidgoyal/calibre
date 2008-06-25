@@ -25,6 +25,10 @@
     
     <guide>
         <reference py:if="mi.cover" type="cover" href="${mi.cover}" /> 
+        <reference py:if="mi.cover" type="other.ms-coverimage-standard" href="${mi.cover}" />
+        <py:for each="ref in getattr(mi, 'extra_mobi_guide_elements', [])">
+        <reference title="${ref[0]}" type="${ref[1]}" href="${ref[2]}" />
+        </py:for>
     </guide>
     
     <manifest py:if="getattr(mi, 'manifest', None)">

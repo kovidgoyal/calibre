@@ -20,7 +20,7 @@ from calibre.ebooks.mobi.palmdoc import decompress_doc
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFCreator
-
+from calibre.ebooks.metadata.toc import TOC
 
 class EXTHHeader(object):
     
@@ -172,22 +172,37 @@ class MobiReader(object):
                                      self.processed_html)
         
         soup = BeautifulSoup(self.processed_html.replace('> <', '>\n<'))
+        guide = soup.find('guide')
         for elem in soup.findAll(['metadata', 'guide']):
             elem.extract()
-        htmlfile = os.path.join(output_dir, self.name+'.html') 
+        htmlfile = os.path.join(output_dir, self.name+'.html')
+        for ref in guide.findAll('reference', href=True):
+            ref['href'] = os.path.basename(htmlfile)+ref['href']
         open(htmlfile, 'wb').write(unicode(soup).encode('utf8'))
         self.htmlfile = htmlfile
         
         if self.book_header.exth is not None:
-            opf = self.create_opf(htmlfile)
-            opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'))
+            ncx = cStringIO.StringIO()
+            opf = self.create_opf(htmlfile, guide)
+            opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx)
+            ncx = ncx.getvalue()
+            if ncx:
+                open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
         
     def cleanup(self):
         self.processed_html = re.sub(r'<div height="0(em|%){0,1}"></div>', '', self.processed_html)
     
-    def create_opf(self, htmlfile):
+    def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
+        guide_elements, toc = [], None
+        if guide:
+            for elem in guide.findAll('reference'):
+                if elem['type'] == 'toc':
+                    toc = elem['href']
+                    continue
+                guide_elements.append((elem['title'], elem['type'], elem['href']))
+        opf.extra_mobi_guide_elements = guide_elements
         if hasattr(self.book_header.exth, 'cover_offset'):
             opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
         manifest = [(htmlfile, 'text/x-oeb1-document')]
@@ -197,6 +212,23 @@ class MobiReader(object):
         
         opf.create_manifest(manifest)
         opf.create_spine([os.path.basename(htmlfile)])
+        
+        if toc:
+            index = self.processed_html.find('<a name="%s"'%toc.partition('#')[-1])
+            tocobj = None
+            if index > -1:
+                raw = '<html><body>'+self.processed_html[index:]
+                soup = BeautifulSoup(raw)
+                tocobj = TOC()
+                for a in soup.findAll('a', href=True):
+                    try:
+                        text = ''.join(a.findAll(text=True))
+                    except:
+                        text = ''
+                    tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
+            if tocobj is not None:
+                opf.set_toc(tocobj)
+        
         return opf
         
         
@@ -221,7 +253,6 @@ class MobiReader(object):
         
         elif self.book_header.compression_type == '\x00\x01':
             self.mobi_html = ''.join(text_sections)
-        
         else:
             raise MobiError('Unknown compression algorithm: %s'%repr(self.book_header.compression_type))
         
@@ -234,7 +265,7 @@ class MobiReader(object):
     
     def add_anchors(self):
         positions = set([])
-        link_pattern = re.compile(r'<a\s+filepos=(\d+)', re.IGNORECASE)
+        link_pattern = re.compile(r'<[^<>]+filepos=[\'"]{0,1}(\d+)[^<>]*>', re.IGNORECASE)
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         positions = list(positions)
@@ -251,7 +282,10 @@ class MobiReader(object):
             pos = end
             
         self.processed_html += self.mobi_html[pos:]
-        self.processed_html = link_pattern.sub(lambda match: '<a href="#filepos%d"'%int(match.group(1)), 
+        fpat = re.compile(r'filepos=[\'"]{0,1}(\d+)[\'"]{0,1}', re.IGNORECASE)
+        def fpos_to_href(match):
+            return fpat.sub('href="#filepos%d"'%int(match.group(1)), match.group())
+        self.processed_html = link_pattern.sub(fpos_to_href, 
                                                self.processed_html)
         
     def extract_images(self, processed_records, output_dir):

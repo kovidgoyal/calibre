@@ -353,7 +353,7 @@ class OPF(MetaInformation):
                     return reference.get('href')
         return None
     
-    def set_cover(self, path):
+    def set_cover(self, path, type='cover'):
         self._initialize()
         doc = dom.parseString(self.soup.__str__('UTF-8'))
         package = doc.documentElement
@@ -363,11 +363,11 @@ class OPF(MetaInformation):
         else:
             guide = doc.createElement('guide')
             package.appendChild(guide)
-        el = self._find_element(guide, 'reference', [('type', 'cover')])
+        el = self._find_element(guide, 'reference', [('type', type)])
         if not el:
             el = doc.createElement('reference')
             guide.appendChild(el)
-            el.setAttribute('type', 'cover')
+            el.setAttribute('type', type)
         el.setAttribute('href', path)
         self._commit(doc)
     
