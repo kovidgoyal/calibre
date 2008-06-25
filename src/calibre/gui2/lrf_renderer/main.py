@@ -285,7 +285,7 @@ def normalize_settings(parser, opts):
     for opt in parser.option_list:
         if not opt.dest:
             continue
-        if getattr(opts, opt.dest) == opt.default:
+        if getattr(opts, opt.dest) == opt.default and hasattr(saved_opts, opt.dest):
             continue
         setattr(saved_opts, opt.dest, getattr(opts, opt.dest))
     return saved_opts

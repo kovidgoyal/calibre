@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self, opts, parent=None):
         QMainWindow.__init__(self, parent)
-        if opts.redirect:
+        if getattr(opts, 'redirect', False):
             self.__console_redirect = DebugWindow(self)
             sys.stdout = sys.stderr = self.__console_redirect
             self.__console_redirect.show()
