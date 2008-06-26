@@ -222,7 +222,7 @@ class MobiReader(object):
                 tocobj = TOC()
                 for a in soup.findAll('a', href=True):
                     try:
-                        text = ''.join(a.findAll(text=True))
+                        text = ''.join(a.findAll(text=True)).strip()
                     except:
                         text = ''
                     tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)

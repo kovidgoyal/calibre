@@ -136,6 +136,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
+        self.save_menu.addAction(_('Save only %s format to disk')%Settings().get('save to disk single format', 'lrf').upper())
         
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'))
@@ -144,6 +145,7 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_save, SIGNAL("triggered(bool)"), self.save_to_disk)
         QObject.connect(self.save_menu.actions()[0], SIGNAL("triggered(bool)"), self.save_to_disk)
         QObject.connect(self.save_menu.actions()[1], SIGNAL("triggered(bool)"), self.save_to_single_dir)
+        QObject.connect(self.save_menu.actions()[2], SIGNAL("triggered(bool)"), self.save_single_format_to_disk)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[0], SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[1], SIGNAL("triggered(bool)"), self.view_specific_format)
@@ -662,20 +664,32 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
     
     ############################## Save to disk ################################
+    def save_single_format_to_disk(self, checked):
+        self.save_to_disk(checked, True, Settings().get('save to disk single format', 'lrf'))
+    
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
     
-    def save_to_disk(self, checked, single_dir=False):
+    def save_to_disk(self, checked, single_dir=False, single_format=None):
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot save to disk'), _('No books selected'))
             d.exec_()
             return
+        
         dir = choose_dir(self, 'save to disk dialog', ('Choose destination directory'))
         if not dir:
             return
         if self.current_view() == self.library_view:
-            self.current_view().model().save_to_disk(rows, dir, single_dir=single_dir)
+            failures = self.current_view().model().save_to_disk(rows, dir, 
+                                    single_dir=single_dir, single_format=single_format)
+            if failures and single_format is not None:
+                msg = _('<p>Could not save the following books to disk, because the %s format is not available for them:<ul>')%single_format.upper()
+                for f in failures:
+                    msg += '<li>%s</li>'%f[1]
+                msg += '</ul>'
+                warning_dialog(self, _('Could not save some ebooks'), msg).exec_()
+            QDesktopServices.openUrl(QUrl('file:'+dir))
         else:
             paths = self.current_view().model().paths(rows)
             self.job_manager.run_device_job(self.books_saved,

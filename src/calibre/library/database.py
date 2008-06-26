@@ -1548,6 +1548,25 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             if res is not None:
                 duplicates.extend(res)
         return duplicates
+    
+    def export_single_format_to_dir(self, dir, indices, format, index_is_id=False):
+        if not index_is_id:
+            indices = map(self.id, indices)
+        failures = []
+        for id in indices:
+            try:
+                data = self.format(id, format, index_is_id=True)
+            except:
+                failures.append((id, self.title(id, index_is_id=True)))
+            title = self.title(id, index_is_id=True)
+            au = self.authors(id, index_is_id=True)
+            if not au:
+                au = _('Unknown')
+            fname = '%s - %s.%s'%(title, au, format.lower())
+            fname = sanitize_file_name(fname)
+            open(os.path.join(dir, fname), 'wb').write(data)
+        return failures
+                
                 
 
 class SearchToken(object):

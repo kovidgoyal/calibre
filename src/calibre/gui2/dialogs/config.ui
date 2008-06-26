@@ -1,4 +1,5 @@
 <ui version="4.0" >
+ <author>Kovid Goyal</author>
  <class>Dialog</class>
  <widget class="QDialog" name="Dialog" >
   <property name="geometry" >
@@ -76,18 +77,10 @@
        <property name="currentIndex" >
         <number>0</number>
        </property>
-       <widget class="QWidget" name="page" >
-        <property name="geometry" >
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>583</width>
-          <height>625</height>
-         </rect>
-        </property>
-        <layout class="QGridLayout" >
-         <item row="0" column="0" >
-          <layout class="QVBoxLayout" >
+       <widget class="QWidget" name="page_3" >
+        <layout class="QVBoxLayout" name="verticalLayout" >
+         <item>
+          <layout class="QVBoxLayout" name="_2" >
            <item>
             <widget class="QLabel" name="label" >
              <property name="text" >
@@ -99,7 +92,7 @@
             </widget>
            </item>
            <item>
-            <layout class="QHBoxLayout" >
+            <layout class="QHBoxLayout" name="_3" >
              <item>
               <widget class="QLineEdit" name="location" />
              </item>
@@ -121,7 +114,7 @@
            </item>
           </layout>
          </item>
-         <item row="1" column="0" >
+         <item>
           <widget class="QCheckBox" name="roman_numerals" >
            <property name="text" >
             <string>Use &amp;Roman numerals for series number</string>
@@ -131,9 +124,35 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" >
-          <layout class="QHBoxLayout" >
-           <item>
+         <item>
+          <layout class="QGridLayout" name="gridLayout_2" >
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_5" >
+             <property name="text" >
+              <string>Format for &amp;single file save:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>single_format</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QComboBox" name="single_format" />
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="label_3" >
+             <property name="text" >
+              <string>&amp;Priority for conversion jobs:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>priority</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QComboBox" name="priority" />
+           </item>
+           <item row="2" column="0" >
             <widget class="QLabel" name="label_2" >
              <property name="text" >
               <string>Default network &amp;timeout:</string>
@@ -143,7 +162,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="2" column="1" >
             <widget class="QSpinBox" name="timeout" >
              <property name="toolTip" >
               <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
@@ -164,31 +183,78 @@
            </item>
           </layout>
          </item>
-         <item row="3" column="0" >
-          <layout class="QHBoxLayout" >
-           <item>
-            <widget class="QLabel" name="label_3" >
-             <property name="text" >
-              <string>&amp;Priority for conversion jobs:</string>
-             </property>
-             <property name="buddy" >
-              <cstring>priority</cstring>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="priority" />
-           </item>
-          </layout>
+         <item>
+          <widget class="QGroupBox" name="groupBox_2" >
+           <property name="title" >
+            <string>Toolbar</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout" >
+            <item row="0" column="1" >
+             <widget class="QComboBox" name="toolbar_button_size" >
+              <item>
+               <property name="text" >
+                <string>Large</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Medium</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Small</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_4" >
+              <property name="text" >
+               <string>&amp;Button size in toolbar</string>
+              </property>
+              <property name="buddy" >
+               <cstring>toolbar_button_size</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="show_toolbar_text" >
+              <property name="text" >
+               <string>Show &amp;text in toolbar buttons</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
-         <item row="6" column="0" >
+         <item>
+          <widget class="QGroupBox" name="groupBox" >
+           <property name="title" >
+            <string>Select visible &amp;columns in library view</string>
+           </property>
+           <layout class="QGridLayout" name="_4" >
+            <item row="0" column="0" >
+             <widget class="QListWidget" name="columns" >
+              <property name="selectionMode" >
+               <enum>QAbstractItemView::NoSelection</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
           <widget class="QGroupBox" name="dirs_box" >
            <property name="title" >
             <string>Frequently used directories</string>
            </property>
-           <layout class="QGridLayout" >
+           <layout class="QGridLayout" name="_5" >
             <item row="0" column="0" >
-             <layout class="QHBoxLayout" >
+             <layout class="QHBoxLayout" name="_6" >
               <item>
                <widget class="QListWidget" name="directory_list" >
                 <property name="alternatingRowColors" >
@@ -203,7 +269,7 @@
                </widget>
               </item>
               <item>
-               <layout class="QVBoxLayout" >
+               <layout class="QVBoxLayout" name="_7" >
                 <item>
                  <spacer>
                   <property name="orientation" >
@@ -278,83 +344,6 @@
            </layout>
           </widget>
          </item>
-         <item row="7" column="0" >
-          <spacer>
-           <property name="orientation" >
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0" >
-            <size>
-             <width>392</width>
-             <height>16</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="5" column="0" >
-          <widget class="QGroupBox" name="groupBox" >
-           <property name="title" >
-            <string>Select visible &amp;columns in library view</string>
-           </property>
-           <layout class="QGridLayout" >
-            <item row="0" column="0" >
-             <widget class="QListWidget" name="columns" >
-              <property name="selectionMode" >
-               <enum>QAbstractItemView::NoSelection</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="4" column="0" >
-          <widget class="QGroupBox" name="groupBox_2" >
-           <property name="title" >
-            <string>Toolbar</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout" >
-            <item row="0" column="1" >
-             <widget class="QComboBox" name="toolbar_button_size" >
-              <item>
-               <property name="text" >
-                <string>Large</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Medium</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Small</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QLabel" name="label_4" >
-              <property name="text" >
-               <string>&amp;Button size in toolbar</string>
-              </property>
-              <property name="buddy" >
-               <cstring>toolbar_button_size</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="show_toolbar_text" >
-              <property name="text" >
-               <string>Show &amp;text in toolbar buttons</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
         </layout>
        </widget>
        <widget class="QWidget" name="page_2" >
@@ -362,8 +351,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>583</width>
-          <height>625</height>
+          <width>595</width>
+          <height>638</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" >
