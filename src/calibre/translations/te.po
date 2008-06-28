@@ -1,21 +1,21 @@
-# Translation template file..
-# Copyright (C) 2007 Kovid Goyal
-# Kovid Goyal <kovid@kovidgoyal.net>, 2007.
+# Telugu translation for calibre
+# Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
+# This file is distributed under the same license as the calibre package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: calibre 0.4.51\n"
-"Report-Msgid-Bugs-To: \n"
+"Project-Id-Version: calibre\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-06-23 07:18+0000\n"
-"PO-Revision-Date: 2008-05-24 06:23+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
-"Language-Team: bg\n"
+"PO-Revision-Date: 2008-06-24 13:22+0000\n"
+"Last-Translator: వీవెన్ (Veeven) <Unknown>\n"
+"Language-Team: Telugu <te@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Launchpad-Export-Date: 2008-06-28 07:16+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
-"Generated-By: pygettext.py 1.5\n"
 
 #: /home/kovid/work/calibre/src/calibre/__init__.py:99
 msgid "%sUsage%s: %s\n"
@@ -72,7 +72,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:405
 msgid "Publisher"
-msgstr ""
+msgstr "ప్రచురణకర్త"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:88
 msgid "Path to file containing image to be used as cover"
@@ -645,7 +645,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:100
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/fb2.py:34
 msgid "Usage:"
-msgstr ""
+msgstr "వాడుక:"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/isbndb.py:95
 msgid ""
@@ -685,7 +685,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:47
 msgid " not found."
-msgstr ""
+msgstr " దొరకలేదు."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:50
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/library_thing.py:81
@@ -740,7 +740,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:400
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:751
 msgid "Title"
-msgstr ""
+msgstr "శీర్షిక"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:27
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:58
@@ -749,7 +749,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:20
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:242
 msgid "Comments"
-msgstr ""
+msgstr "వ్యాఖ్యలు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info_ui.py:55
 msgid "Dialog"
@@ -768,11 +768,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:22
 msgid "Basic"
-msgstr ""
+msgstr "ప్రాధమిక"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:23
 msgid "Advanced"
-msgstr ""
+msgstr "ఉన్నత"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:94
 msgid "<br>Must be a directory."
@@ -802,7 +802,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:198
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:265
 msgid "Configuration"
-msgstr ""
+msgstr "స్వరూపణం"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:199
 msgid "&Location of books database (library1.db)"
@@ -831,7 +831,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:264
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:266
 msgid "..."
-msgstr ""
+msgstr "..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:202
 msgid "Use &Roman numerals for series number"
@@ -849,7 +849,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:205
 msgid " seconds"
-msgstr ""
+msgstr " క్షణాలు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:206
 msgid "&Priority for conversion jobs:"
@@ -873,7 +873,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:213
 msgid "Toolbar"
-msgstr ""
+msgstr "పనిముట్ల పట్టీ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:214
 msgid "Large"
@@ -885,7 +885,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:216
 msgid "Small"
-msgstr ""
+msgstr "చిన్న"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:217
 msgid "&Button size in toolbar"
@@ -909,14 +909,14 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/conversion_error_ui.py:41
 msgid "ERROR"
-msgstr ""
+msgstr "పొరపాటు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:37
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:276
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:401
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:752
 msgid "Author(s)"
-msgstr ""
+msgstr "రచయిత(లు)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:38
 msgid "Author Sort"
@@ -984,7 +984,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:27
 msgid "Unavailable"
-msgstr ""
+msgstr "అందుబాటులో లేదు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:38
 msgid " - Jobs"
@@ -1006,12 +1006,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:56
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:292
 msgid "Look & Feel"
-msgstr ""
+msgstr "రూపు రేఖలు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:58
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:293
 msgid "Page Setup"
-msgstr ""
+msgstr "పేజీ అమరిక"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:60
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:294
@@ -1107,7 +1107,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:303
 msgid "<font color=\"gray\">No help available</font>"
-msgstr ""
+msgstr "<font color=\"gray\">సహాయమేమీ అందుబాటులో లేదు</font>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:404
 msgid "Bulk convert ebooks to LRF"
@@ -1119,11 +1119,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:508
 msgid "Category"
-msgstr ""
+msgstr "వర్గం"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:509
 msgid "Options"
-msgstr ""
+msgstr "ఎంపికలు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:510
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:290
@@ -1223,7 +1223,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:530
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:281
 msgid "Book "
-msgstr ""
+msgstr "పుస్తకం "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:532
 msgid "Base &font size:"
@@ -1509,7 +1509,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:296
 msgid "Change password"
-msgstr ""
+msgstr "సంకేతపదం మార్చు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:55
 msgid "Password needed"
@@ -1521,7 +1521,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:58
 msgid "&Password:"
-msgstr ""
+msgstr "&సంకేతపదం:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/password_ui.py:59
 msgid "&Show password"
@@ -1529,7 +1529,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:15
 msgid "Author"
-msgstr ""
+msgstr "రచయిత"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:17
 msgid "Tag"
@@ -1766,7 +1766,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:210
 msgid " days"
-msgstr ""
+msgstr " రోజులు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:211
 msgid "&Max. number of articles per feed:"
@@ -1838,7 +1838,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:102
 msgid "Title:"
-msgstr ""
+msgstr "శీర్షిక:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:103
 msgid "Regular expression group name (?P<title>)"
@@ -1859,7 +1859,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:105
 msgid "Authors:"
-msgstr ""
+msgstr "రచయితలు:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:106
 msgid "Regular expression group name (?P<authors>)"
@@ -1892,11 +1892,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:314
 msgid "Status"
-msgstr ""
+msgstr "స్థితి"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:315
 msgid "Progress"
-msgstr ""
+msgstr "ప్రగతి"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:316
 msgid "Running time"
@@ -1904,7 +1904,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:344
 msgid "Error"
-msgstr ""
+msgstr "పొరపాటు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:344
 msgid "Finished"
@@ -1966,12 +1966,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:402
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:753
 msgid "Size (MB)"
-msgstr ""
+msgstr "పరిమాణం (మెబై)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:403
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:754
 msgid "Date"
-msgstr ""
+msgstr "తేదీ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:404
 msgid "Rating"
@@ -2031,7 +2031,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 msgid "Next Page"
-msgstr ""
+msgstr "తర్వాతి పేజీ"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:132
 msgid "Previous Page"
@@ -2039,11 +2039,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:133
 msgid "Back"
-msgstr ""
+msgstr "వెనుకకు"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:134
 msgid "Forward"
-msgstr ""
+msgstr "ముందుకి"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:135
 msgid "Next match"
