@@ -10,7 +10,8 @@ from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    Settings, pictureflowerror, iswindows, isosx
+                    Settings, pictureflowerror, iswindows, isosx,\
+    preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from calibre.devices.errors import FreeSpaceError
@@ -1101,6 +1102,8 @@ class Main(MainWindow, Ui_MainWindow):
             msg = u'<p><b>%s</b>: %s'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
+        if not isinstance(formatted_traceback, unicode):
+            formatted_traceback = formatted_traceback.decode(preferred_encoding, 'replace')
         msg += formatted_traceback + '</pre>'
         msg += '<p><b>Log:</b></p><pre>'
         if log:

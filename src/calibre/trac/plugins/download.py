@@ -37,7 +37,6 @@ class Distribution(object):
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('convertlit', '1.8', 'convertlit', None, None),
         ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
-        ('genshi', '0.4.4', 'genshi', 'python-genshi', 'python-genshi'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
     
@@ -231,7 +230,7 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
     
     def linux(self, req):
         operating_systems = [
-            OS({'name' : 'binary', 'title': 'All distros'}),
+            OS({'name' : 'binary', 'title': 'Distro neutral'}),
             OS({'name' : 'gentoo', 'title': 'Gentoo'}),
             OS({'name' : 'ubuntu', 'title': 'Ubuntu'}),
             OS({'name' : 'fedora', 'title': 'Fedora'}),

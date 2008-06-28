@@ -40,8 +40,6 @@ class MainWindow(QMainWindow):
             self.__console_redirect = DebugWindow(self)
             sys.stdout = sys.stderr = self.__console_redirect
             self.__console_redirect.show()
-            print 'testing 1'
-            print 'testing 2'
     
     def unhandled_exception(self, type, value, tb):
         try:

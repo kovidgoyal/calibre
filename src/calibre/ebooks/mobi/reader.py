@@ -190,19 +190,11 @@ class MobiReader(object):
                 open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
         
     def cleanup(self):
-        self.processed_html = re.sub(r'<div height="0(em|%){0,1}"></div>', '', self.processed_html)
+        self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
     
     def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
-        guide_elements, toc = [], None
-        if guide:
-            for elem in guide.findAll('reference'):
-                if elem['type'] == 'toc':
-                    toc = elem['href']
-                    continue
-                guide_elements.append((elem['title'], elem['type'], elem['href']))
-        opf.extra_mobi_guide_elements = guide_elements
         if hasattr(self.book_header.exth, 'cover_offset'):
             opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
         manifest = [(htmlfile, 'text/x-oeb1-document')]
@@ -212,7 +204,12 @@ class MobiReader(object):
         
         opf.create_manifest(manifest)
         opf.create_spine([os.path.basename(htmlfile)])
-        
+        toc = None
+        if guide:
+            opf.create_guide(guide)
+            for ref in opf.guide:
+                if ref.type.lower() == 'toc':
+                    toc = ref.href()
         if toc:
             index = self.processed_html.find('<a name="%s"'%toc.partition('#')[-1])
             tocobj = None

@@ -23,24 +23,23 @@
         </py:for>
     </metadata>
     
-    <guide>
-        <reference py:if="mi.cover" type="cover" href="${mi.cover}" /> 
-        <reference py:if="mi.cover" type="other.ms-coverimage-standard" href="${mi.cover}" />
-        <py:for each="ref in getattr(mi, 'extra_mobi_guide_elements', [])">
-        <reference title="${ref[0]}" type="${ref[1]}" href="${ref[2]}" />
-        </py:for>
+    <guide py:if="getattr(mi, 'guide', None)">
+    <py:for each="ref in mi.guide">
+        <reference type="${ref.type}" href="${ref.href()}" py:with="attrs={'title': ref.title if ref.title else None}" py:attrs="attrs" /> 
+    </py:for>    
     </guide>
-    
-    <manifest py:if="getattr(mi, 'manifest', None)">
-        <py:for each="i, m in enumerate(mi.manifest)">
-        <item id="${str(i)}" href="${m[0]}" media-type="${m[1]}" /> 
-        </py:for>
-    </manifest>
     
     <spine py:if="getattr(mi, 'spine', None)" 
            py:with="attrs={'toc':'ncx' if mi.toc else None}" py:attrs="attrs">
-        <py:for each="idref in mi.spine">
-        <itemref idref="${str(idref)}" />
+        <py:for each="resource in mi.spine">
+        <itemref idref="${resource.id}" />
         </py:for>
-    </spine>    
+    </spine> 
+    
+    <manifest py:if="getattr(mi, 'manifest', None)">
+        <py:for each="ref in mi.manifest">
+        <item id="${ref.id}" href="${ref.href()}" media-type="${ref.mime_type}" /> 
+        </py:for>
+    </manifest>
+       
 </package>

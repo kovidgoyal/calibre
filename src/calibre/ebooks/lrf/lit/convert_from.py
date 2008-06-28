@@ -57,7 +57,7 @@ def process_file(path, options, logger=None):
         if opf:
             path = opf[0]
             opf = OPFReader(path)
-            htmlfile = opf.spine.items().next().href.replace('&', '%26') #convertlit replaces & with %26
+            htmlfile = opf.spine[0].path.replace('&', '%26') #convertlit replaces & with %26
             options.opf = path
         else:    
             l = glob.glob(os.path.join(tdir, '*toc*.htm*'))
