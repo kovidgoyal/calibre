@@ -1085,29 +1085,48 @@ class Main(MainWindow, Ui_MainWindow):
             self.device_error_dialog.show()
             
     def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
+        
+        def safe_print(msgs, file=sys.stderr):
+            for i, msg in enumerate(msgs):
+                if not msg:
+                    msg = ''
+                if isinstance(msg, unicode):
+                    msgs[i] = msg.encode(preferred_encoding, 'replace')
+            msg = ' '.join(msgs)
+            print >>file, msg
+        
+        def safe_unicode(self, arg):
+            if not arg:
+                arg = unicode(repr(arg))
+            if isinstance(arg, str):
+                arg = arg.decode(preferred_encoding, 'replace')
+            if not isinstance(arg, unicode):
+                try:
+                    arg = unicode(repr(arg))
+                except:
+                    arg = u'Could not convert to unicode'
+            return arg
+        
+        only_msg = getattr(exception, 'only_msg', False)
+        description, exception, formatted_traceback, log = map(safe_unicode,
+                            (description, exception, formatted_traceback, log))
         try:
-            print >>sys.stderr, 'Error in job:', description.encode('utf8')
+            safe_print('Error in job:', description)
             if log:
-                print >>sys.stderr, log.encode('utf8', 'ignore') if isinstance(log, unicode) else log
-            print >>sys.stderr, exception
-            print >>sys.stderr, formatted_traceback.encode('utf8', 'ignore') if isinstance(formatted_traceback, unicode) else formatted_traceback
+                safe_print(log)
+            safe_print(exception)
+            safe_print(formatted_traceback)
         except:
             pass
-        if getattr(exception, 'only_msg', False):
-            error_dialog(self, _('Conversion Error'), unicode(exception)).exec_()
+        if only_msg:
+            error_dialog(self, _('Conversion Error'), exception).exec_()
             return
-        try:
-            msg =  u'<p><b>%s</b>:'%exception
-        except:
-            msg = u'<p><b>%s</b>: %s'%exception
+        msg =  u'<p><b>%s</b>:'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
-        if not isinstance(formatted_traceback, unicode):
-            formatted_traceback = formatted_traceback.decode(preferred_encoding, 'replace')
-        msg += formatted_traceback + '</pre>'
-        msg += '<p><b>Log:</b></p><pre>'
-        if log:
-            msg += log.encode('utf8', 'ignore') if isinstance(log, unicode) else log.decode('utf8', 'ignore')
+        msg += formatted_traceback + u'</pre>'
+        msg += u'<p><b>Log:</b></p><pre>'
+        msg += log
         ConversionErrorDialog(self, 'Conversion Error', msg, show=True)
         
     
