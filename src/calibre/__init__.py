@@ -409,8 +409,8 @@ def relpath(target, base=os.curdir):
     target_list = (os.path.abspath(target)).split(os.sep)
 
     # On the windows platform the target may be on a completely different drive from the base.
-    if iswindows and base_list[0] != target_list[0]:
-        raise OSError, 'Target is on a different drive to base. Target: '+target_list[0].upper()+', base: '+base_list[0].upper()
+    if iswindows and base_list[0].upper() != target_list[0].upper():
+        raise OSError, 'Target is on a different drive to base. Target: '+repr(target)+', base: '+repr(base)
 
     # Starting from the filepath root, work out how much of the filepath is
     # shared by base and target.

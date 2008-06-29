@@ -83,7 +83,10 @@ class Resource(object):
         frag = '#'+quote(self.fragment) if self.fragment else ''
         if self.path == basedir:
             return ''+frag
-        rpath = relpath(self.path, basedir)
+        try:
+            rpath = relpath(self.path, basedir)
+        except OSError: # On windows path and basedir could be on different drives
+            rpath = self.path
         
         return quote(rpath.replace(os.sep, '/'))+frag
     
