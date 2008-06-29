@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-06-23 07:18+0000\n"
-"PO-Revision-Date: 2008-06-02 08:40+0000\n"
+"PO-Revision-Date: 2008-06-29 05:48+0000\n"
 "Last-Translator: Marc van den Dikkenberg <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-06-28 07:16+0000\n"
+"X-Launchpad-Export-Date: 2008-06-29 17:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #~ msgid ""
@@ -95,7 +95,7 @@ msgstr "Gemaakt door "
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:146
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:174
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr ""
+msgstr "Schijf %s is niet gevonden. Probeer te herstarten."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:73
 msgid "Set the title. Default: filename."
@@ -275,12 +275,16 @@ msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
 msgstr ""
+"Genereer HTML tabellen als afbeeldingen. (Handig als het document grote of "
+"gecompliceerde tabellen bevat)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:144
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
 msgstr ""
+"Vermenigvuldig de tekst grootte in gegenereerde tabellen bij deze waarde. "
+"Standaard is %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:149
 msgid ""
@@ -306,7 +310,7 @@ msgstr "Voeg geen links toe aan de inhoudsopgave."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:161
 msgid "Prevent the automatic detection chapters."
-msgstr ""
+msgstr "Vind niet automatisch nieuwe hoofdstukken."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:164
 msgid ""
@@ -323,6 +327,11 @@ msgid ""
 "regexp. For example to match all heading tags that have the attribute "
 "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
 msgstr ""
+"vind het begin van een hoofdstuk bij een element met het gespecificeerde "
+"attribuut. Het formaat voor deze optie is tagnaam regexp, attribuut naam, "
+"attribuut waarde regexp. Bijvoorbeeld, om alle kop tags te vinden met de "
+"attribuut klasse \"hoofstuk\", gebruik \"h\\d\\klasse,hoofdstuk\". Standaard "
+"is %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
 msgid ""
@@ -390,6 +399,11 @@ msgid ""
 "slower page turns. For example: --serif-family \"Times New Roman\"\n"
 "    "
 msgstr ""
+"Specificeer truetype font families voor serif, sans-serif en monospace "
+"lettertypen. Deze fonts zullen worden bijgesloten in het LRF bestand. Het "
+"gebruik van niet-standaard lettertypen leidt tot langzamere pagina "
+"wisselingen. Bijvoorbeeld:  --serif-famiy \"Times New Roman\"\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:202
 msgid "The serif family of fonts to embed"
@@ -1148,7 +1162,7 @@ msgstr "Een geldige toegangssleutel is nodig voor isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
 msgid "Error fetching metadata"
-msgstr ""
+msgstr "Fout bij ophalen metadata"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:144
 msgid "No metadata found"
@@ -1179,7 +1193,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:80
 msgid "&Access Key:"
-msgstr ""
+msgstr "&Toegangs Sleutel:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:81
 msgid "Fetch"
@@ -1206,7 +1220,7 @@ msgstr "Niet beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:38
 msgid " - Jobs"
-msgstr ""
+msgstr " - Taken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Active Jobs"
@@ -1564,10 +1578,12 @@ msgstr "&Onder Marge:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:561
 msgid "&Convert tables to images (good for large/complex tables)"
 msgstr ""
+"&Converteer tabellen naar afbeeldingen (Goed voor grote/gecompliceerde "
+"tabellen)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:562
 msgid "&Multiplier for text size in rendered tables:"
-msgstr ""
+msgstr "&Multiplier van tekst grootte in gegenereerde tabellen:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:563
 msgid "Title based detection"
@@ -1607,7 +1623,7 @@ msgstr "Forceer nieuwe pagina voor &attribuut:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:572
 msgid "Detect chapter &at tag:"
-msgstr ""
+msgstr "Detecteer hoofdstuk bij t&ag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:573
 msgid "Help on item"
@@ -1626,6 +1642,16 @@ msgid ""
 "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
 "family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Candara'; font-size:11pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
+"family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:108
 msgid "Edit Meta information"
@@ -1899,7 +1925,7 @@ msgstr "Het bijgevoegde bestand: %s is een recept om %s te downloaden."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:70
 msgid "Recipe for "
-msgstr ""
+msgstr "Recept voor "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:86
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:97
@@ -2156,7 +2182,7 @@ msgstr "Reguliere expressie groep naam (?<serie_index>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:114
 msgid "ISBN:"
-msgstr ""
+msgstr "ISBN:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/jobs.py:313
 msgid "Job"
@@ -2420,7 +2446,7 @@ msgstr "Apparaat: "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:319
 msgid "Connected "
-msgstr ""
+msgstr "Verbonden "
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:331
 msgid "Device database corrupted"
@@ -2613,7 +2639,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1080
 msgid "Conversion Error"
-msgstr ""
+msgstr "Converteer Fout"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1103
 msgid "Database does not exist"
@@ -2641,10 +2667,13 @@ msgid ""
 "href=\"http://calibre.kovidgoyal.net/wiki/Changelog\">new features</a>. "
 "Visit the download page?"
 msgstr ""
+"%s is geupdate naar versie %s. Zie die <a "
+"href=\"http://calibre.kovidgoyal.net/wiki/Changelog\">nieuwe functies</a> "
+"Bezoek download pagina?"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:1160
 msgid "Update available"
-msgstr ""
+msgstr "Update beschikbaar"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:256
 msgid "calibre"
@@ -2713,7 +2742,7 @@ msgstr "Zend naar lezer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:276
 msgid "S"
-msgstr ""
+msgstr "S"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:277
 msgid "Fetch news"
@@ -2721,7 +2750,7 @@ msgstr "Download niews"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:278
 msgid "F"
-msgstr ""
+msgstr "F"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:279
 msgid "Convert E-books"
@@ -2729,21 +2758,23 @@ msgstr "Converteer E-boeken"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:280
 msgid "C"
-msgstr ""
+msgstr "C"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:282
 msgid "V"
-msgstr ""
+msgstr "V"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:17
 msgid ""
 "Redirect console output to a dialog window (both stdout and stderr). Useful "
 "on windows where GUI apps do not have a output streams."
 msgstr ""
+"Verwijs console output naar een dialoog venster (zowel stdout als stderr). "
+"Handig onder Windows waar GUI applicatie geen output stream hebben."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:54
 msgid "ERROR: Unhandled exception"
-msgstr ""
+msgstr "FOUT: Niet-verwerkte uitzondering"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/news.py:32
 msgid "Add a custom news source"
@@ -3006,14 +3037,20 @@ msgid ""
 "id. \n"
 "id is an id number from the list command. \n"
 msgstr ""
+"\n"
+"%prog show_metadata [opties] id\n"
+"\n"
+"Laat de metadata uit de Calibre database zien voor het boek geidentificeerd "
+"met het id. \n"
+"id is een id nummer van het list commando \n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:328
 msgid "Print metadata in OPF form (XML)"
-msgstr ""
+msgstr "Print metadata in OPF formaat (XML)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:333
 msgid "You must specify an id"
-msgstr ""
+msgstr "Je moet een id opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:347
 msgid ""
@@ -3027,10 +3064,19 @@ msgid ""
 "can get a quick feel for the OPF format by using the --as-opf switch to the\n"
 "show_metadata command.\n"
 msgstr ""
+"\n"
+"%prog set_metadata [opties] id /pad/naar/metadata.opf\n"
+"\n"
+"Definieer de metadata die is opgeslagen in de Calibre database voor het "
+"boek\n"
+"geidenticeerd met id uit het OPF bestand metadata.opf. id is een id nummer "
+"uit\n"
+"het list commando. Je kunt meer informatie voor het OPF formaat zien door\n"
+"--as-opf parameter op te geven bij het show_metadata commando.\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:360
 msgid "You must specify an id and a metadata file"
-msgstr ""
+msgstr "Je moet een id en metadata bestand opgeven"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:372
 msgid ""
@@ -3042,26 +3088,32 @@ msgid ""
 "(in \n"
 "an opf file). You can get id numbers from the list command. \n"
 msgstr ""
+"%prog export [opties] ids \n"
+"\n"
+"Exporteer de boeken opgegeven als ids (een lijst gescheiden met komma's)\n"
+"naar het bestandssysteem. De exporteer operatie bewaard alle formaten van\n"
+"het boek, de cover en metadata (in een opf bestand) Je kunt id nummers zien\n"
+"via het list commando. \n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:380
 msgid "Export all books in database, ignoring the list of ids."
-msgstr ""
+msgstr "Exporteer alle boeken in de database, negeer de lijst met ids."
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:382
 msgid "Export books to the specified directory. Default is"
-msgstr ""
+msgstr "Exporteer boeken naar de opgegeven folder. Standaard is"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:384
 msgid "Export all books into a single directory"
-msgstr ""
+msgstr "exporteer alle boeken naar een enkele folder"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:386
 msgid "Create file names as author - title instead of title - author"
-msgstr ""
+msgstr "Maak bestands namen als auteur - titel in plaats van titel - auteur"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:391
 msgid "You must specify some ids or the %s option"
-msgstr ""
+msgstr "Je moet ids opgeven of de %s optie gebruiken"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:401
 msgid ""
@@ -3083,11 +3135,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/parallel.py:317
 msgid "Could not launch worker process."
-msgstr ""
+msgstr "Werker sessie kan niet worden gestart."
 
 #: /home/kovid/work/calibre/src/calibre/utils/fontconfig.py:146
 msgid "Could not initialize the fontconfig library"
-msgstr ""
+msgstr "De fontconfig bibliotheek kon niet worden geinitialiseerd."
 
 #: /home/kovid/work/calibre/src/calibre/utils/sftp.py:53
 msgid "URL must have the scheme sftp"

@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-06-23 07:18+0000\n"
-"PO-Revision-Date: 2008-06-25 21:29+0000\n"
-"Last-Translator: S. Dorscht <Unknown>\n"
+"PO-Revision-Date: 2008-06-29 16:58+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-06-28 07:16+0000\n"
+"X-Launchpad-Export-Date: 2008-06-29 17:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #~ msgid ""
@@ -264,6 +264,10 @@ msgid ""
 "option obsoletes the --font-delta option and takes precedence over it. To "
 "use --font-delta, set this to 0. Default: %defaultpt"
 msgstr ""
+"Especifique el tamaño de la fuente base en puntos. Todas las fuentes serán "
+"reescaladas en concordancia. Esta opción deja obsoleta la oción --font-delta "
+"y prioriza sobre ella en el caso de que esté asignada. Para usar --font-"
+"delta, iguale ésta variable a 0. Configuración por defecto: %defaultpt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:100
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -366,12 +370,16 @@ msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
 msgstr ""
+"Renderizar las tablas en documentos html como imágenes (Muy útil si el "
+"documento consta de tablas grandes o complejas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:144
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
 msgstr ""
+"Multiplicar el tamaño del texto en las tablas renderizadas por éste factor. "
+"Por defecto es: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:149
 msgid ""
@@ -413,6 +421,11 @@ msgid ""
 "regexp. For example to match all heading tags that have the attribute "
 "class=\"chapter\" you would use \"h\\d,class,chapter\". Default is %default"
 msgstr ""
+"Detectar el comienzo de un capítulo en un elemento que contenga el atributo "
+"especificado. El formato para ésta espresión es tagname regexp, nombre del "
+"atributo, valor del atributo regexp. Por ejemplo, para encontrar todas las "
+"etiquetas de cabecera que tienen como attribute class=\"capítulo\" podría "
+"usar: \"h/d,class,capítulo\". El valor por defecto es: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:169
 msgid ""
@@ -479,6 +492,11 @@ msgid ""
 "slower page turns. For example: --serif-family \"Times New Roman\"\n"
 "    "
 msgstr ""
+"Especificar familias truetype para serif, sans-serif y funetes monoespacio. "
+"Éstas fuentes se integrarán en el fichero LRF. Como observación: fuentes "
+"customizadas hacen que los cambios de páginas sean más lentos. Por ejemplo: -"
+"-serif-family \"Times New Roman\"\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:202
 msgid "The serif family of fonts to embed"
@@ -1638,7 +1656,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:562
 msgid "&Multiplier for text size in rendered tables:"
-msgstr ""
+msgstr "&Multiplicador para tamaño del texto en las tablas renderizadas."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:563
 msgid "Title based detection"
@@ -1678,7 +1696,7 @@ msgstr "Fuerza un salto de página delante del &atributo:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:572
 msgid "Detect chapter &at tag:"
-msgstr ""
+msgstr "Detectar Capítulo &at tag:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:573
 msgid "Help on item"
@@ -1697,6 +1715,16 @@ msgid ""
 "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
 "family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Candara'; font-size:11pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
+"family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:108
 msgid "Edit Meta information"
@@ -2814,10 +2842,13 @@ msgid ""
 "Redirect console output to a dialog window (both stdout and stderr). Useful "
 "on windows where GUI apps do not have a output streams."
 msgstr ""
+"Redireccionar salida de consola hacia una ventana de diálogo (ambas stdout "
+"and stderr). Útil en windows, donde las aplicacines en GUI no tienen cadenas "
+"de salida."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_window.py:54
 msgid "ERROR: Unhandled exception"
-msgstr ""
+msgstr "ERROR: Excepción no Contemplada"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/news.py:32
 msgid "Add a custom news source"
@@ -2927,6 +2958,10 @@ msgid ""
 "Available fields: %s\n"
 "Default: %%default"
 msgstr ""
+"Campos a mostrar cuando se listan libros de la Base de Datos. Tienen que "
+"estar separados por comas.\n"
+"Campos disponibles: %s\n"
+"Defecto: %%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:92
 msgid ""
@@ -2934,6 +2969,9 @@ msgid ""
 "Available fields: %s\n"
 "Default: %%default"
 msgstr ""
+"Campos por los que ordenar el resultado.\n"
+"Campos disponibles: %s\n"
+"Defecto: %%default"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:94
 msgid "Sort results in ascending order"
@@ -3070,10 +3108,15 @@ msgid ""
 "id. \n"
 "id is an id number from the list command. \n"
 msgstr ""
+"\n"
+"%prog show_metadata [options] id\n"
+"Muestra los metadatos almacenados en la Base de Datos de calibre para el "
+"libro identificado por ID.\n"
+"Id es un número de identificador de la lista de comandos. \n"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:328
 msgid "Print metadata in OPF form (XML)"
-msgstr ""
+msgstr "Imprimir metadatos en formato OPF (XML)"
 
 #: /home/kovid/work/calibre/src/calibre/library/cli.py:333
 msgid "You must specify an id"
@@ -3366,7 +3409,8 @@ msgid ""
 "%s"
 msgstr ""
 "\n"
-"Artículo %s descargado desde %s"
+"Artículo %s descargado desde %s\n"
+"%s"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/news.py:749
 msgid "Article downloaded: %s"
