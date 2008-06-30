@@ -9,14 +9,17 @@ from calibre.gui2 import question_dialog, error_dialog
 
 class TagEditor(QDialog, Ui_TagEditor):
     
-    def __init__(self, window, db, index):
+    def __init__(self, window, db, index=None):
         QDialog.__init__(self, window)
         Ui_TagEditor.__init__(self)
         self.setupUi(self)
         
         self.db = db
         self.index = index
-        tags = self.db.tags(self.index)
+        if self.index is not None:
+            tags = self.db.tags(self.index)
+        else:
+            tags = []
         if tags:
             tags = [tag.lower().strip() for tag in tags.split(',') if tag.strip()]
             tags.sort()

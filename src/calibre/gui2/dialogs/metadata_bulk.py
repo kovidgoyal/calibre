@@ -8,6 +8,7 @@ from PyQt4.QtGui import QDialog
 
 from calibre.gui2 import qstring_to_unicode
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
+from calibre.gui2.dialogs.tag_editor import TagEditor
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, db):
@@ -20,8 +21,6 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         self.write_rating = False
         self.changed = False
         QObject.connect(self.button_box, SIGNAL("accepted()"), self.sync)        
-        QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.series_changed)
-        QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.series_changed)
         QObject.connect(self.rating, SIGNAL('valueChanged(int)'), self.rating_changed)
         
         all_series = self.db.all_series()
@@ -31,9 +30,17 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             self.series.addItem(name)
             
         self.series.lineEdit().setText('')
-        
+        QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.series_changed)
+        QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.series_changed)
+        QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), self.tag_editor)
         self.exec_()
-            
+    
+    def tag_editor(self):
+        d = TagEditor(self, self.db, None)
+        d.exec_()
+        if d.result() == QDialog.Accepted:
+            tag_string = ', '.join(d.tags)
+            self.tags.setText(tag_string)
         
     def sync(self):
         for id in self.ids:
@@ -51,7 +58,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 self.db.set_publisher(id, pub)
             tags = qstring_to_unicode(self.tags.text()).strip()
             if tags:
-                tags = tags.split(',')
+                tags = map(lambda x: x.strip(), tags.split(','))
                 self.db.set_tags(id, tags, append=True)
             remove_tags = qstring_to_unicode(self.remove_tags.text()).strip()
             if remove_tags:
