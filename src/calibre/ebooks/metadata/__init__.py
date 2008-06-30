@@ -80,14 +80,16 @@ class Resource(object):
                 basedir = os.getcwd()
         if self.path is None:
             return self._href
-        frag = '#'+quote(self.fragment) if self.fragment else ''
+        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment
+        frag = '#'+quote(f) if self.fragment else ''
         if self.path == basedir:
             return ''+frag
         try:
             rpath = relpath(self.path, basedir)
         except OSError: # On windows path and basedir could be on different drives
             rpath = self.path
-        
+        if isinstance(rpath, unicode):
+            rpath = rpath.encode('utf-8')
         return quote(rpath.replace(os.sep, '/'))+frag
     
     def set_basedir(self, path):
