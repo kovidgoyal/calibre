@@ -375,7 +375,8 @@ class LRFMetaFile(object):
             delta = insert_into_file(self._file, stream, self.info_start, \
                                      self.info_start + orig_size - 4)
             
-            self.toc_object_offset   += delta
+            if self.toc_object_offset > 0:
+                self.toc_object_offset   += delta
             self.object_index_offset += delta
             self.update_object_offsets(delta)
         
@@ -480,7 +481,7 @@ class LRFMetaFile(object):
         @param args: The values to pack
         @param fmt: See U{struct<http://docs.python.org/lib/module-struct.html>}
         @param start: Position in file at which to write encoded data
-        """        
+        """      
         encoded = struct.pack(kwargs["fmt"], *args)
         self._file.seek(kwargs["start"])
         self._file.write(encoded)
@@ -685,3 +686,4 @@ def main(args=sys.argv):
         
 if __name__ == '__main__':
     sys.exit(main())
+    
