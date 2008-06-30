@@ -113,6 +113,19 @@ class Main(MainWindow, Ui_MainWindow):
         sm = QMenu()
         sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory'))
         sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card'))
+        sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory')+' '+_('and delete from library'))
+        sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card')+' '+_('and delete from library'))
+        sm.addSeparator()
+        sm.addAction(_('Send to storage card by default'))
+        sm.actions()[-1].setCheckable(True)
+        def default_sync(checked):
+            Settings().set('send to device by default', bool(checked))
+            QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)
+            QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card)
+            QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card if checked else self.sync_to_main_memory)
+        QObject.connect(sm.actions()[-1], SIGNAL('toggled(bool)'), default_sync)
+        sm.actions()[-1].setChecked(Settings().get('send to device by default', False))
+        default_sync(sm.actions()[-1].isChecked())    
         self.sync_menu = sm # Needed
         md = QMenu()
         md.addAction(_('Edit metadata individually'))
@@ -131,9 +144,10 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit_metadata)
         QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), partial(self.edit_metadata, bulk=False))
         QObject.connect(md.actions()[1], SIGNAL('triggered(bool)'), self.edit_bulk_metadata)
-        QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)        
         QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
         QObject.connect(sm.actions()[1], SIGNAL('triggered(bool)'), self.sync_to_card)
+        QObject.connect(sm.actions()[2], SIGNAL('triggered(bool)'), partial(self.sync_to_main_memory, delete_from_library=True))
+        QObject.connect(sm.actions()[3], SIGNAL('triggered(bool)'), partial(self.sync_to_card, delete_from_library=True))
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
@@ -242,8 +256,6 @@ class Main(MainWindow, Ui_MainWindow):
             self.status_bar.book_info.book_data.setMaximumHeight(1000)
         self.setMaximumHeight(available_height())
             
-            
-                    
         
     def sync_cf_to_listview(self, index, *args):
         if not hasattr(index, 'row') and self.library_view.currentIndex().row() != index:
@@ -486,7 +498,8 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         Called once books have been uploaded.
         '''
-        metadata, on_card = self.upload_memory.pop(id)[:2]
+        metadata, on_card, memory = self.upload_memory.pop(id)
+        
         if exception:
             if isinstance(exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
@@ -506,6 +519,9 @@ class Main(MainWindow, Ui_MainWindow):
         view = self.card_view if on_card else self.memory_view    
         view.model().resort(reset=False)
         view.model().research()
+        if memory[1]:
+            rows = map(self.library_view.model().db.index, memory[1])
+            self.library_view.model().delete_books(rows)
             
         
     ############################################################################    
@@ -590,11 +606,11 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
     
     ############################# Syncing to device#############################
-    def sync_to_main_memory(self, checked):
-        self.sync_to_device(False)
+    def sync_to_main_memory(self, checked, delete_from_library=False):
+        self.sync_to_device(False, delete_from_library)
         
-    def sync_to_card(self, checked):
-        self.sync_to_device(True)
+    def sync_to_card(self, checked, delete_from_library=False):
+        self.sync_to_device(True, delete_from_library)
         
     def cover_to_thumbnail(self, data):
         p = QPixmap()
@@ -605,7 +621,7 @@ class Main(MainWindow, Ui_MainWindow):
             p = p.scaledToHeight(ht, Qt.SmoothTransformation)
             return (p.width(), p.height(), pixmap_to_data(p))
     
-    def sync_to_device(self, on_card):
+    def sync_to_device(self, on_card, delete_from_library):
         rows = self.library_view.selectionModel().selectedRows()
         if not self.device_manager or not rows or len(rows) == 0:
             return
@@ -653,7 +669,8 @@ class Main(MainWindow, Ui_MainWindow):
                 else:
                     prefix = prefix.decode('ascii', 'ignore').encode('ascii', 'ignore')
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
-        self.upload_books(gf, names, good, on_card, memory=_files)
+        remove = [self.library_view.model().id(r) for r in rows] if delete_from_library else []
+        self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)

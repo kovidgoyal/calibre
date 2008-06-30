@@ -335,7 +335,7 @@ class BooksModel(QAbstractTableModel):
         return ans
     
     def id(self, row):
-        return self.db.id(row.row())
+        return self.db.id(getattr(row, 'row', lambda:row)())
     
     def title(self, row_number):
         return self.db.title(row_number)
