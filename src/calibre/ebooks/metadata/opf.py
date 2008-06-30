@@ -495,12 +495,13 @@ class OPFCreator(MetaInformation):
             self.manifest.set_basedir(self.base_path)
         if not self.guide:
             self.guide = Guide()
-        self.guide.set_basedir(self.base_path)
         if self.cover:
             cover = self.cover
             if not os.path.isabs(cover):
                 cover = os.path.abspath(os.path.join(self.base_path, cover))
             self.guide.set_cover(cover)
+        self.guide.set_basedir(self.base_path)
+        
         opf = template.generate(__appname__=__appname__, mi=self).render('xml')
         opf_stream.write(opf)
         opf_stream.flush()
