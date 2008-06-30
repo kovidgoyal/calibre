@@ -80,9 +80,8 @@ class Distribution(object):
             self.command = cmd.strip()
             easy_install = 'easy_install'
             if os == 'debian':
-                self.command += '\n'+prefix + 'cp -R /usr/share/pycentral/fonttools/site-packages/FontTools* /usr/lib/python2.5/site-packages/'
                 easy_install = 'easy_install-2.5'
-            self.command += '\n'+prefix+easy_install+' -U TTFQuery calibre \n'+prefix+'calibre_postinstall'
+            self.command += '\n'+prefix+easy_install+' -U calibre \n'+prefix+'calibre_postinstall'
             try:
                 self.manual = Markup(self.MANUAL_MAP[os])
             except KeyError:
