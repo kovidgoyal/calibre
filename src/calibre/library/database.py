@@ -1421,7 +1421,6 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 name = au + ' - ' + title if byauthor else title + ' - ' + au
                 name += '_'+id
                 base  = dir if single_dir else tpath
-                
                 mi = OPFCreator(base, self.get_metadata(idx, index_is_id=index_is_id))
                 cover = self.cover(idx, index_is_id=index_is_id)
                 if cover is not None:

@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 """
 Provides abstraction for metadata reading.writing from a variety of ebook formats. 
 """
-import os, mimetypes
+import os, mimetypes, sys
 from urllib import unquote, quote
 from urlparse import urlparse
 
@@ -55,6 +55,8 @@ class Resource(object):
             path = href_or_path
             if not os.path.isabs(path):
                 path = os.path.abspath(os.path.join(path, basedir))
+            if isinstance(path, str):
+                path = path.decode(sys.getfilesystemencoding())
             self.path = path
         else:
             url = urlparse(href_or_path)
