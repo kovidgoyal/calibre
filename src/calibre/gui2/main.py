@@ -1112,7 +1112,7 @@ class Main(MainWindow, Ui_MainWindow):
             msg = ' '.join(msgs)
             print >>file, msg
         
-        def safe_unicode(self, arg):
+        def safe_unicode(arg):
             if not arg:
                 arg = unicode(repr(arg))
             if isinstance(arg, str):

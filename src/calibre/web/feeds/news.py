@@ -9,6 +9,7 @@ __docformat__ = "restructuredtext en"
 
 import logging, os, cStringIO, time, traceback, re, urlparse
 from collections import defaultdict
+from functools import partial
 
 from calibre import browser, __appname__, iswindows, LoggingInterface, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
@@ -811,6 +812,14 @@ class BasicNewsRecipe(object, LoggingInterface):
                 elif use_alt and item.has_key('alt'):
                     strings.append(item['alt'])
         return u''.join(strings)
+    
+    @classmethod
+    def soup(cls, raw):
+        entity_replace = [(re.compile(ur'&(\S+?);'), partial(entity_to_unicode, 
+                                                           exceptions=[]))]
+        nmassage = list(BeautifulSoup.MARKUP_MASSAGE)
+        nmassage.extend(entity_replace)
+        return BeautifulSoup(raw, markupMassage=nmassage)
     
 class Profile2Recipe(BasicNewsRecipe):
     '''

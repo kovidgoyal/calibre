@@ -262,7 +262,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     self.cover_changed = True
                     self.cpixmap = pix   
             except LibraryThingError, err:
-                error_dialog(self, _('Could not fetch cover'), _('<b>Could not fetch cover.</b><br/>')+str(err)).exec_()
+                error_dialog(self, _('Could not fetch cover'), _('<b>Could not fetch cover.</b><br/>')+unicode(err)).exec_()
             finally:
                 self.fetch_cover_button.setEnabled(True)
                 self.unsetCursor()
