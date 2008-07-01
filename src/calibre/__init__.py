@@ -1,7 +1,7 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.72'
+__version__   = '0.4.76'
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
@@ -38,6 +38,40 @@ try:
 except:
     preferred_encoding = 'utf-8'
 
+_abspath = os.path.abspath
+def my_abspath(path, encoding=sys.getfilesystemencoding()):
+    '''
+    Work around for buggy os.path.abspath. This function accepts either byte strings,
+    in which it calls os.path.abspath, or unicode string, in which case it first converts
+    to byte strings using `encoding`, calls abspath and then decodes back to unicode.
+    '''
+    to_unicode = False
+    if isinstance(path, unicode):
+        path = path.encode(encoding)
+        to_unicode = True
+    res = _abspath(path)
+    if to_unicode:
+        res = res.decode(encoding)
+    return res
+
+os.path.abspath = my_abspath
+_join = os.path.join
+def my_join(a, *p):
+    encoding=sys.getfilesystemencoding()
+    p = [a] + list(p)
+    _unicode = False
+    for i in p:
+        if isinstance(i, unicode):
+            _unicode = True
+            break
+    p = [i.encode(encoding) if isinstance(i, unicode) else i for i in p]
+    
+    res = _join(*p)
+    if _unicode:
+        res = res.decode(encoding)
+    return res
+
+os.path.join = my_join        
 
 def osx_version():
     if isosx:
@@ -75,6 +109,8 @@ class ColoredFormatter(Formatter):
          
 
 def setup_cli_handlers(logger, level):
+    if os.environ.get('CALIBRE_WORKER', None) is not None and logger.handlers:
+        return
     logger.setLevel(level)
     if level == logging.WARNING:
         handler = logging.StreamHandler(sys.stdout)
@@ -88,6 +124,7 @@ def setup_cli_handlers(logger, level):
         handler = logging.StreamHandler(sys.stderr)
         handler.setLevel(logging.DEBUG)
         handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
+    
     logger.addHandler(handler)
 
 class CustomHelpFormatter(IndentedHelpFormatter):
@@ -361,9 +398,10 @@ def relpath(target, base=os.curdir):
     Base can be a directory specified either as absolute or relative to current dir.
     """
 
-    if not os.path.exists(target):
-        raise OSError, 'Target does not exist: '+target
-
+    #if not os.path.exists(target):
+    #    raise OSError, 'Target does not exist: '+target
+    if target == base:
+        raise ValueError('target and base are both: %s'%target)
     if not os.path.isdir(base):
         raise OSError, 'Base is not a directory or does not exist: '+base
 
@@ -371,13 +409,13 @@ def relpath(target, base=os.curdir):
     target_list = (os.path.abspath(target)).split(os.sep)
 
     # On the windows platform the target may be on a completely different drive from the base.
-    if iswindows and base_list[0] <> target_list[0]:
-        raise OSError, 'Target is on a different drive to base. Target: '+target_list[0].upper()+', base: '+base_list[0].upper()
+    if iswindows and base_list[0].upper() != target_list[0].upper():
+        raise OSError, 'Target is on a different drive to base. Target: '+repr(target)+', base: '+repr(base)
 
     # Starting from the filepath root, work out how much of the filepath is
     # shared by base and target.
     for i in range(min(len(base_list), len(target_list))):
-        if base_list[i] <> target_list[i]: break
+        if base_list[i] != target_list[i]: break
     else:
         # If we broke out of the loop, i is pointing to the first differing path elements.
         # If we didn't break out of the loop, i is pointing to identical path elements.

@@ -46,9 +46,10 @@ entry_points = {
                              'librarything = calibre.ebooks.metadata.library_thing:main',
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
-                             'calibre-debug = calibre.debug:main',
-                             'calibredb = calibre.library.cli:main',
+                             'calibre-debug      = calibre.debug:main',
+                             'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
+                             'calibre-parallel   = calibre.parallel:main',
                            ], 
         'gui_scripts'    : [ 
                             __appname__+' = calibre.gui2.main:main',
@@ -353,7 +354,7 @@ def install_man_pages(fatal_errors):
         prog = src[:src.index('=')].strip()
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta', 
                     'markdown-calibre', 'calibre-debug', 'fb2-meta',
-                    'calibre-fontconfig'):
+                    'calibre-fontconfig', 'calibre-parallel'):
             continue
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
                     '--section', '1', '--no-info', '--include',

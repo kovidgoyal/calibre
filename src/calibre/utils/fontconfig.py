@@ -23,7 +23,7 @@ match to a given font specification. The main functions in this module are:
 '''
 
 import sys, os, locale, codecs
-from ctypes import cdll, c_void_p, Structure, c_int, POINTER, c_ubyte, c_char, \
+from ctypes import cdll, c_void_p, Structure, c_int, POINTER, c_ubyte, c_char, util, \
                    pointer, byref, create_string_buffer, Union, c_char_p, c_double
 
 try:
@@ -36,18 +36,20 @@ iswindows = 'win32' in sys.platform or 'win64' in sys.platform
 isosx = 'darwin' in sys.platform  
 
 def load_library():
-    if isosx: 
-        lib = 'libfontconfig.1.dylib'
-        if hasattr(sys, 'frameworks_dir'):
-            lib = os.path.join(getattr(sys, 'frameworks_dir'), lib)
+    if isosx:
+        lib = os.path.join(getattr(sys, 'frameworks_dir'), 'libfontconfig.1.dylib') \
+              if hasattr(sys, 'frameworks_dir') else util.find_library('fontconfig')
         return cdll.LoadLibrary(lib)
     elif iswindows:
         return cdll.LoadLibrary('libfontconfig-1')
     else:
         try:
-            return cdll.LoadLibrary('libfontconfig.so')
+            return cdll.LoadLibrary(util.find_library('fontconfig'))
         except:
-            return cdll.LoadLibrary('libfontconfig.so.1')
+            try:
+                return cdll.LoadLibrary('libfontconfig.so')
+            except:
+                return cdll.LoadLibrary('libfontconfig.so.1')
 
 class FcPattern(Structure):
     _fields_ = [
@@ -118,9 +120,29 @@ lib.FcFontSort.argtypes = [c_void_p, POINTER(FcPattern), c_int, c_void_p, POINTE
 lib.FcFontSort.restype = POINTER(FcFontSet)
 lib.FcFontRenderPrepare.argtypes = [c_void_p, POINTER(FcPattern), POINTER(FcPattern)]
 lib.FcFontRenderPrepare.restype = POINTER(FcPattern)
+lib.FcConfigCreate.restype = c_void_p
+lib.FcConfigSetCurrent.argtypes = [c_void_p]
+lib.FcConfigSetCurrent.restype = c_int
+lib.FcConfigParseAndLoad.argtypes = [c_void_p, POINTER(c_char), c_int]
+lib.FcConfigParseAndLoad.restype = c_int
+lib.FcConfigBuildFonts.argtypes = [c_void_p]
+lib.FcConfigBuildFonts.restype  = c_int
 
 
-if not lib.FcInit():
+# Initialize the fontconfig library. This has to be done manually
+# for the OS X bundle as it has its own private fontconfig.
+if hasattr(sys, 'frameworks_dir'):
+    config_dir = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
+    if isinstance(config_dir, unicode):
+        config_dir = config_dir.encode(sys.getfilesystemencoding())
+    config = lib.FcConfigCreate()
+    if not lib.FcConfigParseAndLoad(config, os.path.join(config_dir, 'fonts.conf'), 1):
+        raise RuntimeError('Could not parse the fontconfig configuration')
+    if not lib.FcConfigBuildFonts(config):
+        raise RuntimeError('Could not build fonts')
+    if not lib.FcConfigSetCurrent(config):
+        raise RuntimeError('Could not set font config')
+elif not lib.FcInit():
     raise RuntimeError(_('Could not initialize the fontconfig library'))
 
 def find_font_families(allowed_extensions=['ttf']):
@@ -151,11 +173,10 @@ def find_font_families(allowed_extensions=['ttf']):
         ext = os.path.splitext(path)[1]
         if ext:
             ext = ext[1:].lower()
-        if allowed_extensions and ext in allowed_extensions:
+        if (not allowed_extensions) or (allowed_extensions and ext in allowed_extensions):
             if lib.FcPatternGetString(pat, 'family', 0, byref(family)) != FcResultMatch.value:
                 raise RuntimeError('Error processing pattern')
             font_families.append(str(family.contents.value))
-            
          
     lib.FcObjectSetDestroy(oset)
     lib.FcPatternDestroy(empty_pattern)

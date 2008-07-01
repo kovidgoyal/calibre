@@ -2,8 +2,8 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import datetime, locale
-from genshi.template import MarkupTemplate
+import datetime
+from calibre.utils.genshi.template import MarkupTemplate
 from calibre import preferred_encoding
 
 
@@ -65,9 +65,9 @@ class NavBarTemplate(Template):
             <py:if test="art == num - 1 and not bottom">
             | <a href="${prefix}../../feed_${str(feed+1)}/index.html">Next</a>
             </py:if>
-            | <a href="${prefix}../index.html#article_${str(art)}">Up one level</a> 
+            | <a href="${prefix}../index.html#article_${str(art)}">Section menu</a> 
             <py:if test="two_levels">
-            | <a href="${prefix}../../index.html#feed_${str(feed)}">Up two levels</a>
+            | <a href="${prefix}../../index.html#feed_${str(feed)}">Main menu</a>
             </py:if>
             <py:if test="art != 0 and not bottom">
             | <a href="${prefix}../article_${str(art-1)}/index.html">Previous</a>
@@ -152,12 +152,12 @@ class FeedTemplate(Template):
     </head>
     <body style="page-break-before:always">
         <h2>${feed.title}</h2>
-        <py:if test="feed.image">
+        <py:if test="getattr(feed, 'image', None)">
         <div class="feed_image">
             <img alt="${feed.image_alt}" src="${feed.image_url}" />
         </div>
         </py:if>
-        <div py:if="feed.description">
+        <div py:if="getattr(feed, 'description', None)">
             ${feed.description}<br />
         </div>
         <ul>

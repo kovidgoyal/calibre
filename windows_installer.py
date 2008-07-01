@@ -412,7 +412,7 @@ SectionEnd
                                                    version=VERSION, 
                                                    outpath=os.path.abspath(output_dir))
         
-    def build(self):        
+    def build(self):
         f = open('installer.nsi', 'w')
         path = f.name
         f.write(self.installer)
@@ -420,7 +420,7 @@ SectionEnd
         try:
             subprocess.check_call('"C:\Program Files\NSIS\makensis.exe" /V2 ' + path, shell=True)
         except:
-            print path 
+            print path
         else:
             os.remove(path)
 
@@ -509,10 +509,17 @@ class BuildEXE(build_exe):
             shutil.copytree(imfd, tg)
             
         print 
-        print 'Adding GUI main.py'
+        print 'Adding main scripts'
         f = zipfile.ZipFile(os.path.join('build', 'py2exe', 'library.zip'), 'a', zipfile.ZIP_DEFLATED)
-        f.write('src\\calibre\\gui2\\main.py', 'calibre\\gui2\\main.py')
+        for i in scripts['console'] + scripts['gui']:
+            f.write(i, i.partition('\\')[-1])
         f.close()
+        
+        print 
+        print 'Doing DLL redirection' # See http://msdn.microsoft.com/en-us/library/ms682600(VS.85).aspx
+        for f in glob.glob(os.path.join('build', 'py2exe', '*.exe')):
+            open(f + '.local', 'wb').write('\n')
+        
         
         print
         print
@@ -531,18 +538,18 @@ class BuildEXE(build_exe):
 def main():
     sys.argv[1:2] = ['py2exe']
     
-    console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i]) 
-               for i in range(len(scripts['console']))]
+    console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i])
+               for i in range(len(scripts['console']))]# if not 'parallel.py' in scripts['console'][i] ]
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     setup(
           cmdclass = {'py2exe': BuildEXE},
           windows = [
-                     {'script'          : scripts['gui'][0], 
+                     {'script'          : scripts['gui'][0],
                       'dest_base'       : APPNAME,
                       'icon_resources'  : [(1, 'icons/library.ico')],
                       'other_resources' : [BuildEXE.manifest(APPNAME)],
                       },
-                      {'script'         : scripts['gui'][1], 
+                      {'script'         : scripts['gui'][1],
                       'dest_base'       : 'lrfviewer',
                       'icon_resources'  : [(1, 'icons/viewer.ico')],
                       'other_resources' : [BuildEXE.manifest('lrfviewer')],
@@ -553,17 +560,20 @@ def main():
                                   'optimize'  : 2,
                                   'dist_dir'  : PY2EXE_DIR,
                                   'includes'  : [
-                                             'sip', 'pkg_resources', 'PyQt4.QtSvg', 
-                                             'mechanize', 'ClientForm', 'wmi', 
-                                             'win32file', 'pythoncom', 'rtf2xml', 
+                                             'sip', 'pkg_resources', 'PyQt4.QtSvg',
+                                             'mechanize', 'ClientForm', 'wmi',
+                                             'win32file', 'pythoncom', 'rtf2xml',
+                                             'win32process', 'win32api', 'msvcrt',
+                                             'win32event', 'calibre.ebooks.lrf.any.*',
+                                             'calibre.ebooks.lrf.feeds.*',
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
-                                             'calibre.web.feeds.recipes.*', 'pydoc',
-                                             ],                                
+                                             'calibre.web.feeds.recipes.*', 'PyQt4.QtWebKit',
+                                             ],
                                   'packages'  : ['PIL'],
-                                  'excludes'  : ["Tkconstants", "Tkinter", "tcl", 
-                                                 "_imagingtk", "ImageTk", "FixTk", 
-                                                 'pydoc'],
+                                  'excludes'  : ["Tkconstants", "Tkinter", "tcl",
+                                                 "_imagingtk", "ImageTk", "FixTk"
+                                                ],
                                   'dll_excludes' : ['mswsock.dll'],
                                  },
                     },

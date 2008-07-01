@@ -115,7 +115,7 @@
           <item row="0" column="0" >
            <widget class="QStackedWidget" name="stack" >
             <property name="currentIndex" >
-             <number>0</number>
+             <number>3</number>
             </property>
             <widget class="QWidget" name="metadata_page" >
              <property name="geometry" >
@@ -818,6 +818,39 @@
                 </property>
                </widget>
               </item>
+              <item row="5" column="0" >
+               <widget class="QCheckBox" name="gui_render_tables_as_images" >
+                <property name="text" >
+                 <string>&amp;Convert tables to images (good for large/complex tables)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0" >
+               <widget class="QLabel" name="label_27" >
+                <property name="text" >
+                 <string>&amp;Multiplier for text size in rendered tables:</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>gui_text_size_multiplier_for_rendered_tables</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1" >
+               <widget class="QDoubleSpinBox" name="gui_text_size_multiplier_for_rendered_tables" >
+                <property name="enabled" >
+                 <bool>false</bool>
+                </property>
+                <property name="decimals" >
+                 <number>2</number>
+                </property>
+                <property name="minimum" >
+                 <double>0.100000000000000</double>
+                </property>
+                <property name="value" >
+                 <double>1.000000000000000</double>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
             <widget class="QWidget" name="chapterdetection_page" >
@@ -917,6 +950,19 @@
                  </item>
                  <item row="2" column="1" >
                   <widget class="QLineEdit" name="gui_force_page_break_before_attr" />
+                 </item>
+                 <item row="3" column="0" >
+                  <widget class="QLabel" name="label_28" >
+                   <property name="text" >
+                    <string>Detect chapter &amp;at tag:</string>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>gui_chapter_attr</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1" >
+                  <widget class="QLineEdit" name="gui_chapter_attr" />
                  </item>
                 </layout>
                </widget>
@@ -1048,8 +1094,8 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>191</x>
-     <y>236</y>
+     <x>184</x>
+     <y>279</y>
     </hint>
     <hint type="destinationlabel" >
      <x>368</x>
@@ -1064,28 +1110,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>428</x>
-     <y>89</y>
+     <x>650</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel" >
      <x>788</x>
      <y>140</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>gui_header</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>gui_headerformat</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>348</x>
-     <y>340</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>823</x>
-     <y>372</y>
     </hint>
    </hints>
   </connection>
@@ -1096,12 +1126,60 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>321</x>
-     <y>78</y>
+     <x>543</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>322</x>
-     <y>172</y>
+     <x>544</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gui_render_tables_as_images</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gui_text_size_multiplier_for_rendered_tables</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>298</x>
+     <y>398</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>660</x>
+     <y>435</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gui_header</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gui_headerformat</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>330</x>
+     <y>367</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>823</x>
+     <y>372</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gui_disable_chapter_detection</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gui_chapter_attr</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>344</x>
+     <y>107</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>489</x>
+     <y>465</y>
     </hint>
    </hints>
   </connection>

@@ -35,7 +35,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.jobs_view.setModel(model)
         self.model = model
         self.setWindowModality(Qt.NonModal)
-        self.setWindowTitle(__appname__ + ' - Active Jobs')
+        self.setWindowTitle(__appname__ + _(' - Jobs'))
         QObject.connect(self.jobs_view.model(), SIGNAL('modelReset()'), 
                         self.jobs_view.resizeColumnsToContents)
         QObject.connect(self.kill_button, SIGNAL('clicked()'),

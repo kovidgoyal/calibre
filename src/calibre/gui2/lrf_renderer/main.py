@@ -1,13 +1,12 @@
 from calibre.gui2.library import SearchBox
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, logging, os, traceback, time, cPickle
+import sys, logging, os, traceback, time
 
-from PyQt4.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider
-from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread, \
-                         QVariant
+from PyQt4.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon
+from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
 
-from calibre import __appname__, __version__, __author__, setup_cli_handlers, islinux, Settings
+from calibre import __appname__, setup_cli_handlers, islinux, Settings
 from calibre.ebooks.lrf.lrfparser import LRFDocument
 
 from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, choose_files, Application
@@ -57,7 +56,7 @@ class Config(QDialog, Ui_ViewerConfig):
 class Main(MainWindow, Ui_MainWindow):
     
     def __init__(self, logger, opts, parent=None):
-        MainWindow.__init__(self, parent)
+        MainWindow.__init__(self, opts, parent)
         Ui_MainWindow.__init__(self)        
         self.setupUi(self)
         self.setAttribute(Qt.WA_DeleteOnClose)
@@ -263,9 +262,12 @@ def file_renderer(stream, opts, parent=None, logger=None):
     
 
 def option_parser():
-    from optparse import OptionParser
-    parser = OptionParser(usage='%prog book.lrf', version=__appname__+' '+__version__,
-                          epilog='Created by ' + __author__)
+    from calibre.gui2.main_window import option_parser
+    parser = option_parser('''\
+%prog [options] book.lrf
+
+Read the LRF ebook book.lrf
+''')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose',
                       help='Print more information about the rendering process')
     parser.add_option('--visual-debug', help='Turn on visual aids to debugging the rendering engine',
@@ -283,7 +285,7 @@ def normalize_settings(parser, opts):
     for opt in parser.option_list:
         if not opt.dest:
             continue
-        if getattr(opts, opt.dest) == opt.default:
+        if getattr(opts, opt.dest) == opt.default and hasattr(saved_opts, opt.dest):
             continue
         setattr(saved_opts, opt.dest, getattr(opts, opt.dest))
     return saved_opts
@@ -298,6 +300,7 @@ def main(args=sys.argv, logger=None):
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = Application(args)
+        app.setWindowIcon(QIcon(':/images/viewer.svg'))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
         opts = normalize_settings(parser, opts)

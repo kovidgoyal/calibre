@@ -15,6 +15,6 @@ class ConversionError(Exception):
 class UnknownFormatError(Exception):
     pass
 
-BOOK_EXTENSIONS = ['lrf', 'lrx', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'xhtm', 
+BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'xhtm', 
                    'html', 'xhtml', 'epub', 'pdf', 'prc', 'mobi', 'azw', 
-                   'epub', 'fb2', 'djvu']
+                   'epub', 'fb2', 'djvu', 'lrx']

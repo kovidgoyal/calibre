@@ -9,14 +9,15 @@
     <x>0</x>
     <y>0</y>
     <width>830</width>
-    <height>700</height>
+    <height>642</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Fetch metadata</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/metadata.svg</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/metadata.svg</normaloff>:/images/metadata.svg</iconset>
   </property>
   <layout class="QVBoxLayout" >
    <item>
@@ -107,7 +108,7 @@
    <item>
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>

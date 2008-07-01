@@ -150,9 +150,13 @@ class BooksModel(QAbstractTableModel):
         ''' Return list indices of all cells in index.row()'''
         return [ self.index(index.row(), c) for c in range(self.columnCount(None))]
         
-    def save_to_disk(self, rows, path, single_dir=False):
+    def save_to_disk(self, rows, path, single_dir=False, single_format=None):
         rows = [row.row() for row in rows]
-        self.db.export_to_dir(path, rows, self.sorted_on[0] == 1, single_dir=single_dir)
+        if single_format is None:
+            return self.db.export_to_dir(path, rows, self.sorted_on[0] == 1, single_dir=single_dir)
+        else:
+            return self.db.export_single_format_to_dir(path, rows, single_format)
+        
         
     def delete_books(self, indices):
         ids = [ self.id(i) for i in indices ]
@@ -312,7 +316,7 @@ class BooksModel(QAbstractTableModel):
             metadata.append(mi)
         return metadata
     
-    def get_preferred_formats(self, rows, formats):
+    def get_preferred_formats(self, rows, formats, paths=False):
         ans = []
         for row in (row.row() for row in rows):
             format = None
@@ -323,14 +327,15 @@ class BooksModel(QAbstractTableModel):
             if format:
                 pt = PersistentTemporaryFile(suffix='.'+format)
                 pt.write(self.db.format(row, format))
-                pt.seek(0)
+                pt.flush()
+                pt.close() if paths else pt.seek(0)
                 ans.append(pt)                
             else:
                 ans.append(None)
         return ans
     
     def id(self, row):
-        return self.db.id(row.row())
+        return self.db.id(getattr(row, 'row', lambda:row)())
     
     def title(self, row_number):
         return self.db.title(row_number)

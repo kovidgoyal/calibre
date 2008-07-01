@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import sys, re
+import sys, re, os
 
 """ Get information about the terminal we are running in """
 
@@ -94,7 +94,7 @@ class TerminalController:
         except: return
         
         # If the stream isn't a tty, then assume it has no capabilities.
-        if not hasattr(term_stream, 'isatty') or not term_stream.isatty(): return
+        if os.environ.get('CALIBRE_WORKER', None) is not None or not hasattr(term_stream, 'isatty') or not term_stream.isatty(): return
         
         # Check the terminal type.  If we fail, then assume that the
         # terminal has no capabilities.

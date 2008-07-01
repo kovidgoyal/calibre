@@ -66,7 +66,7 @@ def traverse_subdirs(tdir):
     return tdir
 
 def handle_archive(path):
-    tdir = tempfile.mkdtemp(prefix=__appname__+'_')
+    tdir = tempfile.mkdtemp(prefix=__appname__+'_'+'archive_')
     extract(path, tdir)
     files = []
     cdir = traverse_subdirs(tdir)
@@ -75,9 +75,10 @@ def handle_archive(path):
         pat = os.path.join(cdir, '*.'+ext)
         files.extend(glob.glob(pat))
     file = largest_file(files)
-    if file:
-        return tdir, file
-    file = find_htmlfile(cdir)
+    if not file:
+        file = find_htmlfile(cdir)
+    if isinstance(file, str):
+        file = file.decode(sys.getfilesystemencoding())
     return tdir, file 
 
 def process_file(path, options, logger=None):
@@ -109,7 +110,7 @@ def process_file(path, options, logger=None):
         if not newpath:
             raise UnknownFormatError('Could not find ebook in archive')
         path = newpath
-        logger.info('Found ebook in archive: %s', path)
+        logger.info('Found ebook in archive: %s', repr(path))
     try:
         ext = os.path.splitext(path)[1][1:].lower()
         convertor = None
@@ -158,7 +159,10 @@ def main(args=sys.argv, logger=None, gui_mode=False):
         print _('No file to convert specified.')
         return 1
     
-    return process_file(args[1], options, logger)
+    src = args[1]
+    if not isinstance(src, unicode):
+        src = src.decode(sys.getfilesystemencoding())
+    return process_file(src, options, logger)
 
 if __name__ == '__main__':
     sys.exit(main())

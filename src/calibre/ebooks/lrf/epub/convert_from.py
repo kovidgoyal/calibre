@@ -29,7 +29,7 @@ def generate_html(pathtoepub, logger):
         zip_extract(pathtoepub, tdir)
     except:
         if os.path.exists(tdir) and os.path.isdir(tdir):
-            shutil.rmtree(tdir)        
+            shutil.rmtree(tdir)
         raise ConversionError, '.epub extraction failed'
     return tdir
 
@@ -42,7 +42,7 @@ def process_file(path, options, logger=None):
     tdir = generate_html(epub, logger)
     try:
         ocf = OCFDirReader(tdir)
-        htmlfile = ocf.opf.spine.items().next().href
+        htmlfile = ocf.opf.spine[0].path
         options.opf = os.path.join(tdir, ocf.container[OPF.MIMETYPE])
         if not options.output:
             ext = '.lrs' if options.lrs else '.lrf'
@@ -61,7 +61,7 @@ def process_file(path, options, logger=None):
 def main(args=sys.argv, logger=None):
     parser = option_parser()
     options, args = parser.parse_args(args)
-    if len(args) != 2:            
+    if len(args) != 2:
         parser.print_help()
         print
         print 'No epub file specified'

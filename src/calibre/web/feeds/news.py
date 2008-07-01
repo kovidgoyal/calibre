@@ -678,7 +678,6 @@ class BasicNewsRecipe(object, LoggingInterface):
         ncx_path = os.path.join(dir, 'index.ncx')
         opf = OPFCreator(dir, mi)
         
-        
         manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
         manifest.append(os.path.join(dir, 'index.html'))
         cpath = getattr(self, 'cover_path', None) 
@@ -724,7 +723,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         else:
             entries.append('feed_%d/index.html'%0)
             feed_index(0, toc)
-                        
+        
+        for i, p in enumerate(entries):
+            entries[i] = os.path.join(dir, p.replace('/', os.sep))
         opf.create_spine(entries)
         opf.set_toc(toc)
         
@@ -855,7 +856,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
         mi.author_sort = __appname__        
         mi = OPFCreator(self.output_dir, mi)
         mi.create_manifest_from_files_in([self.output_dir])
-        mi.create_spine(['index.html'])
+        mi.create_spine([os.path.join(self.output_dir, 'index.html')])
         mi.render(open(os.path.join(self.output_dir, 'index.opf'), 'wb'))
     
     def download(self):

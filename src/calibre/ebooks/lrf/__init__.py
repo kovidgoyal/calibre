@@ -9,8 +9,6 @@ from optparse import OptionValueError
 from htmlentitydefs import name2codepoint
 from uuid import uuid4
 
-from fontTools.ttLib import TTLibError
-
 from calibre.ebooks.lrf.pylrs.pylrs import Book as _Book
 from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, \
                                              Paragraph, TextStyle, BlockStyle
@@ -120,7 +118,6 @@ def option_parser(usage, gui_mode=False):
                   dest='font_delta')
     laf.add_option('--ignore-colors', action='store_true', default=False, dest='ignore_colors',
                       help=_('Render all content as black on white instead of the colors specified by the HTML or CSS.'))
-
     
     page = parser.add_option_group('PAGE OPTIONS')
     profiles = profile_map.keys()
@@ -139,6 +136,11 @@ def option_parser(usage, gui_mode=False):
                     help=_('''Top margin of page. Default is %default px.'''))
     page.add_option('--bottom-margin', default=0, dest='bottom_margin', type='int',
                     help=_('''Bottom margin of page. Default is %default px.'''))
+    page.add_option('--render-tables-as-images', default=False, action='store_true',
+                   help=_('Render tables in the HTML as images (useful if the document has large or complex tables)'))
+    page.add_option('--text-size-multiplier-for-rendered-tables', type='float', default=1.0,
+                   help=_('Multiply the size of text in rendered tables by this factor. Default is %default'))
+    
     link = parser.add_option_group('LINK PROCESSING OPTIONS')
     link.add_option('--link-levels', action='store', type='int', default=sys.maxint, \
                       dest='link_levels',
@@ -154,12 +156,13 @@ def option_parser(usage, gui_mode=False):
     chapter = parser.add_option_group('CHAPTER OPTIONS')
     chapter.add_option('--disable-chapter-detection', action='store_true', 
                       default=False, dest='disable_chapter_detection', 
-                      help=_('''Prevent the automatic insertion of page breaks'''
-                      ''' before detected chapters.'''))
+                      help=_('''Prevent the automatic detection chapters.'''))
     chapter.add_option('--chapter-regex', dest='chapter_regex', 
                       default='chapter|book|appendix',
                       help=_('''The regular expression used to detect chapter titles.'''
-                      ''' It is searched for in heading tags (h1-h6). Defaults to %default'''))     
+                      ''' It is searched for in heading tags (h1-h6). Defaults to %default'''))
+    chapter.add_option('--chapter-attr', default='$,,$', 
+                       help=_('Detect a chapter beginning at an element having the specified attribute. The format for this option is tagname regexp,attribute name,attribute value regexp. For example to match all heading tags that have the attribute class="chapter" you would use "h\d,class,chapter". Default is %default'''))
     chapter.add_option('--page-break-before-tag', dest='page_break', default='h[12]',
                       help=_('''If html2lrf does not find any page breaks in the '''
                       '''html file and cannot detect chapter headings, it will '''

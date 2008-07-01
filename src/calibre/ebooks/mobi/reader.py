@@ -17,9 +17,10 @@ from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.mobi.palmdoc import decompress_doc
+from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFCreator
-
+from calibre.ebooks.metadata.toc import TOC
 
 class EXTHHeader(object):
     
@@ -44,27 +45,24 @@ class EXTHHeader(object):
                 self.cover_offset, = struct.unpack('>L', content)
             elif id == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
-        pos += 3
-        stop = raw[pos:].find('\x00')
-        if stop > -1:
-            self.mi.title = raw[pos:pos+stop].decode(codec, 'ignore')
+        title = re.search(r'\0+([^\0]+)\0+', raw[pos:])
+        if title:
+            self.mi.title = title.group(1).decode(codec, 'ignore')
             
                 
     def process_metadata(self, id, content, codec):
         if id == 100:
-            aus = content.split(',')
-            authors = []
-            for a in aus:
-                authors.extend(a.split('&'))
-            self.mi.authors = [i.decode(codec, 'ignore') for i in authors]
+            self.mi.authors   = [content.decode(codec, 'ignore').strip()]
         elif id == 101:
-            self.mi.publisher = content.decode(codec, 'ignore')
+            self.mi.publisher = content.decode(codec, 'ignore').strip()
         elif id == 103:
-            self.mi.comments = content.decode(codec, 'ignore')
+            self.mi.comments  = content.decode(codec, 'ignore')
         elif id == 104:
-            self.mi.isbn = content.decode(codec, 'ignore').strip().replace('-', '')
+            self.mi.isbn      = content.decode(codec, 'ignore').strip().replace('-', '')
         elif id == 105:
-            self.mi.category = content.decode(codec, 'ignore')
+            if not self.mi.tags:
+                self.mi.tags = []
+            self.mi.tags.append(content.decode(codec, 'ignore'))
          
             
 
@@ -74,6 +72,7 @@ class BookHeader(object):
         self.compression_type = raw[:2]
         self.records, self.records_size = struct.unpack('>HH', raw[8:12])
         self.encryption_type, = struct.unpack('>H', raw[12:14])
+        
         self.doctype = raw[16:20]
         self.length, self.type, self.codepage, self.unique_id, self.version = \
                  struct.unpack('>LLLLL', raw[20:40])
@@ -98,11 +97,18 @@ class BookHeader(object):
         if self.compression_type == 'DH':
             self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78]) 
         
+        langcode  = struct.unpack('!L', raw[0x5C:0x60])[0]
+        langid    = langcode & 0xFF
+        sublangid = (langcode >> 10) & 0xFF
+        self.language = main_language.get(langid, 'ENGLISH')
+        self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+        
         self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
         self.exth = None
         if self.exth_flag & 0x40:
             self.exth = EXTHHeader(raw[16+self.length:], self.codec)
             self.exth.mi.uid = self.unique_id
+            self.exth.mi.language = self.language
             
 
 class MobiReader(object):
@@ -156,7 +162,7 @@ class MobiReader(object):
         
         processed_records = self.extract_text()
         self.add_anchors()
-        self.processed_html = self.processed_html.decode(self.book_header.codec)
+        self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup()
@@ -166,27 +172,29 @@ class MobiReader(object):
                                      self.processed_html)
         
         soup = BeautifulSoup(self.processed_html.replace('> <', '>\n<'))
+        guide = soup.find('guide')
         for elem in soup.findAll(['metadata', 'guide']):
             elem.extract()
-        htmlfile = os.path.join(output_dir, self.name+'.html') 
+        htmlfile = os.path.join(output_dir, self.name+'.html')
+        for ref in guide.findAll('reference', href=True):
+            ref['href'] = os.path.basename(htmlfile)+ref['href']
         open(htmlfile, 'wb').write(unicode(soup).encode('utf8'))
         self.htmlfile = htmlfile
         
         if self.book_header.exth is not None:
-            opf = self.create_opf(htmlfile)
-            opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'))
+            ncx = cStringIO.StringIO()
+            opf = self.create_opf(htmlfile, guide)
+            opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx)
+            ncx = ncx.getvalue()
+            if ncx:
+                open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
         
     def cleanup(self):
-        self.processed_html = re.sub(r'<div height="0(em|%)"></div>', '',
-                                     self.processed_html)
-        self.processed_html = re.sub(r'<([^>]*) height="([^"]*)"',
-                                     r'<\1 style="margin-top: \2"',
-                                     self.processed_html)
-        self.processed_html = re.sub(r'<([^>]*) width="([^"]*)"',
-                                     r'<\1 style="text-indent: \2"',
-                                     self.processed_html)
+        self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
+        self.processed_html = re.sub(r'<([^>]*) height="([^"]*)"', r'<\1 style="margin-top: \2"', self.processed_html)
+        self.processed_html = re.sub(r'<([^>]*) width="([^"]*)"', r'<\1 style="text-indent: \2"', self.processed_html)
     
-    def create_opf(self, htmlfile):
+    def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
         opf = OPFCreator(os.path.dirname(htmlfile), mi)
         if hasattr(self.book_header.exth, 'cover_offset'):
@@ -198,6 +206,28 @@ class MobiReader(object):
         
         opf.create_manifest(manifest)
         opf.create_spine([os.path.basename(htmlfile)])
+        toc = None
+        if guide:
+            opf.create_guide(guide)
+            for ref in opf.guide:
+                if ref.type.lower() == 'toc':
+                    toc = ref.href()
+        if toc:
+            index = self.processed_html.find('<a name="%s"'%toc.partition('#')[-1])
+            tocobj = None
+            if index > -1:
+                raw = '<html><body>'+self.processed_html[index:]
+                soup = BeautifulSoup(raw)
+                tocobj = TOC()
+                for a in soup.findAll('a', href=True):
+                    try:
+                        text = ''.join(a.findAll(text=True)).strip()
+                    except:
+                        text = ''
+                    tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
+            if tocobj is not None:
+                opf.set_toc(tocobj)
+        
         return opf
         
         
@@ -222,7 +252,6 @@ class MobiReader(object):
         
         elif self.book_header.compression_type == '\x00\x01':
             self.mobi_html = ''.join(text_sections)
-        
         else:
             raise MobiError('Unknown compression algorithm: %s'%repr(self.book_header.compression_type))
         
@@ -235,7 +264,7 @@ class MobiReader(object):
     
     def add_anchors(self):
         positions = set([])
-        link_pattern = re.compile(r'<a\s+filepos=(\d+)', re.IGNORECASE)
+        link_pattern = re.compile(r'<[^<>]+filepos=[\'"]{0,1}(\d+)[^<>]*>', re.IGNORECASE)
         for match in link_pattern.finditer(self.mobi_html):
             positions.add(int(match.group(1)))
         positions = list(positions)
@@ -252,7 +281,10 @@ class MobiReader(object):
             pos = end
             
         self.processed_html += self.mobi_html[pos:]
-        self.processed_html = link_pattern.sub(lambda match: '<a href="#filepos%d"'%int(match.group(1)), 
+        fpat = re.compile(r'filepos=[\'"]{0,1}(\d+)[\'"]{0,1}', re.IGNORECASE)
+        def fpos_to_href(match):
+            return fpat.sub('href="#filepos%d"'%int(match.group(1)), match.group())
+        self.processed_html = link_pattern.sub(fpos_to_href, 
                                                self.processed_html)
         
     def extract_images(self, processed_records, output_dir):

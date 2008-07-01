@@ -86,17 +86,34 @@ class DeviceJob(Job):
         
 class ConversionJob(Job):
     ''' Jobs that involve conversion of content.'''
-    def run(self):
-        last_traceback, exception = None, None
-        try:
-            self.result, exception, last_traceback, self.log = \
-                self.server.run(self.id, self.func, self.args, self.kwargs)
-        except Exception, err:
-            last_traceback = traceback.format_exc()
-            exception = (exception.__class__.__name__, unicode(str(err), 'utf8', 'replace'))
-            
-        self.last_traceback, self.exception = last_traceback, exception
+    def __init__(self, *args, **kwdargs):
+        Job.__init__(self, *args, **kwdargs)
+        self.log = ''
         
+    def run(self):
+        result = None
+        self.server.run_job(self.id, self.func, progress=self.progress,
+                                args=self.args, kwdargs=self.kwargs, 
+                                output=self.output)
+        res = None
+        while res is None:
+            time.sleep(2)
+            res = self.server.result(self.id)
+        if res is None:
+            exception, tb = 'UnknownError: This should not have happened', ''
+        else:
+            result, exception, tb = res
+        self.result, self.last_traceback, self.exception = result, tb, exception
+        
+    def output(self, msg):
+        if self.log is None:
+            self.log = ''
+        self.log += msg
+        self.emit(SIGNAL('output_received()'))
+    
+    def formatted_log(self):
+        return '<h2>Log:</h2><pre>%s</pre>'%self.log
+    
     def notify(self):
         self.emit(SIGNAL('jobdone(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)'), 
                   self.id, self.description, self.result, self.exception, self.last_traceback, self.log)
@@ -109,9 +126,12 @@ class ConversionJob(Job):
     def formatted_error(self):
         if self.exception is None:
             return ''
-        ans = u'<p><b>%s</b>: %s</p>'%self.exception
+        ans = u'<p><b>%s</b>:'%self.exception
         ans += '<h2>Traceback:</h2><pre>%s</pre>'%self.last_traceback
         return ans
+    
+    def progress(self, percent, msg):
+        self.emit(SIGNAL('update_progress(int, PyQt_PyObject)'), self.id, percent)
         
 class JobManager(QAbstractTableModel):
     
@@ -149,9 +169,9 @@ class JobManager(QAbstractTableModel):
             try:
                 if isinstance(job, DeviceJob):
                     job.terminate()
-                self.process_server.kill(job.id)
             except:
                 continue
+        self.process_server.killall()
     
     def timerEvent(self, event):
         if event.timerId() == self.timer_id:
@@ -241,7 +261,10 @@ class JobManager(QAbstractTableModel):
         id = self.next_id
         job = job_class(id, description, slot, priority, *args, **kwargs)
         job.server = self.process_server
-        QObject.connect(job, SIGNAL('status_update(int, int)'), self.status_update, Qt.QueuedConnection)
+        QObject.connect(job, SIGNAL('status_update(int, int)'), self.status_update, 
+                        Qt.QueuedConnection)
+        self.connect(job, SIGNAL('update_progress(int, PyQt_PyObject)'), 
+                     self.update_progress, Qt.QueuedConnection)
         self.update_lock.lock()
         self.add_queue.append(job)
         self.update_lock.unlock()            
@@ -358,10 +381,19 @@ class JobManager(QAbstractTableModel):
                 _('Cannot kill already completed jobs.')).exec_()
             return
         if status == 1:
-            error_dialog(gui_parent, _('Cannot kill job'), 
-                _('Cannot kill waiting jobs.')).exec_()
-            return
-        self.process_server.kill(job.id)
+            self.update_lock.lock()
+            try:
+                self.waiting_jobs.remove(job)
+                self.finished_jobs.append(job)
+                self.emit(SIGNAL('job_done(int)'), job.id)
+                job.result = self.process_server.KILL_RESULT    
+            finally:
+                self.update_lock.unlock()
+        else:
+            self.process_server.kill(job.id)
+        self.reset()
+        if len(self.running_jobs) + len(self.waiting_jobs) == 0:
+            self.emit(SIGNAL('no_more_jobs()'))
 
 class DetailView(QDialog, Ui_Dialog):
     
@@ -370,11 +402,14 @@ class DetailView(QDialog, Ui_Dialog):
         self.setupUi(self)
         self.setWindowTitle(job.description)
         self.job = job
-        txt = self.job.formatted_error() + self.job.formatted_log()
+        self.connect(self.job, SIGNAL('output_received()'), self.update)
+        self.update()
         
+            
+    def update(self):
+        txt = self.job.formatted_error() + self.job.formatted_log()
         if not txt:
             txt = 'No details available'
-            
         self.log.setHtml(txt)
-            
-        
+        vbar = self.log.verticalScrollBar()
+        vbar.setValue(vbar.maximum())
