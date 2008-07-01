@@ -368,9 +368,10 @@ class HTMLConverter(object, LoggingInterface):
             else:
                 self.css[selector] = self.override_css[selector]
         
-        self.file_name = os.path.basename(path)
-        self.log_info(_('Processing %s'), path if self.verbose else self.file_name)
-        upath = path.encode('utf-8') if isinstance(path, unicode) else path
+        upath = path.encode(sys.getfilesystemencoding()) if isinstance(path, unicode) else path
+        self.file_name = os.path.basename(upath.decode(sys.getfilesystemencoding()))
+        self.log_info(_('Processing %s'), repr(upath) if self.verbose else repr(self.file_name))
+        
         if not os.path.exists(upath):
             upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names 
         f = open(upath, 'rb')
@@ -1799,6 +1800,7 @@ def process_file(path, options, logger=None):
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('html2lrf')
         setup_cli_handlers(logger, level)
+    
     if not isinstance(path, unicode):
         path = path.decode(sys.getfilesystemencoding())
     path = os.path.abspath(path)
