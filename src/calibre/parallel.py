@@ -341,8 +341,11 @@ class Overseer(object):
                 pass
         else:
             try:
-                self.os.kill(self.worker_pid, self.signal.SIGKILL)
-                time.sleep(0.05)
+                try:
+                    self.os.kill(self.worker_pid, self.signal.SIGKILL)
+                    time.sleep(0.5)
+                finally:
+                    self.worker_status.kill()
             except:
                 pass
     
