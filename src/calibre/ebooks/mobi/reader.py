@@ -176,8 +176,11 @@ class MobiReader(object):
         for elem in soup.findAll(['metadata', 'guide']):
             elem.extract()
         htmlfile = os.path.join(output_dir, self.name+'.html')
-        for ref in guide.findAll('reference', href=True):
-            ref['href'] = os.path.basename(htmlfile)+ref['href']
+        try:
+            for ref in guide.findAll('reference', href=True):
+                ref['href'] = os.path.basename(htmlfile)+ref['href']
+        except AttributeError:
+            pass
         open(htmlfile, 'wb').write(unicode(soup).encode('utf8'))
         self.htmlfile = htmlfile
         
