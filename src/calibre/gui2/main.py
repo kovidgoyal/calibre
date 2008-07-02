@@ -20,7 +20,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, \
-                           SingleApplication, Application, available_height
+                           SingleApplication, Application, available_height, max_available_height
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
@@ -45,8 +45,6 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
-
-
 
 class Main(MainWindow, Ui_MainWindow):
     
@@ -233,7 +231,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.status_bar.cover_flow_button.disable(pictureflowerror)
             
         
-        self.setMaximumHeight(available_height())
+        self.setMaximumHeight(max_available_height())
              
         ####################### Setup device detection ########################
         self.detector = DeviceDetector(sleep_time=2000)
