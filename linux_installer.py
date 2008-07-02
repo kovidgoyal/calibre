@@ -133,7 +133,7 @@ for dirpath, dirnames, filenames in os.walk(plugdir):
 binaries += plugins
 
 manifest = '/tmp/manifest'
-open(manifest, 'wb').write('\\n'.join(executables))
+open(manifest, 'wb').write('\n'.join(executables))
 version = '/tmp/version'
 open(version, 'wb').write(__version__)
 coll = COLLECT(binaries, pyz, 
