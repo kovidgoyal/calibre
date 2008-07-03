@@ -517,7 +517,7 @@ class Main(MainWindow, Ui_MainWindow):
         view = self.card_view if on_card else self.memory_view    
         view.model().resort(reset=False)
         view.model().research()
-        if memory[1]:
+        if memory and memory[1]:
             rows = map(self.library_view.model().db.index, memory[1])
             self.library_view.model().delete_books(rows)
             
