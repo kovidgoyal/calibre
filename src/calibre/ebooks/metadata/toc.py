@@ -65,8 +65,8 @@ class TOC(list):
                 toc = opfreader.soup.find('guide').find('reference', attrs={'type':'toc'})['href']
             except:
                 for item in opfreader.manifest:
-                    if 'toc' in item.href.lower():
-                        toc = item.href
+                    if 'toc' in item.href().lower():
+                        toc = item.href()
                         break
         
         if toc is not None:
@@ -120,6 +120,9 @@ class TOC(list):
                     process_navpoint(c, nd)
             
         nm = soup.find('navmap')
+        if nm is None:
+            raise ValueError('NCX files must have a <navmap> element.')
+        
         for elem in nm:
             if getattr(elem, 'name', None) == 'navpoint':
                 process_navpoint(elem, self)
@@ -138,7 +141,7 @@ class TOC(list):
 
     def render(self, stream, uid):
         from calibre.resources import ncx_template
-        from genshi.template import MarkupTemplate
+        from calibre.utils.genshi.template import MarkupTemplate
         doctype = ('ncx', "-//NISO//DTD ncx 2005-1//EN", "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd")
         template = MarkupTemplate(ncx_template)
         raw = template.generate(uid=uid, toc=self, __appname__=__appname__)

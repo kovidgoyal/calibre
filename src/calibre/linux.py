@@ -46,9 +46,10 @@ entry_points = {
                              'librarything = calibre.ebooks.metadata.library_thing:main',
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
-                             'calibre-debug = calibre.debug:main',
-                             'calibredb = calibre.library.cli:main',
+                             'calibre-debug      = calibre.debug:main',
+                             'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
+                             'calibre-parallel   = calibre.parallel:main',
                            ], 
         'gui_scripts'    : [ 
                             __appname__+' = calibre.gui2.main:main',
@@ -353,13 +354,20 @@ def install_man_pages(fatal_errors):
         prog = src[:src.index('=')].strip()
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta', 
                     'markdown-calibre', 'calibre-debug', 'fb2-meta',
-                    'calibre-fontconfig'):
+                    'calibre-fontconfig', 'calibre-parallel'):
             continue
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
                     '--section', '1', '--no-info', '--include',
                     f.name, '--manual', __appname__)
         manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
-        p = subprocess.Popen(help2man, stdout=subprocess.PIPE)
+        try:
+            p = subprocess.Popen(help2man, stdout=subprocess.PIPE)
+        except OSError, err:
+            import errno
+            if err.errno != errno.ENOENT:
+                raise
+            print 'Failed to install MAN pages as help2man is missing from your system'
+            break
         raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', p.stdout.read())
         if not raw.strip():
             print 'Unable to create MAN page for', prog

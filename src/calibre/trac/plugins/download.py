@@ -37,7 +37,6 @@ class Distribution(object):
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('convertlit', '1.8', 'convertlit', None, None),
         ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
-        ('genshi', '0.4.4', 'genshi', 'python-genshi', 'python-genshi'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
     
@@ -81,9 +80,8 @@ class Distribution(object):
             self.command = cmd.strip()
             easy_install = 'easy_install'
             if os == 'debian':
-                self.command += '\n'+prefix + 'cp -R /usr/share/pycentral/fonttools/site-packages/FontTools* /usr/lib/python2.5/site-packages/'
                 easy_install = 'easy_install-2.5'
-            self.command += '\n'+prefix+easy_install+' -U TTFQuery calibre \n'+prefix+'calibre_postinstall'
+            self.command += '\n'+prefix+easy_install+' -U calibre \n'+prefix+'calibre_postinstall'
             try:
                 self.manual = Markup(self.MANUAL_MAP[os])
             except KeyError:
@@ -231,7 +229,7 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
     
     def linux(self, req):
         operating_systems = [
-            OS({'name' : 'binary', 'title': 'All distros'}),
+            OS({'name' : 'binary', 'title': 'Distro neutral'}),
             OS({'name' : 'gentoo', 'title': 'Gentoo'}),
             OS({'name' : 'ubuntu', 'title': 'Ubuntu'}),
             OS({'name' : 'fedora', 'title': 'Fedora'}),

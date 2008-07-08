@@ -126,7 +126,7 @@ class ConversionJob(Job):
     def formatted_error(self):
         if self.exception is None:
             return ''
-        ans = u'<p><b>%s</b>: %s</p>'%self.exception
+        ans = u'<p><b>%s</b>:'%self.exception
         ans += '<h2>Traceback:</h2><pre>%s</pre>'%self.last_traceback
         return ans
     
@@ -381,10 +381,19 @@ class JobManager(QAbstractTableModel):
                 _('Cannot kill already completed jobs.')).exec_()
             return
         if status == 1:
-            error_dialog(gui_parent, _('Cannot kill job'), 
-                _('Cannot kill waiting jobs.')).exec_()
-            return
-        self.process_server.kill(job.id)
+            self.update_lock.lock()
+            try:
+                self.waiting_jobs.remove(job)
+                self.finished_jobs.append(job)
+                self.emit(SIGNAL('job_done(int)'), job.id)
+                job.result = self.process_server.KILL_RESULT    
+            finally:
+                self.update_lock.unlock()
+        else:
+            self.process_server.kill(job.id)
+        self.reset()
+        if len(self.running_jobs) + len(self.waiting_jobs) == 0:
+            self.emit(SIGNAL('no_more_jobs()'))
 
 class DetailView(QDialog, Ui_Dialog):
     

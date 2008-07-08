@@ -1376,6 +1376,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('VACUUM;')
         self.conn.commit()
     
+    def all_ids(self):
+        return [i[0] for i in self.conn.execute('SELECT id FROM books').fetchall()]
+    
     def export_to_dir(self, dir, indices, byauthor=False, single_dir=False,
                       index_is_id=False):
         if not os.path.exists(dir):
@@ -1410,7 +1413,6 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 name = au + ' - ' + title if byauthor else title + ' - ' + au
                 name += '_'+id
                 base  = dir if single_dir else tpath
-                
                 mi = OPFCreator(base, self.get_metadata(idx, index_is_id=index_is_id))
                 cover = self.cover(idx, index_is_id=index_is_id)
                 if cover is not None:
@@ -1537,6 +1539,25 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             if res is not None:
                 duplicates.extend(res)
         return duplicates
+    
+    def export_single_format_to_dir(self, dir, indices, format, index_is_id=False):
+        if not index_is_id:
+            indices = map(self.id, indices)
+        failures = []
+        for id in indices:
+            try:
+                data = self.format(id, format, index_is_id=True)
+            except:
+                failures.append((id, self.title(id, index_is_id=True)))
+            title = self.title(id, index_is_id=True)
+            au = self.authors(id, index_is_id=True)
+            if not au:
+                au = _('Unknown')
+            fname = '%s - %s.%s'%(title, au, format.lower())
+            fname = sanitize_file_name(fname)
+            open(os.path.join(dir, fname), 'wb').write(data)
+        return failures
+                
                 
 
 class SearchToken(object):

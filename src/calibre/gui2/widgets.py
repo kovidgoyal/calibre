@@ -231,7 +231,7 @@ class JobsView(TableView):
     
     def __init__(self, parent):
         TableView.__init__(self, parent)
-        self.connect(self, SIGNAL('activated(QModelIndex)'), self.show_details)
+        self.connect(self, SIGNAL('doubleClicked(QModelIndex)'), self.show_details)
         
     def show_details(self, index):
         row = index.row()

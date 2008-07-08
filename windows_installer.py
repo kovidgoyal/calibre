@@ -411,7 +411,6 @@ SectionEnd
         self.installer = self.__class__.TEMPLATE % dict(name=name, py2exe_dir=py2exe_dir,
                                                    version=VERSION,
                                                    outpath=os.path.abspath(output_dir))
-
     def build(self):
         f = open('installer.nsi', 'w')
         path = f.name
@@ -509,9 +508,10 @@ class BuildEXE(build_exe):
             shutil.copytree(imfd, tg)
 
         print
-        print 'Adding GUI main.py'
+        print 'Adding main scripts'
         f = zipfile.ZipFile(os.path.join('build', 'py2exe', 'library.zip'), 'a', zipfile.ZIP_DEFLATED)
-        f.write('src\\calibre\\gui2\\main.py', 'calibre\\gui2\\main.py')
+        for i in scripts['console'] + scripts['gui']:
+            f.write(i, i.partition('\\')[-1])
         f.close()
 
         print
@@ -536,8 +536,9 @@ class BuildEXE(build_exe):
 
 def main():
     sys.argv[1:2] = ['py2exe']
+
     console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i])
-               for i in range(len(scripts['console']))]
+               for i in range(len(scripts['console']))]# if not 'parallel.py' in scripts['console'][i] ]
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     setup(
           cmdclass = {'py2exe': BuildEXE},
@@ -561,6 +562,9 @@ def main():
                                              'sip', 'pkg_resources', 'PyQt4.QtSvg',
                                              'mechanize', 'ClientForm', 'wmi',
                                              'win32file', 'pythoncom', 'rtf2xml',
+                                             'win32process', 'win32api', 'msvcrt',
+                                             'win32event', 'calibre.ebooks.lrf.any.*',
+                                             'calibre.ebooks.lrf.feeds.*',
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*', 'PyQt4.QtWebKit',

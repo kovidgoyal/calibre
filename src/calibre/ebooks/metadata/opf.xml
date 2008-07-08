@@ -9,7 +9,8 @@
         <dc:title py:with="attrs={'files-as':mi.title_sort}" py:attrs="attrs">${mi.title}</dc:title>
         <dc:creator opf:role="aut" py:for="i, author in enumerate(mi.authors)" py:with="attrs={'file-as':mi.author_sort if i==0 else None}" py:attrs="attrs">${author}</dc:creator>
         <dc:identifier scheme="${__appname__}" id="${__appname__}_id">${mi.application_id}</dc:identifier>
-
+    
+        <dc:language>${mi.language if mi.language else 'Unknown'}</dc:language>
         <dc:type py:if="mi.category">${mi.category}</dc:type>
         <dc:description py:if="mi.comments">${mi.comments}</dc:description>
         <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>
@@ -17,23 +18,28 @@
         <series py:if="mi.series">${mi.series}</series>
         <series-index py:if="mi.series_index is not None">${mi.series_index}</series-index>
         <rating py:if="mi.rating is not None">${mi.rating}</rating>
-        <dc:subject py:if="mi.tags is not None" py:for="tag in mi.tags">${tag}</dc:subject>
+        <py:for each="tag in mi.tags">
+        <dc:subject py:if="mi.tags is not None">${tag}</dc:subject>
+        </py:for>
     </metadata>
     
-    <guide>
-        <reference py:if="mi.cover" type="cover" href="${mi.cover}" /> 
+    <guide py:if="getattr(mi, 'guide', None)">
+    <py:for each="ref in mi.guide">
+        <reference type="${ref.type}" href="${ref.href()}" py:with="attrs={'title': ref.title if ref.title else None}" py:attrs="attrs" /> 
+    </py:for>    
     </guide>
-    
-    <manifest py:if="getattr(mi, 'manifest', None)">
-        <py:for each="i, m in enumerate(mi.manifest)">
-        <item id="${str(i)}" href="${m[0]}" media-type="${m[1]}" /> 
-        </py:for>
-    </manifest>
     
     <spine py:if="getattr(mi, 'spine', None)" 
            py:with="attrs={'toc':'ncx' if mi.toc else None}" py:attrs="attrs">
-        <py:for each="idref in mi.spine">
-        <itemref idref="${str(idref)}" />
+        <py:for each="resource in mi.spine">
+        <itemref idref="${resource.id}" />
         </py:for>
-    </spine>    
+    </spine> 
+    
+    <manifest py:if="getattr(mi, 'manifest', None)">
+        <py:for each="ref in mi.manifest">
+        <item id="${ref.id}" href="${ref.href()}" media-type="${ref.mime_type}" /> 
+        </py:for>
+    </manifest>
+       
 </package>

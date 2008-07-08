@@ -9,6 +9,7 @@ __docformat__ = "restructuredtext en"
 
 import logging, os, cStringIO, time, traceback, re, urlparse
 from collections import defaultdict
+from functools import partial
 
 from calibre import browser, __appname__, iswindows, LoggingInterface, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
@@ -678,7 +679,6 @@ class BasicNewsRecipe(object, LoggingInterface):
         ncx_path = os.path.join(dir, 'index.ncx')
         opf = OPFCreator(dir, mi)
         
-        
         manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
         manifest.append(os.path.join(dir, 'index.html'))
         cpath = getattr(self, 'cover_path', None) 
@@ -724,7 +724,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         else:
             entries.append('feed_%d/index.html'%0)
             feed_index(0, toc)
-                        
+        
+        for i, p in enumerate(entries):
+            entries[i] = os.path.join(dir, p.replace('/', os.sep))
         opf.create_spine(entries)
         opf.set_toc(toc)
         
@@ -811,6 +813,14 @@ class BasicNewsRecipe(object, LoggingInterface):
                     strings.append(item['alt'])
         return u''.join(strings)
     
+    @classmethod
+    def soup(cls, raw):
+        entity_replace = [(re.compile(ur'&(\S+?);'), partial(entity_to_unicode, 
+                                                           exceptions=[]))]
+        nmassage = list(BeautifulSoup.MARKUP_MASSAGE)
+        nmassage.extend(entity_replace)
+        return BeautifulSoup(raw, markupMassage=nmassage)
+    
 class Profile2Recipe(BasicNewsRecipe):
     '''
     Used to migrate the old news Profiles to the new Recipes. Uses the settings
@@ -855,7 +865,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
         mi.author_sort = __appname__        
         mi = OPFCreator(self.output_dir, mi)
         mi.create_manifest_from_files_in([self.output_dir])
-        mi.create_spine(['index.html'])
+        mi.create_spine([os.path.join(self.output_dir, 'index.html')])
         mi.render(open(os.path.join(self.output_dir, 'index.opf'), 'wb'))
     
     def download(self):

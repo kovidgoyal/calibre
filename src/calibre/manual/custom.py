@@ -10,7 +10,7 @@ from sphinx.ext.autodoc import get_module_charset, prepare_docstring
 from docutils.statemachine import ViewList
 from docutils import nodes
 
-from genshi.template import TextTemplate
+from genshi.template import OldTextTemplate as TextTemplate
 sys.path.append(os.path.abspath('../../../'))
 from calibre.linux import entry_points
 

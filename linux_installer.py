@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Create linux binary.
 '''
-import glob, sys, subprocess, tarfile, os, re
+import glob, sys, subprocess, tarfile, os, re, py_compile
 HOME           = '/home/kovid'
 PYINSTALLER    = os.path.expanduser('~/build/pyinstaller')
 CALIBREPREFIX  = '___'
@@ -30,7 +30,7 @@ def run_pyinstaller(args=sys.argv):
     subprocess.check_call('make plugins', shell=True)
     cp = HOME+'/build/'+os.path.basename(os.getcwd())
     spec = open(os.path.join(PYINSTALLER, 'calibre', 'calibre.spec'), 'wb')
-    raw = re.sub(r'CALIBREPREFIX\s+=\s+\'___\'', 'CALIBREPREFIX = '+repr(cp), 
+    raw = re.sub(r'CALIBREPREFIX\s+=\s+\'___\'', 'CALIBREPREFIX = '+repr(cp),
                  open(__file__).read())
     spec.write(raw)
     spec.close()
@@ -64,12 +64,14 @@ temp = ['keyword', 'codeop']
 
 recipes = ['calibre', 'web', 'feeds', 'recipes']
 prefix  = '.'.join(recipes)+'.'
+recipes_toc = []
+extra_toc = [
+        ('keyword', '/usr/lib/python2.5/keyword.pyo', 'PYSOURCE'),
+        ('codeop', '/usr/lib/python2.5/codeop.pyo', 'PYSOURCE')
+        ]
 for f in glob.glob(os.path.join(CALIBRESRC, *(recipes+['*.py']))):
-    temp.append(prefix + os.path.basename(f).partition('.')[0])
-hook = os.path.expanduser('~/temp/hook-calibre.py')
-f = open(hook, 'wb')
-hook_script = 'hiddenimports = %s'%repr(temp)
-f.write(hook_script)
+    py_compile.compile(f, doraise=True)
+    recipes_toc.append((prefix + os.path.basename(f).partition('.')[0], f+'o', 'PYSOURCE'))
 
 sys.path.insert(0, CALIBRESRC)
 from calibre.linux import entry_points
@@ -82,18 +84,19 @@ for entry in entry_points['console_scripts'] + entry_points['gui_scripts']:
     executables.append(fields[0].strip())
     scripts.append(os.path.join(CALIBRESRC, *map(lambda x: x.strip(), fields[1].split(':')[0].split('.')))+'.py')
 
-recipes = Analysis(glob.glob(os.path.join(CALIBRESRC, 'calibre', 'web', 'feeds', 'recipes', '*.py')),
-                   pathex=[CALIBRESRC], hookspath=[os.path.dirname(hook)], excludes=excludes)
 analyses = [Analysis([os.path.join(HOMEPATH,'support/_mountzlib.py'), os.path.join(HOMEPATH,'support/useUnicode.py'), loader, script],
              pathex=[PYINSTALLER, CALIBRESRC, CALIBREPLUGINS], excludes=excludes) for script in scripts]
 
 pyz = TOC()
 binaries = TOC()
 
+pyz += extra_toc
+pyz += recipes_toc
+
 for a in analyses:
     pyz = a.pure + pyz
     binaries = a.binaries + binaries
-pyz = PYZ(pyz + recipes.pure, name='library.pyz')
+pyz = PYZ(pyz, name='library.pyz')
 
 built_executables = []
 for script, exe, a in zip(scripts, executables, analyses):
@@ -130,7 +133,7 @@ for dirpath, dirnames, filenames in os.walk(plugdir):
 binaries += plugins
 
 manifest = '/tmp/manifest'
-open(manifest, 'wb').write('\\n'.join(executables))
+open(manifest, 'wb').write('\n'.join(executables))
 version = '/tmp/version'
 open(version, 'wb').write(__version__)
 coll = COLLECT(binaries, pyz, 

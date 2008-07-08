@@ -13,9 +13,6 @@ print 'Setup', APPNAME, 'version:', VERSION
 epsrc = re.compile(r'entry_points = (\{.*?\})', re.DOTALL).search(open('src/%s/linux.py'%APPNAME, 'rb').read()).group(1)
 entry_points = eval(epsrc, {'__appname__': APPNAME})
 
-if 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower():
-    entry_points['console_scripts'].append('parallel = %s.parallel:main'%APPNAME)
-
 def _ep_to_script(ep, base='src'):
     return (base+os.path.sep+re.search(r'.*=\s*(.*?):', ep).group(1).replace('.', '/')+'.py').strip()
 

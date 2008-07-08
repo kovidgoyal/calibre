@@ -13,13 +13,17 @@
    <string>Details of job</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/view.svg</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/view.svg</normaloff>:/images/view.svg</iconset>
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" >
-    <widget class="QTextBrowser" name="log" >
-     <property name="lineWrapMode" >
-      <enum>QTextEdit::NoWrap</enum>
+    <widget class="QTextEdit" name="log" >
+     <property name="undoRedoEnabled" >
+      <bool>false</bool>
+     </property>
+     <property name="readOnly" >
+      <bool>true</bool>
      </property>
     </widget>
    </item>

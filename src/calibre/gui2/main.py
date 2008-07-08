@@ -10,7 +10,8 @@ from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    Settings, pictureflowerror, iswindows, isosx
+                    Settings, pictureflowerror, iswindows, isosx,\
+    preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from calibre.devices.errors import FreeSpaceError
@@ -19,11 +20,11 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, \
-                           SingleApplication, Application, available_height
+                           SingleApplication, Application, available_height, max_available_height
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
-from calibre.gui2.main_window import MainWindow
+from calibre.gui2.main_window import MainWindow, option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceDetector, DeviceManager
 from calibre.gui2.status import StatusBar
@@ -46,7 +47,6 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 
-
 class Main(MainWindow, Ui_MainWindow):
 
     def set_default_thumbnail(self, height):
@@ -58,8 +58,8 @@ class Main(MainWindow, Ui_MainWindow):
         p.end()
         self.default_thumbnail = (pixmap.width(), pixmap.height(), pixmap_to_data(pixmap))
 
-    def __init__(self, single_instance, parent=None):
-        MainWindow.__init__(self, parent)
+    def __init__(self, single_instance, opts, parent=None):
+        MainWindow.__init__(self, opts, parent)
         self.single_instance = single_instance
         if self.single_instance is not None:
             self.connect(self.single_instance, SIGNAL('message_received(PyQt_PyObject)'),
@@ -112,6 +112,19 @@ class Main(MainWindow, Ui_MainWindow):
         sm = QMenu()
         sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory'))
         sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card'))
+        sm.addAction(QIcon(':/images/reader.svg'), _('Send to main memory')+' '+_('and delete from library'))
+        sm.addAction(QIcon(':/images/sd.svg'), _('Send to storage card')+' '+_('and delete from library'))
+        sm.addSeparator()
+        sm.addAction(_('Send to storage card by default'))
+        sm.actions()[-1].setCheckable(True)
+        def default_sync(checked):
+            Settings().set('send to device by default', bool(checked))
+            QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)
+            QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card)
+            QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card if checked else self.sync_to_main_memory)
+        QObject.connect(sm.actions()[-1], SIGNAL('toggled(bool)'), default_sync)
+        sm.actions()[-1].setChecked(Settings().get('send to device by default', False))
+        default_sync(sm.actions()[-1].isChecked())
         self.sync_menu = sm # Needed
         md = QMenu()
         md.addAction(_('Edit metadata individually'))
@@ -128,14 +141,16 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.add_menu.actions()[2], SIGNAL("triggered(bool)"), self.add_recursive_multiple)
         QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit_metadata)
-        QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), self.edit_metadata)
+        QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), partial(self.edit_metadata, bulk=False))
         QObject.connect(md.actions()[1], SIGNAL('triggered(bool)'), self.edit_bulk_metadata)
-        QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)
         QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
         QObject.connect(sm.actions()[1], SIGNAL('triggered(bool)'), self.sync_to_card)
+        QObject.connect(sm.actions()[2], SIGNAL('triggered(bool)'), partial(self.sync_to_main_memory, delete_from_library=True))
+        QObject.connect(sm.actions()[3], SIGNAL('triggered(bool)'), partial(self.sync_to_card, delete_from_library=True))
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
+        self.save_menu.addAction(_('Save only %s format to disk')%Settings().get('save to disk single format', 'lrf').upper())
 
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'))
@@ -144,6 +159,7 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_save, SIGNAL("triggered(bool)"), self.save_to_disk)
         QObject.connect(self.save_menu.actions()[0], SIGNAL("triggered(bool)"), self.save_to_disk)
         QObject.connect(self.save_menu.actions()[1], SIGNAL("triggered(bool)"), self.save_to_single_dir)
+        QObject.connect(self.save_menu.actions()[2], SIGNAL("triggered(bool)"), self.save_single_format_to_disk)
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[0], SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[1], SIGNAL("triggered(bool)"), self.view_specific_format)
@@ -229,7 +245,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.status_bar.cover_flow_button.disable(pictureflowerror)
 
 
-        self.setMaximumHeight(available_height())
+        self.setMaximumHeight(max_available_height())
 
         ####################### Setup device detection ########################
         self.detector = DeviceDetector(sleep_time=2000)
@@ -251,8 +267,6 @@ class Main(MainWindow, Ui_MainWindow):
             self.cover_flow.setVisible(False)
             self.status_bar.book_info.book_data.setMaximumHeight(1000)
         self.setMaximumHeight(available_height())
-
-
 
 
     def sync_cf_to_listview(self, index, *args):
@@ -496,7 +510,8 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         Called once books have been uploaded.
         '''
-        metadata, on_card = self.upload_memory.pop(id)[:2]
+        metadata, on_card, memory = self.upload_memory.pop(id)
+
         if exception:
             if isinstance(exception, FreeSpaceError):
                 where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
@@ -516,6 +531,9 @@ class Main(MainWindow, Ui_MainWindow):
         view = self.card_view if on_card else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
+        if memory and memory[1]:
+            rows = map(self.library_view.model().db.index, memory[1])
+            self.library_view.model().delete_books(rows)
 
 
     ############################################################################
@@ -563,17 +581,19 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
 
     ############################### Edit metadata ##############################
-    def edit_metadata(self, checked):
+    def edit_metadata(self, checked, bulk=None):
         '''
-        Edit metadata of selected books in library individually.
+        Edit metadata of selected books in library.
         '''
         rows = self.library_view.selectionModel().selectedRows()
-        if len(rows) > 1:
-            return self.edit_bulk_metadata(checked)
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot edit metadata'), _('No books selected'))
             d.exec_()
             return
+
+        if bulk or (bulk is None and len(rows) > 1):
+            return self.edit_bulk_metadata(checked)
+
         for row in rows:
             d = MetadataSingleDialog(self, row.row(),
                                     self.library_view.model().db)
@@ -598,11 +618,11 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
 
     ############################# Syncing to device#############################
-    def sync_to_main_memory(self, checked):
-        self.sync_to_device(False)
+    def sync_to_main_memory(self, checked, delete_from_library=False):
+        self.sync_to_device(False, delete_from_library)
 
-    def sync_to_card(self, checked):
-        self.sync_to_device(True)
+    def sync_to_card(self, checked, delete_from_library=False):
+        self.sync_to_device(True, delete_from_library)
 
     def cover_to_thumbnail(self, data):
         p = QPixmap()
@@ -613,7 +633,7 @@ class Main(MainWindow, Ui_MainWindow):
             p = p.scaledToHeight(ht, Qt.SmoothTransformation)
             return (p.width(), p.height(), pixmap_to_data(p))
 
-    def sync_to_device(self, on_card):
+    def sync_to_device(self, on_card, delete_from_library):
         rows = self.library_view.selectionModel().selectedRows()
         if not self.device_manager or not rows or len(rows) == 0:
             return
@@ -661,7 +681,8 @@ class Main(MainWindow, Ui_MainWindow):
                 else:
                     prefix = prefix.decode('ascii', 'ignore').encode('ascii', 'ignore')
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
-        self.upload_books(gf, names, good, on_card, memory=_files)
+        remove = [self.library_view.model().id(r) for r in rows] if delete_from_library else []
+        self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
             bad = '\n'.join('<li>%s</li>'%(i,) for i in bad)
@@ -673,20 +694,32 @@ class Main(MainWindow, Ui_MainWindow):
     ############################################################################
 
     ############################## Save to disk ################################
+    def save_single_format_to_disk(self, checked):
+        self.save_to_disk(checked, True, Settings().get('save to disk single format', 'lrf'))
+
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
 
-    def save_to_disk(self, checked, single_dir=False):
+    def save_to_disk(self, checked, single_dir=False, single_format=None):
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot save to disk'), _('No books selected'))
             d.exec_()
             return
+
         dir = choose_dir(self, 'save to disk dialog', ('Choose destination directory'))
         if not dir:
             return
         if self.current_view() == self.library_view:
-            self.current_view().model().save_to_disk(rows, dir, single_dir=single_dir)
+            failures = self.current_view().model().save_to_disk(rows, dir,
+                                    single_dir=single_dir, single_format=single_format)
+            if failures and single_format is not None:
+                msg = _('<p>Could not save the following books to disk, because the %s format is not available for them:<ul>')%single_format.upper()
+                for f in failures:
+                    msg += '<li>%s</li>'%f[1]
+                msg += '</ul>'
+                warning_dialog(self, _('Could not save some ebooks'), msg).exec_()
+            QDesktopServices.openUrl(QUrl('file:'+dir))
         else:
             paths = self.current_view().model().paths(rows)
             self.job_manager.run_device_job(self.books_saved,
@@ -1069,24 +1102,48 @@ class Main(MainWindow, Ui_MainWindow):
             self.device_error_dialog.show()
 
     def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
+
+        def safe_print(msgs, file=sys.stderr):
+            for i, msg in enumerate(msgs):
+                if not msg:
+                    msg = ''
+                if isinstance(msg, unicode):
+                    msgs[i] = msg.encode(preferred_encoding, 'replace')
+            msg = ' '.join(msgs)
+            print >>file, msg
+
+        def safe_unicode(arg):
+            if not arg:
+                arg = unicode(repr(arg))
+            if isinstance(arg, str):
+                arg = arg.decode(preferred_encoding, 'replace')
+            if not isinstance(arg, unicode):
+                try:
+                    arg = unicode(repr(arg))
+                except:
+                    arg = u'Could not convert to unicode'
+            return arg
+
+        only_msg = getattr(exception, 'only_msg', False)
+        description, exception, formatted_traceback, log = map(safe_unicode,
+                            (description, exception, formatted_traceback, log))
         try:
-            print >>sys.stderr, 'Error in job:', description.encode('utf8')
+            safe_print('Error in job:', description)
             if log:
-                print >>sys.stderr, log.encode('utf8', 'ignore') if isinstance(log, unicode) else log
-            print >>sys.stderr, exception
-            print >>sys.stderr, formatted_traceback.encode('utf8', 'ignore') if isinstance(formatted_traceback, unicode) else formatted_traceback
+                safe_print(log)
+            safe_print(exception)
+            safe_print(formatted_traceback)
         except:
             pass
-        if getattr(exception, 'only_msg', False):
-            error_dialog(self, _('Conversion Error'), unicode(exception)).exec_()
+        if only_msg:
+            error_dialog(self, _('Conversion Error'), exception).exec_()
             return
-        msg =  u'<p><b>%s</b>: </p>'%exception
+        msg =  u'<p><b>%s</b>:'%exception
         msg += u'<p>Failed to perform <b>job</b>: '+description
         msg += u'<p>Detailed <b>traceback</b>:<pre>'
-        msg += formatted_traceback + '</pre>'
-        msg += '<p><b>Log:</b></p><pre>'
-        if log:
-            msg += log.encode('utf8', 'ignore') if isinstance(log, unicode) else log.decode('utf8', 'ignore')
+        msg += formatted_traceback + u'</pre>'
+        msg += u'<p><b>Log:</b></p><pre>'
+        msg += log
         ConversionErrorDialog(self, 'Conversion Error', msg, show=True)
 
 
@@ -1173,7 +1230,7 @@ class Main(MainWindow, Ui_MainWindow):
                                                     device=self.device_info)))
         self.vanity.update()
         s = Settings()
-        if s.get('update to version %s'%version, True):
+        if s.get('new version notification', True) and s.get('update to version %s'%version, True):
             d = question_dialog(self, _('Update available'), _('%s has been updated to version %s. See the <a href="http://calibre.kovidgoyal.net/wiki/Changelog">new features</a>. Visit the download page?')%(__appname__, version))
             if d.exec_() == QMessageBox.Yes:
                 url = 'http://calibre.kovidgoyal.net/download_'+('windows' if iswindows else 'osx' if isosx else 'linux')
@@ -1186,6 +1243,13 @@ def main(args=sys.argv):
 
     pid = os.fork() if islinux else -1
     if pid <= 0:
+        parser = option_parser('''\
+%prog [opts] [path_to_ebook]
+
+Launch the main calibre Graphical User Interface and optionally add the ebook at
+path_to_ebook to the database.
+''')
+        opts, args = parser.parse_args(args)
         app = Application(args)
         app.setWindowIcon(QIcon(':/library'))
         QCoreApplication.setOrganizationName(ORG_NAME)
@@ -1193,7 +1257,7 @@ def main(args=sys.argv):
         single_instance = None if SingleApplication is None else SingleApplication('calibre GUI')
         if not singleinstance('calibre GUI'):
             if single_instance is not None and single_instance.is_running() and \
-               single_instance.send_message('launched:'+repr(sys.argv)):
+               single_instance.send_message('launched:'+repr(args)):
                     return 0
 
             QMessageBox.critical(None, 'Cannot Start '+__appname__,
@@ -1201,14 +1265,14 @@ def main(args=sys.argv):
             return 1
         initialize_file_icon_provider()
         try:
-            main = Main(single_instance)
+            main = Main(single_instance, opts)
         except DatabaseLocked, err:
             QMessageBox.critical(None, 'Cannot Start '+__appname__,
             '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
             return 1
         sys.excepthook = main.unhandled_exception
-        if len(sys.argv) > 1:
-            main.add_filesystem_book(sys.argv[1])
+        if len(args) > 1:
+            main.add_filesystem_book(args[1])
         return app.exec_()
     return 0
 
@@ -1219,7 +1283,7 @@ if __name__ == '__main__':
     except:
         if not iswindows: raise
         from PyQt4.QtGui import QErrorMessage
-        logfile = os.path.expanduser('~/calibre.log')
+        logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
             log = open(logfile).read()
             if log.strip():

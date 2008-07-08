@@ -5,7 +5,9 @@ Support for reading the metadata from a lit file.
 '''
 
 import sys, struct, cStringIO, os
+from itertools import repeat
 
+from calibre import relpath
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFReader
 
@@ -188,7 +190,7 @@ class UnBinary(object):
             
     
     def write_spaces(self, depth):
-        self.buf.write(u' '.join(u'' for i in range(depth)))
+        self.buf.write(u''.join(repeat(' ', depth)))
         
     def item_path(self, internal_id):
         for i in self.manifest:
@@ -692,6 +694,7 @@ class LitFile(object):
         try:
             self._stream.seek(self.content_offset + entry.offset)
             raw = self._stream.read(entry.size)
+
             xml = \
 '''\
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -721,9 +724,10 @@ def get_metadata(stream):
     try:
         litfile = LitFile(stream)
         src = litfile.meta.encode('utf-8')
-        mi = OPFReader(cStringIO.StringIO(src))
+        mi = OPFReader(cStringIO.StringIO(src), dir=os.getcwd())
         cover_url, cover_item = mi.cover, None
         if cover_url:
+            cover_url = relpath(cover_url, os.getcwd())
             for item in litfile.manifest:
                 if item.path == cover_url:
                     cover_item = item.internal

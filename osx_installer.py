@@ -39,6 +39,7 @@ print >>loader, '%(function)s()'
 loader.close()
 os.chmod(loader_path, 0700)
 os.environ['PYTHONHOME'] = resources_dir
+os.environ['FC_CONFIG_DIR'] = os.path.join(resources_dir, 'fonts')
 os.execv(loader_path, sys.argv)
     '''
     CHECK_SYMLINKS_PRESCRIPT = \
@@ -51,7 +52,6 @@ def _check_symlinks_prescript():
 import os
 scripts = %(sp)s
 links = %(sp)s
-fonts_conf = %(sp)s
 os.setuid(0)
 for s, l in zip(scripts, links):
     if os.path.lexists(l):
@@ -60,11 +60,6 @@ for s, l in zip(scripts, links):
     omask = os.umask(022)
     os.symlink(s, l)
     os.umask(omask)
-if not os.path.exists('/etc/fonts/fonts.conf'):
-    print 'Creating default fonts.conf'
-    if not os.path.exists('/etc/fonts'):
-        os.makedirs('/etc/fonts')
-    os.link(fonts_conf, '/etc/fonts/fonts.conf')
 """
     
     dest_path = %(dest_path)s
@@ -72,7 +67,6 @@ if not os.path.exists('/etc/fonts/fonts.conf'):
     scripts = %(scripts)s    
     links   = [os.path.join(dest_path, i) for i in scripts]
     scripts = [os.path.join(resources_path, 'loaders', i) for i in scripts]
-    fonts_conf = os.path.join(resources_path, 'fonts.conf')
     
     bad = False
     for s, l in zip(scripts, links):
@@ -80,12 +74,10 @@ if not os.path.exists('/etc/fonts/fonts.conf'):
             continue
         bad = True
         break
-    if not bad:
-        bad = os.path.exists('/etc/fonts/fonts.conf')
     if bad:
         auth = Authorization(destroyflags=(kAuthorizationFlagDestroyRights,))
         fd, name = tempfile.mkstemp('.py')
-        os.write(fd, AUTHTOOL %(pp)s (sys.executable, repr(scripts), repr(links), repr(fonts_conf)))
+        os.write(fd, AUTHTOOL %(pp)s (sys.executable, repr(scripts), repr(links)))
         os.close(fd)
         os.chmod(name, 0700)
         try:
@@ -249,13 +241,18 @@ _check_symlinks_prescript()
         print 'Adding plugins'
         module_dir = os.path.join(resource_dir, 'lib', 'python2.5', 'lib-dynload')
         print 'Adding fontconfig'
-        for f in glob.glob(os.path.expanduser('~/fontconfig/*')):
+        for f in glob.glob(os.path.expanduser('~/fontconfig2/*')):
             os.link(f, os.path.join(frameworks_dir, os.path.basename(f)))
         for src, dest in plugin_files:
             if 'dylib' in dest:
                 os.link(src, os.path.join(frameworks_dir, dest))
             else:
                 os.link(src, os.path.join(module_dir, dest))
+        dst = os.path.join(resource_dir, 'fonts')
+        if os.path.exists(dst):
+            shutil.rmtree(dst)
+        shutil.copytree('/usr/local/etc/fonts', dst, symlinks=False)
+        
         print
         print 'Adding IPython'
         dst = os.path.join(resource_dir, 'lib', 'python2.5', 'IPython')
@@ -280,13 +277,11 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         f.write(src)
         f.close()
         print 
-        print 'Adding GUI main.py'
+        print 'Adding main scripts to site-packages'
         f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python2.5', 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
-        f.write('src/calibre/gui2/main.py', 'calibre/gui2/main.py')
+        for script in scripts['gui']+scripts['console']:
+            f.write(script, script.partition('/')[-1])
         f.close()
-        print
-        print 'Adding default fonts.conf'
-        open(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'fonts.conf'), 'wb').write(open('/etc/fonts/fonts.conf').read())
         print
         print 'Building disk image'
         BuildAPP.makedmg(os.path.join(self.dist_dir, APPNAME+'.app'), APPNAME+'-'+VERSION)
@@ -305,11 +300,12 @@ def main():
                          'argv_emulation' : True,
                          'iconfile' : 'icons/library.icns',
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
-                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml', 
+                         'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml',
                                        'PyQt4.QtSvg', 'PyQt4.QtWebKit',
-                                       'mechanize', 'ClientForm', 'usbobserver', 
+                                       'mechanize', 'ClientForm', 'usbobserver',
                                        'genshi', 'calibre.web.feeds.recipes.*',
-                                       'keyword', 'codeop', 'pydoc'],
+                                       'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
+                                       'keyword', 'codeop', 'pydoc', 'readline'],
                          'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
                          'excludes' : ['IPython'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
@@ -319,7 +315,10 @@ def main():
                                         'CFBundleVersion':APPNAME + ' ' + VERSION,
                                         'LSMinimumSystemVersion':'10.4.3',
                                         'LSMultipleInstancesProhibited':'true',
-                                        'NSHumanReadableCopyright':'Copyright 2006, Kovid Goyal',
+                                        'NSHumanReadableCopyright':'Copyright 2008, Kovid Goyal',
+                                        'LSEnvironment':{
+                                                         'FC_CONFIG_DIR':'@executable_path/../Resources/fonts',
+                                                         }
                                        },
                       },
                     },

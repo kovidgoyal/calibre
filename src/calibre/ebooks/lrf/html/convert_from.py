@@ -368,9 +368,10 @@ class HTMLConverter(object, LoggingInterface):
             else:
                 self.css[selector] = self.override_css[selector]
         
-        self.file_name = os.path.basename(path)
-        self.log_info(_('Processing %s'), path if self.verbose else self.file_name)
-        upath = path.encode('utf-8') if isinstance(path, unicode) else path
+        upath = path.encode(sys.getfilesystemencoding()) if isinstance(path, unicode) else path
+        self.file_name = os.path.basename(upath.decode(sys.getfilesystemencoding()))
+        self.log_info(_('Processing %s'), repr(upath) if self.verbose else repr(self.file_name))
+        
         if not os.path.exists(upath):
             upath = upath.replace('&', '%26') #convertlit replaces & with %26 in file names 
         f = open(upath, 'rb')
@@ -870,11 +871,12 @@ class HTMLConverter(object, LoggingInterface):
                 append_text(src)    
         else:
             srcs = src.split('\n')
-            for src in srcs:
-                if src:
-                    append_text(src)
-                    if len(srcs) > 1:                
-                        self.line_break()
+            for src in srcs[:-1]:
+                append_text(src)
+                self.line_break()
+            last = srcs[-1]
+            if len(last):
+                append_text(last)
         
     def line_break(self):
         self.current_para.append(CR())
@@ -1798,6 +1800,7 @@ def process_file(path, options, logger=None):
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('html2lrf')
         setup_cli_handlers(logger, level)
+    
     if not isinstance(path, unicode):
         path = path.decode(sys.getfilesystemencoding())
     path = os.path.abspath(path)
@@ -1968,7 +1971,7 @@ def try_opf(path, options, logger):
                                     continue
             if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover        
-        options.spine = [i.href for i in opf.spine.items()]
+        options.spine = [i.path for i in opf.spine if i.path]
         if not getattr(options, 'toc', None):
             options.toc   = opf.toc
     except Exception:

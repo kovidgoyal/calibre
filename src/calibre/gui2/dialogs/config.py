@@ -3,12 +3,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os
 
 from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon
-from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize
+from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant
 
 from calibre import islinux, Settings
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog
 from calibre.gui2.widgets import FilenamePattern
+from calibre.ebooks import BOOK_EXTENSIONS
 
 
 
@@ -33,6 +34,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         rn = settings.get('use roman numerals for series number', True)
         self.timeout.setValue(settings.get('network timeout', 5))
         self.roman_numerals.setChecked(rn)
+        self.new_version_notification.setChecked(settings.get('new version notification', True))
         self.directory_list.addItems(dirs)
         self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
         self.connect(self.remove_button, SIGNAL('clicked(bool)'), self.remove_dir)
@@ -58,6 +60,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
         self.show_toolbar_text.setChecked(settings.get('show text in toolbar', True))
 
+        for ext in BOOK_EXTENSIONS:
+            self.single_format.addItem(ext.upper(), QVariant(ext))
+
+        single_format = settings.get('save to disk single format', 'lrf')
+        self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
 
     def compact(self, toggled):
         d = Vacuum(self, self.db)
@@ -81,6 +88,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def accept(self):
         settings = Settings()
         settings.set('use roman numerals for series number', bool(self.roman_numerals.isChecked()))
+        settings.set('new version notification', bool(self.new_version_notification.isChecked()))
         settings.set('network timeout', int(self.timeout.value()))
         path = qstring_to_unicode(self.location.text())
         self.final_columns = [self.columns.item(i).checkState() == Qt.Checked for i in range(self.columns.count())]
@@ -88,6 +96,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         settings.set('show text in toolbar', bool(self.show_toolbar_text.isChecked()))
         pattern = self.filename_pattern.commit()
         settings.set('filename pattern', pattern)
+        settings.set('save to disk single format', BOOK_EXTENSIONS[self.single_format.currentIndex()])
+
 
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'),

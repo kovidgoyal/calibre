@@ -9,8 +9,6 @@ from optparse import OptionValueError
 from htmlentitydefs import name2codepoint
 from uuid import uuid4
 
-from fontTools.ttLib import TTLibError
-
 from calibre.ebooks.lrf.pylrs.pylrs import Book as _Book
 from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, \
                                              Paragraph, TextStyle, BlockStyle

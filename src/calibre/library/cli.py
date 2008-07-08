@@ -102,14 +102,14 @@ List the books available in the calibre database.
     if not set(fields).issubset(FIELDS):
         parser.print_help()
         print
-        print _('Invalid fields. Available fields:'), ','.join(FIELDS)
+        print >>sys.stderr, _('Invalid fields. Available fields:'), ','.join(FIELDS)
         return 1
 
     db = get_db(dbpath, opts)
     if not opts.sort_by in FIELDS:
         parser.print_help()
         print
-        print _('Invalid sort field. Available fields:'), ','.join(FIELDS)
+        print >>sys.stderr, _('Invalid sort field. Available fields:'), ','.join(FIELDS)
         return 1
 
     do_list(db, fields, opts.sort_by, opts.ascending, opts.search)
@@ -123,6 +123,7 @@ class DevNull(object):
 NULL = DevNull()
 
 def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
+    orig = sys.stdout
     sys.stdout = NULL
     try:
         files, dirs = [], []
@@ -171,26 +172,26 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
             for mi, formats in dir_dups:
                 db.import_book(mi, formats)
         else:
-            print _('The following books were not added as they already exist in the database (see --duplicates option):')
+            print >>sys.stderr, _('The following books were not added as they already exist in the database (see --duplicates option):')
             for mi, formats in dir_dups:
                 title = mi.title
                 if isinstance(title, unicode):
                     title = title.encode(preferred_encoding)
-                print '\t', title + ':'
+                print >>sys.stderr, '\t', title + ':'
                 for path in formats:
-                    print '\t\t ', path
+                    print >>sys.stderr, '\t\t ', path
             if file_duplicates:
                 for path, mi in zip(file_duplicates[0], file_duplicates[2]):
                     title = mi.title
                     if isinstance(title, unicode):
                         title = title.encode(preferred_encoding)
-                    print '\t', title+':'
-                    print '\t\t ', path
+                    print >>sys.stderr, '\t', title+':'
+                    print >>sys.stderr, '\t\t ', path
 
         if send_message is not None:
             send_message('refreshdb:', 'calibre GUI')
     finally:
-        sys.stdout = sys.__stdout__
+        sys.stdout = orig
 
 
 
@@ -213,7 +214,7 @@ the directory related options below.
     if len(args) < 2:
         parser.print_help()
         print
-        print _('You must specify at least one file to add')
+        print >>sys.stderr, _('You must specify at least one file to add')
         return 1
     do_add(get_db(dbpath, opts), args[1:], opts.one_book_per_directory, opts.recurse, opts.duplicates)
     return 0
@@ -243,7 +244,7 @@ list of id numbers (you can get id numbers by using the list command). For examp
     if len(args) < 2:
         parser.print_help()
         print
-        print _('You must specify at least one book to remove')
+        print >>sys.stderr, _('You must specify at least one book to remove')
         return 1
 
     ids = []
@@ -274,7 +275,7 @@ by id. You can get id by using the list command. If the format already exists, i
     if len(args) < 3:
         parser.print_help()
         print
-        print _('You must specify an id and an ebook file')
+        print >>sys.stderr, _('You must specify an id and an ebook file')
         return 1
 
     id, file, fmt = int(args[1]), open(args[2], 'rb'), os.path.splitext(args[2])[-1]
@@ -300,7 +301,7 @@ do nothing.
     if len(args) < 3:
         parser.print_help()
         print
-        print _('You must specify an id and a format')
+        print >>sys.stderr, _('You must specify an id and a format')
         return 1
 
     id, fmt = int(args[1]), args[2].upper()
@@ -331,7 +332,7 @@ id is an id number from the list command.
     if len(args) < 2:
         parser.print_help()
         print
-        print _('You must specify an id')
+        print >>sys.stderr, _('You must specify an id')
         return 1
     id = int(args[1])
     do_show_metadata(get_db(dbpath, opts), id, opts.as_opf)
@@ -358,15 +359,47 @@ show_metadata command.
     if len(args) < 3:
         parser.print_help()
         print
-        print _('You must specify an id and a metadata file')
+        print >>sys.stderr, _('You must specify an id and a metadata file')
         return 1
     id, opf = int(args[1]), open(args[2], 'rb')
     do_set_metadata(get_db(dbpath, opts), id, opf)
     return 0
 
+def do_export(db, ids, dir, single_dir, by_author):
+    if ids is None:
+        ids = db.all_ids()
+    db.export_to_dir(dir, ids, byauthor=by_author, single_dir=single_dir, index_is_id=True)
+
+def command_export(args, dbpath):
+    parser = get_parser(_('''\
+%prog export [options] ids
+
+Export the books specified by ids (a comma separated list) to the filesystem.
+The export operation saves all formats of the book, its cover and metadata (in
+an opf file). You can get id numbers from the list command.
+'''))
+    parser.add_option('--all', default=False, action='store_true',
+                      help=_('Export all books in database, ignoring the list of ids.'))
+    parser.add_option('--to-dir', default='.',
+                      help=(_('Export books to the specified directory. Default is')+' %default'))
+    parser.add_option('--single-dir', default=False, action='store_true',
+                      help=_('Export all books into a single directory'))
+    parser.add_option('--by-author', default=False, action='store_true',
+                      help=_('Create file names as author - title instead of title - author'))
+    opts, args = parser.parse_args(sys.argv[1:]+args)
+    if (len(args) < 2 and not opts.all):
+        parser.print_help()
+        print
+        print >>sys.stderr, _('You must specify some ids or the %s option')%'--all'
+        return 1
+    ids = None if opts.all else map(int, args[1].split(','))
+    dir = os.path.abspath(os.path.expanduser(opts.to_dir))
+    do_export(get_db(dbpath, opts), ids, dir, opts.single_dir, opts.by_author)
+    return 0
+
 def main(args=sys.argv):
     commands = ('list', 'add', 'remove', 'add_format', 'remove_format',
-                'show_metadata', 'set_metadata')
+                'show_metadata', 'set_metadata', 'export')
     parser = OptionParser(_(
 '''\
 %%prog command [options] [arguments]

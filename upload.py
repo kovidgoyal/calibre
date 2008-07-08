@@ -63,17 +63,18 @@ def start_vm(vm, ssh_host, build_script, sleep=75):
     subprocess.check_call(('scp', t.name, ssh_host+':build-'+PROJECT))
     subprocess.check_call('ssh -t %s bash build-%s'%(ssh_host, PROJECT), shell=True)
 
-def build_windows():
+def build_windows(shutdown=True):
     installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
     start_vm(vm, 'windows', BUILD_SCRIPT%('python setup.py develop', 'python','windows_installer.py'))
     subprocess.check_call(('scp', 'windows:build/%s/dist/*.exe'%PROJECT, 'dist'))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
-    subprocess.Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
+    if shutdown:
+        subprocess.Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
     return os.path.basename(installer)
 
-def build_osx():
+def build_osx(shutdown=True):
     installer = installer_name('dmg')
     vm = '/vmware/Mac OSX/Mac OSX.vmx'
     python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python' 
@@ -81,18 +82,20 @@ def build_osx():
     subprocess.check_call(('scp', 'osx:build/%s/dist/*.dmg'%PROJECT, 'dist'))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
-    subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', 'now'))
+    if shutdown:
+        subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', 'now'))
     return os.path.basename(installer)
   
 
-def build_linux():
+def build_linux(shutdown=True):
     installer = installer_name('tar.bz2')
     vm = '/vmware/linux/libprs500-gentoo.vmx'
     start_vm(vm, 'linux', BUILD_SCRIPT%('sudo python setup.py develop', 'python','linux_installer.py'))
     subprocess.check_call(('scp', 'linux:/tmp/%s'%os.path.basename(installer), 'dist'))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
-    subprocess.Popen(('ssh', 'linux', 'sudo', '/sbin/poweroff'))
+    if shutdown:
+        subprocess.Popen(('ssh', 'linux', 'sudo', '/sbin/poweroff'))
     return os.path.basename(installer)
 
 def build_installers():
@@ -164,6 +167,8 @@ def curl_upload_file(stream, url):
         
     
 def upload_installer(name):
+    if not os.path.exists(name):
+        return
     bname = os.path.basename(name)
     pat = re.compile(bname.replace(__version__, r'\d+\.\d+\.\d+'))
     for f in curl_list_dir():
