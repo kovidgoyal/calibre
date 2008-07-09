@@ -632,7 +632,7 @@ class Main(MainWindow, Ui_MainWindow):
         metadata = iter(metadata)
         _files = self.library_view.model().get_preferred_formats(rows, 
                                     self.device_manager.device_class.FORMATS, paths=True)
-        files = [f.name for f in _files]
+        files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names = [], [], [], []
         for f in files:
             mi = metadata.next()
