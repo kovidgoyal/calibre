@@ -13,7 +13,8 @@
    <string>Configure Viewer</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/config.svg</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" colspan="2" >
@@ -39,20 +40,17 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
    <item row="2" column="0" colspan="2" >
     <widget class="QLabel" name="label" >
-     <property name="windowModality" >
-      <enum>Qt::WindowModal</enum>
-     </property>
      <property name="frameShape" >
       <enum>QFrame::Box</enum>
      </property>
      <property name="text" >
-      <string>&lt;b>Changes will only take affect after a restart.</string>
+      <string>&lt;b&gt;Changes will only take effect after a restart.&lt;/b&gt;</string>
      </property>
      <property name="textFormat" >
       <enum>Qt::RichText</enum>
