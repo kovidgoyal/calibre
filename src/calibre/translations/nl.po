@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-06-30 23:41+0000\n"
-"PO-Revision-Date: 2008-06-29 05:48+0000\n"
+"PO-Revision-Date: 2008-07-05 23:19+0000\n"
 "Last-Translator: Marc van den Dikkenberg <Unknown>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-07-02 15:52+0000\n"
+"X-Launchpad-Export-Date: 2008-07-09 03:20+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #~ msgid ""
@@ -102,7 +102,7 @@ msgstr "Schijf %s is niet gevonden. Probeer te herstarten."
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:355
 msgid "The reader has no storage card connected."
-msgstr ""
+msgstr "Er is geen geheugen kaart verbonden met de reader."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:73
 msgid "Set the title. Default: filename."
@@ -1072,7 +1072,7 @@ msgstr "Gebruik &Romeinse nummers voor de series"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:207
 msgid "Format for &single file save:"
-msgstr ""
+msgstr "Opglagformaat voor &enkel bestand:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:208
 msgid "&Priority for conversion jobs:"
@@ -2397,11 +2397,11 @@ msgstr "Stuur naar opslag kaart"
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:117
 msgid "and delete from library"
-msgstr ""
+msgstr "en verwijder uit bibliotheek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:119
 msgid "Send to storage card by default"
-msgstr ""
+msgstr "Bewaar standaard op geheugen kaart"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:131
 msgid "Edit metadata individually"
@@ -2442,7 +2442,7 @@ msgstr "Opslaan op schijf in een enkele folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:154
 msgid "Save only %s format to disk"
-msgstr ""
+msgstr "Bewaar alleen %formaat op schijf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:157
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:281
@@ -2578,10 +2578,12 @@ msgid ""
 "<p>Could not save the following books to disk, because the %s format is not "
 "available for them:<ul>"
 msgstr ""
+"<p>De volgende boeken konden niet worden bewaard op schijf, omdat het %s "
+"formaat niet beschikbaar is:<ul>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:709
 msgid "Could not save some ebooks"
-msgstr ""
+msgstr "Sommige boeken konden niet worden opgeslagen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:742
 msgid "Fetch news from "
