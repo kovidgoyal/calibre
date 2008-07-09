@@ -15,6 +15,7 @@
 # 02110-1301  USA
 ######################### END LICENSE BLOCK #########################
 
+
 __version__ = "1.0"
 
 import re
@@ -55,6 +56,9 @@ def xml_to_unicode(raw, verbose=False):
             print 'WARNING: Encoding detection confidence %d%%'%(chardet['confidence']*100)
     CHARSET_ALIASES = { "macintosh" : "mac-roman",
                         "x-sjis" : "shift-jis" }
+    if not encoding:
+        from calibre import preferred_encoding
+        encoding = preferred_encoding
     if encoding:
         encoding = encoding.lower()
     if CHARSET_ALIASES.has_key(encoding):
