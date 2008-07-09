@@ -121,6 +121,7 @@ class WorkerMother(object):
     def __init__(self):
         ext = 'windows' if iswindows else 'osx' if isosx else 'linux'
         self.os = os # Needed incase cleanup called when interpreter is shutting down
+        self.env = {}
         if iswindows:
             self.executable = os.path.join(os.path.dirname(sys.executable),
                    'calibre-parallel.exe' if isfrozen else 'Scripts\\calibre-parallel.exe')
@@ -135,13 +136,14 @@ class WorkerMother(object):
                 
                 self.prefix += 'import sys; sys.frameworks_dir = "%s"; sys.frozen = "macosx_app"; '%fd
                 self.prefix += 'sys.path.insert(0, %s); '%repr(sp)
-                self.env = {}
                 if fd not in os.environ['PATH']:
                     self.env['PATH'] = os.environ['PATH']+':'+fd
                 self.env['PYTHONHOME'] = resources
         else:
             self.executable = os.path.join(getattr(sys, 'frozen_path'), 'calibre-parallel') \
                                 if isfrozen else 'calibre-parallel'
+            if isfrozen:
+                self.env['LD_LIBRARY_PATH'] = getattr(sys, 'frozen_path') + ':' + os.environ.get('LD_LIBRARY_PATH', '')
     
         self.spawn_worker_windows = lambda arg : self.spawn_free_spirit_windows(arg, type='worker')
         self.spawn_worker_linux   = lambda arg : self.spawn_free_spirit_linux(arg, type='worker')
@@ -176,6 +178,7 @@ class WorkerMother(object):
     def get_env(self):
         env = dict(os.environ)
         env['CALIBRE_WORKER'] = '1'
+        env['ORIGWD'] = os.path.abspath(os.getcwd())
         if hasattr(self, 'env'):
             env.update(self.env)
         return env
@@ -189,7 +192,8 @@ class WorkerMother(object):
     
     def spawn_free_spirit_linux(self, arg, type='free_spirit'):
         cmdline = [self.executable, arg]
-        child = WorkerStatus(subprocess.Popen(cmdline, env=self.get_env()))
+        child = WorkerStatus(subprocess.Popen(cmdline, 
+                        env=self.get_env(), cwd=getattr(sys, 'frozen_path', None)))
         atexit.register(self.cleanup_child_linux, child)
         return child 
     
@@ -607,7 +611,7 @@ class BufferedSender(object):
             self.wbuf.append(msg)
     
     def send(self):
-        if select([self.socket], [], [], 0)[0]:
+        if callable(select) and select([self.socket], [], [], 0)[0]:
             msg = read(self.socket)
             if msg == 'PING:':
                 write(self.socket, 'OK')

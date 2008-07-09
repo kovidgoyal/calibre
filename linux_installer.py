@@ -23,6 +23,12 @@ CALIBREPLUGINS = os.path.join(CALIBRESRC, 'calibre', 'plugins')
 
 sys.path.insert(0, CALIBRESRC)
 from calibre import __version__
+from calibre.parallel import PARALLEL_FUNCS
+from calibre.web.feeds.recipes import recipes
+hiddenimports = map(lambda x: x[0], PARALLEL_FUNCS.values())
+hiddenimports += ['lxml._elementpath', 'keyword', 'codeop', 'commands', 'shlex', 'pydoc']
+hiddenimports += map(lambda x: x.__module__, recipes)
+open(os.path.join(PYINSTALLER, 'hooks', 'hook-calibre.parallel.py'), 'wb').write('hiddenimports = %s'%repr(hiddenimports))
 
 def run_pyinstaller(args=sys.argv):
     subprocess.check_call(('/usr/bin/sudo', 'chown', '-R', 'kovid:users', glob.glob('/usr/lib/python*/site-packages/')[-1]))
@@ -60,18 +66,7 @@ excludes = ['gtk._gtk', 'gtk.glade', 'qt', 'matplotlib.nxutils', 'matplotlib._cn
             'matplotlib._transforms', 'matplotlib._agg', 'matplotlib.backends._backend_agg',
             'matplotlib.axes', 'matplotlib', 'matplotlib.pyparsing',
             'TKinter', 'atk', 'gobject._gobject', 'pango', 'PIL', 'Image', 'IPython']
-temp = ['keyword', 'codeop']
 
-recipes = ['calibre', 'web', 'feeds', 'recipes']
-prefix  = '.'.join(recipes)+'.'
-recipes_toc = []
-extra_toc = [
-        ('keyword', '/usr/lib/python2.5/keyword.pyo', 'PYSOURCE'),
-        ('codeop', '/usr/lib/python2.5/codeop.pyo', 'PYSOURCE')
-        ]
-for f in glob.glob(os.path.join(CALIBRESRC, *(recipes+['*.py']))):
-    py_compile.compile(f, doraise=True)
-    recipes_toc.append((prefix + os.path.basename(f).partition('.')[0], f+'o', 'PYSOURCE'))
 
 sys.path.insert(0, CALIBRESRC)
 from calibre.linux import entry_points
@@ -89,9 +84,6 @@ analyses = [Analysis([os.path.join(HOMEPATH,'support/_mountzlib.py'), os.path.jo
 
 pyz = TOC()
 binaries = TOC()
-
-pyz += extra_toc
-pyz += recipes_toc
 
 for a in analyses:
     pyz = a.pure + pyz
