@@ -360,7 +360,14 @@ def install_man_pages(fatal_errors):
                     '--section', '1', '--no-info', '--include',
                     f.name, '--manual', __appname__)
         manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
-        p = subprocess.Popen(help2man, stdout=subprocess.PIPE)
+        try:
+            p = subprocess.Popen(help2man, stdout=subprocess.PIPE)
+        except OSError, err:
+            import errno
+            if err.errno != errno.ENOENT:
+                raise
+            print 'Failed to install MAN pages as help2man is missing from your system'
+            break
         raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', p.stdout.read())
         if not raw.strip():
             print 'Unable to create MAN page for', prog

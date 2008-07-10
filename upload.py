@@ -167,6 +167,8 @@ def curl_upload_file(stream, url):
         
     
 def upload_installer(name):
+    if not os.path.exists(name):
+        return
     bname = os.path.basename(name)
     pat = re.compile(bname.replace(__version__, r'\d+\.\d+\.\d+'))
     for f in curl_list_dir():

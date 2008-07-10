@@ -1,7 +1,7 @@
 '''
 Trac Macro to generate an end use Changelog from the svn logs.
 '''
-import re, collections
+import re, collections, time
 
 from bzrlib import log as blog, branch
 
@@ -33,7 +33,8 @@ class ChangelogFormatter(blog.LogFormatter):
         if match:
             if self.current_entry is not None:
                 self.entries.append((self.current_entry, set(self.messages)))
-            self.current_entry = match.group(1)
+            timestamp = r.rev.timezone + r.rev.timestamp
+            self.current_entry = match.group(1) + time.strftime(' (%d %b, %Y)', time.gmtime(timestamp))
             self.messages = collections.deque()
             
         else:

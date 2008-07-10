@@ -43,6 +43,7 @@
 					SMALL{ font-size : 80% }
 					BLOCKQUOTE{ margin-left :4em; margin-top:1em; margin-right:0.2em;}
 					HR{ color : Black }
+                    DIV{font-family : "Times New Roman", Times, serif; text-align : justify}
 					UL{margin-left: 0}
 					.epigraph{width:50%; margin-left : 35%;}
 				</style>

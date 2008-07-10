@@ -20,7 +20,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, \
-                           SingleApplication, Application, available_height
+                           SingleApplication, Application, available_height, max_available_height
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
@@ -45,8 +45,6 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
-
-
 
 class Main(MainWindow, Ui_MainWindow):
     
@@ -233,7 +231,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.status_bar.cover_flow_button.disable(pictureflowerror)
             
         
-        self.setMaximumHeight(available_height())
+        self.setMaximumHeight(max_available_height())
              
         ####################### Setup device detection ########################
         self.detector = DeviceDetector(sleep_time=2000)
@@ -519,7 +517,7 @@ class Main(MainWindow, Ui_MainWindow):
         view = self.card_view if on_card else self.memory_view    
         view.model().resort(reset=False)
         view.model().research()
-        if memory[1]:
+        if memory and memory[1]:
             rows = map(self.library_view.model().db.index, memory[1])
             self.library_view.model().delete_books(rows)
             
@@ -634,7 +632,7 @@ class Main(MainWindow, Ui_MainWindow):
         metadata = iter(metadata)
         _files = self.library_view.model().get_preferred_formats(rows, 
                                     self.device_manager.device_class.FORMATS, paths=True)
-        files = [f.name for f in _files]
+        files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names = [], [], [], []
         for f in files:
             mi = metadata.next()
@@ -1112,7 +1110,7 @@ class Main(MainWindow, Ui_MainWindow):
             msg = ' '.join(msgs)
             print >>file, msg
         
-        def safe_unicode(self, arg):
+        def safe_unicode(arg):
             if not arg:
                 arg = unicode(repr(arg))
             if isinstance(arg, str):
@@ -1211,7 +1209,7 @@ class Main(MainWindow, Ui_MainWindow):
                                                     device=self.device_info)))
         self.vanity.update()
         s = Settings()
-        if s.get('update to version %s'%version, True):
+        if s.get('new version notification', True) and s.get('update to version %s'%version, True):
             d = question_dialog(self, _('Update available'), _('%s has been updated to version %s. See the <a href="http://calibre.kovidgoyal.net/wiki/Changelog">new features</a>. Visit the download page?')%(__appname__, version))
             if d.exec_() == QMessageBox.Yes:
                 url = 'http://calibre.kovidgoyal.net/download_'+('windows' if iswindows else 'osx' if isosx else 'linux')

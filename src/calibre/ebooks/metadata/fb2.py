@@ -21,11 +21,11 @@ def get_metadata(stream):
     if comments and len(comments) > 1:
             comments = comments.p.contents[0]
     series = soup.find("sequence")
-    series_name = series['name']
  #   series_index = series.index
     mi = MetaInformation(title, author)
     mi.comments = comments
-    mi.category = series_name
+    if series:
+        mi.series = series.get('name', None)
  #   mi.series_index = series_index
     return mi
 

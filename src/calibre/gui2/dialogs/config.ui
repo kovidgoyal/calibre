@@ -78,6 +78,14 @@
         <number>0</number>
        </property>
        <widget class="QWidget" name="page_3" >
+        <property name="geometry" >
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>595</width>
+          <height>638</height>
+         </rect>
+        </property>
         <layout class="QVBoxLayout" name="verticalLayout" >
          <item>
           <layout class="QVBoxLayout" name="_2" >
@@ -121,6 +129,13 @@
            </property>
            <property name="checked" >
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="new_version_notification" >
+           <property name="text" >
+            <string>Show notification when &amp;new version is available</string>
            </property>
           </widget>
          </item>

@@ -20,10 +20,19 @@ if iswindows:
     import warnings
     warnings.simplefilter('ignore', DeprecationWarning)
 
+def available_heights():
+    desktop  = QCoreApplication.instance().desktop()
+    return map(lambda x: x.height(), map(desktop.availableGeometry, range(desktop.numScreens())))
 
 def available_height():
     desktop  = QCoreApplication.instance().desktop()
     return desktop.availableGeometry().height()
+
+def max_available_height():
+    return max(available_heights())
+
+def min_available_height():
+    return min(available_heights())
 
 def available_width():
     desktop       = QCoreApplication.instance().desktop()

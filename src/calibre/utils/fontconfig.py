@@ -130,7 +130,7 @@ lib.FcConfigBuildFonts.restype  = c_int
 
 
 # Initialize the fontconfig library. This has to be done manually
-# for the OS X bundle as it has its own private fontconfig.
+# for the OS X bundle as it may have its own private fontconfig.
 if hasattr(sys, 'frameworks_dir'):
     config_dir = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
     if isinstance(config_dir, unicode):

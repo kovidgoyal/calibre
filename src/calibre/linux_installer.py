@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 '''
-Download and install the linux binary. 
+Download and install the linux binary.
 '''
 import sys, os, shutil, tarfile, subprocess, tempfile, urllib2, re, stat
 

@@ -7,10 +7,10 @@ See  ftp://ftp.rarlabs.com/rar/unrarsrc-3.7.5.tar.gz
 """
 import os, ctypes
 from ctypes import Structure, c_char_p, c_uint, c_void_p, POINTER, \
-                    byref, c_wchar_p, CFUNCTYPE, c_int, c_long, c_char, c_wchar
+                    byref, c_wchar_p, c_int, c_char, c_wchar
 from StringIO import StringIO
 
-from calibre import iswindows, isosx, load_library
+from calibre import iswindows, load_library
 
 _librar_name = 'libunrar'
 cdll = ctypes.cdll
