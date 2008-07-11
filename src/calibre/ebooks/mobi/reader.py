@@ -194,8 +194,6 @@ class MobiReader(object):
         
     def cleanup(self):
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
-        self.processed_html = re.sub(r'<([^>]*) height="([^"]*)"', r'<\1 style="margin-top: \2"', self.processed_html)
-        self.processed_html = re.sub(r'<([^>]*) width="([^"]*)"', r'<\1 style="text-indent: \2"', self.processed_html)
     
     def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
