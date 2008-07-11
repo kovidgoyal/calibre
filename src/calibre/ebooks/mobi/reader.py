@@ -89,7 +89,7 @@ class BookHeader(object):
             print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
             self.codec = 'cp1252'
         
-        if ident == 'TEXTREAD' or self.length != 0xE4:
+        if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length:
             self.extra_flags = 0
         else:
             self.extra_flags, = struct.unpack('>L', raw[0xF0:0xF4])
@@ -234,8 +234,33 @@ class MobiReader(object):
         return opf
         
         
+    def sizeof_trailing_entries(self, data):
+        def sizeof_trailing_entry(ptr, psize):
+            bitpos, result = 0, 0
+            while True:
+                v = ord(ptr[psize-1])
+                result |= (v & 0x7F) << bitpos
+                bitpos += 7
+                psize -= 1
+                if (v & 0x80) != 0 or (bitpos >= 28) or (psize == 0):
+                    return result
+        
+        num = 0
+        size = len(data)
+        flags = self.book_header.extra_flags >> 1
+        while flags:
+            if flags & 1:
+                num += sizeof_trailing_entry(data, size - num)
+            flags >>= 1        
+        return num
+
+    def text_section(self, index):
+        data = self.sections[index][0]
+        trail_size = self.sizeof_trailing_entries(data)
+        return data[:len(data)-trail_size]
+    
     def extract_text(self):
-        text_sections = [self.sections[i][0] for i in range(1, self.book_header.records+1)]
+        text_sections = [self.text_section(i) for i in range(1, self.book_header.records+1)]
         processed_records = list(range(0, self.book_header.records+1))
         
         self.mobi_html = ''
@@ -246,7 +271,7 @@ class MobiReader(object):
                         self.book_header.huff_offset+self.book_header.huff_number)]
             processed_records += list(range(self.book_header.huff_offset, 
                         self.book_header.huff_offset+self.book_header.huff_number))
-            huff = HuffReader(huffs, self.book_header.extra_flags)
+            huff = HuffReader(huffs)
             self.mobi_html = huff.decompress(text_sections)
         
         elif self.book_header.compression_type == '\x00\x02':
