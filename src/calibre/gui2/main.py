@@ -1259,12 +1259,12 @@ path_to_ebook to the database.
 if __name__ == '__main__':
     try:
         sys.exit(main())
-    except:
+    except Exception, err:
         if not iswindows: raise
+        tb = traceback.format_exc()
         from PyQt4.QtGui import QErrorMessage
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile): 
-            log = open(logfile).read()
-            if log.strip():
-                d = QErrorMessage()
-                d.showMessage(log)
+            log = open(logfile).read().decode('utf-8', 'ignore')
+            d = QErrorMessage('<b>Error:</b>%s<br><b>Traceback:</b><br>%s<b>Log:</b><br>'%(unicode(err), unicode(tb), log))
+            d.exec_()
