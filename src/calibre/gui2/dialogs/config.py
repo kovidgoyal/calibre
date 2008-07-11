@@ -35,6 +35,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         rn = settings.get('use roman numerals for series number', True)
         self.timeout.setValue(settings.get('network timeout', 5))
         self.roman_numerals.setChecked(rn)
+        self.new_version_notification.setChecked(settings.get('new version notification', True))
         self.directory_list.addItems(dirs)
         self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
         self.connect(self.remove_button, SIGNAL('clicked(bool)'), self.remove_dir)
@@ -88,6 +89,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
     def accept(self):
         settings = Settings()            
         settings.set('use roman numerals for series number', bool(self.roman_numerals.isChecked()))
+        settings.set('new version notification', bool(self.new_version_notification.isChecked()))
         settings.set('network timeout', int(self.timeout.value()))
         path = qstring_to_unicode(self.location.text())
         self.final_columns = [self.columns.item(i).checkState() == Qt.Checked for i in range(self.columns.count())]

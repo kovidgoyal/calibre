@@ -1,4 +1,4 @@
-# Greek translation for calibre
+# Portuguese translation for calibre
 # Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
 # This file is distributed under the same license as the calibre package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
@@ -8,9 +8,9 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-06-30 23:41+0000\n"
-"PO-Revision-Date: 2008-06-24 07:23+0000\n"
-"Last-Translator: Thanos Petkakis <thanospet@gmail.com>\n"
-"Language-Team: Greek <el@li.org>\n"
+"PO-Revision-Date: 2008-07-05 03:33+0000\n"
+"Last-Translator: Tiago Silva <Unknown>\n"
+"Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,7 +23,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/__init__.py:170
 msgid "Created by "
-msgstr "Δημιουργήθηκε απο τον "
+msgstr "Criado por "
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:112
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:146
@@ -55,7 +55,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database.py:1433
 #: /home/kovid/work/calibre/src/calibre/library/database.py:1563
 msgid "Unknown"
-msgstr "Άγνωστο"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:78
 msgid "Set the comment."
@@ -78,7 +78,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/search.py:16
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:409
 msgid "Publisher"
-msgstr "Εκδότης"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:88
 msgid "Path to file containing image to be used as cover"
@@ -121,7 +121,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:107
 msgid "Add a header to all the pages with title and author."
-msgstr "Προσθήκη επικεφαλίδας σε όλες τις σελίδες με τίτλο και συγγραφέα"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:109
 msgid ""
