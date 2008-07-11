@@ -33,7 +33,7 @@ class BitReader(object):
 class HuffReader(object):
     
     def __init__(self, huffs, extra_flags):
-        self.huffs, self.extra_flags = huffs, extra_flags
+        self.huffs = huffs
         
         if huffs[0][0:4] != 'HUFF' or huffs[0][4:8] != '\x00\x00\x00\x18':
             raise MobiError('Invalid HUFF header')
@@ -84,32 +84,10 @@ class HuffReader(object):
         self._unpack(BitReader(data))
         return self.r
     
-    def sizeof_trailing_entries(self, data):
-        
-        def sizeof_trailing_entry(ptr, psize):
-            bitpos, result = 0, 0
-            while True:
-                v = ord(ptr[psize-1])
-                result |= (v & 0x7F) << bitpos
-                bitpos += 7
-                psize -= 1
-                if (v & 0x80) != 0 or (bitpos >= 28) or (psize == 0):
-                    return result
-        
-        num = 0
-        size = len(data)
-        flags = self.extra_flags >> 1
-        while flags:
-            if flags & 1:
-                num += sizeof_trailing_entry(data, size - num)
-            flags >>= 1        
-        return num
-    
     def decompress(self, sections):
         r = ''
         for data in sections:
-            trail_size = self.sizeof_trailing_entries(data)
-            r += self.unpack(data[:len(data)-trail_size])
+            r += self.unpack(data)
         if r.endswith('#'):
             r = r[:-1]
         return r
