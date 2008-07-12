@@ -32,7 +32,7 @@ class BitReader(object):
 
 class HuffReader(object):
     
-    def __init__(self, huffs, extra_flags):
+    def __init__(self, huffs):
         self.huffs = huffs
         
         if huffs[0][0:4] != 'HUFF' or huffs[0][4:8] != '\x00\x00\x00\x18':
