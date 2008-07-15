@@ -167,15 +167,9 @@ class MobiReader(object):
         self.replace_page_breaks()
         self.cleanup_html()
         
-        self.processed_html = \
-            re.compile('<head>', re.IGNORECASE).sub(
-                '<head>\n'
-                '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n'
-                '<style type="text/css">\n'
-                'blockquote { margin: 0em 0em 0em 1em; text-align: justify; }\n'
-                'p { margin: 0em; text-align: justify; }\n'
-                '</style>\n',
-                self.processed_html)
+        self.processed_html = re.compile('<head>', re.IGNORECASE).sub(
+            '<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n',
+                                     self.processed_html)
         
         soup = BeautifulSoup(self.processed_html.replace('> <', '>\n<'))
         self.cleanup_soup(soup)
@@ -218,11 +212,6 @@ class MobiReader(object):
             try:
                 styles.append('text-indent: %s' % tag['width'])
                 del tag['width']
-            except KeyError:
-                pass
-            try:
-                styles.append('text-align: %s' % tag['align'])
-                del tag['align']
             except KeyError:
                 pass
             if styles:
