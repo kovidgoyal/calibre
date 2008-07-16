@@ -237,7 +237,7 @@ class OPF(MetaInformation):
     
     def get_title(self):
         title = self.soup.package.metadata.find('dc:title')
-        if title and title.string:
+        if title:
             return self.ENTITY_PATTERN.sub(entity_to_unicode, title.string).strip()
         return self.default_title.strip()
     
