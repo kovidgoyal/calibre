@@ -25,20 +25,6 @@ XHTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
  "http://openebook.org/dtds/oeb-1.0.1/oebdoc101.dtd">
 """
 
-class DirectoryEntry(object):
-    def __init__(self, name, section, offset, size):
-        self.name = name
-        self.section = section
-        self.offset = offset
-        self.size = size
-        
-    def __repr__(self):
-        return "<DirectoryEntry name='%s' section='%d' offset='%d' size='%d'>" \
-            % (self.name, self.section, self.offset, self.size)
-        
-    def __str__(self):
-        return repr(self)
-
 def u32(bytes):
     return struct.unpack('<L', bytes[:4])[0]
 
@@ -302,6 +288,20 @@ class UnBinary(object):
                     state = 'get attr'
         return index
     
+class DirectoryEntry(object):
+    def __init__(self, name, section, offset, size):
+        self.name = name
+        self.section = section
+        self.offset = offset
+        self.size = size
+        
+    def __repr__(self):
+        return "DirectoryEntry(name=%s, section=%d, offset=%d, size=%d)" \
+            % (repr(self.name), self.section, self.offset, self.size)
+        
+    def __str__(self):
+        return repr(self)
+
 class ManifestItem(object):
     def __init__(self, original, internal, mime_type, offset, root, state):
         self.original = original
@@ -310,8 +310,7 @@ class ManifestItem(object):
         self.offset = offset
         self.root = root
         self.state = state
-        self.prefix = 'images' \
-            if state == 'images' else 'css' if state == 'css' else ''
+        self.prefix = state if state in ('images', 'css') else ''
         self.prefix = self.prefix + os.sep if self.prefix else ''
         self.path = self.prefix + self.original
         
@@ -321,7 +320,8 @@ class ManifestItem(object):
         return self.internal == other
     
     def __repr__(self):
-        return self.internal + u'->' + self.path 
+        return "ManifestItem(internal='%s', path='%s')" \
+            % (repr(self.internal), repr(self.path))
 
 def preserve(function):
     def wrapper(self, *args, **kwargs):
@@ -382,6 +382,7 @@ class LitFile(object):
             return self._stream.read(16)
         return property(fget=fget)
     guid = guid()
+
     
     def header():
         @preserve
@@ -403,6 +404,19 @@ class LitFile(object):
         self.read_secondary_header()
         self.read_header_pieces()
 
+    @preserve
+    def __len__(self):
+        self._stream.seek(0, 2)
+        return self._stream.tell()
+
+    @preserve
+    def _read_raw(self, offset, size):
+        self._stream.seek(offset)
+        return self._stream.read(size)
+
+    def _read_content(self, offset, size):
+        return self._read_raw(self.content_offset + offset, size)
+    
     @preserve
     def read_secondary_header(self):
         self._stream.seek(self.hdr_len + self.num_pieces*self.PIECE_SIZE)
@@ -462,7 +476,7 @@ class LitFile(object):
                 self.piece4_guid = piece
                 
     def read_directory(self, piece):
-        self.entries = []
+        self.entries = {}
         if not piece.startswith('IFCM'):
             raise LitError('Header piece #1 is not main directory.')
         chunk_size, num_chunks = int32(piece[8:12]), int32(piece[24:28])
@@ -507,7 +521,7 @@ class LitFile(object):
                     self.read_manifest(entry)
                 elif name == '/meta':
                     self.read_meta(entry)
-                self.entries.append(entry)
+                self.entries[name] = entry
                 i += 1
             
             if not hasattr(self, 'sections'):
@@ -590,13 +604,16 @@ class LitFile(object):
 
     @preserve
     def read_image(self, internal_name):
-        cover_entry = None
-        for entry in self.entries:
-            if internal_name in entry.name:
-                cover_entry = entry
-                break
+        cover_entry = self.entries[internal_name]
         self._stream.seek(self.content_offset + cover_entry.offset)
         return self._stream.read(cover_entry.size)
+
+    def get_file(self, name):
+        entry = self.entries[name]
+        if entry.section == 0:
+            return self._read_content(entry.offset, entry.size)
+        section = self.get_section(entry.section)
+        return section[entry.offset:entry.offset+entry.size]
 
 def get_metadata(stream):
     try:
