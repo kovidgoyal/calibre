@@ -254,7 +254,7 @@ def download_tarball():
         if pb is not None:
             pb.update(percent)
         else:
-            print '%d%, '%int(percent*100)
+            print '%d%%, '%int(percent*100)
     f.seek(0)
     return f
 
