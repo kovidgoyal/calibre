@@ -5,6 +5,7 @@ Support for reading the metadata from a lit file.
 '''
 
 import sys, struct, cStringIO, os
+import functools
 from itertools import repeat
 
 from calibre import relpath
@@ -12,6 +13,31 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFReader
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
+
+OPF_DECL = """"<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE package 
+  PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
+  "http://openebook.org/dtds/oeb-1.0.1/oebpkg101.dtd">
+"""
+XHTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC
+ "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Document//EN"
+ "http://openebook.org/dtds/oeb-1.0.1/oebdoc101.dtd">
+"""
+
+class DirectoryEntry(object):
+    def __init__(self, name, section, offset, size):
+        self.name = name
+        self.section = section
+        self.offset = offset
+        self.size = size
+        
+    def __repr__(self):
+        return "<DirectoryEntry name='%s' section='%d' offset='%d' size='%d'>" \
+            % (self.name, self.section, self.offset, self.size)
+        
+    def __str__(self):
+        return repr(self)
 
 def u32(bytes):
     return struct.unpack('<L', bytes[:4])[0]
@@ -67,7 +93,7 @@ XML_ENTITIES   = ['&amp;', '&apos;', '&lt;', '&gt;', '&quot;']
 class UnBinary(object):
     def __init__(self, bin, manifest, map=OPF_MAP):
         self.manifest = manifest
-        self.attr_map, self.tag_map, self.tag_to_attr_map = map
+        self.tag_map, self.attr_map, self.tag_to_attr_map = map
         self.opf = map is OPF_MAP
         self.bin = bin
         self.buf = cStringIO.StringIO()
@@ -104,7 +130,7 @@ class UnBinary(object):
     def binary_to_text(self, base=0, depth=0):
         tag_name = current_map = None
         dynamic_tag = errors = 0
-        in_censorship = False
+        in_censorship = is_goingdown = False
         state = 'text'
         index =  base
         flags = 0
@@ -136,7 +162,7 @@ class UnBinary(object):
                     tag = oc
                     self.buf.write('<')
                     if not (flags & FLAG_CLOSING):
-                        is_goingdown = 1
+                        is_goingdown = True
                     if tag == 0x8000:
                         state = 'get custom length'
                         continue
@@ -167,7 +193,7 @@ class UnBinary(object):
                     else:
                         self.buf.write('>')
                         index = self.binary_to_text(base=index, depth=depth+1)
-                        is_goingdown = 0
+                        is_goingdown = False
                         if not tag_name:
                             raise LitError('Tag ends before it begins.')
                         self.buf.write('</'+tag_name+'>')
@@ -222,7 +248,7 @@ class UnBinary(object):
                     if not in_censorship:
                         self.buf.write(c)
                     count -= 1
-                elif count == 0:
+                if count == 0:
                     if not in_censorship:
                         self.buf.write('"')
                     in_censorship = False
@@ -268,7 +294,7 @@ class UnBinary(object):
                 href += c
                 count -= 1
                 if count == 0:
-                    doc, m, frag = href.partition('#')
+                    doc, m, frag = href[1:].partition('#')
                     path = self.item_path(doc)
                     if m and frag:
                         path += m + frag
@@ -297,100 +323,74 @@ class ManifestItem(object):
     def __repr__(self):
         return self.internal + u'->' + self.path 
 
+def preserve(function):
+    def wrapper(self, *args, **kwargs):
+        opos = self._stream.tell()
+        try:
+            return function(self, *args, **kwargs)
+        finally:
+            self._stream.seek(opos)
+    functools.update_wrapper(wrapper, function)
+    return wrapper
+    
 class LitFile(object):
     PIECE_SIZE = 16
 
     def magic():
+        @preserve
         def fget(self):
-            val = None
-            opos = self._stream.tell()
-            try:
-                self._stream.seek(0)
-                val = self._stream.read(8)
-            finally:
-                self._stream.seek(opos)
-            return val
+            self._stream.seek(0)
+            return self._stream.read(8)
         return property(fget=fget)
     magic = magic()
     
     def version():
         def fget(self):
-            val = None
-            opos = self._stream.tell()
-            try:
-                self._stream.seek(8)
-                val = u32(self._stream.read(4))
-            finally:
-                self._stream.seek(opos)
-            return val
+            self._stream.seek(8)
+            return u32(self._stream.read(4))
         return property(fget=fget)
     version = version()
     
     def hdr_len():
+        @preserve
         def fget(self):
-            val = None
-            opos = self._stream.tell()
-            try:
-                self._stream.seek(12)
-                val = int32(self._stream.read(4))
-            finally:
-                self._stream.seek(opos)
-            return val
+            self._stream.seek(12)
+            return int32(self._stream.read(4))
         return property(fget=fget)
     hdr_len = hdr_len()
     
     def num_pieces():
+        @preserve
         def fget(self):
-            val = None
-            opos = self._stream.tell()
-            try:
-                self._stream.seek(16)
-                val = int32(self._stream.read(4))
-            finally:
-                self._stream.seek(opos)
-            return val
+            self._stream.seek(16)
+            return int32(self._stream.read(4))
         return property(fget=fget)
     num_pieces = num_pieces()
     
     def sec_hdr_len():
+        @preserve
         def fget(self):
-            val = None
-            opos = self._stream.tell()
-            try:
-                self._stream.seek(20)
-                val = int32(self._stream.read(4))
-            finally:
-                self._stream.seek(opos)
-            return val
+            self._stream.seek(20)
+            return int32(self._stream.read(4))
         return property(fget=fget)
     sec_hdr_len = sec_hdr_len()
     
     def guid():
+        @preserve
         def fget(self):
-            val = None
-            opos = self._stream.tell()
-            try:
-                self._stream.seek(24)
-                val = self._stream.read(16)
-            finally:
-                self._stream.seek(opos)
-            return val
+            self._stream.seek(24)
+            return self._stream.read(16)
         return property(fget=fget)
     guid = guid()
     
     def header():
+        @preserve
         def fget(self):
-            val = None
-            opos = self._stream.tell()
-            try:
-                size = self.hdr_len \
-                    + (self.num_pieces * self.PIECE_SIZE) \
-                    + self.sec_hdr_len
-                self._stream.seek(0)
-                val = self._stream.read(size)
-            finally:
-                self._stream.seek(opos)
-            return val
+            size = self.hdr_len \
+                + (self.num_pieces * self.PIECE_SIZE) \
+                + self.sec_hdr_len
+            self._stream.seek(0)
+            return self._stream.read(size)
         return property(fget=fget)
     header = header()        
     
@@ -402,70 +402,64 @@ class LitFile(object):
             raise LitError('Unknown LIT version %d'%(self.version,))
         self.read_secondary_header()
         self.read_header_pieces()
-    
-    def read_secondary_header(self):
-        opos = self._stream.tell()
-        try:
-            self._stream.seek(self.hdr_len + self.num_pieces*self.PIECE_SIZE)
-            bytes = self._stream.read(self.sec_hdr_len)
-            offset = int32(bytes[4:])
-            while offset < len(bytes):
-                blocktype = bytes[offset:offset+4]
-                blockver  = u32(bytes[offset+4:])
-                if blocktype == 'CAOL':
-                    if blockver != 2:
-                        raise LitError(
-                            'Unknown CAOL block format %d' % blockver)
-                    self.creator_id     = u32(bytes[offset+12:])
-                    self.entry_chunklen = u32(bytes[offset+20:])
-                    self.count_chunklen = u32(bytes[offset+24:])
-                    self.entry_unknown  = u32(bytes[offset+28:])
-                    self.count_unknown  = u32(bytes[offset+32:])
-                    offset += 48
-                elif blocktype == 'ITSF':
-                    if blockver != 4:
-                        raise LitError(
-                            'Unknown ITSF block format %d' % blockver)
-                    if u32(bytes[offset+4+16:]):
-                        raise LitError('This file has a 64bit content offset')
-                    self.content_offset = u32(bytes[offset+16:])
-                    self.timestamp      = u32(bytes[offset+24:]) 
-                    self.language_id    = u32(bytes[offset+28:])
-                    offset += 48
-            if not hasattr(self, 'content_offset'):
-                raise LitError('Could not figure out the content offset')
-        finally:
-            self._stream.seek(opos)
 
+    @preserve
+    def read_secondary_header(self):
+        self._stream.seek(self.hdr_len + self.num_pieces*self.PIECE_SIZE)
+        bytes = self._stream.read(self.sec_hdr_len)
+        offset = int32(bytes[4:])
+        while offset < len(bytes):
+            blocktype = bytes[offset:offset+4]
+            blockver  = u32(bytes[offset+4:])
+            if blocktype == 'CAOL':
+                if blockver != 2:
+                    raise LitError(
+                        'Unknown CAOL block format %d' % blockver)
+                self.creator_id     = u32(bytes[offset+12:])
+                self.entry_chunklen = u32(bytes[offset+20:])
+                self.count_chunklen = u32(bytes[offset+24:])
+                self.entry_unknown  = u32(bytes[offset+28:])
+                self.count_unknown  = u32(bytes[offset+32:])
+                offset += 48
+            elif blocktype == 'ITSF':
+                if blockver != 4:
+                    raise LitError(
+                        'Unknown ITSF block format %d' % blockver)
+                if u32(bytes[offset+4+16:]):
+                    raise LitError('This file has a 64bit content offset')
+                self.content_offset = u32(bytes[offset+16:])
+                self.timestamp      = u32(bytes[offset+24:]) 
+                self.language_id    = u32(bytes[offset+28:])
+                offset += 48
+        if not hasattr(self, 'content_offset'):
+            raise LitError('Could not figure out the content offset')
+    
+    @preserve
     def read_header_pieces(self):
-        opos = self._stream.tell()
-        try:
-            src = self.header[self.hdr_len:]
-            for i in range(self.num_pieces):
-                piece = src[i*self.PIECE_SIZE:(i+1)*self.PIECE_SIZE]
-                if u32(piece[4:]) != 0 or u32(piece[12:]) != 0:
-                    raise LitError('Piece %s has 64bit value' % repr(piece))
-                offset, size = u32(piece), int32(piece[8:])
-                self._stream.seek(offset)
-                piece = self._stream.read(size)
-                if i == 0:
-                    continue # Dont need this piece
-                elif i == 1:
-                    if u32(piece[8:])  != self.entry_chunklen or \
-                       u32(piece[12:]) != self.entry_unknown:
-                        raise LitError('Secondary header does not match piece')
-                    self.read_directory(piece)
-                elif i == 2:
-                    if u32(piece[8:])  != self.count_chunklen or \
-                       u32(piece[12:]) != self.count_unknown:
-                        raise LitError('Secondary header does not match piece')
-                    continue # No data needed from this piece
-                elif i == 3:
-                    self.piece3_guid = piece
-                elif i == 4:
-                    self.piece4_guid = piece
-        finally:
-            self._stream.seek(opos)
+        src = self.header[self.hdr_len:]
+        for i in range(self.num_pieces):
+            piece = src[i*self.PIECE_SIZE:(i+1)*self.PIECE_SIZE]
+            if u32(piece[4:]) != 0 or u32(piece[12:]) != 0:
+                raise LitError('Piece %s has 64bit value' % repr(piece))
+            offset, size = u32(piece), int32(piece[8:])
+            self._stream.seek(offset)
+            piece = self._stream.read(size)
+            if i == 0:
+                continue # Dont need this piece
+            elif i == 1:
+                if u32(piece[8:])  != self.entry_chunklen or \
+                   u32(piece[12:]) != self.entry_unknown:
+                    raise LitError('Secondary header does not match piece')
+                self.read_directory(piece)
+            elif i == 2:
+                if u32(piece[8:])  != self.count_chunklen or \
+                   u32(piece[12:]) != self.count_unknown:
+                    raise LitError('Secondary header does not match piece')
+                continue # No data needed from this piece
+            elif i == 3:
+                self.piece3_guid = piece
+            elif i == 4:
+                self.piece4_guid = piece
                 
     def read_directory(self, piece):
         self.entries = []
@@ -521,108 +515,88 @@ class LitFile(object):
             
             if not hasattr(self, 'manifest'):
                 raise LitError('Lit file does not have a valid manifest')
-                
-    def read_section_names(self, entry):
-        opos = self._stream.tell()
-        try:
-            self._stream.seek(self.content_offset + entry.offset)
-            raw = self._stream.read(entry.size)
-            if len(raw) < 4:
-                raise LitError('Invalid Namelist section')
-            pos = 4
-            self.num_sections = u16(raw[2:pos])
-            
-            self.sections = {}
-            for section in range(self.num_sections):
-                size = u16(raw[pos:pos+2])
-                pos += 2
-                size = size*2 + 2
-                if pos + size > len(raw):
-                    raise LitError('Invalid Namelist section')
-                self.sections[section] = raw[pos:pos+size].decode('utf-16-le')
-                pos += size                
-        finally:
-            self._stream.seek(opos)
-                
-    def read_manifest(self, entry):
-        opos = self._stream.tell()
-        try:
-            self.manifest = []
-            self._stream.seek(self.content_offset + entry.offset)
-            raw = self._stream.read(entry.size)
-            pos = 0
-            while pos < len(raw):
-                size = ord(raw[pos])
-                if size == 0: break
-                pos += 1
-                root = raw[pos:pos+size].decode('utf8')
-                pos += size
-                if pos >= len(raw):
-                    raise LitError('Truncated manifest.')
-                for state in ['spine', 'not spine', 'css', 'images']:
-                    num_files = int32(raw[pos:pos+4])
-                    pos += 4
-                    if num_files == 0: continue
-                    
-                    i = 0
-                    while i < num_files:
-                        if pos+5 >= len(raw):
-                            raise LitError('Truncated manifest.')
-                        offset = u32(raw[pos:pos+4])
-                        pos += 4
-                        
-                        slen = ord(raw[pos])
-                        pos += 1
-                        internal = raw[pos:pos+slen].decode('utf8')
-                        pos += slen
-                        
-                        slen = ord(raw[pos])
-                        pos += 1
-                        original = raw[pos:pos+slen].decode('utf8')
-                        pos += slen
-                        
-                        slen = ord(raw[pos])
-                        pos += 1
-                        mime_type = raw[pos:pos+slen].decode('utf8')
-                        pos += slen + 1
-                        
-                        self.manifest.append(
-                            ManifestItem(original, internal, mime_type,
-                                         offset, root, state))
-                        i += 1
-        finally:
-            self._stream.seek(opos)        
-            
-    def read_meta(self, entry):
-        opos = self._stream.tell()
-        try:
-            self._stream.seek(self.content_offset + entry.offset)
-            raw = self._stream.read(entry.size)
 
-            xml = \
-'''\
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE package
-  PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
-  "http://openebook.org/dtds/oeb-1.0.1/oebpkg101.dtd">
-'''+\
-                unicode(UnBinary(raw, self.manifest))
-            self.meta = xml
-        finally:
-            self._stream.seek(opos)
-            
+    @preserve
+    def read_section_names(self, entry):
+        self._stream.seek(self.content_offset + entry.offset)
+        raw = self._stream.read(entry.size)
+        if len(raw) < 4:
+            raise LitError('Invalid Namelist section')
+        pos = 4
+        self.num_sections = u16(raw[2:pos])
+        
+        self.sections = {}
+        for section in range(self.num_sections):
+            size = u16(raw[pos:pos+2])
+            pos += 2
+            size = size*2 + 2
+            if pos + size > len(raw):
+                raise LitError('Invalid Namelist section')
+            self.sections[section] = raw[pos:pos+size].decode('utf-16-le')
+            pos += size                
+
+    @preserve
+    def read_manifest(self, entry):
+        self.manifest = []
+        self._stream.seek(self.content_offset + entry.offset)
+        raw = self._stream.read(entry.size)
+        pos = 0
+        while pos < len(raw):
+            size = ord(raw[pos])
+            if size == 0: break
+            pos += 1
+            root = raw[pos:pos+size].decode('utf8')
+            pos += size
+            if pos >= len(raw):
+                raise LitError('Truncated manifest.')
+            for state in ['spine', 'not spine', 'css', 'images']:
+                num_files = int32(raw[pos:pos+4])
+                pos += 4
+                if num_files == 0: continue
+                
+                i = 0
+                while i < num_files:
+                    if pos+5 >= len(raw):
+                        raise LitError('Truncated manifest.')
+                    offset = u32(raw[pos:pos+4])
+                    pos += 4
+                    
+                    slen = ord(raw[pos])
+                    pos += 1
+                    internal = raw[pos:pos+slen].decode('utf8')
+                    pos += slen
+                    
+                    slen = ord(raw[pos])
+                    pos += 1
+                    original = raw[pos:pos+slen].decode('utf8')
+                    pos += slen
+                    
+                    slen = ord(raw[pos])
+                    pos += 1
+                    mime_type = raw[pos:pos+slen].decode('utf8')
+                    pos += slen + 1
+                    
+                    self.manifest.append(
+                        ManifestItem(original, internal, mime_type,
+                                     offset, root, state))
+                    i += 1
+
+    @preserve
+    def read_meta(self, entry):
+        self._stream.seek(self.content_offset + entry.offset)
+        raw = self._stream.read(entry.size)
+        xml = OPF_DECL + unicode(UnBinary(raw, self.manifest))
+        self.meta = xml
+
+    @preserve
     def read_image(self, internal_name):
         cover_entry = None
         for entry in self.entries:
             if internal_name in entry.name:
                 cover_entry = entry
                 break
-        opos = self._stream.tell()
-        try:
-            self._stream.seek(self.content_offset + cover_entry.offset)
-            return self._stream.read(cover_entry.size)
-        finally:
-            self._stream.seek(opos)
+        self._stream.seek(self.content_offset + cover_entry.offset)
+        return self._stream.read(cover_entry.size)
 
 def get_metadata(stream):
     try:

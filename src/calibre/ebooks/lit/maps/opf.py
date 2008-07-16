@@ -1,28 +1,3 @@
-ATTRS = {
-    0x0001 => "href",   
-    0x0002 => "%never-used",
-    0x0003 => "%guid",
-    0x0004 => "%minimum_level",
-    0x0005 => "%attr5",
-    0x0006 => "id",
-    0x0007 => "href",
-    0x0008 => "media-type",
-    0x0009 => "fallback",
-    0x000A => "idref",
-    0x000B => "xmlns:dc",
-    0x000C => "xmlns:oebpackage",
-    0x000D => "role",
-    0x000E => "file-as",
-    0x000F => "event",
-    0x0010 => "scheme",
-    0x0011 => "title",
-    0x0012 => "type",
-    0x0013 => "unique-identifier",
-    0x0014 => "name",
-    0x0015 => "content",
-    0x0016 => "xml:lang",
-    }
-
 TAGS = [
     None,
     "package",
@@ -69,6 +44,31 @@ TAGS = [
     None,
    ]
 
-TAGS_ATTR = [{} for i in xrange(43)]
+ATTRS = {
+    0x0001: "href",   
+    0x0002: "%never-used",
+    0x0003: "%guid",
+    0x0004: "%minimum_level",
+    0x0005: "%attr5",
+    0x0006: "id",
+    0x0007: "href",
+    0x0008: "media-type",
+    0x0009: "fallback",
+    0x000A: "idref",
+    0x000B: "xmlns:dc",
+    0x000C: "xmlns:oebpackage",
+    0x000D: "role",
+    0x000E: "file-as",
+    0x000F: "event",
+    0x0010: "scheme",
+    0x0011: "title",
+    0x0012: "type",
+    0x0013: "unique-identifier",
+    0x0014: "name",
+    0x0015: "content",
+    0x0016: "xml:lang",
+    }
 
-MAP = (TAGS, TAGS_ATTRS, ATTRS0)
+TAGS_ATTRS = [{} for i in xrange(43)]
+
+MAP = (TAGS, ATTRS, TAGS_ATTRS)
