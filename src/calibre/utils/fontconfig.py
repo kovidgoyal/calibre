@@ -33,7 +33,7 @@ except:
     preferred_encoding = 'utf-8'
 
 iswindows = 'win32' in sys.platform or 'win64' in sys.platform
-isosx = 'darwin' in sys.platform  
+isosx = 'darwin' in sys.platform
 
 def load_library():
     if isosx:
@@ -94,7 +94,7 @@ class FcValue(Structure):
     _fields_ = [
                 ('type', c_int),
                 ('u', _FcValue)
-                ]    
+                ]
 
 lib = load_library()
 lib.FcPatternCreate.restype   = c_void_p
@@ -145,12 +145,12 @@ if hasattr(sys, 'frameworks_dir'):
 elif not lib.FcInit():
     raise RuntimeError(_('Could not initialize the fontconfig library'))
 
-def find_font_families(allowed_extensions=['ttf']):
+def find_font_families(allowed_extensions=['ttf', 'otf']):
     '''
     Return an alphabetically sorted list of font families available on the system.
     
     `allowed_extensions`: A list of allowed extensions for font file types. Defaults to
-    `['ttf']`. If it is empty, it is ignored.
+    `['ttf', 'otf']`. If it is empty, it is ignored.
     '''
     allowed_extensions = [i.lower() for i in allowed_extensions]
     

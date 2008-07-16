@@ -574,7 +574,7 @@ class DeviceBooksModel(BooksModel):
         for row in rows:
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))
-                self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])        
+                self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
     
     def paths_deleted(self, paths):
         self.map = list(range(0, len(self.db)))
@@ -691,7 +691,7 @@ class DeviceBooksModel(BooksModel):
         dt = item.datetime
         dt = datetime(*dt[0:6])
         dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-        data[_('Timestamp')] = dt.ctime()
+        data[_('Timestamp')] = dt.strftime('%a %b %d %H:%M:%S %Y')
         data[_('Tags')] = ', '.join(item.tags)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
         
