@@ -240,13 +240,21 @@ def do_postinstall(destdir):
         os.chdir(cwd)
 
 def download_tarball():
-    pb  = ProgressBar(TerminalController(sys.stdout), 'Downloading calibre...')
+    try:
+        pb  = ProgressBar(TerminalController(sys.stdout), 'Downloading calibre...')
+    except ValueError:
+        print 'Downloading calibre...'
+        pb = None
     src = urllib2.urlopen(MOBILEREAD+'calibre-%version-i686.tar.bz2')
     size = int(src.info()['content-length'])
     f = tempfile.NamedTemporaryFile()
     while f.tell() < size:
         f.write(src.read(4*1024))
-        pb.update(f.tell()/float(size))
+        percent = f.tell()/float(size)
+        if pb is not None:
+            pb.update(percent)
+        else:
+            print '%d%, '%int(percent*100)
     f.seek(0)
     return f
 
