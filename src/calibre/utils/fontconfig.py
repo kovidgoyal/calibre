@@ -128,22 +128,40 @@ lib.FcConfigParseAndLoad.restype = c_int
 lib.FcConfigBuildFonts.argtypes = [c_void_p]
 lib.FcConfigBuildFonts.restype  = c_int
 
+_init_error  = None 
+_initialized = False
+from threading import Timer
+def _do_init():
+    # Initialize the fontconfig library. This has to be done manually
+    # for the OS X bundle as it may have its own private fontconfig.
+    if hasattr(sys, 'frameworks_dir'):
+        config_dir = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
+        if isinstance(config_dir, unicode):
+            config_dir = config_dir.encode(sys.getfilesystemencoding())
+        config = lib.FcConfigCreate()
+        if not lib.FcConfigParseAndLoad(config, os.path.join(config_dir, 'fonts.conf'), 1):
+            _init_error = 'Could not parse the fontconfig configuration'
+            return
+        if not lib.FcConfigBuildFonts(config):
+            _init_error = 'Could not build fonts'
+            return
+        if not lib.FcConfigSetCurrent(config):
+            _init_error = 'Could not set font config'
+            return
+    elif not lib.FcInit():
+        _init_error = _('Could not initialize the fontconfig library')
+        return
+    global _initialized
+    _initialized = True
+    
+    
+_init_timer = Timer(0.1, _do_init)
+_init_timer.start()
 
-# Initialize the fontconfig library. This has to be done manually
-# for the OS X bundle as it may have its own private fontconfig.
-if hasattr(sys, 'frameworks_dir'):
-    config_dir = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
-    if isinstance(config_dir, unicode):
-        config_dir = config_dir.encode(sys.getfilesystemencoding())
-    config = lib.FcConfigCreate()
-    if not lib.FcConfigParseAndLoad(config, os.path.join(config_dir, 'fonts.conf'), 1):
-        raise RuntimeError('Could not parse the fontconfig configuration')
-    if not lib.FcConfigBuildFonts(config):
-        raise RuntimeError('Could not build fonts')
-    if not lib.FcConfigSetCurrent(config):
-        raise RuntimeError('Could not set font config')
-elif not lib.FcInit():
-    raise RuntimeError(_('Could not initialize the fontconfig library'))
+def join():
+    _init_timer.join()
+    if _init_error is not None:
+        raise RuntimeError(_init_error)
 
 def find_font_families(allowed_extensions=['ttf', 'otf']):
     '''
@@ -152,6 +170,7 @@ def find_font_families(allowed_extensions=['ttf', 'otf']):
     `allowed_extensions`: A list of allowed extensions for font file types. Defaults to
     `['ttf', 'otf']`. If it is empty, it is ignored.
     '''
+    join()
     allowed_extensions = [i.lower() for i in allowed_extensions]
     
     empty_pattern = lib.FcPatternCreate()
@@ -193,6 +212,7 @@ def files_for_family(family, normalize=True):
     they are a tuple (slant, weight) otherwise they are strings from the set 
     `('normal', 'bold', 'italic', 'bi', 'light', 'li')`
     '''
+    join()
     if isinstance(family, unicode):
         family = family.encode(preferred_encoding)
     family_pattern = lib.FcPatternBuild(0, 'family', FcTypeString, family, 0)
@@ -268,6 +288,7 @@ def match(name, sort=False, verbose=False):
     decreasing closeness of matching.
     `verbose`: If `True` print debugging information to stdout
     '''
+    join()
     if isinstance(name, unicode):
         name = name.encode(preferred_encoding)
     pat = lib.FcNameParse(name)

@@ -59,6 +59,9 @@ class Main(MainWindow, Ui_MainWindow):
     
     def __init__(self, single_instance, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
+        # Initialize fontconfig in a separate thread as this can be a lengthy 
+        # process if run for the first time on this machine
+        self.fc = __import__('calibre.utils.fontconfig', fromlist=1)
         self.single_instance = single_instance
         if self.single_instance is not None:
             self.connect(self.single_instance, SIGNAL('message_received(PyQt_PyObject)'),
