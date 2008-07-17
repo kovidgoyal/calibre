@@ -13,6 +13,8 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFReader
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
+import calibre.ebooks.lit.mssha1 as mssha1
+import calibre.ebooks.lit.msdes as msdes
 
 OPF_DECL = """"<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
@@ -24,6 +26,9 @@ XHTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
  "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Document//EN"
  "http://openebook.org/dtds/oeb-1.0.1/oebdoc101.dtd">
 """
+
+DESENCRYPT_GUID = "{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}"
+LZXCOMPRESS_GUID = "{0A9007C6-4076-11D3-8789-0000F8105754}"
 
 def u32(bytes):
     return struct.unpack('<L', bytes[:4])[0]
@@ -44,6 +49,10 @@ def encint(bytes, remaining):
         val |= (b & 0x7f)
         if b & 0x80 == 0: break
     return val, bytes[pos:], remaining 
+
+def msguid(bytes):
+    values = struct.unpack("<LHHBBBBBBBB", bytes[:16])
+    return "{%08lX-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}" % values
 
 def read_utf8_char(bytes, pos):
     c = ord(bytes[pos])
@@ -491,13 +500,11 @@ class LitFile(object):
             remaining = chunk_size - int32(piece[p+4:p+8]) - 48
             if remaining < 0:
                 raise LitError('AOLL remaining count is negative')
-            
             entries = u16(piece[p+chunk_size-2:])
             if entries <= 0:            
                 # Hopefully everything will work even without a correct entries
                 # count
                 entries = (2 ** 16) - 1
-            
             piece = piece[p+48:]
             i = 0
             while i < entries:
@@ -523,37 +530,33 @@ class LitFile(object):
                     self.read_meta(entry)
                 self.entries[name] = entry
                 i += 1
-            
-            if not hasattr(self, 'sections'):
+            if not hasattr(self, 'section_names'):
                 raise LitError('Lit file does not have a valid NameList')
-            
             if not hasattr(self, 'manifest'):
                 raise LitError('Lit file does not have a valid manifest')
+            self.read_drm()
 
-    @preserve
     def read_section_names(self, entry):
-        self._stream.seek(self.content_offset + entry.offset)
-        raw = self._stream.read(entry.size)
+        raw = self._read_content(entry.offset, entry.size)
         if len(raw) < 4:
             raise LitError('Invalid Namelist section')
         pos = 4
         self.num_sections = u16(raw[2:pos])
-        
-        self.sections = {}
+        self.section_names = [""]*self.num_sections
+        self.section_data = [None]*self.num_sections
         for section in range(self.num_sections):
             size = u16(raw[pos:pos+2])
             pos += 2
             size = size*2 + 2
             if pos + size > len(raw):
                 raise LitError('Invalid Namelist section')
-            self.sections[section] = raw[pos:pos+size].decode('utf-16-le')
-            pos += size                
+            self.section_names[section] = \
+                raw[pos:pos+size].decode('utf-16-le').rstrip('\000')
+            pos += size
 
-    @preserve
     def read_manifest(self, entry):
         self.manifest = []
-        self._stream.seek(self.content_offset + entry.offset)
-        raw = self._stream.read(entry.size)
+        raw = self._read_content(entry.offset, entry.size)
         pos = 0
         while pos < len(raw):
             size = ord(raw[pos])
@@ -595,25 +598,92 @@ class LitFile(object):
                                      offset, root, state))
                     i += 1
 
-    @preserve
     def read_meta(self, entry):
-        self._stream.seek(self.content_offset + entry.offset)
-        raw = self._stream.read(entry.size)
+        raw = self._read_content(entry.offset, entry.size)
         xml = OPF_DECL + unicode(UnBinary(raw, self.manifest))
         self.meta = xml
 
-    @preserve
-    def read_image(self, internal_name):
-        cover_entry = self.entries[internal_name]
-        self._stream.seek(self.content_offset + cover_entry.offset)
-        return self._stream.read(cover_entry.size)
+    def read_drm(self):
+        def exists_file(name):
+            try: self.get_file(name)
+            except KeyError: return False
+            return True
+        self.drmlevel = 0
+        if exists_file('/DRMStorage/Licenses/EUL'):
+            self.drmlevel = 5
+        elif exists_file('/DRMStorage/DRMBookplate'):
+            self.drmlevel = 3
+        elif exists_file('/DRMStorage/DRMSealed'):
+            self.drmlevel = 1
+        else:
+            return
+        des = msdes.new(self.calculate_deskey())
+        bookkey = des.decrypt(self.get_file('/DRMStorage/DRMSealed'))
+        if bookkey[0] != '\000':
+            raise LitError('Unable to decrypt title key!')
+        self.bookkey = bookkey[1:9]
 
+    def calculate_deskey(self):
+        hashfiles = ['/meta', '/DRMStorage/DRMSource']
+        if self.drmlevel == 3:
+            hashfiles.append('/DRMStorage/DRMBookplate')
+        prepad = 2
+        hash = mssha1.new()
+        for name in hashfiles:
+            data = self.get_file(name)
+            if prepad > 0:
+                data = ("\000" * prepad) + data
+                prepad = 0
+            postpad = 64 - (len(data) % 64)
+            if postpad < 64:
+                data = data + ("\000" * postpad)
+            hash.update(data)
+        digest = hash.digest()
+        key = [0] * 8
+        for i in xrange(0, len(digest)):
+            key[i % 8] ^= ord(digest[i])
+        return ''.join(chr(x) for x in key)
+        
     def get_file(self, name):
         entry = self.entries[name]
         if entry.section == 0:
             return self._read_content(entry.offset, entry.size)
         section = self.get_section(entry.section)
         return section[entry.offset:entry.offset+entry.size]
+
+    def get_section(self, section):
+        data = self.section_data[section]
+        if not data:
+            data = self._get_section(section)
+            self.section_data[section] = data
+        return data
+
+    def _get_section(self, section):
+        name = self.section_names[section]
+        path = '::DataSpace/Storage/' + name
+        transform = self.get_file(path + '/Transform/List')
+        content = self.get_file(path + '/Content')
+        control = self.get_file(path + '/ControlData')
+        idx_transform = idx_control = 0
+        while (len(transform) - idx_transform) >= 16:
+            ndwords = int32(control[idx_control:]) + 1
+            if (idx_control + (ndwords * 4)) > len(control) or ndwords <= 0:
+                raise LitError("ControlData is too short")
+            guid = msguid(transform[idx_transform:])
+            if guid == DESENCRYPT_GUID:
+                content = self._decrypt(content)
+                idx_control += ndwords * 4
+            elif guid == LZXCOMPRESS_GUID:
+                raise LitError("LZX decompression not implemented")
+            else:
+                raise LitError("Unrecognized transform: %s." % repr(guid))
+            idx_transform += 16
+        return content
+
+    def _decrypt(self, content):
+        if self.drmlevel == 5:
+            raise LitError('Cannot extract content from a DRM protected ebook')
+        return msdes.new(self.bookkey).decrypt(content)
 
 def get_metadata(stream):
     try:
@@ -632,7 +702,7 @@ def get_metadata(stream):
                 ext = 'jpg'
             else:
                 ext = ext.lower()
-            cd = litfile.read_image(cover_item)
+            cd = litfile.get_file(cover_item)
             mi.cover_data = (ext, cd) if cd else (None, None)            
     except:
         title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
