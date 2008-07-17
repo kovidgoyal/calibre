@@ -136,6 +136,11 @@
         </xsl:variable>
         <xsl:if test="$section_has_title = 'None'">
             <a name="TOC_{generate-id()}" />
+            <xsl:if test="@id">
+                <xsl:element name="a">
+                    <xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
+                </xsl:element>
+            </xsl:if>
         </xsl:if>
         <xsl:apply-templates>
             <xsl:with-param name="section_toc_id" select="$section_has_title" />
