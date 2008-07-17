@@ -123,7 +123,7 @@ K = [
     0xCA62C1D6L  # (60 <= t <= 79)
     ]
 
-class sha:
+class mssha1(object):
     "An implementation of the MD5 hash function in pure Python."
 
     def __init__(self):
@@ -186,7 +186,7 @@ class sha:
     def update(self, inBuf):
         """Add to the current message.
 
-        Update the sha object with the string arg. Repeated calls
+        Update the mssha1 object with the string arg. Repeated calls
         are equivalent to a single call with the concatenation of all
         the arguments, i.e. s.update(a); s.update(b) is equivalent
         to s.update(a+b).
@@ -308,12 +308,12 @@ digest_size = digestsize = 20
 blocksize = 1
 
 def new(arg=None):
-    """Return a new sha crypto object.
+    """Return a new mssha1 crypto object.
 
     If arg is present, the method call update(arg) is made.
     """
 
-    crypto = sha()
+    crypto = mssha1()
     if arg:
         crypto.update(arg)
 
