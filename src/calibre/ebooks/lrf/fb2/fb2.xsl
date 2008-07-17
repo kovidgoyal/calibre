@@ -128,21 +128,35 @@
 	</xsl:template>
 
 	<xsl:template match="fb:section">
-		<a name="TOC_{generate-id()}"></a>
-		<xsl:if test="@id">
-			<xsl:element name="a">
-				<xsl:attribute name="name"><xsl:value-of select="@id"/></xsl:attribute>
-			</xsl:element>
-		</xsl:if>
-		<xsl:apply-templates/>
+        <xsl:variable name="section_has_title">
+            <xsl:choose>
+                <xsl:when test="./fb:title"><xsl:value-of select="generate-id()" /></xsl:when>
+                <xsl:otherwise>None</xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        <xsl:if test="$section_has_title = 'None'">
+            <a name="TOC_{generate-id()}" />
+        </xsl:if>
+        <xsl:apply-templates>
+            <xsl:with-param name="section_toc_id" select="$section_has_title" />
+        </xsl:apply-templates>
 	</xsl:template>
 	
 	
 	<!-- section/title -->
 	<xsl:template match="fb:section/fb:title|fb:poem/fb:title">
+        <xsl:param name="section_toc_id" />
 		<xsl:choose>
 			<xsl:when test="count(ancestor::node()) &lt; 9">
 				<xsl:element name="{concat('h',count(ancestor::node())-3)}">
+                    <xsl:if test="../@id">
+                        <xsl:attribute name="id"><xsl:value-of select="../@id" /></xsl:attribute>
+                    </xsl:if>
+                    <xsl:if test="$section_toc_id != 'None'">
+                        <xsl:element name="a">
+                            <xsl:attribute name="name">TOC_<xsl:value-of select="$section_toc_id"/></xsl:attribute>
+                        </xsl:element>
+                    </xsl:if>
 					<a name="TOC_{generate-id()}"></a>
 					<xsl:if test="@id">
 						<xsl:element name="a">
@@ -166,7 +180,9 @@
 	</xsl:template>
 	<!-- section/title -->
 	<xsl:template match="fb:body/fb:title">
-		<h1><xsl:apply-templates mode="title"/></h1>
+        <xsl:element name="h1">
+            <xsl:apply-templates mode="title"/>
+        </xsl:element>
 	</xsl:template>
 
 	<xsl:template match="fb:title/fb:p">
