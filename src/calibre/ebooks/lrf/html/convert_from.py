@@ -222,6 +222,7 @@ class HTMLConverter(object, LoggingInterface):
         self.memory = []        #: Used to ensure that duplicate CSS unhandled erros are not reported
         self.tops = {}          #: element representing the top of each HTML file in the LRF file
         self.previous_text = '' #: Used to figure out when to lstrip
+        self.stripped_space = ''
         self.preserve_block_style = False #: Used so that <p> tags in <blockquote> elements are handled properly
         self.avoid_page_break = False
         self.current_page = book.create_page()
@@ -864,11 +865,15 @@ class HTMLConverter(object, LoggingInterface):
         
         if collapse_whitespace:
             src = re.sub(r'\s{1,}', ' ', src)
+            if self.stripped_space and len(src) == len(src.lstrip(u' \n\r\t')):
+                src = self.stripped_space + src
+            src, orig = src.rstrip(u' \n\r\t'), src
+            self.stripped_space = orig[len(src):]
             if len(self.previous_text) != len(self.previous_text.rstrip(u' \n\r\t')):
                 src = src.lstrip(u' \n\r\t')
             if len(src):
                 self.previous_text = src
-                append_text(src)    
+                append_text(src)
         else:
             srcs = src.split('\n')
             for src in srcs[:-1]:
