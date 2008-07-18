@@ -30,7 +30,12 @@ islinux   = not(iswindows or isosx)
 try:
     locale.setlocale(locale.LC_ALL, '')
 except:
-    pass
+    dl = locale.getdefaultlocale()
+    try:
+        if dl:
+            locale.setlocale(dl[0])
+    except:
+        pass
 
 try:
     preferred_encoding = locale.getpreferredencoding()
