@@ -199,8 +199,13 @@ initlzx(void)
     PyObject *m;
 
     m = Py_InitModule3("lzx", lzx_methods, lzx_doc);
-    if (m == NULL) return;
+    if (m == NULL) {
+        return;
+    }
+    
     LzxError = PyErr_NewException("lzx.LzxError", NULL, NULL);
     Py_INCREF(LzxError);
     PyModule_AddObject(m, "LzxError", LzxError);
+    
+    return;
 }
