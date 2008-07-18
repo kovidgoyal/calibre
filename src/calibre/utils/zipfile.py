@@ -352,6 +352,7 @@ class ZipFile:
         elif key == 'a':
             try:                        # See if file is a zip file
                 self._RealGetContents()
+                self._calculate_file_offsets()
                 # seek to start of directory and overwrite
                 self.fp.seek(self.start_dir, 0)
             except BadZipfile:          # file is not a zip file, just append
@@ -430,7 +431,7 @@ class ZipFile:
             self.NameToInfo[x.filename] = x
             if self.debug > 2:
                 print "total", total
-        self._calculate_file_offsets()
+            
 
     def _calculate_file_offsets(self):
         for zip_info in self.filelist:
