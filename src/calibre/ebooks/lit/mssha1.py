@@ -1,20 +1,10 @@
-#!/usr/bin/env python
-# -*- coding: iso-8859-1
+"""
+Modified version of SHA-1 used in Microsoft LIT files.
 
-"""A sample implementation of SHA-1 in pure Python.
-
-   Framework adapted from Dinu Gherman's MD5 implementation by
-   J. Hallén and L. Creighton. SHA-1 implementation based directly on
-   the text of the NIST standard FIPS PUB 180-1.
+Adapted from the PyPy pure-Python SHA-1 implementation.
 """
 
-
-__date__    = '2004-11-17'
-__version__ = 0.91 # Modernised by J. Hallén and L. Creighton for Pypy
-
-
 import struct, copy
-
 
 # ======================================================================
 # Bit-Manipulation helpers
@@ -100,10 +90,13 @@ def f40_59(B, C, D):
 def f60_79(B, C, D):
     return B ^ C ^ D
 
+# Microsoft's lovely addition...
 def f6_42(B, C, D):
     return (B + C) ^ C
 
 f = [f0_19]*20 + [f20_39]*20 + [f40_59]*20 + [f60_79]*20
+
+# ...and delightful changes
 f[3] = f20_39
 f[6] = f6_42
 f[10] = f20_39
@@ -148,6 +141,7 @@ class mssha1(object):
         self.input = []
 
         # Initial 160 bit message digest (5 times 32 bit).
+        # Also changed by Microsoft from standard.
         self.H0 = 0x32107654L
         self.H1 = 0x23016745L
         self.H2 = 0xC4E680A2L
