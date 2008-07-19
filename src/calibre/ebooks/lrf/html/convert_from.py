@@ -1975,8 +1975,9 @@ def try_opf(path, options, logger):
                                 except:
                                     continue
             if not getattr(options, 'cover', None) and orig_cover is not None:
-                options.cover = orig_cover        
-        options.spine = [i.path for i in opf.spine if i.path]
+                options.cover = orig_cover
+        if getattr(opf, 'spine', False):
+            options.spine = [i.path for i in opf.spine if i.path]
         if not getattr(options, 'toc', None):
             options.toc   = opf.toc
     except Exception:
