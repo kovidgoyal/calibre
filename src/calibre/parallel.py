@@ -25,7 +25,7 @@ the worker interrupts the job and dies. The sending of progress and console outp
 is buffered and asynchronous to prevent the job from being IO bound.  
 '''
 import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, signal, \
-       subprocess, socket, collections, binascii, re, tempfile, thread, tempfile
+       subprocess, socket, collections, binascii, re, thread, tempfile
 from select import select
 from functools import partial
 from threading import RLock, Thread, Event
@@ -494,6 +494,11 @@ class Result(object):
     def __iter__(self):
         return iter((self.result, self.exception, self.traceback))
 
+def remove_ipc_socket(path):
+    os = __import__('os')
+    if os.path.exists(path):
+        os.path.unlink(path)
+
 class Server(Thread):
     
     KILL_RESULT = Overseer.KILL_RESULT
@@ -508,13 +513,13 @@ class Server(Thread):
         self.port = tempfile.mktemp(prefix='calibre_server')+'_%d_'%self.PID if not iswindows else self.START_PORT
         while True:
             try:
-            	address = ('localhost', self.port) if iswindows else self.port
-            	self.server_socket.bind(address)
+                address = ('localhost', self.port) if iswindows else self.port
+                self.server_socket.bind(address)
                 break
             except socket.error:
                 self.port += (1 if iswindows else '1')
         if not iswindows:
-            atexit.register(os.unlink, self.port)
+            atexit.register(remove_ipc_socket, self.port)
         self.server_socket.listen(5)
         self.number_of_workers = number_of_workers 
         self.pool, self.jobs, self.working, self.results = [], collections.deque(), [], {}
