@@ -440,7 +440,7 @@
   <action name="action_add" >
    <property name="icon" >
     <iconset resource="images.qrc" >
-     <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
+     <normaloff>:/images/add_book.svg</normaloff>:/images/add_book.svg</iconset>
    </property>
    <property name="text" >
     <string>Add books</string>

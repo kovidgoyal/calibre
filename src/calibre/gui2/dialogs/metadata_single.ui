@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>668</width>
-    <height>663</height>
+    <width>796</width>
+    <height>715</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -41,7 +41,7 @@
          <property name="title" >
           <string>Meta information</string>
          </property>
-         <layout class="QGridLayout" >
+         <layout class="QGridLayout" name="gridLayout_3" >
           <item row="0" column="0" >
            <widget class="QLabel" name="label" >
             <property name="text" >
@@ -59,6 +59,26 @@
            <widget class="QLineEdit" name="title" >
             <property name="toolTip" >
              <string>Change the title of this book</string>
+            </property>
+           </widget>
+          </item>
+          <item rowspan="2" row="0" column="2" >
+           <widget class="QToolButton" name="swap_button" >
+            <property name="toolTip" >
+             <string>Swap the author and title</string>
+            </property>
+            <property name="text" >
+             <string>...</string>
+            </property>
+            <property name="icon" >
+             <iconset resource="../images.qrc" >
+              <normaloff>:/images/swap.svg</normaloff>:/images/swap.svg</iconset>
+            </property>
+            <property name="iconSize" >
+             <size>
+              <width>16</width>
+              <height>16</height>
+             </size>
             </property>
            </widget>
           </item>
@@ -95,7 +115,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1" >
+          <item row="2" column="1" colspan="2" >
            <widget class="QLineEdit" name="author_sort" >
             <property name="toolTip" >
              <string>Specify how the author(s) of this book should be sorted. For example Charles Dickens should be sorted as Dickens, Charles.</string>
@@ -115,7 +135,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1" >
+          <item row="3" column="1" colspan="2" >
            <widget class="QSpinBox" name="rating" >
             <property name="toolTip" >
              <string>Rating of this book. 0-5 stars</string>
@@ -147,7 +167,7 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1" >
+          <item row="4" column="1" colspan="2" >
            <widget class="QLineEdit" name="publisher" >
             <property name="toolTip" >
              <string>Change the publisher of this book</string>
@@ -167,7 +187,7 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1" >
+          <item row="5" column="1" colspan="2" >
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QLineEdit" name="tags" >
@@ -208,7 +228,7 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1" >
+          <item row="6" column="1" colspan="2" >
            <layout class="QHBoxLayout" >
             <property name="spacing" >
              <number>5</number>
@@ -254,7 +274,7 @@
             </item>
            </layout>
           </item>
-          <item row="7" column="1" >
+          <item row="7" column="1" colspan="2" >
            <widget class="QSpinBox" name="series_index" >
             <property name="enabled" >
              <bool>false</bool>
@@ -289,7 +309,7 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="1" >
+          <item row="8" column="1" colspan="2" >
            <widget class="QLineEdit" name="isbn" />
           </item>
          </layout>
@@ -300,11 +320,16 @@
          <property name="title" >
           <string>Comments</string>
          </property>
-         <layout class="QGridLayout" >
-          <item row="0" column="0" >
-           <widget class="QTextEdit" name="comments" />
-          </item>
-         </layout>
+         <widget class="QTextEdit" name="comments" >
+          <property name="geometry" >
+           <rect>
+            <x>9</x>
+            <y>39</y>
+            <width>354</width>
+            <height>557</height>
+           </rect>
+          </property>
+         </widget>
         </widget>
        </item>
        <item>
@@ -316,7 +341,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="" >
+     <widget class="QWidget" name="layoutWidget" >
       <layout class="QVBoxLayout" name="verticalLayout_2" >
        <item>
         <widget class="QGroupBox" name="af_group_box" >
@@ -364,7 +389,7 @@
               </property>
               <property name="icon" >
                <iconset resource="../images.qrc" >
-                <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
+                <normaloff>:/images/add_book.svg</normaloff>:/images/add_book.svg</iconset>
               </property>
               <property name="iconSize" >
                <size>
@@ -398,9 +423,6 @@
           </item>
          </layout>
          <zorder></zorder>
-         <zorder></zorder>
-         <zorder></zorder>
-         <zorder>groupBox_4</zorder>
         </widget>
        </item>
        <item>

@@ -144,6 +144,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                         self.edit_tags)
         QObject.connect(self.remove_series_button, SIGNAL('clicked()'),
                         self.remove_unused_series)        
+        self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
         self.timeout = float(Settings().get('network timeout', 5))
         self.title.setText(db.title(row))
         isbn = db.isbn(self.id, index_is_id=True)
@@ -192,7 +193,12 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             pm.loadFromData(cover)
             if not pm.isNull(): 
                 self.cover.setPixmap(pm)
-        
+    
+    def swap_title_author(self):
+        title = self.title.text()
+        self.title.setText(self.authors.text())
+        self.authors.setText(title)
+        self.author_sort.setText('')
 
     def cover_dropped(self):
         self.cover_changed = True
