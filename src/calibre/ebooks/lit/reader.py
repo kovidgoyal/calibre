@@ -19,13 +19,13 @@ import calibre.ebooks.lit.mssha1 as mssha1
 import calibre.ebooks.lit.msdes as msdes
 import calibre.utils.lzx as lzx
 
-OPF_DECL = """"<?xml version="1.0" encoding="UTF-8" ?>
+OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
   PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
   "http://openebook.org/dtds/oeb-1.0.1/oebpkg101.dtd">
 """
 HTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html PUBLIC
+<!DOCTYPE html PUBLIC 
  "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Document//EN"
  "http://openebook.org/dtds/oeb-1.0.1/oebdoc101.dtd">
 """
@@ -421,8 +421,13 @@ class LitReader(object):
             raise LitError('Not a valid LIT file')
         if self.version != 1:
             raise LitError('Unknown LIT version %d'%(self.version,))
-        self.read_secondary_header()
-        self.read_header_pieces()
+        self.entries = {}
+        self._read_secondary_header()
+        self._read_header_pieces()
+        self._read_section_names()
+        self._read_manifest()
+        self._read_meta()
+        self._read_drm()
 
     @preserve
     def __len__(self):
@@ -437,10 +442,9 @@ class LitReader(object):
     def _read_content(self, offset, size):
         return self._read_raw(self.content_offset + offset, size)
     
-    @preserve
-    def read_secondary_header(self):
-        self._stream.seek(self.hdr_len + self.num_pieces*self.PIECE_SIZE)
-        bytes = self._stream.read(self.sec_hdr_len)
+    def _read_secondary_header(self):
+        offset = self.hdr_len + (self.num_pieces * self.PIECE_SIZE)
+        bytes = self._read_raw(offset, self.sec_hdr_len)
         offset = int32(bytes[4:])
         while offset < len(bytes):
             blocktype = bytes[offset:offset+4]
@@ -468,23 +472,21 @@ class LitReader(object):
         if not hasattr(self, 'content_offset'):
             raise LitError('Could not figure out the content offset')
     
-    @preserve
-    def read_header_pieces(self):
+    def _read_header_pieces(self):
         src = self.header[self.hdr_len:]
         for i in range(self.num_pieces):
             piece = src[i * self.PIECE_SIZE:(i + 1) * self.PIECE_SIZE]
             if u32(piece[4:]) != 0 or u32(piece[12:]) != 0:
                 raise LitError('Piece %s has 64bit value' % repr(piece))
             offset, size = u32(piece), int32(piece[8:])
-            self._stream.seek(offset)
-            piece = self._stream.read(size)
+            piece = self._read_raw(offset, size)
             if i == 0:
                 continue # Dont need this piece
             elif i == 1:
                 if u32(piece[8:])  != self.entry_chunklen or \
                    u32(piece[12:]) != self.entry_unknown:
                     raise LitError('Secondary header does not match piece')
-                self.read_directory(piece)
+                self._read_directory(piece)
             elif i == 2:
                 if u32(piece[8:])  != self.count_chunklen or \
                    u32(piece[12:]) != self.count_unknown:
@@ -495,58 +497,44 @@ class LitReader(object):
             elif i == 4:
                 self.piece4_guid = piece
                 
-    def read_directory(self, piece):
-        self.entries = {}
+    def _read_directory(self, piece):
         if not piece.startswith('IFCM'):
             raise LitError('Header piece #1 is not main directory.')
         chunk_size, num_chunks = int32(piece[8:12]), int32(piece[24:28])
-        if (32 + chunk_size * num_chunks) != len(piece):
+        if (32 + (num_chunks * chunk_size)) != len(piece):
             raise LitError('IFCM HEADER has incorrect length')
-        for chunk in range(num_chunks):
-            p = 32 + chunk * chunk_size
-            if piece[p:p+4] != 'AOLL':
-                continue
-            remaining = chunk_size - int32(piece[p+4:p+8]) - 48
-            if remaining < 0:
+        for i in xrange(num_chunks):
+            offset = 32 + (i * chunk_size)
+            chunk = piece[offset:offset + chunk_size]
+            tag, chunk = chunk[:4], chunk[4:]
+            if tag != 'AOLL': continue
+            remaining, chunk = int32(chunk[:4]), chunk[4:]
+            if remaining >= chunk_size:
                 raise LitError('AOLL remaining count is negative')
-            entries = u16(piece[p+chunk_size-2:])
-            if entries <= 0:            
-                # Hopefully everything will work even without a correct entries
-                # count
+            remaining = chunk_size - (remaining + 48)
+            entries = u16(chunk[-2:])
+            if entries == 0:
+                # Hopefully will work even without a correct entries count
                 entries = (2 ** 16) - 1
-            piece = piece[p+48:]
-            i = 0
-            while i < entries:
+            chunk = chunk[40:]
+            for j in xrange(entries):
                 if remaining <= 0: break
-                namelen, piece, remaining = encint(piece, remaining)
+                namelen, chunk, remaining = encint(chunk, remaining)
                 if namelen != (namelen & 0x7fffffff):
                     raise LitError('Directory entry had 64bit name length.')
                 if namelen > remaining - 3:
                     raise LitError('Read past end of directory chunk')
-                name = piece[:namelen]
-                piece = piece[namelen:]
-                section, piece, remaining = encint(piece, remaining)
-                offset, piece, remaining = encint(piece, remaining)
-                size, piece, remaining = encint(piece, remaining)
-                
+                name, chunk = chunk[:namelen], chunk[namelen:]
+                section, chunk, remaining = encint(chunk, remaining)
+                offset, chunk, remaining = encint(chunk, remaining)
+                size, chunk, remaining = encint(chunk, remaining)
                 entry = DirectoryEntry(name, section, offset, size)
-                
-                if name == '::DataSpace/NameList':
-                    self.read_section_names(entry)
-                elif name == '/manifest':
-                    self.read_manifest(entry)
-                elif name == '/meta':
-                    self.read_meta(entry)
                 self.entries[name] = entry
-                i += 1
-            if not hasattr(self, 'section_names'):
-                raise LitError('Lit file does not have a valid NameList')
-            if not hasattr(self, 'manifest'):
-                raise LitError('Lit file does not have a valid manifest')
-            self.read_drm()
 
-    def read_section_names(self, entry):
-        raw = self._read_content(entry.offset, entry.size)
+    def _read_section_names(self):
+        if '::DataSpace/NameList' not in self.entries:
+            raise LitError('Lit file does not have a valid NameList')
+        raw = self.get_file('::DataSpace/NameList')
         if len(raw) < 4:
             raise LitError('Invalid Namelist section')
         pos = 4
@@ -563,9 +551,11 @@ class LitReader(object):
                 raw[pos:pos+size].decode('utf-16-le').rstrip('\000')
             pos += size
 
-    def read_manifest(self, entry):
+    def _read_manifest(self):
+        if '/manifest' not in self.entries:
+            raise LitError('Lit file does not have a valid manifest')
+        raw = self.get_file('/manifest')
         self.manifest = {}
-        raw = self._read_content(entry.offset, entry.size)
         while raw:
             slen, raw = ord(raw[0]), raw[1:]
             if slen == 0: break
@@ -600,12 +590,12 @@ class LitReader(object):
             for item in mlist:
                 item.path = item.path[slen:]
 
-    def read_meta(self, entry):
-        raw = self._read_content(entry.offset, entry.size)
+    def _read_meta(self):
+        raw = self.get_file('/meta')
         xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
         self.meta = xml
 
-    def read_drm(self):
+    def _read_drm(self):
         self.drmlevel = 0
         if '/DRMStorage/Licenses/EUL' in self.entries:
             self.drmlevel = 5
@@ -615,13 +605,13 @@ class LitReader(object):
             self.drmlevel = 1
         else:
             return
-        des = msdes.new(self.calculate_deskey())
+        des = msdes.new(self._calculate_deskey())
         bookkey = des.decrypt(self.get_file('/DRMStorage/DRMSealed'))
         if bookkey[0] != '\000':
             raise LitError('Unable to decrypt title key!')
         self.bookkey = bookkey[1:9]
 
-    def calculate_deskey(self):
+    def _calculate_deskey(self):
         hashfiles = ['/meta', '/DRMStorage/DRMSource']
         if self.drmlevel == 3:
             hashfiles.append('/DRMStorage/DRMBookplate')
@@ -726,19 +716,18 @@ class LitReader(object):
                 u = int32(reset_table[ofs_entry + 4:])
                 if u != 0:
                     raise LitError("Reset table entry greater than 32 bits")
-                if size >= (len(content) + base):
+                if size >= len(content):
                     raise("Reset table entry out of bounds")
                 if bytes_remaining >= window_bytes:
                     lzx.reset()
-                    result.append(lzx.decompress(content, window_bytes))
+                    result.append(lzx.decompress(content[base:size], window_bytes))
                     bytes_remaining -= window_bytes
-                    content = content[size - base:]
                     base = size
             accum += int32(reset_table[RESET_INTERVAL:])
             ofs_entry += 8
         if bytes_remaining < window_bytes and bytes_remaining > 0:
             lzx.reset()
-            result.append(lzx.decompress(content, bytes_remaining))
+            result.append(lzx.decompress(content[base:], bytes_remaining))
             bytes_remaining = 0
         if bytes_remaining > 0:
             raise LitError("Failed to completely decompress section")
