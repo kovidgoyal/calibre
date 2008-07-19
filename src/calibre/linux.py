@@ -167,7 +167,9 @@ def setup_completion(fatal_errors):
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
         os.remove(f.name)
+        manifest = []
         f = open_file('/etc/bash_completion.d/calibre')
+        manifest.append(f.name)
         
         f.write('# calibre Bash Shell Completion\n')
         f.write(opts_and_exts('html2lrf', htmlop, 
@@ -275,18 +277,22 @@ complete -o nospace  -F _prs500 prs500
         print 'failed'
         import traceback
         traceback.print_exc()
+    return manifest
         
 def setup_udev_rules(group_file, reload, fatal_errors):
     print 'Trying to setup udev rules...'
+    manifest = []
     sys.stdout.flush()
     groups = open(group_file, 'rb').read()
     group = 'plugdev' if 'plugdev' in groups else 'usb'
     udev = open_file('/etc/udev/rules.d/95-calibre.rules')
+    manifest.append(udev.name)
     udev.write('''# Sony Reader PRS-500\n'''
                '''BUS=="usb", SYSFS{idProduct}=="029b", SYSFS{idVendor}=="054c", MODE="660", GROUP="%s"\n'''%(group,)
              )
     udev.close()
     fdi = open_file('/usr/share/hal/fdi/policy/20thirdparty/10-calibre.fdi')
+    manifest.append(fdi.name)
     fdi.write('<?xml version="1.0" encoding="UTF-8"?>\n\n<deviceinfo version="0.2">\n')
     for cls in DEVICES:
         fdi.write(\
@@ -326,6 +332,7 @@ def setup_udev_rules(group_file, reload, fatal_errors):
                     if fatal_errors:
                         raise Exception("Couldn't reload udev, you may have to reboot")
                     print >>sys.stderr, "Couldn't reload udev, you may have to reboot"
+    return manifest
 
 def option_parser():
     from optparse import OptionParser
@@ -340,6 +347,8 @@ def option_parser():
                       help='If set, do not check if we are root.')
     parser.add_option('--make-errors-fatal', action='store_true', default=False, 
                       dest='fatal_errors', help='If set die on errors.')
+    parser.add_option('--save-manifest-to', default=None, 
+                      help='Save a manifest of all installed files to the specified location')
     return parser
 
 def install_man_pages(fatal_errors):
@@ -350,6 +359,7 @@ def install_man_pages(fatal_errors):
     f = open_file('/tmp/man_extra', 'wb')
     f.write('[see also]\nhttp://%s.kovidgoyal.net\n'%__appname__)
     f.close()
+    manifest = []
     for src in entry_points['console_scripts']:
         prog = src[:src.index('=')].strip()
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta', 
@@ -360,6 +370,7 @@ def install_man_pages(fatal_errors):
                     '--section', '1', '--no-info', '--include',
                     f.name, '--manual', __appname__)
         manfile = os.path.join(manpath, prog+'.1'+__appname__+'.bz2')
+        print '\tInstalling MAN page for', prog
         try:
             p = subprocess.Popen(help2man, stdout=subprocess.PIPE)
         except OSError, err:
@@ -372,10 +383,10 @@ def install_man_pages(fatal_errors):
         if not raw.strip():
             print 'Unable to create MAN page for', prog
             continue
-        open_file(manfile).write(compress(raw))
-        
-     
-    
+        f2 = open_file(manfile)
+        manifest.append(f2.name) 
+        f2.write(compress(raw))
+    return manifest
 
 def post_install():
     parser = option_parser()
@@ -387,19 +398,21 @@ def post_install():
         
     global use_destdir
     use_destdir = opts.destdir
-    
-    setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
-    setup_completion(opts.fatal_errors)
+    manifest = []
+    manifest += setup_udev_rules(opts.group_file, not opts.dont_reload, opts.fatal_errors)
+    manifest += setup_completion(opts.fatal_errors)
     setup_desktop_integration(opts.fatal_errors)
-    install_man_pages(opts.fatal_errors)
+    manifest += install_man_pages(opts.fatal_errors)
         
     try:
         from PyQt4 import Qt
-        if Qt.PYQT_VERSION < int('0x40301', 16):
-            print 'WARNING: You need PyQt >= 4.3.1 for the GUI. You have', Qt.PYQT_VERSION_STR, '\nYou may experience crashes or other strange behavior.'
+        if Qt.PYQT_VERSION < int('0x40402', 16):
+            print 'WARNING: You need PyQt >= 4.4.2 for the GUI. You have', Qt.PYQT_VERSION_STR, '\nYou may experience crashes or other strange behavior.'
     except ImportError:
         print 'WARNING: You do not have PyQt4 installed. The GUI will not work.'
     
+    if opts.save_manifest_to:
+        open(opts.save_manifest_to, 'wb').write('\n'.join(manifest)+'\n')
 
     
 VIEWER = '''\
