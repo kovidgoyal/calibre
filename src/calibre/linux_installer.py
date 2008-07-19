@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 '''
-Download and install the linux binary. 
+Download and install the linux binary.
 '''
 import sys, os, shutil, tarfile, subprocess, tempfile, urllib2, re, stat
 
@@ -221,6 +221,7 @@ def extract_tarball(tar, destdir):
         tarfile.open(tar, 'r').extractall(destdir)
 
 def create_launchers(destdir, bindir='/usr/bin'):
+    manifest = []
     for launcher in open(os.path.join(destdir, 'manifest')).readlines():
         if 'postinstall' in launcher:
             continue
@@ -229,24 +230,37 @@ def create_launchers(destdir, bindir='/usr/bin'):
         print 'Creating', lp
         open(lp, 'wb').write(LAUNCHER%(destdir, launcher))
         os.chmod(lp, stat.S_IXUSR|stat.S_IXOTH|stat.S_IXGRP|stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
+        manifest.append(lp)
+    return manifest
         
 def do_postinstall(destdir):
     cwd = os.getcwd()
+    t = tempfile.NamedTemporaryFile()
     try:
         os.chdir(destdir)
         os.environ['LD_LIBRARY_PATH'] = destdir+':'+os.environ.get('LD_LIBRARY_PATH', '')
-        subprocess.call((os.path.join(destdir, 'calibre_postinstall'),))
+        subprocess.call((os.path.join(destdir, 'calibre_postinstall'), '--save-manifest-to', t.name))
     finally:
         os.chdir(cwd)
+    t.seek(0)
+    return list(t.readlines())
 
 def download_tarball():
-    pb  = ProgressBar(TerminalController(sys.stdout), 'Downloading calibre...')
+    try:
+        pb  = ProgressBar(TerminalController(sys.stdout), 'Downloading calibre...')
+    except ValueError:
+        print 'Downloading calibre...'
+        pb = None
     src = urllib2.urlopen(MOBILEREAD+'calibre-%version-i686.tar.bz2')
     size = int(src.info()['content-length'])
     f = tempfile.NamedTemporaryFile()
     while f.tell() < size:
         f.write(src.read(4*1024))
-        pb.update(f.tell()/float(size))
+        percent = f.tell()/float(size)
+        if pb is not None:
+            pb.update(percent)
+        else:
+            print '%d%%, '%int(percent*100),
     f.seek(0)
     return f
 
@@ -263,8 +277,37 @@ def main(args=sys.argv):
     
     print 'Extracting...'
     extract_tarball(f, destdir)
-    create_launchers(destdir)
-    do_postinstall(destdir)
+    manifest =  create_launchers(destdir)
+    manifest += do_postinstall(destdir)
+    
+    manifest += ['/usr/bin/calibre-uninstall']
+    
+    UNINSTALLER = '''\
+#!/usr/bin/env python
+import os, sys
+if os.geteuid() != 0:
+    print 'You must run this uninstaller as root'
+    sys.exit(0)
+manifest = %s
+failures = []
+for path in manifest:
+    print 'Deleting', path
+    try:
+        os.unlink(path)
+    except:
+        failures.append(path)
+        
+print 'Uninstalling complete.'
+if failures:
+    print 'Failed to remove the following files:'
+    for f in failures: print f
+'''%repr(manifest)
+    
+    open('/usr/bin/calibre-uninstall', 'wb').write(UNINSTALLER)
+    os.chmod('/usr/bin/calibre-uninstall', 
+             stat.S_IXUSR|stat.S_IXOTH|stat.S_IXGRP|stat.S_IREAD|stat.S_IWRITE|stat.S_IRGRP|stat.S_IROTH)
+    
+    print 'You can uninstall calibre by running sudo calibre-uninstall'
     
     return 0
 

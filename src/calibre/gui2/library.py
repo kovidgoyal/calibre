@@ -690,7 +690,7 @@ class DeviceBooksModel(BooksModel):
         dt = item.datetime
         dt = datetime(*dt[0:6])
         dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-        data[_('Timestamp')] = dt.ctime()
+        data[_('Timestamp')] = dt.strftime('%a %b %d %H:%M:%S %Y')
         data[_('Tags')] = ', '.join(item.tags)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
 

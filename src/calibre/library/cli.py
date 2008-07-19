@@ -172,7 +172,8 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
             for mi, formats in dir_dups:
                 db.import_book(mi, formats)
         else:
-            print >>sys.stderr, _('The following books were not added as they already exist in the database (see --duplicates option):')
+            if dir_dups or file_duplicates:
+                print >>sys.stderr, _('The following books were not added as they already exist in the database (see --duplicates option):')
             for mi, formats in dir_dups:
                 title = mi.title
                 if isinstance(title, unicode):

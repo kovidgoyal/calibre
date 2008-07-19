@@ -13,7 +13,7 @@ except ImportError:
     import Image as PILImage
 
 from calibre import __appname__
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
+from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.mobi.palmdoc import decompress_doc
@@ -89,7 +89,7 @@ class BookHeader(object):
             print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
             self.codec = 'cp1252'
         
-        if ident == 'TEXTREAD' or self.length != 0xE4:
+        if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length:
             self.extra_flags = 0
         else:
             self.extra_flags, = struct.unpack('>L', raw[0xF0:0xF4])
@@ -165,13 +165,14 @@ class MobiReader(object):
         self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
-        self.cleanup()
+        self.cleanup_html()
         
         self.processed_html = re.compile('<head>', re.IGNORECASE).sub(
             '<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n',
                                      self.processed_html)
         
         soup = BeautifulSoup(self.processed_html.replace('> <', '>\n<'))
+        self.cleanup_soup(soup)
         guide = soup.find('guide')
         for elem in soup.findAll(['metadata', 'guide']):
             elem.extract()
@@ -192,8 +193,29 @@ class MobiReader(object):
             if ncx:
                 open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
         
-    def cleanup(self):
+    def cleanup_html(self):
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
+    
+    def cleanup_soup(self, soup):
+        for tag in soup.recursiveChildGenerator():
+            if not isinstance(tag, Tag): continue
+            styles = []
+            try:
+                styles.append(tag['style'])
+            except KeyError:
+                pass
+            try:
+                styles.append('margin-top: %s' % tag['height'])
+                del tag['height']
+            except KeyError:
+                pass
+            try:
+                styles.append('text-indent: %s' % tag['width'])
+                del tag['width']
+            except KeyError:
+                pass
+            if styles:
+                tag['style'] = '; '.join(styles)
     
     def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
@@ -232,8 +254,33 @@ class MobiReader(object):
         return opf
         
         
+    def sizeof_trailing_entries(self, data):
+        def sizeof_trailing_entry(ptr, psize):
+            bitpos, result = 0, 0
+            while True:
+                v = ord(ptr[psize-1])
+                result |= (v & 0x7F) << bitpos
+                bitpos += 7
+                psize -= 1
+                if (v & 0x80) != 0 or (bitpos >= 28) or (psize == 0):
+                    return result
+        
+        num = 0
+        size = len(data)
+        flags = self.book_header.extra_flags >> 1
+        while flags:
+            if flags & 1:
+                num += sizeof_trailing_entry(data, size - num)
+            flags >>= 1        
+        return num
+
+    def text_section(self, index):
+        data = self.sections[index][0]
+        trail_size = self.sizeof_trailing_entries(data)
+        return data[:len(data)-trail_size]
+    
     def extract_text(self):
-        text_sections = [self.sections[i][0] for i in range(1, self.book_header.records+1)]
+        text_sections = [self.text_section(i) for i in range(1, self.book_header.records+1)]
         processed_records = list(range(0, self.book_header.records+1))
         
         self.mobi_html = ''
@@ -244,7 +291,7 @@ class MobiReader(object):
                         self.book_header.huff_offset+self.book_header.huff_number)]
             processed_records += list(range(self.book_header.huff_offset, 
                         self.book_header.huff_offset+self.book_header.huff_number))
-            huff = HuffReader(huffs, self.book_header.extra_flags)
+            huff = HuffReader(huffs)
             self.mobi_html = huff.decompress(text_sections)
         
         elif self.book_header.compression_type == '\x00\x02':

@@ -70,7 +70,7 @@ class TOC(list):
                         break
         
         if toc is not None:
-            if toc.lower() != 'ncx':
+            if toc.lower() not in ('ncx', 'ncxtoc'):
                 toc = urlparse(unquote(toc))[2]
                 toc = toc.replace('/', os.sep)
                 if not os.path.isabs(toc):
@@ -88,6 +88,10 @@ class TOC(list):
                     traceback.print_exc(file=sys.stdout)
                     print 'Continuing anyway'
             else:
+                path = opfreader.manifest.item(toc.lower())
+                if path and os.access(path, os.R_OK):
+                    self.read_ncx_toc(path)
+                    return
                 cwd = os.path.abspath(self.base_path)
                 m = glob.glob(os.path.join(cwd, '*.ncx'))
                 if m:

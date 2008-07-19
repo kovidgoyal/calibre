@@ -1,7 +1,7 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.76'
+__version__   = '0.4.77'
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
@@ -30,7 +30,12 @@ islinux   = not(iswindows or isosx)
 try:
     locale.setlocale(locale.LC_ALL, '')
 except:
-    pass
+    dl = locale.getdefaultlocale()
+    try:
+        if dl:
+            locale.setlocale(dl[0])
+    except:
+        pass
 
 try:
     preferred_encoding = locale.getpreferredencoding()

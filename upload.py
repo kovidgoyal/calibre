@@ -4,7 +4,7 @@ sys.path.append('src')
 import subprocess
 from subprocess import check_call as _check_call
 from functools import partial
-#from pyvix.vix import Host, VIX_SERVICEPROVIDER_VMWARE_WORKSTATION
+
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     return socket.inet_ntoa(fcntl.ioctl(
@@ -66,12 +66,19 @@ def start_vm(vm, ssh_host, build_script, sleep=75):
 def build_windows(shutdown=True):
     installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
-    start_vm(vm, 'windows', BUILD_SCRIPT%('python setup.py develop', 'python','windows_installer.py'))
-    subprocess.check_call(('scp', 'windows:build/%s/dist/*.exe'%PROJECT, 'dist'))
-    if not os.path.exists(installer):
-        raise Exception('Failed to build installer '+installer)
+    start_vm(vm, 'windows', BUILD_SCRIPT%('python setup.py develop', 'python','installer\\\\windows\\\\freeze.py'))
+    subprocess.check_call(('scp', '-rp', 'windows:build/%s/build/py2exe'%PROJECT, 'build'))
+    if not os.path.exists('build/py2exe'):
+        raise Exception('Failed to run py2exe')
     if shutdown:
         subprocess.Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
+    ibp = os.path.abspath('installer/windows')
+    sys.path.insert(0, ibp)
+    import build_installer
+    sys.path.remove(ibp)
+    build_installer.run_install_jammer(installer_name=os.path.basename(installer))
+    if not os.path.exists(installer):
+        raise Exception('Failed to run installjammer')
     return os.path.basename(installer)
 
 def build_osx(shutdown=True):

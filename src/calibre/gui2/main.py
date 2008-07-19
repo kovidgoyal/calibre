@@ -60,6 +60,9 @@ class Main(MainWindow, Ui_MainWindow):
 
     def __init__(self, single_instance, opts, parent=None):
         MainWindow.__init__(self, opts, parent)
+        # Initialize fontconfig in a separate thread as this can be a lengthy
+        # process if run for the first time on this machine
+        self.fc = __import__('calibre.utils.fontconfig', fromlist=1)
         self.single_instance = single_instance
         if self.single_instance is not None:
             self.connect(self.single_instance, SIGNAL('message_received(PyQt_PyObject)'),
@@ -646,7 +649,7 @@ class Main(MainWindow, Ui_MainWindow):
         metadata = iter(metadata)
         _files = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, paths=True)
-        files = [f.name for f in _files]
+        files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names = [], [], [], []
         for f in files:
             mi = metadata.next()
@@ -1280,12 +1283,12 @@ path_to_ebook to the database.
 if __name__ == '__main__':
     try:
         sys.exit(main())
-    except:
+    except Exception, err:
         if not iswindows: raise
+        tb = traceback.format_exc()
         from PyQt4.QtGui import QErrorMessage
         logfile = os.path.join(os.path.expanduser('~'), 'calibre.log')
         if os.path.exists(logfile):
-            log = open(logfile).read()
-            if log.strip():
-                d = QErrorMessage()
-                d.showMessage(log)
+            log = open(logfile).read().decode('utf-8', 'ignore')
+            d = QErrorMessage('<b>Error:</b>%s<br><b>Traceback:</b><br>%s<b>Log:</b><br>'%(unicode(err), unicode(tb), log))
+            d.exec_()

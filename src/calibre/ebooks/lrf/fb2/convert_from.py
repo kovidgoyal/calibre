@@ -3,15 +3,13 @@ __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 """
 Convert .fb2 files to .lrf
 """
-import os, sys, tempfile, subprocess, shutil, logging, glob
+import os, sys, tempfile, shutil, logging
+from base64 import b64decode
 
-from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre import setup_cli_handlers, __appname__
-from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.resources import fb2_xsl
 
 def option_parser():
@@ -22,25 +20,27 @@ _('''%prog [options] mybook.fb2
 %prog converts mybook.fb2 to mybook.lrf'''))
     parser.add_option('--debug-html-generation', action='store_true', default=False,
                       dest='debug_html_generation', help=_('Print generated HTML to stdout and quit.'))
+    parser.add_option('--keep-intermediate-files', action='store_true', default=False,
+                      help=_('Keep generated HTML files after completing conversion to LRF.'))
     return parser
     
+def extract_embedded_content(doc):
+    for elem in doc.xpath('./*'):
+        if 'binary' in elem.tag and elem.attrib.has_key('id'):
+            fname = elem.attrib['id']
+            data = b64decode(elem.text.strip())
+            open(fname, 'wb').write(data)
 
 def generate_html(fb2file, encoding, logger):
     from lxml import etree
-    tdir = tempfile.mkdtemp(prefix=__appname__+'_')
-    ofile = os.path.join(tdir, 'index.xml')
+    tdir = tempfile.mkdtemp(prefix=__appname__+'_fb2_')
     cwd = os.getcwdu()
     os.chdir(tdir)
     try:
         logger.info('Parsing XML...')
         parser = etree.XMLParser(recover=True, no_network=True)
-        try:
-            doc = etree.parse(fb2file, parser)
-        except:
-            raise
-            logger.info('Parsing failed. Trying to clean up XML...')
-            soup = BeautifulStoneSoup(open(fb2file, 'rb').read())
-            doc = etree.fromstring(str(soup))
+        doc = etree.parse(fb2file, parser)
+        extract_embedded_content(doc)
         logger.info('Converting XML to HTML...')
         styledoc = etree.fromstring(fb2_xsl)
 
@@ -72,7 +72,7 @@ def process_file(path, options, logger=None):
             options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
         options.output = os.path.abspath(os.path.expanduser(options.output))
         if not mi.title:
-            mi.title = os.path.splitext(os.path.basename(rtf))[0]
+            mi.title = os.path.splitext(os.path.basename(fb2))[0]
         if (not options.title or options.title == 'Unknown'):
             options.title = mi.title
         if (not options.author or options.author == 'Unknown') and mi.authors:
@@ -85,7 +85,7 @@ def process_file(path, options, logger=None):
         html_process_file(htmlfile, options, logger)
     finally:
         os.chdir(cwd)
-        if hasattr(options, 'keep_intermediate_files') and options.keep_intermediate_files:
+        if getattr(options, 'keep_intermediate_files', False):
             logger.debug('Intermediate files in '+ tdir)
         else:
             shutil.rmtree(tdir)

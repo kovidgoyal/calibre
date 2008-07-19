@@ -5,7 +5,7 @@ This module provides a thin ctypes based wrapper around libunrar.
 
 See  ftp://ftp.rarlabs.com/rar/unrarsrc-3.7.5.tar.gz
 """
-import os, ctypes
+import os, ctypes, sys
 from ctypes import Structure, c_char_p, c_uint, c_void_p, POINTER, \
                     byref, c_wchar_p, c_int, c_char, c_wchar
 from StringIO import StringIO
@@ -18,6 +18,8 @@ if iswindows:
     Structure._pack_ = 1
     _librar_name = 'unrar'
     cdll = ctypes.windll
+if hasattr(sys, 'frozen') and iswindows:
+    _libunrar = cdll.LoadLibrary(os.path.join(os.path.dirname(sys.executable), 'unrar.dll'))
 _libunrar = load_library(_librar_name, cdll)
 
 RAR_OM_LIST    = 0

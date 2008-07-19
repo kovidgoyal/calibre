@@ -538,7 +538,7 @@ def main():
     sys.argv[1:2] = ['py2exe']
 
     console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i])
-               for i in range(len(scripts['console']))]# if not 'parallel.py' in scripts['console'][i] ]
+               for i in range(len(scripts['console']))]
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     setup(
           cmdclass = {'py2exe': BuildEXE},
@@ -567,7 +567,8 @@ def main():
                                              'calibre.ebooks.lrf.feeds.*',
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
-                                             'calibre.web.feeds.recipes.*', 'PyQt4.QtWebKit',
+                                             'calibre.web.feeds.recipes.*', 
+                                             'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],
                                   'packages'  : ['PIL'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",

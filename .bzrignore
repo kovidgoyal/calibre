@@ -19,3 +19,4 @@ src/calibre/gui2/pictureflow/debug/
 src/calibre/gui2/pictureflow/pictureflow_resource.rc
 src/calibre/gui2/pictureflow/release/
 src/calibre/translations/compiled.py
+installer/windows/calibre/build.log
