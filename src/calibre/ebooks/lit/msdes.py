@@ -1,6 +1,7 @@
 # Re-modified for use in MS LIT decryption.  Un-reversed the bytebit[] array.
-# Substituted Microsoft's absurd modified S-boxes.  Modified the encrypt/decrypt
-# methods to handle more than one block at a time.
+# Substituted Microsoft's absurd modified S-boxes.  Modified the
+# encrypt/decrypt methods to handle more than one block at a time.  Added a few
+# speed-ups supported by modern versions of Python.  Added option 'psyco' use.
 #
 # And lo, all the previous notices follow:
 
@@ -125,30 +126,30 @@ class DesCipher:
         pcr = [0]*56    #new int[56];
         kn = [0]*32     #new int[32];
 
-        for j in range(56):
+        for j in xrange(56):
             l = pc1[j]
             m = l & 07
             pc1m[j] = ((keyBlock[l >> 3] & bytebit[m]) != 0)
-        for i in range(16):
+        for i in xrange(16):
             if encrypting:
                 m = i << 1
             else:
                 m = (15-i) << 1
             n = m + 1
             kn[m] = kn[n] = 0
-            for j in range(28):
+            for j in xrange(28):
                 l = j + totrot[i]
                 if l < 28:
                     pcr[j] = pc1m[l]
                 else:
                     pcr[j] = pc1m[l - 28]
-            for j in range(28, 56):
+            for j in xrange(28, 56):
                 l = j + totrot[i]
                 if l < 56:
                     pcr[j] = pc1m[l]
                 else:
                     pcr[j] = pc1m[l - 28]
-            for j in range(24):
+            for j in xrange(24):
                 if pcr[pc2[j]] != 0:
                     kn[m] |= bigbyte[j]
                 if pcr[pc2[j+24]] != 0:
@@ -163,7 +164,7 @@ class DesCipher:
 
         rawi = 0
         KnLi = 0
-        for i in range(16):
+        for i in xrange(16):
             raw0 = raw[rawi]
             rawi += 1
             raw1 = raw[rawi]
@@ -187,11 +188,10 @@ class DesCipher:
         if len(clearText) % 8 != 0:
             raise TypeError, "length must be multiple of block size"
         result = []
-        while clearText:
+        for base in xrange(0, len(clearText), 8):
             result.append(struct.pack(
-                ">LL", *self.des(struct.unpack(">LL", clearText[:8]),
+                ">LL", *self.des(struct.unpack(">LL", clearText[base:base+8]),
                                  self.encryptKeys)))
-            clearText = clearText[8:]
         return ''.join(result)
 
     #/ Decrypt a block of eight bytes.
@@ -199,11 +199,10 @@ class DesCipher:
         if len(cipherText) % 8 != 0:
             raise TypeError, "length must be multiple of block size"
         result = []
-        while cipherText:
+        for base in xrange(0, len(cipherText), 8):
             result.append(struct.pack(
-                ">LL", *self.des(struct.unpack(">LL", cipherText[:8]),
+                ">LL", *self.des(struct.unpack(">LL", cipherText[base:base+8]),
                                  self.decryptKeys)))
-            cipherText = cipherText[8:]
         return ''.join(result)
 
     # The DES function.
@@ -234,7 +233,7 @@ class DesCipher:
         right ^= work
         leftt  = ((leftt << 1) | ((leftt >> 31) & 1)) & 0xffffffffL
 
-        for round in range(8):
+        for round in xrange(8):
             work   = ((right << 28) | (right >> 4)) & 0xffffffffL
             work  ^= keys[keysi]
             keysi += 1
@@ -322,6 +321,7 @@ pc2 = [
     45, 41, 49, 35, 28, 31,
 ]
 
+# Microsoft's modified S-boxes for LIT file encryption
 SP1 = [
 0x02080800L, 0x00080000L, 0x02000002L, 0x02080802L,
 0x02000000L, 0x00080802L, 0x00080002L, 0x02000002L,
@@ -472,6 +472,14 @@ def new(key):
 
 block_size = 8
 key_size = 8
+
+try:
+    import psyco
+    psyco.bind(DesCipher.deskey)
+    psyco.bind(DesCipher.cookey)
+    psyco.bind(DesCipher.des)
+except ImportError:
+    pass
 
 #test only:
 if __name__ == '__main__':
