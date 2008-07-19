@@ -356,7 +356,7 @@ SetupType ::D9ADE41C-B744-690C-2CED-CF826BF03D2E -setup Install -active Yes -pla
 
 InstallComponent 3EA07B17-04D8-6508-B535-96CC7173B49A -setup Install -type pane -title {Welcome Screen} -component Welcome -active Yes -parent StandardInstall
 InstallComponent 7CCDA4BB-861C-C21E-3011-E93DB58F07D6 -setup Install -type action -title {Check for Previous Install} -component CheckForPreviousInstall -active Yes -parent 3EA07B17-04D8-6508-B535-96CC7173B49A
-InstallComponent 580ACF2C-517F-5E48-9DEF-7DAEFBA59FDD -setup Install -type action -conditions 6DE3B369-9D6B-6BC1-4EA0-2C54ECE159EB -title {Set Virtual Text} -component SetVirtualText -command reorder -active Yes -parent 3EA07B17-04D8-6508-B535-96CC7173B49A
+InstallComponent 580ACF2C-517F-5E48-9DEF-7DAEFBA59FDD -setup Install -type action -conditions 6DE3B369-9D6B-6BC1-4EA0-2C54ECE159EB -title {Set Virtual Text} -component SetVirtualText -command insert -active Yes -parent 3EA07B17-04D8-6508-B535-96CC7173B49A
 Condition 6DE3B369-9D6B-6BC1-4EA0-2C54ECE159EB -active Yes -parent 580ACF2C-517F-5E48-9DEF-7DAEFBA59FDD -title {String Is Condition} -component StringIsCondition -TreeObject::id 6DE3B369-9D6B-6BC1-4EA0-2C54ECE159EB
 InstallComponent 9ACCDC35-E034-F142-ED42-AC8EC2B9AE2D -setup Install -type pane -title {License Agreement} -component License -active Yes -parent StandardInstall
 InstallComponent AAEC34E6-7F02-18F2-30BB-744738192A3B -setup Install -type action -conditions {081A479A-572E-5133-4979-84456DB40EFA A4388F3F-0D32-F14E-BA00-1BE7F54B05ED} -title {Modify Widget} -component ModifyWidget -command insert -active Yes -parent 9ACCDC35-E034-F142-ED42-AC8EC2B9AE2D
@@ -373,11 +373,11 @@ InstallComponent D6631BA5-577E-B30C-A73D-2B12B826811A -setup Install -type pane 
 Condition C6DE83DD-5C2A-AC5B-6ABA-84D73AE38655 -active Yes -parent D6631BA5-577E-B30C-A73D-2B12B826811A -title {Platform Condition} -component PlatformCondition -TreeObject::id C6DE83DD-5C2A-AC5B-6ABA-84D73AE38655
 InstallComponent 1B9E77A3-10D6-9EDD-160B-64B5EBB31981 -setup Install -type action -title {Add Widget} -component AddWidget -command reorder -active Yes -parent D6631BA5-577E-B30C-A73D-2B12B826811A
 InstallComponent 8A7FD0C2-F053-8764-F204-4BAE71E05708 -setup Install -type pane -title {Setup Complete} -component SetupComplete -active Yes -parent StandardInstall
-InstallComponent 710F2507-2557-652D-EA55-440D710EFDFA -setup Install -type action -conditions {69188956-D764-5B26-B048-46A4239C3733 08195201-0797-932C-4B51-E5EF9D1D41BD 2E18F4AE-F1BB-5C62-2900-73A576A49261} -title {Install USB Driver} -component ExecuteExternalProgram -command reorder -alias {Install USB Driver} -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
+InstallComponent 710F2507-2557-652D-EA55-440D710EFDFA -setup Install -type action -conditions {69188956-D764-5B26-B048-46A4239C3733 08195201-0797-932C-4B51-E5EF9D1D41BD 2E18F4AE-F1BB-5C62-2900-73A576A49261} -title {Install USB Driver} -component ExecuteExternalProgram -command insert -alias {Install USB Driver} -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
 Condition 69188956-D764-5B26-B048-46A4239C3733 -active Yes -parent 710F2507-2557-652D-EA55-440D710EFDFA -title {Platform Condition} -component PlatformCondition -TreeObject::id 69188956-D764-5B26-B048-46A4239C3733
 Condition 08195201-0797-932C-4B51-E5EF9D1D41BD -active Yes -parent 710F2507-2557-652D-EA55-440D710EFDFA -title {String Is Condition} -component StringIsCondition -TreeObject::id 08195201-0797-932C-4B51-E5EF9D1D41BD
 Condition 2E18F4AE-F1BB-5C62-2900-73A576A49261 -active Yes -parent 710F2507-2557-652D-EA55-440D710EFDFA -title {String Is Condition} -component StringIsCondition -TreeObject::id 2E18F4AE-F1BB-5C62-2900-73A576A49261
-InstallComponent 21B897C4-24BE-70D1-58EA-DE78EFA60719 -setup Install -type action -conditions 76FA3CA2-1F09-75C5-C6CF-72719A8EC4A5 -title {Message Box} -component MessageBox -command reorder -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
+InstallComponent 21B897C4-24BE-70D1-58EA-DE78EFA60719 -setup Install -type action -conditions 76FA3CA2-1F09-75C5-C6CF-72719A8EC4A5 -title {Message Box} -component MessageBox -command insert -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
 Condition 76FA3CA2-1F09-75C5-C6CF-72719A8EC4A5 -active Yes -parent 21B897C4-24BE-70D1-58EA-DE78EFA60719 -title {String Is Condition} -component StringIsCondition -TreeObject::id 76FA3CA2-1F09-75C5-C6CF-72719A8EC4A5
 InstallComponent 5D20DD8D-064A-9922-29E1-A7FABEF3666A -setup Install -type action -conditions {E5D227F7-E549-EFA9-1781-EFA6C5EEEC5C A8856922-E6C1-160B-E55C-5C1806A89136} -title {Launch Application Checkbutton} -component AddWidget -command insert -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
 Condition E5D227F7-E549-EFA9-1781-EFA6C5EEEC5C -active Yes -parent 5D20DD8D-064A-9922-29E1-A7FABEF3666A -title {File Exists Condition} -component FileExistsCondition -TreeObject::id E5D227F7-E549-EFA9-1781-EFA6C5EEEC5C
@@ -466,9 +466,7 @@ Condition 64B8D0F3-4B11-DA22-D6E7-7248872D5FA7 -active Yes -parent 1CA13495-CB19
 InstallComponent 521E782E-2C93-8C60-9B2A-B65552FFA8E4 -setup Uninstall -type actiongroup -title {Uninstall Actions} -alias {Uninstall Actions} -active Yes -parent ActionGroupsUninstall
 InstallComponent 79C2EE18-497D-DE39-8AB6-777CE25D9484 -setup Uninstall -type action -title {Uninstall Selected Files} -component UninstallSelectedFiles -active Yes -parent 521E782E-2C93-8C60-9B2A-B65552FFA8E4
 InstallComponent 2D445859-68B9-1761-BA4F-DE91AFE5B9EB -setup Uninstall -type action -title {Uninstall Leftover Files} -component UninstallLeftoverFiles -active Yes -parent 521E782E-2C93-8C60-9B2A-B65552FFA8E4
-InstallComponent 95ED4967-8F0C-7BA2-A7EE-FF9FAACEEADF -setup Uninstall -type action -conditions {3AF1A348-10F4-EEB2-FE44-6B5F622C947D 4CF47FDD-7E34-1485-8F10-5B566D536573} -title {Uninstall USB Driver} -component ExecuteExternalProgram -command reorder -active Yes -parent 521E782E-2C93-8C60-9B2A-B65552FFA8E4
-Condition 3AF1A348-10F4-EEB2-FE44-6B5F622C947D -active Yes -parent 95ED4967-8F0C-7BA2-A7EE-FF9FAACEEADF -title {String Is Condition} -component StringIsCondition -TreeObject::id F87E8940-2590-D852-28C3-4E131EC549D8
-Condition 4CF47FDD-7E34-1485-8F10-5B566D536573 -active Yes -parent 95ED4967-8F0C-7BA2-A7EE-FF9FAACEEADF -title {Platform Condition} -component PlatformCondition -TreeObject::id 42367477-D72D-7957-4D43-198F0C713618
+InstallComponent 167174E3-7241-9060-3A3C-1F0D169A1A1F -setup Uninstall -type action -title {Uninstall USB Driver} -component ExecuteExternalProgram -active Yes -parent 521E782E-2C93-8C60-9B2A-B65552FFA8E4
 InstallComponent A57E3390-AA3E-A868-2C7D-75ADF12D8471 -setup Uninstall -type actiongroup -title {Finish Actions} -alias {Finish Actions} -active Yes -parent ActionGroupsUninstall
 InstallComponent AAFE58A0-2DFB-CA20-1F6E-D3815F885996 -setup Uninstall -type actiongroup -title {Cancel Actions} -alias {Cancel Actions} -active Yes -parent ActionGroupsUninstall
 
@@ -502,6 +500,21 @@ Windows
 
 1356216E-90D2-8324-0EEB-975A64F23EB8,Message,subst
 1
+
+167174E3-7241-9060-3A3C-1F0D169A1A1F,Conditions
+{0 conditions}
+
+167174E3-7241-9060-3A3C-1F0D169A1A1F,IgnoreErrors
+Yes
+
+167174E3-7241-9060-3A3C-1F0D169A1A1F,IncludeStderr
+Yes
+
+167174E3-7241-9060-3A3C-1F0D169A1A1F,ProgramCommandLine
+{devcon.exe remove "USB\VID_054C&PID_029B"}
+
+167174E3-7241-9060-3A3C-1F0D169A1A1F,WorkingDirectory
+<%InstallDir%>/driver
 
 173ABC5E-D4D9-9CAE-D79F-E3067EC87EC7,String
 <%ErrorsOccurred%>
@@ -656,12 +669,6 @@ false
 37A46164-C287-5D4A-E55A-A2329E25E829,Filename
 <%ProgramExecutable%>
 
-3AF1A348-10F4-EEB2-FE44-6B5F622C947D,CheckCondition
-{Before Action is Executed}
-
-3AF1A348-10F4-EEB2-FE44-6B5F622C947D,String
-<%InstallUSBDriver%>
-
 3D180445-8990-20F7-13DC-93B6909B907F,Alias
 {Startup Actions}
 
@@ -742,12 +749,6 @@ false
 
 4AAFE838-3E44-5147-0F04-65DB5B647191,String
 <%UpgradeInstall%>
-
-4CF47FDD-7E34-1485-8F10-5B566D536573,CheckCondition
-{Before Action is Executed}
-
-4CF47FDD-7E34-1485-8F10-5B566D536573,Platform
-Windows
 
 4E5FC4FE-5D37-B216-CFFE-E046A2D6321E,CheckCondition
 {Before Action is Executed}
@@ -924,7 +925,7 @@ Windows
 Yes
 
 710F2507-2557-652D-EA55-440D710EFDFA,ProgramCommandLine
-{<%InstallDir%>\driver\devcon.exe install <%InstallDir%>\driver\prs500.inf "USB\VID_054C&PID_029B"}
+{devcon.exe install prs500.inf "USB\VID_054&PID029B"}
 
 710F2507-2557-652D-EA55-440D710EFDFA,ResultVirtualText
 DevconResult
@@ -933,7 +934,7 @@ DevconResult
 DevconStatus
 
 710F2507-2557-652D-EA55-440D710EFDFA,WorkingDirectory
-{<%InstallDir\driver>}
+<%InstallDir%>/driver
 
 72D8B44E-E4CF-7551-645E-FB57C5B000E9,CheckCondition
 {Before Action is Executed}
@@ -1063,21 +1064,6 @@ CreateDesktopShortcut
 
 940F7FED-7D20-7264-3BF9-ED78205A76B3,Y
 150
-
-95ED4967-8F0C-7BA2-A7EE-FF9FAACEEADF,Conditions
-{2 conditions}
-
-95ED4967-8F0C-7BA2-A7EE-FF9FAACEEADF,IgnoreErrors
-Yes
-
-95ED4967-8F0C-7BA2-A7EE-FF9FAACEEADF,ProgramCommandLine
-{<%InstallDir%>\driver\devcon.exe remove "USB\VID_054C&PID_029B"}
-
-95ED4967-8F0C-7BA2-A7EE-FF9FAACEEADF,ResultVirtualText
-UninstallDevconResult
-
-95ED4967-8F0C-7BA2-A7EE-FF9FAACEEADF,StatusVirtualText
-UninstallDevconStatus
 
 96440B8B-C6D0-FCCA-6D3C-7ECE1C304CC0,CheckCondition
 {Before Action is Executed}
@@ -1363,9 +1349,6 @@ BE4A731E-1FC2-87A1-547D-91E2CA467AA7,ExecuteAction
 
 BE4A731E-1FC2-87A1-547D-91E2CA467AA7,Level
 system
-
-BE4A731E-1FC2-87A1-547D-91E2CA467AA7,Location
-beginning
 
 BEF8D398-58BA-1F66-39D6-D4A63D5BEEF9,Destination
 <%InstallDir%>
@@ -2087,7 +2070,7 @@ E611105F-DC85-9E20-4F7B-E63C54E5DF06,Message
 {Install USB driver for the SONY PRS500}
 
 21B897C4-24BE-70D1-58EA-DE78EFA60719,Message
-{USB Driver installation failed with return code <%DevconStatus%> and concole output \n\n<%DevconResult%>}
+{USB Driver installation failed with return code <%DevconStatus%> and console output \n\n<%DevconResult%>}
 
 21B897C4-24BE-70D1-58EA-DE78EFA60719,Title
 {USB Driver installation failed}

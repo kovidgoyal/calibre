@@ -32,6 +32,7 @@ class cmd_commit(_cmd_commit):
         return url.replace('//', '//%s:%s@'%(username, password))+'/login/xmlrpc' 
     
     def get_trac_summary(self, bug, url):
+        print 'Getting bug summary for bug #%s'%bug
         server = xmlrpclib.ServerProxy(url)
         try:
             attributes = server.ticket.get(int(bug))[-1]
@@ -101,6 +102,7 @@ class cmd_commit(_cmd_commit):
         return ret
     
     def close_bug(self, bug, action, url, config):
+        print 'Closing bug #%s'% bug
         nick = config.get_nickname()
         suffix = config.get_user_option('bug_close_comment')
         if suffix is None:

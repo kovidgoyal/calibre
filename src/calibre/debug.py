@@ -19,6 +19,7 @@ Run an embedded python interpreter.
     parser.add_option('--update-module', help='Update the specified module in the frozen library. '+
     'Module specifications are of the form full.name.of.module,path_to_module.py', default=None
     )
+    parser.add_option('-c', help='Run python code.', default=None, dest='command')
     return parser
 
 def update_zipfile(zipfile, mod, path):
@@ -41,6 +42,8 @@ def main(args=sys.argv):
     if opts.update_module:
         mod, path = opts.update_module.partition(',')[0], opts.update_module.partition(',')[-1]
         update_module(mod, os.path.expanduser(path))
+    elif opts.command:
+        exec opts.command
     else:
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed()
