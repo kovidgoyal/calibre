@@ -1241,9 +1241,10 @@ path_to_ebook to the database.
             if single_instance is not None and single_instance.is_running() and \
                single_instance.send_message('launched:'+repr(args)):
                     return 0
-            
+            extra = '' if iswindows else \
+            	('If you\'re sure it is not running, delete the file %s.'%os.path.expanduser('~/.calibre_calibre GUI.lock')) 
             QMessageBox.critical(None, 'Cannot Start '+__appname__,
-                                 '<p>%s is already running.</p>'%__appname__)
+                                 '<p>%s is already running. %s</p>'%(__appname__, extra))
             return 1
         initialize_file_icon_provider()
         try:

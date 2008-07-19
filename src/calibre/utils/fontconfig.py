@@ -130,36 +130,40 @@ lib.FcConfigBuildFonts.restype  = c_int
 
 _init_error  = None 
 _initialized = False
-from threading import Timer
-def _do_init():
-    # Initialize the fontconfig library. This has to be done manually
-    # for the OS X bundle as it may have its own private fontconfig.
-    if hasattr(sys, 'frameworks_dir'):
-        config_dir = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
-        if isinstance(config_dir, unicode):
-            config_dir = config_dir.encode(sys.getfilesystemencoding())
-        config = lib.FcConfigCreate()
-        if not lib.FcConfigParseAndLoad(config, os.path.join(config_dir, 'fonts.conf'), 1):
-            _init_error = 'Could not parse the fontconfig configuration'
+from threading import Thread
+
+class FontScanner(Thread):
+    def run(self):
+        # Initialize the fontconfig library. This has to be done manually
+        # for the OS X bundle as it may have its own private fontconfig.
+        if getattr(sys, 'frameworks_dir', False):
+            config_dir = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
+            if isinstance(config_dir, unicode):
+                config_dir = config_dir.encode(sys.getfilesystemencoding())
+            config = lib.FcConfigCreate()
+            if not lib.FcConfigParseAndLoad(config, os.path.join(config_dir, 'fonts.conf'), 1):
+                _init_error = 'Could not parse the fontconfig configuration'
+                return
+            if not lib.FcConfigBuildFonts(config):
+                _init_error = 'Could not build fonts'
+                return
+            if not lib.FcConfigSetCurrent(config):
+                _init_error = 'Could not set font config'
+                return
+        elif not lib.FcInit():
+            _init_error = _('Could not initialize the fontconfig library')
             return
-        if not lib.FcConfigBuildFonts(config):
-            _init_error = 'Could not build fonts'
-            return
-        if not lib.FcConfigSetCurrent(config):
-            _init_error = 'Could not set font config'
-            return
-    elif not lib.FcInit():
-        _init_error = _('Could not initialize the fontconfig library')
-        return
-    global _initialized
-    _initialized = True
+        global _initialized
+        _initialized = True
     
     
-_init_timer = Timer(0.1, _do_init)
-_init_timer.start()
+_scanner = FontScanner()
+_scanner.start()
 
 def join():
-    _init_timer.join()
+    _scanner.join(120)
+    if _scanner.isAlive():
+    	raise RuntimeError('Scanning for system fonts seems to have hung. Try again in a little while.')
     if _init_error is not None:
         raise RuntimeError(_init_error)
 
