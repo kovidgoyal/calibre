@@ -8,6 +8,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, struct, cStringIO, os
 import functools
+import codecs
 from itertools import repeat
 
 from calibre import relpath
@@ -33,7 +34,6 @@ HTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 DESENCRYPT_GUID = "{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}"
 LZXCOMPRESS_GUID = "{0A9007C6-4076-11D3-8789-0000F8105754}"
 
-LZXC_TAG = 0x43585a4c
 CONTROL_TAG = 4
 CONTROL_WINDOW_SIZE = 12
 RESET_NENTRIES = 4
@@ -41,11 +41,11 @@ RESET_HDRLEN = 12
 RESET_UCLENGTH = 16
 RESET_INTERVAL = 32
 
-FLAG_OPENING = 1
-FLAG_CLOSING = 2
-FLAG_BLOCK = 4
-FLAG_HEAD = 8
-FLAG_ATOM = 16
+FLAG_OPENING = (1 << 0)
+FLAG_CLOSING = (1 << 1)
+FLAG_BLOCK   = (1 << 2)
+FLAG_HEAD    = (1 << 3)
+FLAG_ATOM    = (1 << 4)
 XML_ENTITIES = ['&amp;', '&apos;', '&lt;', '&gt;', '&quot;']
 
 def u32(bytes):
@@ -202,7 +202,7 @@ class UnBinary(object):
                         is_goingdown = False
                         if not tag_name:
                             raise LitError('Tag ends before it begins.')
-                        self.buf.write('</'+tag_name+'>')
+                        self.buf.write(u''.join(('</', tag_name, '>')).encode('utf-8'))
                         dynamic_tag = 0
                         tag_name = None
                     state = 'text'
@@ -252,7 +252,7 @@ class UnBinary(object):
                     state = 'get attr'
                 elif count > 0:
                     if not in_censorship:
-                        self.buf.write(c)
+                        self.buf.write(unicode(c).encode('utf-8'))
                     count -= 1
                 if count == 0:
                     if not in_censorship:
@@ -272,7 +272,7 @@ class UnBinary(object):
                 tag_name += c
                 count -= 1
                 if count == 0:
-                    self.buf.write(tag_name)
+                    self.buf.write(unicode(tag_name).encode('utf-8'))
                     state = 'get attr'
             
             elif state == 'get attr length':
@@ -283,7 +283,7 @@ class UnBinary(object):
                 state = 'get custom attr'
             
             elif state == 'get custom attr':
-                self.buf.write(c)
+                self.buf.write(unicode(c).encode('utf-8'))
                 count -= 1
                 if count == 0:
                     self.buf.write('=')
@@ -592,7 +592,13 @@ class LitReader(object):
 
     def _read_meta(self):
         raw = self.get_file('/meta')
-        xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
+        try:
+            xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
+        except LitError:
+            if 'PENGUIN group' not in raw: raise
+            print "WARNING: attempting PENGUIN malformed OPF fix"
+            raw = raw.replace('PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
+            xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
         self.meta = xml
 
     def _read_drm(self):
@@ -669,8 +675,8 @@ class LitReader(object):
                 control = control[csize:]
             elif guid == LZXCOMPRESS_GUID:
                 reset_table = self.get_file(
-                    '/'.join(['::DataSpace/Storage', name, 'Transform',
-                              LZXCOMPRESS_GUID, 'InstanceData/ResetTable']))
+                    '/'.join(('::DataSpace/Storage', name, 'Transform',
+                              LZXCOMPRESS_GUID, 'InstanceData/ResetTable')))
                 content = self._decompress(content, control, reset_table)
                 control = control[csize:]
             else:
@@ -684,7 +690,7 @@ class LitReader(object):
         return msdes.new(self.bookkey).decrypt(content)
 
     def _decompress(self, content, control, reset_table):
-        if len(control) < 32 or u32(control[CONTROL_TAG:]) != LZXC_TAG:
+        if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != "LZXC":
             raise LitError("Invalid ControlData tag value")
         if len(reset_table) < (RESET_INTERVAL + 8):
             raise LitError("Reset table is too short")
@@ -743,16 +749,16 @@ class LitReader(object):
         opf_path = os.path.join(output_dir, opf_path)
         self._ensure_dir(opf_path)
         with open(opf_path, 'w') as f:
-            f.write(self.get_markup_file('/meta').encode('utf-8'))
+            f.write(self.meta.encode('utf-8'))
         for entry in self.manifest.values():
             path = os.path.join(output_dir, entry.path)
             self._ensure_dir(path)
             with open(path, 'w') as f:
                 if 'spine' in entry.state:
-                    name = '/'.join(['/data', entry.internal, 'content'])
+                    name = '/'.join(('/data', entry.internal, 'content'))
                     f.write(self.get_markup_file(name).encode('utf-8'))
                 else:
-                    name = '/'.join(['/data', entry.internal])
+                    name = '/'.join(('/data', entry.internal))
                     f.write(self.get_file(name))
 
     def _ensure_dir(self, path):
