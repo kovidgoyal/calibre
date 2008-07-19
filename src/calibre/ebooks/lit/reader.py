@@ -15,13 +15,14 @@ from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
 import calibre.ebooks.lit.msdes as msdes
+import calibre.utils.lzx as lzx
 
 OPF_DECL = """"<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
   PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
   "http://openebook.org/dtds/oeb-1.0.1/oebpkg101.dtd">
 """
-XHTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
+HTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html PUBLIC
  "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Document//EN"
  "http://openebook.org/dtds/oeb-1.0.1/oebdoc101.dtd">
@@ -29,6 +30,14 @@ XHTML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 
 DESENCRYPT_GUID = "{67F6E4A2-60BF-11D3-8540-00C04F58C3CF}"
 LZXCOMPRESS_GUID = "{0A9007C6-4076-11D3-8789-0000F8105754}"
+
+LZXC_TAG = 0x43585a4c
+CONTROL_TAG = 4
+CONTROL_WINDOW_SIZE = 12
+RESET_NENTRIES = 4
+RESET_HDRLEN = 12
+RESET_UCLENGTH = 16
+RESET_INTERVAL = 32
 
 def u32(bytes):
     return struct.unpack('<L', bytes[:4])[0]
@@ -114,10 +123,7 @@ class UnBinary(object):
             offset += 4
     
     def item_path(self, internal_id):
-        for i in self.manifest:
-            if i == internal_id:
-                return i.path
-        raise LitError('Could not find item %s'%(internal_id,))
+        return self.manifest.get(internal_id, internal_id)
     
     def __unicode__(self):
         return self.raw
@@ -555,7 +561,7 @@ class LitFile(object):
             pos += size
 
     def read_manifest(self, entry):
-        self.manifest = []
+        self.manifest = {}
         raw = self._read_content(entry.offset, entry.size)
         pos = 0
         while pos < len(raw):
@@ -593,14 +599,14 @@ class LitFile(object):
                     mime_type = raw[pos:pos+slen].decode('utf8')
                     pos += slen + 1
                     
-                    self.manifest.append(
+                    self.manifest[internal] = \
                         ManifestItem(original, internal, mime_type,
-                                     offset, root, state))
+                                     offset, root, state)
                     i += 1
 
     def read_meta(self, entry):
         raw = self._read_content(entry.offset, entry.size)
-        xml = OPF_DECL + unicode(UnBinary(raw, self.manifest))
+        xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
         self.meta = xml
 
     def read_drm(self):
@@ -643,6 +649,13 @@ class LitFile(object):
         for i in xrange(0, len(digest)):
             key[i % 8] ^= ord(digest[i])
         return ''.join(chr(x) for x in key)
+
+    def get_markup_file(self, name):
+        raw = self.get_file(name)
+        decl, map = (OPF_DECL, OPF_MAP) \
+            if name == '/meta' else (HTML_DECL, HTML_MAP)
+        xml = decl + unicode(UnBinary(raw, self.manifest, map))
+        return xml
         
     def get_file(self, name):
         entry = self.entries[name]
@@ -664,20 +677,20 @@ class LitFile(object):
         transform = self.get_file(path + '/Transform/List')
         content = self.get_file(path + '/Content')
         control = self.get_file(path + '/ControlData')
-        idx_transform = idx_control = 0
-        while (len(transform) - idx_transform) >= 16:
-            ndwords = int32(control[idx_control:]) + 1
-            if (idx_control + (ndwords * 4)) > len(control) or ndwords <= 0:
+        while len(transform) >= 16:
+            csize = (int32(control) + 1) * 4
+            if csize > len(control) or csize <= 0:
                 raise LitError("ControlData is too short")
-            guid = msguid(transform[idx_transform:])
+            guid = msguid(transform)
             if guid == DESENCRYPT_GUID:
                 content = self._decrypt(content)
-                idx_control += ndwords * 4
+                control = control[csize:]
             elif guid == LZXCOMPRESS_GUID:
-                raise LitError("LZX decompression not implemented")
+                content = self._decompress_section(name, control, content)
+                control = control[csize:]
             else:
                 raise LitError("Unrecognized transform: %s." % repr(guid))
-            idx_transform += 16
+            transform = transform[16:]
         return content
 
     def _decrypt(self, content):
@@ -685,6 +698,59 @@ class LitFile(object):
             raise LitError('Cannot extract content from a DRM protected ebook')
         return msdes.new(self.bookkey).decrypt(content)
 
+    def _decompress_section(self, name, control, content):
+        if len(control) < 32 or u32(control[CONTROL_TAG:]) != LZXC_TAG:
+            raise LitError("Invalid ControlData tag value")
+        result = []
+        
+        window_size = 14
+        u = u32(control[CONTROL_WINDOW_SIZE:])
+        while u > 0:
+            u >>= 1
+            window_size += 1
+        if window_size < 15 or window_size > 21:
+            raise LitError("Invalid window in ControlData")
+        lzx.init(window_size)
+
+        reset_table = self.get_file('/'.join(
+                ['::DataSpace/Storage', name, 'Transform',
+                 LZXCOMPRESS_GUID, 'InstanceData/ResetTable']))
+        if len(reset_table) < (RESET_INTERVAL + 8):
+            raise LitError("Reset table is too short")
+        if u32(reset_table[RESET_UCLENGTH + 4:]) != 0:
+            raise LitError("Reset table has 64bit value for UCLENGTH")
+        ofs_entry = int32(reset_table[RESET_HDRLEN:]) + 8
+        uclength = int32(reset_table[RESET_UCLENGTH:])
+        accum = int32(reset_table[RESET_INTERVAL:])
+        bytes_remaining = uclength
+        window_bytes = (1 << window_size)
+        base = 0
+
+        while ofs_entry < len(reset_table):
+            if accum >= window_bytes:
+                accum = 0
+                size = int32(reset_table[ofs_entry:])
+                u = int32(reset_table[ofs_entry + 4:])
+                if u != 0:
+                    raise LitError("Reset table entry greater than 32 bits")
+                if size >= (len(content) + base):
+                    raise("Reset table entry out of bounds")
+                if bytes_remaining >= window_bytes:
+                    lzx.reset()
+                    result.append(lzx.decompress(content, window_bytes))
+                    bytes_remaining -= window_bytes
+                    content = content[size - base:]
+                    base = size
+            accum += int32(reset_table[RESET_INTERVAL:])
+            ofs_entry += 8
+        if bytes_remaining < window_bytes and bytes_remaining > 0:
+            lzx.reset()
+            result.append(lzx.decompress(content, bytes_remaining))
+            bytes_remaining = 0
+        if bytes_remaining > 0:
+            raise LitError("Failed to completely decompress section")
+        return ''.join(result)                    
+    
 def get_metadata(stream):
     try:
         litfile = LitFile(stream)
@@ -693,7 +759,7 @@ def get_metadata(stream):
         cover_url, cover_item = mi.cover, None
         if cover_url:
             cover_url = relpath(cover_url, os.getcwd())
-            for item in litfile.manifest:
+            for item in litfile.manifest.values():
                 if item.path == cover_url:
                     cover_item = item.internal
         if cover_item is not None:
