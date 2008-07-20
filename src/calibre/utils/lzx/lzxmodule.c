@@ -1,3 +1,10 @@
+/* __license__   = 'GPL v3'
+ * __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+ *
+ * Python module C glue code.
+ */
+
+
 #include <Python.h>
 
 #include <mspack.h>

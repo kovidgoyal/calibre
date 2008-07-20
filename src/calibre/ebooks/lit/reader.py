@@ -4,7 +4,8 @@ Support for reading LIT files.
 from __future__ import with_statement
 
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
+    'and Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys, struct, cStringIO, os
 import functools
