@@ -18,7 +18,7 @@ Once a job is handed off to the worker, the protocol enters the second mode, whe
 the controller listens for messages from the worker. The worker can send progress updates
 as well as console output (i.e. text that would normally have been written to stdout
 or stderr by the job). Once the job completes (or raises an exception) the worker
-returns the result (or exception) to the controller adnt he protocol reverts to the first mode.
+returns the result (or exception) to the controller and the protocol reverts to the first mode.
 
 In the second mode, the controller can also send the worker STOP messages, in which case
 the worker interrupts the job and dies. The sending of progress and console output messages
@@ -497,7 +497,7 @@ class Result(object):
 def remove_ipc_socket(path):
     os = __import__('os')
     if os.path.exists(path):
-        os.path.unlink(path)
+        os.unlink(path)
 
 class Server(Thread):
     
