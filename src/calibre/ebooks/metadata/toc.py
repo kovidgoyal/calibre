@@ -89,6 +89,7 @@ class TOC(list):
                     print 'Continuing anyway'
             else:
                 path = opfreader.manifest.item(toc.lower())
+                path = getattr(path, 'path', path)
                 if path and os.access(path, os.R_OK):
                     self.read_ncx_toc(path)
                     return
