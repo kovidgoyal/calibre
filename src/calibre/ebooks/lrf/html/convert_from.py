@@ -92,8 +92,8 @@ class HTMLConverter(object, LoggingInterface):
                          # sometimes there are unterminated comments
                         (re.compile(r"<\s*style.*?>(.*?)<\/\s*style\s*>", re.DOTALL|re.IGNORECASE),
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
-                         # remove <p> tags from within <a> tags
-                        (re.compile(r'%(open)s(.*?)%(close)s'%tag_regex('a'), re.DOTALL|re.IGNORECASE),
+                         # remove <p> tags from within <a href> tags
+                        (re.compile(r'<\s*a\s+[^<>]*href\s*=[^<>]*>(.*?)<\s*/\s*a\s*>', re.DOTALL|re.IGNORECASE),
                          lambda match: re.compile(r'%(open)s|%(close)s'%tag_regex('p'), re.IGNORECASE).sub('', match.group())),
                         
                         # Replace common line break patterns with line breaks
