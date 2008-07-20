@@ -66,6 +66,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         
         single_format = settings.get('save to disk single format', 'lrf')
         self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
+        self.cover_browse.setValue(settings.get('cover flow queue length', 6))
         
     def compact(self, toggled):
         d = Vacuum(self, self.db)
@@ -98,7 +99,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         pattern = self.filename_pattern.commit()
         settings.set('filename pattern', pattern)
         settings.set('save to disk single format', BOOK_EXTENSIONS[self.single_format.currentIndex()])
-        
+        settings.set('cover flow queue length', self.cover_browse.value())
         
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'), _('Invalid database location ')+path+_('<br>Must be a directory.'))

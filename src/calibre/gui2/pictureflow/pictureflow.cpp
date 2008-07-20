@@ -316,7 +316,7 @@ struct SlideInfo
 class PictureFlowPrivate
 {
 public:
-  PictureFlowPrivate(PictureFlow* widget);
+  PictureFlowPrivate(PictureFlow* widget, int queueLength);
 
   int slideCount() const;
   void setSlideCount(int count);
@@ -368,6 +368,7 @@ private:
   int slideWidth;
   int slideHeight;
   int zoom;
+  int queueLength;
 
   int centerIndex;
   SlideInfo centerSlide;
@@ -396,7 +397,7 @@ private:
   void resetSlides();
 };
 
-PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w)
+PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w, int queueLength_)
 {
   widget = w;
   slideImages = new FlowImages();
@@ -406,6 +407,7 @@ PictureFlowPrivate::PictureFlowPrivate(PictureFlow* w)
   zoom = 100;
 
   centerIndex = 0;
+  queueLength = queueLength_;
 
   slideFrame = 0;
   step = 0;
@@ -553,7 +555,7 @@ void PictureFlowPrivate::resetSlides()
   centerSlide.slideIndex = centerIndex;
 
   leftSlides.clear();
-  leftSlides.resize(3);
+  leftSlides.resize(queueLength);
   for(int i = 0; i < leftSlides.count(); i++)
   {
     SlideInfo& si = leftSlides[i];
@@ -565,7 +567,7 @@ void PictureFlowPrivate::resetSlides()
   }
 
   rightSlides.clear();
-  rightSlides.resize(3);
+  rightSlides.resize(queueLength);
   for(int i = 0; i < rightSlides.count(); i++)
   {
     SlideInfo& si = rightSlides[i];
@@ -1104,9 +1106,9 @@ void PictureFlowPrivate::clearSurfaceCache()
 
 // -----------------------------------------
 
-PictureFlow::PictureFlow(QWidget* parent): QWidget(parent)
+PictureFlow::PictureFlow(QWidget* parent, int queueLength): QWidget(parent)
 {
-  d = new PictureFlowPrivate(this);
+  d = new PictureFlowPrivate(this, queueLength);
 
   setAttribute(Qt::WA_StaticContents, true);
   setAttribute(Qt::WA_OpaquePaintEvent, true);

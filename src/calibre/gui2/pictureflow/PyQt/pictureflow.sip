@@ -28,7 +28,7 @@ class PictureFlow : QWidget  {
 
 public :
     
-  PictureFlow(QWidget *parent /TransferThis/ = 0);
+  PictureFlow(QWidget *parent /TransferThis/ = 0, int queueLength = 3);
 
   void setImages(FlowImages *images);
   

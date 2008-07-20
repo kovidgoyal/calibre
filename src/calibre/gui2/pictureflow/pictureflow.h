@@ -98,7 +98,7 @@ public:
   /*!
     Creates a new PictureFlow widget.
   */  
-  PictureFlow(QWidget* parent = 0);
+  PictureFlow(QWidget* parent = 0, int queueLength = 3);
 
   /*!
     Destroys the widget.

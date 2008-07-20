@@ -133,6 +133,23 @@
           </widget>
          </item>
          <item>
+          <layout class="QHBoxLayout" name="horizontalLayout" >
+           <item>
+            <widget class="QLabel" name="label_6" >
+             <property name="text" >
+              <string>&amp;Number of covers to show in browse mode (after restart):</string>
+             </property>
+             <property name="buddy" >
+              <cstring>cover_browse</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="cover_browse" />
+           </item>
+          </layout>
+         </item>
+         <item>
           <widget class="QCheckBox" name="new_version_notification" >
            <property name="text" >
             <string>Show notification when &amp;new version is available</string>
