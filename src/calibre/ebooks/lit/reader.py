@@ -767,33 +767,9 @@ class LitReader(object):
         if not os.path.isdir(dir):
             os.makedirs(dir)
 
-def get_metadata(stream):
-    try:
-        litfile = LitReader(stream)
-        src = litfile.meta.encode('utf-8')
-        mi = OPFReader(cStringIO.StringIO(src), dir=os.getcwd())
-        cover_url, cover_item = mi.cover, None
-        if cover_url:
-            cover_url = relpath(cover_url, os.getcwd())
-            for item in litfile.manifest.values():
-                if item.path == cover_url:
-                    cover_item = item.internal
-        if cover_item is not None:
-            ext = cover_url.rpartition('.')[-1]
-            if not ext:
-                ext = 'jpg'
-            else:
-                ext = ext.lower()
-            cd = litfile.get_file(cover_item)
-            mi.cover_data = (ext, cd) if cd else (None, None)            
-    except:
-        title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
-        mi = MetaInformation(title, ['Unknown'])
-    return mi
-
 def option_parser():
     from calibre import OptionParser
-    parser = OptionParser(usage=_('%prog [options] EBOOK'))
+    parser = OptionParser(usage=_('%prog [options] LITFILE'))
     parser.add_option('-o', '--output-dir', default='.', 
                       help=_('Output directory. Defaults to current directory.'))
     parser.add_option('--verbose', default=False, action='store_true',
