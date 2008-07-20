@@ -331,7 +331,15 @@ class ManifestItem(object):
         self.offset = offset
         self.root = root
         self.state = state
-        self.path = self.original
+        # Some paths in Fictionwise "multiformat" LIT files contain '..' (!?)
+        nodes = original.split('/')
+        path = []
+        for node in nodes:
+            if node == '..':
+                if path: path.pop()
+                continue
+            path.append(node)
+        self.path = os.path.join(*path)
         
     def __eq__(self, other):
         if hasattr(other, 'internal'):
