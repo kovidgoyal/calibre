@@ -1223,7 +1223,7 @@ class Main(MainWindow, Ui_MainWindow):
 def main(args=sys.argv):
     from calibre import singleinstance
     
-    pid = os.fork() if islinux else -1
+    pid = os.fork() if False and islinux else -1
     if pid <= 0:
         parser = option_parser('''\
 %prog [opts] [path_to_ebook]
