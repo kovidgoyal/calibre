@@ -122,7 +122,8 @@ class UnBinary(object):
                     break
             if not escape:
                 continue
-            self.raw = self.raw[:pos+offset] + '&amp;' + self.raw[pos+offset+1:]
+            self.raw = '&amp;'.join(
+                (self.raw[:pos+offset], self.raw[pos+offset+1:]))
             offset += 4
     
     def item_path(self, internal_id):
@@ -203,7 +204,8 @@ class UnBinary(object):
                         is_goingdown = False
                         if not tag_name:
                             raise LitError('Tag ends before it begins.')
-                        self.buf.write(u''.join(('</', tag_name, '>')).encode('utf-8'))
+                        self.buf.write(u''.join(
+                                ('</', tag_name, '>')).encode('utf-8'))
                         dynamic_tag = 0
                         tag_name = None
                     state = 'text'
@@ -606,7 +608,8 @@ class LitReader(object):
         except LitError:
             if 'PENGUIN group' not in raw: raise
             print "WARNING: attempting PENGUIN malformed OPF fix"
-            raw = raw.replace('PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
+            raw = raw.replace(
+                'PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
             xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
         self.meta = xml
 
@@ -735,7 +738,8 @@ class LitReader(object):
                     raise("Reset table entry out of bounds")
                 if bytes_remaining >= window_bytes:
                     lzx.reset()
-                    result.append(lzx.decompress(content[base:size], window_bytes))
+                    result.append(
+                        lzx.decompress(content[base:size], window_bytes))
                     bytes_remaining -= window_bytes
                     base = size
             accum += int32(reset_table[RESET_INTERVAL:])
@@ -778,10 +782,12 @@ class LitReader(object):
 def option_parser():
     from calibre import OptionParser
     parser = OptionParser(usage=_('%prog [options] LITFILE'))
-    parser.add_option('-o', '--output-dir', default='.', 
-                      help=_('Output directory. Defaults to current directory.'))
-    parser.add_option('--verbose', default=False, action='store_true',
-                      help='Useful for debugging.')
+    parser.add_option(
+        '-o', '--output-dir', default='.', 
+        help=_('Output directory. Defaults to current directory.'))
+    parser.add_option(
+        '--verbose', default=False, action='store_true',
+        help='Useful for debugging.')
     return parser
 
 def main(args=sys.argv):
