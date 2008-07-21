@@ -37,8 +37,11 @@ isosx = 'darwin' in sys.platform
 
 def load_library():
     if isosx:
-        lib = os.path.join(getattr(sys, 'frameworks_dir'), 'libfontconfig.1.dylib') \
-              if hasattr(sys, 'frameworks_dir') else util.find_library('fontconfig')
+        if os.path.exists('/usr/X11/lib/libfontconfig.1.dylib'): # The fontconfig shipped with calibre doesn't work on Leopard
+            lib = '/usr/X11/lib/libfontconfig.1.dylib'
+        else:
+            lib = os.path.join(getattr(sys, 'frameworks_dir'), 'libfontconfig.1.dylib') \
+                  if hasattr(sys, 'frameworks_dir') else util.find_library('fontconfig')
         return cdll.LoadLibrary(lib)
     elif iswindows:
         return cdll.LoadLibrary('libfontconfig-1')
@@ -136,7 +139,7 @@ class FontScanner(Thread):
     def run(self):
         # Initialize the fontconfig library. This has to be done manually
         # for the OS X bundle as it may have its own private fontconfig.
-        if getattr(sys, 'frameworks_dir', False):
+        if getattr(sys, 'frameworks_dir', False) and not os.path.exists('/usr/X11/lib/libfontconfig.1.dylib'):
             config_dir = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
             if isinstance(config_dir, unicode):
                 config_dir = config_dir.encode(sys.getfilesystemencoding())
@@ -163,7 +166,7 @@ _scanner.start()
 def join():
     _scanner.join(120)
     if _scanner.isAlive():
-    	raise RuntimeError('Scanning for system fonts seems to have hung. Try again in a little while.')
+        raise RuntimeError('Scanning for system fonts seems to have hung. Try again in a little while.')
     if _init_error is not None:
         raise RuntimeError(_init_error)
 
