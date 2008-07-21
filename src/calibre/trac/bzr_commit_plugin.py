@@ -32,14 +32,11 @@ class cmd_commit(_cmd_commit):
         return url.replace('//', '//%s:%s@'%(username, password))+'/login/xmlrpc' 
     
     def get_trac_summary(self, bug, url):
-        print 'Getting bug summary for bug #%s'%bug
+        print 'Getting bug summary for bug #%s'%bug,
         server = xmlrpclib.ServerProxy(url)
-        try:
-            attributes = server.ticket.get(int(bug))[-1]
-            return attributes['summary']
-        except:
-            raise
-            pass
+        attributes = server.ticket.get(int(bug))[-1]
+        print attributes['summary']
+        return attributes['summary']
         
     
     def expand_bug(self, msg, nick, config, bug_tracker, type='trac'):
