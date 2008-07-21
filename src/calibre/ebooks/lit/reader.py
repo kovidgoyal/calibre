@@ -757,12 +757,12 @@ class LitReader(object):
             opf_path = 'content.opf'
         opf_path = os.path.join(output_dir, opf_path)
         self._ensure_dir(opf_path)
-        with open(opf_path, 'w') as f:
+        with open(opf_path, 'wb') as f:
             f.write(self.meta.encode('utf-8'))
         for entry in self.manifest.values():
             path = os.path.join(output_dir, entry.path)
             self._ensure_dir(path)
-            with open(path, 'w') as f:
+            with open(path, 'wb') as f:
                 if 'spine' in entry.state:
                     name = '/'.join(('/data', entry.internal, 'content'))
                     f.write(self.get_markup_file(name).encode('utf-8'))
