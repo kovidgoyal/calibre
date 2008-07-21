@@ -171,6 +171,28 @@ _check_symlinks_prescript()
             subprocess.check_call(['/usr/bin/install_name_tool', '-change', '/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', f])
             
     
+    def build_distutils_plugins(self):
+        plugins = [
+                   ('lzx', os.path.join('utils', 'lzx')),
+                   ]
+        files = []
+        env = {'PATH':os.environ['PATH']}
+        for name, path in plugins:
+            print 'Building plugin', name
+            path = os.path.abspath(os.path.join('src', 'calibre', path))
+            cwd = os.getcwd()
+            os.chdir(path)
+            try:
+                if os.path.exists('.build'):
+                    shutil.rmtree('.build')
+                subprocess.check_call((sys.executable, 'setup.py', 'build', '--build-base', '.build'),
+                                      env=env)
+                plugin = os.path.abspath(glob.glob('.build/lib*/%s.so'%name)[0])
+                files.append([plugin, os.path.basename(plugin)])
+            finally:
+                os.chdir(cwd)
+        return files
+    
     def build_plugins(self):
         cwd = os.getcwd()
         qmake = '/Users/kovid/qt/bin/qmake'
@@ -205,6 +227,7 @@ _check_symlinks_prescript()
             
     
     def run(self):
+        plugin_files = self.build_distutils_plugins()
         py2app.run(self)
         resource_dir = os.path.join(self.dist_dir, 
                                     APPNAME + '.app', 'Contents', 'Resources')
@@ -227,7 +250,7 @@ _check_symlinks_prescript()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
         self.add_qt_plugins()
-        plugin_files = self.build_plugins()
+        plugin_files += self.build_plugins()
             
         print
         print 'Adding clit'

@@ -9,17 +9,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 
 import sys, struct, cStringIO, os
 import functools
-import codecs
-from itertools import repeat
-
-from calibre import relpath
-from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf import OPFReader
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
 import calibre.ebooks.lit.msdes as msdes
-import calibre.utils.lzx as lzx
+from calibre import plugins
+lzx, lxzerror = plugins['lzx']
 
 OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
@@ -783,7 +778,7 @@ def option_parser():
         help=_('Output directory. Defaults to current directory.'))
     parser.add_option(
         '--verbose', default=False, action='store_true',
-        help='Useful for debugging.')
+        help=_('Useful for debugging.'))
     return parser
 
 def main(args=sys.argv):

@@ -10,8 +10,7 @@ from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    Settings, pictureflowerror, iswindows, isosx,\
-    preferred_encoding
+                    Settings, iswindows, isosx, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from calibre.devices.errors import FreeSpaceError
@@ -21,7 +20,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, \
                            SingleApplication, Application, available_height, max_available_height
-from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
+from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow, option_parser

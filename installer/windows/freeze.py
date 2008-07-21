@@ -50,6 +50,25 @@ class BuildEXE(py2exe.build_exe.py2exe):
   </trustInfo>
 </assembly>
 '''
+    def build_distutil_plugins(self):
+        plugins = [
+                   ('lzx', os.path.join('utils', 'lzx')),
+                   ]
+        for name, path in plugins:
+            print 'Building plugin', name
+            path = os.path.abspath(os.path.join('src', 'calibre', path))
+            cwd = os.getcwd()
+            dd = os.path.join(cwd, self.dist_dir)
+            os.chdir(path)
+            try:
+                if os.path.exists('.build'):
+                    shutil.rmtree('.build')
+                subprocess.check_call(('python', 'setup.py', 'build', '--build-base', '.build'))
+                plugin = os.path.abspath(glob.glob('.build\\lib*\\%s.pyd'%name)[0])
+                shutil.copyfile(plugin, os.path.join(dd, os.path.basename(plugin)))
+            finally:
+                os.chdir(cwd)
+    
     def build_plugins(self):
         cwd = os.getcwd()
         dd = os.path.join(cwd, self.dist_dir)
@@ -80,6 +99,7 @@ class BuildEXE(py2exe.build_exe.py2exe):
         if not os.path.exists(self.dist_dir):
             os.makedirs(self.dist_dir)
         print 'Building custom plugins...'
+        self.build_distutil_plugins()
         self.build_plugins()
         py2exe.build_exe.py2exe.run(self)
         qtsvgdll = None
@@ -189,7 +209,7 @@ def main(args=sys.argv):
                                              'calibre.ebooks.lrf.feeds.*',
                                              'lxml', 'lxml._elementpath', 'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
-                                             'calibre.web.feeds.recipes.*', 
+                                             'calibre.web.feeds.recipes.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],
                                   'packages'  : ['PIL'],

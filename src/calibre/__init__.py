@@ -563,22 +563,6 @@ def strftime(fmt, t=time.localtime()):
     except:
         return unicode(result, 'utf-8', 'replace')
 
-if islinux and not getattr(sys, 'frozen', False):
-    import pkg_resources
-    plugins = pkg_resources.resource_filename(__appname__, 'plugins')
-    sys.path.insert(1, plugins)
-    
-if iswindows and hasattr(sys, 'frozen'):
-    sys.path.insert(1, os.path.dirname(sys.executable))
-    
-try:
-    import pictureflow
-    pictureflowerror = ''
-except Exception, err:
-    pictureflow = None
-    pictureflowerror = str(err)
-
-    
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''
     @param match: A match object such that '&'+match.group(1)';' is the entity.
@@ -621,3 +605,23 @@ if isosx:
         for font in fonts:
             exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data'
             open(os.path.join(fdir, font+'.ttf'), 'wb').write(font_data)
+            
+if islinux and not getattr(sys, 'frozen', False):
+    import pkg_resources
+    plugins = pkg_resources.resource_filename(__appname__, 'plugins')
+    sys.path.insert(1, plugins)
+    
+if iswindows and getattr(sys, 'frozen', False):
+    sys.path.insert(1, os.path.dirname(sys.executable))
+
+
+plugins = {}
+for plugin in ['pictureflow', 'lzx']:
+    try:
+        p, err = __import__(plugin), ''
+    except Exception, err:
+        p = None
+        err = str(err)
+    plugins[plugin] = (p, err)
+
+

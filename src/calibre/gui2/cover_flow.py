@@ -12,7 +12,8 @@ import sys, os
 from PyQt4.QtGui import QImage, QSizePolicy
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QObject
 
-from calibre import pictureflow, Settings
+from calibre import Settings, plugins
+pictureflow, pictureflowerror = plugins['pictureflow']
 
 if pictureflow is not None:
     class EmptyImageList(pictureflow.FlowImages):
