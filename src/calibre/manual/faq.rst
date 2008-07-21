@@ -133,10 +133,9 @@ The graphical user interface of |app| is not starting on Windows?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you've never used the graphical user interface before, try deleting the file library1.db (it will be somewhere under :file:`C:\\Documents and Settings` on Windows XP and :file:`C:\\Users` on Windows Vista. If that doesn't fix the problem, locate the file calibre.log (in the same places as library1.db) and post its contents in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion>`_. If you can't find either file, try using the windows find feature to search for them. If the files dont exist on your system, try the following:
     
-Start a command prompt (press the windows key and R and type cmd.exe in the run dialog). At the command prompt type the command `calibre-debug` and press enter. You will se a new, green prompt. At theis prompt, type the following two lines::
+Start a command prompt (press the windows key and R and type cmd.exe in the run dialog). At the command prompt type the following command and press Enter::
 
-    from calibre.gui2.main import main
-    main()
+    calibre-debug -c "from calibre.gui2.main import main; main()"
 
 Post any output you see when asking for help. 
 

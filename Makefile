@@ -33,11 +33,17 @@ pictureflow :
 	cd ../PyQt && \
 	mkdir -p .build && \
 	cd .build && rm -f * && \
-	python ../configure.py && make && \
+	${PYTHON} ../configure.py && make && \
 	cd ../../../../../.. && \
 	cp src/calibre/gui2/pictureflow/PyQt/.build/pictureflow.so src/calibre/plugins/ && \
 	rm -rf src/calibre/gui2/pictureflow/.build rm -rf src/calibre/gui2/pictureflow/PyQt/.build
 
+lzx :
+	mkdir -p src/calibre/plugins && rm -f src/calibre/plugins/*pictureflow* && \
+    cd src/calibre/utils/lzx && mkdir .build && cd .build && \
+    ${PYTHON} ../configure.py && make && cd - && \
+    cp src/calibre/utils/lzx/.build/lzx.so src/calibre/plugins/ && \
+    rm -rf src/calibre/utils/lzx/.build/
 
 pot :
 	cd src/calibre/translations && ${PYTHON} __init__.py pot

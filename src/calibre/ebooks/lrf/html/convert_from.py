@@ -1453,6 +1453,7 @@ class HTMLConverter(object, LoggingInterface):
                 self.page_break_found = True
 
                 if self.options.add_chapters_to_toc:
+                    self.current_block.must_append = True
                     self.extra_toc_entries.append((self.get_text(tag,
                         limit=1000), self.current_block))
 
@@ -1666,6 +1667,7 @@ class HTMLConverter(object, LoggingInterface):
                         self.page_break_found = True
 
                         if self.options.add_chapters_to_toc:
+                            self.current_block.must_append = True
                             self.extra_toc_entries.append((self.get_text(tag,
                                 limit=1000), self.current_block))
                 

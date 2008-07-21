@@ -477,13 +477,16 @@ class Settings(QSettings):
                            'kovidgoyal.net', name)
         
     def get(self, key, default=None):
-        key = str(key)
-        if not self.contains(key):
+        try:
+            key = str(key)
+            if not self.contains(key):
+                return default
+            val = str(self.value(key, QVariant()).toByteArray())
+            if not val:
+                return None
+            return cPickle.loads(val)
+        except:
             return default
-        val = str(self.value(key, QVariant()).toByteArray())
-        if not val:
-            return None
-        return cPickle.loads(val)
     
     def set(self, key, val):
         val = cPickle.dumps(val, -1)

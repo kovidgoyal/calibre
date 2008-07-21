@@ -40,7 +40,6 @@ from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.user_profiles import UserProfiles
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
-from calibre.library.database import DatabaseLocked
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -1247,12 +1246,7 @@ path_to_ebook to the database.
                                  '<p>%s is already running. %s</p>'%(__appname__, extra))
             return 1
         initialize_file_icon_provider()
-        try:
-            main = Main(single_instance, opts)
-        except DatabaseLocked, err:
-            QMessageBox.critical(None, 'Cannot Start '+__appname__,
-            '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
-            return 1
+        main = Main(single_instance, opts)
         sys.excepthook = main.unhandled_exception
         if len(args) > 1:
             main.add_filesystem_book(args[1])
