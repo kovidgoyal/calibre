@@ -587,11 +587,12 @@ class LitReader(object):
         shared = mlist[0].path
         for item in mlist[1:]:
             path = item.path
-            while not path.startswith(shared):
-                shared = shared[:-1]
-            if shared == '':
+            while shared and not path.startswith(shared):
+                try: shared = shared[:shared.rindex("/", 0, -2) + 1]
+                except ValueError: shared = None
+            if not shared:
                 break
-        else:
+        if shared:
             slen = len(shared)
             for item in mlist:
                 item.path = item.path[slen:]
