@@ -10,6 +10,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 import sys, struct, cStringIO, os
 import functools
 import codecs
+import re
 from itertools import repeat
 
 from calibre import relpath
@@ -98,33 +99,21 @@ def read_utf8_char(bytes, pos):
     return unichr(c), pos+elsize
             
 class UnBinary(object):
+    AMPERSAND_RE = re.compile(
+        r'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
+    
     def __init__(self, bin, manifest, map=OPF_MAP):
         self.manifest = manifest
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
         self.opf = map is OPF_MAP
         self.bin = bin
         self.buf = cStringIO.StringIO()
-        self.ampersands = []
         self.binary_to_text()
         self.raw = self.buf.getvalue().lstrip().decode('utf-8')
         self.escape_ampersands() 
 
     def escape_ampersands(self):
-        offset = 0
-        for pos in self.ampersands:
-            test = self.raw[pos+offset:pos+offset+6]
-            if test.startswith('&#') and ';' in test:
-                continue
-            escape = True
-            for ent in XML_ENTITIES:
-                if test.startswith(ent):
-                    escape = False
-                    break
-            if not escape:
-                continue
-            self.raw = '&amp;'.join(
-                (self.raw[:pos+offset], self.raw[pos+offset+1:]))
-            offset += 4
+        self.raw = self.AMPERSAND_RE.sub('&amp;', self.raw)
     
     def item_path(self, internal_id):
         try:
@@ -153,8 +142,6 @@ class UnBinary(object):
                     continue
                 elif c == '\v':
                     c = '\n'
-                elif c == '&':
-                    self.ampersands.append(self.buf.tell()-1)
                 self.buf.write(c.encode('utf-8'))
             
             elif state == 'get flags':
