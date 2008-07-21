@@ -334,14 +334,9 @@ class ManifestItem(object):
         self.root = root
         self.state = state
         # Some paths in Fictionwise "multiformat" LIT files contain '..' (!?)
-        nodes = original.split('/')
-        path = []
-        for node in nodes:
-            if node == '..':
-                if path: path.pop()
-                continue
-            path.append(node)
-        self.path = os.path.join(*path)
+        path = os.path.normpath(original).replace('\\', '/')
+        while path.startswith('../'): path = path[3:]
+        self.path = path
         
     def __eq__(self, other):
         if hasattr(other, 'internal'):
