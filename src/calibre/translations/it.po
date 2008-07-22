@@ -1481,6 +1481,7 @@ msgstr "Cambia l'editore di questo libro"
 msgid "Ta&gs: "
 msgstr "T&ag: "
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:524
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:127
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:271
@@ -1489,7 +1490,7 @@ msgid ""
 "<br><br>They can be any words or phrases, separated by commas."
 msgstr ""
 "I tag categorizzano un libro. Questo è particolarmente utile durante le "
-"ricerche. <br>Possono essere qualsiasi parola o frase, separati da una "
+"ricerche. <br><br>Possono essere qualsiasi parola o frase, separati da una "
 "virgola"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:525
@@ -2143,6 +2144,7 @@ msgstr ""
 msgid "Recipe source code (python)"
 msgstr "Codice sorgente formula (python)"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:97
 msgid ""
 "<p>Set a regular expression pattern to use when trying to guess ebook "
@@ -2154,7 +2156,7 @@ msgstr ""
 "<p>Impostare un modello di espressione regolare da usare nel tentativo di "
 "indovinare i metadati dei libri dal nome del file. <p>È disponibile un <a "
 "href=\"http://docs.python.org/lib/re-syntax.html\">riferimento</a> sulla "
-"sintassi delle espressioni regolari. Usare la funzionalità <b>Test</b> "
+"sintassi delle espressioni regolari.<p> Usare la funzionalità <b>Test</b> "
 "sottostante per testare le proprie espressioni regolari su una serie di nomi "
 "di file di esempio."
 
@@ -2294,9 +2296,10 @@ msgstr "Formati"
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Libro <font face=\"serif\">%s</font> di %s"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:396
 msgid "Double click to <b>edit</b> me<br><br>"
-msgstr "Doppio clic per modificarmi"
+msgstr "Doppio clic per <b>modificarmi</b><br><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:406
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:757

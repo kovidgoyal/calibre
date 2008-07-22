@@ -426,6 +426,7 @@ msgstr ""
 "Expressión regular utilizada para detectar los títulos de los capítulos. "
 "Busca las marcas de encabezado (h1-h6). Por defecto: %default"
 
+# (pofilter) escapes: escapes in original ('"h\d,class,chapter".') don't match escapes in translation ()
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:165
 msgid ""
 "Detect a chapter beginning at an element having the specified attribute. The "
@@ -437,7 +438,7 @@ msgstr ""
 "especificado. El formato para ésta espresión es tagname regexp, nombre del "
 "atributo, valor del atributo regexp. Por ejemplo, para encontrar todas las "
 "etiquetas de cabecera que tienen como attribute class=\"capítulo\" podría "
-"usar: \"h/d,class,capítulo\". El valor por defecto es: %default"
+"usar: \"h\\d,class,capítulo\". El valor por defecto es: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:167
 msgid ""
@@ -2111,6 +2112,7 @@ msgstr "&Compartir receta"
 msgid "&Load recipe from file"
 msgstr "&Cargar receta desde un archivo"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:215
 msgid ""
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
@@ -2124,16 +2126,15 @@ msgid ""
 "use the \"Advanced mode\" to further customize the fetch "
 "process.</p></body></html>"
 msgstr ""
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-"type=\"text/css\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
 "font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Crear una receta de "
-"noticias básica, añadiendo un RSS Feed. Para la mayoría de los feeds, "
-"necesitará utilizar el \"modo avanzado\" para una configuración mas "
-"detallada del proceso de adquisición de los datos</p></body></html>"
+"noticias básica, añadiendo un RSS Feed. <br /> Para la mayoría de los feeds, "
+"necesitará utilizar el \"modo avanzado\" para una configuración mas detallada "
+"del proceso de adquisición de los datos</p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles_ui.py:219
 msgid "Recipe &title:"
@@ -2253,9 +2254,10 @@ msgstr "Ninguna coincidencia"
 msgid "Authors:"
 msgstr "Autores:"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:106
 msgid "Regular expression group name (?P<authors>)"
-msgstr "Nombre de grupo de expresión regular (?P<authos>)"
+msgstr "Nombre de grupo de expresión regular (?P<authors>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:108
 msgid "Series:"
@@ -2348,9 +2350,10 @@ msgstr "Formatos"
 msgid "Book <font face=\"serif\">%s</font> of %s."
 msgstr "Libro <font face=\"serif\">%s</font> de %s."
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:396
 msgid "Double click to <b>edit</b> me<br><br>"
-msgstr "Doble click para <b>editarme</b>"
+msgstr "Doble click para <b>editarme</b><br><br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:406
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:757
@@ -2898,14 +2901,15 @@ msgstr "ERROR: Excepción no Contemplada"
 msgid "Add a custom news source"
 msgstr "Añadir nueva fuente de noticias"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/news.py:53
 msgid ""
 "<p>Please enter your username and password for %s<br>If you do not have one, "
 "please subscribe to get access to the articles.<br/> Click OK to proceed."
 msgstr ""
-"<p>Por favor, introduzca el nombre de usuario y contraseña para %s<br/> Si "
-"no tiene uno, por favor dese de alta para obtener acceso a los "
-"artículos.<br/> Haga click en OK para continuar."
+"<p>Por favor, introduzca el nombre de usuario y contraseña para %s<br> Si no "
+"tiene uno, por favor dese de alta para obtener acceso a los artículos.<br/> "
+"Haga click en OK para continuar."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/news.py:79
 msgid "Custom news sources"

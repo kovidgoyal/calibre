@@ -307,7 +307,9 @@ msgstr ""
 "Устанавливать разрывы страниц после тегов, имена которых соответствуют этому "
 "регулярному выражению."
 
+# (pofilter) escapes: escapes in original ('"h\d,class,chapter".') don't match escapes in translation ()
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:179
+#, fuzzy
 msgid ""
 "Force a page break before an element having the specified attribute. The "
 "format for this option is tagname regexp,attribute name,attribute value "
