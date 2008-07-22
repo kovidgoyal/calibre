@@ -1248,7 +1248,7 @@ msgstr "Actieve opdrachten"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:39
 msgid "&Stop selected job"
-msgstr "%Stop de geselecteerde opdracht"
+msgstr "&Stop de geselecteerde opdracht"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:54
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:291
@@ -1471,7 +1471,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:132
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:274
 msgid "&Series:"
-msgstr "%Series:"
+msgstr "&Series:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:526
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:527
@@ -1510,7 +1510,7 @@ msgstr "Toegevoegde Lettertypen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:535
 msgid "&Serif:"
-msgstr "%Serif:"
+msgstr "&Serif:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:536
 msgid "S&ans-serif:"
@@ -2450,7 +2450,7 @@ msgstr "Opslaan op schijf in een enkele folder"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:152
 msgid "Save only %s format to disk"
-msgstr "Bewaar alleen %formaat op schijf"
+msgstr "Bewaar alleen %s formaat op schijf"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:155
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:281
@@ -3177,6 +3177,8 @@ msgstr ""
 "\n"
 "commando is een van de volgende:\n"
 "  %s\n"
+"  \n"
+"For help on an individual command: %%prog command --help\n"
 
 #: /home/kovid/work/calibre/src/calibre/parallel.py:321
 msgid "Could not launch worker process."

@@ -92,8 +92,8 @@ class HTMLConverter(object, LoggingInterface):
                          # sometimes there are unterminated comments
                         (re.compile(r"<\s*style.*?>(.*?)<\/\s*style\s*>", re.DOTALL|re.IGNORECASE),
                          lambda match: match.group().replace('<!--', '').replace('-->', '')),
-                         # remove <p> tags from within <a> tags
-                        (re.compile(r'%(open)s(.*?)%(close)s'%tag_regex('a'), re.DOTALL|re.IGNORECASE),
+                         # remove <p> tags from within <a href> tags
+                        (re.compile(r'<\s*a\s+[^<>]*href\s*=[^<>]*>(.*?)<\s*/\s*a\s*>', re.DOTALL|re.IGNORECASE),
                          lambda match: re.compile(r'%(open)s|%(close)s'%tag_regex('p'), re.IGNORECASE).sub('', match.group())),
                         
                         # Replace common line break patterns with line breaks
@@ -1453,6 +1453,7 @@ class HTMLConverter(object, LoggingInterface):
                 self.page_break_found = True
 
                 if self.options.add_chapters_to_toc:
+                    self.current_block.must_append = True
                     self.extra_toc_entries.append((self.get_text(tag,
                         limit=1000), self.current_block))
 
@@ -1666,6 +1667,7 @@ class HTMLConverter(object, LoggingInterface):
                         self.page_break_found = True
 
                         if self.options.add_chapters_to_toc:
+                            self.current_block.must_append = True
                             self.extra_toc_entries.append((self.get_text(tag,
                                 limit=1000), self.current_block))
                 
@@ -1975,8 +1977,9 @@ def try_opf(path, options, logger):
                                 except:
                                     continue
             if not getattr(options, 'cover', None) and orig_cover is not None:
-                options.cover = orig_cover        
-        options.spine = [i.path for i in opf.spine if i.path]
+                options.cover = orig_cover
+        if getattr(opf, 'spine', False):
+            options.spine = [i.path for i in opf.spine if i.path]
         if not getattr(options, 'toc', None):
             options.toc   = opf.toc
     except Exception:

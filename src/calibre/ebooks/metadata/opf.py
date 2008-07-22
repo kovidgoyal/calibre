@@ -278,7 +278,7 @@ class OPF(MetaInformation):
     
     def get_comments(self):
         comments = self.soup.find('dc:description')
-        if comments:
+        if comments and comments.string:
             return self.ENTITY_PATTERN.sub(entity_to_unicode, comments.string).strip()
         return None
     

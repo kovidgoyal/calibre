@@ -266,7 +266,7 @@ def download_tarball():
 
 def main(args=sys.argv):
     defdir = '/opt/calibre'
-    destdir = raw_input('Enter the installation directory for calibre [%s]: '%defdir)
+    destdir = raw_input('Enter the installation directory for calibre [%s]: '%defdir).strip()
     if not destdir:
         destdir = defdir
     if os.path.exists(destdir):

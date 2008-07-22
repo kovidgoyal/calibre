@@ -1,7 +1,7 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.77'
+__version__   = '0.4.79'
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
@@ -70,13 +70,13 @@ def my_join(a, *p):
             _unicode = True
             break
     p = [i.encode(encoding) if isinstance(i, unicode) else i for i in p]
-    
+
     res = _join(*p)
     if _unicode:
         res = res.decode(encoding)
     return res
 
-os.path.join = my_join        
+os.path.join = my_join
 
 def osx_version():
     if isosx:
@@ -129,7 +129,7 @@ def setup_cli_handlers(logger, level):
         handler = logging.StreamHandler(sys.stderr)
         handler.setLevel(logging.DEBUG)
         handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
-    
+
     logger.addHandler(handler)
 
 class CustomHelpFormatter(IndentedHelpFormatter):
@@ -477,13 +477,16 @@ class Settings(QSettings):
                            'kovidgoyal.net', name)
 
     def get(self, key, default=None):
-        key = str(key)
-        if not self.contains(key):
+        try:
+            key = str(key)
+            if not self.contains(key):
+                return default
+            val = str(self.value(key, QVariant()).toByteArray())
+            if not val:
+                return None
+            return cPickle.loads(val)
+        except:
             return default
-        val = str(self.value(key, QVariant()).toByteArray())
-        if not val:
-            return None
-        return cPickle.loads(val)
 
     def set(self, key, val):
         val = cPickle.dumps(val, -1)
@@ -560,22 +563,6 @@ def strftime(fmt, t=time.localtime()):
     except:
         return unicode(result, 'utf-8', 'replace')
 
-if islinux and not getattr(sys, 'frozen', False):
-    import pkg_resources
-    plugins = pkg_resources.resource_filename(__appname__, 'plugins')
-    sys.path.insert(1, plugins)
-
-if iswindows and hasattr(sys, 'frozen'):
-    sys.path.insert(1, os.path.dirname(sys.executable))
-
-try:
-    import pictureflow
-    pictureflowerror = ''
-except Exception, err:
-    pictureflow = None
-    pictureflowerror = str(err)
-
-
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''
     @param match: A match object such that '&'+match.group(1)';' is the entity.
@@ -618,3 +605,23 @@ if isosx:
         for font in fonts:
             exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data'
             open(os.path.join(fdir, font+'.ttf'), 'wb').write(font_data)
+
+if islinux and not getattr(sys, 'frozen', False):
+    import pkg_resources
+    plugins = pkg_resources.resource_filename(__appname__, 'plugins')
+    sys.path.insert(1, plugins)
+
+if iswindows and getattr(sys, 'frozen', False):
+    sys.path.insert(1, os.path.dirname(sys.executable))
+
+
+plugins = {}
+for plugin in ['pictureflow', 'lzx']:
+    try:
+        p, err = __import__(plugin), ''
+    except Exception, err:
+        p = None
+        err = str(err)
+    plugins[plugin] = (p, err)
+
+

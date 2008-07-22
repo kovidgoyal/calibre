@@ -2,7 +2,7 @@ PYTHON = python
 
 all : plugins gui2 translations resources 
 
-plugins : src/calibre/plugins pictureflow
+plugins : src/calibre/plugins pictureflow lzx
 
 src/calibre/plugins:
 	mkdir -p src/calibre/plugins
@@ -33,11 +33,17 @@ pictureflow :
 	cd ../PyQt && \
 	mkdir -p .build && \
 	cd .build && rm -f * && \
-	python ../configure.py && make && \
+	${PYTHON} ../configure.py && make && \
 	cd ../../../../../.. && \
 	cp src/calibre/gui2/pictureflow/PyQt/.build/pictureflow.so src/calibre/plugins/ && \
 	rm -rf src/calibre/gui2/pictureflow/.build rm -rf src/calibre/gui2/pictureflow/PyQt/.build
 
+lzx :
+	mkdir -p src/calibre/plugins && rm -f src/calibre/plugins/lzx.so && \
+    cd src/calibre/utils/lzx &&  \
+    ${PYTHON} setup.py build --build-base=.build && cd - && \
+    cp src/calibre/utils/lzx/.build/lib*/lzx.so src/calibre/plugins/ && \
+    rm -rf src/calibre/utils/lzx/.build/
 
 pot :
 	cd src/calibre/translations && ${PYTHON} __init__.py pot

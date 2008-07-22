@@ -10,8 +10,7 @@ from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    Settings, pictureflowerror, iswindows, isosx,\
-    preferred_encoding
+                    Settings, iswindows, isosx, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from calibre.devices.errors import FreeSpaceError
@@ -21,7 +20,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, \
                            SingleApplication, Application, available_height, max_available_height
-from calibre.gui2.cover_flow import CoverFlow, DatabaseImages
+from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow, option_parser
@@ -40,7 +39,6 @@ from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.user_profiles import UserProfiles
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
-from calibre.library.database import DatabaseLocked
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -1243,8 +1241,7 @@ class Main(MainWindow, Ui_MainWindow):
 
 def main(args=sys.argv):
     from calibre import singleinstance
-
-    pid = os.fork() if islinux else -1
+    pid = os.fork() if False and islinux else -1
     if pid <= 0:
         parser = option_parser('''\
 %prog [opts] [path_to_ebook]
@@ -1262,17 +1259,13 @@ path_to_ebook to the database.
             if single_instance is not None and single_instance.is_running() and \
                single_instance.send_message('launched:'+repr(args)):
                     return 0
-
+            extra = '' if iswindows else \
+            	('If you\'re sure it is not running, delete the file %s.'%os.path.expanduser('~/.calibre_calibre GUI.lock'))
             QMessageBox.critical(None, 'Cannot Start '+__appname__,
-                                 '<p>%s is already running.</p>'%__appname__)
+                                 '<p>%s is already running. %s</p>'%(__appname__, extra))
             return 1
         initialize_file_icon_provider()
-        try:
-            main = Main(single_instance, opts)
-        except DatabaseLocked, err:
-            QMessageBox.critical(None, 'Cannot Start '+__appname__,
-            '<p>Another program is using the database. <br/>Perhaps %s is already running?<br/>If not try deleting the file %s'%(__appname__, err.lock_file_path))
-            return 1
+        main = Main(single_instance, opts)
         sys.excepthook = main.unhandled_exception
         if len(args) > 1:
             main.add_filesystem_book(args[1])

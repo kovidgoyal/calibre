@@ -46,6 +46,7 @@ entry_points = {
                              'librarything = calibre.ebooks.metadata.library_thing:main',
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
+                             'lit2oeb   = calibre.ebooks.lit.reader:main',
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
@@ -160,6 +161,7 @@ def setup_completion(fatal_errors):
         from calibre.gui2.lrf_renderer.main import option_parser as lrfviewerop
         from calibre.ebooks.lrf.pdf.reflow import option_parser as pdfhtmlop
         from calibre.ebooks.mobi.reader import option_parser as mobioeb
+        from calibre.ebooks.lit.reader import option_parser as lit2oeb
         from calibre.web.feeds.main import option_parser as feeds2disk
         from calibre.web.feeds.recipes import titles as feed_titles
         from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
@@ -194,6 +196,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))
+        f.write(opts_and_exts('lit2oeb', lit2oeb, ['lit']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write('''

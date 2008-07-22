@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Convert any ebook file into a LRF file.'''
 
-import sys, os, logging, shutil, tempfile, glob
+import sys, os, logging, shutil, tempfile, glob, re
 
 from calibre.ebooks import UnknownFormatError
 from calibre.ebooks.lrf import option_parser as _option_parser
@@ -26,17 +26,16 @@ def largest_file(files):
     return file
 
 def find_htmlfile(dir):
-    cwd = os.getcwd()
-    try:
-        os.chdir(dir)
-        for pair in (('*toc*.htm*', '*toc*.xhtm*'), ('*.htm*', '*.xhtm*')):
-            files = glob.glob(pair[0])
-            files += glob.glob(pair[1])
-            file = largest_file(files)
-            if file:
-                return os.path.join(dir, file)
-    finally:
-        os.chdir(cwd)
+    ext_pat = re.compile(r'\.(x){0,1}htm(l){0,1}', re.IGNORECASE)
+    toc_pat = re.compile(r'toc', re.IGNORECASE)
+    toc_files, files = [], []
+    for f in map(lambda x:os.path.join(dir, x), os.listdir(dir)):
+        name, ext = os.path.splitext(f)
+        if ext and ext_pat.match(ext):
+            toc_files.append(f) if toc_pat.search(f) else files.append(f)
+    a = toc_files if toc_files else files
+    if a:
+        return largest_file(a)
 
 def number_of_unhidden_files(base, listing):
     ans = 0
@@ -71,9 +70,12 @@ def handle_archive(path):
     files = []
     cdir = traverse_subdirs(tdir)
     file = None
-    for ext in ('lit', 'rtf', 'fb2','pdf', 'txt', 'epub', 'mobi', 'prc'):
-        pat = os.path.join(cdir, '*.'+ext)
-        files.extend(glob.glob(pat))
+    exts = ['lit', 'rtf', 'fb2','pdf', 'txt', 'epub', 'mobi', 'prc']
+    candidates = map(lambda x:os.path.join(cdir, x), os.listdir(cdir))
+    for ext in exts:
+        for f in candidates:
+            if f.lower().endswith(ext):
+                files.append(f)
     file = largest_file(files)
     if not file:
         file = find_htmlfile(cdir)

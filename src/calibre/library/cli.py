@@ -20,7 +20,7 @@ from calibre.library.database2 import LibraryDatabase2
 from calibre.library.database import text_to_tokens
 from calibre.ebooks.metadata.opf import OPFCreator, OPFReader
 
-FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats'])
+FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn'])
 
 def get_parser(usage):
     parser = OptionParser(usage)
