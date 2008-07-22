@@ -754,7 +754,32 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 conn.execute('UPDATE books SET author_sort=? WHERE id=?', (aus, id))
         conn.execute('pragma user_version=11')
         conn.commit()
-        
+    
+    @staticmethod
+    def upgrade_version11(conn):
+        conn.executescript(
+'''
+/***** Add isbn column to meta view ******/
+    DROP VIEW meta;
+    CREATE VIEW meta AS
+    SELECT id, title,
+           (SELECT concat(name) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=books.id)) authors,
+           (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+           (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+           timestamp,
+           (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+           (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+           (SELECT text FROM comments WHERE book=books.id) comments,
+           (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+           series_index,
+           sort,
+           author_sort,
+           (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
+           isbn
+    FROM books;
+''')
+        conn.execute('pragma user_version=5')
+        conn.commit()    
         
     def __init__(self, dbpath, row_factory=False):
         self.dbpath = dbpath
