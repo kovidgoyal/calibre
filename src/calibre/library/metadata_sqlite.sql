@@ -93,7 +93,8 @@ CREATE VIEW meta AS
            series_index,
            sort,
            author_sort,
-           (SELECT concat(format) FROM data WHERE data.book=books.id) formats
+           (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
+           isbn
     FROM books;
 CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE);
 CREATE INDEX books_authors_link_aidx ON books_authors_link (author);
