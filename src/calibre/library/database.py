@@ -778,7 +778,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
            isbn
     FROM books;
 ''')
-        conn.execute('pragma user_version=5')
+        conn.execute('pragma user_version=12')
         conn.commit()    
         
     def __init__(self, dbpath, row_factory=False):

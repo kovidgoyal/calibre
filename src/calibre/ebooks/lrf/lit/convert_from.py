@@ -5,6 +5,7 @@ import os, sys, shutil, glob, logging
 from tempfile import mkdtemp
 from subprocess import Popen, PIPE
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
+from calibre.ebooks.lit.reader import LitReader
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.ebooks.metadata.opf import OPFReader
@@ -17,12 +18,24 @@ if islinux and getattr(sys, 'frozen_path', False):
     CLIT = os.path.join(getattr(sys, 'frozen_path'), 'clit')
 
 def option_parser():
-    return lrf_option_parser(
+    parser = lrf_option_parser(
 _('''Usage: %prog [options] mybook.lit
 
 
 %prog converts mybook.lit to mybook.lrf''')
         )
+    parser.add_option('--lit2oeb', default=False, dest='lit2oeb', action='store_true',
+                      help='Use the new lit2oeb to convert lit files instead of convertlit.')
+    return parser
+
+def generate_html2(pathtolit, logger):
+    if not os.access(pathtolit, os.R_OK):
+        raise ConversionError, 'Cannot read from ' + pathtolit
+    tdir = mkdtemp(prefix=__appname__+'_')
+    lr = LitReader(pathtolit)
+    print 'Extracting LIT file to', tdir
+    lr.extract_content(tdir)
+    return tdir
 
 def generate_html(pathtolit, logger):
     if not os.access(pathtolit, os.R_OK):
@@ -51,7 +64,7 @@ def process_file(path, options, logger=None):
         logger = logging.getLogger('lit2lrf')
         setup_cli_handlers(logger, level)
     lit = os.path.abspath(os.path.expanduser(path))
-    tdir = generate_html(lit, logger)
+    tdir = generate_html2(lit, logger) if options.lit2oeb else generate_html(lit, logger)
     try:
         opf = glob.glob(os.path.join(tdir, '*.opf'))
         if opf:
