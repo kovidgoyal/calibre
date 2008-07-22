@@ -1327,7 +1327,7 @@ class HTMLConverter(object, LoggingInterface):
             bls, ls = int(self.book.defaultTextStyle.attrs['baselineskip']), \
                       int(self.book.defaultTextStyle.attrs['linespace'])              
             try: # See if line-height is a unitless number
-                val = int(float(tag_css['line-height'].strip()) * (bls+ls))
+                val = int(float(tag_css['line-height'].strip()) * (ls))
                 fp['linespace'] = val
             except ValueError:
                 val = self.unit_convert(tag_css['line-height'], pts=True, base_length='1pt')
