@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, glob
 import sipconfig
 if os.environ.get('PYQT4PATH', None):
     print os.environ['PYQT4PATH']
@@ -32,32 +32,22 @@ makefile = pyqtconfig.QtGuiModuleMakefile (
     qt=1,
 )
 
-# Add the library we are wrapping.  The name doesn't include any platform
-# specific prefixes or extensions (e.g. the "lib" prefix on UNIX, or the
-# ".dll" extension on Windows).
+# Setup the platform dependent Makefile parameters
 d = os.path.dirname
-makefile.extra_lib_dirs += [os.path.abspath(os.path.join(d(d(d(d(os.getcwd())))), 'plugins')).replace(os.sep, '/')]
-makefile.extra_libs += ['pictureflow1' if 'win32' in sys.platform else 'pictureflow']
-makefile.extra_cflags = ['-arch i386', '-arch ppc'] if 'darwin' in sys.platform else []
-makefile.extra_lflags = ['-arch i386', '-arch ppc'] if 'darwin' in sys.platform else []
-makefile.extra_cxxflags = makefile.extra_cflags
+if 'darwin' in sys.platform:
+    makefile.extra_cflags += ['-arch i386', '-arch ppc']
+    makefile.extra_lflags += ['-arch i386', '-arch ppc']
+qtdir = os.path.join(d(d(os.getcwd())), '.build')
 if 'win32' in sys.platform:
+    qtdir = os.path.join(qtdir, 'release')
     makefile.extra_lib_dirs += ['C:/Python25/libs']
+
+# Add the compiled Qt objects
+qtobjs = map(lambda x:'"'+x+'"', glob.glob(os.path.join(qtdir, '*.o')))
+makefile.extra_lflags += qtobjs
+makefile.extra_cxxflags = makefile.extra_cflags
 
 # Generate the Makefile itself.
 makefile.generate()
-
-# Now we create the configuration module.  This is done by merging a Python
-# dictionary (whose values are normally determined dynamically) with a
-# (static) template.
-content = {
-    # Publish where the SIP specifications for this module will be
-    # installed.
-    "pictureflow_sip_dir":    config.default_sip_dir,
-}
-
-# This creates the helloconfig.py module from the helloconfig.py.in
-# template and the dictionary.
-sipconfig.create_config_module("pictureflowconfig.py", '..'+os.sep+'pictureflowconfig.py.in', content)
 
 
