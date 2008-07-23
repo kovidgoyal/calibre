@@ -22,7 +22,7 @@ match to a given font specification. The main functions in this module are:
 .. autofunction:: match
 '''
 
-import sys, os, locale, codecs
+import sys, os, locale, codecs, platform
 from ctypes import cdll, c_void_p, Structure, c_int, POINTER, c_ubyte, c_char, util, \
                    pointer, byref, create_string_buffer, Union, c_char_p, c_double
 
@@ -33,7 +33,8 @@ except:
     preferred_encoding = 'utf-8'
 
 iswindows = 'win32' in sys.platform or 'win64' in sys.platform
-isosx = 'darwin' in sys.platform
+isosx     = 'darwin' in sys.platform
+is64bit   = '64bit' in platform.architecture()[0]
 
 def load_library():
     if isosx:
