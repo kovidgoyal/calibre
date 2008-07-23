@@ -72,27 +72,6 @@ if __name__ == '__main__':
             os.chdir('.build')
             subprocess.check_call(( (os.path.expanduser('~/qt/bin/qmake') if isosx else 'qmake'), '..'+os.sep+os.path.basename(pro)))
             subprocess.check_call(['mingw32-make' if iswindows else 'make'])
-            ext = '.dll' if iswindows else '.dylib' if isosx else '.so'
-            if iswindows:
-                pat = re.compile(qtplugin+ver+ext)
-            elif isosx:
-                pat = re.compile('lib'+qtplugin+'.'+ver+ext)
-            else:
-                pat = re.compile('lib'+qtplugin+ext+'.'+ver+'$')
-            if iswindows:
-                os.chdir('release')
-            qtplugin = None
-            
-            for f in glob.glob('*'+ext+'*'):
-                if pat.match(f):
-                    qtplugin = os.path.realpath(os.path.abspath(f))
-                    f = os.path.join(cwd, 'src', 'calibre', 'plugins', f)
-                    shutil.copyfile(qtplugin, f)
-                    if islinux:
-                        os.symlink(f, f.rpartition(ext)[0]+ext)
-                    if isosx:
-                        os.symlink(f, f.replace('.'+ver, ''))
-                    break
             os.chdir(os.path.join('..'+(os.sep+'..' if iswindows else ''), 'PyQt'))
             if not os.path.exists('.build'):
                 os.mkdir('.build')
