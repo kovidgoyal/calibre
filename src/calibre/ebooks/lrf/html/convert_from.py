@@ -1519,7 +1519,8 @@ class HTMLConverter(object, LoggingInterface):
                     css, pcss = self.parse_css(text)
                     ncss.update(css)
                     npcss.update(pcss)
-                elif tag.has_key('type') and tag['type'] == "text/css" \
+                elif tag.has_key('type') \
+                        and tag['type'] in ("text/css", "text/x-oeb1-css") \
                         and tag.has_key('href'):
                     path = munge_paths(self.target_prefix, tag['href'])[0]           
                     try:
