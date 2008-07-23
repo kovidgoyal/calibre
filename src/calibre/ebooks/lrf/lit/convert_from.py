@@ -64,7 +64,8 @@ def process_file(path, options, logger=None):
         logger = logging.getLogger('lit2lrf')
         setup_cli_handlers(logger, level)
     lit = os.path.abspath(os.path.expanduser(path))
-    tdir = generate_html2(lit, logger) if options.lit2oeb else generate_html(lit, logger)
+    tdir = generate_html2(lit, logger) if getattr(options, 'lit2oeb', False) \
+      else generate_html(lit, logger)
     try:
         opf = glob.glob(os.path.join(tdir, '*.opf'))
         if opf:

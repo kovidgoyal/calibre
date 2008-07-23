@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Create linux binary.
 '''
-import glob, sys, subprocess, tarfile, os, re, py_compile
+import glob, sys, subprocess, tarfile, os, re, py_compile, shutil
 HOME           = '/home/kovid'
 PYINSTALLER    = os.path.expanduser('~/build/pyinstaller')
 CALIBREPREFIX  = '___'
@@ -33,7 +33,6 @@ open(os.path.join(PYINSTALLER, 'hooks', 'hook-calibre.parallel.py'), 'wb').write
 def run_pyinstaller(args=sys.argv):
     subprocess.check_call(('/usr/bin/sudo', 'chown', '-R', 'kovid:users', glob.glob('/usr/lib/python*/site-packages/')[-1]))
     subprocess.check_call('rm -rf %(py)s/dist/* %(py)s/build/*'%dict(py=PYINSTALLER), shell=True)
-    subprocess.check_call('make plugins', shell=True)
     cp = HOME+'/build/'+os.path.basename(os.getcwd())
     spec = open(os.path.join(PYINSTALLER, 'calibre', 'calibre.spec'), 'wb')
     raw = re.sub(r'CALIBREPREFIX\s+=\s+\'___\'', 'CALIBREPREFIX = '+repr(cp),
@@ -41,12 +40,14 @@ def run_pyinstaller(args=sys.argv):
     spec.write(raw)
     spec.close()
     os.chdir(PYINSTALLER)
+    shutil.rmtree('calibre/dist')
+    os.mkdir('calibre/dist')
     subprocess.check_call('python -OO Build.py calibre/calibre.spec', shell=True)
                 
     return 0
 
 
-if __name__ == '__main__' and 'linux_installer.py' in __file__:
+if __name__ == '__main__' and 'freeze.py' in __file__:
     sys.exit(run_pyinstaller())
 
 
@@ -59,7 +60,7 @@ os.chdir(os.environ.get("ORIGWD", "."))
 sys.path.insert(0, os.path.join(sys.frozen_path, "library.pyz"))
 sys.path.insert(0, sys.frozen_path)
 from PyQt4.QtCore import QCoreApplication
-QCoreApplication.setLibraryPaths([sys.frozen_path, os.path.join(sys.frozen_path, "plugins")])
+QCoreApplication.setLibraryPaths([sys.frozen_path, os.path.join(sys.frozen_path, "qtplugins")])
 ''')
 excludes = ['gtk._gtk', 'gtk.glade', 'qt', 'matplotlib.nxutils', 'matplotlib._cntr',
             'matplotlib.ttconv', 'matplotlib._image', 'matplotlib.ft2font',
@@ -80,7 +81,7 @@ for entry in entry_points['console_scripts'] + entry_points['gui_scripts']:
     scripts.append(os.path.join(CALIBRESRC, *map(lambda x: x.strip(), fields[1].split(':')[0].split('.')))+'.py')
 
 analyses = [Analysis([os.path.join(HOMEPATH,'support/_mountzlib.py'), os.path.join(HOMEPATH,'support/useUnicode.py'), loader, script],
-             pathex=[PYINSTALLER, CALIBRESRC, CALIBREPLUGINS], excludes=excludes) for script in scripts]
+             pathex=[PYINSTALLER, CALIBRESRC], excludes=excludes) for script in scripts]
 
 pyz = TOC()
 binaries = TOC()
@@ -104,6 +105,8 @@ for script, exe, a in zip(scripts, executables, analyses):
 
 print 'Adding plugins...'
 for f in glob.glob(os.path.join(CALIBREPLUGINS, '*.so')):
+    binaries += [('plugins/'+os.path.basename(f), f, 'BINARY')]
+for f in glob.glob(os.path.join(CALIBREPLUGINS, '*.so.*')):
     binaries += [(os.path.basename(f), f, 'BINARY')]
 
 print 'Adding external programs...'
@@ -121,7 +124,7 @@ for dirpath, dirnames, filenames in os.walk(plugdir):
     for f in filenames:
         if not f.endswith('.so') or 'designer' in dirpath or 'codcs' in dirpath or 'sqldrivers' in dirpath : continue
         f = os.path.join(dirpath, f)
-        plugins.append(('plugins/'+f.replace(plugdir, ''), f, 'BINARY'))
+        plugins.append(('qtplugins/'+f.replace(plugdir, ''), f, 'BINARY'))
 binaries += plugins
 
 manifest = '/tmp/manifest'

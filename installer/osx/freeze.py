@@ -4,7 +4,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create an OSX installer '''
 
 import sys, re, os, shutil, subprocess, stat, glob, zipfile
-from setup import VERSION, APPNAME, scripts, main_modules, basenames, main_functions
+l = {}
+exec open('setup.py').read() in l
+VERSION = l['VERSION']
+APPNAME = l['APPNAME']
+scripts = l['scripts']
+basenames = l['basenames']
+main_functions = l['main_functions']
+main_modules = l['main_modules']
 from setuptools import setup
 from py2app.build_app import py2app
 from modulegraph.find_modules import find_modules
@@ -170,64 +177,46 @@ _check_symlinks_prescript()
         for f in files:
             subprocess.check_call(['/usr/bin/install_name_tool', '-change', '/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', f])
             
+    def fix_misc_dependencies(self, files):
+        for path in files:
+            frameworks_dir = os.path.join(self.dist_dir, APPNAME + '.app', 'Contents', 'Frameworks')
+            pipe = subprocess.Popen('/usr/bin/otool -L '+path, shell=True, stdout=subprocess.PIPE).stdout
+            for l in pipe.readlines():
+                match = re.search(r'\s+(.*?)\s+\(', l)
+                if match:
+                    dep = match.group(1)
+                    name = os.path.basename(dep)
+                    if not name:
+                        name = dep
+                    bundle = os.path.join(frameworks_dir, name)
+                    if os.path.exists(bundle):
+                        subprocess.check_call(['/usr/bin/install_name_tool', '-change', dep,
+                                '@executable_path/../Frameworks/'+name, path])
+                    
     
-    def build_distutils_plugins(self):
-        plugins = [
-                   ('lzx', os.path.join('utils', 'lzx')),
-                   ]
-        files = []
-        env = {'PATH':os.environ['PATH']}
-        for name, path in plugins:
-            print 'Building plugin', name
-            path = os.path.abspath(os.path.join('src', 'calibre', path))
-            cwd = os.getcwd()
-            os.chdir(path)
-            try:
-                if os.path.exists('.build'):
-                    shutil.rmtree('.build')
-                subprocess.check_call((sys.executable, 'setup.py', 'build', '--build-base', '.build'),
-                                      env=env)
-                plugin = os.path.abspath(glob.glob('.build/lib*/%s.so'%name)[0])
-                files.append([plugin, os.path.basename(plugin)])
-            finally:
-                os.chdir(cwd)
-        return files
-    
-    def build_plugins(self):
-        cwd = os.getcwd()
-        qmake = '/Users/kovid/qt/bin/qmake'
-        files = []
-        try:
-            print 'Building pictureflow'
-            os.chdir('src/calibre/gui2/pictureflow')
-            if not os.path.exists('.build'):
-                os.mkdir('.build')
-            os.chdir('.build')
-            for f in glob.glob('*'): os.unlink(f)
-            subprocess.check_call([qmake, '../pictureflow.pro'])
-            subprocess.check_call(['make'])
-            files.append((os.path.abspath(os.path.realpath('libpictureflow.dylib')), 'libpictureflow.dylib'))
-            os.chdir('../PyQt')
-            if not os.path.exists('.build'):
-                os.mkdir('.build')
-            os.chdir('.build')
-            for f in glob.glob('*'): os.unlink(f)
-            subprocess.check_call([PYTHON, '../configure.py'])
-            subprocess.check_call(['/usr/bin/make'])
-            files.append((os.path.abspath('pictureflow.so'), 'pictureflow.so'))
-            subprocess.check_call(['/usr/bin/install_name_tool', '-change', 'libpictureflow.0.dylib', '@executable_path/../Frameworks/libpictureflow.dylib', 'pictureflow.so'])
-            self.fix_python_dependencies((files[0][0], files[1][0]))
-            for i in range(2):
-                deps = BuildAPP.qt_dependencies(files[i][0])
-                BuildAPP.fix_qt_dependencies(files[i][0], deps)
-            
-            return files
-        finally:
-            os.chdir(cwd)
-            
+    def add_plugins(self):
+        self.add_qt_plugins()
+        frameworks_dir = os.path.join(self.dist_dir, APPNAME + '.app', 'Contents', 'Frameworks')
+        plugins_dir = os.path.join(frameworks_dir, 'plugins')
+        if not os.path.exists(plugins_dir):
+            os.mkdir(plugins_dir)
+        
+        maps = {}
+        for f in glob.glob('src/calibre/plugins/*'):
+            tgt = plugins_dir
+            if f.endswith('.dylib'):
+                tgt = frameworks_dir
+            maps[f] = os.path.join(tgt, os.path.basename(f))
+        deps = []
+        for src, dst in maps.items():
+            shutil.copyfile(src, dst)
+            self.fix_qt_dependencies(dst, self.qt_dependencies(dst))
+            deps.append(dst)
+        self.fix_python_dependencies(deps)
+        self.fix_misc_dependencies(deps)
+        
     
     def run(self):
-        plugin_files = self.build_distutils_plugins()
         py2app.run(self)
         resource_dir = os.path.join(self.dist_dir, 
                                     APPNAME + '.app', 'Contents', 'Resources')
@@ -249,8 +238,8 @@ _check_symlinks_prescript()
             f.close()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
-        self.add_qt_plugins()
-        plugin_files += self.build_plugins()
+        self.add_plugins()
+        
             
         print
         print 'Adding clit'
@@ -266,11 +255,6 @@ _check_symlinks_prescript()
         print 'Adding fontconfig'
         for f in glob.glob(os.path.expanduser('~/fontconfig2/*')):
             os.link(f, os.path.join(frameworks_dir, os.path.basename(f)))
-        for src, dest in plugin_files:
-            if 'dylib' in dest:
-                os.link(src, os.path.join(frameworks_dir, dest))
-            else:
-                os.link(src, os.path.join(module_dir, dest))
         dst = os.path.join(resource_dir, 'fonts')
         if os.path.exists(dst):
             shutil.rmtree(dst)

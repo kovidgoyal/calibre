@@ -4,7 +4,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, re, os, shutil
 sys.path.append('src')
-islinux = not ('win32' in sys.platform or 'win64' in sys.platform or 'darwin' in sys.platform)
+iswindows = re.search('win(32|64)', sys.platform)
+isosx = 'darwin' in sys.platform
+islinux = not isosx and not iswindows
 src = open('src/calibre/__init__.py', 'rb').read()
 VERSION = re.search(r'__version__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 APPNAME = re.search(r'__appname__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
@@ -44,10 +46,72 @@ main_functions = {
                }
 
 if __name__ == '__main__':
-    from setuptools import setup, find_packages
+    from setuptools import setup, find_packages, Extension
     import subprocess, glob
     
     entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
+    ext_modules = [Extension('calibre.plugins.lzx',
+                             sources=['src/calibre/utils/lzx/lzxmodule.c', 
+                                      'src/calibre/utils/lzx/lzxd.c'],
+                             include_dirs=['src/calibre/utils/lzx'])]
+    if iswindows:
+        ext_modules.append(Extension('calibre.plugins.winutil',
+                sources=['src/calibre/utils/winutil.c'], libraries=['shell32'])
+                           )
+    # Build PyQt extensions
+    for path in [(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))]:
+        pro      = glob.glob(os.path.join(path, '*.pro'))[0]
+        raw = open(pro).read()
+        base = qtplugin = re.search(r'TARGET\s*=\s*(.*)', raw).group(1)
+        ver  = re.search(r'VERSION\s*=\s*(\d+)', raw).group(1)
+        cwd = os.getcwd()
+        os.chdir(os.path.dirname(pro))
+        try:
+            if not os.path.exists('.build'):
+                os.mkdir('.build')
+            os.chdir('.build')
+            subprocess.check_call(( (os.path.expanduser('~/qt/bin/qmake') if isosx else 'qmake'), '..'+os.sep+os.path.basename(pro)))
+            subprocess.check_call(['mingw32-make' if iswindows else 'make'])
+            ext = '.dll' if iswindows else '.dylib' if isosx else '.so'
+            if iswindows:
+                pat = re.compile(qtplugin+ver+ext)
+            elif isosx:
+                pat = re.compile('lib'+qtplugin+'.'+ver+ext)
+            else:
+                pat = re.compile('lib'+qtplugin+ext+'.'+ver+'$')
+            if iswindows:
+                os.chdir('release')
+            qtplugin = None
+            
+            for f in glob.glob('*'+ext+'*'):
+                if pat.match(f):
+                    qtplugin = os.path.realpath(os.path.abspath(f))
+                    f = os.path.join(cwd, 'src', 'calibre', 'plugins', f)
+                    shutil.copyfile(qtplugin, f)
+                    if islinux:
+                        os.symlink(f, f.rpartition(ext)[0]+ext)
+                    if isosx:
+                        os.symlink(f, f.replace('.'+ver, ''))
+                    break
+            os.chdir(os.path.join('..'+(os.sep+'..' if iswindows else ''), 'PyQt'))
+            if not os.path.exists('.build'):
+                os.mkdir('.build')
+            os.chdir('.build')
+            python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python' if isosx else 'python'
+            subprocess.check_call([python, '..'+os.sep+'configure.py'])
+            subprocess.check_call(['mingw32-make' if iswindows else 'make'])
+            ext = '.pyd' if iswindows else '.so'
+            plugin = glob.glob(base+ext)[0]
+            shutil.copyfile(plugin, os.path.join(cwd, 'src', 'calibre', 'plugins', plugin))
+        finally:
+            os.chdir(cwd)
+            if islinux or isosx:
+                for f in glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
+                    try:
+                        os.readlink(f)
+                        os.unlink(f)
+                    except:
+                        continue
     
     setup(
           name=APPNAME, 
@@ -62,6 +126,7 @@ if __name__ == '__main__':
           entry_points = entry_points, 
           zip_safe = False,
           options = { 'bdist_egg' : {'exclude_source_files': True,}, },
+          ext_modules=ext_modules,
           description = 
                       '''
                       E-book management application.

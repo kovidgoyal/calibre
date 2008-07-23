@@ -43,6 +43,39 @@ try:
 except:
     preferred_encoding = 'utf-8'
 
+if getattr(sys, 'frozen', False):
+    if iswindows:
+        plugin_path = os.path.join(os.path.dirname(sys.executable), 'plugins')
+    elif isosx:
+        plugin_path = os.path.join(getattr(sys, 'frameworks_dir'), 'plugins')
+    elif islinux:
+        plugin_path = os.path.join(getattr(sys, 'frozen_path'), 'plugins')
+    sys.path.insert(0, plugin_path)
+else:
+    import pkg_resources
+    plugins = getattr(pkg_resources, 'resource_filename')(__appname__, 'plugins')
+    sys.path.insert(0, plugins)
+    
+if iswindows and getattr(sys, 'frozen', False):
+    sys.path.insert(1, os.path.dirname(sys.executable))
+
+
+plugins = {}
+for plugin in ['pictureflow', 'lzx'] + (['winutil'] if iswindows else []):
+    try:
+        p, err = __import__(plugin), ''
+    except Exception, err:
+        p = None
+        err = str(err)
+    plugins[plugin] = (p, err)
+
+if iswindows:
+    winutil, winutilerror = plugins['winutil']
+    if not winutil:
+        raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
+    sys.argv[1:] = winutil.argv()[1:]
+
+
 _abspath = os.path.abspath
 def my_abspath(path, encoding=sys.getfilesystemencoding()):
     '''
@@ -606,22 +639,3 @@ if isosx:
             exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data'
             open(os.path.join(fdir, font+'.ttf'), 'wb').write(font_data)
             
-if islinux and not getattr(sys, 'frozen', False):
-    import pkg_resources
-    plugins = pkg_resources.resource_filename(__appname__, 'plugins')
-    sys.path.insert(1, plugins)
-    
-if iswindows and getattr(sys, 'frozen', False):
-    sys.path.insert(1, os.path.dirname(sys.executable))
-
-
-plugins = {}
-for plugin in ['pictureflow', 'lzx']:
-    try:
-        p, err = __import__(plugin), ''
-    except Exception, err:
-        p = None
-        err = str(err)
-    plugins[plugin] = (p, err)
-
-
