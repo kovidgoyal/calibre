@@ -20,7 +20,7 @@ class NCXSoup(BeautifulStoneSoup):
 
 class TOC(list):
     
-    def __init__(self, href=None, fragment=None, text=None, parent=None, play_order=1, 
+    def __init__(self, href=None, fragment=None, text=None, parent=None, play_order=0, 
                  base_path=os.getcwd()):
         self.href = href
         self.fragment = fragment
@@ -30,7 +30,9 @@ class TOC(list):
         self.play_order = play_order
         
     def add_item(self, href, fragment, text):
-        self.append(TOC(href=href, fragment=fragment, text=text, parent=self, base_path=self.base_path))
+        play_order = (self[-1].play_order if len(self) else self.play_order) + 1
+        self.append(TOC(href=href, fragment=fragment, text=text, parent=self,
+                        base_path=self.base_path, play_order=play_order))
         return self[-1]
     
     def top_level_items(self):
