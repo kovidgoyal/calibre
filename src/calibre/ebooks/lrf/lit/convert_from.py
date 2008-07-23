@@ -9,7 +9,7 @@ from calibre.ebooks.lit.reader import LitReader
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.ebooks.metadata.opf import OPFReader
-from calibre import isosx, __appname__, setup_cli_handlers, iswindows, islinux
+from calibre import isosx, __appname__, setup_cli_handlers, islinux
 
 CLIT = 'clit'
 if isosx and hasattr(sys, 'frameworks_dir'):
@@ -42,10 +42,9 @@ def generate_html(pathtolit, logger):
         raise ConversionError, 'Cannot read from ' + pathtolit
     tdir = mkdtemp(prefix=__appname__+'_')
     os.rmdir(tdir)
-    sep = r'\\' if iswindows else os.path.sep
-    cmd = ' '.join([CLIT, '"'+pathtolit+'"', '"%s"'%(tdir+sep,)])
-    logger.debug(cmd)
-    p = Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE)
+    cmd = [CLIT, pathtolit, '%s'%(tdir+os.sep)]
+    logger.debug(repr(cmd))
+    p = Popen(cmd, stderr=PIPE, stdout=PIPE)
     stdout = p.stdout.read()
     err = p.stderr.read()     
     logger.info(p.stdout.read())

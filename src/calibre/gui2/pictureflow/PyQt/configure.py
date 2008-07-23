@@ -1,5 +1,4 @@
 import os, sys, glob
-import sipconfig
 if os.environ.get('PYQT4PATH', None):
     print os.environ['PYQT4PATH']
     sys.path.insert(0, os.environ['PYQT4PATH'])

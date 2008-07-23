@@ -126,7 +126,7 @@ class ConversionJob(Job):
     def formatted_error(self):
         if self.exception is None:
             return ''
-        ans = u'<p><b>%s</b>:'%self.exception
+        ans = u'<p><b>%s</b>:'%repr(self.exception)
         ans += '<h2>Traceback:</h2><pre>%s</pre>'%self.last_traceback
         return ans
     
