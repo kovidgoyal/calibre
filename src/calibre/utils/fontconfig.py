@@ -22,7 +22,7 @@ match to a given font specification. The main functions in this module are:
 .. autofunction:: match
 '''
 
-import sys, os, locale, codecs, platform
+import sys, os, locale, codecs, ctypes
 from ctypes import cdll, c_void_p, Structure, c_int, POINTER, c_ubyte, c_char, util, \
                    pointer, byref, create_string_buffer, Union, c_char_p, c_double
 
@@ -34,14 +34,25 @@ except:
 
 iswindows = 'win32' in sys.platform or 'win64' in sys.platform
 isosx     = 'darwin' in sys.platform
-is64bit   = '64bit' in platform.architecture()[0]
+DISABLED  = False 
+#if isosx:
+#    libc = ctypes.cdll.LoadLibrary(ctypes.util.find_library('c'))
+#    size = ctypes.c_uint(0)
+#    ok   = libc.sysctlbyname("hw.cpu64bit_capable", None, byref(size), None, 0)
+#    if ok != 0:
+#        is64bit = False
+#    else:
+#        buf = ctypes.c_char_p("\0" * size.value)
+#        ok = libc.sysctlbyname("hw.cpu64bit_capable", buf, byref(size), None, 0)
+#        if ok != 0:
+#            is64bit = False
+#        else:
+#            is64bit = '1' in buf.value
+#    DISABLED = is64bit
 
 def load_library():
     if isosx:
-        if os.path.exists('/usr/X11/lib/libfontconfig.1.dylib'): # The fontconfig shipped with calibre doesn't work on Leopard
-            lib = '/usr/X11/lib/libfontconfig.1.dylib'
-        else:
-            lib = os.path.join(getattr(sys, 'frameworks_dir'), 'libfontconfig.1.dylib') \
+        lib = os.path.join(getattr(sys, 'frameworks_dir'), 'libfontconfig.1.dylib') \
                   if hasattr(sys, 'frameworks_dir') else util.find_library('fontconfig')
         return cdll.LoadLibrary(lib)
     elif iswindows:
@@ -160,9 +171,9 @@ class FontScanner(Thread):
         global _initialized
         _initialized = True
     
-    
-_scanner = FontScanner()
-_scanner.start()
+if not DISABLED:
+    _scanner = FontScanner()
+    _scanner.start()
 
 def join():
     _scanner.join(120)
@@ -178,6 +189,8 @@ def find_font_families(allowed_extensions=['ttf', 'otf']):
     `allowed_extensions`: A list of allowed extensions for font file types. Defaults to
     `['ttf', 'otf']`. If it is empty, it is ignored.
     '''
+    if DISABLED:
+        return []
     join()
     allowed_extensions = [i.lower() for i in allowed_extensions]
     
@@ -220,6 +233,8 @@ def files_for_family(family, normalize=True):
     they are a tuple (slant, weight) otherwise they are strings from the set 
     `('normal', 'bold', 'italic', 'bi', 'light', 'li')`
     '''
+    if DISABLED:
+        return {}
     join()
     if isinstance(family, unicode):
         family = family.encode(preferred_encoding)
@@ -296,6 +311,8 @@ def match(name, sort=False, verbose=False):
     decreasing closeness of matching.
     `verbose`: If `True` print debugging information to stdout
     '''
+    if DISABLED:
+        return []
     join()
     if isinstance(name, unicode):
         name = name.encode(preferred_encoding)

@@ -56,10 +56,16 @@ if __name__ == '__main__':
                              include_dirs=['src/calibre/utils/lzx'])]
     if iswindows:
         ext_modules.append(Extension('calibre.plugins.winutil',
-                sources=['src/calibre/utils/winutil.c'], libraries=['shell32'])
+                sources=['src/calibre/utils/windows/winutil.c'], 
+                libraries=['shell32', 'setupapi'],
+                include_dirs=['C:/WinDDK/6001.18001/inc/api/'])
                            )
-    # Build PyQt extensions
-    for path in [(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))]:
+    if isosx:
+        ext_modules.append(Extension('calibre.plugins.usbobserver',
+                sources=['src/calibre/driver/usbobserver/usbobserver.c'])
+                           )
+    
+    def build_PyQt_extension(path):
         pro      = glob.glob(os.path.join(path, '*.pro'))[0]
         raw = open(pro).read()
         base = qtplugin = re.search(r'TARGET\s*=\s*(.*)', raw).group(1)
@@ -72,7 +78,7 @@ if __name__ == '__main__':
             os.chdir('.build')
             subprocess.check_call(( (os.path.expanduser('~/qt/bin/qmake') if isosx else 'qmake'), '..'+os.sep+os.path.basename(pro)))
             subprocess.check_call(['mingw32-make' if iswindows else 'make'])
-            os.chdir(os.path.join('..'+(os.sep+'..' if iswindows else ''), 'PyQt'))
+            os.chdir(os.path.join('..', 'PyQt'))
             if not os.path.exists('.build'):
                 os.mkdir('.build')
             os.chdir('.build')
@@ -141,6 +147,9 @@ if __name__ == '__main__':
             'Topic :: System :: Hardware :: Hardware Drivers'
             ]
          )
+    
+    for path in [(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))]:
+        build_PyQt_extension(path)
     
     if 'develop' in ' '.join(sys.argv) and islinux:
         subprocess.check_call('calibre_postinstall', shell=True)

@@ -253,7 +253,7 @@ _check_symlinks_prescript()
         print 'Adding plugins'
         module_dir = os.path.join(resource_dir, 'lib', 'python2.5', 'lib-dynload')
         print 'Adding fontconfig'
-        for f in glob.glob(os.path.expanduser('~/fontconfig2/*')):
+        for f in glob.glob(os.path.expanduser('~/fontconfig-bundled/*')):
             os.link(f, os.path.join(frameworks_dir, os.path.basename(f)))
         dst = os.path.join(resource_dir, 'fonts')
         if os.path.exists(dst):

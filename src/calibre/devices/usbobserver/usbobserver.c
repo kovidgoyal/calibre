@@ -29,7 +29,7 @@
 
 
 static PyObject *
-usbobserver_get_devices(PyObject *self, PyObject *args) {
+usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
   
   mach_port_t masterPort;
   CFMutableDictionaryRef matchingDict;
@@ -62,7 +62,7 @@ usbobserver_get_devices(PyObject *self, PyObject *args) {
   PyObject *devices, *device;
   devices = PyList_New(0);
   if (devices == NULL) {
-      PyErr_SetString(PyExc_RuntimeError, "Out of memory allocating list");
+      PyErr_NoMemory();
       mach_port_deallocate(mach_task_self(), masterPort);
       return NULL;
   }
@@ -112,7 +112,7 @@ usbobserver_get_devices(PyObject *self, PyObject *args) {
 }
 
 static PyMethodDef usbobserver_methods[] = {
-    {"get_devices", usbobserver_get_devices, METH_VARARGS, 
+    {"get_usb_devices", usbobserver_get_usb_devices, METH_VARARGS, 
      "Get list of connected USB devices. Returns a list of tuples. Each tuple is of the form (vendor_id, product_id)."
     },
     {NULL, NULL, 0, NULL}
