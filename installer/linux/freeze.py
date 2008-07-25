@@ -16,6 +16,7 @@ LIBUNRAR       = '/usr/lib/libunrar.so'
 QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml')
 EXTRAS         = ('/usr/lib/python2.5/site-packages/PIL', os.path.expanduser('~/ipython/IPython'))
+SQLITE         = '/usr/lib/libsqlite3.so.0'
 
 
 CALIBRESRC     = os.path.join(CALIBREPREFIX, 'src')
@@ -112,6 +113,10 @@ for f in glob.glob(os.path.join(CALIBREPLUGINS, '*.so.*')):
 print 'Adding external programs...'
 binaries += [('clit', CLIT, 'BINARY'), ('pdftohtml', PDFTOHTML, 'BINARY'),
              ('libunrar.so', LIBUNRAR, 'BINARY')]
+
+print 'Adding external libraries...'
+binaries += [(os.path.basename(SQLITE), SQLITE, 'BINARY')]
+
 qt = []
 for dll in QTDLLS:
     path = os.path.join(QTDIR, 'lib'+dll+'.so.4')
