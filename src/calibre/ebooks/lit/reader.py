@@ -92,7 +92,11 @@ def read_utf8_char(bytes, pos):
                     'Invalid UTF8 character: %s' % repr(bytes[pos:pos+i]))
             c = (c << 6) | (b & 0x3F)
     return unichr(c), pos+elsize
-            
+
+def consume_utf8_length(bytes):
+    char, elsize = read_utf8_char(bytes, 0)
+    return ord(char), bytes[elsize:]
+
 class UnBinary(object):
     AMPERSAND_RE = re.compile(
         r'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
@@ -315,8 +319,11 @@ class ManifestItem(object):
         self.offset = offset
         self.root = root
         self.state = state
+        # Some LIT files have Windows-style paths
+        path = original.replace('\\', '/')
+        if path[1:3] == ':/': path = path[2:]
         # Some paths in Fictionwise "multiformat" LIT files contain '..' (!?)
-        path = os.path.normpath(original).replace('\\', '/')
+        path = os.path.normpath(path).replace('\\', '/')
         while path.startswith('../'): path = path[3:]
         self.path = path
         
@@ -557,14 +564,15 @@ class LitReader(object):
                     if len(raw) < 5:
                         raise LitError('Truncated manifest')
                     offset, raw = u32(raw), raw[4:]
-                    slen, raw = ord(raw[0]), raw[1:]
+                    slen, raw = consume_utf8_length(raw)
                     internal, raw = raw[:slen].decode('utf8'), raw[slen:]
-                    slen, raw = ord(raw[0]), raw[1:]
+                    slen, raw = consume_utf8_length(raw)
                     original, raw = raw[:slen].decode('utf8'), raw[slen:]
-                    slen, raw = ord(raw[0]), raw[1:]
+                    slen, raw = consume_utf8_length(raw)
                     mime_type, raw = raw[:slen].decode('utf8'), raw[slen+1:]
                     self.manifest[internal] = ManifestItem(
                         original, internal, mime_type, offset, root, state)
+        # Remove any common path elements
         mlist = self.manifest.values()
         shared = mlist[0].path
         for item in mlist[1:]:
@@ -578,6 +586,10 @@ class LitReader(object):
             slen = len(shared)
             for item in mlist:
                 item.path = item.path[slen:]
+        # Fix any straggling absolute paths
+        for item in mlist:
+            if item.path[0] == '/':
+                item.path = os.path.basename(item.path)
 
     def _read_meta(self):
         raw = self.get_file('/meta')
