@@ -48,15 +48,15 @@ main_functions = {
 if __name__ == '__main__':
     from setuptools import setup, find_packages, Extension
     import subprocess, glob
-    
+
     entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
     ext_modules = [Extension('calibre.plugins.lzx',
-                             sources=['src/calibre/utils/lzx/lzxmodule.c', 
+                             sources=['src/calibre/utils/lzx/lzxmodule.c',
                                       'src/calibre/utils/lzx/lzxd.c'],
                              include_dirs=['src/calibre/utils/lzx'])]
     if iswindows:
         ext_modules.append(Extension('calibre.plugins.winutil',
-                sources=['src/calibre/utils/windows/winutil.c'], 
+                sources=['src/calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi'],
                 include_dirs=['C:/WinDDK/6001.18001/inc/api/'])
                            )
@@ -64,7 +64,7 @@ if __name__ == '__main__':
         ext_modules.append(Extension('calibre.plugins.usbobserver',
                 sources=['src/calibre/devices/usbobserver/usbobserver.c'])
                            )
-    
+
     def build_PyQt_extension(path):
         pro      = glob.glob(os.path.join(path, '*.pro'))[0]
         raw = open(pro).read()
@@ -97,59 +97,59 @@ if __name__ == '__main__':
                         os.unlink(f)
                     except:
                         continue
-    
+
+    for path in [(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))]:
+        build_PyQt_extension(path)
+
     setup(
-          name=APPNAME, 
-          packages = find_packages('src'), 
-          package_dir = { '' : 'src' }, 
-          version=VERSION, 
-          author='Kovid Goyal', 
-          author_email='kovid@kovidgoyal.net', 
-          url = 'http://%s.kovidgoyal.net'%APPNAME, 
+          name=APPNAME,
+          packages = find_packages('src'),
+          package_dir = { '' : 'src' },
+          version=VERSION,
+          author='Kovid Goyal',
+          author_email='kovid@kovidgoyal.net',
+          url = 'http://%s.kovidgoyal.net'%APPNAME,
           package_data = {'calibre':['plugins/*']},
           include_package_data=True,
-          entry_points = entry_points, 
+          entry_points = entry_points,
           zip_safe = False,
           options = { 'bdist_egg' : {'exclude_source_files': True,}, },
           ext_modules=ext_modules,
-          description = 
+          description =
                       '''
                       E-book management application.
-                      ''', 
-          long_description = 
+                      ''',
+          long_description =
           '''
   %s is an e-book library manager. It can view, convert and catalog e-books in most of the major e-book formats. It can also talk to a few e-book reader devices. It can go out to the internet and fetch metadata for your books. It can download newspapers and convert them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
-  
+
   For screenshots: https://%s.kovidgoyal.net/wiki/Screenshots
-  
-  For installation/usage instructions please see 
+
+  For installation/usage instructions please see
   http://%s.kovidgoyal.net
-  
-  For source code access: 
-  bzr branch http://bzr.kovidgoyal.net/code/%s/trunk %s 
-  
-  To update your copy of the source code: 
+
+  For source code access:
+  bzr branch http://bzr.kovidgoyal.net/code/%s/trunk %s
+
+  To update your copy of the source code:
   bzr merge
-            
+
           '''%(APPNAME, APPNAME, APPNAME, APPNAME, APPNAME),
-          license = 'GPL', 
+          license = 'GPL',
           classifiers = [
-            'Development Status :: 4 - Beta', 
-            'Environment :: Console', 
-            'Environment :: X11 Applications :: Qt', 
-            'Intended Audience :: Developers', 
-            'Intended Audience :: End Users/Desktop', 
-            'License :: OSI Approved :: GNU General Public License (GPL)', 
-            'Natural Language :: English', 
-            'Operating System :: POSIX :: Linux', 
-            'Programming Language :: Python', 
-            'Topic :: Software Development :: Libraries :: Python Modules', 
+            'Development Status :: 4 - Beta',
+            'Environment :: Console',
+            'Environment :: X11 Applications :: Qt',
+            'Intended Audience :: Developers',
+            'Intended Audience :: End Users/Desktop',
+            'License :: OSI Approved :: GNU General Public License (GPL)',
+            'Natural Language :: English',
+            'Operating System :: POSIX :: Linux',
+            'Programming Language :: Python',
+            'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: System :: Hardware :: Hardware Drivers'
             ]
          )
-    
-    for path in [(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))]:
-        build_PyQt_extension(path)
-    
+
     if 'develop' in ' '.join(sys.argv) and islinux:
         subprocess.check_call('calibre_postinstall', shell=True)

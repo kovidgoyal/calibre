@@ -221,8 +221,8 @@ def stage_one():
     os.mkdir('build')
     shutil.rmtree('docs')
     os.mkdir('docs')
-    check_call("sudo python setup.py develop", shell=True)
-    check_call('sudo rm src/%s/gui2/images_rc.pyc'%__appname__, shell=True)
+    check_call(['python', 'setup.py', 'build'])
+    check_call('sudo rm -f src/%s/gui2/images_rc.pyc'%__appname__, shell=True)
     check_call('make', shell=True)
     tag_release()
     upload_demo()
@@ -230,7 +230,7 @@ def stage_one():
 def stage_two():
     subprocess.check_call('rm -rf dist/*', shell=True)
     build_installers()
-    build_src_tarball()    
+    build_src_tarball()
 
 def stage_three():
     print 'Uploading installers...'
