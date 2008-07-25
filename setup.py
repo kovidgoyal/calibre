@@ -62,7 +62,7 @@ if __name__ == '__main__':
                            )
     if isosx:
         ext_modules.append(Extension('calibre.plugins.usbobserver',
-                sources=['src/calibre/driver/usbobserver/usbobserver.c'])
+                sources=['src/calibre/devices/usbobserver/usbobserver.c'])
                            )
     
     def build_PyQt_extension(path):

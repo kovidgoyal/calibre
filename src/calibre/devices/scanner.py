@@ -12,12 +12,6 @@ from calibre.devices import libusb
 
 osx_scanner = win_scanner = linux_scanner = None
 
-try:
-    import usbobserver
-    osx_scanner = usbobserver.get_devices
-except ImportError:
-    pass
-
 if iswindows:
     try:
         win_scanner = plugins['winutil'][0].get_usb_devices
@@ -28,11 +22,11 @@ elif isosx:
         osx_scanner = plugins['usbobserver'][0].get_usb_devices
     except:
         raise RuntimeError('Failed to load the usbobserver plugin: %s'%plugins['usbobserver'][1])
-else:    
+else:
     linux_scanner = libusb.get_devices
 
 class DeviceScanner(object):
-    
+
     def __init__(self, *args):
         if isosx and osx_scanner is None:
             raise RuntimeError('The Python extension usbobserver must be available on OS X.')
@@ -40,11 +34,11 @@ class DeviceScanner(object):
             raise RuntimeError('DeviceScanner requires libusb to work.')
         self.scanner = win_scanner if iswindows else osx_scanner if isosx else linux_scanner
         self.devices = []
-        
+
     def scan(self):
         '''Fetch list of connected USB devices from operating system'''
         self.devices = self.scanner()
-        
+
     def is_device_connected(self, device):
         if iswindows:
             for device_id in self.devices:
