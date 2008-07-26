@@ -85,7 +85,7 @@ def read_utf8_char(bytes, pos):
         if elsize + pos > len(bytes):
             raise LitError('Invalid UTF8 character: %s' % repr(bytes[pos]))
         c &= (mask - 1)
-        for i in range(1, elsize):
+        for i in xrange(1, elsize):
             b = ord(bytes[pos+i])
             if (b & 0xC0) != 0x80:
                 raise LitError(
@@ -475,7 +475,7 @@ class LitReader(object):
     
     def _read_header_pieces(self):
         src = self.header[self.hdr_len:]
-        for i in range(self.num_pieces):
+        for i in xrange(self.num_pieces):
             piece = src[i * self.PIECE_SIZE:(i + 1) * self.PIECE_SIZE]
             if u32(piece[4:]) != 0 or u32(piece[12:]) != 0:
                 raise LitError('Piece %s has 64bit value' % repr(piece))
@@ -542,7 +542,7 @@ class LitReader(object):
         self.num_sections = u16(raw[2:pos])
         self.section_names = [""]*self.num_sections
         self.section_data = [None]*self.num_sections
-        for section in range(self.num_sections):
+        for section in xrange(self.num_sections):
             size = u16(raw[pos:pos+2])
             pos += 2
             size = size*2 + 2
