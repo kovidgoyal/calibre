@@ -797,5 +797,12 @@ def main(args=sys.argv):
     print _('OEB ebook created in'), opts.output_dir
     return 0
 
+try:
+    import psyco
+    psyco.bind(read_utf8_char)
+    psyco.bind(UnBinary.binary_to_text)
+except ImportError:
+    pass
+
 if __name__ == '__main__':
     sys.exit(main())
