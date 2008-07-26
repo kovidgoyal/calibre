@@ -576,20 +576,21 @@ class LitReader(object):
                     mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
                     self.manifest[internal] = ManifestItem(
                         original, internal, mime_type, offset, root, state)
-        # Remove any common path elements
         mlist = self.manifest.values()
-        shared = mlist[0].path
-        for item in mlist[1:]:
-            path = item.path
-            while shared and not path.startswith(shared):
-                try: shared = shared[:shared.rindex("/", 0, -2) + 1]
-                except ValueError: shared = None
-            if not shared:
-                break
-        if shared:
-            slen = len(shared)
-            for item in mlist:
-                item.path = item.path[slen:]
+        # Remove any common path elements
+        if len(mlist) > 1:
+            shared = mlist[0].path
+            for item in mlist[1:]:
+                path = item.path
+                while shared and not path.startswith(shared):
+                    try: shared = shared[:shared.rindex("/", 0, -2) + 1]
+                    except ValueError: shared = None
+                if not shared:
+                    break
+            if shared:
+                slen = len(shared)
+                for item in mlist:
+                    item.path = item.path[slen:]
         # Fix any straggling absolute paths
         for item in mlist:
             if item.path[0] == '/':
