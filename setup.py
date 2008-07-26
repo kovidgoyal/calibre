@@ -53,7 +53,11 @@ if __name__ == '__main__':
     ext_modules = [Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',
                                       'src/calibre/utils/lzx/lzxd.c'],
-                             include_dirs=['src/calibre/utils/lzx'])]
+                             include_dirs=['src/calibre/utils/lzx']),
+                   Extension('calibre.plugins.msdes',
+                             sources=['src/calibre/utils/msdes/msdesmodule.c',
+                                      'src/calibre/utils/msdes/des.c'],
+                             include_dirs=['src/calibre/utils/msdes'])]
     if iswindows:
         ext_modules.append(Extension('calibre.plugins.winutil',
                 sources=['src/calibre/utils/windows/winutil.c'],
