@@ -13,9 +13,9 @@ import re
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
-import calibre.ebooks.lit.msdes as msdes
 from calibre import plugins
 lzx, lxzerror = plugins['lzx']
+msdes, msdeserror = plugins['msdes']
 
 OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
@@ -618,8 +618,8 @@ class LitReader(object):
             self.drmlevel = 1
         else:
             return
-        des = msdes.new(self._calculate_deskey())
-        bookkey = des.decrypt(self.get_file('/DRMStorage/DRMSealed'))
+        msdes.deskey(self._calculate_deskey(), msdes.DE1)
+        bookkey = msdes.des(self.get_file('/DRMStorage/DRMSealed'))
         if bookkey[0] != '\000':
             raise LitError('Unable to decrypt title key!')
         self.bookkey = bookkey[1:9]
@@ -694,7 +694,8 @@ class LitReader(object):
     def _decrypt(self, content):
         if self.drmlevel == 5:
             raise LitError('Cannot extract content from a DRM protected ebook')
-        return msdes.new(self.bookkey).decrypt(content)
+        msdes.deskey(self.bookkey, msdes.DE1)
+        return msdes.des(content)
 
     def _decompress(self, content, control, reset_table):
         if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != "LZXC":

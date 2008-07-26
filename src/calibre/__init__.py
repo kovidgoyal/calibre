@@ -61,7 +61,7 @@ if iswindows and getattr(sys, 'frozen', False):
 
 
 plugins = {}
-for plugin in ['pictureflow', 'lzx'] + \
+for plugin in ['pictureflow', 'lzx', 'msdes'] + \
             (['winutil'] if iswindows else []) + \
             (['usbobserver'] if isosx else []):
     try:
