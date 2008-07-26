@@ -93,9 +93,15 @@ def read_utf8_char(bytes, pos):
             c = (c << 6) | (b & 0x3F)
     return unichr(c), pos+elsize
 
-def consume_utf8_length(bytes):
-    char, elsize = read_utf8_char(bytes, 0)
-    return ord(char), bytes[elsize:]
+def consume_sized_utf8_string(bytes, zpad=False):
+    result = []
+    slen, pos = read_utf8_char(bytes, 0)
+    for i in xrange(ord(slen)):
+        char, pos = read_utf8_char(bytes, pos)
+        result.append(char)
+    if zpad and bytes[pos] == '\000':
+        pos += 1
+    return u''.join(result), bytes[pos:]
 
 class UnBinary(object):
     AMPERSAND_RE = re.compile(
@@ -519,7 +525,7 @@ class LitReader(object):
                     raise LitError('Directory entry had 64bit name length.')
                 if namelen > remaining - 3:
                     raise LitError('Read past end of directory chunk')
-                name, chunk = chunk[:namelen], chunk[namelen:]
+                name, chunk = chunk[:namelen].decode('utf-8'), chunk[namelen:]
                 section, chunk, remaining = encint(chunk, remaining)
                 offset, chunk, remaining = encint(chunk, remaining)
                 size, chunk, remaining = encint(chunk, remaining)
@@ -564,12 +570,10 @@ class LitReader(object):
                     if len(raw) < 5:
                         raise LitError('Truncated manifest')
                     offset, raw = u32(raw), raw[4:]
-                    slen, raw = consume_utf8_length(raw)
-                    internal, raw = raw[:slen].decode('utf8'), raw[slen:]
-                    slen, raw = consume_utf8_length(raw)
-                    original, raw = raw[:slen].decode('utf8'), raw[slen:]
-                    slen, raw = consume_utf8_length(raw)
-                    mime_type, raw = raw[:slen].decode('utf8'), raw[slen+1:]
+                    internal, raw = consume_sized_utf8_string(raw)
+                    original, raw = consume_sized_utf8_string(raw)
+                    # Is this last one UTF-8 or ASCIIZ?
+                    mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
                     self.manifest[internal] = ManifestItem(
                         original, internal, mime_type, offset, root, state)
         # Remove any common path elements
