@@ -13,9 +13,9 @@ import re
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
-import calibre.ebooks.lit.msdes as msdes
 from calibre import plugins
 lzx, lxzerror = plugins['lzx']
+msdes, msdeserror = plugins['msdes']
 
 OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
@@ -85,7 +85,7 @@ def read_utf8_char(bytes, pos):
         if elsize + pos > len(bytes):
             raise LitError('Invalid UTF8 character: %s' % repr(bytes[pos]))
         c &= (mask - 1)
-        for i in range(1, elsize):
+        for i in xrange(1, elsize):
             b = ord(bytes[pos+i])
             if (b & 0xC0) != 0x80:
                 raise LitError(
@@ -475,7 +475,7 @@ class LitReader(object):
     
     def _read_header_pieces(self):
         src = self.header[self.hdr_len:]
-        for i in range(self.num_pieces):
+        for i in xrange(self.num_pieces):
             piece = src[i * self.PIECE_SIZE:(i + 1) * self.PIECE_SIZE]
             if u32(piece[4:]) != 0 or u32(piece[12:]) != 0:
                 raise LitError('Piece %s has 64bit value' % repr(piece))
@@ -542,7 +542,7 @@ class LitReader(object):
         self.num_sections = u16(raw[2:pos])
         self.section_names = [""]*self.num_sections
         self.section_data = [None]*self.num_sections
-        for section in range(self.num_sections):
+        for section in xrange(self.num_sections):
             size = u16(raw[pos:pos+2])
             pos += 2
             size = size*2 + 2
@@ -618,8 +618,8 @@ class LitReader(object):
             self.drmlevel = 1
         else:
             return
-        des = msdes.new(self._calculate_deskey())
-        bookkey = des.decrypt(self.get_file('/DRMStorage/DRMSealed'))
+        msdes.deskey(self._calculate_deskey(), msdes.DE1)
+        bookkey = msdes.des(self.get_file('/DRMStorage/DRMSealed'))
         if bookkey[0] != '\000':
             raise LitError('Unable to decrypt title key!')
         self.bookkey = bookkey[1:9]
@@ -694,7 +694,8 @@ class LitReader(object):
     def _decrypt(self, content):
         if self.drmlevel == 5:
             raise LitError('Cannot extract content from a DRM protected ebook')
-        return msdes.new(self.bookkey).decrypt(content)
+        msdes.deskey(self.bookkey, msdes.DE1)
+        return msdes.des(content)
 
     def _decompress(self, content, control, reset_table):
         if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != "LZXC":
@@ -795,6 +796,13 @@ def main(args=sys.argv):
     lr.extract_content(opts.output_dir)
     print _('OEB ebook created in'), opts.output_dir
     return 0
+
+try:
+    import psyco
+    psyco.bind(read_utf8_char)
+    psyco.bind(UnBinary.binary_to_text)
+except ImportError:
+    pass
 
 if __name__ == '__main__':
     sys.exit(main())
