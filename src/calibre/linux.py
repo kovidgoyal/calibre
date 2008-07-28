@@ -165,6 +165,7 @@ def setup_completion(fatal_errors):
         from calibre.web.feeds.main import option_parser as feeds2disk
         from calibre.web.feeds.recipes import titles as feed_titles
         from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
+        from calibre.ebooks.metadata.epub import option_parser as epub_meta
         
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
@@ -192,7 +193,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('pdf-meta', metaop, ['pdf']))
         f.write(opts_and_exts('lit-meta', metaop, ['lit']))
         f.write(opts_and_exts('opf-meta', metaop, ['opf']))
-        f.write(opts_and_exts('epub-meta', metaop, ['epub']))
+        f.write(opts_and_exts('epub-meta', epub_meta, ['epub']))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))

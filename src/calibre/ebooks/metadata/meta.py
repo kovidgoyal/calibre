@@ -14,6 +14,7 @@ from calibre.ebooks.mobi.reader   import get_metadata as mobi_metadata
 from calibre.ebooks.metadata.opf  import OPFReader 
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
+from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
 
 from calibre.ebooks.metadata import MetaInformation
 
@@ -88,6 +89,8 @@ def set_metadata(stream, mi, stream_type='lrf'):
     if stream_type: stream_type = stream_type.lower()
     if stream_type == 'lrf':
         set_lrf_metadata(stream, mi)
+    elif stream_type == 'epub':
+        set_epub_metadata(stream, mi)
     elif stream_type == 'rtf':
         set_rtf_metadata(stream, mi)
 
