@@ -17,6 +17,8 @@ QTDIR          = '/usr/lib/qt4'
 QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml')
 EXTRAS         = ('/usr/lib/python2.5/site-packages/PIL', os.path.expanduser('~/ipython/IPython'))
 SQLITE         = '/usr/lib/libsqlite3.so.0'
+DBUS           = '/usr/lib/libdbus-1.so.3'
+LIBMNG         = '/usr/lib/libmng.so.1'
 
 
 CALIBRESRC     = os.path.join(CALIBREPREFIX, 'src')
@@ -115,7 +117,8 @@ binaries += [('clit', CLIT, 'BINARY'), ('pdftohtml', PDFTOHTML, 'BINARY'),
              ('libunrar.so', LIBUNRAR, 'BINARY')]
 
 print 'Adding external libraries...'
-binaries += [(os.path.basename(SQLITE), SQLITE, 'BINARY')]
+binaries += [ (os.path.basename(x), x, 'BINARY') for x in (SQLITE, DBUS, LIBMNG)]
+             
 
 qt = []
 for dll in QTDLLS:
