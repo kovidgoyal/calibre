@@ -36,11 +36,21 @@ PROFILES = {
             }
 
 def extract_comic(path_to_comic_file):
+    '''
+    Un-archive the comic file.
+    '''
     tdir = PersistentTemporaryDirectory(suffix='comic_extract')
     extract(path_to_comic_file, tdir)
     return tdir
 
 def find_pages(dir, sort_on_mtime=False, verbose=False):
+    '''
+    Find valid comic pages in a previously un-archived comic. 
+    
+    :param dir: Directory in which extracted comic lives
+    :param sort_on_mtime: If True sort pages based on their last modified time.
+                          Otherwise, sort alphabetically.
+    '''
     extensions = ['jpeg', 'jpg', 'gif', 'png']
     pages = []
     for datum in os.walk(dir):
@@ -62,6 +72,10 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
     return pages
 
 class PageProcessor(list):
+    '''
+    Contains the actual image rendering logic. See :method:`__call__` and 
+    :method:`process_pages`.
+    '''
     
     def __init__(self, path_to_page, dest, opts, num):
         self.path_to_page = path_to_page
@@ -181,6 +195,9 @@ class Progress(object):
                     _('Rendered %s')%os.path.basename(req.callable.path_to_page))
 
 def process_pages(pages, opts, update):
+    '''
+    Render all identified comic pages.
+    '''
     initialize()
     try:
         tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
