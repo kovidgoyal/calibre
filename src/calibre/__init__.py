@@ -20,7 +20,7 @@ from PyQt4.QtGui import QDesktopServices
 
 from calibre.translations.msgfmt import make
 from calibre.ebooks.chardet import detect
-from calibre.terminfo import TerminalController
+from calibre.utils.terminfo import TerminalController
 
 terminal_controller = TerminalController(sys.stdout)
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
@@ -303,10 +303,10 @@ def filename_to_utf8(name):
 def extract(path, dir):
     ext = os.path.splitext(path)[1][1:].lower()
     extractor = None
-    if ext == 'zip':
+    if ext in ['zip', 'cbz', 'epub']:
         from calibre.libunzip import extract as zipextract
         extractor = zipextract
-    elif ext == 'rar':
+    elif ext in ['cbr', 'rar']:
         from calibre.libunrar import extract as rarextract
         extractor = rarextract
     if extractor is None:

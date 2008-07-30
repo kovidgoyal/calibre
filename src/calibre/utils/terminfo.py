@@ -163,36 +163,50 @@ class ProgressBar:
     
     The progress bar is colored, if the terminal supports color
     output; and adjusts to the width of the terminal.
+    
+    If the terminal doesn't have the required capabilities, it uses a
+    simple progress bar.
     """
     BAR = '%3d%% ${GREEN}[${BOLD}%s%s${NORMAL}${GREEN}]${NORMAL}\n'
     HEADER = '${BOLD}${CYAN}%s${NORMAL}\n\n'
     
-    def __init__(self, term, header):
-        self.term = term
-        if not (self.term.CLEAR_EOL and self.term.UP and self.term.BOL):
-            raise ValueError("Terminal isn't capable enough -- you "
-            "should use a simpler progress dispaly.")
-        self.width = self.term.COLS or 75
-        self.bar = term.render(self.BAR)
-        self.header = self.term.render(self.HEADER % header.center(self.width))
-        self.cleared = 1 #: true if we haven't drawn the bar yet.
+    def __init__(self, term, header, no_progress_bar = False):
+        self.term, self.no_progress_bar = term, no_progress_bar
+        self.fancy = self.term.CLEAR_EOL and self.term.UP and self.term.BOL
+        if self.fancy:
+            self.width = self.term.COLS or 75
+            self.bar = term.render(self.BAR)
+            self.header = self.term.render(self.HEADER % header.center(self.width))
+            self.cleared = 1 #: true if we haven't drawn the bar yet.
         
     def update(self, percent, message=''):
         if isinstance(message, unicode):
-            message = message.encode('utf-8', 'ignore')
-        if self.cleared:
-            sys.stdout.write(self.header)
-            self.cleared = 0
-        n = int((self.width-10)*percent)
-        msg = message.center(self.width)
-        sys.stdout.write(
-        self.term.BOL + self.term.UP + self.term.CLEAR_EOL +
-        (self.bar % (100*percent, '='*n, '-'*(self.width-10-n))) +
-        self.term.CLEAR_EOL + msg)
-        sys.stdout.flush()
+            message = message.encode('utf-8', 'replace')
+        
+        if self.no_progress_bar:
+            if message:
+                print message
+        elif self.fancy:
+            if self.cleared:
+                sys.stdout.write(self.header)
+                self.cleared = 0
+            n = int((self.width-10)*percent)
+            msg = message.center(self.width)
+            sys.stdout.write(
+            self.term.BOL + self.term.UP + self.term.CLEAR_EOL +
+            (self.bar % (100*percent, '='*n, '-'*(self.width-10-n))) +
+            self.term.CLEAR_EOL + msg)
+            sys.stdout.flush()
+        else:
+            if not message:
+                print '%d%%'%(percent*100),
+            else:
+                print '%d%%'%(percent*100), message
+            sys.stdout.flush()
+            
     
     def clear(self):
-        if not self.cleared:
+        if self.fancy and not self.cleared:
             sys.stdout.write(self.term.BOL + self.term.CLEAR_EOL +
             self.term.UP + self.term.CLEAR_EOL +
             self.term.UP + self.term.CLEAR_EOL)

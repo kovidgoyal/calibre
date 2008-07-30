@@ -47,6 +47,7 @@ entry_points = {
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
                              'lit2oeb   = calibre.ebooks.lit.reader:main',
+                             'comic2lrf = calibre.ebooks.lrf.comic.convert_from:main',
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
@@ -166,6 +167,7 @@ def setup_completion(fatal_errors):
         from calibre.web.feeds.recipes import titles as feed_titles
         from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
         from calibre.ebooks.metadata.epub import option_parser as epub_meta
+        from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
         
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
@@ -198,6 +200,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))
         f.write(opts_and_exts('lit2oeb', lit2oeb, ['lit']))
+        f.write(opts_and_exts('comic2lrf', comicop, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write('''

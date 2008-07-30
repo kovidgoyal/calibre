@@ -20,7 +20,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.web.feeds import feed_from_xml, templates, feeds_from_index
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
-from calibre.threadpool import WorkRequest, ThreadPool, NoResultsPending
+from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ebooks.lrf.web.profiles import FullContentProfile
 from calibre.ptempfile import PersistentTemporaryFile
 

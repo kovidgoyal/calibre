@@ -22,7 +22,7 @@ match to a given font specification. The main functions in this module are:
 .. autofunction:: match
 '''
 
-import sys, os, locale, codecs, ctypes
+import sys, os, locale, codecs
 from ctypes import cdll, c_void_p, Structure, c_int, POINTER, c_ubyte, c_char, util, \
                    pointer, byref, create_string_buffer, Union, c_char_p, c_double
 
