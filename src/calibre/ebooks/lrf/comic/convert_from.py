@@ -16,20 +16,24 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.threadpool import ThreadPool, WorkRequest
 from calibre.utils.terminfo import ProgressBar
 from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, ImageBlock
-from calibre.utils.PythonMagickWand import \
-    NewMagickWand, NewPixelWand, \
-    MagickSetImageBorderColor, \
-    MagickReadImage, MagickRotateImage, \
-    MagickTrimImage, \
-    MagickNormalizeImage, MagickGetImageWidth, \
-    MagickGetImageHeight, \
-    MagickResizeImage, MagickSetImageType, \
-    GrayscaleType, CatromFilter,  MagickSetImagePage, \
-    MagickBorderImage, MagickSharpenImage, \
-    MagickQuantizeImage, RGBColorspace, \
-    MagickWriteImage, DestroyPixelWand, \
-    DestroyMagickWand, CloneMagickWand, \
-    MagickThumbnailImage, MagickCropImage, initialize, finalize
+try:
+    from calibre.utils.PythonMagickWand import \
+            NewMagickWand, NewPixelWand, \
+            MagickSetImageBorderColor, \
+            MagickReadImage, MagickRotateImage, \
+            MagickTrimImage, \
+            MagickNormalizeImage, MagickGetImageWidth, \
+            MagickGetImageHeight, \
+            MagickResizeImage, MagickSetImageType, \
+            GrayscaleType, CatromFilter,  MagickSetImagePage, \
+            MagickBorderImage, MagickSharpenImage, \
+            MagickQuantizeImage, RGBColorspace, \
+            MagickWriteImage, DestroyPixelWand, \
+            DestroyMagickWand, CloneMagickWand, \
+            MagickThumbnailImage, MagickCropImage, initialize, finalize
+    _imagemagick_loaded = True
+except:
+    _imagemagick_loaded = False
 
 PROFILES = {
             'prs500':(584, 754),            
@@ -198,6 +202,8 @@ def process_pages(pages, opts, update):
     '''
     Render all identified comic pages.
     '''
+    if not _imagemagick_loaded:
+        raise RuntimeError('Failed to load ImageMagick')
     initialize()
     try:
         tdir = PersistentTemporaryDirectory('_comic2lrf_pp')

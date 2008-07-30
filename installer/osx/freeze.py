@@ -267,6 +267,15 @@ _check_symlinks_prescript()
         dst = os.path.join(resource_dir, 'lib', 'python2.5', 'IPython')
         if os.path.exists(dst): shutil.rmtree(dst)
         shutil.copytree(os.path.expanduser('~/build/ipython/IPython'), dst)
+        
+        print 
+        print 'Adding ImageMagick'
+        dest = os.path.join(frameworks_dir, 'ImageMagick')
+        if os.path.exists(dest):
+            sutil.rmtree(dest)
+        shutil.copytree(os.path.expanduser('~/ImageMagick'), dest, True)
+        shutil.copyfile('/usr/local/lib/libpng12.0.dylib', os.path.join(dest, 'lib', 'libpng12.0.dylib'))
+        
         print
         print 'Installing prescipt'
         sf = [os.path.basename(s) for s in all_names]
