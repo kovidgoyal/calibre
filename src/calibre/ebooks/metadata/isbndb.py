@@ -140,7 +140,7 @@ def main(args=sys.argv):
         return 1
     
     for book in create_books(opts, args):
-        print unicode(book)
+        print unicode(book).encode('utf-8')
             
     return 0
 
