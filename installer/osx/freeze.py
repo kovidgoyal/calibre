@@ -45,8 +45,10 @@ print >>loader, 'from %(module)s import %(function)s'
 print >>loader, '%(function)s()'
 loader.close()
 os.chmod(loader_path, 0700)
-os.environ['PYTHONHOME'] = resources_dir
-os.environ['FC_CONFIG_DIR'] = os.path.join(resources_dir, 'fonts')
+os.environ['PYTHONHOME']        = resources_dir
+os.environ['FC_CONFIG_DIR']     = os.path.join(resources_dir, 'fonts')
+os.environ['MAGICK_HOME']       = os.path.join(frameworks_dir, 'ImageMagick')
+os.environ['DYLD_LIBRARY_PATH'] = os.path.join(frameworks_dir, 'ImageMagick', 'lib')
 os.execv(loader_path, sys.argv)
     '''
     CHECK_SYMLINKS_PRESCRIPT = \
@@ -325,6 +327,8 @@ def main():
                                         'NSHumanReadableCopyright':'Copyright 2008, Kovid Goyal',
                                         'LSEnvironment':{
                                                          'FC_CONFIG_DIR':'@executable_path/../Resources/fonts',
+                                                         'MAGICK_HOME':'@executable_path/../Frameworks/ImageMagick',
+                                                         'DYLD_LIBRARY_PATH':'@executable_path/../Frameworks/ImageMagick/lib',
                                                          }
                                        },
                       },

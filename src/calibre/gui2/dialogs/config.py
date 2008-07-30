@@ -67,6 +67,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         single_format = settings.get('save to disk single format', 'lrf')
         self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
         self.cover_browse.setValue(settings.get('cover flow queue length', 6))
+        self.confirm_delete.setChecked(settings.get('confirm delete', False))
         
     def compact(self, toggled):
         d = Vacuum(self, self.db)
@@ -96,6 +97,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.final_columns = [self.columns.item(i).checkState() == Qt.Checked for i in range(self.columns.count())]
         settings.set('toolbar icon size', self.ICON_SIZES[self.toolbar_button_size.currentIndex()])
         settings.set('show text in toolbar', bool(self.show_toolbar_text.isChecked()))
+        settings.set('confirm delete', bool(self.confirm_delete.isChecked()))
         pattern = self.filename_pattern.commit()
         settings.set('filename pattern', pattern)
         settings.set('save to disk single format', BOOK_EXTENSIONS[self.single_format.currentIndex()])

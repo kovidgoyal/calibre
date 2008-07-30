@@ -83,7 +83,7 @@
           <x>0</x>
           <y>0</y>
           <width>595</width>
-          <height>638</height>
+          <height>640</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout" >
@@ -153,6 +153,13 @@
           <widget class="QCheckBox" name="new_version_notification" >
            <property name="text" >
             <string>Show notification when &amp;new version is available</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="confirm_delete" >
+           <property name="text" >
+            <string>Ask for &amp;confirmation before deleting files</string>
            </property>
           </widget>
          </item>
