@@ -110,7 +110,8 @@ class BuildEXE(py2exe.build_exe.py2exe):
         print '\tAdding pdftohtml'
         shutil.copyfile(PDFTOHTML, os.path.join(PY2EXE_DIR, os.path.basename(PDFTOHTML)))
         print '\tAdding ImageMagick'
-        shutil.copytree(IMAGEMAGICK_DIR, os.path.join(PY2EXE_DIR, 'ImageMagick'))
+        for f in os.listdir(IMAGEMAGICK_DIR):
+            shutil.copyfile(os.path.join(IMAGEMAGICK_DIR, f), os.path.join(PY2EXE_DIR, f))
         print '\tCopying fontconfig'
         for f in glob.glob(os.path.join(FONTCONFIG_DIR, '*')):
             tgt = os.path.join(PY2EXE_DIR, os.path.basename(f))
