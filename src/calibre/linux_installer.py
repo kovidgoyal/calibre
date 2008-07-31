@@ -219,7 +219,7 @@ def extract_tarball(tar, destdir):
         try:
             tarfile.open(fileobj=tar, mode='r').extractall(destdir)
         except: # tarfile.py on Fedora 9 is buggy
-            subprocess.check_call(['tar', 'xvjf', tar.name, destdir])
+            subprocess.check_call(['tar', 'xvjf', tar.name, '-C', destdir])
     else:
         tarfile.open(tar, 'r').extractall(destdir)
 
