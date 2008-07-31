@@ -491,7 +491,9 @@ class Markup(unicode):
         if hasattr(text, '__html__'):
             return Markup(text.__html__())
 
-        text = unicode(text).replace('&', '&amp;') \
+        if isinstance(text, str):
+            text = text.decode('utf-8', 'replace')
+        text = text.replace('&', '&amp;') \
                             .replace('<', '&lt;') \
                             .replace('>', '&gt;')
         if quotes:
