@@ -744,10 +744,9 @@ class Text(LRFStream):
         self.content.append(self.__class__.TextTag(name))
     
     def empline(self, tag, stream):
-        
         def invalid(op):
             stream.seek(op)
-            self.simple_container(None, 'EmpLine')
+            #self.simple_container(None, 'EmpLine')
             
         oldpos = stream.tell()
         try:
@@ -770,7 +769,8 @@ class Text(LRFStream):
         except LRFParseError:
             stream.seek(oldpos)
         
-        self.content.append(self.__class__.TextTag( 
+        if attrs:
+            self.content.append(self.__class__.TextTag( 
                             'EmpLine', attrs=attrs))
                 
     def space(self, tag, stream):

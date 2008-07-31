@@ -251,8 +251,14 @@ def download_tarball():
     except ValueError:
         print 'Downloading calibre...'
         pb = None
-    src = urllib2.urlopen(MOBILEREAD+'calibre-%version-i686.tar.bz2')
-    size = int(src.info()['content-length'])
+    local = 'calibre-test.tar.bz2'
+    src = open(local) if os.access(local, os.R_OK) else urllib2.urlopen(MOBILEREAD+'calibre-%version-i686.tar.bz2')
+    if hasattr(src, 'info'):
+            size = int(src.info()['content-length'])
+    else:
+        src.seek(0, 2)
+        size = src.tell()
+        src.seek(0)
     f = tempfile.NamedTemporaryFile()
     while f.tell() < size:
         f.write(src.read(4*1024))

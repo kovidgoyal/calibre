@@ -548,6 +548,12 @@ class Main(MainWindow, Ui_MainWindow):
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return
+        if Settings().get('confirm delete', False):
+            d = question_dialog(self, _('Confirm delete'), 
+                            _('Are you sure you want to delete these %d books?')%len(rows))
+            if d.exec_() != QMessageBox.Yes:
+                return
+            
         if self.stack.currentIndex() == 0:
             view.model().delete_books(rows)
         else:

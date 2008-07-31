@@ -29,10 +29,10 @@ BUILD_SCRIPT ='''\
 #!/bin/bash
 cd ~/build && \
 rsync -avz --exclude src/calibre/plugins --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
-cd %(project)s && \
+cd %(project)s && rm -rf build dist src/calibre/plugins && \
 mkdir -p build dist src/calibre/plugins && \
 %%s && \
-rm -rf build/* dist/* && \
+rm -rf build/* && \
 %%s %%s
 '''%dict(host=HOST, project=PROJECT) 
 check_call = partial(_check_call, shell=True)
@@ -63,6 +63,15 @@ def start_vm(vm, ssh_host, build_script, sleep=75):
     subprocess.check_call(('scp', t.name, ssh_host+':build-'+PROJECT))
     subprocess.check_call('ssh -t %s bash build-%s'%(ssh_host, PROJECT), shell=True)
 
+def run_windows_install_jammer(installer):
+    ibp = os.path.abspath('installer/windows')
+    sys.path.insert(0, ibp)
+    import build_installer
+    sys.path.remove(ibp)
+    build_installer.run_install_jammer(installer_name=os.path.basename(installer))
+    if not os.path.exists(installer):
+        raise Exception('Failed to run installjammer')
+
 def build_windows(shutdown=True):
     installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
@@ -72,20 +81,14 @@ def build_windows(shutdown=True):
         raise Exception('Failed to run py2exe')
     if shutdown:
         subprocess.Popen(('ssh', 'windows', 'shutdown', '-s', '-t', '0'))
-    ibp = os.path.abspath('installer/windows')
-    sys.path.insert(0, ibp)
-    import build_installer
-    sys.path.remove(ibp)
-    build_installer.run_install_jammer(installer_name=os.path.basename(installer))
-    if not os.path.exists(installer):
-        raise Exception('Failed to run installjammer')
+    run_windows_install_jammer(installer)
     return os.path.basename(installer)
 
 def build_osx(shutdown=True):
     installer = installer_name('dmg')
     vm = '/vmware/Mac OSX/Mac OSX.vmx'
     python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python' 
-    start_vm(vm, 'osx', BUILD_SCRIPT%('sudo %s setup.py develop'%python, python, 'osx_installer.py'))
+    start_vm(vm, 'osx', (BUILD_SCRIPT%('sudo %s setup.py develop'%python, python, 'installer/osx/freeze.py')).replace('rm ', 'sudo rm '))
     subprocess.check_call(('scp', 'osx:build/%s/dist/*.dmg'%PROJECT, 'dist'))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
@@ -97,7 +100,7 @@ def build_osx(shutdown=True):
 def build_linux(shutdown=True):
     installer = installer_name('tar.bz2')
     vm = '/vmware/linux/libprs500-gentoo.vmx'
-    start_vm(vm, 'linux', BUILD_SCRIPT%('sudo python setup.py develop', 'python','linux_installer.py'))
+    start_vm(vm, 'linux', (BUILD_SCRIPT%('sudo python setup.py develop', 'python','installer/linux/freeze.py')).replace('rm ', 'sudo rm '))
     subprocess.check_call(('scp', 'linux:/tmp/%s'%os.path.basename(installer), 'dist'))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
@@ -218,8 +221,8 @@ def stage_one():
     os.mkdir('build')
     shutil.rmtree('docs')
     os.mkdir('docs')
-    check_call("sudo python setup.py develop", shell=True)
-    check_call('sudo rm src/%s/gui2/images_rc.pyc'%__appname__, shell=True)
+    check_call(['python', 'setup.py', 'build'])
+    check_call('sudo rm -f src/%s/gui2/images_rc.pyc'%__appname__, shell=True)
     check_call('make', shell=True)
     tag_release()
     upload_demo()
@@ -227,7 +230,7 @@ def stage_one():
 def stage_two():
     subprocess.check_call('rm -rf dist/*', shell=True)
     build_installers()
-    build_src_tarball()    
+    build_src_tarball()
 
 def stage_three():
     print 'Uploading installers...'

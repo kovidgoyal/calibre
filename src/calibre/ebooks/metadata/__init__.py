@@ -65,7 +65,7 @@ class Resource(object):
             else:
                 pc = url[2]
                 if isinstance(pc, unicode):
-                    pc.encode('utf-8')
+                    pc = pc.encode('utf-8')
                 pc = unquote(pc).decode('utf-8')
                 self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
                 self.fragment = unquote(url[-1])

@@ -9,12 +9,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 
 import sys, struct, cStringIO, os
 import functools
+import re
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
-import calibre.ebooks.lit.msdes as msdes
 from calibre import plugins
 lzx, lxzerror = plugins['lzx']
+msdes, msdeserror = plugins['msdes']
 
 OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
@@ -84,42 +85,40 @@ def read_utf8_char(bytes, pos):
         if elsize + pos > len(bytes):
             raise LitError('Invalid UTF8 character: %s' % repr(bytes[pos]))
         c &= (mask - 1)
-        for i in range(1, elsize):
+        for i in xrange(1, elsize):
             b = ord(bytes[pos+i])
             if (b & 0xC0) != 0x80:
                 raise LitError(
                     'Invalid UTF8 character: %s' % repr(bytes[pos:pos+i]))
             c = (c << 6) | (b & 0x3F)
     return unichr(c), pos+elsize
-            
+
+def consume_sized_utf8_string(bytes, zpad=False):
+    result = []
+    slen, pos = read_utf8_char(bytes, 0)
+    for i in xrange(ord(slen)):
+        char, pos = read_utf8_char(bytes, pos)
+        result.append(char)
+    if zpad and bytes[pos] == '\000':
+        pos += 1
+    return u''.join(result), bytes[pos:]
+
 class UnBinary(object):
+    AMPERSAND_RE = re.compile(
+        r'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
+    
     def __init__(self, bin, manifest, map=OPF_MAP):
         self.manifest = manifest
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
         self.opf = map is OPF_MAP
         self.bin = bin
         self.buf = cStringIO.StringIO()
-        self.ampersands = []
         self.binary_to_text()
         self.raw = self.buf.getvalue().lstrip().decode('utf-8')
         self.escape_ampersands() 
 
     def escape_ampersands(self):
-        offset = 0
-        for pos in self.ampersands:
-            test = self.raw[pos+offset:pos+offset+6]
-            if test.startswith('&#') and ';' in test:
-                continue
-            escape = True
-            for ent in XML_ENTITIES:
-                if test.startswith(ent):
-                    escape = False
-                    break
-            if not escape:
-                continue
-            self.raw = '&amp;'.join(
-                (self.raw[:pos+offset], self.raw[pos+offset+1:]))
-            offset += 4
+        self.raw = self.AMPERSAND_RE.sub('&amp;', self.raw)
     
     def item_path(self, internal_id):
         try:
@@ -148,8 +147,6 @@ class UnBinary(object):
                     continue
                 elif c == '\v':
                     c = '\n'
-                elif c == '&':
-                    self.ampersands.append(self.buf.tell()-1)
                 self.buf.write(c.encode('utf-8'))
             
             elif state == 'get flags':
@@ -328,8 +325,11 @@ class ManifestItem(object):
         self.offset = offset
         self.root = root
         self.state = state
+        # Some LIT files have Windows-style paths
+        path = original.replace('\\', '/')
+        if path[1:3] == ':/': path = path[2:]
         # Some paths in Fictionwise "multiformat" LIT files contain '..' (!?)
-        path = os.path.normpath(original).replace('\\', '/')
+        path = os.path.normpath(path).replace('\\', '/')
         while path.startswith('../'): path = path[3:]
         self.path = path
         
@@ -475,7 +475,7 @@ class LitReader(object):
     
     def _read_header_pieces(self):
         src = self.header[self.hdr_len:]
-        for i in range(self.num_pieces):
+        for i in xrange(self.num_pieces):
             piece = src[i * self.PIECE_SIZE:(i + 1) * self.PIECE_SIZE]
             if u32(piece[4:]) != 0 or u32(piece[12:]) != 0:
                 raise LitError('Piece %s has 64bit value' % repr(piece))
@@ -525,7 +525,7 @@ class LitReader(object):
                     raise LitError('Directory entry had 64bit name length.')
                 if namelen > remaining - 3:
                     raise LitError('Read past end of directory chunk')
-                name, chunk = chunk[:namelen], chunk[namelen:]
+                name, chunk = chunk[:namelen].decode('utf-8'), chunk[namelen:]
                 section, chunk, remaining = encint(chunk, remaining)
                 offset, chunk, remaining = encint(chunk, remaining)
                 size, chunk, remaining = encint(chunk, remaining)
@@ -542,7 +542,7 @@ class LitReader(object):
         self.num_sections = u16(raw[2:pos])
         self.section_names = [""]*self.num_sections
         self.section_data = [None]*self.num_sections
-        for section in range(self.num_sections):
+        for section in xrange(self.num_sections):
             size = u16(raw[pos:pos+2])
             pos += 2
             size = size*2 + 2
@@ -570,27 +570,31 @@ class LitReader(object):
                     if len(raw) < 5:
                         raise LitError('Truncated manifest')
                     offset, raw = u32(raw), raw[4:]
-                    slen, raw = ord(raw[0]), raw[1:]
-                    internal, raw = raw[:slen].decode('utf8'), raw[slen:]
-                    slen, raw = ord(raw[0]), raw[1:]
-                    original, raw = raw[:slen].decode('utf8'), raw[slen:]
-                    slen, raw = ord(raw[0]), raw[1:]
-                    mime_type, raw = raw[:slen].decode('utf8'), raw[slen+1:]
+                    internal, raw = consume_sized_utf8_string(raw)
+                    original, raw = consume_sized_utf8_string(raw)
+                    # Is this last one UTF-8 or ASCIIZ?
+                    mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
                     self.manifest[internal] = ManifestItem(
                         original, internal, mime_type, offset, root, state)
         mlist = self.manifest.values()
-        shared = mlist[0].path
-        for item in mlist[1:]:
-            path = item.path
-            while shared and not path.startswith(shared):
-                try: shared = shared[:shared.rindex("/", 0, -2) + 1]
-                except ValueError: shared = None
-            if not shared:
-                break
-        if shared:
-            slen = len(shared)
-            for item in mlist:
-                item.path = item.path[slen:]
+        # Remove any common path elements
+        if len(mlist) > 1:
+            shared = mlist[0].path
+            for item in mlist[1:]:
+                path = item.path
+                while shared and not path.startswith(shared):
+                    try: shared = shared[:shared.rindex("/", 0, -2) + 1]
+                    except ValueError: shared = None
+                if not shared:
+                    break
+            if shared:
+                slen = len(shared)
+                for item in mlist:
+                    item.path = item.path[slen:]
+        # Fix any straggling absolute paths
+        for item in mlist:
+            if item.path[0] == '/':
+                item.path = os.path.basename(item.path)
 
     def _read_meta(self):
         raw = self.get_file('/meta')
@@ -614,8 +618,8 @@ class LitReader(object):
             self.drmlevel = 1
         else:
             return
-        des = msdes.new(self._calculate_deskey())
-        bookkey = des.decrypt(self.get_file('/DRMStorage/DRMSealed'))
+        msdes.deskey(self._calculate_deskey(), msdes.DE1)
+        bookkey = msdes.des(self.get_file('/DRMStorage/DRMSealed'))
         if bookkey[0] != '\000':
             raise LitError('Unable to decrypt title key!')
         self.bookkey = bookkey[1:9]
@@ -690,7 +694,8 @@ class LitReader(object):
     def _decrypt(self, content):
         if self.drmlevel == 5:
             raise LitError('Cannot extract content from a DRM protected ebook')
-        return msdes.new(self.bookkey).decrypt(content)
+        msdes.deskey(self.bookkey, msdes.DE1)
+        return msdes.des(content)
 
     def _decompress(self, content, control, reset_table):
         if len(control) < 32 or control[CONTROL_TAG:CONTROL_TAG+4] != "LZXC":
@@ -791,6 +796,13 @@ def main(args=sys.argv):
     lr.extract_content(opts.output_dir)
     print _('OEB ebook created in'), opts.output_dir
     return 0
+
+try:
+    import psyco
+    psyco.bind(read_utf8_char)
+    psyco.bind(UnBinary.binary_to_text)
+except ImportError:
+    pass
 
 if __name__ == '__main__':
     sys.exit(main())

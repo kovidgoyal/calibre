@@ -133,31 +133,7 @@ class KINDLE(Device):
             
     
     def open_windows(self):
-        drives = []
-        import wmi
-        c = wmi.WMI()
-        for drive in c.Win32_DiskDrive():
-            '''print drive.PNPDeviceID'''
-            if self.__class__.is_device(drive.PNPDeviceID):
-                if drive.Partitions == 0:
-                    continue
-                try:
-                    partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
-                    logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
-                    prefix = logical_disk.DeviceID+os.sep
-                    drives.append((drive.Index, prefix))
-                except IndexError:
-                    continue
-                
-                
-        if not drives:
-            print self.__class__.__name__
-            raise DeviceError('Unable to find %s. Is it connected?'%(self.__class__.__name__,))
-        
-        drives.sort(cmp=lambda a, b: cmp(a[0], b[0]))
-        self._main_prefix = drives[0][1]
-        if len(drives) > 1:
-            self._card_prefix = drives[1][1]
+        raise NotImplementedError
             
     
     def open_linux(self):

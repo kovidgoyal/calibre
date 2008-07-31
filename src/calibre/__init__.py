@@ -1,7 +1,7 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.79'
+__version__   = '0.4.80'
 __docformat__ = "epytext"
 __author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
 __appname__   = 'calibre'
@@ -20,7 +20,7 @@ from PyQt4.QtGui import QDesktopServices
 
 from calibre.translations.msgfmt import make
 from calibre.ebooks.chardet import detect
-from calibre.terminfo import TerminalController
+from calibre.utils.terminfo import TerminalController
 
 terminal_controller = TerminalController(sys.stdout)
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
@@ -42,6 +42,41 @@ try:
     codecs.lookup(preferred_encoding)
 except:
     preferred_encoding = 'utf-8'
+
+if getattr(sys, 'frozen', False):
+    if iswindows:
+        plugin_path = os.path.join(os.path.dirname(sys.executable), 'plugins')
+    elif isosx:
+        plugin_path = os.path.join(getattr(sys, 'frameworks_dir'), 'plugins')
+    elif islinux:
+        plugin_path = os.path.join(getattr(sys, 'frozen_path'), 'plugins')
+    sys.path.insert(0, plugin_path)
+else:
+    import pkg_resources
+    plugins = getattr(pkg_resources, 'resource_filename')(__appname__, 'plugins')
+    sys.path.insert(0, plugins)
+    
+if iswindows and getattr(sys, 'frozen', False):
+    sys.path.insert(1, os.path.dirname(sys.executable))
+
+
+plugins = {}
+for plugin in ['pictureflow', 'lzx', 'msdes'] + \
+            (['winutil'] if iswindows else []) + \
+            (['usbobserver'] if isosx else []):
+    try:
+        p, err = __import__(plugin), ''
+    except Exception, err:
+        p = None
+        err = str(err)
+    plugins[plugin] = (p, err)
+
+if iswindows:
+    winutil, winutilerror = plugins['winutil']
+    if not winutil:
+        raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
+    sys.argv[1:] = winutil.argv()[1:]
+
 
 _abspath = os.path.abspath
 def my_abspath(path, encoding=sys.getfilesystemencoding()):
@@ -268,10 +303,10 @@ def filename_to_utf8(name):
 def extract(path, dir):
     ext = os.path.splitext(path)[1][1:].lower()
     extractor = None
-    if ext == 'zip':
+    if ext in ['zip', 'cbz', 'epub']:
         from calibre.libunzip import extract as zipextract
         extractor = zipextract
-    elif ext == 'rar':
+    elif ext in ['cbr', 'rar']:
         from calibre.libunrar import extract as rarextract
         extractor = rarextract
     if extractor is None:
@@ -605,23 +640,3 @@ if isosx:
         for font in fonts:
             exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data'
             open(os.path.join(fdir, font+'.ttf'), 'wb').write(font_data)
-
-if islinux and not getattr(sys, 'frozen', False):
-    import pkg_resources
-    plugins = pkg_resources.resource_filename(__appname__, 'plugins')
-    sys.path.insert(1, plugins)
-
-if iswindows and getattr(sys, 'frozen', False):
-    sys.path.insert(1, os.path.dirname(sys.executable))
-
-
-plugins = {}
-for plugin in ['pictureflow', 'lzx']:
-    try:
-        p, err = __import__(plugin), ''
-    except Exception, err:
-        p = None
-        err = str(err)
-    plugins[plugin] = (p, err)
-
-

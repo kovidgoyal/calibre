@@ -7,13 +7,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os
 
-from zipfile import ZipFile, BadZipfile
+from calibre.utils.zipfile import ZipFile, BadZipfile
 from cStringIO import StringIO
 from contextlib import closing
 
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
-from calibre.ebooks.metadata.opf import OPF, OPFReader
-
+from calibre.ebooks.metadata.opf import OPF, OPFReader, OPFCreator
+from calibre.ebooks.metadata import get_parser, MetaInformation
 
 class EPubException(Exception):
     pass
@@ -71,9 +71,9 @@ class OCFReader(OCF):
             raise EPubException("missing OPF package file")
 
 class OCFZipReader(OCFReader):
-    def __init__(self, stream):
+    def __init__(self, stream, mode='r'):
         try:
-            self.archive = ZipFile(stream, 'r')
+            self.archive = ZipFile(stream, mode)
         except BadZipfile:
             raise EPubException("not a ZIP .epub OCF container")
         self.root = getattr(stream, 'name', os.getcwd())
@@ -81,6 +81,19 @@ class OCFZipReader(OCFReader):
 
     def open(self, name, mode='r'):
         return StringIO(self.archive.read(name))
+    
+class OCFZipWriter(OCFZipReader):
+    
+    def __init__(self, stream):
+        OCFZipReader.__init__(self, stream, mode='a')
+        
+    def set_metadata(self, mi):
+        name   = self.container[OPF.MIMETYPE]
+        stream = StringIO()
+        opf    = OPFCreator(self.root, mi)
+        opf.render(stream)
+        self.archive.delete(name)
+        self.archive.writestr(name, stream.getvalue())
 
 class OCFDirReader(OCFReader):
     def __init__(self, path):
@@ -95,13 +108,35 @@ def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
     return OCFZipReader(stream).opf
 
+def set_metadata(stream, mi):
+    OCFZipWriter(stream).set_metadata(mi)
+
+def option_parser():
+    parser = get_parser('epub')
+    parser.remove_option('--category')
+    parser.add_option('--tags', default=None, help=_('A comma separated list of tags to set'))
+    return parser
+
 def main(args=sys.argv):
-    if len(args) != 2 or '--help' in args or '-h' in args:
-        print >>sys.stderr, _('Usage:'), args[0], _('mybook.epub')
+    parser = option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 2:
+        parser.print_help()
         return 1
-    
-    path = os.path.abspath(os.path.expanduser(args[1]))
-    print unicode(get_metadata(open(path, 'rb')))
+    stream = open(args[1], 'r+b')
+    mi = MetaInformation(OCFZipReader(stream).opf)
+    if opts.title:
+        mi.title = opts.title
+    if opts.authors:
+        mi.authors = opts.authors.split(',')
+    if opts.tags:
+        mi.tags = opts.tags.split(',')
+    if opts.comment:
+        mi.comments = opts.comment
+        
+    set_metadata(stream, mi)
+        
+    print unicode(mi)
     return 0
 
 if __name__ == '__main__':

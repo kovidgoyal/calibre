@@ -70,7 +70,21 @@ def import_from_launchpad(url):
             open(out, 'wb').write(tf.extractfile(next).read())
         next = tf.next()
     
+    check_for_critical_bugs()
     return 0
+
+def check_for_critical_bugs():
+    if os.path.exists('.errors'):
+        shutil.rmtree('.errors')
+    pofilter = ('pofilter', '-i', '.', '-o', '.errors',
+                '-t', 'accelerators', '-t', 'escapes', '-t', 'variables', 
+                '-t', 'xmltags')
+    subprocess.check_call(pofilter)
+    errs = os.listdir('.errors')
+    if errs:
+        print 'WARNING: Translation errors detected'
+        print 'See the .errors directory and http://translate.sourceforge.net/wiki/toolkit/using_pofilter'
+
 
 def main(args=sys.argv):
     if len(args) > 1:

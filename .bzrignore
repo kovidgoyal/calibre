@@ -20,3 +20,6 @@ src/calibre/gui2/pictureflow/pictureflow_resource.rc
 src/calibre/gui2/pictureflow/release/
 src/calibre/translations/compiled.py
 installer/windows/calibre/build.log
+src/calibre/translations/.errors
+src/calibre/plugins/*
+src/calibre/gui2/pictureflow/.build

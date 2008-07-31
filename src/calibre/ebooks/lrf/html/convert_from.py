@@ -1327,7 +1327,7 @@ class HTMLConverter(object, LoggingInterface):
             bls, ls = int(self.book.defaultTextStyle.attrs['baselineskip']), \
                       int(self.book.defaultTextStyle.attrs['linespace'])              
             try: # See if line-height is a unitless number
-                val = int(float(tag_css['line-height'].strip()) * (bls+ls))
+                val = int(float(tag_css['line-height'].strip()) * (ls))
                 fp['linespace'] = val
             except ValueError:
                 val = self.unit_convert(tag_css['line-height'], pts=True, base_length='1pt')
@@ -1519,7 +1519,8 @@ class HTMLConverter(object, LoggingInterface):
                     css, pcss = self.parse_css(text)
                     ncss.update(css)
                     npcss.update(pcss)
-                elif tag.has_key('type') and tag['type'] == "text/css" \
+                elif tag.has_key('type') \
+                        and tag['type'] in ("text/css", "text/x-oeb1-css") \
                         and tag.has_key('href'):
                     path = munge_paths(self.target_prefix, tag['href'])[0]           
                     try:

@@ -7,59 +7,42 @@ manner.
 
 import sys
 
-from calibre import iswindows, isosx
+from calibre import iswindows, isosx, plugins
 from calibre.devices import libusb
 
-osx_scanner = None
-try:
-    import usbobserver
-    osx_scanner = usbobserver.get_devices
-except ImportError:
-    pass
+osx_scanner = win_scanner = linux_scanner = None
 
-linux_scanner = libusb.get_devices
+if iswindows:
+    try:
+        win_scanner = plugins['winutil'][0].get_usb_devices
+    except:
+        raise RuntimeError('Failed to load the winutil plugin: %s'%plugins['winutil'][1])
+elif isosx:
+    try:
+        osx_scanner = plugins['usbobserver'][0].get_usb_devices
+    except:
+        raise RuntimeError('Failed to load the usbobserver plugin: %s'%plugins['usbobserver'][1])
+else:
+    linux_scanner = libusb.get_devices
 
 class DeviceScanner(object):
-    
-    def __init__(self, wmi=None):
-        self.wmi = wmi
-        if iswindows and wmi is None:
-            raise RuntimeError('You must pass a wmi instance to DeviceScanner on windows.')        
+
+    def __init__(self, *args):
         if isosx and osx_scanner is None:
             raise RuntimeError('The Python extension usbobserver must be available on OS X.')
         if not (isosx or iswindows) and not libusb.has_library():
             raise RuntimeError('DeviceScanner requires libusb to work.')
-        
+        self.scanner = win_scanner if iswindows else osx_scanner if isosx else linux_scanner
         self.devices = []
-        
-    def get_devices(self):
-        if iswindows:
-            devices = []
-            for c in self.wmi.USBControllerDevice():
-                devices.append(c.Dependent.DeviceID.upper())
-            return devices
-        if isosx:
-            return osx_scanner()
-        return linux_scanner()
-    
+
     def scan(self):
-        try: # Windows WMI occasionally and temporarily barfs
-            self.devices = self.get_devices()
-        except Exception, e:
-            if not iswindows and e:
-                raise e
-            
-        
+        '''Fetch list of connected USB devices from operating system'''
+        self.devices = self.scanner()
+
     def is_device_connected(self, device):
         if iswindows:
             for device_id in self.devices:
-                if 'VEN_'+device.VENDOR_NAME in device_id and \
-                   'PROD_'+device.PRODUCT_NAME in device_id:
-                    return True
-                vid, pid = hex(device.VENDOR_ID)[2:], hex(device.PRODUCT_ID)[2:]
-                if len(vid) < 4: vid = '0'+vid
-                if len(pid) < 4: pid = '0'+pid
-                vid, pid = 'VID_'+vid.upper(), 'PID_'+pid.upper()
+                vid, pid = 'vid_%4.4x'%device.VENDOR_ID, 'pid_%4.4x'%device.PRODUCT_ID
                 if vid in device_id and pid in device_id:
                     return True
             return False

@@ -14,7 +14,8 @@
 
     <div id="content" class="download">
       <h1><img src="${href.chrome('/dl/images/%s_logo.png'%(distro.img,))}" valign="middle" width="60" height="80"/> $title</h1>
-      See the <a href="/wiki/Changelog">Changelog</a> for the changes in the latest version.
+      See the <a href="/wiki/Changelog">Changelog</a> for the changes in the latest version. <b>Note:</b> As of 0.4.80 this install
+      will not work on 64-bit CPUs. Try the precompiled binary available <a href="/download_binary">here</a> instead.
       <div py:if="not distro.is_generic">
         First verify that you have a sufficiently new installation of python
         <pre class="wiki">python --version</pre> should return at least 2.5.1<br />

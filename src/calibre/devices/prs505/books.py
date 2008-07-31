@@ -20,7 +20,8 @@ MIME_MAP   = {
                 'lrx' : 'application/x-sony-bbeb',  
                 "rtf" : "application/rtf", 
                 "pdf" : "application/pdf", 
-                "txt" : "text/plain" 
+                "txt" : "text/plain" ,
+                'epub': 'application/epub+zip',
               }
 
 def uuid():

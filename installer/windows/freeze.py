@@ -50,58 +50,16 @@ class BuildEXE(py2exe.build_exe.py2exe):
   </trustInfo>
 </assembly>
 '''
-    def build_distutil_plugins(self):
-        plugins = [
-                   ('lzx', os.path.join('utils', 'lzx')),
-                   ]
-        for name, path in plugins:
-            print 'Building plugin', name
-            path = os.path.abspath(os.path.join('src', 'calibre', path))
-            cwd = os.getcwd()
-            dd = os.path.join(cwd, self.dist_dir)
-            os.chdir(path)
-            try:
-                if os.path.exists('.build'):
-                    shutil.rmtree('.build')
-                subprocess.check_call(('python', 'setup.py', 'build', '--build-base', '.build'))
-                plugin = os.path.abspath(glob.glob('.build\\lib*\\%s.pyd'%name)[0])
-                shutil.copyfile(plugin, os.path.join(dd, os.path.basename(plugin)))
-            finally:
-                os.chdir(cwd)
-    
-    def build_plugins(self):
-        cwd = os.getcwd()
-        dd = os.path.join(cwd, self.dist_dir)
-        try:
-            os.chdir(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))
-            if os.path.exists('.build'):
-                shutil.rmtree('.build')
-            os.mkdir('.build')
-            os.chdir('.build')
-            subprocess.check_call(['qmake', '../pictureflow.pro'])
-            subprocess.check_call(['mingw32-make', '-f', 'Makefile.Release'])
-            shutil.copyfile('release\\pictureflow0.dll', os.path.join(dd, 'pictureflow0.dll'))
-            os.chdir('..\\PyQt')
-            if not os.path.exists('.build'):
-                os.mkdir('.build')
-            os.chdir('.build')
-            subprocess.check_call(['python', '..\\configure.py'])
-            subprocess.check_call(['mingw32-make', '-f', 'Makefile'])
-            shutil.copyfile('pictureflow.pyd', os.path.join(dd, 'pictureflow.pyd'))
-            os.chdir('..')
-            shutil.rmtree('.build', True)
-            os.chdir('..')
-            shutil.rmtree('.build', True)
-        finally:
-            os.chdir(cwd)
-    
     def run(self):
-        if not os.path.exists(self.dist_dir):
-            os.makedirs(self.dist_dir)
-        print 'Building custom plugins...'
-        self.build_distutil_plugins()
-        self.build_plugins()
         py2exe.build_exe.py2exe.run(self)
+        print 'Adding plugins...'
+        tgt = os.path.join(self.dist_dir, 'plugins')
+        if not os.path.exists(tgt):
+            os.mkdir(tgt)
+        for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.dll')):
+            shutil.copyfile(f, os.path.join(self.dist_dir, os.path.basename(f)))
+        for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.pyd')):
+            shutil.copyfile(f, os.path.join(tgt, os.path.basename(f)))
         qtsvgdll = None
         for other in self.other_depends:
             if 'qtsvg4.dll' in other.lower():
@@ -116,7 +74,7 @@ class BuildEXE(py2exe.build_exe.py2exe):
             print 'Adding', qtxmldll
             shutil.copyfile(qtxmldll, 
                             os.path.join(self.dist_dir, os.path.basename(qtxmldll)))
-        print 'Adding plugins...',
+        print 'Adding Qt plugins...',
         qt_prefix = QT_DIR
         if qtsvgdll:
             qt_prefix = os.path.dirname(os.path.dirname(qtsvgdll))
@@ -152,7 +110,8 @@ class BuildEXE(py2exe.build_exe.py2exe):
         print '\tAdding pdftohtml'
         shutil.copyfile(PDFTOHTML, os.path.join(PY2EXE_DIR, os.path.basename(PDFTOHTML)))
         print '\tAdding ImageMagick'
-        shutil.copytree(IMAGEMAGICK_DIR, os.path.join(PY2EXE_DIR, 'ImageMagick'))
+        for f in os.listdir(IMAGEMAGICK_DIR):
+            shutil.copyfile(os.path.join(IMAGEMAGICK_DIR, f), os.path.join(PY2EXE_DIR, f))
         print '\tCopying fontconfig'
         for f in glob.glob(os.path.join(FONTCONFIG_DIR, '*')):
             tgt = os.path.join(PY2EXE_DIR, os.path.basename(f))

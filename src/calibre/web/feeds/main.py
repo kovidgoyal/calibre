@@ -60,35 +60,15 @@ If you specify this option, any argument to %prog is ignored and a default recip
     
     return p
     
-def simple_progress_bar(percent, msg):
-    if isinstance(msg, unicode):
-        msg = msg.encode('utf-8', 'ignore')
-    if not msg:
-        print '%d%%'%(percent*100),
-    else:
-        print '%d%%'%(percent*100), msg
-    sys.stdout.flush()
-    
-def no_progress_bar(percent, msg):
-    print msg
-
 class RecipeError(Exception):
     pass
 
 def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
     if notification is None:
-        from calibre.terminfo import TerminalController, ProgressBar
+        from calibre.utils.terminfo import TerminalController, ProgressBar
         term = TerminalController(sys.stdout)
-        if opts.progress_bar:
-            try:
-                pb = ProgressBar(term, _('Fetching feeds...'))
-                notification = pb.update
-            except ValueError:
-                notification = simple_progress_bar
-                print _('Fetching feeds...')
-        else:
-            notification = no_progress_bar
-        
+        pb = ProgressBar(term, _('Fetching feeds...'), no_progress_bar=opts.progress_bar)
+        notification = pb.update
     
     recipe, is_profile = None, False
     if opts.feeds is not None:

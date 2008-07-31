@@ -1,5 +1,4 @@
-import os, sys, glob, shutil
-import sipconfig
+import os, sys, glob
 if os.environ.get('PYQT4PATH', None):
     print os.environ['PYQT4PATH']
     sys.path.insert(0, os.environ['PYQT4PATH'])
@@ -32,34 +31,22 @@ makefile = pyqtconfig.QtGuiModuleMakefile (
     qt=1,
 )
 
-# Add the library we are wrapping.  The name doesn't include any platform
-# specific prefixes or extensions (e.g. the "lib" prefix on UNIX, or the
-# ".dll" extension on Windows).
-if 'linux' in sys.platform:
-    for f in glob.glob('../../.build/libpictureflow.a'):
-        shutil.copyfile(f, os.path.basename(f))
-    makefile.extra_lib_dirs = ['.']
-else:
-    makefile.extra_lib_dirs = ['..\\..\\.build\\release', '../../.build', '.']
-makefile.extra_libs = ['pictureflow0' if 'win' in sys.platform and 'darwin' not in sys.platform else "pictureflow"]
-makefile.extra_cflags = ['-arch i386', '-arch ppc'] if 'darwin' in sys.platform else []
-makefile.extra_lflags = ['-arch i386', '-arch ppc'] if 'darwin' in sys.platform else []
+# Setup the platform dependent Makefile parameters
+d = os.path.dirname
+if 'darwin' in sys.platform:
+    makefile.extra_cflags += ['-arch i386', '-arch ppc']
+    makefile.extra_lflags += ['-arch i386', '-arch ppc']
+qtdir = os.path.join(d(d(os.getcwd())), '.build')
+if 'win32' in sys.platform:
+    qtdir = os.path.join(qtdir, 'release')
+    makefile.extra_lib_dirs += ['C:/Python25/libs']
+
+# Add the compiled Qt objects
+qtobjs = map(lambda x:'"'+x+'"', glob.glob(os.path.join(qtdir, '*.o')))
+makefile.extra_lflags += qtobjs
 makefile.extra_cxxflags = makefile.extra_cflags
 
 # Generate the Makefile itself.
 makefile.generate()
-
-# Now we create the configuration module.  This is done by merging a Python
-# dictionary (whose values are normally determined dynamically) with a
-# (static) template.
-content = {
-    # Publish where the SIP specifications for this module will be
-    # installed.
-    "pictureflow_sip_dir":    config.default_sip_dir,
-}
-
-# This creates the helloconfig.py module from the helloconfig.py.in
-# template and the dictionary.
-sipconfig.create_config_module("pictureflowconfig.py", "../pictureflowconfig.py.in", content)
 
 

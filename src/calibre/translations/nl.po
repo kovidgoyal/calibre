@@ -332,6 +332,7 @@ msgstr ""
 "De reguliere expressie die wordt gebruikt om hoofdstukken te herkennen. Deze "
 "wordt gezocht in 'heading tags' (h1-h6). Standaard: %default"
 
+# (pofilter) escapes: escapes in original ('"h\d,class,chapter".') don't match escapes in translation ('"h\d\klasse,hoofdstuk".')
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:165
 msgid ""
 "Detect a chapter beginning at an element having the specified attribute. The "
@@ -342,8 +343,8 @@ msgstr ""
 "vind het begin van een hoofdstuk bij een element met het gespecificeerde "
 "attribuut. Het formaat voor deze optie is tagnaam regexp, attribuut naam, "
 "attribuut waarde regexp. Bijvoorbeeld, om alle kop tags te vinden met de "
-"attribuut klasse \"hoofstuk\", gebruik \"h\\d\\klasse,hoofdstuk\". Standaard "
-"is %default"
+"attribuut klasse \"hoofstuk\", gebruik \"h\\d,klasse,hoofdstuk\". Standaard is "
+"%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:167
 msgid ""
@@ -1307,10 +1308,11 @@ msgstr "Je hebt geen permissie om het bestand te lezen: "
 msgid "Error reading file"
 msgstr "Fout bij het lezen van bestand"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:183
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:53
 msgid "<p>There was an error reading from file: <br /><b>"
-msgstr "<p>Er is een fout opgetreden bij het lezen van bestand: <br></b>"
+msgstr "<p>Er is een fout opgetreden bij het lezen van bestand: <br /><b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:189
 msgid " is not a valid picture"
@@ -1733,6 +1735,7 @@ msgid "Comma separated list of tags to remove from the books. "
 msgstr ""
 "Lijst van tags die moeten worden verwijderd, gescheiden met komma's. "
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:235
 msgid ""
 "<p>Enter your username and password for <b>LibraryThing.com</b>. <br/>If you "
@@ -1740,8 +1743,8 @@ msgid ""
 "for free!.</p>"
 msgstr ""
 "<p>Geef uw gebruikersnaam en wachtwoord voor <b>LibraryThing.com</b>. "
-"<br>Als u deze niet heeft, dan kunt u er gratis een krijgen door te <a "
-"href='http://www.librarything.com'>registreren</a>"
+"<br/>Als u deze niet heeft, dan kunt u er gratis een krijgen door te <a "
+"href='http://www.librarything.com'>registreren</a>.</p>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:265
 msgid "<b>Could not fetch cover.</b><br/>"
@@ -2181,26 +2184,29 @@ msgstr "Geen overeenkomst"
 msgid "Authors:"
 msgstr "Auteurs:"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:106
 msgid "Regular expression group name (?P<authors>)"
-msgstr "Reguliere expressie groep naam (?<auteurs>)"
+msgstr "Reguliere expressie groep naam (?P<authors>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:108
 msgid "Series:"
 msgstr "Serie:"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:109
 msgid "Regular expression group name (?P<series>)"
-msgstr "Reguliere expressie groep naam (?<serie>)"
+msgstr "Reguliere expressie groep naam (?P<series>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:111
 msgid "Series index:"
 msgstr "Serie Index"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:112
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:115
 msgid "Regular expression group name (?P<series_index>)"
-msgstr "Reguliere expressie groep naam (?<serie_index>)"
+msgstr "Reguliere expressie groep naam (?P<series_index>)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:114
 msgid "ISBN:"
@@ -2825,13 +2831,14 @@ msgstr "FOUT: Niet-verwerkte uitzondering"
 msgid "Add a custom news source"
 msgstr "Voeg een persoonlijke nieuwsbron toe"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/gui2/news.py:53
 msgid ""
 "<p>Please enter your username and password for %s<br>If you do not have one, "
 "please subscribe to get access to the articles.<br/> Click OK to proceed."
 msgstr ""
 "<p>Voer uw gebruikersnaam en wachtwoord voor %s in.<br>Als u er geen geeft, "
-"registreer dan om toegang tot de artikelen te krijgen.<br>Klik op OK om "
+"registreer dan om toegang tot de artikelen te krijgen.<br/>Klik op OK om "
 "verder te gaan."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/news.py:79
@@ -3447,13 +3454,14 @@ msgstr ""
 "Maximum aantal level om recursief te zoeken -- de diepte om links te volgen. "
 "Standaard %default"
 
+# (pofilter) xmltags: checks that XML/HTML tags have not been translated
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:394
 msgid ""
 "The maximum number of files to download. This only applies to files from <a "
 "href> tags. Default is %default"
 msgstr ""
 "Het maximum aantal bestanden te downloaden. Dit is alleen van toepassing op "
-"bestanden in <A HREF> tags. Standaard is %default"
+"bestanden in <a href> tags. Standaard is %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:396
 msgid ""
