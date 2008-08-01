@@ -22,17 +22,19 @@ def main(args=sys.argv):
         bytes = repr(open(path, 'rb').read())
         data += key + ' = ' + bytes + '\n\n'
     
-    TPATH = '/usr/share/qt4/translations'
-    if os.path.exists(TPATH):
-         files = glob.glob(TPATH + '/qt_??.qm')
-    
-         for f in files:
-             key = os.path.basename(f).partition('.')[0]
-             bytes = repr(open(f, 'rb').read())
-             data += key + ' = ' + bytes + '\n\n'
-         
-    else:
-        print 'WARNING: Could not find Qt transations in', TPATH
+    translations_found = False
+    for TPATH in ('/usr/share/qt4/translations', '/usr/lib/qt4/translations'):
+        if os.path.exists(TPATH):
+             files = glob.glob(TPATH + '/qt_??.qm')
+        
+             for f in files:
+                 key = os.path.basename(f).partition('.')[0]
+                 bytes = repr(open(f, 'rb').read())
+                 data += key + ' = ' + bytes + '\n\n'
+             translations_found = True
+             break
+    if not translations_found:
+        print 'WARNING: Could not find Qt transations'
     
     open('src'+os.sep+__appname__+os.sep+'/resources.py', 'wb').write(data) 
     return 0
