@@ -1,14 +1,14 @@
 <?xml version="1.0"  encoding="UTF-8"?>
 <package version="2.0" 
-         xmlns:opf="http://www.idpf.org/2007/opf" 
+         xmlns="http://www.idpf.org/2007/opf" 
          xmlns:py="http://genshi.edgewall.org/" 
          unique-identifier="${__appname__}_id"
          
 >
-    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-        <dc:title py:with="attrs={'files-as':mi.title_sort}" py:attrs="attrs">${mi.title}</dc:title>
-        <dc:creator opf:role="aut" py:for="i, author in enumerate(mi.authors)" py:with="attrs={'file-as':mi.author_sort if i==0 else None}" py:attrs="attrs">${author}</dc:creator>
-        <dc:identifier scheme="${__appname__}" id="${__appname__}_id">${mi.application_id}</dc:identifier>
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
+        <dc:title py:with="attrs={'opf:files-as':mi.title_sort}" py:attrs="attrs">${mi.title}</dc:title>
+        <dc:creator opf:role="aut" py:for="i, author in enumerate(mi.authors)" py:with="attrs={'opf:file-as':mi.author_sort if i==0 else None}" py:attrs="attrs">${author}</dc:creator>
+        <dc:identifier opf:scheme="${__appname__}" id="${__appname__}_id">${mi.application_id}</dc:identifier>
     
         <dc:language>${mi.language if mi.language else 'Unknown'}</dc:language>
         <dc:type py:if="mi.category">${mi.category}</dc:type>
