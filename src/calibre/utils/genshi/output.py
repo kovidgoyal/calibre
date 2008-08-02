@@ -573,6 +573,7 @@ class NamespaceFlattener(object):
     def __call__(self, stream):
         prefixes = dict([(v, [k]) for k, v in self.prefixes.items()])
         namespaces = {XML_NAMESPACE.uri: ['xml']}
+        default = prefixes.get('', [''])
         def _push_ns(prefix, uri):
             namespaces.setdefault(uri, []).append(prefix)
             prefixes.setdefault(prefix, []).append(uri)
@@ -596,14 +597,14 @@ class NamespaceFlattener(object):
 
                 tagname = tag.localname
                 tagns = tag.namespace
-                if tagns:
+                if tagns and tagns != default[-1]:
                     if tagns in namespaces:
                         prefix = namespaces[tagns][-1]
                         if prefix:
                             tagname = u'%s:%s' % (prefix, tagname)
                     else:
                         _push_ns_attr((u'xmlns', tagns))
-                        _push_ns('', tagns)
+                        default.push(tagns)
 
                 new_attrs = []
                 for attr, value in attrs:
@@ -626,7 +627,7 @@ class NamespaceFlattener(object):
             elif kind is END:
                 tagname = data.localname
                 tagns = data.namespace
-                if tagns:
+                if tagns and tagns != default[-1]:
                     prefix = namespaces[tagns][-1]
                     if prefix:
                         tagname = u'%s:%s' % (prefix, tagname)
@@ -634,12 +635,19 @@ class NamespaceFlattener(object):
 
             elif kind is START_NS:
                 prefix, uri = data
-                if uri not in namespaces:
-                    prefix = prefixes.get(uri, [prefix])[-1]
+                push_attr = False
+                if prefix is '' and default[-1] != uri:
+                    default.append(uri)
                     _push_ns_attr(_make_ns_attr(prefix, uri))
-                _push_ns(prefix, uri)
+                elif uri not in namespaces:
+                    prefix = namespaces.get(uri, [prefix])[-1]
+                    _push_ns_attr(_make_ns_attr(prefix, uri))
+                if prefix is not '':
+                    _push_ns(prefix, uri)
 
             elif kind is END_NS:
+                if data is '':
+                    default.pop()
                 if data in prefixes:
                     uris = prefixes.get(data)
                     uri = uris.pop()
