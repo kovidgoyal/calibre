@@ -25,12 +25,7 @@ class DeviceDetector(QThread):
         self.keep_going = True
         
     def run(self):
-        _wmi = None
-        if iswindows:
-            import wmi, pythoncom
-            pythoncom.CoInitialize()
-            _wmi = wmi.WMI()
-        scanner = DeviceScanner(_wmi)
+        scanner = DeviceScanner()
         while self.keep_going:
             scanner.scan()
             for device in self.devices:
