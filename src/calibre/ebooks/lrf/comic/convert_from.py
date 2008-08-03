@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -31,12 +31,13 @@ try:
             MagickQuantizeImage, RGBColorspace, \
             MagickWriteImage, DestroyPixelWand, \
             DestroyMagickWand, CloneMagickWand, \
-            MagickThumbnailImage, MagickCropImage, initialize, finalize
+            MagickThumbnailImage, MagickCropImage, ImageMagick
     _imagemagick_loaded = True
 except:
     _imagemagick_loaded = False
 
 PROFILES = {
+            # Name : (width, height) in pixels
             'prs500':(584, 754),            
             }
 
@@ -205,8 +206,7 @@ def process_pages(pages, opts, update):
     '''
     if not _imagemagick_loaded:
         raise RuntimeError('Failed to load ImageMagick')
-    initialize()
-    try:
+    with ImageMagick():
         tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
         processed_pages = [PageProcessor(path, tdir, opts, i) for i, path in enumerate(pages)]
         tp = ThreadPool(detect_ncpus())
@@ -223,9 +223,7 @@ def process_pages(pages, opts, update):
             else:
                 ans += pp
         return ans, failures, tdir
-    finally:
-        finalize()
-
+    
 def config(defaults=None):
     desc = _('Options to control the conversion of comics (CBR, CBZ) files into ebooks')
     if defaults is None:

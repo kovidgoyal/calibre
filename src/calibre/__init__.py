@@ -318,7 +318,7 @@ def extract(path, dir):
         raise Exception('Unknown archive type')
     extractor(path, dir)
 
-def get_proxies(self):
+def get_proxies():
         proxies = {}
         if iswindows:
             try:

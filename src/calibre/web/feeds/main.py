@@ -67,7 +67,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
     if notification is None:
         from calibre.utils.terminfo import TerminalController, ProgressBar
         term = TerminalController(sys.stdout)
-        pb = ProgressBar(term, _('Fetching feeds...'), no_progress_bar=opts.progress_bar)
+        pb = ProgressBar(term, _('Fetching feeds...'), no_progress_bar=not opts.progress_bar)
         notification = pb.update
     
     recipe, is_profile = None, False
