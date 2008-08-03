@@ -10,8 +10,9 @@ Based on ideas from comiclrf created by FangornUK.
 import os, sys, traceback, shutil
 from uuid import uuid4
 
-from calibre import extract, OptionParser, detect_ncpus, terminal_controller, \
+from calibre import extract, detect_ncpus, terminal_controller, \
                     __appname__, __version__
+from calibre.utils.config import Config, StringConfig
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.utils.threadpool import ThreadPool, WorkRequest
 from calibre.utils.terminfo import ProgressBar
@@ -21,7 +22,7 @@ try:
             NewMagickWand, NewPixelWand, \
             MagickSetImageBorderColor, \
             MagickReadImage, MagickRotateImage, \
-            MagickTrimImage, \
+            MagickTrimImage, PixelSetColor,\
             MagickNormalizeImage, MagickGetImageWidth, \
             MagickGetImageHeight, \
             MagickResizeImage, MagickSetImageType, \
@@ -133,7 +134,7 @@ class PageProcessor(list):
             pw = NewPixelWand()
             if pw < 0:
                 raise RuntimeError('Cannot create wand.')
-            #flag = PixelSetColor(pw, 'white')
+            PixelSetColor(pw, 'white')
             
             MagickSetImageBorderColor(wand, pw)
             
@@ -145,7 +146,7 @@ class PageProcessor(list):
             MagickSetImagePage(wand, 0,0,0,0)   #Clear page after trim, like a "+repage"
             
             # Do the Photoshop "Auto Levels" equivalent
-            if self.opts.normalize:
+            if not self.opts.dont_normalize:
                 MagickNormalizeImage(wand)
         
             sizex = MagickGetImageWidth(wand)
@@ -173,7 +174,7 @@ class PageProcessor(list):
             else:
                 MagickResizeImage(wand, SCRWIDTH, SCRHEIGHT, CatromFilter, 1.0)
                 
-            if self.opts.sharpen:
+            if not self.opts.dont_sharpen:
                 MagickSharpenImage(wand, 0.0, 1.0)
                 
             MagickSetImageType(wand, GrayscaleType)
@@ -225,34 +226,46 @@ def process_pages(pages, opts, update):
     finally:
         finalize()
 
+def config(defaults=None):
+    desc = _('Options to control the conversion of comics (CBR, CBZ) files into ebooks')
+    if defaults is None:
+        c = Config('comic', desc)
+    else:
+        c = StringConfig(defaults, desc)
+    c.add_opt('title', ['-t', '--title'], 
+              help=_('Title for generated ebook. Default is to use the filename.'))
+    c.add_opt('author', ['-a', '--author'], 
+              help=_('Set the author in the metadata of the generated ebook. Default is %default'), 
+              default=_('Unknown'))
+    c.add_opt('output', ['-o', '--output'], 
+              help=_('Path to output LRF file. By default a file is created in the current directory.'))
+    c.add_opt('colors', ['-c', '--colors'], type='int', default=64,
+              help=_('Number of colors for Grayscale image conversion. Default: %default'))
+    c.add_opt('dont_normalize', ['-n', '--disable-normalize'], default=False, 
+              help=_('Disable normalize (improve contrast) color range for pictures. Default: False'))
+    c.add_opt('keep_aspect_ratio', ['-r', '--keep-aspect-ratio'], default=False,
+              help=_('Maintain picture aspect ratio. Default is to fill the screen.'))
+    c.add_opt('dont_sharpen', ['-s', '--disable-sharpen'], default=False,  
+              help=_('Disable sharpening.'))
+    c.add_opt('landscape', ['-l', '--landscape'], default=False, 
+              help=_("Don't split landscape images into two portrait images"))
+    c.add_opt('no_sort', ['--no-sort'], default=False, 
+              help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."))
+    c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(), 
+              help=_('Choose a profile for the device you are generating this LRF for. The default is the SONY PRS-500 with a screen size of 584x754 pixels. Choices are %s')%PROFILES.keys())
+    c.add_opt('verbose', ['--verbose'], default=0, action='count',  
+              help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
+    c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False, 
+                      help=_("Don't show progress bar."))
+    return c
+
 def option_parser():
-    parser = OptionParser(_('''\
+    c = config()
+    return c.option_parser(usage=_('''\
 %prog [options] comic.cb[z|r]
 
 Convert a comic in a CBZ or CBR file to an LRF ebook. 
-	'''))
-    parser.add_option('-t', '--title', help=_('Title for generated ebook. Default is to use the filename.'), default=None)
-    parser.add_option('-a', '--author', help=_('Set the author in the metadata of the generated ebook. Default is %default'), default=_('Unknown'))
-    parser.add_option('-o', '--output', help=_('Path to output LRF file. By default a file is created in the current directory.'), default=None)
-    parser.add_option('-c', '--colors', type='int', default=64,
-    				  help=_('Number of colors for Grayscale image conversion. Default: %default'))
-    parser.add_option('-n', '--disable-normalize', dest='normalize', default=True, action='store_false',
-    				  help=_('Disable normalize (improve contrast) color range for pictures. Default: False'))
-    parser.add_option('-r', '--keep-aspect-ratio', action='store_true', default=False,
-    				  help=_('Maintain picture aspect ratio. Default is to fill the screen.'))
-    parser.add_option('-s', '--disable-sharpen', default=True, action='store_false', dest='sharpen',
-    				  help=_('Disable sharpening.'))
-    parser.add_option('-l', '--landscape', default=False, action='store_true',
-    				  help=_("Don't split landscape images into two portrait images"))
-    parser.add_option('--no-sort', default=False, action='store_true',
-                      help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."))
-    parser.add_option('-p', '--profile', default='prs500', dest='profile', type='choice',
-                      choices=PROFILES.keys(), help=_('Choose a profile for the device you are generating this LRF for. The default is the SONY PRS-500 with a screen size of 584x754 pixels. Choices are %s')%PROFILES.keys())
-    parser.add_option('--verbose', default=False, action='store_true', 
-                      help=_('Be verbose, useful for debugging'))
-    parser.add_option('--no-progress-bar', default=False, action='store_true',
-                      help=_("Don't show progress bar."))
-    return parser
+'''))
 
 def create_lrf(pages, profile, opts, thumbnail=None):
     width, height = PROFILES[profile]
@@ -277,22 +290,8 @@ def create_lrf(pages, profile, opts, thumbnail=None):
         
     book.renderLrf(open(opts.output, 'wb'))
     
-
-
-def main(args=sys.argv, notification=None):
-    parser = option_parser()
-    opts, args = parser.parse_args(args)
-    if len(args) < 2:
-        parser.print_help()
-        print '\nYou must specify a file to convert'
-        return 1
-    
-    if not callable(notification):
-        pb = ProgressBar(terminal_controller, _('Rendering comic pages...'), 
-                         no_progress_bar=opts.no_progress_bar)
-        notification = pb.update
-    
-    source = os.path.abspath(args[1])
+def do_convert(path_to_file, opts, notification=lambda m, p: p):
+    source = path_to_file
     if not opts.title:
         opts.title = os.path.splitext(os.path.basename(source))
     if not opts.output:
@@ -315,6 +314,24 @@ def main(args=sys.argv, notification=None):
     create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
     shutil.rmtree(tdir)
     shutil.rmtree(tdir2)
+
+
+def main(args=sys.argv, notification=None):
+    parser = option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) < 2:
+        parser.print_help()
+        print '\nYou must specify a file to convert'
+        return 1
+    
+    if not callable(notification):
+        pb = ProgressBar(terminal_controller, _('Rendering comic pages...'), 
+                         no_progress_bar=opts.no_progress_bar)
+        notification = pb.update
+    
+    source = os.path.abspath(args[1])
+    do_convert(source, opts, notification)
+    print _('Output written to'), opts.output
     return 0
 
 if __name__ == '__main__':

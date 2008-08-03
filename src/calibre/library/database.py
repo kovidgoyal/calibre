@@ -1092,7 +1092,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.set_tags(id, val.split(','), append=False)
         
     def set_conversion_options(self, id, format, options):
-        data = sqlite.Binary(cPickle.dumps(options))
+        data = sqlite.Binary(cPickle.dumps(options, -1))
         oid = self.conn.execute('SELECT id FROM conversion_options WHERE book=? AND format=?', (id, format.upper())).fetchone()
         if oid:
             self.conn.execute('UPDATE conversion_options SET data=? WHERE id=?', (data, oid[0]))

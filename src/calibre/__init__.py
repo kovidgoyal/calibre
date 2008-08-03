@@ -26,6 +26,7 @@ terminal_controller = TerminalController(sys.stdout)
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx)
+isfrozen  = hasattr(sys, 'frozen') 
 
 try:
     locale.setlocale(locale.LC_ALL, '')
@@ -351,11 +352,11 @@ def get_proxies(self):
 
 
 def browser(honor_time=False):
-    http_proxy = get_proxies().get('http', None)
     opener = mechanize.Browser()
     opener.set_handle_refresh(True, honor_time=honor_time)
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
+    http_proxy = get_proxies().get('http', None)
     if http_proxy:
         opener.set_proxies({'http':http_proxy})
     return opener
