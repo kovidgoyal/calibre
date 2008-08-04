@@ -14,17 +14,13 @@ def set_conversion_defaults(window):
     d.exec_()
     
 def get_bulk_conversion_options(window):
-    c = config(None)
-    with open(c.config_file_path, 'rb') as f:
-        d = ComicConf(window, config_defaults=f.read())
+    d = ComicConf(window, config_defaults=config(None).as_string())
     if d.exec_() == QDialog.Accepted:
         return d.config.parse()
     
 def get_conversion_options(window, defaults, title, author):
     if defaults is None:
-        c = config(None)
-        with open(c.config_file_path, 'rb') as f:
-            defaults = f.read()
+        defaults = config(None).as_string()
     defaults += '\ntitle=%s\nauthor=%s'%(repr(title), repr(author))
     d = ComicConf(window, config_defaults=defaults, generic=False)
     if d.exec_() == QDialog.Accepted:

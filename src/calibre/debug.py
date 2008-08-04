@@ -25,7 +25,7 @@ Run an embedded python interpreter.
 def update_zipfile(zipfile, mod, path):
     if 'win32' in sys.platform:
         print 'WARNING: On Windows Vista you must run this from a console that has been started in Administrator mode.'
-        print 'Press Enter to continue or Ctrl-C to Cancel'
+        print 'Press Enter to continue if this is an Administrator console or Ctrl-C to Cancel'
         raw_input()
     pat = re.compile(mod.replace('.', '/')+r'\.py[co]*')
     name = mod.replace('.', '/') + os.path.splitext(path)[-1]

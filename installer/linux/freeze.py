@@ -20,7 +20,9 @@ SQLITE         = '/usr/lib/libsqlite3.so.0'
 DBUS           = '/usr/lib/libdbus-1.so.3'
 LIBMNG         = '/usr/lib/libmng.so.1'
 LIBZ           = '/lib/libz.so.1'
+LIBBZ2         = '/lib/libbz2.so.1'
 LIBUSB         = '/lib/libusb.so'
+LIBPOPPLER     = '/usr/lib/libpoppler.so.3'
 
 
 CALIBRESRC     = os.path.join(CALIBREPREFIX, 'src')
@@ -119,7 +121,8 @@ binaries += [('clit', CLIT, 'BINARY'), ('pdftohtml', PDFTOHTML, 'BINARY'),
              ('libunrar.so', LIBUNRAR, 'BINARY')]
 
 print 'Adding external libraries...'
-binaries += [ (os.path.basename(x), x, 'BINARY') for x in (SQLITE, DBUS, LIBMNG, LIBZ, LIBUSB)]
+binaries += [ (os.path.basename(x), x, 'BINARY') for x in (SQLITE, DBUS,
+            LIBMNG, LIBZ, LIBBZ2, LIBUSB, LIBPOPPLER)]
              
 
 qt = []

@@ -202,6 +202,15 @@ class Config(object):
             raise IOError('Could not lock config file: %s'%self.config_file_path)
         return self.option_set.parse_string(src)
     
+    def as_string(self):
+        if not os.path.exists(self.config_file_path):
+            return ''
+        try:
+            with ExclusiveFile(self.config_file_path) as f:
+                return f.read()
+        except LockError:
+            raise IOError('Could not lock config file: %s'%self.config_file_path)
+    
     def set(self, name, val):
         if not self.option_set.has_option(name):
             raise ValueError('The option %s is not defined.'%name)
