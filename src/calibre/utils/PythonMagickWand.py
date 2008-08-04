@@ -104,6 +104,14 @@ def finalize():
         _magick.MagickWandTerminus()
         _initialized = False
         
+class ImageMagick(object):
+    
+    def __enter__(self):
+        initialize()
+        
+    def __exit__(self, *args):
+        finalize()
+        
         
 class MetricType(ctypes.c_int): pass
 UndefinedMetric = MetricType(0)

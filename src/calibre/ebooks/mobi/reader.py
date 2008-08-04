@@ -72,43 +72,51 @@ class BookHeader(object):
         self.compression_type = raw[:2]
         self.records, self.records_size = struct.unpack('>HH', raw[8:12])
         self.encryption_type, = struct.unpack('>H', raw[12:14])
-        
-        self.doctype = raw[16:20]
-        self.length, self.type, self.codepage, self.unique_id, self.version = \
-                 struct.unpack('>LLLLL', raw[20:40])
-                
         if ident == 'TEXTREAD':
             self.codepage = 1252
-        
-        try:
-            self.codec = {
-                      1252  : 'cp1252',
-                      65001 : 'utf-8',
-                      }[self.codepage]
-        except IndexError, KeyError:
-            print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
-            self.codec = 'cp1252'
-        
-        if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length:
+        if len(raw) <= 16:
+            self.codec = 'cp1251'
             self.extra_flags = 0
+            self.language = 'ENGLISH'
+            self.sublanguage = 'NEUTRAL'
+            self.exth_flag, self.exth = 0, None
+            self.ancient = True
         else:
-            self.extra_flags, = struct.unpack('>L', raw[0xF0:0xF4])
-        
-        if self.compression_type == 'DH':
-            self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78]) 
-        
-        langcode  = struct.unpack('!L', raw[0x5C:0x60])[0]
-        langid    = langcode & 0xFF
-        sublangid = (langcode >> 10) & 0xFF
-        self.language = main_language.get(langid, 'ENGLISH')
-        self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
-        
-        self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
-        self.exth = None
-        if self.exth_flag & 0x40:
-            self.exth = EXTHHeader(raw[16+self.length:], self.codec)
-            self.exth.mi.uid = self.unique_id
-            self.exth.mi.language = self.language
+            self.ancient = False
+            self.doctype = raw[16:20]
+            self.length, self.type, self.codepage, self.unique_id, self.version = \
+                     struct.unpack('>LLLLL', raw[20:40])
+                    
+            
+            try:
+                self.codec = {
+                          1252  : 'cp1252',
+                          65001 : 'utf-8',
+                          }[self.codepage]
+            except IndexError, KeyError:
+                print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
+                self.codec = 'cp1252'
+            
+            if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length:
+                self.extra_flags = 0
+            else:
+                self.extra_flags, = struct.unpack('>L', raw[0xF0:0xF4])
+            
+            if self.compression_type == 'DH':
+                self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78]) 
+            
+            langcode  = struct.unpack('!L', raw[0x5C:0x60])[0]
+            langid    = langcode & 0xFF
+            sublangid = (langcode >> 10) & 0xFF
+            self.language = main_language.get(langid, 'ENGLISH')
+            self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+            
+            self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
+            self.exth = None
+            if self.exth_flag & 0x40:
+                self.exth = EXTHHeader(raw[16+self.length:], self.codec)
+                self.exth.mi.uid = self.unique_id
+                self.exth.mi.language = self.language
             
 
 class MobiReader(object):
@@ -145,7 +153,6 @@ class MobiReader(object):
             else:
                 end_off = self.section_headers[section_number + 1][0]
             off = self.section_headers[section_number][0]
-            
             return raw[off:end_off]
             
         for i in range(self.num_sections):
@@ -201,6 +208,8 @@ class MobiReader(object):
         
     def cleanup_html(self):
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
+        if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
+            self.processed_html = '<html><p>'+self.processed_html.replace('\n\n', '<p>')+'</html>'
     
     def cleanup_soup(self, soup):
         for tag in soup.recursiveChildGenerator():
@@ -313,7 +322,8 @@ class MobiReader(object):
             self.mobi_html = ''.join(text_sections)
         else:
             raise MobiError('Unknown compression algorithm: %s'%repr(self.book_header.compression_type))
-        
+        if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
+            self.mobi_html = self.mobi_html.replace('\r ', '\n\n ')
         return processed_records
             
     

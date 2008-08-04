@@ -26,6 +26,7 @@ terminal_controller = TerminalController(sys.stdout)
 iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
 isosx     = 'darwin' in sys.platform.lower()
 islinux   = not(iswindows or isosx)
+isfrozen  = hasattr(sys, 'frozen') 
 
 try:
     locale.setlocale(locale.LC_ALL, '')
@@ -76,7 +77,11 @@ if iswindows:
     if not winutil:
         raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
     sys.argv[1:] = winutil.argv()[1:]
-
+    win32event = __import__('win32event')
+    winerror   = __import__('winerror')
+    win32api   = __import__('win32api')
+else:
+    import fcntl
 
 _abspath = os.path.abspath
 def my_abspath(path, encoding=sys.getfilesystemencoding()):
@@ -313,15 +318,46 @@ def extract(path, dir):
         raise Exception('Unknown archive type')
     extractor(path, dir)
 
+def get_proxies():
+        proxies = {}
+        if iswindows:
+            try:
+                winreg = __import__('_winreg')
+                settings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                                          'Software\\Microsoft\\Windows'
+                                          '\\CurrentVersion\\Internet Settings')
+                proxy = winreg.QueryValueEx(settings, "ProxyEnable")[0]
+                if proxy:
+                    server = str(winreg.QueryValueEx(settings, 'ProxyServer')[0])
+                    if ';' in server:
+                        for p in server.split(';'):
+                            protocol, address = p.split('=')
+                            proxies[protocol] = address
+                    else:
+                        proxies['http'] = server
+                        proxies['ftp'] =  server
+                settings.Close()
+            except Exception, e:
+                print('Unable to detect proxy settings: %s' % str(e))
+            if proxies:
+                print('Using proxies: %s' % proxies)
+        else:
+            for q in ('http', 'ftp'):
+                proxy =  os.environ.get(q+'_proxy', None)
+                if not proxy: continue
+                if proxy.startswith(q+'://'):
+                    proxy = proxy[7:]
+                proxies[q] = proxy
+        return proxies
+
+
 def browser(honor_time=False):
-    http_proxy = os.environ.get('http_proxy', None)
     opener = mechanize.Browser()
     opener.set_handle_refresh(True, honor_time=honor_time)
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
+    http_proxy = get_proxies().get('http', None)
     if http_proxy:
-        if http_proxy.startswith('http://'):
-            http_proxy = http_proxy[7:]
         opener.set_proxies({'http':http_proxy})
     return opener
 
@@ -475,6 +511,43 @@ def _clean_lock_file(file):
     except:
         pass
 
+class LockError(Exception):
+    pass
+class ExclusiveFile(object):
+    
+    def __init__(self, path, timeout=10):
+        self.path = path
+        self.timeout = timeout
+        
+    def __enter__(self):
+        self.file  = open(self.path, 'a+b')
+        self.file.seek(0)
+        timeout = self.timeout
+        if iswindows:
+            name = ('Local\\'+(__appname__+self.file.name).replace('\\', '_'))[:201]
+            while self.timeout < 0 or timeout >= 0:
+                self.mutex = win32event.CreateMutex(None, False, name)
+                if win32api.GetLastError() != winerror.ERROR_ALREADY_EXISTS: break
+                time.sleep(1)
+                timeout -= 1
+        else:
+            while self.timeout < 0 or timeout >= 0:
+                try:
+                    fcntl.lockf(self.file.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
+                    break
+                except IOError:
+                    time.sleep(1)
+                    timeout -= 1
+        if timeout < 0 and self.timeout >= 0:
+            self.file.close()
+            raise LockError
+        return self.file
+                
+    def __exit__(self, type, value, traceback):
+        self.file.close()
+        if iswindows:
+            win32api.CloseHandle(self.mutex)
+
 def singleinstance(name):
     '''
     Return True if no other instance of the application identified by name is running,
@@ -483,16 +556,12 @@ def singleinstance(name):
     @type name: string
     '''
     if iswindows:
-        from win32event import CreateMutex
-        from win32api import CloseHandle, GetLastError
-        from winerror import ERROR_ALREADY_EXISTS
         mutexname = 'mutexforsingleinstanceof'+__appname__+name
-        mutex =  CreateMutex(None, False, mutexname)
+        mutex =  win32event.CreateMutex(None, False, mutexname)
         if mutex:
-            atexit.register(CloseHandle, mutex)
-        return not GetLastError() == ERROR_ALREADY_EXISTS
+            atexit.register(win32api.CloseHandle, mutex)
+        return not win32api.GetLastError() == winerror.ERROR_ALREADY_EXISTS
     else:
-        import fcntl
         global _lock_file
         path = os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
         try:

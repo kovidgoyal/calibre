@@ -5,7 +5,7 @@ import re
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon
 from PyQt4.QtCore import Qt, QSize, SIGNAL
-from calibre import fit_image
+from calibre import fit_image, preferred_encoding
 from calibre.gui2 import qstring_to_unicode
 
 class BookInfoDisplay(QFrame):
@@ -77,8 +77,12 @@ class BookInfoDisplay(QFrame):
         for key in data.keys():
             txt = data[key]
             #txt = '<br />\n'.join(textwrap.wrap(txt, 120))
-            rows += '<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
-        self.book_data.setText('<table>'+rows+'</table>')
+            if isinstance(key, str):
+                key = key.decode(preferred_encoding, 'replace')
+            if isinstance(txt, str):
+                txt = txt.decode(preferred_encoding, 'replace')
+            rows += u'<tr><td><b>%s:</b></td><td>%s</td></tr>'%(key, txt)
+        self.book_data.setText(u'<table>'+rows+u'</table>')
         
         self.clear_message()
         self.setVisible(True)

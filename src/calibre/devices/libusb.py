@@ -8,7 +8,7 @@ from ctypes import cdll, POINTER, byref, pointer, Structure, \
                    c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte, c_uint
 from errno import EBUSY, ENOMEM
 
-from calibre import iswindows, isosx, load_library
+from calibre import iswindows, isosx, load_library, isfrozen
 
 _libusb_name = 'libusb'
 PATH_MAX = 511 if iswindows else 1024 if isosx else 4096

@@ -48,6 +48,9 @@ PARALLEL_FUNCS = {
         
                   'render_table' : 
         ('calibre.ebooks.lrf.html.table_as_image', 'do_render', {}, None),
+        
+                  'comic2lrf'    :
+        ('calibre.ebooks.lrf.comic.convert_from', 'do_convert', {}, 'notification'),  
 }
 
 

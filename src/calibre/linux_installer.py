@@ -215,8 +215,12 @@ cd $frozen_path
 '''
 
 def extract_tarball(tar, destdir):
+    print 'Extracting application files...'
     if hasattr(tar, 'read'):
-        tarfile.open(fileobj=tar, mode='r').extractall(destdir)
+        try:
+            tarfile.open(fileobj=tar, mode='r').extractall(destdir)
+        except: # tarfile.py on Fedora 9 is buggy
+            subprocess.check_call(['tar', 'xjf', tar.name, '-C', destdir])
     else:
         tarfile.open(tar, 'r').extractall(destdir)
 
@@ -239,6 +243,7 @@ def do_postinstall(destdir):
     try:
         os.chdir(destdir)
         os.environ['LD_LIBRARY_PATH'] = destdir+':'+os.environ.get('LD_LIBRARY_PATH', '')
+        os.environ['PYTHONPATH'] = destdir
         subprocess.call((os.path.join(destdir, 'calibre_postinstall'), '--save-manifest-to', t.name))
     finally:
         os.chdir(cwd)

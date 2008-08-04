@@ -19,6 +19,8 @@ EXTRAS         = ('/usr/lib/python2.5/site-packages/PIL', os.path.expanduser('~/
 SQLITE         = '/usr/lib/libsqlite3.so.0'
 DBUS           = '/usr/lib/libdbus-1.so.3'
 LIBMNG         = '/usr/lib/libmng.so.1'
+LIBZ           = '/lib/libz.so.1'
+LIBUSB         = '/lib/libusb.so'
 
 
 CALIBRESRC     = os.path.join(CALIBREPREFIX, 'src')
@@ -117,7 +119,7 @@ binaries += [('clit', CLIT, 'BINARY'), ('pdftohtml', PDFTOHTML, 'BINARY'),
              ('libunrar.so', LIBUNRAR, 'BINARY')]
 
 print 'Adding external libraries...'
-binaries += [ (os.path.basename(x), x, 'BINARY') for x in (SQLITE, DBUS, LIBMNG)]
+binaries += [ (os.path.basename(x), x, 'BINARY') for x in (SQLITE, DBUS, LIBMNG, LIBZ, LIBUSB)]
              
 
 qt = []

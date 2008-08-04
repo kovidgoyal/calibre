@@ -1,8 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import shutil
 ''' Post installation script for linux '''
-import sys, os, re
+import sys, os, re, shutil
 
 from subprocess import check_call, call
 from calibre import __version__, __appname__

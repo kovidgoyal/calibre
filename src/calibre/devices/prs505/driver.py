@@ -126,7 +126,36 @@ class PRS505(Device):
             self._card_prefix = re.search('/dev/%s(\w*)\s+on\s+([^\(]+)\s+'%(devname,), mount).group(2) + os.sep
             
     
+    def open_windows_nowmi(self):
+        from calibre import plugins
+        winutil = plugins['winutil'][0]
+        volumes = winutil.get_mounted_volumes_for_usb_device(self.VENDOR_ID, self.PRODUCT_ID)
+        main = None
+        for device_id in volumes.keys():
+            if 'PRS-505/UC&' in device_id:
+                main = volumes[device_id]+':\\'
+        if not main:
+            DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
+        self._main_prefix = main
+        card = self._card_prefix = None
+        win32api = __import__('win32api')
+        for device_id in volumes.keys():
+            if 'PRS-505/UC:' in device_id:
+                card = volumes[device_id]+':\\'
+                try:
+                    win32api.GetVolumeInformation(card)
+                    self._card_prefix = card
+                    break
+                except:
+                    continue
+            
+    
     def open_windows(self):
+        try:
+            self.open_windows_nowmi()
+            return
+        except:
+            pass
         drives = []
         wmi = __import__('wmi', globals(), locals(), [], -1) 
         c = wmi.WMI()

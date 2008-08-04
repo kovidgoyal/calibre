@@ -7,7 +7,7 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import logging, os, cStringIO, time, traceback, re, urlparse
+import logging, os, cStringIO, time, traceback, re, urlparse, sys
 from collections import defaultdict
 from functools import partial
 
@@ -533,6 +533,9 @@ class BasicNewsRecipe(object, LoggingInterface):
                             self.image_map[feed.image_url] = img
                         except:
                             pass
+            if isinstance(feed.image_url, str):
+                feed.image_url = feed.image_url.decode(sys.getfilesystemencoding(), 'strict')
+                
                 
         templ = templates.FeedTemplate()
         return templ.generate(feed, self.description_limiter).render(doctype='xhtml')
