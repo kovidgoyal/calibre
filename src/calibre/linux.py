@@ -16,14 +16,14 @@ if os.environ.has_key('DESTDIR'):
 
 entry_points = {
         'console_scripts': [ \
-                             'prs500    = calibre.devices.prs500.cli.main:main', 
-                             'lrf-meta  = calibre.ebooks.lrf.meta:main', 
-                             'rtf-meta  = calibre.ebooks.metadata.rtf:main', 
-                             'pdf-meta  = calibre.ebooks.metadata.pdf:main', 
+                             'prs500    = calibre.devices.prs500.cli.main:main',
+                             'lrf-meta  = calibre.ebooks.lrf.meta:main',
+                             'rtf-meta  = calibre.ebooks.metadata.rtf:main',
+                             'pdf-meta  = calibre.ebooks.metadata.pdf:main',
                              'lit-meta  = calibre.ebooks.metadata.lit:main',
                              'opf-meta  = calibre.ebooks.metadata.opf:main',
                              'epub-meta = calibre.ebooks.metadata.epub:main',
-                             'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main', 
+                             'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main',
                              'html2lrf  = calibre.ebooks.lrf.html.convert_from:main',
                              'markdown-calibre  = calibre.ebooks.markdown.markdown:main',
                              'lit2lrf   = calibre.ebooks.lrf.lit.convert_from:main',
@@ -51,8 +51,8 @@ entry_points = {
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
                              'calibre-parallel   = calibre.parallel:main',
-                           ], 
-        'gui_scripts'    : [ 
+                           ],
+        'gui_scripts'    : [
                             __appname__+' = calibre.gui2.main:main',
                             'lrfviewer = calibre.gui2.lrf_renderer.main:main',
                             ],
@@ -60,7 +60,7 @@ entry_points = {
 
 
 def options(option_parser):
-    parser = option_parser() 
+    parser = option_parser()
     options = parser.option_list
     for group in parser.option_groups:
         options += group.option_list
@@ -72,7 +72,7 @@ def options(option_parser):
 
 def opts_and_words(name, op, words):
     opts  = '|'.join(options(op))
-    words = '|'.join([w.replace("'", "\\'") for w in words]) 
+    words = '|'.join([w.replace("'", "\\'") for w in words])
     return '_'+name+'()'+\
 '''
 {
@@ -82,13 +82,13 @@ def opts_and_words(name, op, words):
     cur="${COMP_WORDS[COMP_CWORD]}"
     opts="%s"
     words="%s"
-    
+
     case "${cur}" in
       -* )
          COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
          COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\\\ /g' | tr '\\n' '\\t' ) )
          return 0
-         ;;      
+         ;;
       *  )
          COMPREPLY=( $(compgen -W "${words}" -- ${cur}) )
          COMPREPLY=( $( echo ${COMPREPLY[@]} | sed 's/ /\\\\ /g' | tr '\\n' '\\t' ) )
@@ -167,16 +167,16 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
         from calibre.ebooks.metadata.epub import option_parser as epub_meta
         from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
-        
+
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
         os.remove(f.name)
         manifest = []
         f = open_file('/etc/bash_completion.d/calibre')
         manifest.append(f.name)
-        
+
         f.write('# calibre Bash Shell Completion\n')
-        f.write(opts_and_exts('html2lrf', htmlop, 
+        f.write(opts_and_exts('html2lrf', htmlop,
                               ['htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 'php']))
         f.write(opts_and_exts('txt2lrf', txtop, ['txt']))
         f.write(opts_and_exts('lit2lrf', htmlop, ['lit']))
@@ -185,8 +185,8 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('mobi2lrf', htmlop, ['mobi', 'prc']))
         f.write(opts_and_exts('fb22lrf', htmlop, ['fb2']))
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
-        f.write(opts_and_exts('any2lrf', htmlop, 
-            ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip', 
+        f.write(opts_and_exts('any2lrf', htmlop,
+            ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
              'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2']))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
@@ -228,17 +228,17 @@ _prs500_ls()
     prefix="${prefix}/"
   fi
 
-  echo $(compgen -P "${prefix}" -W "${listing}" "${pattern}") 
+  echo $(compgen -P "${prefix}" -W "${listing}" "${pattern}")
 }
 
 _prs500()
 {
-  local cur prev 
+  local cur prev
   cur="${COMP_WORDS[COMP_CWORD]}"
   prev="${COMP_WORDS[COMP_CWORD-1]}"
   COMPREPLY=()
   case "${prev}" in
-    ls|rm|mkdir|touch|cat )        
+    ls|rm|mkdir|touch|cat )
         COMPREPLY=( $(_prs500_ls "${cur}") )
         return 0
         ;;
@@ -284,7 +284,7 @@ complete -o nospace  -F _prs500 prs500
         import traceback
         traceback.print_exc()
     return manifest
-        
+
 def setup_udev_rules(group_file, reload, fatal_errors):
     print 'Trying to setup udev rules...'
     manifest = []
@@ -325,7 +325,7 @@ def setup_udev_rules(group_file, reload, fatal_errors):
                 break
         if not called and os.access('/etc/rc.d/rc.hald', os.X_OK):
             call(('/etc/rc.d/rc.hald', 'restart'))
-        
+
         try:
             check_call('udevadm control --reload_rules', shell=True)
         except:
@@ -351,9 +351,9 @@ def option_parser():
                       help='File from which to read group information. Default: %default')
     parser.add_option('--dont-check-root', action='store_true', default=False, dest='no_root',
                       help='If set, do not check if we are root.')
-    parser.add_option('--make-errors-fatal', action='store_true', default=False, 
+    parser.add_option('--make-errors-fatal', action='store_true', default=False,
                       dest='fatal_errors', help='If set die on errors.')
-    parser.add_option('--save-manifest-to', default=None, 
+    parser.add_option('--save-manifest-to', default=None,
                       help='Save a manifest of all installed files to the specified location')
     return parser
 
@@ -366,12 +366,14 @@ def install_man_pages(fatal_errors):
     f.write('[see also]\nhttp://%s.kovidgoyal.net\n'%__appname__)
     f.close()
     manifest = []
+    os.environ['PATH'] += ':'+os.path.expanduser('~/bin')
     for src in entry_points['console_scripts']:
         prog = src[:src.index('=')].strip()
-        if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta', 
+        if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta',
                     'markdown-calibre', 'calibre-debug', 'fb2-meta',
                     'calibre-fontconfig', 'calibre-parallel'):
             continue
+
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
                     '--section', '1', '--no-info', '--include',
                     f.name, '--manual', __appname__)
@@ -390,18 +392,18 @@ def install_man_pages(fatal_errors):
             print 'Unable to create MAN page for', prog
             continue
         f2 = open_file(manfile)
-        manifest.append(f2.name) 
+        manifest.append(f2.name)
         f2.write(compress(raw))
     return manifest
 
 def post_install():
     parser = option_parser()
     opts = parser.parse_args()[0]
-    
+
     if not opts.no_root and os.geteuid() != 0:
         print >> sys.stderr, 'You must be root to run this command.'
         sys.exit(1)
-        
+
     global use_destdir
     use_destdir = opts.destdir
     manifest = []
@@ -409,18 +411,18 @@ def post_install():
     manifest += setup_completion(opts.fatal_errors)
     setup_desktop_integration(opts.fatal_errors)
     manifest += install_man_pages(opts.fatal_errors)
-        
+
     try:
         from PyQt4 import Qt
         if Qt.PYQT_VERSION < int('0x40402', 16):
             print 'WARNING: You need PyQt >= 4.4.2 for the GUI. You have', Qt.PYQT_VERSION_STR, '\nYou may experience crashes or other strange behavior.'
     except ImportError:
         print 'WARNING: You do not have PyQt4 installed. The GUI will not work.'
-    
+
     if opts.save_manifest_to:
         open(opts.save_manifest_to, 'wb').write('\n'.join(manifest)+'\n')
 
-    
+
 VIEWER = '''\
 [Desktop Entry]
 Version=%s
@@ -478,10 +480,10 @@ def setup_desktop_integration(fatal_errors):
         from PyQt4.QtCore import QFile
         from calibre.gui2 import images_rc # Load images
         from tempfile import mkdtemp
-        
+
         print 'Setting up desktop integration...'
-        
-        
+
+
         tdir = mkdtemp()
         cwd = os.getcwdu()
         try:
@@ -493,7 +495,7 @@ def setup_desktop_integration(fatal_errors):
             check_call('xdg-icon-resource install --size 128 calibre-gui.png calibre-gui', shell=True)
             render_svg(QFile(':/images/viewer.svg'), os.path.join(tdir, 'calibre-viewer.png'))
             check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-            
+
             f = open('calibre-lrfviewer.desktop', 'wb')
             f.write(VIEWER)
             f.close()
@@ -513,11 +515,11 @@ def setup_desktop_integration(fatal_errors):
             raise
         print >>sys.stderr, 'Could not setup desktop integration. Error:'
         print err
- 
-         
+
+
 if __name__ == '__main__':
     post_install()
-    
-    
-      
+
+
+
 

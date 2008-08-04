@@ -21,7 +21,7 @@ DBUS           = '/usr/lib/libdbus-1.so.3'
 LIBMNG         = '/usr/lib/libmng.so.1'
 LIBZ           = '/lib/libz.so.1'
 LIBBZ2         = '/lib/libbz2.so.1'
-LIBUSB         = '/lib/libusb.so'
+LIBUSB         = '/usr/lib/libusb.so'
 LIBPOPPLER     = '/usr/lib/libpoppler.so.3'
 
 

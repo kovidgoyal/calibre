@@ -142,7 +142,7 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
     calibre-debug -c "from calibre.gui2.main import main; main()"
 
-Post any output you see in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion`_.
+Post any output you see in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion>`_.
     
 
 I want some feature added to |app|. What can I do?
