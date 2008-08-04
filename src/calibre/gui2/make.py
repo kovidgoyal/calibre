@@ -39,9 +39,12 @@ def build_forms(forms):
             dat = dat.replace('import images_rc', 'from calibre.gui2 import images_rc')
             dat = dat.replace('from library import', 'from calibre.gui2.library import')
             dat = dat.replace('from widgets import', 'from calibre.gui2.widgets import')
-            #dat += '\nfrom calibre.gui2 import TranslatedDialogButtonBox'
             dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
-            #dat = re.compile(r'QtGui.QDialogButtonBox').sub('TranslatedDialogButtonBox', dat)
+            
+            # Workaround bug in Qt 4.4 on Windows
+            dat = re.sub(r'= QtGui\.QTextEdit\(self\..*?\)', '= QtGui.QTextEdit()', dat) 
+            dat = re.sub(r'= QtGui\.QListWidget\(self\..*?\)', '= QtGui.QListWidget()', dat)
+            
             open(compiled_form, 'wb').write(dat)
             
                 
