@@ -31,13 +31,15 @@ _('''Usage: %prog [options] mybook.lit
 def generate_html2(pathtolit, logger):
     if not os.access(pathtolit, os.R_OK):
         raise ConversionError, 'Cannot read from ' + pathtolit
-    tdir = mkdtemp(prefix=__appname__+'_')
+    tdir = mkdtemp(prefix=__appname__+'_'+'lit2oeb_')
     lr = LitReader(pathtolit)
     print 'Extracting LIT file to', tdir
     lr.extract_content(tdir)
     return tdir
 
 def generate_html(pathtolit, logger):
+    if isinstance(pathtolit, unicode):
+        pathtolit = pathtolit.encode(sys.getfilesystemencoding())
     if not os.access(pathtolit, os.R_OK):
         raise ConversionError, 'Cannot read from ' + pathtolit
     tdir = mkdtemp(prefix=__appname__+'_')
@@ -96,7 +98,6 @@ def process_file(path, options, logger=None):
             options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)
         options.output = os.path.abspath(os.path.expanduser(options.output))
         options.use_spine = True
-        
         html_process_file(htmlfile, options, logger=logger)
     finally:
         try:
@@ -108,7 +109,7 @@ def process_file(path, options, logger=None):
 def main(args=sys.argv, logger=None):
     parser = option_parser()
     options, args = parser.parse_args(args)
-    if len(args) != 2:            
+    if len(args) != 2:
         parser.print_help()
         print
         print 'No lit file specified'

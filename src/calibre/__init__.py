@@ -76,7 +76,8 @@ if iswindows:
     winutil, winutilerror = plugins['winutil']
     if not winutil:
         raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
-    sys.argv[1:] = winutil.argv()[1:]
+    if len(sys.argv) > 1:
+        sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
     win32event = __import__('win32event')
     winerror   = __import__('winerror')
     win32api   = __import__('win32api')
