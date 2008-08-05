@@ -49,7 +49,7 @@ wherever possible in this module.
     Get command line arguments as unicode objects. Note that the
     first argument will be the path to the interpreter, *not* the
     script being run. So to replace sys.argv, you should use
-    sys.argv[1:] = winutil.argv()[1:].
+    `if len(sys.argv) > 1: sys.argv[1:] = winutil.argv()[1-len(sys.argv):]`
 
 */
 

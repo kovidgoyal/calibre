@@ -28,9 +28,8 @@ MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
 BUILD_SCRIPT ='''\
 #!/bin/bash
 cd ~/build && \
-rsync -avz --exclude src/calibre/plugins --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
-cd %(project)s && rm -rf build dist src/calibre/plugins && \
-mkdir -p build dist src/calibre/plugins && \
+rsync -avz --exclude src/calibre/plugins --exclude calibre/src/calibre.egg-info --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
+cd %(project)s && \
 %%s && \
 rm -rf build/* && \
 %%s %%s
@@ -194,14 +193,12 @@ def upload_installers():
 
 
 def upload_docs():
-    os.environ['PYTHONPATH'] = os.path.abspath('src')
     check_call('''epydoc --config epydoc.conf''')
     check_call('''scp -r docs/html divok:%s/'''%(DOCS,))
     check_call('''epydoc -v --config epydoc-pdf.conf''')
     check_call('''scp docs/pdf/api.pdf divok:%s/'''%(DOCS,))
 
 def upload_user_manual():
-    os.environ['PYTHONPATH'] = os.path.abspath('src')
     cwd = os.getcwdu()
     os.chdir('src/calibre/manual')
     try:
@@ -223,7 +220,8 @@ def stage_one():
     os.mkdir('build')
     shutil.rmtree('docs')
     os.mkdir('docs')
-    check_call('python setup.py mydevelop', shell=True)
+    subprocess.call('python setup.py develop', shell=True)
+    check_call('sudo python setup.py develop', shell=True)
     check_call('make', shell=True)
     tag_release()
     upload_demo()

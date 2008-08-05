@@ -47,141 +47,86 @@ main_functions = {
 
 if __name__ == '__main__':
     from setuptools import setup, find_packages, Extension
+    from pyqtdistutils import PyQtExtension, build_ext
     import subprocess, glob
-    if 'mydevelop' in sys.argv:
-        LAUNCHER = '''\
-#!%(exe)s
-import sys
-sys.path.insert(0, %(ppath)s)
-sys.argv[0] = %(basename)s
-from %(module)s import %(func)s
-%(func)s()
+    
+    entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
+    ext_modules = [
+                   Extension('calibre.plugins.lzx',
+                             sources=['src/calibre/utils/lzx/lzxmodule.c',
+                                      'src/calibre/utils/lzx/lzxd.c'],
+                             include_dirs=['src/calibre/utils/lzx']),
+                   Extension('calibre.plugins.msdes',
+                             sources=['src/calibre/utils/msdes/msdesmodule.c',
+                                      'src/calibre/utils/msdes/des.c'],
+                             include_dirs=['src/calibre/utils/msdes']),
+                    PyQtExtension('calibre.plugins.pictureflow',
+                                  ['src/calibre/gui2/pictureflow/pictureflow.cpp',
+                                   'src/calibre/gui2/pictureflow/pictureflow.h'],
+                                   ['src/calibre/gui2/pictureflow/pictureflow.sip']
+                                  )
+                 ]
+    if iswindows:
+        ext_modules.append(Extension('calibre.plugins.winutil',
+                sources=['src/calibre/utils/windows/winutil.c'],
+                libraries=['shell32', 'setupapi'],
+                include_dirs=['C:/WinDDK/6001.18001/inc/api/'])
+                           )
+    if isosx:
+        ext_modules.append(Extension('calibre.plugins.usbobserver',
+                sources=['src/calibre/devices/usbobserver/usbobserver.c'])
+                           )
+    
+    setup(
+          name=APPNAME,
+          packages = find_packages('src'),
+          package_dir = { '' : 'src' },
+          version=VERSION,
+          author='Kovid Goyal',
+          author_email='kovid@kovidgoyal.net',
+          url = 'http://%s.kovidgoyal.net'%APPNAME,
+          package_data = {'calibre':['plugins/*']},
+          include_package_data=True,
+          entry_points = entry_points,
+          zip_safe = False,
+          options = { 'bdist_egg' : {'exclude_source_files': True,}, },
+          ext_modules=ext_modules,
+          description =
+                      '''
+                      E-book management application.
+                      ''',
+          long_description =
+          '''
+  %s is an e-book library manager. It can view, convert and catalog e-books in most of the major e-book formats. It can also talk to a few e-book reader devices. It can go out to the internet and fetch metadata for your books. It can download newspapers and convert them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
 
-        '''
-        bindir = os.path.expanduser('~/bin')
-        def create_launcher(basename, module, func):
-            args = dict(exe=os.path.realpath(sys.executable),
-                            ppath=repr(os.path.abspath('src')),
-                            basename=repr(basename),
-                            module=module,
-                            func=func)
-            script = LAUNCHER%args
-            p = os.path.join(bindir, basename)
-            open(p, 'wb').write(script)
-            subprocess.check_call('chmod +x '+p, shell=True)
-        for x in ('console', 'gui'):
-            for i in range(len(basenames[x])):
-                create_launcher(basenames[x][i], main_modules[x][i], main_functions[x][i])
-        create_launcher('calibre_postinstall', 'calibre.linux', 'post_install')
-        subprocess.check_call('python setup.py build', shell=True)
-        subprocess.check_call('sudo %s/calibre_postinstall'%bindir, shell=True)
-    else:
+  For screenshots: https://%s.kovidgoyal.net/wiki/Screenshots
 
-        entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
-        ext_modules = [Extension('calibre.plugins.lzx',
-                                 sources=['src/calibre/utils/lzx/lzxmodule.c',
-                                          'src/calibre/utils/lzx/lzxd.c'],
-                                 include_dirs=['src/calibre/utils/lzx']),
-                       Extension('calibre.plugins.msdes',
-                                 sources=['src/calibre/utils/msdes/msdesmodule.c',
-                                          'src/calibre/utils/msdes/des.c'],
-                                 include_dirs=['src/calibre/utils/msdes'])]
-        if iswindows:
-            ext_modules.append(Extension('calibre.plugins.winutil',
-                    sources=['src/calibre/utils/windows/winutil.c'],
-                    libraries=['shell32', 'setupapi'],
-                    include_dirs=['C:/WinDDK/6001.18001/inc/api/'])
-                               )
-        if isosx:
-            ext_modules.append(Extension('calibre.plugins.usbobserver',
-                    sources=['src/calibre/devices/usbobserver/usbobserver.c'])
-                               )
+  For installation/usage instructions please see
+  http://%s.kovidgoyal.net
 
-        def build_PyQt_extension(path):
-            pro      = glob.glob(os.path.join(path, '*.pro'))[0]
-            raw = open(pro).read()
-            base = qtplugin = re.search(r'TARGET\s*=\s*(.*)', raw).group(1)
-            ver  = re.search(r'VERSION\s*=\s*(\d+)', raw).group(1)
-            cwd = os.getcwd()
-            os.chdir(os.path.dirname(pro))
-            try:
-                if not os.path.exists('.build'):
-                    os.mkdir('.build')
-                os.chdir('.build')
-                subprocess.check_call(( (os.path.expanduser('~/qt/bin/qmake') if isosx else 'qmake'), '..'+os.sep+os.path.basename(pro)))
-                subprocess.check_call(['mingw32-make' if iswindows else 'make'])
-                os.chdir(os.path.join('..', 'PyQt'))
-                if not os.path.exists('.build'):
-                    os.mkdir('.build')
-                os.chdir('.build')
-                python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python' if isosx else 'python'
-                subprocess.check_call([python, '..'+os.sep+'configure.py'])
-                subprocess.check_call(['mingw32-make' if iswindows else 'make'])
-                ext = '.pyd' if iswindows else '.so'
-                plugin = glob.glob(base+ext)[0]
-                shutil.copyfile(plugin, os.path.join(cwd, 'src', 'calibre', 'plugins', plugin))
-            finally:
-                os.chdir(cwd)
-                if islinux or isosx:
-                    for f in glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
-                        try:
-                            os.readlink(f)
-                            os.unlink(f)
-                        except:
-                            continue
+  For source code access:
+  bzr branch http://bzr.kovidgoyal.net/code/%s/trunk %s
 
-        for path in [(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))]:
-            build_PyQt_extension(path)
+  To update your copy of the source code:
+  bzr merge
 
-        setup(
-              name=APPNAME,
-              packages = find_packages('src'),
-              package_dir = { '' : 'src' },
-              version=VERSION,
-              author='Kovid Goyal',
-              author_email='kovid@kovidgoyal.net',
-              url = 'http://%s.kovidgoyal.net'%APPNAME,
-              package_data = {'calibre':['plugins/*']},
-              include_package_data=True,
-              entry_points = entry_points,
-              zip_safe = False,
-              options = { 'bdist_egg' : {'exclude_source_files': True,}, },
-              ext_modules=ext_modules,
-              description =
-                          '''
-                          E-book management application.
-                          ''',
-              long_description =
-              '''
-      %s is an e-book library manager. It can view, convert and catalog e-books in most of the major e-book formats. It can also talk to a few e-book reader devices. It can go out to the internet and fetch metadata for your books. It can download newspapers and convert them into e-books for convenient reading. It is cross platform, running on Linux, Windows and OS X.
+          '''%(APPNAME, APPNAME, APPNAME, APPNAME, APPNAME),
+          license = 'GPL',
+          classifiers = [
+            'Development Status :: 4 - Beta',
+            'Environment :: Console',
+            'Environment :: X11 Applications :: Qt',
+            'Intended Audience :: Developers',
+            'Intended Audience :: End Users/Desktop',
+            'License :: OSI Approved :: GNU General Public License (GPL)',
+            'Natural Language :: English',
+            'Operating System :: POSIX :: Linux',
+            'Programming Language :: Python',
+            'Topic :: Software Development :: Libraries :: Python Modules',
+            'Topic :: System :: Hardware :: Hardware Drivers'
+            ],
+          cmdclass = {'build_ext': build_ext},
+         )
 
-      For screenshots: https://%s.kovidgoyal.net/wiki/Screenshots
-
-      For installation/usage instructions please see
-      http://%s.kovidgoyal.net
-
-      For source code access:
-      bzr branch http://bzr.kovidgoyal.net/code/%s/trunk %s
-
-      To update your copy of the source code:
-      bzr merge
-
-              '''%(APPNAME, APPNAME, APPNAME, APPNAME, APPNAME),
-              license = 'GPL',
-              classifiers = [
-                'Development Status :: 4 - Beta',
-                'Environment :: Console',
-                'Environment :: X11 Applications :: Qt',
-                'Intended Audience :: Developers',
-                'Intended Audience :: End Users/Desktop',
-                'License :: OSI Approved :: GNU General Public License (GPL)',
-                'Natural Language :: English',
-                'Operating System :: POSIX :: Linux',
-                'Programming Language :: Python',
-                'Topic :: Software Development :: Libraries :: Python Modules',
-                'Topic :: System :: Hardware :: Hardware Drivers'
-                ]
-             )
-
-        if 'develop' in ' '.join(sys.argv) and islinux:
-            subprocess.check_call('calibre_postinstall', shell=True)
+    if 'develop' in ' '.join(sys.argv) and islinux:
+        subprocess.check_call('calibre_postinstall', shell=True)
