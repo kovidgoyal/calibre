@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 '''
-Recursively parse HTML files to find all linked files.
+Recursively parse HTML files to find all linked files. See :function:`traverse`.
 '''
 
 import sys, os, re
@@ -23,7 +23,7 @@ class Link(object):
         path = url.path
         if os.path.isabs(path):
             return path
-        return os.path.abspath(os.path.join(base, url))
+        return os.path.abspath(os.path.join(base, path))
     
     def __init__(self, url, base):
         '''
@@ -32,12 +32,13 @@ class Link(object):
                      Must be a unicode string.
         '''
         assert isinstance(url, unicode) and isinstance(base, unicode)
-        self.url        = url
-        self.parsed_url = urlparse(unquote(self.url))
-        self.is_local   = self.parsed_url.scheme in ('', 'file')
-        self.path = None
-        self.fragment = self.parsed_url.fragment 
-        if self.is_local:
+        self.url         = url
+        self.parsed_url  = urlparse(unquote(self.url))
+        self.is_local    = self.parsed_url.scheme in ('', 'file')
+        self.is_internal = self.is_local and not bool(self.parsed_url.path)
+        self.path        = None
+        self.fragment    = self.parsed_url.fragment 
+        if self.is_local and not self.is_internal:
             self.path = self.url_to_local_path(self.parsed_url, base)
 
     def __hash__(self):
@@ -46,89 +47,77 @@ class Link(object):
         return hash(self.path)
 
     def __eq__(self, other):
-        if not (hasattr(other, 'url') and hasattr(other, 'path')):
-            return False
-        if self.path is None:
-            return self.url == other.url
-        return self.path == other.path 
+        return self.path == getattr(other, 'path', other)
+    
+    def __str__(self):
+        return u'Link: %s --> %s'%(self.url, self.path) 
         
 
 class IgnoreFile(Exception):
-    pass
+    
+    def __init__(self, msg, errno):
+        Exception.__init__(self, msg)
+        self.doesnt_exist = errno == 2
+        self.errno = errno
 
 class HTMLFile(object):
     '''
-    Contains basic traversal information about an HTML file. This
-    includes a recursive list of links to other files as well as
-    the encoding of each file.
-
-    You can iterate over the tree of files rooted at this file
-    by calling either :method:`breadth_first` or :method:`depth_first`.
+    Contains basic information about an HTML file. This
+    includes a list of links to other files as well as
+    the encoding of each file. Also tries to detect if the file is not a HTML
+    file in which case :member:`is_binary` is set to True.
 
     The encoding of the file is available as :member:`encoding`.
-
-    If the file is a binary file (i.e. if conversion to unicode fails)
-    :member:`is_binary` is set to `True`.
     '''
-
+    
+    HTML_PAT = re.compile(r'<\s*html', re.IGNORECASE)
     LINK_PAT = re.compile(
     r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s]+))',
     re.DOTALL|re.IGNORECASE)
     
-    def __init__(self, path_to_html_file, level, max_levels=sys.maxint,
-                 encoding=None, verbose=0):
+    def __init__(self, path_to_html_file, level, encoding, verbose):
         '''
         :param level: The level of this file. Should be 0 for the root file.
-        :param max_levels: `level >= max_levels` the links in this file
-                            will not be followed. 
         :param encoding: Use `encoding` to decode HTML.
         '''
         self.path  = unicode_path(path_to_html_file, abs=True)
         self.base  = os.path.dirname(self.path)
         self.level = level
         self.links = []
-        self.map   = {}
-        self.is_binary  = False
+        
         try:
             with open(self.path, 'rb') as f:
                 src = f.read()
         except IOError, err:
-            msg = 'Could not read from file: %s with error: %s'%
-                            (self.path, unicode(err))
+            msg = 'Could not read from file: %s with error: %s'%(self.path, unicode(err))
             if level == 0:
                 raise IOError(msg)
-            if verbose:
-                print msg
-            raise IgnoreFile
-        if encoding is None:
-            encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
-        self.encoding = encoding
+            raise IgnoreFile(msg, err.errno)
+        
+        self.is_binary = not bool(self.HTML_PAT.search(src[:1024]))
+        
+        if not self.is_binary:
+            if encoding is None:
+                encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
+                self.encoding = encoding
 
-        
-        try:
             src = src.decode(encoding, 'replace')
-        except UnicodeDecodeError:
-            self.is_binary = True
-            if verbose > 1:
-                print self.path, 'is a binary file.'
-        else:
             self.find_links(src)
+                
         
-        if self.level < max_levels:
-            rejects = []
-            for link in self.links:
-                if link.path is not None:
-                    try:
-                        self.map[link.url] = HTMLFile(link.path, level+1,
-                            max_levels, encoding=encoding, verbose=verbose)
-                    except IgnoreFile:
-                        rejects.append(link)
-            for link in rejects:
-                self.links.remove(link)
+                    
+    def __eq__(self, other):
+        return self.path == getattr(other, 'path', other)
+    
+    def __str__(self):
+        return u'HTMLFile:%d:%s:%s'%(self.level, 'b' if self.is_binary else 'a', self.path)
+    
+    def __repr__(self):
+        return str(self)
                     
         
     def find_links(self, src):
-        for match in self.LINK_PAT.finditer():
+        for match in self.LINK_PAT.finditer(src):
             url = None
             for i in ('url1', 'url2', 'url3'):
                 url = match.group(i)
@@ -138,47 +127,73 @@ class HTMLFile(object):
             if link not in self.links:
                 self.links.append(link)
 
-    def breadth_first(self, root=True):
-        '''
-        Walk over the tree of linked files (by `<a href>` links) breadth
-        first.
 
-        :param root: If `True` return `self` as the first file.
-        :return: A breadth-first iterator.
-        '''
-        if root:
-            yield self
-        for link in self.links:
-            if link.path is not None:
-                yield self.map[link.url]
-
-        for link in self.links:
-            if link.path is not None:
-                for hf in self.map[link.url].breadth_first(root=False):
-                    yield hf
-
-    def depth_first(self, root=True):
-        '''
-        Walk over the tree of linked files (by `<a href>` links) depth
-        first.
-
-        :param root: If `True` return `self` as the first file.
-        :return: A depth-first iterator.
-        '''
-        if root:
-            yield self
-        for link in self.links:
-            if link.path is not None:
-                yield self.map[link.url]
-                for hf in self.map[link.url].depth_first(root=False):
-                    yield hf
+def depth_first(root, flat, visited=set([])):
+    yield root
+    visited.add(root)
+    for link in root.links:
+        if link.path is not None and link not in visited:
+            try:
+                index = flat.index(link)
+            except ValueError: # Can happen if max_levels is used
+                continue
+            hf = flat[index]
+            if hf not in visited:
+                yield hf
+                visited.add(hf)
+                for hf in depth_first(hf, flat, visited):
+                    if hf not in visited:
+                        yield hf
+                        visited.add(hf)
+        
+                                
+def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None):
+    '''
+    Recursively traverse all links in the HTML file.
     
+    :param max_levels: Maximum levels of recursion. Must be non-negative. 0 
+                       implies that no links in hte root HTML file are followed.
+    :param encoding:   Specify character encoding of HTML files. If `None` it is
+                       auto-detected.
+    :return:           A pair of lists (breadth_first, depth_first). Each list contains
+                       :class:`HTMLFile` objects.
+    '''
+    assert max_levels >= 0
+    level = 0
+    flat =  [HTMLFile(path_to_html_file, level, encoding, verbose)]
+    next_level = list(flat)
+    while level < max_levels and len(next_level) > 0:
+        level += 1
+        nl = []
+        for hf in next_level:
+            rejects = []
+            for link in hf.links:
+                if link.path is None or link.path in flat:
+                    continue
+                try:
+                    nf = HTMLFile(link.path, level, encoding, verbose)
+                    nl.append(nf)
+                    flat.append(nf)
+                except IgnoreFile, err:
+                    rejects.append(link)
+                    if not err.doesnt_exist or verbose > 1:
+                        print str(err)
+            for link in rejects:
+                hf.links.remove(link)
+                
+        next_level = list(nl)
+        
+    return flat, list(depth_first(flat[0], flat))
+    
+    
+                
+            
+    
+
 if __name__ == '__main__':
-    root = HTMLFile(sys.argv[1], 0, verbose=2)
-    print 'Depth first...'
-    for f in root.depth_first():
-        print f.path
-    print '\n\nBreadth first...'
-    for f in root.breadth_first():
-        print f.path
+    breadth_first, depth_first = traverse(sys.argv[1], verbose=2)
+    print 'Breadth first...'
+    for f in breadth_first: print f
+    print '\n\nDepth first...'
+    for f in depth_first: print f
     

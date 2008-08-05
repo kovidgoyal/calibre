@@ -95,7 +95,7 @@ List the books available in the calibre database.
     parser.add_option('-s', '--search', default=None, 
                       help=_('Filter the results by the search query. For the format of the search query, please see the search related documentation in the User Manual. Default is to do no filtering.'))
     opts, args = parser.parse_args(sys.argv[:1] + args)
-    fields = [f.strip().lower() for f in opts.fields.split(',')]
+    fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
     
     if not set(fields).issubset(FIELDS):
         parser.print_help()

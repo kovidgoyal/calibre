@@ -42,7 +42,7 @@ def build_forms(forms):
             dat = re.compile(r'QtGui.QApplication.translate\(.+?,\s+"(.+?)(?<!\\)",.+?\)', re.DOTALL).sub(r'_("\1")', dat)
             
             # Workaround bug in Qt 4.4 on Windows
-            if form.endswith('dialogs/config.ui') or form.endswith('dialogs/lrf_single.ui'):
+            if form.endswith('dialogs%sconfig.ui'%os.sep) or form.endswith('dialogs%slrf_single.ui'%os.sep):
                 print 'Implementing Workaround for buggy pyuic in form', form
                 dat = re.sub(r'= QtGui\.QTextEdit\(self\..*?\)', '= QtGui.QTextEdit()', dat) 
                 dat = re.sub(r'= QtGui\.QListWidget\(self\..*?\)', '= QtGui.QListWidget()', dat)
