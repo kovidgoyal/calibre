@@ -42,7 +42,7 @@ def do_list(db, fields, sort_by, ascending, search_text):
     widths = list(map(lambda x : 0, fields))
     for i in db.data:
         for j, field in enumerate(fields):
-            widths[j] = max(widths[j], len(unicode(i[field])))
+            widths[j] = max(widths[j], len(unicode(i[str(field)])))
     
     screen_width = terminal_controller.COLS
     if not screen_width:
