@@ -792,8 +792,9 @@ class Main(MainWindow, Ui_MainWindow):
         bad_rows = []
         
         self.status_bar.showMessage(_('Starting Bulk conversion of %d books')%len(rows), 2000)
-        
-        for i, row in enumerate([r.row() for r in rows]):
+        if rows and hasattr(rows[0], 'row'):
+            rows = [r.row() for r in rows]
+        for i, row in enumerate(rows):
             cmdline = list(d.cmdline)
             mi = self.library_view.model().db.get_metadata(row)
             if mi.title:
