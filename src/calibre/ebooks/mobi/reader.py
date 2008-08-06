@@ -93,7 +93,7 @@ class BookHeader(object):
                           1252  : 'cp1252',
                           65001 : 'utf-8',
                           }[self.codepage]
-            except IndexError, KeyError:
+            except (IndexError, KeyError):
                 print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
                 self.codec = 'cp1252'
             
