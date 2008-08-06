@@ -10,7 +10,6 @@ import glob, sys, subprocess, tarfile, os, re, py_compile, shutil
 HOME           = '/home/kovid'
 PYINSTALLER    = os.path.expanduser('~/build/pyinstaller')
 CALIBREPREFIX  = '___'
-CLIT           = '/usr/bin/clit'
 PDFTOHTML      = '/usr/bin/pdftohtml'
 LIBUNRAR       = '/usr/lib/libunrar.so'
 QTDIR          = '/usr/lib/qt4'
@@ -117,7 +116,7 @@ for f in glob.glob(os.path.join(CALIBREPLUGINS, '*.so.*')):
     binaries += [(os.path.basename(f), f, 'BINARY')]
 
 print 'Adding external programs...'
-binaries += [('clit', CLIT, 'BINARY'), ('pdftohtml', PDFTOHTML, 'BINARY'),
+binaries += [('pdftohtml', PDFTOHTML, 'BINARY'),
              ('libunrar.so', LIBUNRAR, 'BINARY')]
 
 print 'Adding external libraries...'

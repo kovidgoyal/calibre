@@ -220,7 +220,7 @@ def stage_one():
     os.mkdir('build')
     shutil.rmtree('docs')
     os.mkdir('docs')
-    subprocess.call('python setup.py develop', shell=True)
+    check_call('python setup.py build', shell=True)
     check_call('sudo python setup.py develop', shell=True)
     check_call('make', shell=True)
     tag_release()

@@ -3,19 +3,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, shutil, glob, logging
 from tempfile import mkdtemp
-from subprocess import Popen, PIPE
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.lit.reader import LitReader
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.ebooks.metadata.opf import OPFReader
-from calibre import isosx, __appname__, setup_cli_handlers, islinux
-
-CLIT = 'clit'
-if isosx and hasattr(sys, 'frameworks_dir'):
-    CLIT = os.path.join(getattr(sys, 'frameworks_dir'), CLIT)
-if islinux and getattr(sys, 'frozen_path', False):
-    CLIT = os.path.join(getattr(sys, 'frozen_path'), 'clit')
+from calibre import __appname__, setup_cli_handlers
 
 def option_parser():
     parser = lrf_option_parser(
@@ -24,11 +17,9 @@ _('''Usage: %prog [options] mybook.lit
 
 %prog converts mybook.lit to mybook.lrf''')
         )
-    parser.add_option('--lit2oeb', default=False, dest='lit2oeb', action='store_true',
-                      help='Use the new lit2oeb to convert lit files instead of convertlit.')
     return parser
 
-def generate_html2(pathtolit, logger):
+def generate_html(pathtolit, logger):
     if not os.access(pathtolit, os.R_OK):
         raise ConversionError, 'Cannot read from ' + pathtolit
     tdir = mkdtemp(prefix=__appname__+'_'+'lit2oeb_')
@@ -37,36 +28,13 @@ def generate_html2(pathtolit, logger):
     lr.extract_content(tdir)
     return tdir
 
-def generate_html(pathtolit, logger):
-    if isinstance(pathtolit, unicode):
-        pathtolit = pathtolit.encode(sys.getfilesystemencoding())
-    if not os.access(pathtolit, os.R_OK):
-        raise ConversionError, 'Cannot read from ' + pathtolit
-    tdir = mkdtemp(prefix=__appname__+'_')
-    os.rmdir(tdir)
-    cmd = [CLIT, pathtolit, '%s'%(tdir+os.sep)]
-    logger.debug(repr(cmd))
-    p = Popen(cmd, stderr=PIPE, stdout=PIPE)
-    stdout = p.stdout.read()
-    err = p.stderr.read()     
-    logger.info(p.stdout.read())
-    ret = p.wait()
-    if ret != 0:
-        if os.path.exists(tdir) and os.path.isdir(tdir):
-            shutil.rmtree(tdir)        
-        if 'keys.txt' in unicode(err)+unicode(stdout):
-            raise ConversionError('This lit file is protected by DRM. You must first use the ConvertLIT program to remove the DRM. Doing so may be illegal, and so %s does not do this, nor does it provide instructions on how to do it.'%(__appname__,))
-        raise ConversionError, err
-    return tdir
-
 def process_file(path, options, logger=None):
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO
         logger = logging.getLogger('lit2lrf')
         setup_cli_handlers(logger, level)
     lit = os.path.abspath(os.path.expanduser(path))
-    tdir = generate_html2(lit, logger) if getattr(options, 'lit2oeb', False) \
-      else generate_html(lit, logger)
+    tdir = generate_html(lit, logger)
     try:
         opf = glob.glob(os.path.join(tdir, '*.opf'))
         if opf:

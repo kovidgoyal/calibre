@@ -10,7 +10,6 @@ QT_DIR           = 'C:\\Qt\\4.4.0'
 DEVCON           = 'C:\\devcon\\i386\\devcon.exe'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
-CLIT             = 'C:\\clit\\clit.exe'
 PDFTOHTML        = 'C:\\pdftohtml\\pdftohtml.exe'
 IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
@@ -105,8 +104,6 @@ class BuildEXE(py2exe.build_exe.py2exe):
         shutil.copyfile(DEVCON, os.path.join(tdir, os.path.basename(DEVCON)))
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
-        print '\tAdding ConvertLIT'
-        shutil.copyfile(CLIT, os.path.join(PY2EXE_DIR, os.path.basename(CLIT)))
         print '\tAdding pdftohtml'
         shutil.copyfile(PDFTOHTML, os.path.join(PY2EXE_DIR, os.path.basename(PDFTOHTML)))
         print '\tAdding ImageMagick'

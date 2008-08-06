@@ -98,7 +98,7 @@ CONFIG   += x86 ppc
         
     
     def build_extension(self, ext):
-        self.inplace = True
+        self.inplace = True # Causes extensions to be built in the source tree
         if not isinstance(ext, PyQtExtension):
             return _build_ext.build_extension(self, ext)
         
