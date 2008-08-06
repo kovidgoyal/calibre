@@ -75,6 +75,8 @@ def build_windows(shutdown=True):
     installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
     start_vm(vm, 'windows', BUILD_SCRIPT%('python setup.py develop', 'python','installer\\\\windows\\\\freeze.py'))
+    if os.path.exists('build/py2exe'):
+        shutil.rmtree('build/py2exe')
     subprocess.check_call(('scp', '-rp', 'windows:build/%s/build/py2exe'%PROJECT, 'build'))
     if not os.path.exists('build/py2exe'):
         raise Exception('Failed to run py2exe')
@@ -240,6 +242,7 @@ def stage_three():
     upload_user_manual()
     check_call('python setup.py register bdist_egg --exclude-source-files upload')
     check_call('''rm -rf dist/* build/*''')
+    check_call('''ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/''')
 
 def main(args=sys.argv):
     print 'Starting stage one...'

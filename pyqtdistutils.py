@@ -14,8 +14,9 @@ from distutils import log
 import sipconfig, os, sys, string, glob, shutil
 from PyQt4 import pyqtconfig
 iswindows = 'win32' in sys.platform
+QMAKE = os.path.expanduser('~/qt/bin/qmake') if 'darwin' in sys.platform else'qmake'
 WINDOWS_PYTHON = ['C:/Python25/libs']
-OSX_SDK = 'TODO:'
+OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
 
 def replace_suffix(path, new_suffix):
     return os.path.splitext(path)[0] + new_suffix
@@ -62,10 +63,10 @@ VERSION  = 1.0.0
 CONFIG   += x86 ppc
 '''%(name, ' '.join(headers), ' '.join(sources))
             open(name+'.pro', 'wb').write(pro)
-            self.spawn(['qmake', '-o', 'Makefile.qt', name+'.pro'])
+            self.spawn([QMAKE, '-o', 'Makefile.qt', name+'.pro'])
             self.make('Makefile.qt')
             pat = 'release\\*.o' if iswindows else '*.o'
-            return glob.glob(pat)
+            return map(os.path.abspath, glob.glob(pat))
         finally:
             os.chdir(cwd)
     
