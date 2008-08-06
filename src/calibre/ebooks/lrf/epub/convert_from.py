@@ -8,7 +8,7 @@ from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.ebooks.metadata.opf import OPF
 from calibre.ebooks.metadata.epub import OCFDirReader
-from calibre.libunzip import extract as zip_extract
+from calibre.utils.zipfile import ZipFile
 from calibre import __appname__, setup_cli_handlers
 
 
@@ -26,7 +26,7 @@ def generate_html(pathtoepub, logger):
     tdir = mkdtemp(prefix=__appname__+'_')
     os.rmdir(tdir)
     try:
-        zip_extract(pathtoepub, tdir)
+        ZipFile(pathtoepub).extractall(tdir)
     except:
         if os.path.exists(tdir) and os.path.isdir(tdir):
             shutil.rmtree(tdir)
