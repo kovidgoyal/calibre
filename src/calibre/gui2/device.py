@@ -4,7 +4,6 @@ import os, traceback
 
 from PyQt4.QtCore import QThread, SIGNAL, QObject
 
-from calibre import iswindows
 from calibre.devices import devices
 from calibre.devices.scanner import DeviceScanner
 
