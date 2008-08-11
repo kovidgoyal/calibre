@@ -217,7 +217,7 @@ class UnBinary(object):
                         state = 'get attr length'
                         continue
                     attr = None
-                    if oc in current_map and current_map[oc]:
+                    if current_map and oc in current_map and current_map[oc]:
                         attr = current_map[oc]
                     elif oc in self.attr_map:
                         attr = self.attr_map[oc]
