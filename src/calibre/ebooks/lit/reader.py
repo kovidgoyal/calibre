@@ -10,6 +10,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 import sys, struct, cStringIO, os
 import functools
 import re
+from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
@@ -17,6 +18,8 @@ from calibre import plugins
 lzx, lxzerror = plugins['lzx']
 msdes, msdeserror = plugins['msdes']
 
+XML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
+"""
 OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
   PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
@@ -367,6 +370,8 @@ def preserve(function):
     
 class LitReader(object):
     PIECE_SIZE = 16
+    XML_PARSER = etree.XMLParser(
+        remove_blank_text=True, resolve_entities=False)
 
     def magic():
         @preserve
@@ -609,6 +614,12 @@ class LitReader(object):
             if item.path[0] == '/':
                 item.path = os.path.basename(item.path)
 
+    def _pretty_print(self, xml):
+        f = cStringIO.StringIO(xml.encode('utf-8'))
+        doc = etree.parse(f, parser=self.XML_PARSER)
+        pretty = etree.tostring(doc, encoding='ascii', pretty_print=True)
+        return XML_DECL + unicode(pretty)
+                
     def _read_meta(self):
         path = 'content.opf'
         raw = self.get_file('/meta')
@@ -755,7 +766,7 @@ class LitReader(object):
             raise LitError("Failed to completely decompress section")
         return ''.join(result)
 
-    def get_entry_content(self, entry):
+    def get_entry_content(self, entry, pretty_print=False):
         if 'spine' in entry.state:
             name = '/'.join(('/data', entry.internal, 'content'))
             path = entry.path
@@ -763,13 +774,15 @@ class LitReader(object):
             decl, map = (OPF_DECL, OPF_MAP) \
                 if name == '/meta' else (HTML_DECL, HTML_MAP)
             content = decl + unicode(UnBinary(raw, path, self.manifest, map))
+            if pretty_print:
+                content = self._pretty_print(content)
             content = content.encode('utf-8')
         else:
             name = '/'.join(('/data', entry.internal))
             content = self.get_file(name)
         return content
                     
-    def extract_content(self, output_dir=os.getcwdu()):
+    def extract_content(self, output_dir=os.getcwdu(), pretty_print=False):
         output_dir = os.path.abspath(output_dir)
         try:
             opf_path = os.path.splitext(
@@ -779,12 +792,15 @@ class LitReader(object):
         opf_path = os.path.join(output_dir, opf_path)
         self._ensure_dir(opf_path)
         with open(opf_path, 'wb') as f:
-            f.write(self.meta.encode('utf-8'))
+            xml = self.meta
+            if pretty_print:
+                xml = self._pretty_print(xml)
+            f.write(xml.encode('utf-8'))
         for entry in self.manifest.values():
             path = os.path.join(output_dir, entry.path)
             self._ensure_dir(path)
             with open(path, 'wb') as f:
-                f.write(self.get_entry_content(entry))
+                f.write(self.get_entry_content(entry, pretty_print))
 
     def _ensure_dir(self, path):
         dir = os.path.dirname(path)
@@ -798,6 +814,9 @@ def option_parser():
         '-o', '--output-dir', default='.', 
         help=_('Output directory. Defaults to current directory.'))
     parser.add_option(
+        '-p', '--pretty-print', default=False, action='store_true',
+        help=_('Legibly format extracted markup. May modify meaningful whitespace.'))
+    parser.add_option(
         '--verbose', default=False, action='store_true',
         help=_('Useful for debugging.'))
     return parser
@@ -809,7 +828,7 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     lr = LitReader(args[1])
-    lr.extract_content(opts.output_dir)
+    lr.extract_content(opts.output_dir, opts.pretty_print)
     print _('OEB ebook created in'), opts.output_dir
     return 0
 
