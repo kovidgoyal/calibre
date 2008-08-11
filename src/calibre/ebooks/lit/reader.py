@@ -158,7 +158,7 @@ class UnBinary(object):
                     continue
                 elif c == '\v':
                     c = '\n'
-                self.buf.write(c.encode('utf-8'))
+                self.buf.write(c.encode('ascii', 'xmlcharrefreplace'))
             
             elif state == 'get flags':
                 if oc == 0:
@@ -258,7 +258,8 @@ class UnBinary(object):
                     state = 'get attr'
                 elif count > 0:
                     if not in_censorship:
-                        self.buf.write(unicode(c).encode('utf-8'))
+                        self.buf.write(c.encode(
+                            'ascii', 'xmlcharrefreplace'))
                     count -= 1
                 if count == 0:
                     if not in_censorship:
@@ -310,7 +311,8 @@ class UnBinary(object):
                     path = self.item_path(doc)
                     if m and frag:
                         path += m + frag
-                    self.buf.write((u'"%s"' % path).encode('utf-8'))
+                    self.buf.write((u'"%s"' % path).encode(
+                        'ascii', 'xmlcharrefreplace'))
                     state = 'get attr'
         return index
     
