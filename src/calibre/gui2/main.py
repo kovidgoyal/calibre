@@ -10,7 +10,7 @@ from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    Settings, iswindows, isosx
+                    Settings, iswindows, isosx, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from calibre.devices.errors import FreeSpaceError
@@ -45,6 +45,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
 from calibre.parallel import JobKilled
+from calibre.utils.filenames import ascii_filename
 
 class Main(MainWindow, Ui_MainWindow):
     
@@ -661,10 +662,9 @@ class Main(MainWindow, Ui_MainWindow):
                 if not a:
                     a = 'Unknown'
                 prefix = sanitize_file_name(t+' - '+a)
-                if isinstance(prefix, unicode):
-                    prefix = prefix.encode('ascii', 'ignore')
-                else:
-                    prefix = prefix.decode('ascii', 'ignore').encode('ascii', 'ignore')
+                if not isinstance(prefix, unicode):
+                    prefix = prefix.decode(preferred_encoding, 'replace')
+                prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
         remove = [self.library_view.model().id(r) for r in rows] if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
