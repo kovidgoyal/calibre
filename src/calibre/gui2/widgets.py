@@ -11,7 +11,7 @@ from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
                          QObject, QRegExp, QString
 
-from calibre.gui2.jobs import DetailView
+from calibre.gui2.jobs2 import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
 from calibre import fit_image, Settings
@@ -235,8 +235,10 @@ class JobsView(TableView):
         
     def show_details(self, index):
         row = index.row()
-        job = self.model().row_to_job(row)[0]
-        DetailView(self, job).exec_()
+        job = self.model().row_to_job(row)
+        d = DetailView(self, job)
+        self.connect(self.model(), SIGNAL('output_received()'), d.update)
+        d.exec_()
             
 
 class FontFamilyModel(QAbstractListModel):

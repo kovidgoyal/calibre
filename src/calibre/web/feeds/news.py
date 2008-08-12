@@ -573,7 +573,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         open(pt.name, 'wb').write(raw)
         pt.close()
         url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
-        return self._fetch_article(url, dir, logger, f, a, num_of_feeds) 
+        return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
         
     
     def build_index(self):
@@ -586,7 +586,7 @@ class BasicNewsRecipe(object, LoggingInterface):
             feeds = self.parse_feeds()
         
         self.report_progress(0, _('Trying to download cover...'))
-        self.download_cover()    
+        self.download_cover()
         if self.test:
             feeds = feeds[:2]
         self.has_single_feed = len(feeds) == 1

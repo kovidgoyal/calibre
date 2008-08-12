@@ -4,13 +4,13 @@ import os, sys, textwrap, collections, traceback, shutil, time
 from xml.parsers.expat import ExpatError
 from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QVariant, QThread, QUrl, QSize
+                         QVariant, QUrl, QSize
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog, QDesktopServices
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    Settings, iswindows, isosx, preferred_encoding
+                    Settings, iswindows, isosx
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
 from calibre.devices.errors import FreeSpaceError
@@ -18,16 +18,16 @@ from calibre.devices.interface import Device
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
-                           set_sidebar_directories, \
+                           set_sidebar_directories, Dispatcher, \
                            SingleApplication, Application, available_height, max_available_height
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow, option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
-from calibre.gui2.device import DeviceDetector, DeviceManager
+from calibre.gui2.device import DeviceManager
 from calibre.gui2.status import StatusBar
-from calibre.gui2.jobs import JobManager
+from calibre.gui2.jobs2 import JobManager
 from calibre.gui2.news import NewsMenu
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
@@ -44,6 +44,7 @@ from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
+from calibre.parallel import JobKilled
 
 class Main(MainWindow, Ui_MainWindow):
     
@@ -72,7 +73,6 @@ class Main(MainWindow, Ui_MainWindow):
         self.read_settings()
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
-        self.device_manager = None
         self.upload_memory = {}
         self.delete_memory = {}
         self.conversion_jobs = {}
@@ -238,10 +238,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.setMaximumHeight(max_available_height())
              
         ####################### Setup device detection ########################
-        self.detector = DeviceDetector(sleep_time=2000)
-        QObject.connect(self.detector, SIGNAL('connected(PyQt_PyObject, PyQt_PyObject)'), 
-                        self.device_detected, Qt.QueuedConnection)
-        self.detector.start(QThread.InheritPriority)
+        self.device_manager = DeviceManager(Dispatcher(self.device_detected), self.job_manager)
+        self.device_manager.start()
         
         self.news_menu.set_custom_feeds(self.library_view.model().db.get_feeds())
         
@@ -300,22 +298,19 @@ class Main(MainWindow, Ui_MainWindow):
         
     
     ########################## Connect to device ##############################
-    def device_detected(self, device, connected):
+    def device_detected(self, connected):
         '''
         Called when a device is connected to the computer.
         '''
         if connected:
-            self.device_manager = DeviceManager(device)
-            self.job_manager.run_device_job(self.info_read, self.device_manager.info_func())
-            self.set_default_thumbnail(device.THUMBNAIL_HEIGHT)
-            self.status_bar.showMessage(_('Device: ')+device.__class__.__name__+_(' detected.'), 3000)
+            self.device_manager.get_device_information(Dispatcher(self.info_read))
+            self.set_default_thumbnail(self.device_manager.device.THUMBNAIL_HEIGHT)
+            self.status_bar.showMessage(_('Device: ')+\
+                self.device_manager.device.__class__.__name__+_(' detected.'), 3000)
             self.action_sync.setEnabled(True)
             self.device_connected = True
         else:
             self.device_connected = False
-            self.job_manager.terminate_device_jobs()
-            if self.device_manager:
-                self.device_manager.device_removed()
             self.location_view.model().update_devices()
             self.action_sync.setEnabled(False)
             self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=' '))
@@ -324,27 +319,25 @@ class Main(MainWindow, Ui_MainWindow):
                 self.status_bar.reset_info()
                 self.location_selected('library')
             
-    def info_read(self, id, description, result, exception, formatted_traceback):
+    def info_read(self, job):
         '''
         Called once device information has been read.
         '''
-        if exception:
-            self.device_job_exception(id, description, exception, formatted_traceback)
+        if job.exception is not None:
+            self.device_job_exception(job)
             return
-        info, cp, fs = result
+        info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
         self.device_info = _('Connected ')+' '.join(info[:-1])
         self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=self.device_info))
-        func = self.device_manager.books_func()
-        self.job_manager.run_device_job(self.metadata_downloaded, func)
+        self.device_manager.books(Dispatcher(self.metadata_downloaded))
         
-    def metadata_downloaded(self, id, description, result, exception, formatted_traceback):
+    def metadata_downloaded(self, job):
         '''
         Called once metadata has been read for all books on the device.
         '''
-        if exception:
-            print exception, type(exception)
-            if isinstance(exception, ExpatError):
+        if job.exception is not None:
+            if isinstance(job.exception, ExpatError):
                 error_dialog(self, _('Device database corrupted'),
                 _('''
                 <p>The database of books on the reader is corrupted. Try the following:
@@ -354,9 +347,9 @@ class Main(MainWindow, Ui_MainWindow):
                 </ol>
                 ''')%dict(app=__appname__)).exec_()
             else:
-                self.device_job_exception(id, description, exception, formatted_traceback)
+                self.device_job_exception(job)
             return
-        mainlist, cardlist = result
+        mainlist, cardlist = job.result
         self.memory_view.set_database(mainlist)
         self.card_view.set_database(cardlist)
         for view in (self.memory_view, self.card_view):
@@ -373,18 +366,17 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         Upload metadata to device.
         '''
-        self.job_manager.run_device_job(self.metadata_synced, 
-                                        self.device_manager.sync_booklists_func(),
-                                        self.booklists())
+        self.device_manager.sync_booklists(Dispatcher(self.metadata_synced),
+                                           self.booklists())
     
-    def metadata_synced(self, id, description, result, exception, formatted_traceback):
+    def metadata_synced(self, job):
         '''
         Called once metadata has been uploaded.
         '''
-        if exception:
-            self.device_job_exception(id, description, exception, formatted_traceback)
+        if job.exception is not None:
+            self.device_job_exception(job)
             return
-        cp, fs = result
+        cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
     ############################################################################
     
@@ -486,35 +478,34 @@ class Main(MainWindow, Ui_MainWindow):
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
         Upload books to device.
-        @param files: List of either paths to files or file like objects
+        :param files: List of either paths to files or file like objects
         '''
-        titles = ', '.join([i['title'] for i in metadata])
-        id = self.job_manager.run_device_job(self.books_uploaded,
-                                        self.device_manager.upload_books_func(),
+        titles = [i['title'] for i in metadata]
+        job = self.device_manager.upload_books(Dispatcher(self.books_uploaded),
                                         files, names, on_card=on_card,
-                                        job_extra_description=titles 
+                                        titles=titles 
                                         )
-        self.upload_memory[id] = (metadata, on_card, memory)
+        self.upload_memory[job] = (metadata, on_card, memory)
     
-    def books_uploaded(self, id, description, result, exception, formatted_traceback):
+    def books_uploaded(self, job):
         '''
         Called once books have been uploaded.
         '''
-        metadata, on_card, memory = self.upload_memory.pop(id)
+        metadata, on_card, memory = self.upload_memory.pop(job)
         
-        if exception:
-            if isinstance(exception, FreeSpaceError):
-                where = 'in main memory.' if 'memory' in str(exception) else 'on the storage card.'
+        if job.exception is not None:
+            if isinstance(job.exception, FreeSpaceError):
+                where = 'in main memory.' if 'memory' in str(job.exception) else 'on the storage card.'
                 titles = '\n'.join(['<li>'+mi['title']+'</li>' for mi in metadata])
                 d = error_dialog(self, _('No space on device'),
                                  _('<p>Cannot upload books to device there is no more free space available ')+where+
                                  '</p>\n<ul>%s</ul>'%(titles,))
                 d.exec_()                
             else:
-                self.device_job_exception(id, description, exception, formatted_traceback)
+                self.device_job_exception(job)
             return
         
-        self.device_manager.add_books_to_metadata(result, metadata, self.booklists())
+        self.device_manager.add_books_to_metadata(job.result, metadata, self.booklists())
         
         self.upload_booklists()
         
@@ -554,22 +545,20 @@ class Main(MainWindow, Ui_MainWindow):
             self.status_bar.showMessage(_('Deleting books from device.'), 1000)
             
     def remove_paths(self, paths):
-        return self.job_manager.run_device_job(self.books_deleted,
-                                self.device_manager.delete_books_func(), paths)
-        
+        return self.device_manager.delete_books(Dispatcher(self.books_deleted), paths)
             
-    def books_deleted(self, id, description, result, exception, formatted_traceback):
+    def books_deleted(self, job):
         '''
         Called once deletion is done on the device
         '''
         for view in (self.memory_view, self.card_view):
-            view.model().deletion_done(id, bool(exception))
-        if exception:
-            self.device_job_exception(id, description, exception, formatted_traceback)            
+            view.model().deletion_done(id, bool(job.exception))
+        if job.exception is not None:
+            self.device_job_exception(job)            
             return
         
-        if self.delete_memory.has_key(id):
-            paths, model = self.delete_memory.pop(id)
+        if self.delete_memory.has_key(job):
+            paths, model = self.delete_memory.pop(job)
             self.device_manager.remove_books_from_metadata(paths, self.booklists())
             model.paths_deleted(paths)
             self.upload_booklists()            
@@ -718,12 +707,11 @@ class Main(MainWindow, Ui_MainWindow):
             QDesktopServices.openUrl(QUrl('file:'+dir))
         else:
             paths = self.current_view().model().paths(rows)
-            self.job_manager.run_device_job(self.books_saved,
-                                self.device_manager.save_books_func(), paths, dir)
-        
-    def books_saved(self, id, description, result, exception, formatted_traceback):
-        if exception:
-            self.device_job_exception(id, description, exception, formatted_traceback)            
+            self.device_manager.save_books(Dispatcher(self.books_saved), paths, dir)
+            
+    def books_saved(self, job):
+        if job.exception is not None:
+            self.device_job_exception(job)            
             return
             
     ############################################################################
@@ -746,15 +734,15 @@ class Main(MainWindow, Ui_MainWindow):
         if data['password']:
             args.extend(['--password', data['password']])
         args.append(data['script'] if data['script'] else data['title'])
-        id = self.job_manager.run_conversion_job(self.news_fetched, 'feeds2lrf', args=[args],
-                                            job_description=_('Fetch news from ')+data['title'])
-        self.conversion_jobs[id] = (pt, 'lrf')
+        job = self.job_manager.run_job(Dispatcher(self.news_fetched), 'feeds2lrf', args=[args],
+                                            description=_('Fetch news from ')+data['title'])
+        self.conversion_jobs[job] = (pt, 'lrf')
         self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
         
-    def news_fetched(self, id, description, result, exception, formatted_traceback, log):
-        pt, fmt = self.conversion_jobs.pop(id)
-        if exception:
-            self.conversion_job_exception(id, description, exception, formatted_traceback, log)
+    def news_fetched(self, job):
+        pt, fmt = self.conversion_jobs.pop(job)
+        if job.exception is not None:
+            self.job_exception(job)
             return
         to_device = self.device_connected and fmt in self.device_manager.device_class.FORMATS
         self._add_books([pt.name], to_device)
@@ -828,12 +816,12 @@ class Main(MainWindow, Ui_MainWindow):
                 cmdline.extend(['--cover', cf.name])
             cmdline.extend(['-o', of.name])
             cmdline.append(pt.name)
-            id = self.job_manager.run_conversion_job(self.book_converted, 
+            job = self.job_manager.run_job(Dispatcher(self.book_converted), 
                                                         'any2lrf', args=[cmdline],
-                                    job_description=_('Convert book %d of %d (%s)')%(i+1, len(rows), repr(mi.title)))
+                                    description=_('Convert book %d of %d (%s)')%(i+1, len(rows), repr(mi.title)))
                     
                     
-            self.conversion_jobs[id] = (d.cover_file, pt, of, d.output_format, 
+            self.conversion_jobs[job] = (d.cover_file, pt, of, d.output_format, 
                                         self.library_view.model().db.id(row))
         res = []
         for row in bad_rows:
@@ -874,10 +862,10 @@ class Main(MainWindow, Ui_MainWindow):
                     setattr(options, 'output', of.name)
                     options.verbose = 1
                     args = [pt.name, options]
-                    id = self.job_manager.run_conversion_job(self.book_converted, 
-                                                        'comic2lrf', args=args,
-                                    job_description=_('Convert comic %d of %d (%s)')%(i+1, len(comics), repr(options.title)))
-                    self.conversion_jobs[id] = (None, pt, of, 'lrf', 
+                    job = self.job_manager.run_job(Dispatcher(self.book_converted), 
+                                    'comic2lrf', args=args,
+                                    description=_('Convert comic %d of %d (%s)')%(i+1, len(comics), repr(options.title)))
+                    self.conversion_jobs[job] = (None, pt, of, 'lrf', 
                                         self.library_view.model().db.id(row))
                         
             
@@ -904,12 +892,12 @@ class Main(MainWindow, Ui_MainWindow):
                     of.close()
                     cmdline.extend(['-o', of.name])
                     cmdline.append(pt.name)
-                    id = self.job_manager.run_conversion_job(self.book_converted, 
-                                                        'any2lrf', args=[cmdline],
-                                    job_description=_('Convert book: ')+d.title())
+                    job = self.job_manager.run_job(Dispatcher(self.book_converted), 
+                                    'any2lrf', args=[cmdline],
+                                    description=_('Convert book: ')+d.title())
                     
                     
-                    self.conversion_jobs[id] = (d.cover_file, pt, of, d.output_format, d.id)
+                    self.conversion_jobs[job] = (d.cover_file, pt, of, d.output_format, d.id)
                     changed = True
         if changed:
             self.library_view.model().resort(reset=False)
@@ -949,24 +937,24 @@ class Main(MainWindow, Ui_MainWindow):
             opts.verbose = 1
             args = [pt.name, opts]
             changed = True
-            id = self.job_manager.run_conversion_job(self.book_converted, 
+            job = self.job_manager.run_job(Dispatcher(self.book_converted), 
                          'comic2lrf', args=args,
-                         job_description=_('Convert comic: ')+opts.title)
-            self.conversion_jobs[id] = (None, pt, of, 'lrf', 
+                         description=_('Convert comic: ')+opts.title)
+            self.conversion_jobs[job] = (None, pt, of, 'lrf', 
                                         self.library_view.model().db.id(row))
         if changed:
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
                     
-    def book_converted(self, id, description, result, exception, formatted_traceback, log):
-        of, fmt, book_id = self.conversion_jobs.pop(id)[2:]
-        if exception:
-            self.conversion_job_exception(id, description, exception, formatted_traceback, log)
+    def book_converted(self, job):
+        of, fmt, book_id = self.conversion_jobs.pop(job)[2:]
+        if job.exception is not None:
+            self.job_exception(job)
             return
         data = open(of.name, 'rb')
         self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
         data.close()
-        self.status_bar.showMessage(description + (' completed'), 2000)
+        self.status_bar.showMessage(job.description + (' completed'), 2000)
     
     #############################View book######################################
     
@@ -977,19 +965,18 @@ class Main(MainWindow, Ui_MainWindow):
         self.persistent_files.append(pt)
         self._view_file(pt.name)
         
-    def book_downloaded_for_viewing(self, id, description, result, exception, formatted_traceback):
-        if exception:
-            self.device_job_exception(id, description, exception, formatted_traceback)            
+    def book_downloaded_for_viewing(self, job):
+        if job.exception:
+            self.device_job_exception(job)            
             return
-        print result
-        self._view_file(result)
+        self._view_file(job.result)
     
     def _view_file(self, name):
         self.setCursor(Qt.BusyCursor)
         try:
             if name.upper().endswith('.LRF'):
                 args = ['lrfviewer', name]
-                self.job_manager.process_server.run_free_job('lrfviewer', kwdargs=dict(args=args))
+                self.job_manager.server.run_free_job('lrfviewer', kwdargs=dict(args=args))
             else:
                 QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
             time.sleep(5) # User feedback
@@ -1050,9 +1037,9 @@ class Main(MainWindow, Ui_MainWindow):
                 pt = PersistentTemporaryFile('_viewer_'+os.path.splitext(paths[0])[1])
                 self.persistent_files.append(pt)
                 pt.close()
-                self.job_manager.run_device_job(self.book_downloaded_for_viewing,
-                                    self.device_manager.view_book_func(), paths[0], pt.name)
-        
+                self.device_manager.view_book(Dispatcher(self.book_downloaded_for_viewing), 
+                                              paths[0], pt.name)
+                
         
     
     ############################################################################
@@ -1176,72 +1163,40 @@ class Main(MainWindow, Ui_MainWindow):
             self.action_convert.setEnabled(False)
             self.view_menu.actions()[1].setEnabled(False)
                 
-    def device_job_exception(self, id, description, exception, formatted_traceback):
+    def device_job_exception(self, job):
         '''
         Handle exceptions in threaded device jobs.
         '''
-        if 'Could not read 32 bytes on the control bus.' in str(exception):
+        if 'Could not read 32 bytes on the control bus.' in str(job.exception):
             error_dialog(self, _('Error talking to device'), 
                          _('There was a temporary error talking to the device. Please unplug and reconnect the device and or reboot.')).show()
             return
-        print >>sys.stderr, 'Error in job:', description.encode('utf8')
-        print >>sys.stderr, exception
-        print >>sys.stderr, formatted_traceback.encode('utf8')
+        try:
+            print >>sys.stderr, job.console_text()
+        except:
+            pass
         if not self.device_error_dialog.isVisible():
-            msg =  u'<p><b>%s</b>: '%(exception.__class__.__name__,) + unicode(str(exception), 'utf8', 'replace') + u'</p>'
-            msg += u'<p>Failed to perform <b>job</b>: '+description
-            msg += u'<p>Further device related error messages will not be shown while this message is visible.'
-            msg += u'<p>Detailed <b>traceback</b>:<pre>'
-            if isinstance(formatted_traceback, str):
-                formatted_traceback = unicode(formatted_traceback, 'utf8', 'replace')
-            msg += formatted_traceback
-            self.device_error_dialog.set_message(msg)
+            self.device_error_dialog.set_message(job.gui_text())
             self.device_error_dialog.show()
             
-    def conversion_job_exception(self, id, description, exception, formatted_traceback, log):
+    def job_exception(self, job):
         
-        def safe_print(msgs, file=sys.stderr):
-            for i, msg in enumerate(msgs):
-                if not msg:
-                    msg = ''
-                if isinstance(msg, unicode):
-                    msgs[i] = msg.encode(preferred_encoding, 'replace')
-            msg = ' '.join(msgs)
-            print >>file, msg
-        
-        def safe_unicode(arg):
-            if not arg:
-                arg = unicode(repr(arg))
-            if isinstance(arg, str):
-                arg = arg.decode(preferred_encoding, 'replace')
-            if not isinstance(arg, unicode):
-                try:
-                    arg = unicode(repr(arg))
-                except:
-                    arg = u'Could not convert to unicode'
-            return arg
-        
-        only_msg = getattr(exception, 'only_msg', False)
-        description, exception, formatted_traceback, log = map(safe_unicode,
-                            (description, exception, formatted_traceback, log))
+        only_msg = getattr(job.exception, 'only_msg', False)
         try:
-            safe_print('Error in job:', description)
-            if log:
-                safe_print(log)
-            safe_print(exception)
-            safe_print(formatted_traceback)
+            print job.console_text()
         except:
             pass
         if only_msg:
-            error_dialog(self, _('Conversion Error'), exception).exec_()
+            try:
+                exc = unicode(job.exception)
+            except:
+                exc = repr(job.exception)
+            error_dialog(self, _('Conversion Error'), exc).exec_()
             return
-        msg =  u'<p><b>%s</b>:'%exception
-        msg += u'<p>Failed to perform <b>job</b>: '+description
-        msg += u'<p>Detailed <b>traceback</b>:<pre>'
-        msg += formatted_traceback + u'</pre>'
-        msg += u'<p><b>Log:</b></p><pre>'
-        msg += log
-        ConversionErrorDialog(self, 'Conversion Error', msg, show=True)
+        if isinstance(job.exception, JobKilled):
+            return
+        ConversionErrorDialog(self, _('Conversion Error'), job.gui_text(), 
+                              show=True)
         
     
     def read_settings(self):
@@ -1294,10 +1249,9 @@ class Main(MainWindow, Ui_MainWindow):
             
         self.job_manager.terminate_all_jobs()
         self.write_settings()
-        self.detector.keep_going = False
+        self.device_manager.keep_going = False
         self.hide()
         time.sleep(2)
-        self.detector.terminate()
         e.accept()
         
     def update_found(self, version):

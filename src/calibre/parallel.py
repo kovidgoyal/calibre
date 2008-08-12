@@ -27,7 +27,6 @@ is buffered and asynchronous to prevent the job from being IO bound.
 import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, signal, \
        subprocess, socket, collections, binascii, re, thread, tempfile
 from select import select
-from functools import partial
 from threading import RLock, Thread, Event
 
 from calibre.ptempfile import PersistentTemporaryFile
@@ -334,7 +333,7 @@ class Overseer(object):
     def __init__(self, server, port, timeout=5):
         self.worker_status = mother.spawn_worker('127.0.0.1:'+str(port))
         self.socket = server.accept()[0]
-        # Needed if terminate called hwen interpreter is shutting down
+        # Needed if terminate called when interpreter is shutting down
         self.os = os
         self.signal = signal
         self.on_probation = False
@@ -343,7 +342,6 @@ class Overseer(object):
         self.working = False
         self.timeout = timeout
         self.last_job_time = time.time()
-        self.job_id = None
         self._stop = False
         if not select([self.socket], [], [], 120)[0]:
             raise RuntimeError(_('Could not launch worker process.'))
@@ -408,16 +406,14 @@ class Overseer(object):
 
         `job`: An instance of :class:`Job`.
         '''
-        self.job_id = job.job_id
         self.working = True
-        self.write('JOB:'+cPickle.dumps((job.func, job.args, job.kwdargs), -1))
+        self.write('JOB:'+cPickle.dumps((job.func, job.args, job.kwargs), -1))
         msg = self.read()
         if msg != 'OK':
             raise ControlError('Failed to initialize job on worker %d:%s'%(self.worker_pid, msg))
-        self.output = job.output if callable(job.output) else sys.stdout.write
-        self.progress = job.progress if callable(job.progress) else None
         self.job =  job
         self.last_report = time.time()
+        job.start_work()
 
     def control(self):
         '''
@@ -435,7 +431,9 @@ class Overseer(object):
             else:
                 if self.on_probation:
                     self.terminate()
-                    return Result(None, ControlError('Worker process died unexpectedly'), '')
+                    self.job.result = None
+                    self.job.exception = ControlError('Worker process died unexpectedly')
+                    return
                 else:
                     self.on_probation = True
                     return
@@ -445,13 +443,14 @@ class Overseer(object):
                 return
             elif word == 'RESULT':
                 self.write('OK')
-                return Result(cPickle.loads(msg), None, None)
+                self.job.result = cPickle.loads(msg)
+                return True
             elif word == 'OUTPUT':
                 self.write('OK')
                 try:
-                    self.output(''.join(cPickle.loads(msg)))
+                    self.job.output(''.join(cPickle.loads(msg)))
                 except:
-                    self.output('Bad output message: '+ repr(msg))
+                    self.job.output('Bad output message: '+ repr(msg))
             elif word == 'PROGRESS':
                 self.write('OK')
                 percent = None
@@ -459,45 +458,154 @@ class Overseer(object):
                     percent, msg = cPickle.loads(msg)[-1]
                 except:
                     print 'Bad progress update:', repr(msg)
-                if self.progress and percent is not None:
-                    self.progress(percent, msg)
+                if percent is not None:
+                    self.job.update_status(percent, msg)
             elif word == 'ERROR':
                 self.write('OK')
-                return Result(None, *cPickle.loads(msg))
+                self.job.excetion, self.job.traceback = cPickle.loads(msg)
+                return True
             else:
                 self.terminate()
-                return Result(None, ControlError('Worker sent invalid msg: %s'%repr(msg)), '')
+                self.job.exception = ControlError('Worker sent invalid msg: %s'%repr(msg))
+                return
         if not self.worker_status.is_alive() or time.time() - self.last_report > 180:
             self.terminate()
-            return Result(None, ControlError('Worker process died unexpectedly with returncode: %s'%str(self.process.returncode)), '')
+            self.job.exception = ControlError('Worker process died unexpectedly with returncode: %s'%str(self.process.returncode))
+            return
 
+class JobKilled(Exception):
+    pass
 
 class Job(object):
+    
+    def __init__(self, job_done, job_manager=None, 
+                 args=[], kwargs={}, description=None):
+        self.args            = args
+        self.kwargs          = kwargs
+        self._job_done       = job_done
+        self.job_manager     = job_manager
+        self.is_running      = False
+        self.has_run         = False
+        self.percent         = -1
+        self.msg             = None
+        self.description     = description
+        self.start_time      = None
+        self.running_time    = None
+        
+        self.result = self.exception = self.traceback = self.log = None
+    
+    def __cmp__(self, other):
+        sstatus, ostatus = self.status(), other.status()
+        if sstatus == ostatus or (self.has_run and other.has_run):
+            if self.start_time == other.start_time:
+                return cmp(id(self), id(other))
+            return cmp(self.start_time, other.start_time)
+        if sstatus == 'WORKING':
+            return -1
+        if ostatus == 'WORKING':
+            return 1
+        if sstatus == 'WAITING':
+            return -1
+        if ostatus == 'WAITING':
+            return 1
+        
+    
+    def job_done(self):
+        self.is_running, self.has_run = False, True
+        self.running_time = (time.time() - self.start_time) if \
+                                    self.start_time is not None else 0
+        if self.job_manager is not None:
+            self.job_manager.job_done(self)
+        self._job_done(self)
+        
+    def start_work(self):
+        self.is_running = True
+        self.has_run    = False
+        self.start_time = time.time()
+        if self.job_manager is not None:
+            self.job_manager.start_work(self)
+    
+    def update_status(self, percent, msg=None):
+        self.percent = percent
+        self.msg     = msg
+        if self.job_manager is not None:
+            self.job_manager.status_update(self)
+        
+    def status(self):
+        if self.is_running:
+            return 'WORKING'
+        if not self.has_run:
+            return 'WAITING'
+        if self.has_run:
+            if self.exception is None:
+                return 'DONE'
+            return 'ERROR'
+            
+    def console_text(self):
+        ans = [u'Error in job: ']
+        if self.description:
+            ans[0] += self.description
+        if self.log:
+            if isinstance(self.log, str):
+                self.log = unicode(self.log, 'utf-8', 'replace')
+            ans.append(self.log)
+        header = unicode(self.exception.__class__.__name__) if \
+                hasattr(self.exception, '__class__') else u'Error'
+        header += u': '
+        try:
+            header += unicode(self.exception)
+        except:
+            header += unicode(repr(self.exception))
+        ans.append(header)
+        if self.traceback:
+            ans.append(self.traceback)
+        return (u'\n'.join(ans)).encode('utf-8')
+    
+    def gui_text(self):
+        ans = [u'Job: ']
+        if self.description:
+            if not isinstance(self.description, unicode):
+                self.description = self.description.decode('utf-8', 'replace')
+            ans[0] += u'<b>%s</b>'%self.description
+        if self.exception is not None:
+            header = unicode(self.exception.__class__.__name__) if \
+                    hasattr(self.exception, '__class__') else u'Error'
+            header = u'<b>%s</b>'%header
+            header += u': '
+            try:
+                header += unicode(self.exception)
+            except:
+                header += unicode(repr(self.exception))
+            ans.append(header)
+            if self.traceback:
+                ans.append(u'<b>Traceback</b>:')
+                ans.extend(self.traceback.split('\n'))
+        if self.log:
+            ans.append(u'<b>Log</b>:')
+            if isinstance(self.log, str):
+                self.log = unicode(self.log, 'utf-8', 'replace')
+            ans.extend(self.log.split('\n'))
+            
+        return '<br>'.join(ans)
 
-    def __init__(self, job_id, func, args, kwdargs, output, progress, done):
-        self.job_id = job_id
+
+class ParallelJob(Job):
+    
+    def __init__(self, func, *args, **kwargs):
+        Job.__init__(self, *args, **kwargs)
         self.func = func
-        self.args = args
-        self.kwdargs = kwdargs
-        self.output = output
-        self.progress = progress
-        self.done = done
-
-class Result(object):
-
-    def __init__(self, result, exception, traceback):
-        self.result = result
-        self.exception = exception
-        self.traceback = traceback
-
-    def __len__(self):
-        return 3
-
-    def __item__(self, i):
-        return (self.result, self.exception, self.traceback)[i]
-
-    def __iter__(self):
-        return iter((self.result, self.exception, self.traceback))
+        self.done = self.job_done
+        
+    def output(self, msg):
+        if not self.log:
+            self.log = u''
+        if not isinstance(msg, unicode):
+            msg = msg.decode('utf-8', 'replace')
+        if msg:
+            self.log += msg
+        if self.job_manager is not None:
+            self.job_manager.output(self)
+    
 
 def remove_ipc_socket(path):
     os = __import__('os')
@@ -527,7 +635,7 @@ class Server(Thread):
             atexit.register(remove_ipc_socket, self.port)
         self.server_socket.listen(5)
         self.number_of_workers = number_of_workers
-        self.pool, self.jobs, self.working, self.results = [], collections.deque(), [], {}
+        self.pool, self.jobs, self.working = [], collections.deque(), []
         atexit.register(self.killall)
         atexit.register(self.close)
         self.job_lock = RLock()
@@ -546,16 +654,9 @@ class Server(Thread):
     def add_job(self, job):
         with self.job_lock:
             self.jobs.append(job)
-
-    def store_result(self, result, id=None):
-        if id:
-            with self.job_lock:
-                self.results[id] = result
-
-    def result(self, id):
-        with self.result_lock:
-            return self.results.pop(id, None)
-
+        if job.job_manager is not None:
+            job.job_manager.add_job(job)
+            
     def run(self):
         while True:
             job = None
@@ -577,8 +678,9 @@ class Server(Thread):
                                 o.initialize_job(job)
                             except Exception, err:
                                 o.terminate()
-                                res = Result(None, unicode(err), traceback.format_exc())
-                                job.done(res)
+                                job.exception = err
+                                job.traceback = traceback.format_exc()
+                                job.done()
                                 o = None
                     if o and o.is_viable():
                         with self.working_lock:
@@ -588,12 +690,14 @@ class Server(Thread):
                 done = []
                 for o in self.working:
                     try:
-                        res = o.control()
+                        if o.control() is not None or o.job.exception is not None:
+                            o.job.done()
+                            done.append(o)
                     except Exception, err:
-                        res = Result(None, unicode(err), traceback.format_exc())
+                        o.job.exception = err
+                        o.job.traceback = traceback.format_exc()
                         o.terminate()
-                    if isinstance(res, Result):
-                        o.job.done(res)
+                        o.job.done()
                         done.append(o)
                 for o in done:
                     self.working.remove(o)
@@ -613,31 +717,22 @@ class Server(Thread):
             self.pool = []
 
 
-    def kill(self, job_id):
+    def kill(self, job):
         with self.working_lock:
             pop = None
             for o in self.working:
-                if o.job_id == job_id:
-                    o.terminate()
-                    o.job.done(Result(self.KILL_RESULT, None, ''))
+                if o.job == job or o == job:
+                    try:
+                        o.terminate()
+                    except: pass
+                    o.job.exception = JobKilled(_('Job stopped by user'))
+                    try:
+                        o.job.done()
+                    except: pass
                     pop = o
                     break
             if pop is not None:
                 self.working.remove(pop)
-
-
-
-    def run_job(self, job_id, func, args=[], kwdargs={},
-                output=None, progress=None, done=None):
-        '''
-        Run a job in a separate process. Supports job control, output redirection
-        and progress reporting.
-        '''
-        if done is None:
-            done = partial(self.store_result, id=job_id)
-        job = Job(job_id, func, args, kwdargs, output, progress, done)
-        with self.job_lock:
-            self.jobs.append(job)
 
     def run_free_job(self, func, args=[], kwdargs={}):
         pt = PersistentTemporaryFile('.pickle', '_IPC_')
@@ -744,7 +839,7 @@ def worker(host, port):
     if msg != 'OK':
         return 1
     write(client_socket, 'WAITING')
-
+    
     sys.stdout = BufferedSender(client_socket)
     sys.stderr = sys.stdout
 

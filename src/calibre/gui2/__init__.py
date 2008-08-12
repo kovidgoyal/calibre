@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import sys, os, re, StringIO, traceback
-from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, \
+from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
                          QByteArray, QLocale, QUrl, QTranslator, QCoreApplication
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QDialogButtonBox, QApplication
@@ -84,6 +84,21 @@ def human_readable(size):
         size = size[:-2]
     return size + " " + suffix
 
+class Dispatcher(QObject):
+    '''Convenience class to ensure that a function call always happens in the GUI thread'''
+    
+    def __init__(self, func):
+        QObject.__init__(self)
+        self.func = func
+        self.connect(self, SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject)'), 
+                     self.dispatch, Qt.QueuedConnection)
+        
+    def __call__(self, *args, **kwargs):
+        self.emit(SIGNAL('edispatch(PyQt_PyObject, PyQt_PyObject)'), args, kwargs)
+        
+    def dispatch(self, args, kwargs):
+        self.func(*args, **kwargs)
+        
 
 class TableView(QTableView):
     def __init__(self, parent):
