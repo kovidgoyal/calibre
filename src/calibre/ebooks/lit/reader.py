@@ -107,11 +107,12 @@ class UnBinary(object):
     AMPERSAND_RE = re.compile(
         r'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
     
-    def __init__(self, bin, manifest, map=OPF_MAP):
+    def __init__(self, bin, path, manifest, map=OPF_MAP):
         self.manifest = manifest
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
         self.opf = map is OPF_MAP
         self.bin = bin
+        self.dir = os.path.dirname(path)
         self.buf = cStringIO.StringIO()
         self.binary_to_text()
         self.raw = self.buf.getvalue().lstrip().decode('utf-8')
@@ -122,9 +123,19 @@ class UnBinary(object):
     
     def item_path(self, internal_id):
         try:
-            return self.manifest[internal_id].path
+            target = self.manifest[internal_id].path
         except KeyError:
             return internal_id
+        if not self.dir:
+            return target
+        target = target.split('/')
+        base = self.dir.split('/')
+        for index in xrange(min(len(base), len(target))):
+            if base[index] != target[index]: break
+        else:
+            index += 1
+        relpath = (['..'] * (len(base) - index)) + target[index:]
+        return '/'.join(relpath)
     
     def __unicode__(self):
         return self.raw
@@ -147,7 +158,7 @@ class UnBinary(object):
                     continue
                 elif c == '\v':
                     c = '\n'
-                self.buf.write(c.encode('utf-8'))
+                self.buf.write(c.encode('ascii', 'xmlcharrefreplace'))
             
             elif state == 'get flags':
                 if oc == 0:
@@ -206,7 +217,7 @@ class UnBinary(object):
                         state = 'get attr length'
                         continue
                     attr = None
-                    if oc in current_map and current_map[oc]:
+                    if current_map and oc in current_map and current_map[oc]:
                         attr = current_map[oc]
                     elif oc in self.attr_map:
                         attr = self.attr_map[oc]
@@ -247,7 +258,8 @@ class UnBinary(object):
                     state = 'get attr'
                 elif count > 0:
                     if not in_censorship:
-                        self.buf.write(unicode(c).encode('utf-8'))
+                        self.buf.write(c.encode(
+                            'ascii', 'xmlcharrefreplace'))
                     count -= 1
                 if count == 0:
                     if not in_censorship:
@@ -299,7 +311,8 @@ class UnBinary(object):
                     path = self.item_path(doc)
                     if m and frag:
                         path += m + frag
-                    self.buf.write((u'"%s"' % path).encode('utf-8'))
+                    self.buf.write((u'"%s"' % path).encode(
+                        'ascii', 'xmlcharrefreplace'))
                     state = 'get attr'
         return index
     
@@ -597,15 +610,16 @@ class LitReader(object):
                 item.path = os.path.basename(item.path)
 
     def _read_meta(self):
+        path = 'content.opf'
         raw = self.get_file('/meta')
         try:
-            xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
+            xml = OPF_DECL + unicode(UnBinary(raw, path, self.manifest, OPF_MAP))
         except LitError:
             if 'PENGUIN group' not in raw: raise
             print "WARNING: attempting PENGUIN malformed OPF fix"
             raw = raw.replace(
                 'PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
-            xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
+            xml = OPF_DECL + unicode(UnBinary(raw, path, self.manifest, OPF_MAP))
         self.meta = xml
 
     def _read_drm(self):
@@ -645,13 +659,6 @@ class LitReader(object):
             key[i % 8] ^= ord(digest[i])
         return ''.join(chr(x) for x in key)
 
-    def get_markup_file(self, name):
-        raw = self.get_file(name)
-        decl, map = (OPF_DECL, OPF_MAP) \
-            if name == '/meta' else (HTML_DECL, HTML_MAP)
-        xml = decl + unicode(UnBinary(raw, self.manifest, map))
-        return xml
-        
     def get_file(self, name):
         entry = self.entries[name]
         if entry.section == 0:
@@ -748,6 +755,20 @@ class LitReader(object):
             raise LitError("Failed to completely decompress section")
         return ''.join(result)
 
+    def get_entry_content(self, entry):
+        if 'spine' in entry.state:
+            name = '/'.join(('/data', entry.internal, 'content'))
+            path = entry.path
+            raw = self.get_file(name)
+            decl, map = (OPF_DECL, OPF_MAP) \
+                if name == '/meta' else (HTML_DECL, HTML_MAP)
+            content = decl + unicode(UnBinary(raw, path, self.manifest, map))
+            content = content.encode('utf-8')
+        else:
+            name = '/'.join(('/data', entry.internal))
+            content = self.get_file(name)
+        return content
+                    
     def extract_content(self, output_dir=os.getcwdu()):
         output_dir = os.path.abspath(output_dir)
         try:
@@ -763,12 +784,7 @@ class LitReader(object):
             path = os.path.join(output_dir, entry.path)
             self._ensure_dir(path)
             with open(path, 'wb') as f:
-                if 'spine' in entry.state:
-                    name = '/'.join(('/data', entry.internal, 'content'))
-                    f.write(self.get_markup_file(name).encode('utf-8'))
-                else:
-                    name = '/'.join(('/data', entry.internal))
-                    f.write(self.get_file(name))
+                f.write(self.get_entry_content(entry))
 
     def _ensure_dir(self, path):
         dir = os.path.dirname(path)
