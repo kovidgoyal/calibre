@@ -21,10 +21,11 @@ if iswindows:
 elif isosx:
     config_dir = os.path.expanduser('~/Library/Preferences/calibre')
 else:
-    config_dir = os.path.expanduser('~/.config/calibre')
+    bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
+    config_dir = os.path.join(bdir, 'calibre')
 
 if not os.path.exists(config_dir):
-    os.makedirs(config_dir)
+    os.makedirs(config_dir, mode=448) # 0700 == 448
     
 class Option(object):
     

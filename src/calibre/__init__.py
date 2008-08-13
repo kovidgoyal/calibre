@@ -327,36 +327,37 @@ def extract(path, dir):
     extractor(path, dir)
 
 def get_proxies():
-        proxies = {}
-        if iswindows:
-            try:
-                winreg = __import__('_winreg')
-                settings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                          'Software\\Microsoft\\Windows'
-                                          '\\CurrentVersion\\Internet Settings')
-                proxy = winreg.QueryValueEx(settings, "ProxyEnable")[0]
-                if proxy:
-                    server = str(winreg.QueryValueEx(settings, 'ProxyServer')[0])
-                    if ';' in server:
-                        for p in server.split(';'):
-                            protocol, address = p.split('=')
-                            proxies[protocol] = address
-                    else:
-                        proxies['http'] = server
-                        proxies['ftp'] =  server
-                settings.Close()
-            except Exception, e:
-                print('Unable to detect proxy settings: %s' % str(e))
-            if proxies:
-                print('Using proxies: %s' % proxies)
-        else:
-            for q in ('http', 'ftp'):
-                proxy =  os.environ.get(q+'_proxy', None)
-                if not proxy: continue
-                if proxy.startswith(q+'://'):
-                    proxy = proxy[7:]
-                proxies[q] = proxy
-        return proxies
+    proxies = {}
+    
+    for q in ('http', 'ftp'):
+        proxy =  os.environ.get(q+'_proxy', None)
+        if not proxy: continue
+        if proxy.startswith(q+'://'):
+            proxy = proxy[7:]
+        proxies[q] = proxy
+
+    if iswindows:
+        try:
+            winreg = __import__('_winreg')
+            settings = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                                      'Software\\Microsoft\\Windows'
+                                      '\\CurrentVersion\\Internet Settings')
+            proxy = winreg.QueryValueEx(settings, "ProxyEnable")[0]
+            if proxy:
+                server = str(winreg.QueryValueEx(settings, 'ProxyServer')[0])
+                if ';' in server:
+                    for p in server.split(';'):
+                        protocol, address = p.split('=')
+                        proxies[protocol] = address
+                else:
+                    proxies['http'] = server
+                    proxies['ftp'] =  server
+            settings.Close()
+        except Exception, e:
+            print('Unable to detect proxy settings: %s' % str(e))
+    if proxies:
+        print('Using proxies: %s' % proxies)
+    return proxies
 
 
 def browser(honor_time=False):
