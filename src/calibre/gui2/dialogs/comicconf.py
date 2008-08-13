@@ -57,6 +57,7 @@ class ComicConf(QDialog, Ui_Dialog):
         self.opt_dont_sharpen.setChecked(opts.dont_sharpen)
         self.opt_landscape.setChecked(opts.landscape)
         self.opt_no_sort.setChecked(opts.no_sort)
+        self.opt_right2left.setChecked(opts.right2left)
         
         for opt in self.config.option_set.preferences:
             g = getattr(self, 'opt_'+opt.name, False)

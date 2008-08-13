@@ -121,8 +121,8 @@ class PageProcessor(list):
                     DestroyMagickWand(img)
                     MagickCropImage(split1, (width/2)-1, height, 0, 0)
                     MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
-                    self.pages = [split1, split2]
-                
+                    self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
+                    
             self.process_pages()
         except Exception, err:
             print 'Failed to process page: %s'%os.path.basename(self.path_to_page)
@@ -219,7 +219,7 @@ def process_pages(pages, opts, update):
         
         for pp in processed_pages:
             if len(pp) == 0:
-                failures.append(os.path.basename(pp.path_to_page()))
+                failures.append(os.path.basename(pp.path_to_page))
             else:
                 ans += pp
         return ans, failures, tdir
@@ -238,7 +238,7 @@ def config(defaults=None):
     c.add_opt('output', ['-o', '--output'], 
               help=_('Path to output LRF file. By default a file is created in the current directory.'))
     c.add_opt('colors', ['-c', '--colors'], type='int', default=64,
-              help=_('Number of colors for Grayscale image conversion. Default: %default'))
+              help=_('Number of colors for grayscale image conversion. Default: %default'))
     c.add_opt('dont_normalize', ['-n', '--disable-normalize'], default=False, 
               help=_('Disable normalize (improve contrast) color range for pictures. Default: False'))
     c.add_opt('keep_aspect_ratio', ['-r', '--keep-aspect-ratio'], default=False,
@@ -247,6 +247,8 @@ def config(defaults=None):
               help=_('Disable sharpening.'))
     c.add_opt('landscape', ['-l', '--landscape'], default=False, 
               help=_("Don't split landscape images into two portrait images"))
+    c.add_opt('right2left', ['--right2left'], default=False, action='store_true',
+              help=_('Used for right-to-left publications like manga. Causes landscape pages to be split into portrait pages from right to left.'))
     c.add_opt('no_sort', ['--no-sort'], default=False, 
               help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."))
     c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(), 
