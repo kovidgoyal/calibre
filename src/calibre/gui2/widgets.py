@@ -9,15 +9,16 @@ from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, \
                         QAbstractItemDelegate, QPixmap, QStyle, QFontMetrics
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
-                         QObject, QRegExp, QString
+                         QObject, QRegExp, QString, QSettings
 
 from calibre.gui2.jobs2 import DetailView
-from calibre.gui2 import human_readable, NONE, TableView, qstring_to_unicode, error_dialog
+from calibre.gui2 import human_readable, NONE, TableView, \
+                         qstring_to_unicode, error_dialog
 from calibre.gui2.filename_pattern_ui import Ui_Form
-from calibre import fit_image, Settings
+from calibre import fit_image
 from calibre.utils.fontconfig import find_font_families
-from calibre.ebooks.metadata.meta import get_filename_pat, metadata_from_filename, \
-                                           set_filename_pat
+from calibre.ebooks.metadata.meta import metadata_from_filename
+from calibre.utils.config import prefs
 
 
 
@@ -29,7 +30,7 @@ class FilenamePattern(QWidget, Ui_Form):
         
         self.connect(self.test_button, SIGNAL('clicked()'), self.do_test)
         self.connect(self.re, SIGNAL('returnPressed()'), self.do_test)
-        self.re.setText(get_filename_pat())
+        self.re.setText(prefs['filename_pattern'])
         
     def do_test(self):
         try:
@@ -66,9 +67,9 @@ class FilenamePattern(QWidget, Ui_Form):
         return re.compile(pat)
     
     def commit(self):
-        pat = self.pattern()
-        set_filename_pat(pat)
-        return pat.pattern
+        pat = self.pattern().pattern
+        prefs['filename_pattern'] = pat
+        return pat
          
             
         
@@ -367,13 +368,13 @@ class PythonHighlighter(QSyntaxHighlighter):
     @classmethod
     def loadConfig(cls):
         Config = cls.Config
+        settings = QSettings()
         def setDefaultString(name, default):
             value = settings.value(name).toString()
             if value.isEmpty():
                 value = default
             Config[name] = value
     
-        settings = Settings()
         for name in ("window", "shell"):
             Config["%swidth" % name] = settings.value("%swidth" % name,
                     QVariant(QApplication.desktop() \

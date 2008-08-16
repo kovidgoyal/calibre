@@ -12,7 +12,8 @@ import sys, os
 from PyQt4.QtGui import QImage, QSizePolicy
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QObject
 
-from calibre import Settings, plugins
+from calibre import plugins
+from calibre.gui2 import config
 pictureflow, pictureflowerror = plugins['pictureflow']
 
 if pictureflow is not None:
@@ -70,7 +71,7 @@ if pictureflow is not None:
         
         def __init__(self, height=300, parent=None):
             pictureflow.PictureFlow.__init__(self, parent, 
-                                Settings().get('cover flow queue length', 6)+1)
+                                config['cover_flow_queue_length']+1)
             self.setSlideSize(QSize(int(2/3. * height), height))
             self.setMinimumSize(QSize(int(2.35*0.67*height), (5/3.)*height+25))
             self.setFocusPolicy(Qt.WheelFocus)

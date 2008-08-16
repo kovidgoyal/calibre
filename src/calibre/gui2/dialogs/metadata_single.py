@@ -18,7 +18,8 @@ from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.password import PasswordDialog
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
-from calibre import Settings, islinux
+from calibre import islinux
+from calibre.utils.config import prefs
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, size, path=None):
@@ -145,7 +146,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.remove_series_button, SIGNAL('clicked()'),
                         self.remove_unused_series)        
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
-        self.timeout = float(Settings().get('network timeout', 5))
+        self.timeout = float(prefs['network_timeout'])
         self.title.setText(db.title(row))
         isbn = db.isbn(self.id, index_is_id=True)
         if not isbn:

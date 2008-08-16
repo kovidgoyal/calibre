@@ -11,8 +11,9 @@ from urllib import unquote, quote
 from urlparse import urlparse
 
 
-from calibre import __version__ as VERSION, relpath
-from calibre import OptionParser
+from calibre.constants import __version__ as VERSION
+from calibre import relpath
+from calibre.utils.config import OptionParser
 
 def get_parser(extension):
     ''' Return an option parser with the basic metadata options already setup'''

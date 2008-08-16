@@ -2,19 +2,49 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import sys, os, re, StringIO, traceback
-from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, \
+from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
                          QByteArray, QLocale, QUrl, QTranslator, QCoreApplication
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QDialogButtonBox, QApplication
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
-from calibre import __author__, islinux, iswindows, Settings, isosx, get_lang
+from calibre import __author__, islinux, iswindows, isosx
+from calibre.startup import get_lang
+from calibre.utils.config import Config, ConfigProxy, dynamic
 import calibre.resources as resources
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
-
+def _config():
+    c = Config('gui', 'preferences for the calibre GUI')
+    c.add_opt('frequently_used_directories', default=[],
+              help=_('Frequently used directories'))
+    c.add_opt('send_to_device_by_default', default=True,
+              help=_('Send downloaded periodical content to device automatically'))
+    c.add_opt('save_to_disk_single_format', default='lrf',
+              help=_('The format to use when saving single files to disk'))
+    c.add_opt('confirm_delete', default=False,
+              help=_('Confirm before deleting'))
+    c.add_opt('toolbar_icon_size', default=QSize(48, 48), 
+              help=_('Toolbar icon size')) # value QVariant.toSize
+    c.add_opt('show_text_in_toolbar', default=True,
+              help=_('Show button labels in the toolbar'))
+    c.add_opt('main_window_geometry', default=None,
+              help=_('Main window geometry')) # value QVariant.toByteArray
+    c.add_opt('new_version_notification', default=True,
+              help=_('Notify when a new version is available'))
+    c.add_opt('use_roman_numerals_for_series_number', default=True,
+              help=_('Use Roman numerals for series number'))
+    c.add_opt('cover_flow_queue_length', default=6,
+              help=_('Number of covers to show in the cover browsing mode'))
+    c.add_opt('LRF_conversion_defaults', default=[],
+              help=_('Defaults for conversion to LRF'))
+    c.add_opt('LRF_ebook_viewer_options', default=None,
+              help=_('Options for the LRF ebook viewer'))
+    return ConfigProxy(c)
+    
+config = _config()
 # Turn off DeprecationWarnings in windows GUI
 if iswindows:
     import warnings
@@ -105,14 +135,12 @@ class TableView(QTableView):
         QTableView.__init__(self, parent)
         self.read_settings()
         
-    
     def read_settings(self):
-        self.cw = Settings().get(self.__class__.__name__ + ' column widths')
+        self.cw = dynamic[self.__class__.__name__+'column widths']
     
     def write_settings(self):
-        settings = Settings()
-        settings.set(self.__class__.__name__ + ' column widths',
-                     tuple([int(self.columnWidth(i)) for i in range(self.model().columnCount(None))]))
+        dynamic[self.__class__.__name__+'column widths'] = \
+         tuple([int(self.columnWidth(i)) for i in range(self.model().columnCount(None))])
     
     def restore_column_widths(self):
         if self.cw and len(self.cw):
@@ -125,10 +153,11 @@ class TableView(QTableView):
         @param cols: A list of booleans or None. If an entry is False the corresponding column
         is hidden, if True it is shown. 
         '''
+        key = self.__class__.__name__+'visible columns'
         if cols:
-            Settings().set(self.__class__.__name__ + ' visible columns', cols)
+            dynamic[key] = cols
         else:
-            cols = Settings().get(self.__class__.__name__ + ' visible columns')
+            cols = dynamic[key]
             if not cols:
                 cols = [True for i in range(self.model().columnCount(self))]
         
@@ -232,7 +261,7 @@ _sidebar_directories = []
 def set_sidebar_directories(dirs):
     global _sidebar_directories
     if dirs is None:
-        dirs = Settings().get('frequently used directories', [])        
+        dirs = config['frequently_used_directories']        
     _sidebar_directories = [QUrl.fromLocalFile(i) for i in dirs]
         
 class FileDialog(QObject):
@@ -255,10 +284,10 @@ class FileDialog(QObject):
         if add_all_files_filter or not ftext:
             ftext += 'All files (*)'
         
-        settings = Settings()
         self.dialog_name = name if name else 'dialog_' + title
         self.selected_files = None
         self.fd = None
+        
         if islinux:
             self.fd = QFileDialog(parent)
             self.fd.setFileMode(mode)  
@@ -266,15 +295,15 @@ class FileDialog(QObject):
             self.fd.setModal(modal)            
             self.fd.setFilter(ftext)
             self.fd.setWindowTitle(title)
-            state = settings.get(self.dialog_name, QByteArray())
-            if not self.fd.restoreState(state):
+            state = dynamic[self.dialog_name]
+            if not state or not self.fd.restoreState(state):
                 self.fd.setDirectory(os.path.expanduser('~'))
             osu = [i for i in self.fd.sidebarUrls()]
             self.fd.setSidebarUrls(osu + _sidebar_directories)
             QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
             self.accepted = self.fd.exec_() == QFileDialog.Accepted
         else:
-            dir = settings.get(self.dialog_name, os.path.expanduser('~'))
+            dir = dynamic.get(self.dialog_name, default=os.path.expanduser('~'))
             self.selected_files = []
             if mode == QFileDialog.AnyFile:
                 f = qstring_to_unicode(
@@ -299,7 +328,7 @@ class FileDialog(QObject):
                     self.selected_files.append(f)
             if self.selected_files:
                 self.selected_files = [qstring_to_unicode(q) for q in self.selected_files]
-                settings.set(self.dialog_name, os.path.dirname(self.selected_files[0]))
+                dynamic[self.dialog_name] =  os.path.dirname(self.selected_files[0])
             self.accepted = bool(self.selected_files)        
         
         
@@ -313,8 +342,7 @@ class FileDialog(QObject):
     
     def save_dir(self):
         if self.fd:
-            settings = Settings()
-            settings.set(self.dialog_name, self.fd.saveState())
+            dynamic[self.dialog_name] =  self.fd.saveState()
         
 
 def choose_dir(window, name, title):

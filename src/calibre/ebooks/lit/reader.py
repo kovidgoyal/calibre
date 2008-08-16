@@ -808,7 +808,7 @@ class LitReader(object):
             os.makedirs(dir)
 
 def option_parser():
-    from calibre import OptionParser
+    from calibre.utils.config import OptionParser
     parser = OptionParser(usage=_('%prog [options] LITFILE'))
     parser.add_option(
         '-o', '--output-dir', default='.', 

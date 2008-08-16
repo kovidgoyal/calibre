@@ -5,7 +5,7 @@ import StringIO, traceback, sys
 
 from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QCoreApplication, SIGNAL
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre import OptionParser
+from calibre.utils.config import OptionParser
 
 def option_parser(usage='''\
 Usage: %prog [options]

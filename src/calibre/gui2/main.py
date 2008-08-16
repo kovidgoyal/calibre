@@ -3,23 +3,24 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, shutil, time
 from xml.parsers.expat import ExpatError
 from functools import partial
-from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, \
-                         QVariant, QUrl, QSize
+from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog, QDesktopServices
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
-                    Settings, iswindows, isosx, preferred_encoding
+                    iswindows, isosx, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.metadata.meta import get_metadata, get_filename_pat, set_filename_pat
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.devices.errors import FreeSpaceError
 from calibre.devices.interface import Device
+from calibre.utils.config import prefs, dynamic
 from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            initialize_file_icon_provider, question_dialog,\
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
-                           SingleApplication, Application, available_height, max_available_height
+                           SingleApplication, Application, available_height, \
+                           max_available_height, config
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.update import CheckForUpdates
@@ -120,12 +121,12 @@ class Main(MainWindow, Ui_MainWindow):
         sm.addAction(_('Send to storage card by default'))
         sm.actions()[-1].setCheckable(True)
         def default_sync(checked):
-            Settings().set('send to device by default', bool(checked))
+            config.set('send_to_device_by_default', bool(checked))
             QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)
             QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card)
             QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card if checked else self.sync_to_main_memory)
         QObject.connect(sm.actions()[-1], SIGNAL('toggled(bool)'), default_sync)
-        sm.actions()[-1].setChecked(Settings().get('send to device by default', False))
+        sm.actions()[-1].setChecked(config.get('send_to_device_by_default'))
         default_sync(sm.actions()[-1].isChecked())    
         self.sync_menu = sm # Needed
         md = QMenu()
@@ -152,7 +153,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.save_menu = QMenu()
         self.save_menu.addAction(_('Save to disk'))
         self.save_menu.addAction(_('Save to disk in a single directory'))
-        self.save_menu.addAction(_('Save only %s format to disk')%Settings().get('save to disk single format', 'lrf').upper())
+        self.save_menu.addAction(_('Save only %s format to disk')%config.get('save_to_disk_single_format').upper())
         
         self.view_menu = QMenu()
         self.view_menu.addAction(_('View'))
@@ -529,7 +530,7 @@ class Main(MainWindow, Ui_MainWindow):
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return
-        if Settings().get('confirm delete', False):
+        if config['confirm_delete']:
             d = question_dialog(self, _('Confirm delete'), 
                             _('Are you sure you want to delete these %d books?')%len(rows))
             if d.exec_() != QMessageBox.Yes:
@@ -680,7 +681,7 @@ class Main(MainWindow, Ui_MainWindow):
     
     ############################## Save to disk ################################
     def save_single_format_to_disk(self, checked):
-        self.save_to_disk(checked, True, Settings().get('save to disk single format', 'lrf'))
+        self.save_to_disk(checked, True, config['save_to_disk_single_format'])
     
     def save_to_single_dir(self, checked):
         self.save_to_disk(checked, True)
@@ -1067,9 +1068,8 @@ class Main(MainWindow, Ui_MainWindow):
         d.exec_()
         if d.result() == d.Accepted:
             self.library_view.set_visible_columns(d.final_columns)
-            settings = Settings()
-            self.tool_bar.setIconSize(settings.value('toolbar icon size', QVariant(QSize(48, 48))).toSize())
-            self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if settings.get('show text in toolbar', True) else Qt.ToolButtonIconOnly)
+            self.tool_bar.setIconSize(config['toolbar_icon_size'])
+            self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if config['show_text_in_toolbar'] else Qt.ToolButtonIconOnly)
             
             if os.path.dirname(self.database_path) != d.database_location:
                 try:
@@ -1100,8 +1100,7 @@ class Main(MainWindow, Ui_MainWindow):
                             d.exec_()
                             newloc = self.database_path
                     self.database_path = newloc
-                    settings = Settings()
-                    settings.set('database path', self.database_path)
+                    prefs().set('database_path', self.database_path)
                 except Exception, err:
                     traceback.print_exc()
                     d = error_dialog(self, _('Could not move database'), unicode(err))
@@ -1200,12 +1199,10 @@ class Main(MainWindow, Ui_MainWindow):
         
     
     def read_settings(self):
-        settings = Settings()
-        settings.beginGroup('Main Window')
-        geometry = settings.value('main window geometry', QVariant()).toByteArray()
-        self.restoreGeometry(geometry)
-        settings.endGroup()
-        self.database_path = settings.get('database path')
+        geometry = config['main_window_geometry']
+        if geometry is not None:
+            self.restoreGeometry(geometry)
+        self.database_path = prefs['database_path']
         if not os.access(os.path.dirname(self.database_path), os.W_OK):
             error_dialog(self, _('Database does not exist'), _('The directory in which the database should be: %s no longer exists. Please choose a new database location.')%self.database_path).exec_()
             self.database_path = choose_dir(self, 'database path dialog', 'Choose new location for database')
@@ -1214,24 +1211,18 @@ class Main(MainWindow, Ui_MainWindow):
             if not os.path.exists(self.database_path):
                 os.makedirs(self.database_path)
             self.database_path = os.path.join(self.database_path, 'library1.db')
-            settings.set('database path', self.database_path)
+            prefs.set('database_path', self.database_path)
         set_sidebar_directories(None)
-        set_filename_pat(settings.get('filename pattern', get_filename_pat()))
-        self.tool_bar.setIconSize(settings.get('toolbar icon size', QSize(48, 48)))
-        self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if settings.get('show text in toolbar', True) else Qt.ToolButtonIconOnly)
+        self.tool_bar.setIconSize(config['toolbar_icon_size'])
+        self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if config['show_text_in_toolbar'] else Qt.ToolButtonIconOnly)
         
     
     def write_settings(self):
-        settings = Settings()
-        settings.beginGroup("Main Window")
-        settings.setValue("main window geometry", QVariant(self.saveGeometry()))
-        settings.endGroup()
-        settings.beginGroup('Book Views')
+        config.set('main_window_geometry', self.saveGeometry())
         self.library_view.write_settings()
         if self.device_connected:
             self.memory_view.write_settings()
-        settings.endGroup()
-    
+        
     def closeEvent(self, e):
         msg = 'There are active jobs. Are you sure you want to quit?'
         if self.job_manager.has_device_jobs():
@@ -1261,17 +1252,16 @@ class Main(MainWindow, Ui_MainWindow):
         self.vanity.setText(self.vanity_template%(dict(version=self.latest_version, 
                                                     device=self.device_info)))
         self.vanity.update()
-        s = Settings()
-        if s.get('new version notification', True) and s.get('update to version %s'%version, True):
+        if config.get('new_version_notification') and dynamic.get('update to version %s'%version, True):
             d = question_dialog(self, _('Update available'), _('%s has been updated to version %s. See the <a href="http://calibre.kovidgoyal.net/wiki/Changelog">new features</a>. Visit the download page?')%(__appname__, version))
             if d.exec_() == QMessageBox.Yes:
                 url = 'http://calibre.kovidgoyal.net/download_'+('windows' if iswindows else 'osx' if isosx else 'linux')
                 QDesktopServices.openUrl(QUrl(url))
-            s.set('update to version %s'%version, False)
+            dynamic.set('update to version %s'%version, False)
         
 
 def main(args=sys.argv):
-    from calibre import singleinstance
+    from calibre.utils.lock import singleinstance
     
     pid = os.fork() if False and islinux else -1
     if pid <= 0:

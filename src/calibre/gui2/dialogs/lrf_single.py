@@ -9,11 +9,11 @@ from PyQt4.QtGui import QAbstractSpinBox, QLineEdit, QCheckBox, QDialog, \
 from calibre.gui2.dialogs.lrf_single_ui import Ui_LRFSingleDialog
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2 import qstring_to_unicode, error_dialog, \
-                           pixmap_to_data, choose_images
+                           pixmap_to_data, choose_images, config
 from calibre.gui2.widgets import FontFamilyModel
 from calibre.ebooks.lrf import option_parser
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre import __appname__, Settings
+from calibre.constants import __appname__
 
 font_family_model = None
 
@@ -109,7 +109,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
             
     
     def load_saved_global_defaults(self):
-        cmdline = Settings().get('LRF conversion defaults')
+        cmdline = config['LRF_conversion_defaults']
         if cmdline:
             self.set_options_from_cmdline(cmdline)
     
@@ -163,7 +163,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     
     def select_cover(self, checked):
         files = choose_images(self, 'change cover dialog', 
-                             u'Choose cover for ' + qstring_to_unicode(self.gui_title.text()))
+                             _('Choose cover for ') + qstring_to_unicode(self.gui_title.text()))
         if not files:
             return
         _file = files[0]
@@ -385,7 +385,7 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
                 cmdline.extend([u'--cover', self.cover_file.name])
             self.cmdline = [unicode(i) for i in cmdline]
         else:
-            Settings().set('LRF conversion defaults', cmdline)
+            config.set('LRF_conversion_defaults', cmdline)
         QDialog.accept(self)
         
 class LRFBulkDialog(LRFSingleDialog):

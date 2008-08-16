@@ -7,7 +7,7 @@ sys.path.append('src')
 iswindows = re.search('win(32|64)', sys.platform)
 isosx = 'darwin' in sys.platform
 islinux = not isosx and not iswindows
-src = open('src/calibre/__init__.py', 'rb').read()
+src = open('src/calibre/constants.py', 'rb').read()
 VERSION = re.search(r'__version__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 APPNAME = re.search(r'__appname__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 print 'Setup', APPNAME, 'version:', VERSION

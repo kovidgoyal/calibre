@@ -10,7 +10,8 @@ Command line interface to the calibre database.
 import sys, os
 from textwrap import TextWrapper
 
-from calibre import OptionParser, Settings, terminal_controller, preferred_encoding
+from calibre import terminal_controller, preferred_encoding
+from calibre.utils.config import OptionParser, prefs
 try:
     from calibre.utils.single_qt_application import send_message
 except:
@@ -24,7 +25,8 @@ FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 't
 def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group('GLOBAL OPTIONS')
-    go.add_option('--database', default=None, help=_('Path to the calibre database. Default is to use the path stored in the settings.'))
+    go.add_option('--database', default=None, 
+                  help=_('Path to the calibre database. Default is to use the path stored in the settings.'))
     return parser
 
 def get_db(dbpath, options):
@@ -422,7 +424,7 @@ For help on an individual command: %%prog command --help
         return 1
     
     command = eval('command_'+args[1])
-    dbpath = Settings().get('database path')
+    dbpath = prefs.get('database_path')
     
     return command(args[2:], dbpath)
 

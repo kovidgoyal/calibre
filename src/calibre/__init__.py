@@ -1,123 +1,21 @@
 ''' E-book management software'''
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-__version__   = '0.4.83'
-__docformat__ = "epytext"
-__author__    = "Kovid Goyal <kovid at kovidgoyal.net>"
-__appname__   = 'calibre'
+__copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
+__docformat__ = 'restructuredtext en'
 
-import sys, os, logging, mechanize, locale, copy, cStringIO, re, subprocess, \
-       textwrap, atexit, cPickle, codecs, time
-from gettext import GNUTranslations
+import sys, os, re, logging, time, subprocess, mechanize, atexit
 from htmlentitydefs import name2codepoint
 from math import floor
-from optparse import OptionParser as _OptionParser
-from optparse import IndentedHelpFormatter
 from logging import Formatter
 
-from PyQt4.QtCore import QSettings, QVariant, QUrl, QByteArray, QString
-from PyQt4.QtGui import QDesktopServices
+from PyQt4.QtCore import QUrl
+from PyQt4.QtGui  import QDesktopServices
+from calibre.startup import plugins, winutil, winutilerror
+from calibre.constants import iswindows, isosx, islinux, isfrozen, \
+                              terminal_controller, preferred_encoding, \
+                              __appname__, __version__, __author__, \
+                              win32event, win32api, winerror, fcntl
 
-from calibre.translations.msgfmt import make
-from calibre.ebooks.chardet import detect
-from calibre.utils.terminfo import TerminalController
-
-terminal_controller = TerminalController(sys.stdout)
-iswindows = 'win32' in sys.platform.lower() or 'win64' in sys.platform.lower()
-isosx     = 'darwin' in sys.platform.lower()
-islinux   = not(iswindows or isosx)
-isfrozen  = hasattr(sys, 'frozen') 
-
-try:
-    locale.setlocale(locale.LC_ALL, '')
-except:
-    dl = locale.getdefaultlocale()
-    try:
-        if dl:
-            locale.setlocale(dl[0])
-    except:
-        pass
-
-try:
-    preferred_encoding = locale.getpreferredencoding()
-    codecs.lookup(preferred_encoding)
-except:
-    preferred_encoding = 'utf-8'
-
-if getattr(sys, 'frozen', False):
-    if iswindows:
-        plugin_path = os.path.join(os.path.dirname(sys.executable), 'plugins')
-    elif isosx:
-        plugin_path = os.path.join(getattr(sys, 'frameworks_dir'), 'plugins')
-    elif islinux:
-        plugin_path = os.path.join(getattr(sys, 'frozen_path'), 'plugins')
-    sys.path.insert(0, plugin_path)
-else:
-    import pkg_resources
-    plugins = getattr(pkg_resources, 'resource_filename')(__appname__, 'plugins')
-    sys.path.insert(0, plugins)
-    
-if iswindows and getattr(sys, 'frozen', False):
-    sys.path.insert(1, os.path.dirname(sys.executable))
-
-
-plugins = {}
-for plugin in ['pictureflow', 'lzx', 'msdes'] + \
-            (['winutil'] if iswindows else []) + \
-            (['usbobserver'] if isosx else []):
-    try:
-        p, err = __import__(plugin), ''
-    except Exception, err:
-        p = None
-        err = str(err)
-    plugins[plugin] = (p, err)
-
-if iswindows:
-    winutil, winutilerror = plugins['winutil']
-    if not winutil:
-        raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
-    if len(sys.argv) > 1:
-        sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
-    win32event = __import__('win32event')
-    winerror   = __import__('winerror')
-    win32api   = __import__('win32api')
-else:
-    import fcntl
-
-_abspath = os.path.abspath
-def my_abspath(path, encoding=sys.getfilesystemencoding()):
-    '''
-    Work around for buggy os.path.abspath. This function accepts either byte strings,
-    in which it calls os.path.abspath, or unicode string, in which case it first converts
-    to byte strings using `encoding`, calls abspath and then decodes back to unicode.
-    '''
-    to_unicode = False
-    if isinstance(path, unicode):
-        path = path.encode(encoding)
-        to_unicode = True
-    res = _abspath(path)
-    if to_unicode:
-        res = res.decode(encoding)
-    return res
-
-os.path.abspath = my_abspath
-_join = os.path.join
-def my_join(a, *p):
-    encoding=sys.getfilesystemencoding()
-    p = [a] + list(p)
-    _unicode = False
-    for i in p:
-        if isinstance(i, unicode):
-            _unicode = True
-            break
-    p = [i.encode(encoding) if isinstance(i, unicode) else i for i in p]
-    
-    res = _join(*p)
-    if _unicode:
-        res = res.decode(encoding)
-    return res
-
-os.path.join = my_join
 
 def unicode_path(path, abs=False):
     if not isinstance(path, unicode):
@@ -134,10 +32,6 @@ def osx_version():
         if m:
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
         
-
-# Default translation is NOOP
-import __builtin__
-__builtin__.__dict__['_'] = lambda s: s
 
 class CommandLineError(Exception):
     pass
@@ -179,122 +73,6 @@ def setup_cli_handlers(logger, level):
         handler.setFormatter(logging.Formatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s'))
     
     logger.addHandler(handler)
-
-class CustomHelpFormatter(IndentedHelpFormatter):
-    
-    def format_usage(self, usage):
-        return _("%sUsage%s: %s\n") % (terminal_controller.BLUE, terminal_controller.NORMAL, usage)
-    
-    def format_heading(self, heading):
-        return "%*s%s%s%s:\n" % (self.current_indent, terminal_controller.BLUE, 
-                                 "", heading, terminal_controller.NORMAL)
-        
-    def format_option(self, option):
-        result = []
-        opts = self.option_strings[option]
-        opt_width = self.help_position - self.current_indent - 2
-        if len(opts) > opt_width:
-            opts = "%*s%s\n" % (self.current_indent, "", 
-                                    terminal_controller.GREEN+opts+terminal_controller.NORMAL)
-            indent_first = self.help_position
-        else:                       # start help on same line as opts
-            opts = "%*s%-*s  " % (self.current_indent, "", opt_width + len(terminal_controller.GREEN + terminal_controller.NORMAL), 
-                                  terminal_controller.GREEN + opts + terminal_controller.NORMAL)
-            indent_first = 0
-        result.append(opts)
-        if option.help:
-            help_text = self.expand_default(option).split('\n')
-            help_lines = []
-            
-            for line in help_text:
-                help_lines.extend(textwrap.wrap(line, self.help_width))
-            result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
-            result.extend(["%*s%s\n" % (self.help_position, "", line)
-                           for line in help_lines[1:]])
-        elif opts[-1] != "\n":
-            result.append("\n")
-        return "".join(result)+'\n'
-
-class OptionParser(_OptionParser):
-    
-    def __init__(self,
-                 usage='%prog [options] filename',
-                 version='%%prog (%s %s)'%(__appname__, __version__),
-                 epilog=_('Created by ')+terminal_controller.RED+__author__+terminal_controller.NORMAL,
-                 gui_mode=False,
-                 conflict_handler='resolve',
-                 **kwds):
-        usage += '''\n\nWhenever you pass arguments to %prog that have spaces in them, '''\
-                 '''enclose the arguments in quotation marks.'''
-        _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, 
-                               formatter=CustomHelpFormatter(), 
-                               conflict_handler=conflict_handler, **kwds)
-        self.gui_mode = gui_mode
-        
-    def error(self, msg):
-        if self.gui_mode:
-            raise Exception(msg)
-        _OptionParser.error(self, msg)
-        
-    def merge(self, parser):
-        '''
-        Add options from parser to self. In case of conflicts, confilicting options from
-        parser are skipped.
-        '''
-        opts   = list(parser.option_list)
-        groups = list(parser.option_groups)
-        
-        def merge_options(options, container):
-            for opt in copy.deepcopy(options):
-                if not self.has_option(opt.get_opt_string()):
-                    container.add_option(opt)
-                
-        merge_options(opts, self)
-        
-        for group in groups:
-            g = self.add_option_group(group.title)
-            merge_options(group.option_list, g)
-        
-    def subsume(self, group_name, msg=''):
-        '''
-        Move all existing options into a subgroup named
-        C{group_name} with description C{msg}.
-        '''
-        opts = [opt for opt in self.options_iter() if opt.get_opt_string() not in ('--version', '--help')]
-        self.option_groups = []
-        subgroup = self.add_option_group(group_name, msg)
-        for opt in opts:
-            self.remove_option(opt.get_opt_string())
-            subgroup.add_option(opt)
-        
-    def options_iter(self):
-        for opt in self.option_list:
-            if str(opt).strip():
-                yield opt
-        for gr in self.option_groups:
-            for opt in gr.option_list:
-                if str(opt).strip():
-                    yield opt
-                
-    def option_by_dest(self, dest):
-        for opt in self.options_iter():
-            if opt.dest == dest:
-                return opt
-    
-    def merge_options(self, lower, upper):
-        '''
-        Merge options in lower and upper option lists into upper.
-        Default values in upper are overriden by
-        non default values in lower.
-        '''
-        for dest in lower.__dict__.keys():
-            if not upper.__dict__.has_key(dest):
-                continue
-            opt = self.option_by_dest(dest)
-            if lower.__dict__[dest] != opt.default and \
-               upper.__dict__[dest] == opt.default:
-                upper.__dict__[dest] = lower.__dict__[dest]
-        
 
 def load_library(name, cdll):
     if iswindows:
@@ -392,40 +170,6 @@ def fit_image(width, height, pwidth, pheight):
                             
     return scaled, int(width), int(height)
 
-def get_lang():
-    lang = locale.getdefaultlocale()[0]
-    if lang is None and os.environ.has_key('LANG'): # Needed for OS X
-        try:
-            lang = os.environ['LANG']
-        except:
-            pass
-    if lang:
-        match = re.match('[a-z]{2,3}', lang)
-        if match:
-            lang = match.group()
-    return lang
-
-def set_translator():
-    # To test different translations invoke as
-    # LC_ALL=de_DE.utf8 program
-    try:
-        from calibre.translations.compiled import translations
-    except:
-        return
-    lang = get_lang() 
-    if lang:
-        buf = None
-        if os.access(lang+'.po', os.R_OK):
-            buf = cStringIO.StringIO()
-            make(lang+'.po', buf)
-            buf = cStringIO.StringIO(buf.getvalue())
-        elif translations.has_key(lang):
-            buf = cStringIO.StringIO(translations[lang])
-        if buf is not None:
-            t = GNUTranslations(buf)
-            t.install(unicode=True)
-        
-set_translator()
 
 def sanitize_file_name(name):
     '''
@@ -510,120 +254,6 @@ def relpath(target, base=os.curdir):
     rel_list = [os.pardir] * (len(base_list)-i) + target_list[i:]
     return os.path.join(*rel_list)
 
-def _clean_lock_file(file):
-    try:
-        file.close()
-    except:
-        pass
-    try:
-        os.remove(file.name)
-    except:
-        pass
-
-class LockError(Exception):
-    pass
-class ExclusiveFile(object):
-    
-    def __init__(self, path, timeout=10):
-        self.path = path
-        self.timeout = timeout
-        
-    def __enter__(self):
-        self.file  = open(self.path, 'a+b')
-        self.file.seek(0)
-        timeout = self.timeout
-        if iswindows:
-            name = ('Local\\'+(__appname__+self.file.name).replace('\\', '_'))[:201]
-            while self.timeout < 0 or timeout >= 0:
-                self.mutex = win32event.CreateMutex(None, False, name)
-                if win32api.GetLastError() != winerror.ERROR_ALREADY_EXISTS: break
-                time.sleep(1)
-                timeout -= 1
-        else:
-            while self.timeout < 0 or timeout >= 0:
-                try:
-                    fcntl.lockf(self.file.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
-                    break
-                except IOError:
-                    time.sleep(1)
-                    timeout -= 1
-        if timeout < 0 and self.timeout >= 0:
-            self.file.close()
-            raise LockError
-        return self.file
-                
-    def __exit__(self, type, value, traceback):
-        self.file.close()
-        if iswindows:
-            win32api.CloseHandle(self.mutex)
-
-def singleinstance(name):
-    '''
-    Return True if no other instance of the application identified by name is running, 
-    False otherwise.
-    @param name: The name to lock.
-    @type name: string 
-    '''
-    if iswindows:
-        mutexname = 'mutexforsingleinstanceof'+__appname__+name
-        mutex =  win32event.CreateMutex(None, False, mutexname)
-        if mutex:
-            atexit.register(win32api.CloseHandle, mutex)
-        return not win32api.GetLastError() == winerror.ERROR_ALREADY_EXISTS
-    else:
-        global _lock_file
-        path = os.path.expanduser('~/.'+__appname__+'_'+name+'.lock')
-        try:
-            f = open(path, 'w')
-            fcntl.lockf(f.fileno(), fcntl.LOCK_EX|fcntl.LOCK_NB)
-            atexit.register(_clean_lock_file, f)
-            return True
-        except IOError:
-            return False
-        
-    return False
-
-class Settings(QSettings):
-    
-    def __init__(self, name='calibre2'):
-        QSettings.__init__(self, QSettings.IniFormat, QSettings.UserScope,
-                           'kovidgoyal.net', name)
-        
-    def get(self, key, default=None):
-        try:
-            key = str(key)
-            if not self.contains(key):
-                return default
-            val = str(self.value(key, QVariant()).toByteArray())
-            if not val:
-                return None
-            return cPickle.loads(val)
-        except:
-            return default
-    
-    def set(self, key, val):
-        val = cPickle.dumps(val, -1)
-        self.setValue(str(key), QVariant(QByteArray(val)))
-        
-_settings = Settings()
-
-if not _settings.get('rationalized'):
-    __settings = Settings(name='calibre')
-    dbpath = os.path.join(os.path.expanduser('~'), 'library1.db').decode(sys.getfilesystemencoding())
-    dbpath = unicode(__settings.value('database path', 
-                    QVariant(QString.fromUtf8(dbpath.encode('utf-8')))).toString())
-    cmdline   = __settings.value('LRF conversion defaults', QVariant(QByteArray(''))).toByteArray().data()
-    
-    if cmdline:
-        cmdline = cPickle.loads(cmdline)
-        _settings.set('LRF conversion defaults', cmdline)
-    _settings.set('rationalized', True)
-    try:
-        os.unlink(unicode(__settings.fileName()))
-    except:
-        pass
-    _settings.set('database path', dbpath)
-
 _spat = re.compile(r'^the\s+|^a\s+|^an\s+', re.IGNORECASE)
 def english_sort(x, y):
     '''
@@ -671,11 +301,8 @@ def strftime(fmt, t=time.localtime()):
     A version of strtime that returns unicode strings.
     '''
     result = time.strftime(fmt, t)
-    try:
-        return unicode(result, locale.getpreferredencoding(), 'replace')
-    except:
-        return unicode(result, 'utf-8', 'replace')
-
+    return unicode(result, preferred_encoding, 'replace')
+    
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''
     @param match: A match object such that '&'+match.group(1)';' is the entity.
@@ -708,7 +335,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
         return unichr(name2codepoint[ent])
     except KeyError:
         return '&'+ent+';'
- 
+
 if isosx:
     fdir = os.path.expanduser('~/.fonts')
     if not os.path.exists(fdir):
@@ -716,6 +343,10 @@ if isosx:
     if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
         from calibre.ebooks.lrf.fonts.liberation import __all__ as fonts
         for font in fonts:
-            exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data'
-            open(os.path.join(fdir, font+'.ttf'), 'wb').write(font_data)
+            l = {}
+            exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data' in l
+            open(os.path.join(fdir, font+'.ttf'), 'wb').write(l['font_data'])
             
+# Migrate from QSettings based config system
+from calibre.utils.config import migrate
+migrate()

@@ -574,8 +574,8 @@ class LRFMetaFile(object):
         
 
 def option_parser():
-    from optparse import OptionParser
-    from calibre import __appname__, __version__
+    from calibre.utils.config import OptionParser
+    from calibre.constants import __appname__, __version__
     parser = OptionParser(usage = \
 _('''%prog [options] mybook.lrf
 

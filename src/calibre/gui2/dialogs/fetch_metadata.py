@@ -13,7 +13,7 @@ from PyQt4.QtGui import QDialog, QItemSelectionModel
 from calibre.gui2.dialogs.fetch_metadata_ui import Ui_FetchMetadata
 from calibre.gui2 import error_dialog, NONE, info_dialog
 from calibre.ebooks.metadata.isbndb import create_books, option_parser, ISBNDBError
-from calibre import Settings
+from calibre.utils.config import prefs
 
 class Matches(QAbstractTableModel):
     
@@ -76,7 +76,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
         self.timeout = timeout
         QObject.connect(self.fetch, SIGNAL('clicked()'), self.fetch_metadata)
         
-        self.key.setText(Settings().get('isbndb.com key', ''))
+        self.key.setText(prefs['isbndb_com_key'])
         
         self.setWindowTitle(title if title else 'Unknown')
         self.tlabel.setText(self.tlabel.text().arg(title if title else 'Unknown'))
@@ -105,7 +105,7 @@ class FetchMetadata(QDialog, Ui_FetchMetadata):
                          _('You must specify a valid access key for isbndb.com'))
             return
         else:
-            Settings().set('isbndb.com key', key)
+            prefs['isbndb_com_key'] =  key
             
         args = ['isbndb']
         if self.isbn:

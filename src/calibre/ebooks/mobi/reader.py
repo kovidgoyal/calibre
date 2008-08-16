@@ -408,7 +408,7 @@ def get_metadata(stream):
     return mi
         
 def option_parser():
-    from calibre import OptionParser
+    from calibre.utils.config import OptionParser
     parser = OptionParser(usage=_('%prog [options] myebook.mobi'))
     parser.add_option('-o', '--output-dir', default='.', 
                       help=_('Output directory. Defaults to current directory.'))

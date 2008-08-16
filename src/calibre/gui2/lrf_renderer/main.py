@@ -6,10 +6,11 @@ import sys, logging, os, traceback, time
 from PyQt4.QtGui import QKeySequence, QPainter, QDialog, QSpinBox, QSlider, QIcon
 from PyQt4.QtCore import Qt, QObject, SIGNAL, QCoreApplication, QThread
 
-from calibre import __appname__, setup_cli_handlers, islinux, Settings
+from calibre import __appname__, setup_cli_handlers, islinux
 from calibre.ebooks.lrf.lrfparser import LRFDocument
 
-from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, choose_files, Application
+from calibre.gui2 import ORG_NAME, APP_UID, error_dialog, \
+                         config, choose_files, Application
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.gui2.lrf_renderer.main_ui import Ui_MainWindow
 from calibre.gui2.lrf_renderer.config_ui import Ui_ViewerConfig
@@ -102,13 +103,15 @@ class Main(MainWindow, Ui_MainWindow):
         
         
     def configure(self, triggered):
-        opts = Settings().get('LRF ebook viewer options', self.opts)
+        opts = config['LRF_ebook_viewer_options']
+        if not opts:
+            opts = self.opts
         d = Config(self, opts)
         d.exec_()
         if d.result() == QDialog.Accepted:
             opts.white_background = bool(d.white_background.isChecked())
             opts.hyphenate = bool(d.hyphenate.isChecked())
-            Settings().set('LRF ebook viewer options', opts)
+            config['LRF_ebook_viewer_options'] = opts
     
     def set_ebook(self, stream):
         self.progress_bar.setMinimum(0)
@@ -281,7 +284,9 @@ Read the LRF ebook book.lrf
     return parser
 
 def normalize_settings(parser, opts):
-    saved_opts = Settings().get('LRF ebook viewer options', opts)
+    saved_opts = config['LRF_ebook_viewer_options']
+    if not saved_opts:
+        saved_opts = opts
     for opt in parser.option_list:
         if not opt.dest:
             continue

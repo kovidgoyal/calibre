@@ -7,7 +7,8 @@ Embedded console for debugging.
 '''
 
 import sys, os, re
-from calibre import OptionParser, iswindows, isosx
+from calibre.utils.config import OptionParser
+from calibre.constants import iswindows, isosx
 from calibre.libunzip import update
 
 def option_parser():

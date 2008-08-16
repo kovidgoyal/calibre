@@ -6,7 +6,8 @@ Fetch cover from LibraryThing.com based on ISBN number.
 
 import sys, socket, os, re, mechanize
 
-from calibre import browser as _browser, OptionParser
+from calibre import browser as _browser
+from calibre.utils.config import OptionParser
 from calibre.ebooks.BeautifulSoup import BeautifulSoup 
 browser = None
 

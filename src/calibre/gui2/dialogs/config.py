@@ -5,9 +5,10 @@ import os
 from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon
 from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant
 
-from calibre import islinux, Settings
+from calibre import islinux
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog
+from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config
+from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.ebooks import BOOK_EXTENSIONS
 
@@ -24,18 +25,17 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.item2 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
         self.db = db
         self.current_cols = columns
-        settings = Settings()
-        path = settings.get('database path')
+        path = prefs['database_path']
         
         self.location.setText(os.path.dirname(path))
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         self.connect(self.compact_button, SIGNAL('clicked(bool)'), self.compact)
         
-        dirs = settings.get('frequently used directories', [])
-        rn = settings.get('use roman numerals for series number', True)
-        self.timeout.setValue(settings.get('network timeout', 5))
+        dirs = config['frequently_used_directories']
+        rn = config['use_roman_numerals_for_series_number']
+        self.timeout.setValue(prefs['network_timeout'])
         self.roman_numerals.setChecked(rn)
-        self.new_version_notification.setChecked(settings.get('new version notification', True))
+        self.new_version_notification.setChecked(config['new_version_notification'])
         self.directory_list.addItems(dirs)
         self.connect(self.add_button, SIGNAL('clicked(bool)'), self.add_dir)
         self.connect(self.remove_button, SIGNAL('clicked(bool)'), self.remove_dir)
@@ -57,17 +57,17 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
         
-        icons = settings.get('toolbar icon size', self.ICON_SIZES[0])
+        icons = config['toolbar_icon_size']
         self.toolbar_button_size.setCurrentIndex(0 if icons == self.ICON_SIZES[0] else 1 if icons == self.ICON_SIZES[1] else 2)
-        self.show_toolbar_text.setChecked(settings.get('show text in toolbar', True))
+        self.show_toolbar_text.setChecked(config['show_text_in_toolbar'])
 
         for ext in BOOK_EXTENSIONS:
             self.single_format.addItem(ext.upper(), QVariant(ext))
         
-        single_format = settings.get('save to disk single format', 'lrf')
+        single_format = config['save_to_disk_single_format']
         self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
-        self.cover_browse.setValue(settings.get('cover flow queue length', 6))
-        self.confirm_delete.setChecked(settings.get('confirm delete', False))
+        self.cover_browse.setValue(config['cover_flow_queue_length'])
+        self.confirm_delete.setChecked(config['confirm_delete'])
         
     def compact(self, toggled):
         d = Vacuum(self, self.db)
@@ -89,19 +89,18 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.directory_list.takeItem(idx)
     
     def accept(self):
-        settings = Settings()            
-        settings.set('use roman numerals for series number', bool(self.roman_numerals.isChecked()))
-        settings.set('new version notification', bool(self.new_version_notification.isChecked()))
-        settings.set('network timeout', int(self.timeout.value()))
+        config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
+        config['new_version_notification'] = bool(self.new_version_notification.isChecked())
+        prefs['network_timeout'] = int(self.timeout.value())
         path = qstring_to_unicode(self.location.text())
         self.final_columns = [self.columns.item(i).checkState() == Qt.Checked for i in range(self.columns.count())]
-        settings.set('toolbar icon size', self.ICON_SIZES[self.toolbar_button_size.currentIndex()])
-        settings.set('show text in toolbar', bool(self.show_toolbar_text.isChecked()))
-        settings.set('confirm delete', bool(self.confirm_delete.isChecked()))
+        config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
+        config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
+        config['confirm_delete'] =  bool(self.confirm_delete.isChecked())
         pattern = self.filename_pattern.commit()
-        settings.set('filename pattern', pattern)
-        settings.set('save to disk single format', BOOK_EXTENSIONS[self.single_format.currentIndex()])
-        settings.set('cover flow queue length', self.cover_browse.value())
+        config['filename_pattern'] = pattern
+        config['save_to_disk_single_format'] = BOOK_EXTENSIONS[self.single_format.currentIndex()]
+        config['cover_flow_queue_length'] = self.cover_browse.value()
         
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'), _('Invalid database location ')+path+_('<br>Must be a directory.'))
@@ -112,7 +111,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         else:
             self.database_location = os.path.abspath(path)
             self.directories = [qstring_to_unicode(self.directory_list.item(i).text()) for i in range(self.directory_list.count())]
-            settings.set('frequently used directories', self.directories)
+            config['frequently_used_directories'] =  self.directories
             QDialog.accept(self)
 
 class Vacuum(QMessageBox):
