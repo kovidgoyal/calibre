@@ -13,7 +13,6 @@ from calibre.gui2.widgets import FilenamePattern
 from calibre.ebooks import BOOK_EXTENSIONS
 
 
-
 class ConfigDialog(QDialog, Ui_Dialog):
     
     def __init__(self, window, db, columns):
@@ -98,7 +97,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
         config['confirm_delete'] =  bool(self.confirm_delete.isChecked())
         pattern = self.filename_pattern.commit()
-        config['filename_pattern'] = pattern
+        prefs['filename_pattern'] = pattern
         config['save_to_disk_single_format'] = BOOK_EXTENSIONS[self.single_format.currentIndex()]
         config['cover_flow_queue_length'] = self.cover_browse.value()
         

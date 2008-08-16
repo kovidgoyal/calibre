@@ -180,7 +180,7 @@ class PageProcessor(list):
                 
             MagickSetImageType(wand, GrayscaleType)
             MagickQuantizeImage(wand, self.opts.colors, RGBColorspace, 0, 1, 0)
-            dest = '%d_%d%s'%(self.num, i, os.path.splitext(self.path_to_page)[-1])
+            dest = '%d_%d.png'%(self.num, i)
             dest = os.path.join(self.dest, dest)
             MagickWriteImage(wand, dest)
             self.append(dest)
