@@ -201,7 +201,7 @@ class MetaInformation(object):
         #: mi.cover_data = (ext, data)
         self.cover_data   = mi.cover_data if (mi and hasattr(mi, 'cover_data')) else (None, None)
         self.application_id    = mi.application_id  if (mi and hasattr(mi, 'application_id')) else None
-        self.manifest = getattr(mi, 'manifest', None) 
+        self.manifest = getattr(mi, 'manifest', None)
         self.toc      = getattr(mi, 'toc', None)
         self.spine    = getattr(mi, 'spine', None)
         self.guide    = getattr(mi, 'guide', None)

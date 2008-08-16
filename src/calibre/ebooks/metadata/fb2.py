@@ -41,6 +41,10 @@ def get_metadata(stream):
     mi.author_sort = lastname+'; '+firstname
     if series:
         mi.series = series.get('name', None)
+        try:
+            mi.series_index = int(series.get('number', None))
+        except (TypeError, ValueError):
+            pass
     if cdata:
         mi.cover_data = cdata
     return mi

@@ -12,7 +12,7 @@ from calibre.ebooks.metadata.lit  import get_metadata as lit_metadata
 from calibre.ebooks.metadata.epub import get_metadata as epub_metadata
 from calibre.ebooks.metadata.html import get_metadata as html_metadata
 from calibre.ebooks.mobi.reader   import get_metadata as mobi_metadata
-from calibre.ebooks.metadata.opf  import OPFReader 
+from calibre.ebooks.metadata.opf  import OPFReader
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
@@ -29,14 +29,14 @@ _METADATA_PRIORITIES = [
 # Higher values should be used to update metadata from lower values
 METADATA_PRIORITIES = collections.defaultdict(lambda:0)
 for i, ext in enumerate(_METADATA_PRIORITIES):
-    METADATA_PRIORITIES[ext] = i 
+    METADATA_PRIORITIES[ext] = i
 
 def path_to_ext(path):
     return os.path.splitext(path)[1][1:].lower()
 
 def metadata_from_formats(formats):
     mi = MetaInformation(None, None)
-    formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],  
+    formats.sort(cmp=lambda x,y: cmp(METADATA_PRIORITIES[path_to_ext(x)],
                                      METADATA_PRIORITIES[path_to_ext(y)]))
     for path in formats:
         ext = path_to_ext(path)
