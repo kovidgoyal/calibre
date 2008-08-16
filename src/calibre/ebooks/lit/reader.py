@@ -643,11 +643,14 @@ class LitReader(object):
             self.drmlevel = 1
         else:
             return
-        msdes.deskey(self._calculate_deskey(), msdes.DE1)
-        bookkey = msdes.des(self.get_file('/DRMStorage/DRMSealed'))
-        if bookkey[0] != '\000':
-            raise LitError('Unable to decrypt title key!')
-        self.bookkey = bookkey[1:9]
+        if self.drmlevel < 5:
+            msdes.deskey(self._calculate_deskey(), msdes.DE1)
+            bookkey = msdes.des(self.get_file('/DRMStorage/DRMSealed'))
+            if bookkey[0] != '\000':
+                raise LitError('Unable to decrypt title key!')
+            self.bookkey = bookkey[1:9]
+        else:
+            raise LitError('Cannot extract content from a DRM protected ebook')
 
     def _calculate_deskey(self):
         hashfiles = ['/meta', '/DRMStorage/DRMSource']
@@ -710,8 +713,6 @@ class LitReader(object):
         return content
 
     def _decrypt(self, content):
-        if self.drmlevel == 5:
-            raise LitError('Cannot extract content from a DRM protected ebook')
         msdes.deskey(self.bookkey, msdes.DE1)
         return msdes.des(content)
 
