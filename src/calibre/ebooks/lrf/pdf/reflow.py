@@ -7,7 +7,8 @@ Convert PDF to a reflowable format using pdftoxml.exe as the PDF parsing backend
 import sys, os, re, tempfile, subprocess, atexit, shutil, logging, xml.parsers.expat
 from xml.etree.ElementTree import parse
 
-from calibre import isosx, OptionParser, setup_cli_handlers, __appname__
+from calibre import isosx, setup_cli_handlers, __appname__
+from calibre.utils.config import OptionParser
 from calibre.ebooks import ConversionError
 
 PDFTOXML = 'pdftoxml.exe'

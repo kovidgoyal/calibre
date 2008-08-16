@@ -1412,8 +1412,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     mi.authors = [_('Unknown')]
                 mi.render(f)
                 f.close()
-
-                for fmt in self.formats(idx, index_is_id=index_is_id).split(','):
+                
+                fmts = self.formats(idx, index_is_id=index_is_id)
+                if not fmts:
+                    fmts = ''
+                for fmt in fmts.split(','):
                     data = self.format(idx, fmt, index_is_id=index_is_id)
                     fname = name +'.'+fmt.lower()
                     fname = sanitize_file_name(fname)

@@ -10,6 +10,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 import sys, struct, cStringIO, os
 import functools
 import re
+from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
@@ -17,6 +18,8 @@ from calibre import plugins
 lzx, lxzerror = plugins['lzx']
 msdes, msdeserror = plugins['msdes']
 
+XML_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
+"""
 OPF_DECL = """<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE package 
   PUBLIC "+//ISBN 0-9673008-1-9//DTD OEB 1.0.1 Package//EN"
@@ -107,11 +110,12 @@ class UnBinary(object):
     AMPERSAND_RE = re.compile(
         r'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
     
-    def __init__(self, bin, manifest, map=OPF_MAP):
+    def __init__(self, bin, path, manifest, map=OPF_MAP):
         self.manifest = manifest
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
         self.opf = map is OPF_MAP
         self.bin = bin
+        self.dir = os.path.dirname(path)
         self.buf = cStringIO.StringIO()
         self.binary_to_text()
         self.raw = self.buf.getvalue().lstrip().decode('utf-8')
@@ -122,9 +126,19 @@ class UnBinary(object):
     
     def item_path(self, internal_id):
         try:
-            return self.manifest[internal_id].path
+            target = self.manifest[internal_id].path
         except KeyError:
             return internal_id
+        if not self.dir:
+            return target
+        target = target.split('/')
+        base = self.dir.split('/')
+        for index in xrange(min(len(base), len(target))):
+            if base[index] != target[index]: break
+        else:
+            index += 1
+        relpath = (['..'] * (len(base) - index)) + target[index:]
+        return '/'.join(relpath)
     
     def __unicode__(self):
         return self.raw
@@ -147,7 +161,7 @@ class UnBinary(object):
                     continue
                 elif c == '\v':
                     c = '\n'
-                self.buf.write(c.encode('utf-8'))
+                self.buf.write(c.encode('ascii', 'xmlcharrefreplace'))
             
             elif state == 'get flags':
                 if oc == 0:
@@ -206,7 +220,7 @@ class UnBinary(object):
                         state = 'get attr length'
                         continue
                     attr = None
-                    if oc in current_map and current_map[oc]:
+                    if current_map and oc in current_map and current_map[oc]:
                         attr = current_map[oc]
                     elif oc in self.attr_map:
                         attr = self.attr_map[oc]
@@ -247,7 +261,8 @@ class UnBinary(object):
                     state = 'get attr'
                 elif count > 0:
                     if not in_censorship:
-                        self.buf.write(unicode(c).encode('utf-8'))
+                        self.buf.write(c.encode(
+                            'ascii', 'xmlcharrefreplace'))
                     count -= 1
                 if count == 0:
                     if not in_censorship:
@@ -299,7 +314,8 @@ class UnBinary(object):
                     path = self.item_path(doc)
                     if m and frag:
                         path += m + frag
-                    self.buf.write((u'"%s"' % path).encode('utf-8'))
+                    self.buf.write((u'"%s"' % path).encode(
+                        'ascii', 'xmlcharrefreplace'))
                     state = 'get attr'
         return index
     
@@ -354,6 +370,8 @@ def preserve(function):
     
 class LitReader(object):
     PIECE_SIZE = 16
+    XML_PARSER = etree.XMLParser(
+        remove_blank_text=True, resolve_entities=False)
 
     def magic():
         @preserve
@@ -596,16 +614,23 @@ class LitReader(object):
             if item.path[0] == '/':
                 item.path = os.path.basename(item.path)
 
+    def _pretty_print(self, xml):
+        f = cStringIO.StringIO(xml.encode('utf-8'))
+        doc = etree.parse(f, parser=self.XML_PARSER)
+        pretty = etree.tostring(doc, encoding='ascii', pretty_print=True)
+        return XML_DECL + unicode(pretty)
+                
     def _read_meta(self):
+        path = 'content.opf'
         raw = self.get_file('/meta')
         try:
-            xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
+            xml = OPF_DECL + unicode(UnBinary(raw, path, self.manifest, OPF_MAP))
         except LitError:
             if 'PENGUIN group' not in raw: raise
             print "WARNING: attempting PENGUIN malformed OPF fix"
             raw = raw.replace(
                 'PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
-            xml = OPF_DECL + unicode(UnBinary(raw, self.manifest, OPF_MAP))
+            xml = OPF_DECL + unicode(UnBinary(raw, path, self.manifest, OPF_MAP))
         self.meta = xml
 
     def _read_drm(self):
@@ -645,13 +670,6 @@ class LitReader(object):
             key[i % 8] ^= ord(digest[i])
         return ''.join(chr(x) for x in key)
 
-    def get_markup_file(self, name):
-        raw = self.get_file(name)
-        decl, map = (OPF_DECL, OPF_MAP) \
-            if name == '/meta' else (HTML_DECL, HTML_MAP)
-        xml = decl + unicode(UnBinary(raw, self.manifest, map))
-        return xml
-        
     def get_file(self, name):
         entry = self.entries[name]
         if entry.section == 0:
@@ -748,7 +766,23 @@ class LitReader(object):
             raise LitError("Failed to completely decompress section")
         return ''.join(result)
 
-    def extract_content(self, output_dir=os.getcwdu()):
+    def get_entry_content(self, entry, pretty_print=False):
+        if 'spine' in entry.state:
+            name = '/'.join(('/data', entry.internal, 'content'))
+            path = entry.path
+            raw = self.get_file(name)
+            decl, map = (OPF_DECL, OPF_MAP) \
+                if name == '/meta' else (HTML_DECL, HTML_MAP)
+            content = decl + unicode(UnBinary(raw, path, self.manifest, map))
+            if pretty_print:
+                content = self._pretty_print(content)
+            content = content.encode('utf-8')
+        else:
+            name = '/'.join(('/data', entry.internal))
+            content = self.get_file(name)
+        return content
+                    
+    def extract_content(self, output_dir=os.getcwdu(), pretty_print=False):
         output_dir = os.path.abspath(output_dir)
         try:
             opf_path = os.path.splitext(
@@ -758,17 +792,15 @@ class LitReader(object):
         opf_path = os.path.join(output_dir, opf_path)
         self._ensure_dir(opf_path)
         with open(opf_path, 'wb') as f:
-            f.write(self.meta.encode('utf-8'))
+            xml = self.meta
+            if pretty_print:
+                xml = self._pretty_print(xml)
+            f.write(xml.encode('utf-8'))
         for entry in self.manifest.values():
             path = os.path.join(output_dir, entry.path)
             self._ensure_dir(path)
             with open(path, 'wb') as f:
-                if 'spine' in entry.state:
-                    name = '/'.join(('/data', entry.internal, 'content'))
-                    f.write(self.get_markup_file(name).encode('utf-8'))
-                else:
-                    name = '/'.join(('/data', entry.internal))
-                    f.write(self.get_file(name))
+                f.write(self.get_entry_content(entry, pretty_print))
 
     def _ensure_dir(self, path):
         dir = os.path.dirname(path)
@@ -776,11 +808,14 @@ class LitReader(object):
             os.makedirs(dir)
 
 def option_parser():
-    from calibre import OptionParser
+    from calibre.utils.config import OptionParser
     parser = OptionParser(usage=_('%prog [options] LITFILE'))
     parser.add_option(
         '-o', '--output-dir', default='.', 
         help=_('Output directory. Defaults to current directory.'))
+    parser.add_option(
+        '-p', '--pretty-print', default=False, action='store_true',
+        help=_('Legibly format extracted markup. May modify meaningful whitespace.'))
     parser.add_option(
         '--verbose', default=False, action='store_true',
         help=_('Useful for debugging.'))
@@ -793,7 +828,7 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     lr = LitReader(args[1])
-    lr.extract_content(opts.output_dir)
+    lr.extract_content(opts.output_dir, opts.pretty_print)
     print _('OEB ebook created in'), opts.output_dir
     return 0
 

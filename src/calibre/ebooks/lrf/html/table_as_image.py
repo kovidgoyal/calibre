@@ -10,6 +10,8 @@ import os, tempfile, atexit, shutil, time
 from PyQt4.Qt import QWebPage, QUrl, QApplication, QSize, \
                      SIGNAL, QPainter, QImage, QObject, Qt
 
+from calibre.parallel import ParallelJob
+
 __app = None
 
 class HTMLTableRenderer(QObject):
@@ -80,18 +82,17 @@ def render_table(server, soup, table, css, base_dir, width, height, dpi, factor=
     </body>
 </html>
     '''%(head, width-10, style, unicode(table))
-    server.run_job(1, 'render_table', 
+    job = ParallelJob('render_table',  lambda j : j, None,
                             args=[html, base_dir, width, height, dpi, factor])
-    res = None
-    while res is None:
+    server.add_job(job)
+    while not job.has_run:
         time.sleep(2)
-        res = server.result(1)
-    result, exception, traceback = res
-    if exception:
+    
+    if job.exception is not None:
         print 'Failed to render table'
-        print exception
-        print traceback
-    images, tdir = result
+        print job.exception
+        print job.traceback
+    images, tdir = job.result
     atexit.register(shutil.rmtree, tdir)
     return images
     

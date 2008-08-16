@@ -164,8 +164,8 @@ DEFAULTKEYWORDS = ', '.join(default_keywords)
 
 EMPTYSTRING = ''
 
-from calibre import __appname__
-from calibre import __version__ as version
+from calibre.constants import __appname__
+from calibre.constants import __version__ as version
 
 # The normal pot-file header. msgmerge and Emacs's po-mode work better if it's
 # there.

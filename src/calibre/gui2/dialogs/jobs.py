@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Display active jobs'''
 
-from PyQt4.QtCore import Qt, QObject, SIGNAL, QSize, QString
+from PyQt4.QtCore import Qt, QObject, SIGNAL, QSize, QString, QTimer
 from PyQt4.QtGui import QDialog, QAbstractItemDelegate, QStyleOptionProgressBarV2, \
                         QApplication, QStyle
 
@@ -44,11 +44,21 @@ class JobsDialog(QDialog, Ui_JobsDialog):
                         self.jobs_view.model().kill_job)
         self.pb_delegate = ProgressBarDelegate(self)
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
+        
+        self.running_time_timer = QTimer(self)
+        self.connect(self.running_time_timer, SIGNAL('timeout()'), self.update_running_time)
+        self.running_time_timer.start(1000)
+        
+    def update_running_time(self):
+        model = self.model
+        for row, job in enumerate(model.jobs):
+            if job.is_running:
+                self.jobs_view.dataChanged(model.index(row, 3), model.index(row, 3))    
     
     def kill_job(self):
         for index in self.jobs_view.selectedIndexes():
             row = index.row()
-            self.emit(SIGNAL('kill_job(int, PyQt_PyObject)'), row, self)
+            self.model.kill_job(row, self)
             return
     
     def closeEvent(self, e):

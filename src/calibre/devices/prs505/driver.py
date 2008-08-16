@@ -135,7 +135,7 @@ class PRS505(Device):
             if 'PRS-505/UC&' in device_id:
                 main = volumes[device_id]+':\\'
         if not main:
-            DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
+            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
         self._main_prefix = main
         card = self._card_prefix = None
         win32api = __import__('win32api')

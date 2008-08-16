@@ -9,7 +9,7 @@
 class FlowImages : QObject {
 
 %TypeHeaderCode
-#include "../../pictureflow.h"
+#include <pictureflow.h>
 %End
 
 public:
@@ -22,7 +22,7 @@ public:
 class PictureFlow : QWidget  {
 
 %TypeHeaderCode
-#include "../../pictureflow.h"
+#include <pictureflow.h>
 %End
 
 

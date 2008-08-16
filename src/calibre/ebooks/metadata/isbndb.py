@@ -7,7 +7,8 @@ Interface to isbndb.com. My key HLLXQX2A.
 import sys, logging, re, socket
 from urllib import urlopen, quote
 
-from calibre import setup_cli_handlers, OptionParser
+from calibre import setup_cli_handlers
+from calibre.utils.config import OptionParser
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 

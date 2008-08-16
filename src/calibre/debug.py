@@ -7,7 +7,8 @@ Embedded console for debugging.
 '''
 
 import sys, os, re
-from calibre import OptionParser, iswindows
+from calibre.utils.config import OptionParser
+from calibre.constants import iswindows, isosx
 from calibre.libunzip import update
 
 def option_parser():
@@ -25,18 +26,23 @@ Run an embedded python interpreter.
 def update_zipfile(zipfile, mod, path):
     if 'win32' in sys.platform:
         print 'WARNING: On Windows Vista you must run this from a console that has been started in Administrator mode.'
-        print 'Press Enter to continue or Ctrl-C to Cancel'
+        print 'Press Enter to continue if this is an Administrator console or Ctrl-C to Cancel'
         raw_input()
     pat = re.compile(mod.replace('.', '/')+r'\.py[co]*')
     name = mod.replace('.', '/') + os.path.splitext(path)[-1]
     update(zipfile, [pat], [path], [name])
-    
+
 
 def update_module(mod, path):
     if not hasattr(sys, 'frozen'):
         raise RuntimeError('Modules can only be updated in frozen installs.')
-    if True or iswindows:
+    zp = None
+    if iswindows:
         zp = os.path.join(os.path.dirname(sys.executable), 'library.zip')
+    elif isosx:
+        zp = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')),
+                            'Resources', 'lib', 'python2.5', 'site-packages.zip')
+    if zp is not None:
         update_zipfile(zp, mod, path)
     else:
         raise ValueError('Updating modules is not supported on this platform.')
@@ -53,8 +59,8 @@ def main(args=sys.argv):
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed()
         ipshell()
-    
-    
+
+
 
     return 0
 

@@ -93,7 +93,7 @@ class BookHeader(object):
                           1252  : 'cp1252',
                           65001 : 'utf-8',
                           }[self.codepage]
-            except IndexError, KeyError:
+            except (IndexError, KeyError):
                 print '[WARNING] Unknown codepage %d. Assuming cp-1252'%self.codepage
                 self.codec = 'cp1252'
             
@@ -408,7 +408,7 @@ def get_metadata(stream):
     return mi
         
 def option_parser():
-    from calibre import OptionParser
+    from calibre.utils.config import OptionParser
     parser = OptionParser(usage=_('%prog [options] myebook.mobi'))
     parser.add_option('-o', '--output-dir', default='.', 
                       help=_('Output directory. Defaults to current directory.'))

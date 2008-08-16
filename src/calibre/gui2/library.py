@@ -13,10 +13,10 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
-from calibre import Settings, preferred_encoding
+from calibre import preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database import LibraryDatabase, text_to_tokens
-from calibre.gui2 import NONE, TableView, qstring_to_unicode
+from calibre.gui2 import NONE, TableView, qstring_to_unicode, config
 
 class LibraryDelegate(QItemDelegate):
     COLOR    = QColor("blue")
@@ -113,9 +113,9 @@ class BooksModel(QAbstractTableModel):
             self.cover_cache.clear_cache()
 
     def read_config(self):
-        self.use_roman_numbers = Settings().get('use roman numerals for series number', True)
-
-
+        self.use_roman_numbers = config['use_roman_numerals_for_series_number']
+        
+    
     def set_database(self, db):
         if isinstance(db, (QString, basestring)):
             if isinstance(db, QString):

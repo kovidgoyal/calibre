@@ -3,9 +3,9 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import StringIO, traceback, sys
 
-from PyQt4.Qt import QMainWindow, QString, Qt, QFont
+from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QCoreApplication, SIGNAL
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre import OptionParser
+from calibre.utils.config import OptionParser
 
 def option_parser(usage='''\
 Usage: %prog [options]
@@ -36,10 +36,16 @@ class MainWindow(QMainWindow):
     
     def __init__(self, opts, parent=None):
         QMainWindow.__init__(self, parent)
+        app = QCoreApplication.instance()
+        if app is not None:
+            self.connect(app, SIGNAL('unixSignal(int)'), self.unix_signal)
         if getattr(opts, 'redirect', False):
             self.__console_redirect = DebugWindow(self)
             sys.stdout = sys.stderr = self.__console_redirect
             self.__console_redirect.show()
+    
+    def unix_signal(self, signal):
+        print 'Received signal:', repr(signal)
     
     def unhandled_exception(self, type, value, tb):
         try:

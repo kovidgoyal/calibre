@@ -25,6 +25,8 @@ def generate_html(pathtopdf, logger):
     Convert the pdf into html.
     @return: Path to a temporary file containing the HTML.
     '''
+    if isinstance(pathtopdf, unicode):
+        pathtopdf = pathtopdf.encode(sys.getfilesystemencoding())
     if not os.access(pathtopdf, os.R_OK):
         raise ConversionError, 'Cannot read from ' + pathtopdf
     tdir = PersistentTemporaryDirectory('pdftohtml')

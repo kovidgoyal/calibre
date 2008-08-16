@@ -12,9 +12,10 @@ from urllib import url2pathname
 from httplib import responses
 
 from calibre import setup_cli_handlers, browser, sanitize_file_name, \
-                    OptionParser, relpath, LoggingInterface
+                    relpath, LoggingInterface
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.utils.config import OptionParser
 
 class FetchError(Exception):
     pass

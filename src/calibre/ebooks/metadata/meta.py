@@ -3,6 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, re, collections
 
+from calibre.utils.config import prefs
 from calibre.ebooks.metadata.rtf  import get_metadata as rtf_metadata
 from calibre.ebooks.metadata.fb2  import get_metadata as fb2_metadata
 from calibre.ebooks.lrf.meta      import get_metadata as lrf_metadata
@@ -94,20 +95,11 @@ def set_metadata(stream, mi, stream_type='lrf'):
     elif stream_type == 'rtf':
         set_rtf_metadata(stream, mi)
 
-_filename_pat = re.compile(ur'(?P<title>.+) - (?P<author>[^_]+)')
-
-def get_filename_pat():
-    return _filename_pat.pattern
-
-def set_filename_pat(pat):
-    global _filename_pat
-    _filename_pat = re.compile(pat)
-
 def metadata_from_filename(name, pat=None):
     name = os.path.splitext(name)[0]
     mi = MetaInformation(None, None)
     if pat is None:
-        pat = _filename_pat
+        pat = re.compile(prefs.get('filename_pattern'))
     match = pat.search(name)
     if match:
         try:
@@ -134,12 +126,12 @@ def metadata_from_filename(name, pat=None):
         try:
             si = match.group('series_index')
             mi.series_index = int(si)
-        except IndexError, ValueError:
+        except (IndexError, ValueError):
             pass
         try:
             si = match.group('isbn')
             mi.isbn = si
-        except IndexError, ValueError:
+        except (IndexError, ValueError):
             pass
     if not mi.title:
         mi.title = name

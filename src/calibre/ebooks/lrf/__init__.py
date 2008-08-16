@@ -14,7 +14,8 @@ from calibre.ebooks.lrf.pylrs.pylrs import TextBlock, Header, PutObj, \
                                              Paragraph, TextStyle, BlockStyle
 from calibre.ebooks.lrf.fonts import FONT_FILE_MAP
 from calibre.ebooks import ConversionError
-from calibre import __appname__, __version__, __author__, iswindows, OptionParser
+from calibre import __appname__, __version__, __author__, iswindows
+from calibre.utils.config import OptionParser
 
 __docformat__ = "epytext"
 

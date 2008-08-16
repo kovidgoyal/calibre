@@ -244,6 +244,7 @@ def do_postinstall(destdir):
         os.chdir(destdir)
         os.environ['LD_LIBRARY_PATH'] = destdir+':'+os.environ.get('LD_LIBRARY_PATH', '')
         os.environ['PYTHONPATH'] = destdir
+        os.environ['PYTHONSTARTUP'] = ''
         subprocess.call((os.path.join(destdir, 'calibre_postinstall'), '--save-manifest-to', t.name))
     finally:
         os.chdir(cwd)

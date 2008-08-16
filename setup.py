@@ -7,7 +7,7 @@ sys.path.append('src')
 iswindows = re.search('win(32|64)', sys.platform)
 isosx = 'darwin' in sys.platform
 islinux = not isosx and not iswindows
-src = open('src/calibre/__init__.py', 'rb').read()
+src = open('src/calibre/constants.py', 'rb').read()
 VERSION = re.search(r'__version__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 APPNAME = re.search(r'__appname__\s+=\s+[\'"]([^\'"]+)[\'"]', src).group(1)
 print 'Setup', APPNAME, 'version:', VERSION
@@ -47,17 +47,25 @@ main_functions = {
 
 if __name__ == '__main__':
     from setuptools import setup, find_packages, Extension
+    from pyqtdistutils import PyQtExtension, build_ext
     import subprocess, glob
-
+    
     entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
-    ext_modules = [Extension('calibre.plugins.lzx',
+    ext_modules = [
+                   Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',
                                       'src/calibre/utils/lzx/lzxd.c'],
                              include_dirs=['src/calibre/utils/lzx']),
                    Extension('calibre.plugins.msdes',
                              sources=['src/calibre/utils/msdes/msdesmodule.c',
                                       'src/calibre/utils/msdes/des.c'],
-                             include_dirs=['src/calibre/utils/msdes'])]
+                             include_dirs=['src/calibre/utils/msdes']),
+                    PyQtExtension('calibre.plugins.pictureflow',
+                                  ['src/calibre/gui2/pictureflow/pictureflow.cpp',
+                                   'src/calibre/gui2/pictureflow/pictureflow.h'],
+                                   ['src/calibre/gui2/pictureflow/pictureflow.sip']
+                                  )
+                 ]
     if iswindows:
         ext_modules.append(Extension('calibre.plugins.winutil',
                 sources=['src/calibre/utils/windows/winutil.c'],
@@ -68,43 +76,7 @@ if __name__ == '__main__':
         ext_modules.append(Extension('calibre.plugins.usbobserver',
                 sources=['src/calibre/devices/usbobserver/usbobserver.c'])
                            )
-
-    def build_PyQt_extension(path):
-        pro      = glob.glob(os.path.join(path, '*.pro'))[0]
-        raw = open(pro).read()
-        base = qtplugin = re.search(r'TARGET\s*=\s*(.*)', raw).group(1)
-        ver  = re.search(r'VERSION\s*=\s*(\d+)', raw).group(1)
-        cwd = os.getcwd()
-        os.chdir(os.path.dirname(pro))
-        try:
-            if not os.path.exists('.build'):
-                os.mkdir('.build')
-            os.chdir('.build')
-            subprocess.check_call(( (os.path.expanduser('~/qt/bin/qmake') if isosx else 'qmake'), '..'+os.sep+os.path.basename(pro)))
-            subprocess.check_call(['mingw32-make' if iswindows else 'make'])
-            os.chdir(os.path.join('..', 'PyQt'))
-            if not os.path.exists('.build'):
-                os.mkdir('.build')
-            os.chdir('.build')
-            python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python' if isosx else 'python'
-            subprocess.check_call([python, '..'+os.sep+'configure.py'])
-            subprocess.check_call(['mingw32-make' if iswindows else 'make'])
-            ext = '.pyd' if iswindows else '.so'
-            plugin = glob.glob(base+ext)[0]
-            shutil.copyfile(plugin, os.path.join(cwd, 'src', 'calibre', 'plugins', plugin))
-        finally:
-            os.chdir(cwd)
-            if islinux or isosx:
-                for f in glob.glob(os.path.join('src', 'calibre', 'plugins', '*')):
-                    try:
-                        os.readlink(f)
-                        os.unlink(f)
-                    except:
-                        continue
-
-    for path in [(os.path.join('src', 'calibre', 'gui2', 'pictureflow'))]:
-        build_PyQt_extension(path)
-
+    
     setup(
           name=APPNAME,
           packages = find_packages('src'),
@@ -152,7 +124,8 @@ if __name__ == '__main__':
             'Programming Language :: Python',
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: System :: Hardware :: Hardware Drivers'
-            ]
+            ],
+          cmdclass = {'build_ext': build_ext},
          )
 
     if 'develop' in ' '.join(sys.argv) and islinux:

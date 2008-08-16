@@ -6,7 +6,8 @@ Compile a LRS file into a LRF file.
 
 import sys, os, logging
 
-from calibre import OptionParser, setup_cli_handlers
+from calibre import setup_cli_handlers
+from calibre.utils.config import OptionParser
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, NavigableString, \
                                            CData, Tag
 from calibre.ebooks.lrf.pylrs.pylrs import Book, PageStyle, TextStyle, \

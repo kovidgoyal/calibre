@@ -10,7 +10,8 @@ Command line interface to the calibre database.
 import sys, os
 from textwrap import TextWrapper
 
-from calibre import OptionParser, Settings, terminal_controller, preferred_encoding
+from calibre import terminal_controller, preferred_encoding
+from calibre.utils.config import OptionParser, prefs
 try:
     from calibre.utils.single_qt_application import send_message
 except:
@@ -26,6 +27,7 @@ def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group('GLOBAL OPTIONS')
     go.add_option('--library-path', default=None, help=_('Path to the calibre library. Default is to use the path stored in the settings.'))
+
     return parser
 
 def get_db(dbpath, options):
@@ -44,8 +46,8 @@ def do_list(db, fields, sort_by, ascending, search_text):
     widths = list(map(lambda x : 0, fields))
     for i in db.data:
         for j, field in enumerate(fields):
-            widths[j] = max(widths[j], len(unicode(i[field])))
-
+            widths[j] = max(widths[j], len(unicode(i[str(field)])))
+    
     screen_width = terminal_controller.COLS
     if not screen_width:
         screen_width = 80
@@ -97,8 +99,7 @@ List the books available in the calibre database.
     parser.add_option('-s', '--search', default=None,
                       help=_('Filter the results by the search query. For the format of the search query, please see the search related documentation in the User Manual. Default is to do no filtering.'))
     opts, args = parser.parse_args(sys.argv[:1] + args)
-    fields = [f.strip().lower() for f in opts.fields.split(',')]
-
+    fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
     if not set(fields).issubset(FIELDS):
         parser.print_help()
         print
@@ -424,7 +425,7 @@ For help on an individual command: %%prog command --help
         return 1
 
     command = eval('command_'+args[1])
-    dbpath = Settings().get('library path', os.path.expanduser('~'))
+    dbpath = prefs['library_path']
 
     return command(args[2:], dbpath)
 

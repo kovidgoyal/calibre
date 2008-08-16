@@ -17,7 +17,7 @@ E-book Format Conversion
 
 What formats does |app| support conversion to/from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| supports the conversion of the following formats to LRF: HTML, LIT, MOBI, PRC, EPUB, RTF, TXT, PDF and LRS. It also supports the conversion of LRF to LRS and HTML. Note that calibre does not support the conversion of DRMed ebooks.
+|app| supports the conversion of the following formats to LRF: HTML, LIT, MOBI, PRC, EPUB, CBR, CBZ, RTF, TXT, PDF and LRS. It also supports the conversion of LRF to LRS and HTML(forthcoming). Note that calibre does not support the conversion of DRMed ebooks.
 
 What are the best formats to convert to LRF?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -142,7 +142,7 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
     calibre-debug -c "from calibre.gui2.main import main; main()"
 
-Post any output you see in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion`_.
+Post any output you see in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion>`_.
     
 
 I want some feature added to |app|. What can I do?

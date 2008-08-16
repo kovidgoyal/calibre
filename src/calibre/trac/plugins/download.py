@@ -35,7 +35,6 @@ class Distribution(object):
         ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
-        ('convertlit', '1.8', 'convertlit', None, None),
         ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
@@ -49,10 +48,7 @@ class Distribution(object):
                 'fedora':'Fedora 8', 'debian':'Debian Sid', 'generic': 'Generic Unix'}
     
     MANUAL_MAP = {
-                  'ubuntu' : '<li>You will have to install <a href="">convertlit</a> manually to be able to convert LIT files.</li>',
-                  'fedora' : '''<li>You have to upgrade Qt to at least 4.3.1 and PyQt to at least 4.3.1</li>'''\
-                             '''<li>You will have to install <a href="">convertlit</a> manually to be able to convert LIT files.</li>''',
-                  'debian' : '<li>Add the following to /etc/apt/sources.list<pre class="wiki">deb http://www.debian-multimedia.org sid main</pre>Then<pre class="wiki">apt-get install clit</pre></li>', 
+                  'fedora' : '''<li>You have to upgrade Qt to at least 4.4.0 and PyQt to at least 4.4.2</li>''',
                   }
     
     def __init__(self, os):

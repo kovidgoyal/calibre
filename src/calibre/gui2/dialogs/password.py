@@ -1,12 +1,11 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-
+import re
 from PyQt4.QtGui import QDialog, QLineEdit
-from PyQt4.QtCore import QVariant, SIGNAL, Qt
+from PyQt4.QtCore import SIGNAL, Qt
 
 from calibre.gui2.dialogs.password_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode
-from calibre import Settings
+from calibre.gui2 import qstring_to_unicode, dynamic
 
 class PasswordDialog(QDialog, Ui_Dialog):
     
@@ -14,10 +13,12 @@ class PasswordDialog(QDialog, Ui_Dialog):
         QDialog.__init__(self, window)
         Ui_Dialog.__init__(self)
         self.setupUi(self)
+        self.cfg_key = re.sub(r'[^0-9a-zA-Z]', '_', name)
         
-        settings = Settings()
-        un = settings.get(name+': un', u'')
-        pw = settings.get(name+': pw', u'')
+        un = dynamic[self.cfg_key+'__un']
+        pw = dynamic[self.cfg_key+'__un']
+        if not un: un = ''
+        if not pw: pw = ''
         self.gui_username.setText(un)
         self.gui_password.setText(pw)
         self.sname = name 
@@ -37,7 +38,6 @@ class PasswordDialog(QDialog, Ui_Dialog):
         return qstring_to_unicode(self.gui_password.text())
     
     def accept(self):
-        settings = Settings()
-        settings.set(self.sname+': un', unicode(self.gui_username.text()))
-        settings.set(self.sname+': pw', unicode(self.gui_password.text()))
+        dynamic.set(self.cfg_key+'__un', unicode(self.gui_username.text()))
+        dynamic.set(self.cfg_key+'__pw', unicode(self.gui_password.text()))
         QDialog.accept(self)

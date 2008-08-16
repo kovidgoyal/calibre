@@ -12,7 +12,7 @@ def get_ip_address(ifname):
         0x8915,  # SIOCGIFADDR
         struct.pack('256s', ifname[:15])
     )[20:24])
-    
+
 HOST=get_ip_address('eth0')
 PROJECT=os.path.basename(os.getcwd())
 
@@ -28,13 +28,12 @@ MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
 BUILD_SCRIPT ='''\
 #!/bin/bash
 cd ~/build && \
-rsync -avz --exclude src/calibre/plugins --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
-cd %(project)s && rm -rf build dist src/calibre/plugins && \
-mkdir -p build dist src/calibre/plugins && \
+rsync -avz --exclude src/calibre/plugins --exclude calibre/src/calibre.egg-info --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
+cd %(project)s && \
 %%s && \
 rm -rf build/* && \
 %%s %%s
-'''%dict(host=HOST, project=PROJECT) 
+'''%dict(host=HOST, project=PROJECT)
 check_call = partial(_check_call, shell=True)
 #h = Host(hostType=VIX_SERVICEPROVIDER_VMWARE_WORKSTATION)
 
@@ -43,7 +42,7 @@ def tag_release():
     print 'Tagging release'
     check_call('bzr tag '+__version__)
     check_call('bzr commit --unchanged -m "IGN:Tag release"')
-            
+
 def installer_name(ext):
     if ext in ('exe', 'dmg'):
         return 'dist/%s-%s.%s'%(__appname__, __version__, ext)
@@ -76,6 +75,8 @@ def build_windows(shutdown=True):
     installer = installer_name('exe')
     vm = '/vmware/Windows XP/Windows XP Professional.vmx'
     start_vm(vm, 'windows', BUILD_SCRIPT%('python setup.py develop', 'python','installer\\\\windows\\\\freeze.py'))
+    if os.path.exists('build/py2exe'):
+        shutil.rmtree('build/py2exe')
     subprocess.check_call(('scp', '-rp', 'windows:build/%s/build/py2exe'%PROJECT, 'build'))
     if not os.path.exists('build/py2exe'):
         raise Exception('Failed to run py2exe')
@@ -87,7 +88,7 @@ def build_windows(shutdown=True):
 def build_osx(shutdown=True):
     installer = installer_name('dmg')
     vm = '/vmware/Mac OSX/Mac OSX.vmx'
-    python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python' 
+    python = '/Library/Frameworks/Python.framework/Versions/Current/bin/python'
     start_vm(vm, 'osx', (BUILD_SCRIPT%('sudo %s setup.py develop'%python, python, 'installer/osx/freeze.py')).replace('rm ', 'sudo rm '))
     subprocess.check_call(('scp', 'osx:build/%s/dist/*.dmg'%PROJECT, 'dist'))
     if not os.path.exists(installer):
@@ -95,7 +96,7 @@ def build_osx(shutdown=True):
     if shutdown:
         subprocess.Popen(('ssh', 'osx', 'sudo', '/sbin/shutdown', '-h', 'now'))
     return os.path.basename(installer)
-  
+
 
 def build_linux(shutdown=True):
     installer = installer_name('tar.bz2')
@@ -146,7 +147,7 @@ def curl_delete_file(path, url=MOBILEREAD):
     c.setopt(c.QUOTE, ['dele '+ path])
     c.perform()
     c.close()
-    
+
 
 def curl_upload_file(stream, url):
     c = pycurl.Curl()
@@ -173,9 +174,9 @@ def curl_upload_file(stream, url):
             stream.seek(0,2)
             if size != stream.tell():
                 raise RuntimeError('curl failed to upload %s correctly'%getattr(stream, 'name', ''))
-                             
-        
-    
+
+
+
 def upload_installer(name):
     if not os.path.exists(name):
         return
@@ -189,10 +190,10 @@ def upload_installer(name):
 def upload_installers():
     for i in ('dmg', 'exe', 'tar.bz2'):
         upload_installer(installer_name(i))
-        
+
     check_call('''ssh divok echo %s \\> %s/latest_version'''%(__version__, DOWNLOADS))
-        
-        
+
+
 def upload_docs():
     check_call('''epydoc --config epydoc.conf''')
     check_call('''scp -r docs/html divok:%s/'''%(DOCS,))
@@ -208,25 +209,25 @@ def upload_user_manual():
         check_call('scp -r .build/html/* divok:%s'%USER_MANUAL)
     finally:
         os.chdir(cwd)
-        
+
 def build_src_tarball():
     check_call('bzr export dist/calibre-%s.tar.bz2'%__version__)
-    
+
 def upload_src_tarball():
     check_call('ssh divok rm -f %s/calibre-\*.tar.bz2'%DOWNLOADS)
     check_call('scp dist/calibre-*.tar.bz2 divok:%s/'%DOWNLOADS)
 
 def stage_one():
-    shutil.rmtree('build')
+    check_call('sudo rm -rf build', shell=True)
     os.mkdir('build')
     shutil.rmtree('docs')
     os.mkdir('docs')
-    check_call(['python', 'setup.py', 'build'])
-    check_call('sudo rm -f src/%s/gui2/images_rc.pyc'%__appname__, shell=True)
+    check_call('python setup.py build', shell=True)
+    check_call('sudo python setup.py develop', shell=True)
     check_call('make', shell=True)
     tag_release()
     upload_demo()
-    
+
 def stage_two():
     subprocess.check_call('rm -rf dist/*', shell=True)
     build_installers()
@@ -241,6 +242,7 @@ def stage_three():
     upload_user_manual()
     check_call('python setup.py register bdist_egg --exclude-source-files upload')
     check_call('''rm -rf dist/* build/*''')
+    check_call('''ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/''')
 
 def main(args=sys.argv):
     print 'Starting stage one...'
@@ -250,8 +252,8 @@ def main(args=sys.argv):
     print 'Starting stage three...'
     stage_three()
     print 'Finished'
-    return 0    
-        
-    
+    return 0
+
+
 if __name__ == '__main__':
     sys.exit(main())

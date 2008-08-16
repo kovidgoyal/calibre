@@ -14,17 +14,13 @@ def set_conversion_defaults(window):
     d.exec_()
     
 def get_bulk_conversion_options(window):
-    c = config(None)
-    with open(c.config_file_path, 'rb') as f:
-        d = ComicConf(window, config_defaults=f.read())
+    d = ComicConf(window, config_defaults=config(None).as_string())
     if d.exec_() == QDialog.Accepted:
         return d.config.parse()
     
 def get_conversion_options(window, defaults, title, author):
     if defaults is None:
-        c = config(None)
-        with open(c.config_file_path, 'rb') as f:
-            defaults = f.read()
+        defaults = config(None).as_string()
     defaults += '\ntitle=%s\nauthor=%s'%(repr(title), repr(author))
     d = ComicConf(window, config_defaults=defaults, generic=False)
     if d.exec_() == QDialog.Accepted:
@@ -61,6 +57,7 @@ class ComicConf(QDialog, Ui_Dialog):
         self.opt_dont_sharpen.setChecked(opts.dont_sharpen)
         self.opt_landscape.setChecked(opts.landscape)
         self.opt_no_sort.setChecked(opts.no_sort)
+        self.opt_right2left.setChecked(opts.right2left)
         
         for opt in self.config.option_set.preferences:
             g = getattr(self, 'opt_'+opt.name, False)

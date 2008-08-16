@@ -4,7 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, array, os, re, codecs, logging
 
-from calibre import OptionParser, setup_cli_handlers 
+from calibre import setup_cli_handlers
+from calibre.utils.config import OptionParser 
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
                                          Font, Text, TOCObject, BookAttr, ruby_tags

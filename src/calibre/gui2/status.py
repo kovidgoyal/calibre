@@ -163,24 +163,23 @@ class StatusBar(QStatusBar):
     def show_book_info(self):
         self.emit(SIGNAL('show_book_info()'))
     
-    def job_added(self, id):
+    def job_added(self, nnum):
         jobs = self.movie_button.jobs
         src = qstring_to_unicode(jobs.text())
         num = self.jobs()
-        nnum = num+1
+        nnum = num + 1
         text = src.replace(str(num), str(nnum))
         jobs.setText(text)
         if self.movie_button.movie.state() == QMovie.Paused:
             self.movie_button.movie.setPaused(False)
             
-    def job_done(self, id):
+    def job_done(self, running):
         jobs = self.movie_button.jobs
         src = qstring_to_unicode(jobs.text())
         num = self.jobs()
-        nnum = num-1
-        text = src.replace(str(num), str(nnum))
+        text = src.replace(str(num), str(running))
         jobs.setText(text)
-        if nnum == 0:
+        if running == 0:
             self.no_more_jobs()
             
     def no_more_jobs(self):

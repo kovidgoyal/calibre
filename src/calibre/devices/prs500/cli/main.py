@@ -11,7 +11,7 @@ from optparse import OptionParser
 
 from calibre import __version__, iswindows, __appname__
 from calibre.devices.errors import PathError 
-from calibre.terminfo import TerminalController
+from calibre.utils.terminfo import TerminalController
 from calibre.devices.errors import ArgumentError, DeviceError, DeviceLocked
 from calibre.devices import devices
 from calibre.devices.scanner import DeviceScanner

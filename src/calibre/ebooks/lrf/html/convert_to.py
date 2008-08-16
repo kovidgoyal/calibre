@@ -2,7 +2,8 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, logging, os
 
-from calibre import setup_cli_handlers, OptionParser
+from calibre import setup_cli_handlers
+from calibre.utils.config import OptionParser
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.meta import get_metadata
 from calibre.ebooks.lrf.lrfparser import LRFDocument

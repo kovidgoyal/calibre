@@ -10,7 +10,6 @@ import glob, sys, subprocess, tarfile, os, re, py_compile, shutil
 HOME           = '/home/kovid'
 PYINSTALLER    = os.path.expanduser('~/build/pyinstaller')
 CALIBREPREFIX  = '___'
-CLIT           = '/usr/bin/clit'
 PDFTOHTML      = '/usr/bin/pdftohtml'
 LIBUNRAR       = '/usr/lib/libunrar.so'
 QTDIR          = '/usr/lib/qt4'
@@ -20,7 +19,9 @@ SQLITE         = '/usr/lib/libsqlite3.so.0'
 DBUS           = '/usr/lib/libdbus-1.so.3'
 LIBMNG         = '/usr/lib/libmng.so.1'
 LIBZ           = '/lib/libz.so.1'
-LIBUSB         = '/lib/libusb.so'
+LIBBZ2         = '/lib/libbz2.so.1'
+LIBUSB         = '/usr/lib/libusb.so'
+LIBPOPPLER     = '/usr/lib/libpoppler.so.3'
 
 
 CALIBRESRC     = os.path.join(CALIBREPREFIX, 'src')
@@ -115,11 +116,12 @@ for f in glob.glob(os.path.join(CALIBREPLUGINS, '*.so.*')):
     binaries += [(os.path.basename(f), f, 'BINARY')]
 
 print 'Adding external programs...'
-binaries += [('clit', CLIT, 'BINARY'), ('pdftohtml', PDFTOHTML, 'BINARY'),
+binaries += [('pdftohtml', PDFTOHTML, 'BINARY'),
              ('libunrar.so', LIBUNRAR, 'BINARY')]
 
 print 'Adding external libraries...'
-binaries += [ (os.path.basename(x), x, 'BINARY') for x in (SQLITE, DBUS, LIBMNG, LIBZ, LIBUSB)]
+binaries += [ (os.path.basename(x), x, 'BINARY') for x in (SQLITE, DBUS,
+            LIBMNG, LIBZ, LIBBZ2, LIBUSB, LIBPOPPLER)]
              
 
 qt = []
