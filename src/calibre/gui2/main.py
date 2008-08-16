@@ -225,7 +225,7 @@ class Main(MainWindow, Ui_MainWindow):
             pd.show()
             db.migrate_old(self.olddb, pd)
             self.olddb = None
-            Settings().set('library path', self.library_path)
+            prefs['library_path'] = self.library_path
         self.library_view.sortByColumn(3, Qt.DescendingOrder)
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
@@ -1106,7 +1106,7 @@ class Main(MainWindow, Ui_MainWindow):
                                              _('<p>An invalid database already exists at %s, delete it before trying to move the existing database.<br>Error: %s')%(newloc, str(err)))
                             d.exec_()
                     self.library_path = self.library_view.model().db.library_path
-                    prefs['library path'] =  self.library_path
+                    prefs['library_path'] =  self.library_path
                 except Exception, err:
                     traceback.print_exc()
                     d = error_dialog(self, _('Could not move database'), unicode(err))
@@ -1204,29 +1204,31 @@ class Main(MainWindow, Ui_MainWindow):
 
 
     def initialize_database(self):
-        self.library_path = prefs['library path']
+        self.library_path = prefs['library_path']
         self.olddb = None
         if self.library_path is None: # Need to migrate to new database layout
             self.database_path = prefs['database_path']
             if not os.access(os.path.dirname(self.database_path), os.W_OK):
-                error_dialog(self, _('Database does not exist'), _('The directory in which the database should be: %s no longer exists. Please choose a new database location.')%self.database_path).exec_()
-                self.database_path = choose_dir(self, 'database path dialog', 'Choose new location for database')
+                error_dialog(self, _('Database does not exist'), 
+                             _('The directory in which the database should be: %s no longer exists. Please choose a new database location.')%self.database_path).exec_()
+                self.database_path = choose_dir(self, 'database path dialog', 
+                                                _('Choose new location for database'))
                 if not self.database_path:
                     self.database_path = os.path.expanduser('~').decode(sys.getfilesystemencoding())
                 if not os.path.exists(self.database_path):
                     os.makedirs(self.database_path)
                 self.database_path = os.path.join(self.database_path, 'library1.db')
-                settings.set('database path', self.database_path)
+                prefs['database_path'] = self.database_path
             home = os.path.dirname(self.database_path)
             if not os.path.exists(home):
                 home = os.getcwd()
             from PyQt4.QtGui import QFileDialog
-            dir = qstring_to_unicode(QFileDialog.getExistingDirectory(self, _('Choose a location for your ebook library.'), home))
+            dir = unicode(QFileDialog.getExistingDirectory(self, 
+                            _('Choose a location for your ebook library.'), home))
             if not dir:
                 dir = os.path.dirname(self.database_path)
             self.library_path = os.path.abspath(dir)
             self.olddb = LibraryDatabase(self.database_path)
-
 
 
     def read_settings(self):

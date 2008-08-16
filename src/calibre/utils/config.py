@@ -451,6 +451,8 @@ def _prefs():
               help=_('Access key for isbndb.com'))
     c.add_opt('network_timeout', default=5,
               help=_('Default timeout for network operations (seconds)'))
+    c.add_opt('library_path', default=None,
+              help=_('Path to directory in which your library of books is stored'))
     
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
