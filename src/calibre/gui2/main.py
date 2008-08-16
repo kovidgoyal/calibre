@@ -1100,7 +1100,7 @@ class Main(MainWindow, Ui_MainWindow):
                             d.exec_()
                             newloc = self.database_path
                     self.database_path = newloc
-                    prefs().set('database_path', self.database_path)
+                    prefs.set('database_path', self.database_path)
                 except Exception, err:
                     traceback.print_exc()
                     d = error_dialog(self, _('Could not move database'), unicode(err))
