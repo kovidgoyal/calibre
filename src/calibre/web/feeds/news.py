@@ -98,6 +98,10 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: embedded content.
     use_embedded_content   = None
     
+    #: Set to True and implement :method:`get_obfuscated_article` to handle
+    #: websites that try to make it difficult to scrape content.
+    articles_are_obfuscated = False
+    
     #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
     #: `</head>` tag thereby overrinding all :term:`CSS` except that which is
@@ -360,12 +364,25 @@ class BasicNewsRecipe(object, LoggingInterface):
         '''
         raise NotImplementedError
     
+    def get_obfuscated_article(self, url, logger):
+        '''
+        If you set :member:`articles_are_obfuscated` this method is called with
+        every article URL. It should return the path to a file on the filesystem
+        that contains the article HTML. That file is processed by the recursive
+        HTML fetching engine, so it can contain links to pages/images on the web.
+        
+        This method is typically useful for sites that try to make it difficult to
+        access article content automatically. See for example the 
+        :module:`calibre.web.recipes.iht` recipe.
+        '''
+        raise NotImplementedError
+    
     def __init__(self, options, parser, progress_reporter):
         '''
         Initialize the recipe.
-        @param options: Parsed commandline options 
-        @param parser:  Command line option parser. Used to intelligently merge options.
-        @param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
+        :param options: Parsed commandline options 
+        :param parser:  Command line option parser. Used to intelligently merge options.
+        :param progress_reporter: A Callable that takes two arguments: progress (a number between 0 and 1) and a string message. The message should be optional.
         '''
         LoggingInterface.__init__(self, logging.getLogger('feeds2disk'))
         if not isinstance(self.title, unicode):
@@ -564,7 +581,11 @@ class BasicNewsRecipe(object, LoggingInterface):
     
     def fetch_article(self, url, dir, logger, f, a, num_of_feeds):
         return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
-        
+    
+    def fetch_obfuscated_article(self, url, dir, logger, f, a, num_of_feeds):
+        path = os.path.abspath(self.get_obfuscated_article(url, logger))
+        url = ('file:'+path) if iswindows else ('file://'+path)
+        return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
     
     def fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds):
         pt = PersistentTemporaryFile('_feeds2disk.html')
@@ -620,7 +641,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                     continue
                     
                 func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \
-                            (self.fetch_article, url)
+                            ((self.fetch_obfuscated_article if self.articles_are_obfuscated \
+                              else self.fetch_article), url)
                 req = WorkRequest(func, (arg, art_dir, logger, f, a, len(feed)), 
                                       {}, (f, a), self.article_downloaded, 
                                       self.error_in_article_download)
