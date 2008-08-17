@@ -201,15 +201,9 @@ def upload_docs():
     check_call('''scp docs/pdf/api.pdf divok:%s/'''%(DOCS,))
 
 def upload_user_manual():
-    cwd = os.getcwdu()
-    os.chdir('src/calibre/manual')
-    try:
-        check_call('make clean html')
-        check_call('ssh divok rm -rf %s/\\*'%USER_MANUAL)
-        check_call('scp -r .build/html/* divok:%s'%USER_MANUAL)
-    finally:
-        os.chdir(cwd)
-
+    check_call('python setup.py manual')
+    check_call('scp -r .build/html/* divok:%s'%USER_MANUAL)
+    
 def build_src_tarball():
     check_call('bzr export dist/calibre-%s.tar.bz2'%__version__)
 
