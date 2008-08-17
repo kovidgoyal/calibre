@@ -182,7 +182,8 @@ class PageProcessor(list):
             MagickQuantizeImage(wand, self.opts.colors, RGBColorspace, 0, 1, 0)
             dest = '%d_%d.png'%(self.num, i)
             dest = os.path.join(self.dest, dest)
-            MagickWriteImage(wand, dest)
+            MagickWriteImage(wand, dest+'8')
+            os.rename(dest+'8', dest)
             self.append(dest)
         
             DestroyPixelWand(pw)
