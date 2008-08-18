@@ -1,10 +1,11 @@
-import cStringIO
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import uuid
 '''Read/Write metadata from Open Packaging Format (.opf) files.'''
 
 import sys, re, os, glob
+import cStringIO
+import uuid
+from urllib import unquote, quote
 
 from calibre import __appname__
 from calibre.ebooks.metadata import MetaInformation
@@ -25,7 +26,10 @@ class ManifestItem(Resource):
     @staticmethod
     def from_opf_manifest_item(item, basedir):
         if item.has_key('href'):
-            res = ManifestItem(item['href'], basedir=basedir, is_path=False)
+            href = item['href']
+            if unquote(href) == href:
+                href = quote(href)
+            res = ManifestItem(href, basedir=basedir, is_path=False)
             mt = item.get('media-type', '').strip()
             if mt:
                 res.mime_type = mt
