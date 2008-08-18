@@ -139,7 +139,7 @@ class CoverCache(QThread):
         self.cache_lock.unlock()
         self.load_queue_lock.lockForWrite()
         for id in ids:
-            self.load_queue.append_left(id)
+            self.load_queue.appendleft(id)
         self.load_queue_lock.unlock()
     
 class Concatenate(object):

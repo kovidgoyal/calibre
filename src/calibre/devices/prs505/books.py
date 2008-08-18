@@ -184,7 +184,7 @@ class BookList(_BookList):
             self.remove_book(name)
                 
         node = self.document.createElement(self.prefix + "text")
-        mime = MIME_MAP[name.rpartition('.')[-1]]
+        mime = MIME_MAP[name.rpartition('.')[-1].lower()]
         cid = self.max_id()+1
         sourceid = str(self[0].sourceid) if len(self) else "1"
         attrs = {

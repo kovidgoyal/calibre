@@ -258,7 +258,7 @@ class BookList(_BookList):
         if book is not None:
             self.remove_book(name)
         node = self.document.createElement(self.prefix + "text")
-        mime = MIME_MAP[name[name.rfind(".")+1:]]
+        mime = MIME_MAP[name[name.rfind(".")+1:].lower()]
         cid = self.max_id()+1
         sourceid = str(self[0].sourceid) if len(self) else "1"
         attrs = {
