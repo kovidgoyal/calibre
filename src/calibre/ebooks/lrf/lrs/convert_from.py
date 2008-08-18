@@ -110,6 +110,12 @@ class LrsParser(object):
                     tb.append(self.process_paragraph(item))
                 elif item.name == 'cr':
                     tb.append(CR())
+                elif item.name == 'charbutton': # BookDesigner does this
+                    p = Paragraph()
+                    tb.append(p)
+                    elem = self.text_tag_to_element(item)
+                    self.process_text_element(item, elem)
+                    p.append(elem)
             
     def fourth_pass(self):
         for tag in self.soup.findAll('page'):
@@ -130,7 +136,6 @@ class LrsParser(object):
         
         for tag in self.soup.findAll('textblock'):
             self.process_text_block(tag)
-        
         toc = self.soup.find('toc')
         if toc:
             for tag in toc.findAll('toclabel'):

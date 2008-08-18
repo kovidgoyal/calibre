@@ -47,8 +47,67 @@ main_functions = {
 
 if __name__ == '__main__':
     from setuptools import setup, find_packages, Extension
+    from distutils.command.build import build as _build
+    from distutils.core import Command
     from pyqtdistutils import PyQtExtension, build_ext
     import subprocess, glob
+    
+    class pot(Command):
+        user_options = []
+        def initialize_options(self): pass
+        def finalize_options(self): pass
+        
+        def run(self):
+            from calibre.translations import create_pot
+            create_pot()
+            
+    def build_manual():
+        cwd = os.path.abspath(os.getcwd())
+        os.chdir(os.path.join('src', 'calibre', 'manual'))
+        try:
+            for d in ('.build', 'cli'):
+                if os.path.exists(d):
+                    shutil.rmtree(d)
+                os.makedirs(d)
+            if not os.path.exists('.build'+os.sep+'html'):
+                os.makedirs('.build'+os.sep+'html')
+            subprocess.check_call(['sphinx-build', '-b', 'custom', '-d', 
+                                   '.build/doctrees', '.', '.build/html'])
+        finally:
+            os.chdir(cwd)
+    
+    class manual(Command):
+        user_options = []
+        def initialize_options(self): pass
+        def finalize_options(self): pass
+        
+        def run(self):
+            build_manual()
+            
+    
+    class build(_build):
+        
+        def run(self):
+            # Build resources
+            resources = __import__('resources')
+            resources.main([sys.executable, 'resources.py'])
+            from calibre.translations import main as translations
+            cwd = os.path.abspath(os.getcwd())
+            # Build translations
+            try:
+                os.chdir(os.path.join('src', 'calibre', 'translations'))
+                translations([sys.executable])
+            finally:
+                os.chdir(cwd)
+            # Build GUI
+            from calibre.gui2.make import main as gui2
+            try:
+                os.chdir(os.path.join('src', 'calibre', 'gui2'))
+                print 'Compiling GUI resources...'
+                gui2([sys.executable])
+            finally:
+                os.chdir(cwd)
+            _build.run(self)
     
     entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
     ext_modules = [
@@ -125,7 +184,8 @@ if __name__ == '__main__':
             'Topic :: Software Development :: Libraries :: Python Modules',
             'Topic :: System :: Hardware :: Hardware Drivers'
             ],
-          cmdclass = {'build_ext': build_ext},
+          cmdclass = {'build_ext': build_ext, 'build' : build, 'pot' : pot,
+                      'manual' : manual},
          )
 
     if 'develop' in ' '.join(sys.argv) and islinux:

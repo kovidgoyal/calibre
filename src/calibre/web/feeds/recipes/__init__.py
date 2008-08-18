@@ -8,7 +8,7 @@ recipes = [
            'newsweek', 'atlantic', 'economist', 'portfolio', 
            'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
            'wired', 'globe_and_mail', 'smh', 'espn', 'business_week',
-           'ars_technica', 'upi', 'new_yorker',
+           'ars_technica', 'upi', 'new_yorker', 'irish_times', 'iht',
           ]
 
 import re, imp, inspect, time

@@ -13,7 +13,7 @@ RESOURCES = dict(
     opf_template    = '%p/ebooks/metadata/opf.xml',
     ncx_template    = '%p/ebooks/metadata/ncx.xml',
     fb2_xsl         = '%p/ebooks/lrf/fb2/fb2.xsl',
-    metadata_sqlite = '%p/library/metadata_sqlite.sql', 
+    metadata_sqlite = '%p/library/metadata_sqlite.sql',
                  )
 
 def main(args=sys.argv):
@@ -37,7 +37,9 @@ def main(args=sys.argv):
     if not translations_found:
         print 'WARNING: Could not find Qt transations'
     
-    open('src'+os.sep+__appname__+os.sep+'/resources.py', 'wb').write(data) 
+    dest = os.path.abspath(os.path.join('src', __appname__, 'resources.py'))
+    print 'Writing resources to', dest 
+    open(dest, 'wb').write(data) 
     return 0
 
 if __name__ == '__main__':
