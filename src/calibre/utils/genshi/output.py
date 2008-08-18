@@ -648,7 +648,7 @@ class NamespaceFlattener(object):
             elif kind is END_NS:
                 if data is '':
                     default.pop()
-                if data in prefixes:
+                if data in prefixes and prefixes.get(data):
                     uris = prefixes.get(data)
                     uri = uris.pop()
                     if not uris:
