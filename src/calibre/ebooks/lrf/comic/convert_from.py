@@ -27,7 +27,7 @@ try:
             MagickGetImageHeight, \
             MagickResizeImage, MagickSetImageType, \
             GrayscaleType, CatromFilter,  MagickSetImagePage, \
-            MagickBorderImage, MagickSharpenImage, \
+            MagickBorderImage, MagickSharpenImage, MagickDespeckleImage, \
             MagickQuantizeImage, RGBColorspace, \
             MagickWriteImage, DestroyPixelWand, \
             DestroyMagickWand, CloneMagickWand, \
@@ -179,6 +179,10 @@ class PageProcessor(list):
                 MagickSharpenImage(wand, 0.0, 1.0)
                 
             MagickSetImageType(wand, GrayscaleType)
+            
+            if self.opts.despeckle:
+                MagickDespeckleImage(wand)
+            
             MagickQuantizeImage(wand, self.opts.colors, RGBColorspace, 0, 1, 0)
             dest = '%d_%d.png'%(self.num, i)
             dest = os.path.join(self.dest, dest)
@@ -250,6 +254,8 @@ def config(defaults=None):
               help=_("Don't split landscape images into two portrait images"))
     c.add_opt('right2left', ['--right2left'], default=False, action='store_true',
               help=_('Used for right-to-left publications like manga. Causes landscape pages to be split into portrait pages from right to left.'))
+    c.add_opt('despeckle', ['-d', '--despeckle'], default=False, 
+              help=_('Enable Despeckle. Reduces speckle noise. May greatly increase processing time.'))
     c.add_opt('no_sort', ['--no-sort'], default=False, 
               help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."))
     c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(), 
