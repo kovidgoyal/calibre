@@ -89,6 +89,25 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
                 css.append('\n'.join(get_text(style)))
                 style.getparent().remove(style)
         
+        font_id = 1
+        for font in self.root.xpath('//font'):
+            try:
+                size = int(font.attrib.pop('size', '3'))
+            except:
+                size = 3
+            setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
+            face = font.attrib.pop('face', None)
+            if face is not None:
+                setting += 'font-face:%s;'%face
+            color = font.attrib.pop('color', None)
+            if color is not None:
+                setting += 'color:%s'%color
+            id = 'calibre_font_id_%d'%font_id
+            font['id'] = 'calibre_font_id_%d'%font_id
+            font_id += 1
+            css.append('#%s { %s }'%(id, setting))
+            
+        
         css_counter = 1
         for elem in self.root.xpath('//*[@style]'):
             if 'id' not in elem.keys():
