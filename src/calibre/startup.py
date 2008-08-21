@@ -13,7 +13,8 @@ from gettext import GNUTranslations
 import __builtin__
 __builtin__.__dict__['_'] = lambda s: s
     
-from calibre.constants import iswindows, isosx, islinux, isfrozen
+from calibre.constants import iswindows, isosx, islinux, isfrozen,\
+    preferred_encoding
 from calibre.translations.msgfmt import make
 
 _run_once = False
@@ -146,4 +147,8 @@ if not _run_once:
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
     
     ################################################################################
+    # Convert command line arguments to unicode
+    for i in range(1, len(sys.argv)):
+        if not isinstance(sys.argv[i], unicode):
+            sys.argv[i] = sys.argv[i].decode(preferred_encoding, 'replace')
     

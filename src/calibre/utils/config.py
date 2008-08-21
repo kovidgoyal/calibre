@@ -8,6 +8,7 @@ Manage application-wide preferences.
 '''
 import os, re, cPickle, textwrap
 from copy import deepcopy
+from functools import partial
 from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from PyQt4.QtCore import QString
@@ -200,6 +201,7 @@ class OptionSet(object):
             raise ValueError('A group by the name %s already exists in this set'%name)
         self.groups[name] = description
         self.group_list.append(name)
+        return partial(self.add_opt, group=name)
         
     def add_opt(self, name, switches=[], help=None, type=None, choices=None, 
                  group=None, default=None, action=None, metavar=None):
@@ -234,7 +236,7 @@ class OptionSet(object):
         parser = OptionParser(usage, gui_mode=gui_mode)
         groups = defaultdict(lambda : parser)
         for group, desc in self.groups.items():
-            groups[group] = parser.add_group(group, desc)
+            groups[group] = parser.add_option_group(group.upper(), desc)
         
         for pref in self.preferences:
             if not pref.switches:

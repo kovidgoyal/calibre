@@ -123,9 +123,12 @@ class HTMLFile(object):
                 url = match.group(i)
                 if url:
                     break
-            link = Link(url, self.base)
+            link = self.resolve(url)
             if link not in self.links:
                 self.links.append(link)
+                
+    def resolve(self, url):
+        return Link(url, self.base)
 
 
 def depth_first(root, flat, visited=set([])):
@@ -152,7 +155,7 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
     Recursively traverse all links in the HTML file.
     
     :param max_levels: Maximum levels of recursion. Must be non-negative. 0 
-                       implies that no links in hte root HTML file are followed.
+                       implies that no links in the root HTML file are followed.
     :param encoding:   Specify character encoding of HTML files. If `None` it is
                        auto-detected.
     :return:           A pair of lists (breadth_first, depth_first). Each list contains
@@ -186,7 +189,23 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
     return flat, list(depth_first(flat[0], flat))
     
     
-                
+def opf_traverse(opf_reader, verbose=0, encoding=None):
+    '''
+    Return a list of :class:`HTMLFile` objects in the order specified by the
+    `<spine>` element of the OPF.
+    
+    :param opf_reader: An :class:`calibre.ebooks.metadata.opf.OPFReader` instance.  
+    :param encoding:   Specify character encoding of HTML files. If `None` it is
+                       auto-detected.
+    '''
+    if not opf_reader.spine:
+        raise ValueError('OPF does not have a spine')
+    flat = []
+    for path in opf_reader.spine.items():
+        if path not in flat:
+            flat.append(os.path.abspath(path))
+    flat = [HTMLFile(path, 0, encoding, verbose) for path in flat]
+    return flat
             
     
 

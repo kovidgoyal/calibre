@@ -25,6 +25,7 @@ entry_points = {
                              'epub-meta = calibre.ebooks.metadata.epub:main',
                              'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main',
                              'html2lrf  = calibre.ebooks.lrf.html.convert_from:main',
+                             'html2epub = calibre.ebooks.epub.from_html:main',
                              'markdown-calibre  = calibre.ebooks.markdown.markdown:main',
                              'lit2lrf   = calibre.ebooks.lrf.lit.convert_from:main',
                              'epub2lrf  = calibre.ebooks.lrf.epub.convert_from:main',
