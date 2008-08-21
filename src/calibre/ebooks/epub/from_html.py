@@ -59,6 +59,11 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
         self.detected_chapters = self.opts.chapter(self.root)
             
     def rewrite_links(self, olink):
+        '''
+        Make all links in document relative so that they work in the EPUB container.
+        Also copies any resources (like image, stylesheets, scripts, etc.) into
+        the local tree.
+        '''
         link = self.htmlfile.resolve(olink)
         if not link.path or not os.path.exists(link.path) or not os.path.isfile(link.path):
             return olink
@@ -76,6 +81,10 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
         
     
     def extract_css(self):
+        '''
+        Remove all CSS information from the document and store in self.raw_css. 
+        This includes <font> tags.
+        '''
         css = []
         for link in self.root.xpath('//link'):
             if 'css' in link.get('type', 'text/css').lower():
