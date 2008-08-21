@@ -17,6 +17,7 @@ BZR_PATH = '/var/bzr/code/calibre/trunk'
 class ChangelogFormatter(blog.LogFormatter):
     
     supports_tags = True
+    supports_merge_revisions = True
     
     def __init__(self, num_of_versions=20):
         self.num_of_versions = num_of_versions
