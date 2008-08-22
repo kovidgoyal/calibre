@@ -266,13 +266,32 @@ class LoggingInterface:
 
     def __init__(self, logger):
         self.__logger = logger
+        
+    def setup_cli_handler(self, verbosity):
+        if os.environ.get('CALIBRE_WORKER', None) is not None and self.__logger.handlers:
+            return
+        stream    = sys.stdout
+        formatter = logging.Formatter()
+        level     = logging.INFO
+        if verbosity > 0:
+            formatter = ColoredFormatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s') if verbosity > 1 else \
+                        ColoredFormatter('%(levelname)s: %(message)s')
+            level     = logging.DEBUG
+            if verbosity > 1:
+                stream = sys.stderr
+        
+        handler = logging.StreamHandler(stream)
+        handler.setFormatter(formatter)
+        handler.setLevel(level)
+        self.__logger.addHandler(handler)
+        self.__logger.setLevel(level)
+
 
     def ___log(self, func, msg, args, kwargs):
         args = [msg] + list(args)
         for i in range(len(args)):
             if isinstance(args[i], unicode):
                 args[i] = args[i].encode(preferred_encoding, 'replace')
-
         func(*args, **kwargs)
 
     def log_debug(self, msg, *args, **kwargs):

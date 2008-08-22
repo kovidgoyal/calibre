@@ -1,7 +1,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-import os, sys, logging
+import os, sys, logging, re, shutil
 from lxml import html
 from lxml.etree import XPath
 get_text = XPath("//text()")
@@ -23,22 +23,29 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
     
     def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles):
         LoggingInterface.__init__(self, logging.getLogger('html2epub'))
+        self.setup_cli_handler(opts.verbose)
+        
         self.htmlfile = htmlfile
         self.opts = opts
         self.tdir = tdir
         self.resource_map = resource_map
         self.resource_dir = os.path.join(tdir, 'resources')
         self.htmlfiles = htmlfiles
+        
         self.parse_html()
+        
         self.root.rewrite_links(self.rewrite_links, resolve_base_href=False)
-        self.rewrite_links(htmlfiles)
+        
         self.extract_css()
+        
         self.collect_font_statistics()
+        
         self.split()
         
     def parse_html(self):
         ''' Create lxml ElementTree from HTML '''
-        src = open(self.htmlfile.path, 'rb').decode(self.htmlfile.encoding, 'replace')
+        self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
+        src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace')
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
         for pat in self.ENCODING_PATS: 
@@ -64,13 +71,15 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
         Also copies any resources (like image, stylesheets, scripts, etc.) into
         the local tree.
         '''
+        if not isinstance(olink, unicode):
+            olink = olink.decode(self.htmlfile.encoding)
         link = self.htmlfile.resolve(olink)
         if not link.path or not os.path.exists(link.path) or not os.path.isfile(link.path):
             return olink
         if link.path in self.htmlfiles:
             return os.path.basename(link.path)
         if link.path in self.resource_map.keys():
-            return self.resource_map[]
+            return self.resource_map[link.path]
         name = os.path.basename(link.path)
         name, ext = os.path.splitext(name)
         name += ('_%d'%len(self.resource_map)) + ext
@@ -112,7 +121,7 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
             if color is not None:
                 setting += 'color:%s'%color
             id = 'calibre_font_id_%d'%font_id
-            font['id'] = 'calibre_font_id_%d'%font_id
+            font.set('id', 'calibre_font_id_%d'%font_id)
             font_id += 1
             css.append('#%s { %s }'%(id, setting))
             
@@ -120,26 +129,26 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
         css_counter = 1
         for elem in self.root.xpath('//*[@style]'):
             if 'id' not in elem.keys():
-                elem['id'] = 'calibre_css_id_%d'%css_counter
+                elem.set('id', 'calibre_css_id_%d'%css_counter)
                 css_counter += 1
-            css.append('#%s {%s}'%(elem['id'], elem['style']))
+            css.append('#%s {%s}'%(elem.get('id'), elem.get('style')))
             elem.attrib.pop('style')
         chapter_counter = 1
         for chapter in self.detected_chapters:
             if chapter.tag.lower() == 'a':
                 if 'name' in chapter.keys():
-                    chapter['id'] = id = chapter['name']
+                    chapter.attrib['id'] = id = chapter.get('name')
                 elif 'id' in chapter.keys():
-                    id = chapter['id']
+                    id = chapter.get('id')
                 else:
                     id = 'calibre_detected_chapter_%d'%chapter_counter
                     chapter_counter += 1
-                    chapter['id'] = id
+                    chapter.set('id', id)
             else:
                 if 'id' not in chapter.keys():
                     id = 'calibre_detected_chapter_%d'%chapter_counter
                     chapter_counter += 1
-                    chapter['id'] = id
+                    chapter.set('id', id)
             css.append('#%s {%s}'%(id, 'page-break-before:always'))
                      
         self.raw_css = '\n\n'.join(css)
@@ -185,9 +194,11 @@ def parse_content(filelist, opts):
     os.makedirs(os.path.join(tdir, 'content', 'resources'))
     resource_map = {}
     for htmlfile in filelist:
-        hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), resource_map)
+        hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), 
+                           resource_map, filelist)
 
 def convert(htmlfile, opts, notification=None):
+    htmlfile = os.path.abspath(htmlfile)
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(htmlfile))[0] + '.epub'
     opts.output = os.path.abspath(opts.output)
