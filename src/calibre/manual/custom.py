@@ -95,7 +95,7 @@ $desc
 #end
 #for opt in options
 ${option(opt)}
-     ${opt.help.replace('\n', ' ').replace('%default', str(opt.default)) if opt.help else ''}
+     ${opt.help.replace('\n', ' ').replace('*', '\\*').replace('%default', str(opt.default)) if opt.help else ''}
 ||
 #end
 #end

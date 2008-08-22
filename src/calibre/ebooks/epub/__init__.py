@@ -37,10 +37,10 @@ def config(defaults=None):
     structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section', 'i')]",
             help=_('''\
 An XPath expression to detect chapter titles. The default is to consider <h1> or
-<h2> tags that contain the text "chapter" or "book" or "section" as chapter titles. This
-is achieved by the expression: "//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section', 'i')]"
+<h2> tags that contain the text "chapter" or "book" or "section" as chapter titles. 
 The expression used must evaluate to a list of elements. To disable chapter detection,
-use the expression "/". 
+use the expression "/". See the XPath Tutorial in the calibre User Manual for further
+help on using this feature.
 ''').replace('\n', ' '))
     structure('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
               help=_('Don\'t add detected chapters to the Table of Contents'))

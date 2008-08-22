@@ -87,7 +87,7 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
     def rewrite_links(self, olink):
         '''
         Make all links in document relative so that they work in the EPUB container.
-        Also copies any resources (like image, stylesheets, scripts, etc.) into
+        Also copies any resources (like images, stylesheets, scripts, etc.) into
         the local tree.
         '''
         if not isinstance(olink, unicode):
@@ -103,7 +103,7 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
         name, ext = os.path.splitext(name)
         name += ('_%d'%len(self.resource_map)) + ext
         shutil.copyfile(link.path, os.path.join(self.resource_dir, name))
-        name = 'resources/'+name
+        name = 'resources/' + name
         self.resource_map[link.path] = name 
         return name
         
