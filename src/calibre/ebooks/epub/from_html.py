@@ -1,7 +1,8 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-import os, sys, logging, re, shutil
+import os, sys, logging, re, shutil, tempfile
 from lxml import html
 from lxml.etree import XPath
 get_text = XPath("//text()")
@@ -36,11 +37,29 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
         
         self.root.rewrite_links(self.rewrite_links, resolve_base_href=False)
         
+        if opts.verbose > 2:
+            self.debug_tree('parsed')
+        
         self.extract_css()
+        
+        if opts.verbose > 2:
+            self.debug_tree('nocss')
         
         self.collect_font_statistics()
         
         self.split()
+        
+    def debug_tree(self, name):
+        '''
+        Dump source tree for later debugging.
+        '''
+        tdir = tempfile.gettempdir()
+        if not os.path.exists(tdir):
+            os.makedirs(tdir)
+        with open(os.path.join(tdir, 'html2epub-%s-%s.html'%\
+                    (os.path.basename(self.htmlfile.path), name)), 'wb') as f:
+            f.write(html.tostring(self.root, encoding='utf-8'))
+            self.log_debug(_('Written processed HTML to ')+f.name)
         
     def parse_html(self):
         ''' Create lxml ElementTree from HTML '''

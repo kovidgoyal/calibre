@@ -63,4 +63,6 @@ def xml_to_unicode(raw, verbose=False):
         encoding = encoding.lower()
     if CHARSET_ALIASES.has_key(encoding):
         encoding = CHARSET_ALIASES[encoding]
+    if encoding == 'ascii':
+        encoding = 'utf-8'
     return raw.decode(encoding, 'ignore'), encoding 
