@@ -7,7 +7,6 @@ Compile resource files.
 '''
 import os, sys, glob
 sys.path.insert(1, os.path.join(os.getcwd(), 'src'))
-from calibre import __appname__
 
 RESOURCES = dict(
     opf_template    = '%p/ebooks/metadata/opf.xml',
@@ -19,7 +18,7 @@ RESOURCES = dict(
 def main(args=sys.argv):
     data = ''
     for key, value in RESOURCES.items():
-        path = value.replace('%p', 'src'+os.sep+__appname__)
+        path = value.replace('%p', 'src'+os.sep+'calibre')
         bytes = repr(open(path, 'rb').read())
         data += key + ' = ' + bytes + '\n\n'
     
@@ -37,7 +36,7 @@ def main(args=sys.argv):
     if not translations_found:
         print 'WARNING: Could not find Qt transations'
     
-    dest = os.path.abspath(os.path.join('src', __appname__, 'resources.py'))
+    dest = os.path.abspath(os.path.join('src', 'calibre', 'resources.py'))
     print 'Writing resources to', dest 
     open(dest, 'wb').write(data) 
     return 0
