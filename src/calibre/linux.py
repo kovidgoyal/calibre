@@ -25,6 +25,7 @@ entry_points = {
                              'epub-meta = calibre.ebooks.metadata.epub:main',
                              'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main',
                              'html2lrf  = calibre.ebooks.lrf.html.convert_from:main',
+                             'html2oeb  = calibre.ebooks.html:main',
                              'html2epub = calibre.ebooks.epub.from_html:main',
                              'markdown-calibre  = calibre.ebooks.markdown.markdown:main',
                              'lit2lrf   = calibre.ebooks.lrf.lit.convert_from:main',
@@ -168,6 +169,8 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
         from calibre.ebooks.metadata.epub import option_parser as epub_meta
         from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
+        from calibre.ebooks.epub.from_html import option_parser as html2epub
+        from calibre.ebooks.html import option_parser as html2oeb 
 
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
@@ -203,6 +206,8 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('comic2lrf', comicop, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
+        f.write(opts_and_exts('html2epub', html2epub, ['html', 'htm', 'xhtm', 'xhtml']))
+        f.write(opts_and_exts('html2oeb', html2oeb, ['html', 'htm', 'xhtm', 'xhtml']))
         f.write('''
 _prs500_ls()
 {

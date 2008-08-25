@@ -2,44 +2,22 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-import os, sys, logging, re, shutil, tempfile
-from lxml import html
+import os, sys, re, shutil
 from lxml.etree import XPath
-get_text = XPath("//text()")
 
-from calibre import LoggingInterface
-from calibre.ebooks.html import PreProcessor
+from calibre.ebooks.html import Parser, get_text, merge_metadata, get_filelist
 from calibre.ebooks.epub import config as common_config
-from calibre.ebooks.epub.traverse import traverse, opf_traverse
-from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.meta import get_metadata
-from calibre.ebooks.metadata.opf import OPFReader
 from calibre.ptempfile import PersistentTemporaryDirectory
 
 
-class HTMLProcessor(PreProcessor, LoggingInterface):
-    
-    ENCODING_PATS = [re.compile(r'<[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
-                     re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>', re.IGNORECASE)]
+class HTMLProcessor(Parser):
     
     def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles):
-        LoggingInterface.__init__(self, logging.getLogger('html2epub'))
-        self.setup_cli_handler(opts.verbose)
-        
-        self.htmlfile = htmlfile
-        self.opts = opts
-        self.tdir = tdir
-        self.resource_map = resource_map
-        self.resource_dir = os.path.join(tdir, 'resources')
-        self.htmlfiles = htmlfiles
-        
-        self.parse_html()
-        
-        self.root.rewrite_links(self.rewrite_links, resolve_base_href=False)
-        
+        Parser.__init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, 
+                        name='html2epub')
         if opts.verbose > 2:
             self.debug_tree('parsed')
-        
+        self.detected_chapters = self.opts.chapter(self.root)
         self.extract_css()
         
         if opts.verbose > 2:
@@ -49,130 +27,6 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
         
         self.split()
         
-    def debug_tree(self, name):
-        '''
-        Dump source tree for later debugging.
-        '''
-        tdir = tempfile.gettempdir()
-        if not os.path.exists(tdir):
-            os.makedirs(tdir)
-        with open(os.path.join(tdir, 'html2epub-%s-%s.html'%\
-                    (os.path.basename(self.htmlfile.path), name)), 'wb') as f:
-            f.write(html.tostring(self.root, encoding='utf-8'))
-            self.log_debug(_('Written processed HTML to ')+f.name)
-        
-    def parse_html(self):
-        ''' Create lxml ElementTree from HTML '''
-        self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
-        src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace')
-        src = self.preprocess(src)
-        # lxml chokes on unicode input when it contains encoding declarations
-        for pat in self.ENCODING_PATS: 
-            src = pat.sub('', src)
-        try:
-            self.root = html.document_fromstring(src)
-        except:
-            if self.opts.verbose:
-                self.log_exception('lxml based parsing failed')
-            self.root = html.soupparser.fromstring()
-        self.head = self.body = None
-        head = self.root.xpath('//head')
-        if head:
-            self.head = head[0]
-        body = self.root.xpath('//body')
-        if body:
-            self.body = body[0]
-        self.detected_chapters = self.opts.chapter(self.root)
-            
-    def rewrite_links(self, olink):
-        '''
-        Make all links in document relative so that they work in the EPUB container.
-        Also copies any resources (like images, stylesheets, scripts, etc.) into
-        the local tree.
-        '''
-        if not isinstance(olink, unicode):
-            olink = olink.decode(self.htmlfile.encoding)
-        link = self.htmlfile.resolve(olink)
-        if not link.path or not os.path.exists(link.path) or not os.path.isfile(link.path):
-            return olink
-        if link.path in self.htmlfiles:
-            return os.path.basename(link.path)
-        if link.path in self.resource_map.keys():
-            return self.resource_map[link.path]
-        name = os.path.basename(link.path)
-        name, ext = os.path.splitext(name)
-        name += ('_%d'%len(self.resource_map)) + ext
-        shutil.copyfile(link.path, os.path.join(self.resource_dir, name))
-        name = 'resources/' + name
-        self.resource_map[link.path] = name 
-        return name
-        
-    
-    def extract_css(self):
-        '''
-        Remove all CSS information from the document and store in self.raw_css. 
-        This includes <font> tags.
-        '''
-        css = []
-        for link in self.root.xpath('//link'):
-            if 'css' in link.get('type', 'text/css').lower():
-                file = self.htmlfile.resolve(link.get('href', ''))
-                if os.path.exists(file) and os.path.isfile(file):
-                    css.append(open(file, 'rb').read().decode('utf-8'))
-                link.getparent().remove(link)
-                    
-        for style in self.root.xpath('//style'):
-            if 'css' in style.get('type', 'text/css').lower():
-                css.append('\n'.join(get_text(style)))
-                style.getparent().remove(style)
-        
-        font_id = 1
-        for font in self.root.xpath('//font'):
-            try:
-                size = int(font.attrib.pop('size', '3'))
-            except:
-                size = 3
-            setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
-            face = font.attrib.pop('face', None)
-            if face is not None:
-                setting += 'font-face:%s;'%face
-            color = font.attrib.pop('color', None)
-            if color is not None:
-                setting += 'color:%s'%color
-            id = 'calibre_font_id_%d'%font_id
-            font.set('id', 'calibre_font_id_%d'%font_id)
-            font_id += 1
-            css.append('#%s { %s }'%(id, setting))
-            
-        
-        css_counter = 1
-        for elem in self.root.xpath('//*[@style]'):
-            if 'id' not in elem.keys():
-                elem.set('id', 'calibre_css_id_%d'%css_counter)
-                css_counter += 1
-            css.append('#%s {%s}'%(elem.get('id'), elem.get('style')))
-            elem.attrib.pop('style')
-        chapter_counter = 1
-        for chapter in self.detected_chapters:
-            if chapter.tag.lower() == 'a':
-                if 'name' in chapter.keys():
-                    chapter.attrib['id'] = id = chapter.get('name')
-                elif 'id' in chapter.keys():
-                    id = chapter.get('id')
-                else:
-                    id = 'calibre_detected_chapter_%d'%chapter_counter
-                    chapter_counter += 1
-                    chapter.set('id', id)
-            else:
-                if 'id' not in chapter.keys():
-                    id = 'calibre_detected_chapter_%d'%chapter_counter
-                    chapter_counter += 1
-                    chapter.set('id', id)
-            css.append('#%s {%s}'%(id, 'page-break-before:always'))
-                     
-        self.raw_css = '\n\n'.join(css)
-        # TODO: Figure out what to do about CSS imports from linked stylesheets 
-                
     def collect_font_statistics(self):
         '''
         Collect font statistics to figure out the base font size used in this
@@ -191,8 +45,8 @@ class HTMLProcessor(PreProcessor, LoggingInterface):
         pass
             
 
-def config():
-    c = common_config()
+def config(defaults=None):
+    c = common_config(defaults=defaults)
     return c
 
 def option_parser():
@@ -202,11 +56,6 @@ def option_parser():
 
 Convert a HTML file to an EPUB ebook. Follows links in the HTML file. 
 '''))
-
-def search_for_opf(dir):
-    for f in os.listdir(dir):
-        if f.lower().endswith('.opf'):
-            return OPFReader(open(os.path.join(dir, f), 'rb'), dir)
 
 def parse_content(filelist, opts):
     tdir = PersistentTemporaryDirectory('_html2epub')
@@ -221,39 +70,17 @@ def convert(htmlfile, opts, notification=None):
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(htmlfile))[0] + '.epub'
     opts.output = os.path.abspath(opts.output)
-    opf = search_for_opf(os.path.dirname(htmlfile))
-    if opf:
-        mi = MetaInformation(opf)
-    else:
-        mi =  get_metadata(open(htmlfile, 'rb'), 'html')
-    if opts.title:
-        mi.title = opts.title
-    if opts.authors != _('Unknown'):
-        opts.authors   = opts.authors.split(',')
-        opts.authors = [a.strip() for a in opts.authors]
-        mi.authors = opts.authors
-    
-    if not mi.title:
-        mi.title = os.path.splitext(os.path.basename(htmlfile))[0]
-    if not mi.authors:
-        mi.authors = [_('Unknown')]
-    
+    opf, filelist = get_filelist(htmlfile, opts)
+    mi = merge_metadata(htmlfile, opf, opts)
     opts.chapter = XPath(opts.chapter, 
                     namespaces={'re':'http://exslt.org/regular-expressions'})
-    
-    filelist = None
-    print 'Building file list...'
-    if opf is not None:
-        filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
-    if not filelist:
-        filelist = traverse(htmlfile, verbose=opts.verbose, encoding=opts.encoding)\
-                    [0 if opts.breadth_first else 1]
-    if opts.verbose:
-        print '\tFound files...'
-        for f in filelist:
-            print '\t\t', f
-            
-    parse_content(filelist, opts)
+    resource_map = parse_content(filelist, opts)
+    resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
+    if opf.cover and os.access(opf.cover, os.R_OK):
+        shutil.copyfile(opf.cover, os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)))
+        cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover))
+        shutil.copyfile(opf.cover, cpath)
+        resources.append(cpath)
             
 def main(args=sys.argv):
     parser = option_parser()
@@ -267,4 +94,3 @@ def main(args=sys.argv):
     
 if __name__ == '__main__':
     sys.exit(main())
-

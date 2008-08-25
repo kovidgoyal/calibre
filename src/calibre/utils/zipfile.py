@@ -1034,10 +1034,11 @@ class ZipFile:
             os.makedirs(upperdirs)
         
         source = self.open(member, pwd=pwd)
-        target = open(targetpath, "wb")
-        shutil.copyfileobj(source, target)
-        source.close()
-        target.close()
+        if not os.path.exists(targetpath): # Could be a previously automatically created directory
+            target = open(targetpath, "wb")
+            shutil.copyfileobj(source, target)
+            source.close()
+            target.close()
 
         return targetpath
 
@@ -1067,6 +1068,8 @@ class ZipFile:
     def write(self, filename, arcname=None, compress_type=None):
         """Put the bytes from filename into the archive under the name
         arcname."""
+        if isinstance(filename, unicode):
+            filename = filename.encode('utf-8')
         if not self.fp:
             raise RuntimeError(
                   "Attempt to write to ZIP archive that was already closed")
@@ -1133,15 +1136,17 @@ class ZipFile:
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
 
-    def writestr(self, zinfo_or_arcname, bytes):
+    def writestr(self, zinfo_or_arcname, bytes, permissions=0600):
         """Write a file into the archive.  The contents is the string
         'bytes'.  'zinfo_or_arcname' is either a ZipInfo instance or
         the name of the file in the archive."""
         if not isinstance(zinfo_or_arcname, ZipInfo):
+            if isinstance(zinfo_or_arcname, unicode):
+                zinfo_or_arcname = zinfo_or_arcname.encode('utf-8')
             zinfo = ZipInfo(filename=zinfo_or_arcname,
                             date_time=time.localtime(time.time())[:6])
             zinfo.compress_type = self.compression
-            zinfo.external_attr = 0600 << 16
+            zinfo.external_attr = permissions << 16
         else:
             zinfo = zinfo_or_arcname
 
@@ -1171,6 +1176,23 @@ class ZipFile:
                   zinfo.file_size))
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
+        
+    def add_dir(self, path, prefix=''):
+        if prefix:
+            self.writestr(prefix+'/', '', 0700)
+        cwd = os.path.abspath(os.getcwd())
+        try:
+            os.chdir(path)
+            fp = (prefix + ('/' if prefix else '')).replace('//', '/')
+            for f in os.listdir('.'):
+                arcname = fp + f
+                if os.path.isdir(f):
+                    self.add_dir(f, prefix=arcname)
+                else:
+                    self.write(f, arcname) 
+        finally:
+            os.chdir(cwd)
+            
 
     def __del__(self):
         """Call the "close()" method in case the user forgot."""

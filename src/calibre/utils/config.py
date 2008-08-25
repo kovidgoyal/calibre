@@ -169,7 +169,7 @@ class Option(object):
         self.metavar  = metavar
         
     def __eq__(self, other):
-        return self.name == getattr(other, 'name', None)
+        return self.name == getattr(other, 'name', other)
         
 class OptionValues(object):
     
@@ -202,6 +202,19 @@ class OptionSet(object):
         self.groups[name] = description
         self.group_list.append(name)
         return partial(self.add_opt, group=name)
+    
+    def update(self, other):
+        for name in other.groups.keys():
+            self.groups[name] = other.groups[name]
+        for pref in other.preferences:
+            if pref in self.preferences:
+                self.preferences.remove(pref)
+            self.preferences.append(pref)
+            
+    def remove_opt(self, name):
+        if name in self.preferences:
+            self.preferences.remove(name)
+        
         
     def add_opt(self, name, switches=[], help=None, type=None, choices=None, 
                  group=None, default=None, action=None, metavar=None):
@@ -306,25 +319,40 @@ class OptionSet(object):
         groups = [self.render_group(name, self.groups.get(name, ''), opts) \
                                         for name in [None] + self.group_list]
         return src + '\n\n'.join(groups)
+
+class ConfigInterface(object):
     
-class Config(object):
-    
-    def __init__(self, basename, description=''):
-        self.config_file_path = os.path.join(config_dir, basename+'.py')
+    def __init__(self, description):
         self.option_set       = OptionSet(description=description)
         self.add_opt          = self.option_set.add_opt
         self.add_group        = self.option_set.add_group
+        self.remove_opt       = self.option_set.remove_opt
+        
+    def update(self, other):
+        self.option_set.update(other.option_set)
         
     def option_parser(self, usage='', gui_mode=False):
         return self.option_set.option_parser(user_defaults=self.parse(), 
                                              usage=usage, gui_mode=gui_mode)
+    
+class Config(ConfigInterface):
+    '''
+    A file based configuration.
+    '''
+    
+    def __init__(self, basename, description=''):
+        ConfigInterface.__init__(self, description)
+        self.config_file_path = os.path.join(config_dir, basename+'.py')
+                
         
     def parse(self):
-        try:
-            with ExclusiveFile(self.config_file_path) as f:
-                src = f.read()
-        except LockError:
-            raise IOError('Could not lock config file: %s'%self.config_file_path)
+        src = ''
+        if os.path.exists(self.config_file_path):
+            try:
+                with ExclusiveFile(self.config_file_path) as f:
+                    src = f.read()
+            except LockError:
+                raise IOError('Could not lock config file: %s'%self.config_file_path)
         return self.option_set.parse_string(src)
     
     def as_string(self):
@@ -352,18 +380,15 @@ class Config(object):
         except LockError:
             raise IOError('Could not lock config file: %s'%self.config_file_path)
             
-class StringConfig(object):
+class StringConfig(ConfigInterface):
+    '''
+    A string based configuration
+    '''
     
     def __init__(self, src, description=''):
+        ConfigInterface.__init__(self, description)
         self.src = src
-        self.option_set       = OptionSet(description=description)
-        self.add_opt          = self.option_set.add_opt
-        self.option_parser    = self.option_set.option_parser
         
-    def option_parser(self, usage='', gui_mode=False):
-        return self.option_set.option_parser(user_defaults=self.parse(), 
-                                             usage=usage, gui_mode=gui_mode)
-    
     def parse(self):
         return self.option_set.parse_string(self.src)
     
