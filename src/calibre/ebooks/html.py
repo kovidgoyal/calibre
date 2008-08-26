@@ -1,4 +1,5 @@
 from __future__ import with_statement
+import cStringIO
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -17,7 +18,7 @@ from calibre.utils.config import Config, StringConfig
 from calibre.ebooks.metadata.opf import OPFReader, OPFCreator
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile
 
 
@@ -319,7 +320,7 @@ class Parser(PreProcessor, LoggingInterface):
         with open(os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path]), 'wb') as f:
             f.write(html.tostring(self.root, 
                         encoding='utf-8', method='xml',
-                         include_meta_content_type=True,
+                        include_meta_content_type=True,
                         pretty_print=self.opts.pretty_print)
                     )
             return f.name
@@ -491,9 +492,6 @@ Follow all links in an HTML file and collect them into the specified directory.
 Also collects any references resources like images, stylesheets, scripts, etc. 
 '''))
 
-def safe_option_parser():
-    return option_parser(safe=True)
-
 def search_for_opf(dir):
     for f in os.listdir(dir):
         if f.lower().endswith('.opf'):
@@ -501,9 +499,16 @@ def search_for_opf(dir):
 
 
 def get_filelist(htmlfile, opts):
+    '''
+    Build list of files references by html file or try to detect and use an
+    OPF file instead.
+    '''
     print 'Building file list...'
-    
-    opf = search_for_opf(os.path.dirname(htmlfile))
+    dir = os.path.dirname(htmlfile)
+    if not dir:
+        dir = os.getcwd()
+    opf = search_for_opf(dir)
+    filelist = None
     if opf is not None:
         filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
     if not filelist:
@@ -516,6 +521,9 @@ def get_filelist(htmlfile, opts):
     return opf, filelist
 
 def parse_content(filelist, opts):
+    '''
+    Parse content, rewriting links and copying resources.
+    '''
     if not opts.output:
         opts.output = '.'
     opts.output = os.path.abspath(opts.output)
@@ -530,6 +538,9 @@ def parse_content(filelist, opts):
     return resource_map, p.htmlfile_map
 
 def merge_metadata(htmlfile, opf, opts):
+    '''
+    Merge metadata from various sources.
+    '''
     if opf:
         mi = MetaInformation(opf)
     else:
@@ -548,29 +559,59 @@ def merge_metadata(htmlfile, opf, opts):
     return mi
 
 def create_metadata(basepath, mi, filelist, resources):
+    '''
+    Create an OPF metadata object with correct spine and manifest.
+    '''
     mi = OPFCreator(basepath, mi)
     entries = [('content/'+f, None) for f in filelist] + [(f, None) for f in resources]
     mi.create_manifest(entries)
     mi.create_spine(['content/'+f for f in filelist])
     return mi
 
+def rebase_toc(toc, htmlfile_map, basepath, root=True):
+    '''
+    Rebase a :class:`calibre.ebooks.metadata.toc.TOC` object.
+    '''
+    def fix_entry(entry):
+        if entry.abspath in htmlfile_map.keys():
+            entry.href = 'content/' +  htmlfile_map[entry.abspath]
+            
+    for entry in toc:
+        rebase_toc(entry, htmlfile_map, basepath, root=False)
+        fix_entry(entry)
+    if root:
+        toc.base_path = basepath
+
 def create_dir(htmlfile, opts):
+    '''
+    Create a directory that contains the open ebook
+    '''
     opf, filelist = get_filelist(htmlfile, opts)
     mi = merge_metadata(htmlfile, opf, opts)
     resource_map, htmlfile_map = parse_content(filelist, opts)
     resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
-    if opf.cover and os.access(opf.cover, os.R_OK):
+    if opf and opf.cover and os.access(opf.cover, os.R_OK):
         cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)[-1])
         shutil.copyfile(opf.cover, cpath)
         resources.append(cpath)
         mi.cover = cpath
     spine = [htmlfile_map[f.path] for f in filelist]
     mi = create_metadata(opts.output, mi, spine, resources)
+    buf = cStringIO.StringIO()
+    if mi.toc:
+        rebase_toc(mi.toc, htmlfile_map, opts.output)
     with open(os.path.join(opts.output, 'metadata.opf'), 'wb') as f:
-        mi.render(f)
+        mi.render(f, buf)
+    toc = buf.getvalue()
+    if toc:
+        with open(os.path.join(opts.output, 'toc.ncx'), 'wb') as f:
+            f.write(toc)
     print 'Open ebook created in', opts.output
     
 def create_oebzip(htmlfile, opts):
+    '''
+    Create a zip file that contains the Open ebook.
+    '''
     tdir = PersistentTemporaryDirectory('_create_oebzip')
     if opts.output is None:
         opts.output = os.path.join(os.path.splitext(htmlfile)[0]+'.oeb.zip')
@@ -596,6 +637,27 @@ def main(args=sys.argv):
         create_dir(htmlfile, opts)
         
     return 0
+
+def gui_main(htmlfile):
+    '''
+    Convenience wrapper for use in recursively importing HTML files.
+    '''
+    pt = PersistentTemporaryFile('_html2oeb_gui.oeb.zip')
+    pt.close()
+    opts = '''
+pretty_print = True
+max_levels = 5
+output  = %s
+'''%repr(pt.name)
+    c = config(defaults=opts)
+    opts = c.parse()
+    create_oebzip(htmlfile, opts)
+    zf = ZipFile(pt.name, 'r')
+    nontrivial = [f for f in zf.infolist() if f.compress_size > 1 and not f.filename.endswith('.opf')]
+    if len(nontrivial) < 2:
+        return None
+    return pt.name
+    
 
 if __name__ == '__main__':
     sys.exit(main())

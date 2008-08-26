@@ -56,6 +56,7 @@ class TOC(list):
             if not os.path.isabs(path):
                 path = os.path.join(self.base_path, path)
             return path
+            
         return property(fget=fget, doc=doc) 
     
     def read_from_opf(self, opfreader):
