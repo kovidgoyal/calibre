@@ -268,6 +268,9 @@ class LoggingInterface:
         self.__logger = logger
         
     def setup_cli_handler(self, verbosity):
+        for handler in self.__logger.handlers:
+            if isinstance(handler, logging.StreamHandler):
+                return
         if os.environ.get('CALIBRE_WORKER', None) is not None and self.__logger.handlers:
             return
         stream    = sys.stdout

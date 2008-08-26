@@ -284,7 +284,7 @@ class PreProcessor(object):
         
         return html
     
-class Parser(PreProcessor):
+class Parser(PreProcessor, LoggingInterface):
     
     ENCODING_PATS = [re.compile(r'<[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
                      re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>', re.IGNORECASE)]
@@ -299,17 +299,39 @@ class Parser(PreProcessor):
         self.resource_map = resource_map
         self.htmlfiles = htmlfiles
         self.resource_dir = os.path.join(tdir, 'resources')
+        save_counter = 1
+        self.htmlfile_map = {}
+        for f in self.htmlfiles:
+            name = os.path.basename(f.path)
+            if name in self.htmlfile_map.values():
+                name = os.path.splitext(name)[0] + '_cr_%d'%save_counter + os.path.splitext(name)[1]
+                save_counter += 1
+            self.htmlfile_map[f.path] = name
         
         self.parse_html()
         self.root.rewrite_links(self.rewrite_links, resolve_base_href=False)
         
+    def save(self):
+        '''
+        Save processed HTML into the content directory.
+        Should be called after all HTML processing is finished.
+        '''
+        with open(os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path]), 'wb') as f:
+            f.write(html.tostring(self.root, 
+                        encoding='utf-8', method='xml',
+                         include_meta_content_type=True,
+                        pretty_print=self.opts.pretty_print)
+                    )
+            return f.name
+
+
     def parse_html(self):
         ''' Create lxml ElementTree from HTML '''
         self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace')
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
-        for pat in self.ENCODING_PATS: 
+        for pat in self.ENCODING_PATS:
             src = pat.sub('', src)
         try:
             self.root = html.document_fromstring(src)
@@ -350,7 +372,7 @@ class Parser(PreProcessor):
         if not link.path or not os.path.exists(link.path) or not os.path.isfile(link.path):
             return olink
         if link.path in self.htmlfiles:
-            return os.path.basename(link.path)
+            return self.htmlfile_map[link.path]
         if link.path in self.resource_map.keys():
             return self.resource_map[link.path]
         name = os.path.basename(link.path)
@@ -358,7 +380,7 @@ class Parser(PreProcessor):
         name += ('_%d'%len(self.resource_map)) + ext
         shutil.copyfile(link.path, os.path.join(self.resource_dir, name))
         name = 'resources/' + name
-        self.resource_map[link.path] = name 
+        self.resource_map[link.path] = name
         return name
     
     def extract_css(self):
@@ -437,6 +459,8 @@ def config(defaults=None):
              help=_('The output directory. Default is the current directory.'))
     c.add_opt('encoding', ['--encoding'], default=None, 
               help=_('Character encoding for HTML files. Default is to auto detect.'))
+    c.add_opt('zip', ['--zip'], default=False,
+              help=_('Create the output in a zip file. If this option is specified, the --output should be the name of a file not a directory.'))
     
     traversal = c.add_group('traversal', _('Control the following of links in HTML files.'))
     traversal('breadth_first', ['--breadth-first'], default=False,
@@ -453,6 +477,8 @@ def config(defaults=None):
     debug = c.add_group('debug', _('Options useful for debugging'))
     debug('verbose', ['-v', '--verbose'], default=0, action='count',
           help=_('Be more verbose while processing. Can be specified multiple times to increase verbosity.'))
+    debug('pretty_print', ['--pretty-print'], default=False,
+          help=_('Output HTML is "pretty printed" for easier parsing by humans'))
     
     return c
 
@@ -487,7 +513,6 @@ def get_filelist(htmlfile, opts):
         print '\tFound files...'
         for f in filelist:
             print '\t\t', f
-    
     return opf, filelist
 
 def parse_content(filelist, opts):
@@ -499,9 +524,10 @@ def parse_content(filelist, opts):
         os.makedirs(rdir)
     resource_map = {}
     for htmlfile in filelist:
-        Parser(htmlfile, opts, os.path.join(opts.output, 'content'), 
+        p = Parser(htmlfile, opts, os.path.join(opts.output, 'content'),
                            resource_map, filelist)
-    return resource_map
+        p.save()
+    return resource_map, p.htmlfile_map
 
 def merge_metadata(htmlfile, opf, opts):
     if opf:
@@ -519,23 +545,27 @@ def merge_metadata(htmlfile, opf, opts):
         mi.title = os.path.splitext(os.path.basename(htmlfile))[0]
     if not mi.authors:
         mi.authors = [_('Unknown')]
+    return mi
 
 def create_metadata(basepath, mi, filelist, resources):
     mi = OPFCreator(basepath, mi)
-    entries = [(f.path, None) for f in filelist] + [(f, None) for f in resources]
+    entries = [('content/'+f, None) for f in filelist] + [(f, None) for f in resources]
     mi.create_manifest(entries)
-    mi.create_spine([f.path for f in filelist])
+    mi.create_spine(['content/'+f for f in filelist])
     return mi
 
 def create_dir(htmlfile, opts):
     opf, filelist = get_filelist(htmlfile, opts)
     mi = merge_metadata(htmlfile, opf, opts)
-    resources = [os.path.join(opts.output, 'content', f) for f in parse_content(filelist, opts).values()]
+    resource_map, htmlfile_map = parse_content(filelist, opts)
+    resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
     if opf.cover and os.access(opf.cover, os.R_OK):
-        cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover))
+        cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)[-1])
         shutil.copyfile(opf.cover, cpath)
         resources.append(cpath)
-    mi = create_metadata(opts.output, mi, filelist, resources)
+        mi.cover = cpath
+    spine = [htmlfile_map[f.path] for f in filelist]
+    mi = create_metadata(opts.output, mi, spine, resources)
     with open(os.path.join(opts.output, 'metadata.opf'), 'wb') as f:
         mi.render(f)
     print 'Open ebook created in', opts.output
@@ -560,11 +590,12 @@ def main(args=sys.argv):
         return 1
     
     htmlfile = args[1]
-    create_dir(htmlfile, opts)
+    if opts.zip:
+        create_oebzip(htmlfile, opts)
+    else:
+        create_dir(htmlfile, opts)
         
     return 0
 
 if __name__ == '__main__':
     sys.exit(main())
-        
-    

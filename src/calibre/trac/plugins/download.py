@@ -35,7 +35,7 @@ class Distribution(object):
         ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
-        ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
+        ('lxml', '2.0.5', 'lxml', 'python-lxml', 'python-lxml'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
     

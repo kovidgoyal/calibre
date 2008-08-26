@@ -19,6 +19,7 @@ def config(defaults=None):
     
     c.update(common_config())
     c.remove_opt('output')
+    c.remove_opt('zip')
     
     c.add_opt('output', ['-o', '--output'], default=None,
              help=_('The output EPUB file. If not specified, it is derived from the input file name.'))
