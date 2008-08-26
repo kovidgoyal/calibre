@@ -178,7 +178,9 @@ for one device. In order to resolve the conflict:
 </ul>
 You can uninstall a driver by right clicking on it and selecting uninstall.
 </li>
-<li>Once the drivers have been uninstalled, uninstall %(appname)s. Reboot. Reinstall %(appname)s.</li>
+<li>Once the drivers have been uninstalled, find the file prs500.inf (it will be in the 
+driver folder in the folder in which you installed %(appname)s. Right click on it and
+select Install.</li>
 </ol>
 </p>
 </blockquote>

@@ -213,6 +213,14 @@ File ::D9A3AF75-5939-CB51-9F33-5A048911103E -type dir -name etc -parent 6CCF3F71
 File ::A628E495-239B-DAF4-D858-BCE36CB41E6E -type dir -name imageformats -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
 File ::0A533DB2-D494-A9ED-1334-DECC357BD426 -type dir -name codecs -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
 File ::0F47A44E-E347-1CD4-E89F-37B447C4A270 -type dir -name driver -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
+File ::52D6C8C6-472D-758D-B16C-EC8A0F83D5DD -name libusb0.dll -parent 0F47A44E-E347-1CD4-E89F-37B447C4A270
+File ::C08EC2F0-37A9-8B3F-8898-66E93AE5F791 -name libusb0.sys -parent 0F47A44E-E347-1CD4-E89F-37B447C4A270
+File ::84F88191-8CBA-6A01-CA25-0F341A42FEE0 -name libusb0_x64.dll -parent 0F47A44E-E347-1CD4-E89F-37B447C4A270
+File ::48E8B553-FC9B-AE00-83DD-E0979E5F6CB6 -name libusb0_x64.sys -parent 0F47A44E-E347-1CD4-E89F-37B447C4A270
+File ::1FAB09FF-F996-11EF-7C36-EB0EFF5357B2 -name prs500_x64.cat -parent 0F47A44E-E347-1CD4-E89F-37B447C4A270
+File ::5AFA6966-1C30-7218-68C7-82D1CD903D3D -name devcon.exe -active 0 -parent 0F47A44E-E347-1CD4-E89F-37B447C4A270
+File ::12B6C427-E43F-F247-253D-6A5407DEC547 -name prs500.cat -parent 0F47A44E-E347-1CD4-E89F-37B447C4A270
+File ::8FAC4319-58B2-218F-536D-60C0ACCD4AD3 -name prs500.inf -parent 0F47A44E-E347-1CD4-E89F-37B447C4A270
 File ::A146565C-D163-7F68-7C70-A6A336B32526 -type dir -name iconengines -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
 File ::3245B06C-1C22-1A8A-5710-6D36651AAA70 -name etree.pyd -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
 File ::B49A5610-13F6-FB5D-0673-DB47C6BB385D -name rtf-meta.exe.local -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
@@ -490,6 +498,10 @@ File ::69178142-77D3-D7C5-74C7-6F1597474123 -name IM_MOD_RL_vid_.dll -parent 6CC
 File ::9D84C810-6DEC-5831-CFC6-AD0543D95881 -name IM_MOD_RL_rla_.dll -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
 File ::514DCC61-0BE9-6C5C-A970-170219D3A87E -name IM_MOD_RL_magick_.dll -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
 File ::AAF94AED-250D-DE8D-14C5-FA8BC05AAE74 -name IM_MOD_RL_djvu_.dll -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
+File ::078C6EA0-2F4F-49C5-A271-C709259F1943 -name html2epub.exe -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
+File ::BD9452C2-7844-5110-84C4-0DBE19A2956C -name html2oeb.exe -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
+File ::91F369C7-5448-999F-A50F-AD0BEB645180 -name html2epub.exe.local -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
+File ::876F1296-5750-FA13-957C-6BAB93F78C28 -name html2oeb.exe.local -parent 6CCF3F71-74BB-ED69-D0E6-9F12348ABDD3
 Component ::F6829AB7-9F66-4CEE-CA0E-21F54C6D3609 -setup Install -active Yes -platforms {AIX-ppc FreeBSD-4-x86 FreeBSD-x86 HPUX-hppa Linux-x86 Solaris-sparc Windows} -name Main -parent Components
 SetupType ::D9ADE41C-B744-690C-2CED-CF826BF03D2E -setup Install -active Yes -platforms {AIX-ppc FreeBSD-4-x86 FreeBSD-x86 HPUX-hppa Linux-x86 Solaris-sparc Windows} -name Typical -parent SetupTypes
 
@@ -508,9 +520,6 @@ InstallComponent 28FDA3F4-B799-901F-8A27-AA04F0C022AB -setup Install -type pane 
 InstallComponent A75C97CC-01AC-C12A-D663-A54E3257F11B -setup Install -type action -title {Disable Buttons} -component ModifyWidget -active Yes -parent 28FDA3F4-B799-901F-8A27-AA04F0C022AB
 InstallComponent B6D03F99-8B73-BE6E-1050-721B286D3D60 -setup Install -type action -title {Execute Action} -component ExecuteAction -active Yes -parent 28FDA3F4-B799-901F-8A27-AA04F0C022AB
 InstallComponent 91AB3DE5-D61C-522D-5B3B-F2953E1DE771 -setup Install -type action -title {Move Forward} -component MoveForward -active Yes -parent 28FDA3F4-B799-901F-8A27-AA04F0C022AB
-InstallComponent D6631BA5-577E-B30C-A73D-2B12B826811A -setup Install -type pane -conditions C6DE83DD-5C2A-AC5B-6ABA-84D73AE38655 -title {Install USB Driver} -component CustomBlankPane1 -command insert -active Yes -parent StandardInstall
-Condition C6DE83DD-5C2A-AC5B-6ABA-84D73AE38655 -active Yes -parent D6631BA5-577E-B30C-A73D-2B12B826811A -title {Platform Condition} -component PlatformCondition -TreeObject::id C6DE83DD-5C2A-AC5B-6ABA-84D73AE38655
-InstallComponent 1B9E77A3-10D6-9EDD-160B-64B5EBB31981 -setup Install -type action -title {Add Widget} -component AddWidget -command reorder -active Yes -parent D6631BA5-577E-B30C-A73D-2B12B826811A
 InstallComponent 8A7FD0C2-F053-8764-F204-4BAE71E05708 -setup Install -type pane -title {Setup Complete} -component SetupComplete -active Yes -parent StandardInstall
 InstallComponent 710F2507-2557-652D-EA55-440D710EFDFA -setup Install -type action -conditions {69188956-D764-5B26-B048-46A4239C3733 08195201-0797-932C-4B51-E5EF9D1D41BD 2E18F4AE-F1BB-5C62-2900-73A576A49261} -title {Install USB Driver} -component ExecuteExternalProgram -command insert -alias {Install USB Driver} -active Yes -parent 8A7FD0C2-F053-8764-F204-4BAE71E05708
 Condition 69188956-D764-5B26-B048-46A4239C3733 -active Yes -parent 710F2507-2557-652D-EA55-440D710EFDFA -title {Platform Condition} -component PlatformCondition -TreeObject::id 69188956-D764-5B26-B048-46A4239C3733
@@ -666,30 +675,6 @@ false
 
 1ADA4DE6-31A7-E816-7719-4C8558F5378D,String
 <%UpgradeInstall%>
-
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,Checked
-No
-
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,Conditions
-{0 conditions}
-
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,ExecuteAction
-{Before Pane is Displayed}
-
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,Text,subst
-1
-
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,Type
-checkbutton
-
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,VirtualText
-InstallUSBDriver
-
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,X
-185
-
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,Y
-220
 
 1CA13495-CB19-27A9-56E5-9BCF91958249,Comment
 {Ask the user if they want to proceed with the uninstall.}
@@ -1525,9 +1510,6 @@ C5416030-8AB4-3466-F341-9A0BBFEA55EF,String
 C5AD5B0C-26BE-16E5-899A-9A9436C8F688,ExitType
 Finish
 
-C6DE83DD-5C2A-AC5B-6ABA-84D73AE38655,Platform
-Windows
-
 C7D6444E-DB8B-EE24-3E12-A2AF8A392C5D,Background
 white
 
@@ -1566,27 +1548,6 @@ false
 
 CFBE4459-450B-1FAB-3422-609544334AA2,String
 <%InstallStopped%>
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,Active
-Yes
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,BackButton,subst
-1
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,CancelButton,subst
-1
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,Caption,subst
-1
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,Conditions
-{1 condition}
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,Message,subst
-1
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,NextButton,subst
-1
 
 D79DC0D2-38BC-9D9F-2DF4-3C76D89BF933,ExitType
 Finish
@@ -2205,9 +2166,6 @@ E611105F-DC85-9E20-4F7B-E63C54E5DF06,Message
 1356216E-90D2-8324-0EEB-975A64F23EB8,Message
 <%InstallingApplicationText%>
 
-1B9E77A3-10D6-9EDD-160B-64B5EBB31981,Text
-{Install USB driver for the SONY PRS500}
-
 21B897C4-24BE-70D1-58EA-DE78EFA60719,Message
 {USB Driver installation failed with return code <%DevconStatus%> and console output \n\n<%DevconResult%>}
 
@@ -2272,12 +2230,6 @@ C3E9E5D9-58C8-C2C5-DF75-21D908A64782,Message
 
 C7D6444E-DB8B-EE24-3E12-A2AF8A392C5D,Text
 <%CreateDesktopShortcutText%>
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,Caption
-{Install USB Driver}
-
-D6631BA5-577E-B30C-A73D-2B12B826811A,Message
-{If you intend to use <%AppName%> to manage your SONY PRS500, you have to install the USB driver. Note that you cannot use the PRS500 in both <%AppName%> and the SONY E-library software.}
 
 D9ADE41C-B744-690C-2CED-CF826BF03D2E,Description
 <%TypicalInstallDescription%>

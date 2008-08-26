@@ -6,8 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Freeze app into executable using py2exe.
 '''
-QT_DIR           = 'C:\\Qt\\4.4.0'
-DEVCON           = 'C:\\devcon\\i386\\devcon.exe'
+QT_DIR           = 'C:\\Qt\\4.4.1'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 PDFTOHTML        = 'C:\\pdftohtml\\pdftohtml.exe'
@@ -101,7 +100,6 @@ class BuildEXE(py2exe.build_exe.py2exe):
         for pat in ('*.dll', '*.sys', '*.cat', '*.inf'):
             for f in glob.glob(os.path.join(LIBUSB_DIR, pat)):
                 shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
-        shutil.copyfile(DEVCON, os.path.join(tdir, os.path.basename(DEVCON)))
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
         print '\tAdding pdftohtml'
