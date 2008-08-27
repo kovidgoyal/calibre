@@ -92,41 +92,36 @@ class PageProcessor(list):
         
         
     def __call__(self):
-        try:
-            img = NewMagickWand()
-            if img < 0:
+        img = NewMagickWand()
+        if img < 0:
+            raise RuntimeError('Cannot create wand.')
+        if not MagickReadImage(img, self.path_to_page):
+            raise IOError('Failed to read image from: %'%self.path_to_page)
+        width  = MagickGetImageWidth(img)
+        height = MagickGetImageHeight(img)
+        if self.num == 0: # First image so create a thumbnail from it
+            thumb = CloneMagickWand(img)
+            if thumb < 0:
                 raise RuntimeError('Cannot create wand.')
-            if not MagickReadImage(img, self.path_to_page):
-                raise IOError('Failed to read image from: %'%self.path_to_page)
-            width  = MagickGetImageWidth(img)
-            height = MagickGetImageHeight(img)
-            if self.num == 0: # First image so create a thumbnail from it
-                thumb = CloneMagickWand(img)
-                if thumb < 0:
+            MagickThumbnailImage(thumb, 60, 80)
+            MagickWriteImage(thumb, os.path.join(self.dest, 'thumbnail.png'))
+            DestroyMagickWand(thumb)
+        
+        self.pages = [img]
+        if self.num == 2:
+            raise Exception('asd')
+        if width > height:
+            if self.opts.landscape:
+                self.rotate = True
+            else: 
+                split1, split2 = map(CloneMagickWand, (img, img))
+                if split1 < 0 or split2 < 0:
                     raise RuntimeError('Cannot create wand.')
-                MagickThumbnailImage(thumb, 60, 80)
-                MagickWriteImage(thumb, os.path.join(self.dest, 'thumbnail.png'))
-                DestroyMagickWand(thumb)
-            
-            self.pages = [img]
-            
-            if width > height:
-                if self.opts.landscape:
-                    self.rotate = True
-                else: 
-                    split1, split2 = map(CloneMagickWand, (img, img))
-                    if split1 < 0 or split2 < 0:
-                        raise RuntimeError('Cannot create wand.')
-                    DestroyMagickWand(img)
-                    MagickCropImage(split1, (width/2)-1, height, 0, 0)
-                    MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
-                    self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
-            self.process_pages()
-        except Exception, err:
-            print 'Failed to process page: %s'%os.path.basename(self.path_to_page)
-            print 'Error:', err
-            if self.opts.verbose:
-                traceback.print_exc()
+                DestroyMagickWand(img)
+                MagickCropImage(split1, (width/2)-1, height, 0, 0)
+                MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
+                self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
+        self.process_pages()
         
     def process_pages(self):
         for i, wand in enumerate(self.pages):
@@ -195,16 +190,19 @@ def process_page(path, dest, opts, num):
             
 class Progress(object):
     
-    def __init__(self, total, update):
+    def __init__(self, total, update, verbose):
         self.total  = total
         self.update = update
         self.done   = 0
+        self.verbose = verbose
         
     def __call__(self, job):
         self.done += 1
         msg = _('Rendered %s') if job.result else _('Failed %s')
         msg = msg%os.path.basename(job.args[0])
         self.update(float(self.done)/self.total, msg)
+        if not job.result and self.verbose:
+            print job.traceback
 
 def process_pages(pages, opts, update):
     '''
@@ -214,7 +212,7 @@ def process_pages(pages, opts, update):
         raise RuntimeError('Failed to load ImageMagick')
     
     tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
-    notify = Progress(len(pages), update)
+    notify = Progress(len(pages), update, opts.verbose)
     server = Server()
     jobs = []
     for i, path in enumerate(pages):
