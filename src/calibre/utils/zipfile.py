@@ -1136,7 +1136,7 @@ class ZipFile:
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
 
-    def writestr(self, zinfo_or_arcname, bytes, permissions=0600):
+    def writestr(self, zinfo_or_arcname, bytes, permissions=0600, compression=ZIP_DEFLATED):
         """Write a file into the archive.  The contents is the string
         'bytes'.  'zinfo_or_arcname' is either a ZipInfo instance or
         the name of the file in the archive."""
@@ -1145,7 +1145,7 @@ class ZipFile:
                 zinfo_or_arcname = zinfo_or_arcname.encode('utf-8')
             zinfo = ZipInfo(filename=zinfo_or_arcname,
                             date_time=time.localtime(time.time())[:6])
-            zinfo.compress_type = self.compression
+            zinfo.compress_type = compression
             zinfo.external_attr = permissions << 16
         else:
             zinfo = zinfo_or_arcname

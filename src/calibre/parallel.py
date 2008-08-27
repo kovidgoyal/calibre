@@ -36,19 +36,22 @@ DEBUG = False
 
 #: A mapping from job names to functions that perform the jobs
 PARALLEL_FUNCS = {
-                  'any2lrf'      :
+      'any2lrf'      :
         ('calibre.ebooks.lrf.any.convert_from', 'main', dict(gui_mode=True), None),
 
-                  'lrfviewer'    :
+      'lrfviewer'    :
         ('calibre.gui2.lrf_renderer.main', 'main', {}, None),
 
-                  'feeds2lrf'    :
+      'feeds2lrf'    :
         ('calibre.ebooks.lrf.feeds.convert_from', 'main', {}, 'notification'),
 
-                  'render_table' :
+      'render_table' :
         ('calibre.ebooks.lrf.html.table_as_image', 'do_render', {}, None),
+        
+      'render_page' :
+        ('calibre.ebooks.lrf.comic.convert_from', 'process_page', {}, None),
 
-                  'comic2lrf'    :
+      'comic2lrf'    :
         ('calibre.ebooks.lrf.comic.convert_from', 'do_convert', {}, 'notification'),
 }
 
@@ -657,6 +660,21 @@ class Server(Thread):
         if job.job_manager is not None:
             job.job_manager.add_job(job)
             
+    def poll(self):
+        '''
+        Return True if the server has either working or queued jobs
+        '''
+        with self.job_lock:
+            with self.working_lock:
+                return len(self.jobs) + len(self.working) > 0
+            
+    def wait(self, sleep=1):
+        '''
+        Wait until job queue is empty
+        '''
+        while self.poll():
+            time.sleep(sleep)
+    
     def run(self):
         while True:
             job = None

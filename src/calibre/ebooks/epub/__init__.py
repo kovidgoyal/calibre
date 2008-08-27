@@ -8,7 +8,27 @@ Conversion to EPUB.
 '''
 import sys
 from calibre.utils.config import Config, StringConfig
+from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED
 from calibre.ebooks.html import config as common_config
+
+def initialize_container(path_to_container, opf_name='metadata.opf'):
+    '''
+    Create an empty EPUB document, with a default skeleton.
+    '''
+    CONTAINER='''\
+<?xml version="1.0"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+   <rootfiles>
+      <rootfile full-path="%s" media-type="application/oebps-package+xml"/>
+   </rootfiles>
+</container>
+    '''%opf_name
+    zf = ZipFile(path_to_container, 'w')
+    zf.writestr('mimetype', 'application/epub+zip', compression=ZIP_DEFLATED)
+    zf.writestr('META-INF/', '', 0700)
+    zf.writestr('META-INF/container.xml', CONTAINER)
+    return zf
+    
 
 def config(defaults=None):
     desc = _('Options to control the conversion to EPUB')

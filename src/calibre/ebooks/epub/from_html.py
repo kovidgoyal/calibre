@@ -36,7 +36,7 @@ class HTMLProcessor(Parser):
         for text in get_text(self.body if self.body is not None else self.root):
             length, parent = len(re.sub(r'\s+', '', text)), text.getparent()
             #TODO: Use cssutils on self.raw_css to figure out the font size 
-            # of this piece text and update statistics accordingly        
+            # of this piece of text and update statistics accordingly        
     
     def split(self):
         ''' Split into individual flows to accommodate Adobe's incompetence '''
@@ -74,13 +74,17 @@ def convert(htmlfile, opts, notification=None):
     mi = merge_metadata(htmlfile, opf, opts)
     opts.chapter = XPath(opts.chapter, 
                     namespaces={'re':'http://exslt.org/regular-expressions'})
+    
     resource_map = parse_content(filelist, opts)
+    
     resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
+    
     if opf.cover and os.access(opf.cover, os.R_OK):
         shutil.copyfile(opf.cover, os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)))
         cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover))
         shutil.copyfile(opf.cover, cpath)
         resources.append(cpath)
+        mi.cover = cpath
             
 def main(args=sys.argv):
     parser = option_parser()

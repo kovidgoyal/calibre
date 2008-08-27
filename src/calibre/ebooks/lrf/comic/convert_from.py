@@ -7,14 +7,13 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import os, sys, traceback, shutil
+import os, sys, traceback, shutil, threading
 from uuid import uuid4
 
-from calibre import extract, detect_ncpus, terminal_controller, \
-                    __appname__, __version__
+from calibre import extract, terminal_controller, __appname__, __version__
 from calibre.utils.config import Config, StringConfig
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.threadpool import ThreadPool, WorkRequest
+from calibre.parallel import Server, ParallelJob
 from calibre.utils.terminfo import ProgressBar
 from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, ImageBlock
 try:
@@ -84,12 +83,13 @@ class PageProcessor(list):
     '''
     
     def __init__(self, path_to_page, dest, opts, num):
-        self.path_to_page = path_to_page
-        self.opts = opts
-        self.num = num
-        self.dest = dest
-        self.rotate = False
         list.__init__(self)
+        self.path_to_page = path_to_page
+        self.opts         = opts
+        self.num          = num
+        self.dest         = dest
+        self.rotate       = False
+        
         
     def __call__(self):
         try:
@@ -100,7 +100,6 @@ class PageProcessor(list):
                 raise IOError('Failed to read image from: %'%self.path_to_page)
             width  = MagickGetImageWidth(img)
             height = MagickGetImageHeight(img)
-            
             if self.num == 0: # First image so create a thumbnail from it
                 thumb = CloneMagickWand(img)
                 if thumb < 0:
@@ -122,7 +121,6 @@ class PageProcessor(list):
                     MagickCropImage(split1, (width/2)-1, height, 0, 0)
                     MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
                     self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
-                    
             self.process_pages()
         except Exception, err:
             print 'Failed to process page: %s'%os.path.basename(self.path_to_page)
@@ -138,23 +136,20 @@ class PageProcessor(list):
             PixelSetColor(pw, 'white')
             
             MagickSetImageBorderColor(wand, pw)
-            
             if self.rotate:
                 MagickRotateImage(wand, pw, -90)
                 
             # 25 percent fuzzy trim?
             MagickTrimImage(wand, 25*65535/100)
             MagickSetImagePage(wand, 0,0,0,0)   #Clear page after trim, like a "+repage"
-            
             # Do the Photoshop "Auto Levels" equivalent
             if not self.opts.dont_normalize:
                 MagickNormalizeImage(wand)
-        
             sizex = MagickGetImageWidth(wand)
             sizey = MagickGetImageHeight(wand)
             
             SCRWIDTH, SCRHEIGHT = PROFILES[self.opts.profile]
-            
+            print 77777, threading.currentThread()
             if self.opts.keep_aspect_ratio: 
                 # Preserve the aspect ratio by adding border
                 aspect = float(sizex) / float(sizey)
@@ -168,7 +163,6 @@ class PageProcessor(list):
                     newsizey = int(newsizex / aspect)
                     deltax = 0
                     deltay = (SCRHEIGHT - newsizey) / 2
-        
                 MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
                 MagickSetImageBorderColor(wand, pw)
                 MagickBorderImage(wand, pw, deltax, deltay)
@@ -193,6 +187,12 @@ class PageProcessor(list):
             DestroyPixelWand(pw)
             wand = DestroyMagickWand(wand)
             
+def process_page(path, dest, opts, num):
+    pp = PageProcessor(path, dest, opts, num)
+    with ImageMagick():
+        pp()
+    return list(pp)
+            
 class Progress(object):
     
     def __init__(self, total, update):
@@ -200,10 +200,11 @@ class Progress(object):
         self.update = update
         self.done   = 0
         
-    def __call__(self, req, res):
+    def __call__(self, job):
         self.done += 1
-        self.update(float(self.done)/self.total, 
-                    _('Rendered %s')%os.path.basename(req.callable.path_to_page))
+        msg = _('Rendered %s') if job.result else _('Failed %s')
+        msg = msg%os.path.basename(job.args[0])
+        self.update(float(self.done)/self.total, msg)
 
 def process_pages(pages, opts, update):
     '''
@@ -211,23 +212,25 @@ def process_pages(pages, opts, update):
     '''
     if not _imagemagick_loaded:
         raise RuntimeError('Failed to load ImageMagick')
-    with ImageMagick():
-        tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
-        processed_pages = [PageProcessor(path, tdir, opts, i) for i, path in enumerate(pages)]
-        tp = ThreadPool(detect_ncpus())
-        update(0, '')
-        notify = Progress(len(pages), update)
-        for pp in processed_pages:
-            tp.putRequest(WorkRequest(pp, callback=notify))
-            tp.wait()
-        ans, failures = [], []
+    
+    tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
+    notify = Progress(len(pages), update)
+    server = Server()
+    jobs = []
+    for i, path in enumerate(pages):
+        jobs.append(ParallelJob('render_page', notify, args=[path, tdir, opts, i]))
+        server.add_job(jobs[-1])
+    server.wait()
+    server.killall()
+    server.close()
+    ans, failures = [], []
         
-        for pp in processed_pages:
-            if len(pp) == 0:
-                failures.append(os.path.basename(pp.path_to_page))
-            else:
-                ans += pp
-        return ans, failures, tdir
+    for job in jobs:
+        if not job.result:
+            failures.append(os.path.basename(job.args[0]))
+        else:
+            ans += job.result
+    return ans, failures, tdir
     
 def config(defaults=None):
     desc = _('Options to control the conversion of comics (CBR, CBZ) files into ebooks')

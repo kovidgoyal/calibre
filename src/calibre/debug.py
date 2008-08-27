@@ -25,9 +25,7 @@ Run an embedded python interpreter.
 
 def update_zipfile(zipfile, mod, path):
     if 'win32' in sys.platform:
-        print 'WARNING: On Windows Vista you must run this from a console that has been started in Administrator mode.'
-        print 'Press Enter to continue if this is an Administrator console or Ctrl-C to Cancel'
-        raw_input()
+        print 'WARNING: On Windows Vista using this option may cause windows to put library.zip into the Virtual Store (typically located in c:\Users\username\AppData\Local\VirtualStore). If it does this you must delete it from there after you\'re done debugging).' 
     pat = re.compile(mod.replace('.', '/')+r'\.py[co]*')
     name = mod.replace('.', '/') + os.path.splitext(path)[-1]
     update(zipfile, [pat], [path], [name])
