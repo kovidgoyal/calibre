@@ -29,8 +29,10 @@ else:
     bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
     config_dir = os.path.join(bdir, 'calibre')
 
-if not os.path.exists(config_dir):
-    os.makedirs(config_dir, mode=448) # 0700 == 448
+def make_config_dir():
+    if not os.path.exists(config_dir):
+        os.makedirs(config_dir, mode=448) # 0700 == 448
+
 
 class CustomHelpFormatter(IndentedHelpFormatter):
     
@@ -46,7 +48,7 @@ class CustomHelpFormatter(IndentedHelpFormatter):
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
-            opts = "%*s%s\n" % (self.current_indent, "", 
+            opts = "%*s%s\n" % (self.current_indent, "",
                                     terminal_controller.GREEN+opts+terminal_controller.NORMAL)
             indent_first = self.help_position
         else:                       # start help on same line as opts
@@ -368,6 +370,8 @@ class Config(ConfigInterface):
         if not self.option_set.has_option(name):
             raise ValueError('The option %s is not defined.'%name)
         try:
+            if not os.path.exists(config_dir):
+                make_config_dir()
             with ExclusiveFile(self.config_file_path) as f:
                 src = f.read()
                 opts = self.option_set.parse_string(src)
@@ -439,9 +443,11 @@ class DynamicConfig(dict):
     def __init__(self, name='dynamic'):
         self.name = name
         self.file_path = os.path.join(config_dir, name+'.pickle')
-        with ExclusiveFile(self.file_path) as f:
-            raw = f.read()
-            d = cPickle.loads(raw) if raw.strip() else {}
+        d = {}
+        if os.path.exists(self.file_path):
+            with ExclusiveFile(self.file_path) as f:
+                raw = f.read()
+                d = cPickle.loads(raw) if raw.strip() else {}
         dict.__init__(self, d)
         
     def __getitem__(self, key):
@@ -459,6 +465,8 @@ class DynamicConfig(dict):
     
     def commit(self):
         if hasattr(self, 'file_path') and self.file_path:
+            if not os.path.exists(self.file_path):
+                make_config_dir()
             with ExclusiveFile(self.file_path) as f:
                 raw = cPickle.dumps(self, -1)
                 f.seek(0)
@@ -487,6 +495,8 @@ def _prefs():
 prefs = ConfigProxy(_prefs())
 
 def migrate():
+    if hasattr(os, 'geteuid') and os.geteuid() == 0:
+        return
     p = prefs
     if p.get('migrated'):
         return

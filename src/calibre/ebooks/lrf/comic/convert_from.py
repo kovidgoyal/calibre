@@ -108,12 +108,10 @@ class PageProcessor(list):
             DestroyMagickWand(thumb)
         
         self.pages = [img]
-        if self.num == 2:
-            raise Exception('asd')
         if width > height:
             if self.opts.landscape:
                 self.rotate = True
-            else: 
+            else:
                 split1, split2 = map(CloneMagickWand, (img, img))
                 if split1 < 0 or split2 < 0:
                     raise RuntimeError('Cannot create wand.')

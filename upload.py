@@ -238,6 +238,12 @@ def stage_three():
     check_call('''rm -rf dist/* build/*''')
     check_call('''ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/''')
 
+def betas():
+    subprocess.check_call('rm -f dist/*', shell=True)
+    build_installers()
+    check_call('ssh divok rm -f  /var/www/calibre.kovidgoyal.net/htdocs/downloads/betas/*')
+    check_call('scp dist/* divok:/var/www/calibre.kovidgoyal.net/htdocs/downloads/betas/')
+
 def main(args=sys.argv):
     print 'Starting stage one...'
     stage_one()
