@@ -108,7 +108,7 @@ class _Canvas(QGraphicsRectItem):
         line = block.peek()
         y += block.bs.topskip
         block_consumed = False
-        line.height = min(line.height, self.max_y-y) # LRF files from TOR have Plot elements with their height set to 800
+        line.height = min(line.height, self.max_y-block.bs.topskip) # LRF files from TOR have Plot elements with their height set to 800
         while y + line.height <= self.max_y:
             block.commit()
             if isinstance(line, QGraphicsItem):

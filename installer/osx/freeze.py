@@ -150,9 +150,9 @@ _check_symlinks_prescript()
                 if not match:
                     print dep
                     raise Exception('Unknown Qt dependency')
-            module = match.group(1)            
+            module = match.group(1)
             newpath = fp + '%s.framework/Versions/Current/%s'%(module, module)
-            cmd = ' '.join(['/usr/bin/install_name_tool', '-change', dep, newpath, path])        
+            cmd = ' '.join(['/usr/bin/install_name_tool', '-change', dep, newpath, path])
             subprocess.check_call(cmd, shell=True)
         
     
@@ -218,9 +218,16 @@ _check_symlinks_prescript()
         self.fix_misc_dependencies(deps)
         
     
+    def fix_lxml_dependencies(self, resource_dir):
+        for f in glob.glob(os.path.join(resource_dir, 'lib', 'python*', 'lxml', '*.so')):
+            print 'Fixing dependencies of', os.path.basename(f)
+            for lib in ('libxml2.2.dylib', 'libxslt.1.dylib', 'libexslt.0.dylib'):
+                subprocess.check_call(['/usr/bin/install_name_tool', '-change',
+                    '/usr/local/lib/%s'%lib, '@executable_path/../Frameworks/%s'%lib, f])
+    
     def run(self):
         py2app.run(self)
-        resource_dir = os.path.join(self.dist_dir, 
+        resource_dir = os.path.join(self.dist_dir,
                                     APPNAME + '.app', 'Contents', 'Resources')
         frameworks_dir = os.path.join(os.path.dirname(resource_dir), 'Frameworks')
         all_scripts = scripts['console'] + scripts['gui']
@@ -235,7 +242,7 @@ _check_symlinks_prescript()
             path = os.path.join(loader_path, name)
             print 'Creating loader:', path
             f = open(path, 'w')
-            f.write(BuildAPP.LOADER_TEMPLATE % dict(module=module, 
+            f.write(BuildAPP.LOADER_TEMPLATE % dict(module=module,
                                                         function=function))
             f.close()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
@@ -255,6 +262,12 @@ _check_symlinks_prescript()
         if os.path.exists(dst):
             shutil.rmtree(dst)
         shutil.copytree('/usr/local/etc/fonts', dst, symlinks=False)
+        
+        print
+        print 'Adding libxml2'
+        for f in glob.glob(os.path.expanduser('~/libxml2/*')):
+            shutil.copyfile(f, os.path.join(frameworks_dir, os.path.basename(f)))
+        self.fix_lxml_dependencies(resource_dir)
         
         print
         print 'Adding IPython'
@@ -313,12 +326,12 @@ def main():
                          'iconfile' : 'icons/library.icns',
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml',
-                                       'PyQt4.QtSvg', 'PyQt4.QtWebKit',
+                                       'PyQt4.QtSvg', 'PyQt4.QtWebKit', 'commands',
                                        'mechanize', 'ClientForm', 'usbobserver',
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
                                        'keyword', 'codeop', 'pydoc', 'readline'],
-                         'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
+                         'packages' : ['PIL', 'Authorization', 'lxml'],
                          'excludes' : ['IPython'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
                                         ''' Visit http://calibre.kovidgoyal.net for details.''',

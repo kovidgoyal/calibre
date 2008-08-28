@@ -1,5 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+from lxml import html # Needed otherwise the GUI segfaults on OS X
 import os, sys, textwrap, collections, traceback, time, re
 from xml.parsers.expat import ExpatError
 from functools import partial
