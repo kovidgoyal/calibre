@@ -450,7 +450,7 @@ class Line(QGraphicsItem):
         if self.current_link is not None:
             self.end_link()
         
-        # We justify is line is small and it doesn't have links in it
+        # We justify if line is small and it doesn't have links in it
         # If it has links, justification would cause the boundingrect of the link to 
         # be too small
         if self.current_width >= 0.85 * self.line_length and len(self.links) == 0:
