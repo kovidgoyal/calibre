@@ -159,6 +159,27 @@ class PageProcessor(list):
                 MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
                 MagickSetImageBorderColor(wand, pw)
                 MagickBorderImage(wand, pw, deltax, deltay)
+            elif self.opts.wide:
+                # Keep aspect and Use device height as scaled image width so landscape mode is clean
+                aspect = float(sizex) / float(sizey)
+                screen_aspect = float(SCRWIDTH) / float(SCRHEIGHT)
+                # Get dimensions of the landscape mode screen
+                # Add 25px back to height for the battery bar.
+                wscreenx = SCRHEIGHT + 25
+                wscreeny = int(wscreenx / screen_aspect)
+                if aspect <= screen_aspect:
+                    newsizey = wscreeny
+                    newsizex = int(newsizey * aspect)
+                    deltax = (wscreenx - newsizex) / 2
+                    deltay = 0
+                else:
+                    newsizex = wscreenx
+                    newsizey = int(newsizex / aspect)
+                    deltax = 0
+                    deltay = (wscreeny - newsizey) / 2
+                MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
+                MagickSetImageBorderColor(wand, pw)
+                MagickBorderImage(wand, pw, deltax, deltay)
             else:
                 MagickResizeImage(wand, SCRWIDTH, SCRHEIGHT, CatromFilter, 1.0)
                 
@@ -251,6 +272,8 @@ def config(defaults=None):
               help=_('Disable sharpening.'))
     c.add_opt('landscape', ['-l', '--landscape'], default=False, 
               help=_("Don't split landscape images into two portrait images"))
+    c.add_opt('wide', ['-w', '--wide-aspect'], default=False, 
+              help=_("Keep aspect and scale image using screen height as image width for clean, unscaled, wide landscape viewing"))
     c.add_opt('right2left', ['--right2left'], default=False, action='store_true',
               help=_('Used for right-to-left publications like manga. Causes landscape pages to be split into portrait pages from right to left.'))
     c.add_opt('despeckle', ['-d', '--despeckle'], default=False, 
