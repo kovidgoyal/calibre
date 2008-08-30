@@ -1446,10 +1446,11 @@ class HTMLConverter(object, LoggingInterface):
             pass
         if not self.disable_chapter_detection and \
            (self.chapter_attr[0].match(tagname) and \
-           tag.has_key(self.chapter_attr[1]) and \
-           self.chapter_attr[2].match(tag[self.chapter_attr[1]])):
+            (self.chapter_attr[1].pattern.lower() == 'none' or \
+             (tag.has_key(self.chapter_attr[1]) and \
+              self.chapter_attr[2].match(tag[self.chapter_attr[1]])))):
                 self.log_debug('Detected chapter %s', tagname)
-                self.end_page() 
+                self.end_page()
                 self.page_break_found = True
 
                 if self.options.add_chapters_to_toc:
