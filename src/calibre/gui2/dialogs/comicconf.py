@@ -58,6 +58,7 @@ class ComicConf(QDialog, Ui_Dialog):
         self.opt_landscape.setChecked(opts.landscape)
         self.opt_no_sort.setChecked(opts.no_sort)
         self.opt_despeckle.setChecked(opts.despeckle)
+        self.opt_wide.setChecked(opts.wide)
         self.opt_right2left.setChecked(opts.right2left)
         
         for opt in self.config.option_set.preferences:

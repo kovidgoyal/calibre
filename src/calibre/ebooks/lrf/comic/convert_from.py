@@ -37,7 +37,7 @@ except:
 
 PROFILES = {
             # Name : (width, height) in pixels
-            'prs500':(584, 754),            
+            'prs500':(584, 754),
             }
 
 def extract_comic(path_to_comic_file):
@@ -143,7 +143,7 @@ class PageProcessor(list):
             
             SCRWIDTH, SCRHEIGHT = PROFILES[self.opts.profile]
             print 77777, threading.currentThread()
-            if self.opts.keep_aspect_ratio: 
+            if self.opts.keep_aspect_ratio:
                 # Preserve the aspect ratio by adding border
                 aspect = float(sizex) / float(sizey)
                 if aspect <= (float(SCRWIDTH) / float(SCRHEIGHT)):
@@ -156,6 +156,27 @@ class PageProcessor(list):
                     newsizey = int(newsizex / aspect)
                     deltax = 0
                     deltay = (SCRHEIGHT - newsizey) / 2
+                MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
+                MagickSetImageBorderColor(wand, pw)
+                MagickBorderImage(wand, pw, deltax, deltay)
+            elif self.opts.wide:
+                # Keep aspect and Use device height as scaled image width so landscape mode is clean
+                aspect = float(sizex) / float(sizey)
+                screen_aspect = float(SCRWIDTH) / float(SCRHEIGHT)
+                # Get dimensions of the landscape mode screen
+                # Add 25px back to height for the battery bar.
+                wscreenx = SCRHEIGHT + 25
+                wscreeny = int(wscreenx / screen_aspect)
+                if aspect <= screen_aspect:
+                    newsizey = wscreeny
+                    newsizex = int(newsizey * aspect)
+                    deltax = (wscreenx - newsizex) / 2
+                    deltay = 0
+                else:
+                    newsizex = wscreenx
+                    newsizey = int(newsizex / aspect)
+                    deltax = 0
+                    deltay = (wscreeny - newsizey) / 2
                 MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
                 MagickSetImageBorderColor(wand, pw)
                 MagickBorderImage(wand, pw, deltax, deltay)
@@ -234,34 +255,36 @@ def config(defaults=None):
         c = Config('comic', desc)
     else:
         c = StringConfig(defaults, desc)
-    c.add_opt('title', ['-t', '--title'], 
+    c.add_opt('title', ['-t', '--title'],
               help=_('Title for generated ebook. Default is to use the filename.'))
-    c.add_opt('author', ['-a', '--author'], 
-              help=_('Set the author in the metadata of the generated ebook. Default is %default'), 
+    c.add_opt('author', ['-a', '--author'],
+              help=_('Set the author in the metadata of the generated ebook. Default is %default'),
               default=_('Unknown'))
-    c.add_opt('output', ['-o', '--output'], 
+    c.add_opt('output', ['-o', '--output'],
               help=_('Path to output LRF file. By default a file is created in the current directory.'))
     c.add_opt('colors', ['-c', '--colors'], type='int', default=64,
               help=_('Number of colors for grayscale image conversion. Default: %default'))
-    c.add_opt('dont_normalize', ['-n', '--disable-normalize'], default=False, 
+    c.add_opt('dont_normalize', ['-n', '--disable-normalize'], default=False,
               help=_('Disable normalize (improve contrast) color range for pictures. Default: False'))
     c.add_opt('keep_aspect_ratio', ['-r', '--keep-aspect-ratio'], default=False,
               help=_('Maintain picture aspect ratio. Default is to fill the screen.'))
-    c.add_opt('dont_sharpen', ['-s', '--disable-sharpen'], default=False,  
+    c.add_opt('dont_sharpen', ['-s', '--disable-sharpen'], default=False,
               help=_('Disable sharpening.'))
-    c.add_opt('landscape', ['-l', '--landscape'], default=False, 
+    c.add_opt('landscape', ['-l', '--landscape'], default=False,
               help=_("Don't split landscape images into two portrait images"))
+    c.add_opt('wide', ['-w', '--wide-aspect'], default=False,
+              help=_("Keep aspect ratio and scale image using screen height as image width for viewing in landscape mode."))
     c.add_opt('right2left', ['--right2left'], default=False, action='store_true',
               help=_('Used for right-to-left publications like manga. Causes landscape pages to be split into portrait pages from right to left.'))
-    c.add_opt('despeckle', ['-d', '--despeckle'], default=False, 
+    c.add_opt('despeckle', ['-d', '--despeckle'], default=False,
               help=_('Enable Despeckle. Reduces speckle noise. May greatly increase processing time.'))
-    c.add_opt('no_sort', ['--no-sort'], default=False, 
+    c.add_opt('no_sort', ['--no-sort'], default=False,
               help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."))
-    c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(), 
+    c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(),
               help=_('Choose a profile for the device you are generating this LRF for. The default is the SONY PRS-500 with a screen size of 584x754 pixels. Choices are %s')%PROFILES.keys())
-    c.add_opt('verbose', ['--verbose'], default=0, action='count',  
+    c.add_opt('verbose', ['--verbose'], default=0, action='count',
               help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
-    c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False, 
+    c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False,
                       help=_("Don't show progress bar."))
     return c
 
