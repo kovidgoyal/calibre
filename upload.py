@@ -31,7 +31,7 @@ cd ~/build && \
 rsync -avz --exclude src/calibre/plugins --exclude calibre/src/calibre.egg-info --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
 cd %(project)s && \
 %%s && \
-rm -rf build/* && \
+rm -rf build/* dist/* && \
 %%s %%s
 '''%dict(host=HOST, project=PROJECT)
 check_call = partial(_check_call, shell=True)

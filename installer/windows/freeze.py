@@ -14,13 +14,15 @@ IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
 
 
-import sys, os, py2exe, shutil, zipfile, glob, subprocess
+import sys, os, py2exe, shutil, zipfile, glob, subprocess, re
 from distutils.core import setup
 from distutils.filelist import FileList
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, BASE_DIR)
 from setup import VERSION, APPNAME, entry_points, scripts, basenames
 sys.path.remove(BASE_DIR)
+
+VERSION = re.sub('[a-z]\d+', '', VERSION)
 
 PY2EXE_DIR = os.path.join(BASE_DIR, 'build','py2exe')
 
@@ -58,29 +60,18 @@ class BuildEXE(py2exe.build_exe.py2exe):
             shutil.copyfile(f, os.path.join(self.dist_dir, os.path.basename(f)))
         for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.pyd')):
             shutil.copyfile(f, os.path.join(tgt, os.path.basename(f)))
-        qtsvgdll = None
-        for other in self.other_depends:
-            if 'qtsvg4.dll' in other.lower():
-                qtsvgdll = other
-                break
         shutil.copyfile('LICENSE', os.path.join(self.dist_dir, 'LICENSE'))
         print
-        if qtsvgdll:
-            print 'Adding', qtsvgdll
-            shutil.copyfile(qtsvgdll, os.path.join(self.dist_dir, os.path.basename(qtsvgdll)))
-            qtxmldll = os.path.join(os.path.dirname(qtsvgdll), 'QtXml4.dll')
-            print 'Adding', qtxmldll
-            shutil.copyfile(qtxmldll, 
-                            os.path.join(self.dist_dir, os.path.basename(qtxmldll)))
+        print 'Adding QtXml4.dll'
+        shutil.copyfile(os.path.join(QT_DIR, 'bin', 'QtXml4.dll'),
+                            os.path.join(self.dist_dir, 'QtXml4.dll'))
         print 'Adding Qt plugins...',
         qt_prefix = QT_DIR
-        if qtsvgdll:
-            qt_prefix = os.path.dirname(os.path.dirname(qtsvgdll))
         plugdir = os.path.join(qt_prefix, 'plugins')
         for d in ('imageformats', 'codecs', 'iconengines'):
             print d,
             imfd = os.path.join(plugdir, d)
-            tg = os.path.join(self.dist_dir, d)        
+            tg = os.path.join(self.dist_dir, d)
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
@@ -124,8 +115,8 @@ class BuildEXE(py2exe.build_exe.py2exe):
     @classmethod
     def manifest(cls, prog):
         cls.manifest_resource_id += 1
-        return (24, cls.manifest_resource_id, 
-                cls.MANIFEST_TEMPLATE % dict(prog=prog, version=VERSION+'.0'))
+        return (24, cls.manifest_resource_id,
+                cls.MANIFEST_TEMPLATE % dict(prog=prog, version=(VERSION+'.0')))
 
 
 def main(args=sys.argv):
@@ -161,7 +152,7 @@ def main(args=sys.argv):
                                              'win32process', 'win32api', 'msvcrt',
                                              'win32event', 'calibre.ebooks.lrf.any.*',
                                              'calibre.ebooks.lrf.feeds.*',
-                                             'genshi', 
+                                             'genshi',
                                              'path', 'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
