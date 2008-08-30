@@ -18,7 +18,7 @@
             ${'%*s'%(4*level,'')}<navLabel>
                 ${'%*s'%(4*level,'')}<text>${np.text}</text>
             ${'%*s'%(4*level,'')}</navLabel>
-            ${'%*s'%(4*level,'')}<content src="${str(np.href)+(('#' + str(np.fragment)) if np.fragment else '')}" />
+            ${'%*s'%(4*level,'')}<content src="${unicode(np.href)+(('#' + unicode(np.fragment)) if np.fragment else '')}" />
             <py:for each="np2 in np">${navpoint(np2, level+1)}</py:for>
         ${'%*s'%(4*level,'')}</navPoint>
     </py:def>
