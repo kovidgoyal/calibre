@@ -13,7 +13,7 @@ from calibre.devices.interface import BookList as _BookList
 from calibre.devices import strftime as _strftime
 from calibre.devices import strptime
 
-strftime = functools.partial(_strftime, zone=time.localtime)
+strftime = functools.partial(_strftime, zone=time.gmtime)
 
 MIME_MAP   = { 
                 "lrf" : "application/x-sony-bbeb",
