@@ -437,7 +437,7 @@ class HTMLConverter(object, LoggingInterface):
         for s in props.split(';'):
             l = s.split(':',1)
             if len(l)==2:
-                key = str(l[0].strip()).lower()
+                key = l[0].strip().lower()
                 val = l[1].strip()
                 prop [key] = val
         return prop
