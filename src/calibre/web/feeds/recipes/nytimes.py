@@ -5,7 +5,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 nytimes.com
 '''
-import time, string
+import string
+from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class NYTimes(BasicNewsRecipe):
@@ -59,7 +60,7 @@ class NYTimes(BasicNewsRecipe):
                 url = self.print_version(a['href'])
                 title = self.tag_to_string(a, use_alt=True).strip()
                 description = ''
-                pubdate = time.strftime('%a, %d %b', time.localtime())
+                pubdate = strftime('%a, %d %b')
                 summary = div.find(True, attrs={'class':'summary'})
                 if summary:
                     description = self.tag_to_string(summary, use_alt=False)

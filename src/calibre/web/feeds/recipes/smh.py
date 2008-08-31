@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 smh.com.au
 '''
-import time
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
@@ -44,7 +44,7 @@ class SMH(BasicNewsRecipe):
                 articles.append({
                                  'title': title,
                                  'url'  : url,
-                                 'date' : time.strftime('%a, %d %b'),
+                                 'date' : strftime('%a, %d %b'),
                                  'description' : '',
                                  'content'     : '',
                                  }) 

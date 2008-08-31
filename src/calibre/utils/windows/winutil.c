@@ -57,12 +57,19 @@ wherever possible in this module.
 #define UNICODE
 #include <Windows.h>
 #include <Python.h>
+#include <structseq.h>
+#include <timefuncs.h>
 #include <shlobj.h>
 #include <stdio.h>
 #include <setupapi.h>
 #include <devguid.h>
 #include <cfgmgr32.h>
 #include <stdarg.h>
+#include <time.h>
+
+#define PyStructSequence_GET_ITEM(op, i) \
+    (((PyStructSequence *)(op))->ob_item[i])
+
 
 #define BUFSIZE    512
 #define MAX_DRIVES 26
@@ -515,6 +522,143 @@ winutil_is_usb_device_connected(PyObject *self, PyObject *args) {
     return ans;
 }
 
+static int
+gettmarg(PyObject *args, struct tm *p)
+{
+	int y;
+	memset((void *) p, '\0', sizeof(struct tm));
+
+	if (!PyArg_Parse(args, "(iiiiiiiii)",
+			 &y,
+			 &p->tm_mon,
+			 &p->tm_mday,
+			 &p->tm_hour,
+			 &p->tm_min,
+			 &p->tm_sec,
+			 &p->tm_wday,
+			 &p->tm_yday,
+			 &p->tm_isdst))
+		return 0;
+	if (y < 1900) {
+		if (69 <= y && y <= 99)
+			y += 1900;
+		else if (0 <= y && y <= 68)
+			y += 2000;
+		else {
+			PyErr_SetString(PyExc_ValueError,
+					"year out of range");
+			return 0;
+		}
+	}
+	p->tm_year = y - 1900;
+	p->tm_mon--;
+	p->tm_wday = (p->tm_wday + 1) % 7;
+	p->tm_yday--;
+	return 1;
+}
+
+static PyObject *
+winutil_strftime(PyObject *self, PyObject *args)
+{
+	PyObject *tup = NULL;
+	struct tm buf;
+	PyObject *format;
+	const wchar_t *fmt;
+	size_t fmtlen, buflen;
+	wchar_t *outbuf = 0;
+	size_t i;
+    memset((void *) &buf, '\0', sizeof(buf));
+
+	if (!PyArg_ParseTuple(args, "U|O:strftime", &format, &tup))
+		return NULL;
+
+	if (tup == NULL) {
+		time_t tt = time(NULL);
+		buf = *localtime(&tt);
+	} else if (!gettmarg(tup, &buf))
+		return NULL;
+
+	if (buf.tm_mon == -1)
+	    buf.tm_mon = 0;
+	else if (buf.tm_mon < 0 || buf.tm_mon > 11) {
+            PyErr_SetString(PyExc_ValueError, "month out of range");
+                        return NULL;
+        }
+	if (buf.tm_mday == 0)
+	    buf.tm_mday = 1;
+	else if (buf.tm_mday < 0 || buf.tm_mday > 31) {
+            PyErr_SetString(PyExc_ValueError, "day of month out of range");
+                        return NULL;
+        }
+        if (buf.tm_hour < 0 || buf.tm_hour > 23) {
+            PyErr_SetString(PyExc_ValueError, "hour out of range");
+            return NULL;
+        }
+        if (buf.tm_min < 0 || buf.tm_min > 59) {
+            PyErr_SetString(PyExc_ValueError, "minute out of range");
+            return NULL;
+        }
+        if (buf.tm_sec < 0 || buf.tm_sec > 61) {
+            PyErr_SetString(PyExc_ValueError, "seconds out of range");
+            return NULL;
+        }
+        /* tm_wday does not need checking of its upper-bound since taking
+        ``% 7`` in gettmarg() automatically restricts the range. */
+        if (buf.tm_wday < 0) {
+            PyErr_SetString(PyExc_ValueError, "day of week out of range");
+            return NULL;
+        }
+	if (buf.tm_yday == -1)
+	    buf.tm_yday = 0;
+	else if (buf.tm_yday < 0 || buf.tm_yday > 365) {
+            PyErr_SetString(PyExc_ValueError, "day of year out of range");
+            return NULL;
+        }
+        if (buf.tm_isdst < -1 || buf.tm_isdst > 1) {
+            PyErr_SetString(PyExc_ValueError,
+                            "daylight savings flag out of range");
+            return NULL;
+        }
+
+	/* Convert the unicode string to a wchar one */
+    fmtlen = PyUnicode_GET_SIZE(format);
+    fmt = (wchar_t *)PyMem_Malloc((fmtlen+1)*sizeof(wchar_t));
+    if (fmt == NULL) return PyErr_NoMemory();
+    i = PyUnicode_AsWideChar((PyUnicodeObject *)format, fmt, fmtlen);
+    if (i < fmtlen) {
+        PyErr_SetString(PyExc_RuntimeError, "Failed to convert format string");
+        PyMem_Free(fmt);
+        return NULL;
+    }
+
+	for (i = 1024; ; i += i) {
+		outbuf = (wchar_t *)PyMem_Malloc(i*sizeof(wchar_t));
+		if (outbuf == NULL) {
+			return PyErr_NoMemory();
+		}
+		buflen = wcsftime(outbuf, i, fmt, &buf);
+		if (buflen > 0 || i >= 256 * fmtlen) {
+			/* If the buffer is 256 times as long as the format,
+			   it's probably not failing for lack of room!
+			   More likely, the format yields an empty result,
+			   e.g. an empty format, or %Z when the timezone
+			   is unknown. */
+			PyObject *ret;
+			ret = PyUnicode_FromWideChar(outbuf, buflen);
+			PyMem_Free(outbuf); PyMem_Free(fmt);
+			return ret;
+		}
+		PyMem_Free(outbuf); PyMem_Free(fmt);
+#if defined _MSC_VER && _MSC_VER >= 1400 && defined(__STDC_SECURE_LIB__)
+		/* VisualStudio .NET 2005 does this properly */
+		if (buflen == 0 && errno == EINVAL) {
+			PyErr_SetString(PyExc_ValueError, "Invalid format string");
+			return NULL;
+        }
+#endif
+    }
+}
+
 
 static PyMethodDef WinutilMethods[] = {
     {"special_folder_path", winutil_folder_path, METH_VARARGS,
@@ -552,6 +696,15 @@ static PyMethodDef WinutilMethods[] = {
 	{"set_debug", winutil_set_debug, METH_VARARGS,
 			"set_debug(bool)\n\nSet debugging mode."
 	},
+
+    {"strftime", winutil_strftime, METH_VARARGS,
+        "strftime(format[, tuple]) -> string\n\
+\n\
+Convert a time tuple to a string according to a format specification.\n\
+See the library reference manual for formatting codes. When the time tuple\n\
+is not present, current time as returned by localtime() is used. format must\n\
+be a unicode string. Returns unicode strings."
+     },
 
     {NULL, NULL, 0, NULL}
 };

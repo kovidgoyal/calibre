@@ -306,7 +306,7 @@ class FileDialog(QObject):
             QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
             self.accepted = self.fd.exec_() == QFileDialog.Accepted
         else:
-            dir = dynamic.get(self.dialog_name, default=os.path.expanduser('~'))
+            dir = dynamic.get(self.dialog_name, os.path.expanduser('~'))
             self.selected_files = []
             if mode == QFileDialog.AnyFile:
                 f = qstring_to_unicode(

@@ -320,11 +320,10 @@ class LoggingInterface:
 
 
 def strftime(fmt, t=time.localtime()):
-    '''
-    A version of strtime that returns unicode strings.
-    '''
-    result = time.strftime(fmt, t)
-    return unicode(result, preferred_encoding, 'replace')
+    ''' A version of strtime that returns unicode strings. '''
+    if iswindows:
+        return plugins['winutil'].strftime(unicode(fmt, preferred_encoding), t)
+    return time.strftime(fmt, t).decode(preferred_encoding, 'replace')
     
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''

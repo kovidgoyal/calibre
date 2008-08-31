@@ -2,10 +2,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Convert websites into LRF files.'''
 
-import sys, time, tempfile, shutil, os, logging, imp, inspect, re
+import sys, tempfile, shutil, os, logging, imp, inspect, re
 from urlparse import urlsplit
 
-from calibre import __appname__, setup_cli_handlers, CommandLineError
+from calibre import __appname__, setup_cli_handlers, CommandLineError, strftime
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.lrf.html.convert_from import process_file
 
@@ -128,7 +128,7 @@ def process_profile(args, options, logger=None):
             title = profile.title
             if not title:
                 title = urlsplit(options.url).netloc
-            options.title = title + time.strftime(profile.timefmt, time.localtime())
+            options.title = title + strftime(profile.timefmt)
         
         options.match_regexps += profile.match_regexps
         options.preprocess_regexps = profile.preprocess_regexps

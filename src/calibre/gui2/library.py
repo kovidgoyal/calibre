@@ -13,7 +13,7 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
-from calibre import preferred_encoding
+from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database import LibraryDatabase, text_to_tokens
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config
@@ -370,7 +370,7 @@ class BooksModel(QAbstractTableModel):
                 dt = self.db.timestamp(row)
                 if dt:
                     dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                    return QVariant(dt.strftime(BooksView.TIME_FMT).decode(preferred_encoding, 'replace'))
+                    return QVariant(strftime(BooksView.TIME_FMT, dt.timetuple()))
             elif col == 4:
                 r = self.db.rating(row)
                 r = r/2 if r else 0
@@ -690,7 +690,7 @@ class DeviceBooksModel(BooksModel):
         dt = item.datetime
         dt = datetime(*dt[0:6])
         dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-        data[_('Timestamp')] = dt.strftime('%a %b %d %H:%M:%S %Y')
+        data[_('Timestamp')] = strftime('%a %b %d %H:%M:%S %Y', dt.timetuple())
         data[_('Tags')] = ', '.join(item.tags)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
 
@@ -731,7 +731,7 @@ class DeviceBooksModel(BooksModel):
                 dt = self.db[self.map[row]].datetime
                 dt = datetime(*dt[0:6])
                 dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                return QVariant(dt.strftime(BooksView.TIME_FMT))
+                return QVariant(strftime(BooksView.TIME_FMT, dt.timetuple()))
             elif col == 4:
                 tags = self.db[self.map[row]].tags
                 if tags:

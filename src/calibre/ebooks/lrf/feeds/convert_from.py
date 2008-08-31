@@ -9,11 +9,9 @@ from calibre.ebooks.lrf.html.convert_from import process_file
 from calibre.web.feeds.main import option_parser as feeds_option_parser
 from calibre.web.feeds.main import run_recipe
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre import sanitize_file_name
+from calibre import sanitize_file_name, strftime
 
-import sys, os, time
-
-import parser
+import sys, os
 
 def option_parser():
     parser = feeds_option_parser()
@@ -51,7 +49,7 @@ def main(args=sys.argv, notification=None, handler=None):
     
     if not opts.output:
         ext = '.lrs' if opts.lrs else '.lrf'
-        fname = recipe.title + time.strftime(recipe.timefmt)+ext
+        fname = recipe.title + strftime(recipe.timefmt)+ext
         opts.output = os.path.join(os.getcwd(), sanitize_file_name(fname))
     print 'Generating LRF...'
     process_file(htmlfile, opts)

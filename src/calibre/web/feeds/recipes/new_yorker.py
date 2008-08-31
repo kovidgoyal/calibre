@@ -4,6 +4,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 import re, time
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import NavigableString
 
@@ -65,7 +66,7 @@ class NewYorker(BasicNewsRecipe):
                            'title': title,
                            'desc': desc, 'content':'',
                            'url': href,
-                           'date': time.strftime('%a, %d %b', time.localtime()),
+                           'date': strftime('%a, %d %b'),
                            }
                     articles.append(art)
                 
