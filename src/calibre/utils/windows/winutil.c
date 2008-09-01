@@ -118,7 +118,7 @@ winutil_argv(PyObject *self, PyObject *args) {
     LPSTR buf;
     int argc, i, bytes;
     if (!PyArg_ParseTuple(args, "")) return NULL;
-    _argv = CommandLineToArgvW(GetCommandLine(), &argc);
+    _argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     if (_argv == NULL) { PyErr_NoMemory(); return NULL; }
     argv = PyList_New(argc);
     if (argv != NULL) {

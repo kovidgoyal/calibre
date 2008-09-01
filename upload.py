@@ -27,6 +27,7 @@ TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
 MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
 BUILD_SCRIPT ='''\
 #!/bin/bash
+export CALIBRE_BUILDBOT=1
 cd ~/build && \
 rsync -avz --exclude src/calibre/plugins --exclude calibre/src/calibre.egg-info --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
 cd %(project)s && \

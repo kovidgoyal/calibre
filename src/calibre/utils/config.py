@@ -284,6 +284,8 @@ class OptionSet(object):
     
     def parse_string(self, src):
         options = {'cPickle':cPickle}
+        if not isinstance(src, unicode):
+            src = src.decode('utf-8')
         if src is not None:
             exec src in options
         opts = OptionValues()
@@ -352,7 +354,7 @@ class Config(ConfigInterface):
         if os.path.exists(self.config_file_path):
             try:
                 with ExclusiveFile(self.config_file_path) as f:
-                    src = f.read()
+                    src = f.read().decode('utf-8')
             except LockError:
                 raise IOError('Could not lock config file: %s'%self.config_file_path)
         return self.option_set.parse_string(src)
@@ -362,7 +364,7 @@ class Config(ConfigInterface):
             return ''
         try:
             with ExclusiveFile(self.config_file_path) as f:
-                return f.read()
+                return f.read().decode('utf-8')
         except LockError:
             raise IOError('Could not lock config file: %s'%self.config_file_path)
     
@@ -380,6 +382,8 @@ class Config(ConfigInterface):
                 src = self.option_set.serialize(opts)+ '\n\n' + footer + '\n'
                 f.seek(0)
                 f.truncate()
+                if isinstance(src, unicode):
+                    src = src.encode('utf-8')
                 f.write(src)
         except LockError:
             raise IOError('Could not lock config file: %s'%self.config_file_path)

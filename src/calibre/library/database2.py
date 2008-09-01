@@ -246,11 +246,20 @@ class LibraryDatabase2(LibraryDatabase):
         spath = os.path.join(self.library_path, *current_path.split('/'))
         if current_path and os.path.exists(spath):
             for f in os.listdir(spath):
-                copyfile(os.path.join(spath, f), os.path.join(tpath, f))
+                try:
+                    copyfile(os.path.join(spath, f), os.path.join(tpath, f))
+                except OSError, err:
+                    if err.errno == 78: # Happens if database is mounted via sshfs 
+                        shutil.copyfile(os.path.join(spath, f), os.path.join(tpath, f))
+                    else:
+                        raise
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         self.conn.commit()
         if current_path and os.path.exists(spath):
             shutil.rmtree(spath)
+            parent  = os.path.dirname(spath)
+            if len(os.listdir(parent)) == 0:
+                shutil.rmtree(parent)
             
     def cover(self, index, index_is_id=False, as_file=False, as_image=False):
         '''
@@ -495,6 +504,7 @@ class LibraryDatabase2(LibraryDatabase):
         QCoreApplication.processEvents()
         db.conn.row_factory = lambda cursor, row : tuple(row)
         books = db.conn.execute('SELECT id, title, sort, timestamp, uri, series_index, author_sort, isbn FROM books ORDER BY id ASC').fetchall()
+        progress.setAutoReset(False)
         progress.setRange(0, len(books))
         
         for book in books:
@@ -533,4 +543,5 @@ books_series_link      feeds
         self.conn.commit()
         progress.setLabelText(_('Compacting database'))
         self.vacuum()
+        progress.reset()
         
