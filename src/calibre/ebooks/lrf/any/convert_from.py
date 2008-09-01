@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Convert any ebook file into a LRF file.'''
 
-import sys, os, logging, shutil, tempfile, glob, re
+import sys, os, logging, shutil, tempfile, re
 
 from calibre.ebooks import UnknownFormatError
 from calibre.ebooks.lrf import option_parser as _option_parser
@@ -30,7 +30,7 @@ def find_htmlfile(dir):
     toc_pat = re.compile(r'toc', re.IGNORECASE)
     toc_files, files = [], []
     for f in map(lambda x:os.path.join(dir, x), os.listdir(dir)):
-        name, ext = os.path.splitext(f)
+        ext = os.path.splitext(f)[1]
         if ext and ext_pat.match(ext):
             toc_files.append(f) if toc_pat.search(f) else files.append(f)
     a = toc_files if toc_files else files
@@ -74,7 +74,7 @@ def handle_archive(path):
     candidates = map(lambda x:os.path.join(cdir, x), os.listdir(cdir))
     for ext in exts:
         for f in candidates:
-            if f.lower().endswith(ext):
+            if f.lower().endswith('.'+ext):
                 files.append(f)
     file = largest_file(files)
     if not file:
@@ -103,7 +103,7 @@ def process_file(path, options, logger=None):
         fmt = '.lrs' if options.lrs else '.lrf'
         options.output = os.path.splitext(os.path.basename(path))[0] + fmt
     options.output = os.path.abspath(os.path.expanduser(options.output))
-    if ext in ['zip', 'rar']:
+    if ext in ['zip', 'rar', 'oebzip']:
         newpath = None
         try:
             tdir, newpath = handle_archive(path)

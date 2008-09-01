@@ -95,7 +95,7 @@ def filename_to_utf8(name):
 def extract(path, dir):
     ext = os.path.splitext(path)[1][1:].lower()
     extractor = None
-    if ext in ['zip', 'cbz', 'epub']:
+    if ext in ['zip', 'cbz', 'epub', 'oebzip']:
         from calibre.libunzip import extract as zipextract
         extractor = zipextract
     elif ext in ['cbr', 'rar']:
