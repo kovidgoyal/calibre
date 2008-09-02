@@ -82,7 +82,7 @@ class cmd_commit(_cmd_commit):
     
     def run(self, message=None, file=None, verbose=False, selected_list=None,
             unchanged=False, strict=False, local=False, fixes=None,
-            author=None, show_diff=False):
+            author=None, show_diff=False, exclude=None):
         nick = config = bug = action = None
         if message:
             try:
@@ -97,7 +97,7 @@ class cmd_commit(_cmd_commit):
         ret = _cmd_commit.run(self, message=message, file=file, verbose=verbose, 
                               selected_list=selected_list, unchanged=unchanged,
                               strict=strict, local=local, fixes=fixes, 
-                              author=author, show_diff=show_diff)
+                              author=author, show_diff=show_diff, exclude=exclude)
         if message and bug and action and nick and config:
             self.close_bug(bug, action, url, config)
         return ret
