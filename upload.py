@@ -203,7 +203,7 @@ def upload_docs():
 
 def upload_user_manual():
     check_call('python setup.py manual')
-    check_call('scp -r .build/html/* divok:%s'%USER_MANUAL)
+    check_call('scp -r src/calibre/manual/.build/html/* divok:%s'%USER_MANUAL)
     
 def build_src_tarball():
     check_call('bzr export dist/calibre-%s.tar.bz2'%__version__)

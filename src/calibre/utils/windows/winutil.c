@@ -115,27 +115,24 @@ static PyObject *
 winutil_argv(PyObject *self, PyObject *args) {
     PyObject *argv, *v;
     LPWSTR *_argv;
-    LPSTR buf;
-    int argc, i, bytes;
+    int argc, i;
     if (!PyArg_ParseTuple(args, "")) return NULL;
     _argv = CommandLineToArgvW(GetCommandLineW(), &argc);
     if (_argv == NULL) { PyErr_NoMemory(); return NULL; }
     argv = PyList_New(argc);
     if (argv != NULL) {
         for (i = 0; i < argc; i++) {
-            bytes = WideCharToMultiByte(CP_UTF8, 0, _argv[i], -1, NULL, 0, NULL, NULL);
-            buf = (LPSTR)PyMem_Malloc(sizeof(CHAR)*bytes);
-            if (buf == NULL) { Py_DECREF(argv); argv = NULL; break; }
-            WideCharToMultiByte(CP_UTF8, 0, _argv[i], -1, buf, bytes, NULL, NULL);
-            v = PyUnicode_DecodeUTF8(buf, bytes-1, "strict");
-            PyMem_Free(buf);
-            if (v == NULL) { Py_DECREF(argv); argv = NULL; break; }
+            v = PyUnicode_FromWideChar(_argv[i], wcslen(_argv[i]));
+            if ( v == NULL) {
+                Py_DECREF(argv); argv = NULL; PyErr_NoMemory(); break;
+            }
             PyList_SetItem(argv, i, v);
         }
     }
     LocalFree(_argv);
     return argv;
 }
+
 
 static LPVOID
 format_last_error() {
@@ -562,79 +559,71 @@ winutil_strftime(PyObject *self, PyObject *args)
 {
 	PyObject *tup = NULL;
 	struct tm buf;
-	PyObject *format;
-	const wchar_t *fmt;
+	const char *_fmt;
 	size_t fmtlen, buflen;
-	wchar_t *outbuf = 0;
+	wchar_t *outbuf = NULL, *fmt = NULL;
 	size_t i;
     memset((void *) &buf, '\0', sizeof(buf));
 
-	if (!PyArg_ParseTuple(args, "U|O:strftime", &format, &tup))
+	if (!PyArg_ParseTuple(args, "s|O:strftime", &_fmt, &tup))
 		return NULL;
+    fmtlen = mbstowcs(NULL, _fmt, strlen(_fmt));
+    fmt = (wchar_t *)PyMem_Malloc((fmtlen+2)*sizeof(wchar_t));
+    if (fmt == NULL) return PyErr_NoMemory();
+    mbstowcs(fmt, _fmt, fmtlen+1);
 
 	if (tup == NULL) {
 		time_t tt = time(NULL);
 		buf = *localtime(&tt);
 	} else if (!gettmarg(tup, &buf))
-		return NULL;
+	    goto end;
 
 	if (buf.tm_mon == -1)
 	    buf.tm_mon = 0;
 	else if (buf.tm_mon < 0 || buf.tm_mon > 11) {
             PyErr_SetString(PyExc_ValueError, "month out of range");
-                        return NULL;
+            goto end;
         }
 	if (buf.tm_mday == 0)
 	    buf.tm_mday = 1;
 	else if (buf.tm_mday < 0 || buf.tm_mday > 31) {
             PyErr_SetString(PyExc_ValueError, "day of month out of range");
-                        return NULL;
+            goto end;
         }
         if (buf.tm_hour < 0 || buf.tm_hour > 23) {
             PyErr_SetString(PyExc_ValueError, "hour out of range");
-            return NULL;
+            goto end;
         }
         if (buf.tm_min < 0 || buf.tm_min > 59) {
             PyErr_SetString(PyExc_ValueError, "minute out of range");
-            return NULL;
+            goto end;
         }
         if (buf.tm_sec < 0 || buf.tm_sec > 61) {
             PyErr_SetString(PyExc_ValueError, "seconds out of range");
-            return NULL;
+            goto end;
         }
         /* tm_wday does not need checking of its upper-bound since taking
         ``% 7`` in gettmarg() automatically restricts the range. */
         if (buf.tm_wday < 0) {
             PyErr_SetString(PyExc_ValueError, "day of week out of range");
-            return NULL;
+            goto end;
         }
 	if (buf.tm_yday == -1)
 	    buf.tm_yday = 0;
 	else if (buf.tm_yday < 0 || buf.tm_yday > 365) {
             PyErr_SetString(PyExc_ValueError, "day of year out of range");
-            return NULL;
+            goto end;
         }
         if (buf.tm_isdst < -1 || buf.tm_isdst > 1) {
             PyErr_SetString(PyExc_ValueError,
                             "daylight savings flag out of range");
-            return NULL;
+            goto end;
         }
 
-	/* Convert the unicode string to a wchar one */
-    fmtlen = PyUnicode_GET_SIZE(format);
-    fmt = (wchar_t *)PyMem_Malloc((fmtlen+1)*sizeof(wchar_t));
-    if (fmt == NULL) return PyErr_NoMemory();
-    i = PyUnicode_AsWideChar((PyUnicodeObject *)format, fmt, fmtlen);
-    if (i < fmtlen) {
-        PyErr_SetString(PyExc_RuntimeError, "Failed to convert format string");
-        PyMem_Free(fmt);
-        return NULL;
-    }
-
-	for (i = 1024; ; i += i) {
+	for (i = 5*fmtlen; ; i += i) {
 		outbuf = (wchar_t *)PyMem_Malloc(i*sizeof(wchar_t));
 		if (outbuf == NULL) {
-			return PyErr_NoMemory();
+			PyErr_NoMemory(); goto end;
 		}
 		buflen = wcsftime(outbuf, i, fmt, &buf);
 		if (buflen > 0 || i >= 256 * fmtlen) {
@@ -648,15 +637,17 @@ winutil_strftime(PyObject *self, PyObject *args)
 			PyMem_Free(outbuf); PyMem_Free(fmt);
 			return ret;
 		}
-		PyMem_Free(outbuf); PyMem_Free(fmt);
+		PyMem_Free(outbuf);
 #if defined _MSC_VER && _MSC_VER >= 1400 && defined(__STDC_SECURE_LIB__)
 		/* VisualStudio .NET 2005 does this properly */
 		if (buflen == 0 && errno == EINVAL) {
 			PyErr_SetString(PyExc_ValueError, "Invalid format string");
-			return NULL;
+            goto end;
         }
 #endif
     }
+end:
+    PyMem_Free(fmt); return NULL;
 }
 
 

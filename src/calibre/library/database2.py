@@ -224,6 +224,30 @@ class LibraryDatabase2(LibraryDatabase):
         return path
             
     
+    def construct_path_name(self, id):
+        '''
+        Construct the directory name for this book based on its metadata.
+        '''
+        authors = self.authors(id, index_is_id=True)
+        if not authors:
+            authors = _('Unknown')
+        author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding)
+        title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding)
+        path   = author + '/' + title + ' (%d)'%id
+        return path
+    
+    def construct_file_name(self, id):
+        '''
+        Construct the file name for this book based on its metadata.
+        '''
+        authors = self.authors(id, index_is_id=True)
+        if not authors:
+            authors = _('Unknown')
+        author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding)
+        title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding)
+        name   = title + ' - ' + author
+        return name
+    
     def set_path(self, index, index_is_id=False):
         '''
         Set the path to the directory containing this books files based on its
@@ -231,30 +255,37 @@ class LibraryDatabase2(LibraryDatabase):
         are copied and it is deleted.
         '''
         id = index if  index_is_id else self.id(index)
-        authors = self.authors(id, index_is_id=True)
-        if not authors:
-            authors = _('Unknown')
-        author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding)
-        title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding)
-        path   = author + '/' + title + ' (%d)'%id
+        path = self.construct_path_name(id)
         current_path = self.path(id, index_is_id=True).replace(os.sep, '/')
-        if path == current_path:
+        formats = self.formats(id, index_is_id=True)
+        formats = formats.split(',') if formats else []
+        # Check if the metadata used to construct paths has changed
+        fname = self.construct_file_name(id)
+        changed = False
+        for format in formats:
+            name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0]
+            if name and name != fname:
+                changed = True
+                break
+        if path == current_path and not changed:
             return
+        
         tpath = os.path.join(self.library_path, *path.split('/'))
         if not os.path.exists(tpath):
             os.makedirs(tpath)
         spath = os.path.join(self.library_path, *current_path.split('/'))
-        if current_path and os.path.exists(spath):
-            for f in os.listdir(spath):
-                try:
-                    copyfile(os.path.join(spath, f), os.path.join(tpath, f))
-                except OSError, err:
-                    if err.errno == 78: # Happens if database is mounted via sshfs 
-                        shutil.copyfile(os.path.join(spath, f), os.path.join(tpath, f))
-                    else:
-                        raise
+        if current_path and os.path.exists(spath): # Migrate existing files
+            cdata = self.cover(id, index_is_id=True)
+            if cdata is not None:
+                open(os.path.join(tpath, 'cover.jpg'), 'wb').write(cdata)
+            for format in formats:
+                # Get data as string (cant use file as source and target files may be the same)
+                f = self.format(id, format, index_is_id=True, as_file=False)
+                stream = cStringIO.StringIO(f)
+                self.add_format(id, format, stream, index_is_id=True, path=tpath)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         self.conn.commit()
+        # Delete not needed directories
         if current_path and os.path.exists(spath):
             shutil.rmtree(spath)
             parent  = os.path.dirname(spath)
@@ -314,18 +345,14 @@ class LibraryDatabase2(LibraryDatabase):
                 f = open(path, mode)
                 return f if as_file else f.read()
         
-    def add_format(self, index, format, stream, index_is_id=False):
+    def add_format(self, index, format, stream, index_is_id=False, path=None):
         id = index if index_is_id else self.id(index)
-        authors = self.authors(id, index_is_id=True)
-        if not authors:
-            authors = _('Unknown')
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-        author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding)
-        title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding)
+        if path is None:
+            path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()
         if name:
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format))
-        name   = title + ' - ' + author
+        name = self.construct_file_name(id)
         ext = ('.' + format.lower()) if format else ''
         shutil.copyfileobj(stream, open(os.path.join(path, name+ext), 'wb'))
         stream.seek(0, 2)
@@ -365,8 +392,10 @@ class LibraryDatabase2(LibraryDatabase):
         '''
         Set metadata for the book `id` from the `MetaInformation` object `mi` 
         '''
+        if mi.title:
+            self.set_title(id, mi.title)
         if not mi.authors:
-                mi.authors = ['Unknown']
+                mi.authors = [_('Unknown')]
         authors = []
         for a in mi.authors:
             authors += a.split('&')
