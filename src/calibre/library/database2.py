@@ -274,6 +274,7 @@ class LibraryDatabase2(LibraryDatabase):
         if not os.path.exists(tpath):
             os.makedirs(tpath)
         spath = os.path.join(self.library_path, *current_path.split('/'))
+        
         if current_path and os.path.exists(spath): # Migrate existing files
             cdata = self.cover(id, index_is_id=True)
             if cdata is not None:
@@ -288,11 +289,13 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         self.conn.commit()
         # Delete not needed directories
+        norm = lambda x : os.path.abspath(os.path.normcase(x))
         if current_path and os.path.exists(spath):
-            shutil.rmtree(spath)
-            parent  = os.path.dirname(spath)
-            if len(os.listdir(parent)) == 0:
-                shutil.rmtree(parent)
+            if norm(spath) != norm(tpath):
+                shutil.rmtree(spath)
+                parent  = os.path.dirname(spath)
+                if len(os.listdir(parent)) == 0:
+                    shutil.rmtree(parent)
             
     def cover(self, index, index_is_id=False, as_file=False, as_image=False):
         '''
@@ -382,7 +385,8 @@ class LibraryDatabase2(LibraryDatabase):
     def remove_format(self, index, format, index_is_id=False):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-        name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0]
+        name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()
+        name = name[0] if name else False
         if name:
             ext = ('.' + format.lower()) if format else ''
             path = os.path.join(path, name+ext)

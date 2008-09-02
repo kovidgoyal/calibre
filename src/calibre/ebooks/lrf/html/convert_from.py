@@ -1446,7 +1446,7 @@ class HTMLConverter(object, LoggingInterface):
             pass
         if not self.disable_chapter_detection and \
            (self.chapter_attr[0].match(tagname) and \
-            (self.chapter_attr[1].pattern.lower() == 'none' or \
+            (self.chapter_attr[1].lower() == 'none' or \
              (tag.has_key(self.chapter_attr[1]) and \
               self.chapter_attr[2].match(tag[self.chapter_attr[1]])))):
                 self.log_debug('Detected chapter %s', tagname)
