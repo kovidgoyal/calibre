@@ -281,6 +281,8 @@ class LibraryDatabase2(LibraryDatabase):
             for format in formats:
                 # Get data as string (cant use file as source and target files may be the same)
                 f = self.format(id, format, index_is_id=True, as_file=False)
+                if not  f:
+                    continue
                 stream = cStringIO.StringIO(f)
                 self.add_format(id, format, stream, index_is_id=True, path=tpath)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
@@ -344,6 +346,7 @@ class LibraryDatabase2(LibraryDatabase):
             if os.access(path, os.R_OK|os.W_OK):
                 f = open(path, mode)
                 return f if as_file else f.read()
+            self.remove_format(id, format, index_is_id=True)
         
     def add_format(self, index, format, stream, index_is_id=False, path=None):
         id = index if index_is_id else self.id(index)
@@ -384,7 +387,7 @@ class LibraryDatabase2(LibraryDatabase):
             ext = ('.' + format.lower()) if format else ''
             path = os.path.join(path, name+ext)
             if os.access(path, os.W_OK):
-                os.unlink(path)
+                os.remove(path)
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             self.conn.commit()
     

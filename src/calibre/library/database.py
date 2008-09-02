@@ -1418,6 +1418,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     fmts = ''
                 for fmt in fmts.split(','):
                     data = self.format(idx, fmt, index_is_id=index_is_id)
+                    if not data:
+                        continue
                     fname = name +'.'+fmt.lower()
                     fname = sanitize_file_name(fname)
                     f = open(os.path.join(base, fname), 'w+b')
