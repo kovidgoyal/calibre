@@ -1541,6 +1541,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 data = self.format(id, format, index_is_id=True)
             except:
                 failures.append((id, self.title(id, index_is_id=True)))
+                continue
             title = self.title(id, index_is_id=True)
             au = self.authors(id, index_is_id=True)
             if not au:
