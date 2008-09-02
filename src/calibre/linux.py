@@ -21,6 +21,8 @@ entry_points = {
                              'rtf-meta  = calibre.ebooks.metadata.rtf:main',
                              'pdf-meta  = calibre.ebooks.metadata.pdf:main',
                              'lit-meta  = calibre.ebooks.metadata.lit:main',
+                             'imp-meta  = calibre.ebooks.metadata.imp:main',
+                             'rb-meta   = calibre.ebooks.metadata.rb:main',
                              'opf-meta  = calibre.ebooks.metadata.opf:main',
                              'epub-meta = calibre.ebooks.metadata.epub:main',
                              'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main',
@@ -197,6 +199,8 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
         f.write(opts_and_exts('pdf-meta', metaop, ['pdf']))
         f.write(opts_and_exts('lit-meta', metaop, ['lit']))
+        f.write(opts_and_exts('imp-meta', metaop, ['imp']))
+        f.write(opts_and_exts('rb-meta',  metaop, ['rb']))
         f.write(opts_and_exts('opf-meta', metaop, ['opf']))
         f.write(opts_and_exts('epub-meta', epub_meta, ['epub']))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
@@ -377,7 +381,8 @@ def install_man_pages(fatal_errors):
         prog = src[:src.index('=')].strip()
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta',
                     'markdown-calibre', 'calibre-debug', 'fb2-meta',
-                    'calibre-fontconfig', 'calibre-parallel'):
+                    'calibre-fontconfig', 'calibre-parallel',
+                    'rb-meta', 'imp-meta'):
             continue
 
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
