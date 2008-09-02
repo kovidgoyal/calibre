@@ -9,6 +9,8 @@ from calibre.ebooks.metadata.fb2  import get_metadata as fb2_metadata
 from calibre.ebooks.lrf.meta      import get_metadata as lrf_metadata
 from calibre.ebooks.metadata.pdf  import get_metadata as pdf_metadata
 from calibre.ebooks.metadata.lit  import get_metadata as lit_metadata
+from calibre.ebooks.metadata.imp  import get_metadata as imp_metadata
+from calibre.ebooks.metadata.rb   import get_metadata as rb_metadata
 from calibre.ebooks.metadata.epub import get_metadata as epub_metadata
 from calibre.ebooks.metadata.html import get_metadata as html_metadata
 from calibre.ebooks.mobi.reader   import get_metadata as mobi_metadata
@@ -22,7 +24,7 @@ from calibre.ebooks.metadata import MetaInformation
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
                        'rtf', 'fb2', 'pdf', 'prc',
-                       'epub', 'lit', 'lrf', 'mobi',
+                       'epub', 'lit', 'lrf', 'mobi', 'rb', 'imp'
                       ]
 
 # The priorities for loading metadata from different file types
