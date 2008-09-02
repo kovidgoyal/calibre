@@ -225,7 +225,10 @@ class Main(MainWindow, Ui_MainWindow):
             pd.setCancelButton(None)
             pd.setWindowTitle(_('Migrating database'))
             pd.show()
-            db.migrate_old(self.olddb, pd)
+            number_of_books = db.migrate_old(self.olddb, pd)
+            self.olddb.close()
+            if number_of_books == 0:
+                os.remove(self.olddb.dbpath)
             self.olddb = None
             prefs['library_path'] = self.library_path
         self.library_view.sortByColumn(3, Qt.DescendingOrder)
@@ -1097,7 +1100,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.set_visible_columns(d.final_columns)
             self.tool_bar.setIconSize(config['toolbar_icon_size'])
             self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if config['show_text_in_toolbar'] else Qt.ToolButtonIconOnly)
-            
+            self.save_menu.actions()[2].setText(_('Save only %s format to disk')%config.get('save_to_disk_single_format').upper())
             if self.library_path != d.database_location:
                 try:
                     newloc = d.database_location

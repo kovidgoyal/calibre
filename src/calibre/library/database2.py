@@ -573,4 +573,6 @@ books_series_link      feeds
         progress.setLabelText(_('Compacting database'))
         self.vacuum()
         progress.reset()
+        return len(books)
+        
         
