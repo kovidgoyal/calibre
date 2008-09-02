@@ -28,12 +28,18 @@ def largest_file(files):
 def find_htmlfile(dir):
     ext_pat = re.compile(r'\.(x){0,1}htm(l){0,1}', re.IGNORECASE)
     toc_pat = re.compile(r'toc', re.IGNORECASE)
-    toc_files, files = [], []
-    for f in map(lambda x:os.path.join(dir, x), os.listdir(dir)):
-        ext = os.path.splitext(f)[1]
-        if ext and ext_pat.match(ext):
-            toc_files.append(f) if toc_pat.search(f) else files.append(f)
-    a = toc_files if toc_files else files
+    index_pat = re.compile(r'index', re.IGNORECASE)
+    toc_files, index_files, files = [], [], []
+    
+    for root, dirs, _files in os.walk(dir):
+        for f in _files:
+            f = os.path.abspath(os.path.join(root, f))
+            ext = os.path.splitext(f)[1]
+            if ext and ext_pat.match(ext):
+                toc_files.append(f) if toc_pat.search(f) else \
+                index_files.append(f) if index_pat.search(f) else \
+                files.append(f)
+    a = toc_files if toc_files else index_files if index_files else files
     if a:
         return largest_file(a)
 
