@@ -559,17 +559,17 @@ class DeviceBooksModel(BooksModel):
         self.marked_for_deletion = {}
 
 
-    def mark_for_deletion(self, id, rows):
-        self.marked_for_deletion[id] = self.indices(rows)
+    def mark_for_deletion(self, job, rows):
+        self.marked_for_deletion[job] = self.indices(rows)
         for row in rows:
             indices = self.row_indices(row)
             self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
 
 
-    def deletion_done(self, id, succeeded=True):
-        if not self.marked_for_deletion.has_key(id):
+    def deletion_done(self, job, succeeded=True):
+        if not self.marked_for_deletion.has_key(job):
             return
-        rows = self.marked_for_deletion.pop(id)
+        rows = self.marked_for_deletion.pop(job)
         for row in rows:
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))

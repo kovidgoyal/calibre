@@ -571,9 +571,9 @@ class Main(MainWindow, Ui_MainWindow):
         else:
             view = self.memory_view if self.stack.currentIndex() == 1 else self.card_view
             paths = view.model().paths(rows)
-            id = self.remove_paths(paths)
-            self.delete_memory[id] = (paths, view.model())
-            view.model().mark_for_deletion(id, rows)
+            job = self.remove_paths(paths)
+            self.delete_memory[job] = (paths, view.model())
+            view.model().mark_for_deletion(job, rows)
             self.status_bar.showMessage(_('Deleting books from device.'), 1000)
 
     def remove_paths(self, paths):
@@ -584,7 +584,7 @@ class Main(MainWindow, Ui_MainWindow):
         Called once deletion is done on the device
         '''
         for view in (self.memory_view, self.card_view):
-            view.model().deletion_done(id, bool(job.exception))
+            view.model().deletion_done(job, bool(job.exception))
         if job.exception is not None:
             self.device_job_exception(job)            
             return
