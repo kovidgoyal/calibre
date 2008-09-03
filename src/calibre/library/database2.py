@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -360,7 +360,9 @@ class LibraryDatabase2(LibraryDatabase):
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format))
         name = self.construct_file_name(id)
         ext = ('.' + format.lower()) if format else ''
-        shutil.copyfileobj(stream, open(os.path.join(path, name+ext), 'wb'))
+        dest = os.path.join(path, name+ext)
+        with open(dest, 'wb') as f:
+            shutil.copyfileobj(stream, f)
         stream.seek(0, 2)
         size=stream.tell()
         self.conn.execute('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',

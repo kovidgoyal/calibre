@@ -100,7 +100,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         old_extensions, new_extensions, paths = set(), set(), {}
         for row in range(self.formats.count()):
             fmt = self.formats.item(row)
-            ext, path = fmt.ext, fmt.path
+            ext, path = fmt.ext.lower(), fmt.path
             if 'unknown' in ext.lower():
                 ext = None
             if path:
@@ -109,8 +109,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             else:
                 old_extensions.add(ext)
         for ext in new_extensions:
-            self.db.add_format(self.row, ext, open(paths[ext], "rb"))
-        db_extensions = set(self.db.formats(self.row).split(','))
+            self.db.add_format(self.row, ext, open(paths[ext], 'rb'))
+        db_extensions = set([f.lower() for f in self.db.formats(self.row).split(',')])
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
             if ext not in extensions:

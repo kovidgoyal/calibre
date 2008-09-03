@@ -151,7 +151,7 @@ class FontScanner(Thread):
     def run(self):
         # Initialize the fontconfig library. This has to be done manually
         # for the OS X bundle as it may have its own private fontconfig.
-        if getattr(sys, 'frameworks_dir', False) and not os.path.exists('/usr/X11/lib/libfontconfig.1.dylib'):
+        if getattr(sys, 'frameworks_dir', False):# and not os.path.exists('/usr/X11/lib/libfontconfig.1.dylib'):
             config_dir = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')), 'Resources', 'fonts')
             if isinstance(config_dir, unicode):
                 config_dir = config_dir.encode(sys.getfilesystemencoding())
