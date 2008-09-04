@@ -219,6 +219,12 @@ class Main(MainWindow, Ui_MainWindow):
         db = LibraryDatabase2(self.library_path)
         self.library_view.set_database(db)
         if self.olddb is not None:
+            QMessageBox.information(self, 'Database format changed',
+                '''\
+<p>calibre's book storage format has changed. Instead of storing book files in a database, the
+files are now stored in a folder on your filesystem. You will now be asked to choose the folder 
+in which you want to store your books files. Any existing books will be automatically migrated.
+                ''')
             from PyQt4.QtGui import QProgressDialog
             pd = QProgressDialog('', '', 0, 100, self)
             pd.setWindowModality(Qt.ApplicationModal)
