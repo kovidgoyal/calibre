@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import os, sys, traceback, shutil, threading
+import os, sys, shutil, traceback
 from uuid import uuid4
 
 from calibre import extract, terminal_controller, __appname__, __version__
@@ -44,7 +44,7 @@ def extract_comic(path_to_comic_file):
     '''
     Un-archive the comic file.
     '''
-    tdir = PersistentTemporaryDirectory(suffix='comic_extract')
+    tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
     extract(path_to_comic_file, tdir)
     return tdir
 
@@ -78,7 +78,7 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
 
 class PageProcessor(list):
     '''
-    Contains the actual image rendering logic. See :method:`__call__` and 
+    Contains the actual image rendering logic. See :method:`render` and 
     :method:`process_pages`.
     '''
     
@@ -89,9 +89,10 @@ class PageProcessor(list):
         self.num          = num
         self.dest         = dest
         self.rotate       = False
+        self.render()
         
         
-    def __call__(self):
+    def render(self):
         img = NewMagickWand()
         if img < 0:
             raise RuntimeError('Cannot create wand.')
@@ -106,16 +107,15 @@ class PageProcessor(list):
             MagickThumbnailImage(thumb, 60, 80)
             MagickWriteImage(thumb, os.path.join(self.dest, 'thumbnail.png'))
             DestroyMagickWand(thumb)
-        
         self.pages = [img]
         if width > height:
             if self.opts.landscape:
                 self.rotate = True
             else:
                 split1, split2 = map(CloneMagickWand, (img, img))
+                DestroyMagickWand(img)
                 if split1 < 0 or split2 < 0:
                     raise RuntimeError('Cannot create wand.')
-                DestroyMagickWand(img)
                 MagickCropImage(split1, (width/2)-1, height, 0, 0)
                 MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
                 self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
@@ -124,105 +124,126 @@ class PageProcessor(list):
     def process_pages(self):
         for i, wand in enumerate(self.pages):
             pw = NewPixelWand()
-            if pw < 0:
-                raise RuntimeError('Cannot create wand.')
-            PixelSetColor(pw, 'white')
-            
-            MagickSetImageBorderColor(wand, pw)
-            if self.rotate:
-                MagickRotateImage(wand, pw, -90)
+            try:
+                if pw < 0:
+                    raise RuntimeError('Cannot create wand.')
+                PixelSetColor(pw, 'white')
                 
-            # 25 percent fuzzy trim?
-            MagickTrimImage(wand, 25*65535/100)
-            MagickSetImagePage(wand, 0,0,0,0)   #Clear page after trim, like a "+repage"
-            # Do the Photoshop "Auto Levels" equivalent
-            if not self.opts.dont_normalize:
-                MagickNormalizeImage(wand)
-            sizex = MagickGetImageWidth(wand)
-            sizey = MagickGetImageHeight(wand)
-            
-            SCRWIDTH, SCRHEIGHT = PROFILES[self.opts.profile]
-            print 77777, threading.currentThread()
-            if self.opts.keep_aspect_ratio:
-                # Preserve the aspect ratio by adding border
-                aspect = float(sizex) / float(sizey)
-                if aspect <= (float(SCRWIDTH) / float(SCRHEIGHT)):
-                    newsizey = SCRHEIGHT
-                    newsizex = int(newsizey * aspect)
-                    deltax = (SCRWIDTH - newsizex) / 2
-                    deltay = 0
-                else:
-                    newsizex = SCRWIDTH
-                    newsizey = int(newsizex / aspect)
-                    deltax = 0
-                    deltay = (SCRHEIGHT - newsizey) / 2
-                MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
                 MagickSetImageBorderColor(wand, pw)
-                MagickBorderImage(wand, pw, deltax, deltay)
-            elif self.opts.wide:
-                # Keep aspect and Use device height as scaled image width so landscape mode is clean
-                aspect = float(sizex) / float(sizey)
-                screen_aspect = float(SCRWIDTH) / float(SCRHEIGHT)
-                # Get dimensions of the landscape mode screen
-                # Add 25px back to height for the battery bar.
-                wscreenx = SCRHEIGHT + 25
-                wscreeny = int(wscreenx / screen_aspect)
-                if aspect <= screen_aspect:
-                    newsizey = wscreeny
-                    newsizex = int(newsizey * aspect)
-                    deltax = (wscreenx - newsizex) / 2
-                    deltay = 0
+                if self.rotate:
+                    MagickRotateImage(wand, pw, -90)
+                    
+                # 25 percent fuzzy trim?
+                MagickTrimImage(wand, 25*65535/100)
+                MagickSetImagePage(wand, 0,0,0,0)   #Clear page after trim, like a "+repage"
+                # Do the Photoshop "Auto Levels" equivalent
+                if not self.opts.dont_normalize:
+                    MagickNormalizeImage(wand)
+                sizex = MagickGetImageWidth(wand)
+                sizey = MagickGetImageHeight(wand)
+                
+                SCRWIDTH, SCRHEIGHT = PROFILES[self.opts.profile]
+                
+                if self.opts.keep_aspect_ratio:
+                    # Preserve the aspect ratio by adding border
+                    aspect = float(sizex) / float(sizey)
+                    if aspect <= (float(SCRWIDTH) / float(SCRHEIGHT)):
+                        newsizey = SCRHEIGHT
+                        newsizex = int(newsizey * aspect)
+                        deltax = (SCRWIDTH - newsizex) / 2
+                        deltay = 0
+                    else:
+                        newsizex = SCRWIDTH
+                        newsizey = int(newsizex / aspect)
+                        deltax = 0
+                        deltay = (SCRHEIGHT - newsizey) / 2
+                    MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
+                    MagickSetImageBorderColor(wand, pw)
+                    MagickBorderImage(wand, pw, deltax, deltay)
+                elif self.opts.wide:
+                    # Keep aspect and Use device height as scaled image width so landscape mode is clean
+                    aspect = float(sizex) / float(sizey)
+                    screen_aspect = float(SCRWIDTH) / float(SCRHEIGHT)
+                    # Get dimensions of the landscape mode screen
+                    # Add 25px back to height for the battery bar.
+                    wscreenx = SCRHEIGHT + 25
+                    wscreeny = int(wscreenx / screen_aspect)
+                    if aspect <= screen_aspect:
+                        newsizey = wscreeny
+                        newsizex = int(newsizey * aspect)
+                        deltax = (wscreenx - newsizex) / 2
+                        deltay = 0
+                    else:
+                        newsizex = wscreenx
+                        newsizey = int(newsizex / aspect)
+                        deltax = 0
+                        deltay = (wscreeny - newsizey) / 2
+                    MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
+                    MagickSetImageBorderColor(wand, pw)
+                    MagickBorderImage(wand, pw, deltax, deltay)
                 else:
-                    newsizex = wscreenx
-                    newsizey = int(newsizex / aspect)
-                    deltax = 0
-                    deltay = (wscreeny - newsizey) / 2
-                MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
-                MagickSetImageBorderColor(wand, pw)
-                MagickBorderImage(wand, pw, deltax, deltay)
-            else:
-                MagickResizeImage(wand, SCRWIDTH, SCRHEIGHT, CatromFilter, 1.0)
+                    MagickResizeImage(wand, SCRWIDTH, SCRHEIGHT, CatromFilter, 1.0)
+                    
+                if not self.opts.dont_sharpen:
+                    MagickSharpenImage(wand, 0.0, 1.0)
+                    
+                MagickSetImageType(wand, GrayscaleType)
                 
-            if not self.opts.dont_sharpen:
-                MagickSharpenImage(wand, 0.0, 1.0)
+                if self.opts.despeckle:
+                    MagickDespeckleImage(wand)
                 
-            MagickSetImageType(wand, GrayscaleType)
+                MagickQuantizeImage(wand, self.opts.colors, RGBColorspace, 0, 1, 0)
+                dest = '%d_%d.png'%(self.num, i)
+                dest = os.path.join(self.dest, dest)
+                MagickWriteImage(wand, dest+'8')
+                os.rename(dest+'8', dest)
+                self.append(dest)
+            finally:
+                if pw > 0:
+                    DestroyPixelWand(pw)
+                DestroyMagickWand(wand)
             
-            if self.opts.despeckle:
-                MagickDespeckleImage(wand)
-            
-            MagickQuantizeImage(wand, self.opts.colors, RGBColorspace, 0, 1, 0)
-            dest = '%d_%d.png'%(self.num, i)
-            dest = os.path.join(self.dest, dest)
-            MagickWriteImage(wand, dest+'8')
-            os.rename(dest+'8', dest)
-            self.append(dest)
-        
-            DestroyPixelWand(pw)
-            wand = DestroyMagickWand(wand)
-            
-def process_page(path, dest, opts, num):
-    pp = PageProcessor(path, dest, opts, num)
+def render_pages(tasks, dest, opts, notification=None):
+    '''
+    Entry point for the job server.
+    '''
+    failures, pages = [], []
     with ImageMagick():
-        pp()
-    return list(pp)
-            
-class Progress(object):
+        for num, path in tasks:
+            try:
+                pages.extend(PageProcessor(path, dest, opts, num))
+                msg = _('Rendered %s') 
+            except:
+                failures.append(path)
+                msg = _('Failed %s')
+                if opts.verbose:
+                    msg += '\n' + traceback.format_exc() 
+            msg = msg%path
+            if notification is not None:
+                notification(0.5, msg)
     
-    def __init__(self, total, update, verbose):
+    return pages, failures
+        
+            
+class JobManager(object):
+    '''
+    Simple job manager responsible for keeping track of overall progress.
+    '''
+    
+    def __init__(self, total, update):
         self.total  = total
         self.update = update
         self.done   = 0
-        self.verbose = verbose
+        self.add_job        = lambda j: j
+        self.output         = lambda j: j
+        self.start_work     = lambda j: j
+        self.job_done       = lambda j: j
         
-    def __call__(self, job):
+    def status_update(self, job):
         self.done += 1
-        msg = _('Rendered %s') if job.result else _('Failed %s')
-        msg = msg%os.path.basename(job.args[0])
-        self.update(float(self.done)/self.total, msg)
-        if not job.result and self.verbose:
-            print job.traceback
-
+        #msg = msg%os.path.basename(job.args[0])
+        self.update(float(self.done)/self.total, job.msg)
+        
 def process_pages(pages, opts, update):
     '''
     Render all identified comic pages.
@@ -231,11 +252,13 @@ def process_pages(pages, opts, update):
         raise RuntimeError('Failed to load ImageMagick')
     
     tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
-    notify = Progress(len(pages), update, opts.verbose)
+    job_manager = JobManager(len(pages), update)
     server = Server()
     jobs = []
-    for i, path in enumerate(pages):
-        jobs.append(ParallelJob('render_page', notify, args=[path, tdir, opts, i]))
+    tasks = server.split(pages)
+    for task in tasks:
+        jobs.append(ParallelJob('render_pages', lambda s:s, job_manager=job_manager,
+                                args=[task, tdir, opts]))
         server.add_job(jobs[-1])
     server.wait()
     server.killall()
@@ -243,10 +266,9 @@ def process_pages(pages, opts, update):
     ans, failures = [], []
         
     for job in jobs:
-        if not job.result:
-            failures.append(os.path.basename(job.args[0]))
-        else:
-            ans += job.result
+        pages, failures_ = job.result
+        ans += pages
+        failures += failures_
     return ans, failures, tdir
     
 def config(defaults=None):
@@ -282,7 +304,7 @@ def config(defaults=None):
               help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."))
     c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(),
               help=_('Choose a profile for the device you are generating this LRF for. The default is the SONY PRS-500 with a screen size of 584x754 pixels. Choices are %s')%PROFILES.keys())
-    c.add_opt('verbose', ['--verbose'], default=0, action='count',
+    c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
               help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
     c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False,
                       help=_("Don't show progress bar."))
@@ -322,7 +344,7 @@ def create_lrf(pages, profile, opts, thumbnail=None):
 def do_convert(path_to_file, opts, notification=lambda m, p: p):
     source = path_to_file
     if not opts.title:
-        opts.title = os.path.splitext(os.path.basename(source))
+        opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:
         opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.lrf')
         

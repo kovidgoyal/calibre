@@ -28,6 +28,7 @@ import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, signal, \
        subprocess, socket, collections, binascii, re, thread, tempfile
 from select import select
 from threading import RLock, Thread, Event
+from math import ceil
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import iswindows, detect_ncpus, isosx
@@ -48,8 +49,8 @@ PARALLEL_FUNCS = {
       'render_table' :
         ('calibre.ebooks.lrf.html.table_as_image', 'do_render', {}, None),
         
-      'render_page' :
-        ('calibre.ebooks.lrf.comic.convert_from', 'process_page', {}, None),
+      'render_pages' :
+        ('calibre.ebooks.lrf.comic.convert_from', 'render_pages', {}, 'notification'),
 
       'comic2lrf'    :
         ('calibre.ebooks.lrf.comic.convert_from', 'do_convert', {}, 'notification'),
@@ -532,7 +533,10 @@ class Job(object):
         self.percent = percent
         self.msg     = msg
         if self.job_manager is not None:
-            self.job_manager.status_update(self)
+            try:
+                self.job_manager.status_update(self)
+            except:
+                traceback.print_exc()
         
     def status(self):
         if self.is_running:
@@ -647,6 +651,25 @@ class Server(Thread):
         self.result_lock = RLock()
         self.pool_lock = RLock()
         self.start()
+        
+    def split(self, tasks):
+        '''
+        Split a list into a list of sub lists, with the number of sub lists being
+        no more than the number of workers this server supports. Each sublist contains
+        two tuples of the form (i, x) where x is an element fro the original list
+        and i is the index of the element x in the original list.
+        '''
+        ans, count, pos = [], 0, 0
+        delta = int(ceil(len(tasks)/float(self.number_of_workers)))
+        while count < len(tasks):
+            section = []
+            for t in tasks[pos:pos+delta]:
+                section.append((count, t))
+                count += 1
+            ans.append(section)
+            pos += delta
+        return ans
+        
 
     def close(self):
         try:
