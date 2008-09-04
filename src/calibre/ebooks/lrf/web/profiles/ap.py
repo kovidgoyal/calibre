@@ -30,7 +30,7 @@ class AssociatedPress(DefaultProfile):
                   ('AP US News', 'http://hosted.ap.org/lineups/USHEADS-rss_2.0.xml?SITE=CAVIC&SECTION=HOME'),
                    ('AP World News', 'http://hosted.ap.org/lineups/WORLDHEADS-rss_2.0.xml?SITE=SCAND&SECTION=HOME'),
                    ('AP Political News', 'http://hosted.ap.org/lineups/POLITICSHEADS-rss_2.0.xml?SITE=ORMED&SECTION=HOME'),
-                   ('AP Washington News', 'http://hosted.ap.org/lineups/WASHINGTONHEADS-rss_2.0.xml?SITE=NYPLA&SECTION=HOME'),
+                   ('AP Washington State News', 'http://hosted.ap.org/lineups/WASHINGTONHEADS-rss_2.0.xml?SITE=NYPLA&SECTION=HOME'),
                    ('AP Technology News', 'http://hosted.ap.org/lineups/TECHHEADS-rss_2.0.xml?SITE=CTNHR&SECTION=HOME'),
                    ('AP Health News', 'http://hosted.ap.org/lineups/HEALTHHEADS-rss_2.0.xml?SITE=FLDAY&SECTION=HOME'),
                    ('AP Science News', 'http://hosted.ap.org/lineups/SCIENCEHEADS-rss_2.0.xml?SITE=OHCIN&SECTION=HOME'),
