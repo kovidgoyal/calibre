@@ -79,15 +79,12 @@ Library Management
 
 What formats does |app| read metadata from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| reads metadata from the following formats: LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB. In addition it can write metadata to: LRF, RTF, OPF
+|app| reads metadata from the following formats: LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB, FB2, IMP, RB, HTML. In addition it can write metadata to: LRF, RTF, OPF
 
 Where are the book files stored?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| use a database to store all books. When you import new books or convert an existing book, the book files are stored in compressed form in the database. The database is a single file named `library1.db` and you can see where it is (or change its location) by clicking the configuration button (the button with the icon of a hammer next to the search bar). 
+When you first run |app|, it will ask you for a folder in which to store your books. Whenever you add a book to |app|, it will copy the book into that folder. Books in the folder are nicely arranged into sub-folders by Author and Title. Metadata about the books is stored in the file ``metadata.db`` (which is a sqlite database).
 
-Can I save my books to the disk?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can save your books to the disk by selecting the books and clicking the "Save to disk" button. Your books will be saved in nicely organized folders.
 
 Content From The Web
 ---------------------
