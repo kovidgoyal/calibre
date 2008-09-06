@@ -256,7 +256,6 @@ if __name__ == '__main__':
                     with open('images.qrc', 'wb') as f:
                         f.write(manifest)
                     subprocess.check_call(['pyrcc4', '-o', images, 'images.qrc'])
-                    os.remove('images.qrc')
                 else:
                     print 'Images are up to date'
             finally:

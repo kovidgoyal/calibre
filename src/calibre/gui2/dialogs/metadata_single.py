@@ -144,7 +144,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), 
                         self.edit_tags)
         QObject.connect(self.remove_series_button, SIGNAL('clicked()'),
-                        self.remove_unused_series)        
+                        self.remove_unused_series)
+        QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
+                        self.deduce_author_sort)
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
         self.timeout = float(prefs['network_timeout'])
         self.title.setText(db.title(row))
@@ -194,6 +196,16 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             pm.loadFromData(cover)
             if not pm.isNull(): 
                 self.cover.setPixmap(pm)
+    
+    def deduce_author_sort(self):
+        au = unicode(self.authors.text())
+        tokens = au.split()
+        for x in (',', ';'):
+            if x in tokens:
+                tokens.remove(x)
+        if tokens:
+            tokens = [tokens[-1]+';'] + tokens[:-1]
+        self.author_sort.setText(u' '.join(tokens))
     
     def swap_title_author(self):
         title = self.title.text()
