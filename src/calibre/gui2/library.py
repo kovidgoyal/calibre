@@ -311,11 +311,14 @@ class BooksModel(QAbstractTableModel):
         ans = []
         for row in (row.row() for row in rows):
             format = None
-            for f in self.db.formats(row).split(','):
-                if f.lower() in formats:
+            db_formats = set(self.db.formats(row).lower().split(','))
+            available_formats = set([f.lower() for f in formats]) 
+            u = available_formats.intersection(db_formats)
+            for f in formats:
+                if f.lower() in u:
                     format = f
                     break
-            if format:
+            if format is not None:
                 pt = PersistentTemporaryFile(suffix='.'+format)
                 pt.write(self.db.format(row, format))
                 pt.flush()

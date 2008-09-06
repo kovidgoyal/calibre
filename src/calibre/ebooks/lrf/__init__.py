@@ -22,6 +22,7 @@ __docformat__ = "epytext"
 preferred_source_formats = [
                             'LIT',
                             'MOBI',
+                            'EPUB',
                             'HTML',
                             'HTM',
                             'XHTM',

@@ -7,7 +7,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, os
 
-from calibre.utils.zipfile import ZipFile, BadZipfile
+from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from cStringIO import StringIO
 from contextlib import closing
 
@@ -73,7 +73,7 @@ class OCFReader(OCF):
 class OCFZipReader(OCFReader):
     def __init__(self, stream, mode='r'):
         try:
-            self.archive = ZipFile(stream, mode)
+            self.archive = ZipFile(stream, mode=mode)
         except BadZipfile:
             raise EPubException("not a ZIP .epub OCF container")
         self.root = getattr(stream, 'name', os.getcwd())
@@ -82,18 +82,20 @@ class OCFZipReader(OCFReader):
     def open(self, name, mode='r'):
         return StringIO(self.archive.read(name))
     
-class OCFZipWriter(OCFZipReader):
+class OCFZipWriter(object):
     
     def __init__(self, stream):
-        OCFZipReader.__init__(self, stream, mode='a')
+        reader = OCFZipReader(stream)
+        self.opf = reader.container[OPF.MIMETYPE]
+        self.stream = stream
+        self.root = getattr(stream, 'name', os.getcwd())
         
     def set_metadata(self, mi):
-        name   = self.container[OPF.MIMETYPE]
         stream = StringIO()
         opf    = OPFCreator(self.root, mi)
         opf.render(stream)
-        self.archive.delete(name)
-        self.archive.writestr(name, stream.getvalue())
+        stream.seek(0)
+        safe_replace(self.stream, self.opf, stream)
 
 class OCFDirReader(OCFReader):
     def __init__(self, path):
@@ -133,9 +135,8 @@ def main(args=sys.argv):
         mi.tags = opts.tags.split(',')
     if opts.comment:
         mi.comments = opts.comment
-        
+    
     set_metadata(stream, mi)
-        
     print unicode(mi)
     return 0
 

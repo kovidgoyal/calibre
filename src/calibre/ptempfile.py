@@ -1,3 +1,4 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ 
@@ -61,4 +62,17 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     tdir = tempfile.mkdtemp(suffix, __appname__+"_"+ __version__+"_" +prefix, dir)
     atexit.register(shutil.rmtree, tdir, True)
     return tdir
+
+class TemporaryDirectory(str):
+    def __init__(self, suffix='', prefix='', dir=None):
+        self.suffix = suffix
+        self.prefix = prefix
+        self.dir = dir 
+    
+    def __enter__(self):
+        self.tdir = tempfile.mkdtemp(self.suffix, __appname__+"_"+ __version__+"_" +self.prefix, self.dir)
+        return self.tdir
+    
+    def __exit__(self, *args):
+        shutil.rmtree(self.tdir)
       

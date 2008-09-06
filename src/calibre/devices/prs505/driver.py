@@ -31,7 +31,7 @@ class PRS505(Device):
     PRODUCT_ID   = 0x031e #: Product Id for the PRS-505
     PRODUCT_NAME = 'PRS-505'
     VENDOR_NAME  = 'SONY'
-    FORMATS      = ["lrf", 'epub', "rtf", "pdf", "txt"]
+    FORMATS      = ['lrf', 'epub', "rtf", "pdf", "txt"]
     
     MEDIA_XML    = 'database/cache/media.xml'
     CACHE_XML    = 'Sony Reader/database/cache.xml'
