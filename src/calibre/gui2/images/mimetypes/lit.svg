@@ -5145,7 +5145,7 @@
            id="stop16206" />
       </linearGradient>
       <path
-         style="fill:url(#linearGradient34419);fill-rule:evenodd"
+         style="fill-rule:evenodd"
          d="M 87.500999,62.279999 C 87.882781,62.284241 87.476154,61.794221 87.500999,62.279999 z "
          id="path16208" />
       <linearGradient

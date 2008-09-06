@@ -338,16 +338,11 @@
          <property name="title" >
           <string>Comments</string>
          </property>
-         <widget class="QTextEdit" name="comments" >
-          <property name="geometry" >
-           <rect>
-            <x>9</x>
-            <y>39</y>
-            <width>354</width>
-            <height>557</height>
-           </rect>
-          </property>
-         </widget>
+         <layout class="QGridLayout" name="gridLayout_4" >
+          <item row="0" column="0" >
+           <widget class="QTextEdit" name="comments" />
+          </item>
+         </layout>
         </widget>
        </item>
        <item>
@@ -454,8 +449,8 @@
          <property name="title" >
           <string>Book Cover</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2" >
-          <item row="0" column="0" >
+         <layout class="QVBoxLayout" name="verticalLayout_4" >
+          <item>
            <widget class="ImageView" name="cover" >
             <property name="sizePolicy" >
              <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
@@ -474,10 +469,13 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0" >
+          <item>
            <layout class="QVBoxLayout" >
             <property name="spacing" >
              <number>6</number>
+            </property>
+            <property name="sizeConstraint" >
+             <enum>QLayout::SetMaximumSize</enum>
             </property>
             <property name="margin" >
              <number>0</number>
@@ -525,7 +523,7 @@
             </item>
            </layout>
           </item>
-          <item row="2" column="0" >
+          <item>
            <layout class="QHBoxLayout" >
             <item>
              <widget class="QPushButton" name="fetch_cover_button" >
@@ -550,6 +548,8 @@
         </widget>
        </item>
       </layout>
+      <zorder>af_group_box</zorder>
+      <zorder>groupBox_4</zorder>
      </widget>
     </widget>
    </item>
