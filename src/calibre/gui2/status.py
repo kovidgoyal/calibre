@@ -4,7 +4,7 @@ import re
 
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon
-from PyQt4.QtCore import Qt, QSize, SIGNAL
+from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
 from calibre import fit_image, preferred_encoding
 from calibre.gui2 import qstring_to_unicode
 
@@ -186,6 +186,7 @@ class StatusBar(QStatusBar):
         if self.movie_button.movie.state() == QMovie.Running:
             self.movie_button.movie.jumpToFrame(0)
             self.movie_button.movie.setPaused(True)
+            QCoreApplication.instance().alert(self, 5000)
         
 if __name__ == '__main__':
     # Used to create the animated status icon
