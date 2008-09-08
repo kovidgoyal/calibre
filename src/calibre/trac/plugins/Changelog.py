@@ -64,10 +64,10 @@ class ChangeLogMacro(WikiMacroBase):
         txt = bzr_log_to_txt().encode('ascii', 'xmlcharrefreplace')
         out = StringIO()
         Formatter(formatter.env, formatter.context).format(txt, out)
-        return Markup(out.getvalue())
+        return Markup(out.getvalue().decode('utf8'))
 
 
 if __name__ == '__main__':
-    print bzr_log_to_txt() 
+    print bzr_log_to_txt()
         
         
