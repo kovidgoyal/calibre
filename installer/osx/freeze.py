@@ -344,7 +344,7 @@ def main():
                                         'LSEnvironment':{
                                                          'FC_CONFIG_DIR':'@executable_path/../Resources/fonts',
                                                          'MAGICK_HOME':'@executable_path/../Frameworks/ImageMagick',
-                                                         'DYLD_LIBRARY_PATH':'@executable_path/../Frameworks/:@executable_path/../Frameworks/ImageMagick/lib',
+                                                         'DYLD_LIBRARY_PATH':'@executable_path/../Frameworks:@executable_path/../Frameworks/ImageMagick/lib',
                                                          }
                                        },
                       },
