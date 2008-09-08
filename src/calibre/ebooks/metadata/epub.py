@@ -6,14 +6,14 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Read meta information from epub files'''
 
 import sys, os
-
-from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from cStringIO import StringIO
 from contextlib import closing
 
+
+from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
-from calibre.ebooks.metadata.opf import OPF, OPFReader, OPFCreator
 from calibre.ebooks.metadata import get_parser, MetaInformation
+from calibre.ebooks.metadata.opf2 import OPF
 
 class EPubException(Exception):
     pass
@@ -49,14 +49,15 @@ class OCF(object):
     def __init__(self):
         raise NotImplementedError('Abstract base class')
 
+
 class OCFReader(OCF):
     def __init__(self):
         try:
             mimetype = self.open('mimetype').read().rstrip()
             if mimetype != OCF.MIMETYPE:
-                raise EPubException
-        except (KeyError, EPubException):
-            raise EPubException("not an .epub OCF container")
+                print 'WARNING: Invalid mimetype declaration', mimetype
+        except:
+            print 'WARNING: Epub doesn\'t contain a mimetype declaration'
 
         try:
             with closing(self.open(OCF.CONTAINER_PATH)) as f:
@@ -66,37 +67,26 @@ class OCFReader(OCF):
 
         try:
             with closing(self.open(self.container[OPF.MIMETYPE])) as f:
-                self.opf = OPFReader(f, self.root)
+                self.opf = OPF(f, self.root)
         except KeyError:
             raise EPubException("missing OPF package file")
 
 class OCFZipReader(OCFReader):
-    def __init__(self, stream, mode='r'):
+    def __init__(self, stream, mode='r', root=None):
         try:
             self.archive = ZipFile(stream, mode=mode)
         except BadZipfile:
             raise EPubException("not a ZIP .epub OCF container")
-        self.root = getattr(stream, 'name', os.getcwd())
+        self.root = root
+        if self.root is None:
+            self.root = os.getcwdu()
+            if hasattr(stream, 'name'):
+                self.root = os.path.abspath(os.path.dirname(stream.name))
         super(OCFZipReader, self).__init__()
 
     def open(self, name, mode='r'):
         return StringIO(self.archive.read(name))
     
-class OCFZipWriter(object):
-    
-    def __init__(self, stream):
-        reader = OCFZipReader(stream)
-        self.opf = reader.container[OPF.MIMETYPE]
-        self.stream = stream
-        self.root = getattr(stream, 'name', os.getcwd())
-        
-    def set_metadata(self, mi):
-        stream = StringIO()
-        opf    = OPFCreator(self.root, mi)
-        opf.render(stream)
-        stream.seek(0)
-        safe_replace(self.stream, self.opf, stream)
-
 class OCFDirReader(OCFReader):
     def __init__(self, path):
         self.root = path
@@ -111,12 +101,17 @@ def get_metadata(stream):
     return OCFZipReader(stream).opf
 
 def set_metadata(stream, mi):
-    OCFZipWriter(stream).set_metadata(mi)
-
+    reader = OCFZipReader(stream, root=os.getcwdu())
+    reader.opf.smart_update(mi)
+    newopf = StringIO(reader.opf.render())
+    safe_replace(stream, reader.container[OPF.MIMETYPE], newopf)
+    print newopf.getvalue()
+    
 def option_parser():
     parser = get_parser('epub')
     parser.remove_option('--category')
-    parser.add_option('--tags', default=None, help=_('A comma separated list of tags to set'))
+    parser.add_option('--tags', default=None, 
+                      help=_('A comma separated list of tags to set'))
     return parser
 
 def main(args=sys.argv):
@@ -126,7 +121,7 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     stream = open(args[1], 'r+b')
-    mi = MetaInformation(OCFZipReader(stream).opf)
+    mi = MetaInformation(OCFZipReader(stream, root=os.getcwdu()).opf)
     if opts.title:
         mi.title = opts.title
     if opts.authors:
@@ -136,8 +131,10 @@ def main(args=sys.argv):
     if opts.comment:
         mi.comments = opts.comment
     
+    stream.seek(0)
     set_metadata(stream, mi)
     print unicode(mi)
+    stream.close()
     return 0
 
 if __name__ == '__main__':

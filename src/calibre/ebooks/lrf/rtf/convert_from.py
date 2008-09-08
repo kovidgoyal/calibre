@@ -1,11 +1,12 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, sys, tempfile, subprocess, shutil, logging, glob
+import os, sys, tempfile, shutil, logging, glob
+
+from lxml import etree
 
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
-from calibre.ebooks import ConversionError
 from calibre import isosx, setup_cli_handlers, __appname__
 from calibre.libwand import convert, WandException
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
@@ -37,32 +38,6 @@ def convert_images(html, logger):
             continue
     return html
 
-def generate_html(rtfpath, logger):
-    tdir = tempfile.mkdtemp(prefix=__appname__+'_')
-    cwd = os.path.abspath(os.getcwd())
-    os.chdir(tdir)
-    try:
-        logger.info('Converting to HTML...')
-        sys.stdout.flush()
-        handle, path = tempfile.mkstemp(dir=tdir, suffix='.html')
-        file = os.fdopen(handle, 'wb')
-        cmd = ' '.join([UNRTF, '"'+rtfpath+'"'])
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        raw = p.stdout.read()
-        ret = p.wait()
-        if ret != 0:
-            if len(raw) > 1000: #unrtf crashes occassionally on OSX and windows but still convert correctly
-                raw += '</body>\n</html>'
-            else:
-                logger.critical(p.stderr.read())
-                raise ConversionError, 'unrtf failed with error code: %d'%(ret,)
-        file.write(convert_images(raw, logger))
-        file.close()        
-        return path        
-    finally:
-        os.chdir(cwd)
-        
 def process_file(path, options, logger=None):
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO
@@ -72,7 +47,7 @@ def process_file(path, options, logger=None):
     f = open(rtf, 'rb')
     mi = get_metadata(f, 'rtf')
     f.close()
-    html = generate_html2(rtf, logger)
+    html = generate_html(rtf, logger)
     tdir = os.path.dirname(html)
     cwd = os.getcwdu()
     try:
@@ -162,8 +137,7 @@ def generate_xml(rtfpath):
     return ofile
 
 
-def generate_html2(rtfpath, logger):
-    from lxml import etree
+def generate_html(rtfpath, logger):
     logger.info('Converting RTF to XML...')
     xml = generate_xml(rtfpath)
     tdir = os.path.dirname(xml)

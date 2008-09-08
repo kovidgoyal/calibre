@@ -171,14 +171,13 @@ class MetaInformation(object):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
         
-    
     def __init__(self, title, authors=[_('Unknown')]):
         '''
         @param title: title or "Unknown" or a MetaInformation object
         @param authors: List of strings or []
         '''
         mi = None
-        if isinstance(title, MetaInformation):
+        if hasattr(title, 'title') and hasattr(title, 'authors'):
             mi = title
             title = mi.title
             authors = mi.authors
@@ -186,26 +185,15 @@ class MetaInformation(object):
         self.author = authors # Needed for backward compatibility
         #: List of strings or []
         self.authors = authors
-        #: Sort text for author
-        self.author_sort  = None if not mi else mi.author_sort
-        self.title_sort   = None if not mi else mi.title_sort
-        self.comments     = None if not mi else mi.comments
-        self.category     = None if not mi else mi.category
-        self.publisher    = None if not mi else mi.publisher
-        self.series       = None if not mi else mi.series
-        self.series_index = None if not mi else mi.series_index
-        self.rating       = None if not mi else mi.rating
-        self.isbn         = None if not mi else mi.isbn
-        self.tags         = []  if not mi else mi.tags
-        self.language     = None if not mi else mi.language # Typically a string describing the language
+        self.tags = getattr(mi, 'tags', [])
         #: mi.cover_data = (ext, data)
-        self.cover_data   = mi.cover_data if (mi and hasattr(mi, 'cover_data')) else (None, None)
-        self.application_id    = mi.application_id  if (mi and hasattr(mi, 'application_id')) else None
-        self.manifest = getattr(mi, 'manifest', None)
-        self.toc      = getattr(mi, 'toc', None)
-        self.spine    = getattr(mi, 'spine', None)
-        self.guide    = getattr(mi, 'guide', None)
-        self.cover    = getattr(mi, 'cover', None)
+        self.cover_data   = getattr(mi, 'cover_data', (None, None))
+        
+        for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher', 
+                  'series', 'series_index', 'rating', 'isbn', 'language',
+                  'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover'
+                  ):
+            setattr(self, x, getattr(mi, x, None))
     
     def smart_update(self, mi):
         '''

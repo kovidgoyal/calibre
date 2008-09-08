@@ -29,7 +29,13 @@ def detect(aBuf):
     return u.result
 
 # Added by Kovid
-def xml_to_unicode(raw, verbose=False):
+ENCODING_PATS = [
+                 re.compile(r'<[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
+                 re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>', re.IGNORECASE)
+                 ]
+ENTITY_PATTERN = re.compile(r'&(\S+?);')
+
+def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False, resolve_entities=False):
     '''
     Force conversion of byte string to unicode. Tries to look for XML/HTML 
     encoding declaration first, if not found uses the chardet library and
@@ -41,11 +47,14 @@ def xml_to_unicode(raw, verbose=False):
         return u'', encoding    
     if isinstance(raw, unicode):
         return raw, encoding
-    match = re.compile(r'<[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE).search(raw)
-    if match is None:
-        match = re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"]', re.IGNORECASE).search(raw)
-    if match is not None:
-        encoding = match.group(1) 
+    for pat in ENCODING_PATS:
+        match = pat.search(raw)
+        if match:
+            encoding = match.group(1)
+            break
+    if strip_encoding_pats:
+        for pat in ENCODING_PATS:
+            raw = pat.sub('', raw)
     if encoding is None:
         try:
             chardet = detect(raw)
@@ -65,4 +74,12 @@ def xml_to_unicode(raw, verbose=False):
         encoding = CHARSET_ALIASES[encoding]
     if encoding == 'ascii':
         encoding = 'utf-8'
-    return raw.decode(encoding, 'ignore'), encoding 
+    
+    raw = raw.decode(encoding, 'replace')
+    if resolve_entities:
+        from calibre import entity_to_unicode
+        from functools import partial
+        f = partial(entity_to_unicode, exceptions=['amp', 'apos', 'quot', 'lt', 'gt'])
+        raw = ENTITY_PATTERN.sub(f, raw)
+    
+    return raw, encoding 

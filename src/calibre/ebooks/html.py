@@ -13,7 +13,7 @@ from lxml.etree import XPath
 get_text = XPath("//text()")
 
 from calibre import LoggingInterface, unicode_path
-from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.chardet import xml_to_unicode, ENCODING_PATS
 from calibre.utils.config import Config, StringConfig
 from calibre.ebooks.metadata.opf import OPFReader, OPFCreator
 from calibre.ebooks.metadata import MetaInformation
@@ -287,10 +287,6 @@ class PreProcessor(object):
     
 class Parser(PreProcessor, LoggingInterface):
     
-    ENCODING_PATS = [re.compile(r'<[^<>]+encoding=[\'"](.*?)[\'"][^<>]*>', re.IGNORECASE),
-                     re.compile(r'<meta.*?content=[\'"].*?charset=([^\s\'"]+).*?[\'"].*?>', re.IGNORECASE)]
-    
-    
     def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, name='htmlparser'):
         LoggingInterface.__init__(self, logging.getLogger(name))
         self.setup_cli_handler(opts.verbose)
@@ -332,7 +328,7 @@ class Parser(PreProcessor, LoggingInterface):
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace')
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
-        for pat in self.ENCODING_PATS:
+        for pat in ENCODING_PATS:
             src = pat.sub('', src)
         try:
             self.root = html.document_fromstring(src)
