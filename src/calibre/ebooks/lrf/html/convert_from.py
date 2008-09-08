@@ -410,6 +410,7 @@ class HTMLConverter(object, LoggingInterface):
             for key in sel[0].split(','):
                 val = self.parse_style_properties(sel[1])
                 key = key.strip().lower()
+                if '+' in key: continue
                 if ':' in key:
                     key, sep, pseudo = key.partition(':')
                     if key in pdict:

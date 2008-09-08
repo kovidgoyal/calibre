@@ -14,9 +14,6 @@ from calibre.startup import get_lang
 from calibre.utils.config import Config, ConfigProxy, dynamic
 import calibre.resources as resources
 
-if isosx:
-    from lxml import html # Needed otherwise the GUI segfaults
-
 NONE = QVariant() #: Null value to return from the data function of item models
 
 def _config():

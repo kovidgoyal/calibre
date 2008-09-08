@@ -45,7 +45,7 @@ class Distribution(object):
     AS_ROOT    = (True, False, True)
     
     TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Gutsy Gibbon',
-                'fedora':'Fedora 8', 'debian':'Debian Sid', 'generic': 'Generic Unix'}
+                'fedora':'Fedora 8', 'debian':'Debian Sid', 'generic': 'Install from source'}
     
     MANUAL_MAP = {
                   'fedora' : '''<li>You have to upgrade Qt to at least 4.4.0 and PyQt to at least 4.4.2</li>''',
@@ -70,7 +70,7 @@ class Distribution(object):
             for dep in self.DEPENDENCIES:
                 if len(cmd) > 70+offset:
                     offset += 70
-                    cmd += pre 
+                    cmd += pre
                 cmd += ' ' 
                 if dep[index]: cmd += dep[index]
             self.command = cmd.strip()
@@ -125,7 +125,7 @@ class Download(Component):
                 elif os == 'linux':
                     return self.linux(req)
                 elif 'binary' in os:
-                    return self.linux_binary(req) 
+                    return self.linux_binary(req)
                 else:
                     return self.linux_distro(req, os)       
     
@@ -232,7 +232,7 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
             OS({'name' : 'ubuntu', 'title': 'Ubuntu'}),
             OS({'name' : 'fedora', 'title': 'Fedora'}),
             OS({'name' : 'debian', 'title': 'Debian'}),
-            OS({'name' : 'generic','title': 'Generic', 'img':'linux'}),
+            OS({'name' : 'generic','title': 'Install from source', 'img':'linux'}),
                              ]
         data = dict(title='Choose linux distribution', width=100,
                     operating_systems=operating_systems, font_size='x-large')

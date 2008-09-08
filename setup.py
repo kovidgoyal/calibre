@@ -71,7 +71,7 @@ if __name__ == '__main__':
         def finalize_options(self): pass
     
     class pot(Command):
-        ''' Create the .pot template for all translatable strings '''
+        description = '''Create the .pot template for all translatable strings'''
         
         PATH = os.path.join('src', APPNAME, 'translations')
         
@@ -104,7 +104,8 @@ if __name__ == '__main__':
                 sys.path.remove(os.path.abspath(self.PATH))
             
     class manual(Command):
-        ''' Build the User Manual '''
+        description='''Build the User Manual '''
+
         def run(self):
             cwd = os.path.abspath(os.getcwd())
             os.chdir(os.path.join('src', 'calibre', 'manual'))
@@ -127,9 +128,7 @@ if __name__ == '__main__':
                 shutil.rmtree(path)
             
     class resources(Command):
-        '''
-        Compile various resource files used in calibre. 
-        '''
+        description='''Compile various resource files used in calibre. '''
         
         RESOURCES = dict(
             opf_template    = 'ebooks/metadata/opf.xml',
@@ -180,9 +179,7 @@ if __name__ == '__main__':
                     os.remove(path)
     
     class translations(Command):
-        '''
-        Compile the translations
-        '''
+        description='''Compile the translations'''
         PATH = os.path.join('src', APPNAME, 'translations')
         DEST = os.path.join(PATH, 'compiled.py')
         
@@ -215,9 +212,7 @@ if __name__ == '__main__':
             
     
     class gui(Command):
-        '''
-        Compile all GUI forms and image related resources.
-        '''
+        description='''Compile all GUI forms and images'''
         PATH  = os.path.join('src', APPNAME, 'gui2')
         IMAGES_DEST = os.path.join(PATH, 'images_rc.py')
         
@@ -299,7 +294,7 @@ if __name__ == '__main__':
                 os.remove(images)
     
     class clean(Command):
-        ''' Delete all computer generated files in the source tree'''
+        description='''Delete all computer generated files in the source tree'''
         
         def run(self):
             print 'Cleaning...'
@@ -424,3 +419,6 @@ if __name__ == '__main__':
 
     if 'develop' in ' '.join(sys.argv) and islinux:
         subprocess.check_call('calibre_postinstall --do-not-reload-udev-hal', shell=True)
+    if 'install' in sys.argv and islinux:
+        subprocess.check_call('calibre_postinstall', shell=True)
+

@@ -14,8 +14,8 @@
 
     <div id="content" class="download">
       <h1><img src="${href.chrome('/dl/images/%s_logo.png'%(distro.img,))}" valign="middle" width="60" height="80"/> $title</h1>
-      See the <a href="/wiki/Changelog">Changelog</a> for the changes in the latest version. <b>Note:</b> As of 0.4.80 this install
-      will not work on 64-bit CPUs. Try the precompiled binary available <a href="/download_binary">here</a> instead.
+      See the <a href="/wiki/Changelog">Changelog</a> for the changes in the latest version. <span py:if="not distro.is_generic"><b>Note:</b> As of 0.4.80 this install
+      will not work on 64-bit CPUs. Try the precompiled binary available <a href="/download_binary">here</a> instead.</span>
       <div py:if="not distro.is_generic">
         First verify that you have a sufficiently new installation of python
         <pre class="wiki">python --version</pre> should return at least 2.5.1<br />
@@ -35,8 +35,13 @@
       <div py:if="distro.is_generic">
         <ol>
             <li>Make sure that your system has <code>python &gt;= 2.5</code></li>
-            <li>Install the various dependencies listed below: Make sure that any python packages are installed into python2.5 (e.g. setuptools, python-imaging, PyQt4, etc)</li>
-            <li>As root run the command <pre class="wiki">easy_install-2.5 -U TTFQuery calibre &amp;&amp; calibre_postinstall</pre></li>
+            <li>Install the various dependencies listed below: Make sure that any python packages are installed into python2.5 (e.g. setuptools, python-imaging, PyQt4, etc). You will also have to install the development versions of the packages (these packages usually have  -dev added to their names.</li>
+            <li>Run the following commands in a terminal (replacing the version number with the latest calibre version):
+            <pre class="wiki">
+wget -O- http://calibre.kovidgoyal.net/downloads/calibre-0.4.83.tar.bz2 | tar xvj 
+cd calibre*
+python setup.py build &amp;&amp; sudo python setup.py install
+            </pre>
         </ol>
         <h2>Dependencies</h2>
         <table border="1" cellpadding="10">

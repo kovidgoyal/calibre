@@ -2,7 +2,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
-from lxml import etree # Needed on OSX to ensure the correct libxml2 is loaded
 import sys, os, re, logging, time, subprocess, mechanize, atexit
 from htmlentitydefs import name2codepoint
 from math import floor
