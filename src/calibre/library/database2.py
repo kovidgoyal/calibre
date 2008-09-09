@@ -381,6 +381,9 @@ class LibraryDatabase2(LibraryDatabase):
         path = os.path.join(self.library_path, self.path(id, True))
         if os.path.exists(path):
             shutil.rmtree(path)
+            parent = os.path.dirname(path)
+            if not os.listdir(parent):
+                shutil.rmtree(parent)
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
     
@@ -504,7 +507,8 @@ class LibraryDatabase2(LibraryDatabase):
             stream = open(path, 'rb')
             self.add_format(id, ext, stream, index_is_id=True)
         self.conn.commit()
-    
+        
+        
     def move_library_to(self, newloc):
         if not os.path.exists(newloc):
             os.makedirs(newloc)

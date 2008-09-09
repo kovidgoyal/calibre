@@ -49,6 +49,7 @@ from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
 from calibre.utils.filenames import ascii_filename
+from calibre.gui2.widgets import WarningDialog
 
 class Main(MainWindow, Ui_MainWindow):
 
@@ -236,7 +237,7 @@ in which you want to store your books files. Any existing books will be automati
                 os.remove(self.olddb.dbpath)
             self.olddb = None
             prefs['library_path'] = self.library_path
-        self.library_view.sortByColumn(3, Qt.DescendingOrder)
+        self.library_view.sortByColumn(*dynamic.get('sort_column', (3, Qt.DescendingOrder)))
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
         self.library_view.resizeRowsToContents()
@@ -504,10 +505,10 @@ in which you want to store your books files. Any existing books will be automati
                 files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
                 for mi in duplicates[2]:
                     files += '<li>'+mi.title+'</li>\n'
-                d = question_dialog(self, _('Duplicates found!'), files+'</ul></p>')
-                if d.exec_() == QMessageBox.Yes:
+                d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', parent=self)
+                if d.exec_() == QDialog.Accepted:
                     model.add_books(*duplicates, **dict(add_duplicates=True))
-            model.resort()
+            self.library_view.sortByColumn(3, Qt.DescendingOrder)
             model.research()
         else:
             self.upload_books(paths, names, infos, on_card=on_card)
@@ -1262,6 +1263,7 @@ in which you want to store your books files. Any existing books will be automati
     
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
+        dynamic.set('sort_column', self.library_view.model().sorted_on)
         self.library_view.write_settings()
         if self.device_connected:
             self.memory_view.write_settings()
