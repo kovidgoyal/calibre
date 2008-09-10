@@ -181,10 +181,12 @@ class MobiReader(object):
                 '<style type="text/css">\n'
                 'blockquote { margin: 0em 0em 0em 1.25em; text-align: justify; }\n'
                 'p { margin: 0em; text-align: justify; }\n'
+                '.bold { font-weight: bold; }\n'
+                '.italic { font-style: italic; }\n'
                 '</style>\n',
                 self.processed_html)
         
-        soup = BeautifulSoup(self.processed_html.replace('> <', '>\n<'))
+        soup = BeautifulSoup(self.processed_html)
         self.cleanup_soup(soup)
         guide = soup.find('guide')
         for elem in soup.findAll(['metadata', 'guide']):
@@ -210,6 +212,11 @@ class MobiReader(object):
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.processed_html = '<html><p>'+self.processed_html.replace('\n\n', '<p>')+'</html>'
+        self.processed_html = self.processed_html.replace('> <', '>\n<')
+        self.processed_html = self.processed_html.replace('<b>', '<span class="bold">')
+        self.processed_html = self.processed_html.replace('<i>', '<span class="italic">')
+        self.processed_html = self.processed_html.replace('</b>', '</span>')
+        self.processed_html = self.processed_html.replace('</i>', '</span>')
     
     def cleanup_soup(self, soup):
         for tag in soup.recursiveChildGenerator():
