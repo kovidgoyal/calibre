@@ -6,7 +6,8 @@ __docformat__ = 'restructuredtext en'
 '''
 The database used to store ebook metadata
 '''
-import os, re, sys, shutil, cStringIO, glob, collections
+import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
+       operator, itertools, functools
 import sqlite3 as sqlite
 from itertools import repeat
 
@@ -159,6 +160,157 @@ class Concatenate(object):
             return self.ans[:-len(self.sep)]
         return self.ans
     
+class ResultCache(object):
+    
+    '''
+    Stores sorted and filtered metadata in memory.
+    '''
+    
+    METHOD_MAP = {
+                  'title'        : 'title',
+                  'authors'      : 'author_sort',
+                  'author'       : 'author_sort',
+                  'publisher'    : 'publisher',
+                  'size'         : 'size',
+                  'date'         : 'timestamp',
+                  'timestamp'    : 'timestamp',
+                  'rating'       : 'rating',
+                  'tags'         : 'tags',
+                  'series'       : 'series',
+                  }
+    
+    def __init__(self):
+        self._map = self._map_filtered = self._data = []
+        
+    def __getitem__(self, row):
+        return self._data[self._map_filtered[row]]
+    
+    def __len__(self):
+        return len(self._map_filtered)
+    
+    def __iter__(self):
+        for id in self._map_filtered:
+            yield self._data[id]
+            
+    def remove(self, id):
+        self._data[id] = None
+        if id in self._map:
+            self._map.remove(id)
+        if id in self._map_filtered:
+            self._map_filtered.remove(id)
+            
+    def set(self, row, col, val):
+        id = self._map_filtered[row]
+        self._data[id][col] = val
+        
+    def index(self, id, cache=False):
+        x = self._map if cache else self._map_filtered
+        return x.index(id)
+    
+    def row(self, id):
+        return self.index(id)
+    
+    def refresh_ids(self, conn, ids):
+        for id in ids:
+            self._data[id] = conn.execute('SELECT * from meta WHERE id=?', (id,)).fetchone()
+        return map(self.row, ids)
+        
+    def refresh(self, db, field, ascending):
+        field = field.lower()
+        method = getattr(self, 'sort_on_' + self.METHOD_MAP[field])
+        # Fast mapping from sorted row numbers to ids
+        self._map = map(operator.itemgetter(0), method('ASC' if ascending else 'DESC', db)) # Preserves sort order
+        # Fast mapping from sorted, filtered row numbers to ids
+        # At the moment it is the same as self._map
+        self._map_filtered = list(self._map)
+        temp = db.conn.execute('SELECT * FROM meta').fetchall()
+        # Fast mapping from ids to data. 
+        # Can be None for ids that dont exist (i.e. have been deleted)
+        self._data = list(itertools.repeat(None, temp[-1][0]+2))
+        for r in temp:
+            self._data[r[0]] = r
+    
+    def filter(self, filters, refilter=False, OR=False):
+        '''
+        Filter data based on filters. All the filters must match for an item to
+        be accepted. Matching is case independent regexp matching.
+        @param filters: A list of SearchToken objects
+        @param refilter: If True filters are applied to the results of the previous
+                         filtering.
+        @param OR: If True, keeps a match if any one of the filters matches. If False,
+        keeps a match only if all the filters match
+        '''
+        if not refilter:
+                self._map_filtered = list(self._map)
+        if filters:
+            remove = []
+            for id in self._map_filtered:
+                if OR:
+                    keep = False
+                    for token in filters:
+                        if token.match(self._data[id]):
+                            keep = True
+                            break
+                    if not keep:
+                        remove.append(id)
+                else:
+                    for token in filters:
+                        if not token.match(self._data[id]):
+                            remove.append(id)
+                            break
+            for id in remove:
+                self._map_filtered.remove(id)
+    
+    def sort_on_title(self, order, db):
+        return db.conn.execute('SELECT id FROM books ORDER BY sort ' + order).fetchall()
+    
+    def sort_on_author_sort(self, order, db):
+        return db.conn.execute('SELECT id FROM books ORDER BY author_sort,sort ' + order).fetchall()
+    
+    def sort_on_timestamp(self, order, db):
+        return db.conn.execute('SELECT id FROM books ORDER BY id ' + order).fetchall()
+    
+    def sort_on_publisher(self, order, db):
+        no_publisher = db.conn.execute('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_publishers_link) ORDER BY books.sort').fetchall()
+        ans = []
+        for r in db.conn.execute('SELECT id FROM publishers ORDER BY name '+order).fetchall():
+            publishers_id = r[0]
+            ans += db.conn.execute('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_publishers_link WHERE publisher=?) ORDER BY books.sort '+order, (publishers_id,)).fetchall()
+        ans = (no_publisher + ans) if order == 'ASC' else (ans + no_publisher)
+        return ans 
+        
+
+    def sort_on_size(self, order, db): 
+        return db.conn.execute('SELECT id FROM meta ORDER BY size ' + order).fetchall()
+    
+    def sort_on_rating(self, order, db): 
+        no_rating = db.conn.execute('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_ratings_link) ORDER BY books.sort').fetchall()
+        ans = []
+        for r in db.conn.execute('SELECT id FROM ratings ORDER BY rating '+order).fetchall():
+            ratings_id = r[0]
+            ans += db.conn.execute('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_ratings_link WHERE rating=?) ORDER BY books.sort', (ratings_id,)).fetchall()
+        ans = (no_rating + ans) if order == 'ASC' else (ans + no_rating)
+        return ans 
+        
+    
+    def sort_on_series(self, order, db):
+        no_series = db.conn.execute('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_series_link) ORDER BY books.sort').fetchall()
+        ans = []
+        for r in db.conn.execute('SELECT id FROM series ORDER BY name '+order).fetchall():
+            series_id = r[0]
+            ans += db.conn.execute('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_series_link WHERE series=?) ORDER BY books.series_index,books.id '+order, (series_id,)).fetchall()
+        ans = (no_series + ans) if order == 'ASC' else (ans + no_series)
+        return ans 
+        
+    
+    def sort_on_tags(self, order, db):
+        no_tags = db.conn.execute('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_tags_link) ORDER BY books.sort').fetchall()
+        ans = []
+        for r in db.conn.execute('SELECT id FROM tags ORDER BY name '+order).fetchall():
+            tag_id = r[0]
+            ans += db.conn.execute('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_tags_link WHERE tag=?) ORDER BY books.sort '+order, (tag_id,)).fetchall()
+        ans = (no_tags + ans) if order == 'ASC' else (ans + no_tags)
+        return ans 
 
 class LibraryDatabase2(LibraryDatabase):
     '''
@@ -210,12 +362,40 @@ class LibraryDatabase2(LibraryDatabase):
         if isinstance(self.dbpath, unicode):
             self.dbpath = self.dbpath.encode(filesystem_encoding)
         self.connect()
+        # Upgrade database 
+        while True:
+            meth = getattr(self, 'upgrade_version_%d'%self.user_version, None)
+            if meth is None:
+                break
+            else:
+                print 'Upgrading database to version %d...'%(self.user_version+1)
+                meth()
+                self.conn.commit()
+                self.user_version += 1
         
+        self.data    = ResultCache()
+        self.filter  = self.data.filter
+        self.refresh = functools.partial(self.data.refresh, self)
+        self.index   = self.data.index
+        self.refresh_ids = functools.partial(self.data.refresh_ids, self.conn)
+        self.row     = self.data.row
         
     def initialize_database(self):
         from calibre.resources import metadata_sqlite
         self.conn.executescript(metadata_sqlite)
         self.user_version = 1
+        
+    def upgrade_version_1(self):
+        '''
+        Normalize indices.
+        '''
+        self.conn.executescript(textwrap.dedent('''\
+        DROP INDEX authors_idx;
+        CREATE INDEX authors_idx ON books (author_sort COLLATE NOCASE, sort COLLATE NOCASE);
+        DROP INDEX series_idx;
+        CREATE INDEX series_idx ON series (name COLLATE NOCASE);
+        CREATE INDEX series_sort_idx ON books (series_index, id);
+        '''))
     
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
@@ -371,13 +551,9 @@ class LibraryDatabase2(LibraryDatabase):
         
     def delete_book(self, id):
         '''
-        Removes book from self.cache, self.data and underlying database.
+        Removes book from the result cache and the underlying database.
         '''
-        try:
-            self.cache.pop(self.index(id, cache=True))
-            self.data.pop(self.index(id, cache=False))
-        except TypeError: #If data and cache are the same object
-            pass
+        self.data.remove(id)
         path = os.path.join(self.library_path, self.path(id, True))
         if os.path.exists(path):
             shutil.rmtree(path)
@@ -399,6 +575,27 @@ class LibraryDatabase2(LibraryDatabase):
                 os.remove(path)
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             self.conn.commit()
+    
+    def set(self, row, column, val):
+        '''
+        Convenience method for setting the title, authors, publisher or rating
+        '''
+        id = self.data[row][0]
+        col = {'title':1, 'authors':2, 'publisher':3, 'rating':4, 'tags':7}[column]
+
+        self.data.set(row, col, val)
+        if column == 'authors':
+            val = val.split('&,')
+            self.set_authors(id, val)
+        elif column == 'title':
+            self.set_title(id, val)
+        elif column == 'publisher':
+            self.set_publisher(id, val)
+        elif column == 'rating':
+            self.set_rating(id, val)
+        elif column == 'tags':
+            self.set_tags(id, val.split(','), append=False)
+        self.set_path(id, True)
     
     def set_metadata(self, id, mi):
         '''
@@ -451,10 +648,31 @@ class LibraryDatabase2(LibraryDatabase):
             return
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.set_path(id, True)
-    
+        
+    def set_series(self, id, series):
+        self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
+        if series:
+            s = self.conn.execute('SELECT id from series WHERE name=?', (series,)).fetchone()
+            if s:
+                aid = s[0]
+            else:
+                aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
+            self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
+        self.conn.commit()
+        row = self.row(id)
+        if row is not None:
+            self.data.set(row, 9, series)
+            
+    def set_series_index(self, id, idx):
+        self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (int(idx), id))
+        self.conn.commit()
+        row = self.row(id)
+        if row is not None:
+            self.data.set(row, 10, idx)
+        
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
-        Add a book to the database. self.data and self.cache are not updated.
+        Add a book to the database. The result cache is not updated.
         @param paths: List of paths to book files of file-like objects
         '''
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)

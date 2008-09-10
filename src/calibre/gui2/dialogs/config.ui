@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>709</width>
-    <height>685</height>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -78,14 +78,6 @@
         <number>0</number>
        </property>
        <widget class="QWidget" name="page_3" >
-        <property name="geometry" >
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>595</width>
-          <height>640</height>
-         </rect>
-        </property>
         <layout class="QVBoxLayout" name="verticalLayout" >
          <item>
           <layout class="QVBoxLayout" name="_2" >
@@ -220,6 +212,19 @@
              </property>
              <property name="value" >
               <number>5</number>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1" >
+            <widget class="QComboBox" name="language" />
+           </item>
+           <item row="3" column="0" >
+            <widget class="QLabel" name="label_7" >
+             <property name="text" >
+              <string>Choose &amp;language (requires restart):</string>
+             </property>
+             <property name="buddy" >
+              <cstring>language</cstring>
              </property>
             </widget>
            </item>
@@ -389,14 +394,6 @@
         </layout>
        </widget>
        <widget class="QWidget" name="page_2" >
-        <property name="geometry" >
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>595</width>
-          <height>638</height>
-         </rect>
-        </property>
         <layout class="QVBoxLayout" >
          <item>
           <layout class="QHBoxLayout" >

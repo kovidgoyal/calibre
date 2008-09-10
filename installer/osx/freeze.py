@@ -247,7 +247,6 @@ _check_symlinks_prescript()
             f.close()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
                      |stat.S_IWUSR|stat.S_IROTH|stat.S_IRGRP)
-        shutil.copyfile('/usr/lib/libiconv.2.dylib', os.path.join(frameworks_dir, 'libiconv.2.dylib'))
         self.add_plugins()
         
             
@@ -266,7 +265,8 @@ _check_symlinks_prescript()
         
         print
         print 'Adding lxml dependencies'
-        subprocess.check_call('install_name_tool -id @executable_path/../Frameworks/libiconv.2.dylib '+ os.path.join(frameworks_dir, 'libiconv.2.dylib'), shell=True)
+        #shutil.copyfile('/usr/lib/libiconv.2.dylib', os.path.join(frameworks_dir, 'libiconv.2.dylib'))
+        #subprocess.check_call('install_name_tool -id @executable_path/../Frameworks/libiconv.2.dylib '+ os.path.join(frameworks_dir, 'libiconv.2.dylib'), shell=True)
         deps = []
         for f in glob.glob(os.path.expanduser('~/libxml2/*')):
             tgt = os.path.join(frameworks_dir, os.path.basename(f))

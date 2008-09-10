@@ -492,6 +492,8 @@ def _prefs():
               help=_('Default timeout for network operations (seconds)'))
     c.add_opt('library_path', default=None,
               help=_('Path to directory in which your library of books is stored'))
+    c.add_opt('language', default=None,
+              help=_('The language in which to display the user interface'))
     
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c

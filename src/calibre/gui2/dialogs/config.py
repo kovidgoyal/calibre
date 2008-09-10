@@ -66,6 +66,18 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
         self.cover_browse.setValue(config['cover_flow_queue_length'])
         self.confirm_delete.setChecked(config['confirm_delete'])
+        from calibre.translations.compiled import translations
+        from calibre.translations import language_codes
+        from calibre.startup import get_lang
+        lang = get_lang()
+        if lang is not None:
+            self.language.addItem(language_codes[lang], QVariant(lang))
+        items = [(l, language_codes[l]) for l in translations.keys() if l != lang]
+        if lang != 'en':
+            items.append(('en', 'English'))
+        items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        for item in items:
+            self.language.addItem(item[1], QVariant(item[0]))
         
     def compact(self, toggled):
         d = Vacuum(self, self.db)
@@ -99,6 +111,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         prefs['filename_pattern'] = pattern
         config['save_to_disk_single_format'] = BOOK_EXTENSIONS[self.single_format.currentIndex()]
         config['cover_flow_queue_length'] = self.cover_browse.value()
+        prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
         
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'),

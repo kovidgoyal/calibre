@@ -16,6 +16,7 @@ __builtin__.__dict__['_'] = lambda s: s
 from calibre.constants import iswindows, isosx, islinux, isfrozen,\
     preferred_encoding
 from calibre.translations.msgfmt import make
+from calibre.utils.config import prefs
 
 _run_once = False
 if not _run_once:
@@ -24,6 +25,9 @@ if not _run_once:
     # Setup translations
 
     def get_lang():
+        lang = prefs['language']
+        if lang is not None:
+            return lang
         lang = locale.getdefaultlocale()[0]
         if lang is None and os.environ.has_key('LANG'): # Needed for OS X
             try:
