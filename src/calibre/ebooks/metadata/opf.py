@@ -253,7 +253,7 @@ class OPF(MetaInformation):
                 role = elem.get('opf:role')
             if not role:
                 role = 'aut'
-            if role == 'aut':
+            if role == 'aut' and elem.string:
                 raw = self.ENTITY_PATTERN.sub(entity_to_unicode, elem.string)
                 au = raw.split(',')
                 ans = []
@@ -293,13 +293,13 @@ class OPF(MetaInformation):
         
     def get_category(self):
         category = self.soup.find('dc:type')
-        if category:
+        if category and category.string:
             return self.ENTITY_PATTERN.sub(entity_to_unicode, category.string).strip()
         return None
     
     def get_publisher(self):
         publisher = self.soup.find('dc:publisher')
-        if publisher:
+        if publisher and publisher.string:
             return self.ENTITY_PATTERN.sub(entity_to_unicode, publisher.string).strip()
         return None
     
@@ -308,7 +308,7 @@ class OPF(MetaInformation):
             scheme = item.get('scheme')
             if not scheme:
                 scheme = item.get('opf:scheme')
-            if scheme is not None and scheme.lower() == 'isbn':
+            if scheme is not None and scheme.lower() == 'isbn' and item.string:
                 return str(item.string).strip()
         return None
     
@@ -353,7 +353,7 @@ class OPF(MetaInformation):
     
     def get_series_index(self):
         s = self.soup.package.metadata.find('series-index')
-        if s:
+        if s and s.string:
             try:
                 return int(str(s.string).strip())
             except:
@@ -365,7 +365,7 @@ class OPF(MetaInformation):
         if not xm:
             return None
         s = xm.find('rating')
-        if s:
+        if s and s.string:
             try:
                 return int(str(s.string).strip())
             except:

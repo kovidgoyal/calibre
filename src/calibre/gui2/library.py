@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, textwrap, traceback, time
+import os, textwrap, traceback, time, re
 from datetime import timedelta, datetime
 from operator import attrgetter
 
@@ -100,7 +100,7 @@ class BooksModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'tags', 'series']
-        self.editable_cols = [0, 1, 4, 5, 6]
+        self.editable_cols = [0, 1, 4, 5, 6, 7]
         self.default_image = QImage(':/images/book.svg')
         self.sorted_on = (3, Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
@@ -433,8 +433,19 @@ class BooksModel(QAbstractTableModel):
             if col == 4:
                 val = 0 if val < 0 else 5 if val > 5 else val
                 val *= 2
-            column = self.cols[col]
-            self.db.set(row, column, val)
+            if col == 7:
+                pat = re.compile(r'\[(\d+)\]')
+                match = pat.search(val)
+                id = self.db.id(row)
+                if match is not None:
+                    self.db.set_series_index(id, int(match.group(1)))
+                    val = pat.sub('', val)
+                val = val.strip()
+                if val:
+                    self.db.set_series(id, val)
+            else:
+                column = self.cols[col]
+                self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                                 index, index)
             if col == self.sorted_on[0]:
