@@ -131,7 +131,7 @@ The graphical user interface of |app| is not starting on Windows?
 There can be several causes for this:
 
     * **Any windows version**: Try running it as Administrator (Right click on the icon ans select "Run as Administrator")
-    * **Any windows version**: Search for the files `calibre2.ini` and `calibre.ini` on your computer and delete them. Search for the file `library1.db` and rename it (this file contains all your converted books so deleting it is not a good idea). Now try again.
+    * **Any windows version**: If this happens during an initial run of calibre, try deleting the folder you chose for your ebooks and restarting calibre.
     * **Windows Vista**: If the folder :file:`C:\\Users\\Your User Name\\AppData\\Local\\VirtualStore\\Program Files\\calibre` exists, delete it. Uninstall |app|. Reboot. Re-install.
     * **Any windows version**: Search your computer for a folder named :file:`_ipython`. Delete it and try again.
 
@@ -139,7 +139,7 @@ If it still wont launch, start a command prompt (press the windows key and R; th
 
     calibre-debug -c "from calibre.gui2.main import main; main()"
 
-Post any output you see in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion>`_.
+Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
     
 
 I want some feature added to |app|. What can I do?

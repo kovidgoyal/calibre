@@ -48,7 +48,7 @@ os.chmod(loader_path, 0700)
 os.environ['PYTHONHOME']        = resources_dir
 os.environ['FC_CONFIG_DIR']     = os.path.join(resources_dir, 'fonts')
 os.environ['MAGICK_HOME']       = os.path.join(frameworks_dir, 'ImageMagick')
-os.environ['DYLD_LIBRARY_PATH'] = '%%s:%%s'%%(frameworks_dir, os.path.join(frameworks_dir, 'ImageMagick', 'lib'))
+os.environ['DYLD_LIBRARY_PATH'] = os.path.join(frameworks_dir, 'ImageMagick', 'lib')
 os.execv(loader_path, sys.argv)
     '''
     CHECK_SYMLINKS_PRESCRIPT = \
@@ -218,13 +218,6 @@ _check_symlinks_prescript()
         self.fix_misc_dependencies(deps)
         
     
-    def fix_lxml_dependencies(self, resource_dir):
-        for f in glob.glob(os.path.join(resource_dir, 'lib', 'python*', 'lxml', '*.so')):
-            print 'Fixing dependencies of', os.path.basename(f)
-            for lib in ('libxml2.2.dylib', 'libxslt.1.dylib', 'libexslt.0.dylib'):
-                subprocess.check_call(['/usr/bin/install_name_tool', '-change',
-                    '/usr/local/lib/%s'%lib, '@executable_path/../Frameworks/%s'%lib, f])
-    
     def run(self):
         py2app.run(self)
         resource_dir = os.path.join(self.dist_dir,
@@ -262,18 +255,6 @@ _check_symlinks_prescript()
         if os.path.exists(dst):
             shutil.rmtree(dst)
         shutil.copytree('/usr/local/etc/fonts', dst, symlinks=False)
-        
-        print
-        print 'Adding lxml dependencies'
-        #shutil.copyfile('/usr/lib/libiconv.2.dylib', os.path.join(frameworks_dir, 'libiconv.2.dylib'))
-        #subprocess.check_call('install_name_tool -id @executable_path/../Frameworks/libiconv.2.dylib '+ os.path.join(frameworks_dir, 'libiconv.2.dylib'), shell=True)
-        deps = []
-        for f in glob.glob(os.path.expanduser('~/libxml2/*')):
-            tgt = os.path.join(frameworks_dir, os.path.basename(f))
-            shutil.copyfile(f, tgt)
-            deps.append(tgt)
-        self.fix_lxml_dependencies(resource_dir)
-        self.fix_misc_dependencies(deps)
         
         print
         print 'Adding IPython'
@@ -350,7 +331,7 @@ def main():
                                         'LSEnvironment':{
                                                          'FC_CONFIG_DIR':'@executable_path/../Resources/fonts',
                                                          'MAGICK_HOME':'@executable_path/../Frameworks/ImageMagick',
-                                                         'DYLD_LIBRARY_PATH':'@executable_path/../Frameworks:@executable_path/../Frameworks/ImageMagick/lib',
+                                                         'DYLD_LIBRARY_PATH':'@executable_path/../Frameworks/ImageMagick/lib',
                                                          }
                                        },
                       },

@@ -176,7 +176,7 @@ class MobiReader(object):
         
         self.processed_html = \
             re.compile('<head>', re.IGNORECASE).sub(
-                '<head>\n'
+                '\n<head>\n'
                 '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n'
                 '<style type="text/css">\n'
                 'blockquote { margin: 0em 0em 0em 1.25em; text-align: justify; }\n'
