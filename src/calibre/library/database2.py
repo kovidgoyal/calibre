@@ -514,12 +514,15 @@ class LibraryDatabase2(LibraryDatabase):
             p.save(path)
             
     def formats(self, index, index_is_id=False):
-        ''' Return available formats as a comma separated list '''
+        ''' Return available formats as a comma separated list or None if htere are no available formats '''
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-        formats = self.conn.execute('SELECT format FROM data WHERE book=?', (id,)).fetchall()
-        name = self.conn.execute('SELECT name FROM data WHERE book=?', (id,)).fetchone()[0]
-        formats = map(lambda x:x[0], formats)
+        try:
+            formats = self.conn.execute('SELECT format FROM data WHERE book=?', (id,)).fetchall()
+            name = self.conn.execute('SELECT name FROM data WHERE book=?', (id,)).fetchone()[0]
+            formats = map(lambda x:x[0], formats)
+        except:
+            return None
         ans = []
         for format in formats:
             _format = ('.' + format.lower()) if format else ''
@@ -573,7 +576,7 @@ class LibraryDatabase2(LibraryDatabase):
         if os.path.exists(path):
             shutil.rmtree(path)
             parent = os.path.dirname(path)
-            if not os.listdir(parent):
+            if len(os.listdir(parent)) == 0:
                 shutil.rmtree(parent)
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
