@@ -2,7 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
-import sys, os, re, logging, time, subprocess, mechanize, atexit
+import sys, os, re, logging, time, subprocess, atexit
 from htmlentitydefs import name2codepoint
 from math import floor
 from logging import Formatter
@@ -14,7 +14,7 @@ from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               terminal_controller, preferred_encoding, \
                               __appname__, __version__, __author__, \
                               win32event, win32api, winerror, fcntl
-
+from calibre.utils import mechanize
 
 def unicode_path(path, abs=False):
     if not isinstance(path, unicode):
