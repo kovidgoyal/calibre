@@ -25,7 +25,7 @@ the worker interrupts the job and dies. The sending of progress and console outp
 is buffered and asynchronous to prevent the job from being IO bound.
 '''
 import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, signal, \
-       subprocess, socket, collections, binascii, re, thread, tempfile
+       subprocess, socket, collections, binascii, re, thread, tempfile, atexit
 from select import select
 from threading import RLock, Thread, Event
 from math import ceil
@@ -855,8 +855,14 @@ def get_func(name):
     func = getattr(module, func)
     return func, kwdargs, notification
 
+_atexit = collections.deque()
+def myatexit(func, *args, **kwargs):
+    _atexit.append((func, args, kwargs))
+
 def work(client_socket, func, args, kwdargs):
     sys.stdout.last_report = time.time()
+    orig = atexit.register
+    atexit.register = myatexit
     try:
         func, kargs, notification = get_func(func)
         if notification is not None and hasattr(sys.stdout, 'notify'):
@@ -867,7 +873,18 @@ def work(client_socket, func, args, kwdargs):
             sys.stdout.send()
         return res
     finally:
+        atexit.register = orig
         sys.stdout.last_report = None
+        while True:
+            try:
+                func, args, kwargs = _atexit.pop()
+            except IndexError:
+                break
+            try:
+                func(*args, **kwargs)
+            except (Exception, SystemExit):
+                continue
+                
         time.sleep(5) # Give any in progress BufferedSend time to complete
 
 

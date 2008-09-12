@@ -13,14 +13,14 @@ from gettext import GNUTranslations
 import __builtin__
 __builtin__.__dict__['_'] = lambda s: s
 
-from calibre.constants import iswindows, isosx, islinux, isfrozen,\
-    preferred_encoding
-from calibre.translations.msgfmt import make
+from calibre.constants import iswindows, preferred_encoding, plugins
 from calibre.utils.config import prefs
+from calibre.translations.msgfmt import make
 
 _run_once = False
 if not _run_once:
     _run_once = True
+    
     ################################################################################
     # Setup translations
 
@@ -73,38 +73,6 @@ if not _run_once:
                 locale.setlocale(dl[0])
         except:
             pass
-
-    ################################################################################
-    # Load plugins
-    def load_plugins():
-        plugins = {}
-        if isfrozen:
-            if iswindows:
-                plugin_path = os.path.join(os.path.dirname(sys.executable), 'plugins')
-                sys.path.insert(1, os.path.dirname(sys.executable))
-            elif isosx:
-                plugin_path = os.path.join(getattr(sys, 'frameworks_dir'), 'plugins')
-            elif islinux:
-                plugin_path = os.path.join(getattr(sys, 'frozen_path'), 'plugins')
-            sys.path.insert(0, plugin_path)
-        else:
-            import pkg_resources
-            plugin_path = getattr(pkg_resources, 'resource_filename')('calibre', 'plugins')
-            sys.path.insert(0, plugin_path)
-
-        for plugin in ['pictureflow', 'lzx', 'msdes'] + \
-                    (['winutil'] if iswindows else []) + \
-                    (['usbobserver'] if isosx else []):
-            try:
-                p, err = __import__(plugin), ''
-            except Exception, err:
-                p = None
-                err = str(err)
-            plugins[plugin] = (p, err)
-        return plugins
-
-    plugins = load_plugins()
-
 
     ################################################################################
     # Improve builtin path functions to handle unicode sensibly

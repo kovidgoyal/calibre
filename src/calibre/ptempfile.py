@@ -9,30 +9,6 @@ import tempfile, os, atexit, shutil
 
 from calibre import __version__, __appname__
 
-class _TemporaryFileWrapper(object):
-    """
-    Temporary file wrapper
-
-    This class provides a wrapper around files opened for
-    temporary use.  In particular, it seeks to automatically
-    remove the file when the object is deleted.
-    """
-
-    def __init__(self, _file, name):
-        self.file = _file
-        self.name = name
-        atexit.register(cleanup, name)        
-
-    def __getattr__(self, name):
-        _file = self.__dict__['file']
-        a = getattr(_file, name)
-        if type(a) != type(0):
-            setattr(self, name, a)
-        return a
-        
-    def __del__(self):
-        self.close()
-        
 def cleanup(path):
     try:
         import os
@@ -41,18 +17,36 @@ def cleanup(path):
     except:
         pass   
     
-def PersistentTemporaryFile(suffix="", prefix="", dir=None):
+class PersistentTemporaryFile(object):
     """ 
-    Return a temporary file that is available even after being closed on
+    A file-like object that is a temporary file that is available even after being closed on
     all platforms. It is automatically deleted on normal program termination.
-    Uses tempfile.mkstemp to create the file. The file is opened in mode 'wb'.
     """
-    if prefix == None: 
-        prefix = ""
-    fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
-                                dir=dir)
-    _file = os.fdopen(fd, 'w+b')
-    return _TemporaryFileWrapper(_file, name)  
+    _file = None
+    
+    def __init__(self, suffix="", prefix="", dir=None, mode='w+b'):
+        if prefix == None: 
+            prefix = ""
+        fd, name = tempfile.mkstemp(suffix, __appname__+"_"+ __version__+"_" + prefix,
+                                    dir=dir)
+        self._file = os.fdopen(fd, 'w+b')
+        self._name = name
+        atexit.register(cleanup, name)
+        
+    def __getattr__(self, name):
+        if name == 'name':
+            return self.__dict__['_name']
+        return getattr(self.__dict__['_file'], name)
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.close()
+        
+    def __del__(self):
+        self.close()
+          
 
 def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     '''
@@ -64,6 +58,9 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     return tdir
 
 class TemporaryDirectory(str):
+    '''
+    A temporary directory to be used ina  with statement.
+    '''
     def __init__(self, suffix='', prefix='', dir=None):
         self.suffix = suffix
         self.prefix = prefix

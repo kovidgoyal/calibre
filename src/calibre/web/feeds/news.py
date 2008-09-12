@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -313,7 +313,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
         if re.match(r'\w+://', url_or_raw):
-            raw = self.browser.open(url_or_raw).read()
+            f = self.browser.open(url_or_raw)
+            raw = f.read()
+            f.close()
             if not raw:
                 raise RuntimeError('Could not fetch index from %s'%url_or_raw)
         else:
@@ -544,7 +546,10 @@ class BasicNewsRecipe(object, LoggingInterface):
                     if bn:
                         img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
                         try:
-                            open(img, 'wb').write(self.browser.open(feed.image_url).read())
+                            with open(img, 'wb') as fi:
+                                r = self.browser.open(feed.image_url)
+                                fi.write(r.read())
+                                r.close()
                             self.image_counter += 1
                             feed.image_url = img
                             self.image_map[feed.image_url] = img
@@ -588,12 +593,11 @@ class BasicNewsRecipe(object, LoggingInterface):
         return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
     
     def fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds):
-        pt = PersistentTemporaryFile('_feeds2disk.html')
         templ = templates.EmbeddedContent()
         raw = templ.generate(article).render('html')
-        open(pt.name, 'wb').write(raw)
-        pt.close()
-        url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
+        with PersistentTemporaryFile('_feeds2disk.html') as f:
+            f.write(raw)
+            url = ('file:'+f.name) if iswindows else ('file://'+f.name)
         return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
         
     
@@ -618,7 +622,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         index = os.path.join(self.output_dir, 'index.html') 
         
         html = self.feeds2index(feeds)
-        open(index, 'wb').write(html)
+        with open(index, 'wb') as fi:
+            fi.write(html)
         
         self.jobs = []
         for f, feed in enumerate(feeds):
@@ -670,7 +675,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         for f, feed in enumerate(feeds):
             html = self.feed2index(feed)
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
-            open(os.path.join(feed_dir, 'index.html'), 'wb').write(html)
+            with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
+                fi.write(html)
         self.create_opf(feeds)
         self.report_progress(1, _('Feeds downloaded to %s')%index)
         
@@ -689,8 +695,10 @@ class BasicNewsRecipe(object, LoggingInterface):
             ext = ext.lower() if ext else 'jpg'
             self.report_progress(1, _('Downloading cover from %s')%cu)
             cpath = os.path.join(self.output_dir, 'cover.'+ext)
-            cfile = open(cpath, 'wb')
-            cfile.write(self.browser.open(cu).read())
+            with open(cpath, 'wb') as cfile:
+                r = self.browser.open(cu)
+                cfile.write(r.read())
+                r.close()
             self.cover_path = cpath
             
     
@@ -729,7 +737,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                         entries.append(relp.replace(os.sep, '/'))
                         last = sp
                     
-                    src = open(last, 'rb').read().decode('utf-8')
+                    with open(last, 'rb') as fi:
+                        src = fi.read().decode('utf-8')
                     soup = BeautifulSoup(src)
                     body = soup.find('body')
                     if body is not None:
@@ -740,7 +749,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                                          center=self.center_navbar)
                         elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                         body.insert(len(body.contents), elem)
-                        open(last, 'wb').write(unicode(soup).encode('utf-8'))
+                        with open(last, 'wb') as fi:
+                            fi.write(unicode(soup).encode('utf-8'))
         
         if len(feeds) > 1:
             for i, f in enumerate(feeds):
@@ -755,7 +765,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         opf.create_spine(entries)
         opf.set_toc(toc)
         
-        opf.render(open(opf_path, 'wb'), open(ncx_path, 'wb'))
+        with open(opf_path, 'wb') as opf_file:
+            with open(ncx_path, 'wb') as ncx_file:
+                opf.render(opf_file, ncx_file)
         
     
     def article_downloaded(self, request, result):
@@ -800,12 +812,13 @@ class BasicNewsRecipe(object, LoggingInterface):
             else:
                 title, url = obj
             self.report_progress(0, _('Fetching feed')+' %s...'%(title if title else url))
-            parsed_feeds.append(feed_from_xml(self.browser.open(url).read(), 
+            f = self.browser.open(url)
+            parsed_feeds.append(feed_from_xml(f.read(), 
                                               title=title,
                                               oldest_article=self.oldest_article,
                                               max_articles_per_feed=self.max_articles_per_feed,
                                               get_article_url=self.get_article_url))
-            
+            f.close()
         return parsed_feeds
     
     @classmethod
@@ -891,7 +904,8 @@ class CustomIndexRecipe(BasicNewsRecipe):
         mi = OPFCreator(self.output_dir, mi)
         mi.create_manifest_from_files_in([self.output_dir])
         mi.create_spine([os.path.join(self.output_dir, 'index.html')])
-        mi.render(open(os.path.join(self.output_dir, 'index.opf'), 'wb'))
+        with open(os.path.join(self.output_dir, 'index.opf'), 'wb') as opf_file:
+            mi.render(opf_file)
     
     def download(self):
         index = os.path.abspath(self.custom_index())

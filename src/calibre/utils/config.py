@@ -13,12 +13,11 @@ from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from PyQt4.QtCore import QString
 from calibre.constants import terminal_controller, iswindows, isosx, \
-                              __appname__, __version__, __author__
+                              __appname__, __version__, __author__, plugins
 from calibre.utils.lock import LockError, ExclusiveFile 
 from collections import defaultdict
 
 if iswindows:
-    from calibre import plugins
     config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
     if not os.access(config_dir, os.W_OK|os.X_OK):
         config_dir = os.path.expanduser('~')

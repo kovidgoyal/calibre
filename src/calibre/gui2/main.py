@@ -786,6 +786,10 @@ in which you want to store your books files. Any existing books will be automati
         if to_device:
             self.status_bar.showMessage(_('News fetched. Uploading to device.'), 2000)
             self.persistent_files.append(pt)
+        try:
+            os.remove(pt.name)
+        except:
+            pass
 
     ############################################################################
 
@@ -846,6 +850,7 @@ in which you want to store your books files. Any existing books will be automati
             of = PersistentTemporaryFile('.lrf')
             of.close()
             cover = self.library_view.model().db.cover(row)
+            cf = None
             if cover:
                 cf = PersistentTemporaryFile('.jpeg')
                 cf.write(cover)
@@ -858,7 +863,7 @@ in which you want to store your books files. Any existing books will be automati
                                     description=_('Convert book %d of %d (%s)')%(i+1, len(rows), repr(mi.title)))
                     
                     
-            self.conversion_jobs[job] = (d.cover_file, pt, of, d.output_format, 
+            self.conversion_jobs[job] = (cf, pt, of, d.output_format, 
                                         self.library_view.model().db.id(row))
         res = []
         for row in bad_rows:
@@ -882,12 +887,13 @@ in which you want to store your books files. Any existing books will be automati
                     if mi.title:
                         options.title = mi.title
                     if mi.authors:
-                        opts.author =  ','.join(mi.authors)
+                        options.author =  ','.join(mi.authors)
                     data = None
                     for fmt in ['cbz', 'cbr']:
                         try:
                             data = self.library_view.model().db.format(row, fmt.upper())
-                            break                    
+                            if data:
+                                break                    
                         except:
                             continue
                     
@@ -932,7 +938,6 @@ in which you want to store your books files. Any existing books will be automati
                     job = self.job_manager.run_job(Dispatcher(self.book_converted),
                                     'any2lrf', args=[cmdline],
                                     description=_('Convert book: ')+d.title())
-                    
                     
                     self.conversion_jobs[job] = (d.cover_file, pt, of, d.output_format, d.id)
                     changed = True
@@ -984,14 +989,22 @@ in which you want to store your books files. Any existing books will be automati
             self.library_view.model().research()
                     
     def book_converted(self, job):
-        of, fmt, book_id = self.conversion_jobs.pop(job)[2:]
-        if job.exception is not None:
-            self.job_exception(job)
-            return
-        data = open(of.name, 'rb')
-        self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
-        data.close()
-        self.status_bar.showMessage(job.description + (' completed'), 2000)
+        cf, pt, of, fmt, book_id = self.conversion_jobs.pop(job)
+        try:
+            if job.exception is not None:
+                self.job_exception(job)
+                return
+            data = open(of.name, 'rb')
+            self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
+            data.close()
+            self.status_bar.showMessage(job.description + (' completed'), 2000)
+        finally:
+            for f in (cf, of, pt):
+                try:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
+                except:
+                    pass
     
     #############################View book######################################
 

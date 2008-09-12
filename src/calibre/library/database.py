@@ -976,9 +976,15 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return ans[0]
 
     def series_index(self, index, index_is_id=False):
+        ans = None
         if not index_is_id:
-            return self.data[index][10]
-        return self.conn.execute('SELECT series_index FROM books WHERE id=?', (index,)).fetchone()[0]
+            ans = self.data[index][10]
+        else:
+            ans = self.conn.execute('SELECT series_index FROM books WHERE id=?', (index,)).fetchone()[0]
+        try:
+            return int(ans)
+        except:
+            return 1
 
     def books_in_series(self, series_id):
         '''
@@ -1229,6 +1235,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def set_series_index(self, id, idx):
+        idx = int(idx)
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (int(idx), id))
         self.conn.commit()
         row = self.row(id)

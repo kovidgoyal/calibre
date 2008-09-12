@@ -44,11 +44,10 @@ def save_soup(soup, target):
             if path and os.path.isfile(path) and os.path.exists(path) and os.path.isabs(path):
                 tag[key] = relpath(path, selfdir).replace(os.sep, '/')
     
-    f = open(target, 'wb')
     html = unicode(soup)
-    f.write(html.encode('utf-8'))
-    f.close()
-
+    with open(target, 'wb') as f:
+        f.write(html.encode('utf-8'))
+    
 
 class RecursiveFetcher(object, LoggingInterface):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in 
@@ -59,6 +58,7 @@ class RecursiveFetcher(object, LoggingInterface):
     #                        )
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
+    default_timeout = socket.getdefaulttimeout() # Needed here as it is used in __del__
     
     def __init__(self, options, logger, image_map={}, css_map={}, job_info=None):
         LoggingInterface.__init__(self, logger)
@@ -99,7 +99,7 @@ class RecursiveFetcher(object, LoggingInterface):
     def get_soup(self, src):
         nmassage = copy.copy(BeautifulSoup.MARKUP_MASSAGE)
         nmassage.extend(self.preprocess_regexps)
-        soup = BeautifulSoup(xml_to_unicode(src, self.verbose)[0], markupMassage=nmassage)
+        soup = BeautifulSoup(xml_to_unicode(src, self.verbose, strip_encoding_pats=True)[0], markupMassage=nmassage)
          
         if self.keep_only_tags:
             body = Tag(soup, 'body')
@@ -145,6 +145,8 @@ class RecursiveFetcher(object, LoggingInterface):
             if getattr(err, 'reason', [0])[0] == 104: # Connection reset by peer
                 self.log_debug('Connection reset by peer retrying in 1 second.')
                 time.sleep(1)
+                if hasattr(f, 'close'):
+                    f.close()
                 f = self.browser.open(url)
             else: 
                 raise err
@@ -196,11 +198,14 @@ class RecursiveFetcher(object, LoggingInterface):
                 except Exception, err:
                     self.log_warning('Could not fetch stylesheet %s', iurl)
                     self.log_debug('Error: %s', str(err), exc_info=True)
+                    if hasattr(f, 'close'): f.close()
                     continue
                 stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                 with self.stylemap_lock:
                     self.stylemap[iurl] = stylepath
-                open(stylepath, 'wb').write(f.read())
+                with open(stylepath, 'wb') as x:
+                    x.write(f.read())
+                f.close()
                 tag['href'] = stylepath
             else:
                 for ns in tag.findAll(text=True):                    
@@ -219,12 +224,15 @@ class RecursiveFetcher(object, LoggingInterface):
                         except Exception, err:
                             self.log_warning('Could not fetch stylesheet %s', iurl)
                             self.log_debug('Error: %s', str(err), exc_info=True)
+                            if hasattr(f, 'close'): f.close()
                             continue
                         c += 1
                         stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                         with self.stylemap_lock:
                             self.stylemap[iurl] = stylepath
-                        open(stylepath, 'wb').write(f.read())
+                        with open(stylepath, 'wb') as x:
+                            x.write(f.read())
+                        f.close()
                         ns.replaceWith(src.replace(m.group(1), stylepath))
                         
                         
@@ -250,6 +258,7 @@ class RecursiveFetcher(object, LoggingInterface):
             except Exception, err:
                 self.log_warning('Could not fetch image %s', iurl)
                 self.log_debug('Error: %s', str(err), exc_info=True)
+                if hasattr(f, 'close'): f.close()
                 continue
             c += 1
             fname = sanitize_file_name('img'+str(c)+ext)
@@ -258,7 +267,9 @@ class RecursiveFetcher(object, LoggingInterface):
             imgpath = os.path.join(diskpath, fname)
             with self.imagemap_lock:
                 self.imagemap[iurl] = imgpath
-            open(imgpath, 'wb').write(f.read())
+            with open(imgpath, 'wb') as x:
+                x.write(f.read())
+            f.close()
             tag['src'] = imgpath
 
     def absurl(self, baseurl, tag, key, filter=True): 
@@ -327,6 +338,7 @@ class RecursiveFetcher(object, LoggingInterface):
                     self.current_dir = linkdiskpath
                     f = self.fetch_url(iurl)
                     dsrc = f.read()
+                    f.close()
                     if len(dsrc) == 0 or \
                        len(re.compile('<!--.*?-->', re.DOTALL).sub('', dsrc).strip()) == 0:
                         raise ValueError('No content at URL %s'%iurl)
@@ -378,7 +390,9 @@ class RecursiveFetcher(object, LoggingInterface):
         return res
     
     def __del__(self):
-        socket.setdefaulttimeout(self.default_timeout)
+        dt = getattr(self, 'default_timeout', None)
+        if dt is not None:
+            socket.setdefaulttimeout(dt)
         
 def option_parser(usage=_('%prog URL\n\nWhere URL is for example http://google.com')):
     parser = OptionParser(usage=usage)

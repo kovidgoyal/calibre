@@ -513,6 +513,21 @@ class LibraryDatabase2(LibraryDatabase):
             p.loadFromData(data)
             p.save(path)
             
+    def formats(self, index, index_is_id=False):
+        ''' Return available formats as a comma separated list '''
+        id = index if index_is_id else self.id(index)
+        path = os.path.join(self.library_path, self.path(id, index_is_id=True))
+        formats = self.conn.execute('SELECT format FROM data WHERE book=?', (id,)).fetchall()
+        name = self.conn.execute('SELECT name FROM data WHERE book=?', (id,)).fetchone()[0]
+        formats = map(lambda x:x[0], formats)
+        ans = []
+        for format in formats:
+            _format = ('.' + format.lower()) if format else ''
+            if os.access(os.path.join(path, name+_format), os.R_OK|os.W_OK):
+                ans.append(format)
+        return ','.join(ans)
+                
+    
     def format(self, index, format, index_is_id=False, as_file=False, mode='r+b'):
         '''
         Return the ebook format as a bytestring or `None` if the format doesn't exist,
@@ -529,7 +544,7 @@ class LibraryDatabase2(LibraryDatabase):
             if os.access(path, os.R_OK|os.W_OK):
                 f = open(path, mode)
                 return f if as_file else f.read()
-            self.remove_format(id, format, index_is_id=True)
+        self.remove_format(id, format, index_is_id=True)
         
     def add_format(self, index, format, stream, index_is_id=False, path=None):
         id = index if index_is_id else self.id(index)
@@ -571,8 +586,10 @@ class LibraryDatabase2(LibraryDatabase):
         if name:
             ext = ('.' + format.lower()) if format else ''
             path = os.path.join(path, name+ext)
-            if os.access(path, os.W_OK):
+            try:
                 os.remove(path)
+            except:
+                pass
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             self.conn.commit()
     
@@ -664,6 +681,9 @@ class LibraryDatabase2(LibraryDatabase):
             self.data.set(row, 9, series)
             
     def set_series_index(self, id, idx):
+        if idx is None:
+            idx = 1
+        idx = int(idx)
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (int(idx), id))
         self.conn.commit()
         row = self.row(id)

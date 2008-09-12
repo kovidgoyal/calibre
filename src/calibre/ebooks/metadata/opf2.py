@@ -15,15 +15,24 @@ from calibre.ebooks.chardet import xml_to_unicode
 
 class MetadataField(object):
     
-    def __init__(self, name, is_dc=True):
+    def __init__(self, name, is_dc=True, formatter=None):
         self.name = name
         self.is_dc = is_dc
+        self.formatter = formatter
         
     def __get__(self, obj, type=None):
         ans = obj.get_metadata_element(self.name)
         if ans is None:
-            return u''
-        return obj.get_text(ans)
+            return None
+        ans = obj.get_text(ans)
+        if ans is None:
+            return ans
+        if self.formatter is not None:
+            try:
+                ans = self.formatter(ans)
+            except:
+                return None
+        return ans
     
     def __set__(self, obj, val):
         elem = obj.get_metadata_element(self.name)
@@ -60,8 +69,8 @@ class OPF(object):
     comments          = MetadataField('description')
     category          = MetadataField('category')
     series            = MetadataField('series', is_dc=False)
-    series_index      = MetadataField('series_index', is_dc=False)
-    rating            = MetadataField('rating', is_dc=False)
+    series_index      = MetadataField('series_index', is_dc=False, formatter=int)
+    rating            = MetadataField('rating', is_dc=False, formatter=int)
     
     
     def __init__(self, stream, basedir):
@@ -194,12 +203,14 @@ class OPFTest(unittest.TestCase):
         self.assertEqual(opf.author_sort, 'Monkey')
         self.assertEqual(opf.tags, ['One', 'Two'])
         self.assertEqual(opf.isbn, '123456789')
+        self.assertEqual(opf.series, None)
+        self.assertEqual(opf.series_index, None)
         
         
     def testWriting(self):
         for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
                      ('author_sort', "Kitchen"), ('tags', ['Three']),
-                     ('isbn', 'a'), ('rating', '3')]:
+                     ('isbn', 'a'), ('rating', 3)]:
             setattr(self.opf, *test)
             self.assertEqual(getattr(self.opf, test[0]), test[1])
         
