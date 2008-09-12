@@ -540,7 +540,7 @@ class HTMLConverter(object, LoggingInterface):
                     return tb
                 for page in list(self.book.pages()[index+1:]):
                     for c in page.contents:
-                        if isinstance(c, (TextBlock, ImageBlock)):
+                        if isinstance(c, (TextBlock, ImageBlock, Canvas)):
                             return c
                 raise ConversionError(_('Could not parse file: %s')%self.file_name)        
                     

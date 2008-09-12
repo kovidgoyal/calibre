@@ -466,7 +466,9 @@ class Overseer(object):
                     self.job.update_status(percent, msg)
             elif word == 'ERROR':
                 self.write('OK')
-                self.job.excetion, self.job.traceback = cPickle.loads(msg)
+                exception, traceback = cPickle.loads(msg)
+                self.job.output(u'%s\n%s'%(exception, traceback))
+                self.job.exception, self.job.traceback = exception, traceback
                 return True
             else:
                 self.terminate()
@@ -914,10 +916,11 @@ def worker(host, port):
                 write(client_socket, 'RESULT:'+ cPickle.dumps(result))
             except BaseException, err:
                 exception = (err.__class__.__name__, unicode(str(err), 'utf-8', 'replace'))
-                tb = traceback.format_exc()
+                tb = unicode(traceback.format_exc(), 'utf-8', 'replace')
                 msg = 'ERROR:'+cPickle.dumps((exception, tb),-1)
                 write(client_socket, msg)
-            if read(client_socket, 10) != 'OK':
+                res = read(client_socket, 10)
+            if res != 'OK':
                 break
             gc.collect()
         elif msg == 'PING:':
