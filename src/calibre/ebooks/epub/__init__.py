@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Conversion to EPUB.
 '''
-import sys
+import sys, textwrap
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED
 from calibre.ebooks.html import config as common_config
@@ -53,9 +53,21 @@ The expression used must evaluate to a list of elements. To disable chapter dete
 use the expression "/". See the XPath Tutorial in the calibre User Manual for further
 help on using this feature.
 ''').replace('\n', ' '))
-    structure('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
-              help=_('Don\'t add detected chapters to the Table of Contents'))
-    structure('no_links_in_toc', ['--no-links-in-toc'], default=False,
-              help=_('Don\'t add links in the root HTML file to the Table of Contents'))
+    
+    toc = c.add_group('toc', 
+        _('''\
+Control the automatic generation of a Table of Contents. If an OPF file is detected
+and it specifies a Table of Contents, then that will be used rather than trying
+to auto-generate a Table of Contents.
+''').replace('\n', ' '))
+    toc('max_toc_recursion', ['--max-toc-recursion'], default=1, 
+        help=_('Number of levels of HTML files to try to autodetect TOC entries from. Set to 0 to disable all TOC autodetection. Default is %default.'))
+    toc('max_toc_links', ['--max-toc-links'], default=40, 
+        help=_('Maximum number of links from each HTML file to insert into the TOC. Set to 0 to disable. Default is: %default.'))
+    toc('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
+        help=_("Don't add auto-detected chapters to the Table of Contents."))
+    toc('add_files_to_toc', ['--add-files-to-toc'], default=False,
+        help=_('If more than one HTML file is found, create a TOC entry for each file.'))
+    
     
     return c

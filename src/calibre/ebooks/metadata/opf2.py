@@ -150,7 +150,7 @@ class OPF(object):
         def fset(self, val):
             matches = self.isbn_path(self.tree)
             if not matches:
-                matches = [self.create_metadata_element('dc:identifier', 
+                matches = [self.create_metadata_element('identifier', ns='dc',
                                                 attrib={'{%s}scheme'%self.NAMESPACES['opf']:'ISBN'})]
             matches[0].text = unicode(val)
         return property(fget=fget, fset=fset)

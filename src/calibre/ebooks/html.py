@@ -1,10 +1,14 @@
 from __future__ import with_statement
-import cStringIO
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-import sys, re, os, shutil, logging, tempfile
+'''
+Code to recursively parse HTML files and create an open ebook in a specified
+directory or zip file. All the action starts in :function:`create_dir`.
+'''
+
+import sys, re, os, shutil, logging, tempfile, cStringIO
 from urlparse import urlparse
 from urllib import unquote
 
@@ -445,10 +449,10 @@ class Parser(PreProcessor, LoggingInterface):
         self.raw_css = '\n\n'.join(css)
         # TODO: Figure out what to do about CSS imports from linked stylesheets    
 
-def config(defaults=None):
-    desc = _('Options to control the traversal of HTML')
+def config(defaults=None, config_name='html', 
+           desc=_('Options to control the traversal of HTML')):
     if defaults is None:
-        c = Config('html', desc)
+        c = Config(config_name, desc)
     else:
         c = StringConfig(defaults, desc)
         
@@ -482,10 +486,12 @@ def config(defaults=None):
 def option_parser():
     c = config()
     return c.option_parser(usage=_('''\
-%prog [options] file.html
+%prog [options] file.html|opf
 
 Follow all links in an HTML file and collect them into the specified directory.
 Also collects any references resources like images, stylesheets, scripts, etc. 
+If an OPF file is specified instead, the list of files in its <spine> element
+is used.
 '''))
 
 def search_for_opf(dir):
@@ -566,7 +572,8 @@ def create_metadata(basepath, mi, filelist, resources):
 
 def rebase_toc(toc, htmlfile_map, basepath, root=True):
     '''
-    Rebase a :class:`calibre.ebooks.metadata.toc.TOC` object.
+    Rebase a :class:`calibre.ebooks.metadata.toc.TOC` object. Maps all entries
+    in the TOC to point to their new locations relative to the new OPF file.
     '''
     def fix_entry(entry):
         if entry.abspath in htmlfile_map.keys():
@@ -582,15 +589,23 @@ def create_dir(htmlfile, opts):
     '''
     Create a directory that contains the open ebook
     '''
-    opf, filelist = get_filelist(htmlfile, opts)
-    mi = merge_metadata(htmlfile, opf, opts)
+    if htmlfile.lower().endswith('.opf'):
+        opf = OPFReader(open(htmlfile, 'rb'), os.path.dirname(os.path.abspath(htmlfile)))
+        filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
+        mi = MetaInformation(opf)
+    else:
+        opf, filelist = get_filelist(htmlfile, opts)
+        mi = merge_metadata(htmlfile, opf, opts)
+    
     resource_map, htmlfile_map = parse_content(filelist, opts)
     resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
+    
     if opf and opf.cover and os.access(opf.cover, os.R_OK):
         cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)[-1])
         shutil.copyfile(opf.cover, cpath)
         resources.append(cpath)
         mi.cover = cpath
+    
     spine = [htmlfile_map[f.path] for f in filelist]
     mi = create_metadata(opts.output, mi, spine, resources)
     buf = cStringIO.StringIO()

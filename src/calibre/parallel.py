@@ -920,8 +920,8 @@ def worker(host, port):
                 msg = 'ERROR:'+cPickle.dumps((exception, tb),-1)
                 write(client_socket, msg)
                 res = read(client_socket, 10)
-            if res != 'OK':
-                break
+                if res != 'OK':
+                    break
             gc.collect()
         elif msg == 'PING:':
             write(client_socket, 'OK')

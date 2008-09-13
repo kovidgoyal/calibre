@@ -1,13 +1,16 @@
 from __future__ import with_statement
+from calibre.ebooks.metadata.opf import OPFReader
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-import os, sys, re, shutil
+import os, sys, re, shutil, cStringIO
 from lxml.etree import XPath
 
-from calibre.ebooks.html import Parser, get_text, merge_metadata, get_filelist
+from calibre.ebooks.html import Parser, get_text, merge_metadata, get_filelist,\
+    opf_traverse, create_metadata, rebase_toc
 from calibre.ebooks.epub import config as common_config
-from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ptempfile import TemporaryDirectory
+from calibre.ebooks.metadata import MetaInformation
 
 
 class HTMLProcessor(Parser):
@@ -17,7 +20,7 @@ class HTMLProcessor(Parser):
                         name='html2epub')
         if opts.verbose > 2:
             self.debug_tree('parsed')
-        self.detected_chapters = self.opts.chapter(self.root)
+        self.detect_chapters()
         self.extract_css()
         
         if opts.verbose > 2:
@@ -26,6 +29,13 @@ class HTMLProcessor(Parser):
         self.collect_font_statistics()
         
         self.split()
+        
+    def detect_chapters(self):
+        self.detected_chapters = self.opts.chapter(self.root)
+        for elem in self.detected_chapters:
+            style = elem.get('style', '')
+            style += ';page-break-before: always'
+            elem.set(style, style)
         
     def collect_font_statistics(self):
         '''
@@ -46,45 +56,64 @@ class HTMLProcessor(Parser):
             
 
 def config(defaults=None):
-    c = common_config(defaults=defaults)
-    return c
+    return common_config(defaults=defaults)
 
 def option_parser():
     c = config()
     return c.option_parser(usage=_('''\
-%prog [options] file.html
+%prog [options] file.html|opf
 
-Convert a HTML file to an EPUB ebook. Follows links in the HTML file. 
+Convert a HTML file to an EPUB ebook. Recursively follows links in the HTML file.
+If you specify an OPF file instead of an HTML file, the list of links is takes from
+the <spine> element of the OPF file.  
 '''))
 
-def parse_content(filelist, opts):
-    tdir = PersistentTemporaryDirectory('_html2epub')
+def parse_content(filelist, opts, tdir):
     os.makedirs(os.path.join(tdir, 'content', 'resources'))
     resource_map = {}
     for htmlfile in filelist:
         hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), 
                            resource_map, filelist)
+        hp.save()
+    return resource_map, hp.htmlfile_map
 
 def convert(htmlfile, opts, notification=None):
     htmlfile = os.path.abspath(htmlfile)
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(htmlfile))[0] + '.epub'
     opts.output = os.path.abspath(opts.output)
-    opf, filelist = get_filelist(htmlfile, opts)
-    mi = merge_metadata(htmlfile, opf, opts)
+    if htmlfile.lower().endswith('.opf'):
+        opf = OPFReader(htmlfile, os.path.dirname(os.path.abspath(htmlfile)))
+        filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
+        mi = MetaInformation(opf)
+    else:
+        opf, filelist = get_filelist(htmlfile, opts)
+        mi = merge_metadata(htmlfile, opf, opts)
     opts.chapter = XPath(opts.chapter, 
                     namespaces={'re':'http://exslt.org/regular-expressions'})
     
-    resource_map = parse_content(filelist, opts)
-    
-    resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
-    
-    if opf.cover and os.access(opf.cover, os.R_OK):
-        shutil.copyfile(opf.cover, os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)))
-        cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover))
-        shutil.copyfile(opf.cover, cpath)
-        resources.append(cpath)
-        mi.cover = cpath
+    with TemporaryDirectory('_html2epub') as tdir:
+        resource_map, htmlfile_map = parse_content(filelist, opts, tdir)
+        resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
+        
+        if opf.cover and os.access(opf.cover, os.R_OK):
+            shutil.copyfile(opf.cover, os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)))
+            cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover))
+            shutil.copyfile(opf.cover, cpath)
+            resources.append(cpath)
+            mi.cover = cpath
+            
+        spine = [htmlfile_map[f.path] for f in filelist]
+        mi = create_metadata(tdir, mi, spine, resources)
+        buf = cStringIO.StringIO()
+        if mi.toc:
+            rebase_toc(mi.toc, htmlfile_map, opts.output)
+        with open(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
+            mi.render(f, buf)
+        toc = buf.getvalue()
+        if toc:
+            with open(os.path.join(tdir, 'toc.ncx'), 'wb') as f:
+                f.write(toc)
             
 def main(args=sys.argv):
     parser = option_parser()

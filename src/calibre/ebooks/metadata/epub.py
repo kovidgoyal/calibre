@@ -105,7 +105,6 @@ def set_metadata(stream, mi):
     reader.opf.smart_update(mi)
     newopf = StringIO(reader.opf.render())
     safe_replace(stream, reader.container[OPF.MIMETYPE], newopf)
-    print newopf.getvalue()
     
 def option_parser():
     parser = get_parser('epub')
