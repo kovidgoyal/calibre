@@ -447,6 +447,7 @@ class Parser(PreProcessor, LoggingInterface):
             css.append('#%s {%s}'%(id, 'page-break-before:always'))
                      
         self.raw_css = '\n\n'.join(css)
+        self.css = unicode(self.raw_css)
         # TODO: Figure out what to do about CSS imports from linked stylesheets    
 
 def config(defaults=None, config_name='html', 

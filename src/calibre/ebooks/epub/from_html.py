@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 import os, sys, re, shutil, cStringIO
 from lxml.etree import XPath
+from lxml import etree
 
 from calibre.ebooks.html import Parser, get_text, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc
@@ -15,7 +16,7 @@ from calibre.ebooks.metadata import MetaInformation
 
 class HTMLProcessor(Parser):
     
-    def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles):
+    def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, toc=None):
         Parser.__init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, 
                         name='html2epub')
         if opts.verbose > 2:
@@ -25,6 +26,9 @@ class HTMLProcessor(Parser):
         
         if opts.verbose > 2:
             self.debug_tree('nocss')
+        
+        if toc is not None:
+            self.populate_toc(toc)
         
         self.collect_font_statistics()
         
@@ -36,6 +40,23 @@ class HTMLProcessor(Parser):
             style = elem.get('style', '')
             style += ';page-break-before: always'
             elem.set(style, style)
+        
+    def save(self):
+        head = self.root.xpath('//head')
+        if head:
+            head = head[0]
+        else:
+            head = self.root.xpath('//body')
+            head = head[0] if head else self.root
+        style = etree.SubElement(head, 'style', attrib={'type':'text/css'})
+        style.text='\n'+self.css
+        style.tail = '\n\n'
+        Parser.save(self)
+    
+    def populate_toc(self, toc):
+        if self.level >= self.opts.max_toc_recursion:
+            return
+        
         
     def collect_font_statistics(self):
         '''
@@ -50,8 +71,9 @@ class HTMLProcessor(Parser):
     
     def split(self):
         ''' Split into individual flows to accommodate Adobe's incompetence '''
-        # TODO: Split on page breaks, keeping track of anchors (a.name and id)
-        # and preserving tree structure so that CSS continues to apply
+        # TODO: Only split file larger than 300K (as specified in profile)
+        # Split on page breaks first and then on <h1-6> tags and then on
+        # <div> and finally on <p>.  
         pass
             
 
