@@ -43,14 +43,17 @@ def metadata_from_formats(formats):
     for path in formats:
         ext = path_to_ext(path)
         stream = open(path, 'rb')
-        mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=True))
+        try:
+            mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=True))
+        except:
+            continue
         if getattr(mi, 'application_id', None) is not None:
             return mi
     
     if not mi.title:
-        mi.title = 'Unknown'
+        mi.title = _('Unknown')
     if not mi.authors:
-        mi.authors = ['Unknown']
+        mi.authors = [_('Unknown')]
 
     return mi
 

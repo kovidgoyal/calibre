@@ -422,8 +422,8 @@ in which you want to store your books files. Any existing books will be automati
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
             for mi, formats in duplicates:
                 files += '<li>'+mi.title+'</li>\n'
-            d = question_dialog(self, _('Duplicates found!'), files+'</ul></p>')
-            if d.exec_() == QMessageBox.Yes:
+            d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', self)
+            if d.exec_() == QDialog.Accepted:
                 for mi, formats in duplicates:
                     self.library_view.model().db.import_book(mi, formats )
 

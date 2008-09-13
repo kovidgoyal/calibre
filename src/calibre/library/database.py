@@ -1513,7 +1513,6 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def import_book_directory(self, dirpath):
         dirpath = os.path.abspath(dirpath)
         formats = []
-
         for path in os.listdir(dirpath):
             path = os.path.abspath(os.path.join(dirpath, path))
             if os.path.isdir(path) or not os.access(path, os.R_OK):
@@ -1528,6 +1527,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
         if not formats:
             return
+        
         mi = metadata_from_formats(formats)
         if mi.title is None:
             return

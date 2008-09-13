@@ -320,7 +320,10 @@ class OPF(MetaInformation):
     
     def get_application_id(self):
         for item in self.soup.package.metadata.findAll('dc:identifier'):
-            if item.has_key('scheme') and item['scheme'] == __appname__:
+            scheme = item.get('scheme', None)
+            if scheme is None:
+                scheme = item.get('opf:scheme', None)
+            if scheme in ['libprs500', 'calibre']:
                 return str(item.string).strip()
         return None
     
@@ -361,10 +364,7 @@ class OPF(MetaInformation):
         return None
     
     def get_rating(self):
-        xm = self.soup.package.metadata.find('x-metadata')
-        if not xm:
-            return None
-        s = xm.find('rating')
+        s = self.soup.package.metadata.find('rating')
         if s and s.string:
             try:
                 return int(str(s.string).strip())

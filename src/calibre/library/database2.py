@@ -206,7 +206,7 @@ class ResultCache(object):
     def index(self, id, cache=False):
         x = self._map if cache else self._map_filtered
         return x.index(id)
-    
+        
     def row(self, id):
         return self.index(id)
     
@@ -226,7 +226,7 @@ class ResultCache(object):
         temp = db.conn.execute('SELECT * FROM meta').fetchall()
         # Fast mapping from ids to data. 
         # Can be None for ids that dont exist (i.e. have been deleted)
-        self._data = list(itertools.repeat(None, temp[-1][0]+2))
+        self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
             self._data[r[0]] = r
     
@@ -639,6 +639,10 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_series(id, mi.series)
         if mi.cover_data[1] is not None:
             self.set_cover(id, mi.cover_data[1])
+        if mi.tags:
+            self.set_tags(id, mi.tags)
+        if mi.comments:
+            self.set_comment(id, mi.comments)
         self.set_path(id, True)
         
     def set_authors(self, id, authors):
@@ -679,9 +683,12 @@ class LibraryDatabase2(LibraryDatabase):
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
         self.conn.commit()
-        row = self.row(id)
-        if row is not None:
-            self.data.set(row, 9, series)
+        try:
+            row = self.row(id)
+            if row is not None:
+                self.data.set(row, 9, series)
+        except ValueError:
+            pass
             
     def set_series_index(self, id, idx):
         if idx is None:
@@ -689,9 +696,12 @@ class LibraryDatabase2(LibraryDatabase):
         idx = int(idx)
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (int(idx), id))
         self.conn.commit()
-        row = self.row(id)
-        if row is not None:
-            self.data.set(row, 10, idx)
+        try:
+            row = self.row(id)
+            if row is not None:
+                self.data.set(row, 10, idx)
+        except ValueError:
+            pass
         
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''

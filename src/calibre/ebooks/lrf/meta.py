@@ -676,7 +676,10 @@ def main(args=sys.argv):
     if options.get_thumbnail: 
         print "Thumbnail:", td
     if options.get_cover:
-        ext, data = lrf.get_cover()
+        try:
+            ext, data = lrf.get_cover()
+        except: # Fails on books created by LRFCreator 1.0
+            ext, data = None, None
         if data:
             cover = os.path.splitext(os.path.basename(args[1]))[0]+"_cover."+ext
             open(cover, 'wb').write(data)

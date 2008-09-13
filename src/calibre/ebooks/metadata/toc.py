@@ -86,10 +86,7 @@ class TOC(list):
                     
                     self.read_html_toc(toc)
                 except:
-                    print 'WARNING: Could not read Table of Contents:'
-                    import traceback
-                    traceback.print_exc(file=sys.stdout)
-                    print 'Continuing anyway'
+                    print 'WARNING: Could not read Table of Contents. Continuing anyway.'
             else:
                 path = opfreader.manifest.item(toc.lower())
                 path = getattr(path, 'path', path)
