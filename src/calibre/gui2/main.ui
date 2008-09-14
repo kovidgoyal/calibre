@@ -24,14 +24,6 @@
     <normaloff>:/library</normaloff>:/library</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>79</y>
-     <width>865</width>
-     <height>716</height>
-    </rect>
-   </property>
    <layout class="QGridLayout" >
     <item row="0" column="0" >
      <layout class="QHBoxLayout" >
@@ -242,60 +234,88 @@
        </sizepolicy>
       </property>
       <property name="currentIndex" >
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="library" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>100</width>
-         <height>30</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" >
+       <layout class="QVBoxLayout" name="verticalLayout_2" >
         <item>
-         <widget class="BooksView" name="library_view" >
-          <property name="sizePolicy" >
-           <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
-            <horstretch>100</horstretch>
-            <verstretch>10</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="acceptDrops" >
-           <bool>true</bool>
-          </property>
-          <property name="dragEnabled" >
-           <bool>true</bool>
-          </property>
-          <property name="dragDropOverwriteMode" >
-           <bool>false</bool>
-          </property>
-          <property name="dragDropMode" >
-           <enum>QAbstractItemView::DragDrop</enum>
-          </property>
-          <property name="alternatingRowColors" >
-           <bool>true</bool>
-          </property>
-          <property name="selectionBehavior" >
-           <enum>QAbstractItemView::SelectRows</enum>
-          </property>
-          <property name="showGrid" >
-           <bool>false</bool>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout" >
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout" >
+            <item>
+             <widget class="QRadioButton" name="match_any" >
+              <property name="text" >
+               <string>Match any</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="match_all" >
+              <property name="text" >
+               <string>Match all</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="TagsView" name="tags_view" >
+              <property name="tabKeyNavigation" >
+               <bool>true</bool>
+              </property>
+              <property name="alternatingRowColors" >
+               <bool>true</bool>
+              </property>
+              <property name="animated" >
+               <bool>true</bool>
+              </property>
+              <property name="headerHidden" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="BooksView" name="library_view" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+              <horstretch>100</horstretch>
+              <verstretch>10</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="acceptDrops" >
+             <bool>true</bool>
+            </property>
+            <property name="dragEnabled" >
+             <bool>true</bool>
+            </property>
+            <property name="dragDropOverwriteMode" >
+             <bool>false</bool>
+            </property>
+            <property name="dragDropMode" >
+             <enum>QAbstractItemView::DragDrop</enum>
+            </property>
+            <property name="alternatingRowColors" >
+             <bool>true</bool>
+            </property>
+            <property name="selectionBehavior" >
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+            <property name="showGrid" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="main_memory" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>100</width>
-         <height>30</height>
-        </rect>
-       </property>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="DeviceBooksView" name="memory_view" >
@@ -331,14 +351,6 @@
        </layout>
       </widget>
       <widget class="QWidget" name="page" >
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>857</width>
-         <height>552</height>
-        </rect>
-       </property>
        <layout class="QGridLayout" >
         <item row="0" column="0" >
          <widget class="DeviceBooksView" name="card_view" >
@@ -378,14 +390,6 @@
    </layout>
   </widget>
   <widget class="QToolBar" name="tool_bar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>865</width>
-     <height>79</height>
-    </rect>
-   </property>
    <property name="minimumSize" >
     <size>
      <width>0</width>
@@ -425,14 +429,6 @@
    <addaction name="action_view" />
   </widget>
   <widget class="QStatusBar" name="statusBar" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>795</y>
-     <width>865</width>
-     <height>27</height>
-    </rect>
-   </property>
    <property name="mouseTracking" >
     <bool>true</bool>
    </property>
@@ -563,6 +559,11 @@
    <class>DeviceBooksView</class>
    <extends>QTableView</extends>
    <header>library.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TagsView</class>
+   <extends>QTreeView</extends>
+   <header>tags.h</header>
   </customwidget>
  </customwidgets>
  <resources>

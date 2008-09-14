@@ -5,19 +5,19 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 import os, sys, re, shutil, cStringIO
 from lxml.etree import XPath
-from lxml import etree
 
-from calibre.ebooks.html import Parser, get_text, merge_metadata, get_filelist,\
+from calibre.ebooks.html import Processor, get_text, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc
 from calibre.ebooks.epub import config as common_config
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.toc import TOC
 
 
-class HTMLProcessor(Parser):
+class HTMLProcessor(Processor):
     
-    def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, toc=None):
-        Parser.__init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, 
+    def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles):
+        Processor.__init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, 
                         name='html2epub')
         if opts.verbose > 2:
             self.debug_tree('parsed')
@@ -27,36 +27,11 @@ class HTMLProcessor(Parser):
         if opts.verbose > 2:
             self.debug_tree('nocss')
         
-        if toc is not None:
-            self.populate_toc(toc)
-        
         self.collect_font_statistics()
         
         self.split()
         
-    def detect_chapters(self):
-        self.detected_chapters = self.opts.chapter(self.root)
-        for elem in self.detected_chapters:
-            style = elem.get('style', '')
-            style += ';page-break-before: always'
-            elem.set(style, style)
-        
-    def save(self):
-        head = self.root.xpath('//head')
-        if head:
-            head = head[0]
-        else:
-            head = self.root.xpath('//body')
-            head = head[0] if head else self.root
-        style = etree.SubElement(head, 'style', attrib={'type':'text/css'})
-        style.text='\n'+self.css
-        style.tail = '\n\n'
-        Parser.save(self)
-    
-    def populate_toc(self, toc):
-        if self.level >= self.opts.max_toc_recursion:
-            return
-        
+            
         
     def collect_font_statistics(self):
         '''
@@ -93,11 +68,13 @@ the <spine> element of the OPF file.
 def parse_content(filelist, opts, tdir):
     os.makedirs(os.path.join(tdir, 'content', 'resources'))
     resource_map = {}
+    toc = TOC(base_path=tdir)
     for htmlfile in filelist:
         hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), 
                            resource_map, filelist)
+        hp.populate_toc(toc)
         hp.save()
-    return resource_map, hp.htmlfile_map
+    return resource_map, hp.htmlfile_map, toc
 
 def convert(htmlfile, opts, notification=None):
     htmlfile = os.path.abspath(htmlfile)
@@ -115,7 +92,7 @@ def convert(htmlfile, opts, notification=None):
                     namespaces={'re':'http://exslt.org/regular-expressions'})
     
     with TemporaryDirectory('_html2epub') as tdir:
-        resource_map, htmlfile_map = parse_content(filelist, opts, tdir)
+        resource_map, htmlfile_map, generated_toc = parse_content(filelist, opts, tdir)
         resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
         
         if opf.cover and os.access(opf.cover, os.R_OK):
@@ -130,6 +107,8 @@ def convert(htmlfile, opts, notification=None):
         buf = cStringIO.StringIO()
         if mi.toc:
             rebase_toc(mi.toc, htmlfile_map, opts.output)
+        if mi.toc is None or len(mi.toc) < 2:
+            mi.toc = generated_toc
         with open(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
             mi.render(f, buf)
         toc = buf.getvalue()

@@ -245,6 +245,13 @@ in which you want to store your books files. Any existing books will be automati
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
+        self.tags_view.setVisible(False)
+        self.match_all.setVisible(False)
+        self.match_any.setVisible(False)
+        self.tags_view.set_database(db, self.match_all)
+        self.connect(self.tags_view, SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
+                     self.search.search_from_tokens)
+        self.connect(self.status_bar.tag_view_button, SIGNAL('toggled(bool)'), self.toggle_tags_view)
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -284,6 +291,16 @@ in which you want to store your books files. Any existing books will be automati
             self.status_bar.book_info.book_data.setMaximumHeight(1000)
         self.setMaximumHeight(available_height())
 
+    def toggle_tags_view(self, show):
+        if show:
+            self.tags_view.setVisible(True)
+            self.match_all.setVisible(True)
+            self.match_any.setVisible(True)
+            self.tags_view.setFocus(Qt.OtherFocusReason)
+        else:
+            self.tags_view.setVisible(False)
+            self.match_all.setVisible(False)
+            self.match_any.setVisible(False)
 
     def sync_cf_to_listview(self, index, *args):
         if not hasattr(index, 'row') and self.library_view.currentIndex().row() != index:
@@ -787,7 +804,8 @@ in which you want to store your books files. Any existing books will be automati
             self.status_bar.showMessage(_('News fetched. Uploading to device.'), 2000)
             self.persistent_files.append(pt)
         try:
-            os.remove(pt.name)
+            if not to_device:
+                os.remove(pt.name)
         except:
             pass
 

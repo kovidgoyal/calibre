@@ -14,7 +14,7 @@ from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               terminal_controller, preferred_encoding, \
                               __appname__, __version__, __author__, \
                               win32event, win32api, winerror, fcntl
-from calibre.utils import mechanize
+import mechanize
 
 def unicode_path(path, abs=False):
     if not isinstance(path, unicode):

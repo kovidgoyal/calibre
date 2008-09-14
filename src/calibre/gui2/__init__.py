@@ -3,7 +3,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
-                         QByteArray, QLocale, QUrl, QTranslator, QCoreApplication
+                         QByteArray, QLocale, QUrl, QTranslator, QCoreApplication, \
+                         QModelIndex
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QDialogButtonBox, QApplication
 
@@ -159,7 +160,7 @@ class TableView(QTableView):
         else:
             cols = dynamic[key]
             if not cols:
-                cols = [True for i in range(self.model().columnCount(self))]
+                cols = [True for i in range(self.model().columnCount(QModelIndex()))]
         
         for i in range(len(cols)):
             hidden = self.isColumnHidden(i)

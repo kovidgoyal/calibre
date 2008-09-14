@@ -214,7 +214,7 @@ class ResultCache(object):
         for id in ids:
             self._data[id] = conn.execute('SELECT * from meta WHERE id=?', (id,)).fetchone()
         return map(self.row, ids)
-        
+    
     def refresh(self, db, field, ascending):
         field = field.lower()
         method = getattr(self, 'sort_on_' + self.METHOD_MAP[field])
@@ -396,6 +396,25 @@ class LibraryDatabase2(LibraryDatabase):
         CREATE INDEX series_idx ON series (name COLLATE NOCASE);
         CREATE INDEX series_sort_idx ON books (series_index, id);
         '''))
+        
+    def upgrade_version_2(self):
+        ''' Fix Foreign key constraints for deleting from link tables. '''
+        script = textwrap.dedent('''\
+        DROP TRIGGER fkc_delete_books_%(ltable)s_link;
+        CREATE TRIGGER fkc_delete_on_%(table)s
+        BEFORE DELETE ON %(table)s
+        BEGIN
+            SELECT CASE
+                WHEN (SELECT COUNT(id) FROM books_%(ltable)s_link WHERE %(ltable_col)s=OLD.id) > 0
+                THEN RAISE(ABORT, 'Foreign key violation: %(table)s is still referenced')
+            END;
+        END;
+        DELETE FROM %(table)s WHERE (SELECT COUNT(id) FROM books_%(ltable)s_link WHERE %(ltable_col)s=%(table)s.id) < 1;
+        ''')
+        self.conn.executescript(script%dict(ltable='authors', table='authors', ltable_col='author'))
+        self.conn.executescript(script%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
+        self.conn.executescript(script%dict(ltable='tags', table='tags', ltable_col='tag'))
+        self.conn.executescript(script%dict(ltable='series', table='series', ltable_col='series'))
     
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
@@ -596,6 +615,33 @@ class LibraryDatabase2(LibraryDatabase):
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             self.conn.commit()
     
+    def clean(self):
+        '''
+        Remove orphaned entries.
+        '''
+        st = 'DELETE FROM %(table)s WHERE (SELECT COUNT(id) FROM books_%(ltable)s_link WHERE %(ltable_col)s=%(table)s.id) < 1;'
+        self.conn.execute(st%dict(ltable='authors', table='authors', ltable_col='author'))
+        self.conn.execute(st%dict(ltable='publishers', table='publishers', ltable_col='publisher'))
+        self.conn.execute(st%dict(ltable='tags', table='tags', ltable_col='tag'))
+        self.conn.execute(st%dict(ltable='series', table='series', ltable_col='series'))
+        self.conn.commit()
+    
+    def get_categories(self):
+        categories = {}
+        def get(name, category, field='name'):
+            ans = self.conn.execute('SELECT DISTINCT %s FROM %s'%(field, name)).fetchall()
+            ans = [x[0].strip() for x in ans]
+            try:
+                ans.remove('')
+            except ValueError: pass
+            ans.sort()
+            categories[category] = ans
+        for x in (('authors', 'author'), ('tags', 'tag'), ('publishers', 'publisher'), ('series', 'series')):
+            get(*x)
+        get('data', 'format', 'format')
+        return categories
+        
+    
     def set(self, row, column, val):
         '''
         Convenience method for setting the title, authors, publisher or rating
@@ -650,6 +696,7 @@ class LibraryDatabase2(LibraryDatabase):
         `authors`: A list of authors.
         '''
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
+        self.conn.execute('DELETE FROM authors WHERE (SELECT COUNT(id) FROM books_authors_link WHERE author=authors.id) < 1')
         for a in authors:
             if not a:
                 continue
@@ -672,9 +719,47 @@ class LibraryDatabase2(LibraryDatabase):
             return
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.set_path(id, True)
-        
+    
+    def set_publisher(self, id, publisher):
+        self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
+        self.conn.execute('DELETE FROM publishers WHERE (SELECT COUNT(id) FROM books_publishers_link WHERE publisher=publishers.id) < 1')
+        if publisher:
+            pub = self.conn.execute('SELECT id from publishers WHERE name=?', (publisher,)).fetchone()
+            if pub:
+                aid = pub[0]
+            else:
+                aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
+            self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
+        self.conn.commit()
+    
+    def set_tags(self, id, tags, append=False):
+        '''
+        @param tags: list of strings
+        @param append: If True existing tags are not removed
+        '''
+        if not append:
+            self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
+            self.conn.execute('DELETE FROM tags WHERE (SELECT COUNT(id) FROM books_tags_link WHERE tag=tags.id) < 1')
+        for tag in set(tags):
+            tag = tag.lower().strip()
+            if not tag:
+                continue
+            t = self.conn.execute('SELECT id FROM tags WHERE name=?', (tag,)).fetchone()
+            if t:
+                tid = t[0]
+            else:
+                tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
+
+            if not self.conn.execute('SELECT book FROM books_tags_link WHERE book=? AND tag=?',
+                                        (id, tid)).fetchone():
+                self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
+                              (id, tid))
+        self.conn.commit()
+
+    
     def set_series(self, id, series):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
+        self.conn.execute('DELETE FROM series WHERE (SELECT COUNT(id) FROM books_series_link WHERE series=series.id) < 1')
         if series:
             s = self.conn.execute('SELECT id from series WHERE name=?', (series,)).fetchone()
             if s:

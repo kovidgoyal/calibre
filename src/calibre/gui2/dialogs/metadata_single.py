@@ -304,8 +304,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     self.title.setText(book.title)
                     self.authors.setText(', '.join(book.authors))
                     if book.author_sort: self.author_sort.setText(book.author_sort)
-                    self.publisher.setText(book.publisher)
-                    self.isbn.setText(book.isbn)
+                    if book.publisher: self.publisher.setText(book.publisher)
+                    if book.isbn: self.isbn.setText(book.isbn)
                     summ = book.comments
                     if summ:
                         prefix = qstring_to_unicode(self.comments.toPlainText())

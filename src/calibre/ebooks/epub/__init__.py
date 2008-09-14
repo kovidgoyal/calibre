@@ -66,8 +66,6 @@ to auto-generate a Table of Contents.
         help=_('Maximum number of links from each HTML file to insert into the TOC. Set to 0 to disable. Default is: %default.'))
     toc('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
         help=_("Don't add auto-detected chapters to the Table of Contents."))
-    toc('add_files_to_toc', ['--add-files-to-toc'], default=False,
-        help=_('If more than one HTML file is found, create a TOC entry for each file.'))
     
     
     return c

@@ -201,9 +201,13 @@ class BooksModel(QAbstractTableModel):
                LibraryDatabase.sizeof_old_database(path) > 0
 
     def columnCount(self, parent):
+        if parent and parent.isValid():
+            return 0
         return len(self.cols)
 
     def rowCount(self, parent):
+        if parent and parent.isValid():
+            return 0
         return self.db.rows() if self.db else 0
 
     def count(self):
@@ -676,9 +680,13 @@ class DeviceBooksModel(BooksModel):
             self.reset()
 
     def columnCount(self, parent):
+        if parent and parent.isValid():
+            return 0
         return 5
 
     def rowCount(self, parent):
+        if parent and parent.isValid():
+            return 0
         return len(self.map)
 
     def set_database(self, db):
@@ -855,6 +863,13 @@ class SearchBox(QLineEdit):
             self.prev_search = text
             self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
 
+    def search_from_tokens(self, tokens, all):
+        ans = u' '.join([u'%s:%s'%x for x in tokens])
+        if not all:
+            ans = '[' + ans + ']'
+        self.set_search_string(ans)
+        
+    
     def set_search_string(self, txt):
         self.normalize_state()
         self.setText(txt)

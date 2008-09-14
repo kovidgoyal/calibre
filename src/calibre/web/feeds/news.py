@@ -10,6 +10,7 @@ __docformat__ = "restructuredtext en"
 import logging, os, cStringIO, time, traceback, re, urlparse, sys
 from collections import defaultdict
 from functools import partial
+from contextlib import nested, closing
 
 from calibre import browser, __appname__, iswindows, LoggingInterface, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
@@ -546,10 +547,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                     if bn:
                         img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
                         try:
-                            with open(img, 'wb') as fi:
-                                r = self.browser.open(feed.image_url)
+                            with nested(open(img, 'wb'), closing(self.browser.open(feed.image_url))) as (fi, r):
                                 fi.write(r.read())
-                                r.close()
                             self.image_counter += 1
                             feed.image_url = img
                             self.image_map[feed.image_url] = img
@@ -695,10 +694,8 @@ class BasicNewsRecipe(object, LoggingInterface):
             ext = ext.lower() if ext else 'jpg'
             self.report_progress(1, _('Downloading cover from %s')%cu)
             cpath = os.path.join(self.output_dir, 'cover.'+ext)
-            with open(cpath, 'wb') as cfile:
-                r = self.browser.open(cu)
+            with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
                 cfile.write(r.read())
-                r.close()
             self.cover_path = cpath
             
     
@@ -765,9 +762,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         opf.create_spine(entries)
         opf.set_toc(toc)
         
-        with open(opf_path, 'wb') as opf_file:
-            with open(ncx_path, 'wb') as ncx_file:
-                opf.render(opf_file, ncx_file)
+        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+            opf.render(opf_file, ncx_file)
         
     
     def article_downloaded(self, request, result):

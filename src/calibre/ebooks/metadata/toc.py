@@ -48,10 +48,19 @@ class TOC(list):
                 depth = c + 1
         return depth
     
+    def flat(self):
+        'Depth first iteration over the tree rooted at self'
+        yield self
+        for obj in self:
+            for i in obj.flat():
+                yield i
+    
     @apply
     def abspath():
         doc='Return the file this toc entry points to as a absolute path to a file on the system.'
         def fget(self):
+            if self.href is None:
+                return None
             path = self.href.replace('/', os.sep)
             if not os.path.isabs(path):
                 path = os.path.join(self.base_path, path)

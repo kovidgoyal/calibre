@@ -12,7 +12,7 @@ import sys, re, os, shutil, logging, tempfile, cStringIO
 from urlparse import urlparse
 from urllib import unquote
 
-from lxml import html
+from lxml import html, etree
 from lxml.etree import XPath
 get_text = XPath("//text()")
 
@@ -83,20 +83,24 @@ class HTMLFile(object):
     The encoding of the file is available as :member:`encoding`.
     '''
     
-    HTML_PAT = re.compile(r'<\s*html', re.IGNORECASE)
-    LINK_PAT = re.compile(
+    HTML_PAT  = re.compile(r'<\s*html', re.IGNORECASE)
+    TITLE_PAT = re.compile('<title>([^<>]+)</title>', re.IGNORECASE)
+    LINK_PAT  = re.compile(
     r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s]+))',
     re.DOTALL|re.IGNORECASE)
     
-    def __init__(self, path_to_html_file, level, encoding, verbose):
+    def __init__(self, path_to_html_file, level, encoding, verbose, referrer=None):
         '''
         :param level: The level of this file. Should be 0 for the root file.
         :param encoding: Use `encoding` to decode HTML.
+        :param referrer: The :class:`HTMLFile` that first refers to this file.
         '''
-        self.path  = unicode_path(path_to_html_file, abs=True)
-        self.base  = os.path.dirname(self.path)
-        self.level = level
-        self.links = []
+        self.path     = unicode_path(path_to_html_file, abs=True)
+        self.title    = os.path.splitext(os.path.basename(self.path))[0]
+        self.base     = os.path.dirname(self.path)
+        self.level    = level
+        self.referrer = referrer
+        self.links    = []
         
         try:
             with open(self.path, 'rb') as f:
@@ -115,6 +119,9 @@ class HTMLFile(object):
                 self.encoding = encoding
 
             src = src.decode(encoding, 'replace')
+            match = self.TITLE_PAT.search(src)
+            if match is not None:
+                self.title = match.group(1)
             self.find_links(src)
                 
         
@@ -187,7 +194,7 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
                 if link.path is None or link.path in flat:
                     continue
                 try:
-                    nf = HTMLFile(link.path, level, encoding, verbose)
+                    nf = HTMLFile(link.path, level, encoding, verbose, referrer=hf)
                     nl.append(nf)
                     flat.append(nf)
                 except IgnoreFile, err:
@@ -383,12 +390,110 @@ class Parser(PreProcessor, LoggingInterface):
         name = 'resources/' + name
         self.resource_map[link.path] = name
         return name
+
+class Processor(Parser):
+    '''
+    This class builds on :class:`Parser` to provide additional methods
+    to perform various processing/modification tasks on HTML files.
+    '''
     
+    LINKS_PATH = XPath('//a[@href]')
+    
+    def detect_chapters(self):
+        self.detected_chapters = self.opts.chapter(self.root)
+        for elem in self.detected_chapters:
+            style = elem.get('style', '').strip()
+            if style and not style.endswith(';'):
+                style += '; '
+            style += 'page-break-before: always'
+            elem.set(style, style)
+        
+    def save(self):
+        head = self.root.xpath('//head')
+        if head:
+            head = head[0]
+        else:
+            head = self.root.xpath('//body')
+            head = head[0] if head else self.root
+        style = etree.SubElement(head, 'style', attrib={'type':'text/css'})
+        style.text='\n'+self.css
+        style.tail = '\n\n'
+        Parser.save(self)
+    
+    def populate_toc(self, toc):
+        if self.level >= self.opts.max_toc_recursion:
+            return
+        
+        referrer = toc
+        if self.htmlfile.referrer is not None:
+            name = self.htmlfile_map[self.htmlfile.referrer]
+            href = 'content/'+name
+            for i in toc.flat():
+                if href == i.href and i.fragment is None:
+                    referrer = i
+                    break
+        
+        def add_item(href, fragment, text, target):
+            for entry in toc.flat():
+                if entry.href == href and entry.fragment ==fragment:
+                    return entry
+            if len(text) > 50:
+                text = text[:50] + u'\u2026'
+            return target.add_item(href, fragment, text)
+            
+        name = self.htmlfile_map[self.htmlfile]
+        href = 'content/'+name
+        
+        if referrer.href != href: # Happens for root file
+            target = add_item(href, None, self.htmlfile.title, referrer)
+            
+        # Add links to TOC
+        if self.opts.max_toc_links > 0:
+            for link in list(self.LINKS_PATH(self.root))[:self.opts.max_toc_links]:
+                text = (u''.join(link.xpath('string()'))).strip()
+                if text:
+                    href = link.get('href', '')
+                    if href:
+                        href = 'content/'+href
+                        parts = href.split('#')
+                        href, fragment = parts[0], None
+                        if len(parts) > 1:
+                            fragment = parts[1]
+                        if self.htmlfile.referrer is not None:
+                            name = self.htmlfile_map[self.htmlfile.referrer.path]
+                        add_item(href, fragment, text, target)
+                        
+        # Add chapters to TOC
+        if not self.opts.no_chapters_in_toc:
+            for elem in getattr(self, 'detected_chapters', []):
+                text = (u''.join(elem.xpath('string()'))).strip()
+                if text:
+                    name = self.htmlfile_map[self.path]
+                    href = 'content/'+name
+                    add_item(href, None, text, target)
+                    
+        
     def extract_css(self):
         '''
         Remove all CSS information from the document and store in self.raw_css. 
         This includes <font> tags.
         '''
+        counter = 0
+        def get_id(chapter, prefix='calibre_css_'):
+            new_id = '%s_%d'%(prefix, counter)
+            counter  += 1 
+            if chapter.tag.lower() == 'a' and  'name' in chapter.keys():
+                chapter.attrib['id'] = id = chapter.get('name')
+                if not id:
+                    chapter.attrib['id'] = chapter.attrib['name'] = new_id
+                return new_id
+            if 'id' in chapter.keys():
+                id = chapter.get('id')
+            else:
+                id = new_id
+                chapter.set('id', id)
+            return id
+    
         css = []
         for link in self.root.xpath('//link'):
             if 'css' in link.get('type', 'text/css').lower():
@@ -402,7 +507,6 @@ class Parser(PreProcessor, LoggingInterface):
                 css.append('\n'.join(get_text(style)))
                 style.getparent().remove(style)
         
-        font_id = 1
         for font in self.root.xpath('//font'):
             try:
                 size = int(font.attrib.pop('size', '3'))
@@ -415,37 +519,15 @@ class Parser(PreProcessor, LoggingInterface):
             color = font.attrib.pop('color', None)
             if color is not None:
                 setting += 'color:%s'%color
-            id = 'calibre_font_id_%d'%font_id
-            font.set('id', 'calibre_font_id_%d'%font_id)
-            font_id += 1
+            id = get_id(font)
             css.append('#%s { %s }'%(id, setting))
             
-        
-        css_counter = 1
         for elem in self.root.xpath('//*[@style]'):
             if 'id' not in elem.keys():
-                elem.set('id', 'calibre_css_id_%d'%css_counter)
-                css_counter += 1
-            css.append('#%s {%s}'%(elem.get('id'), elem.get('style')))
+                id = get_id(elem)
+            css.append('#%s {%s}'%(id, elem.get('style')))
             elem.attrib.pop('style')
-        chapter_counter = 1
-        for chapter in self.detected_chapters:
-            if chapter.tag.lower() == 'a':
-                if 'name' in chapter.keys():
-                    chapter.attrib['id'] = id = chapter.get('name')
-                elif 'id' in chapter.keys():
-                    id = chapter.get('id')
-                else:
-                    id = 'calibre_detected_chapter_%d'%chapter_counter
-                    chapter_counter += 1
-                    chapter.set('id', id)
-            else:
-                if 'id' not in chapter.keys():
-                    id = 'calibre_detected_chapter_%d'%chapter_counter
-                    chapter_counter += 1
-                    chapter.set('id', id)
-            css.append('#%s {%s}'%(id, 'page-break-before:always'))
-                     
+            
         self.raw_css = '\n\n'.join(css)
         self.css = unicode(self.raw_css)
         # TODO: Figure out what to do about CSS imports from linked stylesheets    
