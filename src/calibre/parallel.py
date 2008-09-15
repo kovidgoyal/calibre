@@ -24,7 +24,7 @@ In the second mode, the controller can also send the worker STOP messages, in wh
 the worker interrupts the job and dies. The sending of progress and console output messages
 is buffered and asynchronous to prevent the job from being IO bound.
 '''
-import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, signal, \
+import sys, os, gc, cPickle, traceback, cStringIO, time, signal, \
        subprocess, socket, collections, binascii, re, thread, tempfile, atexit
 from select import select
 from threading import RLock, Thread, Event
@@ -919,9 +919,9 @@ def worker(host, port):
                 tb = unicode(traceback.format_exc(), 'utf-8', 'replace')
                 msg = 'ERROR:'+cPickle.dumps((exception, tb),-1)
                 write(client_socket, msg)
-                res = read(client_socket, 10)
-                if res != 'OK':
-                    break
+            res = read(client_socket, 10)
+            if res != 'OK':
+                break
             gc.collect()
         elif msg == 'PING:':
             write(client_socket, 'OK')

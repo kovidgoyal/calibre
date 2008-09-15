@@ -8,10 +8,196 @@ lxml based OPF parser.
 '''
 
 import sys, unittest, functools, os
+from urllib import unquote, quote
 
 from lxml import etree
 
 from calibre.ebooks.chardet import xml_to_unicode
+from calibre.ebooks.metadata import Resource, ResourceCollection
+
+class ManifestItem(Resource):
+    
+    @staticmethod
+    def from_opf_manifest_item(item, basedir):
+        href = item.get('href', None)
+        if href:
+            if unquote(href) == href:
+                href = quote(href)
+            res = ManifestItem(href, basedir=basedir, is_path=False)
+            mt = item.get('media-type', '').strip()
+            if mt:
+                res.mime_type = mt
+            return res
+    
+    @apply
+    def media_type():
+        def fget(self):
+            return self.mime_type
+        def fset(self, val):
+            self.mime_type = val
+        return property(fget=fget, fset=fset)
+    
+        
+    def __unicode__(self):
+        return u'<item id="%s" href="%s" media-type="%s" />'%(self.id, self.href(), self.media_type)
+    
+    def __str__(self):
+        return unicode(self).encode('utf-8')
+    
+    def __repr__(self):
+        return unicode(self)
+        
+    
+    def __getitem__(self, index):
+        if index == 0:
+            return self.href()
+        if index == 1:
+            return self.media_type
+        raise IndexError('%d out of bounds.'%index)
+
+
+class Manifest(ResourceCollection):
+    
+    @staticmethod
+    def from_opf_manifest_element(items, dir):
+        m = Manifest()
+        for item in items:
+            try:
+                m.append(ManifestItem.from_opf_manifest_item(item, dir))
+                id = item.get('id', '')
+                if not id:
+                    id = 'id%d'%m.next_id
+                m[-1].id = id
+                m.next_id += 1
+            except ValueError:
+                continue
+        return m
+    
+    @staticmethod
+    def from_paths(entries):
+        '''
+        `entries`: List of (path, mime-type) If mime-type is None it is autodetected
+        '''
+        m = Manifest()
+        for path, mt in entries:
+            mi = ManifestItem(path, is_path=True)
+            if mt:
+                mi.mime_type = mt
+            mi.id = 'id%d'%m.next_id
+            m.next_id += 1
+            m.append(mi)
+        return m
+    
+    def __init__(self):
+        ResourceCollection.__init__(self)
+        self.next_id = 1
+            
+                
+    def item(self, id):
+        for i in self:
+            if i.id == id:
+                return i
+            
+    def id_for_path(self, path):
+        path = os.path.normpath(os.path.abspath(path))
+        for i in self:
+            if i.path and os.path.normpath(i.path) == path:
+                return i.id    
+            
+    def path_for_id(self, id):
+        for i in self:
+            if i.id == id:
+                return i.path
+
+class Spine(ResourceCollection):
+    
+    class Item(Resource):
+        
+        def __init__(self, idfunc, *args, **kwargs):
+            Resource.__init__(self, *args, **kwargs)
+            self.is_linear = True
+            self.id = idfunc(self.path)
+        
+    @staticmethod
+    def from_opf_spine_element(itemrefs, manifest):
+        s = Spine(manifest)
+        for itemref in itemrefs:
+            idref = itemref.get('idref', None)
+            if idref is not None:
+                r = Spine.Item(s.manifest.id_for_path,
+                               s.manifest.path_for_id(idref), is_path=True)
+                r.is_linear = itemref.get('linear', 'yes') == 'yes'
+                s.append(r)
+        return s
+                
+    @staticmethod
+    def from_paths(paths, manifest):
+        s = Spine(manifest)
+        for path in paths:
+            try:
+                s.append(Spine.Item(s.manifest.id_for_path, path, is_path=True))
+            except:
+                continue
+        return s
+            
+            
+    
+    def __init__(self, manifest):
+        ResourceCollection.__init__(self)
+        self.manifest = manifest
+            
+                    
+    def linear_items(self):
+        for r in self:
+            if r.is_linear:
+                yield r.path
+
+    def nonlinear_items(self):
+        for r in self:
+            if not r.is_linear:
+                yield r.path
+        
+    def items(self):
+        for i in self:
+            yield i.path
+    
+class Guide(ResourceCollection):
+    
+    class Reference(Resource):
+        
+        @staticmethod
+        def from_opf_resource_item(ref, basedir):
+            title, href, type = ref.get('title', ''), ref.get('href'), ref.get('type')
+            res = Guide.Reference(href, basedir, is_path=False)
+            res.title = title
+            res.type = type
+            return res
+        
+        def __repr__(self):
+            ans = '<reference type="%s" href="%s" '%(self.type, self.href())
+            if self.title:
+                ans += 'title="%s" '%self.title
+            return ans + '/>'
+        
+        
+    @staticmethod
+    def from_opf_guide(references, base_dir=os.getcwdu()):
+        coll = Guide()
+        for ref in references:
+            try:
+                ref = Guide.Reference.from_opf_resource_item(ref, base_dir)
+                coll.append(ref)
+            except:
+                continue
+        return coll
+        
+    def set_cover(self, path):
+        map(self.remove, [i for i in self if 'cover' in i.type.lower()])
+        for type in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
+            self.append(Guide.Reference(path, is_path=True))
+            self[-1].type = type
+            self[-1].title = ''
+
 
 class MetadataField(object):
     
@@ -61,7 +247,10 @@ class OPF(object):
         '[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut")]')
     tags_path       = XPath('/opf:package/opf:metadata/*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('/opf:package/opf:metadata/*[re:match(name(), "identifier", "i") and '+
-                            '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]') 
+                            '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
+    manifest_path   = XPath('/opf:package/*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]') 
+    spine_path      = XPath('/opf:package/*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
+    guide_path      = XPath('/opf:package/*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
     
     title             = MetadataField('title')
     publisher         = MetadataField('publisher')
@@ -73,8 +262,8 @@ class OPF(object):
     rating            = MetadataField('rating', is_dc=False, formatter=int)
     
     
-    def __init__(self, stream, basedir):
-        self.basedir  = basedir
+    def __init__(self, stream, basedir=os.getcwdu()):
+        self.basedir  = self.base_dir = basedir
         raw, self.encoding = xml_to_unicode(stream.read(), strip_encoding_pats=True, resolve_entities=True)
         
         self.tree     = etree.fromstring(raw, self.PARSER)
@@ -82,6 +271,19 @@ class OPF(object):
         if not self.metadata:
             raise ValueError('Malformed OPF file: No <metadata> element')
         self.metadata      = self.metadata[0]
+        self.manifest = Manifest()
+        m = self.manifest_path(self.tree)
+        if m:
+            self.manifest = Manifest.from_opf_manifest_element(m, basedir)
+        self.spine = None
+        s = self.spine_path(self.tree)
+        if s:
+            self.spine = Spine.from_opf_spine_element(s, self.manifest)
+        self.guide = None
+        guide = self.guide_path(self.tree)
+        if guide:
+            self.guide = Guide.from_opf_guide(guide, basedir)
+        self.cover_data = (None, None)
         
     def get_text(self, elem):
         return u''.join(self.TEXT(elem))
