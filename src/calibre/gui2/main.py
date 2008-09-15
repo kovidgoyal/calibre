@@ -1185,8 +1185,7 @@ in which you want to store your books files. Any existing books will be automati
             return
         index = self.library_view.currentIndex()
         if index.isValid():
-            info = self.library_view.model().get_book_info(index)
-            BookInfo(self, info).show()
+            BookInfo(self, self.library_view, index).show()
 
     ############################################################################
 

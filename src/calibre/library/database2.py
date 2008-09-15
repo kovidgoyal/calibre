@@ -418,8 +418,15 @@ class LibraryDatabase2(LibraryDatabase):
     
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
-        id = index if index_is_id else self.id()
+        id = index if index_is_id else self.id(index)
         path = self.conn.execute('SELECT path FROM books WHERE id=?', (id,)).fetchone()[0].replace('/', os.sep)
+        return path
+    
+    def abspath(self, index, index_is_id=False):
+        'Return the absolute path to the directory containing this books files as a unicode string.'
+        path = os.path.join(self.library_path, self.path(index, index_is_id=index_is_id))
+        if not os.path.exists(path):
+            os.makedirs(path)
         return path
             
     
@@ -550,13 +557,8 @@ class LibraryDatabase2(LibraryDatabase):
         return ','.join(ans)
                 
     
-    def format(self, index, format, index_is_id=False, as_file=False, mode='r+b'):
-        '''
-        Return the ebook format as a bytestring or `None` if the format doesn't exist,
-        or we don't have permission to write to the ebook file. 
-        
-        `as_file`: If True the ebook format is returned as a file object opened in `mode` 
-        '''
+    def format_abspath(self, index, format, index_is_id=False):
+        'Return absolute path to the ebook file of format `format`'
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0]
@@ -564,8 +566,19 @@ class LibraryDatabase2(LibraryDatabase):
             format = ('.' + format.lower()) if format else ''
             path = os.path.join(path, name+format)
             if os.access(path, os.R_OK|os.W_OK):
-                f = open(path, mode)
-                return f if as_file else f.read()
+                return path
+    
+    def format(self, index, format, index_is_id=False, as_file=False, mode='r+b'):
+        '''
+        Return the ebook format as a bytestring or `None` if the format doesn't exist,
+        or we don't have permission to write to the ebook file. 
+        
+        `as_file`: If True the ebook format is returned as a file object opened in `mode` 
+        '''
+        path = self.format_abspath(index, format, index_is_id=index_is_id)
+        if path is not None:
+            f = open(path, mode)
+            return f if as_file else f.read()
         self.remove_format(id, format, index_is_id=True)
         
     def add_format(self, index, format, stream, index_is_id=False, path=None):
@@ -578,6 +591,9 @@ class LibraryDatabase2(LibraryDatabase):
         name = self.construct_file_name(id)
         ext = ('.' + format.lower()) if format else ''
         dest = os.path.join(path, name+ext)
+        pdir = os.path.dirname(dest)
+        if not os.path.exists(pdir):
+            os.makedirs(pdir)
         with open(dest, 'wb') as f:
             shutil.copyfileobj(stream, f)
         stream.seek(0, 2)

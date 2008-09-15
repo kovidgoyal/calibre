@@ -73,7 +73,7 @@ class BookInfoDisplay(QFrame):
             
         rows = u''
         self.book_data.setText('')
-        self.data = data
+        self.data = data.copy()
         for key in data.keys():
             txt = data[key]
             #txt = '<br />\n'.join(textwrap.wrap(txt, 120))

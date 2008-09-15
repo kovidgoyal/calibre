@@ -230,6 +230,7 @@ class BooksModel(QAbstractTableModel):
         else:
             formats = _('None')
         data[_('Formats')] = formats
+        data[_('Path')] = self.db.abspath(idx)
         comments = self.db.comments(idx)
         if not comments:
             comments = _('None')
@@ -265,6 +266,8 @@ class BooksModel(QAbstractTableModel):
             return data
 
     def get_book_info(self, index):
+        if isinstance(index, int):
+            index = self.index(index, 0)
         data = self.current_changed(index, None, False)
         row = index.row()
         data[_('Title')] = self.db.title(row)
