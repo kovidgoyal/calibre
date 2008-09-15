@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-09-02 05:42+0000\n"
-"PO-Revision-Date: 2008-08-29 16:21+0000\n"
+"PO-Revision-Date: 2008-09-11 14:23+0000\n"
 "Last-Translator: Iacopo Benesperi <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-09-04 03:36+0000\n"
+"X-Launchpad-Export-Date: 2008-09-15 00:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -251,7 +251,7 @@ msgstr "Il lettore non ha una scheda di memoria connessa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:34
 msgid "Options to control the conversion to EPUB"
-msgstr ""
+msgstr "Opzioni per controllare la conversione in EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:45
 msgid ""
@@ -301,8 +301,9 @@ msgid "Written processed HTML to "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:453
+#, fuzzy
 msgid "Options to control the traversal of HTML"
-msgstr ""
+msgstr "Opzioni per controllare la visita dell'HTML"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:460
 msgid "The output directory. Default is the current directory."
@@ -369,7 +370,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:478
 msgid "Options useful for debugging"
-msgstr ""
+msgstr "Opzioni utili per il debugging"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:480
 msgid ""
