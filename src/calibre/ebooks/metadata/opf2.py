@@ -252,14 +252,14 @@ class OPF(object):
     spine_path      = XPath('/opf:package/*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
     guide_path      = XPath('/opf:package/*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
     
-    title             = MetadataField('title')
-    publisher         = MetadataField('publisher')
-    language          = MetadataField('language')
-    comments          = MetadataField('description')
-    category          = MetadataField('category')
-    series            = MetadataField('series', is_dc=False)
-    series_index      = MetadataField('series_index', is_dc=False, formatter=int)
-    rating            = MetadataField('rating', is_dc=False, formatter=int)
+    title           = MetadataField('title')
+    publisher       = MetadataField('publisher')
+    language        = MetadataField('language')
+    comments        = MetadataField('description')
+    category        = MetadataField('category')
+    series          = MetadataField('series', is_dc=False)
+    series_index    = MetadataField('series_index', is_dc=False, formatter=int)
+    rating          = MetadataField('rating', is_dc=False, formatter=int)
     
     
     def __init__(self, stream, basedir=os.getcwdu()):

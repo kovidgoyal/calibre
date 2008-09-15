@@ -162,6 +162,12 @@ class Option(object):
         self.switches = switches
         self.help     = help.replace('%default', repr(default)) if help else None
         self.type     = type
+        if self.type is None and action is None and choices is None:
+            if isinstance(default, float):
+                self.type = 'float'
+            elif isinstance(default, int) and not isinstance(default, bool):
+                self.type = 'int'
+            
         self.choices  = choices
         self.check    = check
         self.group    = group
@@ -229,7 +235,7 @@ class OptionSet(object):
                            option will not be added to the command line parser.
         :param help:       Help text.
         :param type:       Type checking of option values. Supported types are:
-                           `None, 'choice', 'complex', 'float', 'int', 'long', 'string'`.
+                           `None, 'choice', 'complex', 'float', 'int', 'string'`.
         :param choices:    List of strings or `None`.
         :param group:      Group this option belongs to. You must previously 
                            have created this group with a call to :method:`add_group`.
@@ -289,7 +295,11 @@ class OptionSet(object):
             exec src in options
         opts = OptionValues()
         for pref in self.preferences:
-            setattr(opts, pref.name, options.get(pref.name, pref.default))
+            val = options.get(pref.name, pref.default)
+            formatter = __builtins__.get(pref.type, None)
+            if callable(formatter):
+                val = formatter(val)
+            setattr(opts, pref.name, val)
             
         return opts
     

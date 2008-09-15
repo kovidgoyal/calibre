@@ -205,7 +205,6 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
                 hf.links.remove(link)
                 
         next_level = list(nl)
-        
     return flat, list(depth_first(flat[0], flat))
     
     
@@ -309,6 +308,7 @@ class Parser(PreProcessor, LoggingInterface):
         self.resource_dir = os.path.join(tdir, 'resources')
         save_counter = 1
         self.htmlfile_map = {}
+        self.level = self.htmlfile.level
         for f in self.htmlfiles:
             name = os.path.basename(f.path)
             if name in self.htmlfile_map.values():
@@ -362,8 +362,8 @@ class Parser(PreProcessor, LoggingInterface):
         tdir = tempfile.gettempdir()
         if not os.path.exists(tdir):
             os.makedirs(tdir)
-        with open(os.path.join(tdir, '%s-%s-%s.html'%\
-                    (self.name, os.path.basename(self.htmlfile.path), name)), 'wb') as f:
+        with open(os.path.join(tdir, '%s-%s.html'%\
+                    (os.path.basename(self.htmlfile.path), name)), 'wb') as f:
             f.write(html.tostring(self.root, encoding='utf-8'))
             self.log_debug(_('Written processed HTML to ')+f.name)
     
@@ -381,6 +381,8 @@ class Parser(PreProcessor, LoggingInterface):
             return olink
         if link.path in self.htmlfiles:
             return self.htmlfile_map[link.path]
+        if re.match(r'\.(x){0,1}htm(l){0,1}', os.path.splitext(link.path)[1]) is not None:
+            return olink # This happens when --max-levels is used
         if link.path in self.resource_map.keys():
             return self.resource_map[link.path]
         name = os.path.basename(link.path)
@@ -435,20 +437,20 @@ class Processor(Parser):
         
         def add_item(href, fragment, text, target):
             for entry in toc.flat():
-                if entry.href == href and entry.fragment ==fragment:
+                if entry.href == href and entry.fragment == fragment:
                     return entry
             if len(text) > 50:
                 text = text[:50] + u'\u2026'
             return target.add_item(href, fragment, text)
             
-        name = self.htmlfile_map[self.htmlfile]
+        name = self.htmlfile_map[self.htmlfile.path]
         href = 'content/'+name
         
         if referrer.href != href: # Happens for root file
             target = add_item(href, None, self.htmlfile.title, referrer)
             
         # Add links to TOC
-        if self.opts.max_toc_links > 0:
+        if int(self.opts.max_toc_links) > 0:
             for link in list(self.LINKS_PATH(self.root))[:self.opts.max_toc_links]:
                 text = (u''.join(link.xpath('string()'))).strip()
                 if text:
@@ -468,7 +470,7 @@ class Processor(Parser):
             for elem in getattr(self, 'detected_chapters', []):
                 text = (u''.join(elem.xpath('string()'))).strip()
                 if text:
-                    name = self.htmlfile_map[self.path]
+                    name = self.htmlfile_map[self.htmlfile.path]
                     href = 'content/'+name
                     add_item(href, None, text, target)
                     
@@ -479,9 +481,9 @@ class Processor(Parser):
         This includes <font> tags.
         '''
         counter = 0
-        def get_id(chapter, prefix='calibre_css_'):
+        
+        def get_id(chapter, counter, prefix='calibre_css_'):
             new_id = '%s_%d'%(prefix, counter)
-            counter  += 1 
             if chapter.tag.lower() == 'a' and  'name' in chapter.keys():
                 chapter.attrib['id'] = id = chapter.get('name')
                 if not id:
@@ -497,14 +499,14 @@ class Processor(Parser):
         css = []
         for link in self.root.xpath('//link'):
             if 'css' in link.get('type', 'text/css').lower():
-                file = self.htmlfile.resolve(link.get('href', ''))
-                if os.path.exists(file) and os.path.isfile(file):
+                file = self.htmlfile.resolve(unicode(link.get('href', ''), self.htmlfile.encoding)).path
+                if file and os.path.exists(file) and os.path.isfile(file):
                     css.append(open(file, 'rb').read().decode('utf-8'))
                 link.getparent().remove(link)
                     
         for style in self.root.xpath('//style'):
             if 'css' in style.get('type', 'text/css').lower():
-                css.append('\n'.join(get_text(style)))
+                css.append('\n'.join(style.xpath('./text()')))
                 style.getparent().remove(style)
         
         for font in self.root.xpath('//font'):
@@ -519,12 +521,14 @@ class Processor(Parser):
             color = font.attrib.pop('color', None)
             if color is not None:
                 setting += 'color:%s'%color
-            id = get_id(font)
+            id = get_id(font, counter)
+            counter += 1
             css.append('#%s { %s }'%(id, setting))
             
         for elem in self.root.xpath('//*[@style]'):
             if 'id' not in elem.keys():
-                id = get_id(elem)
+                id = get_id(elem, counter)
+                counter += 1 
             css.append('#%s {%s}'%(id, elem.get('style')))
             elem.attrib.pop('style')
             
@@ -597,7 +601,8 @@ def get_filelist(htmlfile, opts):
     if opf is not None:
         filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
     if not filelist:
-        filelist = traverse(htmlfile, verbose=opts.verbose, encoding=opts.encoding)\
+        filelist = traverse(htmlfile, max_levels=int(opts.max_levels), 
+                            verbose=opts.verbose, encoding=opts.encoding)\
                     [0 if opts.breadth_first else 1]
     if opts.verbose:
         print '\tFound files...'

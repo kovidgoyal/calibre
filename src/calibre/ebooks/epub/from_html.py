@@ -12,6 +12,7 @@ from calibre.ebooks.epub import config as common_config
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.epub import initialize_container
 
 
 class HTMLProcessor(Processor):
@@ -93,10 +94,10 @@ def convert(htmlfile, opts, notification=None):
     
     with TemporaryDirectory('_html2epub') as tdir:
         resource_map, htmlfile_map, generated_toc = parse_content(filelist, opts, tdir)
-        resources = [os.path.join(opts.output, 'content', f) for f in resource_map.values()]
+        resources = [os.path.join(tdir, 'content', f) for f in resource_map.values()]
         
-        if opf.cover and os.access(opf.cover, os.R_OK):
-            shutil.copyfile(opf.cover, os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)))
+        if mi.cover and os.access(mi.cover, os.R_OK):
+            shutil.copyfile(mi.cover, os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)))
             cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover))
             shutil.copyfile(opf.cover, cpath)
             resources.append(cpath)
@@ -109,12 +110,22 @@ def convert(htmlfile, opts, notification=None):
             rebase_toc(mi.toc, htmlfile_map, opts.output)
         if mi.toc is None or len(mi.toc) < 2:
             mi.toc = generated_toc
+        for item in mi.manifest:
+            if getattr(item, 'mime_type', None) == 'text/html':
+                item.mime_type = 'application/xhtml+xml'
         with open(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
             mi.render(f, buf)
+        if opts.show_opf:
+            print open(os.path.join(tdir, 'metadata.opf')).read()
         toc = buf.getvalue()
         if toc:
             with open(os.path.join(tdir, 'toc.ncx'), 'wb') as f:
                 f.write(toc)
+                
+        epub = initialize_container(opts.output)
+        epub.add_dir(tdir)
+        print 'Output written to', opts.output
+        
             
 def main(args=sys.argv):
     parser = option_parser()

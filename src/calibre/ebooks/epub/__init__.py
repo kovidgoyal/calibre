@@ -8,7 +8,7 @@ Conversion to EPUB.
 '''
 import sys, textwrap
 from calibre.utils.config import Config, StringConfig
-from calibre.utils.zipfile import ZipFile, ZIP_DEFLATED
+from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.ebooks.html import config as common_config
 
 def initialize_container(path_to_container, opf_name='metadata.opf'):
@@ -24,7 +24,7 @@ def initialize_container(path_to_container, opf_name='metadata.opf'):
 </container>
     '''%opf_name
     zf = ZipFile(path_to_container, 'w')
-    zf.writestr('mimetype', 'application/epub+zip', compression=ZIP_DEFLATED)
+    zf.writestr('mimetype', 'application/epub+zip', compression=ZIP_STORED)
     zf.writestr('META-INF/', '', 0700)
     zf.writestr('META-INF/container.xml', CONTAINER)
     return zf
@@ -67,5 +67,7 @@ to auto-generate a Table of Contents.
     toc('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
         help=_("Don't add auto-detected chapters to the Table of Contents."))
     
+    c.add_opt('show_opf', ['--show-opf'], default=False, group='debug',
+              help=_('Print generated OPF file to stdout'))
     
     return c
