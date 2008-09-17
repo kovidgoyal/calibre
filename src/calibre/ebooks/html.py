@@ -13,8 +13,8 @@ from urlparse import urlparse
 from urllib import unquote
 
 from lxml import html, etree
-from lxml.html import soupparser, HTMLParser
-from lxml.etree import XPath, XMLParser
+from lxml.html import soupparser
+from lxml.etree import XPath
 get_text = XPath("//text()")
 
 from calibre import LoggingInterface, unicode_path
@@ -298,8 +298,6 @@ class PreProcessor(object):
     
 class Parser(PreProcessor, LoggingInterface):
     
-    PARSER = HTMLParser(recover=True)
-    
     def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, name='htmlparser'):
         LoggingInterface.__init__(self, logging.getLogger(name))
         self.setup_cli_handler(opts.verbose)
@@ -350,9 +348,7 @@ class Parser(PreProcessor, LoggingInterface):
         for pat in ENCODING_PATS:
             src = pat.sub('', src)
         try:
-            self.root = etree.HTML(src, self.PARSER)
-            if self.root is None:
-                raise ValueError('%s is empty'%self.htmlfile.path)
+            self.root =  html.fromstring(src)
         except:
             if self.opts.verbose:
                 self.log_exception('lxml based parsing failed')

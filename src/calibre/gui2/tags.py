@@ -6,7 +6,6 @@ __docformat__ = 'restructuredtext en'
 '''
 Browsing book collection by tags.
 '''
-
 from PyQt4.Qt import QAbstractItemModel, Qt, QVariant, QTreeView, QModelIndex, \
                      QFont, SIGNAL, QSize, QColor, QIcon
 
@@ -45,6 +44,8 @@ class TagsModel(QAbstractItemModel):
     def __init__(self, db):
         QAbstractItemModel.__init__(self)
         self.db = db
+        self.ignore_next_search = False
+        self._data = {}
         self.refresh()
         self.bold_font = QFont()
         self.bold_font.setBold(True)
@@ -53,18 +54,40 @@ class TagsModel(QAbstractItemModel):
         self.status_map = list(map(QVariant, self.status_map))
         self.cmap = [QIcon(':/images/user_profile.svg'), QIcon(':/images/series.svg'), QIcon(':/images/book.svg'), QIcon(':/images/publisher.png'), QIcon(':/images/tags.svg')]
         self.cmap = list(map(QVariant, self.cmap))
-        
+        self.db.add_listener(self.database_changed)
+    
+    def database_changed(self, event, ids):
+        self.refresh()
+    
     def refresh(self):
+        old_data = self._data
         self._data = self.db.get_categories()
         for key in self._data:
             self._data[key] = list(map(Tag, self._data[key]))
+        for key in old_data.keys():
+            for tag in old_data[key]:
+                try:
+                    index = self._data[key].index(tag)
+                    if index > -1:
+                        self._data[key][index].state = tag.state
+                except:
+                    continue
         self.reset()
+        
+    def reinit(self, *args, **kwargs):
+        if not self.ignore_next_search:
+            for category in self._data.values():
+                for tag in category:
+                    tag.state = 0
+            self.reset()
+        self.ignore_next_search = False
         
     def toggle(self, index):
         if index.parent().isValid():
             category = self.row_map[index.parent().row()]
             tag = self._data[category][index.row()]
             tag.state = (tag.state + 1)%3
+            self.ignore_next_search = True
             self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), index, index)
             return True
         return False

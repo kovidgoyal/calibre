@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
-       operator, itertools, functools
+       operator, itertools, functools, traceback
 import sqlite3 as sqlite
 from itertools import repeat
 
@@ -356,6 +356,7 @@ class LibraryDatabase2(LibraryDatabase):
     def __init__(self, library_path, row_factory=False):
         if not os.path.exists(library_path):
             os.makedirs(library_path)
+        self.listeners = set([])
         self.library_path = os.path.abspath(library_path)
         self.row_factory = row_factory
         self.dbpath = os.path.join(library_path, 'metadata.db')
@@ -486,7 +487,7 @@ class LibraryDatabase2(LibraryDatabase):
             if cdata is not None:
                 open(os.path.join(tpath, 'cover.jpg'), 'wb').write(cdata)
             for format in formats:
-                # Get data as string (cant use file as source and target files may be the same)
+                # Get data as string (can't use file as source and target files may be the same)
                 f = self.format(id, format, index_is_id=True, as_file=False)
                 if not  f:
                     continue
@@ -503,6 +504,22 @@ class LibraryDatabase2(LibraryDatabase):
                 if len(os.listdir(parent)) == 0:
                     shutil.rmtree(parent)
             
+    def add_listener(self, listener):
+        '''
+        Add a listener. Will be called on change events with two arguments.
+        Event name and list of affected ids.
+        '''
+        self.listeners.add(listener)
+    
+    def notify(self, event, ids=[]):
+        'Notify all listeners'
+        for listener in self.listeners:
+            try:
+                listener(event, ids)
+            except:
+                traceback.print_exc()
+                continue
+    
     def cover(self, index, index_is_id=False, as_file=False, as_image=False):
         '''
         Return the cover image as a bytestring (in JPEG format) or None.
@@ -601,6 +618,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
         self.conn.commit()
+        self.notify('metadata', [id])
         
     def delete_book(self, id):
         '''
@@ -615,6 +633,8 @@ class LibraryDatabase2(LibraryDatabase):
                 shutil.rmtree(parent)
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
+        self.clean()
+        self.notify('delete', [id])
     
     def remove_format(self, index, format, index_is_id=False):
         id = index if index_is_id else self.id(index)
@@ -630,6 +650,7 @@ class LibraryDatabase2(LibraryDatabase):
                 pass
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             self.conn.commit()
+            self.notify('metadata', [id])
     
     def clean(self):
         '''
@@ -668,16 +689,17 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.set(row, col, val)
         if column == 'authors':
             val = val.split('&,')
-            self.set_authors(id, val)
+            self.set_authors(id, val, notify=False)
         elif column == 'title':
-            self.set_title(id, val)
+            self.set_title(id, val, notify=False)
         elif column == 'publisher':
-            self.set_publisher(id, val)
+            self.set_publisher(id, val, notify=False)
         elif column == 'rating':
             self.set_rating(id, val)
         elif column == 'tags':
-            self.set_tags(id, val.split(','), append=False)
+            self.set_tags(id, val.split(','), append=False, notify=False)
         self.set_path(id, True)
+        self.notify('metadata', [id])
     
     def set_metadata(self, id, mi):
         '''
@@ -690,24 +712,25 @@ class LibraryDatabase2(LibraryDatabase):
         authors = []
         for a in mi.authors:
             authors += a.split('&')
-        self.set_authors(id, authors)
+        self.set_authors(id, authors, notify=False)
         if mi.author_sort:
             self.set_author_sort(id, mi.author_sort)
         if mi.publisher:
-            self.set_publisher(id, mi.publisher)
+            self.set_publisher(id, mi.publisher, notify=False)
         if mi.rating:
             self.set_rating(id, mi.rating)
         if mi.series:
-            self.set_series(id, mi.series)
+            self.set_series(id, mi.series, notify=False)
         if mi.cover_data[1] is not None:
             self.set_cover(id, mi.cover_data[1])
         if mi.tags:
-            self.set_tags(id, mi.tags)
+            self.set_tags(id, mi.tags, notify=False)
         if mi.comments:
             self.set_comment(id, mi.comments)
         self.set_path(id, True)
+        self.notify('metadata', [id])
         
-    def set_authors(self, id, authors):
+    def set_authors(self, id, authors, notify=True):
         '''
         `authors`: A list of authors.
         '''
@@ -729,14 +752,16 @@ class LibraryDatabase2(LibraryDatabase):
             except sqlite.IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
         self.set_path(id, True)
+        self.notify('metadata', [id])
         
-    def set_title(self, id, title):
+    def set_title(self, id, title, notify=True):
         if not title:
             return
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.set_path(id, True)
+        self.notify('metadata', [id])
     
-    def set_publisher(self, id, publisher):
+    def set_publisher(self, id, publisher, notify=True):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
         self.conn.execute('DELETE FROM publishers WHERE (SELECT COUNT(id) FROM books_publishers_link WHERE publisher=publishers.id) < 1')
         if publisher:
@@ -747,8 +772,9 @@ class LibraryDatabase2(LibraryDatabase):
                 aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
             self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
         self.conn.commit()
+        self.notify('metadata', [id])
     
-    def set_tags(self, id, tags, append=False):
+    def set_tags(self, id, tags, append=False, notify=True):
         '''
         @param tags: list of strings
         @param append: If True existing tags are not removed
@@ -771,9 +797,10 @@ class LibraryDatabase2(LibraryDatabase):
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
         self.conn.commit()
+        self.notify('metadata', [id])
 
     
-    def set_series(self, id, series):
+    def set_series(self, id, series, notify=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
         self.conn.execute('DELETE FROM series WHERE (SELECT COUNT(id) FROM books_series_link WHERE series=series.id) < 1')
         if series:
@@ -790,8 +817,9 @@ class LibraryDatabase2(LibraryDatabase):
                 self.data.set(row, 9, series)
         except ValueError:
             pass
+        self.notify('metadata', [id])
             
-    def set_series_index(self, id, idx):
+    def set_series_index(self, id, idx, notify=True):
         if idx is None:
             idx = 1
         idx = int(idx)
@@ -803,6 +831,7 @@ class LibraryDatabase2(LibraryDatabase):
                 self.data.set(row, 10, idx)
         except ValueError:
             pass
+        self.notify('metadata', [id])
         
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
@@ -811,6 +840,7 @@ class LibraryDatabase2(LibraryDatabase):
         '''
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
         duplicates = []
+        ids = []
         for path in paths:
             mi = metadata.next()
             format = formats.next()
@@ -826,6 +856,7 @@ class LibraryDatabase2(LibraryDatabase):
             obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
                               (mi.title, uri, series_index, aus))
             id = obj.lastrowid
+            ids.append(id)
             self.set_path(id, True)
             self.conn.commit()
             self.set_metadata(id, mi)
@@ -859,7 +890,7 @@ class LibraryDatabase2(LibraryDatabase):
             stream = open(path, 'rb')
             self.add_format(id, ext, stream, index_is_id=True)
         self.conn.commit()
-        
+        self.notify('add', [id])
         
     def move_library_to(self, newloc):
         if not os.path.exists(newloc):

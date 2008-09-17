@@ -7,14 +7,11 @@ from lxml import etree
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
-from calibre import isosx, setup_cli_handlers, __appname__
+from calibre import setup_cli_handlers, __appname__
 from calibre.libwand import convert, WandException
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.lrf.rtf.xsl import xhtml
-
-UNRTF   = 'unrtf'
-if isosx and hasattr(sys, 'frameworks_dir'):
-    UNRTF   = os.path.join(getattr(sys, 'frameworks_dir'), UNRTF)
+from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
 
 def option_parser():
     parser = lrf_option_parser(
@@ -139,7 +136,10 @@ def generate_xml(rtfpath):
 
 def generate_html(rtfpath, logger):
     logger.info('Converting RTF to XML...')
-    xml = generate_xml(rtfpath)
+    try:
+        xml = generate_xml(rtfpath)
+    except RtfInvalidCodeException:
+        raise Exception(_('This RTF file has a feature calibre does not support. Convert it to HTML and then convert it.'))
     tdir = os.path.dirname(xml)
     cwd = os.getcwdu()
     os.chdir(tdir)

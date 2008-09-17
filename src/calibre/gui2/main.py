@@ -5,7 +5,7 @@ from xml.parsers.expat import ExpatError
 from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton, QDialog, QDesktopServices
+                        QToolButton, QDialog, QDesktopServices, QFileDialog
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
@@ -216,7 +216,17 @@ class Main(MainWindow, Ui_MainWindow):
 
         self.show()
         self.stack.setCurrentIndex(0)
-        db = LibraryDatabase2(self.library_path)
+        try:
+            db = LibraryDatabase2(self.library_path)
+        except OSError, err:
+            error_dialog(self, _('Bad database location'), unicode(err)).exec_()
+            dir = unicode(QFileDialog.getExistingDirectory(self, 
+                            _('Choose a location for your ebook library.'), os.path.expanduser('~')))
+            if not dir:
+                QCoreApplication.exit(1)
+            else:
+                self.library_path = dir
+                db = LibraryDatabase2(self.library_path)
         self.library_view.set_database(db)
         if self.olddb is not None:
             QMessageBox.information(self, 'Database format changed',
@@ -252,6 +262,8 @@ in which you want to store your books files. Any existing books will be automati
         self.connect(self.tags_view, SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.search.search_from_tokens)
         self.connect(self.status_bar.tag_view_button, SIGNAL('toggled(bool)'), self.toggle_tags_view)
+        self.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
+                     self.tags_view.model().reinit)
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -1272,7 +1284,6 @@ in which you want to store your books files. Any existing books will be automati
             home = os.path.dirname(self.database_path)
             if not os.path.exists(home):
                 home = os.getcwd()
-            from PyQt4.QtGui import QFileDialog
             dir = unicode(QFileDialog.getExistingDirectory(self, 
                             _('Choose a location for your ebook library.'), home))
             if not dir:

@@ -18,7 +18,7 @@ from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
-from calibre.web.feeds import feed_from_xml, templates, feeds_from_index
+from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
@@ -137,6 +137,9 @@ class BasicNewsRecipe(object, LoggingInterface):
     
     #: List of options to pass to html2lrf, to customize generation of LRF ebooks.
     html2lrf_options      = []
+    
+    #: Options to pass to html2epub to customize generation of EPUB ebooks.
+    html2epub_options     = ''
     
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
@@ -594,9 +597,9 @@ class BasicNewsRecipe(object, LoggingInterface):
     def fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds):
         templ = templates.EmbeddedContent()
         raw = templ.generate(article).render('html')
-        with PersistentTemporaryFile('_feeds2disk.html') as f:
-            f.write(raw)
-            url = ('file:'+f.name) if iswindows else ('file://'+f.name)
+        with PersistentTemporaryFile('_feeds2disk.html') as pt:
+            pt.write(raw)
+            url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
         return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
         
     
@@ -643,7 +646,6 @@ class BasicNewsRecipe(object, LoggingInterface):
                     url = article.url
                 if not url:
                     continue
-                    
                 func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \
                             ((self.fetch_obfuscated_article if self.articles_are_obfuscated \
                               else self.fetch_article), url)
@@ -819,13 +821,21 @@ class BasicNewsRecipe(object, LoggingInterface):
             else:
                 title, url = obj
             self.report_progress(0, _('Fetching feed')+' %s...'%(title if title else url))
-            f = self.browser.open(url)
-            parsed_feeds.append(feed_from_xml(f.read(), 
-                                              title=title,
-                                              oldest_article=self.oldest_article,
-                                              max_articles_per_feed=self.max_articles_per_feed,
-                                              get_article_url=self.get_article_url))
-            f.close()
+            try:
+                with closing(self.browser.open(url)) as f:
+                    parsed_feeds.append(feed_from_xml(f.read(), 
+                                          title=title,
+                                          oldest_article=self.oldest_article,
+                                          max_articles_per_feed=self.max_articles_per_feed,
+                                          get_article_url=self.get_article_url))
+            except Exception, err:
+                feed = Feed()
+                msg = 'Failed feed: %s'%(title if title else url)
+                feed.populate_from_preparsed_feed(msg, [])
+                feed.description = unicode(err)
+                parsed_feeds.append(feed)
+                self.log_exception(msg)
+                
         return parsed_feeds
     
     @classmethod

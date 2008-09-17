@@ -10,9 +10,56 @@ from calibre.web.feeds.recipes import get_builtin_recipe, compile_recipe, titles
 from calibre.web.fetch.simple import option_parser as _option_parser
 from calibre.web.feeds.news import Profile2Recipe, BasicNewsRecipe
 from calibre.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
+from calibre.utils.config import Config, StringConfig
 
-
-def option_parser(usage=_('''\
+def config(defaults=None):
+    desc = _('Options to control the fetching of periodical content from the web.')
+    c = Config('feeds2disk', desc) if defaults is None else StringConfig(defaults, desc)
+    
+    web2disk = c.add_group('web2disk', _('Customize the download engine'))
+    web2disk('timeout', ['-t', '--timeout'], default=10.0, 
+              help=_('Timeout in seconds to wait for a response from the server. Default: %default s'),)
+    web2disk('delay', ['--delay'], default=0, 
+              help=_('Minimum interval in seconds between consecutive fetches. Default is %default s'))
+    web2disk('encoding', ['--encoding'], default=None, 
+              help=_('The character encoding for the websites you are trying to download. The default is to try and guess the encoding.'))
+    web2disk('match_regexps', ['--match-regexp'], default=[], action='append',
+              help=_('Only links that match this regular expression will be followed. This option can be specified multiple times, in which case as long as a link matches any one regexp, it will be followed. By default all links are followed.'))
+    web2disk('filter_regexps', ['--filter-regexp'], default=[], action='append',
+              help=_('Any link that matches this regular expression will be ignored. This option can be specified multiple times, in which case as long as any regexp matches a link, it will be ignored.By default, no links are ignored. If both --filter-regexp and --match-regexp are specified, then --filter-regexp is applied first.'))
+    web2disk('no_stylesheets', ['--dont-download-stylesheets'], action='store_true', default=False,
+              help=_('Do not download CSS stylesheets.'))
+    
+    c.add_option('feeds', ['--feeds'], default=None,
+                 help=_('''Specify a list of feeds to download. For example: 
+"['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/headlines/politics']"
+If you specify this option, any argument to %prog is ignored and a default recipe is used to download the feeds.'''))
+    c.add_option('verbose', ['-v', '--verbose'], default=0, action='count',
+                 help=_('''Be more verbose while processing.'''))
+    c.add_option('title', ['--title'], default=None,
+                 help=_('The title for this recipe. Used as the title for any ebooks created from the downloaded feeds.'))
+    c.add_option('username', ['-u', '--username'], default=None, 
+                 help=_('Username for sites that require a login to access content.'))
+    c.add_option('password', ['-p', '--password'], default=None, 
+                 help=_('Password for sites that require a login to access content.'))
+    c.add_option('lrf', ['--lrf'], default=False, action='store_true', 
+                 help='Optimize fetching for subsequent conversion to LRF.')
+    c.add_option('epub', ['--epub'], default=False, action='store_true', 
+                 help='Optimize fetching for subsequent conversion to EPUB.')
+    c.add_option('recursions', ['--recursions'], default=0,
+                 help=_('Number of levels of links to follow on webpages that are linked to from feeds. Defaul %default'))
+    c.add_option('output_dir', ['--output-dir'], default='.', 
+                 help=_('The directory in which to store the downloaded feeds. Defaults to the current directory.'))
+    c.add_option('no_progress_bar', ['--no-progress-bar'], default=False, action='store_true',
+                 help=_("Don't show the progress bar"))
+    c.add_option('debug', ['--debug'], action='store_true', default=False,
+                 help=_('Very verbose output, useful for debugging.'))
+    c.add_option('test', ['--test'], action='store_true', default=False, 
+                 help=_('Useful for recipe development. Forces max_articles_per_feed to 2 and downloads at most 2 feeds.'))
+    
+    return c
+    
+USAGE=_('''\
 %%prog [options] ARG
 
 %%prog parses an online source of articles, like an RSS or ATOM feed and 
@@ -28,7 +75,9 @@ recipe as a string   - %%prog will load the recipe directly from the string arg.
 
 Available builtin recipes are:
 %s
-''')%(unicode(list(titles))[1:-1])):
+''')%(unicode(list(titles))[1:-1])
+
+def option_parser(usage=USAGE):
     p = _option_parser(usage=usage)
     p.remove_option('--max-recursions')
     p.remove_option('--base-dir')
@@ -51,7 +100,7 @@ If you specify this option, any argument to %prog is ignored and a default recip
                  help=_('Number of levels of links to follow on webpages that are linked to from feeds. Defaul %default'))
     p.add_option('--output-dir', default=os.getcwd(), 
                  help=_('The directory in which to store the downloaded feeds. Defaults to the current directory.'))
-    p.add_option('--no-progress-bar', dest='progress_bar', default=True, action='store_false',
+    p.add_option('--no-progress-bar', dest='no_progress_bar', default=False, action='store_true',
                  help=_('Dont show the progress bar'))
     p.add_option('--debug', action='store_true', default=False,
                  help=_('Very verbose output, useful for debugging.'))
@@ -67,7 +116,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
     if notification is None:
         from calibre.utils.terminfo import TerminalController, ProgressBar
         term = TerminalController(sys.stdout)
-        pb = ProgressBar(term, _('Fetching feeds...'), no_progress_bar=not opts.progress_bar)
+        pb = ProgressBar(term, _('Fetching feeds...'), no_progress_bar=opts.no_progress_bar)
         notification = pb.update
     
     recipe, is_profile = None, False
@@ -76,14 +125,9 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
     else:
         try:
             if os.access(recipe_arg, os.R_OK):
-                try:
-                    recipe = compile_recipe(open(recipe_arg).read())
-                    is_profile = DefaultProfile in recipe.__bases__ or \
-                                 FullContentProfile in recipe.__bases__
-                except:
-                    import traceback
-                    traceback.print_exc()
-                    return 1
+                recipe = compile_recipe(open(recipe_arg).read())
+                is_profile = DefaultProfile in recipe.__bases__ or \
+                             FullContentProfile in recipe.__bases__
             else:
                 raise Exception('not file')
         except:
