@@ -1564,6 +1564,10 @@ class HTMLConverter(object, LoggingInterface):
                 if tagname == 'ol':
                     old_counter = self.list_counter
                     self.list_counter = 1
+                    try:
+                        self.list_counter = int(tag['start'])
+                    except:
+                        pass
                 prev_bs = self.current_block.blockStyle
                 self.end_current_block()
                 attrs = self.current_block.blockStyle.attrs
