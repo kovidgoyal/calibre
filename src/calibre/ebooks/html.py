@@ -13,7 +13,8 @@ from urlparse import urlparse
 from urllib import unquote
 
 from lxml import html, etree
-from lxml.etree import XPath
+from lxml.html import soupparser, HTMLParser
+from lxml.etree import XPath, XMLParser
 get_text = XPath("//text()")
 
 from calibre import LoggingInterface, unicode_path
@@ -297,6 +298,8 @@ class PreProcessor(object):
     
 class Parser(PreProcessor, LoggingInterface):
     
+    PARSER = HTMLParser(recover=True)
+    
     def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, name='htmlparser'):
         LoggingInterface.__init__(self, logging.getLogger(name))
         self.setup_cli_handler(opts.verbose)
@@ -318,6 +321,11 @@ class Parser(PreProcessor, LoggingInterface):
         
         self.parse_html()
         self.root.rewrite_links(self.rewrite_links, resolve_base_href=False)
+        for bad in ('xmlns', 'lang', 'xml:lang'): # lxml also adds these attributes for XHTML documents, leading to duplicates
+            if self.root.get(bad, None) is not None:
+                self.root.attrib.pop(bad)
+        
+        
         
     def save(self):
         '''
@@ -325,28 +333,30 @@ class Parser(PreProcessor, LoggingInterface):
         Should be called after all HTML processing is finished.
         '''
         with open(os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path]), 'wb') as f:
-            f.write(html.tostring(self.root, 
-                        encoding='utf-8', method='xml',
-                        include_meta_content_type=True,
-                        pretty_print=self.opts.pretty_print)
-                    )
+            ans = html.tostring(self.root, encoding='utf-8', method='xml', 
+                                pretty_print=self.opts.pretty_print,
+                                include_meta_content_type=True)
+            ans = re.compile(r'<html>', re.IGNORECASE).sub('<html xmlns="http://www.w3.org/1999/xhtml">', ans)
+            f.write(ans)
             return f.name
 
 
     def parse_html(self):
         ''' Create lxml ElementTree from HTML '''
         self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
-        src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace')
+        src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace').strip()
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
         for pat in ENCODING_PATS:
             src = pat.sub('', src)
         try:
-            self.root = html.document_fromstring(src)
+            self.root = etree.HTML(src, self.PARSER)
+            if self.root is None:
+                raise ValueError('%s is empty'%self.htmlfile.path)
         except:
             if self.opts.verbose:
                 self.log_exception('lxml based parsing failed')
-            self.root = html.soupparser.fromstring()
+            self.root = soupparser.fromstring(src)
         self.head = self.body = None
         head = self.root.xpath('//head')
         if head:
@@ -404,19 +414,27 @@ class Processor(Parser):
     def detect_chapters(self):
         self.detected_chapters = self.opts.chapter(self.root)
         for elem in self.detected_chapters:
-            style = elem.get('style', '').strip()
-            if style and not style.endswith(';'):
-                style += '; '
-            style += 'page-break-before: always'
-            elem.set(style, style)
+            if self.opts.chapter_mark in ('both', 'pagebreak'):
+                style = elem.get('style', '').strip()
+                if style and not style.endswith(';'):
+                    style += '; '
+                style += 'page-break-before: always'
+                elem.set('style', style)
+            if self.opts.chapter_mark in ('both', 'rule'):
+                hr = etree.Element('hr')
+                if elem.getprevious() is None:
+                    elem.getparent()[:0] = [hr]
+                else:
+                    insert = None
+                    for i, c in enumerate(elem.getparent()):
+                        if c is elem:
+                            insert = i
+                            break
+                    elem.getparent()[insert:insert] = [hr]
+                    
         
     def save(self):
-        head = self.root.xpath('//head')
-        if head:
-            head = head[0]
-        else:
-            head = self.root.xpath('//body')
-            head = head[0] if head else self.root
+        head = self.head if self.head is not None else self.body
         style = etree.SubElement(head, 'style', attrib={'type':'text/css'})
         style.text='\n'+self.css
         style.tail = '\n\n'
@@ -589,7 +607,7 @@ def search_for_opf(dir):
 
 def get_filelist(htmlfile, opts):
     '''
-    Build list of files references by html file or try to detect and use an
+    Build list of files referenced by html file or try to detect and use an
     OPF file instead.
     '''
     print 'Building file list...'
@@ -672,7 +690,7 @@ def rebase_toc(toc, htmlfile_map, basepath, root=True):
         fix_entry(entry)
     if root:
         toc.base_path = basepath
-
+    
 def create_dir(htmlfile, opts):
     '''
     Create a directory that contains the open ebook

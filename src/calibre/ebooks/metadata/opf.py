@@ -483,7 +483,7 @@ class OPFCreator(MetaInformation):
         Set the toc. You must call :method:`create_spine` before calling this
         method.
         
-        `toc`: A :class:`TOC` object
+        :param toc: A :class:`TOC` object
         '''
         self.toc = toc
         
@@ -491,12 +491,21 @@ class OPFCreator(MetaInformation):
         self.guide = Guide.from_opf_guide(guide_element, self.base_path)
         self.guide.set_basedir(self.base_path)
             
-    def render(self, opf_stream, ncx_stream=None):
+    def render(self, opf_stream, ncx_stream=None, ncx_manifest_entry=None):
         from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
         template = MarkupTemplate(opf_template)
         if self.manifest:
             self.manifest.set_basedir(self.base_path)
+            if ncx_manifest_entry is not None:
+                if not os.path.isabs(ncx_manifest_entry):
+                    ncx_manifest_entry = os.path.join(self.base_path, ncx_manifest_entry)
+                remove = [i for i in self.manifest if i.id == 'ncx']
+                for item in remove:
+                    self.manifest.remove(item)
+                self.manifest.append(ManifestItem(ncx_manifest_entry, self.base_path))
+                self.manifest[-1].id = 'ncx'
+                self.manifest[-1].mime_type = 'application/x-dtbncx+xml'
         if not self.guide:
             self.guide = Guide()
         if self.cover:

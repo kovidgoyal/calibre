@@ -206,11 +206,11 @@ def upload_user_manual():
     check_call('scp -r src/calibre/manual/.build/html/* divok:%s'%USER_MANUAL)
     
 def build_src_tarball():
-    check_call('bzr export dist/calibre-%s.tar.bz2'%__version__)
+    check_call('bzr export dist/calibre-%s.tar.gz'%__version__)
 
 def upload_src_tarball():
-    check_call('ssh divok rm -f %s/calibre-\*.tar.bz2'%DOWNLOADS)
-    check_call('scp dist/calibre-*.tar.bz2 divok:%s/'%DOWNLOADS)
+    check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS)
+    check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS)
 
 def stage_one():
     check_call('sudo rm -rf build', shell=True)
@@ -226,16 +226,19 @@ def stage_one():
 def stage_two():
     subprocess.check_call('rm -rf dist/*', shell=True)
     build_installers()
-    build_src_tarball()
 
 def stage_three():
     print 'Uploading installers...'
     upload_installers()
     print 'Uploading to PyPI'
-    upload_src_tarball()
     upload_docs()
     upload_user_manual()
-    check_call('python setup.py register bdist_egg --exclude-source-files upload')
+    check_call('rm -f dist/*')
+    check_call('python setup.py register')
+    check_call('python setup.py bdist_egg --exclude-source-files')
+    build_src_tarball()
+    upload_src_tarball()
+    check_call('python setup.py upload')
     check_call('''rm -rf dist/* build/*''')
     check_call('''ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/''')
 

@@ -1,7 +1,10 @@
+<?xml version="1.0"  encoding="UTF-8"?>
+<?python
+from uuid import uuid4
+?>
 <ncx version="2005-1" 
      xml:lang="en" 
      xmlns="http://www.daisy.org/z3986/2005/ncx/"
-     encoding="UTF-8"
      xmlns:py="http://genshi.edgewall.org/"
 >
     <head>
@@ -14,7 +17,7 @@
     <docTitle><text>Table of Contents</text></docTitle>
     
     <py:def function="navpoint(np, level)">
-        ${'%*s'%(4*level,'')}<navPoint playOrder="${str(np.play_order)}">
+        ${'%*s'%(4*level,'')}<navPoint id="${str(uuid4())}" playOrder="${str(np.play_order)}">
             ${'%*s'%(4*level,'')}<navLabel>
                 ${'%*s'%(4*level,'')}<text>${np.text}</text>
             ${'%*s'%(4*level,'')}</navLabel>

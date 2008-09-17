@@ -43,7 +43,7 @@ class Resource(object):
     
     def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
         self._href = None
-        self._basedir = None
+        self._basedir = basedir
         self.path = None
         self.fragment = ''
         try:
@@ -55,7 +55,7 @@ class Resource(object):
         if is_path:
             path = href_or_path
             if not os.path.isabs(path):
-                path = os.path.abspath(os.path.join(path, basedir))
+                path = os.path.abspath(os.path.join(basedir, path))
             if isinstance(path, str):
                 path = path.decode(sys.getfilesystemencoding())
             self.path = path

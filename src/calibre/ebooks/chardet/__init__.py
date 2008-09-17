@@ -75,7 +75,10 @@ def xml_to_unicode(raw, verbose=False, strip_encoding_pats=False, resolve_entiti
     if encoding == 'ascii':
         encoding = 'utf-8'
     
-    raw = raw.decode(encoding, 'replace')
+    try:
+        raw = raw.decode(encoding, 'replace')
+    except LookupError:
+        raw = raw.decode('utf-8', 'replace')
     if resolve_entities:
         from calibre import entity_to_unicode
         from functools import partial

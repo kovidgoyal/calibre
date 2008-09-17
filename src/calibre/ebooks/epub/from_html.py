@@ -23,8 +23,9 @@ class HTMLProcessor(Processor):
         if opts.verbose > 2:
             self.debug_tree('parsed')
         self.detect_chapters()
-        self.extract_css()
         
+        
+        self.extract_css()
         if opts.verbose > 2:
             self.debug_tree('nocss')
         
@@ -97,8 +98,8 @@ def convert(htmlfile, opts, notification=None):
         resources = [os.path.join(tdir, 'content', f) for f in resource_map.values()]
         
         if mi.cover and os.access(mi.cover, os.R_OK):
-            shutil.copyfile(mi.cover, os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)))
-            cpath = os.path.join(opts.output, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover))
+            shutil.copyfile(mi.cover, os.path.join(tdir, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)[1]))
+            cpath = os.path.join(tdir, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)[1])
             shutil.copyfile(opf.cover, cpath)
             resources.append(cpath)
             mi.cover = cpath
@@ -107,21 +108,22 @@ def convert(htmlfile, opts, notification=None):
         mi = create_metadata(tdir, mi, spine, resources)
         buf = cStringIO.StringIO()
         if mi.toc:
-            rebase_toc(mi.toc, htmlfile_map, opts.output)
+            rebase_toc(mi.toc, htmlfile_map, tdir)
         if mi.toc is None or len(mi.toc) < 2:
             mi.toc = generated_toc
         for item in mi.manifest:
             if getattr(item, 'mime_type', None) == 'text/html':
                 item.mime_type = 'application/xhtml+xml'
         with open(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
-            mi.render(f, buf)
+            mi.render(f, buf, 'toc.ncx')
         if opts.show_opf:
             print open(os.path.join(tdir, 'metadata.opf')).read()
         toc = buf.getvalue()
         if toc:
             with open(os.path.join(tdir, 'toc.ncx'), 'wb') as f:
                 f.write(toc)
-                
+            if opts.show_ncx:
+                print toc
         epub = initialize_container(opts.output)
         epub.add_dir(tdir)
         print 'Output written to', opts.output

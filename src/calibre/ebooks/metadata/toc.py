@@ -29,8 +29,9 @@ class TOC(list):
         self.base_path = base_path
         self.play_order = play_order
         
-    def add_item(self, href, fragment, text):
-        play_order = (self[-1].play_order if len(self) else self.play_order) + 1
+    def add_item(self, href, fragment, text, play_order=None):
+        if play_order is None:
+            play_order = (self[-1].play_order if len(self) else self.play_order) + 1
         self.append(TOC(href=href, fragment=fragment, text=text, parent=self,
                         base_path=self.base_path, play_order=play_order))
         return self[-1]
@@ -113,14 +114,16 @@ class TOC(list):
         soup = NCXSoup(xml_to_unicode(open(toc, 'rb').read())[0])
         
         def process_navpoint(np, dest):
-            play_order = np.get('playOrder', 1)
+            play_order = np.get('playOrder', None)
+            if play_order is None:
+                play_order = int(np.get('playorder', 1))
             href = fragment = text = None
             nl = np.find('navlabel')
             if nl is not None:
                 text = u''
                 for txt in nl.findAll('text'):
                     text += ''.join([unicode(s) for s in txt.findAll(text=True)])
-                content = elem.find('content')
+                content = np.find('content')
                 if content is None or not content.has_key('src') or not txt:
                     return
                 

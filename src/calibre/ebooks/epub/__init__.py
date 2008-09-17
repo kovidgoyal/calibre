@@ -53,6 +53,8 @@ The expression used must evaluate to a list of elements. To disable chapter dete
 use the expression "/". See the XPath Tutorial in the calibre User Manual for further
 help on using this feature.
 ''').replace('\n', ' '))
+    structure('chapter_mark', ['--chapter-mark'], choices=['pagebreak', 'rule', 'both'],
+              default='pagebreak', help=_('Specify how to mark detected chapters. A value of "pagebreak" will insert page breaks before chapters. A value of "rule" will insert a line before chapters. A value of "none" will disable chapter marking and a value of "both" will use both page breaks and lines to mark chapters.'))
     
     toc = c.add_group('toc', 
         _('''\
@@ -69,5 +71,7 @@ to auto-generate a Table of Contents.
     
     c.add_opt('show_opf', ['--show-opf'], default=False, group='debug',
               help=_('Print generated OPF file to stdout'))
+    c.add_opt('show_ncx', ['--show-ncx'], default=False, group='debug',
+              help=_('Print generated NCX file to stdout'))
     
     return c

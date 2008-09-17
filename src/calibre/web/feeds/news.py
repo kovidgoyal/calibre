@@ -719,6 +719,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         
         entries = ['index.html']
         toc = TOC(base_path=dir)
+        self.play_order_counter = 0
+        self.play_order_map = {}
         
         def feed_index(num, parent):
             f = feeds[num]
@@ -726,7 +728,12 @@ class BasicNewsRecipe(object, LoggingInterface):
                 if getattr(a, 'downloaded', False):
                     adir = 'feed_%d/article_%d/'%(num, j)
                     entries.append('%sindex.html'%adir)
-                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'))
+                    po = self.play_order_map.get(entries[-1], None)
+                    if po is None:
+                        self.play_order_counter += 1
+                        po = self.play_order_counter
+                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'),
+                                    play_order=po)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
@@ -752,7 +759,11 @@ class BasicNewsRecipe(object, LoggingInterface):
         if len(feeds) > 1:
             for i, f in enumerate(feeds):
                 entries.append('feed_%d/index.html'%i)
-                feed_index(i, toc.add_item('feed_%d/index.html'%i, None, f.title))
+                po = self.play_order_map.get(entries[-1], None)
+                if po is None:
+                    self.play_order_counter += 1
+                    po = self.play_order_counter
+                feed_index(i, toc.add_item('feed_%d/index.html'%i, None, f.title, play_order=po))
         else:
             entries.append('feed_%d/index.html'%0)
             feed_index(0, toc)
