@@ -529,16 +529,18 @@ in which you want to store your books files. Any existing books will be automati
                         paths[i] = path
                     else: 
                         formats[i] = 'zip'
-            duplicates = model.add_books(paths, formats, metadata)
+            duplicates, number_added = model.add_books(paths, formats, metadata)
             if duplicates:
                 files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
                 for mi in duplicates[2]:
                     files += '<li>'+mi.title+'</li>\n'
                 d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', parent=self)
                 if d.exec_() == QDialog.Accepted:
-                    model.add_books(*duplicates, **dict(add_duplicates=True))
-            self.library_view.sortByColumn(3, Qt.DescendingOrder)
-            model.research()
+                    num = model.add_books(*duplicates, **dict(add_duplicates=True))[1]
+                    number_added += num
+            #self.library_view.sortByColumn(3, Qt.DescendingOrder)
+            #model.research()
+            model.books_added(number_added)
         else:
             self.upload_books(paths, names, infos, on_card=on_card)
 

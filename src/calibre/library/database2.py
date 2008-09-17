@@ -48,6 +48,7 @@ class CoverCache(QThread):
         self.load_queue_lock = QReadWriteLock(QReadWriteLock.Recursive)
         self.cache = {}
         self.cache_lock = QReadWriteLock()
+        self.id_map_stale = True
         self.keep_running = True
         
     def build_id_map(self):
@@ -61,6 +62,7 @@ class CoverCache(QThread):
             except:
                 continue
         self.id_map_lock.unlock()
+        self.id_map_stale = False
             
     
     def set_cache(self, ids):
@@ -80,9 +82,9 @@ class CoverCache(QThread):
     
     def run(self):
         while self.keep_running:
-            if self.id_map is None:
+            if self.id_map is None or self.id_map_stale:
                 self.build_id_map()
-            while True:
+            while True: # Load images from the load queue
                 self.load_queue_lock.lockForWrite()
                 try:
                     id = self.load_queue.popleft()
@@ -102,6 +104,8 @@ class CoverCache(QThread):
                 self.id_map_lock.lockForRead()
                 if id in self.id_map.keys():
                     path = self.id_map[id]
+                else:
+                    self.id_map_stale = True
                 self.id_map_lock.unlock()
                 if path and os.access(path, os.R_OK):
                     try:
@@ -214,6 +218,15 @@ class ResultCache(object):
         for id in ids:
             self._data[id] = conn.execute('SELECT * from meta WHERE id=?', (id,)).fetchone()
         return map(self.row, ids)
+    
+    def books_added(self, ids, conn):
+        if not ids:
+            return
+        self._data.extend(repeat(None, max(ids)-len(self._data)+2))
+        for id in ids:
+            self._data[id] = conn.execute('SELECT * from meta WHERE id=?', (id,)).fetchone()
+        self._map[0:0] = ids
+        self._map_filtered[0:0] = ids
     
     def refresh(self, db, field, ascending):
         field = field.lower()
@@ -867,13 +880,15 @@ class LibraryDatabase2(LibraryDatabase):
             if not hasattr(path, 'read'):
                 stream.close()
         self.conn.commit()
+        if ids:
+            self.data.books_added(ids, self.conn)
         if duplicates:
             paths    = tuple(duplicate[0] for duplicate in duplicates)
             formats  = tuple(duplicate[1] for duplicate in duplicates)
             metadata = tuple(duplicate[2] for duplicate in duplicates)
             uris     = tuple(duplicate[3] for duplicate in duplicates)
-            return (paths, formats, metadata, uris)
-        return None
+            return (paths, formats, metadata, uris), len(ids)
+        return None, len(ids)
      
     def import_book(self, mi, formats):
         series_index = 1 if mi.series_index is None else mi.series_index
@@ -890,6 +905,7 @@ class LibraryDatabase2(LibraryDatabase):
             stream = open(path, 'rb')
             self.add_format(id, ext, stream, index_is_id=True)
         self.conn.commit()
+        self.data.books_added([id], self.conn)
         self.notify('add', [id])
         
     def move_library_to(self, newloc):

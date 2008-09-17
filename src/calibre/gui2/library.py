@@ -168,6 +168,11 @@ class BooksModel(QAbstractTableModel):
 
     def search_tokens(self, text):
         return text_to_tokens(text)
+    
+    def books_added(self, num):
+        if num > 0:
+            self.beginInsertRows(QModelIndex(), 0, num-1)
+            self.endInsertRows()
 
     def search(self, text, refinement, reset=True):
         tokens, OR = self.search_tokens(text)
