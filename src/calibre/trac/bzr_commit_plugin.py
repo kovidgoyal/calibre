@@ -45,7 +45,7 @@ class cmd_commit(_cmd_commit):
         password = config.get_user_option(prefix+'password')
         close_bug = config.get_user_option(prefix+'pattern')
         if close_bug is None:
-            close_bug = r'(Fix|Implement)\s+#(\d+)'
+            close_bug = r'(Fix|Implement|Fixes|Fixed|Implemented)\s+#(\d+)'
         close_bug_pat = re.compile(close_bug, re.IGNORECASE)
         match = close_bug_pat.search(msg)
         if not match:

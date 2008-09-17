@@ -507,14 +507,17 @@ in which you want to store your books files. Any existing books will be automati
             format = os.path.splitext(book)[1]
             format = format[1:] if format else None
             stream = open(book, 'rb')
-            mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
+            try:
+                mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
+            except:
+                mi = MetaInformation(None, None)
             if not mi.title:
                 mi.title = os.path.splitext(os.path.basename(book))[0]
+            if not mi.authors:
+                mi.authors = [_('Unknown')]
             formats.append(format)
             metadata.append(mi)
             names.append(os.path.basename(book))
-            if not mi.authors:
-                mi.authors = ['Unknown']
             infos.append({'title':mi.title, 'authors':', '.join(mi.authors),
                           'cover':self.default_thumbnail, 'tags':[]})
 
@@ -524,7 +527,11 @@ in which you want to store your books files. Any existing books will be automati
             paths = list(paths)
             for i, path in enumerate(paths):
                 if html_pat.search(path) is not None:
-                    paths[i] = html2oeb(path)
+                    try:
+                        paths[i] = html2oeb(path)
+                    except:
+                        traceback.print_exc()
+                        continue
                     if paths[i] is None:
                         paths[i] = path
                     else: 
