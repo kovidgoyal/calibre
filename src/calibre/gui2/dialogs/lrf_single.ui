@@ -118,14 +118,6 @@
              <number>3</number>
             </property>
             <widget class="QWidget" name="metadata_page" >
-             <property name="geometry" >
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>642</width>
-               <height>458</height>
-              </rect>
-             </property>
              <layout class="QHBoxLayout" >
               <item>
                <widget class="QGroupBox" name="groupBox_4" >
@@ -431,14 +423,6 @@
              </layout>
             </widget>
             <widget class="QWidget" name="lookandfeel_page" >
-             <property name="geometry" >
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>642</width>
-               <height>458</height>
-              </rect>
-             </property>
              <layout class="QGridLayout" >
               <item row="0" column="0" >
                <widget class="QLabel" name="label_8" >
@@ -697,14 +681,6 @@
              </layout>
             </widget>
             <widget class="QWidget" name="pagesetup_page" >
-             <property name="geometry" >
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>642</width>
-               <height>458</height>
-              </rect>
-             </property>
              <layout class="QGridLayout" >
               <item row="0" column="0" >
                <widget class="QLabel" name="label_11" >
@@ -742,7 +718,7 @@
                  <string> px</string>
                 </property>
                 <property name="maximum" >
-                 <number>100</number>
+                 <number>200</number>
                 </property>
                 <property name="value" >
                  <number>20</number>
@@ -765,7 +741,7 @@
                  <string> px</string>
                 </property>
                 <property name="maximum" >
-                 <number>100</number>
+                 <number>200</number>
                 </property>
                 <property name="value" >
                  <number>20</number>
@@ -788,7 +764,7 @@
                  <string> px</string>
                 </property>
                 <property name="maximum" >
-                 <number>100</number>
+                 <number>200</number>
                 </property>
                 <property name="value" >
                  <number>10</number>
@@ -811,7 +787,7 @@
                  <string> px</string>
                 </property>
                 <property name="maximum" >
-                 <number>100</number>
+                 <number>200</number>
                 </property>
                 <property name="value" >
                  <number>0</number>
@@ -854,14 +830,6 @@
              </layout>
             </widget>
             <widget class="QWidget" name="chapterdetection_page" >
-             <property name="geometry" >
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>642</width>
-               <height>458</height>
-              </rect>
-             </property>
              <layout class="QVBoxLayout" >
               <item>
                <widget class="QGroupBox" name="groupBox_6" >
@@ -1017,7 +985,7 @@
              <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'Candara'; font-size:11pt; font-weight:400; font-style:normal;">
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
 &lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Sans Serif'; font-size:9pt;">&lt;/p>&lt;/body>&lt;/html></string>
             </property>
            </widget>
