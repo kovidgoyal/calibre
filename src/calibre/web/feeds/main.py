@@ -30,31 +30,31 @@ def config(defaults=None):
     web2disk('no_stylesheets', ['--dont-download-stylesheets'], action='store_true', default=False,
               help=_('Do not download CSS stylesheets.'))
     
-    c.add_option('feeds', ['--feeds'], default=None,
+    c.add_opt('feeds', ['--feeds'], default=None,
                  help=_('''Specify a list of feeds to download. For example: 
 "['http://feeds.newsweek.com/newsweek/TopNews', 'http://feeds.newsweek.com/headlines/politics']"
 If you specify this option, any argument to %prog is ignored and a default recipe is used to download the feeds.'''))
-    c.add_option('verbose', ['-v', '--verbose'], default=0, action='count',
+    c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
                  help=_('''Be more verbose while processing.'''))
-    c.add_option('title', ['--title'], default=None,
+    c.add_opt('title', ['--title'], default=None,
                  help=_('The title for this recipe. Used as the title for any ebooks created from the downloaded feeds.'))
-    c.add_option('username', ['-u', '--username'], default=None, 
+    c.add_opt('username', ['-u', '--username'], default=None, 
                  help=_('Username for sites that require a login to access content.'))
-    c.add_option('password', ['-p', '--password'], default=None, 
+    c.add_opt('password', ['-p', '--password'], default=None, 
                  help=_('Password for sites that require a login to access content.'))
-    c.add_option('lrf', ['--lrf'], default=False, action='store_true', 
+    c.add_opt('lrf', ['--lrf'], default=False, action='store_true', 
                  help='Optimize fetching for subsequent conversion to LRF.')
-    c.add_option('epub', ['--epub'], default=False, action='store_true', 
+    c.add_opt('epub', ['--epub'], default=False, action='store_true', 
                  help='Optimize fetching for subsequent conversion to EPUB.')
-    c.add_option('recursions', ['--recursions'], default=0,
+    c.add_opt('recursions', ['--recursions'], default=0,
                  help=_('Number of levels of links to follow on webpages that are linked to from feeds. Defaul %default'))
-    c.add_option('output_dir', ['--output-dir'], default='.', 
+    c.add_opt('output_dir', ['--output-dir'], default='.', 
                  help=_('The directory in which to store the downloaded feeds. Defaults to the current directory.'))
-    c.add_option('no_progress_bar', ['--no-progress-bar'], default=False, action='store_true',
+    c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False, action='store_true',
                  help=_("Don't show the progress bar"))
-    c.add_option('debug', ['--debug'], action='store_true', default=False,
+    c.add_opt('debug', ['--debug'], action='store_true', default=False,
                  help=_('Very verbose output, useful for debugging.'))
-    c.add_option('test', ['--test'], action='store_true', default=False, 
+    c.add_opt('test', ['--test'], action='store_true', default=False, 
                  help=_('Useful for recipe development. Forces max_articles_per_feed to 2 and downloads at most 2 feeds.'))
     
     return c

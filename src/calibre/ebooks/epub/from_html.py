@@ -97,14 +97,40 @@ def convert(htmlfile, opts, notification=None):
         resource_map, htmlfile_map, generated_toc = parse_content(filelist, opts, tdir)
         resources = [os.path.join(tdir, 'content', f) for f in resource_map.values()]
         
+        cover_src = None
         if mi.cover and os.access(mi.cover, os.R_OK):
-            shutil.copyfile(mi.cover, os.path.join(tdir, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)[1]))
-            cpath = os.path.join(tdir, 'content', 'resources', '_cover_'+os.path.splitext(opf.cover)[1])
-            shutil.copyfile(opf.cover, cpath)
-            resources.append(cpath)
-            mi.cover = cpath
+            cover_src = mi.cover
+        else:
+            mi.cover = None
+        if opts.cover is not None and not opts.prefer_metadata_cover:
+            cover_src = opts.cover
+        
+        if cover_src is not None:
+            cover_dest = os.path.join(tdir, 'content', 'resources', '_cover_'+os.path.splitext(cover_src)[1])
+            shutil.copyfile(cover_src, cover_dest)
+            mi.cover = cover_dest
+            resources.append(cover_dest)
             
         spine = [htmlfile_map[f.path] for f in filelist]
+        if mi.cover:
+            cpath = '/'.join(('resources', os.path.basename(mi.cover)))
+            cover = '''\
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head><title>Cover Page</title></head>
+    <body>
+        <div style="text-align:center">
+            <img src="%s" alt="cover" />
+        </div>
+    </body>
+</html>'''%cpath
+            cpath = os.path.join(tdir, 'content', 'calibre_cover_page.html')
+            with open(cpath, 'wb') as f:
+                f.write(cover)
+            spine[0:0] = [os.path.basename(cpath)]
+            mi.cover = None
+            mi.cover_data = (None, None)
+            
+            
         mi = create_metadata(tdir, mi, spine, resources)
         buf = cStringIO.StringIO()
         if mi.toc:

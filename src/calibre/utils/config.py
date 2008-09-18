@@ -218,6 +218,15 @@ class OptionSet(object):
                 self.preferences.remove(pref)
             self.preferences.append(pref)
             
+    def smart_update(self, opts1, opts2):
+        '''
+        Updates the preference values in opts1 using only the non-default preference values in opts2.
+        '''
+        for pref in self.preferences:
+            new = getattr(opts2, pref.name, pref.default)
+            if new != pref.default:
+                setattr(opts1, pref.name, new)
+            
     def remove_opt(self, name):
         if name in self.preferences:
             self.preferences.remove(name)
@@ -339,7 +348,8 @@ class ConfigInterface(object):
         self.option_set       = OptionSet(description=description)
         self.add_opt          = self.option_set.add_opt
         self.add_group        = self.option_set.add_group
-        self.remove_opt       = self.option_set.remove_opt
+        self.remove_opt       = self.remove = self.option_set.remove_opt
+        self.parse_string     = self.option_set.parse_string
         
     def update(self, other):
         self.option_set.update(other.option_set)
@@ -347,6 +357,9 @@ class ConfigInterface(object):
     def option_parser(self, usage='', gui_mode=False):
         return self.option_set.option_parser(user_defaults=self.parse(), 
                                              usage=usage, gui_mode=gui_mode)
+    
+    def smart_update(self, opts1, opts2):
+        self.option_set.smart_update(opts1, opts2)
     
 class Config(ConfigInterface):
     '''

@@ -667,7 +667,7 @@ def create_metadata(basepath, mi, filelist, resources):
     Create an OPF metadata object with correct spine and manifest.
     '''
     mi = OPFCreator(basepath, mi)
-    entries = [('content/'+f, None) for f in filelist] + [(f, None) for f in resources]
+    entries = [('content/'+f, 'application/xhtml+xml') for f in filelist] + [(f, None) for f in resources]
     mi.create_manifest(entries)
     mi.create_spine(['content/'+f for f in filelist])
     return mi

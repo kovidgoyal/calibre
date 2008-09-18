@@ -413,7 +413,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         defaults = parser.get_default_values()
         
         for opt in options.__dict__.keys():
-            if getattr(options, opt) != getattr(defaults, opt):
+            if getattr(options, opt) != getattr(defaults, opt, None):
                 setattr(self, opt, getattr(options, opt))
         
         if isinstance(self.feeds, basestring):

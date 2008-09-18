@@ -55,6 +55,11 @@ help on using this feature.
 ''').replace('\n', ' '))
     structure('chapter_mark', ['--chapter-mark'], choices=['pagebreak', 'rule', 'both'],
               default='pagebreak', help=_('Specify how to mark detected chapters. A value of "pagebreak" will insert page breaks before chapters. A value of "rule" will insert a line before chapters. A value of "none" will disable chapter marking and a value of "both" will use both page breaks and lines to mark chapters.'))
+    structure('cover', ['--cover'], default=None,
+              help=_('Path to the cover to be used for this book'))
+    structure('prefer_metadata_cover', ['--prefer-metadata-cover'], default=False,
+              action='store_true',
+              help=_('Use the cover detected from the source file in preference to the specified cover.'))
     
     toc = c.add_group('toc', 
         _('''\

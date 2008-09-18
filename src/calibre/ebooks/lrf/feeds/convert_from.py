@@ -54,8 +54,6 @@ def main(args=sys.argv, notification=None, handler=None):
             opts.output = os.path.join(os.getcwd(), sanitize_file_name(fname))
         print 'Generating LRF...'
         process_file(htmlfile, opts)
-        if os.stat(opts.output).st_size < 100: # This can happen if the OS runs out of file handles
-            raise ConversionError(_('Failed to convert downloaded recipe: ')+recipe_arg)
     return 0
 
 if __name__ == '__main__':
