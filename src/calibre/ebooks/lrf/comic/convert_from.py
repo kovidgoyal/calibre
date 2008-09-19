@@ -325,8 +325,11 @@ def create_epub(pages, profile, opts, thumbnail=None):
     wrappers = []
     WRAPPER = textwrap.dedent('''\
     <html>
-        <head></head>
-        <body>
+        <head>
+            <title>Page #%d</title>
+            <style type="text/css">@page {margin:0pt; padding: 0pt;}</style>
+        </head>
+        <body style="margin: 0pt; padding: 0pt">
             <div style="text-align:center">
                 <img src="%s" alt="comic page #%d" />
             </div>
@@ -335,7 +338,7 @@ def create_epub(pages, profile, opts, thumbnail=None):
     ''')
     dir = os.path.dirname(pages[0])
     for i, page in enumerate(pages):
-        wrapper = WRAPPER%(os.path.basename(page), i+1)
+        wrapper = WRAPPER%(i+1, os.path.basename(page), i+1)
         page = os.path.join(dir, 'page_%d.html'%(i+1))
         open(page, 'wb').write(wrapper)
         wrappers.append(page)
@@ -346,8 +349,9 @@ def create_epub(pages, profile, opts, thumbnail=None):
     opf.create_spine(wrappers)
     metadata = os.path.join(dir, 'metadata.opf')
     opf.render(open(metadata, 'wb'))
-    opts = html2epub_config('margin_left=0\nmargin_right=0\nmargin_top=0\nmargin_bottom=0').parse()
-    html2epub(metadata, opts)
+    opts2 = html2epub_config('margin_left=0\nmargin_right=0\nmargin_top=0\nmargin_bottom=0').parse()
+    opts2.output = opts.output
+    html2epub(metadata, opts2)
 
 def create_lrf(pages, profile, opts, thumbnail=None):
     width, height = PROFILES[profile]
@@ -371,6 +375,7 @@ def create_lrf(pages, profile, opts, thumbnail=None):
         book.append(_page)
         
     book.renderLrf(open(opts.output, 'wb'))
+    print _('Output written to'), opts.output
     
     
 def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='lrf'):
@@ -379,7 +384,6 @@ def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='l
         opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:
         opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.'+output_format)
-        
     tdir  = extract_comic(source)
     pages = find_pages(tdir, sort_on_mtime=opts.no_sort, verbose=opts.verbose)
     if not pages:
@@ -394,6 +398,7 @@ def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='l
     thumbnail = os.path.join(tdir2, 'thumbnail.png')
     if not os.access(thumbnail, os.R_OK):
         thumbnail = None
+    
     if output_format == 'lrf':
         create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
     else:
@@ -417,7 +422,7 @@ def main(args=sys.argv, notification=None, output_format='lrf'):
     
     source = os.path.abspath(args[1])
     do_convert(source, opts, notification, output_format=output_format)
-    print _('Output written to'), opts.output
+    
     return 0
 
 if __name__ == '__main__':

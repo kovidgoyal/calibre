@@ -555,8 +555,8 @@ class Processor(Parser):
         # TODO: Figure out what to do about CSS imports from linked stylesheets
         
     def do_layout(self):
-        self.css += '\nbody {margin-top: 0pt; margin-botton: 0pt; margin-left: 0pt; margin-right: 0pt}\n'
-        self.css += '@page {margin-top: %fpt; margin-botton: %fpt; margin-left: %fpt; margin-right: %fpt}\n'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)    
+        self.css += '\nbody {margin-top: 0pt; margin-bottom: 0pt; margin-left: 0pt; margin-right: 0pt}\n'
+        self.css += '@page {margin-top: %fpt; margin-bottom: %fpt; margin-left: %fpt; margin-right: %fpt}\n'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)    
 
 def config(defaults=None, config_name='html', 
            desc=_('Options to control the traversal of HTML')):
