@@ -229,9 +229,10 @@ def stage_two():
 def stage_three():
     print 'Uploading installers...'
     upload_installers()
-    print 'Uploading to PyPI'
+    print 'Uploading documentation...'
     upload_docs()
     upload_user_manual()
+    print 'Uploading to PyPI...'
     check_call('rm -f dist/*')
     check_call('python setup.py register')
     check_call('python setup.py bdist_egg --exclude-source-files')

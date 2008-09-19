@@ -39,7 +39,7 @@ class ChangelogFormatter(blog.LogFormatter):
             self.messages = collections.deque()
             
         else:
-            if re.search(r'[a-zA-Z]', msg):
+            if re.search(r'[a-zA-Z]', msg) and len(msg.strip()) > 5:
                 if 'translation' not in msg and not msg.startswith('IGN'):
                     self.messages.append(msg.strip())
                     
