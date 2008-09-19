@@ -36,6 +36,7 @@ class Distribution(object):
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('lxml', '2.0.5', 'lxml', 'python-lxml', 'python-lxml'),
+        ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-beautifulsoup'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
     
@@ -44,8 +45,8 @@ class Distribution(object):
     INSTALLERS = ('emerge -avn', 'apt-get install', 'yum install')
     AS_ROOT    = (True, False, True)
     
-    TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Gutsy Gibbon',
-                'fedora':'Fedora 8', 'debian':'Debian Sid', 'generic': 'Install from source'}
+    TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Interpid Ibex',
+                'fedora':'Fedora 10', 'debian':'Debian sid', 'generic': 'Install from source'}
     
     MANUAL_MAP = {
                   'fedora' : '''<li>You have to upgrade Qt to at least 4.4.0 and PyQt to at least 4.4.2</li>''',
