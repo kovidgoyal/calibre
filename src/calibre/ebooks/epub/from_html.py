@@ -4,7 +4,12 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 import os, sys, re, shutil, cStringIO
+
 from lxml.etree import XPath
+try:
+    from PIL import Image as PILImage
+except ImportError:
+    import Image as PILImage
 
 from calibre.ebooks.html import Processor, get_text, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc
@@ -106,8 +111,8 @@ def convert(htmlfile, opts, notification=None):
             cover_src = opts.cover
         
         if cover_src is not None:
-            cover_dest = os.path.join(tdir, 'content', 'resources', '_cover_'+os.path.splitext(cover_src)[1])
-            shutil.copyfile(cover_src, cover_dest)
+            cover_dest = os.path.join(tdir, 'content', 'resources', '_cover_.jpg')
+            PILImage.open(cover_src).convert('RGB').save(cover_dest)
             mi.cover = cover_dest
             resources.append(cover_dest)
             

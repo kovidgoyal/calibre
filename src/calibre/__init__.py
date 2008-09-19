@@ -317,6 +317,11 @@ class LoggingInterface:
     def log_exception(self, msg, *args):
         self.___log(self.__logger.exception, msg, args, {})
 
+def walk(dir):
+    ''' A nice interface to os.walk '''
+    for record in os.walk(dir):
+        for f in record[-1]:
+            yield os.path.join(record[0], f)
 
 def strftime(fmt, t=time.localtime()):
     ''' A version of strtime that returns unicode strings. '''

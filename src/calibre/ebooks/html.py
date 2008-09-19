@@ -23,6 +23,7 @@ from calibre.utils.config import Config, StringConfig
 from calibre.ebooks.metadata.opf import OPFReader, OPFCreator
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile
 
@@ -280,7 +281,7 @@ class PreProcessor(object):
         return re.search('<H2[^><]*id=BookTitle', raw) is not None
     
     def is_pdftohtml(self, src):
-        return src.startswith('<!-- created by calibre\'s pdftohtml -->')
+        return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
                           
     def preprocess(self, html):
         if self.is_baen(html):
@@ -335,6 +336,7 @@ class Parser(PreProcessor, LoggingInterface):
                                 pretty_print=self.opts.pretty_print,
                                 include_meta_content_type=True)
             ans = re.compile(r'<html>', re.IGNORECASE).sub('<html xmlns="http://www.w3.org/1999/xhtml">', ans)
+            ans = re.compile(r'<head[^<>]*?>', re.IGNORECASE).sub('<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n', ans)
             f.write(ans)
             return f.name
 
@@ -360,6 +362,8 @@ class Parser(PreProcessor, LoggingInterface):
         body = self.root.xpath('//body')
         if body:
             self.body = body[0]
+        for a in self.root.xpath('//a[@name]'):
+            a.set('id', a.get('name'))
     
     def debug_tree(self, name):
         '''
@@ -540,15 +544,19 @@ class Processor(Parser):
             css.append('#%s { %s }'%(id, setting))
             
         for elem in self.root.xpath('//*[@style]'):
-            if 'id' not in elem.keys():
-                id = get_id(elem, counter)
-                counter += 1 
+            id = get_id(elem, counter)
+            counter += 1
             css.append('#%s {%s}'%(id, elem.get('style')))
             elem.attrib.pop('style')
             
         self.raw_css = '\n\n'.join(css)
         self.css = unicode(self.raw_css)
-        # TODO: Figure out what to do about CSS imports from linked stylesheets    
+        self.do_layout()
+        # TODO: Figure out what to do about CSS imports from linked stylesheets
+        
+    def do_layout(self):
+        self.css += '\nbody {margin-top: 0pt; margin-botton: 0pt; margin-left: 0pt; margin-right: 0pt}\n'
+        self.css += '@page {margin-top: %fpt; margin-botton: %fpt; margin-left: %fpt; margin-right: %fpt}\n'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)    
 
 def config(defaults=None, config_name='html', 
            desc=_('Options to control the traversal of HTML')):
@@ -575,6 +583,8 @@ def config(defaults=None, config_name='html',
              help=_('Set the title. Default is to autodetect.'))
     metadata('authors', ['-a', '--authors'], default=_('Unknown'),
              help=_('The author(s) of the ebook, as a comma separated list.'))
+    metadata('from_opf', ['--metadata-from'], default=None,
+              help=_('Load metadata from the specified OPF file'))
         
     debug = c.add_group('debug', _('Options useful for debugging'))
     debug('verbose', ['-v', '--verbose'], default=0, action='count',
@@ -648,7 +658,12 @@ def merge_metadata(htmlfile, opf, opts):
     if opf:
         mi = MetaInformation(opf)
     else:
-        mi =  get_metadata(open(htmlfile, 'rb'), 'html')
+        try:
+            mi =  get_metadata(open(htmlfile, 'rb'), 'html')
+        except:
+            mi = MetaInformation(None, None)
+    if opts.from_opf is not None and os.access(opts.from_opf, os.R_OK):
+        mi.smart_update(OPF(open(opts.from_opf, 'rb'), os.path.abspath(os.path.dirname(opts.from_opf))))
     if opts.title:
         mi.title = opts.title
     if opts.authors != _('Unknown'):

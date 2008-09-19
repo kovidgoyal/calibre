@@ -317,7 +317,8 @@ def main():
                                        'mechanize', 'ClientForm', 'usbobserver',
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
-                                       'keyword', 'codeop', 'pydoc', 'readline'],
+                                       'keyword', 'codeop', 'pydoc', 'readline',
+                                       'BeautifulSoup'],
                          'packages' : ['PIL', 'Authorization', 'lxml'],
                          'excludes' : ['IPython'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''

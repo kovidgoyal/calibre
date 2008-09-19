@@ -29,7 +29,6 @@ def option_parser():
 def convert(opts, recipe_arg, notification=None):
     opts.lrf  = False
     opts.epub = True
-    opts.chapter_mark = 'none'
     if opts.debug:
         opts.verbose = 2
     parser = option_parser()
@@ -40,6 +39,7 @@ def convert(opts, recipe_arg, notification=None):
         recipe_opts = c.parse_string(recipe.html2epub_options)
         c.smart_update(recipe_opts, opts)
         opts = recipe_opts
+        opts.chapter_mark = 'none'
         opf = glob.glob(os.path.join(tdir, '*.opf'))
         if not opf:
             raise Exception('Downloading of recipe: %s failed'%recipe_arg)

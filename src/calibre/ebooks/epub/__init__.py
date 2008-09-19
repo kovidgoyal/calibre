@@ -44,6 +44,7 @@ def config(defaults=None):
     c.add_opt('output', ['-o', '--output'], default=None,
              help=_('The output EPUB file. If not specified, it is derived from the input file name.'))
     
+    
     structure = c.add_group('structure detection', _('Control auto-detection of document structure.'))
     structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section', 'i')]",
             help=_('''\
@@ -73,6 +74,16 @@ to auto-generate a Table of Contents.
         help=_('Maximum number of links from each HTML file to insert into the TOC. Set to 0 to disable. Default is: %default.'))
     toc('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
         help=_("Don't add auto-detected chapters to the Table of Contents."))
+    
+    layout = c.add_group('page layout', _('Control page layout'))
+    layout('margin_top', ['--margin-top'], default=5.0, 
+           help=_('Set the top margin in pts. Default is %default'))
+    layout('margin_bottom', ['--margin-bottom'], default=5.0, 
+           help=_('Set the bottom margin in pts. Default is %default'))
+    layout('margin_left', ['--margin-left'], default=5.0, 
+           help=_('Set the left margin in pts. Default is %default'))
+    layout('margin_right', ['--margin-right'], default=5.0, 
+           help=_('Set the right margin in pts. Default is %default'))
     
     c.add_opt('show_opf', ['--show-opf'], default=False, group='debug',
               help=_('Print generated OPF file to stdout'))

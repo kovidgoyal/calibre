@@ -200,10 +200,10 @@ class MetaInformation(object):
         Merge the information in C{mi} into self. In case of conflicts, the information
         in C{mi} takes precedence, unless the information in mi is NULL.
         '''
-        if mi.title and mi.title.lower() != 'unknown':
+        if mi.title and mi.title != _('Unknown'):
             self.title = mi.title
             
-        if mi.authors and mi.authors[0].lower() != 'unknown':
+        if mi.authors and mi.authors[0] != _('Unknown'):
             self.authors = mi.authors
             
         for attr in ('author_sort', 'title_sort', 'comments', 'category',

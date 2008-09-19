@@ -12,7 +12,7 @@ try:
 except ImportError:
     import Image as PILImage
 
-from calibre import __appname__
+from calibre import __appname__, entity_to_unicode
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
@@ -263,17 +263,19 @@ class MobiReader(object):
                 if ref.type.lower() == 'toc':
                     toc = ref.href()
         if toc:
-            index = self.processed_html.find('<a name="%s"'%toc.partition('#')[-1])
+            index = self.processed_html.find('<a id="%s" name="%s"'%(toc.partition('#')[-1], toc.partition('#')[-1]))
             tocobj = None
+            ent_pat = re.compile(r'&(\S+?);')
             if index > -1:
                 raw = '<html><body>'+self.processed_html[index:]
                 soup = BeautifulSoup(raw)
                 tocobj = TOC()
                 for a in soup.findAll('a', href=True):
                     try:
-                        text = ''.join(a.findAll(text=True)).strip()
+                        text = u''.join(a.findAll(text=True)).strip()
                     except:
                         text = ''
+                    text = ent_pat.sub(entity_to_unicode, text)
                     tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
             if tocobj is not None:
                 opf.set_toc(tocobj)
@@ -353,7 +355,7 @@ class MobiReader(object):
             r = self.mobi_html.find('>', end)
             if r > -1 and r < l: # Move out of tag
                 end = r+1
-            self.processed_html += self.mobi_html[pos:end] + '<a name="filepos%d"></a>'%oend 
+            self.processed_html += self.mobi_html[pos:end] + '<a id="filepos%d" name="filepos%d"></a>'%(oend, oend) 
             pos = end
             
         self.processed_html += self.mobi_html[pos:]

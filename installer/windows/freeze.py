@@ -152,7 +152,7 @@ def main(args=sys.argv):
                                              'win32process', 'win32api', 'msvcrt',
                                              'win32event', 'calibre.ebooks.lrf.any.*',
                                              'calibre.ebooks.lrf.feeds.*',
-                                             'genshi',
+                                             'genshi', 'BeautifulSoup',
                                              'path', 'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',

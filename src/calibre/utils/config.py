@@ -177,6 +177,12 @@ class Option(object):
         
     def __eq__(self, other):
         return self.name == getattr(other, 'name', other)
+    
+    def __repr__(self):
+        return 'Option: '+self.name
+    
+    def __str__(self):
+        return repr(self)
         
 class OptionValues(object):
     

@@ -43,6 +43,7 @@ entry_points = {
                              'fb22lrf   = calibre.ebooks.lrf.fb2.convert_from:main',
                              'fb2-meta  = calibre.ebooks.metadata.fb2:main',
                              'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
+                             'any2epub  = calibre.ebooks.epub.from_any:main',
                              'lrf2lrs   = calibre.ebooks.lrf.lrfparser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
                              'pdfreflow = calibre.ebooks.lrf.pdf.reflow:main',
@@ -174,8 +175,10 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
         from calibre.ebooks.epub.from_html import option_parser as html2epub
         from calibre.ebooks.html import option_parser as html2oeb
-        from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub 
-
+        from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
+        from calibre.ebooks.epub.from_any import option_parser as any2epub 
+        any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
+             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2'] 
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
         os.remove(f.name)
@@ -193,9 +196,8 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('mobi2lrf', htmlop, ['mobi', 'prc']))
         f.write(opts_and_exts('fb22lrf', htmlop, ['fb2']))
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
-        f.write(opts_and_exts('any2lrf', htmlop,
-            ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
-             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2']))
+        f.write(opts_and_exts('any2lrf', htmlop, any_formats))
+        f.write(opts_and_exts('any2lrf', any2epub, any_formats))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
