@@ -219,7 +219,6 @@ def stage_one():
     os.mkdir('docs')
     check_call('python setup.py build', shell=True)
     check_call('sudo python setup.py develop', shell=True)
-    check_call('make', shell=True)
     tag_release()
     upload_demo()
 
