@@ -438,7 +438,7 @@ class Processor(Parser):
         style = etree.SubElement(head, 'style', attrib={'type':'text/css'})
         style.text='\n'+self.css
         style.tail = '\n\n'
-        Parser.save(self)
+        return Parser.save(self)
     
     def populate_toc(self, toc):
         if self.level >= self.opts.max_toc_recursion:

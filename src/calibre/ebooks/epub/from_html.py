@@ -17,7 +17,7 @@ from calibre.ebooks.epub import config as common_config
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.epub import initialize_container
+from calibre.ebooks.epub import initialize_container, PROFILES
 
 
 class HTMLProcessor(Processor):
@@ -38,7 +38,14 @@ class HTMLProcessor(Processor):
         
         self.split()
         
-            
+    def save(self):
+        file = Processor.save(self)
+        with open(file, 'rb') as f:
+            f.seek(0, 2)
+            size = f.tell()
+        if size > self.opts.profile.flow_size:
+            self.split()
+                
         
     def collect_font_statistics(self):
         '''
@@ -87,6 +94,7 @@ def convert(htmlfile, opts, notification=None):
     htmlfile = os.path.abspath(htmlfile)
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(htmlfile))[0] + '.epub'
+    opts.profile = PROFILES[opts.profile]
     opts.output = os.path.abspath(opts.output)
     if htmlfile.lower().endswith('.opf'):
         opf = OPFReader(htmlfile, os.path.dirname(os.path.abspath(htmlfile)))

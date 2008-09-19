@@ -11,6 +11,20 @@ from calibre.utils.config import Config, StringConfig
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.ebooks.html import config as common_config
 
+class DefaultProfile(object):
+    
+    flow_size = sys.maxint
+    
+class PRS505(DefaultProfile):
+    
+    flow_size = 300000
+        
+
+PROFILES = {
+            'PRS505' : PRS505,
+            'None'   : DefaultProfile,
+            }
+
 def initialize_container(path_to_container, opf_name='metadata.opf'):
     '''
     Create an empty EPUB document, with a default skeleton.
@@ -43,7 +57,8 @@ def config(defaults=None):
     
     c.add_opt('output', ['-o', '--output'], default=None,
              help=_('The output EPUB file. If not specified, it is derived from the input file name.'))
-    
+    c.add_opt('profile', ['--profile'], default='PRS505', choices=list(PROFILES.keys()),
+              help=_('Profile of the target device this EPUB is meant for. Set to None to create a device independent EPUB. The profile is used for device specific restrictions on the EPUB. Choices are: ')+str(list(PROFILES.keys())))
     
     structure = c.add_group('structure detection', _('Control auto-detection of document structure.'))
     structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section', 'i')]",
