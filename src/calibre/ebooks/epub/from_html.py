@@ -3,7 +3,7 @@ from calibre.ebooks.metadata.opf import OPFReader
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
-import os, sys, re, shutil, cStringIO
+import os, sys, re, cStringIO
 
 from lxml.etree import XPath
 try:
@@ -121,8 +121,8 @@ def convert(htmlfile, opts, notification=None):
             cpath = '/'.join(('resources', os.path.basename(mi.cover)))
             cover = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-    <head><title>Cover Page</title></head>
-    <body>
+    <head><title>Cover Page</title><style type="text/css">@page {padding: 0pt; margin:0pt}</style></head>
+    <body style="padding: 0pt; margin: 0pt;}">
         <div style="text-align:center">
             <img src="%s" alt="cover" />
         </div>

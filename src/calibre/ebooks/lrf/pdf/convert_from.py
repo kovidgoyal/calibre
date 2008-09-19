@@ -35,7 +35,7 @@ def generate_html(pathtopdf, tdir):
     index = os.path.join(tdir, 'index.html')
     # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
     pathtopdf = os.path.abspath(pathtopdf)
-    cmd = (PDFTOHTML, '-enc', 'UTF-8',  '-noframes',  '-p',  '-nomerge',  '-nodrm', pathtopdf, os.path.basename(index))
+    cmd = (PDFTOHTML, '-enc', 'UTF-8',  '-noframes',  '-p',  '-nomerge', pathtopdf, os.path.basename(index))
     cwd = os.getcwd()
     
     try:

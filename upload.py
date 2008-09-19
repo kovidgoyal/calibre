@@ -235,10 +235,9 @@ def stage_three():
     print 'Uploading to PyPI...'
     check_call('rm -f dist/*')
     check_call('python setup.py register')
-    check_call('python setup.py bdist_egg --exclude-source-files')
-    build_src_tarball()
+    check_call('python setup.py bdist_egg --exclude-source-files upload')
+    check_call('python setup.py sdist upload')
     upload_src_tarball()
-    check_call('python setup.py upload')
     check_call('''rm -rf dist/* build/*''')
     check_call('''ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/''')
 

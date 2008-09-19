@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import os, sys, shutil, traceback
+import os, sys, shutil, traceback, textwrap
 from uuid import uuid4
 
 from calibre import extract, terminal_controller, __appname__, __version__
@@ -16,6 +16,9 @@ from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.parallel import Server, ParallelJob
 from calibre.utils.terminfo import ProgressBar
 from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, ImageBlock
+from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.epub.from_html import config as html2epub_config, convert as html2epub
 try:
     from calibre.utils.PythonMagickWand import \
             NewMagickWand, NewPixelWand, \
@@ -315,8 +318,36 @@ def option_parser():
     return c.option_parser(usage=_('''\
 %prog [options] comic.cb[z|r]
 
-Convert a comic in a CBZ or CBR file to an LRF ebook. 
+Convert a comic in a CBZ or CBR file to an ebook. 
 '''))
+
+def create_epub(pages, profile, opts, thumbnail=None):
+    wrappers = []
+    WRAPPER = textwrap.dedent('''\
+    <html>
+        <head></head>
+        <body>
+            <div style="text-align:center">
+                <img src="%s" alt="comic page #%d" />
+            </div>
+        </body>
+    </html>        
+    ''')
+    dir = os.path.dirname(pages[0])
+    for i, page in enumerate(pages):
+        wrapper = WRAPPER%(os.path.basename(page), i+1)
+        page = os.path.join(dir, 'page_%d.html'%(i+1))
+        open(page, 'wb').write(wrapper)
+        wrappers.append(page)
+        
+    mi  = MetaInformation(opts.title, [opts.author])
+    opf = OPFCreator(dir, mi)
+    opf.create_manifest([(w, None) for w in wrappers])
+    opf.create_spine(wrappers)
+    metadata = os.path.join(dir, 'metadata.opf')
+    opf.render(open(metadata, 'wb'))
+    opts = html2epub_config('margin_left=0\nmargin_right=0\nmargin_top=0\nmargin_bottom=0').parse()
+    html2epub(metadata, opts)
 
 def create_lrf(pages, profile, opts, thumbnail=None):
     width, height = PROFILES[profile]
@@ -341,12 +372,13 @@ def create_lrf(pages, profile, opts, thumbnail=None):
         
     book.renderLrf(open(opts.output, 'wb'))
     
-def do_convert(path_to_file, opts, notification=lambda m, p: p):
+    
+def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='lrf'):
     source = path_to_file
     if not opts.title:
         opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:
-        opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.lrf')
+        opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.'+output_format)
         
     tdir  = extract_comic(source)
     pages = find_pages(tdir, sort_on_mtime=opts.no_sort, verbose=opts.verbose)
@@ -362,12 +394,15 @@ def do_convert(path_to_file, opts, notification=lambda m, p: p):
     thumbnail = os.path.join(tdir2, 'thumbnail.png')
     if not os.access(thumbnail, os.R_OK):
         thumbnail = None
-    create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
+    if output_format == 'lrf':
+        create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
+    else:
+        create_epub(pages, opts.profile, opts, thumbnail=thumbnail)
     shutil.rmtree(tdir)
     shutil.rmtree(tdir2)
 
 
-def main(args=sys.argv, notification=None):
+def main(args=sys.argv, notification=None, output_format='lrf'):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if len(args) < 2:
@@ -381,7 +416,7 @@ def main(args=sys.argv, notification=None):
         notification = pb.update
     
     source = os.path.abspath(args[1])
-    do_convert(source, opts, notification)
+    do_convert(source, opts, notification, output_format=output_format)
     print _('Output written to'), opts.output
     return 0
 

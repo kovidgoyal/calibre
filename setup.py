@@ -70,6 +70,15 @@ if __name__ == '__main__':
         def initialize_options(self): pass
         def finalize_options(self): pass
     
+    class sdist(Command):
+        
+        description = "create a source distribution using bzr"
+        
+        def run(self):
+            name = 'dist/calibre-%s.tar.gz'%VERSION
+            subprocess.check_call(('bzr export '+name).split())
+            self.distribution.dist_files.append(('sdist', '', name))
+    
     class pot(Command):
         description = '''Create the .pot template for all translatable strings'''
         
@@ -414,6 +423,7 @@ if __name__ == '__main__':
                       'translations'  : translations,
                       'gui'           : gui,
                       'clean'         : clean,
+                      'sdist'         : sdist,
                       },
          )
 
