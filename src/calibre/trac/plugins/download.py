@@ -228,7 +228,7 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
     
     def linux(self, req):
         operating_systems = [
-            OS({'name' : 'binary', 'title': 'Distro neutral'}),
+            OS({'name' : 'binary', 'title': 'Binary Installer'}),
             OS({'name' : 'gentoo', 'title': 'Gentoo'}),
             OS({'name' : 'ubuntu', 'title': 'Ubuntu'}),
             OS({'name' : 'fedora', 'title': 'Fedora'}),
