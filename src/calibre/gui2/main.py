@@ -1158,10 +1158,16 @@ class Main(MainWindow, Ui_MainWindow):
                     newloc = d.database_location
                     if not os.path.exists(os.path.join(newloc, 'metadata.db')):
                         if os.access(self.library_path, os.R_OK):
+                            from PyQt4.QtGui import QProgressDialog
+                            pd = QProgressDialog('', '', 0, 100, self)
+                            pd.setWindowModality(Qt.ApplicationModal)
+                            pd.setCancelButton(None)
+                            pd.setWindowTitle(_('Copying database'))
+                            pd.show()
                             self.status_bar.showMessage(_('Copying library to ')+newloc)
                             self.setCursor(Qt.BusyCursor)
                             self.library_view.setEnabled(False)
-                            self.library_view.model().db.move_library_to(newloc)
+                            self.library_view.model().db.move_library_to(newloc, pd)
                     else:
                         try:
                             db = LibraryDatabase2(newloc)

@@ -147,6 +147,13 @@ def fix_opf(opf, orig_file, files, anchor_map):
     ids = []
     for f in files:
         ids.append(opf.manifest.add_item(f))
+    index = None
+    for i, item in enumerate(opf.spine):
+        if item.id == orig.id:
+            index = i
+            break
+        
+    
             
  
 def split(pathtoopf, opts):
