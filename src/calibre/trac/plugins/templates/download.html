@@ -11,6 +11,11 @@
 
   <body>
     <div id="ctxtnav" class="nav"></div>
+    <p py:if="not top_level">If you have a 64bit computer, or an outdated operating system, the distribution
+    specific installation may not work for you. In that case, first try the binary installer.
+    If that also does not work, your only recourse is to try to install from source. In order
+    to do that you will have to install all the dependencies as well as the -dev package of PyQt4.
+    </p>
 
     <div id="content" class="download">
       <h1>$title</h1>

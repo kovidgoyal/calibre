@@ -143,7 +143,7 @@ class Download(Component):
         ]
         data = dict(title='Get ' + __appname__, 
                     operating_systems=operating_systems, width=200,
-                    font_size='xx-large')
+                    font_size='xx-large', top_level=True)
         return 'download.html', data, None
     
     def version_from_filename(self):
@@ -236,6 +236,6 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
             OS({'name' : 'generic','title': 'Install from source', 'img':'linux'}),
                              ]
         data = dict(title='Choose linux distribution', width=100,
-                    operating_systems=operating_systems, font_size='x-large')
+                    operating_systems=operating_systems, font_size='x-large', top_level=False)
         return 'download.html', data, None
                             
