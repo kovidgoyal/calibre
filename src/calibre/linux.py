@@ -440,6 +440,10 @@ def post_install():
 
     if opts.save_manifest_to:
         open(opts.save_manifest_to, 'wb').write('\n'.join(manifest)+'\n')
+        
+    from calibre.utils.config import config_dir
+    if os.path.exists(config_dir):
+        shutil.rmtree(config_dir) 
 
 
 VIEWER = '''\

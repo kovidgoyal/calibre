@@ -88,6 +88,15 @@ class Manifest(ResourceCollection):
             m.append(mi)
         return m
     
+    def add_item(self, path, mime_type=None):
+        mi = ManifestItem(path, is_path=True)
+        if mime_type:
+            mi.mime_type = mime_type
+        mi.id = 'id%d'%self.next_id
+        self.next_id += 1
+        self.append(mi)
+        return mi.id
+    
     def __init__(self):
         ResourceCollection.__init__(self)
         self.next_id = 1

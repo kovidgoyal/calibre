@@ -368,9 +368,7 @@ msgid ""
 "device. Default: %s Supported profiles: "
 msgstr ""
 "Profilen til lagringsenheten som denne LRF filen blir generert for. Profilen "
-"\n"
 "angir innstillinger som oppløsning og skjerm størrelsen til lagringsenheten. "
-"\n"
 "Standard: %s Støttede profiler: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:134

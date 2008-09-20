@@ -7,9 +7,10 @@ __docformat__ = 'restructuredtext en'
 Conversion to EPUB.
 '''
 import sys, textwrap
+from lxml import html
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
-from calibre.ebooks.html import config as common_config
+from calibre.ebooks.html import config as common_config, tostring
 
 class DefaultProfile(object):
     
@@ -42,7 +43,6 @@ def initialize_container(path_to_container, opf_name='metadata.opf'):
     zf.writestr('META-INF/', '', 0700)
     zf.writestr('META-INF/container.xml', CONTAINER)
     return zf
-    
 
 def config(defaults=None):
     desc = _('Options to control the conversion to EPUB')
@@ -59,7 +59,8 @@ def config(defaults=None):
              help=_('The output EPUB file. If not specified, it is derived from the input file name.'))
     c.add_opt('profile', ['--profile'], default='PRS505', choices=list(PROFILES.keys()),
               help=_('Profile of the target device this EPUB is meant for. Set to None to create a device independent EPUB. The profile is used for device specific restrictions on the EPUB. Choices are: ')+str(list(PROFILES.keys())))
-    
+    c.add_opt('override_css', ['--override-css'], default=None,
+              help=_('Either the path to a CSS stylesheet or raw CSS. This CSS will override any existing CSS declarations in the source files.'))
     structure = c.add_group('structure detection', _('Control auto-detection of document structure.'))
     structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section', 'i')]",
             help=_('''\

@@ -27,6 +27,11 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile
 
+def tostring(root, pretty_print=False):
+    return html.tostring(root, encoding='utf-8', method='xml', 
+                  pretty_print=pretty_print,
+                  include_meta_content_type=True) 
+
 
 class Link(object):
     '''
@@ -332,9 +337,7 @@ class Parser(PreProcessor, LoggingInterface):
         Should be called after all HTML processing is finished.
         '''
         with open(os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path]), 'wb') as f:
-            ans = html.tostring(self.root, encoding='utf-8', method='xml', 
-                                pretty_print=self.opts.pretty_print,
-                                include_meta_content_type=True)
+            ans = tostring(self.root, pretty_print=self.opts.pretty_print)
             ans = re.compile(r'<html>', re.IGNORECASE).sub('<html xmlns="http://www.w3.org/1999/xhtml">', ans)
             ans = re.compile(r'<head[^<>]*?>', re.IGNORECASE).sub('<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n', ans)
             f.write(ans)
@@ -551,6 +554,8 @@ class Processor(Parser):
             
         self.raw_css = '\n\n'.join(css)
         self.css = unicode(self.raw_css)
+        if self.opts.override_css:
+            self.css += '\n\n'+self.opts.override_css
         self.do_layout()
         # TODO: Figure out what to do about CSS imports from linked stylesheets
         

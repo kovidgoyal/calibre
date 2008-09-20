@@ -18,6 +18,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.epub import initialize_container, PROFILES
+from calibre.ebooks.epub.split import split
 
 
 class HTMLProcessor(Processor):
@@ -34,18 +35,8 @@ class HTMLProcessor(Processor):
         if opts.verbose > 2:
             self.debug_tree('nocss')
         
-        self.collect_font_statistics()
+        #self.collect_font_statistics()
         
-        self.split()
-        
-    def save(self):
-        file = Processor.save(self)
-        with open(file, 'rb') as f:
-            f.seek(0, 2)
-            size = f.tell()
-        if size > self.opts.profile.flow_size:
-            self.split()
-                
         
     def collect_font_statistics(self):
         '''
@@ -58,12 +49,6 @@ class HTMLProcessor(Processor):
             #TODO: Use cssutils on self.raw_css to figure out the font size 
             # of this piece of text and update statistics accordingly        
     
-    def split(self):
-        ''' Split into individual flows to accommodate Adobe's incompetence '''
-        # TODO: Only split file larger than 300K (as specified in profile)
-        # Split on page breaks first and then on <h1-6> tags and then on
-        # <div> and finally on <p>.  
-        pass
             
 
 def config(defaults=None):
@@ -88,6 +73,7 @@ def parse_content(filelist, opts, tdir):
                            resource_map, filelist)
         hp.populate_toc(toc)
         hp.save()
+        
     return resource_map, hp.htmlfile_map, toc
 
 def convert(htmlfile, opts, notification=None):
@@ -96,6 +82,11 @@ def convert(htmlfile, opts, notification=None):
         opts.output = os.path.splitext(os.path.basename(htmlfile))[0] + '.epub'
     opts.profile = PROFILES[opts.profile]
     opts.output = os.path.abspath(opts.output)
+    if opts.override_css is not None:
+        try:
+            opts.override_css = open(opts.override_css, 'rb').read().decode('utf-8', 'replace')
+        except:
+            opts.override_css = opts.override_css.decode('utf-8', 'replace')
     if htmlfile.lower().endswith('.opf'):
         opf = OPFReader(htmlfile, os.path.dirname(os.path.abspath(htmlfile)))
         filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
@@ -153,7 +144,8 @@ def convert(htmlfile, opts, notification=None):
         for item in mi.manifest:
             if getattr(item, 'mime_type', None) == 'text/html':
                 item.mime_type = 'application/xhtml+xml'
-        with open(os.path.join(tdir, 'metadata.opf'), 'wb') as f:
+        opf_path = os.path.join(tdir, 'metadata.opf')
+        with open(opf_path, 'wb') as f:
             mi.render(f, buf, 'toc.ncx')
         if opts.show_opf:
             print open(os.path.join(tdir, 'metadata.opf')).read()
@@ -163,6 +155,7 @@ def convert(htmlfile, opts, notification=None):
                 f.write(toc)
             if opts.show_ncx:
                 print toc
+        split(opf_path, opts)
         epub = initialize_container(opts.output)
         epub.add_dir(tdir)
         print 'Output written to', opts.output
