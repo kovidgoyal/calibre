@@ -301,6 +301,10 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
 def main():
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     sys.argv[1:2] = ['py2app']
+    d = os.path.dirname
+    icon = os.path.abspath('icons/library.icns')
+    if not os.access(icon, os.R_OK):
+        raise Exception('No icon at '+icon)
     setup(
         name = APPNAME,
         app = [scripts['gui'][0]],
@@ -310,7 +314,7 @@ def main():
                          'optimize' : 2,
                          'dist_dir' : 'build/py2app',
                          'argv_emulation' : True,
-                         'iconfile' : 'icons/library.icns',
+                         'iconfile' : icon,
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml',
                                        'PyQt4.QtSvg', 'PyQt4.QtWebKit', 'commands',

@@ -22,6 +22,11 @@ sys.path.insert(0, BASE_DIR)
 from setup import VERSION, APPNAME, entry_points, scripts, basenames
 sys.path.remove(BASE_DIR)
 
+ICONS = [os.path.abspath(os.path.join(BASE_DIR, 'icons', i)) for i in ('library.ico', 'viewer.ico')]
+for icon in ICONS:
+    if not os.access(icon, os.R_OK):
+        raise Exception('No icon at '+icon)
+
 VERSION = re.sub('[a-z]\d+', '', VERSION)
 
 PY2EXE_DIR = os.path.join(BASE_DIR, 'build','py2exe')
@@ -84,6 +89,11 @@ class BuildEXE(py2exe.build_exe.py2exe):
         f.close()
         
         print
+        print 'Copying icons'
+        for icon in ICONS:
+            shutil.copyfile(icon, os.path.join(PY2EXE_DIR, os.path.basename(icon)))
+        
+        print
         print 'Adding third party dependencies'
         print '\tAdding devcon'
         tdir = os.path.join(PY2EXE_DIR, 'driver')
@@ -126,18 +136,17 @@ def main(args=sys.argv):
 
     console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i])
                for i in range(len(scripts['console']))]
-    
     setup(
           cmdclass = {'py2exe': BuildEXE},
           windows = [
                      {'script'          : scripts['gui'][0],
                       'dest_base'       : APPNAME,
-                      'icon_resources'  : [(1, os.path.join(BASE_DIR, 'icons', 'library.ico'))],
+                      'icon_resources'  : [(1, ICONS[0])],
                       'other_resources' : [BuildEXE.manifest(APPNAME)],
                       },
                       {'script'         : scripts['gui'][1],
                       'dest_base'       : 'lrfviewer',
-                      'icon_resources'  : [(1, os.path.join(BASE_DIR, 'icons', 'viewer.ico'))],
+                      'icon_resources'  : [(1, ICONS[1])],
                       'other_resources' : [BuildEXE.manifest('lrfviewer')],
                       },
                       ],

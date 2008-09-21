@@ -562,6 +562,9 @@ false
 48596410-DF5A-1E56-D59C-1B1E2F094FCA,Conditions
 {1 condition}
 
+48596410-DF5A-1E56-D59C-1B1E2F094FCA,IconPath
+{<%InstallDir%>\library.ico}
+
 48596410-DF5A-1E56-D59C-1B1E2F094FCA,ShortcutName
 <%AppName%>
 
@@ -785,7 +788,7 @@ DevconStatus
 {}
 
 77D1144B-1013-79B5-034B-5D6BDA6B2FD2,IconPath
-{<%InstallDir%>\lrfviewer<%Ext%>}
+{<%InstallDir%>\viewer.ico}
 
 77D1144B-1013-79B5-034B-5D6BDA6B2FD2,InstallForAllUsers
 Yes
@@ -1264,6 +1267,9 @@ Finish
 D86BBA5C-4903-33BA-59F8-4266A3D45896,Conditions
 {2 conditions}
 
+D86BBA5C-4903-33BA-59F8-4266A3D45896,IconPath
+{<%InstallDir%>\library.ico}
+
 D86BBA5C-4903-33BA-59F8-4266A3D45896,ShortcutDirectory
 <%QUICK_LAUNCH%>
 
@@ -1290,6 +1296,9 @@ Typical
 
 E32519F3-A540-C8F3-957F-4C1DB5B25DFE,Conditions
 {2 conditions}
+
+E32519F3-A540-C8F3-957F-4C1DB5B25DFE,IconPath
+{<%InstallDir%>\library.ico}
 
 E32519F3-A540-C8F3-957F-4C1DB5B25DFE,ShortcutName
 <%AppName%>
