@@ -16,6 +16,7 @@ from PyQt4.QtGui import QApplication, QPixmap, QImage
 __app = None
 
 from calibre.library.database import LibraryDatabase
+from calibre.constants import preferred_encoding
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 filesystem_encoding = sys.getfilesystemencoding()
@@ -753,6 +754,8 @@ class LibraryDatabase2(LibraryDatabase):
             if not a:
                 continue
             a = a.strip()
+            if not isinstance(a, unicode):
+                a = a.decode(preferred_encoding, 'replace')
             author = self.conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
             if author:
                 aid = author[0]
@@ -770,6 +773,8 @@ class LibraryDatabase2(LibraryDatabase):
     def set_title(self, id, title, notify=True):
         if not title:
             return
+        if not isinstance(title, unicode):
+            title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.set_path(id, True)
         self.notify('metadata', [id])
@@ -778,6 +783,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
         self.conn.execute('DELETE FROM publishers WHERE (SELECT COUNT(id) FROM books_publishers_link WHERE publisher=publishers.id) < 1')
         if publisher:
+            if not isinstance(publisher, unicode):
+                publisher = publisher.decode(preferred_encoding, 'replace')
             pub = self.conn.execute('SELECT id from publishers WHERE name=?', (publisher,)).fetchone()
             if pub:
                 aid = pub[0]
@@ -799,6 +806,8 @@ class LibraryDatabase2(LibraryDatabase):
             tag = tag.lower().strip()
             if not tag:
                 continue
+            if not isinstance(tag, unicode):
+                tag = tag.decode(preferred_encoding, 'replace')
             t = self.conn.execute('SELECT id FROM tags WHERE name=?', (tag,)).fetchone()
             if t:
                 tid = t[0]
@@ -817,6 +826,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
         self.conn.execute('DELETE FROM series WHERE (SELECT COUNT(id) FROM books_series_link WHERE series=series.id) < 1')
         if series:
+            if not isinstance(series, unicode):
+                series = series.decode(preferred_encoding, 'replace')
             s = self.conn.execute('SELECT id from series WHERE name=?', (series,)).fetchone()
             if s:
                 aid = s[0]
@@ -960,6 +971,7 @@ class LibraryDatabase2(LibraryDatabase):
         progress.setLabelText(header)
         QCoreApplication.processEvents()
         db.conn.row_factory = lambda cursor, row : tuple(row)
+        db.conn.text_factory = lambda x : unicode(x, 'utf-8', 'replace')
         books = db.conn.execute('SELECT id, title, sort, timestamp, uri, series_index, author_sort, isbn FROM books ORDER BY id ASC').fetchall()
         progress.setAutoReset(False)
         progress.setRange(0, len(books))
