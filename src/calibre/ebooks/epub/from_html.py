@@ -97,7 +97,9 @@ def convert(htmlfile, opts, notification=None):
     opts.chapter = XPath(opts.chapter, 
                     namespaces={'re':'http://exslt.org/regular-expressions'})
     
-    with TemporaryDirectory('_html2epub') as tdir:
+    with TemporaryDirectory(suffix='_html2epub', keep=opts.keep_intermediate) as tdir:
+        if opts.keep_intermediate:
+            print 'Intermediate files in', tdir
         resource_map, htmlfile_map, generated_toc = parse_content(filelist, opts, tdir)
         resources = [os.path.join(tdir, 'content', f) for f in resource_map.values()]
         
@@ -159,6 +161,8 @@ def convert(htmlfile, opts, notification=None):
         epub = initialize_container(opts.output)
         epub.add_dir(tdir)
         print 'Output written to', opts.output
+        if opts.extract_to is not None:
+            epub.extractall(opts.extract_to)
         
             
 def main(args=sys.argv):

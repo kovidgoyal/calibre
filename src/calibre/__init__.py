@@ -170,6 +170,19 @@ def fit_image(width, height, pwidth, pheight):
 
     return scaled, int(width), int(height)
 
+class CurrentDir(object):
+    
+    def __init__(self, path):
+        self.path = path
+        self.cwd = None
+        
+    def __enter__(self, *args):
+        self.cwd = os.getcwd()
+        os.chdir(self.path)
+        return self.cwd 
+    
+    def __exit__(self, *args):
+        os.chdir(self.cwd)
 
 def sanitize_file_name(name):
     '''

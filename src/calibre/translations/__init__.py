@@ -53,6 +53,9 @@ def import_from_launchpad(url):
             open(out, 'wb').write(tf.extractfile(next).read())
         next = tf.next()
     check_for_critical_bugs()
+    path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    print path
+    subprocess.check_call('python setup.py translations'.split(), dir=path)
     return 0
  
 def check_for_critical_bugs():

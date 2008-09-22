@@ -228,8 +228,14 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
         raise ValueError('OPF does not have a spine')
     flat = []
     for path in opf_reader.spine.items():
+        path = os.path.abspath(path)
         if path not in flat:
             flat.append(os.path.abspath(path))
+    for item in opf_reader.manifest:
+        if 'html' in item.mime_type:
+            path = os.path.abspath(item.path)
+            if path not in flat:
+                flat.append(path)
     flat = [HTMLFile(path, 0, encoding, verbose) for path in flat]
     return flat
             
@@ -329,14 +335,15 @@ class Parser(PreProcessor, LoggingInterface):
             if self.root.get(bad, None) is not None:
                 self.root.attrib.pop(bad)
         
-        
-        
+    def save_path(self):    
+        return os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path])
+    
     def save(self):
         '''
         Save processed HTML into the content directory.
         Should be called after all HTML processing is finished.
         '''
-        with open(os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path]), 'wb') as f:
+        with open(self.save_path(), 'wb') as f:
             ans = tostring(self.root, pretty_print=self.opts.pretty_print)
             ans = re.compile(r'<html>', re.IGNORECASE).sub('<html xmlns="http://www.w3.org/1999/xhtml">', ans)
             ans = re.compile(r'<head[^<>]*?>', re.IGNORECASE).sub('<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n', ans)
@@ -390,21 +397,26 @@ class Parser(PreProcessor, LoggingInterface):
         if not isinstance(olink, unicode):
             olink = olink.decode(self.htmlfile.encoding)
         link = self.htmlfile.resolve(olink)
+        frag = (('#'+link.fragment) if link.fragment else '')
+        if link.path == self.htmlfile.path:
+            return frag if frag else '#'
         if not link.path or not os.path.exists(link.path) or not os.path.isfile(link.path):
             return olink
         if link.path in self.htmlfiles:
-            return self.htmlfile_map[link.path]
+            return self.htmlfile_map[link.path] + frag 
         if re.match(r'\.(x){0,1}htm(l){0,1}', os.path.splitext(link.path)[1]) is not None:
             return olink # This happens when --max-levels is used
         if link.path in self.resource_map.keys():
-            return self.resource_map[link.path]
+            return self.resource_map[link.path] + frag
         name = os.path.basename(link.path)
         name, ext = os.path.splitext(name)
         name += ('_%d'%len(self.resource_map)) + ext
         shutil.copyfile(link.path, os.path.join(self.resource_dir, name))
         name = 'resources/' + name
         self.resource_map[link.path] = name
-        return name
+        return name + frag
+    
+        
 
 class Processor(Parser):
     '''
@@ -438,9 +450,12 @@ class Processor(Parser):
         
     def save(self):
         head = self.head if self.head is not None else self.body
-        style = etree.SubElement(head, 'style', attrib={'type':'text/css'})
-        style.text='\n'+self.css
+        style_path = os.path.basename(self.save_path())+'.css'
+        style = etree.SubElement(head, 'link', attrib={'type':'text/css', 'rel':'stylesheet', 
+                                                       'href':'resources/'+style_path})
         style.tail = '\n\n'
+        style_path = os.path.join(os.path.dirname(self.save_path()), 'resources', style_path)
+        open(style_path, 'wb').write(self.css.encode('utf-8'))
         return Parser.save(self)
     
     def populate_toc(self, toc):
@@ -530,6 +545,8 @@ class Processor(Parser):
                 css.append('\n'.join(style.xpath('./text()')))
                 style.getparent().remove(style)
         
+        cache = {}
+        class_counter = 0
         for font in self.root.xpath('//font'):
             try:
                 size = int(font.attrib.pop('size', '3'))
@@ -542,15 +559,32 @@ class Processor(Parser):
             color = font.attrib.pop('color', None)
             if color is not None:
                 setting += 'color:%s'%color
-            id = get_id(font, counter)
-            counter += 1
-            css.append('#%s { %s }'%(id, setting))
+            classname = cache.get(setting, None)
+            if classname is None:
+                classname = 'calibre_class_%d'%class_counter
+                class_counter += 1
+                cache[setting] = classname
+            cn = font.get('class', '')
+            if cn: cn += ' '
+            cn += classname
+            font.set('class', cn)
             
         for elem in self.root.xpath('//*[@style]'):
-            id = get_id(elem, counter)
-            counter += 1
-            css.append('#%s {%s}'%(id, elem.get('style')))
+            setting = elem.get('style')
+            classname = cache.get(setting, None)
+            if classname is None:
+                classname = 'calibre_class_%d'%class_counter
+                class_counter += 1
+                cache[setting] = classname
+            cn = elem.get('class', '')
+            if cn: cn += ' '
+            cn += classname
+            elem.set('class', cn)
             elem.attrib.pop('style')
+        
+        for setting, cn in cache.items():
+            css.append('.%s {%s}'%(cn, setting))
+        
             
         self.raw_css = '\n\n'.join(css)
         self.css = unicode(self.raw_css)
@@ -688,6 +722,9 @@ def create_metadata(basepath, mi, filelist, resources):
     '''
     mi = OPFCreator(basepath, mi)
     entries = [('content/'+f, 'application/xhtml+xml') for f in filelist] + [(f, None) for f in resources]
+    for f in filelist:
+        if os.path.exists(os.path.join(basepath, 'content', 'resources', f+'.css')):
+            entries.append(('content/resources/'+f+'.css', 'text/css'))
     mi.create_manifest(entries)
     mi.create_spine(['content/'+f for f in filelist])
     return mi

@@ -105,5 +105,8 @@ to auto-generate a Table of Contents.
               help=_('Print generated OPF file to stdout'))
     c.add_opt('show_ncx', ['--show-ncx'], default=False, group='debug',
               help=_('Print generated NCX file to stdout'))
-    
+    c.add_opt('keep_intermediate', ['--keep-intermediate-files'], group='debug', default=False,
+              help=_('Keep intermediate files during processing by html2epub'))
+    c.add_opt('extract_to', ['--extract-to'], group='debug', default=None,
+              help=_('Extract the contents of the produced EPUB file to the specified directory.'))
     return c

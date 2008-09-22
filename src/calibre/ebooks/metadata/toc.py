@@ -24,6 +24,8 @@ class TOC(list):
                  base_path=os.getcwd()):
         self.href = href
         self.fragment = fragment
+        if not self.fragment:
+            self.fragment = None
         self.text = text
         self.parent = parent
         self.base_path = base_path
@@ -153,8 +155,20 @@ class TOC(list):
                 continue
             purl = urlparse(unquote(a['href']))
             href, fragment = purl[2], purl[5]
+            if not fragment:
+                fragment = None
+            else:
+                fragment = fragment.strip()
+            href = href.strip()
+            
             txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
-            self.add_item(href, fragment, txt)
+            add = True
+            for i in self.flat():
+                if i.href == href and i.fragment == fragment:
+                    add = False
+                    break 
+            if add:
+                self.add_item(href, fragment, txt)
 
     def render(self, stream, uid):
         from calibre.resources import ncx_template

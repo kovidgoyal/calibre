@@ -134,6 +134,7 @@ There can be several causes for this:
     * **Any windows version**: If this happens during an initial run of calibre, try deleting the folder you chose for your ebooks and restarting calibre.
     * **Windows Vista**: If the folder :file:`C:\\Users\\Your User Name\\AppData\\Local\\VirtualStore\\Program Files\\calibre` exists, delete it. Uninstall |app|. Reboot. Re-install.
     * **Any windows version**: Search your computer for a folder named :file:`_ipython`. Delete it and try again.
+    * **Any windows version**: Try disabling any antivirus program you have running and see if that fixes it. Also try diabling any firewall software that prevents connections to the local computer.
 
 If it still wont launch, start a command prompt (press the windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
 

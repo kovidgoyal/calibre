@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re, os
+import re, os, traceback
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, QDialog, \
@@ -254,7 +254,12 @@ class FontFamilyModel(QAbstractListModel):
     
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
-        self.families = find_font_families()
+        try:
+            self.families = find_font_families()
+        except:
+            self.families = []
+            print 'WARNING: Could not load fonts'
+            traceback.print_exc()
         self.families.sort()
         self.families[:0] = ['None']
         

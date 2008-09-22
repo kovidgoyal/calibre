@@ -141,9 +141,10 @@ class ResourceCollection(object):
         
     def remove(self, resource):
         self._resources.remove(resource)
-        
+    
     def replace(self, start, end, items):
-        pass
+        'Same as list[start:end] = items'
+        self._resources[start:end] = items
         
     @staticmethod
     def from_directory_contents(top, topdown=True):

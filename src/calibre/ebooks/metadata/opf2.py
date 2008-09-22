@@ -155,6 +155,19 @@ class Spine(ResourceCollection):
         ResourceCollection.__init__(self)
         self.manifest = manifest
             
+            
+    def replace(self, start, end, ids):
+        '''
+        Replace the items between start (inclusive) and end (not inclusive) with
+        with the items identified by ids. ids can be a list of any length.
+        '''
+        items = []
+        for id in ids:
+            path = self.manifest.path_for_id(id)
+            if path is None:
+                raise ValueError('id %s not in manifest')
+            items.append(Spine.Item(lambda x: id, path, is_path=True))
+        ResourceCollection.replace(start, end, items)
                     
     def linear_items(self):
         for r in self:
@@ -296,6 +309,55 @@ class OPF(object):
         
     def get_text(self, elem):
         return u''.join(self.TEXT(elem))
+    
+    def itermanifest(self):
+        return self.manifest_path(self.tree)
+    
+    def create_manifest_item(self, href, media_type):
+        ids = [i.get('id', None) for i in self.itermanifest()]
+        id = None
+        for c in xrange(1, sys.maxint):
+            id = 'id%d'%c
+            if id not in ids:
+                break
+        if not media_type:
+            media_type = 'application/xhtml+xml'
+        ans = etree.Element('{%s}item'%self.NAMESPACES['opf'], 
+                             attrib={'id':id, 'href':href, 'media-type':media_type})
+        ans.tail = '\n\t\t'
+        return ans
+    
+    def replace_manifest_item(self, item, items):
+        items = [self.create_manifest_item(*i) for i in items]
+        for i, item2 in enumerate(items):
+            item2.set('id', item.get('id')+'.%d'%(i+1))
+        manifest = item.getparent()
+        index = manifest.index(item)
+        manifest[index:index+1] = items
+        return [i.get('id') for i in items]
+    
+    def iterspine(self):
+        return self.spine_path(self.tree)
+    
+    def create_spine_item(self, idref):
+        ans = etree.Element('{%s}itemref'%self.NAMESPACES['opf'], idref=idref)
+        ans.tail = '\n\t\t'
+        return ans
+    
+    def replace_spine_items_by_idref(self, idref, new_idrefs):
+        items = list(map(self.create_spine_item, new_idrefs))
+        spine = self.XPath('/opf:package/*[re:match(name(), "spine", "i")]')(self.tree)[0]
+        old = [i for i in self.iterspine() if i.get('idref', None) == idref]
+        for x in old:
+            i = spine.index(x)
+            spine[i:i+1] = items
+    
+    def iterguide(self):
+        return self.guide_path(self.tree)
+    
+    def render(self):
+        return etree.tostring(self.tree, encoding='UTF-8', xml_declaration=True, 
+                              pretty_print=True)
     
     @apply
     def authors():

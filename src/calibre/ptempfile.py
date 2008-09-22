@@ -57,19 +57,21 @@ def PersistentTemporaryDirectory(suffix='', prefix='', dir=None):
     atexit.register(shutil.rmtree, tdir, True)
     return tdir
 
-class TemporaryDirectory(str):
+class TemporaryDirectory(object):
     '''
-    A temporary directory to be used ina  with statement.
+    A temporary directory to be used in a with statement.
     '''
-    def __init__(self, suffix='', prefix='', dir=None):
+    def __init__(self, suffix='', prefix='', dir=None, keep=False):
         self.suffix = suffix
         self.prefix = prefix
-        self.dir = dir 
+        self.dir = dir
+        self.keep = keep
     
     def __enter__(self):
         self.tdir = tempfile.mkdtemp(self.suffix, __appname__+"_"+ __version__+"_" +self.prefix, self.dir)
         return self.tdir
     
     def __exit__(self, *args):
-        shutil.rmtree(self.tdir)
+        if not self.keep:
+            shutil.rmtree(self.tdir)
       
