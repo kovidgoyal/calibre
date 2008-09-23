@@ -34,18 +34,16 @@ from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
+from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, set_conversion_defaults, fetch_news
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.user_profiles import UserProfiles
-import calibre.gui2.dialogs.comicconf as ComicConf 
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.html import gui_main as html2oeb
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
 from calibre.utils.filenames import ascii_filename
@@ -180,7 +178,7 @@ class Main(MainWindow, Ui_MainWindow):
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
         cm.addSeparator()
-        cm.addAction(_('Set defaults for conversion to LRF'))
+        cm.addAction(_('Set defaults for conversion'))
         cm.addAction(_('Set defaults for conversion of comics'))
         self.action_convert.setMenu(cm)
         QObject.connect(cm.actions()[0], SIGNAL('triggered(bool)'), self.convert_single)
@@ -795,21 +793,16 @@ class Main(MainWindow, Ui_MainWindow):
             self.news_menu.set_custom_feeds(feeds)
 
     def fetch_news(self, data):
-        pt = PersistentTemporaryFile(suffix='_feeds2lrf.lrf')
-        pt.close()
-        args = ['feeds2lrf', '--output', pt.name, '--debug']
-        if data['username']:
-            args.extend(['--username', data['username']])
-        if data['password']:
-            args.extend(['--password', data['password']])
-        args.append(data['script'] if data['script'] else data['title'])
-        job = self.job_manager.run_job(Dispatcher(self.news_fetched), 'feeds2lrf', args=[args],
-                                            description=_('Fetch news from ')+data['title'])
-        self.conversion_jobs[job] = (pt, 'lrf')
+        func, args, desc, fmt, temp_files = fetch_news(data)
+        self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
+        job = self.job_manager.run_job(Dispatcher(self.news_fetched), func, args=args,
+                                            description=desc)
+        self.conversion_jobs[job] = (temp_files, fmt)
         self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
         
     def news_fetched(self, job):
-        pt, fmt = self.conversion_jobs.pop(job)
+        temp_files, fmt = self.conversion_jobs.pop(job)
+        pt = temp_files[0]
         if job.exception is not None:
             self.job_exception(job)
             return
@@ -820,7 +813,9 @@ class Main(MainWindow, Ui_MainWindow):
             self.persistent_files.append(pt)
         try:
             if not to_device:
-                os.remove(pt.name)
+                for f in temp_files:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
         except:
             pass
 
@@ -846,193 +841,55 @@ class Main(MainWindow, Ui_MainWindow):
                 others.append(r)
         return comics, others
     
-    def convert_bulk_others(self, rows):
-        d = LRFBulkDialog(self)
-        d.exec_()
-        if d.result() != QDialog.Accepted:
-            return
-        bad_rows = []
-
-        self.status_bar.showMessage(_('Starting Bulk conversion of %d books')%len(rows), 2000)
-        if rows and hasattr(rows[0], 'row'):
-            rows = [r.row() for r in rows]
-        for i, row in enumerate(rows):
-            cmdline = list(d.cmdline)
-            mi = self.library_view.model().db.get_metadata(row)
-            if mi.title:
-                cmdline.extend(['--title', mi.title])
-            if mi.authors:
-                cmdline.extend(['--author', ','.join(mi.authors)])
-            if mi.publisher:
-                cmdline.extend(['--publisher', mi.publisher])
-            if mi.comments:
-                cmdline.extend(['--comment', mi.comments])
-            data = None
-            for fmt in LRF_PREFERRED_SOURCE_FORMATS:
-                try:
-                    data = self.library_view.model().db.format(row, fmt.upper())
-                    break
-                except:
-                    continue
-            if data is None:
-                bad_rows.append(row)
-                continue
-            pt = PersistentTemporaryFile('.'+fmt.lower())
-            pt.write(data)
-            pt.close()
-            of = PersistentTemporaryFile('.lrf')
-            of.close()
-            cover = self.library_view.model().db.cover(row)
-            cf = None
-            if cover:
-                cf = PersistentTemporaryFile('.jpeg')
-                cf.write(cover)
-                cf.close()
-                cmdline.extend(['--cover', cf.name])
-            cmdline.extend(['-o', of.name])
-            cmdline.append(pt.name)
-            job = self.job_manager.run_job(Dispatcher(self.book_converted),
-                                                        'any2lrf', args=[cmdline],
-                                    description=_('Convert book %d of %d (%s)')%(i+1, len(rows), repr(mi.title)))
-                    
-                    
-            self.conversion_jobs[job] = (cf, pt, of, d.output_format, 
-                                        self.library_view.model().db.id(row))
-        res = []
-        for row in bad_rows:
-            title = self.library_view.model().db.title(row)
-            res.append('<li>%s</li>'%title)
-        if res:
-            msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), len(rows), '\n'.join(res))
-            warning_dialog(self, _('Could not convert some books'), msg).exec_()
         
-    
     def convert_bulk(self, checked):
-        comics, others = self.get_books_for_conversion()
-        if others:
-            self.convert_bulk_others(others)
-        if comics:
-            opts = ComicConf.get_bulk_conversion_options(self)
-            if opts:
-                for i, row in enumerate(comics):
-                    options = opts.copy()
-                    mi = self.library_view.model().db.get_metadata(row)
-                    if mi.title:
-                        options.title = mi.title
-                    if mi.authors:
-                        options.author =  ','.join(mi.authors)
-                    data = None
-                    for fmt in ['cbz', 'cbr']:
-                        try:
-                            data = self.library_view.model().db.format(row, fmt.upper())
-                            if data:
-                                break                    
-                        except:
-                            continue
-                    
-                    pt = PersistentTemporaryFile('.'+fmt.lower())
-                    pt.write(data)
-                    pt.close()
-                    of = PersistentTemporaryFile('.lrf')
-                    of.close()
-                    setattr(options, 'output', of.name)
-                    options.verbose = 1
-                    args = [pt.name, options]
-                    job = self.job_manager.run_job(Dispatcher(self.book_converted), 
-                                    'comic2lrf', args=args,
-                                    description=_('Convert comic %d of %d (%s)')%(i+1, len(comics), repr(options.title)))
-                    self.conversion_jobs[job] = (None, pt, of, 'lrf', 
-                                        self.library_view.model().db.id(row))
-                        
-            
-    def set_conversion_defaults(self, checked):
-        d = LRFSingleDialog(self, None, None)
-        d.exec_()
+        r = self.get_books_for_conversion()
+        if r is None:
+            return
+        comics, others = r 
         
-    def set_comic_conversion_defaults(self, checked):
-        ComicConf.set_conversion_defaults(self)
-    
-    def convert_single_others(self, rows):
-        changed = False
-        for row in rows:
-            d = LRFSingleDialog(self, self.library_view.model().db, row)
-            if d.selected_format:
-                d.exec_()
-                if d.result() == QDialog.Accepted:
-                    cmdline = d.cmdline
-                    data = self.library_view.model().db.format(row, d.selected_format)
-                    pt = PersistentTemporaryFile('.'+d.selected_format.lower())
-                    pt.write(data)
-                    pt.close()
-                    of = PersistentTemporaryFile('.lrf')
-                    of.close()
-                    cmdline.extend(['-o', of.name])
-                    cmdline.append(pt.name)
-                    job = self.job_manager.run_job(Dispatcher(self.book_converted),
-                                    'any2lrf', args=[cmdline],
-                                    description=_('Convert book: ')+d.title())
-                    
-                    self.conversion_jobs[job] = (d.cover_file, pt, of, d.output_format, d.id)
-                    changed = True
+        jobs, changed  = convert_bulk_ebooks(self, self.library_view.model().db, comics, others) 
+        for func, args, desc, fmt, id, temp_files in jobs:
+            job = self.job_manager.run_job(Dispatcher(self.book_converted), 
+                                            func, args=args, description=desc)
+            self.conversion_jobs[job] = (temp_files, fmt, id)
+            
         if changed:
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
+            
+    def set_conversion_defaults(self, checked):
+        set_conversion_defaults(False, self, self.library_view.model().db)
         
+    def set_comic_conversion_defaults(self, checked):
+        set_conversion_defaults(True, self, self.library_view.model().db)
     
     def convert_single(self, checked):
-        comics, others = self.get_books_for_conversion()
-        if others:
-            self.convert_single_others(others)
-        changed = False
-        db = self.library_view.model().db
-        for row in comics:
-            mi = db.get_metadata(row)
-            title = author = _('Unknown')
-            if mi.title:
-                title = mi.title
-            if mi.authors:
-                author =  ','.join(mi.authors)
-            defaults = db.conversion_options(db.id(row), 'comic')
-            opts, defaults = ComicConf.get_conversion_options(self, defaults, title, author)
-            if defaults is not None:
-                db.set_conversion_options(db.id(row), 'comic', defaults)
-            if opts is None: continue
-            for fmt in ['cbz', 'cbr']:
-                try:
-                    data = db.format(row, fmt.upper())
-                    break                    
-                except:
-                    continue
-            pt = PersistentTemporaryFile('.'+fmt)
-            pt.write(data)
-            pt.close()
-            of = PersistentTemporaryFile('.lrf')
-            of.close()
-            opts.output = of.name
-            opts.verbose = 1
-            args = [pt.name, opts]
-            changed = True
+        r = self.get_books_for_conversion()
+        if r is None: return
+        comics, others = r
+        jobs, changed = convert_single_ebook(self, self.library_view.model().db, comics, others)
+        for func, args, desc, fmt, id, temp_files in jobs:
             job = self.job_manager.run_job(Dispatcher(self.book_converted), 
-                         'comic2lrf', args=args,
-                         description=_('Convert comic: ')+opts.title)
-            self.conversion_jobs[job] = (None, pt, of, 'lrf', 
-                                        self.library_view.model().db.id(row))
+                                            func, args=args, description=desc)
+            self.conversion_jobs[job] = (temp_files, fmt, id)
+            
         if changed:
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
                     
     def book_converted(self, job):
-        cf, pt, of, fmt, book_id = self.conversion_jobs.pop(job)
+        temp_files, fmt, book_id = self.conversion_jobs.pop(job)
         try:
             if job.exception is not None:
                 self.job_exception(job)
                 return
-            data = open(of.name, 'rb')
+            data = open(temp_files[-1].name, 'rb')
             self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
             data.close()
             self.status_bar.showMessage(job.description + (' completed'), 2000)
         finally:
-            for f in (cf, of, pt):
+            for f in temp_files:
                 try:
                     if os.path.exists(f.name):
                         os.remove(f.name)

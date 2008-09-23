@@ -10,7 +10,6 @@ from calibre.web.feeds.main import option_parser as feeds_option_parser
 from calibre.web.feeds.main import run_recipe
 from calibre.ptempfile import TemporaryDirectory
 from calibre import sanitize_file_name, strftime
-from calibre.ebooks import ConversionError
 
 import sys, os
 

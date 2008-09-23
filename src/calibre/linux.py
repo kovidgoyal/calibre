@@ -443,7 +443,10 @@ def post_install():
         
     from calibre.utils.config import config_dir
     if os.path.exists(config_dir):
-        shutil.rmtree(config_dir) 
+        os.chdir(config_dir)
+        for f in os.listdir('.'):
+            if os.stat(f).st_uid == 0:
+                os.unlink(f)
 
 
 VIEWER = '''\

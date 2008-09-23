@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>709</width>
-    <height>687</height>
+    <height>723</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -160,7 +160,7 @@
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_2" >
-           <item row="0" column="0" >
+           <item row="1" column="0" >
             <widget class="QLabel" name="label_5" >
              <property name="text" >
               <string>Format for &amp;single file save:</string>
@@ -170,10 +170,10 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1" >
+           <item row="1" column="1" >
             <widget class="QComboBox" name="single_format" />
            </item>
-           <item row="1" column="0" >
+           <item row="2" column="0" >
             <widget class="QLabel" name="label_3" >
              <property name="text" >
               <string>&amp;Priority for conversion jobs:</string>
@@ -183,10 +183,10 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1" >
+           <item row="2" column="1" >
             <widget class="QComboBox" name="priority" />
            </item>
-           <item row="2" column="0" >
+           <item row="3" column="0" >
             <widget class="QLabel" name="label_2" >
              <property name="text" >
               <string>Default network &amp;timeout:</string>
@@ -196,7 +196,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1" >
+           <item row="3" column="1" >
             <widget class="QSpinBox" name="timeout" >
              <property name="toolTip" >
               <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
@@ -215,16 +215,43 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1" >
+           <item row="4" column="1" >
             <widget class="QComboBox" name="language" />
            </item>
-           <item row="3" column="0" >
+           <item row="4" column="0" >
             <widget class="QLabel" name="label_7" >
              <property name="text" >
               <string>Choose &amp;language (requires restart):</string>
              </property>
              <property name="buddy" >
               <cstring>language</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" >
+            <widget class="QComboBox" name="output_format" >
+             <property name="toolTip" >
+              <string>The default output format for ebook conversions.</string>
+             </property>
+             <item>
+              <property name="text" >
+               <string>LRF</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>EPUB</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_8" >
+             <property name="text" >
+              <string>&amp;Output format:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>output_format</cstring>
              </property>
             </widget>
            </item>

@@ -53,14 +53,14 @@ def convert(opts, recipe_arg, notification=None):
         html2epub(opf, opts, notification=notification)
     
 
-def main(args=sys.argv):
+def main(args=sys.argv, notification=None, handler=None):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if len(args) != 2 and opts.feeds is None:
         parser.print_help()
         return 1
     recipe_arg = args[1] if len(args) > 1 else None
-    convert(opts, recipe_arg)
+    convert(opts, recipe_arg, notification=notification)
         
     return 0
 

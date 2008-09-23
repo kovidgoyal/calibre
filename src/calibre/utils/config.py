@@ -322,7 +322,7 @@ class OptionSet(object):
         prefs = [pref for pref in self.preferences if pref.group == name]
         lines = ['### Begin group: %s'%(name if name else 'DEFAULT')]
         if desc:
-            lines += map(lambda x: '# '+x for x in desc.split('\n'))
+            lines += map(lambda x: '# '+x, desc.split('\n'))
         lines.append(' ')
         for pref in prefs:
             lines.append('# '+pref.name.replace('_', ' '))
@@ -522,6 +522,8 @@ def _prefs():
               help=_('Path to directory in which your library of books is stored'))
     c.add_opt('language', default=None,
               help=_('The language in which to display the user interface'))
+    c.add_opt('output_format', default='LRF', 
+              help=_('The default output format for ebook conversions.'))
     
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c

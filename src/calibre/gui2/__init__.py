@@ -196,6 +196,7 @@ class FileIconProvider(QFileIconProvider):
              'prc'     : 'mobi',
              'azw'     : 'mobi',
              'mobi'    : 'mobi',
+             'epub'    : 'epub',
              }
     
     def __init__(self):
@@ -222,7 +223,7 @@ class FileIconProvider(QFileIconProvider):
         return icon
     
     def icon_from_ext(self, ext):
-        key = self.key_from_ext(ext)
+        key = self.key_from_ext(ext.lower() if ext else '')
         return self.cached_icon(key)
     
     def load_icon(self, fileinfo):

@@ -74,7 +74,7 @@ MAP = {
        'txt'  : txt2opf,
        'pdf'  : pdf2opf,
        }
-    
+SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf']    
 
 def unarchive(path, tdir):
     extract(path, tdir)

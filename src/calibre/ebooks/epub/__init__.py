@@ -62,10 +62,10 @@ def config(defaults=None):
     c.add_opt('override_css', ['--override-css'], default=None,
               help=_('Either the path to a CSS stylesheet or raw CSS. This CSS will override any existing CSS declarations in the source files.'))
     structure = c.add_group('structure detection', _('Control auto-detection of document structure.'))
-    structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section', 'i')]",
+    structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section|part', 'i')]",
             help=_('''\
 An XPath expression to detect chapter titles. The default is to consider <h1> or
-<h2> tags that contain the text "chapter" or "book" or "section" as chapter titles. 
+<h2> tags that contain the words "chapter","book","section" or "part" as chapter titles. 
 The expression used must evaluate to a list of elements. To disable chapter detection,
 use the expression "/". See the XPath Tutorial in the calibre User Manual for further
 help on using this feature.
