@@ -8,7 +8,6 @@ Split the flows in an epub file to conform to size limitations.
 '''
 
 import os, math, copy, logging, functools
-from urllib import unquote
 
 from lxml.etree import XPath as _XPath
 from lxml import etree, html
@@ -57,7 +56,8 @@ class Splitter(LoggingInterface):
         if stylesheet is not None:
             self.find_page_breaks(stylesheet, root)
         
-        self.trees = self.split(root.getroottree())
+        self.trees = []
+        self.split(root.getroottree())
         self.commit()
         self.log_info('\t\tSplit into %d parts.', len(self.trees))
         if self.opts.verbose:
@@ -81,7 +81,6 @@ class Splitter(LoggingInterface):
         tree2 = copy.deepcopy(tree)
         root2 = tree2.getroot()
         body, body2 = root.body, root2.body
-        trees = []
         path = tree.getpath(split_point)
         split_point2 = root2.xpath(path)[0]
         
@@ -137,13 +136,12 @@ class Splitter(LoggingInterface):
         for t, r in [(tree, root), (tree2, root2)]:
             size = len(tostring(r)) 
             if size <= self.opts.profile.flow_size:
-                trees.append(t)
-                self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', len(trees), size/1024.)
+                self.trees.append(t)
+                self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', len(self.trees), size/1024.)
             else:
-                trees.extend(self.split(t))
+                self.split(t)
                 
-        return trees
-
+                
     def find_page_breaks(self, stylesheet, root):
         '''
         Find all elements that have either page-break-before or page-break-after set.
@@ -334,7 +332,7 @@ def split(pathtoopf, opts):
         html_files = []
         for item in opf.itermanifest():
             if 'html' in item.get('media-type', '').lower():
-                html_files.append(unquote(item.get('href')).split('/')[-1])
+                html_files.append(item.get('href').split('/')[-1])
         changes = []
         for f in html_files:
             if os.stat(content(f)).st_size > opts.profile.flow_size:

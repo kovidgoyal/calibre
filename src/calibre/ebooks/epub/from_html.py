@@ -1,5 +1,5 @@
 from __future__ import with_statement
-from calibre.ebooks.metadata.opf import OPFReader
+
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -17,8 +17,10 @@ from calibre.ebooks.epub import config as common_config
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.epub import initialize_container, PROFILES
 from calibre.ebooks.epub.split import split
+from calibre.constants import preferred_encoding
 
 
 class HTMLProcessor(Processor):
@@ -84,11 +86,11 @@ def convert(htmlfile, opts, notification=None):
     opts.output = os.path.abspath(opts.output)
     if opts.override_css is not None:
         try:
-            opts.override_css = open(opts.override_css, 'rb').read().decode('utf-8', 'replace')
+            opts.override_css = open(opts.override_css, 'rb').read().decode(preferred_encoding, 'replace')
         except:
-            opts.override_css = opts.override_css.decode('utf-8', 'replace')
+            opts.override_css = opts.override_css.decode(preferred_encoding, 'replace')
     if htmlfile.lower().endswith('.opf'):
-        opf = OPFReader(htmlfile, os.path.dirname(os.path.abspath(htmlfile)))
+        opf = OPF(htmlfile, os.path.dirname(os.path.abspath(htmlfile)))
         filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
         mi = MetaInformation(opf)
     else:
@@ -141,7 +143,7 @@ def convert(htmlfile, opts, notification=None):
         buf = cStringIO.StringIO()
         if mi.toc:
             rebase_toc(mi.toc, htmlfile_map, tdir)
-        if mi.toc is None or len(mi.toc) < 2:
+        if opts.use_auto_toc or mi.toc is None or len(mi.toc) < 2:
             mi.toc = generated_toc
         for item in mi.manifest:
             if getattr(item, 'mime_type', None) == 'text/html':

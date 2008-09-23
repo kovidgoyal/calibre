@@ -15,7 +15,7 @@ from calibre.ebooks.epub import config as common_config
 from calibre.ebooks.epub.from_html import convert as html2epub
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator
 
 def lit2opf(path, tdir, opts):
     from calibre.ebooks.lit.reader import LitReader
@@ -74,7 +74,7 @@ MAP = {
        'txt'  : txt2opf,
        'pdf'  : pdf2opf,
        }
-SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf']    
+SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'rar', 'zip']    
 
 def unarchive(path, tdir):
     extract(path, tdir)

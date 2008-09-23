@@ -90,6 +90,8 @@ to auto-generate a Table of Contents.
         help=_('Maximum number of links from each HTML file to insert into the TOC. Set to 0 to disable. Default is: %default.'))
     toc('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
         help=_("Don't add auto-detected chapters to the Table of Contents."))
+    toc('use_auto_toc', ['--use-auto-toc'], default=False,
+        help=_('Normally, if the source file already has a Table of Contents, it is used in preference to the autodetected one. With this option, the autodetected one is always used.'))
     
     layout = c.add_group('page layout', _('Control page layout'))
     layout('margin_top', ['--margin-top'], default=5.0, 

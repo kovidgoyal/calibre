@@ -7,13 +7,154 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import sys, unittest, functools, os
-from urllib import unquote, quote
+import sys, unittest, functools, os, mimetypes, uuid
+from urllib import unquote
+from urlparse import urlparse
 
 from lxml import etree
 
 from calibre.ebooks.chardet import xml_to_unicode
-from calibre.ebooks.metadata import Resource, ResourceCollection
+from calibre import relpath
+from calibre.constants import __appname__
+from calibre.ebooks.metadata.toc import TOC
+from calibre.ebooks.metadata import MetaInformation
+
+
+class Resource(object):
+    '''
+    Represents a resource (usually a file on the filesystem or a URL pointing 
+    to the web. Such resources are commonly referred to in OPF files.
+    
+    They have the interface:
+    
+    :member:`path`
+    :member:`mime_type`
+    :method:`href`
+    
+    '''
+    
+    def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
+        self._href = None
+        self._basedir = basedir
+        self.path = None
+        self.fragment = ''
+        try:
+            self.mime_type = mimetypes.guess_type(href_or_path)[0]
+        except:
+            self.mime_type = None
+        if self.mime_type is None:
+            self.mime_type = 'application/octet-stream'
+        if is_path:
+            path = href_or_path
+            if not os.path.isabs(path):
+                path = os.path.abspath(os.path.join(basedir, path))
+            if isinstance(path, str):
+                path = path.decode(sys.getfilesystemencoding())
+            self.path = path
+        else:
+            href_or_path = href_or_path
+            url = urlparse(href_or_path)
+            if url[0] not in ('', 'file'):
+                self._href = href_or_path
+            else:
+                pc = url[2]
+                if isinstance(pc, unicode):
+                    pc = pc.encode('utf-8')
+                pc = pc.decode('utf-8')
+                self.path = os.path.abspath(os.path.join(basedir, pc.replace('/', os.sep)))
+                self.fragment = url[-1]
+        
+    
+    def href(self, basedir=None):
+        '''
+        Return a URL pointing to this resource. If it is a file on the filesystem
+        the URL is relative to `basedir`.
+        
+        `basedir`: If None, the basedir of this resource is used (see :method:`set_basedir`).
+        If this resource has no basedir, then the current working directory is used as the basedir.
+        '''
+        if basedir is None:
+            if self._basedir:
+                basedir = self._basedir
+            else:
+                basedir = os.getcwd()
+        if self.path is None:
+            return self._href
+        f = self.fragment.encode('utf-8') if isinstance(self.fragment, unicode) else self.fragment
+        frag = '#'+f if self.fragment else ''
+        if self.path == basedir:
+            return ''+frag
+        try:
+            rpath = relpath(self.path, basedir)
+        except OSError: # On windows path and basedir could be on different drives
+            rpath = self.path
+        if isinstance(rpath, unicode):
+            rpath = rpath.encode('utf-8')
+        return rpath.replace(os.sep, '/')+frag
+    
+    def set_basedir(self, path):
+        self._basedir = path
+        
+    def basedir(self):
+        return self._basedir
+    
+    def __repr__(self):
+        return 'Resource(%s, %s)'%(repr(self.path), repr(self.href()))
+        
+        
+class ResourceCollection(object):
+    
+    def __init__(self):
+        self._resources = []
+        
+    def __iter__(self):
+        for r in self._resources:
+            yield r
+            
+    def __len__(self):
+        return len(self._resources)
+    
+    def __getitem__(self, index):
+        return self._resources[index]
+    
+    def __bool__(self):
+        return len(self._resources) > 0
+    
+    def __str__(self):
+        resources = map(repr, self)
+        return '[%s]'%', '.join(resources)
+    
+    def __repr__(self):
+        return str(self)
+    
+    def append(self, resource):
+        if not isinstance(resource, Resource):
+            raise ValueError('Can only append objects of type Resource')
+        self._resources.append(resource)
+        
+    def remove(self, resource):
+        self._resources.remove(resource)
+    
+    def replace(self, start, end, items):
+        'Same as list[start:end] = items'
+        self._resources[start:end] = items
+        
+    @staticmethod
+    def from_directory_contents(top, topdown=True):
+        collection = ResourceCollection()
+        for spec in os.walk(top, topdown=topdown):
+            path = os.path.abspath(os.path.join(spec[0], spec[1]))
+            res = Resource.from_path(path)
+            res.set_basedir(top)
+            collection.append(res)
+        return collection
+    
+    def set_basedir(self, path):
+        for res in self:
+            res.set_basedir(path)
+        
+
+
 
 class ManifestItem(Resource):
     
@@ -21,8 +162,6 @@ class ManifestItem(Resource):
     def from_opf_manifest_item(item, basedir):
         href = item.get('href', None)
         if href:
-            if unquote(href) == href:
-                href = quote(href)
             res = ManifestItem(href, basedir=basedir, is_path=False)
             mt = item.get('media-type', '').strip()
             if mt:
@@ -293,6 +432,7 @@ class OPF(object):
         if not self.metadata:
             raise ValueError('Malformed OPF file: No <metadata> element')
         self.metadata      = self.metadata[0]
+        self.unquote_urls()
         self.manifest = Manifest()
         m = self.manifest_path(self.tree)
         if m:
@@ -306,6 +446,7 @@ class OPF(object):
         if guide:
             self.guide = Guide.from_opf_guide(guide, basedir)
         self.cover_data = (None, None)
+        
         
     def get_text(self, elem):
         return u''.join(self.TEXT(elem))
@@ -355,9 +496,11 @@ class OPF(object):
     def iterguide(self):
         return self.guide_path(self.tree)
     
-    def render(self):
-        return etree.tostring(self.tree, encoding='UTF-8', xml_declaration=True, 
-                              pretty_print=True)
+    def unquote_urls(self):
+        for item in self.itermanifest():
+            item.set('href', unquote(item.get('href', '')))
+        for item in self.iterguide():
+            item.set('href', unquote(item.get('href', '')))
     
     @apply
     def authors():
@@ -449,6 +592,116 @@ class OPF(object):
             val = getattr(mi, attr, None)
             if val or val == []:
                 setattr(self, attr, val)
+
+class OPFCreator(MetaInformation):
+    
+    def __init__(self, base_path, *args, **kwargs):
+        '''
+        Initialize.
+        @param base_path: An absolute path to the directory in which this OPF file
+        will eventually be. This is used by the L{create_manifest} method
+        to convert paths to files into relative paths.
+        '''
+        MetaInformation.__init__(self, *args, **kwargs)
+        self.base_path = os.path.abspath(base_path)
+        if self.application_id is None:
+            self.application_id = str(uuid.uuid4())
+        if not isinstance(self.toc, TOC):
+            self.toc = None
+        if not self.authors:
+            self.authors = [_('Unknown')]
+        if self.guide is None:
+            self.guide = Guide()
+        if self.cover:
+            self.guide.set_cover(self.cover)
+        
+        
+    def create_manifest(self, entries):
+        '''
+        Create <manifest>
+        
+        `entries`: List of (path, mime-type) If mime-type is None it is autodetected
+        '''
+        entries = map(lambda x: x if os.path.isabs(x[0]) else 
+                      (os.path.abspath(os.path.join(self.base_path, x[0])), x[1]),
+                      entries)
+        self.manifest = Manifest.from_paths(entries)
+        self.manifest.set_basedir(self.base_path)
+        
+    def create_manifest_from_files_in(self, files_and_dirs):
+        entries = []
+        
+        def dodir(dir):
+            for spec in os.walk(dir):
+                root, files = spec[0], spec[-1]
+                for name in files:
+                    path = os.path.join(root, name)
+                    if os.path.isfile(path):
+                        entries.append((path, None)) 
+        
+        for i in files_and_dirs:
+            if os.path.isdir(i):
+                dodir(i)
+            else:
+                entries.append((i, None))
+                
+        self.create_manifest(entries)    
+            
+    def create_spine(self, entries):
+        '''
+        Create the <spine> element. Must first call :method:`create_manifest`.
+        
+        `entries`: List of paths
+        '''
+        entries = map(lambda x: x if os.path.isabs(x) else 
+                      os.path.abspath(os.path.join(self.base_path, x)), entries)
+        self.spine = Spine.from_paths(entries, self.manifest)
+        
+    def set_toc(self, toc):
+        '''
+        Set the toc. You must call :method:`create_spine` before calling this
+        method.
+        
+        :param toc: A :class:`TOC` object
+        '''
+        self.toc = toc
+        
+    def create_guide(self, guide_element):
+        self.guide = Guide.from_opf_guide(guide_element, self.base_path)
+        self.guide.set_basedir(self.base_path)
+            
+    def render(self, opf_stream, ncx_stream=None, ncx_manifest_entry=None):
+        from calibre.resources import opf_template
+        from calibre.utils.genshi.template import MarkupTemplate
+        template = MarkupTemplate(opf_template)
+        if self.manifest:
+            self.manifest.set_basedir(self.base_path)
+            if ncx_manifest_entry is not None:
+                if not os.path.isabs(ncx_manifest_entry):
+                    ncx_manifest_entry = os.path.join(self.base_path, ncx_manifest_entry)
+                remove = [i for i in self.manifest if i.id == 'ncx']
+                for item in remove:
+                    self.manifest.remove(item)
+                self.manifest.append(ManifestItem(ncx_manifest_entry, self.base_path))
+                self.manifest[-1].id = 'ncx'
+                self.manifest[-1].mime_type = 'application/x-dtbncx+xml'
+        if not self.guide:
+            self.guide = Guide()
+        if self.cover:
+            cover = self.cover
+            if not os.path.isabs(cover):
+                cover = os.path.abspath(os.path.join(self.base_path, cover))
+            self.guide.set_cover(cover)
+        self.guide.set_basedir(self.base_path)
+        
+        opf = template.generate(__appname__=__appname__, mi=self).render('xml')
+        opf_stream.write(opf)
+        opf_stream.flush()
+        toc = getattr(self, 'toc', None)
+        if toc is not None and ncx_stream is not None:
+            toc.render(ncx_stream, self.application_id)
+            ncx_stream.flush()
+
 
 class OPFTest(unittest.TestCase):
     

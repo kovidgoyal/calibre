@@ -20,10 +20,9 @@ get_text = XPath("//text()")
 from calibre import LoggingInterface, unicode_path
 from calibre.ebooks.chardet import xml_to_unicode, ENCODING_PATS
 from calibre.utils.config import Config, StringConfig
-from calibre.ebooks.metadata.opf import OPFReader, OPFCreator
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.ebooks.metadata.opf2 import OPF
+from calibre.ebooks.metadata.opf2 import OPF, OPFCreator
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile
 
@@ -429,6 +428,8 @@ class Processor(Parser):
     def detect_chapters(self):
         self.detected_chapters = self.opts.chapter(self.root)
         for elem in self.detected_chapters:
+            text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
+            self.log_info('\tDetected chapter: %s', text[:50])
             if self.opts.chapter_mark in ('both', 'pagebreak'):
                 style = elem.get('style', '').strip()
                 if style and not style.endswith(';'):
@@ -503,12 +504,16 @@ class Processor(Parser):
                         
         # Add chapters to TOC
         if not self.opts.no_chapters_in_toc:
+            counter = 0
             for elem in getattr(self, 'detected_chapters', []):
                 text = (u''.join(elem.xpath('string()'))).strip()
                 if text:
                     name = self.htmlfile_map[self.htmlfile.path]
                     href = 'content/'+name
-                    add_item(href, None, text, target)
+                    counter += 1
+                    id = elem.get('id', 'calibre_chapter_%d'%counter)
+                    elem.set('id', id)
+                    add_item(href, id, text, target)
                     
         
     def extract_css(self):
@@ -647,7 +652,7 @@ is used.
 def search_for_opf(dir):
     for f in os.listdir(dir):
         if f.lower().endswith('.opf'):
-            return OPFReader(open(os.path.join(dir, f), 'rb'), dir)
+            return OPF(open(os.path.join(dir, f), 'rb'), dir)
 
 
 def get_filelist(htmlfile, opts):
@@ -749,7 +754,7 @@ def create_dir(htmlfile, opts):
     Create a directory that contains the open ebook
     '''
     if htmlfile.lower().endswith('.opf'):
-        opf = OPFReader(open(htmlfile, 'rb'), os.path.dirname(os.path.abspath(htmlfile)))
+        opf = OPF(open(htmlfile, 'rb'), os.path.dirname(os.path.abspath(htmlfile)))
         filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
         mi = MetaInformation(opf)
     else:
