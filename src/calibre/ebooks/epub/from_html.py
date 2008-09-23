@@ -69,13 +69,19 @@ the <spine> element of the OPF file.
 def parse_content(filelist, opts, tdir):
     os.makedirs(os.path.join(tdir, 'content', 'resources'))
     resource_map = {}
-    toc = TOC(base_path=tdir)
+    toc = TOC(base_path=tdir, type='root')
     for htmlfile in filelist:
         hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), 
                            resource_map, filelist)
         hp.populate_toc(toc)
         hp.save()
-        
+    
+    if toc.count('chapter') > opts.toc_threshold:
+        toc.purge(['file', 'link', 'unknown'])
+    if toc.count('chapter') + toc.count('file') > opts.toc_threshold:
+        toc.purge(['link', 'unknown'])
+    toc.purge(['link'], max=opts.max_toc_links)
+    
     return resource_map, hp.htmlfile_map, toc
 
 def convert(htmlfile, opts, notification=None):

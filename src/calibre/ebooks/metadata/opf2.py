@@ -393,7 +393,9 @@ class OPF(object):
     NAMESPACES       = {
                         None  : "http://www.idpf.org/2007/opf",
                         'dc'  : "http://purl.org/dc/elements/1.1/",
+                        'dc1' : 'http://purl.org/dc/elements/1.0/',
                         'opf' : "http://www.idpf.org/2007/opf",
+                        'oebpackage' : 'http://openebook.org/namespaces/oeb-package/1.0/',
                        }
     xpn = NAMESPACES.copy()
     xpn.pop(None)
@@ -402,16 +404,15 @@ class OPF(object):
     TEXT             = XPath('string()')
     
     
-    metadata_path   = XPath('/opf:package/opf:metadata')
-    metadata_elem_path = XPath('/opf:package/opf:metadata/*[re:match(name(), $name, "i")]')
-    authors_path    = XPath('/opf:package/opf:metadata/*' + \
-        '[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut")]')
-    tags_path       = XPath('/opf:package/opf:metadata/*[re:match(name(), "subject", "i")]')
-    isbn_path       = XPath('/opf:package/opf:metadata/*[re:match(name(), "identifier", "i") and '+
+    metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
+    metadata_elem_path = XPath('descendant::*[re:match(name(), $name, "i")]')
+    authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut")]')
+    tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
+    isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
-    manifest_path   = XPath('/opf:package/*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]') 
-    spine_path      = XPath('/opf:package/*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
-    guide_path      = XPath('/opf:package/*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
+    manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]') 
+    spine_path      = XPath('descendant::*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
+    guide_path      = XPath('descendant::*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
     
     title           = MetadataField('title')
     publisher       = MetadataField('publisher')
@@ -424,25 +425,27 @@ class OPF(object):
     
     
     def __init__(self, stream, basedir=os.getcwdu()):
+        if not hasattr(stream, 'read'):
+            stream = open(stream, 'rb')
         self.basedir  = self.base_dir = basedir
         raw, self.encoding = xml_to_unicode(stream.read(), strip_encoding_pats=True, resolve_entities=True)
         
-        self.tree     = etree.fromstring(raw, self.PARSER)
-        self.metadata = self.metadata_path(self.tree)
+        self.root     = etree.fromstring(raw, self.PARSER)
+        self.metadata = self.metadata_path(self.root)
         if not self.metadata:
             raise ValueError('Malformed OPF file: No <metadata> element')
         self.metadata      = self.metadata[0]
         self.unquote_urls()
         self.manifest = Manifest()
-        m = self.manifest_path(self.tree)
+        m = self.manifest_path(self.root)
         if m:
             self.manifest = Manifest.from_opf_manifest_element(m, basedir)
         self.spine = None
-        s = self.spine_path(self.tree)
+        s = self.spine_path(self.root)
         if s:
             self.spine = Spine.from_opf_spine_element(s, self.manifest)
         self.guide = None
-        guide = self.guide_path(self.tree)
+        guide = self.guide_path(self.root)
         if guide:
             self.guide = Guide.from_opf_guide(guide, basedir)
         self.cover_data = (None, None)
@@ -452,7 +455,7 @@ class OPF(object):
         return u''.join(self.TEXT(elem))
     
     def itermanifest(self):
-        return self.manifest_path(self.tree)
+        return self.manifest_path(self.root)
     
     def create_manifest_item(self, href, media_type):
         ids = [i.get('id', None) for i in self.itermanifest()]
@@ -478,7 +481,7 @@ class OPF(object):
         return [i.get('id') for i in items]
     
     def iterspine(self):
-        return self.spine_path(self.tree)
+        return self.spine_path(self.root)
     
     def create_spine_item(self, idref):
         ans = etree.Element('{%s}itemref'%self.NAMESPACES['opf'], idref=idref)
@@ -487,14 +490,14 @@ class OPF(object):
     
     def replace_spine_items_by_idref(self, idref, new_idrefs):
         items = list(map(self.create_spine_item, new_idrefs))
-        spine = self.XPath('/opf:package/*[re:match(name(), "spine", "i")]')(self.tree)[0]
+        spine = self.XPath('/opf:package/*[re:match(name(), "spine", "i")]')(self.root)[0]
         old = [i for i in self.iterspine() if i.get('idref', None) == idref]
         for x in old:
             i = spine.index(x)
             spine[i:i+1] = items
     
     def iterguide(self):
-        return self.guide_path(self.tree)
+        return self.guide_path(self.root)
     
     def unquote_urls(self):
         for item in self.itermanifest():
@@ -507,12 +510,12 @@ class OPF(object):
         
         def fget(self):
             ans = []
-            for elem in self.authors_path(self.tree):
+            for elem in self.authors_path(self.metadata):
                 ans.extend([x.strip() for x in self.get_text(elem).split(',')])
             return ans
         
         def fset(self, val):
-            remove = list(self.authors_path(self.tree))
+            remove = list(self.authors_path(self.metadata))
             for elem in remove:
                 self.metadata.remove(elem)
             for author in val:
@@ -526,13 +529,13 @@ class OPF(object):
     def author_sort():
         
         def fget(self):
-            matches = self.authors_path(self.tree)
+            matches = self.authors_path(self.metadata)
             if matches:
                 ans = matches[0].get('opf:file-as', None)
                 return ans if ans else matches[0].get('file-as', None)
             
         def fset(self, val):
-            matches = self.authors_path(self.tree)
+            matches = self.authors_path(self.metadata)
             if matches:
                 matches[0].set('file-as', unicode(val))
             
@@ -543,12 +546,12 @@ class OPF(object):
         
         def fget(self):
             ans = []
-            for tag in self.tags_path(self.tree):
+            for tag in self.tags_path(self.metadata):
                 ans.append(self.get_text(tag))
             return ans
         
         def fset(self, val):
-            for tag in list(self.tags_path(self.tree)):
+            for tag in list(self.tags_path(self.metadata)):
                 self.metadata.remove(tag)
             for tag in val:
                 elem = self.create_metadata_element('subject', ns='dc')
@@ -560,11 +563,11 @@ class OPF(object):
     def isbn():
         
         def fget(self):
-            for match in self.isbn_path(self.tree):
+            for match in self.isbn_path(self.metadata):
                 return match.text if match.text else None
             
         def fset(self, val):
-            matches = self.isbn_path(self.tree)
+            matches = self.isbn_path(self.metadata)
             if not matches:
                 matches = [self.create_metadata_element('identifier', ns='dc',
                                                 attrib={'{%s}scheme'%self.NAMESPACES['opf']:'ISBN'})]
@@ -572,9 +575,9 @@ class OPF(object):
         return property(fget=fget, fset=fset)
     
     def get_metadata_element(self, name):
-        matches = self.metadata_elem_path(self.tree, name=name)
+        matches = self.metadata_elem_path(self.metadata, name=name)
         if matches:
-            return matches[0]
+            return matches[-1]
         
     def create_metadata_element(self, name, attrib=None, ns='opf'):
         elem = etree.SubElement(self.metadata, '{%s}%s'%(self.NAMESPACES[ns], name), 
@@ -583,7 +586,7 @@ class OPF(object):
         return elem
         
     def render(self, encoding='utf-8'):
-        return etree.tostring(self.tree, encoding='utf-8', pretty_print=True)
+        return etree.tostring(self.root, encoding='utf-8', pretty_print=True)
     
     def smart_update(self, mi):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
@@ -716,7 +719,13 @@ class OPFTest(unittest.TestCase):
     <creator opf:role="aut" file-as="Monkey">Monkey Kitchen, Next</creator>
     <dc:subject>One</dc:subject><dc:subject>Two</dc:subject>
     <dc:identifier scheme="ISBN">123456789</dc:identifier>
+    <x-metadata>
+        <series>A one book series</series>
+    </x-metadata>
 </metadata>
+<manifest>
+    <item id="1" href="a%20%7E%20b" media-type="text/txt" />
+</manifest>
 </package>
 '''
         )
@@ -729,14 +738,14 @@ class OPFTest(unittest.TestCase):
         self.assertEqual(opf.author_sort, 'Monkey')
         self.assertEqual(opf.tags, ['One', 'Two'])
         self.assertEqual(opf.isbn, '123456789')
-        self.assertEqual(opf.series, None)
+        self.assertEqual(opf.series, 'A one book series')
         self.assertEqual(opf.series_index, None)
-        
+        self.assertEqual(list(opf.itermanifest())[0].get('href'), 'a ~ b')
         
     def testWriting(self):
         for test in [('title', 'New & Title'), ('authors', ['One', 'Two']),
                      ('author_sort', "Kitchen"), ('tags', ['Three']),
-                     ('isbn', 'a'), ('rating', 3)]:
+                     ('isbn', 'a'), ('rating', 3), ('series_index', 1)]:
             setattr(self.opf, *test)
             self.assertEqual(getattr(self.opf, test[0]), test[1])
         
@@ -747,11 +756,6 @@ def suite():
     
 def test():
     unittest.TextTestRunner(verbosity=2).run(suite())
-
-
-
-def main(args=sys.argv):
-    return 0
 
 if __name__ == '__main__':
     sys.exit(test())

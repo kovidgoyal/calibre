@@ -77,7 +77,7 @@
      <item>
       <widget class="QStackedWidget" name="stack" >
        <property name="currentIndex" >
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="metadata_page" >
         <layout class="QGridLayout" name="gridLayout_4" >
@@ -619,15 +619,15 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item row="3" column="1" >
-             <widget class="QSpinBox" name="opt_max_toc_recursion" />
+             <widget class="QSpinBox" name="opt_toc_threshold" />
             </item>
             <item row="3" column="0" >
              <widget class="QLabel" name="label_16" >
               <property name="text" >
-               <string>Table of Contents &amp;recursion</string>
+               <string>Chapter &amp;threshold</string>
               </property>
               <property name="buddy" >
-               <cstring>opt_max_toc_recursion</cstring>
+               <cstring>opt_toc_threshold</cstring>
               </property>
              </widget>
             </item>

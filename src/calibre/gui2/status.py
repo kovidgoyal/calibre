@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import re
+import re, collections
 
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon
@@ -47,6 +47,13 @@ class BookInfoDisplay(QFrame):
             
         def mouseReleaseEvent(self, ev):
             self.emit(SIGNAL('mr(int)'), 1)
+            
+    WEIGHTS = collections.defaultdict(lambda : 100)
+    WEIGHTS[_('Path')] = 0
+    WEIGHTS[_('Formats')] = 1
+    WEIGHTS[_('Comments')] = 2
+    WEIGHTS[_('Series')] = 3
+    WEIGHTS[_('Tags')] = 4
     
     def __init__(self, clear_message):
         QFrame.__init__(self)
@@ -74,7 +81,9 @@ class BookInfoDisplay(QFrame):
         rows = u''
         self.book_data.setText('')
         self.data = data.copy()
-        for key in data.keys():
+        keys = data.keys()
+        keys.sort(cmp=lambda x, y: cmp(self.WEIGHTS[x], self.WEIGHTS[y]))
+        for key in keys:
             txt = data[key]
             #txt = '<br />\n'.join(textwrap.wrap(txt, 120))
             if isinstance(key, str):

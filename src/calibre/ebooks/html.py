@@ -118,7 +118,7 @@ class HTMLFile(object):
             raise IgnoreFile(msg, err.errno)
         
         self.is_binary = not bool(self.HTML_PAT.search(src[:1024]))
-        
+        self.title = None
         if not self.is_binary:
             if encoding is None:
                 encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
@@ -126,8 +126,7 @@ class HTMLFile(object):
 
             src = src.decode(encoding, 'replace')
             match = self.TITLE_PAT.search(src)
-            if match is not None:
-                self.title = match.group(1)
+            self.title = match.group(1) if match is not None else None
             self.find_links(src)
                 
         
@@ -460,8 +459,28 @@ class Processor(Parser):
         return Parser.save(self)
     
     def populate_toc(self, toc):
-        if self.level >= self.opts.max_toc_recursion:
-            return
+        
+        def add_item(href, fragment, text, target, type='link'):
+            for entry in toc.flat():
+                if entry.href == href and entry.fragment == fragment:
+                    return entry
+            if len(text) > 50:
+                text = text[:50] + u'\u2026'
+            return target.add_item(href, fragment, text, type=type)
+        
+        # Add chapters to TOC
+        counter = 0
+        if not self.opts.no_chapters_in_toc:
+            for elem in getattr(self, 'detected_chapters', []):
+                text = (u''.join(elem.xpath('string()'))).strip()
+                if text:
+                    name = self.htmlfile_map[self.htmlfile.path]
+                    href = 'content/'+name
+                    counter += 1
+                    id = elem.get('id', 'calibre_chapter_%d'%counter)
+                    elem.set('id', id)
+                    add_item(href, id, text, toc, type='chapter')
+        
         
         referrer = toc
         if self.htmlfile.referrer is not None:
@@ -472,20 +491,13 @@ class Processor(Parser):
                     referrer = i
                     break
         
-        def add_item(href, fragment, text, target):
-            for entry in toc.flat():
-                if entry.href == href and entry.fragment == fragment:
-                    return entry
-            if len(text) > 50:
-                text = text[:50] + u'\u2026'
-            return target.add_item(href, fragment, text)
             
         name = self.htmlfile_map[self.htmlfile.path]
         href = 'content/'+name
         
         if referrer.href != href: # Happens for root file
-            target = add_item(href, None, self.htmlfile.title, referrer)
-            
+            target = add_item(href, None, unicode(self.htmlfile.title), referrer, type='file')
+        
         # Add links to TOC
         if int(self.opts.max_toc_links) > 0:
             for link in list(self.LINKS_PATH(self.root))[:self.opts.max_toc_links]:
@@ -502,18 +514,6 @@ class Processor(Parser):
                             name = self.htmlfile_map[self.htmlfile.referrer.path]
                         add_item(href, fragment, text, target)
                         
-        # Add chapters to TOC
-        if not self.opts.no_chapters_in_toc:
-            counter = 0
-            for elem in getattr(self, 'detected_chapters', []):
-                text = (u''.join(elem.xpath('string()'))).strip()
-                if text:
-                    name = self.htmlfile_map[self.htmlfile.path]
-                    href = 'content/'+name
-                    counter += 1
-                    id = elem.get('id', 'calibre_chapter_%d'%counter)
-                    elem.set('id', id)
-                    add_item(href, id, text, target)
                     
         
     def extract_css(self):

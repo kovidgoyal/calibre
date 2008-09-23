@@ -62,10 +62,11 @@ def config(defaults=None):
     c.add_opt('override_css', ['--override-css'], default=None,
               help=_('Either the path to a CSS stylesheet or raw CSS. This CSS will override any existing CSS declarations in the source files.'))
     structure = c.add_group('structure detection', _('Control auto-detection of document structure.'))
-    structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section|part', 'i')]",
+    structure('chapter', ['--chapter'], default="//*[re:match(name(), 'h[1-2]') and re:test(., 'chapter|book|section|part', 'i')] | //*[@class = 'chapter']",
             help=_('''\
 An XPath expression to detect chapter titles. The default is to consider <h1> or
-<h2> tags that contain the words "chapter","book","section" or "part" as chapter titles. 
+<h2> tags that contain the words "chapter","book","section" or "part" as chapter titles as 
+well as any tags that have class="chapter". 
 The expression used must evaluate to a list of elements. To disable chapter detection,
 use the expression "/". See the XPath Tutorial in the calibre User Manual for further
 help on using this feature.
@@ -84,12 +85,12 @@ Control the automatic generation of a Table of Contents. If an OPF file is detec
 and it specifies a Table of Contents, then that will be used rather than trying
 to auto-generate a Table of Contents.
 ''').replace('\n', ' '))
-    toc('max_toc_recursion', ['--max-toc-recursion'], default=1, 
-        help=_('Number of levels of HTML files to try to autodetect TOC entries from. Set to 0 to disable all TOC autodetection. Default is %default.'))
-    toc('max_toc_links', ['--max-toc-links'], default=40, 
-        help=_('Maximum number of links from each HTML file to insert into the TOC. Set to 0 to disable. Default is: %default.'))
+    toc('max_toc_links', ['--max-toc-links'], default=50, 
+        help=_('Maximum number of links to insert into the TOC. Set to 0 to disable. Default is: %default. Links are only added to the TOC if less than the --toc-threshold number of chapters were detected.'))
     toc('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
         help=_("Don't add auto-detected chapters to the Table of Contents."))
+    toc('toc_threshold', ['--toc-threshold'], default=6,
+        help=_('If fewer than this number of chapters is detected, then links are added to the Table of Contents.'))
     toc('use_auto_toc', ['--use-auto-toc'], default=False,
         help=_('Normally, if the source file already has a Table of Contents, it is used in preference to the autodetected one. With this option, the autodetected one is always used.'))
     
