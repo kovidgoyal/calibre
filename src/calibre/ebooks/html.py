@@ -123,6 +123,8 @@ class HTMLFile(object):
             if encoding is None:
                 encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
                 self.encoding = encoding
+            else:
+                self.encoding = encoding
 
             src = src.decode(encoding, 'replace')
             match = self.TITLE_PAT.search(src)
@@ -200,6 +202,8 @@ def traverse(path_to_html_file, max_levels=sys.maxint, verbose=0, encoding=None)
                     continue
                 try:
                     nf = HTMLFile(link.path, level, encoding, verbose, referrer=hf)
+                    if nf.is_binary:
+                        raise IgnoreFile('%s is a binary file'%nf.path, -1)
                     nl.append(nf)
                     flat.append(nf)
                 except IgnoreFile, err:
@@ -235,7 +239,7 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
             if path not in flat:
                 flat.append(path)
     flat = [HTMLFile(path, 0, encoding, verbose) for path in flat]
-    return flat
+    return [f for f in flat if not f.is_binary]
             
 
 
@@ -521,8 +525,6 @@ class Processor(Parser):
         Remove all CSS information from the document and store in self.raw_css. 
         This includes <font> tags.
         '''
-        counter = 0
-        
         def get_id(chapter, counter, prefix='calibre_css_'):
             new_id = '%s_%d'%(prefix, counter)
             if chapter.tag.lower() == 'a' and  'name' in chapter.keys():
@@ -667,7 +669,10 @@ def get_filelist(htmlfile, opts):
     opf = search_for_opf(dir)
     filelist = None
     if opf is not None:
-        filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
+        try:
+            filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
+        except:
+            pass
     if not filelist:
         filelist = traverse(htmlfile, max_levels=int(opts.max_levels), 
                             verbose=opts.verbose, encoding=opts.encoding)\

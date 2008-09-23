@@ -149,7 +149,7 @@ def convert(htmlfile, opts, notification=None):
         buf = cStringIO.StringIO()
         if mi.toc:
             rebase_toc(mi.toc, htmlfile_map, tdir)
-        if opts.use_auto_toc or mi.toc is None or len(mi.toc) < 2:
+        if opts.use_auto_toc or mi.toc is None or len(list(mi.toc.flat())) < 2:
             mi.toc = generated_toc
         for item in mi.manifest:
             if getattr(item, 'mime_type', None) == 'text/html':

@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import sys, unittest, functools, os, mimetypes, uuid
+import sys, unittest, functools, os, mimetypes, uuid, glob
 from urllib import unquote
 from urlparse import urlparse
 
@@ -446,10 +446,43 @@ class OPF(object):
             self.spine = Spine.from_opf_spine_element(s, self.manifest)
         self.guide = None
         guide = self.guide_path(self.root)
-        if guide:
-            self.guide = Guide.from_opf_guide(guide, basedir)
+        self.guide = Guide.from_opf_guide(guide, basedir) if guide else None
         self.cover_data = (None, None)
+        self.find_toc()
         
+    def find_toc(self):
+        self.toc = None
+        try:
+            spine = self.XPath('descendant::*[re:match(name(), "spine", "i")]')(self.root)
+            toc = None
+            if spine:
+                spine = spine[0]
+                toc = spine.get('toc', None)
+            if toc is None and self.guide:
+                for item in self.guide:
+                    if item.type and item.type.lower() == 'toc':
+                        toc = item.path
+            if toc is None:
+                for item in self.manifest:
+                    if 'toc' in item.href().lower():
+                        toc = item.path
+            
+            if toc is None: return
+            self.toc = TOC(base_path=self.base_dir)
+            if toc.lower() in ('ncx', 'ncxtoc'):
+                path = self.manifest.path_for_id(toc)
+                if path:
+                    self.toc.read_ncx_toc(path)
+                else:
+                    f = glob.glob(os.path.join(self.base_dir, '*.ncx'))
+                    if f:
+                        self.toc.read_ncx_toc(f[0])
+            else:
+                self.toc.read_html_toc(toc)
+        except:
+            pass        
+            
+    
         
     def get_text(self, elem):
         return u''.join(self.TEXT(elem))

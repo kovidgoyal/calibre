@@ -48,8 +48,14 @@ class Splitter(LoggingInterface):
         css = XPath('//link[@type = "text/css" and @rel = "stylesheet"]')(root)
         if css:
             cssp = os.path.join('content', *(css[0].get('href').split('/')))
-            self.log_debug('\t\tParsing stylesheet...') 
-            stylesheet = CSSParser().parseString(open(cssp, 'rb').read())
+            self.log_debug('\t\tParsing stylesheet...')
+            try: 
+                stylesheet = CSSParser().parseString(open(cssp, 'rb').read())
+            except:
+                self.log_warn('Failed to parse CSS. Splitting on page-breaks is disabled')
+                if self.opts.verbose > 1:
+                    self.log_exception('')
+                stylesheet = None
         else:
             stylesheet = None
         self.page_breaks = []

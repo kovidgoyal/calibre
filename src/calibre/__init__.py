@@ -289,7 +289,7 @@ class LoggingInterface:
         formatter = logging.Formatter()
         level     = logging.INFO
         if verbosity > 0:
-            formatter = ColoredFormatter('[%(levelname)s] %(filename)s:%(lineno)s: %(message)s') if verbosity > 1 else \
+            formatter = ColoredFormatter('[%(levelname)s] %(message)s') if verbosity > 1 else \
                         ColoredFormatter('%(levelname)s: %(message)s')
             level     = logging.DEBUG
             if verbosity > 1:
