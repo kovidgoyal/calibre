@@ -198,7 +198,6 @@ class RecursiveFetcher(object, LoggingInterface):
                 except Exception, err:
                     self.log_warning('Could not fetch stylesheet %s', iurl)
                     self.log_debug('Error: %s', str(err), exc_info=True)
-                    if hasattr(f, 'close'): f.close()
                     continue
                 stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                 with self.stylemap_lock:
