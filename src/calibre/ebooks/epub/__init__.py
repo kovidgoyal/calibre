@@ -71,7 +71,7 @@ The expression used must evaluate to a list of elements. To disable chapter dete
 use the expression "/". See the XPath Tutorial in the calibre User Manual for further
 help on using this feature.
 ''').replace('\n', ' '))
-    structure('chapter_mark', ['--chapter-mark'], choices=['pagebreak', 'rule', 'both'],
+    structure('chapter_mark', ['--chapter-mark'], choices=['pagebreak', 'rule', 'both', 'none'],
               default='pagebreak', help=_('Specify how to mark detected chapters. A value of "pagebreak" will insert page breaks before chapters. A value of "rule" will insert a line before chapters. A value of "none" will disable chapter marking and a value of "both" will use both page breaks and lines to mark chapters.'))
     structure('cover', ['--cover'], default=None,
               help=_('Path to the cover to be used for this book'))

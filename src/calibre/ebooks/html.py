@@ -540,7 +540,7 @@ class Processor(Parser):
         css = []
         for link in self.root.xpath('//link'):
             if 'css' in link.get('type', 'text/css').lower():
-                file = self.htmlfile.resolve(unicode(link.get('href', ''), self.htmlfile.encoding)).path
+                file = os.path.join(self.tdir, link.get('href', ''))
                 if file and os.path.exists(file) and os.path.isfile(file):
                     css.append(open(file, 'rb').read().decode('utf-8'))
                 link.getparent().remove(link)
