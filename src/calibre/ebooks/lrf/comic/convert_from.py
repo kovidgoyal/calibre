@@ -286,7 +286,7 @@ def config(defaults=None):
               help=_('Set the author in the metadata of the generated ebook. Default is %default'),
               default=_('Unknown'))
     c.add_opt('output', ['-o', '--output'],
-              help=_('Path to output LRF file. By default a file is created in the current directory.'))
+              help=_('Path to output file. By default a file is created in the current directory.'))
     c.add_opt('colors', ['-c', '--colors'], type='int', default=64,
               help=_('Number of colors for grayscale image conversion. Default: %default'))
     c.add_opt('dont_normalize', ['-n', '--disable-normalize'], default=False,
@@ -306,7 +306,7 @@ def config(defaults=None):
     c.add_opt('no_sort', ['--no-sort'], default=False,
               help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."))
     c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(),
-              help=_('Choose a profile for the device you are generating this LRF for. The default is the SONY PRS-500 with a screen size of 584x754 pixels. Choices are %s')%PROFILES.keys())
+              help=_('Choose a profile for the device you are generating this file for. The default is the SONY PRS-500 with a screen size of 584x754 pixels. This is suitable for any reader with the same screen size. Choices are %s')%PROFILES.keys())
     c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
               help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
     c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False,

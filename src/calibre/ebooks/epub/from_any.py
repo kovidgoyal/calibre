@@ -74,7 +74,7 @@ MAP = {
        'txt'  : txt2opf,
        'pdf'  : pdf2opf,
        }
-SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'rar', 'zip', 'htm', 'html']    
+SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html']
 
 def unarchive(path, tdir):
     extract(path, tdir)
@@ -109,7 +109,7 @@ def any2epub(opts, path, notification=None):
         opts.output = os.path.splitext(os.path.basename(path))[0]+'.epub'
     
     with nested(TemporaryDirectory('_any2epub1'), TemporaryDirectory('_any2epub2')) as (tdir1, tdir2):
-        if ext in ['rar', 'zip']:
+        if ext in ['rar', 'zip', 'oebzip']:
             path, ext = unarchive(path, tdir1)
             print 'Found %s file in archive'%(ext.upper())
     
@@ -129,7 +129,7 @@ def config(defaults=None):
 
 
 def formats():
-    return ['html', 'rar', 'zip']+list(MAP.keys())
+    return ['html', 'rar', 'zip', 'oebzip']+list(MAP.keys())
 
 def option_parser():
     

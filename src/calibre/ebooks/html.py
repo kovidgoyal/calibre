@@ -491,16 +491,20 @@ class Processor(Parser):
         
         referrer = toc
         if self.htmlfile.referrer is not None:
-            name = self.htmlfile_map[self.htmlfile.referrer]
-            href = 'content/'+name
-            for i in toc.flat():
-                if href == i.href and i.fragment is None:
-                    referrer = i
-                    break
-        
+            try:
+                name = self.htmlfile_map[self.htmlfile.referrer]
+                href = 'content/'+name
+                for i in toc.flat():
+                    if href == i.href and i.fragment is None:
+                        referrer = i
+                        break
+            except KeyError:
+                pass
             
+        
         name = self.htmlfile_map[self.htmlfile.path]
         href = 'content/'+name
+        
         
         if referrer.href != href: # Happens for root file
             target = add_item(href, None, unicode(self.htmlfile.title), referrer, type='file')
