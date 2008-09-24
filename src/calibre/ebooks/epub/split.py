@@ -82,7 +82,7 @@ class Splitter(LoggingInterface):
         self.log_debug('\t\tSplitting...')
         root = tree.getroot()
         split_point, before = self.find_split_point(root)
-        if split_point is None:# or self.split_size > 6*self.orig_size:
+        if split_point is None or self.split_size > 6*self.orig_size:
             if not self.always_remove:
                 self.log_warn(_('\t\tToo much markup. Re-splitting without structure preservation. This may cause incorrect rendering.'))
             raise SplitError(self.path, root)
