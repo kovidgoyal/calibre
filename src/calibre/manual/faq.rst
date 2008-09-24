@@ -17,11 +17,41 @@ E-book Format Conversion
 
 What formats does |app| support conversion to/from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| supports the conversion of the following formats to LRF: HTML, LIT, MOBI, PRC, EPUB, CBR, CBZ, RTF, TXT, PDF and LRS. It also supports the conversion of LRF to LRS and HTML(forthcoming). Note that calibre does not support the conversion of DRMed ebooks.
+|app| supports the conversion of the following formats:
 
-What are the best formats to convert to LRF?
++----------------------------+------------------------------------------+
+|                            |          **Output formats**              |
+|                            +------------------+-----------------------+
+|                            |      EPUB        |         LRF           |
++===================+========+==================+=======================+      
+|                   |  MOBI  |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  LIT   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  PRC   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  EPUB  |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  HTML  |       ✔          |          ✔            |
+|                   |        |                  |                       |
+| **Input formats** |  CBR   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  CBZ   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  RTF   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  TXT   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  PDF   |       ✔          |          ✔            | 
+|                   |        |                  |                       |
+|                   |  LRS   |                  |          ✔            |
++-------------------+--------+------------------+-----------------------+
+           
+
+
+What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order of decreasing preference: LIT, MOBI, HTML, PRC, RTF, TXT, PDF 
+In order of decreasing preference: LIT, MOBI, EPUB, HTML, PRC, RTF, TXT, PDF 
 
 Why does the PDF conversion lose some images/tables?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

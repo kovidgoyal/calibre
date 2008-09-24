@@ -1,8 +1,37 @@
 from __future__ import with_statement
-
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
+
+'''
+Conversion of HTML/OPF files follows several stages:
+
+    * All links in the HTML files or in the OPF manifest are
+    followed to build up a list of HTML files to be converted.
+    This stage is implemented by 
+    :function:`calibre.ebooks.html.traverse` and
+    :class:`calibre.ebooks.html.HTMLFile`.
+
+    * The HTML is pre-processed to make it more semantic. 
+    All links in the HTML files to other resources like images,
+    stylesheets, etc. are relativized. The resources are copied 
+    into the `resources` sub directory. This is accomplished by
+    :class:`calibre.ebooks.html.PreProcessor` and 
+    :class:`calibre.ebooks.html.Parser`.
+
+    * The HTML is processed. Various operations are performed.
+    All style declarations are extracted and consolidated into 
+    a single style sheet. Chapters are auto-detected and marked.
+    Various font related manipulations are performed. See
+    :class:`HTMLProcessor`.
+
+    * The processed HTML is saved and the 
+    :module:`calibre.ebooks.epub.split` module is used to split up
+    large HTML files into smaller chunks.
+
+    * The EPUB container is created.
+'''
+
 import os, sys, re, cStringIO
 
 from lxml.etree import XPath

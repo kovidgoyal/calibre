@@ -27,9 +27,9 @@ from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryF
 from calibre.utils.zipfile import ZipFile
 
 def tostring(root, pretty_print=False):
-    return html.tostring(root, encoding='utf-8', method='xml', 
+    return html.tostring(root, encoding='utf-8', method='xml',
                   pretty_print=pretty_print,
-                  include_meta_content_type=True) 
+                  include_meta_content_type=True)
 
 
 class Link(object):
@@ -337,7 +337,7 @@ class Parser(PreProcessor, LoggingInterface):
             if self.root.get(bad, None) is not None:
                 self.root.attrib.pop(bad)
         
-    def save_path(self):    
+    def save_path(self):
         return os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path])
     
     def save(self):
@@ -463,6 +463,9 @@ class Processor(Parser):
         return Parser.save(self)
     
     def populate_toc(self, toc):
+        '''
+        Populate the Table of Contents from detected chapters and links.
+        '''
         
         def add_item(href, fragment, text, target, type='link'):
             for entry in toc.flat():
@@ -602,9 +605,9 @@ class Processor(Parser):
         
     def do_layout(self):
         self.css += '\nbody {margin-top: 0pt; margin-bottom: 0pt; margin-left: 0pt; margin-right: 0pt}\n'
-        self.css += '@page {margin-top: %fpt; margin-bottom: %fpt; margin-left: %fpt; margin-right: %fpt}\n'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)    
+        self.css += '@page {margin-top: %fpt; margin-bottom: %fpt; margin-left: %fpt; margin-right: %fpt}\n'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)
 
-def config(defaults=None, config_name='html', 
+def config(defaults=None, config_name='html',
            desc=_('Options to control the traversal of HTML')):
     if defaults is None:
         c = Config(config_name, desc)
@@ -613,7 +616,7 @@ def config(defaults=None, config_name='html',
         
     c.add_opt('output', ['-o', '--output'], default=None,
              help=_('The output directory. Default is the current directory.'))
-    c.add_opt('encoding', ['--encoding'], default=None, 
+    c.add_opt('encoding', ['--encoding'], default=None,
               help=_('Character encoding for HTML files. Default is to auto detect.'))
     c.add_opt('zip', ['--zip'], default=False,
               help=_('Create the output in a zip file. If this option is specified, the --output should be the name of a file not a directory.'))
@@ -674,7 +677,7 @@ def get_filelist(htmlfile, opts):
         except:
             pass
     if not filelist:
-        filelist = traverse(htmlfile, max_levels=int(opts.max_levels), 
+        filelist = traverse(htmlfile, max_levels=int(opts.max_levels),
                             verbose=opts.verbose, encoding=opts.encoding)\
                     [0 if opts.breadth_first else 1]
     if opts.verbose:
