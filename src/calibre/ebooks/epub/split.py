@@ -42,7 +42,8 @@ class Splitter(LoggingInterface):
         self.always_remove = always_remove
         self.base = os.path.splitext(path)[0] + '_split_%d.html'
         self.opts = opts
-        self.log_info('\tSplitting %s (%d KB)', path, os.stat(content(path)).st_size/1024.)
+        self.orig_size = os.stat(content(path)).st_size
+        self.log_info('\tSplitting %s (%d KB)', path, self.orig_size/1024.)
         root = html.fromstring(open(content(path)).read())
             
         css = XPath('//link[@type = "text/css" and @rel = "stylesheet"]')(root)
@@ -61,8 +62,9 @@ class Splitter(LoggingInterface):
         self.page_breaks = []
         if stylesheet is not None:
             self.find_page_breaks(stylesheet, root)
-        
+            
         self.trees = []
+        self.split_size = 0
         self.split(root.getroottree())
         self.commit()
         self.log_info('\t\tSplit into %d parts.', len(self.trees))
@@ -80,7 +82,7 @@ class Splitter(LoggingInterface):
         self.log_debug('\t\tSplitting...')
         root = tree.getroot()
         split_point, before = self.find_split_point(root)
-        if split_point is None:
+        if split_point is None:# or self.split_size > 6*self.orig_size:
             if not self.always_remove:
                 self.log_warn(_('\t\tToo much markup. Re-splitting without structure preservation. This may cause incorrect rendering.'))
             raise SplitError(self.path, root)
@@ -144,6 +146,7 @@ class Splitter(LoggingInterface):
             if size <= self.opts.profile.flow_size:
                 self.trees.append(t)
                 self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', len(self.trees), size/1024.)
+                self.split_size += size
             else:
                 self.split(t)
                 

@@ -350,6 +350,8 @@ class MobiReader(object):
         pos = 0
         self.processed_html = ''
         for end in positions:
+            if end == 0:
+                continue
             oend = end
             l = self.mobi_html.find('<', end)
             r = self.mobi_html.find('>', end)
