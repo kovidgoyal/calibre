@@ -40,7 +40,7 @@ class Splitter(LoggingInterface):
         self.setup_cli_handler(opts.verbose)
         self.path = path
         self.always_remove = always_remove
-        self.base = os.path.splitext(path)[0] + '_split_%d.html'
+        self.base = (os.path.splitext(path)[0].replace('%', '%%') + '_split_%d.html')
         self.opts = opts
         self.orig_size = os.stat(content(path)).st_size
         self.log_info('\tSplitting %s (%d KB)', path, self.orig_size/1024.)
@@ -341,7 +341,12 @@ def split(pathtoopf, opts):
         html_files = []
         for item in opf.itermanifest():
             if 'html' in item.get('media-type', '').lower():
-                html_files.append(item.get('href').split('/')[-1])
+                f = item.get('href').split('/')[-1]
+                f2 = f.replace('&', '%26')
+                if not os.path.exists(content(f)) and os.path.exists(content(f2)):
+                    f = f2
+                    item.set('href', item.get('href').replace('&', '%26'))
+                html_files.append(f)
         changes = []
         for f in html_files:
             if os.stat(content(f)).st_size > opts.profile.flow_size:

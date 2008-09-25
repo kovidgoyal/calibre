@@ -238,6 +238,13 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
             path = os.path.abspath(item.path)
             if path not in flat:
                 flat.append(path)
+    for i, path in enumerate(flat):
+        if not os.path.exists(path):
+            path = path.replace('&', '%26')
+            if os.path.exists(path):
+                flat[i] = path
+                for item in opf_reader.itermanifest():
+                    item.set('href', item.get('href').replace('&', '%26'))
     flat = [HTMLFile(path, 0, encoding, verbose) for path in flat]
     return [f for f in flat if not f.is_binary]
             
