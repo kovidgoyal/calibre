@@ -118,7 +118,6 @@ def writeLineWidth(f, width):
 def writeUnicode(f, string, encoding):    
     if isinstance(string, str):
         string = string.decode(encoding)
-
     string = string.encode("utf-16-le")
     length = len(string)
     if length > 65535:

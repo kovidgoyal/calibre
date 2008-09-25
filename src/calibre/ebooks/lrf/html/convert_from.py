@@ -778,11 +778,11 @@ class HTMLConverter(object, LoggingInterface):
         @param css: A dict
         '''
         src = tag.string if hasattr(tag, 'string') else tag
-        if len(src) > 32767:
+        if len(src) > 32760:
             pos = 0
             while pos < len(src):
-                self.add_text(src[pos:pos+32767], css, pseudo_css, force_span_use)
-                pos += 32767
+                self.add_text(src[pos:pos+32760], css, pseudo_css, force_span_use)
+                pos += 32760
             return
         src = src.replace('\r\n', '\n').replace('\r', '\n')
         

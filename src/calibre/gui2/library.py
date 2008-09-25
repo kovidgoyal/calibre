@@ -258,7 +258,10 @@ class BooksModel(QAbstractTableModel):
             for i in range(1, k):
                 ids.extend([idx-i, idx+i])
             ids = ids + [i for i in range(l, r, 1) if i not in ids]
-            ids = [self.db.id(i) for i in ids]
+            try:
+                ids = [self.db.id(i) for i in ids]
+            except IndexError:
+                return
             self.cover_cache.set_cache(ids)
 
     def current_changed(self, current, previous, emit_signal=True):
