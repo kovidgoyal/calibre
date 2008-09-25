@@ -4,28 +4,26 @@ __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
 from calibre.web.feeds.news import BasicNewsRecipe
-import re, urlparse
+
+# http://online.wsj.com/page/us_in_todays_paper.html
 
 class WallStreetJournal(BasicNewsRecipe): 
     
         title = 'The Wall Street Journal' 
-        __author__ = 'JTravers'
+        __author__ = 'Kovid Goyal'
         description = 'News and current affairs.'
         needs_subscription = True
         max_articles_per_feed = 10
         timefmt  = ' [%a, %b %d, %Y]' 
         html2lrf_options = ['--ignore-tables']
+        remove_tags_before = dict(name='h1')
+        remove_tags = [
+                       dict(id=["articleTabs_tab_article", "articleTabs_tab_comments", "articleTabs_tab_interactive"]),
+                       {'class':['more_in', "insetContent", 'articleTools_bottom', 'aTools', "tooltip", "adSummary", "nav-inline"]},
+                      ]
+        remove_tags_after = [dict(id="article_story_body"), {'class':"article story"},]
 
-        preprocess_regexps = [(re.compile(i[0], re.IGNORECASE | re.DOTALL), i[1]) for i in  
-                [ 
-                ## Remove anything before the body of the article. 
-                (r'<body.*?<!-- article start', lambda match: '<body><!-- article start'), 
- 
-                ## Remove anything after the end of the article. 
-                (r'<!-- article end.*?</body>', lambda match : '</body>'), 
-                ] 
-        ] 
- 
+        
         def get_browser(self): 
             br = BasicNewsRecipe.get_browser() 
             if self.username is not None and self.password is not None: 
@@ -34,11 +32,16 @@ class WallStreetJournal(BasicNewsRecipe):
                 br['user']   = self.username 
                 br['password'] = self.password 
                 br.submit() 
-            return br 
+            return br
+        
+        def get_article_url(self, article):
+            try:
+                return article.feedburner_origlink.split('?')[0]
+            except AttributeError:
+                return article.link.split('?')[0]
  
-        def print_version(self, url): 
-            article = urlparse.urlparse(url).path.rpartition('/')[-1]
-            return 'http://online.wsj.com/article_print/'+article 
+        def cleanup(self): 
+            self.browser.open('http://online.wsj.com/logout?url=http://online.wsj.com') 
  
         def get_feeds(self):
             return  [ 
@@ -89,7 +92,3 @@ class WallStreetJournal(BasicNewsRecipe):
                 ('Weekend & Leisure - Sports', 'http://online.wsj.com/xml/rss/3_7204.xml'), 
                 ]
 
-## Logout of website
-## NOT CURRENTLY WORKING
-        # def cleanup(self): 
-            # self.browser.open('http://commerce.wsj.com/auth/postlogout') 

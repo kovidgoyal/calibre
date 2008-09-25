@@ -138,9 +138,16 @@ def get_proxies():
     return proxies
 
 
-def browser(honor_time=False):
+def browser(honor_time=True, max_time=2):
+    '''
+    Create a mechanize browser for web scraping. The browser handles cookies,
+    refresh requests and ignores robots.txt. Also uses proxy if avaialable.  
+    
+    :param honor_time: If True honors pause time in refresh requests
+    :param max_time: Maximum time in seconds to wait during a refresh request
+    '''
     opener = mechanize.Browser()
-    opener.set_handle_refresh(True, honor_time=honor_time)
+    opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
     http_proxy = get_proxies().get('http', None)

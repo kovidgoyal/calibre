@@ -493,25 +493,27 @@ class BasicNewsRecipe(object, LoggingInterface):
         @return: Path to index.html
         @rtype: string
         '''
-        res = self.build_index()
-        self.cleanup()
-        self.report_progress(1, _('Download finished'))
-        if self.failed_downloads:
-            self.log_warning(_('Failed to download the following articles:'))
-            for feed, article, debug in self.failed_downloads:
-                self.log_warning(article.title+_(' from ')+feed.title)
-                self.log_debug(article.url)
-                self.log_debug(debug)
-        if self.partial_failures:
-            self.log_warning(_('Failed to download parts of the following articles:'))
-            for feed, atitle, aurl, debug in self.partial_failures:
-                self.log_warning(atitle + _(' from ') + feed)
-                self.log_debug(aurl)
-                self.log_warning(_('\tFailed links:'))
-                for l, tb in debug:
-                    self.log_warning(l)
-                    self.log_debug(tb) 
-        return res
+        try:
+            res = self.build_index()
+            self.report_progress(1, _('Download finished'))
+            if self.failed_downloads:
+                self.log_warning(_('Failed to download the following articles:'))
+                for feed, article, debug in self.failed_downloads:
+                    self.log_warning(article.title+_(' from ')+feed.title)
+                    self.log_debug(article.url)
+                    self.log_debug(debug)
+            if self.partial_failures:
+                self.log_warning(_('Failed to download parts of the following articles:'))
+                for feed, atitle, aurl, debug in self.partial_failures:
+                    self.log_warning(atitle + _(' from ') + feed)
+                    self.log_debug(aurl)
+                    self.log_warning(_('\tFailed links:'))
+                    for l, tb in debug:
+                        self.log_warning(l)
+                        self.log_debug(tb) 
+            return res
+        finally:
+            self.cleanup()
     
     def feeds2index(self, feeds):
         templ = templates.IndexTemplate()
