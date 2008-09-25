@@ -131,8 +131,9 @@ class Download(Component):
                     return self.linux_distro(req, os)       
     
     def linux_distro(self, req, os):
+        version = self.version_from_filename()
         distro = Distribution(os)
-        data = dict(distro=distro,title=distro.title)
+        data = dict(distro=distro,title=distro.title, version=version)
         return 'distro.html', data, None
     
     def top_level(self, req):
