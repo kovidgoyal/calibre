@@ -159,7 +159,7 @@ class Config(QDialog, Ui_Dialog):
         publisher = unicode(self.publisher.text())
         if publisher:
             mi.publisher = publisher
-        author_sort = unicode(self.publisher.text())
+        author_sort = unicode(self.author_sort.text())
         if author_sort:
             mi.author_sort = author_sort
         comments = unicode(self.comment.toPlainText())
