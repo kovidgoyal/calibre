@@ -484,9 +484,9 @@ class Overseer(object):
                 self.terminate()
                 self.job.exception = ControlError('Worker sent invalid msg: %s'%repr(msg))
                 return
-        if not self.worker_status.is_alive() or time.time() - self.last_report > 180:
+        if not self.worker_status.is_alive() or time.time() - self.last_report > 380:
             self.terminate()
-            self.job.exception = ControlError('Worker process died unexpectedly with returncode: %s'%str(self.process.returncode))
+            self.job.exception = ControlError('Worker process died unexpectedly')
             return
 
 class JobKilled(Exception):
