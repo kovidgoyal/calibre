@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Split the flows in an epub file to conform to size limitations.
 '''
 
-import os, math, copy, logging, functools
+import os, math, copy, logging, functools, collections
 
 from lxml.etree import XPath as _XPath
 from lxml import etree, html
@@ -234,7 +234,7 @@ class Splitter(LoggingInterface):
         all anchors in the original tree. Internal links are re-directed. The
         original file is deleted and the split files are saved.
         '''
-        self.anchor_map = {None:self.base%0}
+        self.anchor_map = collections.defaultdict(lambda :self.base%0)
         self.files = []
         
         for i, tree in enumerate(self.trees):

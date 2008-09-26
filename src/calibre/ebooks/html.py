@@ -252,15 +252,7 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
 
 class PreProcessor(object):
     PREPROCESS = []
-    # Fix Baen markup
-    BAEN = [ 
-                     (re.compile(r'page-break-before:\s*\w+([\s;\}])', re.IGNORECASE), 
-                      lambda match: match.group(1)),
-                     (re.compile(r'<p>\s*(<a id.*?>\s*</a>)\s*</p>', re.IGNORECASE), 
-                      lambda match: match.group(1)),
-                     (re.compile(r'<\s*a\s+id="p[0-9]+"\s+name="p[0-9]+"\s*>\s*</a>', re.IGNORECASE), 
-                      lambda match: ''),
-                     ]
+                     
     # Fix pdftohtml markup
     PDFTOHTML  = [
                   # Remove <hr> tags
@@ -274,6 +266,9 @@ class PreProcessor(object):
                                 else match.group(1)),
                   # Remove hyphenation
                   (re.compile(r'-\n\r?'), lambda match: ''),
+                  
+                  # Remove gray background
+                  (re.compile(r'<BODY[^<>]+>'), lambda match : '<BODY>')
                   
                   ]
     
@@ -305,7 +300,7 @@ class PreProcessor(object):
                           
     def preprocess(self, html):
         if self.is_baen(html):
-            rules = self.BAEN
+            rules = []
         elif self.is_book_designer(html):
             rules = self.BOOK_DESIGNER
         elif self.is_pdftohtml(html):
