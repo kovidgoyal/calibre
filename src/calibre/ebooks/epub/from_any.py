@@ -16,6 +16,7 @@ from calibre.ebooks.epub.from_html import convert as html2epub
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.utils.zipfile import ZipFile
 
 def lit2opf(path, tdir, opts):
     from calibre.ebooks.lit.reader import LitReader
@@ -65,6 +66,15 @@ def pdf2opf(path, tdir, opts):
     generate_html(path, tdir)
     return os.path.join(tdir, 'metadata.opf')
 
+def epub2opf(path, tdir, opts):
+    zf = ZipFile(path)
+    zf.extractall(tdir)
+    for f in walk(tdir):
+        if f.lower().endswith('.opf'):
+            return f
+    raise ValueError('%s is not a valid EPUB file'%path)
+    
+
 MAP = {
        'lit'  : lit2opf,
        'mobi' : mobi2opf,
@@ -73,8 +83,9 @@ MAP = {
        'rtf'  : rtf2opf,
        'txt'  : txt2opf,
        'pdf'  : pdf2opf,
+       'epub' : epub2opf,
        }
-SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html']
+SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
 
 def unarchive(path, tdir):
     extract(path, tdir)
