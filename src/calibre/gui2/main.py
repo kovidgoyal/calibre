@@ -806,7 +806,7 @@ class Main(MainWindow, Ui_MainWindow):
         if job.exception is not None:
             self.job_exception(job)
             return
-        to_device = self.device_connected and fmt in self.device_manager.device_class.FORMATS
+        to_device = self.device_connected and fmt.lower() in self.device_manager.device_class.FORMATS
         self._add_books([pt.name], to_device)
         if to_device:
             self.status_bar.showMessage(_('News fetched. Uploading to device.'), 2000)

@@ -27,11 +27,10 @@ from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryF
 from calibre.utils.zipfile import ZipFile
 
 def tostring(root, pretty_print=False):
-    return html.tostring(root, encoding='utf-8', method='xml',
-                  pretty_print=pretty_print,
-                  include_meta_content_type=True)
-
-
+    return html.tostring(root, encoding='utf-8', method='xml', 
+                         include_meta_content_type=True, 
+                         pretty_print=pretty_print)
+    
 class Link(object):
     '''
     Represents a link in a HTML file.
@@ -313,6 +312,14 @@ class PreProcessor(object):
         return html
     
 class Parser(PreProcessor, LoggingInterface):
+#    SELF_CLOSING_TAGS = 'hr|br|link|img|meta|input|area|base|basefont'
+#    SELF_CLOSING_RULES = [re.compile(p[0]%SELF_CLOSING_TAGS, re.IGNORECASE) for p in 
+#                          [
+#                           (r'<(?P<tag>%s)(?P<attrs>(\s+[^<>]*){0,1})(?<!/)>',
+#                            '<\g<tag>\g<attrs> />'),
+#                           (),
+#                           ]
+#                          ]
     
     def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, name='htmlparser'):
         LoggingInterface.__init__(self, logging.getLogger(name))
@@ -347,10 +354,10 @@ class Parser(PreProcessor, LoggingInterface):
         Save processed HTML into the content directory.
         Should be called after all HTML processing is finished.
         '''
+        ans = tostring(self.root, pretty_print=self.opts.pretty_print)
+        ans = re.compile(r'<html>', re.IGNORECASE).sub('<html xmlns="http://www.w3.org/1999/xhtml">', ans[:1000]) + ans[1000:]
+            
         with open(self.save_path(), 'wb') as f:
-            ans = tostring(self.root, pretty_print=self.opts.pretty_print)
-            ans = re.compile(r'<html>', re.IGNORECASE).sub('<html xmlns="http://www.w3.org/1999/xhtml">', ans)
-            ans = re.compile(r'<head[^<>]*?>', re.IGNORECASE).sub('<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n', ans)
             f.write(ans)
             return f.name
 
@@ -369,15 +376,14 @@ class Parser(PreProcessor, LoggingInterface):
             if self.opts.verbose:
                 self.log_exception('lxml based parsing failed')
             self.root = soupparser.fromstring(src)
-        self.head = self.body = None
-        head = self.root.xpath('//head')
-        if head:
-            self.head = head[0]
-        body = self.root.xpath('//body')
-        if body:
-            self.body = body[0]
+        head = self.root.xpath('./head')
+        self.head = head[0] if head else etree.SubElement(self.root, 'head')
+        self.body = self.root.body
         for a in self.root.xpath('//a[@name]'):
             a.set('id', a.get('name'))
+        if not self.head.xpath('./title'):
+            title = etree.SubElement(self.head, 'title')
+            title.text = _('Unknown')
     
     def debug_tree(self, name):
         '''
@@ -455,11 +461,11 @@ class Processor(Parser):
                     
         
     def save(self):
-        head = self.head if self.head is not None else self.body
         style_path = os.path.basename(self.save_path())+'.css'
-        style = etree.SubElement(head, 'link', attrib={'type':'text/css', 'rel':'stylesheet', 
-                                                       'href':'resources/'+style_path})
-        style.tail = '\n\n'
+        style = etree.SubElement(self.head, 'link', attrib={'type':'text/css', 'rel':'stylesheet', 
+                                                       'href':'resources/'+style_path,
+                                                       'charset':'UTF-8'})
+        style.tail = '\n'
         style_path = os.path.join(os.path.dirname(self.save_path()), 'resources', style_path)
         open(style_path, 'wb').write(self.css.encode('utf-8'))
         return Parser.save(self)
@@ -584,6 +590,7 @@ class Processor(Parser):
             if cn: cn += ' '
             cn += classname
             font.set('class', cn)
+            font.tag = 'span'
             
         for elem in self.root.xpath('//*[@style]'):
             setting = elem.get('style')

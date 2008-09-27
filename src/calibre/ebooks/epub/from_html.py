@@ -65,6 +65,11 @@ class HTMLProcessor(Processor):
         self.extract_css()
         if opts.verbose > 2:
             self.debug_tree('nocss')
+            
+    def save(self):
+        for meta in list(self.root.xpath('//meta')):
+            meta.getparent().remove(meta)
+        Processor.save(self)
         
         #self.collect_font_statistics()
         
