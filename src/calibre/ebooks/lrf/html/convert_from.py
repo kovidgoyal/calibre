@@ -668,10 +668,12 @@ class HTMLConverter(object, LoggingInterface):
             ascii_text = item.text
             if not item.fragment and item.abspath in self.tops:
                 self.book.addTocEntry(ascii_text, self.tops[item.abspath])                
-            else:
-                url = item.abspath+item.fragment
+            elif item.abspath:
+                url = item.abspath+(item.fragment if item.fragment else '')
                 if url in self.targets:
                     self.book.addTocEntry(ascii_text, self.targets[url])
+        
+                
                     
     
     def end_page(self):
