@@ -17,7 +17,7 @@ from lxml.html import soupparser
 from lxml.etree import XPath
 get_text = XPath("//text()")
 
-from calibre import LoggingInterface, unicode_path
+from calibre import LoggingInterface, unicode_path, entity_to_unicode
 from calibre.ebooks.chardet import xml_to_unicode, ENCODING_PATS
 from calibre.utils.config import Config, StringConfig
 from calibre.ebooks.metadata import MetaInformation
@@ -250,7 +250,7 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
 
 
 class PreProcessor(object):
-    PREPROCESS = []
+    PREPROCESS = [(re.compile(r'&(\S+?);'), entity_to_unicode)]
                      
     # Fix pdftohtml markup
     PDFTOHTML  = [
