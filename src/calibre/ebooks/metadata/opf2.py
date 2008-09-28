@@ -162,7 +162,7 @@ class ManifestItem(Resource):
     def from_opf_manifest_item(item, basedir):
         href = item.get('href', None)
         if href:
-            res = ManifestItem(href, basedir=basedir, is_path=False)
+            res = ManifestItem(href, basedir=basedir, is_path=True)
             mt = item.get('media-type', '').strip()
             if mt:
                 res.mime_type = mt
@@ -606,6 +606,35 @@ class OPF(object):
                                                 attrib={'{%s}scheme'%self.NAMESPACES['opf']:'ISBN'})]
             matches[0].text = unicode(val)
         return property(fget=fget, fset=fset)
+    
+    @apply
+    def cover():
+        
+        def fget(self):
+            if self.guide is not None:
+                for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
+                    for item in self.guide:
+                        if item.type.lower() == t:
+                            return item.path
+                        
+        def fset(self, path):
+            if self.guide is not None:
+                self.guide.set_cover(path)
+            else:
+                g = etree.SubElement(self.root, 'opf:guide', nsmap=self.NAMESPACES)
+                self.guide = Guide()
+                self.guide.set_cover(path)
+                etree.SubElement(g, 'opf:reference', nsmap=self.NAMESPACES, 
+                                 attrib={'type':'cover', 'href':self.guide[-1].href()})
+            id = self.manifest.id_for_path(self.cover)
+            if id is None:
+                for t in ('cover', 'other.ms-coverimage-standard', 'other.ms-coverimage'):
+                    for item in self.guide:
+                        if item.type.lower() == t:
+                            self.create_manifest_item(item.href(), mimetypes.guess_type(path)[0])
+                 
+        return property(fget=fget, fset=fset)                    
+            
     
     def get_metadata_element(self, name):
         matches = self.metadata_elem_path(self.metadata, name=name)

@@ -356,6 +356,7 @@ class Parser(PreProcessor, LoggingInterface):
         '''
         ans = tostring(self.root, pretty_print=self.opts.pretty_print)
         ans = re.compile(r'<html>', re.IGNORECASE).sub('<html xmlns="http://www.w3.org/1999/xhtml">', ans[:1000]) + ans[1000:]
+        ans = re.compile(r'<head>', re.IGNORECASE).sub('<head>\n\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n', ans[:1000])+ans[1000:]
             
         with open(self.save_path(), 'wb') as f:
             f.write(ans)
@@ -747,6 +748,7 @@ def create_metadata(basepath, mi, filelist, resources):
     Create an OPF metadata object with correct spine and manifest.
     '''
     mi = OPFCreator(basepath, mi)
+    mi.guide = None
     entries = [('content/'+f, 'application/xhtml+xml') for f in filelist] + [(f, None) for f in resources]
     for f in filelist:
         if os.path.exists(os.path.join(basepath, 'content', 'resources', f+'.css')):

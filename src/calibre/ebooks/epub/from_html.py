@@ -162,6 +162,15 @@ def convert(htmlfile, opts, notification=None):
         spine = [htmlfile_map[f.path] for f in filelist]
         if mi.cover:
             cpath = '/'.join(('resources', os.path.basename(mi.cover)))
+            if opts.profile.screen_size is not None:
+                im = PILImage.open(os.path.join(tdir, 'content', *cpath.split('/')))
+                width, height = im.size
+                dw, dh = (opts.profile.screen_size[0]-width)/float(width), (opts.profile.screen_size[1]-height)/float(height)
+                delta = min(dw, dh)
+                if delta > 0:
+                    nwidth = int(width + delta*(width))
+                    nheight = int(height + delta*(height))
+                    im.resize((int(nwidth), int(nheight)), PILImage.ANTIALIAS).convert('RGB').save(os.path.join(tdir, 'content', *cpath.split('/')))
             cover = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head><title>Cover Page</title><style type="text/css">@page {padding: 0pt; margin:0pt}</style></head>

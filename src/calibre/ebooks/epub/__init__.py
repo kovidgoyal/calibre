@@ -15,10 +15,12 @@ from calibre.ebooks.html import config as common_config, tostring
 class DefaultProfile(object):
     
     flow_size = sys.maxint
+    screen_size = None
     
 class PRS505(DefaultProfile):
     
-    flow_size = 300000
+    flow_size   = 300000
+    screen_size = (600, 775)
         
 
 PROFILES = {

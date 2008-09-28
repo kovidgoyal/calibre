@@ -122,13 +122,13 @@ class Main(MainWindow, Ui_MainWindow):
         sm.addAction(_('Send to storage card by default'))
         sm.actions()[-1].setCheckable(True)
         def default_sync(checked):
-            config.set('send_to_device_by_default', bool(checked))
+            config.set('send_to_storage_card_by_default', bool(checked))
             QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)
             QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card)
             QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card if checked else self.sync_to_main_memory)
         QObject.connect(sm.actions()[-1], SIGNAL('toggled(bool)'), default_sync)
 
-        sm.actions()[-1].setChecked(config.get('send_to_device_by_default'))
+        sm.actions()[-1].setChecked(config.get('send_to_storage_card_by_default'))
         default_sync(sm.actions()[-1].isChecked())    
         self.sync_menu = sm # Needed
         md = QMenu()
@@ -514,7 +514,7 @@ class Main(MainWindow, Ui_MainWindow):
                           'cover':self.default_thumbnail, 'tags':[]})
 
         if not to_device:
-            model = self.current_view().model()
+            model = self.library_view.model()
             html_pat = re.compile(r'\.x{0,1}htm(l{0,1})\s*$', re.IGNORECASE)
             paths = list(paths)
             for i, path in enumerate(paths):

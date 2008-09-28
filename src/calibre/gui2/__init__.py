@@ -21,8 +21,8 @@ def _config():
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt('frequently_used_directories', default=[],
               help=_('Frequently used directories'))
-    c.add_opt('send_to_device_by_default', default=True,
-              help=_('Send downloaded periodical content to device automatically'))
+    c.add_opt('send_to_storage_card_by_default', default=False,
+              help=_('Send file to storage card instead of main memory by default'))
     c.add_opt('save_to_disk_single_format', default='lrf',
               help=_('The format to use when saving single files to disk'))
     c.add_opt('confirm_delete', default=False,

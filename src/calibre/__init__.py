@@ -162,7 +162,7 @@ def fit_image(width, height, pwidth, pheight):
     @param height: Height of image
     @param pwidth: Width of box
     @param pheight: Height of box
-    @return: scaled, new_width, new_height. scaled is True iff new_widdth and/or new_height is different from width or height.
+    @return: scaled, new_width, new_height. scaled is True iff new_width and/or new_height is different from width or height.
     '''
     scaled = height > pheight or width > pwidth
     if height > pheight:

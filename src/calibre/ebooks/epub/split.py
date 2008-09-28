@@ -348,12 +348,16 @@ def split(pathtoopf, opts):
                     item.set('href', item.get('href').replace('&', '%26'))
                 html_files.append(f)
         changes = []
+        always_remove = getattr(opts, 'dont_preserve_structure', False)
         for f in html_files:
             if os.stat(content(f)).st_size > opts.profile.flow_size:
                 try:
-                    changes.append(Splitter(f, opts))
+                    changes.append(Splitter(f, opts, always_remove=always_remove))
                 except SplitError:
-                    changes.append(Splitter(f, opts, always_remove=True))
+                    if not always_remove:
+                        changes.append(Splitter(f, opts, always_remove=True))
+                    else:
+                        raise
                 changes[-1].fix_opf(opf)
         
         open(pathtoopf, 'wb').write(opf.render())
