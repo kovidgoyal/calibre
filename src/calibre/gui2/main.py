@@ -808,7 +808,8 @@ class Main(MainWindow, Ui_MainWindow):
             self.job_exception(job)
             return
         to_device = self.device_connected and fmt.lower() in self.device_manager.device_class.FORMATS
-        self._add_books([pt.name], to_device, on_card=config.get('send_to_storage_card_by_default') and bool(self.device_manager.device.card_prefix()))
+        self._add_books([pt.name], to_device, 
+            on_card=config.get('send_to_storage_card_by_default') and self.device_connected and bool(self.device_manager.device.card_prefix()))
         if to_device:
             self.status_bar.showMessage(_('News fetched. Uploading to device.'), 2000)
             self.persistent_files.append(pt)

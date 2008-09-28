@@ -7,7 +7,7 @@ import cStringIO
 import uuid
 from urllib import unquote, quote
 
-from calibre import __appname__
+from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 from calibre.ebooks.lrf import entity_to_unicode
@@ -515,7 +515,7 @@ class OPFCreator(MetaInformation):
             self.guide.set_cover(cover)
         self.guide.set_basedir(self.base_path)
         
-        opf = template.generate(__appname__=__appname__, mi=self).render('xml')
+        opf = template.generate(__appname__=__appname__, mi=self, __version__=__version__).render('xml')
         opf_stream.write(opf)
         opf_stream.flush()
         toc = getattr(self, 'toc', None)

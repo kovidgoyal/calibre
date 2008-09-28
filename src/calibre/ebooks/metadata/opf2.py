@@ -15,7 +15,7 @@ from lxml import etree
 
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre import relpath
-from calibre.constants import __appname__
+from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
 
@@ -407,6 +407,7 @@ class OPF(object):
     metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
     metadata_elem_path = XPath('descendant::*[re:match(name(), $name, "i")]')
     authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut")]')
+    bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
@@ -608,6 +609,21 @@ class OPF(object):
         return property(fget=fget, fset=fset)
     
     @apply
+    def book_producer():
+        
+        def fget(self):
+            for match in self.bkp_path(self.metadata):
+                return match.text if match.text else None
+            
+        def fset(self, val):
+            matches = self.bkp_path(self.metadata)
+            if not matches:
+                matches = [self.create_metadata_element('contributor', ns='dc',
+                                                attrib={'{%s}role'%self.NAMESPACES['opf']:'bkp'})]
+            matches[0].text = unicode(val)
+        return property(fget=fget, fset=fset)
+    
+    @apply
     def cover():
         
         def fget(self):
@@ -758,8 +774,7 @@ class OPFCreator(MetaInformation):
                 cover = os.path.abspath(os.path.join(self.base_path, cover))
             self.guide.set_cover(cover)
         self.guide.set_basedir(self.base_path)
-        
-        opf = template.generate(__appname__=__appname__, mi=self).render('xml')
+        opf = template.generate(__appname__=__appname__, mi=self, __version__=__version__).render('xml')
         opf_stream.write(opf)
         opf_stream.flush()
         toc = getattr(self, 'toc', None)

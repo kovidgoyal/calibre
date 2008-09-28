@@ -644,8 +644,14 @@ def config(defaults=None, config_name='html',
     metadata = c.add_group('metadata', _('Set metadata of the generated ebook'))
     metadata('title', ['-t', '--title'], default=None,
              help=_('Set the title. Default is to autodetect.'))
-    metadata('authors', ['-a', '--authors'], default=_('Unknown'),
+    metadata('authors', ['-a', '--authors'], default=None,
              help=_('The author(s) of the ebook, as a comma separated list.'))
+    metadata('tags', ['--subjects'], default=None,
+             help=_('The subject(s) of this book, as a comma separated list.'))
+    metadata('publisher', ['--publisher'], default=None,
+             help=_('Set the publisher of this book.'))
+    metadata('comments', ['--comment'], default=None,
+             help=_('A summary of this book.'))
     metadata('from_opf', ['--metadata-from'], default=None,
               help=_('Load metadata from the specified OPF file'))
         
@@ -730,13 +736,13 @@ def merge_metadata(htmlfile, opf, opts):
             mi = MetaInformation(None, None)
     if opts.from_opf is not None and os.access(opts.from_opf, os.R_OK):
         mi.smart_update(OPF(open(opts.from_opf, 'rb'), os.path.abspath(os.path.dirname(opts.from_opf))))
-    if opts.title:
-        mi.title = opts.title
-    if opts.authors != _('Unknown'):
-        opts.authors   = opts.authors.split(',')
-        opts.authors = [a.strip() for a in opts.authors]
-        mi.authors = opts.authors
-    
+    for attr in ('title', 'authors', 'publisher', 'tags', 'comments'):
+        val = getattr(opts, attr, None)
+        if val is None or val == _('Unknown') or val == [_('Unknown')]:
+            continue
+        if attr in ('authors', 'tags'):
+            val = [i.strip() for i in val.split(',') if i.strip()]
+        setattr(mi, attr, val)
     if not mi.title:
         mi.title = os.path.splitext(os.path.basename(htmlfile))[0]
     if not mi.authors:

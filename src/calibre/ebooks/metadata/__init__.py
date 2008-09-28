@@ -171,7 +171,7 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
-                     'manifest', 'spine', 'toc', 'cover', 'language'):
+                     'manifest', 'spine', 'toc', 'cover', 'language', 'book_producer'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
         
@@ -195,7 +195,8 @@ class MetaInformation(object):
         
         for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher', 
                   'series', 'series_index', 'rating', 'isbn', 'language',
-                  'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover'
+                  'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
+                  'book_producer',
                   ):
             setattr(self, x, getattr(mi, x, None))
     
@@ -213,7 +214,7 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc', 
-                     'cover', 'language', 'guide'):
+                     'cover', 'language', 'guide', 'book_producer'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
@@ -234,6 +235,8 @@ class MetaInformation(object):
             ans += ((' (' + self.author_sort + ')') if self.author_sort else '') + u'\n'
         if self.publisher:
             ans += u'Publisher: '+ unicode(self.publisher) + u'\n'
+        if self.book_producer:
+            ans += u'Producer : '+ unicode(self.book_producer) + u'\n'
         if self.category: 
             ans += u'Category : ' + unicode(self.category) + u'\n'
         if self.comments:

@@ -50,6 +50,7 @@ def convert(opts, recipe_arg, notification=None):
             opts.output = os.path.join(os.getcwd(), sanitize_file_name(fname))
         
         print 'Generating epub...'
+        opts.encoding = 'utf-8'
         html2epub(opf, opts, notification=notification)
     
 
