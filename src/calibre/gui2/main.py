@@ -491,8 +491,9 @@ class Main(MainWindow, Ui_MainWindow):
         if to_device:
             self.status_bar.showMessage(_('Uploading books to device.'), 2000)
 
-    def _add_books(self, paths, to_device):
-        on_card = False if self.stack.currentIndex() != 2 else True
+    def _add_books(self, paths, to_device, on_card=None):
+        if on_card is None:
+            on_card = self.stack.currentIndex() == 2
         # Get format and metadata information
         formats, metadata, names, infos = [], [], [], []
         for book in paths:
@@ -807,7 +808,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.job_exception(job)
             return
         to_device = self.device_connected and fmt.lower() in self.device_manager.device_class.FORMATS
-        self._add_books([pt.name], to_device)
+        self._add_books([pt.name], to_device, on_card=config.get('send_to_storage_card_by_default') and bool(self.device_manager.device.card_prefix()))
         if to_device:
             self.status_bar.showMessage(_('News fetched. Uploading to device.'), 2000)
             self.persistent_files.append(pt)
