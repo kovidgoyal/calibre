@@ -570,6 +570,12 @@ class LibraryDatabase2(LibraryDatabase):
             p.loadFromData(data)
             p.save(path)
             
+    def all_formats(self):
+        formats = self.conn.execute('SELECT format from data').fetchall()
+        if not formats:
+            return set([])
+        return set([f[0] for f in formats])
+    
     def formats(self, index, index_is_id=False):
         ''' Return available formats as a comma separated list or None if htere are no available formats '''
         id = index if index_is_id else self.id(index)

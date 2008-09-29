@@ -211,6 +211,19 @@
             </property>
            </widget>
           </item>
+          <item row="7" column="1" >
+           <widget class="QComboBox" name="remove_format" />
+          </item>
+          <item row="7" column="0" >
+           <widget class="QLabel" name="label_5" >
+            <property name="text" >
+             <string>Remove &amp;format:</string>
+            </property>
+            <property name="buddy" >
+             <cstring>remove_format</cstring>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

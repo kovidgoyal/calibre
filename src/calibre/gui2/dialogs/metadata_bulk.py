@@ -29,6 +29,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             id, name = i
             self.series.addItem(name)
             
+        for f in self.db.all_formats():
+            self.remove_format.addItem(f)
+            
+        self.remove_format.setCurrentIndex(-1)
+            
         self.series.lineEdit().setText('')
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.series_changed)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.series_changed)
@@ -66,7 +71,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 self.db.unapply_tags(id, remove_tags)
             if self.write_series:
                 self.db.set_series(id, qstring_to_unicode(self.series.currentText()))
-        self.changed = True
+                
+            if self.remove_format.currentIndex() > -1:
+                self.db.remove_format(id, unicode(self.remove_format.currentText()), index_is_id=True)
+                
+            self.changed = True
     
     def series_changed(self):
         self.write_series = True
