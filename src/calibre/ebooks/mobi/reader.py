@@ -160,7 +160,7 @@ class MobiReader(object):
          
             
         self.book_header = BookHeader(self.sections[0][0], self.ident)
-        
+        self.name = self.name.decode(self.book_header.codec, 'replace')
         
     def extract_content(self, output_dir=os.getcwdu()):
         output_dir = os.path.abspath(output_dir)

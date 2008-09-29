@@ -534,10 +534,15 @@ class OPF(object):
         return self.guide_path(self.root)
     
     def unquote_urls(self):
+        def get_href(item):
+            raw = unquote(item.get('href', ''))
+            if not isinstance(raw, unicode):
+                raw = raw.decode('utf-8')
+            return raw
         for item in self.itermanifest():
-            item.set('href', unquote(item.get('href', '')))
+            item.set('href', get_href(item))
         for item in self.iterguide():
-            item.set('href', unquote(item.get('href', '')))
+            item.set('href', get_href(item))
     
     @apply
     def authors():
