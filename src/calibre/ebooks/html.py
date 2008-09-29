@@ -378,7 +378,14 @@ class Parser(PreProcessor, LoggingInterface):
                 self.log_exception('lxml based parsing failed')
             self.root = soupparser.fromstring(src)
         head = self.root.xpath('./head')
-        self.head = head[0] if head else etree.SubElement(self.root, 'head')
+        if head:
+            head = head[0]
+        else:
+            head = etree.SubElement(self.root, 'head')
+            self.root.remove(head)
+            self.root.insert(0, head)
+
+        self.head = head 
         self.body = self.root.body
         for a in self.root.xpath('//a[@name]'):
             a.set('id', a.get('name'))

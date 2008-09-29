@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Split the flows in an epub file to conform to size limitations.
 '''
 
-import os, math, copy, logging, functools, collections
+import os, math, logging, functools, collections, re, copy
 
 from lxml.etree import XPath as _XPath
 from lxml import etree, html
@@ -72,7 +72,25 @@ class Splitter(LoggingInterface):
             for f in self.files:
                 self.log_info('\t\t\t%s - %d KB', f, os.stat(content(f)).st_size/1024.)
         self.trees = None
-        
+    
+    def split_text(self, text, root, size):
+        self.log_debug('\t\t\tSplitting text of length: %d'%len(text))
+        rest = text.replace('\r', '')
+        parts = re.split('\n\n', rest)
+        self.log_debug('\t\t\t\tFound %d parts'%len(parts))
+        if max(map(len, parts)) > size:
+            raise SplitError('Cannot split as file contains a <pre> tag with a very large paragraph', root) 
+        ans = []
+        buf = ''
+        for part in parts:
+            if len(buf) + len(part) < size:
+                buf += '\n\n'+part
+            else:
+                ans.append(buf)
+                buf = part
+        return ans
+            
+    
     def split(self, tree):
         '''
         Split ``tree`` into a *before* and *after* tree, preserving tag structure,
@@ -81,6 +99,25 @@ class Splitter(LoggingInterface):
         '''
         self.log_debug('\t\tSplitting...')
         root = tree.getroot()
+        # Split large <pre> tags
+        for pre in list(root.xpath('//pre')):
+            text = u''.join(pre.xpath('./text()'))
+            pre.text = text
+            for child in list(pre.iterdescendants()):
+                pre.remove(child)
+            if len(pre.text) > self.opts.profile.flow_size*0.5:
+                frags = self.split_text(pre.text, root, int(0.2*self.opts.profile.flow_size))
+                new_pres = []
+                for frag in frags:
+                    pre2 = copy.copy(pre)
+                    pre2.text = frag
+                    pre2.tail = u''
+                    new_pres.append(pre2)
+                new_pres[-1].tail = pre.tail
+                p = pre.getparent()
+                i = p.index(pre)
+                p[i:i+1] = new_pres
+        
         split_point, before = self.find_split_point(root)
         if split_point is None or self.split_size > 6*self.orig_size:
             if not self.always_remove:
@@ -219,10 +256,21 @@ class Splitter(LoggingInterface):
         
             
                             
-        for path in ('//*[re:match(name(), "h[1-6]", "i")]', '/html/body/div', '//p'):
+        for path in (
+                     '//*[re:match(name(), "h[1-6]", "i")]', 
+                     '/html/body/div',
+                     '//pre',
+                     '//hr', 
+                     '//p',
+                     '//br',
+                     ):
             elems = root.xpath(path)
             elem = pick_elem(elems)
             if elem is not None:
+                try:
+                    XPath(elem.getroottree().getpath(elem))
+                except:
+                    continue
                 return elem, True
             
         return None, True
