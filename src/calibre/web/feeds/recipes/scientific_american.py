@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 sciam.com
 '''
-
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class ScientificAmerican(BasicNewsRecipe):
@@ -18,8 +18,14 @@ class ScientificAmerican(BasicNewsRecipe):
     use_embedded_content   = False
     remove_tags_before = dict(name='div', attrs={'class':'headline'})
     remove_tags_after  = dict(id='article')
-    remove_tags        = [dict(id='sharetools'), dict(id='reddit')]
+    remove_tags        = [
+                          dict(id=['sharetools', 'reddit']), 
+                          dict(name='script'),
+                          {"class": re.compile(r'also-in-this')}
+                         ]
     html2lrf_options = ['--base-font-size', '8']
+    recursions = 1
+    match_regexps = [r'article.cfm.id=\S+page=(2|3|4|5|6|7|8|9|10|11|12|13|14)']
     feeds = [
              (u'Latest News', u'http://rss.sciam.com/ScientificAmerican-News'), 
              (u'Global', u'http://rss.sciam.com/ScientificAmerican-Global'), 
@@ -36,3 +42,9 @@ class ScientificAmerican(BasicNewsRecipe):
              (u'Chemistry', u'http://rss.sciam.com/sciam/chemistry'), 
              (u'Mind Matters', u'http://rss.sciam.com/ScientificAmerican-MindBlog')
             ]
+    
+    def postprocess_html(self,  soup):
+        if soup is not None:
+            for span in soup.findAll('span', attrs={'class':'pagination'}):
+                span.extract()
+        return soup

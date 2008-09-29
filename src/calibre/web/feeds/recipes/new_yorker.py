@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-import re, time
+import re
 from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import NavigableString
@@ -21,7 +21,7 @@ class NewYorker(BasicNewsRecipe):
     
     
     def parse_index(self):
-        toc_pat = re.compile(time.strftime(r'.+magazine/toc/%Y/%m/.+toc_%Y\d+'))
+        toc_pat = re.compile(r'/magazine/toc/\d+/\d+/\d+/toc_\d+')
         soup = self.soup(self.browser.open('http://www.newyorker.com/').read())
         a = soup.find('a', href=toc_pat)
         if a is None:
