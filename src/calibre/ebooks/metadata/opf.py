@@ -28,7 +28,10 @@ class ManifestItem(Resource):
         if item.has_key('href'):
             href = item['href']
             if unquote(href) == href:
-                href = quote(href)
+                try:
+                    href = quote(href)
+                except KeyError:
+                    pass
             res = ManifestItem(href, basedir=basedir, is_path=False)
             mt = item.get('media-type', '').strip()
             if mt:
