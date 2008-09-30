@@ -80,6 +80,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.language.addItem(item[1], QVariant(item[0]))
             
         self.output_format.setCurrentIndex(0 if prefs['output_format'] == 'LRF' else 1)
+        self.pdf_metadata.setChecked(prefs['read_file_metadata'])
             
         
         
@@ -113,6 +114,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['confirm_delete'] =  bool(self.confirm_delete.isChecked())
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
+        prefs['read_file_metadata'] = bool(self.pdf_metadata.isChecked())
         config['save_to_disk_single_format'] = BOOK_EXTENSIONS[self.single_format.currentIndex()]
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())

@@ -524,6 +524,8 @@ def _prefs():
               help=_('The language in which to display the user interface'))
     c.add_opt('output_format', default='LRF', 
               help=_('The default output format for ebook conversions.'))
+    c.add_opt('read_file_metadata', default=True,
+              help=_('Read metadata from files'))
     
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c

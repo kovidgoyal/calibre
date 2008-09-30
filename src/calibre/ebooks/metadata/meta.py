@@ -20,6 +20,7 @@ from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
 
 from calibre.ebooks.metadata import MetaInformation
+from calibre.utils.config import prefs
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
@@ -59,7 +60,7 @@ def metadata_from_formats(formats):
 
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if stream_type: stream_type = stream_type.lower()
-    if stream_type in ('html', 'html', 'xhtml', 'xhtm'):
+    if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
         stream_type = 'html'
     if stream_type in ('mobi', 'prc'):
         stream_type = 'mobi'
@@ -73,18 +74,20 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if use_libprs_metadata and getattr(opf, 'application_id', None) is not None:
         return opf
     
-    try:
-        func = eval(stream_type + '_metadata')
-        mi = func(stream)
-    except NameError:
-        mi = MetaInformation(None, None)
+    mi = MetaInformation(None, None)
+    if prefs['read_file_metadata']:
+        try:
+            func = eval(stream_type + '_metadata')
+            mi = func(stream)
+        except NameError:
+            pass
         
     name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name)
     if not base.authors:
-        base.authors = ['Unknown']
+        base.authors = [_('Unknown')]
     if not base.title:
-        base.title = 'Unknown'
+        base.title = _('Unknown')
     base.smart_update(mi)
     if opf is not None:
         base.smart_update(opf)

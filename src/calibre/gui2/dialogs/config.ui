@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>709</width>
-    <height>723</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -155,6 +155,19 @@
           <widget class="QCheckBox" name="confirm_delete" >
            <property name="text" >
             <string>Ask for &amp;confirmation before deleting files</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="pdf_metadata" >
+           <property name="toolTip" >
+            <string>If you disable this setting, metadatas is guessed from the filename instead. This can be configured in the Advanced section.</string>
+           </property>
+           <property name="text" >
+            <string>Read &amp;metadata from files</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
            </property>
           </widget>
          </item>
