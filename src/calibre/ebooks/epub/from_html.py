@@ -132,8 +132,9 @@ def resize_cover(im, opts):
 
 def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     old_title_page = None
+    f = lambda x : os.path.normcase(os.path.normpath(x))
     if mi.cover:
-        if os.path.samefile(filelist[0].path, mi.cover):
+        if f(filelist[0].path) == f(mi.cover):
             old_title_page = htmlfilemap[filelist[0].path]
             
     #logger = logging.getLogger('html2epub')
