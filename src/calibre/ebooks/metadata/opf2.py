@@ -530,6 +530,27 @@ class OPF(object):
             i = spine.index(x)
             spine[i:i+1] = items
     
+    def create_guide_element(self):
+        e = etree.SubElement(self.root, '{%s}guide'%self.NAMESPACES['opf'])
+        e.text = '\n        '
+        e.tail =  '\n'
+        return e
+    
+    def remove_guide(self):
+        self.guide = None
+        for g in self.root.xpath('./*[re:match(name(), "guide", "i")]', namespaces={'re':'http://exslt.org/regular-expressions'}):
+            self.root.remove(g)
+    
+    def create_guide_item(self, type, title, href):
+        e = etree.Element('{%s}reference'%self.NAMESPACES['opf'], 
+                             type=type, title=title, href=href)
+        e.tail='\n'
+        return e
+        
+    def add_guide_item(self, type, title, href):
+        g = self.root.xpath('./*[re:match(name(), "guide", "i")]', namespaces={'re':'http://exslt.org/regular-expressions'})[0]
+        g.append(self.create_guide_item(type, title, href))
+        
     def iterguide(self):
         return self.guide_path(self.root)
     
@@ -628,6 +649,7 @@ class OPF(object):
             matches[0].text = unicode(val)
         return property(fget=fget, fset=fset)
     
+    
     @apply
     def cover():
         
@@ -641,8 +663,12 @@ class OPF(object):
         def fset(self, path):
             if self.guide is not None:
                 self.guide.set_cover(path)
+                for item in list(self.iterguide()):
+                    if 'cover' in item.get('type', ''):
+                        item.getparent().remove(item)
+                        
             else:
-                g = etree.SubElement(self.root, 'opf:guide', nsmap=self.NAMESPACES)
+                g = self.create_guide_element()
                 self.guide = Guide()
                 self.guide.set_cover(path)
                 etree.SubElement(g, 'opf:reference', nsmap=self.NAMESPACES, 

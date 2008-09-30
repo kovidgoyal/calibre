@@ -72,6 +72,6 @@ class TemporaryDirectory(object):
         return self.tdir
     
     def __exit__(self, *args):
-        if not self.keep:
-            shutil.rmtree(self.tdir)
-      
+        if not self.keep and os.path.exists(self.tdir):
+            shutil.rmtree(self.tdir, ignore_errors=True)
+            
