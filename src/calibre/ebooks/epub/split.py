@@ -182,6 +182,7 @@ class Splitter(LoggingInterface):
             size = len(tostring(r)) 
             if size <= self.opts.profile.flow_size:
                 self.trees.append(t)
+                #print tostring(t.getroot(), pretty_print=True)
                 self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', len(self.trees), size/1024.)
                 self.split_size += size
             else:
@@ -220,8 +221,10 @@ class Splitter(LoggingInterface):
             
         page_breaks = list(page_breaks)
         page_breaks.sort(cmp=lambda x,y : cmp(x.pb_order, y.pb_order))
-        tree = root.getroottree()
-        self.page_breaks = [(XPath(tree.getpath(x)), x.pb_before) for x in page_breaks]
+        for i, x in enumerate(page_breaks):
+            x.set('id', x.get('id', 'calibre_pb_%d'%i))
+            self.page_breaks.append((XPath('//*[@id="%s"]'%x.get('id')), x.pb_before))
+        
         
     def find_split_point(self, root):
         '''
@@ -248,7 +251,7 @@ class Splitter(LoggingInterface):
             pb = x[0](root)
             if pb:
                 page_breaks.append(pb[0])
-                
+        
         elem = pick_elem(page_breaks)
         if elem is not None:
             i = page_breaks.index(elem)
@@ -400,8 +403,10 @@ def split(pathtoopf, opts):
         for f in html_files:
             if os.stat(content(f)).st_size > opts.profile.flow_size:
                 try:
-                    changes.append(Splitter(f, opts, always_remove=always_remove))
-                except SplitError:
+                    changes.append(Splitter(f, opts, 
+                        always_remove=(always_remove or \
+                        os.stat(content(f)).st_size > 5*opts.profile.flow_size)))
+                except (SplitError, RuntimeError):
                     if not always_remove:
                         changes.append(Splitter(f, opts, always_remove=True))
                     else:
