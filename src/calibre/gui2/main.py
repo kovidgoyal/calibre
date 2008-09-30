@@ -542,7 +542,7 @@ class Main(MainWindow, Ui_MainWindow):
             #model.research()
             model.books_added(number_added)
         else:
-            self.upload_books(paths, names, infos, on_card=on_card)
+            self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
