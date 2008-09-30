@@ -623,9 +623,45 @@ class Processor(Parser):
             self.css += '\n\n'+self.opts.override_css
         self.do_layout()
         # TODO: Figure out what to do about CSS imports from linked stylesheets
+    
+    def relativize_font_sizes(self, dpi=100, base=16):
+        '''
+        Convert all absolute font sizes to percentages of ``base`` using ``dpi``
+        to convert from screen to paper units.
+        :param base: Base size in pixels. Adobe DE seems to need base size to be 16
+        irrespective of the unit of the length being converted
+        :param dpi: Dots per inch used to convert pixels to absolute lengths. Since
+        most HTML files are created on computers with monitors of DPI ~ 100, we use
+        100 by default.
+        '''
+        size_value_pat = re.compile(r'(?<!/)(?P<num>[0-9.]+)(?P<unit>cm|mm|in|pt|pc|px)', re.I)
         
+        # points per unit
+        ptu = { # Convert to pt
+                  'px' : 72./dpi,
+                  'pt' : 1.0,
+                  'pc' : 1/12.,
+                  'in' : 72.,
+                  'cm' : 72/2.54,
+                  'mm' : 72/25.4,
+                  }
+        
+        def relativize(match):
+            val  = float(match.group('num'))
+            unit = match.group('unit').lower()
+            val  *= ptu[unit]
+            return '%.1f%%'%((val/base) * 100)
+             
+        
+        def sub(match):
+            rule = match.group(1)
+            value = size_value_pat.sub(relativize, match.group(2))
+            return '%s : %s'%(rule, value)
+        
+        self.css = re.compile(r'(font|font-size)\s*:\s*([^;]+)', re.I).sub(sub, self.css)
+    
     def do_layout(self):
-        self.css += '\nbody {margin-top: 0pt; margin-bottom: 0pt; margin-left: 0pt; margin-right: 0pt}\n'
+        self.css += '\nbody {margin-top: 0pt; margin-bottom: 0pt; margin-left: 0pt; margin-right: 0pt; font-size: %f%%}\n'%self.opts.base_font_size
         self.css += '@page {margin-top: %fpt; margin-bottom: %fpt; margin-left: %fpt; margin-right: %fpt}\n'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)
 
 def config(defaults=None, config_name='html',

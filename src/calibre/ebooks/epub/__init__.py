@@ -14,13 +14,15 @@ from calibre.ebooks.html import config as common_config, tostring
 
 class DefaultProfile(object):
     
-    flow_size = sys.maxint
+    flow_size   = sys.maxint
     screen_size = None
+    dpi         = 100
     
 class PRS505(DefaultProfile):
     
     flow_size   = 300000
     screen_size = (600, 775)
+    dpi         = 166
         
 
 PROFILES = {
@@ -105,6 +107,8 @@ to auto-generate a Table of Contents.
            help=_('Set the left margin in pts. Default is %default'))
     layout('margin_right', ['--margin-right'], default=5.0, 
            help=_('Set the right margin in pts. Default is %default'))
+    layout('base_font_size', ['--base-font-size'], default=100.0,
+           help=_('The base font size as a percentage. Default is %default. Changing this should allow you to control overall base font sizes, except for input HTML files that use absolute font sizes for their text tags.'))
     
     c.add_opt('show_opf', ['--show-opf'], default=False, group='debug',
               help=_('Print generated OPF file to stdout'))

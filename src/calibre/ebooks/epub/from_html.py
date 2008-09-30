@@ -64,6 +64,7 @@ class HTMLProcessor(Processor):
         
         
         self.extract_css()
+        self.relativize_font_sizes()
         if opts.verbose > 2:
             self.debug_tree('nocss')
             

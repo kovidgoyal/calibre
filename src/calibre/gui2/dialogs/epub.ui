@@ -77,7 +77,7 @@
      <item>
       <widget class="QStackedWidget" name="stack" >
        <property name="currentIndex" >
-        <number>3</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="metadata_page" >
         <layout class="QGridLayout" name="gridLayout_4" >
@@ -89,6 +89,36 @@
               <string>Book Cover</string>
              </property>
              <layout class="QGridLayout" name="_2" >
+              <item row="0" column="0" >
+               <layout class="QHBoxLayout" name="_3" >
+                <item>
+                 <widget class="ImageView" name="cover" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                  <property name="pixmap" >
+                   <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
+                  </property>
+                  <property name="scaledContents" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item row="2" column="0" >
+               <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
+                <property name="text" >
+                 <string>Use cover from &amp;source file</string>
+                </property>
+                <property name="checked" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
               <item row="1" column="0" >
                <layout class="QVBoxLayout" name="_4" >
                 <property name="spacing" >
@@ -137,36 +167,6 @@
                    </widget>
                   </item>
                  </layout>
-                </item>
-               </layout>
-              </item>
-              <item row="2" column="0" >
-               <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
-                <property name="text" >
-                 <string>Use cover from &amp;source file</string>
-                </property>
-                <property name="checked" >
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0" >
-               <layout class="QHBoxLayout" name="_3" >
-                <item>
-                 <widget class="ImageView" name="cover" >
-                  <property name="text" >
-                   <string/>
-                  </property>
-                  <property name="pixmap" >
-                   <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
-                  </property>
-                  <property name="scaledContents" >
-                   <bool>true</bool>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
                 </item>
                </layout>
               </item>
@@ -396,17 +396,53 @@
        <widget class="QWidget" name="lookandfeel_page" >
         <layout class="QVBoxLayout" name="verticalLayout" >
          <item>
-          <widget class="QLabel" name="label_26" >
-           <property name="text" >
-            <string>Source en&amp;coding:</string>
-           </property>
-           <property name="buddy" >
-            <cstring>opt_encoding</cstring>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="opt_encoding" />
+          <layout class="QGridLayout" name="gridLayout_6" >
+           <item row="0" column="0" >
+            <widget class="QLabel" name="label_26" >
+             <property name="text" >
+              <string>Source en&amp;coding:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_encoding</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1" colspan="2" >
+            <widget class="QLineEdit" name="opt_encoding" />
+           </item>
+           <item row="1" column="0" colspan="2" >
+            <widget class="QLabel" name="label_18" >
+             <property name="text" >
+              <string>Base &amp;font size:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_base_font_size</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="2" >
+            <widget class="QDoubleSpinBox" name="opt_base_font_size" >
+             <property name="suffix" >
+              <string> %</string>
+             </property>
+             <property name="decimals" >
+              <number>0</number>
+             </property>
+             <property name="minimum" >
+              <double>10.000000000000000</double>
+             </property>
+             <property name="maximum" >
+              <double>500.000000000000000</double>
+             </property>
+             <property name="singleStep" >
+              <double>5.000000000000000</double>
+             </property>
+             <property name="value" >
+              <double>100.000000000000000</double>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </item>
          <item>
           <widget class="QGroupBox" name="groupBox" >
