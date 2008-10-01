@@ -277,9 +277,12 @@ class BookList(_BookList):
     def purge_empty_playlists(self):
         ''' Remove all playlists that have no children. Also removes any invalid playlist items.'''
         for pli in self.playlist_items():
-            if not self.is_id_valid(pli.getAttribute('id')):
-                pli.parentNode.removeChild(pli)
-                pli.unlink()
+            try:
+                if not self.is_id_valid(pli.getAttribute('id')):
+                    pli.parentNode.removeChild(pli)
+                    pli.unlink()
+            except:
+                continue
         for pl in self.playlists():
             empty = True
             for c in pl.childNodes:
