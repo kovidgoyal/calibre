@@ -326,7 +326,10 @@ class BooksModel(QAbstractTableModel):
         ans = []
         for row in (row.row() for row in rows):
             format = None
-            db_formats = set(self.db.formats(row).lower().split(','))
+            fmts = self.db.formats(row)
+            if not fmts:
+                return []
+            db_formats = set(fmts.lower().split(','))
             available_formats = set([f.lower() for f in formats]) 
             u = available_formats.intersection(db_formats)
             for f in formats:

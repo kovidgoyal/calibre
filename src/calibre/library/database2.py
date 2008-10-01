@@ -577,7 +577,7 @@ class LibraryDatabase2(LibraryDatabase):
         return set([f[0] for f in formats])
     
     def formats(self, index, index_is_id=False):
-        ''' Return available formats as a comma separated list or None if htere are no available formats '''
+        ''' Return available formats as a comma separated list or None if there are no available formats '''
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         try:
