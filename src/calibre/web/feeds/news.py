@@ -614,6 +614,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         except NotImplementedError:
             feeds = self.parse_feeds()
         
+        #feeds = FeedCollection(feeds)
+        
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
         if self.test:
@@ -674,6 +676,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                 time.sleep(0.1)
             except NoResultsPending:
                 break
+        
+        #feeds.restore_duplicates()
         
         for f, feed in enumerate(feeds):
             html = self.feed2index(feed)
@@ -745,20 +749,21 @@ class BasicNewsRecipe(object, LoggingInterface):
                         entries.append(relp.replace(os.sep, '/'))
                         last = sp
                     
-                    with open(last, 'rb') as fi:
-                        src = fi.read().decode('utf-8')
-                    soup = BeautifulSoup(src)
-                    body = soup.find('body')
-                    if body is not None:
-                        prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
-                        templ = self.navbar.generate(True, num, j, len(f), 
-                                         not self.has_single_feed, 
-                                         a.orig_url, __appname__, prefix=prefix,
-                                         center=self.center_navbar)
-                        elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
-                        body.insert(len(body.contents), elem)
-                        with open(last, 'wb') as fi:
-                            fi.write(unicode(soup).encode('utf-8'))
+                    if os.path.exists(last):
+                        with open(last, 'rb') as fi:
+                            src = fi.read().decode('utf-8')
+                        soup = BeautifulSoup(src)
+                        body = soup.find('body')
+                        if body is not None:
+                            prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
+                            templ = self.navbar.generate(True, num, j, len(f), 
+                                             not self.has_single_feed, 
+                                             a.orig_url, __appname__, prefix=prefix,
+                                             center=self.center_navbar)
+                            elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                            body.insert(len(body.contents), elem)
+                            with open(last, 'wb') as fi:
+                                fi.write(unicode(soup).encode('utf-8'))
         
         if len(feeds) > 1:
             for i, f in enumerate(feeds):
