@@ -543,7 +543,10 @@ class LitReader(object):
                     raise LitError('Directory entry had 64bit name length.')
                 if namelen > remaining - 3:
                     raise LitError('Read past end of directory chunk')
-                name, chunk = chunk[:namelen].decode('utf-8'), chunk[namelen:]
+                try:
+                    name, chunk = chunk[:namelen].decode('utf-8'), chunk[namelen:]
+                except UnicodeDecodeError:
+                    break
                 section, chunk, remaining = encint(chunk, remaining)
                 offset, chunk, remaining = encint(chunk, remaining)
                 size, chunk, remaining = encint(chunk, remaining)
