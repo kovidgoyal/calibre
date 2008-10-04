@@ -51,7 +51,7 @@ class ScientificAmerican(BasicNewsRecipe):
         self.cover_url = root.xpath('//img[re:match(@src, "cover_")]', 
                                     namespaces={'re':'http://exslt.org/regular-expressions'}
                                     )[0].get('src')
-        self.timefmt = root.xpath('//div[@id = "magazine-month"]')[0].text
+        self.timefmt = ' [%s]'%(root.xpath('//div[@id = "magazine-month"]')[0].text)
         feeds = []
         features = []
         for a in root.xpath('//a[@href and @title = "Feature"]'):
