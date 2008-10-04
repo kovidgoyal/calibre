@@ -12,10 +12,9 @@ import os, math, logging, functools, collections, re, copy
 from lxml.etree import XPath as _XPath
 from lxml import etree, html
 from lxml.cssselect import CSSSelector
-from cssutils import CSSParser
 
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.ebooks.epub import tostring
+from calibre.ebooks.epub import tostring, rules
 from calibre import CurrentDir, LoggingInterface
 
 XPath = functools.partial(_XPath, namespaces={'re':'http://exslt.org/regular-expressions'})
@@ -35,7 +34,7 @@ class SplitError(ValueError):
 
 class Splitter(LoggingInterface):
     
-    def __init__(self, path, opts, always_remove=False):
+    def __init__(self, path, opts, stylesheet_map, always_remove=False):
         LoggingInterface.__init__(self, logging.getLogger('htmlsplit'))
         self.setup_cli_handler(opts.verbose)
         self.path = path
@@ -46,22 +45,8 @@ class Splitter(LoggingInterface):
         self.log_info('\tSplitting %s (%d KB)', path, self.orig_size/1024.)
         root = html.fromstring(open(content(path)).read())
             
-        css = XPath('//link[@type = "text/css" and @rel = "stylesheet"]')(root)
-        if css:
-            cssp = os.path.join('content', *(css[0].get('href').split('/')))
-            self.log_debug('\t\tParsing stylesheet...')
-            try: 
-                stylesheet = CSSParser().parseString(open(cssp, 'rb').read())
-            except:
-                self.log_warn('Failed to parse CSS. Splitting on page-breaks is disabled')
-                if self.opts.verbose > 1:
-                    self.log_exception('')
-                stylesheet = None
-        else:
-            stylesheet = None
         self.page_breaks = []
-        if stylesheet is not None:
-            self.find_page_breaks(stylesheet, root)
+        self.find_page_breaks(stylesheet_map[self.path], root)
             
         self.trees = []
         self.split_size = 0
@@ -189,14 +174,12 @@ class Splitter(LoggingInterface):
                 self.split(t)
                 
                 
-    def find_page_breaks(self, stylesheet, root):
+    def find_page_breaks(self, stylesheets, root):
         '''
         Find all elements that have either page-break-before or page-break-after set.
         '''
         page_break_selectors = set([])
-        for rule in stylesheet:
-            if rule.type != rule.STYLE_RULE:
-                continue
+        for rule in rules(stylesheets):
             before = getattr(rule.style.getPropertyCSSValue('page-break-before'), 'cssText', '').strip().lower()
             after  = getattr(rule.style.getPropertyCSSValue('page-break-after'), 'cssText', '').strip().lower()
             try:
@@ -385,7 +368,7 @@ def fix_ncx(path, changes):
     if changed:
         open(path, 'wb').write(etree.tostring(tree.getroot(), encoding='UTF-8', xml_declaration=True))
        
-def split(pathtoopf, opts):
+def split(pathtoopf, opts, stylesheet_map):
     pathtoopf = os.path.abspath(pathtoopf)
     with CurrentDir(os.path.dirname(pathtoopf)):
         opf = OPF(open(pathtoopf, 'rb'), os.path.dirname(pathtoopf))
@@ -403,7 +386,7 @@ def split(pathtoopf, opts):
         for f in html_files:
             if os.stat(content(f)).st_size > opts.profile.flow_size:
                 try:
-                    changes.append(Splitter(f, opts, 
+                    changes.append(Splitter(f, opts, stylesheet_map,
                         always_remove=(always_remove or \
                         os.stat(content(f)).st_size > 5*opts.profile.flow_size)))
                 except (SplitError, RuntimeError):

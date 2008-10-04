@@ -8,12 +8,14 @@ Code to recursively parse HTML files and create an open ebook in a specified
 directory or zip file. All the action starts in :function:`create_dir`.
 '''
 
-import sys, re, os, shutil, logging, tempfile, cStringIO
+import sys, re, os, shutil, logging, tempfile, cStringIO, operator, functools
 from urlparse import urlparse
 from urllib import unquote
 
-from lxml import html, etree
-from lxml.html import soupparser
+from lxml import etree
+from lxml.html import HtmlElementClassLookup, HTMLParser as _HTMLParser, \
+                      fromstring as _fromstring, tostring as _tostring, \
+                      soupparser, HtmlElement
 from lxml.etree import XPath
 get_text = XPath("//text()")
 
@@ -25,9 +27,67 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.metadata.opf2 import OPF, OPFCreator
 from calibre.ptempfile import PersistentTemporaryDirectory, PersistentTemporaryFile
 from calibre.utils.zipfile import ZipFile
+from cssutils import CSSParser
+
+class HTMLElement(HtmlElement):
+    
+    @apply
+    def specified_font_size():
+        
+        def fget(self):
+            ans = self.get('specified_font_size', '')
+            if not ans:
+                return lambda x: x
+            if ans.startswith('f'):
+                return functools.partial(operator.mul, float(ans[1:]))
+            return float(ans)
+        
+        def fset(self, val):
+            self.set('specified_font_size', ('f'+repr(val(1))) if callable(val) else repr(val))
+                     
+        return property(fget=fget, fset=fset)
+    
+    @apply
+    def computed_font_size():
+        def fget(self):
+            ans = self.get('computed_font_size', '')
+            if ans == '':
+                return None
+            return float(ans)
+        
+        def fset(self, val):
+            self.set('computed_font_size', repr(val))
+        
+        return property(fget=fget, fset=fset)
+    
+    def remove_font_size_information(self):
+        for elem in self.iter():
+            for p in ('computed', 'specified'):
+                elem.attrib.pop(p+'_font_size', None)
+                
+    def getpath(self):
+        return self.getroottree().getpath(self)
+
+class Lookup(HtmlElementClassLookup):
+    
+    def lookup(self, node_type, document, namespace, name):
+        if node_type == 'element':
+            return HTMLElement
+        return HtmlElementClassLookup.lookup(self, node_type, document, namespace, name)
+
+class HTMLParser(_HTMLParser):
+    
+    def __init__(self, **kwargs):
+        super(HTMLParser, self).__init__(**kwargs)
+        self.set_element_class_lookup(Lookup())
+        
+parser = HTMLParser()
+
+def fromstring(raw, **kw):
+    return _fromstring(raw, parser=parser, **kw)
 
 def tostring(root, pretty_print=False):
-    return html.tostring(root, encoding='utf-8', method='xml', 
+    return _tostring(root, encoding='utf-8', method='xml', 
                          include_meta_content_type=True, 
                          pretty_print=pretty_print)
     
@@ -372,11 +432,11 @@ class Parser(PreProcessor, LoggingInterface):
         for pat in ENCODING_PATS:
             src = pat.sub('', src)
         try:
-            self.root =  html.fromstring(src)
+            self.root = fromstring(src)
         except:
             if self.opts.verbose:
                 self.log_exception('lxml based parsing failed')
-            self.root = soupparser.fromstring(src)
+            self.root = soupparser.fromstring(src, makeelement=parser.makeelement)
         head = self.root.xpath('./head')
         if head:
             head = head[0]
@@ -402,7 +462,7 @@ class Parser(PreProcessor, LoggingInterface):
             os.makedirs(tdir)
         with open(os.path.join(tdir, '%s-%s.html'%\
                     (os.path.basename(self.htmlfile.path), name)), 'wb') as f:
-            f.write(html.tostring(self.root, encoding='utf-8'))
+            f.write(tostring(self.root, encoding='utf-8'))
             self.log_debug(_('Written processed HTML to ')+f.name)
     
             
@@ -443,19 +503,21 @@ class Processor(Parser):
     '''
     
     LINKS_PATH = XPath('//a[@href]')
+    PIXEL_PAT  = re.compile(r'([-]?\d+|[-]?\d*\.\d+)px')
+    
+    def __init__(self, *args, **kwargs):
+        Parser.__init__(self, *args, **kwargs)
+        temp = LoggingInterface(logging.getLogger('cssutils'))
+        temp.setup_cli_handler(self.opts.verbose)
+        self.css_parser = CSSParser(log=temp.logger, loglevel=logging.ERROR)
+        self.stylesheet = self.font_css = self.override_css = None
     
     def detect_chapters(self):
         self.detected_chapters = self.opts.chapter(self.root)
         for elem in self.detected_chapters:
             text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
             self.log_info('\tDetected chapter: %s', text[:50])
-            if self.opts.chapter_mark in ('both', 'pagebreak'):
-                style = elem.get('style', '').strip()
-                if style and not style.endswith(';'):
-                    style += '; '
-                style += 'page-break-before: always'
-                elem.set('style', style)
-            if self.opts.chapter_mark in ('both', 'rule'):
+            if self.opts.chapter_mark != 'none':
                 hr = etree.Element('hr')
                 if elem.getprevious() is None:
                     elem.getparent()[:0] = [hr]
@@ -466,16 +528,28 @@ class Processor(Parser):
                             insert = i
                             break
                     elem.getparent()[insert:insert] = [hr]
+                if self.opts.chapter_mark != 'rule':
+                    hr.set('style', 'width:0pt;page-break-before:always')
+                    if self.opts.chapter_mark == 'both':
+                        hr2 = etree.Element('hr')
+                        hr2.tail = u'\u00a0'
+                        p = hr.getparent()
+                        i = p.index(hr)
+                        p[i:i] = [hr2]
+                
                     
         
     def save(self):
-        style_path = os.path.basename(self.save_path())+'.css'
-        style = etree.SubElement(self.head, 'link', attrib={'type':'text/css', 'rel':'stylesheet', 
-                                                       'href':'resources/'+style_path,
-                                                       'charset':'UTF-8'})
-        style.tail = '\n'
-        style_path = os.path.join(os.path.dirname(self.save_path()), 'resources', style_path)
-        open(style_path, 'wb').write(self.css.encode('utf-8'))
+        style_path = os.path.splitext(os.path.basename(self.save_path()))[0]
+        for i, sheet in enumerate([self.stylesheet, self.font_css, self.override_css]):
+            if sheet is not None:
+                style = etree.SubElement(self.head, 'link', attrib={'type':'text/css', 'rel':'stylesheet', 
+                                                           'href':'resources/%s_%d.css'%(style_path, i),
+                                                           'charset':'UTF-8'})
+                style.tail = '\n'
+                path = os.path.join(os.path.dirname(self.save_path()), *(style.get('href').split('/')))
+                self.resource_map[path] = style.get('href')
+                open(path, 'wb').write(getattr(sheet, 'cssText', sheet).encode('utf-8'))
         return Parser.save(self)
     
     def populate_toc(self, toc):
@@ -491,14 +565,45 @@ class Processor(Parser):
                 text = text[:50] + u'\u2026'
             return target.add_item(href, fragment, text, type=type)
         
-        # Add chapters to TOC
+        name = self.htmlfile_map[self.htmlfile.path]
+        href = 'content/'+name
+        
+        # Add level 1 and level 2 TOC items
         counter = 0
+        if self.opts.level1_toc is not None:
+            level1 = self.opts.level1_toc(self.root)
+            if level1:
+                added = {}
+                for elem in level1:
+                    text = (u''.join(elem.xpath('string()'))).strip()
+                    if text:
+                        id = elem.get('id', 'calibre_chapter_%d'%counter)
+                        counter += 1
+                        elem.set('id', id)
+                        added[elem] = add_item(href, id, text, toc, type='chapter')
+                        add_item(href, id, 'Top', added[elem], type='chapter')
+                if self.opts.level2_toc is not None:
+                    level2 = list(self.opts.level2_toc(self.root))
+                    for elem in level2:
+                        level1 = None
+                        for item in self.root.iterdescendants():
+                            if item in added.keys():
+                                level1 = added[item]
+                            elif item == elem and level1 is not None:
+                                text = (u''.join(elem.xpath('string()'))).strip()
+                                if text:
+                                    id = elem.get('id', 'calibre_chapter_%d'%counter)
+                                    counter += 1
+                                    elem.set('id', id)
+                                    add_item(href, id, text, level1, type='chapter')
+                    
+        
+        # Add chapters to TOC
+        
         if not self.opts.no_chapters_in_toc:
             for elem in getattr(self, 'detected_chapters', []):
                 text = (u''.join(elem.xpath('string()'))).strip()
                 if text:
-                    name = self.htmlfile_map[self.htmlfile.path]
-                    href = 'content/'+name
                     counter += 1
                     id = elem.get('id', 'calibre_chapter_%d'%counter)
                     elem.set('id', id)
@@ -518,8 +623,7 @@ class Processor(Parser):
                 pass
             
         
-        name = self.htmlfile_map[self.htmlfile.path]
-        href = 'content/'+name
+        
         
         
         if referrer.href != href: # Happens for root file
@@ -541,13 +645,24 @@ class Processor(Parser):
                             name = self.htmlfile_map[self.htmlfile.referrer.path]
                         add_item(href, fragment, text, target)
                         
-                    
+    @classmethod
+    def preprocess_css(cls, css, dpi=96):
+        def rescale(match):
+            val = match.group(1)
+            try:
+                val = float(val)
+            except ValueError:
+                return ''
+            return '%fpt'%(72 * val/dpi)
         
-    def extract_css(self):
+        return cls.PIXEL_PAT.sub(rescale, css)
+        
+    def extract_css(self, parsed_sheets):
         '''
-        Remove all CSS information from the document and store in self.raw_css. 
-        This includes <font> tags.
+        Remove all CSS information from the document and store it as 
+        :class:`StyleSheet` objects.
         '''
+        
         def get_id(chapter, counter, prefix='calibre_css_'):
             new_id = '%s_%d'%(prefix, counter)
             if chapter.tag.lower() == 'a' and  'name' in chapter.keys():
@@ -562,17 +677,40 @@ class Processor(Parser):
                 chapter.set('id', id)
             return id
     
-        css = []
+        self.external_stylesheets, self.stylesheet = [], self.css_parser.parseString('')
         for link in self.root.xpath('//link'):
             if 'css' in link.get('type', 'text/css').lower():
-                file = os.path.join(self.tdir, link.get('href', ''))
-                if file and os.path.exists(file) and os.path.isfile(file):
-                    css.append(open(file, 'rb').read().decode('utf-8'))
-                link.getparent().remove(link)
-                    
+                file = os.path.join(self.tdir, *(link.get('href', '').split('/')))
+                if file and not 'http:' in file:
+                    if not parsed_sheets.has_key(file):
+                        try:
+                            self.log_info('Processing stylesheet %s...'%file)
+                            css = self.preprocess_css(open(file).read())
+                        except (IOError, OSError):
+                            self.log_error('Failed to open stylesheet: %s'%file)
+                        else:
+                            try:
+                                parsed_sheets[file] = self.css_parser.parseString(css)
+                            except:
+                                parsed_sheets[file] = css.decode('utf8', 'replace')
+                                self.log_warning('Failed to parse stylesheet: %s'%file)
+                                if self.opts.verbose > 1:
+                                    self.log_exception('')
+                    if parsed_sheets.has_key(file):
+                        self.external_stylesheets.append(parsed_sheets[file])
+                
+        
         for style in self.root.xpath('//style'):
             if 'css' in style.get('type', 'text/css').lower():
-                css.append('\n'.join(style.xpath('./text()')))
+                raw = '\n'.join(style.xpath('./text()'))
+                css = self.preprocess_css(raw)
+                try:
+                    sheet = self.css_parser.parseString(css)
+                except:
+                    self.log_debug('Failed to parse style element')
+                else:
+                    for rule in sheet:
+                        self.stylesheet.add(rule)
                 style.getparent().remove(style)
         
         cache = {}
@@ -613,57 +751,19 @@ class Processor(Parser):
             elem.set('class', cn)
             elem.attrib.pop('style')
         
-        for setting, cn in cache.items():
-            css.append('.%s {%s}'%(cn, setting))
-        
-            
-        self.raw_css = '\n\n'.join(css)
-        self.css = unicode(self.raw_css)
+        css = '\n'.join(['.%s {%s;}'%(cn, setting) for \
+                         setting, cn in cache.items()])
+        self.stylesheet = self.css_parser.parseString(self.preprocess_css(css))
+        css = ''
         if self.opts.override_css:
-            self.css += '\n\n'+self.opts.override_css
-        self.do_layout()
-        # TODO: Figure out what to do about CSS imports from linked stylesheets
-    
-    def relativize_font_sizes(self, dpi=100, base=16):
-        '''
-        Convert all absolute font sizes to percentages of ``base`` using ``dpi``
-        to convert from screen to paper units.
-        :param base: Base size in pixels. Adobe DE seems to need base size to be 16
-        irrespective of the unit of the length being converted
-        :param dpi: Dots per inch used to convert pixels to absolute lengths. Since
-        most HTML files are created on computers with monitors of DPI ~ 100, we use
-        100 by default.
-        '''
-        size_value_pat = re.compile(r'(?<!/)(?P<num>[0-9.]+)(?P<unit>cm|mm|in|pt|pc|px)', re.I)
+            css += '\n\n' + self.opts.override_css
+        css += '\n\n' + 'body {margin-top: 0pt; margin-bottom: 0pt; margin-left: 0pt; margin-right: 0pt;}'
+        css += '\n\n@page {margin-top: %fpt; margin-bottom: %fpt; margin-left: %fpt; margin-right: %fpt}'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)
+        if self.opts.remove_paragraph_spacing:
+            css += '\n\np {text-indent: 2.1em; margin-top:1pt; margin-bottom:1pt; padding:0pt; border:0pt;}'
+        self.override_css = self.css_parser.parseString(self.preprocess_css(css))
         
-        # points per unit
-        ptu = { # Convert to pt
-                  'px' : 72./dpi,
-                  'pt' : 1.0,
-                  'pc' : 1/12.,
-                  'in' : 72.,
-                  'cm' : 72/2.54,
-                  'mm' : 72/25.4,
-                  }
         
-        def relativize(match):
-            val  = float(match.group('num'))
-            unit = match.group('unit').lower()
-            val  *= ptu[unit]
-            return '%.1f%%'%((val/base) * 100)
-             
-        
-        def sub(match):
-            rule = match.group(1)
-            value = size_value_pat.sub(relativize, match.group(2))
-            return '%s : %s'%(rule, value)
-        
-        self.css = re.compile(r'(font|font-size)\s*:\s*([^;]+)', re.I).sub(sub, self.css)
-    
-    def do_layout(self):
-        self.css += '\nbody {margin-top: 0pt; margin-bottom: 0pt; margin-left: 0pt; margin-right: 0pt; font-size: %f%%}\n'%self.opts.base_font_size
-        self.css += '@page {margin-top: %fpt; margin-bottom: %fpt; margin-left: %fpt; margin-right: %fpt}\n'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)
-
 def config(defaults=None, config_name='html',
            desc=_('Options to control the traversal of HTML')):
     if defaults is None:

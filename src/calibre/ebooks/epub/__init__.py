@@ -7,7 +7,6 @@ __docformat__ = 'restructuredtext en'
 Conversion to EPUB.
 '''
 import sys, textwrap
-from lxml import html
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.ebooks.html import config as common_config, tostring
@@ -16,19 +15,24 @@ class DefaultProfile(object):
     
     flow_size   = sys.maxint
     screen_size = None
-    dpi         = 100
     
 class PRS505(DefaultProfile):
     
     flow_size   = 300000
     screen_size = (600, 775)
-    dpi         = 166
         
 
 PROFILES = {
             'PRS505' : PRS505,
             'None'   : DefaultProfile,
             }
+
+def rules(stylesheets):
+    for s in stylesheets:
+        if hasattr(s, 'cssText'):
+            for r in s:
+                if r.type == r.STYLE_RULE:
+                    yield r
 
 def initialize_container(path_to_container, opf_name='metadata.opf'):
     '''
@@ -95,6 +99,12 @@ to auto-generate a Table of Contents.
         help=_("Don't add auto-detected chapters to the Table of Contents."))
     toc('toc_threshold', ['--toc-threshold'], default=6,
         help=_('If fewer than this number of chapters is detected, then links are added to the Table of Contents.'))
+    toc('level1_toc', ['--level1-toc'], default=None,
+        help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level one. If this is specified, it takes precedence over other forms of auto-detection.'))
+    toc('level2_toc', ['--level2-toc'], default=None,
+        help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level two. Each entry is added under the previous level one entry.'))
+    toc('from_ncx', ['--from-ncx'], default=None,
+        help=_('Path to a .ncx file that contains the table of contents to use for this ebook. The NCX file should contain links relative to the directory it is placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for an overview of the NCX format.'))
     toc('use_auto_toc', ['--use-auto-toc'], default=False,
         help=_('Normally, if the source file already has a Table of Contents, it is used in preference to the autodetected one. With this option, the autodetected one is always used.'))
     
@@ -107,8 +117,10 @@ to auto-generate a Table of Contents.
            help=_('Set the left margin in pts. Default is %default'))
     layout('margin_right', ['--margin-right'], default=5.0, 
            help=_('Set the right margin in pts. Default is %default'))
-    layout('base_font_size', ['--base-font-size'], default=100.0,
-           help=_('The base font size as a percentage. Default is %default. Changing this should allow you to control overall base font sizes, except for input HTML files that use absolute font sizes for their text tags.'))
+    layout('base_font_size2', ['--base-font-size'], default=12.0,
+           help=_('The base font size in pts. Default is %defaultpt. Set to 0 to disable rescaling of fonts.'))
+    layout('remove_paragraph_spacing', ['--remove-paragraph-spacing'], default=True,
+           help=_('Remove spacing between paragraphs. Will not work if the source file forces inter-paragraph spacing.'))
     
     c.add_opt('show_opf', ['--show-opf'], default=False, group='debug',
               help=_('Print generated OPF file to stdout'))

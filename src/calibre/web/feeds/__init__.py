@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Contains the logic for parsing feeds.
 '''
-import time, logging, traceback
+import time, logging, traceback, copy
 from datetime import datetime
 
 from calibre.web.feeds.feedparser import parse
@@ -17,7 +17,7 @@ class Article(object):
     def __init__(self, id, title, url, summary, published, content):
         self.downloaded = False
         self.id = id
-        self.title = title
+        self.title = title.strip() if title else title
         self.url = url
         self.summary = summary
         self.content = content
@@ -38,7 +38,14 @@ Has content : %s
 
     def __str__(self):
         return repr(self)
-
+    
+    def is_same_as(self, other_article):
+        #if self.title != getattr(other_article, 'title', False):
+        #    return False
+        if self.url:
+            return self.url == getattr(other_article, 'url', False)
+        return self.content == getattr(other_article, 'content', False)
+    
 
 class Feed(object):
 
@@ -169,7 +176,72 @@ class Feed(object):
                               len(a.summary if a.summary else ''))
                 
         return length > 2000 * len(self)
+    
+    def has_article(self, article):
+        for a in self:
+            if a.is_same_as(article):
+                return True
+        return False
+    
+    def find(self, article):
+        for i, a in enumerate(self):
+            if a.is_same_as(article):
+                return i
+        return -1
+    
+    def remove(self, article):
+        i = self.index(article)
+        if i > -1:
+            self.articles[i:i+1] = []
 
+class FeedCollection(list):
+    
+    def __init__(self, feeds):
+        list.__init__(self, [f for f in feeds if len(f.articles) > 0])
+        found_articles = set([])
+        duplicates = set([])
+        
+        def in_set(s, a):
+            for x in s:
+                if a.is_same_as(x):
+                    return x
+            return None
+        
+        print '#feeds', len(self)
+        print map(len, self)
+        for f in self:
+            dups = []
+            for a in f:
+                first = in_set(found_articles, a)
+                if first is not None:
+                    dups.append(a)
+                    duplicates.add((first, f))
+                else:
+                    found_articles.add(a)
+            for x in dups:
+                f.articles.remove(x)
+                
+        self.duplicates = duplicates
+        print len(duplicates)
+        print map(len, self)
+        #raise
+                
+    def find_article(self, article):
+        for j, f in enumerate(self):
+            for i, a in enumerate(f):
+                if a is article:
+                    return (j, i)
+    
+    def restore_duplicates(self):
+        temp = []
+        for article, feed in self.duplicates:
+            art = copy.deepcopy(article)
+            j, i = self.find_article(article)
+            art.url = '../feed_%d/article_%d/index.html'%(j, i)
+            temp.append((feed, art))
+        for feed, art in temp:
+            feed.articles.append(art)
+        
 
 def feed_from_xml(raw_xml, title=None, oldest_article=7, 
                   max_articles_per_feed=100, get_article_url=lambda item: item.get('link', None)):

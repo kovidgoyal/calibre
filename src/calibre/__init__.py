@@ -284,7 +284,7 @@ def english_sort(x, y):
 class LoggingInterface:
 
     def __init__(self, logger):
-        self.__logger = logger
+        self.__logger = self.logger = logger
         
     def setup_cli_handler(self, verbosity):
         for handler in self.__logger.handlers:

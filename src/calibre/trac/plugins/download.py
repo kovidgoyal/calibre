@@ -45,7 +45,7 @@ class Distribution(object):
     INSTALLERS = ('emerge -avn', 'apt-get install', 'yum install')
     AS_ROOT    = (True, False, True)
     
-    TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Interpid Ibex',
+    TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Intrepid Ibex',
                 'fedora':'Fedora 10', 'debian':'Debian sid', 'generic': 'Install from source'}
     
     MANUAL_MAP = {

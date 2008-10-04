@@ -17,6 +17,7 @@ from calibre.ebooks.epub.from_any import SOURCE_FORMATS, config
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.opf import OPFCreator
+from lxml.etree import XPath
 
 class Config(QDialog, Ui_Dialog):
     
@@ -234,6 +235,16 @@ class Config(QDialog, Ui_Dialog):
                     self.source_format = d.format()
                 
     def accept(self):
+        for opt in ('chapter', 'level1_toc', 'level2_toc'):
+            text = unicode(getattr(self, 'opt_'+opt).text())
+            if text:
+                try:
+                    XPath(text,namespaces={'re':'http://exslt.org/regular-expressions'})
+                except Exception, err:
+                    error_dialog(self, _('Invalid XPath expression'),
+                        _('The expression %s is invalid. Error: %s')%(text, err) 
+                                 ).exec_()
+                    return
         mi = self.get_metadata()
         self.read_settings()
         self.cover_file = None

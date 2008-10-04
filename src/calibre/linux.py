@@ -295,6 +295,11 @@ complete -o nospace  -F _prs500 prs500
 ''')
         f.close()
         print 'done'
+    except TypeError, err:
+        if 'resolve_entities' in str(err):
+            print 'You need python-lxml >= 2.0.5 for calibre'
+            sys.exit(1)
+        raise
     except:
         if fatal_errors:
             raise

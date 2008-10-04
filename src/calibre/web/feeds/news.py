@@ -289,15 +289,16 @@ class BasicNewsRecipe(object, LoggingInterface):
         '''
         return soup
     
-    def postprocess_html(self, soup):
+    def postprocess_html(self, soup, first_fetch):
         '''
         This method is called with the source of each downloaded :term:`HTML` file, after
         it is parsed for links and images. 
         It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
         It should return `soup` after processing it. 
         
-        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ 
+        :param soup: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ 
         instance containing the downloaded :term:`HTML`.
+        :param first_fetch: True if this is the first page of an article.
         '''
         return soup
     
@@ -482,7 +483,7 @@ class BasicNewsRecipe(object, LoggingInterface):
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
             
-        return self.postprocess_html(soup)
+        return self.postprocess_html(soup, first_fetch)
         
     
     def download(self):

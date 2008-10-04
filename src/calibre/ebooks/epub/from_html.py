@@ -32,8 +32,7 @@ Conversion of HTML/OPF files follows several stages:
     * The EPUB container is created.
 '''
 
-import os, sys, re, cStringIO, logging
-from contextlib import nested
+import os, sys, cStringIO, logging
 
 from lxml.etree import XPath
 try:
@@ -41,7 +40,7 @@ try:
 except ImportError:
     import Image as PILImage
 
-from calibre.ebooks.html import Processor, get_text, merge_metadata, get_filelist,\
+from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc
 from calibre.ebooks.epub import config as common_config
 from calibre.ptempfile import TemporaryDirectory
@@ -50,21 +49,23 @@ from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.epub import initialize_container, PROFILES
 from calibre.ebooks.epub.split import split
+from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
 
 
-class HTMLProcessor(Processor):
+class HTMLProcessor(Processor, Rationalizer):
     
-    def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles):
+    def __init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, stylesheets):
         Processor.__init__(self, htmlfile, opts, tdir, resource_map, htmlfiles, 
-                        name='html2epub')
+                           name='html2epub')
         if opts.verbose > 2:
             self.debug_tree('parsed')
         self.detect_chapters()
         
-        
-        self.extract_css()
-        self.relativize_font_sizes()
+        self.extract_css(stylesheets)
+        if self.opts.base_font_size2 > 0:
+            self.font_css = self.rationalize(self.external_stylesheets+[self.stylesheet], 
+                                             self.root, self.opts)
         if opts.verbose > 2:
             self.debug_tree('nocss')
             
@@ -73,19 +74,6 @@ class HTMLProcessor(Processor):
             meta.getparent().remove(meta)
         Processor.save(self)
         
-        #self.collect_font_statistics()
-        
-        
-    def collect_font_statistics(self):
-        '''
-        Collect font statistics to figure out the base font size used in this
-        HTML document.
-        '''
-        self.font_statistics = {} #: A mapping of font size (in pts) to number of characters rendered at that font size
-        for text in get_text(self.body if self.body is not None else self.root):
-            length, parent = len(re.sub(r'\s+', '', text)), text.getparent()
-            #TODO: Use cssutils on self.raw_css to figure out the font size 
-            # of this piece of text and update statistics accordingly        
     
             
 
@@ -104,21 +92,30 @@ the <spine> element of the OPF file.
 
 def parse_content(filelist, opts, tdir):
     os.makedirs(os.path.join(tdir, 'content', 'resources'))
-    resource_map = {}
+    resource_map, stylesheets = {}, {}
     toc = TOC(base_path=tdir, type='root')
+    stylesheet_map = {}
     for htmlfile in filelist:
+        logging.getLogger('html2epub').debug('Processing %s...'%htmlfile)
         hp = HTMLProcessor(htmlfile, opts, os.path.join(tdir, 'content'), 
-                           resource_map, filelist)
+                           resource_map, filelist, stylesheets)
         hp.populate_toc(toc)
         hp.save()
+        stylesheet_map[os.path.basename(hp.save_path())] = \
+            [s for s in hp.external_stylesheets + [hp.stylesheet, hp.font_css, hp.override_css] if s is not None]
     
+    logging.getLogger('html2epub').debug('Saving stylesheets...')
+    if opts.base_font_size2 > 0:
+        Rationalizer.remove_font_size_information(stylesheets.values())
+        for path, css in stylesheets.items():
+            open(path, 'wb').write(getattr(css, 'cssText', css).encode('utf-8'))
     if toc.count('chapter') > opts.toc_threshold:
         toc.purge(['file', 'link', 'unknown'])
     if toc.count('chapter') + toc.count('file') > opts.toc_threshold:
         toc.purge(['link', 'unknown'])
     toc.purge(['link'], max=opts.max_toc_links)
     
-    return resource_map, hp.htmlfile_map, toc
+    return resource_map, hp.htmlfile_map, toc, stylesheet_map
 
 def resize_cover(im, opts):
     width, height = im.size
@@ -176,7 +173,7 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
         <title>Cover</title>
         <style type="text/css">@page {padding: 0pt; margin:0pt}</style>
     </head>
-    <body style="padding: 0pt; margin: 0pt;}">
+    <body style="padding: 0pt; margin: 0pt">
         <div style="text-align:center">
             <img style="text-align: center" src="%s" alt="cover" />
         </div>
@@ -212,11 +209,22 @@ def convert(htmlfile, opts, notification=None):
         mi = merge_metadata(htmlfile, opf, opts)
     opts.chapter = XPath(opts.chapter, 
                     namespaces={'re':'http://exslt.org/regular-expressions'})
+    if opts.level1_toc:
+        opts.level1_toc = XPath(opts.level1_toc, 
+                            namespaces={'re':'http://exslt.org/regular-expressions'})
+    else:
+        opts.level1_toc = None
+    if opts.level2_toc:
+        opts.level2_toc = XPath(opts.level2_toc, 
+                            namespaces={'re':'http://exslt.org/regular-expressions'})
+    else:
+        opts.level2_toc = None 
     
     with TemporaryDirectory(suffix='_html2epub', keep=opts.keep_intermediate) as tdir:
         if opts.keep_intermediate:
             print 'Intermediate files in', tdir
-        resource_map, htmlfile_map, generated_toc = parse_content(filelist, opts, tdir)
+        resource_map, htmlfile_map, generated_toc, stylesheet_map = \
+                                        parse_content(filelist, opts, tdir)
         logger = logging.getLogger('html2epub')
         resources = [os.path.join(tdir, 'content', f) for f in resource_map.values()]
         
@@ -235,6 +243,10 @@ def convert(htmlfile, opts, notification=None):
             rebase_toc(mi.toc, htmlfile_map, tdir)
         if opts.use_auto_toc or mi.toc is None or len(list(mi.toc.flat())) < 2:
             mi.toc = generated_toc
+        if opts.from_ncx:
+            toc = TOC()
+            toc.read_ncx_toc(opts.from_ncx)
+            mi.toc = toc
         for item in mi.manifest:
             if getattr(item, 'mime_type', None) == 'text/html':
                 item.mime_type = 'application/xhtml+xml'
@@ -247,7 +259,7 @@ def convert(htmlfile, opts, notification=None):
                 f.write(toc)
             if opts.show_ncx:
                 print toc
-        split(opf_path, opts)
+        split(opf_path, opts, stylesheet_map)
         opf = OPF(opf_path, tdir)
         opf.remove_guide()
         if has_title_page:

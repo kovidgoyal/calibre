@@ -92,7 +92,7 @@ class Newsweek(BasicNewsRecipe):
         return sections
         
     
-    def postprocess_html(self,  soup):
+    def postprocess_html(self, soup, first_fetch):
         divs = list(soup.findAll('div', 'pagination'))
         if not divs:
             return
