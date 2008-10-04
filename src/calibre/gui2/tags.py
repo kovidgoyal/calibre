@@ -8,7 +8,7 @@ Browsing book collection by tags.
 '''
 from PyQt4.Qt import QAbstractItemModel, Qt, QVariant, QTreeView, QModelIndex, \
                      QFont, SIGNAL, QSize, QColor, QIcon
-
+from calibre.gui2 import config
 NONE = QVariant()
 
 class TagsView(QTreeView):
@@ -19,22 +19,23 @@ class TagsView(QTreeView):
         self.setCursor(Qt.PointingHandCursor)
         self.setIconSize(QSize(30, 30))
     
-    def set_database(self, db, match_all):
+    def set_database(self, db, match_all, popularity):
         self._model = TagsModel(db)
+        self.popularity = popularity
         self.match_all = match_all
         self.setModel(self._model)
         self.connect(self, SIGNAL('clicked(QModelIndex)'), self.toggle)
+        self.popularity.setChecked(config['sort_by_popularity'])
+        self.connect(self.popularity, SIGNAL('stateChanged(int)'), self.sort_changed)
+        
+    def sort_changed(self, state):
+        config.set('sort_by_popularity', state == Qt.Checked)
+        self.model().refresh()
         
     def toggle(self, index):
         if self._model.toggle(index):
             self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'), 
                       self._model.tokens(), self.match_all.isChecked())
-
-class Tag(unicode):
-    
-    def __init__(self, name):
-        unicode.__init__(self, name)
-        self.state = 0
 
 class TagsModel(QAbstractItemModel):
     
@@ -61,9 +62,9 @@ class TagsModel(QAbstractItemModel):
     
     def refresh(self):
         old_data = self._data
-        self._data = self.db.get_categories()
+        self._data = self.db.get_categories(config['sort_by_popularity'])
         for key in self._data:
-            self._data[key] = list(map(Tag, self._data[key]))
+            self._data[key] = self._data[key]
         for key in old_data.keys():
             for tag in old_data[key]:
                 try:
@@ -152,7 +153,7 @@ class TagsModel(QAbstractItemModel):
     def tag_data(self, index, role):
         category = self.row_map[index.parent().row()]
         if role == Qt.DisplayRole:
-            return QVariant(self._data[category][index.row()])
+            return QVariant(self._data[category][index.row()].as_string())
         if role == Qt.DecorationRole:
             return self.status_map[self._data[category][index.row()].state]
         return NONE

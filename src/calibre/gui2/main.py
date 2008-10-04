@@ -250,7 +250,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.tags_view.setVisible(False)
         self.match_all.setVisible(False)
         self.match_any.setVisible(False)
-        self.tags_view.set_database(db, self.match_all)
+        self.popularity.setVisible(False)
+        self.tags_view.set_database(db, self.match_all, self.popularity)
         self.connect(self.tags_view, SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
                      self.search.search_from_tokens)
         self.connect(self.status_bar.tag_view_button, SIGNAL('toggled(bool)'), self.toggle_tags_view)
@@ -300,11 +301,13 @@ class Main(MainWindow, Ui_MainWindow):
             self.tags_view.setVisible(True)
             self.match_all.setVisible(True)
             self.match_any.setVisible(True)
+            self.popularity.setVisible(True)
             self.tags_view.setFocus(Qt.OtherFocusReason)
         else:
             self.tags_view.setVisible(False)
             self.match_all.setVisible(False)
             self.match_any.setVisible(False)
+            self.popularity.setVisible(False)
 
     def sync_cf_to_listview(self, index, *args):
         if not hasattr(index, 'row') and self.library_view.currentIndex().row() != index:

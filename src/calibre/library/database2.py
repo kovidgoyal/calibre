@@ -326,6 +326,16 @@ class ResultCache(object):
         ans = (no_tags + ans) if order == 'ASC' else (ans + no_tags)
         return ans 
 
+class Tag(unicode):
+    
+    def __init__(self, name):
+        unicode.__init__(self, name)
+        self.count = 0
+        self.state = 0
+        
+    def as_string(self):
+        return u'[%d] %s'%(self.count, self)
+
 class LibraryDatabase2(LibraryDatabase):
     '''
     An ebook metadata database that stores references to ebook files on disk.
@@ -683,7 +693,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute(st%dict(ltable='series', table='series', ltable_col='series'))
         self.conn.commit()
     
-    def get_categories(self):
+    def get_categories(self, sort_on_count=False):
         categories = {}
         def get(name, category, field='name'):
             ans = self.conn.execute('SELECT DISTINCT %s FROM %s'%(field, name)).fetchall()
@@ -691,9 +701,23 @@ class LibraryDatabase2(LibraryDatabase):
             try:
                 ans.remove('')
             except ValueError: pass
-            ans.sort()
-            categories[category] = ans
-        for x in (('authors', 'author'), ('tags', 'tag'), ('publishers', 'publisher'), ('series', 'series')):
+            categories[category] = list(map(Tag, ans))
+            tags = categories[category]
+            if name != 'data':
+                for tag in tags:
+                    id = self.conn.execute('SELECT id FROM %s WHERE %s=?'%(name, field), (tag,)).fetchone()
+                    if id:
+                        id = id[0]
+                    tag.id = id
+                for tag in tags:
+                    if tag.id is not None:
+                        tag.count = self.conn.execute('SELECT COUNT(id) FROM books_%s_link WHERE %s=?'%(name, category), (tag.id,)).fetchone()[0]
+            else:
+                for tag in tags:
+                    tag.count = self.conn.execute('SELECT COUNT(format) FROM data WHERE format=?', (tag,)).fetchone()[0]
+            tags.sort(reverse=sort_on_count, cmp=(lambda x,y:cmp(x.count,y.count)) if sort_on_count else cmp)
+        for x in (('authors', 'author'), ('tags', 'tag'), ('publishers', 'publisher'), 
+                  ('series', 'series')):
             get(*x)
         get('data', 'format', 'format')
         return categories

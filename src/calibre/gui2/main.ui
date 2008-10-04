@@ -263,6 +263,13 @@
              </widget>
             </item>
             <item>
+             <widget class="QCheckBox" name="popularity" >
+              <property name="text" >
+               <string>Sort by &amp;popularity</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="TagsView" name="tags_view" >
               <property name="tabKeyNavigation" >
                <bool>true</bool>
