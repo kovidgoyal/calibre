@@ -391,7 +391,7 @@ def split(pathtoopf, opts, stylesheet_map):
                         os.stat(content(f)).st_size > 5*opts.profile.flow_size)))
                 except (SplitError, RuntimeError):
                     if not always_remove:
-                        changes.append(Splitter(f, opts, always_remove=True))
+                        changes.append(Splitter(f, opts, stylesheet_map, always_remove=True))
                     else:
                         raise
                 changes[-1].fix_opf(opf)

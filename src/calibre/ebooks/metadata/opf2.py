@@ -362,12 +362,13 @@ class Guide(ResourceCollection):
 
 class MetadataField(object):
     
-    def __init__(self, name, is_dc=True, formatter=None):
-        self.name = name
-        self.is_dc = is_dc
+    def __init__(self, name, is_dc=True, formatter=None, none_is=None):
+        self.name      = name
+        self.is_dc     = is_dc
         self.formatter = formatter
+        self.none_is   = none_is
         
-    def __get__(self, obj, type=None):
+    def __real_get__(self, obj, type=None):
         ans = obj.get_metadata_element(self.name)
         if ans is None:
             return None
@@ -379,6 +380,12 @@ class MetadataField(object):
                 ans = self.formatter(ans)
             except:
                 return None
+        return ans
+    
+    def __get__(self, obj, type=None):
+        ans = self.__real_get__(obj, type)
+        if ans is None:
+            ans = self.none_is
         return ans
     
     def __set__(self, obj, val):
@@ -393,9 +400,7 @@ class OPF(object):
     NAMESPACES       = {
                         None  : "http://www.idpf.org/2007/opf",
                         'dc'  : "http://purl.org/dc/elements/1.1/",
-                        'dc1' : 'http://purl.org/dc/elements/1.0/',
                         'opf' : "http://www.idpf.org/2007/opf",
-                        'oebpackage' : 'http://openebook.org/namespaces/oeb-package/1.0/',
                        }
     xpn = NAMESPACES.copy()
     xpn.pop(None)
@@ -406,6 +411,7 @@ class OPF(object):
     
     metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
     metadata_elem_path = XPath('descendant::*[re:match(name(), $name, "i")]')
+    series_path     = XPath('descendant::*[re:match(name(), "series(?!_)", "i")]')
     authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut")]')
     bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
@@ -420,8 +426,7 @@ class OPF(object):
     language        = MetadataField('language')
     comments        = MetadataField('description')
     category        = MetadataField('category')
-    series          = MetadataField('series', is_dc=False)
-    series_index    = MetadataField('series_index', is_dc=False, formatter=int)
+    series_index    = MetadataField('series_index', is_dc=False, formatter=int, none_is=1)
     rating          = MetadataField('rating', is_dc=False, formatter=int)
     
     
@@ -632,7 +637,25 @@ class OPF(object):
                 matches = [self.create_metadata_element('identifier', ns='dc',
                                                 attrib={'{%s}scheme'%self.NAMESPACES['opf']:'ISBN'})]
             matches[0].text = unicode(val)
+
         return property(fget=fget, fset=fset)
+    
+    @apply
+    def series():
+        
+        def fget(self):
+            for match in self.series_path(self.metadata):
+                return match.text if match.text else None
+        
+        def fset(self, val):
+            matches = self.series_path(self.metadata)
+            if not matches:
+                matches = [self.create_metadata_element('series')]
+            matches[0].text = unicode(val)
+        
+        return property(fget=fget, fset=fset)
+    
+    
     
     @apply
     def book_producer():
@@ -682,7 +705,6 @@ class OPF(object):
                  
         return property(fget=fget, fset=fset)                    
             
-    
     def get_metadata_element(self, name):
         matches = self.metadata_elem_path(self.metadata, name=name)
         if matches:
@@ -700,11 +722,12 @@ class OPF(object):
     def smart_update(self, mi):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
-                     'isbn', 'language', 'tags'):
+                     'isbn', 'language', 'tags', 'title', 'authors'):
             val = getattr(mi, attr, None)
-            if val or val == []:
+            if val is not None and val != [] and val != (None, None):
                 setattr(self, attr, val)
-
+    
+    
 class OPFCreator(MetaInformation):
     
     def __init__(self, base_path, *args, **kwargs):

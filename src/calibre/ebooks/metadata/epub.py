@@ -111,6 +111,10 @@ def option_parser():
     parser.remove_option('--category')
     parser.add_option('--tags', default=None, 
                       help=_('A comma separated list of tags to set'))
+    parser.add_option('--series', default=None,
+                      help=_('The series to which this book belongs'))
+    parser.add_option('--series-index', default=None,
+                      help=_('The series index'))
     return parser
 
 def main(args=sys.argv):
@@ -121,18 +125,31 @@ def main(args=sys.argv):
         return 1
     stream = open(args[1], 'r+b')
     mi = MetaInformation(OCFZipReader(stream, root=os.getcwdu()).opf)
+    changed = False
     if opts.title:
         mi.title = opts.title
+        changed = True
     if opts.authors:
         mi.authors = opts.authors.split(',')
+        changed = True
     if opts.tags:
         mi.tags = opts.tags.split(',')
+        changed = True
     if opts.comment:
         mi.comments = opts.comment
+        changed = True
+    if opts.series:
+        mi.series = opts.series
+        changed = True
+    if opts.series_index:
+        mi.series_index = opts.series_index
+        changed = True
     
+    if changed:
+        stream.seek(0)
+        set_metadata(stream, mi)
     stream.seek(0)
-    set_metadata(stream, mi)
-    print unicode(mi)
+    print unicode(MetaInformation(OCFZipReader(stream, root=os.getcwdu()).opf))
     stream.close()
     return 0
 
