@@ -470,10 +470,14 @@ class PRS505(Device):
         
     def sync_booklists(self, booklists, end_session=True):
         fix_ids(*booklists)
+        if not os.path.exists(self._main_prefix):
+            os.makedirs(self._main_prefix)
         f = open(self._main_prefix + self.__class__.MEDIA_XML, 'wb')
         booklists[0].write(f)
         f.close()
         if self._card_prefix is not None and hasattr(booklists[1], 'write'):
+            if not os.path.exists(self._card_prefix):
+                os.makedirs(self._card_prefix)
             f = open(self._card_prefix + self.__class__.CACHE_XML, 'wb')
             booklists[1].write(f)
             f.close()
