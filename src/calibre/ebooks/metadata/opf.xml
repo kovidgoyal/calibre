@@ -17,7 +17,7 @@
         <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>
         <dc:identifier opf:scheme="ISBN" py:if="mi.isbn">${mi.isbn}</dc:identifier>
         <series py:if="mi.series">${mi.series}</series>
-        <series-index py:if="mi.series_index is not None">${mi.series_index}</series-index>
+        <series_index py:if="mi.series_index is not None">${mi.series_index}</series_index>
         <rating py:if="mi.rating is not None">${mi.rating}</rating>
         <py:for each="tag in mi.tags">
         <dc:subject py:if="mi.tags is not None">${tag}</dc:subject>

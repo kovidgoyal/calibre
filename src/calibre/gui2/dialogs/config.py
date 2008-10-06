@@ -71,7 +71,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         from calibre.translations import language_codes
         from calibre.startup import get_lang
         lang = get_lang()
-        if lang is not None:
+        if lang is not None and language_codes.has_key(lang):
             self.language.addItem(language_codes[lang], QVariant(lang))
         items = [(l, language_codes[l]) for l in translations.keys() if l != lang]
         if lang != 'en':

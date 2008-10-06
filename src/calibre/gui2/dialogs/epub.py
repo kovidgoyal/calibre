@@ -90,7 +90,7 @@ class Config(QDialog, Ui_Dialog):
     
     def select_cover(self):
         files = choose_images(self, 'change cover dialog', 
-                             _('Choose cover for ') + unicode(self.gui_title.text()))
+                             _('Choose cover for ') + unicode(self.title.text()))
         if not files:
             return
         _file = files[0]
