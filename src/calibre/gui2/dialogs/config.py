@@ -20,8 +20,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         Ui_Dialog.__init__(self)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self.setupUi(self)
-        self.item1 = QListWidgetItem(QIcon(':/images/metadata.svg'), _('Basic'), self.category_list)
-        self.item2 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
+        self.item1 = QListWidgetItem(QIcon(':/images/metadata.svg'), _('General'), self.category_list)
+        self.item2 = QListWidgetItem(QIcon(':/images/lookfeel.svg'), _('Interface'), self.category_list)
+        self.item3 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
         self.db = db
         self.current_cols = columns
         path = prefs['library_path']

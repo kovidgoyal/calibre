@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>709</width>
-    <height>750</height>
+    <height>676</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -22,15 +22,9 @@
     <layout class="QHBoxLayout" >
      <item>
       <widget class="QListWidget" name="category_list" >
-       <property name="sizePolicy" >
-        <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
        <property name="maximumSize" >
         <size>
-         <width>100</width>
+         <width>140</width>
          <height>16777215</height>
         </size>
        </property>
@@ -40,10 +34,22 @@
          <bold>true</bold>
         </font>
        </property>
+       <property name="mouseTracking" >
+        <bool>true</bool>
+       </property>
+       <property name="verticalScrollBarPolicy" >
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="horizontalScrollBarPolicy" >
+        <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="tabKeyNavigation" >
+        <bool>true</bool>
+       </property>
        <property name="iconSize" >
         <size>
-         <width>32</width>
-         <height>32</height>
+         <width>48</width>
+         <height>48</height>
         </size>
        </property>
        <property name="movement" >
@@ -55,11 +61,8 @@
        <property name="isWrapping" stdset="0" >
         <bool>false</bool>
        </property>
-       <property name="gridSize" >
-        <size>
-         <width>80</width>
-         <height>80</height>
-        </size>
+       <property name="spacing" >
+        <number>25</number>
        </property>
        <property name="viewMode" >
         <enum>QListView::IconMode</enum>
@@ -114,33 +117,6 @@
               </widget>
              </item>
             </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="roman_numerals" >
-           <property name="text" >
-            <string>Use &amp;Roman numerals for series number</string>
-           </property>
-           <property name="checked" >
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout" >
-           <item>
-            <widget class="QLabel" name="label_6" >
-             <property name="text" >
-              <string>&amp;Number of covers to show in browse mode (after restart):</string>
-             </property>
-             <property name="buddy" >
-              <cstring>cover_browse</cstring>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QSpinBox" name="cover_browse" />
            </item>
           </layout>
          </item>
@@ -271,70 +247,6 @@
           </layout>
          </item>
          <item>
-          <widget class="QGroupBox" name="groupBox_2" >
-           <property name="title" >
-            <string>Toolbar</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout" >
-            <item row="0" column="1" >
-             <widget class="QComboBox" name="toolbar_button_size" >
-              <item>
-               <property name="text" >
-                <string>Large</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Medium</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Small</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QLabel" name="label_4" >
-              <property name="text" >
-               <string>&amp;Button size in toolbar</string>
-              </property>
-              <property name="buddy" >
-               <cstring>toolbar_button_size</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="show_toolbar_text" >
-              <property name="text" >
-               <string>Show &amp;text in toolbar buttons</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox" >
-           <property name="title" >
-            <string>Select visible &amp;columns in library view</string>
-           </property>
-           <layout class="QGridLayout" name="_4" >
-            <item row="0" column="0" >
-             <widget class="QListWidget" name="columns" >
-              <property name="selectionMode" >
-               <enum>QAbstractItemView::NoSelection</enum>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
           <widget class="QGroupBox" name="dirs_box" >
            <property name="title" >
             <string>Frequently used directories</string>
@@ -427,6 +339,101 @@
                </layout>
               </item>
              </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="page" >
+        <layout class="QGridLayout" name="gridLayout_3" >
+         <item row="0" column="0" >
+          <widget class="QCheckBox" name="roman_numerals" >
+           <property name="text" >
+            <string>Use &amp;Roman numerals for series number</string>
+           </property>
+           <property name="checked" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <layout class="QHBoxLayout" name="horizontalLayout" >
+           <item>
+            <widget class="QLabel" name="label_6" >
+             <property name="text" >
+              <string>&amp;Number of covers to show in browse mode (after restart):</string>
+             </property>
+             <property name="buddy" >
+              <cstring>cover_browse</cstring>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="cover_browse" />
+           </item>
+          </layout>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QGroupBox" name="groupBox_2" >
+           <property name="title" >
+            <string>Toolbar</string>
+           </property>
+           <layout class="QGridLayout" name="gridLayout" >
+            <item row="0" column="1" >
+             <widget class="QComboBox" name="toolbar_button_size" >
+              <item>
+               <property name="text" >
+                <string>Large</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Medium</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Small</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QLabel" name="label_4" >
+              <property name="text" >
+               <string>&amp;Button size in toolbar</string>
+              </property>
+              <property name="buddy" >
+               <cstring>toolbar_button_size</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="show_toolbar_text" >
+              <property name="text" >
+               <string>Show &amp;text in toolbar buttons</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="3" column="0" >
+          <widget class="QGroupBox" name="groupBox" >
+           <property name="title" >
+            <string>Select visible &amp;columns in library view</string>
+           </property>
+           <layout class="QGridLayout" name="_4" >
+            <item row="0" column="0" >
+             <widget class="QListWidget" name="columns" >
+              <property name="selectionMode" >
+               <enum>QAbstractItemView::NoSelection</enum>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -526,8 +533,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>231</x>
-     <y>502</y>
+     <x>235</x>
+     <y>671</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -542,8 +549,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>299</x>
-     <y>502</y>
+     <x>303</x>
+     <y>671</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
@@ -558,12 +565,12 @@
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>176</x>
-     <y>184</y>
+     <x>142</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>294</x>
-     <y>9</y>
+     <x>256</x>
+     <y>7</y>
     </hint>
    </hints>
   </connection>

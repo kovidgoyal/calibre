@@ -224,6 +224,8 @@ def convert(htmlfile, opts, notification=None):
         if not filelist:
             # Bad OPF look for a HTML file instead
             htmlfile = find_html_index(walk(os.path.dirname(htmlfile)))[0]
+            if htmlfile is None:
+                raise ValueError('Could not find suitable file to convert.')
             filelist = get_filelist(htmlfile, opts)[1]
         mi = MetaInformation(opf)
     else:
