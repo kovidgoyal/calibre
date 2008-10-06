@@ -225,6 +225,10 @@ will be interpreted to have the title: Foundation and Earth and author: Isaac As
 .. tip::
     If the filename does not contain the hyphen, the regular expression will fail.
 
+.. tip::
+   If you want to only use metadata guessed from filenames and not metadata read from the file itself, you can tell |app| to do this, via the configuration dialog, accessed by the button to the right
+   of the search box.
+
 .. _book_details:
 
 Book Details
