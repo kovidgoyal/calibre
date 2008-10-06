@@ -55,7 +55,7 @@ def import_from_launchpad(url):
     check_for_critical_bugs()
     path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     print path
-    subprocess.check_call('python setup.py translations'.split(), dir=path)
+    subprocess.check_call('python setup.py translations'.split(), cwd=path)
     return 0
  
 def check_for_critical_bugs():
