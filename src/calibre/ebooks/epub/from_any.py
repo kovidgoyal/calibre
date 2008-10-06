@@ -11,6 +11,7 @@ import sys, os, re
 from contextlib import nested
 
 from calibre import extract, walk
+from calibre.ebooks import DRMError
 from calibre.ebooks.epub import config as common_config
 from calibre.ebooks.epub.from_html import convert as html2epub
 from calibre.ptempfile import TemporaryDirectory
@@ -71,6 +72,9 @@ def pdf2opf(path, tdir, opts):
 def epub2opf(path, tdir, opts):
     zf = ZipFile(path)
     zf.extractall(tdir)
+    print os.listdir(os.path.join(tdir, 'META-INF'))
+    if os.path.exists(os.path.join(tdir, 'META-INF', 'encryption.xml')):
+        raise DRMError(os.path.basename(path))
     for f in walk(tdir):
         if f.lower().endswith('.opf'):
             return f

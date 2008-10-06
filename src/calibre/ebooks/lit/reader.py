@@ -14,6 +14,7 @@ from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
+from calibre.ebooks import DRMError
 from calibre import plugins
 lzx, lxzerror = plugins['lzx']
 msdes, msdeserror = plugins['msdes']
@@ -653,7 +654,7 @@ class LitReader(object):
                 raise LitError('Unable to decrypt title key!')
             self.bookkey = bookkey[1:9]
         else:
-            raise LitError('Cannot extract content from a DRM protected ebook')
+            raise DRMError()
 
     def _calculate_deskey(self):
         hashfiles = ['/meta', '/DRMStorage/DRMSource']

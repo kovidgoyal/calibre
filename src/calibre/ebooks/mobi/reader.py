@@ -13,6 +13,7 @@ except ImportError:
     import Image as PILImage
 
 from calibre import __appname__, entity_to_unicode
+from calibre.ebooks import DRMError
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
@@ -165,7 +166,7 @@ class MobiReader(object):
     def extract_content(self, output_dir=os.getcwdu()):
         output_dir = os.path.abspath(output_dir)
         if self.book_header.encryption_type != 0:
-            raise MobiError('Cannot extract content from a DRM protected ebook')
+            raise DRMError(self.name)
         
         processed_records = self.extract_text()
         self.add_anchors()

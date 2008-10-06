@@ -712,7 +712,6 @@ class Processor(Parser):
                     for rule in sheet:
                         self.stylesheet.add(rule)
                 style.getparent().remove(style)
-        
         cache = {}
         class_counter = 0
         for font in self.root.xpath('//font'):
@@ -753,7 +752,9 @@ class Processor(Parser):
         
         css = '\n'.join(['.%s {%s;}'%(cn, setting) for \
                          setting, cn in cache.items()])
-        self.stylesheet = self.css_parser.parseString(self.preprocess_css(css))
+        sheet = self.css_parser.parseString(self.preprocess_css(css))
+        for rule in sheet:
+            self.stylesheet.add(rule)
         css = ''
         if self.opts.override_css:
             css += '\n\n' + self.opts.override_css

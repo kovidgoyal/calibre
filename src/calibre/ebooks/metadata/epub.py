@@ -43,8 +43,9 @@ class Container(dict):
                 raise EPubException("<rootfile/> element malformed")
 
 class OCF(object):
-    MIMETYPE = 'application/epub+zip'
-    CONTAINER_PATH = 'META-INF/container.xml'
+    MIMETYPE        = 'application/epub+zip'
+    CONTAINER_PATH  = 'META-INF/container.xml'
+    ENCRYPTION_PATH = 'META-INF/encryption.xml'
     
     def __init__(self):
         raise NotImplementedError('Abstract base class')
@@ -70,6 +71,7 @@ class OCFReader(OCF):
                 self.opf = OPF(f, self.root)
         except KeyError:
             raise EPubException("missing OPF package file")
+                
 
 class OCFZipReader(OCFReader):
     def __init__(self, stream, mode='r', root=None):

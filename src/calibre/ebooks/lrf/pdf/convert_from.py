@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, subprocess, logging
 from functools import partial
 from calibre import isosx, setup_cli_handlers, filename_to_utf8, iswindows, islinux
-from calibre.ebooks import ConversionError
+from calibre.ebooks import ConversionError, DRMError
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
@@ -53,7 +53,7 @@ def generate_html(pathtopdf, tdir):
             err = p.stderr.read()
             raise ConversionError, err
         if not os.path.exists(index) or os.stat(index).st_size < 100:
-            raise ConversionError(os.path.basename(pathtopdf) + _(' does not allow copying of text.'), True)
+            raise DRMError()
         
         raw = open(index, 'rb').read()
         open(index, 'wb').write('<!-- created by calibre\'s pdftohtml -->\n'+raw)

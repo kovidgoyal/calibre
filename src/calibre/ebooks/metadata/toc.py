@@ -123,7 +123,10 @@ class TOC(list):
                 path = opfreader.manifest.item(toc.lower())
                 path = getattr(path, 'path', path)
                 if path and os.access(path, os.R_OK):
-                    self.read_ncx_toc(path)
+                    try:
+                        self.read_ncx_toc(path)
+                    except Exception, err:
+                        print 'WARNING: Invalid NCX file:', err
                     return
                 cwd = os.path.abspath(self.base_path)
                 m = glob.glob(os.path.join(cwd, '*.ncx'))

@@ -15,6 +15,8 @@ class ConversionError(Exception):
 class UnknownFormatError(Exception):
     pass
 
+class DRMError(ValueError):
+    pass
 
 BOOK_EXTENSIONS = ['lrf', 'rar', 'zip', 'rtf', 'lit', 'txt', 'htm', 'xhtm',
                    'html', 'xhtml', 'epub', 'pdf', 'prc', 'mobi', 'azw',

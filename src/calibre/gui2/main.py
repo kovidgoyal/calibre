@@ -1117,7 +1117,13 @@ class Main(MainWindow, Ui_MainWindow):
             self.device_error_dialog.show()
             
     def job_exception(self, job):
-        
+        try:
+            if job.exception[0] == 'DRMError':
+                error_dialog(self, _('Conversion Error'), 
+                    _('<p>Could not convert: %s<p>It is a <a href="http://wiki.mobileread.com/wiki/DRM">DRM</a>ed book. You must first remove the DRM using 3rd party tools.')%job.description.split(':')[-1]).exec_()
+                return
+        except:
+            pass
         only_msg = getattr(job.exception, 'only_msg', False)
         try:
             print job.console_text()

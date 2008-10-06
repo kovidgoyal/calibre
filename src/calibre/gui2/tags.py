@@ -63,8 +63,6 @@ class TagsModel(QAbstractItemModel):
     def refresh(self):
         old_data = self._data
         self._data = self.db.get_categories(config['sort_by_popularity'])
-        for key in self._data:
-            self._data[key] = self._data[key]
         for key in old_data.keys():
             for tag in old_data[key]:
                 try:
