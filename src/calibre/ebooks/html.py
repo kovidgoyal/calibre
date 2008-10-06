@@ -364,6 +364,9 @@ class PreProcessor(object):
         return '<!-- created by calibre\'s pdftohtml -->' in src[:1000]
                           
     def preprocess(self, html):
+        opts = getattr(self, 'opts', False)
+        if opts and hasattr(opts, 'profile') and getattr(opts.profile, 'remove_soft_hyphens', False):
+            html = html.replace(u'\u00ad', '')
         if self.is_baen(html):
             rules = []
         elif self.is_book_designer(html):

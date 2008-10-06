@@ -15,11 +15,13 @@ class DefaultProfile(object):
     
     flow_size   = sys.maxint
     screen_size = None
+    remove_soft_hyphens = False
     
 class PRS505(DefaultProfile):
     
     flow_size   = 300000
     screen_size = (600, 775)
+    remove_soft_hyphens = True
         
 
 PROFILES = {
