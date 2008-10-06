@@ -13,7 +13,7 @@ recipes = [
            'daily_telegraph',
           ]
 
-import re, imp, inspect, time
+import re, imp, inspect, time, os
 from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
 from calibre.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
 from calibre.ebooks.lrf.web import builtin_profiles
@@ -56,7 +56,7 @@ def compile_recipe(src):
     @return: Recipe/Profile class or None, if no such class was found in C{src} 
     '''
     global _tdir, _crep
-    if _tdir is None:
+    if _tdir is None or not os.path.exists(_tdir):
         _tdir = path(PersistentTemporaryDirectory('_recipes'))
     temp = _tdir/('recipe%d.py'%_crep)
     _crep += 1
