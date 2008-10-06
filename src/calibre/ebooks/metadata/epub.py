@@ -117,6 +117,8 @@ def option_parser():
                       help=_('The series to which this book belongs'))
     parser.add_option('--series-index', default=None,
                       help=_('The series index'))
+    parser.add_option('--language', default=None,
+                      help=_('The book language'))
     return parser
 
 def main(args=sys.argv):
@@ -145,6 +147,9 @@ def main(args=sys.argv):
         changed = True
     if opts.series_index:
         mi.series_index = opts.series_index
+        changed = True
+    if opts.language is not None:
+        mi.language = opts.language
         changed = True
     
     if changed:
