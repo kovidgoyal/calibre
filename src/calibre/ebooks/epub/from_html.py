@@ -32,7 +32,7 @@ Conversion of HTML/OPF files follows several stages:
     * The EPUB container is created.
 '''
 
-import os, sys, cStringIO, logging
+import os, sys, cStringIO, logging, re
 
 from lxml.etree import XPath
 try:
@@ -51,7 +51,25 @@ from calibre.ebooks.epub import initialize_container, PROFILES
 from calibre.ebooks.epub.split import split
 from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
+from calibre import walk
 
+def find_html_index(files):
+    '''
+    Given a list of files, find the most likely root HTML file in the
+    list.
+    '''
+    html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
+    html_files = [f for f in files if html_pat.search(f) is not None]
+    if not html_files:
+        raise ValueError(_('Could not find an ebook inside the archive'))
+    html_files = [(f, os.stat(f).st_size) for f in html_files]
+    html_files.sort(cmp = lambda x, y: cmp(x[1], y[1]))
+    html_files = [f[0] for f in html_files]
+    for q in ('toc', 'index'):
+        for f in html_files:
+            if os.path.splitext(f)[0].lower() == q:
+                return f, os.path.splitext(f)[1].lower()[1:]
+    return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
 
 class HTMLProcessor(Processor, Rationalizer):
     
@@ -203,6 +221,10 @@ def convert(htmlfile, opts, notification=None):
     if htmlfile.lower().endswith('.opf'):
         opf = OPF(htmlfile, os.path.dirname(os.path.abspath(htmlfile)))
         filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
+        if not filelist:
+            # Bad OPF look for a HTML file instead
+            htmlfile = find_html_index(walk(os.path.dirname(htmlfile)))[0]
+            filelist = get_filelist(htmlfile, opts)[1]
         mi = MetaInformation(opf)
     else:
         opf, filelist = get_filelist(htmlfile, opts)

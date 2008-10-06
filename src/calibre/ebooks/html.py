@@ -304,8 +304,14 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
                 flat[i] = path
                 for item in opf_reader.itermanifest():
                     item.set('href', item.get('href').replace('&', '%26'))
-    flat = [HTMLFile(path, 0, encoding, verbose) for path in flat]
-    return [f for f in flat if not f.is_binary]
+    ans = []
+    for path in flat:
+        if os.path.exists(path):
+            ans.append(HTMLFile(path, 0, encoding, verbose))
+        else:
+            print 'WARNING: OPF spine item %s does not exist'%path
+    ans = [f for f in ans if not f.is_binary]
+    return ans
             
 
 

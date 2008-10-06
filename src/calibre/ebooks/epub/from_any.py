@@ -13,7 +13,7 @@ from contextlib import nested
 from calibre import extract, walk
 from calibre.ebooks import DRMError
 from calibre.ebooks.epub import config as common_config
-from calibre.ebooks.epub.from_html import convert as html2epub
+from calibre.ebooks.epub.from_html import convert as html2epub, find_html_index
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator
@@ -103,18 +103,7 @@ def unarchive(path, tdir):
                 if ext in ['txt', 'rtf'] and os.stat(f).st_size < 2048:
                     continue
                 return f, ext
-    html_pat = re.compile(r'\.(x){0,1}htm(l){0,1}$', re.IGNORECASE)
-    html_files = [f for f in files if html_pat.search(f) is not None]
-    if not html_files:
-        raise ValueError(_('Could not find an ebook inside the archive'))
-    html_files = [(f, os.stat(f).st_size) for f in html_files]
-    html_files.sort(cmp = lambda x, y: cmp(x[1], y[1]))
-    html_files = [f[0] for f in html_files]
-    for q in ('toc', 'index'):
-        for f in html_files:
-            if os.path.splitext(f)[0].lower() == q:
-                return f, os.path.splitext(f)[1].lower()[1:]
-    return html_files[-1], os.path.splitext(html_files[-1])[1].lower()[1:]
+    return find_html_index(files)
 
 def any2epub(opts, path, notification=None):
     ext = os.path.splitext(path)[1]
