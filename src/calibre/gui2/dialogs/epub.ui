@@ -77,7 +77,7 @@
      <item>
       <widget class="QStackedWidget" name="stack" >
        <property name="currentIndex" >
-        <number>3</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="metadata_page" >
         <layout class="QGridLayout" name="gridLayout_4" >
@@ -221,7 +221,7 @@
                   </sizepolicy>
                  </property>
                  <property name="toolTip" >
-                  <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
+                  <string>Change the author(s) of this book. Multiple authors should be separated by an &amp;. If the author name contains an &amp;, use &amp;&amp; to represent it.</string>
                  </property>
                 </widget>
                </item>

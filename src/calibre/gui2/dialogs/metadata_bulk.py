@@ -9,6 +9,7 @@ from PyQt4.QtGui import QDialog
 from calibre.gui2 import qstring_to_unicode
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
+from calibre.ebooks.metadata import string_to_authors
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, db):
@@ -51,7 +52,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         for id in self.ids:
             au = qstring_to_unicode(self.authors.text())
             if au:
-                au = au.split(',')
+                au = string_to_authors(au)
                 self.db.set_authors(id, au)
             aus = qstring_to_unicode(self.author_sort.text())
             if aus:

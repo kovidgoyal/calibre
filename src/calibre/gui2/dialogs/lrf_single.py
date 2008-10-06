@@ -14,6 +14,7 @@ from calibre.gui2.widgets import FontFamilyModel
 from calibre.ebooks.lrf import option_parser
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.constants import __appname__
+from calibre.ebooks.metadata import authors_to_string, string_to_authors, authors_to_sort_string
 
 font_family_model = None
 
@@ -199,7 +200,11 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
         self.id = self.db.id(row) 
         self.gui_title.setText(db.title(row))
         au = self.db.authors(row)
-        self.gui_author.setText(au if au else '')
+        if au:
+            au = [a.strip().replace('|', ',') for a in au.split(',')]
+            self.gui_author.setText(authors_to_string(au))
+        else:
+            self.gui_author.setText('')
         aus = self.db.author_sort(row)
         self.gui_author_sort.setText(aus if aus else '')
         pub = self.db.publisher(row)
@@ -350,14 +355,16 @@ class LRFSingleDialog(QDialog, Ui_LRFSingleDialog):
     def write_metadata(self):
         title = qstring_to_unicode(self.gui_title.text())
         self.db.set_title(self.id, title)
-        au = qstring_to_unicode(self.gui_author.text()).split(',')
-        if au: self.db.set_authors(self.id, au)
+        au = unicode(self.gui_author.text())
+        if au: 
+            self.db.set_authors(self.id, string_to_authors(au))
         aus = qstring_to_unicode(self.gui_author_sort.text())
         if not aus:
             t = self.db.authors(self.id, index_is_id=True)
             if not t:
-                t = 'Unknown'
-            aus = t.split(',')[0].strip()
+                t = _('Unknown')
+            aus = [a.strip().replace('|', ',') for a in t.split(',')]
+            aus = authors_to_sort_string(aus)
         self.db.set_author_sort(self.id, aus)
         self.db.set_publisher(self.id, qstring_to_unicode(self.gui_publisher.text()))
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','))

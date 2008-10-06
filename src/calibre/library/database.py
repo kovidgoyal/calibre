@@ -910,7 +910,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return _('Unknown')
 
     def authors(self, index, index_is_id=False):
-        ''' Authors as a comma separated list or None'''
+        ''' 
+        Authors as a comma separated list or None. 
+        In the comma separated list, commas in author names are replaced by | symbols
+        '''
         if not index_is_id:
             return self.data[index][2]
         try:
@@ -1361,7 +1364,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         Convenience method to return metadata as a L{MetaInformation} object.
         '''
         aum = self.authors(idx, index_is_id=index_is_id)
-        if aum: aum = aum.split(',')
+        if aum: aum = [a.strip().replace('|', ',') for a in aum.split(',')]
         mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
         mi.comments    = self.comments(idx, index_is_id=index_is_id)

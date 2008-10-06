@@ -381,7 +381,7 @@ class BooksModel(QAbstractTableModel):
             elif col == 1:
                 au = self.db.authors(row)
                 if au:
-                    au = au.split(',')
+                    au = [a.strip().replace('|', ',') for a in au.split(',')]
                     return QVariant("\n".join(au))
             elif col == 2:
                 size = self.db.max_size(row)

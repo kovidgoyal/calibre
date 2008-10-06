@@ -16,6 +16,7 @@ from PyQt4.QtGui import QApplication, QPixmap, QImage
 __app = None
 
 from calibre.library.database import LibraryDatabase
+from calibre.ebooks.metadata import string_to_authors
 from calibre.constants import preferred_encoding
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
@@ -732,7 +733,7 @@ class LibraryDatabase2(LibraryDatabase):
 
         self.data.set(row, col, val)
         if column == 'authors':
-            val = val.split('&,')
+            val = string_to_authors(val)
             self.set_authors(id, val, notify=False)
         elif column == 'title':
             self.set_title(id, val, notify=False)
@@ -742,6 +743,7 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_rating(id, val)
         elif column == 'tags':
             self.set_tags(id, val.split(','), append=False, notify=False)
+        self.data.refresh_ids(self.conn, [id])
         self.set_path(id, True)
         self.notify('metadata', [id])
     
@@ -783,7 +785,7 @@ class LibraryDatabase2(LibraryDatabase):
         for a in authors:
             if not a:
                 continue
-            a = a.strip()
+            a = a.strip().replace(',', '|')
             if not isinstance(a, unicode):
                 a = a.decode(preferred_encoding, 'replace')
             author = self.conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()

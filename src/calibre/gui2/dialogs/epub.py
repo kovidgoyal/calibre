@@ -7,8 +7,10 @@ __docformat__ = 'restructuredtext en'
 The GUI for conversion to EPUB.
 '''
 import os
+
 from PyQt4.Qt import QDialog, QSpinBox, QDoubleSpinBox, QComboBox, QLineEdit, \
                      QTextEdit, QCheckBox, Qt, QPixmap, QIcon, QListWidgetItem, SIGNAL
+from lxml.etree import XPath
 
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.epub_ui import Ui_Dialog 
@@ -17,7 +19,8 @@ from calibre.ebooks.epub.from_any import SOURCE_FORMATS, config
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.opf import OPFCreator
-from lxml.etree import XPath
+from calibre.ebooks.metadata import authors_to_string, string_to_authors
+
 
 class Config(QDialog, Ui_Dialog):
     
@@ -128,7 +131,10 @@ class Config(QDialog, Ui_Dialog):
         if self.row is not None:
             mi = self.db.get_metadata(self.id, index_is_id=True)
             self.title.setText(mi.title)
-            self.author.setText(', '.join(mi.authors))
+            if mi.authors:
+                self.author.setText(authors_to_string(mi.authors))
+            else:
+                self.author.setText('')
             self.publisher.setText(mi.publisher if mi.publisher else '')
             self.author_sort.setText(mi.author_sort if mi.author_sort else '')
             self.tags.setText(', '.join(mi.tags if mi.tags else []))
@@ -149,9 +155,8 @@ class Config(QDialog, Ui_Dialog):
         title = unicode(self.title.text()).strip()
         if not title:
             title = _('Unknown')
-        authors = [i.strip() for i in unicode(self.author.text()).strip().split(',')]
-        if not authors:
-            authors = [_('Unknown')]
+        authors = unicode(self.author.text()).strip()
+        authors = string_to_authors(authors) if authors else [_('Unknown')]
         return title, authors
     
     def get_metadata(self):

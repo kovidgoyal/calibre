@@ -15,6 +15,24 @@ from calibre.constants import __version__ as VERSION
 from calibre import relpath
 from calibre.utils.config import OptionParser
 
+def string_to_authors(raw):
+    raw = raw.replace('&&', u'\uffff')
+    authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
+    return authors
+
+def authors_to_string(authors):
+    return ' & '.join([a.replace('&', '&&') for a in authors])
+
+def author_to_author_sort(author):
+    tokens = author.split()
+    tokens = tokens[-1:] + tokens[:-1]
+    if len(tokens) > 1:
+        tokens[0] += ','
+    return ' '.join(tokens)
+
+def authors_to_sort_string(authors):
+    return ' & '.join(map(author_to_author_sort, authors))
+
 def get_parser(extension):
     ''' Return an option parser with the basic metadata options already setup'''
     parser = OptionParser(usage='%prog [options] myfile.'+extension+'\n\nRead and write metadata from an ebook file.')
