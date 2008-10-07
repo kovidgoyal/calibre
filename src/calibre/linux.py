@@ -24,11 +24,13 @@ entry_points = {
                              'imp-meta  = calibre.ebooks.metadata.imp:main',
                              'rb-meta   = calibre.ebooks.metadata.rb:main',
                              'opf-meta  = calibre.ebooks.metadata.opf:main',
+                             'odt-meta  = calibre.ebooks.metadata.odt:main',
                              'epub-meta = calibre.ebooks.metadata.epub:main',
                              'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main',
                              'html2lrf  = calibre.ebooks.lrf.html.convert_from:main',
                              'html2oeb  = calibre.ebooks.html:main',
                              'html2epub = calibre.ebooks.epub.from_html:main',
+                             'odt2oeb   = calibre.ebooks.odt.to_oeb:main',
                              'markdown-calibre  = calibre.ebooks.markdown.markdown:main',
                              'lit2lrf   = calibre.ebooks.lrf.lit.convert_from:main',
                              'epub2lrf  = calibre.ebooks.lrf.epub.convert_from:main',
@@ -176,11 +178,12 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
         from calibre.ebooks.epub.from_html import option_parser as html2epub
         from calibre.ebooks.html import option_parser as html2oeb
+        from calibre.ebooks.odt.to_oeb import option_parser as odt2oeb
         from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
         from calibre.ebooks.epub.from_any import option_parser as any2epub
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub 
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
-             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2'] 
+             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt'] 
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
         os.remove(f.name)
@@ -208,6 +211,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('imp-meta', metaop, ['imp']))
         f.write(opts_and_exts('rb-meta',  metaop, ['rb']))
         f.write(opts_and_exts('opf-meta', metaop, ['opf']))
+        f.write(opts_and_exts('odt-meta', metaop, ['odt', 'ods', 'odf', 'odg', 'odp']))
         f.write(opts_and_exts('epub-meta', epub_meta, ['epub']))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
@@ -220,6 +224,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_words('feeds2lrf', feeds2epub, feed_titles))
         f.write(opts_and_exts('html2epub', html2epub, ['html', 'htm', 'xhtm', 'xhtml', 'opf']))
         f.write(opts_and_exts('html2oeb', html2oeb, ['html', 'htm', 'xhtm', 'xhtml']))
+        f.write(opts_and_exts('odt2oeb', odt2oeb, ['odt']))
         f.write('''
 _prs500_ls()
 {

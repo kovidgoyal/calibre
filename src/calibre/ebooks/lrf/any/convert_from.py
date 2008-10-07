@@ -1,3 +1,4 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Convert any ebook file into a LRF file.'''
@@ -7,6 +8,7 @@ import sys, os, logging, shutil, tempfile, re
 from calibre.ebooks import UnknownFormatError
 from calibre.ebooks.lrf import option_parser as _option_parser
 from calibre import __appname__, setup_cli_handlers, extract
+from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.lrf.lit.convert_from  import process_file as lit2lrf
 from calibre.ebooks.lrf.pdf.convert_from  import process_file as pdf2lrf
 from calibre.ebooks.lrf.rtf.convert_from  import process_file as rtf2lrf
@@ -89,6 +91,21 @@ def handle_archive(path):
         file = file.decode(sys.getfilesystemencoding())
     return tdir, file 
 
+def odt2lrf(path, options, logger):
+    from calibre.ebooks.odt.to_oeb import Extract
+    from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
+    
+    if logger is None:
+        level = logging.DEBUG if options.verbose else logging.INFO
+        logger = logging.getLogger('odt2lrf')
+        setup_cli_handlers(logger, level)
+        
+    with TemporaryDirectory('_odt2lrf') as tdir:
+        opf = Extract()(path, tdir)
+        options.use_spine = True
+        options.encoding = 'utf-8'
+        html_process_file(opf.replace('metadata.opf', 'index.html'), options, logger)
+
 def process_file(path, options, logger=None):
     path = os.path.abspath(os.path.expanduser(path))
     tdir = None
@@ -138,8 +155,10 @@ def process_file(path, options, logger=None):
             convertor = mobi2lrf
         elif ext == 'fb2':
             convertor = fb22lrf
+        elif ext == 'odt':
+            convertor = odt2lrf
         if not convertor:
-            raise UnknownFormatError('Coverting from %s to LRF is not supported.'%ext)
+            raise UnknownFormatError(_('Converting from %s to LRF is not supported.')%ext)
         convertor(path, options, logger)
     finally:
         os.chdir(cwd)

@@ -14,17 +14,17 @@ from calibre.ebooks.metadata.rb   import get_metadata as rb_metadata
 from calibre.ebooks.metadata.epub import get_metadata as epub_metadata
 from calibre.ebooks.metadata.html import get_metadata as html_metadata
 from calibre.ebooks.mobi.reader   import get_metadata as mobi_metadata
+from calibre.ebooks.metadata.odt  import get_metadata as odt_metadata
 from calibre.ebooks.metadata.opf  import OPFReader
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
 
 from calibre.ebooks.metadata import MetaInformation
-from calibre.utils.config import prefs
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
-                       'rtf', 'fb2', 'pdf', 'prc',
+                       'rtf', 'fb2', 'pdf', 'prc', 'odt',
                        'epub', 'lit', 'lrf', 'mobi', 'rb', 'imp'
                       ]
 
@@ -64,6 +64,8 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
         stream_type = 'html'
     if stream_type in ('mobi', 'prc'):
         stream_type = 'mobi'
+    if stream_type in ('odt', 'ods', 'odp', 'odg', 'odf'):
+        stream_type = 'odt'
         
     opf = None
     if hasattr(stream, 'name'):

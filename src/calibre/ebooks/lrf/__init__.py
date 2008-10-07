@@ -23,6 +23,7 @@ preferred_source_formats = [
                             'LIT',
                             'MOBI',
                             'EPUB',
+                            'ODT',
                             'HTML',
                             'HTM',
                             'XHTM',

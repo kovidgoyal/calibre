@@ -72,7 +72,6 @@ def pdf2opf(path, tdir, opts):
 def epub2opf(path, tdir, opts):
     zf = ZipFile(path)
     zf.extractall(tdir)
-    print os.listdir(os.path.join(tdir, 'META-INF'))
     if os.path.exists(os.path.join(tdir, 'META-INF', 'encryption.xml')):
         raise DRMError(os.path.basename(path))
     for f in walk(tdir):
@@ -80,6 +79,10 @@ def epub2opf(path, tdir, opts):
             return f
     raise ValueError('%s is not a valid EPUB file'%path)
     
+def odt2epub(path, tdir, opts):
+    from calibre.ebooks.odt.to_oeb import Extract
+    opts.encoding = 'utf-8'
+    return Extract()(path, tdir)
 
 MAP = {
        'lit'  : lit2opf,
@@ -90,8 +93,9 @@ MAP = {
        'txt'  : txt2opf,
        'pdf'  : pdf2opf,
        'epub' : epub2opf,
+       'odt'  : odt2epub,
        }
-SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'rtf', 'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
+SOURCE_FORMATS = ['lit', 'mobi', 'prc', 'fb2', 'odt', 'rtf', 'txt', 'pdf', 'rar', 'zip', 'oebzip', 'htm', 'html', 'epub']
 
 def unarchive(path, tdir):
     extract(path, tdir)

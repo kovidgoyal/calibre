@@ -32,6 +32,8 @@ What formats does |app| support conversion to/from?
 |                   |        |                  |                       |
 |                   |  EPUB  |       ✔          |          ✔            |
 |                   |        |                  |                       |
+|                   |  ODT   |       ✔          |          ✔            |
+|                   |        |                  |                       |
 |                   |  HTML  |       ✔          |          ✔            |
 |                   |        |                  |                       |
 | **Input formats** |  CBR   |       ✔          |          ✔            |
