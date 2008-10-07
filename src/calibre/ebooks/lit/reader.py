@@ -110,6 +110,9 @@ def consume_sized_utf8_string(bytes, zpad=False):
 class UnBinary(object):
     AMPERSAND_RE = re.compile(
         r'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
+    OPEN_ANGLE_RE = re.compile(r'<<(?![!]--)')
+    CLOSE_ANGLE_RE = re.compile(r'(?<!--)>>')
+    DOUBLE_ANGLE_RE = re.compile(r'([<>])\1')
     
     def __init__(self, bin, path, manifest, map=OPF_MAP):
         self.manifest = manifest
@@ -120,10 +123,15 @@ class UnBinary(object):
         self.buf = cStringIO.StringIO()
         self.binary_to_text()
         self.raw = self.buf.getvalue().lstrip().decode('utf-8')
-        self.escape_ampersands() 
+        self.escape_reserved() 
 
-    def escape_ampersands(self):
-        self.raw = self.AMPERSAND_RE.sub('&amp;', self.raw)
+    def escape_reserved(self):
+        raw = self.raw
+        raw = self.AMPERSAND_RE.sub(r'&amp;', raw)
+        raw = self.OPEN_ANGLE_RE.sub(r'&lt;', raw)
+        raw = self.CLOSE_ANGLE_RE.sub(r'&gt;', raw)
+        raw = self.DOUBLE_ANGLE_RE.sub(r'\1', raw)
+        self.raw = raw
     
     def item_path(self, internal_id):
         try:
@@ -162,6 +170,10 @@ class UnBinary(object):
                     continue
                 elif c == '\v':
                     c = '\n'
+                elif c == '>':
+                    c = '>>'
+                elif c == '<':
+                    c = '<<'
                 self.buf.write(c.encode('ascii', 'xmlcharrefreplace'))
             
             elif state == 'get flags':
