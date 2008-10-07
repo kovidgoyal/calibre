@@ -21,10 +21,16 @@ entry_points = {
                              'rtf-meta  = calibre.ebooks.metadata.rtf:main',
                              'pdf-meta  = calibre.ebooks.metadata.pdf:main',
                              'lit-meta  = calibre.ebooks.metadata.lit:main',
+                             'imp-meta  = calibre.ebooks.metadata.imp:main',
+                             'rb-meta   = calibre.ebooks.metadata.rb:main',
                              'opf-meta  = calibre.ebooks.metadata.opf:main',
+                             'odt-meta  = calibre.ebooks.metadata.odt:main',
                              'epub-meta = calibre.ebooks.metadata.epub:main',
                              'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main',
                              'html2lrf  = calibre.ebooks.lrf.html.convert_from:main',
+                             'html2oeb  = calibre.ebooks.html:main',
+                             'html2epub = calibre.ebooks.epub.from_html:main',
+                             'odt2oeb   = calibre.ebooks.odt.to_oeb:main',
                              'markdown-calibre  = calibre.ebooks.markdown.markdown:main',
                              'lit2lrf   = calibre.ebooks.lrf.lit.convert_from:main',
                              'epub2lrf  = calibre.ebooks.lrf.epub.convert_from:main',
@@ -32,12 +38,14 @@ entry_points = {
                              'web2disk  = calibre.web.fetch.simple:main',
                              'feeds2disk = calibre.web.feeds.main:main',
                              'feeds2lrf = calibre.ebooks.lrf.feeds.convert_from:main',
+                             'feeds2epub = calibre.ebooks.epub.from_feeds:main',
                              'web2lrf   = calibre.ebooks.lrf.web.convert_from:main',
                              'pdf2lrf   = calibre.ebooks.lrf.pdf.convert_from:main',
                              'mobi2lrf  = calibre.ebooks.lrf.mobi.convert_from:main',
                              'fb22lrf   = calibre.ebooks.lrf.fb2.convert_from:main',
                              'fb2-meta  = calibre.ebooks.metadata.fb2:main',
                              'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
+                             'any2epub  = calibre.ebooks.epub.from_any:main',
                              'lrf2lrs   = calibre.ebooks.lrf.lrfparser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
                              'pdfreflow = calibre.ebooks.lrf.pdf.reflow:main',
@@ -47,6 +55,7 @@ entry_points = {
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
                              'lit2oeb   = calibre.ebooks.lit.reader:main',
                              'comic2lrf = calibre.ebooks.lrf.comic.convert_from:main',
+                             'comic2epub = calibre.ebooks.epub.from_comic:main',
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
@@ -167,7 +176,14 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.lrf.feeds.convert_from import option_parser as feeds2lrf
         from calibre.ebooks.metadata.epub import option_parser as epub_meta
         from calibre.ebooks.lrf.comic.convert_from import option_parser as comicop
-
+        from calibre.ebooks.epub.from_html import option_parser as html2epub
+        from calibre.ebooks.html import option_parser as html2oeb
+        from calibre.ebooks.odt.to_oeb import option_parser as odt2oeb
+        from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
+        from calibre.ebooks.epub.from_any import option_parser as any2epub
+        from calibre.ebooks.epub.from_comic import option_parser as comic2epub 
+        any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
+             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt'] 
         f = open_file('/etc/bash_completion.d/libprs500')
         f.close()
         os.remove(f.name)
@@ -185,23 +201,30 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('mobi2lrf', htmlop, ['mobi', 'prc']))
         f.write(opts_and_exts('fb22lrf', htmlop, ['fb2']))
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
-        f.write(opts_and_exts('any2lrf', htmlop,
-            ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
-             'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2']))
+        f.write(opts_and_exts('any2lrf', htmlop, any_formats))
+        f.write(opts_and_exts('any2lrf', any2epub, any_formats))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
         f.write(opts_and_exts('pdf-meta', metaop, ['pdf']))
         f.write(opts_and_exts('lit-meta', metaop, ['lit']))
+        f.write(opts_and_exts('imp-meta', metaop, ['imp']))
+        f.write(opts_and_exts('rb-meta',  metaop, ['rb']))
         f.write(opts_and_exts('opf-meta', metaop, ['opf']))
+        f.write(opts_and_exts('odt-meta', metaop, ['odt', 'ods', 'odf', 'odg', 'odp']))
         f.write(opts_and_exts('epub-meta', epub_meta, ['epub']))
         f.write(opts_and_exts('lrfviewer', lrfviewerop, ['lrf']))
         f.write(opts_and_exts('pdfrelow', pdfhtmlop, ['pdf']))
         f.write(opts_and_exts('mobi2oeb', mobioeb, ['mobi', 'prc']))
         f.write(opts_and_exts('lit2oeb', lit2oeb, ['lit']))
         f.write(opts_and_exts('comic2lrf', comicop, ['cbz', 'cbr']))
+        f.write(opts_and_exts('comic2epub', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
+        f.write(opts_and_words('feeds2lrf', feeds2epub, feed_titles))
+        f.write(opts_and_exts('html2epub', html2epub, ['html', 'htm', 'xhtm', 'xhtml', 'opf']))
+        f.write(opts_and_exts('html2oeb', html2oeb, ['html', 'htm', 'xhtm', 'xhtml']))
+        f.write(opts_and_exts('odt2oeb', odt2oeb, ['odt']))
         f.write('''
 _prs500_ls()
 {
@@ -277,6 +300,11 @@ complete -o nospace  -F _prs500 prs500
 ''')
         f.close()
         print 'done'
+    except TypeError, err:
+        if 'resolve_entities' in str(err):
+            print 'You need python-lxml >= 2.0.5 for calibre'
+            sys.exit(1)
+        raise
     except:
         if fatal_errors:
             raise
@@ -371,7 +399,8 @@ def install_man_pages(fatal_errors):
         prog = src[:src.index('=')].strip()
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta',
                     'markdown-calibre', 'calibre-debug', 'fb2-meta',
-                    'calibre-fontconfig', 'calibre-parallel'):
+                    'calibre-fontconfig', 'calibre-parallel',
+                    'rb-meta', 'imp-meta'):
             continue
 
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,
@@ -421,6 +450,13 @@ def post_install():
 
     if opts.save_manifest_to:
         open(opts.save_manifest_to, 'wb').write('\n'.join(manifest)+'\n')
+        
+    from calibre.utils.config import config_dir
+    if os.path.exists(config_dir):
+        os.chdir(config_dir)
+        for f in os.listdir('.'):
+            if os.stat(f).st_uid == 0:
+                os.unlink(f)
 
 
 VIEWER = '''\

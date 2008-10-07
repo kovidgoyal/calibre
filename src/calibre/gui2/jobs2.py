@@ -19,13 +19,13 @@ NONE = QVariant()
 
 class JobManager(QAbstractTableModel):
     
-    wait_icon     = QVariant(QIcon(':/images/jobs.svg'))
-    running_icon  = QVariant(QIcon(':/images/exec.svg'))
-    error_icon    = QVariant(QIcon(':/images/dialog_error.svg'))
-    done_icon     = QVariant(QIcon(':/images/ok.svg'))
-    
     def __init__(self):
         QAbstractTableModel.__init__(self)
+        self.wait_icon     = QVariant(QIcon(':/images/jobs.svg'))
+        self.running_icon  = QVariant(QIcon(':/images/exec.svg'))
+        self.error_icon    = QVariant(QIcon(':/images/dialog_error.svg'))
+        self.done_icon     = QVariant(QIcon(':/images/ok.svg'))
+    
         self.jobs          = []
         self.server        = Server()
         self.add_job       = Dispatcher(self._add_job)
@@ -42,13 +42,13 @@ class JobManager(QAbstractTableModel):
     def headerData(self, section, orientation, role):
         if role != Qt.DisplayRole:
             return NONE
-        if orientation == Qt.Horizontal:      
+        if orientation == Qt.Horizontal:
             if   section == 0: text = _("Job")
             elif section == 1: text = _("Status")
             elif section == 2: text = _("Progress")
             elif section == 3: text = _('Running time')
             return QVariant(text)
-        else: 
+        else:
             return QVariant(section+1)
         
     def data(self, index, role):
@@ -58,7 +58,7 @@ class JobManager(QAbstractTableModel):
             row, col = index.row(), index.column()
             job = self.jobs[row]
             
-            if role == Qt.DisplayRole:            
+            if role == Qt.DisplayRole:
                 if col == 0:
                     desc = job.description
                     if not desc:
@@ -145,7 +145,7 @@ class JobManager(QAbstractTableModel):
                 return True
         return False
     
-    def run_job(self, done, func, args=[], kwargs={}, 
+    def run_job(self, done, func, args=[], kwargs={},
                            description=None):
         job = ParallelJob(func, done, self, args=args, kwargs=kwargs,
                           description=description)
@@ -159,15 +159,15 @@ class JobManager(QAbstractTableModel):
     def kill_job(self, row, view):
         job = self.jobs[row]
         if isinstance(job, DeviceJob):
-            error_dialog(view, _('Cannot kill job'), 
+            error_dialog(view, _('Cannot kill job'),
                          _('Cannot kill jobs that communicate with the device')).exec_()
             return
         if job.has_run:
-            error_dialog(view, _('Cannot kill job'), 
+            error_dialog(view, _('Cannot kill job'),
                          _('Job has already run')).exec_()
             return
         if not job.is_running:
-            error_dialog(view, _('Cannot kill job'), 
+            error_dialog(view, _('Cannot kill job'),
                          _('Cannot kill waiting job')).exec_()
             return
 

@@ -5,12 +5,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os
 
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.pyPdf import PdfFileReader
+from pyPdf import PdfFileReader
 
 def get_metadata(stream):
     """ Return metadata as a L{MetaInfo} object """
-    title = 'Unknown'
-    mi = MetaInformation(title, ['Unknown'])
+    mi = MetaInformation(_('Unknown'), [_('Unknown')])
     stream.seek(0)
     try:
         info = PdfFileReader(stream).getDocumentInfo()

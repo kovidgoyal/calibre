@@ -7,16 +7,18 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import os, sys, traceback, shutil
+import os, sys, shutil, traceback, textwrap
 from uuid import uuid4
 
-from calibre import extract, detect_ncpus, terminal_controller, \
-                    __appname__, __version__
+from calibre import extract, terminal_controller, __appname__, __version__
 from calibre.utils.config import Config, StringConfig
 from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre.utils.threadpool import ThreadPool, WorkRequest
+from calibre.parallel import Server, ParallelJob
 from calibre.utils.terminfo import ProgressBar
 from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, ImageBlock
+from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.epub.from_html import config as html2epub_config, convert as html2epub
 try:
     from calibre.utils.PythonMagickWand import \
             NewMagickWand, NewPixelWand, \
@@ -27,7 +29,7 @@ try:
             MagickGetImageHeight, \
             MagickResizeImage, MagickSetImageType, \
             GrayscaleType, CatromFilter,  MagickSetImagePage, \
-            MagickBorderImage, MagickSharpenImage, \
+            MagickBorderImage, MagickSharpenImage, MagickDespeckleImage, \
             MagickQuantizeImage, RGBColorspace, \
             MagickWriteImage, DestroyPixelWand, \
             DestroyMagickWand, CloneMagickWand, \
@@ -38,14 +40,14 @@ except:
 
 PROFILES = {
             # Name : (width, height) in pixels
-            'prs500':(584, 754),            
+            'prs500':(584, 754),
             }
 
 def extract_comic(path_to_comic_file):
     '''
     Un-archive the comic file.
     '''
-    tdir = PersistentTemporaryDirectory(suffix='comic_extract')
+    tdir = PersistentTemporaryDirectory(suffix='_comic_extract')
     extract(path_to_comic_file, tdir)
     return tdir
 
@@ -79,151 +81,200 @@ def find_pages(dir, sort_on_mtime=False, verbose=False):
 
 class PageProcessor(list):
     '''
-    Contains the actual image rendering logic. See :method:`__call__` and 
+    Contains the actual image rendering logic. See :method:`render` and 
     :method:`process_pages`.
     '''
     
     def __init__(self, path_to_page, dest, opts, num):
-        self.path_to_page = path_to_page
-        self.opts = opts
-        self.num = num
-        self.dest = dest
-        self.rotate = False
         list.__init__(self)
+        self.path_to_page = path_to_page
+        self.opts         = opts
+        self.num          = num
+        self.dest         = dest
+        self.rotate       = False
+        self.render()
         
-    def __call__(self):
-        try:
-            img = NewMagickWand()
-            if img < 0:
+        
+    def render(self):
+        img = NewMagickWand()
+        if img < 0:
+            raise RuntimeError('Cannot create wand.')
+        if not MagickReadImage(img, self.path_to_page):
+            raise IOError('Failed to read image from: %'%self.path_to_page)
+        width  = MagickGetImageWidth(img)
+        height = MagickGetImageHeight(img)
+        if self.num == 0: # First image so create a thumbnail from it
+            thumb = CloneMagickWand(img)
+            if thumb < 0:
                 raise RuntimeError('Cannot create wand.')
-            if not MagickReadImage(img, self.path_to_page):
-                raise IOError('Failed to read image from: %'%self.path_to_page)
-            width  = MagickGetImageWidth(img)
-            height = MagickGetImageHeight(img)
-            
-            if self.num == 0: # First image so create a thumbnail from it
-                thumb = CloneMagickWand(img)
-                if thumb < 0:
+            MagickThumbnailImage(thumb, 60, 80)
+            MagickWriteImage(thumb, os.path.join(self.dest, 'thumbnail.png'))
+            DestroyMagickWand(thumb)
+        self.pages = [img]
+        if width > height:
+            if self.opts.landscape:
+                self.rotate = True
+            else:
+                split1, split2 = map(CloneMagickWand, (img, img))
+                DestroyMagickWand(img)
+                if split1 < 0 or split2 < 0:
                     raise RuntimeError('Cannot create wand.')
-                MagickThumbnailImage(thumb, 60, 80)
-                MagickWriteImage(thumb, os.path.join(self.dest, 'thumbnail.png'))
-                DestroyMagickWand(thumb)
-            
-            self.pages = [img]
-            
-            if width > height:
-                if self.opts.landscape:
-                    self.rotate = True
-                else: 
-                    split1, split2 = map(CloneMagickWand, (img, img))
-                    if split1 < 0 or split2 < 0:
-                        raise RuntimeError('Cannot create wand.')
-                    DestroyMagickWand(img)
-                    MagickCropImage(split1, (width/2)-1, height, 0, 0)
-                    MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
-                    self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
-                    
-            self.process_pages()
-        except Exception, err:
-            print 'Failed to process page: %s'%os.path.basename(self.path_to_page)
-            print 'Error:', err
-            if self.opts.verbose:
-                traceback.print_exc()
+                MagickCropImage(split1, (width/2)-1, height, 0, 0)
+                MagickCropImage(split2, (width/2)-1, height, width/2, 0 )
+                self.pages = [split2, split1] if self.opts.right2left else [split1, split2]
+        self.process_pages()
         
     def process_pages(self):
         for i, wand in enumerate(self.pages):
             pw = NewPixelWand()
-            if pw < 0:
-                raise RuntimeError('Cannot create wand.')
-            PixelSetColor(pw, 'white')
-            
-            MagickSetImageBorderColor(wand, pw)
-            
-            if self.rotate:
-                MagickRotateImage(wand, pw, -90)
+            try:
+                if pw < 0:
+                    raise RuntimeError('Cannot create wand.')
+                PixelSetColor(pw, 'white')
                 
-            # 25 percent fuzzy trim?
-            MagickTrimImage(wand, 25*65535/100)
-            MagickSetImagePage(wand, 0,0,0,0)   #Clear page after trim, like a "+repage"
-            
-            # Do the Photoshop "Auto Levels" equivalent
-            if not self.opts.dont_normalize:
-                MagickNormalizeImage(wand)
-        
-            sizex = MagickGetImageWidth(wand)
-            sizey = MagickGetImageHeight(wand)
-            
-            SCRWIDTH, SCRHEIGHT = PROFILES[self.opts.profile]
-            
-            if self.opts.keep_aspect_ratio: 
-                # Preserve the aspect ratio by adding border
-                aspect = float(sizex) / float(sizey)
-                if aspect <= (float(SCRWIDTH) / float(SCRHEIGHT)):
-                    newsizey = SCRHEIGHT
-                    newsizex = int(newsizey * aspect)
-                    deltax = (SCRWIDTH - newsizex) / 2
-                    deltay = 0
-                else:
-                    newsizex = SCRWIDTH
-                    newsizey = int(newsizex / aspect)
-                    deltax = 0
-                    deltay = (SCRHEIGHT - newsizey) / 2
-        
-                MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
                 MagickSetImageBorderColor(wand, pw)
-                MagickBorderImage(wand, pw, deltax, deltay)
-            else:
-                MagickResizeImage(wand, SCRWIDTH, SCRHEIGHT, CatromFilter, 1.0)
+                if self.rotate:
+                    MagickRotateImage(wand, pw, -90)
+                    
+                # 25 percent fuzzy trim?
+                MagickTrimImage(wand, 25*65535/100)
+                MagickSetImagePage(wand, 0,0,0,0)   #Clear page after trim, like a "+repage"
+                # Do the Photoshop "Auto Levels" equivalent
+                if not self.opts.dont_normalize:
+                    MagickNormalizeImage(wand)
+                sizex = MagickGetImageWidth(wand)
+                sizey = MagickGetImageHeight(wand)
                 
-            if not self.opts.dont_sharpen:
-                MagickSharpenImage(wand, 0.0, 1.0)
+                SCRWIDTH, SCRHEIGHT = PROFILES[self.opts.profile]
                 
-            MagickSetImageType(wand, GrayscaleType)
-            MagickQuantizeImage(wand, self.opts.colors, RGBColorspace, 0, 1, 0)
-            dest = '%d_%d.png'%(self.num, i)
-            dest = os.path.join(self.dest, dest)
-            MagickWriteImage(wand, dest+'8')
-            os.rename(dest+'8', dest)
-            self.append(dest)
-        
-            DestroyPixelWand(pw)
-            wand = DestroyMagickWand(wand)
+                if self.opts.keep_aspect_ratio:
+                    # Preserve the aspect ratio by adding border
+                    aspect = float(sizex) / float(sizey)
+                    if aspect <= (float(SCRWIDTH) / float(SCRHEIGHT)):
+                        newsizey = SCRHEIGHT
+                        newsizex = int(newsizey * aspect)
+                        deltax = (SCRWIDTH - newsizex) / 2
+                        deltay = 0
+                    else:
+                        newsizex = SCRWIDTH
+                        newsizey = int(newsizex / aspect)
+                        deltax = 0
+                        deltay = (SCRHEIGHT - newsizey) / 2
+                    MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
+                    MagickSetImageBorderColor(wand, pw)
+                    MagickBorderImage(wand, pw, deltax, deltay)
+                elif self.opts.wide:
+                    # Keep aspect and Use device height as scaled image width so landscape mode is clean
+                    aspect = float(sizex) / float(sizey)
+                    screen_aspect = float(SCRWIDTH) / float(SCRHEIGHT)
+                    # Get dimensions of the landscape mode screen
+                    # Add 25px back to height for the battery bar.
+                    wscreenx = SCRHEIGHT + 25
+                    wscreeny = int(wscreenx / screen_aspect)
+                    if aspect <= screen_aspect:
+                        newsizey = wscreeny
+                        newsizex = int(newsizey * aspect)
+                        deltax = (wscreenx - newsizex) / 2
+                        deltay = 0
+                    else:
+                        newsizex = wscreenx
+                        newsizey = int(newsizex / aspect)
+                        deltax = 0
+                        deltay = (wscreeny - newsizey) / 2
+                    MagickResizeImage(wand, newsizex, newsizey, CatromFilter, 1.0)
+                    MagickSetImageBorderColor(wand, pw)
+                    MagickBorderImage(wand, pw, deltax, deltay)
+                else:
+                    MagickResizeImage(wand, SCRWIDTH, SCRHEIGHT, CatromFilter, 1.0)
+                    
+                if not self.opts.dont_sharpen:
+                    MagickSharpenImage(wand, 0.0, 1.0)
+                    
+                MagickSetImageType(wand, GrayscaleType)
+                
+                if self.opts.despeckle:
+                    MagickDespeckleImage(wand)
+                
+                MagickQuantizeImage(wand, self.opts.colors, RGBColorspace, 0, 1, 0)
+                dest = '%d_%d.png'%(self.num, i)
+                dest = os.path.join(self.dest, dest)
+                MagickWriteImage(wand, dest+'8')
+                os.rename(dest+'8', dest)
+                self.append(dest)
+            finally:
+                if pw > 0:
+                    DestroyPixelWand(pw)
+                DestroyMagickWand(wand)
             
-class Progress(object):
+def render_pages(tasks, dest, opts, notification=None):
+    '''
+    Entry point for the job server.
+    '''
+    failures, pages = [], []
+    with ImageMagick():
+        for num, path in tasks:
+            try:
+                pages.extend(PageProcessor(path, dest, opts, num))
+                msg = _('Rendered %s') 
+            except:
+                failures.append(path)
+                msg = _('Failed %s')
+                if opts.verbose:
+                    msg += '\n' + traceback.format_exc() 
+            msg = msg%path
+            if notification is not None:
+                notification(0.5, msg)
+    
+    return pages, failures
+        
+            
+class JobManager(object):
+    '''
+    Simple job manager responsible for keeping track of overall progress.
+    '''
     
     def __init__(self, total, update):
         self.total  = total
         self.update = update
         self.done   = 0
+        self.add_job        = lambda j: j
+        self.output         = lambda j: j
+        self.start_work     = lambda j: j
+        self.job_done       = lambda j: j
         
-    def __call__(self, req, res):
+    def status_update(self, job):
         self.done += 1
-        self.update(float(self.done)/self.total, 
-                    _('Rendered %s')%os.path.basename(req.callable.path_to_page))
-
+        #msg = msg%os.path.basename(job.args[0])
+        self.update(float(self.done)/self.total, job.msg)
+        
 def process_pages(pages, opts, update):
     '''
     Render all identified comic pages.
     '''
     if not _imagemagick_loaded:
         raise RuntimeError('Failed to load ImageMagick')
-    with ImageMagick():
-        tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
-        processed_pages = [PageProcessor(path, tdir, opts, i) for i, path in enumerate(pages)]
-        tp = ThreadPool(detect_ncpus())
-        update(0, '')
-        notify = Progress(len(pages), update)
-        for pp in processed_pages:
-            tp.putRequest(WorkRequest(pp, callback=notify))
-            tp.wait()
-        ans, failures = [], []
+    
+    tdir = PersistentTemporaryDirectory('_comic2lrf_pp')
+    job_manager = JobManager(len(pages), update)
+    server = Server()
+    jobs = []
+    tasks = server.split(pages)
+    for task in tasks:
+        jobs.append(ParallelJob('render_pages', lambda s:s, job_manager=job_manager,
+                                args=[task, tdir, opts]))
+        server.add_job(jobs[-1])
+    server.wait()
+    server.killall()
+    server.close()
+    ans, failures = [], []
         
-        for pp in processed_pages:
-            if len(pp) == 0:
-                failures.append(os.path.basename(pp.path_to_page))
-            else:
-                ans += pp
-        return ans, failures, tdir
+    for job in jobs:
+        if job.result is None:
+            raise Exception(_('Failed to process comic: %s\n\n%s')%(job.exception, job.traceback))
+        pages, failures_ = job.result
+        ans += pages
+        failures += failures_
+    return ans, failures, tdir
     
 def config(defaults=None):
     desc = _('Options to control the conversion of comics (CBR, CBZ) files into ebooks')
@@ -231,32 +282,36 @@ def config(defaults=None):
         c = Config('comic', desc)
     else:
         c = StringConfig(defaults, desc)
-    c.add_opt('title', ['-t', '--title'], 
+    c.add_opt('title', ['-t', '--title'],
               help=_('Title for generated ebook. Default is to use the filename.'))
-    c.add_opt('author', ['-a', '--author'], 
-              help=_('Set the author in the metadata of the generated ebook. Default is %default'), 
+    c.add_opt('author', ['-a', '--author'],
+              help=_('Set the author in the metadata of the generated ebook. Default is %default'),
               default=_('Unknown'))
-    c.add_opt('output', ['-o', '--output'], 
-              help=_('Path to output LRF file. By default a file is created in the current directory.'))
+    c.add_opt('output', ['-o', '--output'],
+              help=_('Path to output file. By default a file is created in the current directory.'))
     c.add_opt('colors', ['-c', '--colors'], type='int', default=64,
               help=_('Number of colors for grayscale image conversion. Default: %default'))
-    c.add_opt('dont_normalize', ['-n', '--disable-normalize'], default=False, 
+    c.add_opt('dont_normalize', ['-n', '--disable-normalize'], default=False,
               help=_('Disable normalize (improve contrast) color range for pictures. Default: False'))
     c.add_opt('keep_aspect_ratio', ['-r', '--keep-aspect-ratio'], default=False,
               help=_('Maintain picture aspect ratio. Default is to fill the screen.'))
-    c.add_opt('dont_sharpen', ['-s', '--disable-sharpen'], default=False,  
+    c.add_opt('dont_sharpen', ['-s', '--disable-sharpen'], default=False,
               help=_('Disable sharpening.'))
-    c.add_opt('landscape', ['-l', '--landscape'], default=False, 
+    c.add_opt('landscape', ['-l', '--landscape'], default=False,
               help=_("Don't split landscape images into two portrait images"))
+    c.add_opt('wide', ['-w', '--wide-aspect'], default=False,
+              help=_("Keep aspect ratio and scale image using screen height as image width for viewing in landscape mode."))
     c.add_opt('right2left', ['--right2left'], default=False, action='store_true',
               help=_('Used for right-to-left publications like manga. Causes landscape pages to be split into portrait pages from right to left.'))
-    c.add_opt('no_sort', ['--no-sort'], default=False, 
+    c.add_opt('despeckle', ['-d', '--despeckle'], default=False,
+              help=_('Enable Despeckle. Reduces speckle noise. May greatly increase processing time.'))
+    c.add_opt('no_sort', ['--no-sort'], default=False,
               help=_("Don't sort the files found in the comic alphabetically by name. Instead use the order they were added to the comic."))
-    c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(), 
-              help=_('Choose a profile for the device you are generating this LRF for. The default is the SONY PRS-500 with a screen size of 584x754 pixels. Choices are %s')%PROFILES.keys())
-    c.add_opt('verbose', ['--verbose'], default=0, action='count',  
+    c.add_opt('profile', ['-p', '--profile'], default='prs500', choices=PROFILES.keys(),
+              help=_('Choose a profile for the device you are generating this file for. The default is the SONY PRS-500 with a screen size of 584x754 pixels. This is suitable for any reader with the same screen size. Choices are %s')%PROFILES.keys())
+    c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
               help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
-    c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False, 
+    c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False,
                       help=_("Don't show progress bar."))
     return c
 
@@ -265,8 +320,40 @@ def option_parser():
     return c.option_parser(usage=_('''\
 %prog [options] comic.cb[z|r]
 
-Convert a comic in a CBZ or CBR file to an LRF ebook. 
+Convert a comic in a CBZ or CBR file to an ebook. 
 '''))
+
+def create_epub(pages, profile, opts, thumbnail=None):
+    wrappers = []
+    WRAPPER = textwrap.dedent('''\
+    <html>
+        <head>
+            <title>Page #%d</title>
+            <style type="text/css">@page {margin:0pt; padding: 0pt;}</style>
+        </head>
+        <body style="margin: 0pt; padding: 0pt">
+            <div style="text-align:center">
+                <img src="%s" alt="comic page #%d" />
+            </div>
+        </body>
+    </html>        
+    ''')
+    dir = os.path.dirname(pages[0])
+    for i, page in enumerate(pages):
+        wrapper = WRAPPER%(i+1, os.path.basename(page), i+1)
+        page = os.path.join(dir, 'page_%d.html'%(i+1))
+        open(page, 'wb').write(wrapper)
+        wrappers.append(page)
+        
+    mi  = MetaInformation(opts.title, [opts.author])
+    opf = OPFCreator(dir, mi)
+    opf.create_manifest([(w, None) for w in wrappers])
+    opf.create_spine(wrappers)
+    metadata = os.path.join(dir, 'metadata.opf')
+    opf.render(open(metadata, 'wb'))
+    opts2 = html2epub_config('margin_left=0\nmargin_right=0\nmargin_top=0\nmargin_bottom=0').parse()
+    opts2.output = opts.output
+    html2epub(metadata, opts2)
 
 def create_lrf(pages, profile, opts, thumbnail=None):
     width, height = PROFILES[profile]
@@ -290,14 +377,15 @@ def create_lrf(pages, profile, opts, thumbnail=None):
         book.append(_page)
         
     book.renderLrf(open(opts.output, 'wb'))
+    print _('Output written to'), opts.output
     
-def do_convert(path_to_file, opts, notification=lambda m, p: p):
+    
+def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='lrf'):
     source = path_to_file
     if not opts.title:
-        opts.title = os.path.splitext(os.path.basename(source))
+        opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:
-        opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.lrf')
-        
+        opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.'+output_format)
     tdir  = extract_comic(source)
     pages = find_pages(tdir, sort_on_mtime=opts.no_sort, verbose=opts.verbose)
     if not pages:
@@ -312,12 +400,16 @@ def do_convert(path_to_file, opts, notification=lambda m, p: p):
     thumbnail = os.path.join(tdir2, 'thumbnail.png')
     if not os.access(thumbnail, os.R_OK):
         thumbnail = None
-    create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
+    
+    if output_format == 'lrf':
+        create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
+    else:
+        create_epub(pages, opts.profile, opts, thumbnail=thumbnail)
     shutil.rmtree(tdir)
     shutil.rmtree(tdir2)
 
 
-def main(args=sys.argv, notification=None):
+def main(args=sys.argv, notification=None, output_format='lrf'):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     if len(args) < 2:
@@ -331,8 +423,8 @@ def main(args=sys.argv, notification=None):
         notification = pb.update
     
     source = os.path.abspath(args[1])
-    do_convert(source, opts, notification)
-    print _('Output written to'), opts.output
+    do_convert(source, opts, notification, output_format=output_format)
+    
     return 0
 
 if __name__ == '__main__':

@@ -33,14 +33,14 @@ class Economist(BasicNewsRecipe):
         return br
     
     def parse_index(self):
-        soup = BeautifulSoup(self.browser.open(self.INDEX).read(), 
+        soup = BeautifulSoup(self.browser.open(self.INDEX).read(),
                              convertEntities=BeautifulSoup.HTML_ENTITIES)
         index_started = False
         feeds = {}
         ans = []
         key = None
         for tag in soup.findAll(['h1', 'h2']):
-            text = ''.join(tag.findAll(text=True))                
+            text = ''.join(tag.findAll(text=True))
             if tag.name == 'h1':
                 if 'Classified ads' in text:
                     break

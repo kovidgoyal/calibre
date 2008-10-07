@@ -8,16 +8,16 @@ Manage application-wide preferences.
 '''
 import os, re, cPickle, textwrap
 from copy import deepcopy
+from functools import partial
 from optparse import OptionParser as _OptionParser
 from optparse import IndentedHelpFormatter
 from PyQt4.QtCore import QString
 from calibre.constants import terminal_controller, iswindows, isosx, \
-                              __appname__, __version__, __author__
+                              __appname__, __version__, __author__, plugins
 from calibre.utils.lock import LockError, ExclusiveFile 
 from collections import defaultdict
 
 if iswindows:
-    from calibre import plugins
     config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
     if not os.access(config_dir, os.W_OK|os.X_OK):
         config_dir = os.path.expanduser('~')
@@ -28,8 +28,10 @@ else:
     bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
     config_dir = os.path.join(bdir, 'calibre')
 
-if not os.path.exists(config_dir):
-    os.makedirs(config_dir, mode=448) # 0700 == 448
+def make_config_dir():
+    if not os.path.exists(config_dir):
+        os.makedirs(config_dir, mode=448) # 0700 == 448
+
 
 class CustomHelpFormatter(IndentedHelpFormatter):
     
@@ -45,7 +47,7 @@ class CustomHelpFormatter(IndentedHelpFormatter):
         opts = self.option_strings[option]
         opt_width = self.help_position - self.current_indent - 2
         if len(opts) > opt_width:
-            opts = "%*s%s\n" % (self.current_indent, "", 
+            opts = "%*s%s\n" % (self.current_indent, "",
                                     terminal_controller.GREEN+opts+terminal_controller.NORMAL)
             indent_first = self.help_position
         else:                       # start help on same line as opts
@@ -160,6 +162,12 @@ class Option(object):
         self.switches = switches
         self.help     = help.replace('%default', repr(default)) if help else None
         self.type     = type
+        if self.type is None and action is None and choices is None:
+            if isinstance(default, float):
+                self.type = 'float'
+            elif isinstance(default, int) and not isinstance(default, bool):
+                self.type = 'int'
+            
         self.choices  = choices
         self.check    = check
         self.group    = group
@@ -168,7 +176,13 @@ class Option(object):
         self.metavar  = metavar
         
     def __eq__(self, other):
-        return self.name == getattr(other, 'name', None)
+        return self.name == getattr(other, 'name', other)
+    
+    def __repr__(self):
+        return 'Option: '+self.name
+    
+    def __str__(self):
+        return repr(self)
         
 class OptionValues(object):
     
@@ -200,6 +214,29 @@ class OptionSet(object):
             raise ValueError('A group by the name %s already exists in this set'%name)
         self.groups[name] = description
         self.group_list.append(name)
+        return partial(self.add_opt, group=name)
+    
+    def update(self, other):
+        for name in other.groups.keys():
+            self.groups[name] = other.groups[name]
+        for pref in other.preferences:
+            if pref in self.preferences:
+                self.preferences.remove(pref)
+            self.preferences.append(pref)
+            
+    def smart_update(self, opts1, opts2):
+        '''
+        Updates the preference values in opts1 using only the non-default preference values in opts2.
+        '''
+        for pref in self.preferences:
+            new = getattr(opts2, pref.name, pref.default)
+            if new != pref.default:
+                setattr(opts1, pref.name, new)
+            
+    def remove_opt(self, name):
+        if name in self.preferences:
+            self.preferences.remove(name)
+        
         
     def add_opt(self, name, switches=[], help=None, type=None, choices=None, 
                  group=None, default=None, action=None, metavar=None):
@@ -213,7 +250,7 @@ class OptionSet(object):
                            option will not be added to the command line parser.
         :param help:       Help text.
         :param type:       Type checking of option values. Supported types are:
-                           `None, 'choice', 'complex', 'float', 'int', 'long', 'string'`.
+                           `None, 'choice', 'complex', 'float', 'int', 'string'`.
         :param choices:    List of strings or `None`.
         :param group:      Group this option belongs to. You must previously 
                            have created this group with a call to :method:`add_group`.
@@ -234,7 +271,7 @@ class OptionSet(object):
         parser = OptionParser(usage, gui_mode=gui_mode)
         groups = defaultdict(lambda : parser)
         for group, desc in self.groups.items():
-            groups[group] = parser.add_group(group, desc)
+            groups[group] = parser.add_option_group(group.upper(), desc)
         
         for pref in self.preferences:
             if not pref.switches:
@@ -267,11 +304,17 @@ class OptionSet(object):
     
     def parse_string(self, src):
         options = {'cPickle':cPickle}
+        if not isinstance(src, unicode):
+            src = src.decode('utf-8')
         if src is not None:
             exec src in options
         opts = OptionValues()
         for pref in self.preferences:
-            setattr(opts, pref.name, options.get(pref.name, pref.default))
+            val = options.get(pref.name, pref.default)
+            formatter = __builtins__.get(pref.type, None)
+            if callable(formatter):
+                val = formatter(val)
+            setattr(opts, pref.name, val)
             
         return opts
     
@@ -279,7 +322,7 @@ class OptionSet(object):
         prefs = [pref for pref in self.preferences if pref.group == name]
         lines = ['### Begin group: %s'%(name if name else 'DEFAULT')]
         if desc:
-            lines += map(lambda x: '# '+x for x in desc.split('\n'))
+            lines += map(lambda x: '# '+x, desc.split('\n'))
         lines.append(' ')
         for pref in prefs:
             lines.append('# '+pref.name.replace('_', ' '))
@@ -304,25 +347,44 @@ class OptionSet(object):
         groups = [self.render_group(name, self.groups.get(name, ''), opts) \
                                         for name in [None] + self.group_list]
         return src + '\n\n'.join(groups)
+
+class ConfigInterface(object):
     
-class Config(object):
-    
-    def __init__(self, basename, description=''):
-        self.config_file_path = os.path.join(config_dir, basename+'.py')
+    def __init__(self, description):
         self.option_set       = OptionSet(description=description)
         self.add_opt          = self.option_set.add_opt
         self.add_group        = self.option_set.add_group
+        self.remove_opt       = self.remove = self.option_set.remove_opt
+        self.parse_string     = self.option_set.parse_string
+        
+    def update(self, other):
+        self.option_set.update(other.option_set)
         
     def option_parser(self, usage='', gui_mode=False):
         return self.option_set.option_parser(user_defaults=self.parse(), 
                                              usage=usage, gui_mode=gui_mode)
+    
+    def smart_update(self, opts1, opts2):
+        self.option_set.smart_update(opts1, opts2)
+    
+class Config(ConfigInterface):
+    '''
+    A file based configuration.
+    '''
+    
+    def __init__(self, basename, description=''):
+        ConfigInterface.__init__(self, description)
+        self.config_file_path = os.path.join(config_dir, basename+'.py')
+                
         
     def parse(self):
-        try:
-            with ExclusiveFile(self.config_file_path) as f:
-                src = f.read()
-        except LockError:
-            raise IOError('Could not lock config file: %s'%self.config_file_path)
+        src = ''
+        if os.path.exists(self.config_file_path):
+            try:
+                with ExclusiveFile(self.config_file_path) as f:
+                    src = f.read().decode('utf-8')
+            except LockError:
+                raise IOError('Could not lock config file: %s'%self.config_file_path)
         return self.option_set.parse_string(src)
     
     def as_string(self):
@@ -330,7 +392,7 @@ class Config(object):
             return ''
         try:
             with ExclusiveFile(self.config_file_path) as f:
-                return f.read()
+                return f.read().decode('utf-8')
         except LockError:
             raise IOError('Could not lock config file: %s'%self.config_file_path)
     
@@ -338,6 +400,8 @@ class Config(object):
         if not self.option_set.has_option(name):
             raise ValueError('The option %s is not defined.'%name)
         try:
+            if not os.path.exists(config_dir):
+                make_config_dir()
             with ExclusiveFile(self.config_file_path) as f:
                 src = f.read()
                 opts = self.option_set.parse_string(src)
@@ -346,22 +410,21 @@ class Config(object):
                 src = self.option_set.serialize(opts)+ '\n\n' + footer + '\n'
                 f.seek(0)
                 f.truncate()
+                if isinstance(src, unicode):
+                    src = src.encode('utf-8')
                 f.write(src)
         except LockError:
             raise IOError('Could not lock config file: %s'%self.config_file_path)
             
-class StringConfig(object):
+class StringConfig(ConfigInterface):
+    '''
+    A string based configuration
+    '''
     
     def __init__(self, src, description=''):
+        ConfigInterface.__init__(self, description)
         self.src = src
-        self.option_set       = OptionSet(description=description)
-        self.add_opt          = self.option_set.add_opt
-        self.option_parser    = self.option_set.option_parser
         
-    def option_parser(self, usage='', gui_mode=False):
-        return self.option_set.option_parser(user_defaults=self.parse(), 
-                                             usage=usage, gui_mode=gui_mode)
-    
     def parse(self):
         return self.option_set.parse_string(self.src)
     
@@ -412,9 +475,11 @@ class DynamicConfig(dict):
     def __init__(self, name='dynamic'):
         self.name = name
         self.file_path = os.path.join(config_dir, name+'.pickle')
-        with ExclusiveFile(self.file_path) as f:
-            raw = f.read()
-            d = cPickle.loads(raw) if raw.strip() else {}
+        d = {}
+        if os.path.exists(self.file_path):
+            with ExclusiveFile(self.file_path) as f:
+                raw = f.read()
+                d = cPickle.loads(raw) if raw.strip() else {}
         dict.__init__(self, d)
         
     def __getitem__(self, key):
@@ -432,6 +497,8 @@ class DynamicConfig(dict):
     
     def commit(self):
         if hasattr(self, 'file_path') and self.file_path:
+            if not os.path.exists(self.file_path):
+                make_config_dir()
             with ExclusiveFile(self.file_path) as f:
                 raw = cPickle.dumps(self, -1)
                 f.seek(0)
@@ -453,6 +520,12 @@ def _prefs():
               help=_('Default timeout for network operations (seconds)'))
     c.add_opt('library_path', default=None,
               help=_('Path to directory in which your library of books is stored'))
+    c.add_opt('language', default=None,
+              help=_('The language in which to display the user interface'))
+    c.add_opt('output_format', default='LRF', 
+              help=_('The default output format for ebook conversions.'))
+    c.add_opt('read_file_metadata', default=True,
+              help=_('Read metadata from files'))
     
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
@@ -460,6 +533,8 @@ def _prefs():
 prefs = ConfigProxy(_prefs())
 
 def migrate():
+    if hasattr(os, 'geteuid') and os.geteuid() == 0:
+        return
     p = prefs
     if p.get('migrated'):
         return

@@ -27,11 +27,12 @@ TXT2LRF  = "src/calibre/ebooks/lrf/txt/demo"
 MOBILEREAD = 'ftp://dev.mobileread.com/calibre/'
 BUILD_SCRIPT ='''\
 #!/bin/bash
+export CALIBRE_BUILDBOT=1
 cd ~/build && \
 rsync -avz --exclude src/calibre/plugins --exclude calibre/src/calibre.egg-info --exclude docs --exclude .bzr --exclude .build --exclude build --exclude dist --exclude "*.pyc" --exclude "*.pyo" rsync://%(host)s/work/%(project)s . && \
 cd %(project)s && \
 %%s && \
-rm -rf build/* && \
+rm -rf build/* dist/* && \
 %%s %%s
 '''%dict(host=HOST, project=PROJECT)
 check_call = partial(_check_call, shell=True)
@@ -101,7 +102,7 @@ def build_osx(shutdown=True):
 def build_linux(shutdown=True):
     installer = installer_name('tar.bz2')
     vm = '/vmware/linux/libprs500-gentoo.vmx'
-    start_vm(vm, 'linux', (BUILD_SCRIPT%('sudo python setup.py develop', 'python','installer/linux/freeze.py')).replace('rm ', 'sudo rm '))
+    start_vm(vm, 'linux', (BUILD_SCRIPT%('sudo python setup.py develop', 'python','installer/linux/freeze.py')).replace('rm ', 'sudo rm '), sleep=100)
     subprocess.check_call(('scp', 'linux:/tmp/%s'%os.path.basename(installer), 'dist'))
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
@@ -202,14 +203,14 @@ def upload_docs():
 
 def upload_user_manual():
     check_call('python setup.py manual')
-    check_call('scp -r .build/html/* divok:%s'%USER_MANUAL)
+    check_call('scp -r src/calibre/manual/.build/html/* divok:%s'%USER_MANUAL)
     
 def build_src_tarball():
-    check_call('bzr export dist/calibre-%s.tar.bz2'%__version__)
+    check_call('bzr export dist/calibre-%s.tar.gz'%__version__)
 
 def upload_src_tarball():
-    check_call('ssh divok rm -f %s/calibre-\*.tar.bz2'%DOWNLOADS)
-    check_call('scp dist/calibre-*.tar.bz2 divok:%s/'%DOWNLOADS)
+    check_call('ssh divok rm -f %s/calibre-\*.tar.gz'%DOWNLOADS)
+    check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS)
 
 def stage_one():
     check_call('sudo rm -rf build', shell=True)
@@ -218,25 +219,33 @@ def stage_one():
     os.mkdir('docs')
     check_call('python setup.py build', shell=True)
     check_call('sudo python setup.py develop', shell=True)
-    check_call('make', shell=True)
     tag_release()
     upload_demo()
 
 def stage_two():
     subprocess.check_call('rm -rf dist/*', shell=True)
     build_installers()
-    build_src_tarball()
 
 def stage_three():
     print 'Uploading installers...'
     upload_installers()
-    print 'Uploading to PyPI'
-    upload_src_tarball()
+    print 'Uploading documentation...'
     upload_docs()
     upload_user_manual()
-    check_call('python setup.py register bdist_egg --exclude-source-files upload')
+    print 'Uploading to PyPI...'
+    check_call('rm -f dist/*')
+    check_call('python setup.py register')
+    check_call('python setup.py bdist_egg --exclude-source-files upload')
+    check_call('python setup.py sdist upload')
+    upload_src_tarball()
     check_call('''rm -rf dist/* build/*''')
     check_call('''ssh divok bzr update /var/www/calibre.kovidgoyal.net/calibre/''')
+
+def betas():
+    subprocess.check_call('rm -f dist/*', shell=True)
+    build_installers()
+    check_call('ssh divok rm -f  /var/www/calibre.kovidgoyal.net/htdocs/downloads/betas/*')
+    check_call('scp dist/* divok:/var/www/calibre.kovidgoyal.net/htdocs/downloads/betas/')
 
 def main(args=sys.argv):
     print 'Starting stage one...'

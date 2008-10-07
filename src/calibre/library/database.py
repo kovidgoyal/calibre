@@ -822,17 +822,18 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         '''
         Rebuild self.data and self.cache. Filter results are lost.
         '''
-        FIELDS = {'title'  : 'sort',
-                  'authors':  'author_sort',
-                  'publisher': 'publisher',
-                  'size': 'size',
-                  'date': 'timestamp',
-                  'timestamp':'timestamp',
-                  'formats':'formats',
-                  'rating': 'rating',
-                  'tags':'tags',
-                  'series': 'series',
-                  }
+        FIELDS = {
+                  'title'        : 'sort',
+                  'authors'      : 'author_sort',
+                  'publisher'    : 'publisher',
+                  'size'         : 'size',
+                  'date'         : 'timestamp',
+                  'timestamp'    : 'timestamp',
+                  'formats'      : 'formats',
+                  'rating'       : 'rating',
+                  'tags'         : 'tags',
+                  'series'       : 'series',
+                 }
         field = FIELDS[sort_field]
         order = 'ASC'
         if not ascending:
@@ -894,6 +895,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
     def id(self, index):
         return self.data[index][0]
+    
+    def row(self, id):
+        for r, record in enumerate(self.data):
+            if record[0] == id:
+                return r
 
     def title(self, index, index_is_id=False):
         if not index_is_id:
@@ -904,7 +910,10 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return _('Unknown')
 
     def authors(self, index, index_is_id=False):
-        ''' Authors as a comma separated list or None'''
+        ''' 
+        Authors as a comma separated list or None. 
+        In the comma separated list, commas in author names are replaced by | symbols
+        '''
         if not index_is_id:
             return self.data[index][2]
         try:
@@ -970,9 +979,15 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             return ans[0]
 
     def series_index(self, index, index_is_id=False):
+        ans = None
         if not index_is_id:
-            return self.data[index][10]
-        return self.conn.execute('SELECT series_index FROM books WHERE id=?', (index,)).fetchone()[0]
+            ans = self.data[index][10]
+        else:
+            ans = self.conn.execute('SELECT series_index FROM books WHERE id=?', (index,)).fetchone()[0]
+        try:
+            return int(ans)
+        except:
+            return 1
 
     def books_in_series(self, series_id):
         '''
@@ -1212,6 +1227,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
         self.conn.commit()
+        row = self.row(id)
+        if row is not None:
+            self.data[row][9] = series
 
     def remove_unused_series(self):
         for id, in self.conn.execute('SELECT id FROM series').fetchall():
@@ -1220,8 +1238,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.commit()
 
     def set_series_index(self, id, idx):
+        idx = int(idx)
         self.conn.execute('UPDATE books SET series_index=? WHERE id=?', (int(idx), id))
         self.conn.commit()
+        row = self.row(id)
+        if row is not None:
+            self.data[row][10] = idx
 
     def set_rating(self, id, rating):
         rating = int(rating)
@@ -1342,7 +1364,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         Convenience method to return metadata as a L{MetaInformation} object.
         '''
         aum = self.authors(idx, index_is_id=index_is_id)
-        if aum: aum = aum.split(',')
+        if aum: aum = [a.strip().replace('|', ',') for a in aum.split(',')]
         mi = MetaInformation(self.title(idx, index_is_id=index_is_id), aum)
         mi.author_sort = self.author_sort(idx, index_is_id=index_is_id)
         mi.comments    = self.comments(idx, index_is_id=index_is_id)
@@ -1418,6 +1440,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                     fmts = ''
                 for fmt in fmts.split(','):
                     data = self.format(idx, fmt, index_is_id=index_is_id)
+                    if not data:
+                        continue
                     fname = name +'.'+fmt.lower()
                     fname = sanitize_file_name(fname)
                     f = open(os.path.join(base, fname), 'w+b')
@@ -1492,7 +1516,6 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def import_book_directory(self, dirpath):
         dirpath = os.path.abspath(dirpath)
         formats = []
-
         for path in os.listdir(dirpath):
             path = os.path.abspath(os.path.join(dirpath, path))
             if os.path.isdir(path) or not os.access(path, os.R_OK):
@@ -1507,6 +1530,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
 
         if not formats:
             return
+        
         mi = metadata_from_formats(formats)
         if mi.title is None:
             return
@@ -1537,8 +1561,12 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         for id in indices:
             try:
                 data = self.format(id, format, index_is_id=True)
+                if not data:
+                    failures.append((id, self.title(id, index_is_id=True)))
+                    continue
             except:
                 failures.append((id, self.title(id, index_is_id=True)))
+                continue
             title = self.title(id, index_is_id=True)
             au = self.authors(id, index_is_id=True)
             if not au:

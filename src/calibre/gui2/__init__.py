@@ -3,7 +3,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """ The GUI """
 import sys, os, re, StringIO, traceback
 from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSize, \
-                         QByteArray, QLocale, QUrl, QTranslator, QCoreApplication
+                         QByteArray, QLocale, QUrl, QTranslator, QCoreApplication, \
+                         QModelIndex
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
                         QIcon, QTableView, QDialogButtonBox, QApplication
 
@@ -20,8 +21,8 @@ def _config():
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt('frequently_used_directories', default=[],
               help=_('Frequently used directories'))
-    c.add_opt('send_to_device_by_default', default=True,
-              help=_('Send downloaded periodical content to device automatically'))
+    c.add_opt('send_to_storage_card_by_default', default=False,
+              help=_('Send file to storage card instead of main memory by default'))
     c.add_opt('save_to_disk_single_format', default='lrf',
               help=_('The format to use when saving single files to disk'))
     c.add_opt('confirm_delete', default=False,
@@ -36,6 +37,8 @@ def _config():
               help=_('Notify when a new version is available'))
     c.add_opt('use_roman_numerals_for_series_number', default=True,
               help=_('Use Roman numerals for series number'))
+    c.add_opt('sort_by_popularity', default=False,
+              help=_('Sort tags list by popularity'))
     c.add_opt('cover_flow_queue_length', default=6,
               help=_('Number of covers to show in the cover browsing mode'))
     c.add_opt('LRF_conversion_defaults', default=[],
@@ -159,7 +162,7 @@ class TableView(QTableView):
         else:
             cols = dynamic[key]
             if not cols:
-                cols = [True for i in range(self.model().columnCount(self))]
+                cols = [True for i in range(self.model().columnCount(QModelIndex()))]
         
         for i in range(len(cols)):
             hidden = self.isColumnHidden(i)
@@ -195,6 +198,7 @@ class FileIconProvider(QFileIconProvider):
              'prc'     : 'mobi',
              'azw'     : 'mobi',
              'mobi'    : 'mobi',
+             'epub'    : 'epub',
              }
     
     def __init__(self):
@@ -221,7 +225,7 @@ class FileIconProvider(QFileIconProvider):
         return icon
     
     def icon_from_ext(self, ext):
-        key = self.key_from_ext(ext)
+        key = self.key_from_ext(ext.lower() if ext else '')
         return self.cached_icon(key)
     
     def load_icon(self, fileinfo):
@@ -303,7 +307,7 @@ class FileDialog(QObject):
             QObject.connect(self.fd, SIGNAL('accepted()'), self.save_dir)
             self.accepted = self.fd.exec_() == QFileDialog.Accepted
         else:
-            dir = dynamic.get(self.dialog_name, default=os.path.expanduser('~'))
+            dir = dynamic.get(self.dialog_name, os.path.expanduser('~'))
             self.selected_files = []
             if mode == QFileDialog.AnyFile:
                 f = qstring_to_unicode(

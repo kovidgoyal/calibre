@@ -5,12 +5,14 @@ Convert .txt files to .lrf
 """
 import os, sys, codecs, logging
 
-from calibre.ptempfile import PersistentTemporaryFile
+from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks import ConversionError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.ebooks.markdown import markdown
 from calibre import setup_cli_handlers
+from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.opf import OPFCreator
 
 def option_parser():
     parser = lrf_option_parser(
@@ -23,7 +25,7 @@ _('''%prog [options] mybook.txt
     return parser
     
 
-def generate_html(txtfile, encoding, logger):
+def generate_html(txtfile, encoding, tdir):
     '''
     Convert txtfile to html and return a PersistentTemporaryFile object pointing
     to the file with the HTML.
@@ -44,15 +46,19 @@ def generate_html(txtfile, encoding, logger):
     else:
         txt = codecs.open(txtfile, 'rb', enc).read()
     
-    logger.info('Converting text to HTML...')
+    print 'Converting text to HTML...'
     md = markdown.Markdown(
                        extensions=['footnotes', 'tables', 'toc'],
                        safe_mode=False,
                        )
-    html = md.convert(txt)
-    p = PersistentTemporaryFile('.html', dir=os.path.dirname(txtfile))
-    p.close()
-    codecs.open(p.name, 'wb', 'utf8').write(html)
+    html = '<html><body>'+md.convert(txt)+'</body></html>'
+    p = os.path.join(tdir, 'index.html')
+    open(p, 'wb').write(html.encode('utf-8'))
+    mi = MetaInformation(os.path.splitext(os.path.basename(txtfile))[0], [_('Unknown')])
+    opf = OPFCreator(tdir, mi)
+    opf.create_manifest([(os.path.join(tdir, 'index.html'), None)])
+    opf.create_spine([os.path.join(tdir, 'index.html')])
+    opf.render(open(os.path.join(tdir, 'metadata.opf'), 'wb'))
     return p
         
 def process_file(path, options, logger=None):
@@ -63,7 +69,8 @@ def process_file(path, options, logger=None):
     txt = os.path.abspath(os.path.expanduser(path))
     if not hasattr(options, 'debug_html_generation'):
         options.debug_html_generation = False
-    htmlfile = generate_html(txt, options.encoding, logger)
+    tdir = PersistentTemporaryDirectory('_txt2lrf')
+    htmlfile = generate_html(txt, options.encoding, tdir)
     options.encoding = 'utf-8'
     if not options.debug_html_generation:
         options.force_page_break = 'h2'
@@ -73,9 +80,9 @@ def process_file(path, options, logger=None):
         options.output = os.path.abspath(os.path.expanduser(options.output))
         if not options.title:
             options.title = os.path.splitext(os.path.basename(path))[0]
-        html_process_file(htmlfile.name, options, logger)
+        html_process_file(htmlfile, options, logger)
     else:
-        print open(htmlfile.name, 'rb').read()        
+        print open(htmlfile, 'rb').read()        
 
 def main(args=sys.argv, logger=None):
     parser = option_parser()    

@@ -16,7 +16,7 @@ class PasswordDialog(QDialog, Ui_Dialog):
         self.cfg_key = re.sub(r'[^0-9a-zA-Z]', '_', name)
         
         un = dynamic[self.cfg_key+'__un']
-        pw = dynamic[self.cfg_key+'__un']
+        pw = dynamic[self.cfg_key+'__pw']
         if not un: un = ''
         if not pw: pw = ''
         self.gui_username.setText(un)

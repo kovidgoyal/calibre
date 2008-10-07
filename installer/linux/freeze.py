@@ -22,6 +22,9 @@ LIBZ           = '/lib/libz.so.1'
 LIBBZ2         = '/lib/libbz2.so.1'
 LIBUSB         = '/usr/lib/libusb.so'
 LIBPOPPLER     = '/usr/lib/libpoppler.so.3'
+LIBXML2        = '/usr/lib/libxml2.so.2'
+LIBXSLT        = '/usr/lib/libxslt.so.1'
+LIBEXSLT       = '/usr/lib/libexslt.so.0'
 
 
 CALIBRESRC     = os.path.join(CALIBREPREFIX, 'src')
@@ -121,7 +124,7 @@ binaries += [('pdftohtml', PDFTOHTML, 'BINARY'),
 
 print 'Adding external libraries...'
 binaries += [ (os.path.basename(x), x, 'BINARY') for x in (SQLITE, DBUS,
-            LIBMNG, LIBZ, LIBBZ2, LIBUSB, LIBPOPPLER)]
+            LIBMNG, LIBZ, LIBBZ2, LIBUSB, LIBPOPPLER, LIBXML2, LIBXSLT, LIBEXSLT)]
              
 
 qt = []

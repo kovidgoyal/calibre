@@ -2,8 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
-
-import sys, os, re, logging, time, subprocess, mechanize, atexit
+import sys, os, re, logging, time, subprocess, atexit
 from htmlentitydefs import name2codepoint
 from math import floor
 from logging import Formatter
@@ -15,7 +14,7 @@ from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               terminal_controller, preferred_encoding, \
                               __appname__, __version__, __author__, \
                               win32event, win32api, winerror, fcntl
-
+import mechanize
 
 def unicode_path(path, abs=False):
     if not isinstance(path, unicode):
@@ -95,7 +94,7 @@ def filename_to_utf8(name):
 def extract(path, dir):
     ext = os.path.splitext(path)[1][1:].lower()
     extractor = None
-    if ext in ['zip', 'cbz', 'epub']:
+    if ext in ['zip', 'cbz', 'epub', 'oebzip']:
         from calibre.libunzip import extract as zipextract
         extractor = zipextract
     elif ext in ['cbr', 'rar']:
@@ -139,9 +138,16 @@ def get_proxies():
     return proxies
 
 
-def browser(honor_time=False):
+def browser(honor_time=True, max_time=2):
+    '''
+    Create a mechanize browser for web scraping. The browser handles cookies,
+    refresh requests and ignores robots.txt. Also uses proxy if avaialable.  
+    
+    :param honor_time: If True honors pause time in refresh requests
+    :param max_time: Maximum time in seconds to wait during a refresh request
+    '''
     opener = mechanize.Browser()
-    opener.set_handle_refresh(True, honor_time=honor_time)
+    opener.set_handle_refresh(True, max_time=max_time, honor_time=honor_time)
     opener.set_handle_robots(False)
     opener.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; i686 Linux; en_US; rv:1.8.0.4) Gecko/20060508 Firefox/1.5.0.4')]
     http_proxy = get_proxies().get('http', None)
@@ -156,7 +162,7 @@ def fit_image(width, height, pwidth, pheight):
     @param height: Height of image
     @param pwidth: Width of box
     @param pheight: Height of box
-    @return: scaled, new_width, new_height. scaled is True iff new_widdth and/or new_height is different from width or height.
+    @return: scaled, new_width, new_height. scaled is True iff new_width and/or new_height is different from width or height.
     '''
     scaled = height > pheight or width > pwidth
     if height > pheight:
@@ -171,6 +177,19 @@ def fit_image(width, height, pwidth, pheight):
 
     return scaled, int(width), int(height)
 
+class CurrentDir(object):
+    
+    def __init__(self, path):
+        self.path = path
+        self.cwd = None
+        
+    def __enter__(self, *args):
+        self.cwd = os.getcwd()
+        os.chdir(self.path)
+        return self.cwd 
+    
+    def __exit__(self, *args):
+        os.chdir(self.cwd)
 
 def sanitize_file_name(name):
     '''
@@ -265,14 +284,36 @@ def english_sort(x, y):
 class LoggingInterface:
 
     def __init__(self, logger):
-        self.__logger = logger
+        self.__logger = self.logger = logger
+        
+    def setup_cli_handler(self, verbosity):
+        for handler in self.__logger.handlers:
+            if isinstance(handler, logging.StreamHandler):
+                return
+        if os.environ.get('CALIBRE_WORKER', None) is not None and self.__logger.handlers:
+            return
+        stream    = sys.stdout
+        formatter = logging.Formatter()
+        level     = logging.INFO
+        if verbosity > 0:
+            formatter = ColoredFormatter('[%(levelname)s] %(message)s') if verbosity > 1 else \
+                        ColoredFormatter('%(levelname)s: %(message)s')
+            level     = logging.DEBUG
+            if verbosity > 1:
+                stream = sys.stderr
+        
+        handler = logging.StreamHandler(stream)
+        handler.setFormatter(formatter)
+        handler.setLevel(level)
+        self.__logger.addHandler(handler)
+        self.__logger.setLevel(level)
+
 
     def ___log(self, func, msg, args, kwargs):
         args = [msg] + list(args)
         for i in range(len(args)):
             if isinstance(args[i], unicode):
                 args[i] = args[i].encode(preferred_encoding, 'replace')
-
         func(*args, **kwargs)
 
     def log_debug(self, msg, *args, **kwargs):
@@ -296,13 +337,19 @@ class LoggingInterface:
     def log_exception(self, msg, *args):
         self.___log(self.__logger.exception, msg, args, {})
 
+def walk(dir):
+    ''' A nice interface to os.walk '''
+    for record in os.walk(dir):
+        for f in record[-1]:
+            yield os.path.join(record[0], f)
 
 def strftime(fmt, t=time.localtime()):
-    '''
-    A version of strtime that returns unicode strings.
-    '''
-    result = time.strftime(fmt, t)
-    return unicode(result, preferred_encoding, 'replace')
+    ''' A version of strtime that returns unicode strings. '''
+    if iswindows:
+        if isinstance(fmt, unicode):
+            fmt = fmt.encode('mbcs')
+        return plugins['winutil'][0].strftime(fmt, t)
+    return time.strftime(fmt, t).decode(preferred_encoding, 'replace')
     
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''

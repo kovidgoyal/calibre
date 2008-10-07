@@ -3,54 +3,37 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Manage translation of user visible strings.
 '''
-import sys, os, cStringIO, tempfile, subprocess, functools, tarfile, re, time, \
-       glob, urllib2, shutil
-check_call = functools.partial(subprocess.check_call, shell=True)
+import shutil, tarfile, re, os, subprocess, urllib2
 
-try:
-    from calibre.translations.pygettext import main as pygettext
-    from calibre.translations.msgfmt import main as msgfmt
-except ImportError:
-    cwd = os.getcwd()
-    sys.path.insert(0, os.path.dirname(os.path.dirname(cwd)))
-    from calibre.translations.pygettext import main as pygettext
-    from calibre.translations.msgfmt import main as msgfmt
+language_codes = {
+    'aa':'Afar','ab':'Abkhazian','af':'Afrikaans','am':'Amharic','ar':'Arabic','as':'Assamese','ay':'Aymara','az':'Azerbaijani',
+    'ba':'Bashkir','be':'Byelorussian','bg':'Bulgarian','bh':'Bihari','bi':'Bislama','bn':'Bengali','bo':'Tibetan','br':'Breton',
+    'ca':'Catalan','co':'Corsican','cs':'Czech','cy':'Welsh',
+    'da':'Danish','de':'German','dz':'Bhutani',
+    'el':'Greek','en':'English','eo':'Esperanto','es':'Spanish','et':'Estonian','eu':'Basque',
+    'fa':'Persian','fi':'Finnish','fj':'Fiji','fo':'Faroese','fr':'French','fy':'Frisian',
+    'ga':'Irish','gd':'Scots Gaelic','gl':'Galician','gn':'Guarani','gu':'Gujarati',
+    'ha':'Hausa','he':'Hebrew','hi':'Hindi','hr':'Croatian','hu':'Hungarian','hy':'Armenian',
+    'ia':'Interlingua','id':'Indonesian','ie':'Interlingue','ik':'Inupiak','is':'Icelandic','it':'Italian','iu':'Inuktitut',
+    'ja':'Japanese','jw':'Javanese',
+    'ka':'Georgian','kk':'Kazakh','kl':'Greenlandic','km':'Cambodian','kn':'Kannada','ko':'Korean','ks':'Kashmiri','ku':'Kurdish','ky':'Kirghiz',
+    'la':'Latin','ln':'Lingala','lo':'Laothian','lt':'Lithuanian','lv':'Latvian, Lettish',
+    'mg':'Malagasy','mi':'Maori','mk':'Macedonian','ml':'Malayalam','mn':'Mongolian','mo':'Moldavian','mr':'Marathi','ms':'Malay','mt':'Maltese','my':'Burmese',
+    'na':'Nauru','nb':'Norwegian Bokmal','nds':'German,Low','ne':'Nepali','nl':'Dutch','no':'Norwegian',
+    'oc':'Occitan','om':'(Afan) Oromo','or':'Oriya',
+    'pa':'Punjabi','pl':'Polish','ps':'Pashto, Pushto','pt':'Portuguese',
+    'qu':'Quechua',
+    'rm':'Rhaeto-Romance','rn':'Kirundi','ro':'Romanian','ru':'Russian','rw':'Kinyarwanda',
+    'sa':'Sanskrit','sd':'Sindhi','sg':'Sangho','sh':'Serbo-Croatian','si':'Sinhalese','sk':'Slovak','sl':'Slovenian','sm':'Samoan','sn':'Shona','so':'Somali','sq':'Albanian','sr':'Serbian','ss':'Siswati','st':'Sesotho','su':'Sundanese','sv':'Swedish','sw':'Swahili',
+    'ta':'Tamil','te':'Telugu','tg':'Tajik','th':'Thai','ti':'Tigrinya','tk':'Turkmen','tl':'Tagalog','tn':'Setswana','to':'Tonga','tr':'Turkish','ts':'Tsonga','tt':'Tatar','tw':'Twi',
+    'ug':'Uighur','uk':'Ukrainian','ur':'Urdu','uz':'Uzbek',
+    'vi':'Vietnamese','vo':'Volapuk',
+    'wo':'Wolof',
+    'xh':'Xhosa',
+    'yi':'Yiddish','yo':'Yoruba',
+    'za':'Zhuang','zh':'Chinese','zu':'Zulu'
+}
 
-
-def source_files():
-    ans = []
-    for root, dirs, files in os.walk(os.path.dirname(os.getcwdu())):
-        for name in files:
-            if name.endswith('.py'):
-                ans.append(os.path.abspath(os.path.join(root, name)))
-    return ans
-                
-
-def create_pot():
-    files = source_files()
-    buf = cStringIO.StringIO()
-    print 'Creating translations template'
-    tempdir = tempfile.mkdtemp()
-    pygettext(buf, ['-p', tempdir]+files)
-    src = buf.getvalue()
-    pot = os.path.join(tempdir, 'calibre.pot')
-    f = open(pot, 'wb')
-    f.write(src)
-    f.close()
-    print 'Translations template:', pot
-    return pot
-    
-
-def compile_translations():
-    translations = {}
-    print 'Compiling translations...'
-    for po in glob.glob('*.po'):
-        lang = os.path.basename(po).partition('.')[0]
-        buf = cStringIO.StringIO()
-        print 'Compiling', lang
-        msgfmt(buf, [po])
-        translations[lang] = buf.getvalue()
-        open('compiled.py', 'wb').write('translations = '+repr(translations))
 
 def import_from_launchpad(url):
     f = open('/tmp/launchpad_export.tar.gz', 'wb')
@@ -69,36 +52,25 @@ def import_from_launchpad(url):
             print 'Updating', '%6s'%po, '-->', out
             open(out, 'wb').write(tf.extractfile(next).read())
         next = tf.next()
-    
     check_for_critical_bugs()
+    path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    print path
+    subprocess.check_call('python setup.py translations'.split(), cwd=path)
     return 0
-
+ 
 def check_for_critical_bugs():
     if os.path.exists('.errors'):
         shutil.rmtree('.errors')
     pofilter = ('pofilter', '-i', '.', '-o', '.errors',
-                '-t', 'accelerators', '-t', 'escapes', '-t', 'variables', 
+                '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
                 '-t', 'xmltags')
     subprocess.check_call(pofilter)
     errs = os.listdir('.errors')
     if errs:
         print 'WARNING: Translation errors detected'
-        print 'See the .errors directory and http://translate.sourceforge.net/wiki/toolkit/using_pofilter'
+        print 'See the .errors directory and http://translate.sourceforge.net/wiki/toolkit/using_pofilter' 
 
-
-def main(args=sys.argv):
-    if len(args) > 1:
-        if args[1] == 'pot':
-            create_pot()
-        else:
-            import_from_launchpad(args[1])
-    else:
-        compile_translations()
-    return 0
-        
 if __name__ == '__main__':
-    cwd = os.getcwd()
-    sys.path.insert(0, os.path.dirname(os.path.dirname(cwd)))
-
-    sys.exit(main())
+    import sys
+    import_from_launchpad(sys.argv[1])
 

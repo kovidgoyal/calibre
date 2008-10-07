@@ -1,12 +1,14 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''Convert any ebook file into a LRF file.'''
 
-import sys, os, logging, shutil, tempfile, glob, re
+import sys, os, logging, shutil, tempfile, re
 
 from calibre.ebooks import UnknownFormatError
 from calibre.ebooks.lrf import option_parser as _option_parser
 from calibre import __appname__, setup_cli_handlers, extract
+from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.lrf.lit.convert_from  import process_file as lit2lrf
 from calibre.ebooks.lrf.pdf.convert_from  import process_file as pdf2lrf
 from calibre.ebooks.lrf.rtf.convert_from  import process_file as rtf2lrf
@@ -28,12 +30,18 @@ def largest_file(files):
 def find_htmlfile(dir):
     ext_pat = re.compile(r'\.(x){0,1}htm(l){0,1}', re.IGNORECASE)
     toc_pat = re.compile(r'toc', re.IGNORECASE)
-    toc_files, files = [], []
-    for f in map(lambda x:os.path.join(dir, x), os.listdir(dir)):
-        name, ext = os.path.splitext(f)
-        if ext and ext_pat.match(ext):
-            toc_files.append(f) if toc_pat.search(f) else files.append(f)
-    a = toc_files if toc_files else files
+    index_pat = re.compile(r'index', re.IGNORECASE)
+    toc_files, index_files, files = [], [], []
+    
+    for root, dirs, _files in os.walk(dir):
+        for f in _files:
+            f = os.path.abspath(os.path.join(root, f))
+            ext = os.path.splitext(f)[1]
+            if ext and ext_pat.match(ext):
+                toc_files.append(f) if toc_pat.search(f) else \
+                index_files.append(f) if index_pat.search(f) else \
+                files.append(f)
+    a = toc_files if toc_files else index_files if index_files else files
     if a:
         return largest_file(a)
 
@@ -74,7 +82,7 @@ def handle_archive(path):
     candidates = map(lambda x:os.path.join(cdir, x), os.listdir(cdir))
     for ext in exts:
         for f in candidates:
-            if f.lower().endswith(ext):
+            if f.lower().endswith('.'+ext):
                 files.append(f)
     file = largest_file(files)
     if not file:
@@ -82,6 +90,21 @@ def handle_archive(path):
     if isinstance(file, str):
         file = file.decode(sys.getfilesystemencoding())
     return tdir, file 
+
+def odt2lrf(path, options, logger):
+    from calibre.ebooks.odt.to_oeb import Extract
+    from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
+    
+    if logger is None:
+        level = logging.DEBUG if options.verbose else logging.INFO
+        logger = logging.getLogger('odt2lrf')
+        setup_cli_handlers(logger, level)
+        
+    with TemporaryDirectory('_odt2lrf') as tdir:
+        opf = Extract()(path, tdir)
+        options.use_spine = True
+        options.encoding = 'utf-8'
+        html_process_file(opf.replace('metadata.opf', 'index.html'), options, logger)
 
 def process_file(path, options, logger=None):
     path = os.path.abspath(os.path.expanduser(path))
@@ -103,7 +126,7 @@ def process_file(path, options, logger=None):
         fmt = '.lrs' if options.lrs else '.lrf'
         options.output = os.path.splitext(os.path.basename(path))[0] + fmt
     options.output = os.path.abspath(os.path.expanduser(options.output))
-    if ext in ['zip', 'rar']:
+    if ext in ['zip', 'rar', 'oebzip']:
         newpath = None
         try:
             tdir, newpath = handle_archive(path)
@@ -132,8 +155,10 @@ def process_file(path, options, logger=None):
             convertor = mobi2lrf
         elif ext == 'fb2':
             convertor = fb22lrf
+        elif ext == 'odt':
+            convertor = odt2lrf
         if not convertor:
-            raise UnknownFormatError('Coverting from %s to LRF is not supported.'%ext)
+            raise UnknownFormatError(_('Converting from %s to LRF is not supported.')%ext)
         convertor(path, options, logger)
     finally:
         os.chdir(cwd)

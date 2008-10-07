@@ -12,17 +12,22 @@ from gettext import GNUTranslations
 # Default translation is NOOP
 import __builtin__
 __builtin__.__dict__['_'] = lambda s: s
-    
-from calibre.constants import iswindows, isosx, islinux, isfrozen
+
+from calibre.constants import iswindows, preferred_encoding, plugins
+from calibre.utils.config import prefs
 from calibre.translations.msgfmt import make
 
 _run_once = False
 if not _run_once:
     _run_once = True
+    
     ################################################################################
     # Setup translations
-    
+
     def get_lang():
+        lang = prefs['language']
+        if lang is not None:
+            return lang
         lang = locale.getdefaultlocale()[0]
         if lang is None and os.environ.has_key('LANG'): # Needed for OS X
             try:
@@ -34,7 +39,7 @@ if not _run_once:
             if match:
                 lang = match.group()
         return lang
-    
+
     def set_translator():
         # To test different translations invoke as
         # LC_ALL=de_DE.utf8 program
@@ -42,7 +47,7 @@ if not _run_once:
             from calibre.translations.compiled import translations
         except:
             return
-        lang = get_lang() 
+        lang = get_lang()
         if lang:
             buf = None
             if os.access(lang+'.po', os.R_OK):
@@ -54,9 +59,9 @@ if not _run_once:
             if buf is not None:
                 t = GNUTranslations(buf)
                 t.install(unicode=True)
-            
+
     set_translator()
-    
+
     ################################################################################
     # Initialize locale
     try:
@@ -68,37 +73,10 @@ if not _run_once:
                 locale.setlocale(dl[0])
         except:
             pass
-    
-    ################################################################################
-    # Load plugins
-    if isfrozen:
-        if iswindows:
-            plugin_path = os.path.join(os.path.dirname(sys.executable), 'plugins')
-            sys.path.insert(1, os.path.dirname(sys.executable))
-        elif isosx:
-            plugin_path = os.path.join(getattr(sys, 'frameworks_dir'), 'plugins')
-        elif islinux:
-            plugin_path = os.path.join(getattr(sys, 'frozen_path'), 'plugins')
-        sys.path.insert(0, plugin_path)
-    else:
-        import pkg_resources
-        plugins = getattr(pkg_resources, 'resource_filename')('calibre', 'plugins')
-        sys.path.insert(0, plugins)
-        
-    plugins = {}
-    for plugin in ['pictureflow', 'lzx', 'msdes'] + \
-                (['winutil'] if iswindows else []) + \
-                (['usbobserver'] if isosx else []):
-        try:
-            p, err = __import__(plugin), ''
-        except Exception, err:
-            p = None
-            err = str(err)
-        plugins[plugin] = (p, err)
-    
+
     ################################################################################
     # Improve builtin path functions to handle unicode sensibly
-    
+
     _abspath = os.path.abspath
     def my_abspath(path, encoding=sys.getfilesystemencoding()):
         '''
@@ -114,7 +92,7 @@ if not _run_once:
         if to_unicode:
             res = res.decode(encoding)
         return res
-    
+
     os.path.abspath = my_abspath
     _join = os.path.join
     def my_join(a, *p):
@@ -126,15 +104,15 @@ if not _run_once:
                 _unicode = True
                 break
         p = [i.encode(encoding) if isinstance(i, unicode) else i for i in p]
-        
+
         res = _join(*p)
         if _unicode:
             res = res.decode(encoding)
         return res
-    
+
     os.path.join = my_join
-    
-    
+
+
     ################################################################################
     # Platform specific modules
     winutil = winutilerror = None
@@ -144,6 +122,9 @@ if not _run_once:
             raise RuntimeError('Failed to load the winutil plugin: %s'%winutilerror)
         if len(sys.argv) > 1:
             sys.argv[1:] = winutil.argv()[1-len(sys.argv):]
-    
+
     ################################################################################
-    
+    # Convert command line arguments to unicode
+    for i in range(1, len(sys.argv)):
+        if not isinstance(sys.argv[i], unicode):
+            sys.argv[i] = sys.argv[i].decode(preferred_encoding, 'replace')

@@ -5,10 +5,13 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, subprocess, logging
 from functools import partial
 from calibre import isosx, setup_cli_handlers, filename_to_utf8, iswindows, islinux
-from calibre.ebooks import ConversionError
+from calibre.ebooks import ConversionError, DRMError
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
+from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.metadata.pdf import get_metadata
 
 PDFTOHTML = 'pdftohtml'
 popen = subprocess.Popen
@@ -20,7 +23,7 @@ if iswindows and hasattr(sys, 'frozen'):
 if islinux and getattr(sys, 'frozen_path', False):
     PDFTOHTML = os.path.join(getattr(sys, 'frozen_path'), 'pdftohtml')
 
-def generate_html(pathtopdf, logger):
+def generate_html(pathtopdf, tdir):
     '''
     Convert the pdf into html.
     @return: Path to a temporary file containing the HTML.
@@ -29,10 +32,10 @@ def generate_html(pathtopdf, logger):
         pathtopdf = pathtopdf.encode(sys.getfilesystemencoding())
     if not os.access(pathtopdf, os.R_OK):
         raise ConversionError, 'Cannot read from ' + pathtopdf
-    tdir = PersistentTemporaryDirectory('pdftohtml')
     index = os.path.join(tdir, 'index.html')
     # This is neccessary as pdftohtml doesn't always (linux) respect absolute paths
-    cmd = (PDFTOHTML, '-enc', 'UTF-8',  '-noframes',  '-p',  '-nomerge',  pathtopdf, os.path.basename(index))
+    pathtopdf = os.path.abspath(pathtopdf)
+    cmd = (PDFTOHTML, '-enc', 'UTF-8',  '-noframes',  '-p',  '-nomerge', pathtopdf, os.path.basename(index))
     cwd = os.getcwd()
     
     try:
@@ -44,16 +47,30 @@ def generate_html(pathtopdf, logger):
                 raise ConversionError(_('Could not find pdftohtml, check it is in your PATH'), True)
             else:
                 raise
-        logger.info(p.stdout.read())
+        print p.stdout.read()
         ret = p.wait()
         if ret != 0:
             err = p.stderr.read()
             raise ConversionError, err
         if not os.path.exists(index) or os.stat(index).st_size < 100:
-            raise ConversionError(os.path.basename(pathtopdf) + _(' does not allow copying of text.'), True)
-        raw = open(index).read(4000)
-        if not '<br' in raw:
+            raise DRMError()
+        
+        raw = open(index, 'rb').read()
+        open(index, 'wb').write('<!-- created by calibre\'s pdftohtml -->\n'+raw)
+        if not '<br' in raw[:4000]:
             raise ConversionError(os.path.basename(pathtopdf) + _(' is an image based PDF. Only conversion of text based PDFs is supported.'), True)
+        try:
+            mi = get_metadata(open(pathtopdf, 'rb'))
+        except:
+            mi = MetaInformation(None, None)
+        if not mi.title:
+            mi.title = os.path.splitext(os.path.basename(pathtopdf))[0]
+        if not mi.authors:
+            mi.authors = [_('Unknown')]
+        opf = OPFCreator(tdir, mi)
+        opf.create_manifest([('index.html', None)])
+        opf.create_spine(['index.html'])
+        opf.render(open('metadata.opf', 'wb'))
     finally:
         os.chdir(cwd)
     return index
@@ -72,7 +89,8 @@ def process_file(path, options, logger=None):
         logger = logging.getLogger('pdf2lrf')
         setup_cli_handlers(logger, level)
     pdf = os.path.abspath(os.path.expanduser(path))
-    htmlfile = generate_html(pdf, logger)
+    tdir = PersistentTemporaryDirectory('_pdf2lrf')
+    htmlfile = generate_html(pdf, tdir)
     if not options.output:
         ext = '.lrs' if options.lrs else '.lrf'        
         options.output = os.path.abspath(os.path.basename(os.path.splitext(path)[0]) + ext)

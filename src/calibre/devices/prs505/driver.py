@@ -31,7 +31,7 @@ class PRS505(Device):
     PRODUCT_ID   = 0x031e #: Product Id for the PRS-505
     PRODUCT_NAME = 'PRS-505'
     VENDOR_NAME  = 'SONY'
-    FORMATS      = ["lrf", 'epub', "rtf", "pdf", "txt"]
+    FORMATS      = ['lrf', 'epub', "rtf", "pdf", "txt"]
     
     MEDIA_XML    = 'database/cache/media.xml'
     CACHE_XML    = 'Sony Reader/database/cache.xml'
@@ -39,9 +39,7 @@ class PRS505(Device):
     MAIN_MEMORY_VOLUME_LABEL  = 'Sony Reader Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Sony Reader Storage Card'
     
-    OSX_MAIN_NAME             = 'Sony PRS-505/UC Media'
-    OSX_SD_NAME               = 'Sony PRS-505/UC:SD Media'
-    OSX_MS_NAME               = 'Sony PRS-505/UC:MS Media'
+    OSX_NAME                  = 'Sony PRS-505'
     
     CARD_PATH_PREFIX          = __appname__
     
@@ -101,29 +99,42 @@ class PRS505(Device):
             return True
         return False
     
+    @classmethod
+    def get_osx_mountpoints(cls, raw=None):
+        if raw is None:
+            raw = subprocess.Popen('ioreg -w 0 -S -c IOMedia'.split(), 
+                                   stdout=subprocess.PIPE).stdout.read()
+        lines = raw.splitlines()
+        names = {}
+        for i, line in enumerate(lines):
+            if line.strip().endswith('<class IOMedia>') and cls.OSX_NAME in line:
+                loc = 'stick' if ':MS' in line else 'card' if ':SD' in line else 'main'
+                for line in lines[i+1:]:
+                    line = line.strip()
+                    if line.endswith('}'):
+                        break
+                    match = re.search(r'"BSD Name"\s+=\s+"(.*?)"', line)
+                    if match is not None:
+                        names[loc] = match.group(1)
+                        break
+            if len(names.keys()) == 3:
+                break
+        return names
+
+    
     def open_osx(self):
         mount = subprocess.Popen('mount', shell=True, 
                                  stdout=subprocess.PIPE).stdout.read()
-        src = subprocess.Popen('ioreg -n "%s"'%(self.OSX_MAIN_NAME,), 
-                               shell=True, stdout=subprocess.PIPE).stdout.read()
-        try:
-            devname = re.search(r'BSD Name.*=\s+"(\S+)"', src).group(1)
-            self._main_prefix = re.search('/dev/%s(\w*)\s+on\s+([^\(]+)\s+'%(devname,), mount).group(2) + os.sep
-        except:
+        names = self.get_osx_mountpoints()
+        dev_pat = r'/dev/%s(\w*)\s+on\s+([^\(]+)\s+'
+        if 'main' not in names.keys():
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
-        try:
-            src = subprocess.Popen('ioreg -n "%s"'%(self.OSX_SD_NAME,), 
-                               shell=True, stdout=subprocess.PIPE).stdout.read()
-            devname = re.search(r'BSD Name.*=\s+"(\S+)"', src).group(1)
-        except:
-            try:
-                src = subprocess.Popen('ioreg -n "%s"'%(self.OSX_MS_NAME,), 
-                                   shell=True, stdout=subprocess.PIPE).stdout.read()
-                devname = re.search(r'BSD Name.*=\s+"(\S+)"', src).group(1)
-            except:
-                devname = None
-        if devname is not None:
-            self._card_prefix = re.search('/dev/%s(\w*)\s+on\s+([^\(]+)\s+'%(devname,), mount).group(2) + os.sep
+        main_pat = dev_pat%names['main']
+        self._main_prefix = re.search(main_pat, mount).group(2) + os.sep
+        card_pat = names['stick'] if 'stick' in names.keys() else names['card'] if 'card' in names.keys() else None
+        if card_pat is not None:
+            card_pat = dev_pat%card_pat
+            self._card_prefix = re.search(card_pat, mount).group(2) + os.sep
             
     
     def open_windows_nowmi(self):
@@ -280,8 +291,15 @@ class PRS505(Device):
         if prefix is None:
             return 0, 0
         win32file = __import__('win32file', globals(), locals(), [], -1)
-        sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
+        try:
+            sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
                 win32file.GetDiskFreeSpace(prefix[:-1])
+        except Exception, err:
+            if getattr(err, 'args', [None])[0] == 21: # Disk not ready
+                time.sleep(3)
+                sectors_per_cluster, bytes_per_sector, free_clusters, total_clusters = \
+                    win32file.GetDiskFreeSpace(prefix[:-1])
+            else: raise
         mult = sectors_per_cluster * bytes_per_sector
         return total_clusters * mult, free_clusters * mult
     
@@ -452,10 +470,14 @@ class PRS505(Device):
         
     def sync_booklists(self, booklists, end_session=True):
         fix_ids(*booklists)
+        if not os.path.exists(self._main_prefix):
+            os.makedirs(self._main_prefix)
         f = open(self._main_prefix + self.__class__.MEDIA_XML, 'wb')
         booklists[0].write(f)
         f.close()
         if self._card_prefix is not None and hasattr(booklists[1], 'write'):
+            if not os.path.exists(self._card_prefix):
+                os.makedirs(self._card_prefix)
             f = open(self._card_prefix + self.__class__.CACHE_XML, 'wb')
             booklists[1].write(f)
             f.close()

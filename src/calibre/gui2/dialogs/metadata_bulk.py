@@ -9,6 +9,7 @@ from PyQt4.QtGui import QDialog
 from calibre.gui2 import qstring_to_unicode
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
+from calibre.ebooks.metadata import string_to_authors
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
     def __init__(self, window, rows, db):
@@ -29,6 +30,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             id, name = i
             self.series.addItem(name)
             
+        for f in self.db.all_formats():
+            self.remove_format.addItem(f)
+            
+        self.remove_format.setCurrentIndex(-1)
+            
         self.series.lineEdit().setText('')
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.series_changed)
         QObject.connect(self.series, SIGNAL('editTextChanged(QString)'), self.series_changed)
@@ -46,7 +52,7 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
         for id in self.ids:
             au = qstring_to_unicode(self.authors.text())
             if au:
-                au = au.split(',')
+                au = string_to_authors(au)
                 self.db.set_authors(id, au)
             aus = qstring_to_unicode(self.author_sort.text())
             if aus:
@@ -66,7 +72,11 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
                 self.db.unapply_tags(id, remove_tags)
             if self.write_series:
                 self.db.set_series(id, qstring_to_unicode(self.series.currentText()))
-        self.changed = True
+                
+            if self.remove_format.currentIndex() > -1:
+                self.db.remove_format(id, unicode(self.remove_format.currentText()), index_is_id=True)
+                
+            self.changed = True
     
     def series_changed(self):
         self.write_series = True

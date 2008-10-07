@@ -7,7 +7,7 @@ from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant
 
 from calibre import islinux
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config
+from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, warning_dialog
 from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.ebooks import BOOK_EXTENSIONS
@@ -20,8 +20,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         Ui_Dialog.__init__(self)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self.setupUi(self)
-        self.item1 = QListWidgetItem(QIcon(':/images/metadata.svg'), _('Basic'), self.category_list)
-        self.item2 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
+        self.item1 = QListWidgetItem(QIcon(':/images/metadata.svg'), _('General'), self.category_list)
+        self.item2 = QListWidgetItem(QIcon(':/images/lookfeel.svg'), _('Interface'), self.category_list)
+        self.item3 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
         self.db = db
         self.current_cols = columns
         path = prefs['library_path']
@@ -66,6 +67,23 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
         self.cover_browse.setValue(config['cover_flow_queue_length'])
         self.confirm_delete.setChecked(config['confirm_delete'])
+        from calibre.translations.compiled import translations
+        from calibre.translations import language_codes
+        from calibre.startup import get_lang
+        lang = get_lang()
+        if lang is not None and language_codes.has_key(lang):
+            self.language.addItem(language_codes[lang], QVariant(lang))
+        items = [(l, language_codes[l]) for l in translations.keys() if l != lang]
+        if lang != 'en':
+            items.append(('en', 'English'))
+        items.sort(cmp=lambda x, y: cmp(x[1], y[1]))
+        for item in items:
+            self.language.addItem(item[1], QVariant(item[0]))
+            
+        self.output_format.setCurrentIndex(0 if prefs['output_format'] == 'LRF' else 1)
+        self.pdf_metadata.setChecked(prefs['read_file_metadata'])
+            
+        
         
     def compact(self, toggled):
         d = Vacuum(self, self.db)
@@ -97,8 +115,15 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['confirm_delete'] =  bool(self.confirm_delete.isChecked())
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
+        prefs['read_file_metadata'] = bool(self.pdf_metadata.isChecked())
         config['save_to_disk_single_format'] = BOOK_EXTENSIONS[self.single_format.currentIndex()]
         config['cover_flow_queue_length'] = self.cover_browse.value()
+        prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
+        of = str(self.output_format.currentText())
+        if of != prefs['output_format'] and 'epub' in of.lower():
+            warning_dialog(self, 'Warning', 
+                '<p>EPUB support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.').exec_()
+        prefs['output_format'] = of 
         
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'),

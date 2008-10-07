@@ -29,6 +29,7 @@ Sections
    conversion
    metadata
    faq 
+   xpath
    glossary
 
 Convenience

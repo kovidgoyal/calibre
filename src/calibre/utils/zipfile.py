@@ -2,6 +2,8 @@
 Read and write ZIP files. Modified by Kovid Goyal to support replacing files in 
 a zip archive.
 """
+from __future__ import with_statement
+from calibre.ptempfile import TemporaryDirectory
 import struct, os, time, sys, shutil
 import binascii, cStringIO
 
@@ -653,10 +655,10 @@ class ZipFile:
 
     fp = None                   # Set here since __del__ checks it
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
+    def __init__(self, file, mode="r", compression=ZIP_DEFLATED, allowZip64=False):
         """Open the ZIP file with mode read "r", write "w" or append "a"."""
         if mode not in ("r", "w", "a"):
-            raise RuntimeError('ZipFile() requires mode "r", "w", or "a"')
+            raise RuntimeError('ZipFile() requires mode "r", "w", or "a" not %s'%mode)
 
         if compression == ZIP_STORED:
             pass
@@ -856,7 +858,8 @@ class ZipFile:
                     if self.filelist[j].header_offset > deleted_offset:                                                          
                         self.filelist[j].header_offset -= deleted_size                                                           
                     if self.filelist[j].file_offset > deleted_offset:                                                            
-                        self.filelist[j].file_offset -= deleted_size                                                             
+                        self.filelist[j].file_offset -= deleted_size
+                self._didModify = True                                                             
                 return                                                                                                           
         if self.debug:                                                                                                           
             print name, "not in archive"                                            
@@ -1034,10 +1037,11 @@ class ZipFile:
             os.makedirs(upperdirs)
         
         source = self.open(member, pwd=pwd)
-        target = open(targetpath, "wb")
-        shutil.copyfileobj(source, target)
-        source.close()
-        target.close()
+        if not os.path.exists(targetpath): # Could be a previously automatically created directory
+            target = open(targetpath, "wb")
+            shutil.copyfileobj(source, target)
+            source.close()
+            target.close()
 
         return targetpath
 
@@ -1067,6 +1071,8 @@ class ZipFile:
     def write(self, filename, arcname=None, compress_type=None):
         """Put the bytes from filename into the archive under the name
         arcname."""
+        if isinstance(filename, unicode):
+            filename = filename.encode('utf-8')
         if not self.fp:
             raise RuntimeError(
                   "Attempt to write to ZIP archive that was already closed")
@@ -1133,15 +1139,17 @@ class ZipFile:
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
 
-    def writestr(self, zinfo_or_arcname, bytes):
+    def writestr(self, zinfo_or_arcname, bytes, permissions=0600, compression=ZIP_DEFLATED):
         """Write a file into the archive.  The contents is the string
         'bytes'.  'zinfo_or_arcname' is either a ZipInfo instance or
         the name of the file in the archive."""
         if not isinstance(zinfo_or_arcname, ZipInfo):
+            if isinstance(zinfo_or_arcname, unicode):
+                zinfo_or_arcname = zinfo_or_arcname.encode('utf-8')
             zinfo = ZipInfo(filename=zinfo_or_arcname,
                             date_time=time.localtime(time.time())[:6])
-            zinfo.compress_type = self.compression
-            zinfo.external_attr = 0600 << 16
+            zinfo.compress_type = compression
+            zinfo.external_attr = permissions << 16
         else:
             zinfo = zinfo_or_arcname
 
@@ -1171,6 +1179,26 @@ class ZipFile:
                   zinfo.file_size))
         self.filelist.append(zinfo)
         self.NameToInfo[zinfo.filename] = zinfo
+        
+    def add_dir(self, path, prefix=''):
+        '''
+        Add a directory recursively to the zip file with an optional prefix.
+        '''
+        if prefix:
+            self.writestr(prefix+'/', '', 0700)
+        cwd = os.path.abspath(os.getcwd())
+        try:
+            os.chdir(path)
+            fp = (prefix + ('/' if prefix else '')).replace('//', '/')
+            for f in os.listdir('.'):
+                arcname = fp + f
+                if os.path.isdir(f):
+                    self.add_dir(f, prefix=arcname)
+                else:
+                    self.write(f, arcname) 
+        finally:
+            os.chdir(cwd)
+            
 
     def __del__(self):
         """Call the "close()" method in case the user forgot."""
@@ -1281,6 +1309,32 @@ class ZipFile:
             self.fp.close()
         self.fp = None
 
+def safe_replace(zipstream, name, datastream):
+    '''
+    Replace a file in a zip file in a safe manner. This proceeds by extracting
+    and re-creating the zipfile. This is neccessary because :method:`ZipFile.replace`
+    sometimes created corrupted zip files.
+    
+    :param zipstream: Stream from a zip file
+    :param name: The name of the file to replace
+    :param datastream: The data to replace the file with.
+    '''
+    z = ZipFile(zipstream, 'r')
+    names = z.namelist()
+    with TemporaryDirectory('_zipfile_replace') as tdir:
+        z.extractall(path=tdir)
+        zipstream.seek(0)
+        zipstream.truncate()
+        z = ZipFile(zipstream, 'w')
+        path = os.path.join(tdir, *name.split('/'))
+        shutil.copyfileobj(datastream, open(path, 'wb'))
+        for name in names:
+            current = os.path.join(tdir, *name.split('/'))
+            if os.path.isdir(current):
+                z.writestr(name+'/', '', 0700)
+            else:
+                z.write(current, name)
+        z.close()
 
 class PyZipFile(ZipFile):
     """Class to create ZIP archives with Python library files and packages."""

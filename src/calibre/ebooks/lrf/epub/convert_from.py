@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, shutil, logging
 from tempfile import mkdtemp
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
-from calibre.ebooks import ConversionError
+from calibre.ebooks import ConversionError, DRMError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.ebooks.metadata.opf import OPF
 from calibre.ebooks.metadata.epub import OCFDirReader
@@ -27,6 +27,8 @@ def generate_html(pathtoepub, logger):
     os.rmdir(tdir)
     try:
         ZipFile(pathtoepub).extractall(tdir)
+        if os.path.exists(os.path.join(tdir, 'META-INF', 'encryption.xml')):
+            raise DRMError(os.path.basename(pathtoepub))
     except:
         if os.path.exists(tdir) and os.path.isdir(tdir):
             shutil.rmtree(tdir)

@@ -23,3 +23,9 @@ installer/windows/calibre/build.log
 src/calibre/translations/.errors
 src/calibre/plugins/*
 src/calibre/gui2/pictureflow/.build
+src/cssutils/.svn/
+src/cssutils/_todo/
+src/cssutils/scripts/
+src/cssutils/css/.svn/
+src/cssutils/stylesheets/.svn/
+src/odf/.svn

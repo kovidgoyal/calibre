@@ -39,7 +39,7 @@ def cover_from_isbn(isbn, timeout=5.):
     _timeout = socket.getdefaulttimeout()
     socket.setdefaulttimeout(timeout)                
     try:
-        src = browser.open('http://www.librarything.com/isbn/'+isbn).read()
+        src = browser.open('http://www.librarything.com/isbn/'+isbn).read().decode('utf-8', 'replace')
         s = BeautifulSoup(src)
         url = s.find('td', attrs={'class':'left'})
         if url is None:

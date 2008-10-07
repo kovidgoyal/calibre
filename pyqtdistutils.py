@@ -10,7 +10,7 @@ from distutils.core import Extension
 from distutils.command.build_ext import build_ext as _build_ext
 from distutils.dep_util import newer_group
 from distutils import log
-    
+
 import sipconfig, os, sys, string, glob, shutil
 from PyQt4 import pyqtconfig
 iswindows = 'win32' in sys.platform
@@ -22,7 +22,7 @@ def replace_suffix(path, new_suffix):
     return os.path.splitext(path)[0] + new_suffix
 
 class PyQtExtension(Extension):
-    
+
     def __init__(self, name, sources, sip_sources, **kw):
         '''
         :param sources: Qt .cpp and .h files needed for this extension
@@ -32,16 +32,16 @@ class PyQtExtension(Extension):
         self.module_makefile = pyqtconfig.QtGuiModuleMakefile
         self.sip_sources = map(lambda x: x.replace('/', os.sep), sip_sources)
         Extension.__init__(self, name, sources, **kw)
-        
+
 
 class build_ext(_build_ext):
-    
+
     def make(self, makefile):
         make = 'make'
         if iswindows:
             make = 'mingw32-make'
         self.spawn([make, '-f', makefile])
-    
+
     def build_qt_objects(self, ext, bdir):
         if not iswindows:
             bdir = os.path.join(bdir, 'qt')
@@ -53,7 +53,7 @@ class build_ext(_build_ext):
         try:
             headers = set([f for f in sources if f.endswith('.h')])
             sources = set(sources) - headers
-            name = ext.name.rpartition('.')[-1] 
+            name = ext.name.rpartition('.')[-1]
             pro = '''\
 TARGET   = %s
 TEMPLATE = lib
@@ -69,7 +69,7 @@ CONFIG   += x86 ppc
             return map(os.path.abspath, glob.glob(pat))
         finally:
             os.chdir(cwd)
-    
+
     def build_sbf(self, sip, sbf, bdir):
         sip_bin = self.sipcfg.sip_bin
         self.spawn([sip_bin,
@@ -78,10 +78,10 @@ CONFIG   += x86 ppc
                     '-I', self.pyqtcfg.pyqt_sip_dir,
                     ] + self.pyqtcfg.pyqt_sip_flags.split()+
                     [sip])
-    
+
     def build_pyqt(self, bdir, sbf, ext, qtobjs, headers):
         makefile = ext.module_makefile(configuration=self.pyqtcfg,
-                                       build_file=sbf, dir=bdir, 
+                                       build_file=sbf, dir=bdir,
                                        makefile='Makefile.pyqt',
                                        universal=OSX_SDK, qt=1)
         if 'win32' in sys.platform:
@@ -95,14 +95,14 @@ CONFIG   += x86 ppc
             self.make('Makefile.pyqt')
         finally:
             os.chdir(cwd)
-        
-        
-    
+
+
+
     def build_extension(self, ext):
         self.inplace = True # Causes extensions to be built in the source tree
         if not isinstance(ext, PyQtExtension):
             return _build_ext.build_extension(self, ext)
-        
+
         fullname = self.get_ext_fullname(ext.name)
         if self.inplace:
             # ignore build-lib -- put the compiled extension into
@@ -122,20 +122,20 @@ CONFIG   += x86 ppc
         bdir = os.path.abspath(os.path.join(self.build_temp, fullname))
         if not os.path.exists(bdir):
             os.makedirs(bdir)
-        ext.sources = map(os.path.abspath, ext.sources)
+        ext.sources2 = map(os.path.abspath, ext.sources)
         qt_dir = 'qt\\release' if iswindows else 'qt'
         objects = set(map(lambda x: os.path.join(bdir, qt_dir, replace_suffix(os.path.basename(x), '.o')),
-                      [s for s in ext.sources if not s.endswith('.h')]))
+                      [s for s in ext.sources2 if not s.endswith('.h')]))
         newer = False
         for object in objects:
-            if newer_group(ext.sources, object, missing='newer'):
+            if newer_group(ext.sources2, object, missing='newer'):
                 newer = True
                 break
-        headers = [f for f in ext.sources if f.endswith('.h')]
+        headers = [f for f in ext.sources2 if f.endswith('.h')]
         if self.force or newer:
             log.info('building \'%s\' extension', ext.name)
             objects = self.build_qt_objects(ext, bdir)
-        
+
         self.sipcfg  = sipconfig.Configuration()
         self.pyqtcfg = pyqtconfig.Configuration()
         sbf_sources = []
@@ -148,19 +148,19 @@ CONFIG   += x86 ppc
         generated_sources = []
         for sbf in sbf_sources:
             generated_sources += self.get_sip_output_list(sbf, bdir)
-        
+
         depends = generated_sources + list(objects)
         mod = os.path.join(bdir, os.path.basename(ext_filename))
-        
+
         if self.force or newer_group(depends, mod, 'newer'):
             self.build_pyqt(bdir, sbf_sources[0], ext, list(objects), headers)
-        
+
         if self.force or newer_group([mod], ext_filename, 'newer'):
             if os.path.exists(ext_filename):
                 os.unlink(ext_filename)
             shutil.copyfile(mod, ext_filename)
             shutil.copymode(mod, ext_filename)
-        
+
     def get_sip_output_list(self, sbf, bdir):
         """
         Parse the sbf file specified to extract the name of the generated source
@@ -175,7 +175,7 @@ CONFIG   += x86 ppc
                 return out
 
         raise RuntimeError, "cannot parse SIP-generated '%s'" % sbf
-    
+
     def run_sip(self, sip_files):
         sip_bin = self.sipcfg.sip_bin
         sip_sources = [i[0] for i in sip_files]
@@ -191,6 +191,5 @@ CONFIG   += x86 ppc
                     ] + self.pyqtcfg.pyqt_sip_flags.split()+
                     [sip])
             generated_sources += self.get_sip_output_list(sbf)
-        return generated_sources 
-            
-        
+        return generated_sources
+

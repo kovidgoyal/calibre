@@ -21,13 +21,13 @@ Run an embedded python interpreter.
     'Module specifications are of the form full.name.of.module,path_to_module.py', default=None
     )
     parser.add_option('-c', '--command', help='Run python code.', default=None)
+    parser.add_option('--migrate', action='store_true', default=False, 
+                      help='Migrate old database. Needs two arguments. Path to library1.db and path to new library folder.', default=False)
     return parser
 
 def update_zipfile(zipfile, mod, path):
     if 'win32' in sys.platform:
-        print 'WARNING: On Windows Vista you must run this from a console that has been started in Administrator mode.'
-        print 'Press Enter to continue if this is an Administrator console or Ctrl-C to Cancel'
-        raw_input()
+        print 'WARNING: On Windows Vista using this option may cause windows to put library.zip into the Virtual Store (typically located in c:\Users\username\AppData\Local\VirtualStore). If it does this you must delete it from there after you\'re done debugging).' 
     pat = re.compile(mod.replace('.', '/')+r'\.py[co]*')
     name = mod.replace('.', '/') + os.path.splitext(path)[-1]
     update(zipfile, [pat], [path], [name])
@@ -47,6 +47,29 @@ def update_module(mod, path):
     else:
         raise ValueError('Updating modules is not supported on this platform.')
 
+def migrate(old, new):
+    from calibre.utils.config import prefs
+    from calibre.library.database import LibraryDatabase
+    from calibre.library.database2 import LibraryDatabase2
+    from calibre.utils.terminfo import ProgressBar
+    from calibre import terminal_controller
+    class Dummy(ProgressBar):
+        def setLabelText(self, x): pass
+        def setAutoReset(self, y): pass
+        def reset(self): pass
+        def setRange(self, min, max):
+            self.min = min
+            self.max = max
+        def setValue(self, val):
+            self.update(float(val)/getattr(self, 'max', 1))
+            
+    db = LibraryDatabase(old)
+    db2 = LibraryDatabase2(new)
+    db2.migrate_old(db, Dummy(terminal_controller, 'Migrating database...'))
+    prefs['library_path'] = os.path.abspath(new)
+    print 'Database migrated to', os.path.abspath(new)
+    
+
 def main(args=sys.argv):
     opts, args = option_parser().parse_args(args)
     if opts.update_module:
@@ -55,6 +78,11 @@ def main(args=sys.argv):
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command
+    elif opts.migrate:
+        if len(args) < 3:
+            print 'You must specify the path to library1.db and the path to the new library folder'
+            return 1
+        migrate(args[1], args[2])
     else:
         from IPython.Shell import IPShellEmbed
         ipshell = IPShellEmbed()

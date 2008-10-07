@@ -13,7 +13,7 @@ from calibre.devices.interface import BookList as _BookList
 from calibre.devices import strftime as _strftime
 from calibre.devices import strptime
 
-strftime = functools.partial(_strftime, zone=time.localtime)
+strftime = functools.partial(_strftime, zone=time.gmtime)
 
 MIME_MAP   = { 
                 "lrf" : "application/x-sony-bbeb",
@@ -184,7 +184,7 @@ class BookList(_BookList):
             self.remove_book(name)
                 
         node = self.document.createElement(self.prefix + "text")
-        mime = MIME_MAP[name.rpartition('.')[-1]]
+        mime = MIME_MAP[name.rpartition('.')[-1].lower()]
         cid = self.max_id()+1
         sourceid = str(self[0].sourceid) if len(self) else "1"
         attrs = {
@@ -277,9 +277,12 @@ class BookList(_BookList):
     def purge_empty_playlists(self):
         ''' Remove all playlists that have no children. Also removes any invalid playlist items.'''
         for pli in self.playlist_items():
-            if not self.is_id_valid(pli.getAttribute('id')):
-                pli.parentNode.removeChild(pli)
-                pli.unlink()
+            try:
+                if not self.is_id_valid(pli.getAttribute('id')):
+                    pli.parentNode.removeChild(pli)
+                    pli.unlink()
+            except:
+                continue
         for pl in self.playlists():
             empty = True
             for c in pl.childNodes:

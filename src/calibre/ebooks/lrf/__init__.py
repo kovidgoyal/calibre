@@ -22,6 +22,8 @@ __docformat__ = "epytext"
 preferred_source_formats = [
                             'LIT',
                             'MOBI',
+                            'EPUB',
+                            'ODT',
                             'HTML',
                             'HTM',
                             'XHTM',
@@ -163,7 +165,7 @@ def option_parser(usage, gui_mode=False):
                       help=_('''The regular expression used to detect chapter titles.'''
                       ''' It is searched for in heading tags (h1-h6). Defaults to %default'''))
     chapter.add_option('--chapter-attr', default='$,,$', 
-                       help=_('Detect a chapter beginning at an element having the specified attribute. The format for this option is tagname regexp,attribute name,attribute value regexp. For example to match all heading tags that have the attribute class="chapter" you would use "h\d,class,chapter". Default is %default'''))
+                       help=_('Detect a chapter beginning at an element having the specified attribute. The format for this option is tagname regexp,attribute name,attribute value regexp. For example to match all heading tags that have the attribute class="chapter" you would use "h\d,class,chapter". You can set the attribute to "none" to match only on tag names. So for example, to match all <h2> tags, you would use "h2,none,". Default is %default'''))
     chapter.add_option('--page-break-before-tag', dest='page_break', default='h[12]',
                       help=_('''If html2lrf does not find any page breaks in the '''
                       '''html file and cannot detect chapter headings, it will '''

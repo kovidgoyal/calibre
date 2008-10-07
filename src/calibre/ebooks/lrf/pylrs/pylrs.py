@@ -603,7 +603,7 @@ class Book(Delegator):
         
     
     def renderLrs(self, lrsFile, encoding="UTF-8"):
-        if isinstance(lrsFile, basestring): 
+        if isinstance(lrsFile, basestring):
             lrsFile = codecs.open(lrsFile, "wb", encoding=encoding)
         self.render(lrsFile, outputEncodingName=encoding)
         lrsFile.close()

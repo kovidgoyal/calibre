@@ -410,6 +410,7 @@ class HTMLConverter(object, LoggingInterface):
             for key in sel[0].split(','):
                 val = self.parse_style_properties(sel[1])
                 key = key.strip().lower()
+                if '+' in key: continue
                 if ':' in key:
                     key, sep, pseudo = key.partition(':')
                     if key in pdict:
@@ -437,7 +438,7 @@ class HTMLConverter(object, LoggingInterface):
         for s in props.split(';'):
             l = s.split(':',1)
             if len(l)==2:
-                key = str(l[0].strip()).lower()
+                key = l[0].strip().lower()
                 val = l[1].strip()
                 prop [key] = val
         return prop
@@ -539,7 +540,7 @@ class HTMLConverter(object, LoggingInterface):
                     return tb
                 for page in list(self.book.pages()[index+1:]):
                     for c in page.contents:
-                        if isinstance(c, (TextBlock, ImageBlock)):
+                        if isinstance(c, (TextBlock, ImageBlock, Canvas)):
                             return c
                 raise ConversionError(_('Could not parse file: %s')%self.file_name)        
                     
@@ -667,10 +668,12 @@ class HTMLConverter(object, LoggingInterface):
             ascii_text = item.text
             if not item.fragment and item.abspath in self.tops:
                 self.book.addTocEntry(ascii_text, self.tops[item.abspath])                
-            else:
-                url = item.abspath+item.fragment
+            elif item.abspath:
+                url = item.abspath+(item.fragment if item.fragment else '')
                 if url in self.targets:
                     self.book.addTocEntry(ascii_text, self.targets[url])
+        
+                
                     
     
     def end_page(self):
@@ -777,11 +780,11 @@ class HTMLConverter(object, LoggingInterface):
         @param css: A dict
         '''
         src = tag.string if hasattr(tag, 'string') else tag
-        if len(src) > 32767:
+        if len(src) > 32760:
             pos = 0
             while pos < len(src):
-                self.add_text(src[pos:pos+32767], css, pseudo_css, force_span_use)
-                pos += 32767
+                self.add_text(src[pos:pos+32760], css, pseudo_css, force_span_use)
+                pos += 32760
             return
         src = src.replace('\r\n', '\n').replace('\r', '\n')
         
@@ -1446,10 +1449,11 @@ class HTMLConverter(object, LoggingInterface):
             pass
         if not self.disable_chapter_detection and \
            (self.chapter_attr[0].match(tagname) and \
-           tag.has_key(self.chapter_attr[1]) and \
-           self.chapter_attr[2].match(tag[self.chapter_attr[1]])):
+            (self.chapter_attr[1].lower() == 'none' or \
+             (tag.has_key(self.chapter_attr[1]) and \
+              self.chapter_attr[2].match(tag[self.chapter_attr[1]])))):
                 self.log_debug('Detected chapter %s', tagname)
-                self.end_page() 
+                self.end_page()
                 self.page_break_found = True
 
                 if self.options.add_chapters_to_toc:
@@ -1562,6 +1566,10 @@ class HTMLConverter(object, LoggingInterface):
                 if tagname == 'ol':
                     old_counter = self.list_counter
                     self.list_counter = 1
+                    try:
+                        self.list_counter = int(tag['start'])
+                    except:
+                        pass
                 prev_bs = self.current_block.blockStyle
                 self.end_current_block()
                 attrs = self.current_block.blockStyle.attrs
@@ -1749,7 +1757,7 @@ class HTMLConverter(object, LoggingInterface):
                     try:
                         self.process_table(tag, tag_css)
                     except Exception, err:
-                        self.log_warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), str(err))
+                        self.log_warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), unicode(err))
                         self.log_debug('', exc_info=True)
                         self.log_debug(_('Bad table:\n%s'), str(tag)[:300])
                         self.in_table = False

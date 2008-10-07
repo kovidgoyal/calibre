@@ -17,11 +17,43 @@ E-book Format Conversion
 
 What formats does |app| support conversion to/from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| supports the conversion of the following formats to LRF: HTML, LIT, MOBI, PRC, EPUB, CBR, CBZ, RTF, TXT, PDF and LRS. It also supports the conversion of LRF to LRS and HTML(forthcoming). Note that calibre does not support the conversion of DRMed ebooks.
+|app| supports the conversion of the following formats:
 
-What are the best formats to convert to LRF?
++----------------------------+------------------------------------------+
+|                            |          **Output formats**              |
+|                            +------------------+-----------------------+
+|                            |      EPUB        |         LRF           |
++===================+========+==================+=======================+      
+|                   |  MOBI  |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  LIT   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  PRC   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  EPUB  |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  ODT   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  HTML  |       ✔          |          ✔            |
+|                   |        |                  |                       |
+| **Input formats** |  CBR   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  CBZ   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  RTF   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  TXT   |       ✔          |          ✔            |
+|                   |        |                  |                       |
+|                   |  PDF   |       ✔          |          ✔            | 
+|                   |        |                  |                       |
+|                   |  LRS   |                  |          ✔            |
++-------------------+--------+------------------+-----------------------+
+           
+
+
+What are the best source formats to convert?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-In order of decreasing preference: LIT, MOBI, HTML, PRC, RTF, TXT, PDF 
+In order of decreasing preference: LIT, MOBI, EPUB, HTML, PRC, RTF, TXT, PDF 
 
 Why does the PDF conversion lose some images/tables?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -79,15 +111,12 @@ Library Management
 
 What formats does |app| read metadata from?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| reads metadata from the following formats: LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB. In addition it can write metadata to: LRF, RTF, OPF
+|app| reads metadata from the following formats: LRF, PDF, LIT, RTF, OPF, MOBI, PRC, EPUB, FB2, IMP, RB, HTML. In addition it can write metadata to: LRF, RTF, OPF
 
 Where are the book files stored?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-|app| use a database to store all books. When you import new books or convert an existing book, the book files are stored in compressed form in the database. The database is a single file named `library1.db` and you can see where it is (or change its location) by clicking the configuration button (the button with the icon of a hammer next to the search bar). 
+When you first run |app|, it will ask you for a folder in which to store your books. Whenever you add a book to |app|, it will copy the book into that folder. Books in the folder are nicely arranged into sub-folders by Author and Title. Metadata about the books is stored in the file ``metadata.db`` (which is a sqlite database).
 
-Can I save my books to the disk?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-You can save your books to the disk by selecting the books and clicking the "Save to disk" button. Your books will be saved in nicely organized folders.
 
 Content From The Web
 ---------------------
@@ -134,15 +163,16 @@ The graphical user interface of |app| is not starting on Windows?
 There can be several causes for this:
 
     * **Any windows version**: Try running it as Administrator (Right click on the icon ans select "Run as Administrator")
-    * **Any windows version**: Search for the files `calibre2.ini` and `calibre.ini` on your computer and delete them. Search for the file `library1.db` and rename it (this file contains all your converted books so deleting it is not a good idea. Now try again.
-    * **Windows Vista**: If the folder :file:`C:\Users\Your User Name\AppData\Local\VirtualStore\Program Files\calibre` exists, delete it. Uninstall |app|. Reboot. Re-install.
+    * **Any windows version**: If this happens during an initial run of calibre, try deleting the folder you chose for your ebooks and restarting calibre.
+    * **Windows Vista**: If the folder :file:`C:\\Users\\Your User Name\\AppData\\Local\\VirtualStore\\Program Files\\calibre` exists, delete it. Uninstall |app|. Reboot. Re-install.
     * **Any windows version**: Search your computer for a folder named :file:`_ipython`. Delete it and try again.
+    * **Any windows version**: Try disabling any antivirus program you have running and see if that fixes it. Also try diabling any firewall software that prevents connections to the local computer.
 
 If it still wont launch, start a command prompt (press the windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
 
     calibre-debug -c "from calibre.gui2.main import main; main()"
 
-Post any output you see in a help message on the `Forums <http://calibre.kovidgoyal.net/discussion>`_.
+Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
     
 
 I want some feature added to |app|. What can I do?

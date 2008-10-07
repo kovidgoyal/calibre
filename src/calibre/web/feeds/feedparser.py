@@ -1452,7 +1452,7 @@ class _BaseHTMLProcessor(sgmllib.SGMLParser):
         # thanks to Kevin Marks for this breathtaking hack to deal with (valid) high-bit attribute values in UTF-8 feeds
         for key, value in attrs:
             if type(value) != type(u''):
-                value = unicode(value, self.encoding)
+                value = unicode(value, self.encoding, 'replace')
             uattrs.append((unicode(key, self.encoding), value))
         strattrs = u''.join([u' %s="%s"' % (key, value) for key, value in uattrs]).encode(self.encoding)
         if tag in self.elements_no_end_tag:

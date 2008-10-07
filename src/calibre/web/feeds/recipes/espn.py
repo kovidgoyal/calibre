@@ -67,7 +67,7 @@ class ESPN(BasicNewsRecipe):
         
         return soup
     
-    def postprocess_html(self, soup):
+    def postprocess_html(self, soup, first_fetch):
         for div in soup.findAll('div', style=True):
             div['style'] = div['style'].replace('center', 'left')
         return soup

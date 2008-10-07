@@ -6,8 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Freeze app into executable using py2exe.
 '''
-QT_DIR           = 'C:\\Qt\\4.4.0'
-DEVCON           = 'C:\\devcon\\i386\\devcon.exe'
+QT_DIR           = 'C:\\Qt\\4.4.1'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 PDFTOHTML        = 'C:\\pdftohtml\\pdftohtml.exe'
@@ -15,13 +14,20 @@ IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
 
 
-import sys, os, py2exe, shutil, zipfile, glob, subprocess
+import sys, os, py2exe, shutil, zipfile, glob, subprocess, re
 from distutils.core import setup
 from distutils.filelist import FileList
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, BASE_DIR)
 from setup import VERSION, APPNAME, entry_points, scripts, basenames
 sys.path.remove(BASE_DIR)
+
+ICONS = [os.path.abspath(os.path.join(BASE_DIR, 'icons', i)) for i in ('library.ico', 'viewer.ico')]
+for icon in ICONS:
+    if not os.access(icon, os.R_OK):
+        raise Exception('No icon at '+icon)
+
+VERSION = re.sub('[a-z]\d+', '', VERSION)
 
 PY2EXE_DIR = os.path.join(BASE_DIR, 'build','py2exe')
 
@@ -59,29 +65,18 @@ class BuildEXE(py2exe.build_exe.py2exe):
             shutil.copyfile(f, os.path.join(self.dist_dir, os.path.basename(f)))
         for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.pyd')):
             shutil.copyfile(f, os.path.join(tgt, os.path.basename(f)))
-        qtsvgdll = None
-        for other in self.other_depends:
-            if 'qtsvg4.dll' in other.lower():
-                qtsvgdll = other
-                break
         shutil.copyfile('LICENSE', os.path.join(self.dist_dir, 'LICENSE'))
         print
-        if qtsvgdll:
-            print 'Adding', qtsvgdll
-            shutil.copyfile(qtsvgdll, os.path.join(self.dist_dir, os.path.basename(qtsvgdll)))
-            qtxmldll = os.path.join(os.path.dirname(qtsvgdll), 'QtXml4.dll')
-            print 'Adding', qtxmldll
-            shutil.copyfile(qtxmldll, 
-                            os.path.join(self.dist_dir, os.path.basename(qtxmldll)))
+        print 'Adding QtXml4.dll'
+        shutil.copyfile(os.path.join(QT_DIR, 'bin', 'QtXml4.dll'),
+                            os.path.join(self.dist_dir, 'QtXml4.dll'))
         print 'Adding Qt plugins...',
         qt_prefix = QT_DIR
-        if qtsvgdll:
-            qt_prefix = os.path.dirname(os.path.dirname(qtsvgdll))
         plugdir = os.path.join(qt_prefix, 'plugins')
         for d in ('imageformats', 'codecs', 'iconengines'):
             print d,
             imfd = os.path.join(plugdir, d)
-            tg = os.path.join(self.dist_dir, d)        
+            tg = os.path.join(self.dist_dir, d)
             if os.path.exists(tg):
                 shutil.rmtree(tg)
             shutil.copytree(imfd, tg)
@@ -94,6 +89,11 @@ class BuildEXE(py2exe.build_exe.py2exe):
         f.close()
         
         print
+        print 'Copying icons'
+        for icon in ICONS:
+            shutil.copyfile(icon, os.path.join(PY2EXE_DIR, os.path.basename(icon)))
+        
+        print
         print 'Adding third party dependencies'
         print '\tAdding devcon'
         tdir = os.path.join(PY2EXE_DIR, 'driver')
@@ -101,7 +101,6 @@ class BuildEXE(py2exe.build_exe.py2exe):
         for pat in ('*.dll', '*.sys', '*.cat', '*.inf'):
             for f in glob.glob(os.path.join(LIBUSB_DIR, pat)):
                 shutil.copyfile(f, os.path.join(tdir, os.path.basename(f)))
-        shutil.copyfile(DEVCON, os.path.join(tdir, os.path.basename(DEVCON)))
         print '\tAdding unrar'
         shutil.copyfile(LIBUNRAR, os.path.join(PY2EXE_DIR, os.path.basename(LIBUNRAR)))
         print '\tAdding pdftohtml'
@@ -126,8 +125,8 @@ class BuildEXE(py2exe.build_exe.py2exe):
     @classmethod
     def manifest(cls, prog):
         cls.manifest_resource_id += 1
-        return (24, cls.manifest_resource_id, 
-                cls.MANIFEST_TEMPLATE % dict(prog=prog, version=VERSION+'.0'))
+        return (24, cls.manifest_resource_id,
+                cls.MANIFEST_TEMPLATE % dict(prog=prog, version=(VERSION+'.0')))
 
 
 def main(args=sys.argv):
@@ -137,18 +136,17 @@ def main(args=sys.argv):
 
     console = [dict(dest_base=basenames['console'][i], script=scripts['console'][i])
                for i in range(len(scripts['console']))]
-    
     setup(
           cmdclass = {'py2exe': BuildEXE},
           windows = [
                      {'script'          : scripts['gui'][0],
                       'dest_base'       : APPNAME,
-                      'icon_resources'  : [(1, os.path.join(BASE_DIR, 'icons', 'library.ico'))],
+                      'icon_resources'  : [(1, ICONS[0])],
                       'other_resources' : [BuildEXE.manifest(APPNAME)],
                       },
                       {'script'         : scripts['gui'][1],
                       'dest_base'       : 'lrfviewer',
-                      'icon_resources'  : [(1, os.path.join(BASE_DIR, 'icons', 'viewer.ico'))],
+                      'icon_resources'  : [(1, ICONS[1])],
                       'other_resources' : [BuildEXE.manifest('lrfviewer')],
                       },
                       ],
@@ -163,12 +161,12 @@ def main(args=sys.argv):
                                              'win32process', 'win32api', 'msvcrt',
                                              'win32event', 'calibre.ebooks.lrf.any.*',
                                              'calibre.ebooks.lrf.feeds.*',
-                                             'lxml', 'lxml._elementpath', 'genshi',
+                                             'genshi', 'BeautifulSoup',
                                              'path', 'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],
-                                  'packages'  : ['PIL'],
+                                  'packages'  : ['PIL', 'lxml'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],

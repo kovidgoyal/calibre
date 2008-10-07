@@ -12,7 +12,8 @@ try:
 except ImportError:
     import Image as PILImage
 
-from calibre import __appname__
+from calibre import __appname__, entity_to_unicode
+from calibre.ebooks import DRMError
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
@@ -160,12 +161,12 @@ class MobiReader(object):
          
             
         self.book_header = BookHeader(self.sections[0][0], self.ident)
-        
+        self.name = self.name.decode(self.book_header.codec, 'replace')
         
     def extract_content(self, output_dir=os.getcwdu()):
         output_dir = os.path.abspath(output_dir)
         if self.book_header.encryption_type != 0:
-            raise MobiError('Cannot extract content from a DRM protected ebook')
+            raise DRMError(self.name)
         
         processed_records = self.extract_text()
         self.add_anchors()
@@ -176,15 +177,17 @@ class MobiReader(object):
         
         self.processed_html = \
             re.compile('<head>', re.IGNORECASE).sub(
-                '<head>\n'
+                '\n<head>\n'
                 '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n'
                 '<style type="text/css">\n'
                 'blockquote { margin: 0em 0em 0em 1.25em; text-align: justify; }\n'
                 'p { margin: 0em; text-align: justify; }\n'
+                '.bold { font-weight: bold; }\n'
+                '.italic { font-style: italic; }\n'
                 '</style>\n',
                 self.processed_html)
         
-        soup = BeautifulSoup(self.processed_html.replace('> <', '>\n<'))
+        soup = BeautifulSoup(self.processed_html)
         self.cleanup_soup(soup)
         guide = soup.find('guide')
         for elem in soup.findAll(['metadata', 'guide']):
@@ -210,6 +213,11 @@ class MobiReader(object):
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.processed_html = '<html><p>'+self.processed_html.replace('\n\n', '<p>')+'</html>'
+        self.processed_html = self.processed_html.replace('> <', '>\n<')
+        self.processed_html = self.processed_html.replace('<b>', '<span class="bold">')
+        self.processed_html = self.processed_html.replace('<i>', '<span class="italic">')
+        self.processed_html = self.processed_html.replace('</b>', '</span>')
+        self.processed_html = self.processed_html.replace('</i>', '</span>')
     
     def cleanup_soup(self, soup):
         for tag in soup.recursiveChildGenerator():
@@ -256,17 +264,19 @@ class MobiReader(object):
                 if ref.type.lower() == 'toc':
                     toc = ref.href()
         if toc:
-            index = self.processed_html.find('<a name="%s"'%toc.partition('#')[-1])
+            index = self.processed_html.find('<a id="%s" name="%s"'%(toc.partition('#')[-1], toc.partition('#')[-1]))
             tocobj = None
+            ent_pat = re.compile(r'&(\S+?);')
             if index > -1:
                 raw = '<html><body>'+self.processed_html[index:]
                 soup = BeautifulSoup(raw)
                 tocobj = TOC()
                 for a in soup.findAll('a', href=True):
                     try:
-                        text = ''.join(a.findAll(text=True)).strip()
+                        text = u''.join(a.findAll(text=True)).strip()
                     except:
                         text = ''
+                    text = ent_pat.sub(entity_to_unicode, text)
                     tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
             if tocobj is not None:
                 opf.set_toc(tocobj)
@@ -341,12 +351,14 @@ class MobiReader(object):
         pos = 0
         self.processed_html = ''
         for end in positions:
+            if end == 0:
+                continue
             oend = end
             l = self.mobi_html.find('<', end)
             r = self.mobi_html.find('>', end)
             if r > -1 and r < l: # Move out of tag
                 end = r+1
-            self.processed_html += self.mobi_html[pos:end] + '<a name="filepos%d"></a>'%oend 
+            self.processed_html += self.mobi_html[pos:end] + '<a id="filepos%d" name="filepos%d"></a>'%(oend, oend) 
             pos = end
             
         self.processed_html += self.mobi_html[pos:]

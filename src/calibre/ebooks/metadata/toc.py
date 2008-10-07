@@ -1,7 +1,7 @@
 #!/usr/bin/env  python
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, glob, sys
+import os, glob
 from urlparse import urlparse
 from urllib import unquote
 
@@ -21,18 +21,41 @@ class NCXSoup(BeautifulStoneSoup):
 class TOC(list):
     
     def __init__(self, href=None, fragment=None, text=None, parent=None, play_order=0, 
-                 base_path=os.getcwd()):
+                 base_path=os.getcwd(), type='unknown'):
         self.href = href
         self.fragment = fragment
+        if not self.fragment:
+            self.fragment = None
         self.text = text
         self.parent = parent
         self.base_path = base_path
         self.play_order = play_order
+        self.type = type
         
-    def add_item(self, href, fragment, text):
-        play_order = (self[-1].play_order if len(self) else self.play_order) + 1
+    def count(self, type):
+        return len([i for i in self.flat() if i.type == type])
+    
+    def purge(self, types, max=0):
+        remove = []
+        for entry in self.flat():
+            if entry.type in types:
+                remove.append(entry)
+        remove = remove[max:]
+        for entry in remove:
+            if entry.parent is None:
+                continue
+            entry.parent.remove(entry)
+        return remove
+    
+    def remove(self, entry):
+        list.remove(self, entry)
+        entry.parent = None
+        
+    def add_item(self, href, fragment, text, play_order=None, type='unknown'):
+        if play_order is None:
+            play_order = (self[-1].play_order if len(self) else self.play_order) + 1
         self.append(TOC(href=href, fragment=fragment, text=text, parent=self,
-                        base_path=self.base_path, play_order=play_order))
+                        base_path=self.base_path, play_order=play_order, type=type))
         return self[-1]
     
     def top_level_items(self):
@@ -48,14 +71,24 @@ class TOC(list):
                 depth = c + 1
         return depth
     
+    def flat(self):
+        'Depth first iteration over the tree rooted at self'
+        yield self
+        for obj in self:
+            for i in obj.flat():
+                yield i
+    
     @apply
     def abspath():
         doc='Return the file this toc entry points to as a absolute path to a file on the system.'
         def fget(self):
+            if self.href is None:
+                return None
             path = self.href.replace('/', os.sep)
             if not os.path.isabs(path):
                 path = os.path.join(self.base_path, path)
             return path
+            
         return property(fget=fget, doc=doc) 
     
     def read_from_opf(self, opfreader):
@@ -85,15 +118,15 @@ class TOC(list):
                     
                     self.read_html_toc(toc)
                 except:
-                    print 'WARNING: Could not read Table of Contents:'
-                    import traceback
-                    traceback.print_exc(file=sys.stdout)
-                    print 'Continuing anyway'
+                    print 'WARNING: Could not read Table of Contents. Continuing anyway.'
             else:
                 path = opfreader.manifest.item(toc.lower())
                 path = getattr(path, 'path', path)
                 if path and os.access(path, os.R_OK):
-                    self.read_ncx_toc(path)
+                    try:
+                        self.read_ncx_toc(path)
+                    except Exception, err:
+                        print 'WARNING: Invalid NCX file:', err
                     return
                 cwd = os.path.abspath(self.base_path)
                 m = glob.glob(os.path.join(cwd, '*.ncx'))
@@ -106,14 +139,16 @@ class TOC(list):
         soup = NCXSoup(xml_to_unicode(open(toc, 'rb').read())[0])
         
         def process_navpoint(np, dest):
-            play_order = np.get('playOrder', 1)
+            play_order = np.get('playOrder', None)
+            if play_order is None:
+                play_order = int(np.get('playorder', 1))
             href = fragment = text = None
             nl = np.find('navlabel')
             if nl is not None:
                 text = u''
                 for txt in nl.findAll('text'):
                     text += ''.join([unicode(s) for s in txt.findAll(text=True)])
-                content = elem.find('content')
+                content = np.find('content')
                 if content is None or not content.has_key('src') or not txt:
                     return
                 
@@ -143,8 +178,20 @@ class TOC(list):
                 continue
             purl = urlparse(unquote(a['href']))
             href, fragment = purl[2], purl[5]
+            if not fragment:
+                fragment = None
+            else:
+                fragment = fragment.strip()
+            href = href.strip()
+            
             txt = ''.join([unicode(s).strip() for s in a.findAll(text=True)])
-            self.add_item(href, fragment, txt)
+            add = True
+            for i in self.flat():
+                if i.href == href and i.fragment == fragment:
+                    add = False
+                    break 
+            if add:
+                self.add_item(href, fragment, txt)
 
     def render(self, stream, uid):
         from calibre.resources import ncx_template

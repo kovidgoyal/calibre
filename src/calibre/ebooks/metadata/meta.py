@@ -9,9 +9,12 @@ from calibre.ebooks.metadata.fb2  import get_metadata as fb2_metadata
 from calibre.ebooks.lrf.meta      import get_metadata as lrf_metadata
 from calibre.ebooks.metadata.pdf  import get_metadata as pdf_metadata
 from calibre.ebooks.metadata.lit  import get_metadata as lit_metadata
+from calibre.ebooks.metadata.imp  import get_metadata as imp_metadata
+from calibre.ebooks.metadata.rb   import get_metadata as rb_metadata
 from calibre.ebooks.metadata.epub import get_metadata as epub_metadata
 from calibre.ebooks.metadata.html import get_metadata as html_metadata
 from calibre.ebooks.mobi.reader   import get_metadata as mobi_metadata
+from calibre.ebooks.metadata.odt  import get_metadata as odt_metadata
 from calibre.ebooks.metadata.opf  import OPFReader
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
@@ -21,8 +24,8 @@ from calibre.ebooks.metadata import MetaInformation
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
-                       'rtf', 'fb2', 'pdf', 'prc',
-                       'epub', 'lit', 'lrf', 'mobi',
+                       'rtf', 'fb2', 'pdf', 'prc', 'odt',
+                       'epub', 'lit', 'lrf', 'mobi', 'rb', 'imp'
                       ]
 
 # The priorities for loading metadata from different file types
@@ -41,23 +44,28 @@ def metadata_from_formats(formats):
     for path in formats:
         ext = path_to_ext(path)
         stream = open(path, 'rb')
-        mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=True))
+        try:
+            mi.smart_update(get_metadata(stream, stream_type=ext, use_libprs_metadata=True))
+        except:
+            continue
         if getattr(mi, 'application_id', None) is not None:
             return mi
     
     if not mi.title:
-        mi.title = 'Unknown'
+        mi.title = _('Unknown')
     if not mi.authors:
-        mi.authors = ['Unknown']
+        mi.authors = [_('Unknown')]
 
     return mi
 
 def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if stream_type: stream_type = stream_type.lower()
-    if stream_type in ('html', 'html', 'xhtml', 'xhtm'):
+    if stream_type in ('html', 'html', 'xhtml', 'xhtm', 'xml'):
         stream_type = 'html'
     if stream_type in ('mobi', 'prc'):
         stream_type = 'mobi'
+    if stream_type in ('odt', 'ods', 'odp', 'odg', 'odf'):
+        stream_type = 'odt'
         
     opf = None
     if hasattr(stream, 'name'):
@@ -68,18 +76,20 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if use_libprs_metadata and getattr(opf, 'application_id', None) is not None:
         return opf
     
-    try:
-        func = eval(stream_type + '_metadata')
-        mi = func(stream)
-    except NameError:
-        mi = MetaInformation(None, None)
+    mi = MetaInformation(None, None)
+    if prefs['read_file_metadata']:
+        try:
+            func = eval(stream_type + '_metadata')
+            mi = func(stream)
+        except NameError:
+            pass
         
     name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name)
     if not base.authors:
-        base.authors = ['Unknown']
+        base.authors = [_('Unknown')]
     if not base.title:
-        base.title = 'Unknown'
+        base.title = _('Unknown')
     base.smart_update(mi)
     if opf is not None:
         base.smart_update(opf)

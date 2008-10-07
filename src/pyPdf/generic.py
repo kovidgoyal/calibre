@@ -203,6 +203,10 @@ class IndirectObject(PdfObject):
 
 
 class FloatObject(decimal.Decimal, PdfObject):
+    def __new__(cls, value="0", context=None):
+        return decimal.Decimal.__new__(cls, str(value), context)
+    def __repr__(self):
+        return str(self)
     def writeToStream(self, stream, encryption_key):
         stream.write(str(self))
 
@@ -419,8 +423,73 @@ class NameObject(str, PdfObject):
 
 
 class DictionaryObject(dict, PdfObject):
-    def __init__(self):
-        pass
+
+    def __init__(self, *args, **kwargs):
+        if len(args) == 0:
+            self.update(kwargs)
+        elif len(args) == 1:
+            arr = args[0]
+            # If we're passed a list/tuple, make a dict out of it
+            if not hasattr(arr, "iteritems"):
+                newarr = {}
+                for k, v in arr:
+                    newarr[k] = v
+                arr = newarr
+            self.update(arr)
+        else:
+            raise TypeError("dict expected at most 1 argument, got 3")
+
+    def update(self, arr):
+        # note, a ValueError halfway through copying values
+        # will leave half the values in this dict.
+        for k, v in arr.iteritems():
+            self.__setitem__(k, v)
+
+    def raw_get(self, key):
+        return dict.__getitem__(self, key)
+
+    def __setitem__(self, key, value):
+        if not isinstance(key, PdfObject):
+            raise ValueError("key must be PdfObject")
+        if not isinstance(value, PdfObject):
+            raise ValueError("value must be PdfObject")
+        return dict.__setitem__(self, key, value)
+
+    def setdefault(self, key, value=None):
+        if not isinstance(key, PdfObject):
+            raise ValueError("key must be PdfObject")
+        if not isinstance(value, PdfObject):
+            raise ValueError("value must be PdfObject")
+        return dict.setdefault(self, key, value)
+
+    def __getitem__(self, key):
+        return dict.__getitem__(self, key).getObject()
+
+    ##
+    # Retrieves XMP (Extensible Metadata Platform) data relevant to the
+    # this object, if available.
+    # <p>
+    # Stability: Added in v1.12, will exist for all future v1.x releases.
+    # @return Returns a {@link #xmp.XmpInformation XmlInformation} instance
+    # that can be used to access XMP metadata from the document.  Can also
+    # return None if no metadata was found on the document root.
+    def getXmpMetadata(self):
+        metadata = self.get("/Metadata", None)
+        if metadata == None:
+            return None
+        metadata = metadata.getObject()
+        import xmp
+        if not isinstance(metadata, xmp.XmpInformation):
+            metadata = xmp.XmpInformation(metadata)
+            self[NameObject("/Metadata")] = metadata
+        return metadata
+
+    ##
+    # Read-only property that accesses the {@link
+    # #DictionaryObject.getXmpData getXmpData} function.
+    # <p>
+    # Stability: Added in v1.12, will exist for all future v1.x releases.
+    xmpMetadata = property(lambda self: self.getXmpMetadata(), None, None)
 
     def writeToStream(self, stream, encryption_key):
         stream.write("<<\n")
@@ -563,7 +632,7 @@ class EncodedStreamObject(StreamObject):
             return self.decodedSelf.getData()
         else:
             # create decoded object
-            decoded = StreamObject()
+            decoded = DecodedStreamObject()
             decoded._data = filters.decodeStreamData(self)
             for key, value in self.items():
                 if not key in ("/Length", "/Filter", "/DecodeParms"):
@@ -583,8 +652,8 @@ class RectangleObject(ArrayObject):
         ArrayObject.__init__(self, [self.ensureIsNumber(x) for x in arr])
 
     def ensureIsNumber(self, value):
-        if not isinstance(value, NumberObject):
-            value = NumberObject(value)
+        if not isinstance(value, (NumberObject, FloatObject)):
+            value = FloatObject(value)
         return value
 
     def __repr__(self):

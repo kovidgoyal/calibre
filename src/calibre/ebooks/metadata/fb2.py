@@ -33,8 +33,8 @@ def get_metadata(stream):
                     exts = ['.jpg']
                 cdata = (exts[0][1:], b64decode(binary.string.strip()))
                 
-    if comments and len(comments) > 1:
-        comments = comments.p.contents[0]
+    if comments:
+        comments = u''.join(comments.findAll(text=True))
     series = soup.find("sequence")
     mi = MetaInformation(title, author)
     mi.comments = comments

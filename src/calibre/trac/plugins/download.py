@@ -31,11 +31,12 @@ class Distribution(object):
         ('libusb', '0.1.12', None, None, None),
         ('Qt', '4.4.0', 'qt', 'libqt4-core libqt4-gui', 'qt4'),
         ('PyQt', '4.4.2', 'PyQt4', 'python-qt4', 'PyQt4'),
-        ('mechanize for python', '0.1.7b', 'dev-python/mechanize', 'python-mechanize', 'python-mechanize'),
+        ('mechanize for python', '0.1.8', 'dev-python/mechanize', 'python-mechanize', 'python-mechanize'),
         ('ImageMagick', '6.3.5', 'imagemagick', 'imagemagick', 'ImageMagick'),
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
-        ('lxml', '1.3.3', 'lxml', 'python-lxml', 'python-lxml'),
+        ('lxml', '2.0.5', 'lxml', 'python-lxml', 'python-lxml'),
+        ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-beautifulsoup'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
     
@@ -44,8 +45,8 @@ class Distribution(object):
     INSTALLERS = ('emerge -avn', 'apt-get install', 'yum install')
     AS_ROOT    = (True, False, True)
     
-    TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Gutsy Gibbon',
-                'fedora':'Fedora 8', 'debian':'Debian Sid', 'generic': 'Generic Unix'}
+    TITLEMAP = {'gentoo':'Gentoo', 'ubuntu':'Ubuntu Intrepid Ibex',
+                'fedora':'Fedora 10', 'debian':'Debian sid', 'generic': 'Install from source'}
     
     MANUAL_MAP = {
                   'fedora' : '''<li>You have to upgrade Qt to at least 4.4.0 and PyQt to at least 4.4.2</li>''',
@@ -70,7 +71,7 @@ class Distribution(object):
             for dep in self.DEPENDENCIES:
                 if len(cmd) > 70+offset:
                     offset += 70
-                    cmd += pre 
+                    cmd += pre
                 cmd += ' ' 
                 if dep[index]: cmd += dep[index]
             self.command = cmd.strip()
@@ -125,13 +126,14 @@ class Download(Component):
                 elif os == 'linux':
                     return self.linux(req)
                 elif 'binary' in os:
-                    return self.linux_binary(req) 
+                    return self.linux_binary(req)
                 else:
                     return self.linux_distro(req, os)       
     
     def linux_distro(self, req, os):
+        version = self.version_from_filename()
         distro = Distribution(os)
-        data = dict(distro=distro,title=distro.title)
+        data = dict(distro=distro,title=distro.title, version=version)
         return 'distro.html', data, None
     
     def top_level(self, req):
@@ -142,7 +144,7 @@ class Download(Component):
         ]
         data = dict(title='Get ' + __appname__, 
                     operating_systems=operating_systems, width=200,
-                    font_size='xx-large')
+                    font_size='xx-large', top_level=True)
         return 'download.html', data, None
     
     def version_from_filename(self):
@@ -178,7 +180,9 @@ for one device. In order to resolve the conflict:
 </ul>
 You can uninstall a driver by right clicking on it and selecting uninstall.
 </li>
-<li>Once the drivers have been uninstalled, uninstall %(appname)s. Reboot. Reinstall %(appname)s.</li>
+<li>Once the drivers have been uninstalled, find the file prs500.inf (it will be in the 
+driver folder in the folder in which you installed %(appname)s. Right click on it and
+select Install.</li>
 </ol>
 </p>
 </blockquote>
@@ -225,14 +229,14 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
     
     def linux(self, req):
         operating_systems = [
-            OS({'name' : 'binary', 'title': 'Distro neutral'}),
+            OS({'name' : 'binary', 'title': 'Binary Installer'}),
             OS({'name' : 'gentoo', 'title': 'Gentoo'}),
             OS({'name' : 'ubuntu', 'title': 'Ubuntu'}),
             OS({'name' : 'fedora', 'title': 'Fedora'}),
             OS({'name' : 'debian', 'title': 'Debian'}),
-            OS({'name' : 'generic','title': 'Generic', 'img':'linux'}),
+            OS({'name' : 'generic','title': 'Install from source', 'img':'linux'}),
                              ]
         data = dict(title='Choose linux distribution', width=100,
-                    operating_systems=operating_systems, font_size='x-large')
+                    operating_systems=operating_systems, font_size='x-large', top_level=False)
         return 'download.html', data, None
                             

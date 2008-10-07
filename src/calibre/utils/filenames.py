@@ -73,6 +73,10 @@ MAP = {
         u"ь" : u"'",
         }  #: Translation table
 
+for c in string.whitespace:
+    MAP[c] = ' '
+PAT = re.compile('['+u''.join(MAP.keys())+']')
+
 def ascii_filename(orig):
     orig =  PAT.sub(lambda m:MAP[m.group()], orig)
     buf = []

@@ -15,6 +15,24 @@ from calibre.constants import __version__ as VERSION
 from calibre import relpath
 from calibre.utils.config import OptionParser
 
+def string_to_authors(raw):
+    raw = raw.replace('&&', u'\uffff')
+    authors = [a.strip().replace(u'\uffff', '&') for a in raw.split('&')]
+    return authors
+
+def authors_to_string(authors):
+    return ' & '.join([a.replace('&', '&&') for a in authors])
+
+def author_to_author_sort(author):
+    tokens = author.split()
+    tokens = tokens[-1:] + tokens[:-1]
+    if len(tokens) > 1:
+        tokens[0] += ','
+    return ' '.join(tokens)
+
+def authors_to_sort_string(authors):
+    return ' & '.join(map(author_to_author_sort, authors))
+
 def get_parser(extension):
     ''' Return an option parser with the basic metadata options already setup'''
     parser = OptionParser(usage='%prog [options] myfile.'+extension+'\n\nRead and write metadata from an ebook file.')
@@ -43,7 +61,7 @@ class Resource(object):
     
     def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
         self._href = None
-        self._basedir = None
+        self._basedir = basedir
         self.path = None
         self.fragment = ''
         try:
@@ -55,7 +73,7 @@ class Resource(object):
         if is_path:
             path = href_or_path
             if not os.path.isabs(path):
-                path = os.path.abspath(os.path.join(path, basedir))
+                path = os.path.abspath(os.path.join(basedir, path))
             if isinstance(path, str):
                 path = path.decode(sys.getfilesystemencoding())
             self.path = path
@@ -141,6 +159,10 @@ class ResourceCollection(object):
         
     def remove(self, resource):
         self._resources.remove(resource)
+    
+    def replace(self, start, end, items):
+        'Same as list[start:end] = items'
+        self._resources[start:end] = items
         
     @staticmethod
     def from_directory_contents(top, topdown=True):
@@ -167,18 +189,17 @@ class MetaInformation(object):
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'tags', 'cover_data', 'application_id', 'guide',
-                     'manifest', 'spine', 'toc', 'cover', 'language'):
+                     'manifest', 'spine', 'toc', 'cover', 'language', 'book_producer'):
             if hasattr(mi, attr):
                 setattr(ans, attr, getattr(mi, attr))
         
-    
     def __init__(self, title, authors=[_('Unknown')]):
         '''
         @param title: title or "Unknown" or a MetaInformation object
         @param authors: List of strings or []
         '''
         mi = None
-        if isinstance(title, MetaInformation):
+        if hasattr(title, 'title') and hasattr(title, 'authors'):
             mi = title
             title = mi.title
             authors = mi.authors
@@ -186,42 +207,32 @@ class MetaInformation(object):
         self.author = authors # Needed for backward compatibility
         #: List of strings or []
         self.authors = authors
-        #: Sort text for author
-        self.author_sort  = None if not mi else mi.author_sort
-        self.title_sort   = None if not mi else mi.title_sort
-        self.comments     = None if not mi else mi.comments
-        self.category     = None if not mi else mi.category
-        self.publisher    = None if not mi else mi.publisher
-        self.series       = None if not mi else mi.series
-        self.series_index = None if not mi else mi.series_index
-        self.rating       = None if not mi else mi.rating
-        self.isbn         = None if not mi else mi.isbn
-        self.tags         = []  if not mi else mi.tags
-        self.language     = None if not mi else mi.language # Typically a string describing the language
+        self.tags = getattr(mi, 'tags', [])
         #: mi.cover_data = (ext, data)
-        self.cover_data   = mi.cover_data if (mi and hasattr(mi, 'cover_data')) else (None, None)
-        self.application_id    = mi.application_id  if (mi and hasattr(mi, 'application_id')) else None
-        self.manifest = getattr(mi, 'manifest', None)
-        self.toc      = getattr(mi, 'toc', None)
-        self.spine    = getattr(mi, 'spine', None)
-        self.guide    = getattr(mi, 'guide', None)
-        self.cover    = getattr(mi, 'cover', None)
+        self.cover_data   = getattr(mi, 'cover_data', (None, None))
+        
+        for x in ('author_sort', 'title_sort', 'comments', 'category', 'publisher', 
+                  'series', 'series_index', 'rating', 'isbn', 'language',
+                  'application_id', 'manifest', 'toc', 'spine', 'guide', 'cover',
+                  'book_producer',
+                  ):
+            setattr(self, x, getattr(mi, x, None))
     
     def smart_update(self, mi):
         '''
         Merge the information in C{mi} into self. In case of conflicts, the information
         in C{mi} takes precedence, unless the information in mi is NULL.
         '''
-        if mi.title and mi.title.lower() != 'unknown':
+        if mi.title and mi.title != _('Unknown'):
             self.title = mi.title
             
-        if mi.authors and mi.authors[0].lower() != 'unknown':
+        if mi.authors and mi.authors[0] != _('Unknown'):
             self.authors = mi.authors
             
         for attr in ('author_sort', 'title_sort', 'comments', 'category',
                      'publisher', 'series', 'series_index', 'rating',
                      'isbn', 'application_id', 'manifest', 'spine', 'toc', 
-                     'cover', 'language', 'guide'):
+                     'cover', 'language', 'guide', 'book_producer'):
             if hasattr(mi, attr):
                 val = getattr(mi, attr)
                 if val is not None:
@@ -242,6 +253,8 @@ class MetaInformation(object):
             ans += ((' (' + self.author_sort + ')') if self.author_sort else '') + u'\n'
         if self.publisher:
             ans += u'Publisher: '+ unicode(self.publisher) + u'\n'
+        if self.book_producer:
+            ans += u'Producer : '+ unicode(self.book_producer) + u'\n'
         if self.category: 
             ans += u'Category : ' + unicode(self.category) + u'\n'
         if self.comments:

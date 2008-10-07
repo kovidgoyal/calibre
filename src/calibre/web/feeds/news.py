@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -10,6 +10,7 @@ __docformat__ = "restructuredtext en"
 import logging, os, cStringIO, time, traceback, re, urlparse, sys
 from collections import defaultdict
 from functools import partial
+from contextlib import nested, closing
 
 from calibre import browser, __appname__, iswindows, LoggingInterface, strftime
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
@@ -17,7 +18,7 @@ from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
-from calibre.web.feeds import feed_from_xml, templates, feeds_from_index
+from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
@@ -136,6 +137,9 @@ class BasicNewsRecipe(object, LoggingInterface):
     
     #: List of options to pass to html2lrf, to customize generation of LRF ebooks.
     html2lrf_options      = []
+    
+    #: Options to pass to html2epub to customize generation of EPUB ebooks.
+    html2epub_options     = ''
     
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
@@ -285,15 +289,16 @@ class BasicNewsRecipe(object, LoggingInterface):
         '''
         return soup
     
-    def postprocess_html(self, soup):
+    def postprocess_html(self, soup, first_fetch):
         '''
         This method is called with the source of each downloaded :term:`HTML` file, after
         it is parsed for links and images. 
         It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
         It should return `soup` after processing it. 
         
-        `soup`: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ 
+        :param soup: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ 
         instance containing the downloaded :term:`HTML`.
+        :param first_fetch: True if this is the first page of an article.
         '''
         return soup
     
@@ -313,7 +318,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         `url_or_raw`: Either a URL or the downloaded index page as a string
         '''
         if re.match(r'\w+://', url_or_raw):
-            raw = self.browser.open(url_or_raw).read()
+            f = self.browser.open(url_or_raw)
+            raw = f.read()
+            f.close()
             if not raw:
                 raise RuntimeError('Could not fetch index from %s'%url_or_raw)
         else:
@@ -407,7 +414,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         defaults = parser.get_default_values()
         
         for opt in options.__dict__.keys():
-            if getattr(options, opt) != getattr(defaults, opt):
+            if getattr(options, opt) != getattr(defaults, opt, None):
                 setattr(self, opt, getattr(options, opt))
         
         if isinstance(self.feeds, basestring):
@@ -476,7 +483,7 @@ class BasicNewsRecipe(object, LoggingInterface):
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
             
-        return self.postprocess_html(soup)
+        return self.postprocess_html(soup, first_fetch)
         
     
     def download(self):
@@ -487,25 +494,27 @@ class BasicNewsRecipe(object, LoggingInterface):
         @return: Path to index.html
         @rtype: string
         '''
-        res = self.build_index()
-        self.cleanup()
-        self.report_progress(1, _('Download finished'))
-        if self.failed_downloads:
-            self.log_warning(_('Failed to download the following articles:'))
-            for feed, article, debug in self.failed_downloads:
-                self.log_warning(article.title+_(' from ')+feed.title)
-                self.log_debug(article.url)
-                self.log_debug(debug)
-        if self.partial_failures:
-            self.log_warning(_('Failed to download parts of the following articles:'))
-            for feed, atitle, aurl, debug in self.partial_failures:
-                self.log_warning(atitle + _(' from ') + feed)
-                self.log_debug(aurl)
-                self.log_warning(_('\tFailed links:'))
-                for l, tb in debug:
-                    self.log_warning(l)
-                    self.log_debug(tb) 
-        return res
+        try:
+            res = self.build_index()
+            self.report_progress(1, _('Download finished'))
+            if self.failed_downloads:
+                self.log_warning(_('Failed to download the following articles:'))
+                for feed, article, debug in self.failed_downloads:
+                    self.log_warning(article.title+_(' from ')+feed.title)
+                    self.log_debug(article.url)
+                    self.log_debug(debug)
+            if self.partial_failures:
+                self.log_warning(_('Failed to download parts of the following articles:'))
+                for feed, atitle, aurl, debug in self.partial_failures:
+                    self.log_warning(atitle + _(' from ') + feed)
+                    self.log_debug(aurl)
+                    self.log_warning(_('\tFailed links:'))
+                    for l, tb in debug:
+                        self.log_warning(l)
+                        self.log_debug(tb) 
+            return res
+        finally:
+            self.cleanup()
     
     def feeds2index(self, feeds):
         templ = templates.IndexTemplate()
@@ -544,7 +553,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                     if bn:
                         img = os.path.join(imgdir, 'feed_image_%d%s'%(self.image_counter, os.path.splitext(bn)))
                         try:
-                            open(img, 'wb').write(self.browser.open(feed.image_url).read())
+                            with nested(open(img, 'wb'), closing(self.browser.open(feed.image_url))) as (fi, r):
+                                fi.write(r.read())
                             self.image_counter += 1
                             feed.image_url = img
                             self.image_map[feed.image_url] = img
@@ -588,12 +598,11 @@ class BasicNewsRecipe(object, LoggingInterface):
         return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
     
     def fetch_embedded_article(self, article, dir, logger, f, a, num_of_feeds):
-        pt = PersistentTemporaryFile('_feeds2disk.html')
         templ = templates.EmbeddedContent()
         raw = templ.generate(article).render('html')
-        open(pt.name, 'wb').write(raw)
-        pt.close()
-        url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
+        with PersistentTemporaryFile('_feeds2disk.html') as pt:
+            pt.write(raw)
+            url = ('file:'+pt.name) if iswindows else ('file://'+pt.name)
         return self._fetch_article(url, dir, logger, f, a, num_of_feeds)
         
     
@@ -605,6 +614,8 @@ class BasicNewsRecipe(object, LoggingInterface):
             self.report_progress(0, _('Got feeds from index page'))
         except NotImplementedError:
             feeds = self.parse_feeds()
+        
+        #feeds = FeedCollection(feeds)
         
         self.report_progress(0, _('Trying to download cover...'))
         self.download_cover()
@@ -618,7 +629,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         index = os.path.join(self.output_dir, 'index.html') 
         
         html = self.feeds2index(feeds)
-        open(index, 'wb').write(html)
+        with open(index, 'wb') as fi:
+            fi.write(html)
         
         self.jobs = []
         for f, feed in enumerate(feeds):
@@ -639,7 +651,6 @@ class BasicNewsRecipe(object, LoggingInterface):
                     url = article.url
                 if not url:
                     continue
-                    
                 func, arg = (self.fetch_embedded_article, article) if self.use_embedded_content else \
                             ((self.fetch_obfuscated_article if self.articles_are_obfuscated \
                               else self.fetch_article), url)
@@ -667,10 +678,13 @@ class BasicNewsRecipe(object, LoggingInterface):
             except NoResultsPending:
                 break
         
+        #feeds.restore_duplicates()
+        
         for f, feed in enumerate(feeds):
             html = self.feed2index(feed)
             feed_dir = os.path.join(self.output_dir, 'feed_%d'%f)
-            open(os.path.join(feed_dir, 'index.html'), 'wb').write(html)
+            with open(os.path.join(feed_dir, 'index.html'), 'wb') as fi:
+                fi.write(html)
         self.create_opf(feeds)
         self.report_progress(1, _('Feeds downloaded to %s')%index)
         
@@ -689,8 +703,8 @@ class BasicNewsRecipe(object, LoggingInterface):
             ext = ext.lower() if ext else 'jpg'
             self.report_progress(1, _('Downloading cover from %s')%cu)
             cpath = os.path.join(self.output_dir, 'cover.'+ext)
-            cfile = open(cpath, 'wb')
-            cfile.write(self.browser.open(cu).read())
+            with nested(open(cpath, 'wb'), closing(self.browser.open(cu))) as (cfile, r):
+                cfile.write(r.read())
             self.cover_path = cpath
             
     
@@ -714,6 +728,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         
         entries = ['index.html']
         toc = TOC(base_path=dir)
+        self.play_order_counter = 0
+        self.play_order_map = {}
         
         def feed_index(num, parent):
             f = feeds[num]
@@ -721,7 +737,12 @@ class BasicNewsRecipe(object, LoggingInterface):
                 if getattr(a, 'downloaded', False):
                     adir = 'feed_%d/article_%d/'%(num, j)
                     entries.append('%sindex.html'%adir)
-                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'))
+                    po = self.play_order_map.get(entries[-1], None)
+                    if po is None:
+                        self.play_order_counter += 1
+                        po = self.play_order_counter
+                    parent.add_item('%sindex.html'%adir, None, a.title if a.title else _('Untitled Article'),
+                                    play_order=po)
                     last = os.path.join(self.output_dir, ('%sindex.html'%adir).replace('/', os.sep))
                     for sp in a.sub_pages:
                         prefix = os.path.commonprefix([opf_path, sp])
@@ -729,23 +750,30 @@ class BasicNewsRecipe(object, LoggingInterface):
                         entries.append(relp.replace(os.sep, '/'))
                         last = sp
                     
-                    src = open(last, 'rb').read().decode('utf-8')
-                    soup = BeautifulSoup(src)
-                    body = soup.find('body')
-                    if body is not None:
-                        prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
-                        templ = self.navbar.generate(True, num, j, len(f), 
-                                         not self.has_single_feed, 
-                                         a.orig_url, __appname__, prefix=prefix,
-                                         center=self.center_navbar)
-                        elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
-                        body.insert(len(body.contents), elem)
-                        open(last, 'wb').write(unicode(soup).encode('utf-8'))
+                    if os.path.exists(last):
+                        with open(last, 'rb') as fi:
+                            src = fi.read().decode('utf-8')
+                        soup = BeautifulSoup(src)
+                        body = soup.find('body')
+                        if body is not None:
+                            prefix = '/'.join('..'for i in range(2*len(re.findall(r'link\d+', last))))
+                            templ = self.navbar.generate(True, num, j, len(f), 
+                                             not self.has_single_feed, 
+                                             a.orig_url, __appname__, prefix=prefix,
+                                             center=self.center_navbar)
+                            elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
+                            body.insert(len(body.contents), elem)
+                            with open(last, 'wb') as fi:
+                                fi.write(unicode(soup).encode('utf-8'))
         
         if len(feeds) > 1:
             for i, f in enumerate(feeds):
                 entries.append('feed_%d/index.html'%i)
-                feed_index(i, toc.add_item('feed_%d/index.html'%i, None, f.title))
+                po = self.play_order_map.get(entries[-1], None)
+                if po is None:
+                    self.play_order_counter += 1
+                    po = self.play_order_counter
+                feed_index(i, toc.add_item('feed_%d/index.html'%i, None, f.title, play_order=po))
         else:
             entries.append('feed_%d/index.html'%0)
             feed_index(0, toc)
@@ -755,7 +783,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         opf.create_spine(entries)
         opf.set_toc(toc)
         
-        opf.render(open(opf_path, 'wb'), open(ncx_path, 'wb'))
+        with nested(open(opf_path, 'wb'), open(ncx_path, 'wb')) as (opf_file, ncx_file):
+            opf.render(opf_file, ncx_file)
         
     
     def article_downloaded(self, request, result):
@@ -800,12 +829,21 @@ class BasicNewsRecipe(object, LoggingInterface):
             else:
                 title, url = obj
             self.report_progress(0, _('Fetching feed')+' %s...'%(title if title else url))
-            parsed_feeds.append(feed_from_xml(self.browser.open(url).read(), 
-                                              title=title,
-                                              oldest_article=self.oldest_article,
-                                              max_articles_per_feed=self.max_articles_per_feed,
-                                              get_article_url=self.get_article_url))
-            
+            try:
+                with closing(self.browser.open(url)) as f:
+                    parsed_feeds.append(feed_from_xml(f.read(), 
+                                          title=title,
+                                          oldest_article=self.oldest_article,
+                                          max_articles_per_feed=self.max_articles_per_feed,
+                                          get_article_url=self.get_article_url))
+            except Exception, err:
+                feed = Feed()
+                msg = 'Failed feed: %s'%(title if title else url)
+                feed.populate_from_preparsed_feed(msg, [])
+                feed.description = unicode(err)
+                parsed_feeds.append(feed)
+                self.log_exception(msg)
+                
         return parsed_feeds
     
     @classmethod
@@ -891,7 +929,8 @@ class CustomIndexRecipe(BasicNewsRecipe):
         mi = OPFCreator(self.output_dir, mi)
         mi.create_manifest_from_files_in([self.output_dir])
         mi.create_spine([os.path.join(self.output_dir, 'index.html')])
-        mi.render(open(os.path.join(self.output_dir, 'index.opf'), 'wb'))
+        with open(os.path.join(self.output_dir, 'index.opf'), 'wb') as opf_file:
+            mi.render(opf_file)
     
     def download(self):
         index = os.path.abspath(self.custom_index())

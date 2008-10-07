@@ -1,11 +1,11 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, sys, textwrap, collections, traceback, time
+import os, sys, textwrap, collections, traceback, time, re
 from xml.parsers.expat import ExpatError
 from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton, QDialog, QDesktopServices
+                        QToolButton, QDialog, QDesktopServices, QFileDialog
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
@@ -34,20 +34,20 @@ from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
+from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, set_conversion_defaults, fetch_news
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.user_profiles import UserProfiles
-import calibre.gui2.dialogs.comicconf as ComicConf 
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.html import gui_main as html2oeb
 from calibre.ebooks import BOOK_EXTENSIONS
-from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
 from calibre.utils.filenames import ascii_filename
+from calibre.gui2.widgets import WarningDialog
 
 class Main(MainWindow, Ui_MainWindow):
 
@@ -122,13 +122,13 @@ class Main(MainWindow, Ui_MainWindow):
         sm.addAction(_('Send to storage card by default'))
         sm.actions()[-1].setCheckable(True)
         def default_sync(checked):
-            config.set('send_to_device_by_default', bool(checked))
+            config.set('send_to_storage_card_by_default', bool(checked))
             QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_main_memory)
             QObject.disconnect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card)
             QObject.connect(self.action_sync, SIGNAL("triggered(bool)"), self.sync_to_card if checked else self.sync_to_main_memory)
         QObject.connect(sm.actions()[-1], SIGNAL('toggled(bool)'), default_sync)
 
-        sm.actions()[-1].setChecked(config.get('send_to_device_by_default'))
+        sm.actions()[-1].setChecked(config.get('send_to_storage_card_by_default'))
         default_sync(sm.actions()[-1].isChecked())    
         self.sync_menu = sm # Needed
         md = QMenu()
@@ -178,7 +178,7 @@ class Main(MainWindow, Ui_MainWindow):
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
         cm.addSeparator()
-        cm.addAction(_('Set defaults for conversion to LRF'))
+        cm.addAction(_('Set defaults for conversion'))
         cm.addAction(_('Set defaults for conversion of comics'))
         self.action_convert.setMenu(cm)
         QObject.connect(cm.actions()[0], SIGNAL('triggered(bool)'), self.convert_single)
@@ -214,7 +214,17 @@ class Main(MainWindow, Ui_MainWindow):
 
         self.show()
         self.stack.setCurrentIndex(0)
-        db = LibraryDatabase2(self.library_path)
+        try:
+            db = LibraryDatabase2(self.library_path)
+        except OSError, err:
+            error_dialog(self, _('Bad database location'), unicode(err)).exec_()
+            dir = unicode(QFileDialog.getExistingDirectory(self, 
+                            _('Choose a location for your ebook library.'), os.path.expanduser('~')))
+            if not dir:
+                QCoreApplication.exit(1)
+            else:
+                self.library_path = dir
+                db = LibraryDatabase2(self.library_path)
         self.library_view.set_database(db)
         if self.olddb is not None:
             from PyQt4.QtGui import QProgressDialog
@@ -223,10 +233,13 @@ class Main(MainWindow, Ui_MainWindow):
             pd.setCancelButton(None)
             pd.setWindowTitle(_('Migrating database'))
             pd.show()
-            db.migrate_old(self.olddb, pd)
+            number_of_books = db.migrate_old(self.olddb, pd)
+            self.olddb.close()
+            if number_of_books == 0:
+                os.remove(self.olddb.dbpath)
             self.olddb = None
             prefs['library_path'] = self.library_path
-        self.library_view.sortByColumn(3, Qt.DescendingOrder)
+        self.library_view.sortByColumn(*dynamic.get('sort_column', (3, Qt.DescendingOrder)))
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
         self.library_view.resizeRowsToContents()
@@ -234,6 +247,16 @@ class Main(MainWindow, Ui_MainWindow):
         self.cover_cache = CoverCache(self.library_path)
         self.cover_cache.start()
         self.library_view.model().cover_cache = self.cover_cache
+        self.tags_view.setVisible(False)
+        self.match_all.setVisible(False)
+        self.match_any.setVisible(False)
+        self.popularity.setVisible(False)
+        self.tags_view.set_database(db, self.match_all, self.popularity)
+        self.connect(self.tags_view, SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
+                     self.search.search_from_tokens)
+        self.connect(self.status_bar.tag_view_button, SIGNAL('toggled(bool)'), self.toggle_tags_view)
+        self.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
+                     self.tags_view.model().reinit)
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -273,6 +296,18 @@ class Main(MainWindow, Ui_MainWindow):
             self.status_bar.book_info.book_data.setMaximumHeight(1000)
         self.setMaximumHeight(available_height())
 
+    def toggle_tags_view(self, show):
+        if show:
+            self.tags_view.setVisible(True)
+            self.match_all.setVisible(True)
+            self.match_any.setVisible(True)
+            self.popularity.setVisible(True)
+            self.tags_view.setFocus(Qt.OtherFocusReason)
+        else:
+            self.tags_view.setVisible(False)
+            self.match_all.setVisible(False)
+            self.match_any.setVisible(False)
+            self.popularity.setVisible(False)
 
     def sync_cf_to_listview(self, index, *args):
         if not hasattr(index, 'row') and self.library_view.currentIndex().row() != index:
@@ -411,8 +446,8 @@ class Main(MainWindow, Ui_MainWindow):
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
             for mi, formats in duplicates:
                 files += '<li>'+mi.title+'</li>\n'
-            d = question_dialog(self, _('Duplicates found!'), files+'</ul></p>')
-            if d.exec_() == QMessageBox.Yes:
+            d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', self)
+            if d.exec_() == QDialog.Accepted:
                 for mi, formats in duplicates:
                     self.library_view.model().db.import_book(mi, formats )
 
@@ -459,39 +494,58 @@ class Main(MainWindow, Ui_MainWindow):
         if to_device:
             self.status_bar.showMessage(_('Uploading books to device.'), 2000)
 
-    def _add_books(self, paths, to_device):
-        on_card = False if self.stack.currentIndex() != 2 else True
+    def _add_books(self, paths, to_device, on_card=None):
+        if on_card is None:
+            on_card = self.stack.currentIndex() == 2
         # Get format and metadata information
         formats, metadata, names, infos = [], [], [], []
         for book in paths:
             format = os.path.splitext(book)[1]
             format = format[1:] if format else None
             stream = open(book, 'rb')
-            mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
+            try:
+                mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
+            except:
+                mi = MetaInformation(None, None)
             if not mi.title:
                 mi.title = os.path.splitext(os.path.basename(book))[0]
+            if not mi.authors:
+                mi.authors = [_('Unknown')]
             formats.append(format)
             metadata.append(mi)
             names.append(os.path.basename(book))
-            if not mi.authors:
-                mi.authors = ['Unknown']
             infos.append({'title':mi.title, 'authors':', '.join(mi.authors),
                           'cover':self.default_thumbnail, 'tags':[]})
 
         if not to_device:
-            model = self.current_view().model()
-            duplicates = model.add_books(paths, formats, metadata)
+            model = self.library_view.model()
+            html_pat = re.compile(r'\.x{0,1}htm(l{0,1})\s*$', re.IGNORECASE)
+            paths = list(paths)
+            for i, path in enumerate(paths):
+                if html_pat.search(path) is not None:
+                    try:
+                        paths[i] = html2oeb(path)
+                    except:
+                        traceback.print_exc()
+                        continue
+                    if paths[i] is None:
+                        paths[i] = path
+                    else: 
+                        formats[i] = 'zip'
+            duplicates, number_added = model.add_books(paths, formats, metadata)
             if duplicates:
                 files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
                 for mi in duplicates[2]:
                     files += '<li>'+mi.title+'</li>\n'
-                d = question_dialog(self, _('Duplicates found!'), files+'</ul></p>')
-                if d.exec_() == QMessageBox.Yes:
-                    model.add_books(*duplicates, **dict(add_duplicates=True))
-            model.resort()
-            model.research()
+                d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', parent=self)
+                if d.exec_() == QDialog.Accepted:
+                    num = model.add_books(*duplicates, **dict(add_duplicates=True))[1]
+                    number_added += num
+            #self.library_view.sortByColumn(3, Qt.DescendingOrder)
+            #model.research()
+            model.books_added(number_added)
         else:
-            self.upload_books(paths, names, infos, on_card=on_card)
+            self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
@@ -557,9 +611,9 @@ class Main(MainWindow, Ui_MainWindow):
         else:
             view = self.memory_view if self.stack.currentIndex() == 1 else self.card_view
             paths = view.model().paths(rows)
-            id = self.remove_paths(paths)
-            self.delete_memory[id] = (paths, view.model())
-            view.model().mark_for_deletion(id, rows)
+            job = self.remove_paths(paths)
+            self.delete_memory[job] = (paths, view.model())
+            view.model().mark_for_deletion(job, rows)
             self.status_bar.showMessage(_('Deleting books from device.'), 1000)
 
     def remove_paths(self, paths):
@@ -570,7 +624,7 @@ class Main(MainWindow, Ui_MainWindow):
         Called once deletion is done on the device
         '''
         for view in (self.memory_view, self.card_view):
-            view.model().deletion_done(id, bool(job.exception))
+            view.model().deletion_done(job, bool(job.exception))
         if job.exception is not None:
             self.device_job_exception(job)            
             return
@@ -743,29 +797,32 @@ class Main(MainWindow, Ui_MainWindow):
             self.news_menu.set_custom_feeds(feeds)
 
     def fetch_news(self, data):
-        pt = PersistentTemporaryFile(suffix='_feeds2lrf.lrf')
-        pt.close()
-        args = ['feeds2lrf', '--output', pt.name, '--debug']
-        if data['username']:
-            args.extend(['--username', data['username']])
-        if data['password']:
-            args.extend(['--password', data['password']])
-        args.append(data['script'] if data['script'] else data['title'])
-        job = self.job_manager.run_job(Dispatcher(self.news_fetched), 'feeds2lrf', args=[args],
-                                            description=_('Fetch news from ')+data['title'])
-        self.conversion_jobs[job] = (pt, 'lrf')
+        func, args, desc, fmt, temp_files = fetch_news(data)
+        self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
+        job = self.job_manager.run_job(Dispatcher(self.news_fetched), func, args=args,
+                                            description=desc)
+        self.conversion_jobs[job] = (temp_files, fmt)
         self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
         
     def news_fetched(self, job):
-        pt, fmt = self.conversion_jobs.pop(job)
+        temp_files, fmt = self.conversion_jobs.pop(job)
+        pt = temp_files[0]
         if job.exception is not None:
             self.job_exception(job)
             return
-        to_device = self.device_connected and fmt in self.device_manager.device_class.FORMATS
-        self._add_books([pt.name], to_device)
+        to_device = self.device_connected and fmt.lower() in self.device_manager.device_class.FORMATS
+        self._add_books([pt.name], to_device, 
+            on_card=config.get('send_to_storage_card_by_default') and self.device_connected and bool(self.device_manager.device.card_prefix()))
         if to_device:
             self.status_bar.showMessage(_('News fetched. Uploading to device.'), 2000)
             self.persistent_files.append(pt)
+        try:
+            if not to_device:
+                for f in temp_files:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
+        except:
+            pass
 
     ############################################################################
 
@@ -789,189 +846,60 @@ class Main(MainWindow, Ui_MainWindow):
                 others.append(r)
         return comics, others
     
-    def convert_bulk_others(self, rows):
-        d = LRFBulkDialog(self)
-        d.exec_()
-        if d.result() != QDialog.Accepted:
-            return
-        bad_rows = []
-
-        self.status_bar.showMessage(_('Starting Bulk conversion of %d books')%len(rows), 2000)
-        if rows and hasattr(rows[0], 'row'):
-            rows = [r.row() for r in rows]
-        for i, row in enumerate(rows):
-            cmdline = list(d.cmdline)
-            mi = self.library_view.model().db.get_metadata(row)
-            if mi.title:
-                cmdline.extend(['--title', mi.title])
-            if mi.authors:
-                cmdline.extend(['--author', ','.join(mi.authors)])
-            if mi.publisher:
-                cmdline.extend(['--publisher', mi.publisher])
-            if mi.comments:
-                cmdline.extend(['--comment', mi.comments])
-            data = None
-            for fmt in LRF_PREFERRED_SOURCE_FORMATS:
-                try:
-                    data = self.library_view.model().db.format(row, fmt.upper())
-                    break
-                except:
-                    continue
-            if data is None:
-                bad_rows.append(row)
-                continue
-            pt = PersistentTemporaryFile('.'+fmt.lower())
-            pt.write(data)
-            pt.close()
-            of = PersistentTemporaryFile('.lrf')
-            of.close()
-            cover = self.library_view.model().db.cover(row)
-            if cover:
-                cf = PersistentTemporaryFile('.jpeg')
-                cf.write(cover)
-                cf.close()
-                cmdline.extend(['--cover', cf.name])
-            cmdline.extend(['-o', of.name])
-            cmdline.append(pt.name)
-            job = self.job_manager.run_job(Dispatcher(self.book_converted),
-                                                        'any2lrf', args=[cmdline],
-                                    description=_('Convert book %d of %d (%s)')%(i+1, len(rows), repr(mi.title)))
-                    
-                    
-            self.conversion_jobs[job] = (d.cover_file, pt, of, d.output_format, 
-                                        self.library_view.model().db.id(row))
-        res = []
-        for row in bad_rows:
-            title = self.library_view.model().db.title(row)
-            res.append('<li>%s</li>'%title)
-        if res:
-            msg = _('<p>Could not convert %d of %d books, because no suitable source format was found.<ul>%s</ul>')%(len(res), len(rows), '\n'.join(res))
-            warning_dialog(self, _('Could not convert some books'), msg).exec_()
         
-    
     def convert_bulk(self, checked):
-        comics, others = self.get_books_for_conversion()
-        if others:
-            self.convert_bulk_others(others)
-        if comics:
-            opts = ComicConf.get_bulk_conversion_options(self)
-            if opts:
-                for i, row in enumerate(comics):
-                    options = opts.copy()
-                    mi = self.library_view.model().db.get_metadata(row)
-                    if mi.title:
-                        options.title = mi.title
-                    if mi.authors:
-                        opts.author =  ','.join(mi.authors)
-                    data = None
-                    for fmt in ['cbz', 'cbr']:
-                        try:
-                            data = self.library_view.model().db.format(row, fmt.upper())
-                            break                    
-                        except:
-                            continue
-                    
-                    pt = PersistentTemporaryFile('.'+fmt.lower())
-                    pt.write(data)
-                    pt.close()
-                    of = PersistentTemporaryFile('.lrf')
-                    of.close()
-                    setattr(options, 'output', of.name)
-                    options.verbose = 1
-                    args = [pt.name, options]
-                    job = self.job_manager.run_job(Dispatcher(self.book_converted), 
-                                    'comic2lrf', args=args,
-                                    description=_('Convert comic %d of %d (%s)')%(i+1, len(comics), repr(options.title)))
-                    self.conversion_jobs[job] = (None, pt, of, 'lrf', 
-                                        self.library_view.model().db.id(row))
-                        
-            
-    def set_conversion_defaults(self, checked):
-        d = LRFSingleDialog(self, None, None)
-        d.exec_()
+        r = self.get_books_for_conversion()
+        if r is None:
+            return
+        comics, others = r 
         
-    def set_comic_conversion_defaults(self, checked):
-        ComicConf.set_conversion_defaults(self)
-    
-    def convert_single_others(self, rows):
-        changed = False
-        for row in rows:
-            d = LRFSingleDialog(self, self.library_view.model().db, row)
-            if d.selected_format:
-                d.exec_()
-                if d.result() == QDialog.Accepted:
-                    cmdline = d.cmdline
-                    data = self.library_view.model().db.format(row, d.selected_format)
-                    pt = PersistentTemporaryFile('.'+d.selected_format.lower())
-                    pt.write(data)
-                    pt.close()
-                    of = PersistentTemporaryFile('.lrf')
-                    of.close()
-                    cmdline.extend(['-o', of.name])
-                    cmdline.append(pt.name)
-                    job = self.job_manager.run_job(Dispatcher(self.book_converted),
-                                    'any2lrf', args=[cmdline],
-                                    description=_('Convert book: ')+d.title())
-                    
-                    
-                    self.conversion_jobs[job] = (d.cover_file, pt, of, d.output_format, d.id)
-                    changed = True
+        jobs, changed  = convert_bulk_ebooks(self, self.library_view.model().db, comics, others) 
+        for func, args, desc, fmt, id, temp_files in jobs:
+            job = self.job_manager.run_job(Dispatcher(self.book_converted), 
+                                            func, args=args, description=desc)
+            self.conversion_jobs[job] = (temp_files, fmt, id)
+            
         if changed:
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
+            
+    def set_conversion_defaults(self, checked):
+        set_conversion_defaults(False, self, self.library_view.model().db)
         
+    def set_comic_conversion_defaults(self, checked):
+        set_conversion_defaults(True, self, self.library_view.model().db)
     
     def convert_single(self, checked):
-        comics, others = self.get_books_for_conversion()
-        if others:
-            self.convert_single_others(others)
-        changed = False
-        db = self.library_view.model().db
-        for row in comics:
-            mi = db.get_metadata(row)
-            title = author = _('Unknown')
-            if mi.title:
-                title = mi.title
-            if mi.authors:
-                author =  ','.join(mi.authors)
-            defaults = db.conversion_options(db.id(row), 'comic')
-            opts, defaults = ComicConf.get_conversion_options(self, defaults, title, author)
-            if defaults is not None:
-                db.set_conversion_options(db.id(row), 'comic', defaults)
-            if opts is None: continue
-            for fmt in ['cbz', 'cbr']:
-                try:
-                    data = db.format(row, fmt.upper())
-                    break                    
-                except:
-                    continue
-            pt = PersistentTemporaryFile('.'+fmt)
-            pt.write(data)
-            pt.close()
-            of = PersistentTemporaryFile('.lrf')
-            of.close()
-            opts.output = of.name
-            opts.verbose = 1
-            args = [pt.name, opts]
-            changed = True
+        r = self.get_books_for_conversion()
+        if r is None: return
+        comics, others = r
+        jobs, changed = convert_single_ebook(self, self.library_view.model().db, comics, others)
+        for func, args, desc, fmt, id, temp_files in jobs:
             job = self.job_manager.run_job(Dispatcher(self.book_converted), 
-                         'comic2lrf', args=args,
-                         description=_('Convert comic: ')+opts.title)
-            self.conversion_jobs[job] = (None, pt, of, 'lrf', 
-                                        self.library_view.model().db.id(row))
+                                            func, args=args, description=desc)
+            self.conversion_jobs[job] = (temp_files, fmt, id)
+            
         if changed:
             self.library_view.model().resort(reset=False)
             self.library_view.model().research()
                     
     def book_converted(self, job):
-        of, fmt, book_id = self.conversion_jobs.pop(job)[2:]
-        if job.exception is not None:
-            self.job_exception(job)
-            return
-        data = open(of.name, 'rb')
-        self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
-        data.close()
-        self.status_bar.showMessage(job.description + (' completed'), 2000)
+        temp_files, fmt, book_id = self.conversion_jobs.pop(job)
+        try:
+            if job.exception is not None:
+                self.job_exception(job)
+                return
+            data = open(temp_files[-1].name, 'rb')
+            self.library_view.model().db.add_format(book_id, fmt, data, index_is_id=True)
+            data.close()
+            self.status_bar.showMessage(job.description + (' completed'), 2000)
+        finally:
+            for f in temp_files:
+                try:
+                    if os.path.exists(f.name):
+                        os.remove(f.name)
+                except:
+                    pass
     
     #############################View book######################################
 
@@ -1086,16 +1014,22 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.set_visible_columns(d.final_columns)
             self.tool_bar.setIconSize(config['toolbar_icon_size'])
             self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if config['show_text_in_toolbar'] else Qt.ToolButtonIconOnly)
-            
+            self.save_menu.actions()[2].setText(_('Save only %s format to disk')%config.get('save_to_disk_single_format').upper())
             if self.library_path != d.database_location:
                 try:
                     newloc = d.database_location
                     if not os.path.exists(os.path.join(newloc, 'metadata.db')):
                         if os.access(self.library_path, os.R_OK):
+                            from PyQt4.QtGui import QProgressDialog
+                            pd = QProgressDialog('', '', 0, 100, self)
+                            pd.setWindowModality(Qt.ApplicationModal)
+                            pd.setCancelButton(None)
+                            pd.setWindowTitle(_('Copying database'))
+                            pd.show()
                             self.status_bar.showMessage(_('Copying library to ')+newloc)
                             self.setCursor(Qt.BusyCursor)
                             self.library_view.setEnabled(False)
-                            self.library_view.model().db.move_library_to(newloc)
+                            self.library_view.model().db.move_library_to(newloc, pd)
                     else:
                         try:
                             db = LibraryDatabase2(newloc)
@@ -1134,8 +1068,7 @@ class Main(MainWindow, Ui_MainWindow):
             return
         index = self.library_view.currentIndex()
         if index.isValid():
-            info = self.library_view.model().get_book_info(index)
-            BookInfo(self, info).show()
+            BookInfo(self, self.library_view, index).show()
 
     ############################################################################
 
@@ -1184,7 +1117,13 @@ class Main(MainWindow, Ui_MainWindow):
             self.device_error_dialog.show()
             
     def job_exception(self, job):
-        
+        try:
+            if job.exception[0] == 'DRMError':
+                error_dialog(self, _('Conversion Error'), 
+                    _('<p>Could not convert: %s<p>It is a <a href="http://wiki.mobileread.com/wiki/DRM">DRM</a>ed book. You must first remove the DRM using 3rd party tools.')%job.description.split(':')[-1]).exec_()
+                return
+        except:
+            pass
         only_msg = getattr(job.exception, 'only_msg', False)
         try:
             print job.console_text()
@@ -1207,6 +1146,12 @@ class Main(MainWindow, Ui_MainWindow):
         self.library_path = prefs['library_path']
         self.olddb = None
         if self.library_path is None: # Need to migrate to new database layout
+            QMessageBox.information(self, 'Database format changed',
+                '''\
+<p>calibre's book storage format has changed. Instead of storing book files in a database, the
+files are now stored in a folder on your filesystem. You will now be asked to choose the folder 
+in which you want to store your books files. Any existing books will be automatically migrated.
+                ''')
             self.database_path = prefs['database_path']
             if not os.access(os.path.dirname(self.database_path), os.W_OK):
                 error_dialog(self, _('Database does not exist'), 
@@ -1222,7 +1167,6 @@ class Main(MainWindow, Ui_MainWindow):
             home = os.path.dirname(self.database_path)
             if not os.path.exists(home):
                 home = os.getcwd()
-            from PyQt4.QtGui import QFileDialog
             dir = unicode(QFileDialog.getExistingDirectory(self, 
                             _('Choose a location for your ebook library.'), home))
             if not dir:
@@ -1243,6 +1187,7 @@ class Main(MainWindow, Ui_MainWindow):
     
     def write_settings(self):
         config.set('main_window_geometry', self.saveGeometry())
+        dynamic.set('sort_column', self.library_view.model().sorted_on)
         self.library_view.write_settings()
         if self.device_connected:
             self.memory_view.write_settings()

@@ -24,10 +24,11 @@ In the second mode, the controller can also send the worker STOP messages, in wh
 the worker interrupts the job and dies. The sending of progress and console output messages
 is buffered and asynchronous to prevent the job from being IO bound.
 '''
-import sys, os, gc, cPickle, traceback, atexit, cStringIO, time, signal, \
-       subprocess, socket, collections, binascii, re, thread, tempfile
+import sys, os, gc, cPickle, traceback, cStringIO, time, signal, \
+       subprocess, socket, collections, binascii, re, thread, tempfile, atexit
 from select import select
 from threading import RLock, Thread, Event
+from math import ceil
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import iswindows, detect_ncpus, isosx
@@ -36,20 +37,33 @@ DEBUG = False
 
 #: A mapping from job names to functions that perform the jobs
 PARALLEL_FUNCS = {
-                  'any2lrf'      :
+      'any2lrf'      :
         ('calibre.ebooks.lrf.any.convert_from', 'main', dict(gui_mode=True), None),
 
-                  'lrfviewer'    :
+      'lrfviewer'    :
         ('calibre.gui2.lrf_renderer.main', 'main', {}, None),
 
-                  'feeds2lrf'    :
+      'feeds2lrf'    :
         ('calibre.ebooks.lrf.feeds.convert_from', 'main', {}, 'notification'),
 
-                  'render_table' :
+      'render_table' :
         ('calibre.ebooks.lrf.html.table_as_image', 'do_render', {}, None),
+        
+      'render_pages' :
+        ('calibre.ebooks.lrf.comic.convert_from', 'render_pages', {}, 'notification'),
 
-                  'comic2lrf'    :
+      'comic2lrf'    :
         ('calibre.ebooks.lrf.comic.convert_from', 'do_convert', {}, 'notification'),
+        
+      'any2epub'     :
+        ('calibre.ebooks.epub.from_any', 'any2epub', {}, None),
+        
+      'feeds2epub'   :
+        ('calibre.ebooks.epub.from_feeds', 'main', {}, 'notification'),
+        
+      'comic2epub'    :
+        ('calibre.ebooks.epub.from_comic', 'convert', {}, 'notification'),
+
 }
 
 
@@ -462,15 +476,17 @@ class Overseer(object):
                     self.job.update_status(percent, msg)
             elif word == 'ERROR':
                 self.write('OK')
-                self.job.excetion, self.job.traceback = cPickle.loads(msg)
+                exception, traceback = cPickle.loads(msg)
+                self.job.output(u'%s\n%s'%(exception, traceback))
+                self.job.exception, self.job.traceback = exception, traceback
                 return True
             else:
                 self.terminate()
                 self.job.exception = ControlError('Worker sent invalid msg: %s'%repr(msg))
                 return
-        if not self.worker_status.is_alive() or time.time() - self.last_report > 180:
+        if not self.worker_status.is_alive() or time.time() - self.last_report > 380:
             self.terminate()
-            self.job.exception = ControlError('Worker process died unexpectedly with returncode: %s'%str(self.process.returncode))
+            self.job.exception = ControlError('Worker process died unexpectedly')
             return
 
 class JobKilled(Exception):
@@ -529,7 +545,10 @@ class Job(object):
         self.percent = percent
         self.msg     = msg
         if self.job_manager is not None:
-            self.job_manager.status_update(self)
+            try:
+                self.job_manager.status_update(self)
+            except:
+                traceback.print_exc()
         
     def status(self):
         if self.is_running:
@@ -644,6 +663,25 @@ class Server(Thread):
         self.result_lock = RLock()
         self.pool_lock = RLock()
         self.start()
+        
+    def split(self, tasks):
+        '''
+        Split a list into a list of sub lists, with the number of sub lists being
+        no more than the number of workers this server supports. Each sublist contains
+        two tuples of the form (i, x) where x is an element fro the original list
+        and i is the index of the element x in the original list.
+        '''
+        ans, count, pos = [], 0, 0
+        delta = int(ceil(len(tasks)/float(self.number_of_workers)))
+        while count < len(tasks):
+            section = []
+            for t in tasks[pos:pos+delta]:
+                section.append((count, t))
+                count += 1
+            ans.append(section)
+            pos += delta
+        return ans
+        
 
     def close(self):
         try:
@@ -657,6 +695,21 @@ class Server(Thread):
         if job.job_manager is not None:
             job.job_manager.add_job(job)
             
+    def poll(self):
+        '''
+        Return True if the server has either working or queued jobs
+        '''
+        with self.job_lock:
+            with self.working_lock:
+                return len(self.jobs) + len(self.working) > 0
+            
+    def wait(self, sleep=1):
+        '''
+        Wait until job queue is empty
+        '''
+        while self.poll():
+            time.sleep(sleep)
+    
     def run(self):
         while True:
             job = None
@@ -814,8 +867,14 @@ def get_func(name):
     func = getattr(module, func)
     return func, kwdargs, notification
 
+_atexit = collections.deque()
+def myatexit(func, *args, **kwargs):
+    _atexit.append((func, args, kwargs))
+
 def work(client_socket, func, args, kwdargs):
     sys.stdout.last_report = time.time()
+    orig = atexit.register
+    atexit.register = myatexit
     try:
         func, kargs, notification = get_func(func)
         if notification is not None and hasattr(sys.stdout, 'notify'):
@@ -826,7 +885,18 @@ def work(client_socket, func, args, kwdargs):
             sys.stdout.send()
         return res
     finally:
+        atexit.register = orig
         sys.stdout.last_report = None
+        while True:
+            try:
+                func, args, kwargs = _atexit.pop()
+            except IndexError:
+                break
+            try:
+                func(*args, **kwargs)
+            except (Exception, SystemExit):
+                continue
+                
         time.sleep(5) # Give any in progress BufferedSend time to complete
 
 
@@ -856,10 +926,11 @@ def worker(host, port):
                 write(client_socket, 'RESULT:'+ cPickle.dumps(result))
             except BaseException, err:
                 exception = (err.__class__.__name__, unicode(str(err), 'utf-8', 'replace'))
-                tb = traceback.format_exc()
+                tb = unicode(traceback.format_exc(), 'utf-8', 'replace')
                 msg = 'ERROR:'+cPickle.dumps((exception, tb),-1)
                 write(client_socket, msg)
-            if read(client_socket, 10) != 'OK':
+            res = read(client_socket, 10)
+            if res != 'OK':
                 break
             gc.collect()
         elif msg == 'PING:':

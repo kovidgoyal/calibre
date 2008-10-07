@@ -2,9 +2,8 @@
 
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import datetime
 from calibre.utils.genshi.template import MarkupTemplate
-from calibre import preferred_encoding
+from calibre import preferred_encoding, strftime
 
 
 class Template(MarkupTemplate):
@@ -126,8 +125,7 @@ class IndexTemplate(Template):
     def generate(self, title, datefmt, feeds):
         if isinstance(datefmt, unicode):
             datefmt = datefmt.encode(preferred_encoding)
-        date = datetime.datetime.now().strftime(datefmt)
-        date = date.decode(preferred_encoding, 'replace')
+        date = strftime(datefmt)
         return Template.generate(self, title=title, date=date, feeds=feeds)
     
     

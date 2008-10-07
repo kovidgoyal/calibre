@@ -3,6 +3,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, string, time
+from calibre import strftime
 from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
@@ -68,7 +69,7 @@ class Newsweek(BasicNewsRecipe):
             small = img['src']
             match = re.search(r'(\d+)_', small.rpartition('/')[-1])
             if match is not None:
-                self.timefmt = time.strftime(' [%d %b, %Y]', time.strptime(match.group(1), '%y%m%d'))
+                self.timefmt = strftime(' [%d %b, %Y]', time.strptime(match.group(1), '%y%m%d'))
             self.cover_url = small.replace('coversmall', 'coverlarge')
             
         sections = self.get_sections(soup)
@@ -84,14 +85,14 @@ class Newsweek(BasicNewsRecipe):
                        'title' : title,
                        'url'   : a['href'],
                        'description':'', 'content':'',
-                       'date': time.strftime('%a, %d %b', time.localtime())
+                       'date': strftime('%a, %d %b')
                        }
                 if art['title'] and art['url']:
                     sections[0][1].append(art)
         return sections
         
     
-    def postprocess_html(self,  soup):
+    def postprocess_html(self, soup, first_fetch):
         divs = list(soup.findAll('div', 'pagination'))
         if not divs:
             return

@@ -1,16 +1,22 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Anatoly Shipitsin <norguhtar at gmail.com>'
 """
 Convert .fb2 files to .lrf
 """
-import os, sys, tempfile, shutil, logging
+import os, sys, shutil, logging
 from base64 import b64decode
-
+from lxml import etree
+    
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
-from calibre import setup_cli_handlers, __appname__
+from calibre import setup_cli_handlers
 from calibre.resources import fb2_xsl
+from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.metadata import MetaInformation
+
 
 def option_parser():
     parser = lrf_option_parser(
@@ -31,29 +37,42 @@ def extract_embedded_content(doc):
             data = b64decode(elem.text.strip())
             open(fname, 'wb').write(data)
 
-def generate_html(fb2file, encoding, logger):
-    from lxml import etree
-    tdir = tempfile.mkdtemp(prefix=__appname__+'_fb2_')
-    cwd = os.getcwdu()
-    os.chdir(tdir)
+def to_html(fb2file, tdir):
+    cwd = os.getcwd()
     try:
-        logger.info('Parsing XML...')
+        os.chdir(tdir)
+        print 'Parsing XML...'
         parser = etree.XMLParser(recover=True, no_network=True)
         doc = etree.parse(fb2file, parser)
         extract_embedded_content(doc)
-        logger.info('Converting XML to HTML...')
+        print 'Converting XML to HTML...'
         styledoc = etree.fromstring(fb2_xsl)
-
+    
         transform = etree.XSLT(styledoc)
         result = transform(doc)
-        html = os.path.join(tdir, 'index.html')
-        f = open(html, 'wb')
-        f.write(transform.tostring(result))
-        f.close()
+        open('index.html', 'wb').write(transform.tostring(result))
+        try:
+            mi = get_metadata(open(fb2file, 'rb'))
+        except:
+            mi = MetaInformation(None, None)
+        if not mi.title:
+            mi.title = os.path.splitext(os.path.basename(fb2file))[0]
+        if not mi.authors:
+            mi.authors = [_('Unknown')]
+        opf = OPFCreator(tdir, mi)
+        opf.create_manifest([('index.html', None)])
+        opf.create_spine(['index.html'])
+        opf.render(open('metadata.opf', 'wb'))
+        return os.path.join(tdir, 'metadata.opf')
     finally:
         os.chdir(cwd)
-    return html
-        
+
+    
+def generate_html(fb2file, encoding, logger):
+    tdir = PersistentTemporaryDirectory('_fb22lrf')
+    to_html(fb2file, tdir)
+    return os.path.join(tdir, 'index.html')
+    
 def process_file(path, options, logger=None):
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO

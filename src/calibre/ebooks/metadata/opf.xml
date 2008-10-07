@@ -8,6 +8,7 @@
     <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
         <dc:title py:with="attrs={'opf:files-as':mi.title_sort}" py:attrs="attrs">${mi.title}</dc:title>
         <dc:creator opf:role="aut" py:for="i, author in enumerate(mi.authors)" py:with="attrs={'opf:file-as':mi.author_sort if i==0 else None}" py:attrs="attrs">${author}</dc:creator>
+        <dc:contributor opf:role="bkp" py:with="attrs={'opf:files-as':__appname__}" py:attrs="attrs">${'%s (%s)'%(__appname__, __version__)} [http://${__appname__}.kovidgoyal.net]</dc:contributor> 
         <dc:identifier opf:scheme="${__appname__}" id="${__appname__}_id">${mi.application_id}</dc:identifier>
     
         <dc:language>${mi.language if mi.language else 'Unknown'}</dc:language>
@@ -16,12 +17,18 @@
         <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>
         <dc:identifier opf:scheme="ISBN" py:if="mi.isbn">${mi.isbn}</dc:identifier>
         <series py:if="mi.series">${mi.series}</series>
-        <series-index py:if="mi.series_index is not None">${mi.series_index}</series-index>
+        <series_index py:if="mi.series_index is not None">${mi.series_index}</series_index>
         <rating py:if="mi.rating is not None">${mi.rating}</rating>
         <py:for each="tag in mi.tags">
         <dc:subject py:if="mi.tags is not None">${tag}</dc:subject>
         </py:for>
     </metadata>
+    
+    <manifest py:if="getattr(mi, 'manifest', None)">
+        <py:for each="ref in mi.manifest">
+        <item id="${ref.id}" href="${ref.href()}" media-type="${ref.mime_type}" /> 
+        </py:for>
+    </manifest>
     
     <guide py:if="getattr(mi, 'guide', None)">
     <py:for each="ref in mi.guide">
@@ -36,10 +43,5 @@
         </py:for>
     </spine> 
     
-    <manifest py:if="getattr(mi, 'manifest', None)">
-        <py:for each="ref in mi.manifest">
-        <item id="${ref.id}" href="${ref.href()}" media-type="${ref.mime_type}" /> 
-        </py:for>
-    </manifest>
        
 </package>

@@ -1,10 +1,10 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import re
+import re, collections
 
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon
-from PyQt4.QtCore import Qt, QSize, SIGNAL
+from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
 from calibre import fit_image, preferred_encoding
 from calibre.gui2 import qstring_to_unicode
 
@@ -47,6 +47,13 @@ class BookInfoDisplay(QFrame):
             
         def mouseReleaseEvent(self, ev):
             self.emit(SIGNAL('mr(int)'), 1)
+            
+    WEIGHTS = collections.defaultdict(lambda : 100)
+    WEIGHTS[_('Path')] = 0
+    WEIGHTS[_('Formats')] = 1
+    WEIGHTS[_('Comments')] = 2
+    WEIGHTS[_('Series')] = 3
+    WEIGHTS[_('Tags')] = 4
     
     def __init__(self, clear_message):
         QFrame.__init__(self)
@@ -73,8 +80,10 @@ class BookInfoDisplay(QFrame):
             
         rows = u''
         self.book_data.setText('')
-        self.data = data
-        for key in data.keys():
+        self.data = data.copy()
+        keys = data.keys()
+        keys.sort(cmp=lambda x, y: cmp(self.WEIGHTS[x], self.WEIGHTS[y]))
+        for key in keys:
             txt = data[key]
             #txt = '<br />\n'.join(textwrap.wrap(txt, 120))
             if isinstance(key, str):
@@ -140,13 +149,28 @@ class CoverFlowButton(QToolButton):
     def disable(self, reason):
         self.setDisabled(True)
         self.setToolTip(_('<p>Browsing books by their covers is disabled.<br>Import of pictureflow module failed:<br>')+reason)
+        
+class TagViewButton(QToolButton):
+    
+    def __init__(self, parent=None):
+        QToolButton.__init__(self, parent)
+        self.setIconSize(QSize(80, 80))
+        self.setIcon(QIcon(':/images/tags.svg'))
+        self.setToolTip(_('Click to browse books by tags'))
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding))
+        self.setCheckable(True)
+        self.setChecked(False)
+        self.setAutoRaise(True)
+    
 
 class StatusBar(QStatusBar):
     def __init__(self, jobs_dialog):
         QStatusBar.__init__(self)
         self.movie_button = MovieButton(QMovie(':/images/jobs-animated.mng'), jobs_dialog)
         self.cover_flow_button = CoverFlowButton()
+        self.tag_view_button = TagViewButton()
         self.addPermanentWidget(self.cover_flow_button)
+        self.addPermanentWidget(self.tag_view_button)
         self.addPermanentWidget(self.movie_button)
         self.book_info = BookInfoDisplay(self.clearMessage)
         self.connect(self.book_info, SIGNAL('show_book_info()'), self.show_book_info)
@@ -186,6 +210,7 @@ class StatusBar(QStatusBar):
         if self.movie_button.movie.state() == QMovie.Running:
             self.movie_button.movie.jumpToFrame(0)
             self.movie_button.movie.setPaused(True)
+            QCoreApplication.instance().alert(self, 5000)
         
 if __name__ == '__main__':
     # Used to create the animated status icon

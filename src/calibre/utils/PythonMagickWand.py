@@ -80,9 +80,9 @@ elif iswindows:
            if isfrozen else 'CORE_RL_wand_'
 else:
     _lib = util.find_library('MagickWand')
+    if _lib is None:
+        _lib = util.find_library('Wand')
            
-
-
 _magick = _magick_error = None
 try:
     _magick = ctypes.CDLL(_lib)

@@ -2,7 +2,8 @@
 # Invoke with nmake /f  Makefile.winutil
 
 test : winutil.pyd
-	python.exe -c "import winutil; winutil.set_debug(True); print winutil.get_usb_devices(); print winutil.get_mounted_volumes_for_usb_device(0x054c, 0x031e)"
+    python.exe -c "import winutil; winutil.set_debug(True); print repr(winutil.strftime(u'%b %a %A')); "
+#python.exe -c "import winutil; winutil.set_debug(True); print winutil.get_usb_devices(); print winutil.get_mounted_volumes_for_usb_device(0x054c, 0x031e)"
 
 winutil.pyd : winutil.obj
 	link.exe /DLL /nologo /INCREMENTAL:NO /LIBPATH:c:\Python25\libs \

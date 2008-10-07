@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -8,12 +8,10 @@ from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.lrf.html.convert_from import process_file
 from calibre.web.feeds.main import option_parser as feeds_option_parser
 from calibre.web.feeds.main import run_recipe
-from calibre.ptempfile import PersistentTemporaryDirectory
-from calibre import sanitize_file_name
+from calibre.ptempfile import TemporaryDirectory
+from calibre import sanitize_file_name, strftime
 
-import sys, os, time
-
-import parser
+import sys, os
 
 def option_parser():
     parser = feeds_option_parser()
@@ -36,25 +34,25 @@ def main(args=sys.argv, notification=None, handler=None):
     
     recipe_arg = args[1] if len(args) > 1 else None
     
-    tdir            = PersistentTemporaryDirectory('_feeds2lrf')
-    opts.output_dir = tdir
-    
-    recipe = run_recipe(opts, recipe_arg, parser, notification=notification, handler=handler)
-    
-    htmlfile = os.path.join(tdir, 'index.html')
-    if not os.access(htmlfile, os.R_OK):
-        raise RuntimeError(_('Fetching of recipe failed: ')+recipe_arg)
-    
-    lparser = lrf_option_parser('')
-    ropts = lparser.parse_args(['html2lrf']+recipe.html2lrf_options)[0]
-    parser.merge_options(ropts, opts)
-    
-    if not opts.output:
-        ext = '.lrs' if opts.lrs else '.lrf'
-        fname = recipe.title + time.strftime(recipe.timefmt)+ext
-        opts.output = os.path.join(os.getcwd(), sanitize_file_name(fname))
-    print 'Generating LRF...'
-    process_file(htmlfile, opts)
+    with TemporaryDirectory('_feeds2lrf') as tdir:
+        opts.output_dir = tdir
+        
+        recipe = run_recipe(opts, recipe_arg, parser, notification=notification, handler=handler)
+        
+        htmlfile = os.path.join(tdir, 'index.html')
+        if not os.access(htmlfile, os.R_OK):
+            raise RuntimeError(_('Fetching of recipe failed: ')+recipe_arg)
+        
+        lparser = lrf_option_parser('')
+        ropts = lparser.parse_args(['html2lrf']+recipe.html2lrf_options)[0]
+        parser.merge_options(ropts, opts)
+        
+        if not opts.output:
+            ext = '.lrs' if opts.lrs else '.lrf'
+            fname = recipe.title + strftime(recipe.timefmt)+ext
+            opts.output = os.path.join(os.getcwd(), sanitize_file_name(fname))
+        print 'Generating LRF...'
+        process_file(htmlfile, opts)
     return 0
 
 if __name__ == '__main__':

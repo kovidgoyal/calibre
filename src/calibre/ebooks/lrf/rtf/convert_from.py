@@ -1,19 +1,20 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, sys, tempfile, subprocess, shutil, logging, glob
+import os, sys, shutil, logging, glob
+
+from lxml import etree
 
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
-from calibre.ebooks import ConversionError
-from calibre import isosx, setup_cli_handlers, __appname__
+from calibre import setup_cli_handlers
 from calibre.libwand import convert, WandException
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.lrf.rtf.xsl import xhtml
-
-UNRTF   = 'unrtf'
-if isosx and hasattr(sys, 'frameworks_dir'):
-    UNRTF   = os.path.join(getattr(sys, 'frameworks_dir'), UNRTF)
+from calibre.ebooks.rtf2xml.ParseRtf import RtfInvalidCodeException
+from calibre.ptempfile import PersistentTemporaryDirectory
+from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata.opf import OPFCreator 
 
 def option_parser():
     parser = lrf_option_parser(
@@ -37,32 +38,6 @@ def convert_images(html, logger):
             continue
     return html
 
-def generate_html(rtfpath, logger):
-    tdir = tempfile.mkdtemp(prefix=__appname__+'_')
-    cwd = os.path.abspath(os.getcwd())
-    os.chdir(tdir)
-    try:
-        logger.info('Converting to HTML...')
-        sys.stdout.flush()
-        handle, path = tempfile.mkstemp(dir=tdir, suffix='.html')
-        file = os.fdopen(handle, 'wb')
-        cmd = ' '.join([UNRTF, '"'+rtfpath+'"'])
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE)
-        raw = p.stdout.read()
-        ret = p.wait()
-        if ret != 0:
-            if len(raw) > 1000: #unrtf crashes occassionally on OSX and windows but still convert correctly
-                raw += '</body>\n</html>'
-            else:
-                logger.critical(p.stderr.read())
-                raise ConversionError, 'unrtf failed with error code: %d'%(ret,)
-        file.write(convert_images(raw, logger))
-        file.close()        
-        return path        
-    finally:
-        os.chdir(cwd)
-        
 def process_file(path, options, logger=None):
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO
@@ -72,8 +47,8 @@ def process_file(path, options, logger=None):
     f = open(rtf, 'rb')
     mi = get_metadata(f, 'rtf')
     f.close()
-    html = generate_html2(rtf, logger)
-    tdir = os.path.dirname(html)
+    tdir = PersistentTemporaryDirectory('_rtf2lrf')
+    html = generate_html(rtf, tdir)
     cwd = os.getcwdu()
     try:
         if not options.output:
@@ -111,12 +86,12 @@ def main(args=sys.argv, logger=None):
     return 0
     
 
-def generate_xml(rtfpath):
+def generate_xml(rtfpath, tdir):
     from calibre.ebooks.rtf2xml.ParseRtf import ParseRtf
-    tdir = tempfile.mkdtemp(prefix=__appname__+'_')
     ofile = os.path.join(tdir, 'index.xml')
     cwd = os.getcwdu()
     os.chdir(tdir)
+    rtfpath = os.path.abspath(rtfpath)
     try:
         parser = ParseRtf(
             in_file    = rtfpath,
@@ -162,24 +137,27 @@ def generate_xml(rtfpath):
     return ofile
 
 
-def generate_html2(rtfpath, logger):
-    from lxml import etree
-    logger.info('Converting RTF to XML...')
-    xml = generate_xml(rtfpath)
+def generate_html(rtfpath, tdir):
+    print 'Converting RTF to XML...'
+    rtfpath = os.path.abspath(rtfpath)
+    try:
+        xml = generate_xml(rtfpath, tdir)
+    except RtfInvalidCodeException:
+        raise Exception(_('This RTF file has a feature calibre does not support. Convert it to HTML and then convert it.'))
     tdir = os.path.dirname(xml)
     cwd = os.getcwdu()
     os.chdir(tdir)
     try:
-        logger.info('Parsing XML...')
+        print 'Parsing XML...'
         parser = etree.XMLParser(recover=True, no_network=True)
         try:
             doc = etree.parse(xml, parser)
         except:
             raise
-            logger.info('Parsing failed. Trying to clean up XML...')
+            print 'Parsing failed. Trying to clean up XML...'
             soup = BeautifulStoneSoup(open(xml, 'rb').read())
             doc = etree.fromstring(str(soup))
-        logger.info('Converting XML to HTML...')
+        print 'Converting XML to HTML...'
         styledoc = etree.fromstring(xhtml)
         
         transform = etree.XSLT(styledoc)
@@ -187,8 +165,22 @@ def generate_html2(rtfpath, logger):
         tdir = os.path.dirname(xml)
         html = os.path.join(tdir, 'index.html')
         f = open(html, 'wb')
-        f.write(transform.tostring(result))
+        res = transform.tostring(result)
+        res = res[:100].replace('xmlns:html', 'xmlns') + res[100:]
+        f.write(res)
         f.close()
+        try:
+            mi = get_metadata(open(rtfpath, 'rb'))
+        except:
+            mi = MetaInformation(None, None)
+        if not mi.title:
+            mi.title = os.path.splitext(os.path.basename(rtfpath))[0]
+        if not mi.authors:
+            mi.authors = [_('Unknown')]
+        opf = OPFCreator(tdir, mi)
+        opf.create_manifest([('index.html', None)])
+        opf.create_spine(['index.html'])
+        opf.render(open('metadata.opf', 'wb'))
     finally:
         os.chdir(cwd)
     return html

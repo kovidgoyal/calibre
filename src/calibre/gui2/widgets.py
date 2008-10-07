@@ -3,10 +3,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Miscellaneous widgets used in the GUI
 '''
-import re, os
+import re, os, traceback
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
-                        QSyntaxHighlighter, QCursor, QColor, QWidget, \
+                        QSyntaxHighlighter, QCursor, QColor, QWidget, QDialog, \
                         QAbstractItemDelegate, QPixmap, QStyle, QFontMetrics
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
                          QObject, QRegExp, QString, QSettings
@@ -19,8 +19,16 @@ from calibre import fit_image
 from calibre.utils.fontconfig import find_font_families
 from calibre.ebooks.metadata.meta import metadata_from_filename
 from calibre.utils.config import prefs
+from calibre.gui2.dialogs.warning_ui import Ui_Dialog as Ui_WarningDialog
 
-
+class WarningDialog(QDialog, Ui_WarningDialog):
+    
+    def __init__(self, title, msg, details, parent=None):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
+        self.setWindowTitle(title)
+        self.msg.setText(msg)
+        self.details.setText(details)
 
 class FilenamePattern(QWidget, Ui_Form):
     
@@ -246,7 +254,12 @@ class FontFamilyModel(QAbstractListModel):
     
     def __init__(self, *args):
         QAbstractListModel.__init__(self, *args)
-        self.families = find_font_families()
+        try:
+            self.families = find_font_families()
+        except:
+            self.families = []
+            print 'WARNING: Could not load fonts'
+            traceback.print_exc()
         self.families.sort()
         self.families[:0] = ['None']
         

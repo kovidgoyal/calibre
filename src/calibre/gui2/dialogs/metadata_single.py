@@ -17,6 +17,7 @@ from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
 from calibre.gui2.dialogs.password import PasswordDialog
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, authors_to_string
 from calibre.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
 from calibre import islinux
 from calibre.utils.config import prefs
@@ -100,7 +101,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         old_extensions, new_extensions, paths = set(), set(), {}
         for row in range(self.formats.count()):
             fmt = self.formats.item(row)
-            ext, path = fmt.ext, fmt.path
+            ext, path = fmt.ext.lower(), fmt.path
             if 'unknown' in ext.lower():
                 ext = None
             if path:
@@ -109,8 +110,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             else:
                 old_extensions.add(ext)
         for ext in new_extensions:
-            self.db.add_format(self.row, ext, open(paths[ext], "rb"))
-        db_extensions = set(self.db.formats(self.row).split(','))
+            self.db.add_format(self.row, ext, open(paths[ext], 'rb'))
+        db_extensions = set([f.lower() for f in self.db.formats(self.row).split(',')])
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
             if ext not in extensions:
@@ -144,7 +145,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         QObject.connect(self.tag_editor_button, SIGNAL('clicked()'), 
                         self.edit_tags)
         QObject.connect(self.remove_series_button, SIGNAL('clicked()'),
-                        self.remove_unused_series)        
+                        self.remove_unused_series)
+        QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
+                        self.deduce_author_sort)
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
         self.timeout = float(prefs['network_timeout'])
         self.title.setText(db.title(row))
@@ -153,7 +156,11 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             isbn = ''
         self.isbn.setText(isbn)
         au = self.db.authors(row)
-        self.authors.setText(au if au else '')
+        if au:
+            au = [a.strip().replace('|', ',') for a in au.split(',')]
+            self.authors.setText(authors_to_string(au))
+        else:
+            self.authors.setText('')
         aus = self.db.author_sort(row)
         self.author_sort.setText(aus if aus else '')
         pub = self.db.publisher(row)
@@ -194,6 +201,11 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             pm.loadFromData(cover)
             if not pm.isNull(): 
                 self.cover.setPixmap(pm)
+    
+    def deduce_author_sort(self):
+        au = unicode(self.authors.text())
+        authors = string_to_authors(au)
+        self.author_sort.setText(authors_to_sort_string(authors))
     
     def swap_title_author(self):
         title = self.title.text()
@@ -281,7 +293,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     def fetch_metadata(self):
         isbn   = qstring_to_unicode(self.isbn.text())
         title  = qstring_to_unicode(self.title.text())
-        author = qstring_to_unicode(self.authors.text()).split(',')[0]
+        author = string_to_authors(unicode(self.authors.text()))[0]
         publisher = qstring_to_unicode(self.publisher.text()) 
         if isbn or title or author or publisher:
             d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
@@ -290,10 +302,10 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 book = d.selected_book()
                 if book:
                     self.title.setText(book.title)
-                    self.authors.setText(', '.join(book.authors))
+                    self.authors.setText(authors_to_string(book.authors))
                     if book.author_sort: self.author_sort.setText(book.author_sort)
-                    self.publisher.setText(book.publisher)
-                    self.isbn.setText(book.isbn)
+                    if book.publisher: self.publisher.setText(book.publisher)
+                    if book.isbn: self.isbn.setText(book.isbn)
                     summ = book.comments
                     if summ:
                         prefix = qstring_to_unicode(self.comments.toPlainText())
@@ -323,8 +335,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             self.sync_formats()
         title = qstring_to_unicode(self.title.text())
         self.db.set_title(self.id, title)
-        au = qstring_to_unicode(self.authors.text()).split(',')
-        if au: self.db.set_authors(self.id, au)
+        au = unicode(self.authors.text())
+        if au: 
+            self.db.set_authors(self.id, string_to_authors(au))
         aus = qstring_to_unicode(self.author_sort.text())
         if aus:
             self.db.set_author_sort(self.id, aus)

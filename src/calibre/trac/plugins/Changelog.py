@@ -17,6 +17,7 @@ BZR_PATH = '/var/bzr/code/calibre/trunk'
 class ChangelogFormatter(blog.LogFormatter):
     
     supports_tags = True
+    supports_merge_revisions = True
     
     def __init__(self, num_of_versions=20):
         self.num_of_versions = num_of_versions
@@ -38,7 +39,7 @@ class ChangelogFormatter(blog.LogFormatter):
             self.messages = collections.deque()
             
         else:
-            if re.search(r'[a-zA-Z]', msg):
+            if re.search(r'[a-zA-Z]', msg) and len(msg.strip()) > 5:
                 if 'translation' not in msg and not msg.startswith('IGN'):
                     self.messages.append(msg.strip())
                     
@@ -63,10 +64,10 @@ class ChangeLogMacro(WikiMacroBase):
         txt = bzr_log_to_txt().encode('ascii', 'xmlcharrefreplace')
         out = StringIO()
         Formatter(formatter.env, formatter.context).format(txt, out)
-        return Markup(out.getvalue())
+        return Markup(out.getvalue().decode('utf8'))
 
 
 if __name__ == '__main__':
-    print bzr_log_to_txt() 
+    print bzr_log_to_txt()
         
         

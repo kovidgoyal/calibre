@@ -46,7 +46,6 @@ __date__ = "$Date: 2006/06/23 12:32:25 $"
 __license__ = 'Python license'
 
 # standard library modules
-import sys
 import threading
 import Queue
 

@@ -73,7 +73,7 @@ class OutlookIndia(BasicNewsRecipe):
                     
         return feeds
 
-    def postprocess_html(self, soup):
+    def postprocess_html(self, soup, first_fetch):
         bad = []
         for table in soup.findAll('table'):
             if table.find(text=re.compile(r'\(\d+ of \d+\)')):

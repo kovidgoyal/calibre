@@ -513,6 +513,9 @@ class Template(object):
                         value = [x for x in values if x is not None]
                         if not value:
                             continue
+                    for i, v in enumerate(value):
+                        if isinstance(v, str):
+                            value[i] = v.decode('utf-8')
                     new_attrs.append((name, u''.join(value)))
                 yield kind, (tag, Attrs(new_attrs)), pos
 

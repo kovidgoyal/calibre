@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, textwrap, traceback, time
+import os, textwrap, traceback, time, re
 from datetime import timedelta, datetime
 from operator import attrgetter
 
@@ -13,7 +13,7 @@ from PyQt4.QtGui import QTableView, QProgressDialog, QAbstractItemView, QColor, 
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          QCoreApplication, SIGNAL, QObject, QSize, QModelIndex
 
-from calibre import preferred_encoding
+from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database import LibraryDatabase, text_to_tokens
 from calibre.gui2 import NONE, TableView, qstring_to_unicode, config
@@ -100,7 +100,7 @@ class BooksModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.cols = ['title', 'authors', 'size', 'date', 'rating', 'publisher', 'tags', 'series']
-        self.editable_cols = [0, 1, 4, 5, 6]
+        self.editable_cols = [0, 1, 4, 5, 6, 7]
         self.default_image = QImage(':/images/book.svg')
         self.sorted_on = (3, Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
@@ -128,7 +128,7 @@ class BooksModel(QAbstractTableModel):
         for row in rows:
             if self.cover_cache:
                 id = self.db.id(row)
-                self.cover_cache.refresh(id)
+                self.cover_cache.refresh([id])
             if row == current_row:
                 self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
                           self.get_book_display_info(row))
@@ -168,6 +168,11 @@ class BooksModel(QAbstractTableModel):
 
     def search_tokens(self, text):
         return text_to_tokens(text)
+    
+    def books_added(self, num):
+        if num > 0:
+            self.beginInsertRows(QModelIndex(), 0, num-1)
+            self.endInsertRows()
 
     def search(self, text, refinement, reset=True):
         tokens, OR = self.search_tokens(text)
@@ -201,9 +206,13 @@ class BooksModel(QAbstractTableModel):
                LibraryDatabase.sizeof_old_database(path) > 0
 
     def columnCount(self, parent):
+        if parent and parent.isValid():
+            return 0
         return len(self.cols)
 
     def rowCount(self, parent):
+        if parent and parent.isValid():
+            return 0
         return self.db.rows() if self.db else 0
 
     def count(self):
@@ -226,6 +235,7 @@ class BooksModel(QAbstractTableModel):
         else:
             formats = _('None')
         data[_('Formats')] = formats
+        data[_('Path')] = self.db.abspath(idx)
         comments = self.db.comments(idx)
         if not comments:
             comments = _('None')
@@ -248,7 +258,10 @@ class BooksModel(QAbstractTableModel):
             for i in range(1, k):
                 ids.extend([idx-i, idx+i])
             ids = ids + [i for i in range(l, r, 1) if i not in ids]
-            ids = [self.db.id(i) for i in ids]
+            try:
+                ids = [self.db.id(i) for i in ids]
+            except IndexError:
+                return
             self.cover_cache.set_cache(ids)
 
     def current_changed(self, current, previous, emit_signal=True):
@@ -261,6 +274,8 @@ class BooksModel(QAbstractTableModel):
             return data
 
     def get_book_info(self, index):
+        if isinstance(index, int):
+            index = self.index(index, 0)
         data = self.current_changed(index, None, False)
         row = index.row()
         data[_('Title')] = self.db.title(row)
@@ -311,11 +326,17 @@ class BooksModel(QAbstractTableModel):
         ans = []
         for row in (row.row() for row in rows):
             format = None
-            for f in self.db.formats(row).split(','):
-                if f.lower() in formats:
+            fmts = self.db.formats(row)
+            if not fmts:
+                return []
+            db_formats = set(fmts.lower().split(','))
+            available_formats = set([f.lower() for f in formats]) 
+            u = available_formats.intersection(db_formats)
+            for f in formats:
+                if f.lower() in u:
                     format = f
                     break
-            if format:
+            if format is not None:
                 pt = PersistentTemporaryFile(suffix='.'+format)
                 pt.write(self.db.format(row, format))
                 pt.flush()
@@ -360,7 +381,7 @@ class BooksModel(QAbstractTableModel):
             elif col == 1:
                 au = self.db.authors(row)
                 if au:
-                    au = au.split(',')
+                    au = [a.strip().replace('|', ',') for a in au.split(',')]
                     return QVariant("\n".join(au))
             elif col == 2:
                 size = self.db.max_size(row)
@@ -370,7 +391,7 @@ class BooksModel(QAbstractTableModel):
                 dt = self.db.timestamp(row)
                 if dt:
                     dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                    return QVariant(dt.strftime(BooksView.TIME_FMT).decode(preferred_encoding, 'replace'))
+                    return QVariant(strftime(BooksView.TIME_FMT, dt.timetuple()))
             elif col == 4:
                 r = self.db.rating(row)
                 r = r/2 if r else 0
@@ -430,8 +451,19 @@ class BooksModel(QAbstractTableModel):
             if col == 4:
                 val = 0 if val < 0 else 5 if val > 5 else val
                 val *= 2
-            column = self.cols[col]
-            self.db.set(row, column, val)
+            if col == 7:
+                pat = re.compile(r'\[(\d+)\]')
+                match = pat.search(val)
+                id = self.db.id(row)
+                if match is not None:
+                    self.db.set_series_index(id, int(match.group(1)))
+                    val = pat.sub('', val)
+                val = val.strip()
+                if val:
+                    self.db.set_series(id, val)
+            else:
+                column = self.cols[col]
+                self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                                 index, index)
             if col == self.sorted_on[0]:
@@ -559,17 +591,17 @@ class DeviceBooksModel(BooksModel):
         self.marked_for_deletion = {}
 
 
-    def mark_for_deletion(self, id, rows):
-        self.marked_for_deletion[id] = self.indices(rows)
+    def mark_for_deletion(self, job, rows):
+        self.marked_for_deletion[job] = self.indices(rows)
         for row in rows:
             indices = self.row_indices(row)
             self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'), indices[0], indices[-1])
 
 
-    def deletion_done(self, id, succeeded=True):
-        if not self.marked_for_deletion.has_key(id):
+    def deletion_done(self, job, succeeded=True):
+        if not self.marked_for_deletion.has_key(job):
             return
-        rows = self.marked_for_deletion.pop(id)
+        rows = self.marked_for_deletion.pop(job)
         for row in rows:
             if not succeeded:
                 indices = self.row_indices(self.index(row, 0))
@@ -662,9 +694,13 @@ class DeviceBooksModel(BooksModel):
             self.reset()
 
     def columnCount(self, parent):
+        if parent and parent.isValid():
+            return 0
         return 5
 
     def rowCount(self, parent):
+        if parent and parent.isValid():
+            return 0
         return len(self.map)
 
     def set_database(self, db):
@@ -690,7 +726,7 @@ class DeviceBooksModel(BooksModel):
         dt = item.datetime
         dt = datetime(*dt[0:6])
         dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-        data[_('Timestamp')] = dt.strftime('%a %b %d %H:%M:%S %Y')
+        data[_('Timestamp')] = strftime('%a %b %d %H:%M:%S %Y', dt.timetuple())
         data[_('Tags')] = ', '.join(item.tags)
         self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'), data)
 
@@ -731,7 +767,7 @@ class DeviceBooksModel(BooksModel):
                 dt = self.db[self.map[row]].datetime
                 dt = datetime(*dt[0:6])
                 dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                return QVariant(dt.strftime(BooksView.TIME_FMT))
+                return QVariant(strftime(BooksView.TIME_FMT, dt.timetuple()))
             elif col == 4:
                 tags = self.db[self.map[row]].tags
                 if tags:
@@ -841,6 +877,13 @@ class SearchBox(QLineEdit):
             self.prev_search = text
             self.emit(SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), text, refinement)
 
+    def search_from_tokens(self, tokens, all):
+        ans = u' '.join([u'%s:%s'%x for x in tokens])
+        if not all:
+            ans = '[' + ans + ']'
+        self.set_search_string(ans)
+        
+    
     def set_search_string(self, txt):
         self.normalize_state()
         self.setText(txt)

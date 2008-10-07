@@ -150,9 +150,9 @@ _check_symlinks_prescript()
                 if not match:
                     print dep
                     raise Exception('Unknown Qt dependency')
-            module = match.group(1)            
+            module = match.group(1)
             newpath = fp + '%s.framework/Versions/Current/%s'%(module, module)
-            cmd = ' '.join(['/usr/bin/install_name_tool', '-change', dep, newpath, path])        
+            cmd = ' '.join(['/usr/bin/install_name_tool', '-change', dep, newpath, path])
             subprocess.check_call(cmd, shell=True)
         
     
@@ -220,7 +220,7 @@ _check_symlinks_prescript()
     
     def run(self):
         py2app.run(self)
-        resource_dir = os.path.join(self.dist_dir, 
+        resource_dir = os.path.join(self.dist_dir,
                                     APPNAME + '.app', 'Contents', 'Resources')
         frameworks_dir = os.path.join(os.path.dirname(resource_dir), 'Frameworks')
         all_scripts = scripts['console'] + scripts['gui']
@@ -235,7 +235,7 @@ _check_symlinks_prescript()
             path = os.path.join(loader_path, name)
             print 'Creating loader:', path
             f = open(path, 'w')
-            f.write(BuildAPP.LOADER_TEMPLATE % dict(module=module, 
+            f.write(BuildAPP.LOADER_TEMPLATE % dict(module=module,
                                                         function=function))
             f.close()
             os.chmod(path, stat.S_IXUSR|stat.S_IXGRP|stat.S_IXOTH|stat.S_IREAD\
@@ -301,6 +301,10 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
 def main():
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
     sys.argv[1:2] = ['py2app']
+    d = os.path.dirname
+    icon = os.path.abspath('icons/library.icns')
+    if not os.access(icon, os.R_OK):
+        raise Exception('No icon at '+icon)
     setup(
         name = APPNAME,
         app = [scripts['gui'][0]],
@@ -310,15 +314,16 @@ def main():
                          'optimize' : 2,
                          'dist_dir' : 'build/py2app',
                          'argv_emulation' : True,
-                         'iconfile' : 'icons/library.icns',
+                         'iconfile' : icon,
                          'frameworks': ['libusb.dylib', 'libunrar.dylib'],
                          'includes' : ['sip', 'pkg_resources', 'PyQt4.QtXml',
-                                       'PyQt4.QtSvg', 'PyQt4.QtWebKit',
+                                       'PyQt4.QtSvg', 'PyQt4.QtWebKit', 'commands',
                                        'mechanize', 'ClientForm', 'usbobserver',
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
-                                       'keyword', 'codeop', 'pydoc', 'readline'],
-                         'packages' : ['PIL', 'Authorization', 'rtf2xml', 'lxml'],
+                                       'keyword', 'codeop', 'pydoc', 'readline',
+                                       'BeautifulSoup'],
+                         'packages' : ['PIL', 'Authorization', 'lxml'],
                          'excludes' : ['IPython'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''
                                         ''' Visit http://calibre.kovidgoyal.net for details.''',

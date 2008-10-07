@@ -7,7 +7,7 @@ import cStringIO
 import uuid
 from urllib import unquote, quote
 
-from calibre import __appname__
+from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup, BeautifulSoup
 from calibre.ebooks.lrf import entity_to_unicode
@@ -28,7 +28,10 @@ class ManifestItem(Resource):
         if item.has_key('href'):
             href = item['href']
             if unquote(href) == href:
-                href = quote(href)
+                try:
+                    href = quote(href)
+                except KeyError:
+                    pass
             res = ManifestItem(href, basedir=basedir, is_path=False)
             mt = item.get('media-type', '').strip()
             if mt:
@@ -241,7 +244,7 @@ class OPF(MetaInformation):
     
     def get_title(self):
         title = self.soup.package.metadata.find('dc:title')
-        if title:
+        if title and title.string:
             return self.ENTITY_PATTERN.sub(entity_to_unicode, title.string).strip()
         return self.default_title.strip()
     
@@ -253,7 +256,7 @@ class OPF(MetaInformation):
                 role = elem.get('opf:role')
             if not role:
                 role = 'aut'
-            if role == 'aut':
+            if role == 'aut' and elem.string:
                 raw = self.ENTITY_PATTERN.sub(entity_to_unicode, elem.string)
                 au = raw.split(',')
                 ans = []
@@ -293,13 +296,13 @@ class OPF(MetaInformation):
         
     def get_category(self):
         category = self.soup.find('dc:type')
-        if category:
+        if category and category.string:
             return self.ENTITY_PATTERN.sub(entity_to_unicode, category.string).strip()
         return None
     
     def get_publisher(self):
         publisher = self.soup.find('dc:publisher')
-        if publisher:
+        if publisher and publisher.string:
             return self.ENTITY_PATTERN.sub(entity_to_unicode, publisher.string).strip()
         return None
     
@@ -308,7 +311,7 @@ class OPF(MetaInformation):
             scheme = item.get('scheme')
             if not scheme:
                 scheme = item.get('opf:scheme')
-            if scheme is not None and scheme.lower() == 'isbn':
+            if scheme is not None and scheme.lower() == 'isbn' and item.string:
                 return str(item.string).strip()
         return None
     
@@ -320,7 +323,10 @@ class OPF(MetaInformation):
     
     def get_application_id(self):
         for item in self.soup.package.metadata.findAll('dc:identifier'):
-            if item.has_key('scheme') and item['scheme'] == __appname__:
+            scheme = item.get('scheme', None)
+            if scheme is None:
+                scheme = item.get('opf:scheme', None)
+            if scheme in ['libprs500', 'calibre']:
                 return str(item.string).strip()
         return None
     
@@ -353,7 +359,7 @@ class OPF(MetaInformation):
     
     def get_series_index(self):
         s = self.soup.package.metadata.find('series-index')
-        if s:
+        if s and s.string:
             try:
                 return int(str(s.string).strip())
             except:
@@ -361,11 +367,8 @@ class OPF(MetaInformation):
         return None
     
     def get_rating(self):
-        xm = self.soup.package.metadata.find('x-metadata')
-        if not xm:
-            return None
-        s = xm.find('rating')
-        if s:
+        s = self.soup.package.metadata.find('rating')
+        if s and s.string:
             try:
                 return int(str(s.string).strip())
             except:
@@ -483,7 +486,7 @@ class OPFCreator(MetaInformation):
         Set the toc. You must call :method:`create_spine` before calling this
         method.
         
-        `toc`: A :class:`TOC` object
+        :param toc: A :class:`TOC` object
         '''
         self.toc = toc
         
@@ -491,12 +494,21 @@ class OPFCreator(MetaInformation):
         self.guide = Guide.from_opf_guide(guide_element, self.base_path)
         self.guide.set_basedir(self.base_path)
             
-    def render(self, opf_stream, ncx_stream=None):
+    def render(self, opf_stream, ncx_stream=None, ncx_manifest_entry=None):
         from calibre.resources import opf_template
         from calibre.utils.genshi.template import MarkupTemplate
         template = MarkupTemplate(opf_template)
         if self.manifest:
             self.manifest.set_basedir(self.base_path)
+            if ncx_manifest_entry is not None:
+                if not os.path.isabs(ncx_manifest_entry):
+                    ncx_manifest_entry = os.path.join(self.base_path, ncx_manifest_entry)
+                remove = [i for i in self.manifest if i.id == 'ncx']
+                for item in remove:
+                    self.manifest.remove(item)
+                self.manifest.append(ManifestItem(ncx_manifest_entry, self.base_path))
+                self.manifest[-1].id = 'ncx'
+                self.manifest[-1].mime_type = 'application/x-dtbncx+xml'
         if not self.guide:
             self.guide = Guide()
         if self.cover:
@@ -506,7 +518,7 @@ class OPFCreator(MetaInformation):
             self.guide.set_cover(cover)
         self.guide.set_basedir(self.base_path)
         
-        opf = template.generate(__appname__=__appname__, mi=self).render('xml')
+        opf = template.generate(__appname__=__appname__, mi=self, __version__=__version__).render('xml')
         opf_stream.write(opf)
         opf_stream.flush()
         toc = getattr(self, 'toc', None)
