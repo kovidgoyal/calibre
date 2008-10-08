@@ -436,11 +436,13 @@ class Parser(PreProcessor, LoggingInterface):
         ''' Create lxml ElementTree from HTML '''
         self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace').strip()
-        src = src[src.find('<'):]
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
         for pat in ENCODING_PATS:
             src = pat.sub('', src)
+        src = src[src.find('<'):]
+        # Remove unclosed <style> tag as that messes up lxml's parsing
+        src = re.sub(r'<style>\s*</head>', '', src)
         try:
             self.root = fromstring(src)
         except:
