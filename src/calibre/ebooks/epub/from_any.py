@@ -34,7 +34,6 @@ def mobi2opf(path, tdir, opts):
     reader = MobiReader(path)
     reader.extract_content(tdir)
     files = list(walk(tdir))
-    opts.dont_preserve_structure = True
     opts.encoding = 'utf-8'
     for f in files:
         if f.lower().endswith('.opf'):

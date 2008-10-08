@@ -382,7 +382,7 @@ def split(pathtoopf, opts, stylesheet_map):
                     item.set('href', item.get('href').replace('&', '%26'))
                 html_files.append(f)
         changes = []
-        always_remove = getattr(opts, 'dont_preserve_structure', False)
+        always_remove = not opts.preserve_tag_structure
         for f in html_files:
             if os.stat(content(f)).st_size > opts.profile.flow_size:
                 try:

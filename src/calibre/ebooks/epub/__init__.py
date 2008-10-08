@@ -123,6 +123,8 @@ to auto-generate a Table of Contents.
            help=_('The base font size in pts. Default is %defaultpt. Set to 0 to disable rescaling of fonts.'))
     layout('remove_paragraph_spacing', ['--remove-paragraph-spacing'], default=True,
            help=_('Remove spacing between paragraphs. Will not work if the source file forces inter-paragraph spacing.'))
+    layout('preserve_tag_structure', ['--preserve-tag-structure'], default=False,
+           help=_('Preserve the HTML tag structure while splitting large HTML files. This is only neccessary if the HTML files contain CSS that uses sibling selectors. Enabling this greatly slows down processing of large HTML files.'))
     
     c.add_opt('show_opf', ['--show-opf'], default=False, group='debug',
               help=_('Print generated OPF file to stdout'))
