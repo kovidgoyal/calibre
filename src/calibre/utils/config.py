@@ -479,7 +479,10 @@ class DynamicConfig(dict):
         if os.path.exists(self.file_path):
             with ExclusiveFile(self.file_path) as f:
                 raw = f.read()
-                d = cPickle.loads(raw) if raw.strip() else {}
+                try:
+                    d = cPickle.loads(raw) if raw.strip() else {}
+                except:
+                    d = {}
         dict.__init__(self, d)
         
     def __getitem__(self, key):

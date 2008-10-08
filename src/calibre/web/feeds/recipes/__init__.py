@@ -10,7 +10,7 @@ recipes = [
            'wired', 'globe_and_mail', 'smh', 'espn', 'business_week',
            'ars_technica', 'upi', 'new_yorker', 'irish_times', 'iht',
            'discover_magazine', 'scientific_american', 'new_york_review_of_books',
-           'daily_telegraph',
+           'daily_telegraph', 'guardian',
           ]
 
 import re, imp, inspect, time, os
