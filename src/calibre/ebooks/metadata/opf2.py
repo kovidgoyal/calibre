@@ -412,7 +412,7 @@ class OPF(object):
     metadata_path   = XPath('descendant::*[re:match(name(), "metadata", "i")]')
     metadata_elem_path = XPath('descendant::*[re:match(name(), $name, "i")]')
     series_path     = XPath('descendant::*[re:match(name(), "series$", "i")]')
-    authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut")]')
+    authors_path    = XPath('descendant::*[re:match(name(), "creator", "i") and (@role="aut" or @opf:role="aut" or (not(@role) and not(@opf:role)))]')
     bkp_path        = XPath('descendant::*[re:match(name(), "contributor", "i") and (@role="bkp" or @opf:role="bkp")]')
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
