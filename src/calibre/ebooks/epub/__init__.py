@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Conversion to EPUB.
 '''
-import sys, textwrap
+import sys, textwrap, re
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.ebooks.html import config as common_config, tostring
@@ -15,13 +15,13 @@ class DefaultProfile(object):
     
     flow_size   = sys.maxint
     screen_size = None
-    remove_soft_hyphens = False
+    remove_special_chars = False
     
 class PRS505(DefaultProfile):
     
     flow_size   = 300000
     screen_size = (600, 775)
-    remove_soft_hyphens = True
+    remove_special_chars = re.compile(u'[\u200b\u00ad]')
         
 
 PROFILES = {

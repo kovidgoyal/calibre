@@ -316,7 +316,10 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
 
 
 class PreProcessor(object):
-    PREPROCESS = [(re.compile(r'&(\S+?);'), entity_to_unicode)]
+    PREPROCESS = [
+                  # Convert all entities, since lxml doesn't handle them well
+                  (re.compile(r'&(\S+?);'), entity_to_unicode),
+                  ]
                      
     # Fix pdftohtml markup
     PDFTOHTML  = [
@@ -365,8 +368,8 @@ class PreProcessor(object):
                           
     def preprocess(self, html):
         opts = getattr(self, 'opts', False)
-        if opts and hasattr(opts, 'profile') and getattr(opts.profile, 'remove_soft_hyphens', False):
-            html = html.replace(u'\u00ad', '')
+        if opts and hasattr(opts, 'profile') and getattr(opts.profile, 'remove_special_chars', False):
+            html = opts.profile.remove_special_chars.sub('', html)
         if self.is_baen(html):
             rules = []
         elif self.is_book_designer(html):
