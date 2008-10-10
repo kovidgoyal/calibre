@@ -142,7 +142,7 @@ def resize_cover(im, opts):
     if delta > 0:
         nwidth = int(width + delta*(width))
         nheight = int(height + delta*(height))
-        im = im.resize((int(nwidth), int(nheight)), PILImage.ANTIALIAS).convert('RGB')
+        im = im.resize((int(nwidth), int(nheight)), PILImage.ANTIALIAS)
     return im
 
 def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
@@ -156,35 +156,38 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     metadata_cover = mi.cover
     if metadata_cover and not os.path.exists(metadata_cover):
         metadata_cover = None
-    if metadata_cover is not None:
-        with open(metadata_cover, 'rb') as src:
-            try:
-                im = PILImage.open(src)
-                if opts.profile.screen_size is not None:
-                    im = resize_cover(im, opts)
-                metadata_cover = im
-            except:
-                metadata_cover = None
-                
-    specified_cover = opts.cover
-    if specified_cover and not os.path.exists(specified_cover):
-        specified_cover = None
-    if specified_cover is not None:
-        with open(specified_cover, 'rb') as src:
-            try:
-                im = PILImage.open(src)
-                if opts.profile.screen_size is not None:
-                    im = resize_cover(im, opts)
-                specified_cover = im
-            except:
-                specified_cover = None
-    
-    cover = metadata_cover if specified_cover is None or (opts.prefer_metadata_cover and metadata_cover is not None) else specified_cover
+        
+    cpath = '/'.join(('resources', '_cover_.jpg'))
+    cover_dest = os.path.join(tdir, 'content', *cpath.split('/'))
+    with open(cover_dest, 'wb') as f_cover_dest:
+        if metadata_cover is not None:
+            with open(metadata_cover, 'rb') as src:
+                try:
+                    im = PILImage.open(src).convert('RGB')
+                    if opts.profile.screen_size is not None:
+                        im = resize_cover(im, opts)
+                    im.save(f_cover_dest, format='jpeg')
+                    metadata_cover = im
+                except:
+                    metadata_cover = None
+                    
+        specified_cover = opts.cover
+        if specified_cover and not os.path.exists(specified_cover):
+            specified_cover = None
+        if specified_cover is not None:
+            with open(specified_cover, 'rb') as src:
+                try:
+                    im = PILImage.open(src).convert('RGB')
+                    if opts.profile.screen_size is not None:
+                        im = resize_cover(im, opts)
+                    specified_cover = im
+                    im.save(f_cover_dest, format='jpeg')
+                except:
+                    specified_cover = None
+        
+        cover = metadata_cover if specified_cover is None or (opts.prefer_metadata_cover and metadata_cover is not None) else specified_cover
+
     if hasattr(cover, 'save'):
-        cpath = '/'.join(('resources', '_cover_.jpg'))
-        cover_dest = os.path.join(tdir, 'content', *cpath.split('/'))
-        with open(cover_dest, 'wb') as f:
-            im.save(f, format='jpeg')
         titlepage = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
@@ -197,13 +200,14 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
         </div>
     </body>
 </html>
-        '''%cpath
+            '''%cpath
         tp = 'calibre_title_page.html' if old_title_page is None else old_title_page 
         tppath = os.path.join(tdir, 'content', tp)
         with open(tppath, 'wb') as f:
             f.write(titlepage)
         return tp if old_title_page is None else None, True
-    
+    elif os.path.exists(cover_dest):
+        os.remove(cover_dest)
     return None, old_title_page is not None
     
 

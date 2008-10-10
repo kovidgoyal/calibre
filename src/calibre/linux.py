@@ -399,7 +399,7 @@ def install_man_pages(fatal_errors):
         prog = src[:src.index('=')].strip()
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta',
                     'markdown-calibre', 'calibre-debug', 'fb2-meta',
-                    'calibre-fontconfig', 'calibre-parallel',
+                    'calibre-fontconfig', 'calibre-parallel', 'odt-meta',
                     'rb-meta', 'imp-meta'):
             continue
 
