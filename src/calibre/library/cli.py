@@ -21,7 +21,7 @@ from calibre.library.database2 import LibraryDatabase2
 from calibre.library.database import text_to_tokens
 from calibre.ebooks.metadata.opf import OPFCreator, OPFReader
 
-FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn'])
+FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'path'])
 
 def get_parser(usage):
     parser = OptionParser(usage)
@@ -37,18 +37,31 @@ def get_db(dbpath, options):
     print _('Using library at'), dbpath
     return LibraryDatabase2(dbpath, row_factory=True)
 
-def do_list(db, fields, sort_by, ascending, search_text):
+def do_list(db, fields, sort_by, ascending, search_text, line_width):
     db.refresh(sort_by, ascending)
     if search_text:
         filters, OR = text_to_tokens(search_text)
         db.filter(filters, False, OR)
     fields = ['id'] + fields
     widths = list(map(lambda x : 0, fields))
-    for i in db.data:
+    data = []
+    for record in db.data:
+        data.append({})
+        for field in fields:
+            if field == 'path':
+                path = db.path(record['id'], index_is_id=True)
+                path += os.sep +  db.construct_file_name(record['id']) + '.[%s]'
+                formats = db.formats(record['id'], index_is_id=True)
+                if not formats:
+                    formats = ''
+                data[-1][field] = path%formats.lower()
+            else:
+                data[-1][field] = record[field]
+    for i in data:
         for j, field in enumerate(fields):
             widths[j] = max(widths[j], len(unicode(i[str(field)])))
     
-    screen_width = terminal_controller.COLS
+    screen_width = terminal_controller.COLS if line_width < 0 else line_width
     if not screen_width:
         screen_width = 80
     field_width = screen_width//len(fields)
@@ -70,7 +83,7 @@ def do_list(db, fields, sort_by, ascending, search_text):
 
     wrappers = map(lambda x: TextWrapper(x-1), widths)
 
-    for record in db.data:
+    for record in data:
         text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
         lines = max(map(len, text))
         for l in range(lines):
@@ -98,6 +111,8 @@ List the books available in the calibre database.
                       help=_('Sort results in ascending order'))
     parser.add_option('-s', '--search', default=None,
                       help=_('Filter the results by the search query. For the format of the search query, please see the search related documentation in the User Manual. Default is to do no filtering.'))
+    parser.add_option('-w', '--line-width', default=-1, type=int, 
+                      help=_('The maximum width of a single line in the output. Defaults to detecting screen size.'))
     opts, args = parser.parse_args(sys.argv[:1] + args)
     fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
     if not set(fields).issubset(FIELDS):
@@ -113,7 +128,7 @@ List the books available in the calibre database.
         print >>sys.stderr, _('Invalid sort field. Available fields:'), ','.join(FIELDS)
         return 1
 
-    do_list(db, fields, opts.sort_by, opts.ascending, opts.search)
+    do_list(db, fields, opts.sort_by, opts.ascending, opts.search, opts.line_width)
     return 0
 
 
