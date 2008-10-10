@@ -585,18 +585,35 @@ class Processor(Parser):
         
         # Add level 1 and level 2 TOC items
         counter = 0
+        
+        def elem_to_link(elem, href, counter):
+            text = (u''.join(elem.xpath('string()'))).strip()
+            if not text:
+                return None, None, None
+            t = elem.xpath('descendant-or-self::a[@href]')
+            if t:
+                _href = 'content/' + t[0].get('href', '')
+                parts = _href.split('#')
+                _href = parts[0]
+                frag = None if len(parts) == 1 else parts[-1]
+            else:
+                _href = href
+                id = elem.get('id', 'calibre_chapter_%d'%counter)
+                elem.set('id', id)
+                frag = id
+            return text, _href, frag
+                
+        
         if self.opts.level1_toc is not None:
             level1 = self.opts.level1_toc(self.root)
             if level1:
                 added = {}
                 for elem in level1:
-                    text = (u''.join(elem.xpath('string()'))).strip()
+                    text, _href, frag = elem_to_link(elem, href, counter)
+                    counter += 1
                     if text:
-                        id = elem.get('id', 'calibre_chapter_%d'%counter)
-                        counter += 1
-                        elem.set('id', id)
-                        added[elem] = add_item(href, id, text, toc, type='chapter')
-                        add_item(href, id, 'Top', added[elem], type='chapter')
+                        added[elem] = add_item(_href, frag, text, toc, type='chapter')
+                        add_item(_href, frag, 'Top', added[elem], type='chapter')
                 if self.opts.level2_toc is not None:
                     level2 = list(self.opts.level2_toc(self.root))
                     for elem in level2:
@@ -605,14 +622,13 @@ class Processor(Parser):
                             if item in added.keys():
                                 level1 = added[item]
                             elif item == elem and level1 is not None:
-                                text = (u''.join(elem.xpath('string()'))).strip()
+                                text, _href, frag = elem_to_link(elem, href, counter)
+                                counter += 1
                                 if text:
-                                    id = elem.get('id', 'calibre_chapter_%d'%counter)
-                                    counter += 1
-                                    elem.set('id', id)
-                                    add_item(href, id, text, level1, type='chapter')
+                                    add_item(_href, frag, text, level1, type='chapter')
                     
-        
+            if len(toc) > 0:
+                return
         # Add chapters to TOC
         
         if not self.opts.no_chapters_in_toc:
