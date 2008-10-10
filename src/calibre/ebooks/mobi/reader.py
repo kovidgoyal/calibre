@@ -391,7 +391,9 @@ class MobiReader(object):
             
         def fix_images(match):
             tag = match.group()
-            for pat in (r'\shirecindex=[\'"](\d+)[\'"]', '\srecindex=[\'"](\d+)[\'"]', '\slorecindex=[\'"](\d+)[\'"]'):
+            for pat in (r'\shirecindex=[\'"]{0,1}(\d+)[\'"]{0,1}', 
+                        '\srecindex=[\'"]{0,1}(\d+)[\'"]{0,1}', 
+                        '\slorecindex=[\'"]{0,1}(\d+)[\'"]{0,1}'):
                 pat = re.compile(pat)
                 m = pat.search(tag)
                 if m:
