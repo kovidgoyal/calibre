@@ -250,7 +250,7 @@ class Splitter(LoggingInterface):
                      '//p',
                      '//br',
                      ):
-            elems = root.xpath(path)
+            elems = root.xpath(path, namespaces={'re':'http://exslt.org/regular-expressions'})
             elem = pick_elem(elems)
             if elem is not None:
                 try:

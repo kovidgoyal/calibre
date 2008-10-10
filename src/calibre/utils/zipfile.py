@@ -1315,12 +1315,12 @@ def safe_replace(zipstream, name, datastream):
     and re-creating the zipfile. This is neccessary because :method:`ZipFile.replace`
     sometimes created corrupted zip files.
     
-    :param zipstream: Stream from a zip file
-    :param name: The name of the file to replace
+    :param zipstream:  Stream from a zip file
+    :param name:       The name of the file to replace
     :param datastream: The data to replace the file with.
     '''
     z = ZipFile(zipstream, 'r')
-    names = z.namelist()
+    names = z.infolist()
     with TemporaryDirectory('_zipfile_replace') as tdir:
         z.extractall(path=tdir)
         zipstream.seek(0)
@@ -1328,12 +1328,12 @@ def safe_replace(zipstream, name, datastream):
         z = ZipFile(zipstream, 'w')
         path = os.path.join(tdir, *name.split('/'))
         shutil.copyfileobj(datastream, open(path, 'wb'))
-        for name in names:
-            current = os.path.join(tdir, *name.split('/'))
+        for info in names:
+            current = os.path.join(tdir, *info.filename.split('/'))
             if os.path.isdir(current):
-                z.writestr(name+'/', '', 0700)
+                z.writestr(info.filename+'/', '', 0700)
             else:
-                z.write(current, name)
+                z.write(current, info.filename, compress_type=info.compress_type)
         z.close()
 
 class PyZipFile(ZipFile):
