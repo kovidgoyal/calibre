@@ -186,7 +186,7 @@ class CurrentDir(object):
     def __enter__(self, *args):
         self.cwd = os.getcwd()
         os.chdir(self.path)
-        return self.cwd 
+        return self.cwd
     
     def __exit__(self, *args):
         os.chdir(self.cwd)
