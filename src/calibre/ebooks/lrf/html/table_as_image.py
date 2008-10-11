@@ -44,7 +44,7 @@ class HTMLTableRenderer(QObject):
             cutoff_height = int(self.height/factor)-3
             image = QImage(self.page.viewportSize(), QImage.Format_ARGB32)
             image.setDotsPerMeterX(self.dpi*(100/2.54))
-            image.setDotsPerMeterX(self.dpi*(100/2.54))
+            image.setDotsPerMeterY(self.dpi*(100/2.54))
             painter = QPainter(image)
             self.page.mainFrame().render(painter)
             painter.end()

@@ -34,6 +34,7 @@ class Resource(object):
     '''
     
     def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):
+        self.orig = href_or_path
         self._href = None
         self._basedir = basedir
         self.path = None
@@ -521,6 +522,13 @@ class OPF(object):
     
     def iterspine(self):
         return self.spine_path(self.root)
+    
+    def spine_items(self):
+        for item in self.iterspine():
+            idref = item.get('idref', '')
+            for x in self.itermanifest():
+                if x.get('id', None) == idref:
+                    yield x.get('href', '')
     
     def create_spine_item(self, idref):
         ans = etree.Element('{%s}itemref'%self.NAMESPACES['opf'], idref=idref)
