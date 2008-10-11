@@ -71,6 +71,7 @@ def pdf2opf(path, tdir, opts):
 def epub2opf(path, tdir, opts):
     zf = ZipFile(path)
     zf.extractall(tdir)
+    opts.chapter_mark = 'none'
     if os.path.exists(os.path.join(tdir, 'META-INF', 'encryption.xml')):
         raise DRMError(os.path.basename(path))
     for f in walk(tdir):
