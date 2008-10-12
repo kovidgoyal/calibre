@@ -175,6 +175,8 @@ class MobiReader(object):
         self.replace_page_breaks()
         self.cleanup_html()
         
+        if self.processed_html.startswith('<body'):
+            self.processed_html = '<html><head></head>'+self.processed_html+'</html>'
         self.processed_html = \
             re.compile('<head>', re.IGNORECASE).sub(
                 '\n<head>\n'
