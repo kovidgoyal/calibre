@@ -37,7 +37,7 @@ def get_db(dbpath, options):
     print _('Using library at'), dbpath
     return LibraryDatabase2(dbpath, row_factory=True)
 
-def do_list(db, fields, sort_by, ascending, search_text, line_width):
+def do_list(db, fields, sort_by, ascending, search_text, line_width, separator):
     db.refresh(sort_by, ascending)
     if search_text:
         filters, OR = text_to_tokens(search_text)
@@ -89,9 +89,9 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width):
         for l in range(lines):
             for i, field in enumerate(text):
                 ft = text[i][l] if l < len(text[i]) else ''
-                filler = '%*s'%(widths[i]-len(ft), '')
+                filler = '%*s'%(widths[i]-len(ft)-1, '')
                 sys.stdout.write(ft)
-                sys.stdout.write(filler)
+                sys.stdout.write(filler+separator)
             print
 
 
@@ -104,7 +104,7 @@ List the books available in the calibre database.
 '''
                             ))
     parser.add_option('-f', '--fields', default='title,authors',
-                      help=_('The fields to display when listing books in the database. Should be a comma separated list of fields.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
+                      help=_('The fields to display when listing books in the database. Should be a comma separated list of fields.\nAvailable fields: %s\nDefault: %%default. The special field "all" can be used to select all fields.')%','.join(FIELDS))
     parser.add_option('--sort-by', default='timestamp',
                       help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
     parser.add_option('--ascending', default=False, action='store_true',
@@ -113,8 +113,11 @@ List the books available in the calibre database.
                       help=_('Filter the results by the search query. For the format of the search query, please see the search related documentation in the User Manual. Default is to do no filtering.'))
     parser.add_option('-w', '--line-width', default=-1, type=int, 
                       help=_('The maximum width of a single line in the output. Defaults to detecting screen size.'))
+    parser.add_option('--separator', default=' ', help=_('The string used to separate fields. Default is a space.'))
     opts, args = parser.parse_args(sys.argv[:1] + args)
     fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
+    if 'all' in fields:
+        fields = sorted(list(FIELDS))
     if not set(fields).issubset(FIELDS):
         parser.print_help()
         print
@@ -128,7 +131,7 @@ List the books available in the calibre database.
         print >>sys.stderr, _('Invalid sort field. Available fields:'), ','.join(FIELDS)
         return 1
 
-    do_list(db, fields, opts.sort_by, opts.ascending, opts.search, opts.line_width)
+    do_list(db, fields, opts.sort_by, opts.ascending, opts.search, opts.line_width, opts.separator)
     return 0
 
 
