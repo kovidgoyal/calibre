@@ -169,7 +169,7 @@
         <item row="5" column="1" >
          <widget class="QLineEdit" name="isbn" >
           <property name="toolTip" >
-           <string>Regular expression group name (?P&lt;series_index>)</string>
+           <string>Regular expression group name (?P&lt;isbn>)</string>
           </property>
           <property name="text" >
            <string>No match</string>

@@ -136,7 +136,7 @@ def metadata_from_filename(name, pat=None):
         try:
             si = match.group('series_index')
             mi.series_index = int(si)
-        except (IndexError, ValueError):
+        except (IndexError, ValueError, TypeError):
             pass
         try:
             si = match.group('isbn')
