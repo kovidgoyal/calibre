@@ -1573,7 +1573,16 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 au = _('Unknown')
             fname = '%s - %s.%s'%(title, au, format.lower())
             fname = sanitize_file_name(fname)
-            open(os.path.join(dir, fname), 'wb').write(data)
+            f = open(os.path.join(dir, fname), 'r+b')
+            f.seek(0)
+            f.truncate()
+            f.write(data)
+            f.seek(0)
+            try:
+                set_metadata(f, self.get_metadata(id, index_is_id=True), stream_type=format.lower())
+            except:
+                pass
+            f.close()
         return failures
 
 

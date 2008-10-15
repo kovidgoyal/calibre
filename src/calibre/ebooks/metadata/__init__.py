@@ -245,7 +245,7 @@ class MetaInformation(object):
             self.cover_data = mi.cover_data
             
             
-    def __str__(self):
+    def __unicode__(self):
         ans = u''
         ans += u'Title    : ' + unicode(self.title) + u'\n'
         if self.authors:
@@ -262,12 +262,15 @@ class MetaInformation(object):
         if self.isbn:
             ans += u'ISBN     : '     + unicode(self.isbn) + u'\n'
         if self.tags:
-            ans += u'Tags     : ' +unicode(self.tags) + '\n'
+            ans += u'Tags     : ' + u', '.join([unicode(t) for t in self.tags]) + '\n'
         if self.series:
             ans += u'Series   : '+unicode(self.series) + ' #%d\n'%self.series_index  
         if self.language:
             ans += u'Language : '     + unicode(self.language) + u'\n'
         return ans.strip()
+    
+    def __str__(self):
+        return self.__unicode__().encode('utf-8')
     
     def __nonzero__(self):
         return bool(self.title or self.author or self.comments or self.category)

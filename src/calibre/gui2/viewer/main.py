@@ -137,7 +137,7 @@ class Metadata(QLabel):
         
     def show_opf(self, opf):
         mi = MetaInformation(opf)
-        raw = str(mi)
+        raw = unicode(mi)
         ans = []
         for line in raw.splitlines():
             i = line.find(':')
