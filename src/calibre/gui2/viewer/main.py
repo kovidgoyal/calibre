@@ -130,7 +130,7 @@ class Metadata(QLabel):
     
     def __init__(self, parent):
         QTextBrowser.__init__(self, parent.centralWidget())
-        self.view = parent.view
+        self.view = parent.splitter
         self.setGeometry(self.view.geometry())
         self.setWordWrap(True)
         self.setVisible(False)
@@ -221,7 +221,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             f = functools.partial(self.load_ebook, pathtoebook)
             QTimer.singleShot(50, f)
         self.view.setMinimumSize(100, 100)
-        self.splitter.setSizes([1, 400])
+        self.splitter.setSizes([1, 300])
         self.toc.setCursor(Qt.PointingHandCursor)
     
     def toc_clicked(self, index):
@@ -254,7 +254,10 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         if self.current_page is not None:
             for page in self.iterator.spine:
                 if new_page >= page.start_page and new_page <= page.max_page:
-                    frac = float(new_page-page.start_page)/(page.pages-1)
+                    try:
+                        frac = float(new_page-page.start_page)/(page.pages-1)
+                    except ZeroDivisionError:
+                        frac = 0
                     if page == self.current_page:
                         self.view.scroll_to(frac)
                     else:

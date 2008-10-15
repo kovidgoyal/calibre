@@ -283,6 +283,7 @@ InstallComponent 48596410-DF5A-1E56-D59C-1B1E2F094FCA -setup Install -type actio
 Condition A75C28A7-801B-22B3-C00A-B4B6F148DAA5 -active Yes -parent 48596410-DF5A-1E56-D59C-1B1E2F094FCA -title {String Is Condition} -component StringIsCondition -TreeObject::id A75C28A7-801B-22B3-C00A-B4B6F148DAA5
 InstallComponent EE3AF196-AF0F-4947-CD75-7894634F48A6 -setup Install -type action -conditions C5416030-8AB4-3466-F341-9A0BBFEA55EF -title {Uninstall Shortcut} -component InstallProgramFolderShortcut -command insert -active Yes -parent 2DF93B55-41E5-75D5-E815-BD9FDC32D9F8
 Condition C5416030-8AB4-3466-F341-9A0BBFEA55EF -active Yes -parent EE3AF196-AF0F-4947-CD75-7894634F48A6 -title {String Is Condition} -component StringIsCondition -TreeObject::id C5416030-8AB4-3466-F341-9A0BBFEA55EF
+InstallComponent 6734BA65-B25A-DA08-812C-EE0775F91A89 -setup Install -type action -title {Ebook viewer shorcut} -component InstallProgramFolderShortcut -active Yes -parent 2DF93B55-41E5-75D5-E815-BD9FDC32D9F8
 InstallComponent 77D1144B-1013-79B5-034B-5D6BDA6B2FD2 -setup Install -type action -title {LRFViewer Shortcut} -component InstallProgramFolderShortcut -active Yes -parent 2DF93B55-41E5-75D5-E815-BD9FDC32D9F8
 InstallComponent 28BAE662-E103-4E3F-D298-C8FBA36361FC -setup Install -type actiongroup -title {Finish Actions} -alias {Finish Actions} -active Yes -parent ActionGroupsInstall
 InstallComponent E32519F3-A540-C8F3-957F-4C1DB5B25DFE -setup Install -type action -conditions {72D8B44E-E4CF-7551-645E-FB57C5B000E9 03FA7EEF-F626-B69A-09C6-0AA7A54EE9E7} -title {Install Desktop Shortcut} -component InstallDesktopShortcut -command insert -active Yes -parent 28BAE662-E103-4E3F-D298-C8FBA36361FC
@@ -711,6 +712,27 @@ No
 
 6661142D-D174-F52E-CD1D-6BFB3649BC64,Title,subst
 1
+
+6734BA65-B25A-DA08-812C-EE0775F91A89,Conditions
+{0 conditions}
+
+6734BA65-B25A-DA08-812C-EE0775F91A89,FileName
+{}
+
+6734BA65-B25A-DA08-812C-EE0775F91A89,IconPath
+{<%InstallDir%>\viewer.ico}
+
+6734BA65-B25A-DA08-812C-EE0775F91A89,InstallForAllUsers
+Yes
+
+6734BA65-B25A-DA08-812C-EE0775F91A89,ShortcutName
+{Ebook Viewer}
+
+6734BA65-B25A-DA08-812C-EE0775F91A89,TargetFileName
+{<%InstallDir%>\ebook-viewer<%Ext%>}
+
+6734BA65-B25A-DA08-812C-EE0775F91A89,WorkingDirectory
+<%InstallDir%>
 
 678C30B6-BF0A-238C-524A-2BFEC6876FC5,Alias
 {Setup Actions}
