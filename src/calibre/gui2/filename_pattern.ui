@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>335</width>
-    <height>487</height>
+    <height>540</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -16,7 +16,13 @@
    <item>
     <widget class="QLabel" name="label" >
      <property name="text" >
-      <string>&lt;p>Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;p>A &lt;a href="http://docs.python.org/lib/re-syntax.html">reference&lt;/a> on the syntax of regular expressions is available.&lt;p>Use the &lt;b>Test&lt;/b> functionality below to test your regular expression on a few sample filenames.</string>
+      <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+&lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
+p, li { white-space: pre-wrap; }
+&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Set a regular expression pattern to use when trying to guess ebook metadata from filenames. &lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">A &lt;a href="http://docs.python.org/lib/re-syntax.html">&lt;span style=" text-decoration: underline; color:#0000ff;">reference&lt;/span>&lt;/a> on the syntax of regular expressions is available.&lt;/p>
+&lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Use the &lt;span style=" font-weight:600;">Test&lt;/span> functionality below to test your regular expression on a few sample filenames. The group names for the various metadata entries are documented in tooltips.&lt;/p>&lt;/body>&lt;/html></string>
      </property>
      <property name="textFormat" >
       <enum>Qt::RichText</enum>
@@ -39,8 +45,6 @@
        <widget class="QLineEdit" name="re" />
       </item>
      </layout>
-     <zorder>re</zorder>
-     <zorder>label</zorder>
     </widget>
    </item>
    <item>
@@ -89,7 +93,7 @@
         <item row="0" column="1" colspan="2" >
          <widget class="QLineEdit" name="title" >
           <property name="toolTip" >
-           <string>Regular expression group name (?P&lt;title>)</string>
+           <string>Regular expression (?P&amp;lt;title&amp;gt;)</string>
           </property>
           <property name="text" >
            <string>No match</string>
@@ -109,7 +113,7 @@
         <item row="1" column="1" colspan="2" >
          <widget class="QLineEdit" name="authors" >
           <property name="toolTip" >
-           <string>Regular expression group name (?P&lt;authors>)</string>
+           <string>Regular expression (?P&lt;authors>)</string>
           </property>
           <property name="text" >
            <string>No match</string>
@@ -129,7 +133,7 @@
         <item row="2" column="1" colspan="2" >
          <widget class="QLineEdit" name="series" >
           <property name="toolTip" >
-           <string>Regular expression group name (?P&lt;series>)</string>
+           <string>Regular expression (?P&lt;series>)</string>
           </property>
           <property name="text" >
            <string>No match</string>
@@ -149,7 +153,7 @@
         <item rowspan="2" row="3" column="1" colspan="2" >
          <widget class="QLineEdit" name="series_index" >
           <property name="toolTip" >
-           <string>Regular expression group name (?P&lt;series_index>)</string>
+           <string>Regular expression (?P&lt;series_index>)</string>
           </property>
           <property name="text" >
            <string>No match</string>
@@ -169,7 +173,7 @@
         <item row="5" column="1" >
          <widget class="QLineEdit" name="isbn" >
           <property name="toolTip" >
-           <string>Regular expression group name (?P&lt;isbn>)</string>
+           <string>Regular expression (?P&lt;isbn>)</string>
           </property>
           <property name="text" >
            <string>No match</string>
