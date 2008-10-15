@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os
+import os, re
 
 from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon
 from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant
@@ -11,6 +11,7 @@ from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, w
 from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.ebooks import BOOK_EXTENSIONS
+from calibre.ebooks.epub.iterator import is_supported
 
 
 class ConfigDialog(QDialog, Ui_Dialog):
@@ -82,6 +83,19 @@ class ConfigDialog(QDialog, Ui_Dialog):
             
         self.output_format.setCurrentIndex(0 if prefs['output_format'] == 'LRF' else 1)
         self.pdf_metadata.setChecked(prefs['read_file_metadata'])
+        
+        added_html = False
+        for ext in BOOK_EXTENSIONS:
+            ext = ext.lower()
+            ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
+            if ext == 'lrf' or is_supported('book.'+ext):
+                if ext == 'html' and added_html:
+                    continue
+                self.viewer.addItem(ext.upper())
+                self.viewer.item(self.viewer.count()-1).setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
+                self.viewer.item(self.viewer.count()-1).setCheckState(Qt.Checked if ext.upper() in config['internally_viewed_formats'] else Qt.Unchecked)
+                added_html = ext == 'html'
+        self.viewer.sortItems()
             
         
         
@@ -120,6 +134,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
         of = str(self.output_format.currentText())
+        fmts = []
+        for i in range(self.viewer.count()):
+            if self.viewer.item(i).checkState() == Qt.Checked:
+                fmts.append(str(self.viewer.item(i).text()))
+        config['internally_viewed_formats'] = fmts
         if of != prefs['output_format'] and 'epub' in of.lower():
             warning_dialog(self, 'Warning', 
                 '<p>EPUB support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.').exec_()

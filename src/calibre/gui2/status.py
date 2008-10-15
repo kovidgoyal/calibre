@@ -244,10 +244,12 @@ if __name__ == '__main__':
             filesl.append(name)
             pixmaps[i].save(name, 'PNG')
             filesc = ' '.join(filesl)
-        cmd = 'convert -dispose Background -delay '+str(delay)+ ' ' + filesc + ' -loop 0 animated.mng'
+        cmd = 'convert -dispose Background -delay '+str(delay)+ ' ' + filesc + ' -loop 0 animated.gif'
         try:
             check_call(cmd, shell=True)
         finally:
             for file in filesl:
                 os.remove(file)
+    import sys
+    create_mng(sys.argv[1])
         

@@ -919,9 +919,14 @@ class Main(MainWindow, Ui_MainWindow):
     def _view_file(self, name):
         self.setCursor(Qt.BusyCursor)
         try:
-            if name.upper().endswith('.LRF'):
-                args = ['lrfviewer', name]
-                self.job_manager.server.run_free_job('lrfviewer', kwdargs=dict(args=args))
+            ext = os.path.splitext(name)[1].upper().replace('.', '')
+            if ext in config['internally_viewed_formats']:
+                if ext == 'LRF':
+                    args = ['lrfviewer', name]
+                    self.job_manager.server.run_free_job('lrfviewer', kwdargs=dict(args=args))
+                else:
+                    args = ['ebook-viewer', name]
+                    self.job_manager.server.run_free_job('ebook-viewer', kwdargs=dict(args=args))
             else:
                 QDesktopServices.openUrl(QUrl('file:'+name))#launch(name)
             time.sleep(5) # User feedback
@@ -962,6 +967,8 @@ class Main(MainWindow, Ui_MainWindow):
                 format = formats[0]
             if 'LRF' in formats:
                 format = 'LRF'
+            if 'EPUB' in formats:
+                format = 'EPUB'
             if not formats:
                 d = error_dialog(self, _('Cannot view'),
                         _('%s has no available formats.')%(title,))
@@ -1120,7 +1127,7 @@ class Main(MainWindow, Ui_MainWindow):
         try:
             if job.exception[0] == 'DRMError':
                 error_dialog(self, _('Conversion Error'), 
-                    _('<p>Could not convert: %s<p>It is a <a href="http://wiki.mobileread.com/wiki/DRM">DRM</a>ed book. You must first remove the DRM using 3rd party tools.')%job.description.split(':')[-1]).exec_()
+                    _('<p>Could not convert: %s<p>It is a <a href="%s">DRM</a>ed book. You must first remove the DRM using 3rd party tools.')%(job.description.split(':')[-1], 'http://wiki.mobileread.com/wiki/DRM')).exec_()
                 return
         except:
             pass
@@ -1172,7 +1179,10 @@ in which you want to store your books files. Any existing books will be automati
             if not dir:
                 dir = os.path.dirname(self.database_path)
             self.library_path = os.path.abspath(dir)
-            self.olddb = LibraryDatabase(self.database_path)
+            try:
+                self.olddb = LibraryDatabase(self.database_path)
+            except:
+                self.olddb = None
 
 
     def read_settings(self):

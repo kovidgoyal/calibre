@@ -7,8 +7,9 @@ __docformat__ = 'restructuredtext en'
 Render HTML tables as images.
 '''
 import os, tempfile, atexit, shutil, time
-from PyQt4.Qt import QWebPage, QUrl, QApplication, QSize, \
+from PyQt4.Qt import QUrl, QApplication, QSize, \
                      SIGNAL, QPainter, QImage, QObject, Qt
+from PyQt4.QtWebKit import QWebPage
 
 from calibre.parallel import ParallelJob
 

@@ -10,11 +10,9 @@ from cStringIO import StringIO
 from contextlib import closing
 from ctypes import c_long, byref
 
-from PyQt4.Qt import QWebPage, QUrl, QEventLoop, QSize, QByteArray, QBuffer, \
-                     SIGNAL, QPainter, QImage, QObject, QApplication
-
-from calibre.utils.PythonMagickWand import ImageMagick, NewMagickWand, MagickGetImageBlob, \
-                                           MagickReadImageBlob, MagickTrimImage, MagickSetFormat
+from PyQt4.Qt import QUrl, QEventLoop, QSize, QByteArray, QBuffer, \
+                     SIGNAL, QPainter, QImage, QObject, QApplication, Qt, QPalette
+from PyQt4.QtWebKit import QWebPage
 
 from calibre.utils.zipfile import ZipFile, BadZipfile, safe_replace
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
@@ -111,12 +109,18 @@ class CoverRenderer(QObject):
         QObject.__init__(self)
         self.loop = loop
         self.page = QWebPage()
+        pal = self.page.palette()
+        pal.setBrush(QPalette.Background, Qt.white)
+        self.page.setPalette(pal)
         QObject.connect(self.page, SIGNAL('loadFinished(bool)'), self.render_html)
         self.image_data = None
         self.rendered = False
         self.page.mainFrame().load(url)
         
     def render_html(self, ok):
+        from calibre.utils.PythonMagickWand import ImageMagick, NewMagickWand, MagickGetImageBlob, \
+                                           MagickReadImageBlob, MagickTrimImage, MagickSetFormat
+
         self.rendered = True
         try:
             if not ok:

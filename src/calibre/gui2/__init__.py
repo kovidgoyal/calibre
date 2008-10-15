@@ -45,6 +45,8 @@ def _config():
               help=_('Defaults for conversion to LRF'))
     c.add_opt('LRF_ebook_viewer_options', default=None,
               help=_('Options for the LRF ebook viewer'))
+    c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT', 'MOBI', 'PRC', 'HTML', 'FB2'],
+              help=_('Formats that are viewed using the internal viewer'))
     return ConfigProxy(c)
     
 config = _config()

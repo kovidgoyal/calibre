@@ -78,7 +78,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget" >
        <property name="currentIndex" >
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page_3" >
         <layout class="QVBoxLayout" name="verticalLayout" >
@@ -433,6 +433,22 @@
               <property name="selectionMode" >
                <enum>QAbstractItemView::NoSelection</enum>
               </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QGroupBox" name="groupBox_3" >
+              <property name="title" >
+               <string>Use internal &amp;viewer for the following formats:</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_4" >
+               <item row="0" column="0" >
+                <widget class="QListWidget" name="viewer" >
+                 <property name="selectionMode" >
+                  <enum>QAbstractItemView::NoSelection</enum>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </widget>
             </item>
            </layout>

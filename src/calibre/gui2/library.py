@@ -824,9 +824,9 @@ class SearchBox(QLineEdit):
 
     INTERVAL = 1000 #: Time to wait before emitting search signal
 
-    def __init__(self, parent):
+    def __init__(self, parent, help_text=_('Search (For Advanced Search click the button to the left)')):
         QLineEdit.__init__(self, parent)
-        self.help_text = _('Search (For Advanced Search click the button to the left)')
+        self.help_text = help_text
         self.initial_state = True
         self.default_palette = QApplication.palette(self)
         self.gray = QPalette(self.default_palette)

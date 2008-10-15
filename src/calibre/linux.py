@@ -37,7 +37,7 @@ entry_points = {
                              'rtf2lrf   = calibre.ebooks.lrf.rtf.convert_from:main',
                              'web2disk  = calibre.web.fetch.simple:main',
                              'feeds2disk = calibre.web.feeds.main:main',
-                             'feeds2lrf = calibre.ebooks.lrf.feeds.convert_from:main',
+                             'feeds2lrf  = calibre.ebooks.lrf.feeds.convert_from:main',
                              'feeds2epub = calibre.ebooks.epub.from_feeds:main',
                              'web2lrf   = calibre.ebooks.lrf.web.convert_from:main',
                              'pdf2lrf   = calibre.ebooks.lrf.pdf.convert_from:main',
@@ -59,11 +59,12 @@ entry_points = {
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
-                             'calibre-parallel   = calibre.parallel:main',
+                             'calibre-parallel   = calibre.parallel:main',                             
                            ],
         'gui_scripts'    : [
                             __appname__+' = calibre.gui2.main:main',
                             'lrfviewer = calibre.gui2.lrf_renderer.main:main',
+                            'ebook-viewer       = calibre.gui2.viewer.main:main',
                             ],
       }
 
@@ -472,6 +473,20 @@ MimeType=application/x-sony-bbeb;
 Categories=Graphics;Viewer;
 '''%(__version__,)
 
+EVIEWER = '''\
+[Desktop Entry]
+Version=%s
+Type=Application
+Name=Ebook Viewer
+Comment=Viewer for Ebooks
+TryExec=ebook-viewer
+Exec=ebook-viewer %%F
+Icon=calibre-viewer
+MimeType=application/epub+zip;
+Categories=Graphics;Viewer;
+'''%(__version__,)
+
+
 GUI = '''\
 [Desktop Entry]
 Version=%s
@@ -490,6 +505,10 @@ MIME = '''\
     <mime-type type="application/x-sony-bbeb">
         <comment>SONY E-book compiled format</comment>
         <glob pattern="*.lrf"/>
+    </mime-type>
+    <mime-type type="application/epub+zip">
+        <comment>EPUB ebook format</comment>
+        <glob pattern="*.epub"/>
     </mime-type>
     <mime-type type="text/lrs">
         <comment>SONY E-book source format</comment>
@@ -531,9 +550,12 @@ def setup_desktop_integration(fatal_errors):
             check_call('xdg-icon-resource install --size 128 calibre-gui.png calibre-gui', shell=True)
             render_svg(QFile(':/images/viewer.svg'), os.path.join(tdir, 'calibre-viewer.png'))
             check_call('xdg-icon-resource install --size 128 calibre-viewer.png calibre-viewer', shell=True)
-
+            
             f = open('calibre-lrfviewer.desktop', 'wb')
             f.write(VIEWER)
+            f.close()
+            f = open('calibre-ebook-viewer.desktop', 'wb')
+            f.write(EVIEWER)
             f.close()
             f = open('calibre-gui.desktop', 'wb')
             f.write(GUI)

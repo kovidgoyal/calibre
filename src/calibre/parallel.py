@@ -42,6 +42,9 @@ PARALLEL_FUNCS = {
 
       'lrfviewer'    :
         ('calibre.gui2.lrf_renderer.main', 'main', {}, None),
+        
+      'ebook-viewer'    :
+        ('calibre.gui2.viewer.main', 'main', {}, None),  
 
       'feeds2lrf'    :
         ('calibre.ebooks.lrf.feeds.convert_from', 'main', {}, 'notification'),

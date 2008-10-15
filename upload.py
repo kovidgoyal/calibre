@@ -230,7 +230,7 @@ def stage_three():
     print 'Uploading installers...'
     upload_installers()
     print 'Uploading documentation...'
-    upload_docs()
+    #upload_docs()
     upload_user_manual()
     print 'Uploading to PyPI...'
     check_call('rm -f dist/*')

@@ -124,6 +124,12 @@ Content From The Web
   :depth: 1
   :local:
 
+My downloaded news content causes the reader to reset. 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is a bug in the SONY firmware. The problem can be mitigated by switching the output format to EPUB
+in the configuration dialog. EPUB files typically only cause the reader to reset when clicking on certain
+links. Alternatively, you can use the LRF output format and use the SONY software to transfer the files to the reader. The SONY software pre-paginates the LRF file, thereby reducing the number of resets.
+
 I obtained a recipe for a news site as a .py file from somewhere, how do I use it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Start the :guilabel:`Add custom news sources` dialog (from the :guilabel:`Fetch news` menu) and click the :guilabel:`Switch to advanced mode` button. Delete everything in the box with the recipe source code and copy paste the contents of your .py file into the box. Click :guilabel:`Add/update recipe`.

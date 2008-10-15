@@ -31,8 +31,6 @@ class TheAtlantic(BasicNewsRecipe):
         cover = soup.find('img', alt='feature image', src=True)
         if cover is not None:
             self.cover_url = 'http://theatlantic.com'+cover['src']
-        else:
-            raise 'a'
         
         for item in soup.findAll('div', attrs={'class':'item'}):
             a = item.find('a')

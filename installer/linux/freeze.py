@@ -13,7 +13,7 @@ CALIBREPREFIX  = '___'
 PDFTOHTML      = '/usr/bin/pdftohtml'
 LIBUNRAR       = '/usr/lib/libunrar.so'
 QTDIR          = '/usr/lib/qt4'
-QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml')
+QTDLLS         = ('QtCore', 'QtGui', 'QtNetwork', 'QtSvg', 'QtXml', 'QtWebKit')
 EXTRAS         = ('/usr/lib/python2.5/site-packages/PIL', os.path.expanduser('~/ipython/IPython'))
 SQLITE         = '/usr/lib/libsqlite3.so.0'
 DBUS           = '/usr/lib/libdbus-1.so.3'
@@ -34,7 +34,8 @@ sys.path.insert(0, CALIBRESRC)
 from calibre import __version__
 from calibre.parallel import PARALLEL_FUNCS
 from calibre.web.feeds.recipes import recipes
-hiddenimports = map(lambda x: x[0], PARALLEL_FUNCS.values())
+hiddenimports = list(map(lambda x: x[0], PARALLEL_FUNCS.values()))
+hiddenimports += ['PyQt4.QtWebKit']
 hiddenimports += ['lxml._elementpath', 'keyword', 'codeop', 'commands', 'shlex', 'pydoc']
 hiddenimports += map(lambda x: x.__module__, recipes)
 open(os.path.join(PYINSTALLER, 'hooks', 'hook-calibre.parallel.py'), 'wb').write('hiddenimports = %s'%repr(hiddenimports))

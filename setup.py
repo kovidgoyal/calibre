@@ -288,6 +288,11 @@ if __name__ == '__main__':
                         dat = re.sub(r'= QtGui\.QTextEdit\(self\..*?\)', '= QtGui.QTextEdit()', dat) 
                         dat = re.sub(r'= QtGui\.QListWidget\(self\..*?\)', '= QtGui.QListWidget()', dat)
                     
+                    if form.endswith('viewer%smain.ui'%os.sep):
+                        print 'Promoting WebView'
+                        dat = dat.replace('self.view = QtWebKit.QWebView(self.widget)', 'self.view = DocumentView(self.widget)')
+                        dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
+                    
                     open(compiled_form, 'wb').write(dat)
 
                 
