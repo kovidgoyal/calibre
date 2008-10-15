@@ -1,0 +1,200 @@
+<ui version="4.0" >
+ <class>Dialog</class>
+ <widget class="QDialog" name="Dialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>479</width>
+    <height>436</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Configure Ebook viewer</string>
+  </property>
+  <property name="windowIcon" >
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/config.svg</normaloff>:/images/config.svg</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_4" >
+   <item row="0" column="0" >
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>&amp;Font options</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3" >
+      <item row="0" column="0" >
+       <layout class="QGridLayout" name="gridLayout" >
+        <item row="0" column="0" >
+         <widget class="QLabel" name="label" >
+          <property name="text" >
+           <string>Se&amp;rif family:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>serif_family</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QFontComboBox" name="serif_family" />
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="label_2" >
+          <property name="text" >
+           <string>&amp;Sans family:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>sans_family</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QFontComboBox" name="sans_family" />
+        </item>
+        <item row="2" column="0" >
+         <widget class="QLabel" name="label_3" >
+          <property name="text" >
+           <string>&amp;Monospace family:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>mono_family</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" >
+         <widget class="QFontComboBox" name="mono_family" />
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0" >
+       <layout class="QGridLayout" name="gridLayout_2" >
+        <item row="0" column="0" >
+         <widget class="QLabel" name="label_4" >
+          <property name="text" >
+           <string>&amp;Default font size:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>default_font_size</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" >
+         <widget class="QSpinBox" name="default_font_size" >
+          <property name="suffix" >
+           <string> px</string>
+          </property>
+          <property name="minimum" >
+           <number>8</number>
+          </property>
+          <property name="maximum" >
+           <number>40</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0" >
+         <widget class="QLabel" name="label_5" >
+          <property name="text" >
+           <string>Monospace &amp;font size:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>mono_font_size</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QSpinBox" name="mono_font_size" >
+          <property name="suffix" >
+           <string> px</string>
+          </property>
+          <property name="minimum" >
+           <number>8</number>
+          </property>
+          <property name="maximum" >
+           <number>50</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" >
+         <widget class="QLabel" name="label_6" >
+          <property name="text" >
+           <string>S&amp;tandard font:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>standard_font</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" >
+         <widget class="QComboBox" name="standard_font" >
+          <item>
+           <property name="text" >
+            <string>Serif</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Sans-serif</string>
+           </property>
+          </item>
+          <item>
+           <property name="text" >
+            <string>Monospace</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../images.qrc" />
+ </resources>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>248</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>316</x>
+     <y>260</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -7,9 +7,12 @@ __docformat__ = 'restructuredtext en'
 '''
 import os, math
 from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
-                     QPainter, QPalette, QBrush, QFontDatabase, \
-                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion
+                     QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
+                     QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, QFont
 from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
+
+from calibre.utils.config import Config, StringConfig
+from calibre.gui2.viewer.config_ui import Ui_Dialog
 
 def load_builtin_fonts():
     from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
@@ -40,7 +43,67 @@ def load_builtin_fonts():
     #    print f
     return 'Liberation Serif', 'Liberation Sans', 'Liberation Mono'
 
+def config(defaults=None):
+    desc = _('Options to customize the ebook viewer')
+    if defaults is None:
+        c = Config('viewer', desc)
+    else:
+        c = StringConfig(defaults, desc)
+        
+    fonts = c.add_group('FONTS', _('Font options'))
+    fonts('serif_family', default='Liberation Serif', help=_('The serif font family'))
+    fonts('sans_family', default='Liberation Sans', help=_('The sans-serif font family'))
+    fonts('mono_family', default='Liberation Mono', help=_('The monospaced font family'))
+    fonts('default_font_size', default=20, help=_('The standard font size in px'))
+    fonts('mono_font_size', default=16, help=_('The monospaced font size in px'))
+    fonts('standard_font', default='serif', help=_('The standard font type'))
+    
+    return c
+
+class ConfigDialog(QDialog, Ui_Dialog):
+    
+    def __init__(self, *args):
+        QDialog.__init__(self, *args)
+        self.setupUi(self)
+        
+        opts = config().parse()
+        self.serif_family.setCurrentFont(QFont(opts.serif_family))
+        self.sans_family.setCurrentFont(QFont(opts.sans_family))
+        self.mono_family.setCurrentFont(QFont(opts.mono_family))
+        self.default_font_size.setValue(opts.default_font_size)
+        self.mono_font_size.setValue(opts.mono_font_size)
+        self.standard_font.setCurrentIndex({'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
+        
+    def accept(self, *args):
+        c = config()
+        c.set('serif_family', unicode(self.serif_family.currentFont().family()))
+        c.set('sans_family', unicode(self.sans_family.currentFont().family()))
+        c.set('mono_family', unicode(self.mono_family.currentFont().family()))
+        c.set('default_font_size', self.default_font_size.value())
+        c.set('mono_font_size', self.mono_font_size.value())
+        c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[self.standard_font.currentIndex()])
+        return QDialog.accept(self, *args)
+        
+
 class Document(QWebPage):
+    
+    def set_font_settings(self):
+        opts = config().parse()
+        settings = self.settings()
+        settings.setFontSize(QWebSettings.DefaultFontSize, opts.default_font_size)
+        settings.setFontSize(QWebSettings.DefaultFixedFontSize, opts.mono_font_size)
+        settings.setFontSize(QWebSettings.MinimumLogicalFontSize, 8)
+        settings.setFontSize(QWebSettings.MinimumFontSize, 8)
+        settings.setFontFamily(QWebSettings.StandardFont, {'serif':opts.serif_family, 'sans':opts.sans_family, 'mono':opts.mono_family}[opts.standard_font])
+        settings.setFontFamily(QWebSettings.SerifFont, opts.serif_family)
+        settings.setFontFamily(QWebSettings.SansSerifFont, opts.sans_family)
+        settings.setFontFamily(QWebSettings.FixedFont, opts.mono_family)
+        
+    def do_config(self, parent=None):
+        d = ConfigDialog(parent)
+        if d.exec_() == QDialog.Accepted:
+            self.set_font_settings()
+            self.triggerAction(QWebPage.Reload)
     
     def __init__(self, *args):
         QWebPage.__init__(self, *args)
@@ -53,15 +116,8 @@ class Document(QWebPage):
         settings = self.settings()
         
         # Fonts
-        serif, sans, mono = load_builtin_fonts()
-        settings.setFontSize(QWebSettings.DefaultFontSize, 20)
-        settings.setFontSize(QWebSettings.DefaultFixedFontSize, 16)
-        settings.setFontSize(QWebSettings.MinimumLogicalFontSize, 8)
-        settings.setFontSize(QWebSettings.MinimumFontSize, 8)
-        settings.setFontFamily(QWebSettings.StandardFont, serif)
-        settings.setFontFamily(QWebSettings.SerifFont, serif)
-        settings.setFontFamily(QWebSettings.SansSerifFont, sans)
-        settings.setFontFamily(QWebSettings.FixedFont, mono)
+        load_builtin_fonts()
+        self.set_font_settings()
         
         # Security
         settings.setAttribute(QWebSettings.JavaEnabled, False)
@@ -178,6 +234,9 @@ class DocumentView(QWebView):
         self.connect(self.document, SIGNAL('linkHovered(QString,QString,QString)'), self.link_hovered)
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
     
+    def config(self, parent=None):
+        self.document.do_config(parent)
+        
     def selection_changed(self):
         if self.manager is not None:
             self.manager.selection_changed(unicode(self.document.selectedText()))

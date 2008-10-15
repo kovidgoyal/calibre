@@ -210,6 +210,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                      lambda x:self.find(unicode(self.search.text()), True, repeat=True))
         self.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
         self.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
+        self.connect(self.action_preferences, SIGNAL('triggered(bool)'), lambda x: self.view.config(self))
         self.connect(self.pos, SIGNAL('valueChanged(double)'), self.goto_page)
         self.connect(self.vertical_scrollbar, SIGNAL('valueChanged(int)'), 
                      lambda x: self.goto_page(x/100.))
