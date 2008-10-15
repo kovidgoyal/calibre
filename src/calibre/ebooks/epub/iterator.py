@@ -8,6 +8,7 @@ Iterate over the HTML files in an ebook. Useful for writing viewers.
 import re, os, math, copy
 
 from calibre.ebooks.epub.from_any import MAP
+from calibre.ebooks.epub.from_html import TITLEPAGE
 from calibre.ebooks.epub import config 
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
@@ -83,16 +84,28 @@ class EbookIterator(object):
         self.pathtoopf = self.to_opf(self.pathtoebook, self.base, opts)
         self.opf = OPF(self.pathtoopf, os.path.dirname(self.pathtoopf))
         self.spine = [SpineItem(i.path) for i in self.opf.spine]
+        
+        cover = self.opf.cover
+        if os.path.splitext(self.pathtoebook)[1].lower() in ('.lit', '.mobi', '.prc') and cover:
+            cfile = os.path.join(os.path.dirname(self.spine[0]), 'calibre_ei_cover.html')
+            open(cfile, 'wb').write(TITLEPAGE%cover)
+            self.spine[0:0] = [SpineItem(cfile)]
+        
         sizes = [i.character_count for i in self.spine]
         self.pages = [math.ceil(i/float(self.CHARACTERS_PER_PAGE)) for i in sizes]
         for p, s in zip(self.pages, self.spine):
             s.pages = p
         start = 1
+        
+        
         for s in self.spine:
             s.start_page = start
             start += s.pages
             s.max_page = s.start_page + s.pages - 1
         self.toc = self.opf.toc
+        
+         
+        
         return self
         
     def __exit__(self, *args):

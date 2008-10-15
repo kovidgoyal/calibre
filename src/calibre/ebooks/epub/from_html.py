@@ -145,6 +145,20 @@ def resize_cover(im, opts):
         im = im.resize((int(nwidth), int(nheight)), PILImage.ANTIALIAS)
     return im
 
+TITLEPAGE = '''\
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+    <head>
+        <title>Cover</title>
+        <style type="text/css">@page {padding: 0pt; margin:0pt}</style>
+    </head>
+    <body style="padding: 0pt; margin: 0pt">
+        <div style="text-align:center">
+            <img style="text-align: center" src="%s" alt="cover" />
+        </div>
+    </body>
+</html>
+'''
+
 def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     old_title_page = None
     f = lambda x : os.path.normcase(os.path.normpath(x))
@@ -188,19 +202,7 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
         cover = metadata_cover if specified_cover is None or (opts.prefer_metadata_cover and metadata_cover is not None) else specified_cover
 
     if hasattr(cover, 'save'):
-        titlepage = '''\
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-    <head>
-        <title>Cover</title>
-        <style type="text/css">@page {padding: 0pt; margin:0pt}</style>
-    </head>
-    <body style="padding: 0pt; margin: 0pt">
-        <div style="text-align:center">
-            <img style="text-align: center" src="%s" alt="cover" />
-        </div>
-    </body>
-</html>
-            '''%cpath
+        titlepage = TITLEPAGE%cpath
         tp = 'calibre_title_page.html' if old_title_page is None else old_title_page 
         tppath = os.path.join(tdir, 'content', tp)
         with open(tppath, 'wb') as f:
