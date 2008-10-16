@@ -7,6 +7,8 @@ Iterate over the HTML files in an ebook. Useful for writing viewers.
 
 import re, os, math, copy
 
+from PyQt4.Qt import QFontDatabase
+
 from calibre.ebooks.epub.from_any import MAP
 from calibre.ebooks.epub.from_html import TITLEPAGE
 from calibre.ebooks.epub import config 
@@ -77,6 +79,25 @@ class EbookIterator(object):
                 if text in open(path, 'rb').read().decode(path.encoding).lower():
                     return i
     
+    def find_embedded_fonts(self):
+        for item in self.opf.manifest:
+            if item.mime_type and 'css' in item.mime_type.lower():
+                css = open(item.path, 'rb').read().decode('utf-8')
+                for match in re.compile(r'@font-face\s*{([^}]+)}').finditer(css):
+                    block  = match.group(1)
+                    family = re.compile(r'font-family\s*:\s*([^;]+)').search(block)
+                    url    = re.compile(r'url\s*\((.+?)\)', re.DOTALL).search(block)
+                    if url:
+                        path = url.group(1).split('/')
+                        path = os.path.join(os.path.dirname(item.path), *path) 
+                        id = QFontDatabase.addApplicationFont(path)
+                        if id != -1:
+                            families = [unicode(f) for f in QFontDatabase.applicationFontFamilies(id)]
+                            if family:
+                                family = family.group(1).strip().replace('"', '')
+                                if family not in families:
+                                    print 'WARNING: Family aliasing not supported:', block
+    
     def __enter__(self):
         self._tdir = TemporaryDirectory('_ebook_iter')
         self.base  = self._tdir.__enter__()
@@ -104,7 +125,7 @@ class EbookIterator(object):
             s.max_page = s.start_page + s.pages - 1
         self.toc = self.opf.toc
         
-         
+        self.find_embedded_fonts() 
         
         return self
         

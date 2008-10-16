@@ -118,11 +118,10 @@ class CoverRenderer(QObject):
         self.page.mainFrame().load(url)
         
     def render_html(self, ok):
-        from calibre.utils.PythonMagickWand import ImageMagick, NewMagickWand, MagickGetImageBlob, \
-                                           MagickReadImageBlob, MagickTrimImage, MagickSetFormat
-
         self.rendered = True
         try:
+            from calibre.utils.PythonMagickWand import ImageMagick, NewMagickWand, MagickGetImageBlob, \
+                                           MagickReadImageBlob, MagickTrimImage, MagickSetFormat
             if not ok:
                 return
             self.page.setViewportSize(QSize(1280, 1024))

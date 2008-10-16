@@ -5,7 +5,7 @@ __docformat__ = 'restructuredtext en'
 
 '''
 '''
-import os, math
+import os, math, re
 from PyQt4.Qt import QWidget, QSize, QSizePolicy, QUrl, SIGNAL, Qt, QTimer, \
                      QPainter, QPalette, QBrush, QFontDatabase, QDialog, \
                      QByteArray, QColor, QWheelEvent, QPoint, QImage, QRegion, QFont
@@ -215,6 +215,18 @@ class Document(QWebPage):
             return self.mainFrame().contentsSize().width() # offsetWidth gives inaccurate results
         return property(fget=fget)
 
+class EntityDeclarationProcessor(object):
+    
+    def __init__(self, html):
+        self.declared_entities = {}
+        for match in re.finditer(r'<!\s*ENTITY\s+([^>]+)>', html):
+            tokens = match.group(1).split()
+            if len(tokens) > 1:
+                self.declared_entities[tokens[0].strip()] = tokens[1].strip().replace('"', '')
+        self.processed_html = html
+        for key, val in self.declared_entities.iteritems():
+            self.processed_html = self.processed_html.replace('&%s;'%key, val)
+
 class DocumentView(QWebView):
     
     DISABLED_BRUSH = QBrush(Qt.lightGray, Qt.Dense5Pattern) 
@@ -290,6 +302,7 @@ class DocumentView(QWebView):
     def load_path(self, path, pos=0.0):
         self.initial_pos = pos
         html = open(path, 'rb').read().decode(path.encoding)
+        html = EntityDeclarationProcessor(html).processed_html
         self.setHtml(html, QUrl.fromLocalFile(path))
         
     def load_started(self):
