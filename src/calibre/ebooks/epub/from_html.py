@@ -224,6 +224,10 @@ def convert(htmlfile, opts, notification=None):
             opts.override_css = open(opts.override_css, 'rb').read().decode(preferred_encoding, 'replace')
         except:
             opts.override_css = opts.override_css.decode(preferred_encoding, 'replace')
+    if opts.from_opf:
+        opts.from_opf = os.path.abspath(opts.from_opf)
+    if opts.from_ncx:
+        opts.from_ncx = os.path.abspath(opts.from_ncx)
     if htmlfile.lower().endswith('.opf'):
         opf = OPF(htmlfile, os.path.dirname(os.path.abspath(htmlfile)))
         filelist = opf_traverse(opf, verbose=opts.verbose, encoding=opts.encoding)
@@ -233,7 +237,7 @@ def convert(htmlfile, opts, notification=None):
             if htmlfile is None:
                 raise ValueError('Could not find suitable file to convert.')
             filelist = get_filelist(htmlfile, opts)[1]
-        mi = MetaInformation(opf)
+        mi = merge_metadata(None, opf, opts)
     else:
         opf, filelist = get_filelist(htmlfile, opts)
         mi = merge_metadata(htmlfile, opf, opts)
