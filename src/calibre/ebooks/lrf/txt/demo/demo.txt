@@ -72,7 +72,7 @@ Images
 ------
 
 `txt2lrf` also has support for inline images like 
-![this one](../../html/demo/small.jpg) this one. 
+![this one](small.jpg) this one. 
 
 ___
 [Table of Contents](#toc)

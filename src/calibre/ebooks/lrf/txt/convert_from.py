@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
 Convert .txt files to .lrf
 """
-import os, sys, codecs, logging
+import os, sys, codecs, logging, re, shutil
 
 from calibre.ptempfile import PersistentTemporaryDirectory
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
@@ -24,12 +24,22 @@ _('''%prog [options] mybook.txt
                       dest='debug_html_generation', help=_('Print generated HTML to stdout and quit.'))
     return parser
     
+def fix_image_includes(tdir, match):
+    path = match.group(1).split('/')
+    src = os.path.join(os.getcwd(), *path)
+    dest = os.path.join(tdir, *path)
+    p = os.path.dirname(dest)
+    if not os.path.exists(p):
+        os.makedirs(p)
+    shutil.copyfile(src, dest)
+    
 
 def generate_html(txtfile, encoding, tdir):
     '''
     Convert txtfile to html and return a PersistentTemporaryFile object pointing
     to the file with the HTML.
     '''
+    txtfile = os.path.abspath(txtfile)
     enc = encoding
     if not encoding:
         encodings = ['cp1252', 'latin-1', 'utf8', 'iso-8859-1', 'koi8_r', 'koi8_u']
@@ -52,6 +62,8 @@ def generate_html(txtfile, encoding, tdir):
                        safe_mode=False,
                        )
     html = '<html><body>'+md.convert(txt)+'</body></html>'
+    for match in re.finditer(r'<img\s+[^>]*src="([^"]+)"', html):
+        fix_image_includes(tdir, match)
     p = os.path.join(tdir, 'index.html')
     open(p, 'wb').write(html.encode('utf-8'))
     mi = MetaInformation(os.path.splitext(os.path.basename(txtfile))[0], [_('Unknown')])
