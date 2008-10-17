@@ -14,6 +14,7 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from calibre.utils.config import Config, StringConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 
+
 def load_builtin_fonts():
     from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
     QFontDatabase.addApplicationFontFromData(QByteArray(LiberationMono_BoldItalic.font_data))
@@ -127,6 +128,14 @@ class Document(QWebPage):
         
         # Miscellaneous
         settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)
+        
+        # Load jQuery
+        self.connect(self.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'), 
+                     self.load_javascript_libraries)
+
+    def load_javascript_libraries(self):
+        from calibre.resources import jquery
+        self.javascript(jquery)
     
     def javascript(self, string, typ=None):
         ans = self.mainFrame().evaluateJavaScript(string)
@@ -259,7 +268,7 @@ class DocumentView(QWebView):
         self.connect(self.scrollbar, SIGNAL('valueChanged(int)'), self.scroll_horizontally)
         
     def scroll_horizontally(self, amount):
-        self.document.scroll_to(x=amount)
+        self.document.scroll_to(y=self.document.ypos, x=amount)
         
     def link_hovered(self, link, text, context):
         link, text = unicode(link), unicode(text)
@@ -320,7 +329,7 @@ class DocumentView(QWebView):
                 self.scrollbar.setPageStep(int(delta/10.))
                 self.scrollbar.blockSignals(False)
             self.scrollbar.setVisible(delta > 0)
-    
+        
     def load_finished(self, ok):
         self.document.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
         self.document.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
@@ -331,15 +340,16 @@ class DocumentView(QWebView):
             self.initial_pos = 1.0
         if self.initial_pos > 0.0:
             scrolled = True
-            self.scroll_to(self.initial_pos, notify=False)
-            self.initial_pos = 0.0
+        self.scroll_to(self.initial_pos, notify=False)
+        self.initial_pos = 0.0
         self.update()
         self.initialize_scrollbar()
         if self.manager is not None:
             self.manager.load_finished(bool(ok))
             if scrolled:
                 self.manager.scrolled(self.document.scroll_fraction)
-    
+        
+        
     @classmethod
     def test_line(cls, img, y):
         start = img.pixel(0, y)

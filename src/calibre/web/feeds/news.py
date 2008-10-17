@@ -79,6 +79,9 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: If True stylesheets are not downloaded and processed
     no_stylesheets         = False
     
+    #: Convenient flag to strip all javascripts tags from the downloaded HTML
+    remove_javascript      = True
+    
     #: If True the GUI will ask the user for a username and password 
     #: to use while downloading
     #: @type: boolean
@@ -485,6 +488,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         if self.no_stylesheets:
             for link in list(soup.findAll('link', type=re.compile('css'))):
                 link.extract()
+        if self.remove_javascript:
+            for script in list(soup.findAll('script')):
+                script.extract()
         return self.postprocess_html(soup, first_fetch)
         
     

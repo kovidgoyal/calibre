@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 theatlantic.com
 '''
-
+import re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class TheAtlantic(BasicNewsRecipe):
@@ -28,7 +28,7 @@ class TheAtlantic(BasicNewsRecipe):
         if issue:
             self.timefmt = ' [%s]'%self.tag_to_string(issue).rpartition('|')[-1].strip().replace('/', '-')
             
-        cover = soup.find('img', alt='feature image', src=True)
+        cover = soup.find('img', alt=re.compile('Cover'), src=True)
         if cover is not None:
             self.cover_url = 'http://theatlantic.com'+cover['src']
         

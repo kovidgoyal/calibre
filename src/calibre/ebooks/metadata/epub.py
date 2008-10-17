@@ -8,7 +8,6 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys, os, time
 from cStringIO import StringIO
 from contextlib import closing
-from ctypes import c_long, byref
 
 from PyQt4.Qt import QUrl, QEventLoop, QSize, QByteArray, QBuffer, \
                      SIGNAL, QPainter, QImage, QObject, QApplication, Qt, QPalette
@@ -19,7 +18,7 @@ from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 from calibre.ebooks.metadata import get_parser, MetaInformation
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
-from calibre import CurrentDir
+from calibre import CurrentDir, fit_image
 
 class EPubException(Exception):
     pass
@@ -120,11 +119,11 @@ class CoverRenderer(QObject):
     def render_html(self, ok):
         self.rendered = True
         try:
-            from calibre.utils.PythonMagickWand import ImageMagick, NewMagickWand, MagickGetImageBlob, \
-                                           MagickReadImageBlob, MagickTrimImage, MagickSetFormat
             if not ok:
                 return
-            self.page.setViewportSize(QSize(1280, 1024))
+            size = self.page.mainFrame().contentsSize()
+            width, height = fit_image(size.width(), size.height(), 1280, 1024)[1:]
+            self.page.setViewportSize(QSize(width, height))
             image = QImage(self.page.viewportSize(), QImage.Format_ARGB32)
             image.setDotsPerMeterX(96*(100/2.54))
             image.setDotsPerMeterY(96*(100/2.54))
@@ -136,21 +135,7 @@ class CoverRenderer(QObject):
             buf = QBuffer(ba)
             buf.open(QBuffer.WriteOnly)
             image.save(buf, 'JPEG')
-            raw = str(ba.data())
-            with ImageMagick():
-                wand = NewMagickWand()
-                if not MagickReadImageBlob(wand, raw, len(raw)):
-                    raise ValueError('Failed to load cover image')
-                if not MagickTrimImage(wand, 10.):
-                    raise ValueError('Failed to process cover image')
-                x = c_long(0)
-                if not MagickSetFormat(wand, 'JPEG'):
-                    raise Exception()
-                dat = MagickGetImageBlob(wand, byref(x))
-                obuf = StringIO()
-                for i in xrange(x.value):
-                    obuf.write(chr(dat[i]))
-                self.image_data = obuf.getvalue()
+            self.image_data = str(ba.data())
         finally:
             self.loop.exit(0)
         

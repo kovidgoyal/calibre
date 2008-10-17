@@ -363,9 +363,15 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.view.load_path(path, pos=pos)
     
     def viewport_resized(self, frac):
-        pos = self.pos.value()
-        self.view.scroll_to(pos, notify=False)
-        #self.set_page_number(frac)
+        new_page = self.pos.value()
+        if self.current_page is not None:
+            try:
+                frac = float(new_page-self.current_page.start_page)/(self.current_page.pages-1)
+            except ZeroDivisionError:
+                frac = 0
+            self.view.scroll_to(frac, notify=False)
+        else:
+            self.set_page_number(frac)
     
     def close_progress_indicator(self):
         self.pi.stop()
