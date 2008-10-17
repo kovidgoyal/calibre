@@ -1252,7 +1252,12 @@ def main(args=sys.argv):
 Launch the main calibre Graphical User Interface and optionally add the ebook at
 path_to_ebook to the database.
 ''')
+        parser.add_option('--with-library', default=None, action='store', 
+                          help=_('Use the library located at the specified path.'))
         opts, args = parser.parse_args(args)
+        if opts.with_library is not None and os.path.isdir(opts.with_library):
+            prefs.set('library_path', opts.with_library)
+            print 'Using library at', prefs['library_path']
         app = Application(args)
         app.setWindowIcon(QIcon(':/library'))
         QCoreApplication.setOrganizationName(ORG_NAME)

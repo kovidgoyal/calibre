@@ -24,9 +24,9 @@ _('''%prog [options] mybook.txt
                       dest='debug_html_generation', help=_('Print generated HTML to stdout and quit.'))
     return parser
     
-def fix_image_includes(tdir, match):
+def fix_image_includes(sdir, tdir, match):
     path = match.group(1).split('/')
-    src = os.path.join(os.getcwd(), *path)
+    src = os.path.join(sdir, *path)
     dest = os.path.join(tdir, *path)
     p = os.path.dirname(dest)
     if not os.path.exists(p):
@@ -64,7 +64,7 @@ def generate_html(txtfile, encoding, tdir):
                        )
     html = '<html><body>'+md.convert(txt)+'</body></html>'
     for match in re.finditer(r'<img\s+[^>]*src="([^"]+)"', html):
-        fix_image_includes(tdir, match)
+        fix_image_includes(os.path.dirname(txtfile), tdir, match)
     p = os.path.join(tdir, 'index.html')
     open(p, 'wb').write(html.encode('utf-8'))
     mi = MetaInformation(os.path.splitext(os.path.basename(txtfile))[0], [_('Unknown')])
