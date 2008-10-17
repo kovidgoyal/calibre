@@ -90,7 +90,7 @@ class Splitter(LoggingInterface):
             pre.text = text
             for child in list(pre.iterchildren()):
                 pre.remove(child)
-                pre.tail += tostring(child, pretty_print=False)
+                pre.text += u''.join(child.xpath('./text()'))
             if len(pre.text) > self.opts.profile.flow_size*0.5:
                 frags = self.split_text(pre.text, root, int(0.2*self.opts.profile.flow_size))
                 new_pres = []

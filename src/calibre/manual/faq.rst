@@ -60,9 +60,24 @@ Why does the PDF conversion lose some images/tables?
 The PDF conversion tries to extract the text and images from the PDF file and convert them to and HTML based ebook. Some PDF files have images in a format that cannot be extracted (vector images). All tables
 are also represented as vector diagrams, thus they cannot be extracted.
 
-There are no images in the LRF file after conversion from HTML, or, why is only one HTML file being converted and not the others it links to?
+How do I convert a collection of HTML files in a specific order?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-If you use the GUI to convert an HTML file, you have to create a zip file with the HTML file and any images/extra files it references and then convert that ZIP file to LRF.
+In order to convert a collection of HTML files in a specific oder, you have to create a table of contents file. That is, another HTML file that contains links to all the other files in the desired order. Such a file looks like::
+ 
+   <html>
+      <body>
+        <h1>Table of Contents</h1>
+        <p style="text-indent:0pt">
+           <a href="file1.html">First File</a><br/>
+           <a href="file2.html">Second File</a><br/>
+           .
+           .
+           .
+        </p>
+      </body>
+   </html>
+
+Then just add this HTML file to the GUI and use the convert button to create your ebook.
 
 How do I convert my file containing non-English characters?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
