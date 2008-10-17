@@ -31,7 +31,8 @@ def fix_image_includes(tdir, match):
     p = os.path.dirname(dest)
     if not os.path.exists(p):
         os.makedirs(p)
-    shutil.copyfile(src, dest)
+    if not os.path.exists(dest):
+        shutil.copyfile(src, dest)
     
 
 def generate_html(txtfile, encoding, tdir):
