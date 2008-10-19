@@ -1316,7 +1316,7 @@ class HTMLConverter(object, LoggingInterface):
             bl = str(self.current_block.blockStyle.attrs['blockwidth'])+'px'
             if 'em' in tag_css['text-indent']:
                 bl = '10pt'
-            indent = self.unit_convert(str(tag_css['text-indent']), pts=True, base_length=bl)
+            indent = self.unit_convert(unicode(tag_css['text-indent']), pts=True, base_length=bl)
             if not indent: 
                 indent = 0
             if indent > 0 and indent < 10 * self.minimum_indent:
