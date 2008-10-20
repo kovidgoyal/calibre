@@ -27,7 +27,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.db = db
         self.current_cols = columns
         path = prefs['library_path']
-        self.location.setText(path)
+        self.location.setText(path if path else '')
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
         self.connect(self.compact_button, SIGNAL('clicked(bool)'), self.compact)
         
