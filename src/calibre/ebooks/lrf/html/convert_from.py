@@ -1757,9 +1757,9 @@ class HTMLConverter(object, LoggingInterface):
                     try:
                         self.process_table(tag, tag_css)
                     except Exception, err:
-                        self.log_warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), unicode(err))
+                        self.log_warning(_('An error occurred while processing a table: %s. Ignoring table markup.'), repr(err))
                         self.log_debug('', exc_info=True)
-                        self.log_debug(_('Bad table:\n%s'), str(tag)[:300])
+                        self.log_debug(_('Bad table:\n%s'), unicode(tag)[:300])
                         self.in_table = False
                         self.process_children(tag, tag_css, tag_pseudo_css)
                     finally:
