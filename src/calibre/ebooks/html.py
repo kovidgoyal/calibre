@@ -421,13 +421,23 @@ class Parser(PreProcessor, LoggingInterface):
     def save_path(self):
         return os.path.join(self.tdir, self.htmlfile_map[self.htmlfile.path])
     
+    def declare_xhtml_namespace(self, match):
+        if not match.group('raw'):
+            return '<html xmlns="http://www.w3.org/1999/xhtml">'
+        raw = match.group('raw')
+        m = re.search(r'(?i)xmlns\s*=\s*[\'"](?P<uri>[^"\']*)[\'"]', raw)
+        if not m:
+            return '<html xmlns="http://www.w3.org/1999/xhtml" %s>'%raw
+        else:
+            return  match.group().sub(m.group('uri'), "http://www.w3.org/1999/xhtml")
+    
     def save(self):
         '''
         Save processed HTML into the content directory.
         Should be called after all HTML processing is finished.
         '''
         ans = tostring(self.root, pretty_print=self.opts.pretty_print)
-        ans = re.compile(r'<html>', re.IGNORECASE).sub('<html xmlns="http://www.w3.org/1999/xhtml">', ans[:1000]) + ans[1000:]
+        ans = re.sub(r'(?i)<\s*html(?P<raw>\s+[^>]*){0,1}>', self.declare_xhtml_namespace, ans[:1000]) + ans[1000:]
         ans = re.compile(r'<head>', re.IGNORECASE).sub('<head>\n\t<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />\n', ans[:1000])+ans[1000:]
             
         with open(self.save_path(), 'wb') as f:
