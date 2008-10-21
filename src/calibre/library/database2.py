@@ -17,12 +17,20 @@ __app = None
 
 from calibre.library.database import LibraryDatabase
 from calibre.ebooks.metadata import string_to_authors
-from calibre.constants import preferred_encoding
+from calibre.constants import preferred_encoding, iswindows, isosx
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 filesystem_encoding = sys.getfilesystemencoding()
 if filesystem_encoding is None: filesystem_encoding = 'utf-8'
- 
+iscaseinsensitive = iswindows or isosx
+
+def normpath(x):
+    # The builtin os.path.normcase doesn't work on OS X
+    x = os.path.abspath(x)
+    if iscaseinsensitive:
+        x = x.lower()
+    return x
+
 _filename_sanitize = re.compile(r'[\0\\|\?\*<":>\+\[\]/]')
 def sanitize_file_name(name, substitute='_'):
     '''
@@ -521,9 +529,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         self.conn.commit()
         # Delete not needed directories
-        norm = lambda x : os.path.abspath(os.path.normcase(x))
         if current_path and os.path.exists(spath):
-            if norm(spath) != norm(tpath):
+            if normpath(spath) != normpath(tpath):
                 shutil.rmtree(spath)
                 parent  = os.path.dirname(spath)
                 if len(os.listdir(parent)) == 0:
