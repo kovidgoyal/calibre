@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>479</width>
-    <height>436</height>
+    <height>574</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -144,6 +144,18 @@
          </widget>
         </item>
        </layout>
+      </item>
+      <item row="2" column="0" >
+       <widget class="QGroupBox" name="groupBox_2" >
+        <property name="title" >
+         <string>&amp;User stylesheet</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_5" >
+         <item row="0" column="0" >
+          <widget class="QPlainTextEdit" name="css" />
+         </item>
+        </layout>
+       </widget>
       </item>
      </layout>
     </widget>

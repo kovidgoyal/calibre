@@ -14,6 +14,7 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 from calibre.utils.config import Config, StringConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
 from calibre.gui2.viewer.js import bookmarks, referencing
+from calibre.ptempfile import PersistentTemporaryFile
 
 def load_builtin_fonts():
     from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
@@ -50,7 +51,10 @@ def config(defaults=None):
         c = Config('viewer', desc)
     else:
         c = StringConfig(defaults, desc)
-        
+    
+    c.add_opt('user_css', default='',
+              help=_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
+    
     fonts = c.add_group('FONTS', _('Font options'))
     fonts('serif_family', default='Liberation Serif', help=_('The serif font family'))
     fonts('sans_family', default='Liberation Sans', help=_('The sans-serif font family'))
@@ -74,6 +78,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.default_font_size.setValue(opts.default_font_size)
         self.mono_font_size.setValue(opts.mono_font_size)
         self.standard_font.setCurrentIndex({'serif':0, 'sans':1, 'mono':2}[opts.standard_font])
+        self.css.setPlainText(opts.user_css)
+        self.css.setToolTip(_('Set the user CSS stylesheet. This can be used to customize the look of all books.'))
         
     def accept(self, *args):
         c = config()
@@ -83,6 +89,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         c.set('default_font_size', self.default_font_size.value())
         c.set('mono_font_size', self.mono_font_size.value())
         c.set('standard_font', {0:'serif', 1:'sans', 2:'mono'}[self.standard_font.currentIndex()])
+        c.set('user_css', unicode(self.css.toPlainText()))
         return QDialog.accept(self, *args)
         
 
@@ -104,6 +111,7 @@ class Document(QWebPage):
         d = ConfigDialog(parent)
         if d.exec_() == QDialog.Accepted:
             self.set_font_settings()
+            self.set_user_stylesheet()
             self.triggerAction(QWebPage.Reload)
     
     def __init__(self, *args):
@@ -128,11 +136,19 @@ class Document(QWebPage):
         
         # Miscellaneous
         settings.setAttribute(QWebSettings.LinksIncludedInFocusChain, True)
+        self.set_user_stylesheet()
         
         # Load jQuery
         self.connect(self.mainFrame(), SIGNAL('javaScriptWindowObjectCleared()'), 
                      self.load_javascript_libraries)
-
+    
+    def set_user_stylesheet(self):
+        raw = config().parse().user_css
+        pt = PersistentTemporaryFile('_user_stylesheet.css')
+        pt.write(raw.encode('utf-8'))
+        pt.close()
+        self.settings().setUserStyleSheetUrl(QUrl.fromLocalFile(pt.name))
+    
     def load_javascript_libraries(self):
         from calibre.resources import jquery, jquery_scrollTo
         self.javascript(jquery)

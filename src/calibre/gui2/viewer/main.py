@@ -419,8 +419,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         path = self.view.path()
         try:
             index = self.iterator.spine.index(path)
-        except ValueError:
-            print path
+        except (ValueError, AttributeError):
             return -1
         self.current_page = self.iterator.spine[index]
         self.current_index = index
