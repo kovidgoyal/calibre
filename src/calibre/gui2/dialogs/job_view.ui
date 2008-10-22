@@ -18,12 +18,18 @@
   </property>
   <layout class="QGridLayout" >
    <item row="0" column="0" >
-    <widget class="QTextEdit" name="log" >
+    <widget class="QPlainTextEdit" name="log" >
      <property name="undoRedoEnabled" >
       <bool>false</bool>
      </property>
+     <property name="lineWrapMode" >
+      <enum>QPlainTextEdit::NoWrap</enum>
+     </property>
      <property name="readOnly" >
       <bool>true</bool>
+     </property>
+     <property name="maximumBlockCount" >
+      <number>400</number>
      </property>
     </widget>
    </item>

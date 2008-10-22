@@ -588,11 +588,11 @@ class Job(object):
         if self.description:
             if not isinstance(self.description, unicode):
                 self.description = self.description.decode('utf-8', 'replace')
-            ans[0] += u'<b>%s</b>'%self.description
+            ans[0] += u'**%s**'%self.description
         if self.exception is not None:
             header = unicode(self.exception.__class__.__name__) if \
                     hasattr(self.exception, '__class__') else u'Error'
-            header = u'<b>%s</b>'%header
+            header = u'**%s**'%header
             header += u': '
             try:
                 header += unicode(self.exception)
@@ -600,15 +600,15 @@ class Job(object):
                 header += unicode(repr(self.exception))
             ans.append(header)
             if self.traceback:
-                ans.append(u'<b>Traceback</b>:')
+                ans.append(u'**Traceback**:')
                 ans.extend(self.traceback.split('\n'))
         if self.log:
-            ans.append(u'<b>Log</b>:')
+            ans.append(u'**Log**:')
             if isinstance(self.log, str):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.extend(self.log.split('\n'))
             
-        return '<br>'.join(ans)
+        return '\n'.join(ans)
 
 
 class ParallelJob(Job):
