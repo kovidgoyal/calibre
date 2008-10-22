@@ -151,7 +151,7 @@ class HTMLFile(object):
     HTML_PAT  = re.compile(r'<\s*html', re.IGNORECASE)
     TITLE_PAT = re.compile('<title>([^<>]+)</title>', re.IGNORECASE)
     LINK_PAT  = re.compile(
-    r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s]+))',
+    r'<\s*a\s+.*?href\s*=\s*(?:(?:"(?P<url1>[^"]+)")|(?:\'(?P<url2>[^\']+)\')|(?P<url3>[^\s>]+))',
     re.DOTALL|re.IGNORECASE)
     
     def __init__(self, path_to_html_file, level, encoding, verbose, referrer=None):
@@ -487,7 +487,7 @@ class Parser(PreProcessor, LoggingInterface):
             os.makedirs(tdir)
         with open(os.path.join(tdir, '%s-%s.html'%\
                     (os.path.basename(self.htmlfile.path), name)), 'wb') as f:
-            f.write(tostring(self.root, encoding='utf-8'))
+            f.write(tostring(self.root))
             self.log_debug(_('Written processed HTML to ')+f.name)
     
             
