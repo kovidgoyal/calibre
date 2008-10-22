@@ -904,11 +904,7 @@ class Main(MainWindow, Ui_MainWindow):
     #############################View book######################################
 
     def view_format(self, row, format):
-        pt = PersistentTemporaryFile('_viewer.'+format.lower())
-        pt.write(self.library_view.model().db.format(row, format))
-        pt.close()
-        self.persistent_files.append(pt)
-        self._view_file(pt.name)
+        self._view_file(self.library_view.model().db.format(row, format, as_file=True).name)
         
     def book_downloaded_for_viewing(self, job):
         if job.exception:

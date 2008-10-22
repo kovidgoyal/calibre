@@ -145,6 +145,7 @@ if __name__ == '__main__':
             fb2_xsl         = 'ebooks/lrf/fb2/fb2.xsl',
             metadata_sqlite = 'library/metadata_sqlite.sql',
             jquery          = 'gui2/viewer/jquery.js',
+            jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',
          )
         
         DEST = os.path.join('src', APPNAME, 'resources.py')
@@ -291,7 +292,7 @@ if __name__ == '__main__':
                     
                     if form.endswith('viewer%smain.ui'%os.sep):
                         print 'Promoting WebView'
-                        dat = dat.replace('self.view = QtWebKit.QWebView(self.widget)', 'self.view = DocumentView(self.widget)')
+                        dat = dat.replace('self.view = QtWebKit.QWebView(', 'self.view = DocumentView(')
                         dat += '\n\nfrom calibre.gui2.viewer.documentview import DocumentView'
                     
                     open(compiled_form, 'wb').write(dat)

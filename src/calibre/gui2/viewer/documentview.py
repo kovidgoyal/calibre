@@ -13,7 +13,7 @@ from PyQt4.QtWebKit import QWebPage, QWebView, QWebSettings
 
 from calibre.utils.config import Config, StringConfig
 from calibre.gui2.viewer.config_ui import Ui_Dialog
-
+from calibre.gui2.viewer.js import bookmarks, referencing
 
 def load_builtin_fonts():
     from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
@@ -134,8 +134,23 @@ class Document(QWebPage):
                      self.load_javascript_libraries)
 
     def load_javascript_libraries(self):
-        from calibre.resources import jquery
+        from calibre.resources import jquery, jquery_scrollTo
         self.javascript(jquery)
+        self.javascript(jquery_scrollTo)
+        self.javascript(bookmarks)
+        self.javascript(referencing)
+    
+    def reference_mode(self, enable):
+        self.javascript(('enter' if enable else 'leave')+'_reference_mode()')
+        
+    def set_reference_prefix(self, prefix):
+        self.javascript('reference_prefix = "%s"'%prefix)
+        
+    def goto(self, ref):
+        self.javascript('goto_reference("%s")'%ref)
+    
+    def goto_bookmark(self, bm):
+        self.javascript('scroll_to_bookmark("%s")'%bm)
     
     def javascript(self, string, typ=None):
         ans = self.mainFrame().evaluateJavaScript(string)
@@ -162,7 +177,10 @@ class Document(QWebPage):
             r = self.height%self.window_height
             if r > 0:
                 self.javascript('document.body.style.paddingBottom = "%dpx"'%r)
-        
+    
+    def bookmark(self):
+        return self.javascript('calculate_bookmark(%d)'%(self.ypos+25), 'string')
+    
     @apply
     def at_bottom():
         def fget(self):
@@ -189,6 +207,12 @@ class Document(QWebPage):
     def window_height():
         def fget(self):
             return self.javascript('window.innerHeight', 'int')
+        return property(fget=fget)
+    
+    @apply
+    def window_width():
+        def fget(self):
+            return self.javascript('window.innerWidth', 'int')
         return property(fget=fget)
         
     @apply
@@ -249,14 +273,28 @@ class DocumentView(QWebView):
         self.document = Document(self)
         self.setPage(self.document)
         self.manager = None
+        self._reference_mode = False
         self.connect(self.document, SIGNAL('loadStarted()'), self.load_started)
         self.connect(self.document, SIGNAL('loadFinished(bool)'), self.load_finished)
         self.connect(self.document, SIGNAL('linkClicked(QUrl)'), self.link_clicked)
         self.connect(self.document, SIGNAL('linkHovered(QString,QString,QString)'), self.link_hovered)
         self.connect(self.document, SIGNAL('selectionChanged()'), self.selection_changed)
     
+    def reference_mode(self, enable):
+        self._reference_mode = enable
+        self.document.reference_mode(enable)
+    
+    def goto(self, ref):
+        self.document.goto(ref)
+        
+    def goto_bookmark(self, bm):
+        self.document.goto_bookmark(bm)
+    
     def config(self, parent=None):
         self.document.do_config(parent)
+        
+    def bookmark(self):
+        return self.document.bookmark()
         
     def selection_changed(self):
         if self.manager is not None:
@@ -344,8 +382,11 @@ class DocumentView(QWebView):
         self.initial_pos = 0.0
         self.update()
         self.initialize_scrollbar()
+        self.document.reference_mode(self._reference_mode)
         if self.manager is not None:
-            self.manager.load_finished(bool(ok))
+            spine_index = self.manager.load_finished(bool(ok))
+            if spine_index > -1:
+                self.document.set_reference_prefix('%d.'%(spine_index+1))
             if scrolled:
                 self.manager.scrolled(self.document.scroll_fraction)
         

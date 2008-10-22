@@ -809,8 +809,9 @@ class HTMLConverter(object, LoggingInterface):
         
         def append_text(src):
             fp, key, variant = self.font_properties(css)
-            src = src.replace(u'\xa0', ' ') #Sony's wonderful reading software doesn't handle the nbsp character
-
+            for x, y in [(u'\xa0', ' '), (u'\ufb00', 'ff'), (u'\ufb01', 'fi'), (u'\ufb02', 'fl'), (u'\ufb03', 'ffi'), (u'\ufb04', 'ffl')]:
+                src = src.replace(x, y)
+            
             valigner = lambda x: x
             if 'vertical-align' in css:
                 valign = css['vertical-align']

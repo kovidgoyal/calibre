@@ -24,7 +24,7 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QTreeView" name="toc" />
-      <widget class="QWidget" name="" >
+      <widget class="QWidget" name="layoutWidget" >
        <layout class="QGridLayout" name="gridLayout" >
         <item row="0" column="0" >
          <widget class="QWebView" name="view" >
@@ -83,6 +83,9 @@
    <addaction name="separator" />
    <addaction name="action_previous_page" />
    <addaction name="action_next_page" />
+   <addaction name="separator" />
+   <addaction name="action_bookmark" />
+   <addaction name="action_reference_mode" />
    <addaction name="separator" />
    <addaction name="action_preferences" />
   </widget>
@@ -201,6 +204,24 @@
    </property>
    <property name="text" >
     <string>Preferences</string>
+   </property>
+  </action>
+  <action name="action_reference_mode" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >
+     <normaloff>:/images/lookfeel.svg</normaloff>:/images/lookfeel.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Reference Mode</string>
+   </property>
+  </action>
+  <action name="action_bookmark" >
+   <property name="icon" >
+    <iconset resource="../images.qrc" >
+     <normaloff>:/images/bookmarks.svg</normaloff>:/images/bookmarks.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Bookmark</string>
    </property>
   </action>
  </widget>

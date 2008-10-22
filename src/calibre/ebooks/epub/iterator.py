@@ -6,6 +6,7 @@ Iterate over the HTML files in an ebook. Useful for writing viewers.
 '''
 
 import re, os, math, copy
+from cStringIO import StringIO
 
 from PyQt4.Qt import QFontDatabase
 
@@ -16,6 +17,8 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.chardet import xml_to_unicode
 from calibre.ebooks.html import create_dir
+from calibre.utils.zipfile import safe_replace, ZipFile
+from calibre.utils.config import DynamicConfig
 
 def character_count(html):
     '''
@@ -62,7 +65,8 @@ class EbookIterator(object):
     CHARACTERS_PER_PAGE = 1000
     
     def __init__(self, pathtoebook):
-        self.pathtoebook = pathtoebook
+        self.pathtoebook = os.path.abspath(pathtoebook)
+        self.config = DynamicConfig(name='iterator')
         ext = os.path.splitext(pathtoebook)[1].replace('.', '').lower()
         ext = re.sub(r'(x{0,1})htm(l{0,1})', 'html', ext)
         map = dict(MAP)
@@ -80,6 +84,9 @@ class EbookIterator(object):
                     return i
     
     def find_embedded_fonts(self):
+        '''
+        This will become unnecessary once Qt WebKit supports the @font-face rule. 
+        '''
         for item in self.opf.manifest:
             if item.mime_type and 'css' in item.mime_type.lower():
                 css = open(item.path, 'rb').read().decode('utf-8')
@@ -125,9 +132,60 @@ class EbookIterator(object):
             s.max_page = s.start_page + s.pages - 1
         self.toc = self.opf.toc
         
-        self.find_embedded_fonts() 
+        self.find_embedded_fonts()
+        self.read_bookmarks() 
         
         return self
+    
+    def parse_bookmarks(self, raw):
+        for line in raw.splitlines():
+            if line.count('^') > 0:
+                tokens = line.rpartition('^')
+                title, ref = tokens[0], tokens[2]
+                self.bookmarks.append((title, ref))
+    
+    def serialize_bookmarks(self, bookmarks):
+        dat = []
+        for title, bm in bookmarks:
+            dat.append(u'%s^%s'%(title, bm))
+        return (u'\n'.join(dat) +'\n').encode('utf-8')
+    
+    def read_bookmarks(self):
+        self.bookmarks = []
+        bmfile = os.path.join(self.base, 'META-INF', 'calibre_bookmarks.txt')
+        raw = ''
+        if os.path.exists(bmfile):
+            raw = open(bmfile, 'rb').read().decode('utf-8')
+        else:
+            saved = self.config['bookmarks_'+self.pathtoebook]
+            if saved:
+                raw = saved
+        self.parse_bookmarks(raw) 
+                    
+    def save_bookmarks(self, bookmarks=None):
+        if bookmarks is None:
+            bookmarks = self.bookmarks
+        dat = self.serialize_bookmarks(bookmarks)
+        if os.path.splitext(self.pathtoebook)[1].lower() == '.epub':
+            zf = open(self.pathtoebook, 'r+b')
+            zipf = ZipFile(zf, mode='a')
+            for name in zipf.namelist():
+                if name == 'META-INF/calibre_bookmarks.txt':
+                    safe_replace(zf, 'META-INF/calibre_bookmarks.txt', StringIO(dat))
+                    return
+            zipf.writestr('META-INF/calibre_bookmarks.txt', dat)
+        else:
+            self.config['bookmarks_'+self.pathtoebook] = dat
+    
+    def add_bookmark(self, bm):
+        dups = []
+        for x in self.bookmarks:
+            if x[0] == bm[0]:
+                dups.append(x)
+        for x in dups:
+            self.bookmarks.remove(x)
+        self.bookmarks.append(bm)
+        self.save_bookmarks()
         
     def __exit__(self, *args):
         self._tdir.__exit__(*args)

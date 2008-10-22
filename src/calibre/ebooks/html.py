@@ -429,7 +429,7 @@ class Parser(PreProcessor, LoggingInterface):
         if not m:
             return '<html xmlns="http://www.w3.org/1999/xhtml" %s>'%raw
         else:
-            return  match.group().sub(m.group('uri'), "http://www.w3.org/1999/xhtml")
+            return  match.group().replace(m.group('uri'), "http://www.w3.org/1999/xhtml")
     
     def save(self):
         '''
