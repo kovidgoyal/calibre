@@ -216,11 +216,10 @@ class MobiReader(object):
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.processed_html = '<html><p>'+self.processed_html.replace('\n\n', '<p>')+'</html>'
         self.processed_html = self.processed_html.replace('> <', '>\n<')
-        self.processed_html = self.processed_html.replace('<b>', '<span class="bold">')
-        self.processed_html = self.processed_html.replace('<i>', '<span class="italic">')
-        self.processed_html = self.processed_html.replace('</b>', '</span>')
-        self.processed_html = self.processed_html.replace('</i>', '</span>')
-    
+        for t, c in [('b', 'bold'), ('i', 'italic')]:
+            self.processed_html = re.sub(r'(?i)<%s>'%t, r'<span class="%s">'%c, self.processed_html)
+            self.processed_html = re.sub(r'(?i)</%s>'%t, r'</span>', self.processed_html)
+        
     def cleanup_soup(self, soup):
         for tag in soup.recursiveChildGenerator():
             if not isinstance(tag, Tag): continue
