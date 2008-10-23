@@ -445,7 +445,10 @@ def main(args=sys.argv):
     mr.extract_content(opts.output_dir)
     if opts.verbose:
         oname = os.path.join(opts.output_dir, 'debug-raw.html')
-        open(oname, 'wb').write(mr.mobi_html.encode('utf-8'))
+        dat = mr.mobi_html
+        if isinstance(dat, unicode):
+            dat = dat.encode('utf-8')
+        open(oname, 'wb').write(dat)
         print _('Raw MOBI HTML saved in'), oname
     
     print _('OEB ebook created in'), opts.output_dir
