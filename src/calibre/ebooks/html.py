@@ -719,6 +719,7 @@ class Processor(Parser):
             return id
     
         self.external_stylesheets, self.stylesheet = [], self.css_parser.parseString('')
+        self.specified_override_css = []
         for link in self.root.xpath('//link'):
             if 'css' in link.get('type', 'text/css').lower():
                 file = os.path.join(self.tdir, *(link.get('href', '').split('/')))
@@ -743,6 +744,7 @@ class Processor(Parser):
         
         for style in self.root.xpath('//style'):
             if 'css' in style.get('type', 'text/css').lower():
+                override_css = style.get('title', '') == 'override_css'
                 raw = '\n'.join(style.xpath('./text()'))
                 css = self.preprocess_css(raw)
                 try:
@@ -751,7 +753,10 @@ class Processor(Parser):
                     self.log_debug('Failed to parse style element')
                 else:
                     for rule in sheet:
-                        self.stylesheet.add(rule)
+                        if override_css:
+                            self.specified_override_css.append(rule)
+                        else:
+                            self.stylesheet.add(rule)
                 style.getparent().remove(style)
         cache = {}
         class_counter = 0
@@ -806,6 +811,8 @@ class Processor(Parser):
         if self.opts.remove_paragraph_spacing:
             css += '\n\np {text-indent: 2em; margin-top:1pt; margin-bottom:1pt; padding:0pt; border:0pt;}'
         self.override_css = self.css_parser.parseString(self.preprocess_css(css))
+        for rule in reversed(self.specified_override_css):
+            self.override_css.insertRule(rule, index=0)
         
         
 def config(defaults=None, config_name='html',

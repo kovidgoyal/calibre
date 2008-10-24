@@ -11,7 +11,7 @@
         <dc:contributor opf:role="bkp" py:with="attrs={'opf:files-as':__appname__}" py:attrs="attrs">${'%s (%s)'%(__appname__, __version__)} [http://${__appname__}.kovidgoyal.net]</dc:contributor> 
         <dc:identifier opf:scheme="${__appname__}" id="${__appname__}_id">${mi.application_id}</dc:identifier>
     
-        <dc:language>${mi.language if mi.language else 'Unknown'}</dc:language>
+        <dc:language>${mi.language if mi.language else 'UND'}</dc:language>
         <dc:type py:if="mi.category">${mi.category}</dc:type>
         <dc:description py:if="mi.comments">${mi.comments}</dc:description>
         <dc:publisher py:if="mi.publisher">${mi.publisher}</dc:publisher>

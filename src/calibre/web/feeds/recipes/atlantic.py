@@ -16,8 +16,8 @@ class TheAtlantic(BasicNewsRecipe):
     INDEX = 'http://www.theatlantic.com/doc/current'
     
     remove_tags_before = dict(name='div', id='storytop')
-    remove_tags        = [dict(name='div', id='seealso')]
-    extra_css          = '#bodytext {line-height: 1}'
+    remove_tags        = [dict(name='div', id=['seealso', 'storybottom', 'footer'])]
+    no_stylesheets     = True
     
     def parse_index(self):
         articles = []
