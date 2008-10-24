@@ -149,7 +149,7 @@ TITLEPAGE = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
         <title>Cover</title>
-        <style type="text/css">@page {padding: 0pt; margin:0pt}</style>
+        <style type="text/css" title="override_css">@page {padding: 0pt; margin:0pt}</style>
     </head>
     <body style="padding: 0pt; margin: 0pt">
         <div style="text-align:center">
