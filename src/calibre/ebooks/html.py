@@ -177,7 +177,6 @@ class HTMLFile(object):
             raise IgnoreFile(msg, err.errno)
         
         self.is_binary = not bool(self.HTML_PAT.search(src[:1024]))
-        self.title = None
         if not self.is_binary:
             if encoding is None:
                 encoding = xml_to_unicode(src[:4096], verbose=verbose)[-1]
@@ -187,7 +186,7 @@ class HTMLFile(object):
 
             src = src.decode(encoding, 'replace')
             match = self.TITLE_PAT.search(src)
-            self.title = match.group(1) if match is not None else None
+            self.title = match.group(1) if match is not None else self.title
             self.find_links(src)
                 
         
@@ -650,7 +649,6 @@ class Processor(Parser):
                     elem.set('id', id)
                     add_item(href, id, text, toc, type='chapter')
         
-        
         referrer = toc
         if self.htmlfile.referrer is not None:
             try:
@@ -662,13 +660,12 @@ class Processor(Parser):
                         break
             except KeyError:
                 pass
+            if referrer is toc:
+                text = self.htmlfile.title
+                name = self.htmlfile_map[self.htmlfile.referrer]
+                href = 'content/'+name
+                referrer = add_item(href, None, text, toc)
             
-        
-        
-        
-        
-        if referrer.href != href: # Happens for root file
-            target = add_item(href, None, unicode(self.htmlfile.title), referrer, type='file')
         
         # Add links to TOC
         if int(self.opts.max_toc_links) > 0:
@@ -682,10 +679,9 @@ class Processor(Parser):
                         href, fragment = parts[0], None
                         if len(parts) > 1:
                             fragment = parts[1]
-                        if self.htmlfile.referrer is not None:
-                            name = self.htmlfile_map[self.htmlfile.referrer.path]
-                        add_item(href, fragment, text, target)
-                        
+                        add_item(href, fragment, text, referrer)
+        
+                    
     @classmethod
     def preprocess_css(cls, css, dpi=96):
         def rescale(match):
