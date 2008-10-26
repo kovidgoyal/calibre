@@ -934,6 +934,11 @@ def merge_metadata(htmlfile, opf, opts):
         if attr in ('authors', 'tags'):
             val = [i.strip() for i in val.split(',') if i.strip()]
         setattr(mi, attr, val)
+        
+    cover = getattr(opts, 'cover', False)
+    if cover and os.path.exists(cover):
+        mi.cover = os.path.abspath(cover)
+        
     if not mi.title:
         mi.title = os.path.splitext(os.path.basename(htmlfile))[0]
     if not mi.authors:

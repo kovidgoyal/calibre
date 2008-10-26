@@ -23,6 +23,41 @@ from calibre.ebooks.metadata.opf import OPFCreator, OPFReader
 
 FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'path'])
 
+XML_TEMPLATE = '''\
+<?xml version="1.0"  encoding="UTF-8"?>
+<calibredb xmlns:py="http://genshi.edgewall.org/">
+<py:for each="record in data">
+    <record>
+        <id>${record['id']}</id>
+        <title>${record['title']}</title>
+        <authors>
+        <py:for each="author in record['authors']">
+            <author>$author</author>
+        </py:for>
+        </authors>
+        <publisher>${record['publisher']}</publisher>
+        <rating>${record['rating']}</rating>
+        <date>${record['timestamp']}</date>
+        <size>${record['size']}</size>
+        <tags py:if="record['tags']">
+        <py:for each="tag in record['tags']">
+            <tag>$tag</tag>
+        </py:for>
+        </tags>
+        <comments>${record['comments']}</comments>
+        <series py:if="record['series']" index="${record['series_index']}">${record['series']}</series>
+        <isbn>${record['isbn']}</isbn>
+        <cover py:if="record['cover']">${record['cover']}</cover>
+        <formats py:if="record['formats']">
+        <py:for each="path in record['formats']">
+            <format>$path</format>
+        </py:for>
+        </formats>
+    </record>
+</py:for> 
+</calibredb>
+'''
+
 def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group('GLOBAL OPTIONS')
@@ -417,9 +452,45 @@ an opf file). You can get id numbers from the list command.
     do_export(get_db(dbpath, opts), ids, dir, opts.single_dir, opts.by_author)
     return 0
 
+def do_export_db(db):
+    db.refresh('timestamp', True)
+    data = []
+    for record in db.data:
+        x = {}
+        for field in FIELDS:
+            if field != 'path':
+                x[field] = record[field]
+        data.append(x)
+        x['id'] = record[0]
+        x['formats'] = []
+        x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
+        x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []
+        path = os.path.join(db.library_path, db.path(record['id'], index_is_id=True))
+        x['cover'] = os.path.join(path, 'cover.jpg')
+        if not os.path.exists(x['cover']):
+            x['cover'] = None
+        path += os.sep +  db.construct_file_name(record['id']) + '.%s'
+        formats = db.formats(record['id'], index_is_id=True)
+        if formats:
+            for fmt in formats.split(','):
+                x['formats'].append(path%fmt.lower())
+    from calibre.utils.genshi.template import MarkupTemplate
+    template = MarkupTemplate(XML_TEMPLATE)
+    print template.generate(data=data).render('xml')
+
+def command_export_db(args, dbpath):
+    parser = get_parser(_('''\
+%prog export_db [options]
+
+Export the metadata in the database as an XML file. 
+'''))
+    opts, args = parser.parse_args(sys.argv[1:]+args)
+    do_export_db(get_db(dbpath, opts))
+    return 0
+
 def main(args=sys.argv):
     commands = ('list', 'add', 'remove', 'add_format', 'remove_format',
-                'show_metadata', 'set_metadata', 'export')
+                'show_metadata', 'set_metadata', 'export', 'export_db')
     parser = OptionParser(_(
 '''\
 %%prog command [options] [arguments]

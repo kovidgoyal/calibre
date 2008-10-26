@@ -418,7 +418,8 @@ class OPF(object):
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
-    manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]') 
+    manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]')
+    manifest_ppath  = XPath('descendant::*[re:match(name(), "manifest", "i")]') 
     spine_path      = XPath('descendant::*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
     guide_path      = XPath('descendant::*[re:match(name(), "guide", "i")]/*[re:match(name(), "reference", "i")]')
     
@@ -519,6 +520,20 @@ class OPF(object):
         index = manifest.index(item)
         manifest[index:index+1] = items
         return [i.get('id') for i in items]
+    
+    def add_path_to_manifest(self, path, media_type):
+        has_path = False
+        path = os.path.abspath(path)
+        for i in self.itermanifest():
+            xpath = os.path.join(self.base_dir, *(i.get('href', '').split('/')))
+            if os.path.abspath(xpath) == path:
+                has_path = True
+                break
+        if not has_path:
+            href = relpath(path, self.base_dir).replace(os.sep, '/')
+            item = self.create_manifest_item(href, media_type)
+            manifest = self.manifest_ppath(self.root)[0]
+            manifest.append(item)
     
     def iterspine(self):
         return self.spine_path(self.root)

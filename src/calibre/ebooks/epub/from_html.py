@@ -44,7 +44,6 @@ from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc
 from calibre.ebooks.epub import config as common_config
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.epub import initialize_container, PROFILES
@@ -299,8 +298,10 @@ def convert(htmlfile, opts, notification=None):
         if has_title_page:
             opf.create_guide_element()
             opf.add_guide_item('cover', 'Cover', 'content/'+spine[0])
-            with open(opf_path, 'wb') as f:
-                f.write(opf.render())
+        
+        opf.add_path_to_manifest(os.path.join(tdir, 'content', 'resources', '_cover_.jpg'), 'image/jpeg')    
+        with open(opf_path, 'wb') as f:
+            f.write(opf.render())
         epub = initialize_container(opts.output)
         epub.add_dir(tdir)
         if opts.show_opf:
