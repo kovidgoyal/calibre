@@ -1178,6 +1178,7 @@ in which you want to store your books files. Any existing books will be automati
             try:
                 self.olddb = LibraryDatabase(self.database_path)
             except:
+                traceback.print_exc()
                 self.olddb = None
 
 

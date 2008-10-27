@@ -9,7 +9,7 @@ from urllib import urlopen, quote
 
 from calibre import setup_cli_handlers
 from calibre.utils.config import OptionParser
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, authors_to_sort_string
 from calibre.ebooks.BeautifulSoup import BeautifulStoneSoup
 
 BASE_URL = 'http://isbndb.com/api/books.xml?access_key=%(key)s&page_number=1&results=subjects,authors,texts&'
@@ -64,7 +64,8 @@ class ISBNDBMetadata(MetaInformation):
         try:
             self.author_sort = book.find('authors').find('person').string
         except:
-            pass
+            if self.authors:
+                self.author_sort = authors_to_sort_string(self.authors)
         self.publisher = book.find('publishertext').string
         
         summ = book.find('summary')

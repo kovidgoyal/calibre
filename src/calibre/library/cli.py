@@ -51,7 +51,7 @@ XML_TEMPLATE = '''\
         <cover py:if="record['cover']">${record['cover']}</cover>
         <formats py:if="record['formats']">
         <py:for each="path in record['formats']">
-            <format>$path</format>
+            <format>${path}</format>
         </py:for>
         </formats>
     </record>

@@ -411,13 +411,12 @@ def get_metadata(stream):
     if mr.book_header.exth is None:
         mi = MetaInformation(mr.name, ['Unknown'])
     else:
-        tdir = tempfile.mkdtemp('mobi-meta', __appname__)
+        tdir = tempfile.mkdtemp('_mobi_meta', __appname__)
         atexit.register(shutil.rmtree, tdir)
         mr.extract_images([], tdir)
         mi = mr.create_opf('dummy.html')
         if mi.cover:
             cover =  os.path.join(tdir, mi.cover)
-            print cover
             if os.access(cover, os.R_OK):
                 mi.cover_data = ('JPEG', open(os.path.join(tdir, mi.cover), 'rb').read())
     return mi

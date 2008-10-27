@@ -8,7 +8,6 @@ The database used to store ebook metadata
 '''
 import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
        operator, itertools, functools, traceback
-import sqlite3 as sqlite
 from itertools import repeat
 
 from PyQt4.QtCore import QCoreApplication, QThread, QReadWriteLock
@@ -16,8 +15,10 @@ from PyQt4.QtGui import QApplication, QPixmap, QImage
 __app = None
 
 from calibre.library.database import LibraryDatabase
+from calibre.library.sqlite import connect, IntegrityError
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.constants import preferred_encoding, iswindows, isosx
+
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 filesystem_encoding = sys.getfilesystemencoding()
@@ -157,23 +158,6 @@ class CoverCache(QThread):
             self.load_queue.appendleft(id)
         self.load_queue_lock.unlock()
     
-class Concatenate(object):
-    '''String concatenation aggregator for sqlite'''
-    def __init__(self, sep=','):
-        self.sep = sep
-        self.ans = ''
-        
-    def step(self, value):
-        if value is not None:
-            self.ans += value + self.sep
-    
-    def finalize(self):
-        if not self.ans:
-            return None
-        if self.sep:
-            return self.ans[:-len(self.sep)]
-        return self.ans
-    
 class ResultCache(object):
     
     '''
@@ -226,7 +210,7 @@ class ResultCache(object):
     
     def refresh_ids(self, conn, ids):
         for id in ids:
-            self._data[id] = conn.execute('SELECT * from meta WHERE id=?', (id,)).fetchone()
+            self._data[id] = conn.get('SELECT * from meta WHERE id=?', (id,))[0]
         return map(self.row, ids)
     
     def books_added(self, ids, conn):
@@ -234,7 +218,7 @@ class ResultCache(object):
             return
         self._data.extend(repeat(None, max(ids)-len(self._data)+2))
         for id in ids:
-            self._data[id] = conn.execute('SELECT * from meta WHERE id=?', (id,)).fetchone()
+            self._data[id] = conn.get('SELECT * from meta WHERE id=?', (id,))[0]
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
     
@@ -246,7 +230,7 @@ class ResultCache(object):
         # Fast mapping from sorted, filtered row numbers to ids
         # At the moment it is the same as self._map
         self._map_filtered = list(self._map)
-        temp = db.conn.execute('SELECT * FROM meta').fetchall()
+        temp = db.conn.get('SELECT * FROM meta')
         # Fast mapping from ids to data. 
         # Can be None for ids that dont exist (i.e. have been deleted)
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
@@ -285,53 +269,53 @@ class ResultCache(object):
                 self._map_filtered.remove(id)
     
     def sort_on_title(self, order, db):
-        return db.conn.execute('SELECT id FROM books ORDER BY sort ' + order).fetchall()
+        return db.conn.get('SELECT id FROM books ORDER BY sort ' + order)
     
     def sort_on_author_sort(self, order, db):
-        return db.conn.execute('SELECT id FROM books ORDER BY author_sort,sort ' + order).fetchall()
+        return db.conn.get('SELECT id FROM books ORDER BY author_sort,sort ' + order)
     
     def sort_on_timestamp(self, order, db):
-        return db.conn.execute('SELECT id FROM books ORDER BY id ' + order).fetchall()
+        return db.conn.get('SELECT id FROM books ORDER BY id ' + order)
     
     def sort_on_publisher(self, order, db):
-        no_publisher = db.conn.execute('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_publishers_link) ORDER BY books.sort').fetchall()
+        no_publisher = db.conn.get('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_publishers_link) ORDER BY books.sort')
         ans = []
-        for r in db.conn.execute('SELECT id FROM publishers ORDER BY name '+order).fetchall():
+        for r in db.conn.get('SELECT id FROM publishers ORDER BY name '+order):
             publishers_id = r[0]
-            ans += db.conn.execute('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_publishers_link WHERE publisher=?) ORDER BY books.sort '+order, (publishers_id,)).fetchall()
+            ans += db.conn.get('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_publishers_link WHERE publisher=?) ORDER BY books.sort '+order, (publishers_id,))
         ans = (no_publisher + ans) if order == 'ASC' else (ans + no_publisher)
         return ans 
         
 
     def sort_on_size(self, order, db): 
-        return db.conn.execute('SELECT id FROM meta ORDER BY size ' + order).fetchall()
+        return db.conn.get('SELECT id FROM meta ORDER BY size ' + order)
     
     def sort_on_rating(self, order, db): 
-        no_rating = db.conn.execute('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_ratings_link) ORDER BY books.sort').fetchall()
+        no_rating = db.conn.get('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_ratings_link) ORDER BY books.sort')
         ans = []
-        for r in db.conn.execute('SELECT id FROM ratings ORDER BY rating '+order).fetchall():
+        for r in db.conn.get('SELECT id FROM ratings ORDER BY rating '+order):
             ratings_id = r[0]
-            ans += db.conn.execute('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_ratings_link WHERE rating=?) ORDER BY books.sort', (ratings_id,)).fetchall()
+            ans += db.conn.get('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_ratings_link WHERE rating=?) ORDER BY books.sort', (ratings_id,))
         ans = (no_rating + ans) if order == 'ASC' else (ans + no_rating)
         return ans 
         
     
     def sort_on_series(self, order, db):
-        no_series = db.conn.execute('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_series_link) ORDER BY books.sort').fetchall()
+        no_series = db.conn.get('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_series_link) ORDER BY books.sort')
         ans = []
-        for r in db.conn.execute('SELECT id FROM series ORDER BY name '+order).fetchall():
+        for r in db.conn.get('SELECT id FROM series ORDER BY name '+order):
             series_id = r[0]
-            ans += db.conn.execute('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_series_link WHERE series=?) ORDER BY books.series_index,books.id '+order, (series_id,)).fetchall()
+            ans += db.conn.get('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_series_link WHERE series=?) ORDER BY books.series_index,books.id '+order, (series_id,))
         ans = (no_series + ans) if order == 'ASC' else (ans + no_series)
         return ans 
         
     
     def sort_on_tags(self, order, db):
-        no_tags = db.conn.execute('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_tags_link) ORDER BY books.sort').fetchall()
+        no_tags = db.conn.get('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_tags_link) ORDER BY books.sort')
         ans = []
-        for r in db.conn.execute('SELECT id FROM tags ORDER BY name '+order).fetchall():
+        for r in db.conn.get('SELECT id FROM tags ORDER BY name '+order):
             tag_id = r[0]
-            ans += db.conn.execute('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_tags_link WHERE tag=?) ORDER BY books.sort '+order, (tag_id,)).fetchall()
+            ans += db.conn.get('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_tags_link WHERE tag=?) ORDER BY books.sort '+order, (tag_id,))
         ans = (no_tags + ans) if order == 'ASC' else (ans + no_tags)
         return ans 
 
@@ -353,36 +337,25 @@ class LibraryDatabase2(LibraryDatabase):
     @apply
     def user_version():
         doc = 'The user version of this database'
+        
         def fget(self):
-            return self.conn.execute('pragma user_version;').next()[0]
+            return self.conn.get('pragma user_version;', all=False)
+        
         def fset(self, val):
             self.conn.execute('pragma user_version=%d'%int(val))
             self.conn.commit()
+        
         return property(doc=doc, fget=fget, fset=fset)
     
     def connect(self):
         if 'win32' in sys.platform and len(self.library_path) + 4*self.PATH_LIMIT + 10 > 259:
             raise ValueError('Path to library too long. Must be less than %d characters.'%(259-4*self.PATH_LIMIT-10))
         exists = os.path.exists(self.dbpath)
-        self.conn = sqlite.connect(self.dbpath, 
-                                detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
+        self.conn = connect(self.dbpath, self.row_factory)
         if exists and self.user_version == 0:
             self.conn.close()
             os.remove(self.dbpath)
-            self.conn = sqlite.connect(self.dbpath, 
-                                detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
-        self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
-        self.conn.create_aggregate('concat', 1, Concatenate)
-        title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
-        
-        def title_sort(title):
-            match = title_pat.search(title)
-            if match:
-                prep = match.group(1)
-                title = title.replace(prep, '') + ', ' + prep
-            return title.strip()
-        
-        self.conn.create_function('title_sort', 1, title_sort)
+            self.conn = connect(self.dbpath, self.row_factory)
         if self.user_version == 0: 
             self.initialize_database()
     
@@ -453,7 +426,7 @@ class LibraryDatabase2(LibraryDatabase):
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
         id = index if index_is_id else self.id(index)
-        path = self.conn.execute('SELECT path FROM books WHERE id=?', (id,)).fetchone()[0].replace('/', os.sep)
+        path = self.conn.get('SELECT path FROM books WHERE id=?', (id,), all=False).replace('/', os.sep)
         return path
     
     def abspath(self, index, index_is_id=False):
@@ -503,7 +476,7 @@ class LibraryDatabase2(LibraryDatabase):
         fname = self.construct_file_name(id)
         changed = False
         for format in formats:
-            name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0]
+            name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
             if name and name != fname:
                 changed = True
                 break
@@ -594,7 +567,7 @@ class LibraryDatabase2(LibraryDatabase):
             p.save(path)
             
     def all_formats(self):
-        formats = self.conn.execute('SELECT format from data').fetchall()
+        formats = self.conn.get('SELECT format from data')
         if not formats:
             return set([])
         return set([f[0] for f in formats])
@@ -604,8 +577,8 @@ class LibraryDatabase2(LibraryDatabase):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         try:
-            formats = self.conn.execute('SELECT format FROM data WHERE book=?', (id,)).fetchall()
-            name = self.conn.execute('SELECT name FROM data WHERE book=?', (id,)).fetchone()[0]
+            formats = self.conn.get('SELECT format FROM data WHERE book=?', (id,))
+            name = self.conn.get('SELECT name FROM data WHERE book=?', (id,), all=False)
             formats = map(lambda x:x[0], formats)
         except:
             return None
@@ -621,7 +594,7 @@ class LibraryDatabase2(LibraryDatabase):
         'Return absolute path to the ebook file of format `format`'
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-        name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()[0]
+        name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
             format = ('.' + format.lower()) if format else ''
             path = os.path.join(path, name+format)
@@ -645,7 +618,7 @@ class LibraryDatabase2(LibraryDatabase):
         id = index if index_is_id else self.id(index)
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-        name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()
+        name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format))
         name = self.construct_file_name(id)
@@ -682,7 +655,7 @@ class LibraryDatabase2(LibraryDatabase):
     def remove_format(self, index, format, index_is_id=False):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
-        name = self.conn.execute('SELECT name FROM data WHERE book=? AND format=?', (id, format)).fetchone()
+        name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         name = name[0] if name else False
         if name:
             ext = ('.' + format.lower()) if format else ''
@@ -709,7 +682,7 @@ class LibraryDatabase2(LibraryDatabase):
     def get_categories(self, sort_on_count=False):
         categories = {}
         def get(name, category, field='name'):
-            ans = self.conn.execute('SELECT DISTINCT %s FROM %s'%(field, name)).fetchall()
+            ans = self.conn.get('SELECT DISTINCT %s FROM %s'%(field, name))
             ans = [x[0].strip() for x in ans]
             try:
                 ans.remove('')
@@ -718,16 +691,14 @@ class LibraryDatabase2(LibraryDatabase):
             tags = categories[category]
             if name != 'data':
                 for tag in tags:
-                    id = self.conn.execute('SELECT id FROM %s WHERE %s=?'%(name, field), (tag,)).fetchone()
-                    if id:
-                        id = id[0]
+                    id = self.conn.get('SELECT id FROM %s WHERE %s=?'%(name, field), (tag,), all=False)
                     tag.id = id
                 for tag in tags:
                     if tag.id is not None:
-                        tag.count = self.conn.execute('SELECT COUNT(id) FROM books_%s_link WHERE %s=?'%(name, category), (tag.id,)).fetchone()[0]
+                        tag.count = self.conn.get('SELECT COUNT(id) FROM books_%s_link WHERE %s=?'%(name, category), (tag.id,), all=False)
             else:
                 for tag in tags:
-                    tag.count = self.conn.execute('SELECT COUNT(format) FROM data WHERE format=?', (tag,)).fetchone()[0]
+                    tag.count = self.conn.get('SELECT COUNT(format) FROM data WHERE format=?', (tag,), all=False)
             tags.sort(reverse=sort_on_count, cmp=(lambda x,y:cmp(x.count,y.count)) if sort_on_count else cmp)
         for x in (('authors', 'author'), ('tags', 'tag'), ('publishers', 'publisher'), 
                   ('series', 'series')):
@@ -785,6 +756,8 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_tags(id, mi.tags, notify=False)
         if mi.comments:
             self.set_comment(id, mi.comments)
+        if mi.isbn and mi.isbn.strip():
+            self.set_isbn(id, mi.isbn)
         self.set_path(id, True)
         self.notify('metadata', [id])
         
@@ -800,16 +773,16 @@ class LibraryDatabase2(LibraryDatabase):
             a = a.strip().replace(',', '|')
             if not isinstance(a, unicode):
                 a = a.decode(preferred_encoding, 'replace')
-            author = self.conn.execute('SELECT id from authors WHERE name=?', (a,)).fetchone()
+            author = self.conn.get('SELECT id from authors WHERE name=?', (a,), all=False)
             if author:
-                aid = author[0]
+                aid = author
                 # Handle change of case
                 self.conn.execute('UPDATE authors SET name=? WHERE id=?', (a, aid))
             else:
                 aid = self.conn.execute('INSERT INTO authors(name) VALUES (?)', (a,)).lastrowid
             try:
                 self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
-            except sqlite.IntegrityError: # Sometimes books specify the same author twice in their metadata
+            except IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
         self.set_path(id, True)
         self.notify('metadata', [id])
@@ -829,9 +802,9 @@ class LibraryDatabase2(LibraryDatabase):
         if publisher:
             if not isinstance(publisher, unicode):
                 publisher = publisher.decode(preferred_encoding, 'replace')
-            pub = self.conn.execute('SELECT id from publishers WHERE name=?', (publisher,)).fetchone()
+            pub = self.conn.get('SELECT id from publishers WHERE name=?', (publisher,), all=False)
             if pub:
-                aid = pub[0]
+                aid = pub
             else:
                 aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
             self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
@@ -852,14 +825,14 @@ class LibraryDatabase2(LibraryDatabase):
                 continue
             if not isinstance(tag, unicode):
                 tag = tag.decode(preferred_encoding, 'replace')
-            t = self.conn.execute('SELECT id FROM tags WHERE name=?', (tag,)).fetchone()
+            t = self.conn.get('SELECT id FROM tags WHERE name=?', (tag,), all=False)
             if t:
-                tid = t[0]
+                tid = t
             else:
                 tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
 
-            if not self.conn.execute('SELECT book FROM books_tags_link WHERE book=? AND tag=?',
-                                        (id, tid)).fetchone():
+            if not self.conn.get('SELECT book FROM books_tags_link WHERE book=? AND tag=?',
+                                        (id, tid), all=False):
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
         self.conn.commit()
@@ -872,9 +845,9 @@ class LibraryDatabase2(LibraryDatabase):
         if series:
             if not isinstance(series, unicode):
                 series = series.decode(preferred_encoding, 'replace')
-            s = self.conn.execute('SELECT id from series WHERE name=?', (series,)).fetchone()
+            s = self.conn.get('SELECT id from series WHERE name=?', (series,), all=False)
             if s:
-                aid = s[0]
+                aid = s
             else:
                 aid = self.conn.execute('INSERT INTO series(name) VALUES (?)', (series,)).lastrowid
             self.conn.execute('INSERT INTO books_series_link(book, series) VALUES (?,?)', (id, aid))
@@ -904,7 +877,7 @@ class LibraryDatabase2(LibraryDatabase):
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
         Add a book to the database. The result cache is not updated.
-        @param paths: List of paths to book files of file-like objects
+        @param paths: List of paths to book files or file-like objects
         '''
         formats, metadata, uris = iter(formats), iter(metadata), iter(uris)
         duplicates = []
@@ -965,7 +938,7 @@ class LibraryDatabase2(LibraryDatabase):
         
     def move_library_to(self, newloc, progress=None):
         header = _(u'<p>Copying books to %s<br><center>')%newloc
-        books = self.conn.execute('SELECT id, path, title FROM books').fetchall()
+        books = self.conn.get('SELECT id, path, title FROM books')
         if progress is not None:
             progress.setValue(0)
             progress.setLabelText(header)
@@ -1047,6 +1020,7 @@ class LibraryDatabase2(LibraryDatabase):
                     x['formats'].append(path%fmt.lower())
                     x['fmt_'+fmt.lower()] = path%fmt.lower()
                 x['available_formats'] = [i.upper() for i in formats.split(',')]
+            
         return data
     
     def migrate_old(self, db, progress):
@@ -1056,7 +1030,7 @@ class LibraryDatabase2(LibraryDatabase):
         QCoreApplication.processEvents()
         db.conn.row_factory = lambda cursor, row : tuple(row)
         db.conn.text_factory = lambda x : unicode(x, 'utf-8', 'replace')
-        books = db.conn.execute('SELECT id, title, sort, timestamp, uri, series_index, author_sort, isbn FROM books ORDER BY id ASC').fetchall()
+        books = db.conn.get('SELECT id, title, sort, timestamp, uri, series_index, author_sort, isbn FROM books ORDER BY id ASC')
         progress.setAutoReset(False)
         progress.setRange(0, len(books))
         
@@ -1072,7 +1046,7 @@ books_ratings_link
 books_series_link      feeds
 '''.split()
         for table in tables:
-            rows = db.conn.execute('SELECT * FROM %s ORDER BY id ASC'%table).fetchall() 
+            rows = db.conn.get('SELECT * FROM %s ORDER BY id ASC'%table) 
             for row in rows:
                 self.conn.execute('INSERT INTO %s VALUES(%s)'%(table, ','.join(repeat('?', len(row)))), row)
                 
