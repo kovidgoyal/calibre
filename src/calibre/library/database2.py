@@ -16,7 +16,7 @@ from PyQt4.QtGui import QApplication, QPixmap, QImage
 __app = None
 
 from calibre.library.database import LibraryDatabase
-from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.constants import preferred_encoding, iswindows, isosx
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
@@ -568,6 +568,11 @@ class LibraryDatabase2(LibraryDatabase):
                 img.loadFromData(f.read())
                 return img
             return f if as_file else f.read()
+        
+    def has_cover(self, index, index_is_id=False):
+        id = index if  index_is_id else self.id(index)
+        path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')
+        return os.access(path, os.R_OK)
     
     def set_cover(self, id, data):
         '''
@@ -1003,6 +1008,46 @@ class LibraryDatabase2(LibraryDatabase):
             progress.reset()
             progress.hide()
             
+    
+    def get_data_as_dict(self, prefix=None, authors_as_string=False):
+        '''
+        Return all metadata stored in the database as a dict. Includes paths to
+        the cover and each format.
+        
+        :param prefix: The prefix for all paths. By default, the prefix is the absolute path
+        to the library folder.
+        '''
+        if prefix is None:
+            prefix = self.library_path
+        FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'isbn'])
+        data = []
+        if len(self.data) == 0:
+            self.refresh('timestamp', True)
+        for record in self.data:
+            if record is None:
+                continue
+            x = {}
+            for field in FIELDS:
+                x[field] = record[field]
+            data.append(x)
+            x['id'] = record[0]
+            x['formats'] = []
+            x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
+            if authors_as_string:
+                x['authors'] = authors_to_string(x['authors'])
+            x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []
+            path = os.path.join(prefix, self.path(record['id'], index_is_id=True))
+            x['cover'] = os.path.join(path, 'cover.jpg')
+            if not self.has_cover(x['id'], index_is_id=True):
+                x['cover'] = None
+            path += os.sep +  self.construct_file_name(record['id']) + '.%s'
+            formats = self.formats(record['id'], index_is_id=True)
+            if formats:
+                for fmt in formats.split(','):
+                    x['formats'].append(path%fmt.lower())
+                    x['fmt_'+fmt.lower()] = path%fmt.lower()
+                x['available_formats'] = [i.upper() for i in formats.split(',')]
+        return data
     
     def migrate_old(self, db, progress):
         header = _(u'<p>Migrating old database to ebook library in %s<br><center>')%self.library_path

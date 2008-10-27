@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Command line interface to the calibre database.
 '''
 
-import sys, os
+import sys, os, cStringIO
 from textwrap import TextWrapper
 
 from calibre import terminal_controller, preferred_encoding
@@ -20,8 +20,9 @@ from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
 from calibre.library.database import text_to_tokens
 from calibre.ebooks.metadata.opf import OPFCreator, OPFReader
+from calibre.utils.genshi.template import MarkupTemplate
 
-FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'path'])
+FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'cover'])
 
 XML_TEMPLATE = '''\
 <?xml version="1.0"  encoding="UTF-8"?>
@@ -58,6 +59,33 @@ XML_TEMPLATE = '''\
 </calibredb>
 '''
 
+STANZA_TEMPLATE='''\
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
+  <title>calibre Library</title>
+  <author>
+    <name>calibre</name>
+    <uri>http://calibre.kovidgoyal.net</uri>
+  </author>
+  <subtitle>
+        ${subtitle}
+  </subtitle>
+  <py:for each="record in data">
+  <entry>
+      <title>${record['title']}</title>
+      <id>urn:calibre:${record['id']}</id>
+      <author><name>${record['authors']}</name></author>
+      <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%S+0000')}</updated>
+      <link type="application/epub+zip" href="${record['fmt_epub'].replace(sep, '/')}" />
+      <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${record['cover'].replace(sep, '/')}" />
+      <content py:if="record['comments']" type="xhtml">
+          <pre>${record['comments']}</pre>
+      </content>
+  </entry>
+  </py:for>
+</feed>
+'''
+
 def get_parser(usage):
     parser = OptionParser(usage)
     go = parser.add_option_group('GLOBAL OPTIONS')
@@ -72,62 +100,67 @@ def get_db(dbpath, options):
     print _('Using library at'), dbpath
     return LibraryDatabase2(dbpath, row_factory=True)
 
-def do_list(db, fields, sort_by, ascending, search_text, line_width, separator):
+def do_list(db, fields, sort_by, ascending, search_text, line_width, separator, 
+            prefix, output_format, subtitle='Books in the calibre database'):
     db.refresh(sort_by, ascending)
     if search_text:
         filters, OR = text_to_tokens(search_text)
         db.filter(filters, False, OR)
+    authors_to_string = output_format in ['stanza', 'text']
+    data = db.get_data_as_dict(prefix, authors_as_string=authors_to_string)
     fields = ['id'] + fields
-    widths = list(map(lambda x : 0, fields))
-    data = []
-    for record in db.data:
-        data.append({})
-        for field in fields:
-            if field == 'path':
-                path = db.path(record['id'], index_is_id=True)
-                path += os.sep +  db.construct_file_name(record['id']) + '.[%s]'
-                formats = db.formats(record['id'], index_is_id=True)
-                if not formats:
-                    formats = ''
-                data[-1][field] = path%formats.lower()
-            else:
-                data[-1][field] = record[field]
-    for i in data:
-        for j, field in enumerate(fields):
-            widths[j] = max(widths[j], len(unicode(i[str(field)])))
+    if output_format == 'text':
+        widths = list(map(lambda x : 0, fields))
+        for record in data:
+            for f in record.keys():
+                record[f] = unicode(record[f])
+                record[f] = record[f].replace('\n', ' ')
+        for i in data:
+            for j, field in enumerate(fields):
+                widths[j] = max(widths[j], len(unicode(i[str(field)])))
+        
+        screen_width = terminal_controller.COLS if line_width < 0 else line_width
+        if not screen_width:
+            screen_width = 80
+        field_width = screen_width//len(fields)
+        base_widths = map(lambda x: min(x+1, field_width), widths)
     
-    screen_width = terminal_controller.COLS if line_width < 0 else line_width
-    if not screen_width:
-        screen_width = 80
-    field_width = screen_width//len(fields)
-    base_widths = map(lambda x: min(x+1, field_width), widths)
-
-    while sum(base_widths) < screen_width:
-        adjusted = False
-        for i in range(len(widths)):
-            if base_widths[i] < widths[i]:
-                base_widths[i] += min(screen_width-sum(base_widths), widths[i]-base_widths[i])
-                adjusted = True
+        while sum(base_widths) < screen_width:
+            adjusted = False
+            for i in range(len(widths)):
+                if base_widths[i] < widths[i]:
+                    base_widths[i] += min(screen_width-sum(base_widths), widths[i]-base_widths[i])
+                    adjusted = True
+                    break
+            if not adjusted:
                 break
-        if not adjusted:
-            break
-
-    widths = list(base_widths)
-    titles = map(lambda x, y: '%-*s'%(x, y), widths, fields)
-    print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
-
-    wrappers = map(lambda x: TextWrapper(x-1), widths)
-
-    for record in data:
-        text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
-        lines = max(map(len, text))
-        for l in range(lines):
-            for i, field in enumerate(text):
-                ft = text[i][l] if l < len(text[i]) else ''
-                filler = '%*s'%(widths[i]-len(ft)-1, '')
-                sys.stdout.write(ft)
-                sys.stdout.write(filler+separator)
-            print
+    
+        widths = list(base_widths)
+        titles = map(lambda x, y: '%-*s'%(x, y), widths, fields)
+        print terminal_controller.GREEN + ''.join(titles)+terminal_controller.NORMAL
+    
+        wrappers = map(lambda x: TextWrapper(x-1), widths)
+        o = cStringIO.StringIO()
+    
+        for record in data:
+            text = [wrappers[i].wrap(unicode(record[field]).encode('utf-8')) for i, field in enumerate(fields)]
+            lines = max(map(len, text))
+            for l in range(lines):
+                for i, field in enumerate(text):
+                    ft = text[i][l] if l < len(text[i]) else ''
+                    filler = '%*s'%(widths[i]-len(ft)-1, '')
+                    o.write(ft)
+                    o.write(filler+separator)
+                print >>o
+        return o.getvalue()
+    elif output_format == 'xml':
+        template = MarkupTemplate(XML_TEMPLATE)
+        return template.generate(data=data).render('xml')
+    elif output_format == 'stanza':
+        data = [i for i in data if i.has_key('fmt_epub')]
+        template = MarkupTemplate(STANZA_TEMPLATE)
+        return template.generate(data=data, subtitle=subtitle, sep=os.sep).render('xml')
+            
 
 
 def command_list(args, dbpath):
@@ -139,7 +172,7 @@ List the books available in the calibre database.
 '''
                             ))
     parser.add_option('-f', '--fields', default='title,authors',
-                      help=_('The fields to display when listing books in the database. Should be a comma separated list of fields.\nAvailable fields: %s\nDefault: %%default. The special field "all" can be used to select all fields.')%','.join(FIELDS))
+                      help=_('The fields to display when listing books in the database. Should be a comma separated list of fields.\nAvailable fields: %s\nDefault: %%default. The special field "all" can be used to select all fields. Only has effect in the text output format.')%','.join(FIELDS))
     parser.add_option('--sort-by', default='timestamp',
                       help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
     parser.add_option('--ascending', default=False, action='store_true',
@@ -149,6 +182,10 @@ List the books available in the calibre database.
     parser.add_option('-w', '--line-width', default=-1, type=int, 
                       help=_('The maximum width of a single line in the output. Defaults to detecting screen size.'))
     parser.add_option('--separator', default=' ', help=_('The string used to separate fields. Default is a space.'))
+    parser.add_option('--prefix', default=None, help=_('The prefix for all file paths. Default is the absolute path to the library folder.'))
+    of = ['text', 'xml', 'stanza']
+    parser.add_option('--output-format', choices=of, default='text',
+                      help=_('The format in which to output the data. Available choices: %s. Defaults is text.')%of)
     opts, args = parser.parse_args(sys.argv[:1] + args)
     fields = [str(f.strip().lower()) for f in opts.fields.split(',')]
     if 'all' in fields:
@@ -166,7 +203,8 @@ List the books available in the calibre database.
         print >>sys.stderr, _('Invalid sort field. Available fields:'), ','.join(FIELDS)
         return 1
 
-    do_list(db, fields, opts.sort_by, opts.ascending, opts.search, opts.line_width, opts.separator)
+    print do_list(db, fields, opts.sort_by, opts.ascending, opts.search, opts.line_width, opts.separator,
+            opts.prefix, opts.output_format)
     return 0
 
 
@@ -205,9 +243,10 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
             metadata.append(mi)
 
         file_duplicates = db.add_books(files, formats, metadata, add_duplicates=add_duplicates)
-        if not file_duplicates:
+        if not file_duplicates[0]:
             file_duplicates = []
-
+        else:
+            file_duplicates = file_duplicates[0]
 
         dir_dups = []
         for dir in dirs:
@@ -452,45 +491,9 @@ an opf file). You can get id numbers from the list command.
     do_export(get_db(dbpath, opts), ids, dir, opts.single_dir, opts.by_author)
     return 0
 
-def do_export_db(db):
-    db.refresh('timestamp', True)
-    data = []
-    for record in db.data:
-        x = {}
-        for field in FIELDS:
-            if field != 'path':
-                x[field] = record[field]
-        data.append(x)
-        x['id'] = record[0]
-        x['formats'] = []
-        x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
-        x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []
-        path = os.path.join(db.library_path, db.path(record['id'], index_is_id=True))
-        x['cover'] = os.path.join(path, 'cover.jpg')
-        if not os.path.exists(x['cover']):
-            x['cover'] = None
-        path += os.sep +  db.construct_file_name(record['id']) + '.%s'
-        formats = db.formats(record['id'], index_is_id=True)
-        if formats:
-            for fmt in formats.split(','):
-                x['formats'].append(path%fmt.lower())
-    from calibre.utils.genshi.template import MarkupTemplate
-    template = MarkupTemplate(XML_TEMPLATE)
-    print template.generate(data=data).render('xml')
-
-def command_export_db(args, dbpath):
-    parser = get_parser(_('''\
-%prog export_db [options]
-
-Export the metadata in the database as an XML file. 
-'''))
-    opts, args = parser.parse_args(sys.argv[1:]+args)
-    do_export_db(get_db(dbpath, opts))
-    return 0
-
 def main(args=sys.argv):
     commands = ('list', 'add', 'remove', 'add_format', 'remove_format',
-                'show_metadata', 'set_metadata', 'export', 'export_db')
+                'show_metadata', 'set_metadata', 'export')
     parser = OptionParser(_(
 '''\
 %%prog command [options] [arguments]
