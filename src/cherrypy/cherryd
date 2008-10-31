@@ -1,0 +1,82 @@
+#! /usr/bin/env python
+"""The CherryPy daemon."""
+
+import sys
+
+import cherrypy
+from cherrypy.process import plugins, servers
+
+
+def start(configfiles=None, daemonize=False, environment=None,
+          fastcgi=False, pidfile=None, imports=None):
+    """Subscribe all engine plugins and start the engine."""
+    for i in imports:
+        exec "import %s" % i
+    
+    for c in configfiles or []:
+        cherrypy.config.update(c)
+    
+    engine = cherrypy.engine
+    
+    if environment is not None:
+        cherrypy.config.update({'environment': environment})
+    
+    # Only daemonize if asked to.
+    if daemonize:
+        # Don't print anything to stdout/sterr.
+        cherrypy.config.update({'log.screen': False})
+        plugins.Daemonizer(engine).subscribe()
+    
+    if pidfile:
+        plugins.PIDFile(engine, pidfile).subscribe()
+    
+    if hasattr(engine, "signal_handler"):
+        engine.signal_handler.subscribe()
+    if hasattr(engine, "console_control_handler"):
+        engine.console_control_handler.subscribe()
+    
+    if fastcgi:
+        # turn off autoreload when using fastcgi
+        cherrypy.config.update({'autoreload.on': False})
+        
+        cherrypy.server.unsubscribe()
+        
+        fastcgi_port = cherrypy.config.get('server.socket_port', 4000)
+        fastcgi_bindaddr = cherrypy.config.get('server.socket_host', '0.0.0.0')
+        bindAddress = (fastcgi_bindaddr, fastcgi_port)
+        f = servers.FlupFCGIServer(application=cherrypy.tree, bindAddress=bindAddress)
+        s = servers.ServerAdapter(engine, httpserver=f, bind_addr=bindAddress)
+        s.subscribe()
+    
+    # Always start the engine; this will start all other services
+    try:
+        engine.start()
+    except:
+        # Assume the error has been logged already via bus.log.
+        sys.exit(1)
+    else:
+        engine.block()
+
+
+if __name__ == '__main__':
+    from optparse import OptionParser
+    
+    p = OptionParser()
+    p.add_option('-c', '--config', action="append", dest='config',
+                 help="specify config file(s)")
+    p.add_option('-d', action="store_true", dest='daemonize',
+                 help="run the server as a daemon")
+    p.add_option('-e', '--environment', dest='environment', default=None,
+                 help="apply the given config environment")
+    p.add_option('-f', action="store_true", dest='fastcgi',
+                 help="start a fastcgi server instead of the default HTTP server")
+    p.add_option('-i', '--import', action="append", dest='imports',
+                 help="specify modules to import")
+    p.add_option('-p', '--pidfile', dest='pidfile', default=None,
+                 help="store the process id in the given file")
+    options, args = p.parse_args()
+    
+    start(options.config, options.daemonize,
+          options.environment, options.fastcgi, options.pidfile,
+          options.imports)
+

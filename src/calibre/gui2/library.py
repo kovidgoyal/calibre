@@ -353,16 +353,20 @@ class BooksModel(QAbstractTableModel):
         return self.db.title(row_number)
 
     def cover(self, row_number):
-        id = self.db.id(row_number)
         data = None
-        if self.cover_cache:
-            img = self.cover_cache.cover(id)
-            if img:
-                if img.isNull():
-                    img = self.default_image
-                return img
-        if not data:
-            data = self.db.cover(row_number)
+        try:
+            id = self.db.id(row_number)
+            if self.cover_cache:
+                img = self.cover_cache.cover(id)
+                if img:
+                    if img.isNull():
+                        img = self.default_image
+                    return img
+            if not data:
+                data = self.db.cover(row_number)
+        except IndexError: # Happens if database has not yet been refreshed
+            pass
+        
         if not data:
             return self.default_image
         img = QImage()
