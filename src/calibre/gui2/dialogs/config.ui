@@ -78,7 +78,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget" >
        <property name="currentIndex" >
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_3" >
         <layout class="QVBoxLayout" name="verticalLayout" >
@@ -86,6 +86,12 @@
           <layout class="QVBoxLayout" name="_2" >
            <item>
             <widget class="QLabel" name="label" >
+             <property name="maximumSize" >
+              <size>
+               <width>16777215</width>
+               <height>70</height>
+              </size>
+             </property>
              <property name="text" >
               <string>&amp;Location of ebooks (The ebooks are stored in folders sorted by author and metadata is stored in the file metadata.db)</string>
              </property>

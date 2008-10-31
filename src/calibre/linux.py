@@ -37,6 +37,7 @@ entry_points = {
                              'rtf2lrf   = calibre.ebooks.lrf.rtf.convert_from:main',
                              'web2disk  = calibre.web.fetch.simple:main',
                              'feeds2disk = calibre.web.feeds.main:main',
+                             'calibre-server = calibre.library.server:main',
                              'feeds2lrf  = calibre.ebooks.lrf.feeds.convert_from:main',
                              'feeds2epub = calibre.ebooks.epub.from_feeds:main',
                              'web2lrf   = calibre.ebooks.lrf.web.convert_from:main',

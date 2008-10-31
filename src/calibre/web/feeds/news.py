@@ -502,7 +502,7 @@ class BasicNewsRecipe(object, LoggingInterface):
             head = soup.find('body')
         if not head:
             head = soup.find(True)
-        style = BeautifulSoup(u'<style type="text/css" title="override_css">%s</style>'%(self.template_css +'\n\n'+self.extra_css)).find('style')
+        style = BeautifulSoup(u'<style type="text/css" title="override_css">%s</style>'%(self.template_css +'\n\n'+(self.extra_css if self.extra_css else ''))).find('style')
         head.insert(len(head.contents), style)
         if first_fetch and job_info:
             url, f, a, feed_len = job_info
