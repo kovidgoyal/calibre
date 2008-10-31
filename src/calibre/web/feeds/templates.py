@@ -8,28 +8,9 @@ from calibre import preferred_encoding, strftime
 
 class Template(MarkupTemplate):
     
-    STYLE = u'''\
-            .article_date {
-                font-size: x-small; color: gray; font-family: monospace;
-            }
-            
-            .article_description {
-                font-size: small; font-family: sans; text-indent: 0pt;
-            }
-            
-            a.article {
-                font-weight: bold; font-size: large;
-            }
-            
-            a.feed {
-                font-weight: bold; font-size: large;
-            }
-            
-'''
-    
     def generate(self, *args, **kwargs):
         if not kwargs.has_key('style'):
-            kwargs['style'] = self.STYLE
+            kwargs['style'] = ''
         for key in kwargs.keys():
             if isinstance(kwargs[key], basestring) and not isinstance(kwargs[key], unicode):
                 kwargs[key] = unicode(kwargs[key], 'utf-8', 'replace')
@@ -52,7 +33,7 @@ class NavBarTemplate(Template):
        
 >
     <body>
-        <div class="navbar" style="text-align:${'center' if center else 'left'}; font-family:monospace; font-size:8pt">
+        <div class="navbar" style="text-align:${'center' if center else 'left'};">
             <hr py:if="bottom" />
             <p py:if="bottom" style="text-align:left">
                 This article was downloaded by <b>${__appname__}</b> from <a href="${url}">${url}</a>
@@ -104,7 +85,7 @@ class IndexTemplate(Template):
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>${title}</title>
-        <style type="text/css">
+        <style py:if="style" type="text/css">
             ${style}
         </style>
     </head>
@@ -144,7 +125,7 @@ class FeedTemplate(Template):
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>${feed.title}</title>
-        <style type="text/css">
+        <style py:if="style" type="text/css">
             ${style}
         </style>
     </head>

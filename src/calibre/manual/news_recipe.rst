@@ -59,7 +59,7 @@ Customizing e-book download
 .. automember:: BasicNewsRecipe.no_stylesheets
 
 .. automember:: BasicNewsRecipe.encoding
-    
+
 .. automethod:: BasicNewsRecipe.get_browser
 
 .. automethod:: BasicNewsRecipe.get_cover_url
@@ -103,11 +103,14 @@ Pre/post processing of downloaded HTML
 
 .. automember:: BasicNewsRecipe.preprocess_regexps
 
+.. automember:: BasicNewsRecipe.template_css
+
 .. automethod:: BasicNewsRecipe.preprocess_html
 
 .. automethod:: BasicNewsRecipe.postprocess_html
 
 
+    
 
 Convenience methods
 ~~~~~~~~~~~~~~~~~~~~~~~

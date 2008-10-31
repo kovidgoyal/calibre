@@ -206,6 +206,32 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: will remove everythong from `<!--Article ends here-->` to `</body>`.
     preprocess_regexps    = []
     
+    #: The CSS that is used to styles the templates, i.e., the navigation bars and
+    #: the Tables of Contents. Rather than overriding this variable, you should
+    #: use :member:`extra_css` in your recipe to customize look and feel. 
+    template_css = u'''
+            .article_date {
+                font-size: x-small; color: gray; font-family: monospace;
+            }
+            
+            .article_description {
+                font-size: small; font-family: sans; text-indent: 0pt;
+            }
+            
+            a.article {
+                font-weight: bold; font-size: large;
+            }
+            
+            a.feed {
+                font-weight: bold; font-size: large;
+            }
+            
+            .navbar {
+                font-family:monospace; font-size:8pt
+            }
+'''
+
+    
     # See the built-in profiles for examples of these settings.
     
     def get_cover_url(self):
@@ -471,11 +497,13 @@ class BasicNewsRecipe(object, LoggingInterface):
                 
             
     def _postprocess_html(self, soup, first_fetch, job_info):
-        if self.extra_css is not None:
-            head = soup.find('head')
-            if head:
-                style = BeautifulSoup(u'<style type="text/css" title="override_css">%s</style>'%self.extra_css).find('style')
-                head.insert(len(head.contents), style)
+        head = soup.find('head')
+        if not head:
+            head = soup.find('body')
+        if not head:
+            head = soup.find(True)
+        style = BeautifulSoup(u'<style type="text/css" title="override_css">%s</style>'%(self.template_css +'\n\n'+self.extra_css)).find('style')
+        head.insert(len(head.contents), style)
         if first_fetch and job_info:
             url, f, a, feed_len = job_info
             body = soup.find('body')
