@@ -72,6 +72,8 @@ class DBTest(unittest.TestCase):
             self.assertEqual(getattr(self.db, x)(2), val)
             
         self.db.set_authors(3, ['new auth'])
+        self.db.refresh_ids([3])
+        self.assertEqual('new auth', self.db.authors(2))
         self.assertEqual(self.db.format(3, 'txt', index_is_id=True), 'test')
         
     

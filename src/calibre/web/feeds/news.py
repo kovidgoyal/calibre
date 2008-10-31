@@ -541,8 +541,10 @@ class BasicNewsRecipe(object, LoggingInterface):
         npos = max(si, gi)
         if npos < 0:
             npos = pos
-        
-        return src[:npos+1]+u'\u2026'
+        ans = src[:npos+1]
+        if isinstance(ans, unicode):
+            return
+        return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
 
         
     

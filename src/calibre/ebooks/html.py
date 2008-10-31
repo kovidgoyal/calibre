@@ -573,7 +573,10 @@ class Processor(Parser):
                 style.tail = '\n'
                 path = os.path.join(os.path.dirname(self.save_path()), *(style.get('href').split('/')))
                 self.resource_map[path] = style.get('href')
-                open(path, 'wb').write(getattr(sheet, 'cssText', sheet).encode('utf-8'))
+                raw = getattr(sheet, 'cssText', sheet)
+                if isinstance(raw, unicode):
+                    raw = raw.encode('utf-8')
+                open(path, 'wb').write(raw)
         return Parser.save(self)
     
     def populate_toc(self, toc):
