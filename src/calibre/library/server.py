@@ -7,7 +7,8 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, cStringIO, mimetypes
+import sys, textwrap, cStringIO, mimetypes, operator, os
+from datetime import datetime
 import cherrypy
 from PIL import Image
 
@@ -36,21 +37,22 @@ class LibraryServer(object):
             author_sort="${r[12]}"
             authors="${authors}" 
             rating="${r[4]}"
-            timestamp="${timestamp.ctime()}" 
+            timestamp="${r[5].ctime()}" 
             size="${r[6]}" 
             isbn="${r[14] if r[14] else ''}"
             formats="${r[13] if r[13] else ''}"
             series = "${r[9] if r[9] else ''}"
             series_index="${r[10]}"
             tags="${r[7] if r[7] else ''}"
-            publisher="${r[3] if r[3] else ''}">${r[8] if r[8] else ''}</book>
+            publisher="${r[3] if r[3] else ''}">${r[8] if r[8] else ''}
+            </book>
         ''')
     
     LIBRARY = MarkupTemplate(textwrap.dedent('''\
     <?xml version="1.0" encoding="utf-8"?>
-    <library xmlns:py="http://genshi.edgewall.org/" size="${len(books)}">
+    <library xmlns:py="http://genshi.edgewall.org/" start="$start" num="${len(books)}" total="$total" updated="${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}>
     <py:for each="book in books">
-    ${Markup(book)}
+        ${Markup(book)}
     </py:for>
     </library>
     '''))
@@ -60,12 +62,12 @@ class LibraryServer(object):
         <title>${record['title']}</title>
         <id>urn:calibre:${record['id']}</id>
         <author><name>${authors}</name></author>
-        <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%S+0000')}</updated>
+        <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
         <link type="application/epub+zip" href="http://${server}:${port}/get/epub/${record['id']}" />
         <link rel="x-stanza-cover-image" type="image/jpeg" href="http://${server}:${port}/get/cover/${record['id']}" />
         <link rel="x-stanza-cover-image-thumbnail" type="image/jpeg" href="http://${server}:${port}/get/thumb/${record['id']}" />
-        <content py:if="record['comments']" type="xhtml">
-          <pre>${record['comments']}</pre>
+        <content type="xhtml">
+          <div xmlns="http://www.w3.org/1999/xhtml"><pre>${record['comments']}</pre></div>
         </content>
     </entry>
     '''))
@@ -74,6 +76,8 @@ class LibraryServer(object):
     <?xml version="1.0" encoding="utf-8"?>
     <feed xmlns="http://www.w3.org/2005/Atom" xmlns:py="http://genshi.edgewall.org/">
       <title>calibre Library</title>
+      <id>$id</id>
+      <updated>${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
       <author>
         <name>calibre</name>
         <uri>http://calibre.kovidgoyal.net</uri>
@@ -94,6 +98,7 @@ class LibraryServer(object):
             item
             break
         self.opts = opts
+        
         cherrypy.config.update({
                                 'server.socket_port': opts.port,
                                 'server.socket_timeout': opts.timeout, #seconds
@@ -106,14 +111,6 @@ class LibraryServer(object):
         tools.gzip.mime_types = ['text/html', 'text/plain', 'text/xml']
         ''')%dict(autoreload=opts.develop)
         
-    def to_xml(self):
-        books = []
-        book = MarkupTemplate(self.BOOK)
-        for record in iter(self.db):
-            authors = ' & '.join([i.replace('|', ',') for i in record[2].split(',')])
-            books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
-        return self.LIBRARY.generate(books=books).render('xml')
-    
     def start(self):
         cherrypy.quickstart(self, config=cStringIO.StringIO(self.config))
     
@@ -122,6 +119,10 @@ class LibraryServer(object):
         if cover is None:
             raise cherrypy.HTTPError(404, 'no cover available for id: %d'%id)
         cherrypy.response.headers['Content-Type'] = 'image/jpeg'
+        path = getattr(cover, 'name', None)
+        if path and os.path.exists(path):
+            updated = datetime.fromutctimestamp(os.stat(path).st_mtime)
+            cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         if not thumbnail:
             return cover.read()
         try:
@@ -139,18 +140,41 @@ class LibraryServer(object):
         
     def get_format(self, id, format):
         format = format.upper()
-        fmt = self.db.format(id, format, index_is_id=True)
+        fmt = self.db.format(id, format, index_is_id=True, as_file=True, mode='rb')
         if fmt is None:
             raise cherrypy.HTTPError(404, 'book: %d does not have format: %s'%(id, format))
         mt = mimetypes.guess_type('dummy.'+format.lower())[0]
         if mt is None:
             mt = 'application/octet-stream'
         cherrypy.response.headers['Content-Type'] = mt
-        return fmt
+        path = getattr(fmt, 'name', None)
+        if path and os.path.exists(path):
+            updated = datetime.fromutctimestamp(os.stat(path).st_mtime)
+            cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+        return fmt.read()
+    
+    def sort(self, items, field):
+        field = field.lower().strip()
+        if field == 'author':
+            field = 'authors'
+        if field not in ('title', 'authors', 'rating'):
+            raise cherrypy.HTTPError(400, '%s is not a valid sort field'%field)
+        cmpf = cmp if field == 'rating' else lambda x, y: cmp(x.lower(), y.lower())
+        field = {'title':11, 'authors':12, 'rating':4}[field]
+        getter = operator.itemgetter(field)
+        items.sort(cmp=lambda x, y: cmpf(getter(x), getter(y)))
+    
+    def last_modified(self, updated):
+        lm = updated.strftime('day, %d month %Y %H:%M:%S GMT')
+        day ={0:'Sun', 1:'Mon', 2:'Tue', 3:'Wed', 4:'Thu', 5:'Fri', 6:'Sat'}
+        lm = lm.replace('day', day[int(lm.strftime('%w'))])
+        month = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun', 7:'Jul',
+                 8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
+        return lm.replace('month', month[updated.month])
+        
         
     @expose
     def stanza(self):
-        cherrypy.response.headers['Content-Type'] = 'text/xml'
         books = []
         for record in iter(self.db):
             if 'EPUB' in record['formats'].upper():
@@ -160,12 +184,45 @@ class LibraryServer(object):
                                                         port=self.opts.port, 
                                                         server=self.opts.hostname,
                                                         ).render('xml').decode('utf8'))
-        return self.STANZA.generate(subtitle='', data=books).render('xml')
+        
+        updated = self.db.last_modified()
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+        cherrypy.response.headers['Content-Type'] = 'text/xml'
+        
+        return self.STANZA.generate(subtitle='', data=books, 
+                    updated=updated, id='urn:calibre:main').render('xml')
     
     @expose
-    def library(self):
+    def library(self, start='0', num='50', sort=None, search=None):
+        '''
+        :param sort: Sort results by ``sort``. Can be one of `title,author,rating`.
+        :param search: Filter results by ``search`` query. See :class:`SearchQueryParser` for query syntax
+        :param start,num: Return the slice `[start:start+num]` of the sorted and filtered results 
+        '''
+        try:
+            start = int(start)
+        except ValueError:
+            raise cherrypy.HTTPError(400, 'start: %s is not an integer'%start)
+        try:
+            num = int(num)
+        except ValueError:
+            raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
+        ids = self.db.data.parse(search) if search else self.db.data.universal_set()
+        ids = sorted(ids)
+        items = [r for r in iter(self.db) if r[0] in ids]
+        if sort is not None:
+            self.sort(items, sort)
+        
+        book, books = MarkupTemplate(self.BOOK), []
+        for record in items[start:start+num]:
+            authors = ' & '.join([i.replace('|', ',') for i in record[2].split(',')])
+            books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
+        updated = self.db.last_modified()
+        
         cherrypy.response.headers['Content-Type'] = 'text/xml'
-        return self.to_xml()
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+        return self.LIBRARY.generate(books=books, start=start, updated=updated, 
+                                     total=self.db.count()).render('xml')
     
     @expose
     def index(self):

@@ -122,7 +122,7 @@ class SearchQueryParser(object):
         
         self._parser = Or
         #self._parser.setDebug(True)
-        self.parse('(tolstoy)')
+        #self.parse('(tolstoy)')
         self._parser.setDebug(False)
         
         

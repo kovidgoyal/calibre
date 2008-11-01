@@ -9,6 +9,7 @@ The database used to store ebook metadata
 import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
        operator, itertools, functools, traceback
 from itertools import repeat
+from datetime import datetime
 
 from PyQt4.QtCore import QCoreApplication, QThread, QReadWriteLock
 from PyQt4.QtGui import QApplication, QPixmap, QImage
@@ -16,6 +17,7 @@ __app = None
 
 from calibre.library.database import LibraryDatabase
 from calibre.library.sqlite import connect, IntegrityError
+from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.constants import preferred_encoding, iswindows, isosx
 
@@ -47,6 +49,12 @@ def sanitize_file_name(name, substitute='_'):
         name = name.encode(filesystem_encoding, 'ignore')
     one = _filename_sanitize.sub(substitute, name)
     return re.sub(r'\s', ' ', one).strip()
+
+FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5, 
+             'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
+             'sort':11, 'author_sort':12, 'formats':13, 'isbn':14}
+INDEX_MAP = dict(zip(FIELD_MAP.values(), FIELD_MAP.keys()))
+
 
 class CoverCache(QThread):
     
@@ -158,27 +166,15 @@ class CoverCache(QThread):
             self.load_queue.appendleft(id)
         self.load_queue_lock.unlock()
     
-class ResultCache(object):
+class ResultCache(SearchQueryParser):
     
     '''
     Stores sorted and filtered metadata in memory.
     '''
     
-    METHOD_MAP = {
-                  'title'        : 'title',
-                  'authors'      : 'author_sort',
-                  'author'       : 'author_sort',
-                  'publisher'    : 'publisher',
-                  'size'         : 'size',
-                  'date'         : 'timestamp',
-                  'timestamp'    : 'timestamp',
-                  'rating'       : 'rating',
-                  'tags'         : 'tags',
-                  'series'       : 'series',
-                  }
-    
     def __init__(self):
         self._map = self._map_filtered = self._data = []
+        SearchQueryParser.__init__(self)
         
     def __getitem__(self, row):
         return self._data[self._map_filtered[row]]
@@ -189,6 +185,31 @@ class ResultCache(object):
     def __iter__(self):
         for id in self._map_filtered:
             yield self._data[id]
+
+    def universal_set(self):
+        return set([i[0] for i in self._data if i is not None])
+
+    def get_matches(self, location, query):
+        matches = set([])
+        if query and query.strip():
+            location = location.lower().strip()
+            query = query.lower()
+            if location in ('tag', 'author', 'format'):
+                location += 's'
+            all = ('title', 'authors', 'publisher', 'tags', 'comments', 'series', 'formats')
+            MAP = {}
+            for x in all:
+                MAP[x] = FIELD_MAP[x]
+            location = [location] if location != 'all' else list(MAP.keys())
+            for i, loc in enumerate(location):
+                location[i] = MAP[loc]
+            for item in self._data:
+                if item is None: continue
+                for loc in location:
+                    if item[loc] and query in item[loc].lower():
+                        matches.add(item[0])
+                        break
+        return matches
             
     def remove(self, id):
         self._data[id] = None
@@ -222,103 +243,49 @@ class ResultCache(object):
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
     
-    def refresh(self, db, field, ascending):
-        field = field.lower()
-        method = getattr(self, 'sort_on_' + self.METHOD_MAP[field])
-        # Fast mapping from sorted row numbers to ids
-        self._map = map(operator.itemgetter(0), method('ASC' if ascending else 'DESC', db)) # Preserves sort order
-        # Fast mapping from sorted, filtered row numbers to ids
-        # At the moment it is the same as self._map
-        self._map_filtered = list(self._map)
+    def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta')
-        # Fast mapping from ids to data. 
-        # Can be None for ids that dont exist (i.e. have been deleted)
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
         for r in temp:
             self._data[r[0]] = r
+        self._map = [i[0] for i in self._data if i is not None]
+        if field is not None:
+            self.sort(field, ascending)
+        self._map_filtered = list(self._map)
     
-    def filter(self, filters, refilter=False, OR=False):
-        '''
-        Filter data based on filters. All the filters must match for an item to
-        be accepted. Matching is case independent regexp matching.
-        @param filters: A list of SearchToken objects
-        @param refilter: If True filters are applied to the results of the previous
-                         filtering.
-        @param OR: If True, keeps a match if any one of the filters matches. If False,
-        keeps a match only if all the filters match
-        '''
-        if not refilter:
-                self._map_filtered = list(self._map)
-        if filters:
-            remove = []
-            for id in self._map_filtered:
-                if OR:
-                    keep = False
-                    for token in filters:
-                        if token.match(self._data[id]):
-                            keep = True
-                            break
-                    if not keep:
-                        remove.append(id)
-                else:
-                    for token in filters:
-                        if not token.match(self._data[id]):
-                            remove.append(id)
-                            break
-            for id in remove:
-                self._map_filtered.remove(id)
+    def seriescmp(self, x, y):
+        ans = self.strcmp(self._data[x][9], self._data[y][9])
+        if ans != 0: return ans
+        return cmp(self._data[x][10], self._data[y][10])
     
-    def sort_on_title(self, order, db):
-        return db.conn.get('SELECT id FROM books ORDER BY sort ' + order)
+    def cmp(self, loc, x, y, str=True):
+        ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if str else\
+              cmp(self._data[x][loc], self._data[y][loc])
+        if ans != 0: return ans
+        return cmp(self._data[x][11].lower(), self._data[y][11].lower())
     
-    def sort_on_author_sort(self, order, db):
-        return db.conn.get('SELECT id FROM books ORDER BY author_sort,sort ' + order)
+    def sort(self, field, ascending):
+        import time
+        start = time.time()
+        field = field.lower().strip()
+        if field in ('author', 'tag', 'comment'):
+            field += 's'
+        if field == 'date': field = 'timestamp'
+        elif field == 'title': field = 'sort'
+        elif field == 'author': field = 'author_sort'
+        fcmp = self.seriescmp if field == 'series' else \
+            functools.partial(self.cmp, FIELD_MAP[field], field not in ('size', 'rating', 'timestamp'))
+        self._map.sort(cmp=fcmp, reverse=not ascending)
+        print time.time() - start
+                
+    def search(self, query):
+        if not query or not query.strip():
+            self._map_filtered = list(self._map)
+            return
+        matches = sorted(self.parse(query))
+        self._map_filtered = [id for id in self._map if id in matches]
     
-    def sort_on_timestamp(self, order, db):
-        return db.conn.get('SELECT id FROM books ORDER BY id ' + order)
     
-    def sort_on_publisher(self, order, db):
-        no_publisher = db.conn.get('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_publishers_link) ORDER BY books.sort')
-        ans = []
-        for r in db.conn.get('SELECT id FROM publishers ORDER BY name '+order):
-            publishers_id = r[0]
-            ans += db.conn.get('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_publishers_link WHERE publisher=?) ORDER BY books.sort '+order, (publishers_id,))
-        ans = (no_publisher + ans) if order == 'ASC' else (ans + no_publisher)
-        return ans 
-        
-
-    def sort_on_size(self, order, db): 
-        return db.conn.get('SELECT id FROM meta ORDER BY size ' + order)
-    
-    def sort_on_rating(self, order, db): 
-        no_rating = db.conn.get('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_ratings_link) ORDER BY books.sort')
-        ans = []
-        for r in db.conn.get('SELECT id FROM ratings ORDER BY rating '+order):
-            ratings_id = r[0]
-            ans += db.conn.get('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_ratings_link WHERE rating=?) ORDER BY books.sort', (ratings_id,))
-        ans = (no_rating + ans) if order == 'ASC' else (ans + no_rating)
-        return ans 
-        
-    
-    def sort_on_series(self, order, db):
-        no_series = db.conn.get('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_series_link) ORDER BY books.sort')
-        ans = []
-        for r in db.conn.get('SELECT id FROM series ORDER BY name '+order):
-            series_id = r[0]
-            ans += db.conn.get('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_series_link WHERE series=?) ORDER BY books.series_index,books.id '+order, (series_id,))
-        ans = (no_series + ans) if order == 'ASC' else (ans + no_series)
-        return ans 
-        
-    
-    def sort_on_tags(self, order, db):
-        no_tags = db.conn.get('SELECT id FROM books WHERE books.id NOT IN (SELECT book FROM books_tags_link) ORDER BY books.sort')
-        ans = []
-        for r in db.conn.get('SELECT id FROM tags ORDER BY name '+order):
-            tag_id = r[0]
-            ans += db.conn.get('SELECT id FROM books WHERE books.id IN (SELECT book FROM books_tags_link WHERE tag=?) ORDER BY books.sort '+order, (tag_id,))
-        ans = (no_tags + ans) if order == 'ASC' else (ans + no_tags)
-        return ans 
-
 class Tag(unicode):
     
     def __init__(self, name):
@@ -381,8 +348,10 @@ class LibraryDatabase2(LibraryDatabase):
                 self.user_version += 1
         
         self.data    = ResultCache()
-        self.filter  = self.data.filter
+        self.data.refresh()
+        self.search  = self.data.search
         self.refresh = functools.partial(self.data.refresh, self)
+        self.sort    = functools.partial(self.data.refresh, self)
         self.index   = self.data.index
         self.refresh_ids = functools.partial(self.data.refresh_ids, self.conn)
         self.row     = self.data.row
@@ -423,6 +392,10 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.executescript(script%dict(ltable='tags', table='tags', ltable_col='tag'))
         self.conn.executescript(script%dict(ltable='series', table='series', ltable_col='series'))
     
+    def last_modified(self):
+        ''' Return last modified time as a UTC datetime object'''
+        return datetime.utcfromtimestamp(os.stat(self.dbpath).st_mtime)
+
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
         id = index if index_is_id else self.id(index)
@@ -993,12 +966,18 @@ class LibraryDatabase2(LibraryDatabase):
             
     
     def __iter__(self):
-        if len(self.data) == 0:
+        if len(self.data._data) == 0:
             self.refresh('timestamp', True)
-        for record in self.data:
+        for record in self.data._data:
             if record is not None:
                 yield record
-        
+    
+    def all_ids(self):
+        for i in iter(self):
+            yield i['id']
+            
+    def count(self):
+        return len(self.data._map)
     
     def get_data_as_dict(self, prefix=None, authors_as_string=False):
         '''
@@ -1012,7 +991,10 @@ class LibraryDatabase2(LibraryDatabase):
             prefix = self.library_path
         FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'isbn'])
         data = []
-        for record in iter(self):
+        if len(self.data) == 0:
+            self.refresh(None, True)
+        for record in self.data:
+            if record is None: continue
             x = {}
             for field in FIELDS:
                 x[field] = record[field]

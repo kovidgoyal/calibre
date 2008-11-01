@@ -175,8 +175,7 @@ class BooksModel(QAbstractTableModel):
             self.endInsertRows()
 
     def search(self, text, refinement, reset=True):
-        tokens, OR = self.search_tokens(text)
-        self.db.filter(tokens, refilter=refinement, OR=OR)
+        self.db.search(text)
         self.last_search = text
         if reset:
             self.clear_caches()

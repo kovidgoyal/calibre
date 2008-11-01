@@ -9,6 +9,7 @@ Command line interface to the calibre database.
 
 import sys, os, cStringIO
 from textwrap import TextWrapper
+from urllib import quote
 
 from calibre import terminal_controller, preferred_encoding
 from calibre.utils.config import OptionParser, prefs
@@ -18,7 +19,6 @@ except:
     send_message = None
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.library.database2 import LibraryDatabase2
-from calibre.library.database import text_to_tokens
 from calibre.ebooks.metadata.opf import OPFCreator, OPFReader
 from calibre.utils.genshi.template import MarkupTemplate
 
@@ -67,6 +67,8 @@ STANZA_TEMPLATE='''\
     <name>calibre</name>
     <uri>http://calibre.kovidgoyal.net</uri>
   </author>
+  <id>$id</id>
+  <updated>${updated.strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>
   <subtitle>
         ${subtitle}
   </subtitle>
@@ -75,11 +77,11 @@ STANZA_TEMPLATE='''\
       <title>${record['title']}</title>
       <id>urn:calibre:${record['id']}</id>
       <author><name>${record['authors']}</name></author>
-      <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%S+0000')}</updated>
-      <link type="application/epub+zip" href="${record['fmt_epub'].replace(sep, '/')}" />
-      <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${record['cover'].replace(sep, '/')}" />
-      <content py:if="record['comments']" type="xhtml">
-          <pre>${record['comments']}</pre>
+      <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>
+      <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/'))}" />
+      <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/'))}" />
+      <content type="xhtml">
+          <div xmlns="http://www.w3.org/1999/xhtml"><pre>${record['comments']}</pre></div>
       </content>
   </entry>
   </py:for>
@@ -97,15 +99,14 @@ def get_db(dbpath, options):
     if options.library_path is not None:
         dbpath = options.library_path
     dbpath = os.path.abspath(dbpath)
-    print _('Using library at'), dbpath
     return LibraryDatabase2(dbpath, row_factory=True)
 
 def do_list(db, fields, sort_by, ascending, search_text, line_width, separator, 
             prefix, output_format, subtitle='Books in the calibre database'):
-    db.refresh(sort_by, ascending)
+    if sort_by:
+        db.sort(sort_by, ascending)
     if search_text:
-        filters, OR = text_to_tokens(search_text)
-        db.filter(filters, False, OR)
+        db.search(search_text)
     authors_to_string = output_format in ['stanza', 'text']
     data = db.get_data_as_dict(prefix, authors_as_string=authors_to_string)
     fields = ['id'] + fields
@@ -159,7 +160,8 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
     elif output_format == 'stanza':
         data = [i for i in data if i.has_key('fmt_epub')]
         template = MarkupTemplate(STANZA_TEMPLATE)
-        return template.generate(data=data, subtitle=subtitle, sep=os.sep).render('xml')
+        return template.generate(id="urn:calibre:main", data=data, subtitle=subtitle, 
+                sep=os.sep, quote=quote, updated=db.last_modified()).render('xml')
             
 
 
@@ -173,7 +175,7 @@ List the books available in the calibre database.
                             ))
     parser.add_option('-f', '--fields', default='title,authors',
                       help=_('The fields to display when listing books in the database. Should be a comma separated list of fields.\nAvailable fields: %s\nDefault: %%default. The special field "all" can be used to select all fields. Only has effect in the text output format.')%','.join(FIELDS))
-    parser.add_option('--sort-by', default='timestamp',
+    parser.add_option('--sort-by', default=None,
                       help=_('The field by which to sort the results.\nAvailable fields: %s\nDefault: %%default')%','.join(FIELDS))
     parser.add_option('--ascending', default=False, action='store_true',
                       help=_('Sort results in ascending order'))
@@ -197,7 +199,7 @@ List the books available in the calibre database.
         return 1
 
     db = get_db(dbpath, opts)
-    if not opts.sort_by in FIELDS:
+    if not opts.sort_by in FIELDS and opts.sort_by is not None:
         parser.print_help()
         print
         print >>sys.stderr, _('Invalid sort field. Available fields:'), ','.join(FIELDS)
@@ -461,7 +463,7 @@ show_metadata command.
 
 def do_export(db, ids, dir, single_dir, by_author):
     if ids is None:
-        ids = db.all_ids()
+        ids = list(db.all_ids())
     db.export_to_dir(dir, ids, byauthor=by_author, single_dir=single_dir, index_is_id=True)
 
 def command_export(args, dbpath):
