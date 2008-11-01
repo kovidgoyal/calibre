@@ -589,13 +589,22 @@ class LibraryDatabase2(LibraryDatabase):
                 ans.append(format)
         return ','.join(ans)
                 
+    def has_format(self, index, format, index_is_id=False):
+        id = index if index_is_id else self.id(index)
+        name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
+        if name:
+            path = os.path.join(self.library_path, self.path(id, index_is_id=True))
+            format = ('.' + format.lower()) if format else ''
+            path = os.path.join(path, name+format)
+            return os.access(path, os.R_OK|os.W_OK)
+        return False
     
     def format_abspath(self, index, format, index_is_id=False):
         'Return absolute path to the ebook file of format `format`'
         id = index if index_is_id else self.id(index)
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
         if name:
+            path = os.path.join(self.library_path, self.path(id, index_is_id=True))
             format = ('.' + format.lower()) if format else ''
             path = os.path.join(path, name+format)
             if os.access(path, os.R_OK|os.W_OK):
@@ -612,7 +621,8 @@ class LibraryDatabase2(LibraryDatabase):
         if path is not None:
             f = open(path, mode)
             return f if as_file else f.read()
-        self.remove_format(id, format, index_is_id=True)
+        if self.has_format(index, format, index_is_id):
+            self.remove_format(id, format, index_is_id=True)
         
     def add_format(self, index, format, stream, index_is_id=False, path=None):
         id = index if index_is_id else self.id(index)
@@ -982,6 +992,14 @@ class LibraryDatabase2(LibraryDatabase):
             progress.hide()
             
     
+    def __iter__(self):
+        if len(self.data) == 0:
+            self.refresh('timestamp', True)
+        for record in self.data:
+            if record is not None:
+                yield record
+        
+    
     def get_data_as_dict(self, prefix=None, authors_as_string=False):
         '''
         Return all metadata stored in the database as a dict. Includes paths to
@@ -994,11 +1012,7 @@ class LibraryDatabase2(LibraryDatabase):
             prefix = self.library_path
         FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'isbn'])
         data = []
-        if len(self.data) == 0:
-            self.refresh('timestamp', True)
-        for record in self.data:
-            if record is None:
-                continue
+        for record in iter(self):
             x = {}
             for field in FIELDS:
                 x[field] = record[field]

@@ -2,7 +2,7 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
-import sys, os, re, logging, time, subprocess, atexit
+import sys, os, re, logging, time, subprocess, atexit, mimetypes
 from htmlentitydefs import name2codepoint
 from math import floor
 from logging import Formatter
@@ -15,6 +15,10 @@ from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               __appname__, __version__, __author__, \
                               win32event, win32api, winerror, fcntl
 import mechanize
+
+mimetypes.add_type('application/epub+zip', '.epub')
+mimetypes.add_type('text/x-sony-bbeb+xml', '.lrs')
+mimetypes.add_type('application/x-sony-bbeb', '.lrf')
 
 def unicode_path(path, abs=False):
     if not isinstance(path, unicode):
