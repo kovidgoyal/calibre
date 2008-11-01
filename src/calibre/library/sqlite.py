@@ -7,11 +7,12 @@ __docformat__ = 'restructuredtext en'
 Wrapper for multi-threaded access to a single sqlite database connection. Serializes
 all calls.
 '''
-import sqlite3 as sqlite, traceback, re, time
+import sqlite3 as sqlite, traceback, time
 from sqlite3 import IntegrityError
 from threading import Thread
 from Queue import Queue
 
+from calibre.library import title_sort
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -61,15 +62,6 @@ class DBThread(Thread):
                                    detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
         self.conn.row_factory = sqlite.Row if self.row_factory else  lambda cursor, row : list(row)
         self.conn.create_aggregate('concat', 1, Concatenate)
-        title_pat = re.compile('^(A|The|An)\s+', re.IGNORECASE)
-        
-        def title_sort(title):
-            match = title_pat.search(title)
-            if match:
-                prep = match.group(1)
-                title = title.replace(prep, '') + ', ' + prep
-            return title.strip()
-    
         self.conn.create_function('title_sort', 1, title_sort)
     
     def run(self):

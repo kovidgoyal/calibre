@@ -185,7 +185,7 @@ class BooksModel(QAbstractTableModel):
         if not self.db:
             return
         ascending = order == Qt.AscendingOrder
-        self.db.refresh(self.cols[col], ascending)
+        self.db.sort(self.cols[col], ascending)
         self.research()
         if reset:
             self.clear_caches()

@@ -654,10 +654,6 @@ class Main(MainWindow, Ui_MainWindow):
         for row in rows:
             d = MetadataSingleDialog(self, row.row(),
                                     self.library_view.model().db)
-            self.connect(d, SIGNAL('accepted()'), partial(self.metadata_edited, d.id), Qt.QueuedConnection)
-
-    def metadata_edited(self, id):
-        self.library_view.model().refresh_ids([id], self.library_view.currentIndex().row())
 
     def edit_bulk_metadata(self, checked):
         '''

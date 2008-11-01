@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 The database used to store ebook metadata
 '''
 import os, re, sys, shutil, cStringIO, glob, collections, textwrap, \
-       operator, itertools, functools, traceback
+       itertools, functools, traceback
 from itertools import repeat
 from datetime import datetime
 
@@ -15,6 +15,7 @@ from PyQt4.QtCore import QCoreApplication, QThread, QReadWriteLock
 from PyQt4.QtGui import QApplication, QPixmap, QImage
 __app = None
 
+from calibre.library import title_sort
 from calibre.library.database import LibraryDatabase
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser
@@ -218,8 +219,8 @@ class ResultCache(SearchQueryParser):
         if id in self._map_filtered:
             self._map_filtered.remove(id)
             
-    def set(self, row, col, val):
-        id = self._map_filtered[row]
+    def set(self, row, col, val, row_is_id=False):
+        id = row if row_is_id else self._map_filtered[row]  
         self._data[id][col] = val
         
     def index(self, id, cache=False):
@@ -242,6 +243,12 @@ class ResultCache(SearchQueryParser):
             self._data[id] = conn.get('SELECT * from meta WHERE id=?', (id,))[0]
         self._map[0:0] = ids
         self._map_filtered[0:0] = ids
+        
+    def books_deleted(self, ids):
+        for id in ids:
+            self._data[id] = None
+            if id in self._map: self._map.remove(id)
+            if id in self._map_filtered: self._map_filtered.remove(id)
     
     def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta')
@@ -254,19 +261,24 @@ class ResultCache(SearchQueryParser):
         self._map_filtered = list(self._map)
     
     def seriescmp(self, x, y):
-        ans = self.strcmp(self._data[x][9], self._data[y][9])
+        try:
+            ans = cmp(self._data[x][9].lower(), self._data[y][9].lower()) if str else\
+              cmp(self._data[x][9], self._data[y][9])
+        except AttributeError: # Some entries may be None
+            ans = cmp(self._data[x][9], self._data[y][9])
         if ans != 0: return ans
         return cmp(self._data[x][10], self._data[y][10])
     
     def cmp(self, loc, x, y, str=True):
-        ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if str else\
+        try:
+            ans = cmp(self._data[x][loc].lower(), self._data[y][loc].lower()) if str else\
               cmp(self._data[x][loc], self._data[y][loc])
+        except AttributeError: # Some entries may be None
+            ans = cmp(self._data[x][loc], self._data[y][loc])
         if ans != 0: return ans
         return cmp(self._data[x][11].lower(), self._data[y][11].lower())
     
     def sort(self, field, ascending):
-        import time
-        start = time.time()
         field = field.lower().strip()
         if field in ('author', 'tag', 'comment'):
             field += 's'
@@ -274,9 +286,10 @@ class ResultCache(SearchQueryParser):
         elif field == 'title': field = 'sort'
         elif field == 'author': field = 'author_sort'
         fcmp = self.seriescmp if field == 'series' else \
-            functools.partial(self.cmp, FIELD_MAP[field], field not in ('size', 'rating', 'timestamp'))
+            functools.partial(self.cmp, FIELD_MAP[field], 
+                              str=field not in ('size', 'rating', 'timestamp'))
         self._map.sort(cmp=fcmp, reverse=not ascending)
-        print time.time() - start
+        
                 
     def search(self, query):
         if not query or not query.strip():
@@ -348,13 +361,22 @@ class LibraryDatabase2(LibraryDatabase):
                 self.user_version += 1
         
         self.data    = ResultCache()
-        self.data.refresh()
         self.search  = self.data.search
         self.refresh = functools.partial(self.data.refresh, self)
         self.sort    = functools.partial(self.data.refresh, self)
         self.index   = self.data.index
         self.refresh_ids = functools.partial(self.data.refresh_ids, self.conn)
         self.row     = self.data.row
+        
+        self.refresh()
+        
+        def get_property(idx, index_is_id=False, loc=-1):
+            row = self.data._data[idx] if index_is_id else self.data[idx]
+            return row[loc]
+        
+        for prop in ('author_sort', 'authors', 'comment', 'comments', 'isbn', 
+                     'publisher', 'rating', 'series', 'series_index', 'tags', 'title'):
+            setattr(self, prop, functools.partial(get_property, loc=FIELD_MAP['comments' if prop == 'comment' else prop]))
         
     def initialize_database(self):
         from calibre.resources import metadata_sqlite
@@ -395,7 +417,7 @@ class LibraryDatabase2(LibraryDatabase):
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
         return datetime.utcfromtimestamp(os.stat(self.dbpath).st_mtime)
-
+    
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
         id = index if index_is_id else self.id(index)
@@ -617,6 +639,11 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
         self.conn.commit()
+        try:
+            fmts = [f.strip().upper() for f in self.data[self.data.row(id)][FIELD_MAP['formats']].split(',')]
+        except AttributeError:
+            fmts = []
+        self.data.set(id, FIELD_MAP['formats'], ','.join(fmts+[format.upper()]), row_is_id=True)
         self.notify('metadata', [id])
         
     def delete_book(self, id):
@@ -633,6 +660,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute('DELETE FROM books WHERE id=?', (id,))
         self.conn.commit()
         self.clean()
+        self.data.books_deleted([id])
         self.notify('delete', [id])
     
     def remove_format(self, index, format, index_is_id=False):
@@ -649,6 +677,9 @@ class LibraryDatabase2(LibraryDatabase):
                 pass
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             self.conn.commit()
+            fmts = [f.strip().upper() for f in self.data[self.data.row(id)][FIELD_MAP['formats']].split(',')]
+            fmts.remove(format.upper())
+            self.data.set(id, FIELD_MAP['formats'], ','.join(fmts), row_is_id=True)
             self.notify('metadata', [id])
     
     def clean(self):
@@ -706,7 +737,7 @@ class LibraryDatabase2(LibraryDatabase):
         elif column == 'publisher':
             self.set_publisher(id, val, notify=False)
         elif column == 'rating':
-            self.set_rating(id, val)
+            self.set_rating(id, val, notify=False)
         elif column == 'tags':
             self.set_tags(id, val.split(','), append=False, notify=False)
         self.data.refresh_ids(self.conn, [id])
@@ -726,11 +757,11 @@ class LibraryDatabase2(LibraryDatabase):
             authors += a.split('&')
         self.set_authors(id, authors, notify=False)
         if mi.author_sort:
-            self.set_author_sort(id, mi.author_sort)
+            self.set_author_sort(id, mi.author_sort, notify=False)
         if mi.publisher:
             self.set_publisher(id, mi.publisher, notify=False)
         if mi.rating:
-            self.set_rating(id, mi.rating)
+            self.set_rating(id, mi.rating, notify=False)
         if mi.series:
             self.set_series(id, mi.series, notify=False)
         if mi.cover_data[1] is not None:
@@ -738,9 +769,11 @@ class LibraryDatabase2(LibraryDatabase):
         if mi.tags:
             self.set_tags(id, mi.tags, notify=False)
         if mi.comments:
-            self.set_comment(id, mi.comments)
+            self.set_comment(id, mi.comments, notify=False)
         if mi.isbn and mi.isbn.strip():
-            self.set_isbn(id, mi.isbn)
+            self.set_isbn(id, mi.isbn, notify=False)
+        if mi.series_index and mi.series_index > 0:
+            self.set_series_index(id, mi.series_index, notify=False)
         self.set_path(id, True)
         self.notify('metadata', [id])
         
@@ -748,6 +781,8 @@ class LibraryDatabase2(LibraryDatabase):
         '''
         `authors`: A list of authors.
         '''
+        if not authors:
+            authors = [_('Unknown')]
         self.conn.execute('DELETE FROM books_authors_link WHERE book=?',(id,))
         self.conn.execute('DELETE FROM authors WHERE (SELECT COUNT(id) FROM books_authors_link WHERE author=authors.id) < 1')
         for a in authors:
@@ -767,8 +802,12 @@ class LibraryDatabase2(LibraryDatabase):
                 self.conn.execute('INSERT INTO books_authors_link(book, author) VALUES (?,?)', (id, aid))
             except IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
+        self.conn.commit()
         self.set_path(id, True)
-        self.notify('metadata', [id])
+        self.data.set(id, FIELD_MAP['authors'], ','.join([a.replace(',', '|') for a in authors]), row_is_id=True)
+        self.data.set(id, FIELD_MAP['author_sort'], self.data[self.data.row(id)][FIELD_MAP['authors']], row_is_id=True) 
+        if notify:
+            self.notify('metadata', [id])
         
     def set_title(self, id, title, notify=True):
         if not title:
@@ -777,7 +816,11 @@ class LibraryDatabase2(LibraryDatabase):
             title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
         self.set_path(id, True)
-        self.notify('metadata', [id])
+        self.data.set(id, FIELD_MAP['title'], title, row_is_id=True)
+        self.data.set(id, FIELD_MAP['sort'],  title_sort(title), row_is_id=True)
+        self.conn.commit()
+        if notify:
+            self.notify('metadata', [id])
     
     def set_publisher(self, id, publisher, notify=True):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
@@ -791,8 +834,10 @@ class LibraryDatabase2(LibraryDatabase):
             else:
                 aid = self.conn.execute('INSERT INTO publishers(name) VALUES (?)', (publisher,)).lastrowid
             self.conn.execute('INSERT INTO books_publishers_link(book, publisher) VALUES (?,?)', (id, aid))
-        self.conn.commit()
-        self.notify('metadata', [id])
+            self.conn.commit()
+            self.data.set(id, FIELD_MAP['publisher'], publisher, row_is_id=True)
+            if notify:
+                self.notify('metadata', [id])
     
     def set_tags(self, id, tags, append=False, notify=True):
         '''
@@ -819,7 +864,16 @@ class LibraryDatabase2(LibraryDatabase):
                 self.conn.execute('INSERT INTO books_tags_link(book, tag) VALUES (?,?)',
                               (id, tid))
         self.conn.commit()
-        self.notify('metadata', [id])
+        try:
+            otags = [t.strip() for t in self.data[self.data.row(id)][FIELD_MAP['tags']].split(',')]
+        except AttributeError:
+            otags = []
+        if not append:
+            otags = []
+        tags = ','.join(otags+tags)
+        self.data.set(id, FIELD_MAP['tags'], tags, row_is_id=True)
+        if notify:
+            self.notify('metadata', [id])
 
     
     def set_series(self, id, series, notify=True):
@@ -841,7 +895,9 @@ class LibraryDatabase2(LibraryDatabase):
                 self.data.set(row, 9, series)
         except ValueError:
             pass
-        self.notify('metadata', [id])
+        self.data.set(id, FIELD_MAP['series'], series, row_is_id=True)
+        if notify:
+            self.notify('metadata', [id])
             
     def set_series_index(self, id, idx, notify=True):
         if idx is None:
@@ -855,7 +911,42 @@ class LibraryDatabase2(LibraryDatabase):
                 self.data.set(row, 10, idx)
         except ValueError:
             pass
-        self.notify('metadata', [id])
+        self.data.set(id, FIELD_MAP['series_index'], int(idx), row_is_id=True)
+        if notify:
+            self.notify('metadata', [id])
+            
+    def set_rating(self, id, rating, notify=True):
+        rating = int(rating)
+        self.conn.execute('DELETE FROM books_ratings_link WHERE book=?',(id,))
+        rat = self.conn.get('SELECT id FROM ratings WHERE rating=?', (rating,), all=False)
+        rat = rat if rat else self.conn.execute('INSERT INTO ratings(rating) VALUES (?)', (rating,)).lastrowid
+        self.conn.execute('INSERT INTO books_ratings_link(book, rating) VALUES (?,?)', (id, rat))
+        self.conn.commit()
+        self.data.set(id, FIELD_MAP['rating'], rating, row_is_id=True)
+        if notify:
+            self.notify('metadata', [id])
+            
+    def set_comment(self, id, text, notify=True):
+        self.conn.execute('DELETE FROM comments WHERE book=?', (id,))
+        self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
+        self.conn.commit()
+        self.data.set(id, FIELD_MAP['comments'], text, row_is_id=True)
+        if notify:
+            self.notify('metadata', [id])
+            
+    def set_author_sort(self, id, sort, notify=True):
+        self.conn.execute('UPDATE books SET author_sort=? WHERE id=?', (sort, id))
+        self.conn.commit()
+        self.data.set(id, FIELD_MAP['author_sort'], sort, row_is_id=True)
+        if notify:
+            self.notify('metadata', [id])
+            
+    def set_isbn(self, id, isbn, notify=True):
+        self.conn.execute('UPDATE books SET isbn=? WHERE id=?', (isbn, id))
+        self.conn.commit()
+        self.data.set(id, FIELD_MAP['isbn'], isbn, row_is_id=True)
+        if notify:
+            self.notify('metadata', [id])
         
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
@@ -880,6 +971,7 @@ class LibraryDatabase2(LibraryDatabase):
             obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
                               (mi.title, uri, series_index, aus))
             id = obj.lastrowid
+            self.data.books_added([id], self.conn)
             ids.append(id)
             self.set_path(id, True)
             self.conn.commit()
@@ -891,8 +983,6 @@ class LibraryDatabase2(LibraryDatabase):
             if not hasattr(path, 'read'):
                 stream.close()
         self.conn.commit()
-        if ids:
-            self.data.books_added(ids, self.conn)
         if duplicates:
             paths    = tuple(duplicate[0] for duplicate in duplicates)
             formats  = tuple(duplicate[1] for duplicate in duplicates)
@@ -909,6 +999,7 @@ class LibraryDatabase2(LibraryDatabase):
         obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
                           (mi.title, None, series_index, aus))
         id = obj.lastrowid
+        self.data.books_added([id], self.conn)
         self.set_path(id, True)
         self.set_metadata(id, mi)
         for path in formats:
@@ -916,7 +1007,6 @@ class LibraryDatabase2(LibraryDatabase):
             stream = open(path, 'rb')
             self.add_format(id, ext, stream, index_is_id=True)
         self.conn.commit()
-        self.data.books_added([id], self.conn)
         self.notify('add', [id])
         
     def move_library_to(self, newloc, progress=None):
@@ -966,8 +1056,6 @@ class LibraryDatabase2(LibraryDatabase):
             
     
     def __iter__(self):
-        if len(self.data._data) == 0:
-            self.refresh('timestamp', True)
         for record in self.data._data:
             if record is not None:
                 yield record
@@ -991,8 +1079,6 @@ class LibraryDatabase2(LibraryDatabase):
             prefix = self.library_path
         FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'isbn'])
         data = []
-        if len(self.data) == 0:
-            self.refresh(None, True)
         for record in self.data:
             if record is None: continue
             x = {}
