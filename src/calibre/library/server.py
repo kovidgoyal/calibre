@@ -153,12 +153,13 @@ class LibraryServer(object):
         cherrypy.response.headers['Content-Type'] = 'text/xml'
         books = []
         for record in iter(self.db):
-            authors = ' & '.join([i.replace('|', ',') for i in record[2].split(',')])
-            books.append(self.STANZA_ENTRY.generate(authors=authors, 
-                                                    record=record,
-                                                    port=self.opts.port, 
-                                                    server=self.opts.hostname,
-                                                    ).render('xml').decode('utf8'))
+            if 'EPUB' in record['formats'].upper():
+                authors = ' & '.join([i.replace('|', ',') for i in record[2].split(',')])
+                books.append(self.STANZA_ENTRY.generate(authors=authors, 
+                                                        record=record,
+                                                        port=self.opts.port, 
+                                                        server=self.opts.hostname,
+                                                        ).render('xml').decode('utf8'))
         return self.STANZA.generate(subtitle='', data=books).render('xml')
     
     @expose
