@@ -96,9 +96,8 @@ class TagsModel(QAbstractItemModel):
         for key in self.row_map.values():
             for tag in self._data[key]:
                 if tag.state > 0:
-                    if tag.state == 2:
-                        tag = '!'+tag
-                    ans.append((key, tag))
+                    prefix = ' not ' if tag.state == 2 else ''
+                    ans.append('%s%s:"%s"'%(prefix, key, tag))
         return ans
     
     def index(self, row, col, parent=QModelIndex()):

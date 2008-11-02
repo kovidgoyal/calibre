@@ -5,107 +5,113 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>578</width>
-    <height>474</height>
+    <width>667</width>
+    <height>391</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Advanced Search</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/search.svg</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/search.svg</normaloff>:/images/search.svg</iconset>
   </property>
-  <layout class="QGridLayout" >
-   <item row="0" column="0" >
-    <layout class="QVBoxLayout" >
-     <item>
-      <layout class="QVBoxLayout" >
-       <item>
-        <widget class="QRadioButton" name="match_all" >
-         <property name="text" >
-          <string>Match a&amp;ll of the following criteria</string>
-         </property>
-         <property name="checked" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="match_any" >
-         <property name="text" >
-          <string>Match a&amp;ny of the following criteria</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox" >
-       <property name="title" >
-        <string>Search criteria</string>
-       </property>
-       <layout class="QVBoxLayout" >
+  <layout class="QVBoxLayout" name="verticalLayout_3" >
+   <item>
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>Find entries that have...</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout" >
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout" >
         <item>
-         <widget class="QFrame" name="search_items_frame" >
-          <property name="frameShape" >
-           <enum>QFrame::StyledPanel</enum>
+         <widget class="QLabel" name="label" >
+          <property name="text" >
+           <string>&amp;All these words:</string>
           </property>
-          <property name="frameShadow" >
-           <enum>QFrame::Raised</enum>
+          <property name="buddy" >
+           <cstring>all</cstring>
           </property>
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" >
-          <item>
-           <widget class="QPushButton" name="more_button" >
-            <property name="text" >
-             <string>More</string>
-            </property>
-            <property name="icon" >
-             <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="fewer_button" >
-            <property name="text" >
-             <string>Fewer</string>
-            </property>
-            <property name="icon" >
-             <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+         <widget class="QLineEdit" name="all" />
         </item>
        </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox" >
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="standardButtons" >
-        <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" >
+        <item>
+         <widget class="QLabel" name="label_2" >
+          <property name="text" >
+           <string>This exact &amp;phrase:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>all</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="phrase" />
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3" >
+        <item>
+         <widget class="QLabel" name="label_3" >
+          <property name="text" >
+           <string>&amp;One or more of these words:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>all</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="any" />
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2" >
+     <property name="title" >
+      <string>But dont show entries that have...</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2" >
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_4" >
+        <item>
+         <widget class="QLabel" name="label_4" >
+          <property name="text" >
+           <string>Any of these &amp;unwanted words:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>all</cstring>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="none" />
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

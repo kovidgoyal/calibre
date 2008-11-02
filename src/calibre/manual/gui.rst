@@ -188,7 +188,15 @@ You can search all the metadata by entering search terms in the search bar. Sear
     
     Asimov Foundation format:lrf
 
-This will match all books in your library that have ``Asimov`` and ``Foundation`` in their metadata and are available in the LRF format. You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by clicking the button |sbi|.
+This will match all books in your library that have ``Asimov`` and ``Foundation`` in their metadata and 
+are available in the LRF format. Some more examples::
+
+    author:Asimov and not series:Foundation
+    title:"The Ring" or "This book is about a ring"
+    format:epub publisher:feedbooks.com
+
+You can build advanced search queries easily using the :guilabel:`Advanced Search Dialog`, accessed by 
+clicking the button |sbi|.
 
 .. |sbi| image:: images/search_button.png
     :align: middle
@@ -197,7 +205,6 @@ This will match all books in your library that have ``Asimov`` and ``Foundation`
     
     :guilabel:`Advanced Search Dialog`
 
-    You can search on individual fields as shown. The "Negate" checkbox implies that only results that do not match the search expression will be returned. You can require all the search criteria to match or any of them.
 
 .. _configuration:
 

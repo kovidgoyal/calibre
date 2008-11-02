@@ -50,7 +50,7 @@ class LibraryServer(object):
     
     LIBRARY = MarkupTemplate(textwrap.dedent('''\
     <?xml version="1.0" encoding="utf-8"?>
-    <library xmlns:py="http://genshi.edgewall.org/" start="$start" num="${len(books)}" total="$total" updated="${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}>
+    <library xmlns:py="http://genshi.edgewall.org/" start="$start" num="${len(books)}" total="$total" updated="${updated.strftime('%Y-%m-%dT%H:%M:%S+00:00')}">
     <py:for each="book in books">
         ${Markup(book)}
     </py:for>

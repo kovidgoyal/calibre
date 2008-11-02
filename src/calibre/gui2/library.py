@@ -886,6 +886,9 @@ class SearchBox(QLineEdit):
             ans = '[' + ans + ']'
         self.set_search_string(ans)
         
+    def search_from_tags(self, tags, all):
+        joiner = ' and ' if all else ' or '
+        self.set_search_string(joiner.join(tags))
     
     def set_search_string(self, txt):
         self.normalize_state()

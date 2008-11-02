@@ -253,7 +253,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.popularity.setVisible(False)
         self.tags_view.set_database(db, self.match_all, self.popularity)
         self.connect(self.tags_view, SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'),
-                     self.search.search_from_tokens)
+                     self.search.search_from_tags)
         self.connect(self.status_bar.tag_view_button, SIGNAL('toggled(bool)'), self.toggle_tags_view)
         self.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
                      self.tags_view.model().reinit)
