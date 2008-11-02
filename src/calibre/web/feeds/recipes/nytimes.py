@@ -5,9 +5,10 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 nytimes.com
 '''
-import string
+import string, re
 from calibre import strftime
 from calibre.web.feeds.recipes import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class NYTimes(BasicNewsRecipe):
     
@@ -57,7 +58,8 @@ class NYTimes(BasicNewsRecipe):
                 a = div.find('a', href=True)
                 if not a:
                     continue
-                url = self.print_version(a['href'])
+                url = re.sub(r'\?.*', '', a['href'])
+                url += '?pagewanted=print'
                 title = self.tag_to_string(a, use_alt=True).strip()
                 description = ''
                 pubdate = strftime('%a, %d %b')
@@ -77,7 +79,10 @@ class NYTimes(BasicNewsRecipe):
         ans = [(key, articles[key]) for key in ans if articles.has_key(key)]
         return ans
     
-    def print_version(self, url):
-        if url.endswith('?&pagewanted=print'):
-            return url
-        return url + '?&pagewanted=print'
+    def preprocess_html(self, soup):
+        refresh = soup.find('meta', {'http-equiv':'refresh'})
+        if refresh is None:
+            return soup
+        content = refresh.get('content').partition('=')[2]
+        raw = self.browser.open('http://www.nytimes.com'+content).read()
+        return BeautifulSoup(raw.decode('cp1252', 'replace'))

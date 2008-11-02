@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Unit tests for database layer.
 '''
 
-import sys, unittest, os
+import sys, unittest, os, cStringIO
 from itertools import repeat
 
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -60,6 +60,11 @@ class DBTest(unittest.TestCase):
             self.assertEqual(ga(self.m2, p), ga(m2, p))
         
         self.assertEqual(self.db.format(1, 'txt', index_is_id=True), 'test')
+        self.assertEqual(self.db.formats(1, index_is_id=True), 'TXT')
+        self.db.add_format(1, 'html', cStringIO.StringIO('<html/>'), index_is_id=True)
+        self.assertEqual(self.db.formats(1, index_is_id=True), 'HTML,TXT')
+        self.db.remove_format(1, 'html', index_is_id=True)
+        self.assertEqual(self.db.formats(1, index_is_id=True), 'TXT')
         self.assertNotEqual(self.db.cover(1, index_is_id=True), None)
         self.assertEqual(self.db.cover(2, index_is_id=True), None)
         
@@ -75,6 +80,12 @@ class DBTest(unittest.TestCase):
         self.db.refresh_ids([3])
         self.assertEqual('new auth', self.db.authors(2))
         self.assertEqual(self.db.format(3, 'txt', index_is_id=True), 'test')
+        
+    def testSorting(self):
+        self.db.sort('authors', True)
+        self.assertEqual(self.db.authors(0), 'Test Author 1')
+        self.db.sort('rating', False)
+        self.assertEqual(self.db.rating(0), 3)
         
     
 def suite():
