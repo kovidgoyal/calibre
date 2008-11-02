@@ -201,7 +201,7 @@ def sanitize_file_name(name):
     Also remove path separators. All illegal characters are replaced by
     underscores.
     '''
-    return re.sub(r'\s', ' ', re.sub(r'["\'\|\~\:\?\\\/]|^-', '_', name.strip()))
+    return re.sub(r'\s', ' ', re.sub(r'[\xae"\'\|\~\:\?\\\/]|^-', '_', name.strip()))
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""

@@ -35,7 +35,7 @@ def normpath(x):
         x = x.lower()
     return x
 
-_filename_sanitize = re.compile(r'[\0\\|\?\*<":>\+\[\]/]')
+_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+\[\]/]')
 def sanitize_file_name(name, substitute='_'):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.

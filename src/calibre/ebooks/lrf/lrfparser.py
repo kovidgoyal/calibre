@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import sys, array, os, re, codecs, logging
 
-from calibre import setup_cli_handlers
+from calibre import setup_cli_handlers, sanitize_file_name
 from calibre.utils.config import OptionParser 
 from calibre.ebooks.lrf.meta import LRFMetaFile
 from calibre.ebooks.lrf.objects import get_object, PageTree, StyleObject, \
@@ -89,8 +89,9 @@ class LRFDocument(LRFMetaFile):
         bookinfo += u'<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
         th = self.doc_info.thumbnail
         if th:
-            bookinfo += u'<CThumbnail file="%s" />\n'%(self.metadata.title+'_thumbnail.'+self.doc_info.thumbnail_extension,)
-            open(self.metadata.title+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)
+            prefix = sanitize_file_name(self.metadata.title)
+            bookinfo += u'<CThumbnail file="%s" />\n'%(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension,)
+            open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)
         bookinfo += u'<Language reading="">%s</Language>\n'%(self.doc_info.language,)
         bookinfo += u'<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
         bookinfo += u'<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)
