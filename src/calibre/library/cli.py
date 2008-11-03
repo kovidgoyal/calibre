@@ -111,6 +111,8 @@ def do_list(db, fields, sort_by, ascending, search_text, line_width, separator,
     data = db.get_data_as_dict(prefix, authors_as_string=authors_to_string)
     fields = ['id'] + fields
     if output_format == 'text':
+        for f in data:
+            f['formats'] = u'[%s]'%u','.join(f['formats'])
         widths = list(map(lambda x : 0, fields))
         for record in data:
             for f in record.keys():
