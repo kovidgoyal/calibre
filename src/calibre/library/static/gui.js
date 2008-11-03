@@ -57,7 +57,7 @@ function render_book(book) {
             title += '<a title="Download in '+formats[i]+' format" class="format" href="'+format_url(formats[i], id, book.attr("title"))+'">'+formats[i]+'</a>, ';
         }
         title = title.slice(0, title.length-2);
-        title += '&nbsp;({0} MB)&nbsp;'.format(size);
+        title += '&nbsp;({0}&nbsp;MB)&nbsp;'.format(size);
     }
     if (tags) title += '[{0}]'.format(tags);
     title += '<img style="display:none" alt="" src="/get/cover/{0}" /></span>'.format(id);
@@ -145,23 +145,28 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
               display += row+'\n\n';
           });
           $("#book_list tbody").html(display);
-          $("#book_list tbody tr").mouseover(function() {
+          $("#book_list tbody tr").bind('mouseenter', function() {
               var row = $(this);
-              var cover = row.find('img').attr('src');
               row.css('background-color', "#fff2a8");
-              row.find('.comments').css('display', 'inherit');
-              $('#cover_pane img').attr('src', cover);
-              $('#cover_pane').css('visibility', 'visible');
-              row.bind('mouseout', function(){
+              row.bind('mouseleave', function(){
                   row.css('background-color', "white");
-                  row.find('.comments').css('display', 'none');
                   $('#book_list tbody tr:even()').css('background-color', '#eeeeee');
-                  row.unbind('mouseout');
+                  row.unbind('mouseleave');
               });
           });
-          $('#book_list').mouseout(function(){
-              $('#cover_pane').css('visibility', 'hidden')
+          $("#book_list tbody tr").click(function(){
+              var row = $(this);
+              var cover = row.find('img').attr('src');
+              var collapsed = row.find('.comments').css('display') == 'none';
+              $("#book_list tbody tr * .comments").css('display', 'none');
+              $('#cover_pane').css('visibility', 'hidden');
+              if (collapsed) {
+                  row.find('.comments').css('display', 'inherit');
+                  $('#cover_pane img').attr('src', cover);
+                  $('#cover_pane').css('visibility', 'visible');
+              }
           });
+          
           
           layout();
           $('#book_list tbody tr:even()').css('background-color', '#eeeeee');
@@ -274,7 +279,7 @@ function layout() {
     var cover = $('#cover_pane');
     cover.css('width', (main.width()/2.0)+'px')
     cover.css('height', main.height()+'px')
-    cover.css('left', (main.offset().left + main.width()/2.0)+'px');
+    cover.css('left', (main.offset().left -25 + main.width()/2.0)+'px');
     cover.css('top', main.offset().top+'px');
 }
 
