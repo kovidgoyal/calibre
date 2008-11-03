@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, cStringIO, mimetypes, operator, os
+import sys, textwrap, cStringIO, mimetypes, operator, os, re
 from datetime import datetime
 import cherrypy
 from PIL import Image
@@ -16,6 +16,11 @@ from calibre.constants import __version__, __appname__
 from calibre.utils.config import StringConfig, Config
 from calibre.utils.genshi.template import MarkupTemplate
 from calibre import fit_image
+from calibre.resources import jquery, server_resources, build_time
+from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
+
+build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
+server_resources['jquery.js'] = jquery
 
 def expose(func):
     
@@ -37,7 +42,7 @@ class LibraryServer(object):
             author_sort="${r[12]}"
             authors="${authors}" 
             rating="${r[4]}"
-            timestamp="${r[5].ctime()}" 
+            timestamp="${r[5].strftime('%Y/%m/%d %H:%M:%S')}" 
             size="${r[6]}" 
             isbn="${r[14] if r[14] else ''}"
             formats="${r[13] if r[13] else ''}"
@@ -100,6 +105,7 @@ class LibraryServer(object):
         self.opts = opts
         
         cherrypy.config.update({
+                                'server.socket_host': '0.0.0.0',
                                 'server.socket_port': opts.port,
                                 'server.socket_timeout': opts.timeout, #seconds
                                 'server.thread_pool': opts.thread_pool, # number of threads
@@ -108,7 +114,7 @@ class LibraryServer(object):
         [global]
         engine.autoreload_on = %(autoreload)s
         tools.gzip.on = True
-        tools.gzip.mime_types = ['text/html', 'text/plain', 'text/xml']
+        tools.gzip.mime_types = ['text/html', 'text/plain', 'text/xml', 'text/javascript', 'text/css']
         ''')%dict(autoreload=opts.develop)
         
     def start(self):
@@ -121,7 +127,7 @@ class LibraryServer(object):
         cherrypy.response.headers['Content-Type'] = 'image/jpeg'
         path = getattr(cover, 'name', None)
         if path and os.path.exists(path):
-            updated = datetime.fromutctimestamp(os.stat(path).st_mtime)
+            updated = datetime.utcfromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         if not thumbnail:
             return cover.read()
@@ -149,25 +155,28 @@ class LibraryServer(object):
         cherrypy.response.headers['Content-Type'] = mt
         path = getattr(fmt, 'name', None)
         if path and os.path.exists(path):
-            updated = datetime.fromutctimestamp(os.stat(path).st_mtime)
+            updated = datetime.utcfromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         return fmt.read()
     
-    def sort(self, items, field):
+    def sort(self, items, field, order):
         field = field.lower().strip()
         if field == 'author':
             field = 'authors'
-        if field not in ('title', 'authors', 'rating'):
+        if field == 'date':
+            field = 'timestamp'
+        if field not in ('title', 'authors', 'rating', 'timestamp', 'tags', 'size', 'series'):
             raise cherrypy.HTTPError(400, '%s is not a valid sort field'%field)
-        cmpf = cmp if field == 'rating' else lambda x, y: cmp(x.lower(), y.lower())
-        field = {'title':11, 'authors':12, 'rating':4}[field]
+        cmpf = cmp if field in ('rating', 'size', 'timestamp') else \
+                lambda x, y: cmp(x.lower() if x else '', y.lower() if y else '')
+        field = FIELD_MAP[field]
         getter = operator.itemgetter(field)
-        items.sort(cmp=lambda x, y: cmpf(getter(x), getter(y)))
+        items.sort(cmp=lambda x, y: cmpf(getter(x), getter(y)), reverse=not order)
     
     def last_modified(self, updated):
         lm = updated.strftime('day, %d month %Y %H:%M:%S GMT')
         day ={0:'Sun', 1:'Mon', 2:'Tue', 3:'Wed', 4:'Thu', 5:'Fri', 6:'Sat'}
-        lm = lm.replace('day', day[int(lm.strftime('%w'))])
+        lm = lm.replace('day', day[int(updated.strftime('%w'))])
         month = {1:'Jan', 2:'Feb', 3:'Mar', 4:'Apr', 5:'May', 6:'Jun', 7:'Jul',
                  8:'Aug', 9:'Sep', 10:'Oct', 11:'Nov', 12:'Dec'}
         return lm.replace('month', month[updated.month])
@@ -175,6 +184,7 @@ class LibraryServer(object):
         
     @expose
     def stanza(self):
+        ' Feeds to read calibre books on a ipod with stanza.'
         books = []
         for record in iter(self.db):
             if 'EPUB' in record['formats'].upper():
@@ -193,11 +203,14 @@ class LibraryServer(object):
                     updated=updated, id='urn:calibre:main').render('xml')
     
     @expose
-    def library(self, start='0', num='50', sort=None, search=None):
+    def library(self, start='0', num='50', sort=None, search=None, _=None, order='ascending'):
         '''
+        Serves metadata from the calibre database as XML.
+        
         :param sort: Sort results by ``sort``. Can be one of `title,author,rating`.
         :param search: Filter results by ``search`` query. See :class:`SearchQueryParser` for query syntax
-        :param start,num: Return the slice `[start:start+num]` of the sorted and filtered results 
+        :param start,num: Return the slice `[start:start+num]` of the sorted and filtered results
+        :param _: Firefox seems to sometimes send this when using XMLHttpRequest with no caching 
         '''
         try:
             start = int(start)
@@ -207,33 +220,40 @@ class LibraryServer(object):
             num = int(num)
         except ValueError:
             raise cherrypy.HTTPError(400, 'num: %s is not an integer'%num)
-        ids = self.db.data.parse(search) if search else self.db.data.universal_set()
+        order = order.lower().strip() == 'ascending'
+        ids = self.db.data.parse(search) if search and search.strip() else self.db.data.universal_set()
         ids = sorted(ids)
         items = [r for r in iter(self.db) if r[0] in ids]
         if sort is not None:
-            self.sort(items, sort)
+            self.sort(items, sort, order)
         
         book, books = MarkupTemplate(self.BOOK), []
         for record in items[start:start+num]:
-            authors = ' & '.join([i.replace('|', ',') for i in record[2].split(',')])
+            authors = '|'.join([i.replace('|', ',') for i in record[2].split(',')])
             books.append(book.generate(r=record, authors=authors).render('xml').decode('utf-8'))
         updated = self.db.last_modified()
         
         cherrypy.response.headers['Content-Type'] = 'text/xml'
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         return self.LIBRARY.generate(books=books, start=start, updated=updated, 
-                                     total=self.db.count()).render('xml')
+                                     total=len(ids)).render('xml')
     
     @expose
     def index(self):
-        return 'Hello, World!'
+        'The / URL'
+        return self.static('index.html')
     
     @expose
     def get(self, what, id):
+        'Serves files, covers, thumbnails from the calibre database'
         try:
             id = int(id)
         except ValueError:
-            raise cherrypy.HTTPError(400, 'id:%s not an integer'%id)
+            id = id.rpartition('_')[-1].partition('.')[0]
+            match = re.search(r'\d+', id)
+            if not match:
+                raise cherrypy.HTTPError(400, 'id:%s not an integer'%id)
+            id = int(match.group())
         if not self.db.has_id(id):
             raise cherrypy.HTTPError(400, 'id:%d does not exist in database'%id)
         if what == 'thumb':
@@ -241,6 +261,31 @@ class LibraryServer(object):
         if what == 'cover':
             return self.get_cover(id)
         return self.get_format(id, what)
+    
+    @expose
+    def static(self, name):
+        'Serves static content'
+        name = name.lower()
+        cherrypy.response.headers['Content-Type'] = {
+                     'js'   : 'text/javascript',
+                     'css'  : 'text/css',
+                     'png'  : 'image/png',
+                     'gif'  : 'image/gif',
+                     'html' : 'text/html',
+                     ''      : 'application/octet-stream',
+                     }[name.rpartition('.')[-1].lower()]
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(build_time)
+        if self.opts.develop and name in ('gui.js', 'gui.css', 'index.html'):
+            path = os.path.join(os.path.dirname(__file__), 'static', name)
+            lm = datetime.fromtimestamp(os.stat(path).st_mtime)
+            cherrypy.response.headers['Last-Modified'] = self.last_modified(lm)
+            return open(path, 'rb').read()
+        else:
+            if server_resources.has_key(name):
+                return server_resources[name]
+            raise cherrypy.HTTPError(404, '%s not found'%name)
+                
+    
     
 def config(defaults=None):
     desc=_('Settings to control the calibre content server')
@@ -256,7 +301,7 @@ def config(defaults=None):
               help=_('The hostname of the machine the server is running on. Used when generating the stanza feeds. Default is %default'))
     
     c.add_opt('develop', ['--develop'], default=False,
-              help='Development mode. Server automatically restarts on file changes.')
+              help='Development mode. Server automatically restarts on file changes and serves code files (html, css, js) from the file system instead of calibre\'s resource system.')
     return c
 
 def option_parser():
@@ -267,7 +312,6 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     cherrypy.log.screen = True
     from calibre.utils.config import prefs
-    from calibre.library.database2 import LibraryDatabase2
     db = LibraryDatabase2(prefs['library_path'], row_factory=True)
     server = LibraryServer(db, opts)
     server.start()

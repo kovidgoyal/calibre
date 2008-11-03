@@ -2,7 +2,7 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
-import sys, re, os, shutil, cStringIO, tempfile, subprocess
+import sys, re, os, shutil, cStringIO, tempfile, subprocess, time
 sys.path.append('src')
 iswindows = re.search('win(32|64)', sys.platform)
 isosx = 'darwin' in sys.platform
@@ -146,7 +146,7 @@ if __name__ == '__main__':
             metadata_sqlite = 'library/metadata_sqlite.sql',
             jquery          = 'gui2/viewer/jquery.js',
             jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',
-         )
+        )
         
         DEST = os.path.join('src', APPNAME, 'resources.py')
         
@@ -165,6 +165,15 @@ if __name__ == '__main__':
                 print 'WARNING: Could not find Qt transations'
             return data
         
+        def get_static_resources(self):
+            sdir = os.path.join('src', 'calibre', 'library', 'static')
+            resources, max = {}, 0
+            for f in os.listdir(sdir):
+                resources[f] = open(os.path.join(sdir, f), 'rb').read()
+                mtime = os.stat(os.path.join(sdir, f)).st_mtime
+                max = mtime if mtime > max else max
+            return resources, max
+        
         def run(self):
             data, dest, RESOURCES = {}, self.DEST, self.RESOURCES
             for key in RESOURCES:
@@ -173,12 +182,15 @@ if __name__ == '__main__':
                     RESOURCES[key] = os.path.join('src', APPNAME, path)
             translations = self.get_qt_translations()
             RESOURCES.update(translations)
-            if newer([dest], RESOURCES.values()):
+            static, smax = self.get_static_resources()
+            if newer([dest], RESOURCES.values()) or os.stat(dest).st_mtime < smax:
                 print 'Compiling resources...'
                 with open(dest, 'wb') as f:
                     for key in RESOURCES:
                         data = open(RESOURCES[key], 'rb').read()
                         f.write(key + ' = ' + repr(data)+'\n\n')
+                    f.write('server_resources = %s\n\n'%repr(static))
+                    f.write('build_time = "%s"\n\n'%time.strftime('%d %m %Y %H%M%S'))
             else:
                 print 'Resources are up to date'
         
