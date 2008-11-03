@@ -17,12 +17,11 @@ class NYTimes(BasicNewsRecipe):
     description = 'Daily news from the New York Times'
     timefmt = ' [%a, %d %b, %Y]'
     needs_subscription = True
-    
-    remove_tags_before = dict(name='h1')
-    remove_tags_after  = dict(id='footer')
-    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool']}), 
-                   dict(id=['footer', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']), 
-                   dict(name=['script', 'noscript'])]
+    remove_tags_before = dict(id='article')
+    remove_tags_after  = dict(id='article')
+    remove_tags = [dict(attrs={'class':['articleTools', 'post-tools', 'side_tool', 'nextArticleLink clearfix']}), 
+                   dict(id=['footer', 'toolsRight', 'articleInline', 'navigation', 'archive', 'side_search', 'blog_sidebar', 'side_tool', 'side_index']), 
+                   dict(name=['script', 'noscript', 'style'])]
     encoding = 'cp1252'
     no_stylesheets = True
     extra_css = 'h1 {font: sans-serif large;}\n.byline {font:monospace;}'
@@ -59,7 +58,7 @@ class NYTimes(BasicNewsRecipe):
                 if not a:
                     continue
                 url = re.sub(r'\?.*', '', a['href'])
-                url += '?pagewanted=print'
+                url += '?pagewanted=all'
                 title = self.tag_to_string(a, use_alt=True).strip()
                 description = ''
                 pubdate = strftime('%a, %d %b')

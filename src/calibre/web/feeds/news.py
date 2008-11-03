@@ -497,6 +497,10 @@ class BasicNewsRecipe(object, LoggingInterface):
                 
             
     def _postprocess_html(self, soup, first_fetch, job_info):
+        if self.no_stylesheets:
+            for link in list(soup.findAll('link', type=re.compile('css')))+list(soup.findAll('style')):
+                link.extract()
+        
         head = soup.find('head')
         if not head:
             head = soup.find('body')
@@ -513,9 +517,6 @@ class BasicNewsRecipe(object, LoggingInterface):
                                              url, __appname__, center=self.center_navbar)
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
-        if self.no_stylesheets:
-            for link in list(soup.findAll('link', type=re.compile('css'))):
-                link.extract()
         if self.remove_javascript:
             for script in list(soup.findAll('script')):
                 script.extract()
