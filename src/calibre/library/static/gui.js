@@ -278,9 +278,10 @@ function layout() {
     $('#loading').css('height', ($(window).height()-20)+'px');
     $('#loading').css('width', ($(window).width()-20)+'px');
     var cover = $('#cover_pane');
-    cover.css('width', (main.width()/2.0)+'px')
+    var title = $('#book_list thead tr td')
+    cover.css('width', (main.width()-title.offset().left - title.width()-15)+'px')
     cover.css('height', main.height()+'px')
-    cover.css('left', (main.offset().left -25 + main.width()/2.0)+'px');
+    cover.css('left', (title.offset().left+title.width())+'px');
     cover.css('top', main.offset().top+'px');
 }
 
