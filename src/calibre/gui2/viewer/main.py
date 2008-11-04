@@ -140,13 +140,7 @@ class Metadata(QLabel):
         
     def show_opf(self, opf):
         mi = MetaInformation(opf)
-        raw = unicode(mi)
-        ans = []
-        for line in raw.splitlines():
-            i = line.find(':')
-            key, val = line[:i].strip(), line[i+1:].strip()
-            ans.append(u'<tr><td><b>%s</b></td><td style="padding-left:2em"><b>%s</b></td></tr>'%(key, val))
-        html = '<h2 align="center">%s</h2><table>%s</table>'%(_('Metadata'), u''.join(ans))
+        html = '<h2 align="center">%s</h2>%s'%(_('Metadata'), u''.join(mi.to_html()))
         self.setText(html)
         
     def setVisible(self, x):

@@ -269,6 +269,23 @@ class MetaInformation(object):
             ans += u'Language : '     + unicode(self.language) + u'\n'
         return ans.strip()
     
+    def to_html(self):
+        ans = [(_('Title'), unicode(self.title))]
+        ans += [(_('Author(s)'), (authors_to_string(self.authors) if self.authors else _('Unknown')))]
+        ans += [(_('Publisher'), unicode(self.publisher))]
+        ans += [(_('Producer'), unicode(self.book_producer))]
+        ans += [(_('Category'), unicode(self.category))]
+        ans += [(_('Comments'), unicode(self.comments))]
+        ans += [('ISBN', unicode(self.isbn))]
+        ans += [(_('Tags'), u', '.join([unicode(t) for t in self.tags]))]
+        ans += [(_('Series'), unicode(self.series))]
+        ans += [(_('Language'), unicode(self.language))]
+        for i, x in enumerate(ans):
+            ans[i] = u'<tr><td><b>%s</b></td><td>%s</td></tr>'%x
+        return u'<table>%s</table>'%u'\n'.join(ans)
+        
+        
+    
     def __str__(self):
         return self.__unicode__().encode('utf-8')
     

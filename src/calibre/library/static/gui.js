@@ -148,6 +148,9 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
           $("#book_list tbody").html(display);
           $("#book_list tbody tr").bind('mouseenter', function() {
               var row = $(this);
+              $('#book_list tbody tr:even()').css('background-color', '#eeeeee');
+              $('#book_list tbody tr:odd()').css('background-color', 'white');
+
               row.css('background-color', "#fff2a8");
               row.bind('mouseleave', function(){
                   row.css('background-color', "white");
