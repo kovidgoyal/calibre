@@ -11,8 +11,11 @@ import sqlite3 as sqlite, traceback, time
 from sqlite3 import IntegrityError
 from threading import Thread
 from Queue import Queue
+from threading import RLock
 
 from calibre.library import title_sort
+
+global_lock = RLock()
 
 class Concatenate(object):
     '''String concatenation aggregator for sqlite'''
@@ -93,15 +96,16 @@ class DatabaseException(Exception):
 def proxy(fn):
     ''' Decorator to call methods on the database connection in the proxy thread '''
     def run(self, *args, **kwargs):
-        if self.proxy.unhandled_error[0] is not None:
-            raise DatabaseException(*self.proxy.unhandled_error)
-        self.proxy.requests.put((fn.__name__, args, kwargs))
-        ok, res = self.proxy.results.get()
-        if not ok:
-            if isinstance(res[0], IntegrityError):
-                raise IntegrityError(unicode(res[0]))
-            raise DatabaseException(*res)
-        return res
+        with global_lock:
+            if self.proxy.unhandled_error[0] is not None:
+                raise DatabaseException(*self.proxy.unhandled_error)
+            self.proxy.requests.put((fn.__name__, args, kwargs))
+            ok, res = self.proxy.results.get()
+            if not ok:
+                if isinstance(res[0], IntegrityError):
+                    raise IntegrityError(unicode(res[0]))
+                raise DatabaseException(*res)
+            return res
     return run
             
 

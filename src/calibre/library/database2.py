@@ -53,7 +53,7 @@ def sanitize_file_name(name, substitute='_'):
 
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5, 
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
-             'sort':11, 'author_sort':12, 'formats':13, 'isbn':14}
+             'sort':11, 'author_sort':12, 'formats':13, 'isbn':14, 'path':15}
 INDEX_MAP = dict(zip(FIELD_MAP.values(), FIELD_MAP.keys()))
 
 
@@ -414,15 +414,39 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.executescript(script%dict(ltable='tags', table='tags', ltable_col='tag'))
         self.conn.executescript(script%dict(ltable='series', table='series', ltable_col='series'))
     
+    def upgrade_version_3(self):
+        ' Add path to result cache '
+        self.conn.executescript('''
+        DROP VIEW meta;
+        CREATE VIEW meta AS
+        SELECT id, title,
+               (SELECT concat(name) FROM authors WHERE authors.id IN (SELECT author from books_authors_link WHERE book=books.id)) authors,
+               (SELECT name FROM publishers WHERE publishers.id IN (SELECT publisher from books_publishers_link WHERE book=books.id)) publisher,
+               (SELECT rating FROM ratings WHERE ratings.id IN (SELECT rating from books_ratings_link WHERE book=books.id)) rating,
+               timestamp,
+               (SELECT MAX(uncompressed_size) FROM data WHERE book=books.id) size,
+               (SELECT concat(name) FROM tags WHERE tags.id IN (SELECT tag from books_tags_link WHERE book=books.id)) tags,
+               (SELECT text FROM comments WHERE book=books.id) comments,
+               (SELECT name FROM series WHERE series.id IN (SELECT series FROM books_series_link WHERE book=books.id)) series,
+               series_index,
+               sort,
+               author_sort,
+               (SELECT concat(format) FROM data WHERE data.book=books.id) formats,
+               isbn,
+               path
+        FROM books;
+        ''')
+
+    
     def last_modified(self):
         ''' Return last modified time as a UTC datetime object'''
         return datetime.utcfromtimestamp(os.stat(self.dbpath).st_mtime)
     
     def path(self, index, index_is_id=False):
         'Return the relative path to the directory containing this books files as a unicode string.'
-        id = index if index_is_id else self.id(index)
-        path = self.conn.get('SELECT path FROM books WHERE id=?', (id,), all=False).replace('/', os.sep)
-        return path
+        row = self.data._data[index] if index_is_id else self.data[index]
+        return row[FIELD_MAP['path']].replace('/', os.sep)
+        
     
     def abspath(self, index, index_is_id=False):
         'Return the absolute path to the directory containing this books files as a unicode string.'
@@ -496,6 +520,7 @@ class LibraryDatabase2(LibraryDatabase):
                 self.add_format(id, format, stream, index_is_id=True, path=tpath)
         self.conn.execute('UPDATE books SET path=? WHERE id=?', (path, id))
         self.conn.commit()
+        self.data.set(id, FIELD_MAP['path'], path, row_is_id=True)
         # Delete not needed directories
         if current_path and os.path.exists(spath):
             if normpath(spath) != normpath(tpath):
@@ -650,8 +675,8 @@ class LibraryDatabase2(LibraryDatabase):
         '''
         Removes book from the result cache and the underlying database.
         '''
+        path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         self.data.remove(id)
-        path = os.path.join(self.library_path, self.path(id, True))
         if os.path.exists(path):
             shutil.rmtree(path)
             parent = os.path.dirname(path)

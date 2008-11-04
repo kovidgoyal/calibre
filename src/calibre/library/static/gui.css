@@ -140,8 +140,3 @@ Loading message
     z-index: 2;
     margin: 0pt; padding: 0pt; border-width: 0pt;
 }
-
-#cover_pane img {
-    border: solid thin black;
-    z-index: 10;
-}

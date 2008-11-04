@@ -123,12 +123,11 @@ class LibraryServer(object):
     def get_cover(self, id, thumbnail=False):
         cover = self.db.cover(id, index_is_id=True, as_file=True)
         if cover is None:
-            raise cherrypy.HTTPError(404, 'no cover available for id: %d'%id)
+            cover = cStringIO.StringIO(server_resources['default_cover.jpg'])
         cherrypy.response.headers['Content-Type'] = 'image/jpeg'
-        path = getattr(cover, 'name', None)
-        if path and os.path.exists(path):
-            updated = datetime.utcfromtimestamp(os.stat(path).st_mtime)
-            cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
+        path = getattr(cover, 'name', False)
+        updated = datetime.utcfromtimestamp(os.stat(path).st_mtime) if path and os.access(path, os.R_OK) else build_time
+        cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         if not thumbnail:
             return cover.read()
         try:

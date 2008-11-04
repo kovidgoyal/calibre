@@ -118,6 +118,7 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
         current_library_request = null;
     }
     
+    $('#cover_pane').css('visibility', 'hidden');
     $('#loading').css('visibility', 'visible');
     
     current_library_request = $.ajax({
