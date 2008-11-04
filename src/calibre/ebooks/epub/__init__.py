@@ -20,7 +20,7 @@ class DefaultProfile(object):
 class PRS505(DefaultProfile):
     
     flow_size   = 270000
-    screen_size = (590, 770)
+    screen_size = (590, 765)
     remove_special_chars = re.compile(u'[\u200b\u00ad]')
         
 
