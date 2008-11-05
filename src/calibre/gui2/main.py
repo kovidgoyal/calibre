@@ -87,7 +87,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.tb_wrapper = textwrap.TextWrapper(width=40)
         self.device_connected = False
         self.viewers = collections.deque()
-
+        self.content_server = None
+        
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -239,7 +240,7 @@ class Main(MainWindow, Ui_MainWindow):
                 os.remove(self.olddb.dbpath)
             self.olddb = None
             prefs['library_path'] = self.library_path
-        self.library_view.sortByColumn(*dynamic.get('sort_column', (3, Qt.DescendingOrder)))
+        self.library_view.sortByColumn(*dynamic.get('sort_column', ('timestamp', Qt.DescendingOrder)))
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
         self.library_view.resizeRowsToContents()
@@ -282,6 +283,12 @@ class Main(MainWindow, Ui_MainWindow):
         self.device_manager.start()
         
         self.news_menu.set_custom_feeds(self.library_view.model().db.get_feeds())
+        
+        if config['autolaunch_server']:
+            from calibre.library.server import start_threaded_server
+            from calibre.library import server_config
+            self.server = start_threaded_server(db, server_config().parse())
+
 
     def toggle_cover_flow(self, show):
         if show:
@@ -1004,13 +1011,10 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec_()
             return
-        columns = [(self.library_view.isColumnHidden(i), \
-                    self.library_view.model().headerData(i, Qt.Horizontal, Qt.DisplayRole).toString())\
-                    for i in range(self.library_view.model().columnCount(None))]
-        d = ConfigDialog(self, self.library_view.model().db, columns)
+        d = ConfigDialog(self, self.library_view.model().db, self.content_server)
         d.exec_()
+        self.content_server = d.server
         if d.result() == d.Accepted:
-            self.library_view.set_visible_columns(d.final_columns)
             self.tool_bar.setIconSize(config['toolbar_icon_size'])
             self.tool_bar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon if config['show_text_in_toolbar'] else Qt.ToolButtonIconOnly)
             self.save_menu.actions()[2].setText(_('Save only %s format to disk')%config.get('save_to_disk_single_format').upper())
@@ -1055,6 +1059,7 @@ class Main(MainWindow, Ui_MainWindow):
             if hasattr(d, 'directories'):
                 set_sidebar_directories(d.directories)
             self.library_view.model().read_config()
+            self.library_view.columns_sorted()
 
     ############################################################################
 
@@ -1215,8 +1220,13 @@ in which you want to store your books files. Any existing books will be automati
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()
-        time.sleep(2)
         self.cover_cache.terminate()
+        try:
+            if self.server is not None:
+                self.server.exit()
+        except:
+            pass
+        time.sleep(2)
         e.accept()
 
     def update_found(self, version):

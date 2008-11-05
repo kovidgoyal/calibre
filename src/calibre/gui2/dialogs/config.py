@@ -2,21 +2,24 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re
 
-from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon
-from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant
+from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon, \
+                        QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit
+from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant, QUrl
 
 from calibre import islinux
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, warning_dialog
+from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
+                         warning_dialog, ALL_COLUMNS
 from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
+from calibre.gui2.library import BooksModel
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.epub.iterator import is_supported
-
+from calibre.library import server_config
 
 class ConfigDialog(QDialog, Ui_Dialog):
 
-    def __init__(self, window, db, columns):
+    def __init__(self, window, db, server=None):
         QDialog.__init__(self, window)
         Ui_Dialog.__init__(self)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
@@ -24,8 +27,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.item1 = QListWidgetItem(QIcon(':/images/metadata.svg'), _('General'), self.category_list)
         self.item2 = QListWidgetItem(QIcon(':/images/lookfeel.svg'), _('Interface'), self.category_list)
         self.item3 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
+        self.item4 = QListWidgetItem(QIcon(':/images/network-server.svg'), _('Content\nServer'), self.category_list)
         self.db = db
-        self.current_cols = columns
+        self.server = None
         path = prefs['library_path']
         self.location.setText(path if path else '')
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
@@ -45,14 +49,18 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.priority.addItem('Idle')
         if not islinux:
             self.dirs_box.setVisible(False)
-
-        for hidden, hdr in self.current_cols:
-            item = QListWidgetItem(hdr, self.columns)
-            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable)
-            if hidden:
-                item.setCheckState(Qt.Unchecked)
-            else:
+        
+        column_map = config['column_map']
+        for col in column_map + [i for i in ALL_COLUMNS if i not in column_map]:
+            item = QListWidgetItem(BooksModel.headers[col], self.columns)
+            item.setData(Qt.UserRole, QVariant(col))
+            item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
+            if col in column_map:
                 item.setCheckState(Qt.Checked)
+            else:
+                item.setCheckState(Qt.Unchecked)
+        self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
+        self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
 
         self.filename_pattern = FilenamePattern(self)
         self.metadata_box.layout().insertWidget(0, self.filename_pattern)
@@ -96,8 +104,75 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 self.viewer.item(self.viewer.count()-1).setCheckState(Qt.Checked if ext.upper() in config['internally_viewed_formats'] else Qt.Unchecked)
                 added_html = ext == 'html'
         self.viewer.sortItems()
-            
         
+        self.start.setEnabled(not getattr(self.server, 'is_running', False))
+        self.test.setEnabled(not self.start.isEnabled())
+        self.stop.setDisabled(self.start.isEnabled())
+        self.connect(self.start, SIGNAL('clicked()'), self.start_server)
+        self.connect(self.view_logs, SIGNAL('clicked()'), self.view_server_logs)
+        self.connect(self.stop, SIGNAL('clicked()'), self.stop_server)
+        self.connect(self.test, SIGNAL('clicked()'), self.test_server)
+        opts = server_config().parse()
+        self.port.setValue(opts.port)
+        self.username.setText(opts.username)
+        self.password.setText(opts.password if opts.password else '')
+        self.auto_launch.setChecked(config['autolaunch_server'])
+    
+    def up_column(self):
+        idx = self.columns.currentRow()
+        if idx > 0:
+            self.columns.insertItem(idx-1, self.columns.takeItem(idx))
+            self.columns.setCurrentRow(idx-1)
+            
+    def down_column(self):
+        idx = self.columns.currentRow()
+        if idx < self.columns.count()-1:
+            self.columns.insertItem(idx+1, self.columns.takeItem(idx))
+            self.columns.setCurrentRow(idx+1)
+    
+    def view_server_logs(self):
+        from calibre.library.server import log_access_file, log_error_file
+        d = QDialog(self)
+        d.resize(QSize(800, 600))
+        layout = QVBoxLayout()
+        d.setLayout(layout)
+        layout.addWidget(QLabel(_('Error log:')))
+        el = QPlainTextEdit(d)
+        layout.addWidget(el)
+        el.setPlainText(open(log_error_file, 'rb').read().decode('utf8', 'replace'))
+        layout.addWidget(QLabel(_('Access log:')))
+        al = QPlainTextEdit(d)
+        layout.addWidget(al)
+        al.setPlainText(open(log_access_file, 'rb').read().decode('utf8', 'replace'))
+        d.show()
+    
+    def set_server_options(self):
+        c = server_config()
+        c.set('port', self.port.value())
+        c.set('username', unicode(self.username.text()).strip())
+        p = unicode(self.password.text()).strip()
+        if not p:
+            p = None
+        c.set('password', p)
+            
+    def start_server(self):
+        self.set_server_options()
+        from calibre.library.server import start_threaded_server
+        self.server = start_threaded_server(self.db, server_config().parse())
+        self.start.setEnabled(False)
+        self.test.setEnabled(True)
+        self.stop.setEnabled(True)
+        
+    def stop_server(self):
+        from calibre.library.server import stop_threaded_server
+        stop_threaded_server(self.server)
+        self.server = None
+        self.start.setEnabled(True)
+        self.test.setEnabled(False)
+        self.stop.setEnabled(False)
+        
+    def test_server(self):
+        QDesktopServices.openUrl(QUrl('http://127.0.0.1:'+str(self.port.value())))
         
     def compact(self, toggled):
         d = Vacuum(self, self.db)
@@ -123,7 +198,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
         path = qstring_to_unicode(self.location.text())
-        self.final_columns = [self.columns.item(i).checkState() == Qt.Checked for i in range(self.columns.count())]
+        cols = []
+        for i in range(self.columns.count()):
+            cols.append(unicode(self.columns.item(i).data(Qt.UserRole).toString()))
+        config['column_map'] = cols
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
         config['confirm_delete'] =  bool(self.confirm_delete.isChecked())
@@ -133,6 +211,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['save_to_disk_single_format'] = BOOK_EXTENSIONS[self.single_format.currentIndex()]
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
+        config['autolaunch_server'] = self.auto_launch.isChecked()
+        sc = server_config()
+        sc.set('username', unicode(self.username.text()).strip())
+        sc.set('password', unicode(self.password.text()).strip())
+        sc.set('port', self.port.value())
         of = str(self.output_format.currentText())
         fmts = []
         for i in range(self.viewer.count()):

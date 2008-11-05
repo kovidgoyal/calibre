@@ -17,6 +17,8 @@ import calibre.resources as resources
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
+ALL_COLUMNS = ['title', 'authors', 'size', 'timestamp', 'rating', 'publisher', 'tags', 'series']
+
 def _config():
     c = Config('gui', 'preferences for the calibre GUI')
     c.add_opt('frequently_used_directories', default=[],
@@ -47,6 +49,10 @@ def _config():
               help=_('Options for the LRF ebook viewer'))
     c.add_opt('internally_viewed_formats', default=['LRF', 'EPUB', 'LIT', 'MOBI', 'PRC', 'HTML', 'FB2'],
               help=_('Formats that are viewed using the internal viewer'))
+    c.add_opt('column_map', default=ALL_COLUMNS,
+              help=_('Columns to be displayed in the book list'))
+    c.add_opt('autolaunch_server', default=False, help=_('Automatically launch content server on application startup'))
+
     return ConfigProxy(c)
     
 config = _config()
