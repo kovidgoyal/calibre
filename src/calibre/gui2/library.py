@@ -58,6 +58,7 @@ class LibraryDelegate(QItemDelegate):
             QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
         elif option.state & QStyle.State_Selected:
             painter.fillRect(option.rect, option.palette.highlight())
+        self.drawFocus(painter, option, option.rect)
         try:
             painter.setRenderHint(QPainter.Antialiasing)
             y = option.rect.center().y()-self.SIZE/2.
