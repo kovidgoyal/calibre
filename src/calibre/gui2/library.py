@@ -529,7 +529,7 @@ class BooksView(TableView):
         #QObject.connect(self.model(), SIGNAL('rowsRemoved(QModelIndex, int, int)'), self.resizeRowsToContents)
         #QObject.connect(self.model(), SIGNAL('rowsInserted(QModelIndex, int, int)'), self.resizeRowsToContents)
         self.set_visible_columns()
-    
+        
     def columns_sorted(self):
         if self.__class__.__name__ == 'BooksView':
             try:

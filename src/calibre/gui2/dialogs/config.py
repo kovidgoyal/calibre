@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re
+import os, re, time
 
 from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit
@@ -29,7 +29,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.item3 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
         self.item4 = QListWidgetItem(QIcon(':/images/network-server.svg'), _('Content\nServer'), self.category_list)
         self.db = db
-        self.server = None
+        self.server = server
         path = prefs['library_path']
         self.location.setText(path if path else '')
         self.connect(self.browse_button, SIGNAL('clicked(bool)'), self.browse)
@@ -104,7 +104,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 self.viewer.item(self.viewer.count()-1).setCheckState(Qt.Checked if ext.upper() in config['internally_viewed_formats'] else Qt.Unchecked)
                 added_html = ext == 'html'
         self.viewer.sortItems()
-        
         self.start.setEnabled(not getattr(self.server, 'is_running', False))
         self.test.setEnabled(not self.start.isEnabled())
         self.stop.setDisabled(self.start.isEnabled())
@@ -159,6 +158,12 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.set_server_options()
         from calibre.library.server import start_threaded_server
         self.server = start_threaded_server(self.db, server_config().parse())
+        while not self.server.is_running and self.server.exception is None:
+            time.sleep(1)
+        if self.server.exception is not None:
+            error_dialog(self, _('Failed to start content server'), 
+                         unicode(self.server.exception)).exec_()
+            return
         self.start.setEnabled(False)
         self.test.setEnabled(True)
         self.stop.setEnabled(True)

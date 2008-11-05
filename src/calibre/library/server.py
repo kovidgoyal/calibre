@@ -7,17 +7,21 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, cStringIO, mimetypes, operator, os, re
+import sys, textwrap, cStringIO, mimetypes, operator, os, re, logging
+from logging.handlers import RotatingFileHandler
 from datetime import datetime
+from threading import Thread
+
 import cherrypy
 from PIL import Image
 
 from calibre.constants import __version__, __appname__
-from calibre.utils.config import StringConfig, Config
 from calibre.utils.genshi.template import MarkupTemplate
 from calibre import fit_image
 from calibre.resources import jquery, server_resources, build_time
+from calibre.library import server_config as config
 from calibre.library.database2 import LibraryDatabase2, FIELD_MAP
+from calibre.utils.config import config_dir
 
 build_time = datetime.strptime(build_time, '%d %m %Y %H%M%S')
 server_resources['jquery.js'] = jquery
@@ -29,6 +33,10 @@ def expose(func):
         return func(self, *args, **kwargs)
     
     return cherrypy.expose(do)
+
+log_access_file = os.path.join(config_dir, 'server_access_log.txt')
+log_error_file = os.path.join(config_dir, 'server_error_log.txt')
+    
 
 class LibraryServer(object):
     
@@ -97,7 +105,7 @@ class LibraryServer(object):
     '''))
 
     
-    def __init__(self, db, opts):
+    def __init__(self, db, opts, embedded=False, show_tracebacks=True):
         self.db = db
         for item in self.db:
             item
@@ -105,20 +113,68 @@ class LibraryServer(object):
         self.opts = opts
         
         cherrypy.config.update({
-                                'server.socket_host': '0.0.0.0',
-                                'server.socket_port': opts.port,
-                                'server.socket_timeout': opts.timeout, #seconds
-                                'server.thread_pool': opts.thread_pool, # number of threads
+                                'log.screen'             : opts.develop,
+                                'engine.autoreload_on'   : opts.develop,
+                                'tools.log_headers.on'   : opts.develop,
+                                'checker.on'             : opts.develop,
+                                'request.show_tracebacks': show_tracebacks,
+                                'server.socket_host'     : '0.0.0.0',
+                                'server.socket_port'     : opts.port,
+                                'server.socket_timeout'  : opts.timeout, #seconds
+                                'server.thread_pool'     : opts.thread_pool, # number of threads
                                })
-        self.config = textwrap.dedent('''\
-        [global]
-        engine.autoreload_on = %(autoreload)s
-        tools.gzip.on = True
-        tools.gzip.mime_types = ['text/html', 'text/plain', 'text/xml', 'text/javascript', 'text/css']
-        ''')%dict(autoreload=opts.develop)
+        if embedded:
+            cherrypy.config.update({'engine.SIGHUP'          : None,
+                                    'engine.SIGTERM'         : None,})
+        self.config = {'global': {
+            'tools.gzip.on'        : True,
+            'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/xml', 'text/javascript', 'text/css'],
+        }}
+        if opts.password:
+            g = self.config['global']
+            g['tools.digest_auth.on']    = True
+            g['tools.digest_auth.realm'] = _('Password to access your calibre library. Username is ') + opts.username.strip()
+            g['tools.digest_auth.users'] = {opts.username.strip():opts.password.strip()} 
+            
+        self.is_running = False
+        self.exception = None
         
+    def setup_loggers(self):
+        access_file = log_access_file
+        error_file  = log_error_file
+        log = cherrypy.log
+
+        maxBytes = getattr(log, "rot_maxBytes", 10000000)
+        backupCount = getattr(log, "rot_backupCount", 1000)
+        
+        # Make a new RotatingFileHandler for the error log.
+        h = RotatingFileHandler(error_file, 'a', maxBytes, backupCount)
+        h.setLevel(logging.DEBUG)
+        h.setFormatter(cherrypy._cplogging.logfmt)
+        log.error_log.addHandler(h)
+        
+        # Make a new RotatingFileHandler for the access log.
+        h = RotatingFileHandler(access_file, 'a', maxBytes, backupCount)
+        h.setLevel(logging.DEBUG)
+        h.setFormatter(cherrypy._cplogging.logfmt)
+        log.access_log.addHandler(h)
+
+    
     def start(self):
-        cherrypy.quickstart(self, config=cStringIO.StringIO(self.config))
+        self.is_running = False
+        self.setup_loggers()
+        cherrypy.tree.mount(self, '', config=self.config)
+        try:
+            cherrypy.engine.start()
+            self.is_running = True
+            cherrypy.engine.block()
+        except Exception, e:
+            self.exception = e
+        finally:
+            self.is_running = False
+        
+    def exit(self):
+        cherrypy.engine.exit()
     
     def get_cover(self, id, thumbnail=False):
         cover = self.db.cover(id, index_is_id=True, as_file=True)
@@ -283,26 +339,18 @@ class LibraryServer(object):
             if server_resources.has_key(name):
                 return server_resources[name]
             raise cherrypy.HTTPError(404, '%s not found'%name)
-                
-    
-    
-def config(defaults=None):
-    desc=_('Settings to control the calibre content server')
-    c = Config('server', desc) if defaults is None else StringConfig(defaults, desc)
-    
-    c.add_opt('port', ['-p', '--port'], default=8080, 
-              help=_('The port on which to listen. Default is %default'))
-    c.add_opt('timeout', ['-t', '--timeout'], default=120, 
-              help=_('The server timeout in seconds. Default is %default'))
-    c.add_opt('thread_pool', ['--thread-pool'], default=30, 
-              help=_('The max number of worker threads to use. Default is %default'))
-    c.add_opt('hostname', ['--hostname'], default='localhost', 
-              help=_('The hostname of the machine the server is running on. Used when generating the stanza feeds. Default is %default'))
-    
-    c.add_opt('develop', ['--develop'], default=False,
-              help='Development mode. Server automatically restarts on file changes and serves code files (html, css, js) from the file system instead of calibre\'s resource system.')
-    return c
 
+def start_threaded_server(db, opts):
+    server = LibraryServer(db, opts, embedded=True)
+    server.thread = Thread(target=server.start)
+    server.thread.setDaemon(True)
+    server.thread.start()
+    return server
+    
+def stop_threaded_server(server):
+    server.exit()
+    server.thread = None
+    
 def option_parser():
     return config().option_parser('%prog '+ _('[options]\n\nStart the calibre content server.'))
 

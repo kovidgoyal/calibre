@@ -3,7 +3,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, time, re
 from xml.parsers.expat import ExpatError
 from functools import partial
-from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl
+from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog, QDesktopServices, QFileDialog
 from PyQt4.QtSvg import QSvgRenderer
@@ -287,8 +287,13 @@ class Main(MainWindow, Ui_MainWindow):
         if config['autolaunch_server']:
             from calibre.library.server import start_threaded_server
             from calibre.library import server_config
-            self.server = start_threaded_server(db, server_config().parse())
+            self.content_server = start_threaded_server(db, server_config().parse())
+            self.test_server_timer = QTimer.singleShot(10000, self.test_server)
 
+    def test_server(self, *args):
+        if self.content_server.exception is not None:
+            error_dialog(self, _('Failed to start content server'), 
+                         unicode(self.content_server.exception)).exec_()
 
     def toggle_cover_flow(self, show):
         if show:
@@ -1011,7 +1016,7 @@ class Main(MainWindow, Ui_MainWindow):
             d = error_dialog(self, _('Cannot configure'), _('Cannot configure while there are running jobs.'))
             d.exec_()
             return
-        d = ConfigDialog(self, self.library_view.model().db, self.content_server)
+        d = ConfigDialog(self, self.library_view.model().db, server=self.content_server)
         d.exec_()
         self.content_server = d.server
         if d.result() == d.Accepted:
@@ -1222,11 +1227,14 @@ in which you want to store your books files. Any existing books will be automati
         self.hide()
         self.cover_cache.terminate()
         try:
-            if self.server is not None:
-                self.server.exit()
-        except:
+            try:
+                if self.content_server is not None:
+                    self.content_server.exit()
+            except:
+                pass
+            time.sleep(2)
+        except KeyboardInterrupt:
             pass
-        time.sleep(2)
         e.accept()
 
     def update_found(self, version):
