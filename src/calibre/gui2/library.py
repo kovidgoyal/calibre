@@ -198,11 +198,11 @@ class BooksModel(QAbstractTableModel):
             return
         ascending = order == Qt.AscendingOrder
         self.db.sort(self.column_map[col], ascending)
-        self.research(reset=False)
         if reset:
             self.clear_caches()
             self.reset()
         self.sorted_on = (self.column_map[col], order)
+        
 
     def resort(self, reset=True):
         try:
@@ -222,7 +222,7 @@ class BooksModel(QAbstractTableModel):
     def rowCount(self, parent):
         if parent and parent.isValid():
             return 0
-        return self.db.rows() if self.db else 0
+        return len(self.db.data) if self.db else 0
 
     def count(self):
         return self.rowCount(None)
@@ -400,7 +400,7 @@ class BooksModel(QAbstractTableModel):
             au = self.db.data[r][aidx]
             if au:
                 au = [a.strip().replace('|', ',') for a in au.split(',')]
-                return '\n'.join(au)
+                return ' & '.join(au)
             
         def timestamp(r):
             dt = self.db.data[r][tmdx]
@@ -427,11 +427,16 @@ class BooksModel(QAbstractTableModel):
             series = self.db.data[r][srdx]
             if series:
                 return series  + ' [%d]'%self.db.data[r][siix]
+            
+        def size(r):
+            size = self.db.data[r][sidx]
+            if size:
+                return '%.1f'%(float(size)/(1024*1024))
         
         self.dc = {
                    'title'    : lambda r : self.db.data[r][tidx],
                    'authors'  : authors,
-                   'size'     : lambda r : '%.1f'%(float(self.db.data[r][sidx])/(1024*1024)),
+                   'size'     : size,
                    'timestamp': timestamp,
                    'rating'   : rating,
                    'publisher': publisher,
@@ -521,10 +526,8 @@ class BooksView(TableView):
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
         # Adding and removing rows should resize rows to contents
-        QObject.connect(self.model(), SIGNAL('rowsRemoved(QModelIndex, int, int)'), self.resizeRowsToContents)
-        QObject.connect(self.model(), SIGNAL('rowsInserted(QModelIndex, int, int)'), self.resizeRowsToContents)
-        # Resetting the model should resize rows (model is reset after search and sort operations)
-        QObject.connect(self.model(), SIGNAL('modelReset()'), self.resizeRowsToContents)
+        #QObject.connect(self.model(), SIGNAL('rowsRemoved(QModelIndex, int, int)'), self.resizeRowsToContents)
+        #QObject.connect(self.model(), SIGNAL('rowsInserted(QModelIndex, int, int)'), self.resizeRowsToContents)
         self.set_visible_columns()
     
     def columns_sorted(self):

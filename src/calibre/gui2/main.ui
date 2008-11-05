@@ -316,6 +316,9 @@
             <property name="showGrid" >
              <bool>false</bool>
             </property>
+            <property name="wordWrap" >
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
          </layout>
@@ -353,6 +356,9 @@
           <property name="showGrid" >
            <bool>false</bool>
           </property>
+          <property name="wordWrap" >
+           <bool>false</bool>
+          </property>
          </widget>
         </item>
        </layout>
@@ -386,6 +392,9 @@
            <enum>QAbstractItemView::SelectRows</enum>
           </property>
           <property name="showGrid" >
+           <bool>false</bool>
+          </property>
+          <property name="wordWrap" >
            <bool>false</bool>
           </property>
          </widget>

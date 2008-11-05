@@ -282,14 +282,15 @@ class ResultCache(SearchQueryParser):
         field = field.lower().strip()
         if field in ('author', 'tag', 'comment'):
             field += 's'
-        if field == 'date': field = 'timestamp'
+        if   field == 'date': field = 'timestamp'
         elif field == 'title': field = 'sort'
         elif field == 'author': field = 'author_sort'
         fcmp = self.seriescmp if field == 'series' else \
             functools.partial(self.cmp, FIELD_MAP[field], 
                               str=field not in ('size', 'rating', 'timestamp'))
-        self._map.sort(cmp=fcmp, reverse=not ascending)
         
+        self._map.sort(cmp=fcmp, reverse=not ascending)
+        self._map_filtered = [id for id in self._map if id in self._map_filtered]
                 
     def search(self, query):
         if not query or not query.strip():
@@ -363,7 +364,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.data    = ResultCache()
         self.search  = self.data.search
         self.refresh = functools.partial(self.data.refresh, self)
-        self.sort    = functools.partial(self.data.refresh, self)
+        self.sort    = self.data.sort
         self.index   = self.data.index
         self.refresh_ids = functools.partial(self.data.refresh_ids, self.conn)
         self.row     = self.data.row
@@ -1008,6 +1009,7 @@ class LibraryDatabase2(LibraryDatabase):
             if not hasattr(path, 'read'):
                 stream.close()
         self.conn.commit()
+        self.data.refresh_ids(self.conn, ids) # Needed to update format list and size
         if duplicates:
             paths    = tuple(duplicate[0] for duplicate in duplicates)
             formats  = tuple(duplicate[1] for duplicate in duplicates)
@@ -1032,6 +1034,7 @@ class LibraryDatabase2(LibraryDatabase):
             stream = open(path, 'rb')
             self.add_format(id, ext, stream, index_is_id=True)
         self.conn.commit()
+        self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
         self.notify('add', [id])
         
     def move_library_to(self, newloc, progress=None):
