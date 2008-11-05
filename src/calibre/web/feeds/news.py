@@ -619,6 +619,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         return logger, out
     
     def _fetch_article(self, url, dir, logger, f, a, num_of_feeds):
+        self.web2disk_options.browser = self.browser
         fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map, (url, f, a, num_of_feeds))
         fetcher.base_dir = dir
         fetcher.current_dir = dir
@@ -974,6 +975,7 @@ class CustomIndexRecipe(BasicNewsRecipe):
     def download(self):
         index = os.path.abspath(self.custom_index())
         url = 'file:'+index if iswindows else 'file://'+index
+        self.web2disk_options.browser = self.browser
         fetcher = RecursiveFetcher(self.web2disk_options, self.logger)
         fetcher.base_dir = self.output_dir
         fetcher.current_dir = self.output_dir
