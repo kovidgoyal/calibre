@@ -430,7 +430,7 @@ class BooksModel(QAbstractTableModel):
         self.dc = {
                    'title'    : lambda r : self.db.data[r][tidx],
                    'authors'  : authors,
-                   'size'     : lambda r : self.db.data[r][sidx],
+                   'size'     : lambda r : '%.1f'%(float(self.db.data[r][sidx])/(1024*1024)),
                    'timestamp': timestamp,
                    'rating'   : rating,
                    'publisher': publisher,
@@ -442,7 +442,7 @@ class BooksModel(QAbstractTableModel):
         if role in (Qt.DisplayRole, Qt.EditRole):
             ans = self.dc[self.column_map[index.column()]](index.row())
             return NONE if ans is None else QVariant(ans)
-        elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp', 'rating'):
+        elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp'):
             return QVariant(Qt.AlignCenter | Qt.AlignVCenter)
         #elif role == Qt.ToolTipRole and index.isValid():
         #    if self.column_map[index.column()] in self.editable_cols:
@@ -460,7 +460,7 @@ class BooksModel(QAbstractTableModel):
     def flags(self, index):
         flags = QAbstractTableModel.flags(self, index)
         if index.isValid():
-            if index.column() in self.editable_cols:
+            if self.column_map[index.column()] in self.editable_cols:
                 flags |= Qt.ItemIsEditable
         return flags
 
