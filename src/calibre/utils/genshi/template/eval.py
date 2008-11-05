@@ -177,7 +177,10 @@ class Expression(Code):
         """
         __traceback_hide__ = 'before_and_this'
         _globals = self._globals(data)
-        return eval(self.code, _globals, {'__data__': data})
+        code = self.code
+        if not isinstance(code, unicode):
+            code = code.decode('utf-8', 'replace')
+        return eval(code, _globals, {'__data__': data})
 
 
 class Suite(Code):
