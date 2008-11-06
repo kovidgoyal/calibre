@@ -203,9 +203,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
         path = qstring_to_unicode(self.location.text())
-        cols = []
-        for i in range(self.columns.count()):
-            cols.append(unicode(self.columns.item(i).data(Qt.UserRole).toString()))
+        cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString()) for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
         config['column_map'] = cols
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
