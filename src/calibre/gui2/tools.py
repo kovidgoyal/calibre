@@ -124,6 +124,8 @@ def convert_single_lrf(parent, db, comics, others):
                 break                    
             except:
                 continue
+        if data is None:
+            continue
         pt = PersistentTemporaryFile('.'+fmt)
         pt.write(data)
         pt.close()

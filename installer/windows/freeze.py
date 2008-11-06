@@ -171,7 +171,7 @@ def main(args=sys.argv):
                                              'calibre.web.feeds.recipes.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],
-                                  'packages'  : ['PIL', 'lxml'],
+                                  'packages'  : ['PIL', 'lxml', 'cherrypy'],
                                   'excludes'  : ["Tkconstants", "Tkinter", "tcl",
                                                  "_imagingtk", "ImageTk", "FixTk"
                                                 ],
