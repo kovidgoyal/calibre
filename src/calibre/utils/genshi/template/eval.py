@@ -178,7 +178,7 @@ class Expression(Code):
         __traceback_hide__ = 'before_and_this'
         _globals = self._globals(data)
         code = self.code
-        if not isinstance(code, unicode):
+        if not isinstance(code, unicode) and isinstance(code, basestring):
             code = code.decode('utf-8', 'replace')
         return eval(code, _globals, {'__data__': data})
 
