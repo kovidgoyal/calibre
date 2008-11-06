@@ -99,7 +99,7 @@ def get_db(dbpath, options):
     if options.library_path is not None:
         dbpath = options.library_path
     dbpath = os.path.abspath(dbpath)
-    return LibraryDatabase2(dbpath, row_factory=True)
+    return LibraryDatabase2(dbpath)
 
 def do_list(db, fields, sort_by, ascending, search_text, line_width, separator, 
             prefix, output_format, subtitle='Books in the calibre database'):
@@ -241,7 +241,7 @@ def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
             if not mi.title:
                 mi.title = os.path.splitext(os.path.basename(book))[0]
             if not mi.authors:
-                mi.authors = ['Unknown']
+                mi.authors = [_('Unknown')]
 
             formats.append(format)
             metadata.append(mi)

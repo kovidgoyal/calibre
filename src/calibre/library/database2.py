@@ -829,9 +829,9 @@ class LibraryDatabase2(LibraryDatabase):
             except IntegrityError: # Sometimes books specify the same author twice in their metadata
                 pass
         self.conn.commit()
-        self.set_path(id, True)
         self.data.set(id, FIELD_MAP['authors'], ','.join([a.replace(',', '|') for a in authors]), row_is_id=True)
         self.data.set(id, FIELD_MAP['author_sort'], self.data[self.data.row(id)][FIELD_MAP['authors']], row_is_id=True) 
+        self.set_path(id, True)
         if notify:
             self.notify('metadata', [id])
         
@@ -841,9 +841,9 @@ class LibraryDatabase2(LibraryDatabase):
         if not isinstance(title, unicode):
             title = title.decode(preferred_encoding, 'replace')
         self.conn.execute('UPDATE books SET title=? WHERE id=?', (title, id))
-        self.set_path(id, True)
         self.data.set(id, FIELD_MAP['title'], title, row_is_id=True)
         self.data.set(id, FIELD_MAP['sort'],  title_sort(title), row_is_id=True)
+        self.set_path(id, True)
         self.conn.commit()
         if notify:
             self.notify('metadata', [id])
@@ -1111,20 +1111,20 @@ class LibraryDatabase2(LibraryDatabase):
             if record is None: continue
             x = {}
             for field in FIELDS:
-                x[field] = record[field]
+                x[field] = record[FIELD_MAP[field]]
             data.append(x)
-            x['id'] = record[0]
+            x['id'] = record[FIELD_MAP['id']]
             x['formats'] = []
             x['authors'] = [i.replace('|', ',') for i in x['authors'].split(',')]
             if authors_as_string:
                 x['authors'] = authors_to_string(x['authors'])
             x['tags'] = [i.replace('|', ',').strip() for i in x['tags'].split(',')] if x['tags'] else []
-            path = os.path.join(prefix, self.path(record['id'], index_is_id=True))
+            path = os.path.join(prefix, self.path(record[FIELD_MAP['id']], index_is_id=True))
             x['cover'] = os.path.join(path, 'cover.jpg')
             if not self.has_cover(x['id'], index_is_id=True):
                 x['cover'] = None
-            path += os.sep +  self.construct_file_name(record['id']) + '.%s'
-            formats = self.formats(record['id'], index_is_id=True)
+            path += os.sep +  self.construct_file_name(record[FIELD_MAP['id']]) + '.%s'
+            formats = self.formats(record[FIELD_MAP['id']], index_is_id=True)
             if formats:
                 for fmt in formats.split(','):
                     x['formats'].append(path%fmt.lower())
