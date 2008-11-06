@@ -10,6 +10,7 @@ UTF-8 encoding with any charset declarations removed.
 import sys, socket, os, urlparse, logging, re, time, copy, urllib2, threading, traceback
 from urllib import url2pathname
 from httplib import responses
+from contextlib import closing
 
 from calibre import setup_cli_handlers, browser, sanitize_file_name, \
                     relpath, LoggingInterface
@@ -48,6 +49,11 @@ def save_soup(soup, target):
     with open(target, 'wb') as f:
         f.write(html.encode('utf-8'))
     
+class response(str):
+    
+    def __init__(self, *args):
+        str.__init__(self, *args)
+        self.newurl = None
 
 class RecursiveFetcher(object, LoggingInterface):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in 
@@ -134,13 +140,25 @@ class RecursiveFetcher(object, LoggingInterface):
         
 
     def fetch_url(self, url):
-        f = None
+        data = None
         self.log_debug('Fetching %s', url)
         delta = time.time() - self.last_fetch_at 
         if  delta < self.delay:
             time.sleep(delta)
         try:
-            f = self.browser.open(url)
+            try:
+                with closing(self.browser.open(url)) as f:
+                    data = response(f.read())
+                    data.newurl = f.geturl()
+            except AttributeError:
+                time.sleep(2)
+                try:
+                    with closing(self.browser.open(url)) as f:
+                        data = response(f.read())
+                        data.newurl = f.geturl()
+                except AttributeError:
+                    data = response(urllib2.urlopen(url).read())
+                    data.newurl = f.geturl()
         except urllib2.URLError, err:
             if hasattr(err, 'code') and responses.has_key(err.code):
                 raise FetchError, responses[err.code]
@@ -149,12 +167,13 @@ class RecursiveFetcher(object, LoggingInterface):
                 time.sleep(1)
                 if hasattr(f, 'close'):
                     f.close()
-                f = self.browser.open(url)
+                with closing(self.browser.open(url)) as f:
+                    data = f.read()
             else: 
                 raise err
         finally:
             self.last_fetch_at = time.time()
-        return f
+        return data
 
         
     def start_fetch(self, url):
@@ -196,7 +215,7 @@ class RecursiveFetcher(object, LoggingInterface):
                         tag['href'] = self.stylemap[iurl]
                         continue
                 try:
-                    f = self.fetch_url(iurl)
+                    data = self.fetch_url(iurl)
                 except Exception, err:
                     self.log_debug('Could not fetch stylesheet %s', iurl)
                     self.log_debug('Error: %s', str(err), exc_info=True)
@@ -205,8 +224,7 @@ class RecursiveFetcher(object, LoggingInterface):
                 with self.stylemap_lock:
                     self.stylemap[iurl] = stylepath
                 with open(stylepath, 'wb') as x:
-                    x.write(f.read())
-                f.close()
+                    x.write(data)
                 tag['href'] = stylepath
             else:
                 for ns in tag.findAll(text=True):                    
@@ -221,19 +239,17 @@ class RecursiveFetcher(object, LoggingInterface):
                                 ns.replaceWith(src.replace(m.group(1), self.stylemap[iurl]))
                                 continue
                         try:
-                            f = self.fetch_url(iurl)
+                            data = self.fetch_url(iurl)
                         except Exception, err:
                             self.log_warning('Could not fetch stylesheet %s', iurl)
                             self.log_debug('Error: %s', str(err), exc_info=True)
-                            if hasattr(f, 'close'): f.close()
                             continue
                         c += 1
                         stylepath = os.path.join(diskpath, 'style'+str(c)+'.css')
                         with self.stylemap_lock:
                             self.stylemap[iurl] = stylepath
                         with open(stylepath, 'wb') as x:
-                            x.write(f.read())
-                        f.close()
+                            x.write(data)
                         ns.replaceWith(src.replace(m.group(1), stylepath))
                         
                         
@@ -256,7 +272,7 @@ class RecursiveFetcher(object, LoggingInterface):
                     tag['src'] = self.imagemap[iurl]
                     continue
             try:
-                f = self.fetch_url(iurl)
+                data = self.fetch_url(iurl)
             except Exception, err:
                 self.log_warning('Could not fetch image %s', iurl)
                 self.log_debug('Error: %s', str(err), exc_info=True)
@@ -269,8 +285,7 @@ class RecursiveFetcher(object, LoggingInterface):
             with self.imagemap_lock:
                 self.imagemap[iurl] = imgpath
             with open(imgpath, 'wb') as x:
-                x.write(f.read())
-            f.close()
+                x.write(data)                
             tag['src'] = imgpath
 
     def absurl(self, baseurl, tag, key, filter=True): 
@@ -337,9 +352,8 @@ class RecursiveFetcher(object, LoggingInterface):
                     os.mkdir(linkdiskpath)
                 try:
                     self.current_dir = linkdiskpath
-                    f = self.fetch_url(iurl)
-                    dsrc = f.read()
-                    f.close()
+                    dsrc = self.fetch_url(iurl)
+                    newbaseurl = dsrc.newurl
                     if len(dsrc) == 0 or \
                        len(re.compile('<!--.*?-->', re.DOTALL).sub('', dsrc).strip()) == 0:
                         raise ValueError('No content at URL %s'%iurl)
@@ -349,7 +363,7 @@ class RecursiveFetcher(object, LoggingInterface):
                         dsrc = xml_to_unicode(dsrc, self.verbose)[0]
                     
                     soup = self.get_soup(dsrc)
-                    newbaseurl = f.geturl()
+                    
                     base = soup.find('base', href=True)
                     if base is not None:
                         newbaseurl = base['href']
@@ -372,6 +386,7 @@ class RecursiveFetcher(object, LoggingInterface):
                         soup = self.postprocess_html_ext(soup, 
                                 c==0 and recursion_level==0 and not getattr(self, 'called_first', False),
                                 self.job_info)
+                        
                         if c==0 and recursion_level == 0:
                             self.called_first = True
                     

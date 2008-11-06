@@ -16,7 +16,7 @@ class TheAtlantic(BasicNewsRecipe):
     INDEX = 'http://www.theatlantic.com/doc/current'
     
     remove_tags_before = dict(name='div', id='storytop')
-    remove_tags        = [dict(name='div', id=['seealso', 'storybottom', 'footer'])]
+    remove_tags        = [dict(name='div', id=['seealso', 'storybottom', 'footer', 'ad_banner_top', 'sidebar'])]
     no_stylesheets     = True
     
     def parse_index(self):
@@ -35,8 +35,9 @@ class TheAtlantic(BasicNewsRecipe):
         for item in soup.findAll('div', attrs={'class':'item'}):
             a = item.find('a')
             if a and a.has_key('href'):
-                url = a['href']
-                url = 'http://www.theatlantic.com/'+url.replace('/doc', 'doc/print')
+                url = a['href'].replace('/doc', 'doc/print')
+                if not url.startswith('http://'):
+                    url = 'http://www.theatlantic.com/'+url
                 title = self.tag_to_string(a)
                 byline = item.find(attrs={'class':'byline'})
                 date = self.tag_to_string(byline) if byline else ''
@@ -48,5 +49,4 @@ class TheAtlantic(BasicNewsRecipe):
                                  'description':description
                                 })
                 
-        
         return [('Current Issue', articles)]
