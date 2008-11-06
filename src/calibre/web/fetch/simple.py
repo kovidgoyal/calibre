@@ -245,6 +245,7 @@ class RecursiveFetcher(object, LoggingInterface):
         c = 0
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
             iurl, ext = tag['src'], os.path.splitext(tag['src'])[1]
+            ext = ext[:5]
             #if not ext:
             #    self.log_debug('Skipping extensionless image %s', iurl)
             #    continue
