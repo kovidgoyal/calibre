@@ -1159,7 +1159,9 @@ books_series_link      feeds
             rows = db.conn.get('SELECT * FROM %s ORDER BY id ASC'%table) 
             for row in rows:
                 self.conn.execute('INSERT INTO %s VALUES(%s)'%(table, ','.join(repeat('?', len(row)))), row)
-                
+        
+        self.conn.commit()
+        self.refresh('timestamp', True)
         for i, book in enumerate(books):
             progress.setLabelText(header+_(u'Copying <b>%s</b>')%book[1])
             id = book[0]
