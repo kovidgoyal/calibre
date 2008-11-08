@@ -655,7 +655,7 @@ class Processor(Parser):
         referrer = toc
         if self.htmlfile.referrer is not None:
             try:
-                name = self.htmlfile_map[self.htmlfile.referrer]
+                name = self.htmlfile_map[self.htmlfile.referrer.path]
                 href = 'content/'+name
                 for i in toc.flat():
                     if href == i.href and i.fragment is None:
@@ -665,7 +665,7 @@ class Processor(Parser):
                 pass
             if referrer is toc:
                 text = self.htmlfile.title
-                name = self.htmlfile_map[self.htmlfile.referrer]
+                name = self.htmlfile_map[self.htmlfile.referrer.path]
                 href = 'content/'+name
                 referrer = add_item(href, None, text, toc)
             
