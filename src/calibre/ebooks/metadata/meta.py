@@ -1,3 +1,4 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
@@ -19,8 +20,11 @@ from calibre.ebooks.metadata.opf  import OPFReader
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
+from calibre.libunrar import extract_first as rar_extract_first
+from calibre.libunzip import extract_first as zip_extract_first
 
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ptempfile import TemporaryDirectory
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
@@ -94,7 +98,32 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if opf is not None:
         base.smart_update(opf)
         
+    if stream_type in ('cbr', 'cbz'):
+        try:
+            cdata = get_comic_cover(stream, stream_type)
+            if cdata is not None:
+                base.cover_data = cdata
+        except:
+            import traceback
+            traceback.print_exc()
+            pass
+        
     return base
+
+def get_comic_cover(stream, type):
+    with TemporaryDirectory('_comic_cover') as tdir:
+        extract_first = zip_extract_first if type == 'zip' else rar_extract_first
+        extract_first(stream, tdir)
+        files = os.listdir(tdir)
+        print tdir, files
+        if files:
+            path = os.path.join(tdir, files[0])
+            ext = os.path.splitext(path)[1].lower()
+            if ext:
+                ext = ext[1:]
+                return (ext, open(path, 'rb').read())
+            
+        
 
 def set_metadata(stream, mi, stream_type='lrf'):
     if stream_type: stream_type = stream_type.lower()

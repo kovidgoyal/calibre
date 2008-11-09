@@ -55,10 +55,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
             item = QListWidgetItem(BooksModel.headers[col], self.columns)
             item.setData(Qt.UserRole, QVariant(col))
             item.setFlags(Qt.ItemIsEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-            if col in column_map:
-                item.setCheckState(Qt.Checked)
-            else:
-                item.setCheckState(Qt.Unchecked)
+            item.setCheckState(Qt.Checked if col in column_map else Qt.Unchecked)
+            
         self.connect(self.column_up, SIGNAL('clicked()'), self.up_column)
         self.connect(self.column_down, SIGNAL('clicked()'), self.down_column)
 
@@ -204,6 +202,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         prefs['network_timeout'] = int(self.timeout.value())
         path = qstring_to_unicode(self.location.text())
         cols = [unicode(self.columns.item(i).data(Qt.UserRole).toString()) for i in range(self.columns.count()) if self.columns.item(i).checkState()==Qt.Checked]
+        if not cols:
+            cols = ['title']
         config['column_map'] = cols
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())

@@ -40,8 +40,7 @@ function create_table_headers() {
 
 
 function format_url(format, id, title) {
-    return self.location.pathname.substring(0,self.location.pathname.lastIndexOf('/')) + 
-            '/get/'+format.toLowerCase() + '/'+title + '_' + id+'.'+format.toLowerCase();
+    return 'get/'+format.toLowerCase() + '/'+title + '_' + id+'.'+format.toLowerCase();
 }
 
 function render_book(book) {
@@ -61,7 +60,7 @@ function render_book(book) {
         title += '&nbsp;({0}&nbsp;MB)&nbsp;'.format(size);
     }
     if (tags) title += '[{0}]'.format(tags);
-    title += '<img style="display:none" alt="" src="{1}/get/cover/{0}" /></span>'.format(id, self.location.pathname.substring(0,self.location.pathname.lastIndexOf('/')));
+    title += '<img style="display:none" alt="" src="get/cover/{0}" /></span>'.format(id);
     title += '<p class="comments">{0}</p>'.format(comments)
     // Render authors cell
     var _authors = new Array();
@@ -124,7 +123,7 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
     
     current_library_request = $.ajax({
       type: "GET",
-      url: self.location.pathname.substring(0,self.location.pathname.lastIndexOf('/'))+"/library",
+      url: "library",
       data: data,
       cache: false,
       timeout: timeout, //milliseconds

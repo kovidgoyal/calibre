@@ -1,3 +1,4 @@
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 """
@@ -8,9 +9,10 @@ See  ftp://ftp.rarlabs.com/rar/unrarsrc-3.7.5.tar.gz
 import os, ctypes, sys
 from ctypes import Structure, c_char_p, c_uint, c_void_p, POINTER, \
                     byref, c_wchar_p, c_int, c_char, c_wchar
+from tempfile import NamedTemporaryFile
 from StringIO import StringIO
 
-from calibre import iswindows, load_library
+from calibre import iswindows, load_library, CurrentDir
 
 _librar_name = 'libunrar'
 cdll = ctypes.cdll
@@ -182,3 +184,29 @@ def extract(path, dir):
     finally:
         os.chdir(cwd)
         _libunrar.RARCloseArchive(arc_data)
+        
+def extract_first(path, dir):
+    if hasattr(path, 'read'):
+        data = path.read()
+        f = NamedTemporaryFile(suffix='.rar')
+        f.write(data)
+        f.flush()
+        path = f.name
+    if not os.path.isdir( dir ):
+        os.makedirs(dir)
+    with CurrentDir(dir):
+        open_archive_data = RAROpenArchiveDataEx(ArcName=path, OpenMode=RAR_OM_EXTRACT, CmtBuf=None)
+        arc_data = _libunrar.RAROpenArchiveEx(byref(open_archive_data))
+        try:
+            if open_archive_data.OpenResult != 0:
+                raise UnRARException(_interpret_open_error(open_archive_data.OpenResult, path))
+            header_data = RARHeaderDataEx(CmtBuf=None)
+            if _libunrar.RARReadHeaderEx(arc_data, byref(header_data)) != 0:
+                raise UnRARException('%s has no files'%path)
+            PFCode = _libunrar.RARProcessFileW(arc_data, RAR_EXTRACT, None, None)
+            if PFCode != 0:
+                raise UnRARException(_interpret_process_file_error(PFCode))
+        finally:
+            _libunrar.RARCloseArchive(arc_data)
+        
+    
