@@ -167,8 +167,8 @@ class JobManager(QAbstractTableModel):
                          _('Job has already run')).exec_()
             return
         if not job.is_running:
-            error_dialog(view, _('Cannot kill job'),
-                         _('Cannot kill waiting job')).exec_()
+            self.jobs.remove(job)
+            self.reset()
             return
 
 
