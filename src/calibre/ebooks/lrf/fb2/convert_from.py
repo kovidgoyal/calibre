@@ -92,7 +92,7 @@ def process_file(path, options, logger=None):
         options.output = os.path.abspath(os.path.expanduser(options.output))
         if not mi.title:
             mi.title = os.path.splitext(os.path.basename(fb2))[0]
-        if (not options.title or options.title == _('Unknown')'):
+        if (not options.title or options.title == _('Unknown')):
             options.title = mi.title
         if (not options.author or options.author == _('Unknown')) and mi.authors:
             options.author = mi.authors.pop()
