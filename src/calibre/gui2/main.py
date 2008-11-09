@@ -861,7 +861,10 @@ class Main(MainWindow, Ui_MainWindow):
             return
         comics, others = r 
         
-        jobs, changed  = convert_bulk_ebooks(self, self.library_view.model().db, comics, others) 
+        res  = convert_bulk_ebooks(self, self.library_view.model().db, comics, others)
+        if res is None:
+            return
+        jobs, changed = res 
         for func, args, desc, fmt, id, temp_files in jobs:
             job = self.job_manager.run_job(Dispatcher(self.book_converted), 
                                             func, args=args, description=desc)

@@ -167,7 +167,8 @@ def convert_bulk_epub(parent, db, comics, others):
             for fmt in EPUB_PREFERRED_SOURCE_FORMATS:
                 try:
                     data = db.format(row, fmt.upper())
-                    break
+                    if data is not None:
+                        break
                 except:
                     continue
             if data is None:
@@ -269,7 +270,8 @@ def convert_bulk_lrf(parent, db, comics, others):
             for fmt in LRF_PREFERRED_SOURCE_FORMATS:
                 try:
                     data = db.format(row, fmt.upper())
-                    break
+                    if data is not None:
+                        break
                 except:
                     continue
             if data is None:
