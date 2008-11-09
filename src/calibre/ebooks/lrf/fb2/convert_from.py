@@ -92,13 +92,13 @@ def process_file(path, options, logger=None):
         options.output = os.path.abspath(os.path.expanduser(options.output))
         if not mi.title:
             mi.title = os.path.splitext(os.path.basename(fb2))[0]
-        if (not options.title or options.title == 'Unknown'):
+        if (not options.title or options.title == _('Unknown')):
             options.title = mi.title
-        if (not options.author or options.author == 'Unknown') and mi.authors:
+        if (not options.author or options.author == _('Unknown')) and mi.authors:
             options.author = mi.authors.pop()
-        if (not options.category or options.category == 'Unknown') and mi.category:
+        if (not options.category or options.category == _('Unknown')) and mi.category:
             options.category = mi.category
-        if (not options.freetext or options.freetext == 'Unknown') and mi.comments:
+        if (not options.freetext or options.freetext == _('Unknown')) and mi.comments:
             options.freetext = mi.comments
         os.chdir(tdir)
         html_process_file(htmlfile, options, logger)
