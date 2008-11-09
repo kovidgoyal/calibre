@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 
-import os
+import os, re
 from calibre.utils import zipfile
 
 def update(pathtozip, patterns, filepaths, names, compression=zipfile.ZIP_DEFLATED, verbose=True):
@@ -43,10 +43,9 @@ def extract(filename, dir):
     zf = zipfile.ZipFile( filename )
     zf.extractall(dir)
     
-def extract_first(filename, dir):
+def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)):
     zf = zipfile.ZipFile(filename)
     names = zf.namelist()
-    if not names:
-        raise ValueError('%s has no files'%filename)
-    bytes = zf.read(names[0])
-    open(os.path.join(dir, names[0]), 'wb').write(bytes)
+    for name in names:
+        if match.search(name):
+            return name, zf.read(name)

@@ -6,13 +6,14 @@ This module provides a thin ctypes based wrapper around libunrar.
 
 See  ftp://ftp.rarlabs.com/rar/unrarsrc-3.7.5.tar.gz
 """
-import os, ctypes, sys
+import os, ctypes, sys, re
 from ctypes import Structure, c_char_p, c_uint, c_void_p, POINTER, \
                     byref, c_wchar_p, c_int, c_char, c_wchar
 from tempfile import NamedTemporaryFile
 from StringIO import StringIO
 
 from calibre import iswindows, load_library, CurrentDir
+from calibre.ptempfile import TemporaryDirectory
 
 _librar_name = 'libunrar'
 cdll = ctypes.cdll
@@ -185,28 +186,31 @@ def extract(path, dir):
         os.chdir(cwd)
         _libunrar.RARCloseArchive(arc_data)
         
-def extract_first(path, dir):
+def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)):
     if hasattr(path, 'read'):
         data = path.read()
         f = NamedTemporaryFile(suffix='.rar')
         f.write(data)
         f.flush()
         path = f.name
-    if not os.path.isdir( dir ):
-        os.makedirs(dir)
-    with CurrentDir(dir):
-        open_archive_data = RAROpenArchiveDataEx(ArcName=path, OpenMode=RAR_OM_EXTRACT, CmtBuf=None)
-        arc_data = _libunrar.RAROpenArchiveEx(byref(open_archive_data))
-        try:
-            if open_archive_data.OpenResult != 0:
-                raise UnRARException(_interpret_open_error(open_archive_data.OpenResult, path))
-            header_data = RARHeaderDataEx(CmtBuf=None)
-            if _libunrar.RARReadHeaderEx(arc_data, byref(header_data)) != 0:
-                raise UnRARException('%s has no files'%path)
-            PFCode = _libunrar.RARProcessFileW(arc_data, RAR_EXTRACT, None, None)
-            if PFCode != 0:
-                raise UnRARException(_interpret_process_file_error(PFCode))
-        finally:
-            _libunrar.RARCloseArchive(arc_data)
-        
+    with TemporaryDirectory('_libunrar') as dir:
+        with CurrentDir(dir):
+            open_archive_data = RAROpenArchiveDataEx(ArcName=path, OpenMode=RAR_OM_EXTRACT, CmtBuf=None)
+            arc_data = _libunrar.RAROpenArchiveEx(byref(open_archive_data))
+            try:
+                if open_archive_data.OpenResult != 0:
+                    raise UnRARException(_interpret_open_error(open_archive_data.OpenResult, path))
+                header_data = RARHeaderDataEx(CmtBuf=None)
+                while True:
+                    if _libunrar.RARReadHeaderEx(arc_data, byref(header_data)) != 0:
+                        raise UnRARException('%s has no files'%path)
+                    PFCode = _libunrar.RARProcessFileW(arc_data, RAR_EXTRACT, None, None)
+                    if PFCode != 0:
+                        raise UnRARException(_interpret_process_file_error(PFCode))
+                    if match.search(header_data.FileNameW):
+                        return header_data.FileNameW.replace('/', os.sep), \
+                                open(os.path.join(dir, *header_data.FileNameW.split('/')), 'rb').read()
+            finally:
+                _libunrar.RARCloseArchive(arc_data)
+            
     

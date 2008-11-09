@@ -20,8 +20,8 @@ from calibre.ebooks.metadata.opf  import OPFReader
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
-from calibre.libunrar import extract_first as rar_extract_first
-from calibre.libunzip import extract_first as zip_extract_first
+from calibre.libunrar import extract_member as rar_extract_first
+from calibre.libunzip import extract_member as zip_extract_first
 
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import TemporaryDirectory
@@ -111,18 +111,13 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     return base
 
 def get_comic_cover(stream, type):
-    with TemporaryDirectory('_comic_cover') as tdir:
-        extract_first = zip_extract_first if type == 'zip' else rar_extract_first
-        extract_first(stream, tdir)
-        files = os.listdir(tdir)
-        print tdir, files
-        if files:
-            path = os.path.join(tdir, files[0])
-            ext = os.path.splitext(path)[1].lower()
-            if ext:
-                ext = ext[1:]
-                return (ext, open(path, 'rb').read())
-            
+    extract_first = zip_extract_first if type == 'zip' else rar_extract_first
+    ret = extract_first(stream)
+    if ret is not None:
+        path, data = ret
+        ext = os.path.splitext(path)[1][1:]
+        return (ext.lower(), data)
+        
         
 
 def set_metadata(stream, mi, stream_type='lrf'):
