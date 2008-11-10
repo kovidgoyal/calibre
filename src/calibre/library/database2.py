@@ -284,7 +284,7 @@ class ResultCache(SearchQueryParser):
             field += 's'
         if   field == 'date': field = 'timestamp'
         elif field == 'title': field = 'sort'
-        elif field == 'author': field = 'author_sort'
+        elif field == 'authors': field = 'author_sort'
         fcmp = self.seriescmp if field == 'series' else \
             functools.partial(self.cmp, FIELD_MAP[field], 
                               str=field not in ('size', 'rating', 'timestamp'))
@@ -792,6 +792,8 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_series(id, mi.series, notify=False)
         if mi.cover_data[1] is not None:
             self.set_cover(id, mi.cover_data[1])
+        elif mi.cover is not None and os.access(mi.cover,os.R_OK):
+            self.set_cover(id, open(mi.cover, 'rb').read())
         if mi.tags:
             self.set_tags(id, mi.tags, notify=False)
         if mi.comments:
@@ -1105,7 +1107,7 @@ class LibraryDatabase2(LibraryDatabase):
         '''
         if prefix is None:
             prefix = self.library_path
-        FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'isbn'])
+        FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'isbn'])
         data = []
         for record in self.data:
             if record is None: continue

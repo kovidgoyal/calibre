@@ -771,7 +771,7 @@ class Main(MainWindow, Ui_MainWindow):
             d.exec_()
             return
 
-        dir = choose_dir(self, 'save to disk dialog', ('Choose destination directory'))
+        dir = choose_dir(self, 'save to disk dialog', _('Choose destination directory'))
         if not dir:
             return
         if self.current_view() == self.library_view:

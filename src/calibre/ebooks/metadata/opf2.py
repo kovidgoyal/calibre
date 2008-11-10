@@ -330,7 +330,7 @@ class Guide(ResourceCollection):
         @staticmethod
         def from_opf_resource_item(ref, basedir):
             title, href, type = ref.get('title', ''), ref.get('href'), ref.get('type')
-            res = Guide.Reference(href, basedir, is_path=False)
+            res = Guide.Reference(href, basedir, is_path=True)
             res.title = title
             res.type = type
             return res
@@ -866,7 +866,7 @@ class OPFCreator(MetaInformation):
                 self.manifest.append(ManifestItem(ncx_manifest_entry, self.base_path))
                 self.manifest[-1].id = 'ncx'
                 self.manifest[-1].mime_type = 'application/x-dtbncx+xml'
-        if not self.guide:
+        if self.guide is None:
             self.guide = Guide()
         if self.cover:
             cover = self.cover
@@ -886,7 +886,6 @@ class OPFCreator(MetaInformation):
 class OPFTest(unittest.TestCase):
     
     def setUp(self):
-        import cStringIO
         self.stream = cStringIO.StringIO(
 '''\
 <?xml version="1.0"  encoding="UTF-8"?>

@@ -22,7 +22,7 @@ from calibre.library.database2 import LibraryDatabase2
 from calibre.ebooks.metadata.opf import OPFCreator, OPFReader
 from calibre.utils.genshi.template import MarkupTemplate
 
-FIELDS = set(['title', 'authors', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'cover'])
+FIELDS = set(['title', 'authors', 'author_sort', 'publisher', 'rating', 'timestamp', 'size', 'tags', 'comments', 'series', 'series_index', 'formats', 'isbn', 'cover'])
 
 XML_TEMPLATE = '''\
 <?xml version="1.0"  encoding="UTF-8"?>
@@ -31,7 +31,7 @@ XML_TEMPLATE = '''\
     <record>
         <id>${record['id']}</id>
         <title>${record['title']}</title>
-        <authors>
+        <authors sort="${record['author_sort']}">
         <py:for each="author in record['authors']">
             <author>$author</author>
         </py:for>

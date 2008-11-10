@@ -9,7 +9,7 @@ from zlib import compress, decompress
 
 from calibre import sanitize_file_name
 from calibre.ebooks.metadata.meta import set_metadata, metadata_from_formats
-from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.web.feeds.recipes import migrate_automatic_profile_to_automatic_recipe
@@ -1283,6 +1283,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             self.set_series(id, mi.series)
         if mi.cover_data[1] is not None:
             self.set_cover(id, mi.cover_data[1])
+    
+        
+            
 
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
@@ -1399,7 +1402,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             if not au:
                 au = self.authors(index, index_is_id=index_is_id)
                 if not au:
-                    au = 'Unknown'
+                    au = _('Unknown')
                 au = au.split(',')[0]
             else:
                 au = au.replace(',', ';')
@@ -1421,7 +1424,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 name = au + ' - ' + title if byauthor else title + ' - ' + au
                 name += '_'+id
                 base  = dir if single_dir else tpath
-                mi = OPFCreator(base, self.get_metadata(idx, index_is_id=index_is_id))
+                mi = self.get_metadata(idx, index_is_id=index_is_id)
                 cover = self.cover(idx, index_is_id=index_is_id)
                 if cover is not None:
                     cname = sanitize_file_name(name) + '.jpg'
@@ -1431,7 +1434,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 f = open(os.path.join(base, sanitize_file_name(name)+'.opf'), 'wb')
                 if not mi.authors:
                     mi.authors = [_('Unknown')]
-                mi.render(f)
+                opf = OPFCreator(base, mi)
+                opf.render(f)
                 f.close()
                 
                 fmts = self.formats(idx, index_is_id=index_is_id)
@@ -1458,7 +1462,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def import_book(self, mi, formats):
         series_index = 1 if mi.series_index is None else mi.series_index
         if not mi.authors:
-            mi.authors = ['Unknown']
+            mi.authors = [_('Unknown')]
         aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
         obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)',
                           (mi.title, None, series_index, aus))
@@ -1554,6 +1558,7 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return duplicates
 
     def export_single_format_to_dir(self, dir, indices, format, index_is_id=False):
+        dir = os.path.abspath(dir)
         if not index_is_id:
             indices = map(self.id, indices)
         failures = []
@@ -1572,6 +1577,8 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 au = _('Unknown')
             fname = '%s - %s.%s'%(title, au, format.lower())
             fname = sanitize_file_name(fname)
+            if not os.path.exists(dir):
+                os.makedirs(dir)
             f = open(os.path.join(dir, fname), 'w+b')
             f.write(data)
             f.seek(0)
