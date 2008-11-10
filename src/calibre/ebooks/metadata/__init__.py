@@ -250,7 +250,7 @@ class MetaInformation(object):
         ans += u'Title    : ' + unicode(self.title) + u'\n'
         if self.authors:
             ans += u'Author   : ' + (', '.join(self.authors) if self.authors is not None else u'None')
-            ans += ((' (' + self.author_sort + ')') if self.author_sort else '') + u'\n'
+            ans += ((' [' + self.author_sort + ']') if self.author_sort else '') + u'\n'
         if self.publisher:
             ans += u'Publisher: '+ unicode(self.publisher) + u'\n'
         if self.book_producer:

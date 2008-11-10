@@ -242,11 +242,11 @@ class LibraryServer(object):
         ' Feeds to read calibre books on a ipod with stanza.'
         books = []
         for record in iter(self.db):
-            if 'EPUB' in record['formats'].upper():
+            if 'EPUB' in record[FIELD_MAP['formats']].upper():
                 authors = ' & '.join([i.replace('|', ',') for i in record[2].split(',')])
-                books.append(self.STANZA_ENTRY.generate(authors=authors, 
+                books.append(self.STANZA_ENTRY.generate(authors=authors,
                                                         record=record,
-                                                        port=self.opts.port, 
+                                                        port=self.opts.port,
                                                         server=self.opts.hostname,
                                                         ).render('xml').decode('utf8'))
         
@@ -254,7 +254,7 @@ class LibraryServer(object):
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'text/xml'
         
-        return self.STANZA.generate(subtitle='', data=books, 
+        return self.STANZA.generate(subtitle='', data=books,
                     updated=updated, id='urn:calibre:main').render('xml')
     
     @expose

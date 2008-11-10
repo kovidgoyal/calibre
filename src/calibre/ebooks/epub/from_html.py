@@ -313,6 +313,7 @@ def convert(htmlfile, opts, notification=None):
         logger.info('Output written to %s'%opts.output)
         if opts.extract_to is not None:
             epub.extractall(opts.extract_to)
+        epub.close()
         
             
 def main(args=sys.argv):

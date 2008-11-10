@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 lxml based OPF parser.
 '''
 
-import sys, unittest, functools, os, mimetypes, uuid, glob
+import sys, unittest, functools, os, mimetypes, uuid, glob, cStringIO
 from urllib import unquote
 from urlparse import urlparse
 
@@ -17,7 +17,7 @@ from calibre.ebooks.chardet import xml_to_unicode
 from calibre import relpath
 from calibre.constants import __appname__, __version__
 from calibre.ebooks.metadata.toc import TOC
-from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.metadata import MetaInformation, get_parser
 
 
 class Resource(object):
@@ -418,6 +418,8 @@ class OPF(object):
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
+    application_id_path= XPath('descendant::*[re:match(name(), "identifier", "i") and '+
+                            '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
     manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]')
     manifest_ppath  = XPath('descendant::*[re:match(name(), "manifest", "i")]') 
     spine_path      = XPath('descendant::*[re:match(name(), "spine", "i")]/*[re:match(name(), "itemref", "i")]')
@@ -619,8 +621,12 @@ class OPF(object):
         def fget(self):
             matches = self.authors_path(self.metadata)
             if matches:
-                ans = matches[0].get('opf:file-as', None)
-                return ans if ans else matches[0].get('file-as', None)
+                for match in matches:
+                    ans = match.get('{%s}file-as'%self.NAMESPACES['opf'], None)
+                    if not ans:
+                        ans = match.get('file-as', None)
+                    if ans:
+                        return ans
             
         def fset(self, val):
             matches = self.authors_path(self.metadata)
@@ -662,6 +668,23 @@ class OPF(object):
             matches[0].text = unicode(val)
 
         return property(fget=fget, fset=fset)
+
+    @apply
+    def application_id():
+        
+        def fget(self):
+            for match in self.application_id_path(self.metadata):
+                return match.text if match.text else None
+            
+        def fset(self, val):
+            matches = self.application_id_path(self.metadata)
+            if not matches:
+                matches = [self.create_metadata_element('identifier', ns='dc',
+                                                attrib={'{%s}scheme'%self.NAMESPACES['opf']:'calibre'})]
+            matches[0].text = unicode(val)
+
+        return property(fget=fget, fset=fset)
+
     
     @apply
     def series():
@@ -910,6 +933,50 @@ def suite():
     
 def test():
     unittest.TextTestRunner(verbosity=2).run(suite())
+
+def option_parser():
+    return get_parser('opf')
+
+def main(args=sys.argv):
+    parser = option_parser()
+    opts, args = parser.parse_args(args)
+    if len(args) != 2:
+        parser.print_help()
+        return 1
+    opfpath = os.path.abspath(args[1])
+    basedir = os.path.dirname(opfpath)
+    mi = MetaInformation(OPF(open(opfpath, 'rb'), basedir))
+    write = False
+    if opts.title is not None:
+        mi.title = opts.title
+        write = True
+    if opts.authors is not None:
+        aus = [i.strip() for i in opts.authors.split(',')]
+        mi.authors = aus
+        write = True
+    if opts.category is not None:
+        mi.category = opts.category
+        write = True
+    if opts.comment is not None:
+        mi.comments = opts.comment
+        write = True
+    if write:
+        mo = OPFCreator(basedir, mi)
+        ncx = cStringIO.StringIO()
+        mo.render(open(args[1], 'wb'), ncx)
+        ncx = ncx.getvalue()
+        if ncx:
+            f = glob.glob(os.path.join(os.path.dirname(args[1]), '*.ncx'))
+            if f:
+                f = open(f[0], 'wb')
+            else:
+                f = open(os.path.splitext(args[1])[0]+'.ncx', 'wb')
+            f.write(ncx)
+            f.close()
+    print MetaInformation(OPF(open(opfpath, 'rb'), basedir))
+    return 0
+
+    
 
 if __name__ == '__main__':
     sys.exit(test())

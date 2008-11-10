@@ -16,7 +16,7 @@ from calibre.ebooks.metadata.epub import get_metadata as epub_metadata
 from calibre.ebooks.metadata.html import get_metadata as html_metadata
 from calibre.ebooks.mobi.reader   import get_metadata as mobi_metadata
 from calibre.ebooks.metadata.odt  import get_metadata as odt_metadata
-from calibre.ebooks.metadata.opf  import OPFReader
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
@@ -174,13 +174,13 @@ def metadata_from_filename(name, pat=None):
 def opf_metadata(opfpath):
     if hasattr(opfpath, 'read'):
         f = opfpath
-        opfpath = getattr(f, 'name', '')
+        opfpath = getattr(f, 'name', os.getcwd())
     else:
         f = open(opfpath, 'rb')
     try:
-        opf = OPFReader(f, os.path.dirname(opfpath))
+        opf = OPF(f, os.path.dirname(opfpath))
         if opf.application_id is not None:
-            mi = MetaInformation(opf, None)
+            mi = MetaInformation(opf)
             if hasattr(opf, 'cover') and opf.cover:
                 cpath = os.path.join(os.path.dirname(opfpath), opf.cover)
                 if os.access(cpath, os.R_OK):                     
@@ -189,4 +189,6 @@ def opf_metadata(opfpath):
                     mi.cover_data = (fmt, data)
             return mi
     except:
+        import traceback
+        traceback.print_exc()
         pass

@@ -479,10 +479,10 @@ class BooksModel(QAbstractTableModel):
                 return False
             val = unicode(value.toString().toUtf8(), 'utf-8').strip() if column != 'rating' else \
                   int(value.toInt()[0])
-            if col == 'rating':
+            if column == 'rating':
                 val = 0 if val < 0 else 5 if val > 5 else val
                 val *= 2
-            if col == 'series':
+            if column == 'series':
                 pat = re.compile(r'\[(\d+)\]')
                 match = pat.search(val)
                 id = self.db.id(row)
