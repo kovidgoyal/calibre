@@ -61,7 +61,7 @@ function render_book(book) {
     }
     if (tags) title += '[{0}]'.format(tags);
     title += '<img style="display:none" alt="" src="get/cover/{0}" /></span>'.format(id);
-    title += '<p class="comments">{0}</p>'.format(comments)
+    title += '<div class="comments">{0}</div>'.format(comments)
     // Render authors cell
     var _authors = new Array();
     var authors = '';

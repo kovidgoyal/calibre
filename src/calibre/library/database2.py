@@ -792,7 +792,7 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_series(id, mi.series, notify=False)
         if mi.cover_data[1] is not None:
             self.set_cover(id, mi.cover_data[1])
-        elif mi.cover is not None and os.access(mi.cover,os.R_OK):
+        elif mi.cover is not None and os.access(mi.cover, os.R_OK):
             self.set_cover(id, open(mi.cover, 'rb').read())
         if mi.tags:
             self.set_tags(id, mi.tags, notify=False)
