@@ -13,7 +13,7 @@ Search bar
 #search_box {
     width: 201px;
     height: 31px;
-    background: url(/static/bg_search_box.png);
+    background: url(bg_search_box.png);
     top: 5px; right: 20px;
     position: absolute;
 }

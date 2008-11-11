@@ -78,8 +78,9 @@ STANZA_TEMPLATE='''\
       <id>urn:calibre:${record['id']}</id>
       <author><name>${record['authors']}</name></author>
       <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>
-      <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/'))}" />
-      <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/'))}" />
+      <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/')).replace('http%3A', 'http:')}" />
+      <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
+      <link py:if="record['cover']" rel="x-stanza-cover-image-thumbnail" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
       <content type="xhtml">
           <div xmlns="http://www.w3.org/1999/xhtml"><pre>${record['comments']}</pre></div>
       </content>

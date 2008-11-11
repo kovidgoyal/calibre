@@ -72,15 +72,15 @@ class LibraryServer(object):
     
     STANZA_ENTRY=MarkupTemplate(textwrap.dedent('''\
     <entry xmlns:py="http://genshi.edgewall.org/">
-        <title>${record['title']}</title>
-        <id>urn:calibre:${record['id']}</id>
+        <title>${record[FM['title']]}</title>
+        <id>urn:calibre:${record[FM['id']]}</id>
         <author><name>${authors}</name></author>
-        <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/epub+zip" href="http://${server}:${port}/get/epub/${record['id']}" />
-        <link rel="x-stanza-cover-image" type="image/jpeg" href="http://${server}:${port}/get/cover/${record['id']}" />
-        <link rel="x-stanza-cover-image-thumbnail" type="image/jpeg" href="http://${server}:${port}/get/thumb/${record['id']}" />
+        <updated>${record[FM['timestamp']].strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
+        <link type="application/epub+zip" href="http://${server}:${port}/get/epub/${record[FM['id']]}" />
+        <link rel="x-stanza-cover-image" type="image/jpeg" href="http://${server}:${port}/get/cover/${record[FM['id']]}" />
+        <link rel="x-stanza-cover-image-thumbnail" type="image/jpeg" href="http://${server}:${port}/get/thumb/${record[FM['id']]}" />
         <content type="xhtml">
-          <div xmlns="http://www.w3.org/1999/xhtml"><pre>${record['comments']}</pre></div>
+          <div xmlns="http://www.w3.org/1999/xhtml">${record[FM['comments']]}</div>
         </content>
     </entry>
     '''))
@@ -245,7 +245,7 @@ class LibraryServer(object):
             if 'EPUB' in record[FIELD_MAP['formats']].upper():
                 authors = ' & '.join([i.replace('|', ',') for i in record[2].split(',')])
                 books.append(self.STANZA_ENTRY.generate(authors=authors,
-                                                        record=record,
+                                                        record=record, FM=FIELD_MAP,
                                                         port=self.opts.port,
                                                         server=self.opts.hostname,
                                                         ).render('xml').decode('utf8'))
@@ -254,7 +254,7 @@ class LibraryServer(object):
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
         cherrypy.response.headers['Content-Type'] = 'text/xml'
         
-        return self.STANZA.generate(subtitle='', data=books,
+        return self.STANZA.generate(subtitle='', data=books, FM=FIELD_MAP,
                     updated=updated, id='urn:calibre:main').render('xml')
     
     @expose
@@ -359,7 +359,7 @@ def main(args=sys.argv):
     opts, args = parser.parse_args(args)
     cherrypy.log.screen = True
     from calibre.utils.config import prefs
-    db = LibraryDatabase2(prefs['library_path'], row_factory=True)
+    db = LibraryDatabase2(prefs['library_path'])
     server = LibraryServer(db, opts)
     server.start()
     return 0

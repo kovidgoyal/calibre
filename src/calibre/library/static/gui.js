@@ -234,7 +234,7 @@ function setup_count_bar() {
 
 function search() {
     var search = $.trim($('#search_box * #s').val());
-    fetch_library_books(last_start, last_num, LIBRARY_FETCH_TIMEOUT, 
+    fetch_library_books(0, last_num, LIBRARY_FETCH_TIMEOUT, 
                         last_sort, last_sort_order, search);
 }
 
