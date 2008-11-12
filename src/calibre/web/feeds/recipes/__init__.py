@@ -11,7 +11,7 @@ recipes = [
            'ars_technica', 'upi', 'new_yorker', 'irish_times', 'iht', 'lanacion',
            'discover_magazine', 'scientific_american', 'new_york_review_of_books',
            'daily_telegraph', 'guardian', 'el_pais', 'new_scientist', 'b92', 
-           'politika', 'moscow_times'
+           'politika', 'moscow_times', 'latimes'
           ]
 
 import re, imp, inspect, time, os

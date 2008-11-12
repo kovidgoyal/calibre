@@ -124,7 +124,8 @@ class MobiReader(object):
     
     PAGE_BREAK_PAT = re.compile(r'(<[/]{0,1}mbp:pagebreak\s*[/]{0,1}>)+', re.IGNORECASE)
     
-    def __init__(self, filename_or_stream):
+    def __init__(self, filename_or_stream, verbose=False):
+        self.verbose = verbose
         if hasattr(filename_or_stream, 'read'):
             stream = filename_or_stream
             stream.seek(0)
@@ -189,6 +190,8 @@ class MobiReader(object):
                 '</style>\n',
                 self.processed_html)
         
+        if self.verbose:
+            print 'Parsing HTML...'
         soup = BeautifulSoup(self.processed_html)
         self.cleanup_soup(soup)
         guide = soup.find('guide')
@@ -212,6 +215,8 @@ class MobiReader(object):
                 open(os.path.splitext(htmlfile)[0]+'.ncx', 'wb').write(ncx)
         
     def cleanup_html(self):
+        if self.verbose:
+            print 'Cleaning up HTML...'
         self.processed_html = re.sub(r'<div height="0(pt|px|ex|em|%){0,1}"></div>', '', self.processed_html)
         if self.book_header.ancient and '<html' not in self.mobi_html[:300].lower():
             self.processed_html = '<html><p>'+self.processed_html.replace('\n\n', '<p>')+'</html>'
@@ -221,6 +226,8 @@ class MobiReader(object):
             self.processed_html = re.sub(r'(?i)</%s>'%t, r'</span>', self.processed_html)
         
     def cleanup_soup(self, soup):
+        if self.verbose:
+            print 'Replacing height, width and align attributes'
         for tag in soup.recursiveChildGenerator():
             if not isinstance(tag, Tag): continue
             styles = []
@@ -311,6 +318,8 @@ class MobiReader(object):
         return data[:len(data)-trail_size]
     
     def extract_text(self):
+        if self.verbose:
+            print 'Extracting text...'
         text_sections = [self.text_section(i) for i in range(1, self.book_header.records+1)]
         processed_records = list(range(0, self.book_header.records+1))
         
@@ -343,6 +352,8 @@ class MobiReader(object):
                                                       self.processed_html)
     
     def add_anchors(self):
+        if self.verbose:
+            print 'Adding anchors...'
         positions = set([])
         link_pattern = re.compile(r'<[^<>]+filepos=[\'"]{0,1}(\d+)[^<>]*>', re.IGNORECASE)
         for match in link_pattern.finditer(self.mobi_html):
@@ -370,6 +381,8 @@ class MobiReader(object):
                                                self.processed_html)
         
     def extract_images(self, processed_records, output_dir):
+        if self.verbose:
+            print 'Extracting images...'
         output_dir = os.path.abspath(os.path.join(output_dir, 'images'))
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
@@ -438,7 +451,7 @@ def main(args=sys.argv):
         parser.print_help()
         return 1
     
-    mr = MobiReader(args[1])
+    mr = MobiReader(args[1], verbose=opts.verbose)
     opts.output_dir = os.path.abspath(opts.output_dir)
     mr.extract_content(opts.output_dir)
     if opts.verbose:

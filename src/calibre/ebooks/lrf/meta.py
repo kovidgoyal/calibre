@@ -627,7 +627,6 @@ def set_metadata(stream, mi):
         
 
 def main(args=sys.argv):
-    import os.path
     parser = option_parser()
     options, args = parser.parse_args(args)
     if len(args) != 2:
