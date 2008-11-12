@@ -645,7 +645,7 @@ class LibraryDatabase2(LibraryDatabase):
         if self.has_format(index, format, index_is_id):
             self.remove_format(id, format, index_is_id=True)
         
-    def add_format(self, index, format, stream, index_is_id=False, path=None):
+    def add_format(self, index, format, stream, index_is_id=False, path=None, notify=True):
         id = index if index_is_id else self.id(index)
         if path is None:
             path = os.path.join(self.library_path, self.path(id, index_is_id=True))
@@ -670,7 +670,8 @@ class LibraryDatabase2(LibraryDatabase):
         except AttributeError:
             fmts = []
         self.data.set(id, FIELD_MAP['formats'], ','.join(fmts+[format.upper()]), row_is_id=True)
-        self.notify('metadata', [id])
+        if notify:
+            self.notify('metadata', [id])
         
     def delete_book(self, id):
         '''
@@ -689,7 +690,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.books_deleted([id])
         self.notify('delete', [id])
     
-    def remove_format(self, index, format, index_is_id=False):
+    def remove_format(self, index, format, index_is_id=False, notify=True):
         id = index if index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
@@ -706,7 +707,8 @@ class LibraryDatabase2(LibraryDatabase):
             fmts = [f.strip().upper() for f in self.data[self.data.row(id)][FIELD_MAP['formats']].split(',')]
             fmts.remove(format.upper())
             self.data.set(id, FIELD_MAP['formats'], ','.join(fmts), row_is_id=True)
-            self.notify('metadata', [id])
+            if notify:
+                self.notify('metadata', [id])
     
     def clean(self):
         '''

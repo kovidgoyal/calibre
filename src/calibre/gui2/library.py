@@ -139,6 +139,9 @@ class BooksModel(QAbstractTableModel):
 
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
+        self.refresh_rows(rows, current_row=current_row)
+            
+    def refresh_rows(self, rows, current_row=-1):
         for row in rows:
             if self.cover_cache:
                 id = self.db.id(row)
@@ -147,7 +150,7 @@ class BooksModel(QAbstractTableModel):
                 self.emit(SIGNAL('new_bookdisplay_data(PyQt_PyObject)'),
                           self.get_book_display_info(row))
             self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'),
-                      self.index(row, 0), self.index(row, self.columnCount(None)-1))
+                      self.index(row, 0), self.index(row, self.columnCount(QModelIndex())-1))
 
     def close(self):
         self.db.close()

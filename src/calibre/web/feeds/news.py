@@ -559,6 +559,8 @@ class BasicNewsRecipe(object, LoggingInterface):
     
     @classmethod
     def description_limiter(cls, src):
+        if not src:
+            return ''
         pos = cls.summary_length
         fuzz = 50
         si = src.find(';', pos)
@@ -572,7 +574,7 @@ class BasicNewsRecipe(object, LoggingInterface):
             npos = pos
         ans = src[:npos+1]
         if isinstance(ans, unicode):
-            return
+            return ans
         return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
 
         

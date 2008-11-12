@@ -110,19 +110,20 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             else:
                 old_extensions.add(ext)
         for ext in new_extensions:
-            self.db.add_format(self.row, ext, open(paths[ext], 'rb'))
+            self.db.add_format(self.row, ext, open(paths[ext], 'rb'), notify=False)
         db_extensions = set([f.lower() for f in self.db.formats(self.row).split(',')])
         extensions = new_extensions.union(old_extensions)
         for ext in db_extensions:
             if ext not in extensions:
-                self.db.remove_format(self.row, ext)
+                self.db.remove_format(self.row, ext, notify=False)
     
-    def __init__(self, window, row, db):
+    def __init__(self, window, row, db, accepted_callback=None):
         QDialog.__init__(self, window)
         Ui_MetadataSingleDialog.__init__(self)        
         self.setupUi(self)
         self.splitter.setStretchFactor(100, 1)
         self.db = db
+        self.accepted_callback = accepted_callback
         self.id = db.id(row)
         self.row = row
         self.cover_data = None
@@ -334,20 +335,22 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         if self.formats_changed:
             self.sync_formats()
         title = qstring_to_unicode(self.title.text())
-        self.db.set_title(self.id, title)
+        self.db.set_title(self.id, title, notify=False)
         au = unicode(self.authors.text())
         if au: 
-            self.db.set_authors(self.id, string_to_authors(au))
+            self.db.set_authors(self.id, string_to_authors(au), notify=False)
         aus = qstring_to_unicode(self.author_sort.text())
         if aus:
-            self.db.set_author_sort(self.id, aus)
-        self.db.set_isbn(self.id, qstring_to_unicode(self.isbn.text()))
-        self.db.set_rating(self.id, 2*self.rating.value())
-        self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.text()))
-        self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','))
-        self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()))
-        self.db.set_series_index(self.id, self.series_index.value())
-        self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()))
+            self.db.set_author_sort(self.id, aus, notify=False)
+        self.db.set_isbn(self.id, qstring_to_unicode(self.isbn.text()), notify=False)
+        self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
+        self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.text()), notify=False)
+        self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','), notify=False)
+        self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()), notify=False)
+        self.db.set_series_index(self.id, self.series_index.value(), notify=False)
+        self.db.set_comment(self.id, qstring_to_unicode(self.comments.toPlainText()), notify=False)
         if self.cover_changed:
             self.db.set_cover(self.id, pixmap_to_data(self.cover.pixmap()))
         QDialog.accept(self)
+        if callable(self.accepted_callback):
+            self.accepted_callback(self.id)

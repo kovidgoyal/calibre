@@ -662,10 +662,14 @@ class Main(MainWindow, Ui_MainWindow):
 
         if bulk or (bulk is None and len(rows) > 1):
             return self.edit_bulk_metadata(checked)
+        
+        def accepted(id):
+            self.library_view.model().refresh_ids([id])
 
         for row in rows:
-            d = MetadataSingleDialog(self, row.row(),
-                                    self.library_view.model().db)
+            MetadataSingleDialog(self, row.row(),
+                                    self.library_view.model().db,
+                                    accepted_callback=accepted)
 
     def edit_bulk_metadata(self, checked):
         '''
