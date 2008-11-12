@@ -904,7 +904,17 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.set(id, FIELD_MAP['tags'], tags, row_is_id=True)
         if notify:
             self.notify('metadata', [id])
-
+            
+    def unapply_tags(self, book_id, tags, notify=True):
+        for tag in tags:
+            id = self.conn.get('SELECT id FROM tags WHERE name=?', (tag,), all=False)
+            if id:
+                self.conn.execute('DELETE FROM books_tags_link WHERE tag=? AND book=?', (id, book_id))
+        self.conn.commit()
+        self.data.refresh_ids(self.conn, [book_id])
+        if notify:
+            self.notify('metadata', [id])
+    
     
     def set_series(self, id, series, notify=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))

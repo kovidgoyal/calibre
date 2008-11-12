@@ -53,28 +53,28 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             au = qstring_to_unicode(self.authors.text())
             if au:
                 au = string_to_authors(au)
-                self.db.set_authors(id, au)
+                self.db.set_authors(id, au, notify=False)
             aus = qstring_to_unicode(self.author_sort.text())
             if aus:
-                self.db.set_author_sort(id, aus)
+                self.db.set_author_sort(id, aus, notify=False)
             if self.write_rating:
-                self.db.set_rating(id, 2*self.rating.value())
+                self.db.set_rating(id, 2*self.rating.value(), notify=False)
             pub = qstring_to_unicode(self.publisher.text())
             if pub:
-                self.db.set_publisher(id, pub)
+                self.db.set_publisher(id, pub, notify=False)
             tags = qstring_to_unicode(self.tags.text()).strip()
             if tags:
                 tags = map(lambda x: x.strip(), tags.split(','))
-                self.db.set_tags(id, tags, append=True)
+                self.db.set_tags(id, tags, append=True, notify=False)
             remove_tags = qstring_to_unicode(self.remove_tags.text()).strip()
             if remove_tags:
                 remove_tags = [i.strip() for i in remove_tags.split(',')]
-                self.db.unapply_tags(id, remove_tags)
+                self.db.unapply_tags(id, remove_tags, notify=False)
             if self.write_series:
-                self.db.set_series(id, qstring_to_unicode(self.series.currentText()))
+                self.db.set_series(id, qstring_to_unicode(self.series.currentText()), notify=False)
                 
             if self.remove_format.currentIndex() > -1:
-                self.db.remove_format(id, unicode(self.remove_format.currentText()), index_is_id=True)
+                self.db.remove_format(id, unicode(self.remove_format.currentText()), index_is_id=True, notify=False)
                 
             self.changed = True
     
