@@ -8,6 +8,7 @@ HTTP server for remote access to the calibre database.
 '''
 
 import sys, textwrap, cStringIO, mimetypes, operator, os, re, logging
+from itertools import repeat
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from threading import Thread
@@ -80,7 +81,7 @@ class LibraryServer(object):
         <link rel="x-stanza-cover-image" type="image/jpeg" href="http://${server}:${port}/get/cover/${record[FM['id']]}" />
         <link rel="x-stanza-cover-image-thumbnail" type="image/jpeg" href="http://${server}:${port}/get/thumb/${record[FM['id']]}" />
         <content type="xhtml">
-          <div xmlns="http://www.w3.org/1999/xhtml">${record[FM['comments']]}</div>
+          <div xmlns="http://www.w3.org/1999/xhtml" style="text-align: center">${Markup(extra)}${record[FM['comments']]}</div>
         </content>
     </entry>
     '''))
@@ -243,11 +244,23 @@ class LibraryServer(object):
         books = []
         for record in iter(self.db):
             if 'EPUB' in record[FIELD_MAP['formats']].upper():
-                authors = ' & '.join([i.replace('|', ',') for i in record[2].split(',')])
+                authors = ' & '.join([i.replace('|', ',') for i in record[FIELD_MAP['authors']].split(',')])
+                extra = []
+                rating = record[FIELD_MAP['rating']]
+                if rating > 0:
+                    rating = ''.join(repeat('&#9733;', rating))
+                    extra.append('RATING: %s<br />'%rating)
+                tags = record[FIELD_MAP['tags']]
+                if tags:
+                    extra.append('TAGS: %s<br />'%', '.join(tags))
+                series = record[FIELD_MAP['series']]
+                if series:
+                    extra.append('SERIES: %s [%d]<br />'%(series, record[FIELD_MAP['series_index']]))
                 books.append(self.STANZA_ENTRY.generate(authors=authors,
                                                         record=record, FM=FIELD_MAP,
                                                         port=self.opts.port,
                                                         server=self.opts.hostname,
+                                                        extra = ''.join(extra),
                                                         ).render('xml').decode('utf8'))
         
         updated = self.db.last_modified()
