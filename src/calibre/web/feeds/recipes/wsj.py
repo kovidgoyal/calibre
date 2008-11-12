@@ -27,8 +27,8 @@ class WallStreetJournal(BasicNewsRecipe):
         def get_browser(self): 
             br = BasicNewsRecipe.get_browser() 
             if self.username is not None and self.password is not None: 
-                br.open('http://online.wsj.com/login') 
-                br.select_form(name='login_form') 
+                br.open('http://commerce.wsj.com/auth/login') 
+                br.select_form(nr=0) 
                 br['user']   = self.username 
                 br['password'] = self.password 
                 br.submit() 

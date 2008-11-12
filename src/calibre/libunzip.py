@@ -42,7 +42,7 @@ def extract(filename, dir):
     """
     zf = zipfile.ZipFile( filename )
     zf.extractall(dir)
-    
+
 def extract_member(filename, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)):
     zf = zipfile.ZipFile(filename)
     names = zf.namelist()

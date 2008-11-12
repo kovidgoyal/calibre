@@ -111,7 +111,7 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     return base
 
 def get_comic_cover(stream, type):
-    extract_first = zip_extract_first if type == 'zip' else rar_extract_first
+    extract_first = zip_extract_first if type.lower() == 'cbz' else rar_extract_first
     ret = extract_first(stream)
     if ret is not None:
         path, data = ret
