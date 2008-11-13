@@ -72,7 +72,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget" >
        <property name="currentIndex" >
-        <number>0</number>
+        <number>3</number>
        </property>
        <widget class="QWidget" name="page_3" >
         <layout class="QVBoxLayout" name="verticalLayout" >
@@ -691,6 +691,22 @@
             <string>View &amp;server logs</string>
            </property>
           </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_13" >
+           <property name="text" >
+            <string>If you plan to use the content server to access your ebook collection on an iphone using the stanza reader, you will need to enter either the fully qualified &amp;hostname or the IP address for your computer below. You can then browse your books by adding the URL http://myhostname/stanza as a custom catalog in the stanza reader on your iphone.</string>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+           <property name="buddy" >
+            <cstring>hostname</cstring>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="hostname" />
          </item>
          <item>
           <spacer name="verticalSpacer" >
