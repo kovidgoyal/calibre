@@ -113,7 +113,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.port.setValue(opts.port)
         self.username.setText(opts.username)
         self.password.setText(opts.password if opts.password else '')
-        self.hostname.setText(opts.hostname)
         self.auto_launch.setChecked(config['autolaunch_server'])
     
     def up_column(self):
@@ -219,7 +218,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         sc = server_config()
         sc.set('username', unicode(self.username.text()).strip())
         sc.set('password', unicode(self.password.text()).strip())
-        sc.set('hostname', unicode(self.hostname.text()).strip())
         sc.set('port', self.port.value())
         of = str(self.output_format.currentText())
         fmts = []

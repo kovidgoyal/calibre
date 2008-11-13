@@ -77,9 +77,9 @@ class LibraryServer(object):
         <id>urn:calibre:${record[FM['id']]}</id>
         <author><name>${authors}</name></author>
         <updated>${record[FM['timestamp']].strftime('%Y-%m-%dT%H:%M:%S+00:00')}</updated>
-        <link type="application/epub+zip" href="http://${server}:${port}/get/epub/${record[FM['id']]}" />
-        <link rel="x-stanza-cover-image" type="image/jpeg" href="http://${server}:${port}/get/cover/${record[FM['id']]}" />
-        <link rel="x-stanza-cover-image-thumbnail" type="image/jpeg" href="http://${server}:${port}/get/thumb/${record[FM['id']]}" />
+        <link type="application/epub+zip" href="/get/epub/${record[FM['id']]}" />
+        <link rel="x-stanza-cover-image" type="image/jpeg" href="/get/cover/${record[FM['id']]}" />
+        <link rel="x-stanza-cover-image-thumbnail" type="image/jpeg" href="/get/thumb/${record[FM['id']]}" />
         <content type="xhtml">
           <div xmlns="http://www.w3.org/1999/xhtml" style="text-align: center">${Markup(extra)}${record[FM['comments']]}</div>
         </content>
@@ -259,7 +259,6 @@ class LibraryServer(object):
                 books.append(self.STANZA_ENTRY.generate(authors=authors,
                                                         record=record, FM=FIELD_MAP,
                                                         port=self.opts.port,
-                                                        server=self.opts.hostname,
                                                         extra = ''.join(extra),
                                                         ).render('xml').decode('utf8'))
         
