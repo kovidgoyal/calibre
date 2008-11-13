@@ -121,7 +121,10 @@ def parse_content(filelist, opts, tdir):
     if opts.base_font_size2 > 0:
         Rationalizer.remove_font_size_information(stylesheets.values())
         for path, css in stylesheets.items():
-            open(path, 'wb').write(getattr(css, 'cssText', css).encode('utf-8'))
+            raw = getattr(css, 'cssText', css)
+            if isinstance(raw, unicode):
+                raw = raw.encode('utf-8')
+            open(path, 'wb').write(raw)
     if toc.count('chapter') > opts.toc_threshold:
         toc.purge(['file', 'link', 'unknown'])
     if toc.count('chapter') + toc.count('file') > opts.toc_threshold:
