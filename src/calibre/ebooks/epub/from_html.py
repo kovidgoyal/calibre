@@ -35,10 +35,6 @@ Conversion of HTML/OPF files follows several stages:
 import os, sys, cStringIO, logging, re
 
 from lxml.etree import XPath
-try:
-    from PIL import Image as PILImage
-except ImportError:
-    import Image as PILImage
 
 from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc
@@ -134,16 +130,6 @@ def parse_content(filelist, opts, tdir):
     
     return resource_map, hp.htmlfile_map, toc, stylesheet_map
 
-def resize_cover(im, opts):
-    width, height = im.size
-    dw, dh = (opts.profile.screen_size[0]-width)/float(width), (opts.profile.screen_size[1]-height)/float(height)
-    delta = min(dw, dh)
-    if delta > 0:
-        nwidth = int(width + delta*(width))
-        nheight = int(height + delta*(height))
-        im = im.resize((int(nwidth), int(nheight)), PILImage.ANTIALIAS)
-    return im
-
 TITLEPAGE = '''\
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
     <head>
@@ -162,6 +148,31 @@ TITLEPAGE = '''\
 </html>
 '''
 
+def create_cover_image(src, dest, screen_size):
+    from PyQt4.Qt import QApplication, QImage, Qt
+    if QApplication.instance() is None:
+        app = QApplication([])
+        app
+    im = QImage()
+    try:
+        im.load(src)
+        if im.isNull():
+            raise ValueError
+        if screen_size is not None:
+            width, height = im.width(), im.height()
+            dw, dh = (screen_size[0]-width)/float(width), (screen_size[1]-height)/float(height)
+            delta = min(dw, dh)
+            if delta > 0:
+                nwidth = int(width + delta*(width))
+                nheight = int(height + delta*(height))
+                im = im.scaled(int(nwidth), int(nheight), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+            im.save(dest)
+    except:
+        import traceback
+        traceback.print_exc()
+        return False
+    return True
+
 def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     old_title_page = None
     f = lambda x : os.path.normcase(os.path.normpath(x))
@@ -176,35 +187,20 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
         
     cpath = '/'.join(('resources', '_cover_.jpg'))
     cover_dest = os.path.join(tdir, 'content', *cpath.split('/'))
-    with open(cover_dest, 'wb') as f_cover_dest:
-        if metadata_cover is not None:
-            with open(metadata_cover, 'rb') as src:
-                try:
-                    im = PILImage.open(src).convert('RGB')
-                    if opts.profile.screen_size is not None:
-                        im = resize_cover(im, opts)
-                    im.save(f_cover_dest, format='jpeg')
-                    metadata_cover = im
-                except:
-                    metadata_cover = None
-                    
-        specified_cover = opts.cover
-        if specified_cover and not os.path.exists(specified_cover):
+    if metadata_cover is not None:
+        if not create_cover_image(metadata_cover, cover_dest, opts.profile.screen_size):
+            metadata_cover = None
+                
+    specified_cover = opts.cover
+    if specified_cover and not os.path.exists(specified_cover):
+        specified_cover = None
+    if specified_cover is not None:
+        if not create_cover_image(specified_cover, cover_dest, opts.profile.screen_size):
             specified_cover = None
-        if specified_cover is not None:
-            with open(specified_cover, 'rb') as src:
-                try:
-                    im = PILImage.open(src).convert('RGB')
-                    if opts.profile.screen_size is not None:
-                        im = resize_cover(im, opts)
-                    specified_cover = im
-                    im.save(f_cover_dest, format='jpeg')
-                except:
-                    specified_cover = None
-        
-        cover = metadata_cover if specified_cover is None or (opts.prefer_metadata_cover and metadata_cover is not None) else specified_cover
+            
+    cover = metadata_cover if specified_cover is None or (opts.prefer_metadata_cover and metadata_cover is not None) else specified_cover
 
-    if hasattr(cover, 'save'):
+    if cover is not None:
         titlepage = TITLEPAGE%cpath
         tp = 'calibre_title_page.html' if old_title_page is None else old_title_page 
         tppath = os.path.join(tdir, 'content', tp)
