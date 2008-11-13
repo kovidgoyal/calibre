@@ -253,7 +253,7 @@ class MetaInformation(object):
             ans += ((' [' + self.author_sort + ']') if self.author_sort else '') + u'\n'
         if self.publisher:
             ans += u'Publisher: '+ unicode(self.publisher) + u'\n'
-        if self.book_producer:
+        if getattr(self, 'book_producer', False):
             ans += u'Producer : '+ unicode(self.book_producer) + u'\n'
         if self.category: 
             ans += u'Category : ' + unicode(self.category) + u'\n'
