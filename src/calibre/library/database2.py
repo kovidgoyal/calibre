@@ -665,11 +665,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute('INSERT INTO data (book,format,uncompressed_size,name) VALUES (?,?,?,?)',
                           (id, format.upper(), size, name))
         self.conn.commit()
-        try:
-            fmts = [f.strip().upper() for f in self.data[self.data.row(id)][FIELD_MAP['formats']].split(',')]
-        except AttributeError:
-            fmts = []
-        self.data.set(id, FIELD_MAP['formats'], ','.join(fmts+[format.upper()]), row_is_id=True)
+        self.refresh_ids([id])
         if notify:
             self.notify('metadata', [id])
         
@@ -704,9 +700,7 @@ class LibraryDatabase2(LibraryDatabase):
                 pass
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             self.conn.commit()
-            fmts = [f.strip().upper() for f in self.data[self.data.row(id)][FIELD_MAP['formats']].split(',')]
-            fmts.remove(format.upper())
-            self.data.set(id, FIELD_MAP['formats'], ','.join(fmts), row_is_id=True)
+            self.refresh_ids([id])
             if notify:
                 self.notify('metadata', [id])
     
