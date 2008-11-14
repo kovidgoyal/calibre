@@ -934,7 +934,9 @@ def test():
     unittest.TextTestRunner(verbosity=2).run(suite())
 
 def option_parser():
-    return get_parser('opf')
+    parser = get_parser('opf')
+    parser.add_option('--language', default=None, help=_('Set the dc:language field'))
+    return parser
 
 def main(args=sys.argv):
     parser = option_parser()
@@ -958,6 +960,9 @@ def main(args=sys.argv):
         write = True
     if opts.comment is not None:
         mi.comments = opts.comment
+        write = True
+    if opts.language is not None:
+        mi.language = opts.language
         write = True
     if write:
         mo = OPFCreator(basedir, mi)
