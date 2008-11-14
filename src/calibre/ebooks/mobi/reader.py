@@ -123,6 +123,9 @@ class BookHeader(object):
 class MobiReader(object):
     
     PAGE_BREAK_PAT = re.compile(r'(<[/]{0,1}mbp:pagebreak\s*[/]{0,1}>)+', re.IGNORECASE)
+    IMAGE_PATS     = map(re.compile, (r'\shirecindex=[\'"]{0,1}(\d+)[\'"]{0,1}', 
+                        r'\srecindex=[\'"]{0,1}(\d+)[\'"]{0,1}', 
+                        r'\slorecindex=[\'"]{0,1}(\d+)[\'"]{0,1}'))
     
     def __init__(self, filename_or_stream, verbose=False):
         self.verbose = verbose
@@ -405,10 +408,7 @@ class MobiReader(object):
             
         def fix_images(match):
             tag = match.group()
-            for pat in (r'\shirecindex=[\'"]{0,1}(\d+)[\'"]{0,1}', 
-                        '\srecindex=[\'"]{0,1}(\d+)[\'"]{0,1}', 
-                        '\slorecindex=[\'"]{0,1}(\d+)[\'"]{0,1}'):
-                pat = re.compile(pat)
+            for pat in self.IMAGE_PATS:
                 m = pat.search(tag)
                 if m:
                     return pat.sub(' src="images/%s.jpg"'%m.group(1), tag)

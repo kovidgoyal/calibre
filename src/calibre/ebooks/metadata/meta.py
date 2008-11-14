@@ -20,7 +20,11 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
-from calibre.libunrar import extract_member as rar_extract_first
+try:
+    from calibre.libunrar import extract_member as rar_extract_first
+except OSError:
+    rar_extract_first = None
+    
 from calibre.libunzip import extract_member as zip_extract_first
 
 from calibre.ebooks.metadata import MetaInformation
