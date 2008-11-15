@@ -304,7 +304,10 @@ def convert(htmlfile, opts, notification=None):
         
         opf.add_path_to_manifest(os.path.join(tdir, 'content', 'resources', '_cover_.jpg'), 'image/jpeg')    
         with open(opf_path, 'wb') as f:
-            f.write(opf.render())
+            raw = opf.render()
+            if not raw.startswith('<?xml '):
+                raw = '<?xml version="1.0"  encoding="UTF-8"?>\n'+raw
+            f.write(raw)
         epub = initialize_container(opts.output)
         epub.add_dir(tdir)
         if opts.show_opf:

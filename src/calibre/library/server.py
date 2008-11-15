@@ -252,7 +252,7 @@ class LibraryServer(object):
                     extra.append('RATING: %s<br />'%rating)
                 tags = record[FIELD_MAP['tags']]
                 if tags:
-                    extra.append('TAGS: %s<br />'%', '.join(tags))
+                    extra.append('TAGS: %s<br />'%', '.join(tags.split(',')))
                 series = record[FIELD_MAP['series']]
                 if series:
                     extra.append('SERIES: %s [%d]<br />'%(series, record[FIELD_MAP['series_index']]))

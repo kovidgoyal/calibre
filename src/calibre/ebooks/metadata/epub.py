@@ -235,7 +235,7 @@ def main(args=sys.argv):
         
         if changed:
             set_metadata(stream, mi)
-        print unicode(get_metadata(stream, extract_cover=False))
+        print unicode(get_metadata(stream, extract_cover=False)).encode('utf-8')
         
     if mi.cover_data[1] is not None:
         cpath = os.path.splitext(os.path.basename(args[1]))[0] + '_cover.jpg'

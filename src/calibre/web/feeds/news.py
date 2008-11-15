@@ -500,7 +500,6 @@ class BasicNewsRecipe(object, LoggingInterface):
         if self.no_stylesheets:
             for link in list(soup.findAll('link', type=re.compile('css')))+list(soup.findAll('style')):
                 link.extract()
-        
         head = soup.find('head')
         if not head:
             head = soup.find('body')

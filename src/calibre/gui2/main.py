@@ -667,9 +667,10 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.model().refresh_ids([id])
 
         for row in rows:
-            MetadataSingleDialog(self, row.row(),
+            d = MetadataSingleDialog(self, row.row(),
                                     self.library_view.model().db,
                                     accepted_callback=accepted)
+            d.exec_()
 
     def edit_bulk_metadata(self, checked):
         '''

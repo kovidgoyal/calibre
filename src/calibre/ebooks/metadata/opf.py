@@ -519,6 +519,8 @@ class OPFCreator(MetaInformation):
         self.guide.set_basedir(self.base_path)
         
         opf = template.generate(__appname__=__appname__, mi=self, __version__=__version__).render('xml')
+        if not opf.startswith('<?xml '):
+            opf = '<?xml version="1.0"  encoding="UTF-8"?>\n'+opf
         opf_stream.write(opf)
         opf_stream.flush()
         toc = getattr(self, 'toc', None)

@@ -20,6 +20,7 @@ from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
 from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
+from calibre.ebooks.metadata.pdf  import set_metadata as set_pdf_metadata
 try:
     from calibre.libunrar import extract_member as rar_extract_first
 except OSError:
@@ -122,8 +123,6 @@ def get_comic_cover(stream, type):
         ext = os.path.splitext(path)[1][1:]
         return (ext.lower(), data)
         
-        
-
 def set_metadata(stream, mi, stream_type='lrf'):
     if stream_type: stream_type = stream_type.lower()
     if stream_type == 'lrf':
@@ -132,6 +131,8 @@ def set_metadata(stream, mi, stream_type='lrf'):
         set_epub_metadata(stream, mi)
     elif stream_type == 'rtf':
         set_rtf_metadata(stream, mi)
+    #elif stream_type == 'pdf':
+    #    set_pdf_metadata(stream, mi)
 
 def metadata_from_filename(name, pat=None):
     name = os.path.splitext(name)[0]
