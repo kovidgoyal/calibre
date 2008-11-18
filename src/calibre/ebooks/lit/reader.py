@@ -557,7 +557,9 @@ class LitReader(object):
                 if namelen > remaining - 3:
                     raise LitError('Read past end of directory chunk')
                 try:
-                    name, chunk = chunk[:namelen].decode('utf-8'), chunk[namelen:]
+                    name = chunk[:namelen].decode('utf-8')
+                    chunk = chunk[namelen:]
+                    remaining -= namelen
                 except UnicodeDecodeError:
                     break
                 section, chunk, remaining = encint(chunk, remaining)
