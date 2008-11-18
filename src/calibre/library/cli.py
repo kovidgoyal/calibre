@@ -82,7 +82,7 @@ STANZA_TEMPLATE='''\
       <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
       <link py:if="record['cover']" rel="x-stanza-cover-image-thumbnail" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
       <content type="xhtml">
-          <div xmlns="http://www.w3.org/1999/xhtml"><pre>${record['comments']}</pre></div>
+          <div xmlns="http://www.w3.org/1999/xhtml">${record['comments']}</div>
       </content>
   </entry>
   </py:for>
