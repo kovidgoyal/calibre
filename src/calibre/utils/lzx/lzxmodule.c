@@ -187,6 +187,7 @@ decompress(PyObject *self, PyObject *args)
 
     if (err != MSPACK_ERR_OK) {
         Py_DECREF(retval);
+        retval = NULL;
         PyErr_SetString(LzxError, "LZX decompression failed");
     }
     
