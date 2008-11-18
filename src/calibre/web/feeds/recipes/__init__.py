@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Builtin recipes.
 '''
-recipes = [
+recipe_modules = [
            'newsweek', 'atlantic', 'economist', 'portfolio', 
            'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
            'wired', 'globe_and_mail', 'smh', 'espn', 'business_week',
@@ -45,7 +45,7 @@ def load_recipe(module, package='calibre.web.feeds.recipes'):
             return obj
 
 
-recipes = [load_recipe(i) for i in recipes]
+recipes = [load_recipe(i) for i in recipe_modules]
 
 _tdir = None
 _crep = 0
