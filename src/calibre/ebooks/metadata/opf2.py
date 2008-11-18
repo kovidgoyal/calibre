@@ -273,10 +273,11 @@ class Spine(ResourceCollection):
         for itemref in itemrefs:
             idref = itemref.get('idref', None)
             if idref is not None:
-                r = Spine.Item(s.manifest.id_for_path,
-                               s.manifest.path_for_id(idref), is_path=True)
-                r.is_linear = itemref.get('linear', 'yes') == 'yes'
-                s.append(r)
+                path = s.manifest.path_for_id(idref)
+                if path:
+                    r = Spine.Item(s.manifest.id_for_path, path, is_path=True)
+                    r.is_linear = itemref.get('linear', 'yes') == 'yes'
+                    s.append(r)
         return s
                 
     @staticmethod
@@ -439,7 +440,7 @@ class OPF(object):
             stream = open(stream, 'rb')
         self.basedir  = self.base_dir = basedir
         raw, self.encoding = xml_to_unicode(stream.read(), strip_encoding_pats=True, resolve_entities=True)
-        
+        raw = raw[raw.find('<'):]
         self.root     = etree.fromstring(raw, self.PARSER)
         self.metadata = self.metadata_path(self.root)
         if not self.metadata:
