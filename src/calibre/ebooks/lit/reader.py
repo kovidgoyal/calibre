@@ -771,15 +771,21 @@ class LitReader(object):
                     raise("Reset table entry out of bounds")
                 if bytes_remaining >= window_bytes:
                     lzx.reset()
-                    result.append(
-                        lzx.decompress(content[base:size], window_bytes))
+                    try:
+                        result.append(
+                            lzx.decompress(content[base:size], window_bytes))
+                    except lzx.LzxError:
+                        self._warn("LZX decompression error; skipping chunk")
                     bytes_remaining -= window_bytes
                     base = size
             accum += int32(reset_table[RESET_INTERVAL:])
             ofs_entry += 8
         if bytes_remaining < window_bytes and bytes_remaining > 0:
             lzx.reset()
-            result.append(lzx.decompress(content[base:], bytes_remaining))
+            try:
+                result.append(lzx.decompress(content[base:], bytes_remaining))
+            except lzx.LzxError:
+                self._warn("LZX decompression error; skipping chunk")
             bytes_remaining = 0
         if bytes_remaining > 0:
             raise LitError("Failed to completely decompress section")
@@ -825,6 +831,9 @@ class LitReader(object):
         dir = os.path.dirname(path)
         if not os.path.isdir(dir):
             os.makedirs(dir)
+
+    def _warn(self, msg):
+        print "WARNING: %s" % (msg,)
 
 def option_parser():
     from calibre.utils.config import OptionParser
