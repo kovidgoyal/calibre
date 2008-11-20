@@ -130,7 +130,7 @@ class FeedTemplate(Template):
         </style>
     </head>
     <body style="page-break-before:always">
-        <h2>${feed.title}</h2>
+        <h2 class="feed_title">${feed.title}</h2>
         <py:if test="getattr(feed, 'image', None)">
         <div class="feed_image">
             <img alt="${feed.image_alt}" src="${feed.image_url}" />

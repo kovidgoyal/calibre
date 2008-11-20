@@ -675,7 +675,7 @@ class Processor(Parser):
                 text = (u''.join(link.xpath('string()'))).strip()
                 if text:
                     href = link.get('href', '')
-                    if href:
+                    if href and not (href.startswith('http://') or href.startswith('https://')):
                         href = 'content/'+href
                         parts = href.split('#')
                         href, fragment = parts[0], None

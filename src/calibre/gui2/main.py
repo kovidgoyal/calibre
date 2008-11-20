@@ -34,7 +34,8 @@ from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
-from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, set_conversion_defaults, fetch_news
+from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, \
+                                set_conversion_defaults, fetch_news, fetch_scheduled_recipe
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
 from calibre.gui2.dialogs.user_profiles import UserProfiles
@@ -809,6 +810,13 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.model().db.set_feeds(feeds)
             self.news_menu.set_custom_feeds(feeds)
 
+    def download_scheduled_recipe(self, recipe, script, callback):
+        func, args, desc, fmt, temp_files = fetch_scheduled_recipe(recipe, script)
+        job = self.job_manager.run_job(Dispatcher(self.scheduled_recipe_fetched), func, args=args,
+                                            description=desc)
+        self.conversion_jobs[job] = (temp_files, fmt, recipe, callback)
+        self.status_bar.showMessage(_('Fetching news from ')+recipe.title, 2000)
+    
     def fetch_news(self, data):
         func, args, desc, fmt, temp_files = fetch_news(data)
         self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
@@ -817,6 +825,19 @@ class Main(MainWindow, Ui_MainWindow):
         self.conversion_jobs[job] = (temp_files, fmt)
         self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
         
+    def scheduled_recipe_fetched(self, job):
+        temp_files, fmt, recipe, callback = self.conversion_jobs.pop(job)
+        pt = temp_files[0]
+        if job.exception is not None:
+            self.job_exception(job)
+            return
+        mi = get_metadata(open(pt.name, 'rb'), fmt, use_libprs_metadata=False)
+        mi.tags = ['news', recipe.title]
+        paths, formats, metadata = [pt.name], [fmt], [mi]
+        self.library_view.model().add_books(paths, formats, metadata, add_duplicates=True)
+        callback(recipe)
+        self.status_bar.showMessage(recipe.title + _(' fetched.'), 3000)
+            
     def news_fetched(self, job):
         temp_files, fmt = self.conversion_jobs.pop(job)
         pt = temp_files[0]

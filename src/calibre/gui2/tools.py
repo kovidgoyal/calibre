@@ -13,7 +13,7 @@ from calibre.utils.config import prefs
 from calibre.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
 from calibre.gui2.dialogs.epub import Config as EPUBConvert
 import calibre.gui2.dialogs.comicconf as ComicConf
-from calibre.gui2 import warning_dialog
+from calibre.gui2 import warning_dialog, dynamic
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
 from calibre.ebooks.metadata.opf import OPFCreator
@@ -359,6 +359,20 @@ def _fetch_news(data, fmt):
     args.append(data['script'] if data['script'] else data['title'])
     return 'feeds2'+fmt.lower(), [args], _('Fetch news from ')+data['title'], fmt.upper(), [pt]
     
+
+def fetch_scheduled_recipe(recipe, script):
+    fmt = prefs['output_format'].lower()
+    pt = PersistentTemporaryFile(suffix='_feeds2%s.%s'%(fmt.lower(), fmt.lower()))
+    pt.close()
+    args = ['feeds2%s'%fmt.lower(), '--output', pt.name, '--debug']
+    if recipe.needs_subscription:
+        x = dynamic['recipe_account_info_%s'%recipe.id]
+        if not x:
+            raise ValueError(_('You must set a username and password for %s')%recipe.title)
+        args.extend(['--username', x[0], '--password', x[1]])
+    args.append(script)
+    return 'feeds2'+fmt, [args], _('Fetch news from ')+recipe.title, fmt.upper(), [pt]
+            
 
 def convert_single_ebook(*args):
     fmt = prefs['output_format'].lower()

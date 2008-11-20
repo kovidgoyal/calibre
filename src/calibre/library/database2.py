@@ -715,6 +715,12 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.execute(st%dict(ltable='series', table='series', ltable_col='series'))
         self.conn.commit()
     
+    def get_recipes(self):
+        return self.conn.get('SELECT id, title FROM feeds')
+    
+    def get_recipe(self, id):
+        return self.conn.get('SELECT script FROM feeds WHERE id=?', (id,), all=False)
+    
     def get_categories(self, sort_on_count=False):
         categories = {}
         def get(name, category, field='name'):

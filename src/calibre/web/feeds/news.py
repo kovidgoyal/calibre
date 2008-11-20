@@ -519,6 +519,8 @@ class BasicNewsRecipe(object, LoggingInterface):
         if self.remove_javascript:
             for script in list(soup.findAll('script')):
                 script.extract()
+        for script in list(soup.findAll('noscript')):
+                script.extract()
         return self.postprocess_html(soup, first_fetch)
         
     
