@@ -131,6 +131,11 @@ class BooksModel(QAbstractTableModel):
         if cols != self.column_map:
             self.column_map = cols
             self.reset()
+            try:
+                idx = self.column_map.index('rating')
+            except ValueError:
+                idx = -1
+            self.emit(SIGNAL('columns_sorted(int)'), idx)
         
     
     def set_database(self, db):
@@ -520,26 +525,26 @@ class BooksView(TableView):
 
     def __init__(self, parent, modelcls=BooksModel):
         TableView.__init__(self, parent)
+        self.rating_delegate = LibraryDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
-        self.columns_sorted()
+        try:
+            self.columns_sorted(self._model.column_map.index('rating'))
+        except ValueError:
+            pass
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
-        # Adding and removing rows should resize rows to contents
-        #QObject.connect(self.model(), SIGNAL('rowsRemoved(QModelIndex, int, int)'), self.resizeRowsToContents)
-        #QObject.connect(self.model(), SIGNAL('rowsInserted(QModelIndex, int, int)'), self.resizeRowsToContents)
-        self.set_visible_columns()
+        self.connect(self._model, SIGNAL('columns_sorted(int)'), self.columns_sorted, Qt.QueuedConnection)
         
-    def columns_sorted(self):
-        if self.__class__.__name__ == 'BooksView':
-            try:
-                idx = self._model.column_map.index('rating')
-                self.setItemDelegateForColumn(idx, LibraryDelegate(self))
-            except ValueError:
-                pass
+    def columns_sorted(self, col):
+        for i in range(self.model().columnCount(None)):
+            if self.itemDelegateForColumn(i) == self.rating_delegate:
+                self.setItemDelegateForColumn(i, self.itemDelegate())
+        if col > -1:
+            self.setItemDelegateForColumn(col, self.rating_delegate)
             
         
     def sortByColumn(self, colname, order):

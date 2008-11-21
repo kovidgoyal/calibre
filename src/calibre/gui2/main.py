@@ -6,7 +6,7 @@ from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog, QDesktopServices, QFileDialog, \
-                        QSystemTrayIcon, QApplication
+                        QSystemTrayIcon, QApplication, QKeySequence, QAction
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
@@ -31,16 +31,14 @@ from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager
 from calibre.gui2.status import StatusBar
 from calibre.gui2.jobs2 import JobManager
-from calibre.gui2.news import NewsMenu
 from calibre.gui2.dialogs.metadata_single import MetadataSingleDialog
 from calibre.gui2.dialogs.metadata_bulk import MetadataBulkDialog
 from calibre.gui2.dialogs.jobs import JobsDialog
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.gui2.tools import convert_single_ebook, convert_bulk_ebooks, \
-                                set_conversion_defaults, fetch_news, fetch_scheduled_recipe
+                                set_conversion_defaults, fetch_scheduled_recipe
 from calibre.gui2.dialogs.config import ConfigDialog
 from calibre.gui2.dialogs.search import SearchDialog
-from calibre.gui2.dialogs.user_profiles import UserProfiles
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks.metadata.meta import set_metadata
@@ -100,8 +98,10 @@ class Main(MainWindow, Ui_MainWindow):
         self.system_tray_menu = QMenu()
         self.restore_action = self.system_tray_menu.addAction(QIcon(':/images/page.svg'), _('&Restore'))
         self.donate_action  = self.system_tray_menu.addAction(QIcon(':/images/donate.svg'), _('&Donate'))
-        self.quit_action    = self.system_tray_menu.addAction(QIcon(':/images/window-close.svg'), _('&Quit'))
-        
+        self.quit_action    = QAction(QIcon(':/images/window-close.svg'), _('&Quit'), self)
+        self.addAction(self.quit_action)
+        self.system_tray_menu.addAction(self.quit_action)
+        self.quit_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Q))
         self.system_tray_icon.setContextMenu(self.system_tray_menu)
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
@@ -193,9 +193,6 @@ class Main(MainWindow, Ui_MainWindow):
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
         self.action_save.setMenu(self.save_menu)
-        self.news_menu = NewsMenu(self.customize_feeds)
-        self.action_news.setMenu(self.news_menu)
-        QObject.connect(self.news_menu, SIGNAL('fetch_news(PyQt_PyObject)'), self.fetch_news)
         cm = QMenu()
         cm.addAction(_('Convert individually'))
         cm.addAction(_('Bulk convert'))
@@ -209,7 +206,7 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(cm.actions()[4], SIGNAL('triggered(bool)'), self.set_comic_conversion_defaults)
         QObject.connect(self.action_convert, SIGNAL('triggered(bool)'), self.convert_single)        
         self.convert_menu = cm
-        self.tool_bar.widgetForAction(self.action_news).setPopupMode(QToolButton.InstantPopup)
+        self.tool_bar.widgetForAction(self.action_news).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_edit).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_sync).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_convert).setPopupMode(QToolButton.MenuButtonPopup)
@@ -303,16 +300,18 @@ class Main(MainWindow, Ui_MainWindow):
         self.device_manager = DeviceManager(Dispatcher(self.device_detected), self.job_manager)
         self.device_manager.start()
         
-        self.news_menu.set_custom_feeds(self.library_view.model().db.get_feeds())
         
         if config['autolaunch_server']:
             from calibre.library.server import start_threaded_server
             from calibre.library import server_config
             self.content_server = start_threaded_server(db, server_config().parse())
             self.test_server_timer = QTimer.singleShot(10000, self.test_server)
-            
+        
+        
         self.scheduler = Scheduler(self)
-        self.connect(self.news_menu.scheduler, SIGNAL('triggered(bool)'), lambda x :self.scheduler.show_dialog())
+        self.action_news.setMenu(self.scheduler.news_menu)
+        self.connect(self.action_news, SIGNAL('triggered(bool)'), self.scheduler.show_dialog)
+        
         
     def test_server(self, *args):
         if self.content_server.exception is not None:
@@ -826,13 +825,6 @@ class Main(MainWindow, Ui_MainWindow):
 
     ############################### Fetch news #################################
 
-    def customize_feeds(self, *args):
-        d = UserProfiles(self, self.library_view.model().db.get_feeds())
-        if d.exec_() == QDialog.Accepted:
-            feeds = tuple(d.profiles())
-            self.library_view.model().db.set_feeds(feeds)
-            self.news_menu.set_custom_feeds(feeds)
-
     def download_scheduled_recipe(self, recipe, script, callback):
         func, args, desc, fmt, temp_files = fetch_scheduled_recipe(recipe, script)
         job = self.job_manager.run_job(Dispatcher(self.scheduled_recipe_fetched), func, args=args,
@@ -840,14 +832,6 @@ class Main(MainWindow, Ui_MainWindow):
         self.conversion_jobs[job] = (temp_files, fmt, recipe, callback)
         self.status_bar.showMessage(_('Fetching news from ')+recipe.title, 2000)
     
-    def fetch_news(self, data):
-        func, args, desc, fmt, temp_files = fetch_news(data)
-        self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
-        job = self.job_manager.run_job(Dispatcher(self.news_fetched), func, args=args,
-                                            description=desc)
-        self.conversion_jobs[job] = (temp_files, fmt)
-        self.status_bar.showMessage(_('Fetching news from ')+data['title'], 2000)
-        
     def scheduled_recipe_fetched(self, job):
         temp_files, fmt, recipe, callback = self.conversion_jobs.pop(job)
         pt = temp_files[0]
@@ -861,26 +845,6 @@ class Main(MainWindow, Ui_MainWindow):
         callback(recipe)
         self.status_bar.showMessage(recipe.title + _(' fetched.'), 3000)
             
-    def news_fetched(self, job):
-        temp_files, fmt = self.conversion_jobs.pop(job)
-        pt = temp_files[0]
-        if job.exception is not None:
-            self.job_exception(job)
-            return
-        to_device = self.device_connected and fmt.lower() in self.device_manager.device_class.FORMATS
-        self._add_books([pt.name], to_device, 
-            on_card=config.get('send_to_storage_card_by_default') and self.device_connected and bool(self.device_manager.device.card_prefix()))
-        if to_device:
-            self.status_bar.showMessage(_('News fetched. Uploading to device.'), 2000)
-            self.persistent_files.append(pt)
-        try:
-            if not to_device:
-                for f in temp_files:
-                    if os.path.exists(f.name):
-                        os.remove(f.name)
-        except:
-            pass
-
     ############################################################################
 
     ############################### Convert ####################################
@@ -1116,7 +1080,6 @@ class Main(MainWindow, Ui_MainWindow):
             if hasattr(d, 'directories'):
                 set_sidebar_directories(d.directories)
             self.library_view.model().read_config()
-            self.library_view.columns_sorted()
 
     ############################################################################
 
