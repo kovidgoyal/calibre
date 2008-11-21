@@ -35,6 +35,7 @@ Conversion of HTML/OPF files follows several stages:
 import os, sys, cStringIO, logging, re
 
 from lxml.etree import XPath
+from PyQt4.Qt import QApplication, QPixmap
 
 from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
     opf_traverse, create_metadata, rebase_toc
@@ -82,9 +83,28 @@ class HTMLProcessor(Processor, Rationalizer):
         if opts.verbose > 2:
             self.debug_tree('nocss')
             
+    def convert_image(self, img):
+        rpath = img.get('src', '')
+        path = os.path.join(os.path.dirname(self.save_path()), *rpath.split('/'))
+        if os.path.exists(path) and os.path.isfile(path):
+            if QApplication.instance() is None:
+                app = QApplication([])
+                app
+            p = QPixmap()
+            p.load(path)
+            if not p.isNull():
+                p.save(path+'.jpg')
+                os.remove(path)
+                for key, val in self.resource_map.items():
+                    if val == rpath:
+                        self.resource_map[key] = rpath+'.jpg'
+        img.set('src', rpath+'.jpg')
+    
     def save(self):
         for meta in list(self.root.xpath('//meta')):
             meta.getparent().remove(meta)
+        for img in self.root.xpath('//img[@src]'):
+            self.convert_image(img)
         Processor.save(self)
         
     
