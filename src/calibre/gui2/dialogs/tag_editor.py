@@ -21,7 +21,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         else:
             tags = []
         if tags:
-            tags = [tag.lower().strip() for tag in tags.split(',') if tag.strip()]
+            tags = [tag.strip() for tag in tags.split(',') if tag.strip()]
             tags.sort()
             for tag in tags:
                 self.applied_tags.addItem(tag)
@@ -30,7 +30,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         
         self.tags = tags
         
-        all_tags = [tag.lower() for tag in self.db.all_tags()]
+        all_tags = [tag for tag in self.db.all_tags()]
         all_tags = list(set(all_tags))
         all_tags.sort()
         for tag in all_tags:
@@ -98,7 +98,7 @@ class TagEditor(QDialog, Ui_TagEditor):
         self.available_tags.sortItems()
     
     def add_tag(self):
-        tags = qstring_to_unicode(self.add_tag_input.text()).lower().split(',')
+        tags = qstring_to_unicode(self.add_tag_input.text()).split(',')
         for tag in tags:
             tag = tag.strip()
             for item in self.available_tags.findItems(tag, Qt.MatchFixedString):

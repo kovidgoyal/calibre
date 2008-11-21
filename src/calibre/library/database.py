@@ -1168,19 +1168,6 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         self.conn.execute('INSERT INTO comments(book,text) VALUES (?,?)', (id, text))
         self.conn.commit()
 
-    def is_tag_used(self, tag):
-        id = self.conn.get('SELECT id FROM tags WHERE name=?', (tag,), all=False)
-        if not id:
-            return False
-        return bool(self.conn.get('SELECT tag FROM books_tags_link WHERE tag=?',(id,), all=False))
-
-    def delete_tag(self, tag):
-        id = self.conn.get('SELECT id FROM tags WHERE name=?', (tag,), all=False)
-        if id:
-            self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
-            self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
-            self.conn.commit()
-
     def delete_tags(self, tags):
         for tag in tags:
             self.delete_tag(tag)

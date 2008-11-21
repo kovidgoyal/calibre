@@ -878,14 +878,22 @@ class LibraryDatabase2(LibraryDatabase):
             self.conn.execute('DELETE FROM books_tags_link WHERE book=?', (id,))
             self.conn.execute('DELETE FROM tags WHERE (SELECT COUNT(id) FROM books_tags_link WHERE tag=tags.id) < 1')
         for tag in set(tags):
-            tag = tag.lower().strip()
+            tag = tag.strip()
             if not tag:
                 continue
             if not isinstance(tag, unicode):
                 tag = tag.decode(preferred_encoding, 'replace')
-            t = self.conn.get('SELECT id FROM tags WHERE name=?', (tag,), all=False)
-            if t:
-                tid = t
+            existing_tags = self.all_tags()
+            lt = [t.lower() for t in existing_tags]
+            try:
+                idx = lt.index(tag.lower())
+            except ValueError:
+                idx = -1
+            if idx > -1:
+                etag = existing_tags[idx]
+                tid = self.conn.get('SELECT id FROM tags WHERE name=?', (etag,), all=False)
+                if etag != tag:
+                    self.conn.execute('UPDATE tags SET name=? WHERE id=?', (tag, tid))
             else:
                 tid = self.conn.execute('INSERT INTO tags(name) VALUES(?)', (tag,)).lastrowid
 
@@ -915,6 +923,29 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('metadata', [id])
     
+    def is_tag_used(self, tag):
+        existing_tags = self.all_tags()
+        lt = [t.lower() for t in existing_tags]
+        try:
+            lt.index(tag.lower())
+            return True
+        except ValueError:
+            return False
+        
+    def delete_tag(self, tag):
+        existing_tags = self.all_tags()
+        lt = [t.lower() for t in existing_tags]
+        try:
+            idx = lt.index(tag.lower())
+        except ValueError:
+            idx = -1
+        if idx > -1:
+            id = self.conn.get('SELECT id FROM tags WHERE name=?', (existing_tags[idx],), all=False)
+            if id:
+                self.conn.execute('DELETE FROM books_tags_link WHERE tag=?', (id,))
+                self.conn.execute('DELETE FROM tags WHERE id=?', (id,))
+                self.conn.commit()
+
     
     def set_series(self, id, series, notify=True):
         self.conn.execute('DELETE FROM books_series_link WHERE book=?',(id,))
