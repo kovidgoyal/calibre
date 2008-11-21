@@ -127,10 +127,13 @@ class RecursiveFetcher(object, LoggingInterface):
          
         if self.keep_only_tags:
             body = Tag(soup, 'body')
-            for spec in self.keep_only_tags:
-                for tag in soup.find('body').findAll(**spec):
-                    body.insert(len(body.contents), tag)
-            soup.find('body').replaceWith(body)
+            try:
+                for spec in self.keep_only_tags:
+                    for tag in soup.find('body').findAll(**spec):
+                        body.insert(len(body.contents), tag)
+                soup.find('body').replaceWith(body)
+            except AttributeError: # soup has no body element
+                pass
             
         def remove_beyond(tag, next):
             while tag is not None and tag.name != 'body':

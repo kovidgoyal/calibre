@@ -8,30 +8,39 @@ Scheduler for automated recipe downloads
 '''
 
 import sys, copy
-from threading import RLock
 from datetime import datetime, timedelta
 from PyQt4.Qt import QDialog, QApplication, QLineEdit, QPalette, SIGNAL, QBrush, \
                      QColor, QAbstractListModel, Qt, QVariant, QFont, QIcon, \
-                     QFile, QObject, QTimer
+                     QFile, QObject, QTimer, QMutex
 
 from calibre import english_sort
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.web.feeds.recipes import recipes, recipe_modules, compile_recipe
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.gui2 import dynamic, NONE, error_dialog
+from calibre.gui2 import NONE, error_dialog
+from calibre.utils.config import DynamicConfig
+
+config = DynamicConfig('scheduler')
 
 class Recipe(object):
     
-    def __init__(self, id, recipe_class, builtin):
-        self.id              = id
-        self.title           = recipe_class.title
-        self.description     = recipe_class.description
-        self.last_downloaded = datetime.fromordinal(1)
-        self.downloading     = False
-        self.builtin         = builtin
-        self.schedule        = None
-        self.needs_subscription = recipe_class.needs_subscription
+    def __init__(self, id=None, recipe_class=None, builtin=True):
+        self.id                 = id
+        self.title              = getattr(recipe_class, 'title', None)
+        self.description        = getattr(recipe_class, 'description', None)
+        self.last_downloaded    = datetime.fromordinal(1)
+        self.downloading        = False
+        self.builtin            = builtin
+        self.schedule           = None
+        self.needs_subscription = getattr(recipe_class, 'needs_subscription', False)
+        
+    def pickle(self):
+        return self.__dict__.copy()
+    
+    def unpickle(self, dict):
+        self.__dict__.update(dict)
+        return self
         
     def __cmp__(self, other):
         if self.id == getattr(other, 'id', None):
@@ -53,9 +62,16 @@ class Recipe(object):
         return self.id == getattr(other, 'id', None)
     
     def __repr__(self):
-        return u'%s:%s'%(self.id, self.title)
+        return u'%s|%s|%s|%s'%(self.id, self.title, self.last_downloaded.ctime(), self.schedule)
     
 builtin_recipes = [Recipe(m, r, True) for r, m in zip(recipes, recipe_modules)]
+
+def save_recipes(recipes):
+    config['scheduled_recipes'] = [r.pickle() for r in recipes]
+    
+def load_recipes():
+    config.refresh()
+    return [Recipe().unpickle(r) for r in config.get('scheduled_recipes', [])]
 
 class RecipeModel(QAbstractListModel, SearchQueryParser):
     
@@ -70,16 +86,18 @@ class RecipeModel(QAbstractListModel, SearchQueryParser):
         for x in db.get_recipes():
             recipe = compile_recipe(x[1])
             self.recipes.append(Recipe(x[0], recipe, False))
-            
-        sr = dynamic['scheduled_recipes']
-        if not sr:
-            sr = []
+        self.refresh()    
+        self._map = list(range(len(self.recipes)))
+    
+    def refresh(self):
+        sr = load_recipes()
         for recipe in self.recipes:
             if recipe in sr:
                 recipe.schedule = sr[sr.index(recipe)].schedule
+                recipe.last_downloaded = sr[sr.index(recipe)].last_downloaded
         
         self.recipes.sort()
-        self._map = list(range(len(self.recipes)))
+        
     
     def universal_set(self):
         return set(self.recipes)
@@ -203,7 +221,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                      lambda state: self.interval.setEnabled(state == Qt.Checked))
         self.connect(self.show_password, SIGNAL('stateChanged(int)'),
                      lambda state: self.password.setEchoMode(self.password.Normal if state == Qt.Checked else self.password.Password))
-        self.connect(self.interval, SIGNAL('valueChanged(int)'), self.do_schedule)
+        self.connect(self.interval, SIGNAL('valueChanged(double)'), self.do_schedule)
         self.connect(self.search, SIGNAL('search(PyQt_PyObject)'), self._model.search)
         self.connect(self._model, SIGNAL('modelReset()'), lambda : self.detail_box.setVisible(False))
         self.connect(self.download, SIGNAL('clicked()'), self.download_now)
@@ -218,32 +236,32 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         username, password = username.strip(), password.strip()
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)
         key = 'recipe_account_info_%s'%recipe.id
-        dynamic[key] = (username, password) if username and password else None
+        config[key] = (username, password) if username and password else None
         
     def do_schedule(self, *args):
         recipe = self.recipes.currentIndex()
         if not recipe.isValid():
             return
         recipe = self._model.data(recipe, Qt.UserRole)
-        recipes = dynamic['scheduled_recipes'] 
+        recipes = load_recipes()
         if self.schedule.checkState() == Qt.Checked:
             if recipe in recipes:
                 recipe = recipes[recipes.index(recipe)]
             else:
+                recipe.last_downloaded = datetime.fromordinal(1)
                 recipes.append(recipe)
-            recipes.schedule = self.interval.value()
-            if recipes.schedule == 0.0:
-                recipes.schedule = 1/24.
-            if recipe.need_subscription and not dynamic['recipe_account_info_%s'%recipe.id]:
+            recipe.schedule = self.interval.value()
+            if recipe.schedule < 0.1:
+                recipe.schedule = 1/24.
+            if recipe.needs_subscription and not config['recipe_account_info_%s'%recipe.id]:
                 error_dialog(self, _('Must set account information'), _('This recipe requires a username and password')).exec_()
                 self.schedule.setCheckState(Qt.Unchecked)
                 return
         else:
             if recipe in recipes:
                 recipes.remove(recipe)
-        dynamic['scheduled_recipes'] = recipes
+        save_recipes(recipes)
         self.emit(SIGNAL('new_schedule(PyQt_PyObject)'), recipes)
-        self._model.resort()
                 
     def show_recipe(self, index):
         recipe = self._model.data(index, Qt.UserRole)
@@ -254,9 +272,9 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.interval.setValue(recipe.schedule if recipe.schedule is not None else 1)
         self.detail_box.setVisible(True)
         self.account.setVisible(recipe.needs_subscription)
-        self.interval.setEnabled(self.schedule.checkState == Qt.Checked)
+        self.interval.setEnabled(self.schedule.checkState() == Qt.Checked)
         key = 'recipe_account_info_%s'%recipe.id
-        account_info = dynamic[key]
+        account_info = config[key]
         self.show_password.setChecked(False)
         if account_info:
             self.username.blockSignals(True)
@@ -265,73 +283,120 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.password.setText(account_info[1])
             self.username.blockSignals(False)
             self.password.blockSignals(False)
+        d = datetime.utcnow() - recipe.last_downloaded
+        ld = '%.1f'%(d.days + d.seconds/(24*3600))
+        if d < timedelta(days=366):
+            self.last_downloaded.setText(_('Last downloaded: %s days ago')%ld)
+        else:
+            self.last_downloaded.setText(_('Last downloaded: never'))
+            
             
 class Scheduler(QObject):
     
-    INTERVAL = 5 # minutes
+    INTERVAL = 1 # minutes
     
     def __init__(self, main):
         self.main = main
+        self.verbose = main.verbose
         QObject.__init__(self)
-        self.lock = RLock()
+        self.lock = QMutex(QMutex.Recursive)
         self.queue = set([])
-        recipes = dynamic['scheduled_recipes']
-        if not recipes:
-            recipes = []
+        recipes = load_recipes()
         self.refresh_schedule(recipes)
         self.timer = QTimer()
+        self.dirtied = False
         self.connect(self.timer, SIGNAL('timeout()'), self.check)
-        self.timer.start(self.INTERVAL * 60000)
+        self.timer.start(int(self.INTERVAL * 60000))
+    
+    def debug(self, *args):
+        if self.verbose:
+            sys.stdout.write(' '.join(map(unicode, args))+'\n')
+            sys.stdout.flush()
     
     def check(self):
-        db = self.main.library_view.model().db
-        now = datetime.utcnow()
-        needs_downloading = set([])
-        for recipe in self.recipes:
-            delta = now - recipe.last_downloaded
-            if delta > timedelta(days=recipe.schedule):
-                needs_downloading.add(recipe)
-        with self.lock:
+        if not self.lock.tryLock():
+            return
+        try:
+            if self.dirtied:
+                self.refresh_schedule(load_recipes())
+                self.dirtied = False
+            needs_downloading = set([])
+            self.debug('Checking...')
+            now = datetime.utcnow()
+            for recipe in self.recipes:
+                if recipe.schedule is None:
+                    continue
+                delta = now - recipe.last_downloaded
+                if delta > timedelta(days=recipe.schedule):
+                    needs_downloading.add(recipe)
+                
+            self.debug('Needs downloading:', needs_downloading)
+        
             needs_downloading = [r for r in needs_downloading if r not in self.queue]
             for recipe in needs_downloading:
-                try:
-                    id = int(recipe.id)
-                    script = db.get_recipe(id)
-                    if script is None:
-                        self.recipes.remove(recipe)
-                        dynamic['scheduled_recipes'] = self.recipes
-                        continue
-                except ValueError:
-                    script = recipe.title
-                self.main.download_scheduled_recipe(recipe, script, self.recipe_downloaded)
-                self.queue.add(recipe)
-        
+                self.do_download(recipe)
+        finally:
+            self.lock.unlock()
+            
+    def do_download(self, recipe):
+        try:
+            id = int(recipe.id)
+            script = self.main.library_view.model().db.get_recipe(id)
+            if script is None:
+                self.recipes.remove(recipe)
+                save_recipes(self.recipes)
+                return
+        except ValueError:
+            script = recipe.title
+        self.debug('\tQueueing:', recipe)
+        self.main.download_scheduled_recipe(recipe, script, self.recipe_downloaded)
+        self.queue.add(recipe)
+
     def recipe_downloaded(self, recipe):
-        with self.lock:
+        self.lock.lock()
+        try:
+            if recipe in self.recipes:
+                recipe = self.recipes[self.recipes.index(recipe)]
+            now = datetime.utcnow()
+            d = now - recipe.last_downloaded
+            if recipe.schedule is not None:
+                interval = timedelta(days=recipe.schedule)
+                if abs(d - interval) < timedelta(hours=1):
+                    recipe.last_downloaded += interval
+                else:
+                    recipe.last_downloaded = now
+            else:
+                recipe.last_downloaded = now
+            save_recipes(self.recipes)
             self.queue.remove(recipe)
-        recipe = self.recipes[self.recipes.index(recipe)]
-        now = datetime.utcnow()
-        d = now - recipe.last_downloaded
-        interval = timedelta(days=recipe.schedule)
-        if abs(d - interval) < timedelta(hours=1):
-            recipe.last_downloaded += interval
-        else:
-            recipe.last_downloaded = now
-        dynamic['scheduled_recipes'] = self.recipes
-    
+            self.dirtied = True
+        finally:
+            self.lock.unlock()
+        self.debug('Downloaded:', recipe)
+            
     def download(self, recipe):
-        if recipe in self.recipes:
-            recipe = self.recipes[self.recipes.index(recipe)]
-        raise NotImplementedError
+        self.lock.lock()
+        try:
+            if recipe in self.recipes:
+                recipe = self.recipes[self.recipes.index(recipe)]
+            if recipe not in self.queue:
+                self.do_download(recipe)
+        finally:
+            self.lock.unlock()    
     
     def refresh_schedule(self, recipes):
         self.recipes = recipes
     
     def show_dialog(self):
-        d = SchedulerDialog(self.main.library_view.model().db)
-        self.connect(d, SIGNAL('new_schedule(PyQt_PyObject)'), self.refresh_schedule)
-        self.connect(d, SIGNAL('download_now(PyQt_PyObject)'), self.download)
-        d.exec_()
+        self.lock.lock()
+        try:
+            d = SchedulerDialog(self.main.library_view.model().db)
+            self.connect(d, SIGNAL('new_schedule(PyQt_PyObject)'), self.refresh_schedule)
+            self.connect(d, SIGNAL('download_now(PyQt_PyObject)'), self.download)
+            d.exec_()
+            self.recipes = load_recipes()
+        finally:
+            self.lock.unlock()
 
 def main(args=sys.argv):
     app = QApplication([])

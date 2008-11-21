@@ -361,12 +361,13 @@ def _fetch_news(data, fmt):
     
 
 def fetch_scheduled_recipe(recipe, script):
+    from calibre.gui2.dialogs.scheduler import config
     fmt = prefs['output_format'].lower()
     pt = PersistentTemporaryFile(suffix='_feeds2%s.%s'%(fmt.lower(), fmt.lower()))
     pt.close()
     args = ['feeds2%s'%fmt.lower(), '--output', pt.name, '--debug']
     if recipe.needs_subscription:
-        x = dynamic['recipe_account_info_%s'%recipe.id]
+        x = config.get('recipe_account_info_%s'%recipe.id, False)
         if not x:
             raise ValueError(_('You must set a username and password for %s')%recipe.title)
         args.extend(['--username', x[0], '--password', x[1]])

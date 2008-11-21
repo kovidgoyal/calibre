@@ -29,18 +29,25 @@ class NewsMenu(QMenu):
     
     def __init__(self, customize_feeds_func):
         QMenu.__init__(self)
+        self.scheduler = QAction(QIcon(':/images/scheduler.svg'), _('Schedule news download'), self)
+        self.addAction(self.scheduler)
         self.cac = QAction(QIcon(':/images/user_profile.svg'), _('Add a custom news source'), self)
         self.connect(self.cac, SIGNAL('triggered(bool)'), customize_feeds_func)
         self.addAction(self.cac)
+        self.addSeparator()
         self.custom_menu = CustomNewsMenu()
         self.addMenu(self.custom_menu)
         self.connect(self.custom_menu, SIGNAL('start_news_fetch(PyQt_PyObject, PyQt_PyObject)'),
                      self.fetch_news)
-        self.addSeparator()
+        
+        self.dmenu = QMenu(self)
+        self.dmenu.setTitle(_('Download news'))
+        self.dmenu.setIcon(QIcon(':/images/news.svg'))
+        self.addMenu(self.dmenu)
         
         for title in titles:
             recipe = get_builtin_recipe(title)[0]
-            self.addAction(NewsAction(recipe, self))
+            self.dmenu.addAction(NewsAction(recipe, self))
         
     
     def fetch_news(self, recipe, module):
@@ -76,7 +83,7 @@ class CustomNewsMenu(QMenu):
     
     def __init__(self):
         QMenu.__init__(self)
-        self.setTitle(_('Custom news sources'))
+        self.setTitle(_('Download custom news'))
         self.connect(self, SIGNAL('triggered(QAction*)'), self.launch)
         
     def launch(self, action):

@@ -23,6 +23,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            max_available_height, config
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
+from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.main_window import MainWindow, option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
@@ -74,6 +75,7 @@ class Main(MainWindow, Ui_MainWindow):
         Ui_MainWindow.__init__(self)
         self.setupUi(self)
         self.setWindowTitle(__appname__)
+        self.verbose = opts.verbose
         self.read_settings()
         self.job_manager = JobManager()
         self.jobs_dialog = JobsDialog(self, self.job_manager)
@@ -290,7 +292,10 @@ class Main(MainWindow, Ui_MainWindow):
             from calibre.library import server_config
             self.content_server = start_threaded_server(db, server_config().parse())
             self.test_server_timer = QTimer.singleShot(10000, self.test_server)
-
+            
+        self.scheduler = Scheduler(self)
+        self.connect(self.news_menu.scheduler, SIGNAL('triggered(bool)'), lambda x :self.scheduler.show_dialog())
+        
     def test_server(self, *args):
         if self.content_server.exception is not None:
             error_dialog(self, _('Failed to start content server'), 
@@ -1294,6 +1299,8 @@ path_to_ebook to the database.
 ''')
         parser.add_option('--with-library', default=None, action='store', 
                           help=_('Use the library located at the specified path.'))
+        parser.add_option('-v', '--verbose', default=0, action='count',
+                          help=_('Log debugging information to console'))
         opts, args = parser.parse_args(args)
         if opts.with_library is not None and os.path.isdir(opts.with_library):
             prefs.set('library_path', opts.with_library)

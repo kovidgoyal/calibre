@@ -12,6 +12,7 @@ recipe_modules = [
            'discover_magazine', 'scientific_american', 'new_york_review_of_books',
            'daily_telegraph', 'guardian', 'el_pais', 'new_scientist', 'b92', 
            'politika', 'moscow_times', 'latimes', 'japan_times', 'san_fran_chronicle',
+           'demorgen_be', 'de_standaard'
           ]
 
 import re, imp, inspect, time, os

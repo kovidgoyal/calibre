@@ -473,8 +473,12 @@ class DynamicConfig(dict):
     class for preferences that you don't intend to have the users edit directly.
     '''
     def __init__(self, name='dynamic'):
+        dict.__init__(self, {})
         self.name = name
         self.file_path = os.path.join(config_dir, name+'.pickle')
+        self.refresh()
+        
+    def refresh(self):
         d = {}
         if os.path.exists(self.file_path):
             with ExclusiveFile(self.file_path) as f:
@@ -482,8 +486,11 @@ class DynamicConfig(dict):
                 try:
                     d = cPickle.loads(raw) if raw.strip() else {}
                 except:
+                    import traceback
+                    traceback.print_exc()
                     d = {}
-        dict.__init__(self, d)
+        self.clear()
+        self.update(d)
         
     def __getitem__(self, key):
         try:

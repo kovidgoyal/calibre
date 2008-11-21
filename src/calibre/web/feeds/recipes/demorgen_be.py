@@ -1,0 +1,31 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
+'''
+demorgen.be
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class DeMorganBe(BasicNewsRecipe):
+    title                 = u'DeMorgen.be'
+    __author__            = u'Darko Miletic'
+    description           = u'News from Belgium'    
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+
+    keep_only_tags    = [dict(name='div' , attrs={'class':'art_box2'})]
+
+    feeds          = [  
+                       (u'Nieuws'             , u'http://www.demorgen.be/nieuws/rss.xml'          )
+                      ,(u'De Gedachte'        , u'http://www.demorgen.be/degedachte/rss.xml'      )
+                      ,(u'Financiele morgen'  , u'http://www.demorgen.be/financielemorgen/rss.xml')
+                      ,(u'Financiele morgen'  , u'http://www.demorgen.be/financielemorgen/rss.xml')
+                      ,(u'Sport'              , u'http://www.demorgen.be/sport/rss.xml'           )
+                      ,(u'Bis'                , u'http://www.demorgen.be/bis/rss.xml'             )
+                      ,(u'Magazine'           , u'http://www.demorgen.be/magazine/rss.xml'        )
+                      ,(u'De stand der dingen', u'http://www.demorgen.be/standderdingen/rss.xml'  )                         
+                     ]
