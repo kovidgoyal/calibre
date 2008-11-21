@@ -59,6 +59,9 @@ class BasicNewsRecipe(object, LoggingInterface):
     #: Automatically reduced to 1 if :attr:`BasicNewsRecipe.delay` > 0
     simultaneous_downloads = 5
     
+    #: If False the remote server is contacted by only one thread at a time
+    multithreaded_fetch = False
+    
     #: Timeout for fetching files from server in seconds
     timeout                = 120.0
     
@@ -108,7 +111,7 @@ class BasicNewsRecipe(object, LoggingInterface):
     
     #: Specify any extra :term:`CSS` that should be addded to downloaded :term:`HTML` files
     #: It will be inserted into `<style>` tags, just before the closing
-    #: `</head>` tag thereby overrinding all :term:`CSS` except that which is
+    #: `</head>` tag thereby overriding all :term:`CSS` except that which is
     #: declared using the style attribute on individual :term:`HTML` tags. 
     #: For example::
     #: 
@@ -272,7 +275,15 @@ class BasicNewsRecipe(object, LoggingInterface):
         raise NotImplementedError
     
     @classmethod
-    def get_browser(self):
+    def image_url_processor(cls, baseurl, url):
+        '''
+        Perform some processing on image urls (perhaps removing size restrictions for 
+        dynamically generated images, etc.) and return the precessed URL.
+        '''
+        return url
+    
+    @classmethod
+    def get_browser(cls, *args, **kwargs):
         '''
         Return a browser instance used to fetch documents from the web. By default
         it returns a `mechanize <http://wwwsearch.sourceforge.net/mechanize/>`_
@@ -294,7 +305,7 @@ class BasicNewsRecipe(object, LoggingInterface):
                 return br
         
         '''
-        return browser()
+        return browser(*args, **kwargs)
     
     def get_article_url(self, article):
         '''
@@ -338,7 +349,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         '''
         pass
     
-    def index_to_soup(self, url_or_raw):
+    def index_to_soup(self, url_or_raw, raw=False):
         '''
         Convenience method that takes an URL to the index page and returns
         a `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_
@@ -354,6 +365,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                 raise RuntimeError('Could not fetch index from %s'%url_or_raw)
         else:
             raw = url_or_raw
+        if raw:
+            return raw
         if not isinstance(raw, unicode) and self.encoding:
             raw = raw.decode(self.encoding)
         massage = list(BeautifulSoup.MARKUP_MASSAGE)
@@ -524,7 +537,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         return self.postprocess_html(soup, first_fetch)
         
     
-    def download(self):
+    def download(self, for_lrf=False):
         '''
         Download and pre-process all articles from the feeds in this recipe. 
         This method should be called only one on a particular Recipe instance.
@@ -622,11 +635,14 @@ class BasicNewsRecipe(object, LoggingInterface):
         return logger, out
     
     def _fetch_article(self, url, dir, logger, f, a, num_of_feeds):
-        self.web2disk_options.browser = self.browser
+        self.web2disk_options.browser = self.get_browser() if self.multithreaded_fetch else self.browser
         fetcher = RecursiveFetcher(self.web2disk_options, logger, self.image_map, self.css_map, (url, f, a, num_of_feeds))
         fetcher.base_dir = dir
         fetcher.current_dir = dir
         fetcher.show_progress = False
+        fetcher.image_url_processor = self.image_url_processor
+        if self.multithreaded_fetch:
+            fetcher.browser_lock = fetcher.DUMMY_LOCK
         res, path, failures = fetcher.start_fetch(url), fetcher.downloaded_paths, fetcher.failed_links
         if not res or not os.path.exists(res):
             raise Exception(_('Could not fetch article. Run with --debug to see the reason'))

@@ -837,7 +837,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.job_exception(job)
             return
         mi = get_metadata(open(pt.name, 'rb'), fmt, use_libprs_metadata=False)
-        mi.tags = ['news', recipe.title]
+        mi.tags = [_('News'), recipe.title]
         paths, formats, metadata = [pt.name], [fmt], [mi]
         self.library_view.model().add_books(paths, formats, metadata, add_duplicates=True)
         callback(recipe)

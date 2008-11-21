@@ -93,18 +93,18 @@ class HTMLProcessor(Processor, Rationalizer):
             p = QPixmap()
             p.load(path)
             if not p.isNull():
-                p.save(path+'.jpg')
+                p.save(path+'_calibre_converted.jpg')
                 os.remove(path)
                 for key, val in self.resource_map.items():
                     if val == rpath:
-                        self.resource_map[key] = rpath+'.jpg'
-        img.set('src', rpath+'.jpg')
+                        self.resource_map[key] = rpath+'_calibre_converted.jpg'
+        img.set('src', rpath+'_calibre_converted.jpg')
     
     def save(self):
         for meta in list(self.root.xpath('//meta')):
             meta.getparent().remove(meta)
-        for img in self.root.xpath('//img[@src]'):
-            self.convert_image(img)
+        #for img in self.root.xpath('//img[@src]'):
+        #    self.convert_image(img)
         Processor.save(self)
         
     

@@ -155,7 +155,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
     
     if not os.path.exists(recipe.output_dir):
         os.makedirs(recipe.output_dir)
-    recipe.download()
+    recipe.download(for_lrf=True)
     
     return recipe
 

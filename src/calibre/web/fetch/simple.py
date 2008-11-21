@@ -71,6 +71,11 @@ class response(str):
     def __init__(self, *args):
         str.__init__(self, *args)
         self.newurl = None
+        
+class DummyLock(object):
+    
+    def __enter__(self, *args): return self
+    def __exit__(self, *args): pass
 
 class RecursiveFetcher(object, LoggingInterface):
     LINK_FILTER = tuple(re.compile(i, re.IGNORECASE) for i in 
@@ -82,6 +87,7 @@ class RecursiveFetcher(object, LoggingInterface):
     #                       )
     CSS_IMPORT_PATTERN = re.compile(r'\@import\s+url\((.*?)\)', re.IGNORECASE)
     default_timeout = socket.getdefaulttimeout() # Needed here as it is used in __del__
+    DUMMY_LOCK = DummyLock()
     
     def __init__(self, options, logger, image_map={}, css_map={}, job_info=None):
         LoggingInterface.__init__(self, logger)
@@ -103,6 +109,8 @@ class RecursiveFetcher(object, LoggingInterface):
         self.imagemap = image_map
         self.imagemap_lock = threading.RLock()
         self.stylemap = css_map
+        self.image_url_processor = None
+        self.browser_lock = _browser_lock
         self.stylemap_lock = threading.RLock()
         self.downloaded_paths = []
         self.current_dir = self.base_dir
@@ -166,7 +174,7 @@ class RecursiveFetcher(object, LoggingInterface):
         delta = time.time() - self.last_fetch_at 
         if  delta < self.delay:
             time.sleep(delta)
-        with _browser_lock:
+        with self.browser_lock:
             try:
                 with closing(self.browser.open(url)) as f:
                     data = response(f.read()+f.read())
@@ -271,8 +279,11 @@ class RecursiveFetcher(object, LoggingInterface):
             os.mkdir(diskpath)
         c = 0
         for tag in soup.findAll(lambda tag: tag.name.lower()=='img' and tag.has_key('src')):
-            iurl, ext = tag['src'], os.path.splitext(tag['src'])[1]
-            ext = ext[:5]
+            iurl = tag['src']
+            if callable(self.image_url_processor):
+                iurl = self.image_url_processor(baseurl, iurl)
+            ext  = os.path.splitext(iurl)[1]
+            ext  = ext[:5]
             #if not ext:
             #    self.log_debug('Skipping extensionless image %s', iurl)
             #    continue
