@@ -22,7 +22,6 @@ from calibre.web.feeds import feed_from_xml, templates, feeds_from_index, Feed
 from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
-from calibre.ebooks.lrf.web.profiles import FullContentProfile
 from calibre.ptempfile import PersistentTemporaryFile
 
 
@@ -359,19 +358,19 @@ class BasicNewsRecipe(object, LoggingInterface):
         '''
         if re.match(r'\w+://', url_or_raw):
             f = self.browser.open(url_or_raw)
-            raw = f.read()
+            _raw = f.read()
             f.close()
-            if not raw:
+            if not _raw:
                 raise RuntimeError('Could not fetch index from %s'%url_or_raw)
         else:
-            raw = url_or_raw
+            _raw = url_or_raw
         if raw:
-            return raw
-        if not isinstance(raw, unicode) and self.encoding:
-            raw = raw.decode(self.encoding)
+            return _raw
+        if not isinstance(_raw, unicode) and self.encoding:
+            _raw = _raw.decode(self.encoding)
         massage = list(BeautifulSoup.MARKUP_MASSAGE)
         massage.append((re.compile(r'&(\S+?);'), lambda match: entity_to_unicode(match, encoding=self.encoding))) 
-        return BeautifulSoup(raw, markupMassage=massage)
+        return BeautifulSoup(_raw, markupMassage=massage)
         
     
     def sort_index_by(self, index, weights):
@@ -943,34 +942,6 @@ class BasicNewsRecipe(object, LoggingInterface):
         nmassage.extend(entity_replace)
         return BeautifulSoup(raw, markupMassage=nmassage)
     
-class Profile2Recipe(BasicNewsRecipe):
-    '''
-    Used to migrate the old news Profiles to the new Recipes. Uses the settings
-    from the old Profile to populate the settings in the Recipe. Also uses, the 
-    Profile's get_browser and parse_feeds.
-    '''
-    def __init__(self, profile_class, options, parser, progress_reporter):
-        self.old_profile = profile_class(logging.getLogger('feeds2disk'), 
-                                         username=options.username, 
-                                         password=options.password,
-                                         lrf=options.lrf)
-        for attr in ('preprocess_regexps', 'oldest_article', 'delay', 'timeout',
-                     'match_regexps', 'filter_regexps', 'html2lrf_options', 
-                     'timefmt', 'needs_subscription', 'summary_length',
-                     'max_articles_per_feed', 'title','no_stylesheets', 'encoding'):
-            setattr(self, attr, getattr(self.old_profile, attr))
-        
-        self.simultaneous_downloads = 1
-        BasicNewsRecipe.__init__(self, options, parser, progress_reporter)
-        self.browser = self.old_profile.browser
-        self.use_embedded_content = isinstance(self.old_profile, FullContentProfile) 
-        
-    def parse_index(self):
-        feeds = []
-        for key, val in self.old_profile.parse_feeds().items():
-            feeds.append((key, val))
-        return feeds
-        
 class CustomIndexRecipe(BasicNewsRecipe):
     
     def custom_index(self):

@@ -11,7 +11,7 @@ import sys, copy
 from datetime import datetime, timedelta
 from PyQt4.Qt import QDialog, QApplication, QLineEdit, QPalette, SIGNAL, QBrush, \
                      QColor, QAbstractListModel, Qt, QVariant, QFont, QIcon, \
-                     QFile, QObject, QTimer, QMutex
+                     QFile, QObject, QTimer, QMutex, QMenu, QAction
 
 from calibre import english_sort
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
@@ -20,6 +20,7 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
 from calibre.gui2 import NONE, error_dialog
 from calibre.utils.config import DynamicConfig
+from calibre.gui2.dialogs.user_profiles import UserProfiles
 
 config = DynamicConfig('scheduler')
 
@@ -307,6 +308,23 @@ class Scheduler(QObject):
         self.dirtied = False
         self.connect(self.timer, SIGNAL('timeout()'), self.check)
         self.timer.start(int(self.INTERVAL * 60000))
+        
+        self.news_menu = QMenu()
+        self.news_icon = QIcon(':/images/news.svg')
+        self.scheduler_action = QAction(QIcon(':/images/scheduler.svg'), _('Schedule news download'), self)
+        self.news_menu.addAction(self.scheduler_action)
+        self.connect(self.scheduler_action, SIGNAL('triggered(bool)'), self.show_dialog)
+        self.cac = QAction(QIcon(':/images/user_profile.svg'), _('Add a custom news source'), self)
+        self.connect(self.cac, SIGNAL('triggered(bool)'), self.customize_feeds)
+        self.news_menu.addAction(self.cac)
+        
+    def customize_feeds(self, *args):
+        main = self.main
+        d = UserProfiles(main, main.library_view.model().db.get_feeds())
+        if d.exec_() == QDialog.Accepted:
+            feeds = tuple(d.profiles())
+            main.library_view.model().db.set_feeds(feeds)
+            
     
     def debug(self, *args):
         if self.verbose:
@@ -387,7 +405,7 @@ class Scheduler(QObject):
     def refresh_schedule(self, recipes):
         self.recipes = recipes
     
-    def show_dialog(self):
+    def show_dialog(self, *args):
         self.lock.lock()
         try:
             d = SchedulerDialog(self.main.library_view.model().db)

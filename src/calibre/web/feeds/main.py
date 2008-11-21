@@ -8,8 +8,7 @@ CLI for downloading feeds.
 import sys, os, logging
 from calibre.web.feeds.recipes import get_builtin_recipe, compile_recipe, titles
 from calibre.web.fetch.simple import option_parser as _option_parser
-from calibre.web.feeds.news import Profile2Recipe, BasicNewsRecipe
-from calibre.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
+from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.utils.config import Config, StringConfig
 
 def config(defaults=None):
@@ -119,23 +118,19 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
         pb = ProgressBar(term, _('Fetching feeds...'), no_progress_bar=opts.no_progress_bar)
         notification = pb.update
     
-    recipe, is_profile = None, False
+    recipe = None
     if opts.feeds is not None:
         recipe = BasicNewsRecipe
     else:
         try:
             if os.access(recipe_arg, os.R_OK):
-                recipe = compile_recipe(open(recipe_arg).read())
-                is_profile = DefaultProfile in recipe.__bases__ or \
-                             FullContentProfile in recipe.__bases__
+                recipe = compile_recipe(open(recipe_arg).read())                
             else:
                 raise Exception('not file')
         except:
-            recipe, is_profile = get_builtin_recipe(recipe_arg)
+            recipe = get_builtin_recipe(recipe_arg)
             if recipe is None:
                 recipe = compile_recipe(recipe_arg)
-                is_profile = DefaultProfile in recipe.__bases__  or \
-                                 FullContentProfile in recipe.__bases__
     
     if recipe is None:
         raise RecipeError(recipe_arg+ ' is an invalid recipe')
@@ -148,10 +143,7 @@ def run_recipe(opts, recipe_arg, parser, notification=None, handler=None):
         handler.setFormatter(ColoredFormatter('%(levelname)s: %(message)s\n')) # The trailing newline is need because of the progress bar
         logging.getLogger('feeds2disk').addHandler(handler)
     
-    if is_profile:
-        recipe = Profile2Recipe(recipe, opts, parser, notification)
-    else:
-        recipe = recipe(opts, parser, notification)
+    recipe = recipe(opts, parser, notification)
     
     if not os.path.exists(recipe.output_dir):
         os.makedirs(recipe.output_dir)

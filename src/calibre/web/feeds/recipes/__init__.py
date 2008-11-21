@@ -12,13 +12,13 @@ recipe_modules = [
            'discover_magazine', 'scientific_american', 'new_york_review_of_books',
            'daily_telegraph', 'guardian', 'el_pais', 'new_scientist', 'b92', 
            'politika', 'moscow_times', 'latimes', 'japan_times', 'san_fran_chronicle',
-           'demorgen_be', 'de_standaard'
+           'demorgen_be', 'de_standaard', 'ap', 'barrons', 'chr_mon', 'cnn', 'faznet',
+           'jpost', 'jutarnji', 'nasa', 'reuters', 'spiegelde', 'wash_post', 'zeitde',
           ]
 
 import re, imp, inspect, time, os
 from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
 from calibre.ebooks.lrf.web.profiles import DefaultProfile, FullContentProfile
-from calibre.ebooks.lrf.web import builtin_profiles
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.path import path
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -95,13 +95,10 @@ def get_builtin_recipe(title):
     '''
     for r in recipes:
         if r.title == title:
-            return r, False
-    for p in builtin_profiles:
-        if p.title == title:
-            return p, True
-    return None, False
+            return r
+    return None
 
-_titles = list(frozenset([r.title for r in recipes] + [p.title for p in builtin_profiles]))
+_titles = [r.title for r in recipes]
 _titles.sort(cmp=english_sort)
 titles = _titles
 
