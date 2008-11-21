@@ -5,7 +5,8 @@ from xml.parsers.expat import ExpatError
 from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton, QDialog, QDesktopServices, QFileDialog
+                        QToolButton, QDialog, QDesktopServices, QFileDialog, \
+                        QSystemTrayIcon, QApplication
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
@@ -20,12 +21,12 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
                            SingleApplication, Application, available_height, \
-                           max_available_height, config
+                           max_available_height, config, info_dialog
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
-from calibre.gui2.main_window import MainWindow, option_parser
+from calibre.gui2.main_window import MainWindow, option_parser as _option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager
 from calibre.gui2.status import StatusBar
@@ -91,7 +92,24 @@ class Main(MainWindow, Ui_MainWindow):
         self.device_connected = False
         self.viewers = collections.deque()
         self.content_server = None
+        self.system_tray_icon = QSystemTrayIcon(QIcon(':/library'), self)
+        if opts.no_systray:
+            self.system_tray_icon.hide()
+        else:
+            self.system_tray_icon.show()
+        self.system_tray_menu = QMenu()
+        self.restore_action = self.system_tray_menu.addAction(QIcon(':/images/page.svg'), _('&Restore'))
+        self.donate_action  = self.system_tray_menu.addAction(QIcon(':/images/donate.svg'), _('&Donate'))
+        self.quit_action    = self.system_tray_menu.addAction(QIcon(':/images/window-close.svg'), _('&Quit'))
         
+        self.system_tray_icon.setContextMenu(self.system_tray_menu)
+        self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
+        self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
+        self.connect(self.restore_action, SIGNAL('triggered(bool)'), lambda c : self.show())
+        def sta(r):
+            if r == QSystemTrayIcon.Trigger: 
+                self.hide() if self.isVisible() else self.show()
+        self.connect(self.system_tray_icon, SIGNAL('activated(QSystemTrayIcon::ActivationReason)'), sta)
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -109,7 +127,7 @@ class Main(MainWindow, Ui_MainWindow):
                         self.update_found)
         self.update_checker.start()
         ####################### Status Bar #####################
-        self.status_bar = StatusBar(self.jobs_dialog)
+        self.status_bar = StatusBar(self.jobs_dialog, self.system_tray_icon)
         self.setStatusBar(self.status_bar)
         QObject.connect(self.job_manager, SIGNAL('job_added(int)'), self.status_bar.job_added,
                         Qt.QueuedConnection)
@@ -1238,21 +1256,52 @@ in which you want to store your books files. Any existing books will be automati
         self.library_view.write_settings()
         if self.device_connected:
             self.memory_view.write_settings()
-
-    def closeEvent(self, e):
-        msg = 'There are active jobs. Are you sure you want to quit?'
+    
+    def quit(self, checked):
+        if self.shutdown():
+            QApplication.instance().quit()
+            
+    def donate(self):
+        BUTTON = '''
+        <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+            <input type="hidden" name="cmd" value="_s-xclick">
+            <input type="hidden" name="hosted_button_id" value="1335186">
+            <input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="">
+            <img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
+        </form>
+        '''
+        MSG = _('is the result of the efforts of many volunteers from all over the world. If you find it useful, please consider donating to support its development.')
+        HTML = '''
+        <html>
+            <head>
+                <title>Donate to support calibre</title>
+            </head>
+            <body style="background:white">
+                <div><a href="http://calibre.kovidgoyal.net"><img style="border:0px" src="http://calibre.kovidgoyal.net/chrome/site/calibre_banner.png" alt="calibre" /></a></div>
+                <p>Calibre %s</p>
+                %s
+            </body>
+        </html>
+        '''%(MSG, BUTTON)
+        pt = PersistentTemporaryFile('_donate.htm')
+        pt.write(HTML)
+        pt.close()
+        QDesktopServices.openUrl(QUrl.fromLocalFile(pt.name))
+            
+    
+    def shutdown(self):
+        msg = _('There are active jobs. Are you sure you want to quit?')
         if self.job_manager.has_device_jobs():
-            msg = '<p>'+__appname__ + ' is communicating with the device!<br>'+\
-                  'Quitting may cause corruption on the device.<br>'+\
-                  'Are you sure you want to quit?'
+            msg = '<p>'+__appname__ + _(''' is communicating with the device!<br>
+                  'Quitting may cause corruption on the device.<br>
+                  'Are you sure you want to quit?''')+'</p>'
         if self.job_manager.has_jobs():
-            d = QMessageBox(QMessageBox.Warning, 'WARNING: Active jobs', msg,
+            d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
             d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
             d.setDefaultButton(QMessageBox.No)
             if d.exec_() != QMessageBox.Yes:
-                e.ignore()
-                return
+                return False
 
         self.job_manager.terminate_all_jobs()
         self.write_settings()
@@ -1269,7 +1318,22 @@ in which you want to store your books files. Any existing books will be automati
             time.sleep(2)
         except KeyboardInterrupt:
             pass
-        e.accept()
+        self.hide()
+        return True
+
+    
+    def closeEvent(self, e):
+        if self.system_tray_icon.isVisible():
+            if not dynamic['systray_msg'] and not isosx:
+                info_dialog(self, 'calibre', 'calibre '+_('will keep running in the system tray. To close it, choose <b>Quit</b> in the context menu of the system tray.')).exec_()
+                dynamic['systray_msg'] = True
+            self.hide()
+            e.ignore()
+        else:
+            if self.shutdown():
+                e.accept()
+            else:
+                e.ignore()
 
     def update_found(self, version):
         os = 'windows' if iswindows else 'osx' if isosx else 'linux'
@@ -1286,21 +1350,27 @@ in which you want to store your books files. Any existing books will be automati
             dynamic.set('update to version %s'%version, False)
         
 
-def main(args=sys.argv):
-    from calibre.utils.lock import singleinstance
-    
-    pid = os.fork() if False and islinux else -1
-    if pid <= 0:
-        parser = option_parser('''\
+def option_parser():
+    parser = _option_parser('''\
 %prog [opts] [path_to_ebook]
 
 Launch the main calibre Graphical User Interface and optionally add the ebook at
 path_to_ebook to the database.
 ''')
-        parser.add_option('--with-library', default=None, action='store', 
-                          help=_('Use the library located at the specified path.'))
-        parser.add_option('-v', '--verbose', default=0, action='count',
-                          help=_('Log debugging information to console'))
+    parser.add_option('--with-library', default=None, action='store', 
+                      help=_('Use the library located at the specified path.'))
+    parser.add_option('-v', '--verbose', default=0, action='count',
+                      help=_('Log debugging information to console'))
+    parser.add_option('--no-systray', default=False, action='store_true',
+                          help=_('Disable system tray icon'))
+    return parser
+
+def main(args=sys.argv):
+    from calibre.utils.lock import singleinstance
+    
+    pid = os.fork() if False and islinux else -1
+    if pid <= 0:
+        parser = option_parser()
         opts, args = parser.parse_args(args)
         if opts.with_library is not None and os.path.isdir(opts.with_library):
             prefs.set('library_path', opts.with_library)

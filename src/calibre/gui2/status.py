@@ -164,8 +164,9 @@ class TagViewButton(QToolButton):
     
 
 class StatusBar(QStatusBar):
-    def __init__(self, jobs_dialog):
+    def __init__(self, jobs_dialog, systray=None):
         QStatusBar.__init__(self)
+        self.systray = systray
         self.movie_button = MovieButton(QMovie(':/images/jobs-animated.mng'), jobs_dialog)
         self.cover_flow_button = CoverFlowButton()
         self.tag_view_button = TagViewButton()
@@ -179,6 +180,11 @@ class StatusBar(QStatusBar):
     
     def reset_info(self):
         self.book_info.show_data({})
+        
+    def showMessage(self, msg, timeout=0):
+        if self.systray is not None:
+            self.systray.showMessage('calibre', msg, self.systray.Information, 10000)
+        return QStatusBar.showMessage(self, msg, timeout)
     
     def jobs(self):
         src = qstring_to_unicode(self.movie_button.jobs.text())

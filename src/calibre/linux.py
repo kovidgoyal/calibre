@@ -183,7 +183,8 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.odt.to_oeb import option_parser as odt2oeb
         from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
         from calibre.ebooks.epub.from_any import option_parser as any2epub
-        from calibre.ebooks.epub.from_comic import option_parser as comic2epub 
+        from calibre.ebooks.epub.from_comic import option_parser as comic2epub
+        from calibre.gui2.main import option_parser as guiop 
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
              'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt'] 
         f = open_file('/etc/bash_completion.d/libprs500')
@@ -204,6 +205,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('fb22lrf', htmlop, ['fb2']))
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('any2lrf', htmlop, any_formats))
+        f.write(opts_and_exts('calibre', guiop, any_formats))
         f.write(opts_and_exts('any2lrf', any2epub, any_formats))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
