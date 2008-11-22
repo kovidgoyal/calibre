@@ -749,6 +749,18 @@ class LibraryDatabase2(LibraryDatabase):
         return categories
         
     
+    def tags_older_than(self, tag, delta):
+        tag = tag.lower().strip()
+        now = datetime.now()
+        for r in self.data._data:
+            if r is not None:
+                if (now - r[FIELD_MAP['timestamp']]) > delta:
+                    tags = r[FIELD_MAP['tags']]
+                    if tags and tag in tags.lower():
+                        yield r[FIELD_MAP['id']]
+                
+            
+    
     def set(self, row, column, val):
         '''
         Convenience method for setting the title, authors, publisher or rating

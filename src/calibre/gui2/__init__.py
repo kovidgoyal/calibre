@@ -52,7 +52,7 @@ def _config():
     c.add_opt('column_map', default=ALL_COLUMNS,
               help=_('Columns to be displayed in the book list'))
     c.add_opt('autolaunch_server', default=False, help=_('Automatically launch content server on application startup'))
-
+    c.add_opt('oldest_news', default=60, help=_('Oldest news kept in database'))
     return ConfigProxy(c)
     
 config = _config()

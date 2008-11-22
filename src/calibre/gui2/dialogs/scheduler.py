@@ -18,7 +18,7 @@ from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
 from calibre.web.feeds.recipes import recipes, recipe_modules, compile_recipe
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.utils.pyparsing import ParseException
-from calibre.gui2 import NONE, error_dialog
+from calibre.gui2 import NONE, error_dialog, config as gconf
 from calibre.utils.config import DynamicConfig
 from calibre.gui2.dialogs.user_profiles import UserProfiles
 
@@ -227,6 +227,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.connect(self._model, SIGNAL('modelReset()'), lambda : self.detail_box.setVisible(False))
         self.connect(self.download, SIGNAL('clicked()'), self.download_now)
         self.search.setFocus(Qt.OtherFocusReason)
+        self.old_news.setValue(gconf['oldest_news'])
         
     def download_now(self):
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)
@@ -308,6 +309,11 @@ class Scheduler(QObject):
         self.dirtied = False
         self.connect(self.timer, SIGNAL('timeout()'), self.check)
         self.timer.start(int(self.INTERVAL * 60000))
+        self.oldest_timer = QTimer()
+        self.connect(self.oldest_timer, SIGNAL('timeout()'), self.oldest_check)
+        self.oldest = gconf['oldest_news']
+        self.oldest_timer.start(int(60 * 60000))
+        self.oldest_check()
         
         self.news_menu = QMenu()
         self.news_icon = QIcon(':/images/news.svg')
@@ -318,6 +324,13 @@ class Scheduler(QObject):
         self.connect(self.cac, SIGNAL('triggered(bool)'), self.customize_feeds)
         self.news_menu.addAction(self.cac)
         
+    def oldest_check(self):
+        if self.oldest > 0:
+            delta = timedelta(days=self.oldest)
+            ids = self.main.library_view.model().db.tags_older_than(_('News'), delta)
+            if ids:
+                self.main.library_view.model().delete_books_by_id(ids)
+    
     def customize_feeds(self, *args):
         main = self.main
         d = UserProfiles(main, main.library_view.model().db.get_feeds())
@@ -412,7 +425,9 @@ class Scheduler(QObject):
             self.connect(d, SIGNAL('new_schedule(PyQt_PyObject)'), self.refresh_schedule)
             self.connect(d, SIGNAL('download_now(PyQt_PyObject)'), self.download)
             d.exec_()
+            gconf['oldest_news'] = d.old_news.value()
             self.recipes = load_recipes()
+            self.oldest = d.old_news.value()
         finally:
             self.lock.unlock()
 

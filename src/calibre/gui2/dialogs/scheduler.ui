@@ -17,7 +17,7 @@
     <normaloff>:/images/scheduler.svg</normaloff>:/images/scheduler.svg</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout" >
-   <item rowspan="2" row="0" column="0" >
+   <item rowspan="3" row="0" column="0" >
     <widget class="QGroupBox" name="recipe_box" >
      <property name="title" >
       <string>Recipes</string>
@@ -164,7 +164,7 @@
         <item>
          <widget class="QLabel" name="last_downloaded" >
           <property name="text" >
-           <string> </string>
+           <string/>
           </property>
          </widget>
         </item>
@@ -262,13 +262,29 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="1" >
+   <item row="2" column="1" >
     <widget class="QDialogButtonBox" name="buttonBox" >
      <property name="orientation" >
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
       <set>QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QSpinBox" name="old_news" >
+     <property name="toolTip" >
+      <string>Delete downloaded news older than the specified number of days. Set to zero to disable.</string>
+     </property>
+     <property name="suffix" >
+      <string> days</string>
+     </property>
+     <property name="prefix" >
+      <string>Delete downloaded news older than </string>
+     </property>
+     <property name="maximum" >
+      <number>1000</number>
      </property>
     </widget>
    </item>
