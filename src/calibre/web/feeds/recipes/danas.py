@@ -3,19 +3,20 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
-b92.net
+danas.rs
 '''
 import locale
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class B92(BasicNewsRecipe):
-    title                 = u'B92'
+class Danas(BasicNewsRecipe):
+    title                 = u'Danas'
     __author__            = 'Darko Miletic'
-    description           = 'Dnevne vesti iz Srbije i sveta'    
+    description           = 'Vesti'    
     oldest_article        = 7
     max_articles_per_feed = 100
-    no_stylesheets        = True
+    no_stylesheets        = False
     use_embedded_content  = False
+    timefmt               = ' [%A, %d %B, %Y]' 
     #Locale setting to get appropriate date/month values in Serbian if possible
     try:
       #Windows seting for locale
@@ -39,22 +40,18 @@ class B92(BasicNewsRecipe):
               except locale.Error:                  
                 locale.setlocale(locale.LC_TIME,'C')
 
-    remove_tags_after  = dict(name='div', attrs={'class':'gas'})
+    keep_only_tags     = [ dict(name='div', attrs={'id':'left'}) ]
+    remove_tags_after  = dict(name='div', attrs={'id':'comments'})
     remove_tags = [
-                     dict(name='div'  , attrs={'class':'interaction clearfix' })
-                    ,dict(name='div'  , attrs={'class':'gas'                  })
-                    ,dict(name='ul'   , attrs={'class':'comment-nav'          })
-                    ,dict(name='table', attrs={'class':'pages-navigation-form'})
+                     dict(name='div', attrs={'class':'width_1_4'})
+                    ,dict(name='div', attrs={'class':'metaClanka'})
+                    ,dict(name='div', attrs={'id':'comments'})
+                    ,dict(name='div', attrs={'class':'baner'})
                   ]
 
-    feeds          = [
-                        (u'Vesti'     , u'http://www.b92.net/info/rss/vesti.xml'     )
-                       ,(u'Kultura'   , u'http://www.b92.net/info/rss/kultura.xml'   )                      
-                       ,(u'Automobili', u'http://www.b92.net/info/rss/automobili.xml')                      
-                       ,(u'Zivot'     , u'http://www.b92.net/info/rss/zivot.xml'     )
-                       ,(u'Tehnopolis', u'http://www.b92.net/info/rss/tehnopolis.xml')
-                       ,(u'Biz'       , u'http://www.b92.net/info/rss/biz.xml'       )
-                     ]
 
-    def print_version(self, url):
-        return url + '&version=print'
+
+    feeds          = [ (u'Vesti', u'http://www.danas.rs/rss/rss.asp')]
+
+#    def print_version(self, url):
+#        return url + '&action=print'

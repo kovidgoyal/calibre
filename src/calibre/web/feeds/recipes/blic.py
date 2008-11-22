@@ -3,19 +3,20 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
-b92.net
+blic.rs
 '''
 import locale
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class B92(BasicNewsRecipe):
-    title                 = u'B92'
+class Blic(BasicNewsRecipe):
+    title                 = u'Blic'
     __author__            = 'Darko Miletic'
-    description           = 'Dnevne vesti iz Srbije i sveta'    
+    description           = 'Vesti'    
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    timefmt               = ' [%A, %d %B, %Y]' 
     #Locale setting to get appropriate date/month values in Serbian if possible
     try:
       #Windows seting for locale
@@ -39,22 +40,10 @@ class B92(BasicNewsRecipe):
               except locale.Error:                  
                 locale.setlocale(locale.LC_TIME,'C')
 
-    remove_tags_after  = dict(name='div', attrs={'class':'gas'})
-    remove_tags = [
-                     dict(name='div'  , attrs={'class':'interaction clearfix' })
-                    ,dict(name='div'  , attrs={'class':'gas'                  })
-                    ,dict(name='ul'   , attrs={'class':'comment-nav'          })
-                    ,dict(name='table', attrs={'class':'pages-navigation-form'})
-                  ]
+    keep_only_tags = [ dict(name='div', attrs={'class':'single_news'}) ]
 
-    feeds          = [
-                        (u'Vesti'     , u'http://www.b92.net/info/rss/vesti.xml'     )
-                       ,(u'Kultura'   , u'http://www.b92.net/info/rss/kultura.xml'   )                      
-                       ,(u'Automobili', u'http://www.b92.net/info/rss/automobili.xml')                      
-                       ,(u'Zivot'     , u'http://www.b92.net/info/rss/zivot.xml'     )
-                       ,(u'Tehnopolis', u'http://www.b92.net/info/rss/tehnopolis.xml')
-                       ,(u'Biz'       , u'http://www.b92.net/info/rss/biz.xml'       )
-                     ]
+    feeds          = [ (u'Vesti', u'http://www.blic.rs/rssall.php')]
 
     def print_version(self, url):
-        return url + '&version=print'
+        start_url, question, rest_url = url.partition('?')
+        return u'http://www.blic.rs/_print.php?' + rest_url
