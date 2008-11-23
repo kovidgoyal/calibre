@@ -9,7 +9,7 @@ demorgen.be
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class DeMorganBe(BasicNewsRecipe):
-    title                 = u'DeMorgen.be'
+    title                 = u'De Morgen'
     __author__            = u'Darko Miletic'
     description           = u'News from Belgium'    
     oldest_article        = 7
