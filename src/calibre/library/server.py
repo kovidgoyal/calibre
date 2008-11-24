@@ -132,10 +132,11 @@ class LibraryServer(object):
             'tools.gzip.mime_types': ['text/html', 'text/plain', 'text/xml', 'text/javascript', 'text/css'],
         }}
         if opts.password:
-            g = self.config['global']
-            g['tools.digest_auth.on']    = True
-            g['tools.digest_auth.realm'] = _('Password to access your calibre library. Username is ') + opts.username.strip()
-            g['tools.digest_auth.users'] = {opts.username.strip():opts.password.strip()} 
+            self.config['/'] = {
+                      'tools.digest_auth.on'    : True,
+                      'tools.digest_auth.realm' : _('Password to access your calibre library. Username is ') + opts.username.strip(),
+                      'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
+                      } 
             
         self.is_running = False
         self.exception = None
