@@ -286,7 +286,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             self.username.blockSignals(False)
             self.password.blockSignals(False)
         d = datetime.utcnow() - recipe.last_downloaded
-        ld = '%.1f'%(d.days + d.seconds/(24*3600))
+        ld = '%.2f'%(d.days + d.seconds/(24.*3600))
         if d < timedelta(days=366):
             self.last_downloaded.setText(_('Last downloaded: %s days ago')%ld)
         else:

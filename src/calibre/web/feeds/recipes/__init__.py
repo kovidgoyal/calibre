@@ -14,7 +14,8 @@ recipe_modules = [
            'politika', 'moscow_times', 'latimes', 'japan_times', 'san_fran_chronicle',
            'demorgen_be', 'de_standaard', 'ap', 'barrons', 'chr_mon', 'cnn', 'faznet',
            'jpost', 'jutarnji', 'nasa', 'reuters', 'spiegelde', 'wash_post', 'zeitde',
-           'blic', 'novosti', 'danas', 'vreme',
+           'blic', 'novosti', 'danas', 'vreme', 'times_online', 'the_scotsman',
+           'nytimes_sub'
           ]
 
 import re, imp, inspect, time, os

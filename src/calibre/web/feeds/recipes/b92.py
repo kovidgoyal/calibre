@@ -16,28 +16,28 @@ class B92(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    #Locale setting to get appropriate date/month values in Serbian if possible
-    try:
-      #Windows seting for locale
-      locale.setlocale(locale.LC_TIME,'Serbian (Latin)')
-    except locale.Error:
-      #Linux setting for locale -- choose one appropriate for your distribution
-      try:
-        locale.setlocale(locale.LC_TIME,'sr_YU')
-      except locale.Error:
-        try:
-          locale.setlocale(locale.LC_TIME,'sr_CS@Latn')
-        except locale.Error:
-          try:
-            locale.setlocale(locale.LC_TIME,'sr@Latn')
-          except locale.Error:
-            try:
-              locale.setlocale(locale.LC_TIME,'sr_Latn')
-            except locale.Error:
-              try:
-                locale.setlocale(locale.LC_TIME,'sr_RS')
-              except locale.Error:                  
-                locale.setlocale(locale.LC_TIME,'C')
+#    #Locale setting to get appropriate date/month values in Serbian if possible
+#    try:
+#      #Windows seting for locale
+#      locale.setlocale(locale.LC_TIME,'Serbian (Latin)')
+#    except locale.Error:
+#      #Linux setting for locale -- choose one appropriate for your distribution
+#      try:
+#        locale.setlocale(locale.LC_TIME,'sr_YU')
+#      except locale.Error:
+#        try:
+#          locale.setlocale(locale.LC_TIME,'sr_CS@Latn')
+#        except locale.Error:
+#          try:
+#            locale.setlocale(locale.LC_TIME,'sr@Latn')
+#          except locale.Error:
+#            try:
+#              locale.setlocale(locale.LC_TIME,'sr_Latn')
+#            except locale.Error:
+#              try:
+#                locale.setlocale(locale.LC_TIME,'sr_RS')
+#              except locale.Error:                  
+#                locale.setlocale(locale.LC_TIME,'C')
 
     remove_tags_after  = dict(name='div', attrs={'class':'gas'})
     remove_tags = [

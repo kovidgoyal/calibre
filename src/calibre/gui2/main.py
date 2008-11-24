@@ -107,7 +107,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered(bool)'), lambda c : self.show())
         def sta(r):
-            if r == QSystemTrayIcon.Trigger: 
+            if r == QSystemTrayIcon.Trigger:
                 self.hide() if self.isVisible() else self.show()
         self.connect(self.system_tray_icon, SIGNAL('activated(QSystemTrayIcon::ActivationReason)'), sta)
         ####################### Location View ########################
@@ -151,10 +151,11 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(sm.actions()[-1], SIGNAL('toggled(bool)'), default_sync)
 
         sm.actions()[-1].setChecked(config.get('send_to_storage_card_by_default'))
-        default_sync(sm.actions()[-1].isChecked())    
+        default_sync(sm.actions()[-1].isChecked())
         self.sync_menu = sm # Needed
         md = QMenu()
         md.addAction(_('Edit metadata individually'))
+        md.addSeparator()
         md.addAction(_('Edit metadata in bulk'))
         self.metadata_menu = md
         self.add_menu = QMenu()
@@ -204,7 +205,7 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(cm.actions()[1], SIGNAL('triggered(bool)'), self.convert_bulk)
         QObject.connect(cm.actions()[3], SIGNAL('triggered(bool)'), self.set_conversion_defaults)
         QObject.connect(cm.actions()[4], SIGNAL('triggered(bool)'), self.set_comic_conversion_defaults)
-        QObject.connect(self.action_convert, SIGNAL('triggered(bool)'), self.convert_single)        
+        QObject.connect(self.action_convert, SIGNAL('triggered(bool)'), self.convert_single)
         self.convert_menu = cm
         self.tool_bar.widgetForAction(self.action_news).setPopupMode(QToolButton.MenuButtonPopup)
         self.tool_bar.widgetForAction(self.action_edit).setPopupMode(QToolButton.MenuButtonPopup)

@@ -12,9 +12,9 @@ from lxml import html
 
 class NYTimesMobile(BasicNewsRecipe):
     
-    title       = 'The New York Times'
+    title       = 'The New York Times (mobile)'
     __author__  = 'Kovid Goyal'
-    description = 'Daily news from the New York Times'
+    description = 'Daily news from the New York Times (mobile version)'
     timefmt     = ' [%a, %d %b, %Y]'
     multithreaded_fetch = True
     max_articles_per_feed  = 15
