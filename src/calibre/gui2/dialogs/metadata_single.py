@@ -33,6 +33,11 @@ class Format(QListWidgetItem):
 
 class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     
+    def do_reset_cover(self, *args):
+        pix = QPixmap(':/images/book.svg')
+        self.cover.setPixmap(pix)
+        self.cover_changed = True
+    
     def select_cover(self, checked):
         files = choose_images(self, 'change cover dialog', 
                              u'Choose cover for ' + qstring_to_unicode(self.title.text()))
@@ -149,6 +154,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        self.connect(self.reset_cover, SIGNAL('clicked()'), self.do_reset_cover)
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
         self.timeout = float(prefs['network_timeout'])
         self.title.setText(db.title(row))

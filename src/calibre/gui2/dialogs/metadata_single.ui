@@ -519,6 +519,20 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QToolButton" name="reset_cover" >
+                <property name="toolTip" >
+                 <string>Reset cover to default</string>
+                </property>
+                <property name="text" >
+                 <string>...</string>
+                </property>
+                <property name="icon" >
+                 <iconset resource="../images.qrc" >
+                  <normaloff>:/images/trash.svg</normaloff>:/images/trash.svg</iconset>
+                </property>
+               </widget>
+              </item>
              </layout>
             </item>
            </layout>
