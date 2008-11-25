@@ -109,6 +109,9 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.view_logs, SIGNAL('clicked()'), self.view_server_logs)
         self.connect(self.stop, SIGNAL('clicked()'), self.stop_server)
         self.connect(self.test, SIGNAL('clicked()'), self.test_server)
+        self.connect(self.show_server_password, SIGNAL('stateChanged(int)'),
+                     lambda s: self.password.setEchoMode(self.password.Normal if s == Qt.Checked else self.password.Password))
+        self.password.setEchoMode(self.password.Password)
         opts = server_config().parse()
         self.port.setValue(opts.port)
         self.username.setText(opts.username)
