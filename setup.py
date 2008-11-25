@@ -174,6 +174,16 @@ if __name__ == '__main__':
                 max = mtime if mtime > max else max
             return resources, max
         
+        def get_recipes(self):
+            sdir = os.path.join('src', 'calibre', 'web', 'feeds', 'recipes')
+            resources, max = {}, 0
+            for f in os.listdir(sdir):
+                if f.endswith('.py') and f != '__init__.py':
+                    resources[f.replace('.py', '')] = open(os.path.join(sdir, f), 'rb').read()
+                    mtime = os.stat(os.path.join(sdir, f)).st_mtime
+                    max = mtime if mtime > max else max
+            return resources, max
+        
         def run(self):
             data, dest, RESOURCES = {}, self.DEST, self.RESOURCES
             for key in RESOURCES:
@@ -183,13 +193,16 @@ if __name__ == '__main__':
             translations = self.get_qt_translations()
             RESOURCES.update(translations)
             static, smax = self.get_static_resources()
-            if newer([dest], RESOURCES.values()) or os.stat(dest).st_mtime < smax:
+            recipes, rmax = self.get_recipes()
+            amax = max(rmax, smax)
+            if newer([dest], RESOURCES.values()) or os.stat(dest).st_mtime < amax:
                 print 'Compiling resources...'
                 with open(dest, 'wb') as f:
                     for key in RESOURCES:
                         data = open(RESOURCES[key], 'rb').read()
                         f.write(key + ' = ' + repr(data)+'\n\n')
                     f.write('server_resources = %s\n\n'%repr(static))
+                    f.write('recipes = %s\n\n'%repr(recipes))
                     f.write('build_time = "%s"\n\n'%time.strftime('%d %m %Y %H%M%S'))
             else:
                 print 'Resources are up to date'

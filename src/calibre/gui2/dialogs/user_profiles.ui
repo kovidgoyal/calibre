@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>703</width>
+    <width>744</width>
     <height>633</height>
    </rect>
   </property>
@@ -13,7 +13,8 @@
    <string>Add custom news source</string>
   </property>
   <property name="windowIcon" >
-   <iconset resource="../images.qrc" >:/images/user_profile.svg</iconset>
+   <iconset resource="../images.qrc" >
+    <normaloff>:/images/user_profile.svg</normaloff>:/images/user_profile.svg</iconset>
   </property>
   <layout class="QGridLayout" >
    <item row="1" column="0" >
@@ -22,7 +23,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -64,7 +65,8 @@
           <string>Add/Update &amp;recipe</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
          </property>
         </widget>
        </item>
@@ -74,7 +76,8 @@
           <string>&amp;Remove recipe</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
          </property>
         </widget>
        </item>
@@ -84,7 +87,19 @@
           <string>&amp;Share recipe</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >:/images/forward.svg</iconset>
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/forward.svg</normaloff>:/images/forward.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="builtin_recipe_button" >
+         <property name="text" >
+          <string>Customize &amp;builtin recipe</string>
+         </property>
+         <property name="icon" >
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/news.svg</normaloff>:/images/news.svg</iconset>
          </property>
         </widget>
        </item>
@@ -94,7 +109,8 @@
           <string>&amp;Load recipe from file</string>
          </property>
          <property name="icon" >
-          <iconset resource="../images.qrc" >:/images/chapters.svg</iconset>
+          <iconset resource="../images.qrc" >
+           <normaloff>:/images/chapters.svg</normaloff>:/images/chapters.svg</iconset>
          </property>
         </widget>
        </item>
@@ -232,7 +248,8 @@ p, li { white-space: pre-wrap; }
                    <string>...</string>
                   </property>
                   <property name="icon" >
-                   <iconset resource="../images.qrc" >:/images/arrow-up.svg</iconset>
+                   <iconset resource="../images.qrc" >
+                    <normaloff>:/images/arrow-up.svg</normaloff>:/images/arrow-up.svg</iconset>
                   </property>
                  </widget>
                 </item>
@@ -245,7 +262,8 @@ p, li { white-space: pre-wrap; }
                    <string>...</string>
                   </property>
                   <property name="icon" >
-                   <iconset resource="../images.qrc" >:/images/list_remove.svg</iconset>
+                   <iconset resource="../images.qrc" >
+                    <normaloff>:/images/list_remove.svg</normaloff>:/images/list_remove.svg</iconset>
                   </property>
                  </widget>
                 </item>
@@ -255,7 +273,8 @@ p, li { white-space: pre-wrap; }
                    <string>...</string>
                   </property>
                   <property name="icon" >
-                   <iconset resource="../images.qrc" >:/images/arrow-down.svg</iconset>
+                   <iconset resource="../images.qrc" >
+                    <normaloff>:/images/arrow-down.svg</normaloff>:/images/arrow-down.svg</iconset>
                   </property>
                  </widget>
                 </item>
@@ -305,7 +324,8 @@ p, li { white-space: pre-wrap; }
                  <string>&amp;Add feed</string>
                 </property>
                 <property name="icon" >
-                 <iconset resource="../images.qrc" >:/images/plus.svg</iconset>
+                 <iconset resource="../images.qrc" >
+                  <normaloff>:/images/plus.svg</normaloff>:/images/plus.svg</iconset>
                 </property>
                </widget>
               </item>

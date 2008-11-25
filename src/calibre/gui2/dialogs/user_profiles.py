@@ -10,8 +10,7 @@ from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, error_dialog, question_dialog, choose_files
 from calibre.gui2.widgets import PythonHighlighter
-from calibre.ptempfile import PersistentTemporaryFile 
-from calibre import isosx
+from calibre.ptempfile import PersistentTemporaryFile
 
 class UserProfiles(QDialog, Ui_Dialog):
     
@@ -27,6 +26,7 @@ class UserProfiles(QDialog, Ui_Dialog):
         self.connect(self.add_feed_button, SIGNAL('clicked(bool)'),
                      self.add_feed)
         self.connect(self.load_button, SIGNAL('clicked()'), self.load)
+        self.connect(self.builtin_recipe_button, SIGNAL('clicked()'), self.add_builtin_recipe)
         self.connect(self.share_button, SIGNAL('clicked()'), self.share)
         self.connect(self.down_button, SIGNAL('clicked()'), self.down)
         self.connect(self.up_button, SIGNAL('clicked()'), self.up)
@@ -184,6 +184,39 @@ class %(classname)s(%(base_class)s):
                 return
         self.clear()
         
+    def add_builtin_recipe(self):
+        from calibre.web.feeds.recipes import recipes, recipe_modules, english_sort
+        from calibre.resources import recipes as rdat
+        from PyQt4.Qt import QInputDialog
+        
+        class Recipe(object):
+            def __init__(self, title, id, recipes):
+                self.title = title
+                self.id = id
+                self.text = recipes[id]
+            def __cmp__(self, other):
+                return english_sort(self.title, other.title)
+        
+        recipes =  sorted([Recipe(r.title, i, rdat) for r, i in zip(recipes, recipe_modules)])
+        items = [r.title for r in recipes]
+        title, ok = QInputDialog.getItem(self, _('Pick recipe'), _('Pick the recipe to customize'),
+                                     items, 0, False)
+        if ok:
+            for r in recipes:
+                if r.title == unicode(title):
+                    try:
+                        self.available_profiles.add_item(title, (title, r.text), replace=False)
+                    except ValueError:
+                        d = question_dialog(self, _('Replace recipe?'), 
+                                _('A custom recipe named %s already exists. Do you want to replace it?')%title)
+                        if d.exec_() == QMessageBox.Yes:
+                            self.available_profiles.add_item(title, (title, r.text), replace=True)
+                        else:
+                            return
+                    self.clear()
+                    break
+        
+    
     def load(self):
         files = choose_files(self, 'recipe loader dialog', _('Choose a recipe file'), filters=[(_('Recipes'), '*.py')], all_files=False, select_only_single_file=True)
         if files:
