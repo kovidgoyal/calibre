@@ -522,7 +522,18 @@ class Main(MainWindow, Ui_MainWindow):
         Add books from the local filesystem to either the library or the device.
         '''
         books = choose_files(self, 'add books dialog dir', 'Select books',
-                             filters=[('Books', BOOK_EXTENSIONS)])
+                             filters=[
+                                      (_('Books'), BOOK_EXTENSIONS),
+                                      (_('EPUB Books'), ['epub']),
+                                      (_('LRF Books'), ['lrf']),
+                                      (_('HTML Books'), ['htm', 'html', 'xhtm', 'xhtml']),
+                                      (_('LIT Books'), ['lit']),
+                                      (_('MOBI Books'), ['mobi', 'prc']),
+                                      (_('Text books'), ['txt', 'rtf']),
+                                      (_('PDF Books'), ['pdf']),
+                                      (_('Comics'), ['cbz', 'cbr']),
+                                      (_('Archives'), ['zip', 'rar']),
+                                      ])
         if not books:
             return
         to_device = self.stack.currentIndex() != 0

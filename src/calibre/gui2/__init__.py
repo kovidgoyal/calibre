@@ -285,7 +285,7 @@ class FileDialog(QObject):
             self.fd.setFileMode(mode)  
             self.fd.setIconProvider(_file_icon_provider)
             self.fd.setModal(modal)            
-            self.fd.setFilter(ftext)
+            self.fd.setNameFilter(ftext)
             self.fd.setWindowTitle(title)
             state = dynamic[self.dialog_name]
             if not state or not self.fd.restoreState(state):
