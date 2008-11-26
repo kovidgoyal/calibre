@@ -355,6 +355,6 @@ def get_devices():
     for bus in buslist:
         devices = bus.device_list
         for dev in devices:
-            device = (dev.device_descriptor.idVendor, dev.device_descriptor.idProduct)
+            device = (dev.device_descriptor.idVendor, dev.device_descriptor.idProduct, dev.device_descriptor.bcdDevice)
             ans.append(device)
     return ans

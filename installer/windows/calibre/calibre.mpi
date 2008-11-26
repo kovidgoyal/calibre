@@ -138,7 +138,7 @@ ProjectID
 DA98A0C6-9102-73EC-2516-B147E972D3F7
 
 ProjectVersion
-1.2.10.1
+1.2.7.0
 
 SaveOnlyToplevelDirs
 No
@@ -1100,9 +1100,6 @@ AAFE58A0-2DFB-CA20-1F6E-D3815F885996,Alias
 AIX-ppc,Active
 No
 
-AIX-ppc,BuildSeparateArchives
-No
-
 AIX-ppc,DefaultDirectoryPermission
 0755
 
@@ -1478,9 +1475,6 @@ FBA33088-C809-DD6B-D337-EADBF1CEE966,String
 FreeBSD-4-x86,Active
 No
 
-FreeBSD-4-x86,BuildSeparateArchives
-No
-
 FreeBSD-4-x86,DefaultDirectoryPermission
 0755
 
@@ -1530,9 +1524,6 @@ FreeBSD-4-x86,RootInstallDir
 /usr/local/<%ShortAppName%>
 
 FreeBSD-x86,Active
-No
-
-FreeBSD-x86,BuildSeparateArchives
 No
 
 FreeBSD-x86,DefaultDirectoryPermission
@@ -1586,9 +1577,6 @@ FreeBSD-x86,RootInstallDir
 HPUX-hppa,Active
 No
 
-HPUX-hppa,BuildSeparateArchives
-No
-
 HPUX-hppa,DefaultDirectoryPermission
 0755
 
@@ -1638,9 +1626,6 @@ HPUX-hppa,RootInstallDir
 /usr/local/<%ShortAppName%>
 
 Linux-x86,Active
-No
-
-Linux-x86,BuildSeparateArchives
 No
 
 Linux-x86,DefaultDirectoryPermission
@@ -1694,9 +1679,6 @@ Linux-x86,RootInstallDir
 Solaris-sparc,Active
 No
 
-Solaris-sparc,BuildSeparateArchives
-No
-
 Solaris-sparc,DefaultDirectoryPermission
 0755
 
@@ -1746,9 +1728,6 @@ Solaris-sparc,RootInstallDir
 /usr/local/<%ShortAppName%>
 
 TarArchive,Active
-No
-
-TarArchive,BuildSeparateArchives
 No
 
 TarArchive,CompressionLevel
@@ -1811,14 +1790,8 @@ TarArchive,VirtualTextMap
 Windows,Active
 Yes
 
-Windows,BuildSeparateArchives
-No
-
 Windows,Executable
 <%AppName%>-<%Version%><%Ext%>
-
-Windows,FileDescription
-{<%AppName%> <%Version%> Setup}
 
 Windows,IncludeTWAPI
 Yes
@@ -1854,9 +1827,6 @@ Windows,WindowsIcon
 {Setup Blue Screen.ico}
 
 ZipArchive,Active
-No
-
-ZipArchive,BuildSeparateArchives
 No
 
 ZipArchive,CompressionLevel
@@ -1951,7 +1921,7 @@ E611105F-DC85-9E20-4F7B-E63C54E5DF06,Message
 3EA07B17-04D8-6508-B535-96CC7173B49A,Message
 {<%AppName%> version <%Version%> created by Kovid Goyal
 
-Please ensure that calibre is not running, as this will cause the installation to fail. Click Next to continue or Cancel to exit Setup.}
+Please make sure that calibre is not running, as this will cause the install to fail. Click Next to continue or Cancel to exit Setup.}
 
 442920D9-8A51-9476-14E4-787D5C230E84,Message
 <%UninstallCompleteText%>

@@ -57,7 +57,7 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
   IOCFPlugInInterface **plugInInterface = NULL;
   SInt32 score;
   IOUSBDeviceInterface182 **dev = NULL;
-  UInt16 vendor, product;
+  UInt16 vendor, product, bcd;
 
   PyObject *devices, *device;
   devices = PyList_New(0);
@@ -80,7 +80,8 @@ usbobserver_get_usb_devices(PyObject *self, PyObject *args) {
 
     kr = (*dev)->GetDeviceVendor(dev, &vendor);
     kr = (*dev)->GetDeviceProduct(dev, &product);
-    device = Py_BuildValue("(ii)", vendor, product);
+    kr = (*dev)->GetDeviceReleaseNumber(dev, &bcd);
+    device = Py_BuildValue("(iii)", vendor, product, bcd);
     if (device == NULL) {
       IOObjectRelease(usbDevice);
       (*plugInInterface)->Release(plugInInterface);

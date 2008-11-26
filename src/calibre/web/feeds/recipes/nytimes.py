@@ -12,7 +12,7 @@ from lxml import html
 
 class NYTimesMobile(BasicNewsRecipe):
     
-    title       = 'The New York Times (mobile)'
+    title       = 'The New York Times'
     __author__  = 'Kovid Goyal'
     description = 'Daily news from the New York Times (mobile version)'
     timefmt     = ' [%a, %d %b, %Y]'

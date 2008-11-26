@@ -47,9 +47,10 @@ class DeviceScanner(object):
                     return True
             return False
         else:
-            for vendor, product in self.devices:
+            for vendor, product, bcdDevice in self.devices:
                 if device.VENDOR_ID == vendor and device.PRODUCT_ID == product:
-                    return True
+                    if hasattr(device, 'BCD') and device.BCD == bcdDevice:
+                        return True
             return False
 
 

@@ -7,8 +7,9 @@ Device drivers.
 def devices():
     from calibre.devices.prs500.driver import PRS500
     from calibre.devices.prs505.driver import PRS505
-    from calibre.devices.kindle.driver import KINDLE
-    return (PRS500, PRS505, KINDLE)
+    from calibre.devices.prs700.driver import PRS700
+    #from calibre.devices.kindle.driver import KINDLE
+    return (PRS500, PRS505, PRS700)
 
 import time
 

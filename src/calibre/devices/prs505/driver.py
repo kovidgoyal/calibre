@@ -29,6 +29,7 @@ class File(object):
 class PRS505(Device):
     VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x031e #: Product Id for the PRS-505
+    BCD          = 0x229  #: Needed to disambiguate 505 and 700 on linux
     PRODUCT_NAME = 'PRS-505'
     VENDOR_NAME  = 'SONY'
     FORMATS      = ['lrf', 'epub', "rtf", "pdf", "txt"]
@@ -49,9 +50,11 @@ class PRS505(Device):
       <match key="info.category" string="volume">
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
-                  <match key="volume.is_partition" bool="false">
-                      <merge key="volume.label" type="string">%(main_memory)s</merge>
-                      <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
+                  <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">
+                      <match key="volume.is_partition" bool="false">
+                          <merge key="volume.label" type="string">%(main_memory)s</merge>
+                          <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
+                      </match>
                   </match>
               </match>
           </match>
@@ -81,6 +84,7 @@ class PRS505(Device):
                                      deviceclass=cls.__name__,
                                      vendor_id=hex(cls.VENDOR_ID),
                                      product_id=hex(cls.PRODUCT_ID),
+                                     bcd=hex(cls.BCD),
                                      main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
                                      storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
                                      )
@@ -281,7 +285,7 @@ class PRS505(Device):
         self.report_progress = pr
         
     def get_device_information(self, end_session=True):
-        return ('PRS-505', '', '', '')
+        return (self.__class__.__name__, '', '', '')
     
     def card_prefix(self, end_session=True):
         return self._card_prefix

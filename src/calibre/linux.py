@@ -338,12 +338,14 @@ def setup_udev_rules(group_file, reload, fatal_errors):
   <device>
       <match key="usb_device.vendor_id" int="%(vendor_id)s">
           <match key="usb_device.product_id" int="%(product_id)s">
-              <merge key="calibre.deviceclass" type="string">%(cls)s</merge>
+              <match key="usb_device.device_revision_bcd" int="%(bcd)s">
+                  <merge key="calibre.deviceclass" type="string">%(cls)s</merge>
+              </match>
           </match>
       </match>
   </device>
 '''%dict(cls=cls.__name__, vendor_id=cls.VENDOR_ID, product_id=cls.PRODUCT_ID,
-         prog=__appname__))
+         prog=__appname__, bcd=cls.BCD))
         fdi.write('\n'+cls.get_fdi())
     fdi.write('\n</deviceinfo>\n')
     fdi.close()
