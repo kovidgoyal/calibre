@@ -218,8 +218,9 @@ class Main(MainWindow, Ui_MainWindow):
 
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
-
+        
         ####################### Library view ########################
+        self.library_view.set_context_menu(self.action_edit, self.action_sync, self.action_convert, self.action_view)
         QObject.connect(self.library_view, SIGNAL('files_dropped(PyQt_PyObject)'),
                         self.files_dropped)
         for func, target in [

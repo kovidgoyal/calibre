@@ -8,7 +8,7 @@ from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, \
-                        QPalette, QImage, QApplication
+                        QPalette, QImage, QApplication, QMenu
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
                          SIGNAL, QObject, QSize, QModelIndex
 
@@ -559,7 +559,18 @@ class BooksView(TableView):
         if col > -1:
             self.setItemDelegateForColumn(col, self.rating_delegate)
             
+    def set_context_menu(self, edit_metadata, send_to_device, convert, view):
+        self.setContextMenuPolicy(Qt.DefaultContextMenu)
+        self.context_menu = QMenu(self)
+        self.context_menu.addAction(edit_metadata)
+        self.context_menu.addAction(send_to_device)
+        self.context_menu.addAction(convert)
+        self.context_menu.addAction(view)
         
+    def contextMenuEvent(self, event):
+        self.context_menu.popup(event.globalPos())
+        event.accept()
+    
     def sortByColumn(self, colname, order):
         try:
             idx = self._model.column_map.index(colname)
