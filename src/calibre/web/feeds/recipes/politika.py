@@ -18,29 +18,6 @@ class Politika(BasicNewsRecipe):
     extra_css             = '.content_center_border {text-align: left;}' 
     use_embedded_content  = False
     timefmt               = ' [%A, %d %B, %Y]' 
-    #Locale setting to get appropriate date/month values in Serbian if possible
-    try:
-      #Windows seting for locale
-      locale.setlocale(locale.LC_TIME,'Serbian (Latin)')
-    except locale.Error:
-      #Linux setting for locale -- choose one appropriate for your distribution
-      try:
-        locale.setlocale(locale.LC_TIME,'sr_YU')
-      except locale.Error:
-        try:
-          locale.setlocale(locale.LC_TIME,'sr_CS@Latn')
-        except locale.Error:
-          try:
-            locale.setlocale(locale.LC_TIME,'sr@Latn')
-          except locale.Error:
-            try:
-              locale.setlocale(locale.LC_TIME,'sr_Latn')
-            except locale.Error:
-              try:
-                locale.setlocale(locale.LC_TIME,'sr_RS')
-              except locale.Error:                  
-                locale.setlocale(locale.LC_TIME,'C')
-
     remove_tags_before = dict(name='div', attrs={'class':'content_center_border'})
     remove_tags_after  = dict(name='div', attrs={'class':'datum_item_details'})
 
