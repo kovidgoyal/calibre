@@ -641,7 +641,6 @@ class Processor(Parser):
             if len(toc) > 0:
                 return
         # Add chapters to TOC
-        
         if not self.opts.no_chapters_in_toc:
             for elem in getattr(self, 'detected_chapters', []):
                 text = (u''.join(elem.xpath('string()'))).strip()
@@ -651,6 +650,8 @@ class Processor(Parser):
                     elem.set('id', id)
                     add_item(href, id, text, toc, type='chapter')
         
+        if len(list(toc.flat())) >= self.opts.toc_threshold:
+            return
         referrer = toc
         if self.htmlfile.referrer is not None:
             try:
@@ -668,7 +669,6 @@ class Processor(Parser):
                 href = 'content/'+name
                 referrer = add_item(href, None, text, toc)
             
-        
         # Add links to TOC
         if int(self.opts.max_toc_links) > 0:
             for link in list(self.LINKS_PATH(self.root))[:self.opts.max_toc_links]:
@@ -676,13 +676,15 @@ class Processor(Parser):
                 if text:
                     href = link.get('href', '')
                     if href and not (href.startswith('http://') or href.startswith('https://')):
+                        href = href.strip()
+                        if href.startswith('#'):
+                            href = self.htmlfile_map[self.htmlfile.path] + href
                         href = 'content/'+href
                         parts = href.split('#')
                         href, fragment = parts[0], None
                         if len(parts) > 1:
                             fragment = parts[1]
                         add_item(href, fragment, text, referrer)
-        
                     
     @classmethod
     def preprocess_css(cls, css, dpi=96):

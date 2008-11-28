@@ -31,7 +31,15 @@ class TOC(list):
         self.base_path = base_path
         self.play_order = play_order
         self.type = type
-        
+    
+    def __str__(self):
+        lines = ['TOC: %s#%s'%(self.href, self.fragment)]
+        for child in self:
+            c = str(child).splitlines()
+            for l in c:
+                lines.append('\t'+l)
+        return '\n'.join(lines)
+    
     def count(self, type):
         return len([i for i in self.flat() if i.type == type])
     

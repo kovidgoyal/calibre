@@ -100,7 +100,7 @@ to auto-generate a Table of Contents.
     toc('no_chapters_in_toc', ['--no-chapters-in-toc'], default=False,
         help=_("Don't add auto-detected chapters to the Table of Contents."))
     toc('toc_threshold', ['--toc-threshold'], default=6,
-        help=_('If fewer than this number of chapters is detected, then links are added to the Table of Contents.'))
+        help=_('If fewer than this number of chapters is detected, then links are added to the Table of Contents. Default: %default'))
     toc('level1_toc', ['--level1-toc'], default=None,
         help=_('XPath expression that specifies all tags that should be added to the Table of Contents at level one. If this is specified, it takes precedence over other forms of auto-detection.'))
     toc('level2_toc', ['--level2-toc'], default=None,
