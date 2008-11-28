@@ -117,6 +117,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.username.setText(opts.username)
         self.password.setText(opts.password if opts.password else '')
         self.auto_launch.setChecked(config['autolaunch_server'])
+        self.systray_icon.setChecked(config['systray_icon'])
     
     def up_column(self):
         idx = self.columns.currentRow()
@@ -217,6 +218,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['save_to_disk_single_format'] = BOOK_EXTENSIONS[self.single_format.currentIndex()]
         config['cover_flow_queue_length'] = self.cover_browse.value()
         prefs['language'] = str(self.language.itemData(self.language.currentIndex()).toString())
+        config['systray_icon'] = self.systray_icon.checkState() == Qt.Checked
         config['autolaunch_server'] = self.auto_launch.isChecked()
         sc = server_config()
         sc.set('username', unicode(self.username.text()).strip())

@@ -72,7 +72,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget" >
        <property name="currentIndex" >
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="page_3" >
         <layout class="QVBoxLayout" name="verticalLayout" >
@@ -357,7 +357,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0" >
+         <item row="2" column="0" >
           <layout class="QHBoxLayout" name="horizontalLayout" >
            <item>
             <widget class="QLabel" name="label_6" >
@@ -374,7 +374,7 @@
            </item>
           </layout>
          </item>
-         <item row="2" column="0" >
+         <item row="3" column="0" >
           <widget class="QGroupBox" name="groupBox_2" >
            <property name="title" >
             <string>Toolbar</string>
@@ -422,7 +422,7 @@
            </layout>
           </widget>
          </item>
-         <item row="3" column="0" >
+         <item row="4" column="0" >
           <widget class="QGroupBox" name="groupBox" >
            <property name="title" >
             <string>Select visible &amp;columns in library view</string>
@@ -501,6 +501,13 @@
              </widget>
             </item>
            </layout>
+          </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QCheckBox" name="systray_icon" >
+           <property name="text" >
+            <string>Enable system &amp;tray icon (needs restart)</string>
+           </property>
           </widget>
          </item>
         </layout>

@@ -91,7 +91,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.viewers = collections.deque()
         self.content_server = None
         self.system_tray_icon = QSystemTrayIcon(QIcon(':/library'), self)
-        if opts.no_systray:
+        if not config['systray_icon']:
             self.system_tray_icon.hide()
         else:
             self.system_tray_icon.show()
@@ -1337,8 +1337,6 @@ path_to_ebook to the database.
                       help=_('Use the library located at the specified path.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help=_('Log debugging information to console'))
-    parser.add_option('--no-systray', default=False, action='store_true',
-                          help=_('Disable system tray icon'))
     return parser
 
 def main(args=sys.argv):
