@@ -984,4 +984,4 @@ def main(args=sys.argv):
     
 
 if __name__ == '__main__':
-    sys.exit(test())
+    sys.exit(main())
