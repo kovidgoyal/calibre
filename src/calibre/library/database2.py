@@ -688,16 +688,15 @@ class LibraryDatabase2(LibraryDatabase):
     
     def remove_format(self, index, format, index_is_id=False, notify=True):
         id = index if index_is_id else self.id(index)
-        path = os.path.join(self.library_path, self.path(id, index_is_id=True))
+        path = os.path.join(self.library_path, *self.path(id, index_is_id=True).split(os.sep))
         name = self.conn.get('SELECT name FROM data WHERE book=? AND format=?', (id, format), all=False)
-        name = name[0] if name else False
         if name:
             ext = ('.' + format.lower()) if format else ''
             path = os.path.join(path, name+ext)
             try:
                 os.remove(path)
             except:
-                pass
+                traceback.print_exc()
             self.conn.execute('DELETE FROM data WHERE book=? AND format=?', (id, format.upper()))
             self.conn.commit()
             self.refresh_ids([id])
