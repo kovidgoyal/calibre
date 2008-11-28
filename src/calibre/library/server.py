@@ -134,9 +134,9 @@ class LibraryServer(object):
         if opts.password:
             self.config['/'] = {
                       'tools.digest_auth.on'    : True,
-                      'tools.digest_auth.realm' : _('Password to access your calibre library. Username is ') + opts.username.strip(),
+                      'tools.digest_auth.realm' : (_('Password to access your calibre library. Username is ') + opts.username.strip()).encode('ascii', 'replace'),
                       'tools.digest_auth.users' : {opts.username.strip():opts.password.strip()},
-                      } 
+                      }
             
         self.is_running = False
         self.exception = None
