@@ -15,7 +15,7 @@ recipe_modules = [
            'demorgen_be', 'de_standaard', 'ap', 'barrons', 'chr_mon', 'cnn', 'faznet',
            'jpost', 'jutarnji', 'nasa', 'reuters', 'spiegelde', 'wash_post', 'zeitde',
            'blic', 'novosti', 'danas', 'vreme', 'times_online', 'the_scotsman',
-           'nytimes_sub', 'security_watch'
+           'nytimes_sub', 'security_watch', 'cyberpresse',
           ]
 
 import re, imp, inspect, time, os
