@@ -47,7 +47,6 @@ FLAG_CLOSING = (1 << 1)
 FLAG_BLOCK   = (1 << 2)
 FLAG_HEAD    = (1 << 3)
 FLAG_ATOM    = (1 << 4)
-XML_ENTITIES = ['&amp;', '&apos;', '&lt;', '&gt;', '&quot;']
 
 def u32(bytes):
     return struct.unpack('<L', bytes[:4])[0]
@@ -114,7 +113,7 @@ class UnBinary(object):
     CLOSE_ANGLE_RE = re.compile(r'(?<!--)>>')
     DOUBLE_ANGLE_RE = re.compile(r'([<>])\1')
     
-    def __init__(self, bin, path, manifest, map=OPF_MAP):
+    def __init__(self, bin, path, manifest={}, map=HTML_MAP):
         self.manifest = manifest
         self.tag_map, self.attr_map, self.tag_to_attr_map = map
         self.opf = map is OPF_MAP
@@ -123,7 +122,7 @@ class UnBinary(object):
         self.buf = cStringIO.StringIO()
         self.binary_to_text()
         self.raw = self.buf.getvalue().lstrip().decode('utf-8')
-        self.escape_reserved() 
+        self.escape_reserved()
 
     def escape_reserved(self):
         raw = self.raw
@@ -157,7 +156,7 @@ class UnBinary(object):
         dynamic_tag = errors = 0
         in_censorship = is_goingdown = False
         state = 'text'
-        index =  base
+        index = base
         flags = 0
         
         while index < len(self.bin):
@@ -442,7 +441,7 @@ class LitReader(object):
             self._stream.seek(0)
             return self._stream.read(size)
         return property(fget=fget)
-    header = header()        
+    header = header()
     
     def __init__(self, filename_or_stream):
         if hasattr(filename_or_stream, 'read'):
@@ -452,7 +451,7 @@ class LitReader(object):
         if self.magic != 'ITOLITLS':
             raise LitError('Not a valid LIT file')
         if self.version != 1:
-            raise LitError('Unknown LIT version %d'%(self.version,))
+            raise LitError('Unknown LIT version %d' % (self.version,))
         self.entries = {}
         self._read_secondary_header()
         self._read_header_pieces()
@@ -641,14 +640,15 @@ class LitReader(object):
     def _read_meta(self):
         path = 'content.opf'
         raw = self.get_file('/meta')
+        xml = OPF_DECL
         try:
-            xml = OPF_DECL + unicode(UnBinary(raw, path, self.manifest, OPF_MAP))
+            xml += unicode(UnBinary(raw, path, self.manifest, OPF_MAP))
         except LitError:
             if 'PENGUIN group' not in raw: raise
             print "WARNING: attempting PENGUIN malformed OPF fix"
             raw = raw.replace(
                 'PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
-            xml = OPF_DECL + unicode(UnBinary(raw, path, self.manifest, OPF_MAP))
+            xml += unicode(UnBinary(raw, path, self.manifest, OPF_MAP))
         self.meta = xml
 
     def _read_drm(self):
@@ -668,7 +668,7 @@ class LitReader(object):
                 raise LitError('Unable to decrypt title key!')
             self.bookkey = bookkey[1:9]
         else:
-            raise DRMError()
+            raise DRMError("Cannot access DRM-protected book")
 
     def _calculate_deskey(self):
         hashfiles = ['/meta', '/DRMStorage/DRMSource']
@@ -768,7 +768,7 @@ class LitReader(object):
                 if u != 0:
                     raise LitError("Reset table entry greater than 32 bits")
                 if size >= len(content):
-                    raise("Reset table entry out of bounds")
+                    raise LitError("Reset table entry out of bounds")
                 if bytes_remaining >= window_bytes:
                     lzx.reset()
                     try:
