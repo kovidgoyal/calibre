@@ -367,8 +367,10 @@ class ManifestItem(object):
         return self.internal == other
     
     def __repr__(self):
-        return "ManifestItem(internal=%s, path=%s)" \
-            % (repr(self.internal), repr(self.path))
+        return "ManifestItem(internal=%r, path=%r, mime_type=%r, " \
+            "offset=%d, root=%r, state=%r)" \
+            % (self.internal, self.path, self.mime_type, self.offset,
+               self.root, self.state)
 
 def preserve(function):
     def wrapper(self, *args, **kwargs):
@@ -731,6 +733,11 @@ class LitReader(object):
         return content
 
     def _decrypt(self, content):
+        length = len(content)
+        extra = length & 0x7
+        if extra > 0:
+            self._warn("content length not a multiple of block size")
+            content += "\0" * (8 - extra)
         msdes.deskey(self.bookkey, msdes.DE1)
         return msdes.des(content)
 
