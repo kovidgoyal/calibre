@@ -628,6 +628,9 @@ class DeviceBooksView(BooksView):
         BooksView.__init__(self, parent, DeviceBooksModel)
         self.columns_resized = False
         self.resize_on_select = False
+        self.rating_delegate = None
+        for i in range(10):
+            self.setItemDelegateForColumn(i, self.itemDelegate())
 
     def resizeColumnsToContents(self):
         QTableView.resizeColumnsToContents(self)
