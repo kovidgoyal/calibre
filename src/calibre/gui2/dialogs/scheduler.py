@@ -334,9 +334,9 @@ class Scheduler(QObject):
     def customize_feeds(self, *args):
         main = self.main
         d = UserProfiles(main, main.library_view.model().db.get_feeds())
-        if d.exec_() == QDialog.Accepted:
-            feeds = tuple(d.profiles())
-            main.library_view.model().db.set_feeds(feeds)
+        d.exec_()
+        feeds = tuple(d.profiles())
+        main.library_view.model().db.set_feeds(feeds)
             
     
     def debug(self, *args):

@@ -110,6 +110,9 @@ class Main(MainWindow, Ui_MainWindow):
             if r == QSystemTrayIcon.Trigger:
                 self.hide() if self.isVisible() else self.show()
         self.connect(self.system_tray_icon, SIGNAL('activated(QSystemTrayIcon::ActivationReason)'), sta)
+        def tcme(self, *args):
+            print args
+        self.tool_bar.contextMenuEvent = tcme
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
                         self.location_selected)
@@ -1247,9 +1250,10 @@ in which you want to store your books files. Any existing books will be automati
         </form>
         '''
         MSG = _('is the result of the efforts of many volunteers from all over the world. If you find it useful, please consider donating to support its development.')
-        HTML = '''
+        HTML = u'''
         <html>
             <head>
+                <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
                 <title>Donate to support calibre</title>
             </head>
             <body style="background:white">
@@ -1260,7 +1264,7 @@ in which you want to store your books files. Any existing books will be automati
         </html>
         '''%(MSG, BUTTON)
         pt = PersistentTemporaryFile('_donate.htm')
-        pt.write(HTML)
+        pt.write(HTML.encode('utf-8'))
         pt.close()
         QDesktopServices.openUrl(QUrl.fromLocalFile(pt.name))
             

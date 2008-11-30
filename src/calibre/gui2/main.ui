@@ -16,6 +16,9 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="contextMenuPolicy" >
+   <enum>Qt::NoContextMenu</enum>
+  </property>
   <property name="windowTitle" >
    <string>__appname__</string>
   </property>
@@ -411,6 +414,9 @@
      <width>0</width>
      <height>0</height>
     </size>
+   </property>
+   <property name="contextMenuPolicy" >
+    <enum>Qt::PreventContextMenu</enum>
    </property>
    <property name="movable" >
     <bool>false</bool>
