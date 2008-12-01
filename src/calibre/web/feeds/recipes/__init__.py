@@ -16,7 +16,7 @@ recipe_modules = [
            'jpost', 'jutarnji', 'nasa', 'reuters', 'spiegelde', 'wash_post', 'zeitde',
            'blic', 'novosti', 'danas', 'vreme', 'times_online', 'the_scotsman',
            'nytimes_sub', 'security_watch', 'cyberpresse', 'st_petersburg_times',
-           'clarin',
+           'clarin', 'financial_times'
           ]
 
 import re, imp, inspect, time, os

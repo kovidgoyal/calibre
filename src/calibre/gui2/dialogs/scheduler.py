@@ -34,6 +34,9 @@ class Recipe(object):
         self.downloading        = False
         self.builtin            = builtin
         self.schedule           = None
+        self.author             = getattr(recipe_class, '__author__', _('Unknown'))
+        if self.author == _('Unknown') and not builtin:
+            self.author = _('You')
         self.needs_subscription = getattr(recipe_class, 'needs_subscription', False)
         
     def pickle(self):
@@ -269,6 +272,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         recipe = self._model.data(index, Qt.UserRole)
         self.current_recipe = recipe
         self.title.setText(recipe.title)
+        self.author.setText(_('Created by: ') + recipe.author)
         self.description.setText(recipe.description if recipe.description else '')
         self.schedule.setChecked(recipe.schedule is not None)
         self.interval.setValue(recipe.schedule if recipe.schedule is not None else 1)
