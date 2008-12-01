@@ -39,8 +39,8 @@ class TagsView(QTreeView):
 
 class TagsModel(QAbstractItemModel):
     
-    categories = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('Tags')]
-    row_map    = {0: 'author', 1:'series', 2:'format', 3:'publisher', 4:'tag'} 
+    categories = [_('Authors'), _('Series'), _('Formats'), _('Publishers'), _('News'), _('Tags')]
+    row_map    = {0: 'author', 1:'series', 2:'format', 3:'publisher', 4:'news', 5:'tag'} 
     
     def __init__(self, db):
         QAbstractItemModel.__init__(self)
@@ -53,7 +53,7 @@ class TagsModel(QAbstractItemModel):
         self.bold_font = QVariant(self.bold_font)
         self.status_map = [QColor(200,200,200, 0), QIcon(':/images/plus.svg'), QIcon(':/images/minus.svg')]
         self.status_map = list(map(QVariant, self.status_map))
-        self.cmap = [QIcon(':/images/user_profile.svg'), QIcon(':/images/series.svg'), QIcon(':/images/book.svg'), QIcon(':/images/publisher.png'), QIcon(':/images/tags.svg')]
+        self.cmap = [QIcon(':/images/user_profile.svg'), QIcon(':/images/series.svg'), QIcon(':/images/book.svg'), QIcon(':/images/publisher.png'), QIcon(':/images/news.svg'), QIcon(':/images/tags.svg')]
         self.cmap = list(map(QVariant, self.cmap))
         self.db.add_listener(self.database_changed)
     
@@ -95,9 +95,10 @@ class TagsModel(QAbstractItemModel):
         ans = []
         for key in self.row_map.values():
             for tag in self._data[key]:
+                category = key if key != 'news' else 'tag'
                 if tag.state > 0:
                     prefix = ' not ' if tag.state == 2 else ''
-                    ans.append('%s%s:"%s"'%(prefix, key, tag))
+                    ans.append('%s%s:"%s"'%(prefix, category, tag))
         return ans
     
     def index(self, row, col, parent=QModelIndex()):
