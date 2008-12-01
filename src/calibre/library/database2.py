@@ -50,7 +50,8 @@ def sanitize_file_name(name, substitute='_'):
     if isinstance(name, unicode):
         name = name.encode(filesystem_encoding, 'ignore')
     one = _filename_sanitize.sub(substitute, name)
-    return re.sub(r'\s', ' ', one).strip()
+    one = re.sub(r'\s', ' ', one).strip()
+    return re.sub(r'^\.+$', '_', one)
 
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5, 
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
