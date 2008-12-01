@@ -351,7 +351,7 @@ class BooksModel(QAbstractTableModel):
                   'comments': self.db.comments(id, index_is_id=True),
                   }
             if series is not None:
-                mi['tag order'] = {series:self.db.books_in_series_of(row)}
+                mi['tag order'] = {series:self.db.books_in_series_of(id, index_is_id=True)}
 
             metadata.append(mi)
         return metadata
