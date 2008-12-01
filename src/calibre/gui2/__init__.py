@@ -14,6 +14,7 @@ from calibre import __author__, islinux, iswindows, isosx
 from calibre.startup import get_lang
 from calibre.utils.config import Config, ConfigProxy, dynamic
 import calibre.resources as resources
+from calibre.ebooks.html import gui_main as html2oeb
 
 NONE = QVariant() #: Null value to return from the data function of item models
 
@@ -388,6 +389,14 @@ def pixmap_to_data(pixmap, format='JPEG'):
     pixmap.save(buf, format)
     return str(ba.data())
 
+html_pat = re.compile(r'\.x{0,1}htm(l{0,1})\s*$', re.IGNORECASE)
+def import_format(path):
+    if html_pat.search(path) is not None:
+        try:
+            return html2oeb(path), 'zip'
+        except:
+            traceback.print_exc()
+    return None, None
 
 try:
     from calibre.utils.single_qt_application import SingleApplication

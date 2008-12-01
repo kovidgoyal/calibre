@@ -1,6 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, sys, textwrap, collections, traceback, time, re
+import os, sys, textwrap, collections, traceback, time
 from xml.parsers.expat import ExpatError
 from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer
@@ -21,7 +21,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
                            SingleApplication, Application, available_height, \
-                           max_available_height, config, info_dialog
+                           max_available_height, config, info_dialog, import_format
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
@@ -43,7 +43,6 @@ from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.book_info import BookInfo
 from calibre.ebooks.metadata.meta import set_metadata
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.html import gui_main as html2oeb
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
@@ -571,19 +570,13 @@ class Main(MainWindow, Ui_MainWindow):
 
         if not to_device:
             model = self.library_view.model()
-            html_pat = re.compile(r'\.x{0,1}htm(l{0,1})\s*$', re.IGNORECASE)
+            
             paths = list(paths)
             for i, path in enumerate(paths):
-                if html_pat.search(path) is not None:
-                    try:
-                        paths[i] = html2oeb(path)
-                    except:
-                        traceback.print_exc()
-                        continue
-                    if paths[i] is None:
-                        paths[i] = path
-                    else: 
-                        formats[i] = 'zip'
+                npath, fmt = import_format(path)
+                if npath is not None:
+                    paths[i] = npath
+                    formats[i] = fmt
             duplicates, number_added = model.add_books(paths, formats, metadata)
             if duplicates:
                 files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
