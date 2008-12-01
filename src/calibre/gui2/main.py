@@ -451,6 +451,7 @@ class Main(MainWindow, Ui_MainWindow):
                 view.resizeColumnsToContents()
             view.resizeRowsToContents()
             view.resize_on_select = not view.isVisible()
+        self.sync_news()
     ############################################################################
 
 
@@ -636,8 +637,7 @@ class Main(MainWindow, Ui_MainWindow):
         view.model().resort(reset=False)
         view.model().research()
         if memory and memory[1]:
-            rows = map(self.library_view.model().db.index, memory[1])
-            self.library_view.model().delete_books(rows)
+            self.library_view.model().delete_books_by_id(memory[1])
 
 
     ############################################################################
@@ -742,6 +742,30 @@ class Main(MainWindow, Ui_MainWindow):
             p = p.scaledToHeight(ht, Qt.SmoothTransformation)
             return (p.width(), p.height(), pixmap_to_data(p))
 
+    def sync_news(self):
+        if self.device_connected:
+            ids = list(dynamic.get('news_to_be_synced', set([])))
+            files = [self.library_view.model().db.format(id, prefs['output_format'], index_is_id=True, as_file=True) for id in ids]
+            files = [f for f in files if f is not None]
+            metadata = self.library_view.model().get_metadata(ids, rows_are_ids=True)
+            names = []
+            for mi in metadata: 
+                prefix = sanitize_file_name(mi['title'])
+                if not isinstance(prefix, unicode):
+                    prefix = prefix.decode(preferred_encoding, 'replace')
+                prefix = ascii_filename(prefix)
+                names.append('%s_%d%s'%(prefix, id, os.path.splitext(f.name)[1]))
+                cdata = mi['cover']
+                if cdata:
+                    mi['cover'] = self.cover_to_thumbnail(cdata)
+            dynamic.set('news_to_be_synced', set([]))
+            if config['upload_news_to_device'] and files:
+                remove = ids if config['delete_news_from_library_on_upload'] else []
+                on_card = self.location_view.model().free[0] < self.location_view.model().free[1]
+                self.upload_books(files, names, metadata, on_card=on_card, memory=[[f.name for f in files], remove])
+                self.status_bar.showMessage(_('Sending news to device.'), 5000)
+                
+    
     def sync_to_device(self, on_card, delete_from_library):
         rows = self.library_view.selectionModel().selectedRows()
         if not self.device_manager or not rows or len(rows) == 0:
@@ -780,10 +804,10 @@ class Main(MainWindow, Ui_MainWindow):
                 gf.append(f)
                 t = mi['title']
                 if not t:
-                    t = 'Unknown'
+                    t = _('Unknown')
                 a = mi['authors']
                 if not a:
-                    a = 'Unknown'
+                    a = _('Unknown')
                 prefix = sanitize_file_name(t+' - '+a)
                 if not isinstance(prefix, unicode):
                     prefix = prefix.decode(preferred_encoding, 'replace')
@@ -854,12 +878,13 @@ class Main(MainWindow, Ui_MainWindow):
         if job.exception is not None:
             self.job_exception(job)
             return
-        mi = get_metadata(open(pt.name, 'rb'), fmt, use_libprs_metadata=False)
-        mi.tags = [_('News'), recipe.title]
-        paths, formats, metadata = [pt.name], [fmt], [mi]
-        self.library_view.model().add_books(paths, formats, metadata, add_duplicates=True)
+        id = self.library_view.model().add_news(pt.name, recipe)
+        sync = dynamic.get('news_to_be_synced', set([]))
+        sync.add(id)
+        dynamic.set('news_to_be_synced', sync)
         callback(recipe)
         self.status_bar.showMessage(recipe.title + _(' fetched.'), 3000)
+        self.sync_news()
             
     ############################################################################
 

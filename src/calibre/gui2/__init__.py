@@ -54,6 +54,8 @@ def _config():
     c.add_opt('autolaunch_server', default=False, help=_('Automatically launch content server on application startup'))
     c.add_opt('oldest_news', default=60, help=_('Oldest news kept in database'))
     c.add_opt('systray_icon', default=True, help=_('Show system tray icon'))
+    c.add_opt('upload_news_to_device', default=True, help=_('Upload downloaded news to device'))
+    c.add_opt('delete_news_from_library_on_upload', default=False, help=_('Delete books from library after uploading to device'))
     return ConfigProxy(c)
     
 config = _config()

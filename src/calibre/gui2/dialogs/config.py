@@ -118,6 +118,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.password.setText(opts.password if opts.password else '')
         self.auto_launch.setChecked(config['autolaunch_server'])
         self.systray_icon.setChecked(config['systray_icon'])
+        self.sync_news.setChecked(config['upload_news_to_device'])
+        self.delete_news.setChecked(config['delete_news_from_library_on_upload'])
     
     def up_column(self):
         idx = self.columns.currentRow()
@@ -224,6 +226,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         sc.set('username', unicode(self.username.text()).strip())
         sc.set('password', unicode(self.password.text()).strip())
         sc.set('port', self.port.value())
+        config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
+        config['upload_news_to_device'] = self.sync_news.isChecked()
         of = str(self.output_format.currentText())
         fmts = []
         for i in range(self.viewer.count()):

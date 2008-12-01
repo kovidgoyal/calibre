@@ -20,6 +20,7 @@ from calibre.library.database import LibraryDatabase
 from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.constants import preferred_encoding, iswindows, isosx
 
 
@@ -1030,6 +1031,29 @@ class LibraryDatabase2(LibraryDatabase):
         if notify:
             self.notify('metadata', [id])
         
+    def add_news(self, path, recipe):
+        format = os.path.splitext(path)[1][1:].lower()
+        stream = path if hasattr(path, 'read') else open(path, 'rb')
+        stream.seek(0)
+        mi = get_metadata(stream, format, use_libprs_metadata=False)
+        stream.seek(0)
+        mi.series_index = 1
+        mi.tags = [_('News'), recipe.title]
+        obj = self.conn.execute('INSERT INTO books(title, author_sort) VALUES (?, ?)', 
+                              (mi.title, mi.authors[0]))
+        id = obj.lastrowid
+        self.data.books_added([id], self.conn)
+        self.set_path(id, True)
+        self.conn.commit()
+        self.set_metadata(id, mi)
+        
+        self.add_format(id, format, stream, index_is_id=True)
+        if not hasattr(path, 'read'):
+            stream.close()
+        self.conn.commit()
+        self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
+        return id
+    
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
         Add a book to the database. The result cache is not updated.

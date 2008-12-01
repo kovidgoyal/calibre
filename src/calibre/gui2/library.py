@@ -165,6 +165,9 @@ class BooksModel(QAbstractTableModel):
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=False):
         return self.db.add_books(paths, formats, metadata, uris,
                                  add_duplicates=add_duplicates)
+        
+    def add_news(self, path, recipe):
+        return self.db.add_news(path, recipe)
 
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''
@@ -317,14 +320,15 @@ class BooksModel(QAbstractTableModel):
         return data
 
 
-    def get_metadata(self, rows):
+    def get_metadata(self, rows, rows_are_ids=False):
         metadata = []
-        for row in rows:
-            row = row.row()
-            au = self.db.authors(row)
-            tags = self.db.tags(row)
+        if not rows_are_ids:
+            rows = [self.db.id(row.row()) for row in rows]
+        for id in rows:
+            au = self.db.authors(id, index_is_id=True)
+            tags = self.db.tags(id, index_is_id=True)
             if not au:
-                au = 'Unknown'
+                au = _('Unknown')
             au = au.split(',')
             if len(au) > 1:
                 t = ', '.join(au[:-1])
@@ -336,15 +340,15 @@ class BooksModel(QAbstractTableModel):
                 tags = []
             else:
                 tags = tags.split(',')
-            series = self.db.series(row)
+            series = self.db.series(id, index_is_id=True)
             if series is not None:
                 tags.append(series)
             mi = {
-                  'title'   : self.db.title(row),
+                  'title'   : self.db.title(id, index_is_id=True),
                   'authors' : au,
-                  'cover'   : self.db.cover(row),
+                  'cover'   : self.db.cover(id, index_is_id=True),
                   'tags'    : tags,
-                  'comments': self.db.comments(row),
+                  'comments': self.db.comments(id, index_is_id=True),
                   }
             if series is not None:
                 mi['tag order'] = {series:self.db.books_in_series_of(row)}
