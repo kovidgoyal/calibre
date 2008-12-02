@@ -72,7 +72,7 @@
      <item>
       <widget class="QStackedWidget" name="stackedWidget" >
        <property name="currentIndex" >
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_3" >
         <layout class="QVBoxLayout" name="verticalLayout" >
@@ -163,19 +163,6 @@
             <widget class="QComboBox" name="single_format" />
            </item>
            <item row="2" column="0" >
-            <widget class="QLabel" name="label_3" >
-             <property name="text" >
-              <string>&amp;Priority for conversion jobs:</string>
-             </property>
-             <property name="buddy" >
-              <cstring>priority</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1" >
-            <widget class="QComboBox" name="priority" />
-           </item>
-           <item row="3" column="0" >
             <widget class="QLabel" name="label_2" >
              <property name="text" >
               <string>Default network &amp;timeout:</string>
@@ -185,7 +172,7 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1" >
+           <item row="2" column="1" >
             <widget class="QSpinBox" name="timeout" >
              <property name="toolTip" >
               <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
@@ -204,10 +191,10 @@
              </property>
             </widget>
            </item>
-           <item row="4" column="1" >
+           <item row="3" column="1" >
             <widget class="QComboBox" name="language" />
            </item>
-           <item row="4" column="0" >
+           <item row="3" column="0" >
             <widget class="QLabel" name="label_7" >
              <property name="text" >
               <string>Choose &amp;language (requires restart):</string>

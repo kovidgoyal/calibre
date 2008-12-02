@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
@@ -206,7 +206,8 @@ class MobiReader(object):
                 ref['href'] = os.path.basename(htmlfile)+ref['href']
         except AttributeError:
             pass
-        open(htmlfile, 'wb').write(unicode(soup).encode('utf8'))
+        with open(htmlfile, 'wb') as f:
+            f.write(unicode(soup).encode('utf8'))
         self.htmlfile = htmlfile
         
         if self.book_header.exth is not None:
