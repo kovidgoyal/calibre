@@ -560,6 +560,15 @@
     <string>V</string>
    </property>
   </action>
+  <action name="action_open_containing_folder" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Open containing folder</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

@@ -193,6 +193,9 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_view, SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[0], SIGNAL("triggered(bool)"), self.view_book)
         QObject.connect(self.view_menu.actions()[1], SIGNAL("triggered(bool)"), self.view_specific_format)
+        self.connect(self.action_open_containing_folder, SIGNAL('triggered(bool)'), self.view_folder)
+        self.action_open_containing_folder.setShortcut(Qt.Key_O)
+        self.action_sync.setShortcut(Qt.Key_D)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)
         self.action_save.setMenu(self.save_menu)
@@ -222,7 +225,11 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
         
         ####################### Library view ########################
-        self.library_view.set_context_menu(self.action_edit, self.action_sync, self.action_convert, self.action_view)
+        self.library_view.set_context_menu(self.action_edit, self.action_sync, 
+                                           self.action_convert, self.action_view, 
+                                           self.action_save, self.action_open_containing_folder)
+        self.memory_view.set_context_menu(None, None, None, self.action_view, self.action_save, None)
+        self.card_view.set_context_menu(None, None, None, self.action_view, self.action_save, None)
         QObject.connect(self.library_view, SIGNAL('files_dropped(PyQt_PyObject)'),
                         self.files_dropped)
         for func, target in [
@@ -1003,7 +1010,19 @@ class Main(MainWindow, Ui_MainWindow):
             self.view_format(row, format)
         else:
             return
-
+    
+    def view_folder(self, *args):
+        rows = self.current_view().selectionModel().selectedRows()
+        if self.current_view() is self.library_view:
+            if not rows or len(rows) == 0:
+                d = error_dialog(self, _('Cannot open folder'), _('No book selected'))
+                d.exec_()
+                return
+        for row in rows:
+            path = self.library_view.model().db.abspath(row.row())
+            QDesktopServices.openUrl(QUrl('file:'+path))
+        
+    
     def view_book(self, triggered):
         rows = self.current_view().selectionModel().selectedRows()
         if self.current_view() is self.library_view:
@@ -1152,11 +1171,13 @@ class Main(MainWindow, Ui_MainWindow):
             self.action_edit.setEnabled(True)
             self.action_convert.setEnabled(True)
             self.view_menu.actions()[1].setEnabled(True)
+            self.action_open_containing_folder.setEnabled(True)
         else:
             self.action_sync.setEnabled(False)
             self.action_edit.setEnabled(False)
             self.action_convert.setEnabled(False)
             self.view_menu.actions()[1].setEnabled(False)
+            self.action_open_containing_folder.setEnabled(False)
                 
     def device_job_exception(self, job):
         '''

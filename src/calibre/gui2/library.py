@@ -563,13 +563,19 @@ class BooksView(TableView):
         if col > -1:
             self.setItemDelegateForColumn(col, self.rating_delegate)
             
-    def set_context_menu(self, edit_metadata, send_to_device, convert, view):
+    def set_context_menu(self, edit_metadata, send_to_device, convert, view, save, open_folder):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = QMenu(self)
-        self.context_menu.addAction(edit_metadata)
-        self.context_menu.addAction(send_to_device)
-        self.context_menu.addAction(convert)
+        if edit_metadata is not None:
+            self.context_menu.addAction(edit_metadata)
+        if send_to_device is not None:
+            self.context_menu.addAction(send_to_device)
+        if convert is not None:
+            self.context_menu.addAction(convert)
         self.context_menu.addAction(view)
+        self.context_menu.addAction(save)
+        if open_folder is not None:
+            self.context_menu.addAction(open_folder)
         
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
