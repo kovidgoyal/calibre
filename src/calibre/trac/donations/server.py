@@ -6,9 +6,14 @@ __docformat__ = 'restructuredtext en'
 '''
 Keep track of donations to calibre.
 '''
-import sys, cStringIO, textwrap, traceback, re
+import sys, cStringIO, textwrap, traceback, re, os, time
 from datetime import date, timedelta
 from math import sqrt
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+
 
 import cherrypy
 from lxml import etree
@@ -150,7 +155,7 @@ class Stats:
             ctable = '<p>Top %d countries</p>'%num_of_countries + ctable
         return textwrap.dedent('''
         <div class="stats">
-            <p style="font-weight: bold">Donations in %(period)d days [%(min)s - %(max)s]:</p>
+            <p style="font-weight: bold">Donations in %(period)d days [%(min)s &mdash; %(max)s]:</p>
             <table style="border-left: 4em">
                 <tr><td>Total</td><td class="money">$%(total).2f (%(num)d)</td></tr>
                 <tr><td>Daily average</td><td class="money">$%(da).2f &plusmn; %(dd).2f</td></tr>
@@ -177,14 +182,48 @@ def expose(func):
 
 class Server(object):
     
+    TRENDS = '/tmp/donations_trend.png'
+    
     def __init__(self, apache=False, root='/', data_file='/tmp/donations.xml'):
         self.apache = apache
         self.document_root = root
-        self.tree = etree.parse(data_file)
-        self.root = self.tree.getroot()
+        self.data_file = data_file
         self.read_records()
         
+    def calculate_trend(self):
+        def months(start, end):
+            pos = range_for_month(start.year, start.month)[0]
+            while pos <= end:
+                yield (pos.year, pos.month)
+                if pos.month == 12:
+                    pos = pos.replace(year = pos.year+1)
+                    pos = pos.replace(month = 1)
+                else:
+                    pos = pos.replace(month = pos.month + 1)
+
+        _months = list(months(self.earliest, self.latest))[:-1][:12]
+        _months = [range_for_month(*m) for m in _months]
+        _months = [self.get_slice(*m) for m in _months]
+        x = [m.min for m in _months]
+        y = [m.total for m in _months]
+        ml   = mdates.MonthLocator() # every month
+        fig = plt.figure(None, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        ax = fig.add_subplot(111)
+        ax.bar(x, y, align='center', width=20, color='g')
+        ax.xaxis.set_major_locator(ml)
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%b %y'))
+        ax.set_xlim(_months[0].min-timedelta(days=15), _months[-1].min+timedelta(days=15))
+        ax.set_xlabel('Month')
+        ax.set_ylabel('Income ($)')
+        fig.autofmt_xdate()
+        fig.savefig(self.TRENDS)
+        #plt.show()
+
+        
     def read_records(self):
+        self.tree = etree.parse(self.data_file)
+        self.last_read_time = time.time()
+        self.root = self.tree.getroot()
         self.records = []
         min_date, max_date = date.today(), date.fromordinal(1)
         for x in self.root.xpath('//donation'):
@@ -194,6 +233,7 @@ class Server(object):
             min_date = min(min_date, d)
             max_date = max(max_date, d)
         self.earliest, self.latest = min_date, max_date
+        self.calculate_trend()
             
     def get_slice(self, start_date, end_date):
         stats = Stats([r for r in self.records if r.date >= start_date and r.date <= end_date])
@@ -214,6 +254,8 @@ class Server(object):
         return date(*map(int, raw.split('-')))
     
     def build_page(self, period_type, data):
+        if os.stat(self.data_file).st_mtime >= self.last_read_time:
+            self.read_records()
         month = date.today().month
         year = date.today().year
         mm = data[1] if period_type == 'month' else month
@@ -335,9 +377,21 @@ class Server(object):
                         }
                         return true;
                     } 
+                    
+                    function rationalize_periods() {
+                        var form = document.forms[0];
+                        var disabled = !form.period_type[0].checked;
+                        form.month_month.disabled = disabled;
+                        form.month_year.disabled  = disabled;
+                        disabled = !form.period_type[1].checked;
+                        form.year_year.disabled = disabled;
+                        disabled = !form.period_type[2].checked;
+                        form.range_left.disabled = disabled;
+                        form.range_right.disabled = disabled;
+                    }
                 </script>
             </head>
-            <body>
+            <body onload="rationalize_periods()">
                 <table id="banner" style="width: 100%%">
                     <tr>
                         <td style="text-align:left; width:150px"><a style="border:0pt" href="http://calibre.kovidgoyal.net"><img style="vertical-align: middle;border:0pt" alt="calibre" src="http://calibre.kovidgoyal.net/chrome/site/calibre_banner.png" /></a></td>
@@ -357,13 +411,13 @@ class Server(object):
                             <fieldset>
                                 <legend>Choose a period</legend>
                                 <form method="post" action="%(root)sshow" onsubmit="return check_period_form(this);">
-                                    <input type="radio" name="period_type" value="month" %(mc)s />
+                                    <input type="radio" name="period_type" value="month" %(mc)s onclick="rationalize_periods()"/>
                                         Month:&nbsp;%(month_month)s&nbsp;%(month_year)s
                                     <br /><br />
-                                    <input type="radio" name="period_type" value="year" %(yc)s />
+                                    <input type="radio" name="period_type" value="year" %(yc)s onclick="rationalize_periods()" />
                                         Year:&nbsp;%(year_year)s
                                     <br /><br />
-                                    <input type="radio" name="period_type" value="range" %(rc)s />
+                                    <input type="radio" name="period_type" value="range" %(rc)s onclick="rationalize_periods()" />
                                         Range (YYYY-MM-DD):&nbsp;<input size="10" maxlength="10" type="text" name="range_left" value="%(rl)s" />&nbsp;to&nbsp;<input size="10" maxlength="10" type="text" name="range_right" value="%(rr)s"/>
                                     <br /><br />
                                     <input type="submit" value="Update" />
@@ -374,6 +428,10 @@ class Server(object):
                     </tr>
                 </table>
                 <hr />
+                <div style="text-align:center">
+                    <h3>Income trends for the last year</h3>
+                    <img src="/trend.png" alt="Income trends" />
+                </div>
             </body>
         </html>
         ''')%dict(
@@ -391,6 +449,11 @@ class Server(object):
         year = date.today().year
         cherrypy.response.headers['Content-Type'] = 'application/xhtml+xml'
         return self.build_page('month', (year, month))
+    
+    @expose
+    def trend_png(self):
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        return open(self.TRENDS, 'rb').read()
     
     @expose
     def show(self, period_type='month', month_month='', month_year='', 
