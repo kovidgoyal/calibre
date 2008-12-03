@@ -9,6 +9,7 @@ Keep track of donations to calibre.
 import sys, cStringIO, textwrap, traceback, re, os, time
 from datetime import date, timedelta
 from math import sqrt
+os.environ['HOME'] = '/tmp'
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -430,7 +431,7 @@ class Server(object):
                 <hr />
                 <div style="text-align:center">
                     <h3>Income trends for the last year</h3>
-                    <img src="/trend.png" alt="Income trends" />
+                    <img src="%(root)strend.png" alt="Income trends" />
                 </div>
             </body>
         </html>
