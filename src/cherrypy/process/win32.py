@@ -71,8 +71,7 @@ class ConsoleCtrlHandler(plugins.SimplePlugin):
 class Win32Bus(wspbus.Bus):
     """A Web Site Process Bus implementation for Win32.
     
-    Instead of using time.sleep for blocking, this bus uses native
-    win32event objects. It also responds to console events.
+    Instead of time.sleep, this bus blocks using native win32event objects.
     """
     
     def __init__(self):
@@ -99,15 +98,21 @@ class Win32Bus(wspbus.Bus):
     state = property(_get_state, _set_state)
     
     def wait(self, state, interval=0.1):
-        """Wait for the given state, KeyboardInterrupt or SystemExit.
+        """Wait for the given state(s), KeyboardInterrupt or SystemExit.
         
         Since this class uses native win32event objects, the interval
         argument is ignored.
         """
-        # Don't wait for an event that beat us to the punch ;)
-        if self.state != state:
-            event = self._get_state_event(state)
-            win32event.WaitForSingleObject(event, win32event.INFINITE)
+        if isinstance(state, (tuple, list)):
+            # Don't wait for an event that beat us to the punch ;)
+            if self.state not in state:
+                events = tuple([self._get_state_event(s) for s in state])
+                win32event.WaitForMultipleObjects(events, 0, win32event.INFINITE)
+        else:
+            # Don't wait for an event that beat us to the punch ;)
+            if self.state != state:
+                event = self._get_state_event(state)
+                win32event.WaitForSingleObject(event, win32event.INFINITE)
 
 
 class _ControlCodes(dict):

@@ -581,7 +581,8 @@ close.priority = 90
 
 
 def init(storage_type='ram', path=None, path_header=None, name='session_id',
-         timeout=60, domain=None, secure=False, clean_freq=5, **kwargs):
+         timeout=60, domain=None, secure=False, clean_freq=5,
+         persistent=True, **kwargs):
     """Initialize session object (using cookies).
     
     storage_type: one of 'ram', 'file', 'postgresql'. This will be used
@@ -591,12 +592,17 @@ def init(storage_type='ram', path=None, path_header=None, name='session_id',
     path_header: if 'path' is None (the default), then the response
         cookie 'path' will be pulled from request.headers[path_header].
     name: the name of the cookie.
-    timeout: the expiration timeout (in minutes) for both the cookie and
-        stored session data.
+    timeout: the expiration timeout (in minutes) for the stored session data.
+        If 'persistent' is True (the default), this is also the timeout
+        for the cookie.
     domain: the cookie domain.
     secure: if False (the default) the cookie 'secure' value will not
         be set. If True, the cookie 'secure' value will be set (to 1).
     clean_freq (minutes): the poll rate for expired session cleanup.
+    persistent: if True (the default), the 'timeout' argument will be used
+        to expire the cookie. If False, the cookie will not have an expiry,
+        and the cookie will be a "session cookie" which expires when the
+        browser is closed.
     
     Any additional kwargs will be bound to the new Session instance,
     and may be specific to the storage type. See the subclass of Session
@@ -637,8 +643,14 @@ def init(storage_type='ram', path=None, path_header=None, name='session_id',
     if not hasattr(cherrypy, "session"):
         cherrypy.session = cherrypy._ThreadLocalProxy('session')
     
+    if persistent:
+        cookie_timeout = timeout
+    else:
+        # See http://support.microsoft.com/kb/223799/EN-US/
+        # and http://support.mozilla.com/en-US/kb/Cookies
+        cookie_timeout = None
     set_response_cookie(path=path, path_header=path_header, name=name,
-                        timeout=timeout, domain=domain, secure=secure)
+                        timeout=cookie_timeout, domain=domain, secure=secure)
 
 
 def set_response_cookie(path=None, path_header=None, name='session_id',
@@ -649,7 +661,9 @@ def set_response_cookie(path=None, path_header=None, name='session_id',
     path_header: if 'path' is None (the default), then the response
         cookie 'path' will be pulled from request.headers[path_header].
     name: the name of the cookie.
-    timeout: the expiration timeout for the cookie.
+    timeout: the expiration timeout for the cookie. If 0 or other boolean
+        False, no 'expires' param will be set, and the cookie will be a
+        "session cookie" which expires when the browser is closed.
     domain: the cookie domain.
     secure: if False (the default) the cookie 'secure' value will not
         be set. If True, the cookie 'secure' value will be set (to 1).

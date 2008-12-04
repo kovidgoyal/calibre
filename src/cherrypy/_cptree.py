@@ -153,6 +153,8 @@ class Tree(object):
         
         root: an instance of a "controller class" (a collection of page
             handler methods) which represents the root of the application.
+            This may also be an Application instance, or None if using
+            a dispatcher other than the default.
         script_name: a string containing the "mount point" of the application.
             This should start with a slash, and be the path portion of the
             URL at which to mount the given root. For example, if root.index()
@@ -168,11 +170,15 @@ class Tree(object):
         
         if isinstance(root, Application):
             app = root
+            if script_name != "" and script_name != app.script_name:
+                raise ValueError, "Cannot specify a different script name and pass an Application instance to cherrypy.mount"
+            script_name = app.script_name
         else:
             app = Application(root, script_name)
             
             # If mounted at "", add favicon.ico
-            if script_name == "" and root and not hasattr(root, "favicon_ico"):
+            if (script_name == "" and root is not None
+                    and not hasattr(root, "favicon_ico")):
                 favicon = os.path.join(os.getcwd(), os.path.dirname(__file__),
                                        "favicon.ico")
                 root.favicon_ico = tools.staticfile.handler(favicon)

@@ -57,7 +57,7 @@ These API's are described in the CherryPy specification:
 http://www.cherrypy.org/wiki/CherryPySpec
 """
 
-__version__ = "3.1.0"
+__version__ = "3.1.1"
 
 from urlparse import urljoin as _urljoin
 
@@ -337,6 +337,10 @@ class _ThreadLocalProxy(object):
     def __len__(self):
         child = getattr(serving, self.__attrname__)
         return len(child)
+    
+    def __nonzero__(self):
+        child = getattr(serving, self.__attrname__)
+        return bool(child)
 
 
 # Create request and response object (the same objects will be used

@@ -88,6 +88,9 @@ try:
     import cStringIO as StringIO
 except ImportError:
     import StringIO
+
+_fileobject_uses_str_type = isinstance(socket._fileobject(None)._rbuf, basestring)
+
 import sys
 import threading
 import time
@@ -332,7 +335,12 @@ class HTTPRequest(object):
         
         environ = self.environ
         
-        method, path, req_protocol = request_line.strip().split(" ", 2)
+        try:
+            method, path, req_protocol = request_line.strip().split(" ", 2)
+        except ValueError:
+            self.simple_response(400, "Malformed Request-Line")
+            return
+        
         environ["REQUEST_METHOD"] = method
         
         # path may be an abs_path (including "http://host.domain.tld");
@@ -401,13 +409,6 @@ class HTTPRequest(object):
         if mrbs and int(environ.get("CONTENT_LENGTH", 0)) > mrbs:
             self.simple_response("413 Request Entity Too Large")
             return
-        
-        # Set AUTH_TYPE, REMOTE_USER
-        creds = environ.get("HTTP_AUTHORIZATION", "").split(" ", 1)
-        environ["AUTH_TYPE"] = creds[0]
-        if creds[0].lower() == 'basic':
-            user, pw = base64.decodestring(creds[1]).split(":", 1)
-            environ["REMOTE_USER"] = user
         
         # Persistent connection support
         if self.response_protocol == "HTTP/1.1":
@@ -588,7 +589,12 @@ class HTTPRequest(object):
         buf.append("\r\n")
         if msg:
             buf.append(msg)
-        self.wfile.sendall("".join(buf))
+        
+        try:
+            self.wfile.sendall("".join(buf))
+        except socket.error, x:
+            if x.args[0] not in socket_errors_to_ignore:
+                raise
     
     def start_response(self, status, headers, exc_info = None):
         """WSGI callable to begin the HTTP response."""
@@ -646,7 +652,8 @@ class HTTPRequest(object):
             if status < 200 or status in (204, 205, 304):
                 pass
             else:
-                if self.response_protocol == 'HTTP/1.1':
+                if (self.response_protocol == 'HTTP/1.1'
+                    and self.environ["REQUEST_METHOD"] != 'HEAD'):
                     # Use the chunked transfer-coding
                     self.chunked_write = True
                     self.outheaders.append(("Transfer-Encoding", "chunked"))
@@ -711,147 +718,327 @@ class FatalSSLAlert(Exception):
     pass
 
 
-class CP_fileobject(socket._fileobject):
-    """Faux file object attached to a socket object."""
-    
-    def sendall(self, data):
-        """Sendall for non-blocking sockets."""
-        while data:
-            try:
-                bytes_sent = self.send(data)
-                data = data[bytes_sent:]
-            except socket.error, e:
-                if e.args[0] not in socket_errors_nonblocking:
-                    raise
-    
-    def send(self, data):
-        return self._sock.send(data)
-    
-    def flush(self):
-        if self._wbuf:
-            buffer = "".join(self._wbuf)
-            self._wbuf = []
-            self.sendall(buffer)
-    
-    def recv(self, size):
-        while True:
-            try:
-                return self._sock.recv(size)
-            except socket.error, e:
-                if e.args[0] not in socket_errors_nonblocking:
-                    raise
-    
-    def read(self, size=-1):
-        if size < 0:
-            # Read until EOF
-            buffers = [self._rbuf]
-            self._rbuf = ""
-            if self._rbufsize <= 1:
-                recv_size = self.default_bufsize
-            else:
-                recv_size = self._rbufsize
-            
-            while True:
-                data = self.recv(recv_size)
-                if not data:
-                    break
-                buffers.append(data)
-            return "".join(buffers)
-        else:
-            # Read until size bytes or EOF seen, whichever comes first
-            data = self._rbuf
-            buf_len = len(data)
-            if buf_len >= size:
-                self._rbuf = data[size:]
-                return data[:size]
-            buffers = []
-            if data:
-                buffers.append(data)
-            self._rbuf = ""
-            while True:
-                left = size - buf_len
-                recv_size = max(self._rbufsize, left)
-                data = self.recv(recv_size)
-                if not data:
-                    break
-                buffers.append(data)
-                n = len(data)
-                if n >= left:
-                    self._rbuf = data[left:]
-                    buffers[-1] = data[:left]
-                    break
-                buf_len += n
-            return "".join(buffers)
+if not _fileobject_uses_str_type:
+    class CP_fileobject(socket._fileobject):
+        """Faux file object attached to a socket object."""
 
-    def readline(self, size=-1):
-        data = self._rbuf
-        if size < 0:
-            # Read until \n or EOF, whichever comes first
-            if self._rbufsize <= 1:
-                # Speed up unbuffered case
-                assert data == ""
-                buffers = []
-                while data != "\n":
-                    data = self.recv(1)
+        def sendall(self, data):
+            """Sendall for non-blocking sockets."""
+            while data:
+                try:
+                    bytes_sent = self.send(data)
+                    data = data[bytes_sent:]
+                except socket.error, e:
+                    if e.args[0] not in socket_errors_nonblocking:
+                        raise
+
+        def send(self, data):
+            return self._sock.send(data)
+
+        def flush(self):
+            if self._wbuf:
+                buffer = "".join(self._wbuf)
+                self._wbuf = []
+                self.sendall(buffer)
+
+        def recv(self, size):
+            while True:
+                try:
+                    return self._sock.recv(size)
+                except socket.error, e:
+                    if (e.args[0] not in socket_errors_nonblocking
+                        and e.args[0] not in socket_error_eintr):
+                        raise
+
+        def read(self, size=-1):
+            # Use max, disallow tiny reads in a loop as they are very inefficient.
+            # We never leave read() with any leftover data from a new recv() call
+            # in our internal buffer.
+            rbufsize = max(self._rbufsize, self.default_bufsize)
+            # Our use of StringIO rather than lists of string objects returned by
+            # recv() minimizes memory usage and fragmentation that occurs when
+            # rbufsize is large compared to the typical return value of recv().
+            buf = self._rbuf
+            buf.seek(0, 2)  # seek end
+            if size < 0:
+                # Read until EOF
+                self._rbuf = StringIO.StringIO()  # reset _rbuf.  we consume it via buf.
+                while True:
+                    data = self.recv(rbufsize)
+                    if not data:
+                        break
+                    buf.write(data)
+                return buf.getvalue()
+            else:
+                # Read until size bytes or EOF seen, whichever comes first
+                buf_len = buf.tell()
+                if buf_len >= size:
+                    # Already have size bytes in our buffer?  Extract and return.
+                    buf.seek(0)
+                    rv = buf.read(size)
+                    self._rbuf = StringIO.StringIO()
+                    self._rbuf.write(buf.read())
+                    return rv
+
+                self._rbuf = StringIO.StringIO()  # reset _rbuf.  we consume it via buf.
+                while True:
+                    left = size - buf_len
+                    # recv() will malloc the amount of memory given as its
+                    # parameter even though it often returns much less data
+                    # than that.  The returned data string is short lived
+                    # as we copy it into a StringIO and free it.  This avoids
+                    # fragmentation issues on many platforms.
+                    data = self.recv(left)
+                    if not data:
+                        break
+                    n = len(data)
+                    if n == size and not buf_len:
+                        # Shortcut.  Avoid buffer data copies when:
+                        # - We have no data in our buffer.
+                        # AND
+                        # - Our call to recv returned exactly the
+                        #   number of bytes we were asked to read.
+                        return data
+                    if n == left:
+                        buf.write(data)
+                        del data  # explicit free
+                        break
+                    assert n <= left, "recv(%d) returned %d bytes" % (left, n)
+                    buf.write(data)
+                    buf_len += n
+                    del data  # explicit free
+                    #assert buf_len == buf.tell()
+                return buf.getvalue()
+
+        def readline(self, size=-1):
+            buf = self._rbuf
+            buf.seek(0, 2)  # seek end
+            if buf.tell() > 0:
+                # check if we already have it in our buffer
+                buf.seek(0)
+                bline = buf.readline(size)
+                if bline.endswith('\n') or len(bline) == size:
+                    self._rbuf = StringIO.StringIO()
+                    self._rbuf.write(buf.read())
+                    return bline
+                del bline
+            if size < 0:
+                # Read until \n or EOF, whichever comes first
+                if self._rbufsize <= 1:
+                    # Speed up unbuffered case
+                    buf.seek(0)
+                    buffers = [buf.read()]
+                    self._rbuf = StringIO.StringIO()  # reset _rbuf.  we consume it via buf.
+                    data = None
+                    recv = self.recv
+                    while data != "\n":
+                        data = recv(1)
+                        if not data:
+                            break
+                        buffers.append(data)
+                    return "".join(buffers)
+
+                buf.seek(0, 2)  # seek end
+                self._rbuf = StringIO.StringIO()  # reset _rbuf.  we consume it via buf.
+                while True:
+                    data = self.recv(self._rbufsize)
+                    if not data:
+                        break
+                    nl = data.find('\n')
+                    if nl >= 0:
+                        nl += 1
+                        buf.write(data[:nl])
+                        self._rbuf.write(data[nl:])
+                        del data
+                        break
+                    buf.write(data)
+                return buf.getvalue()
+            else:
+                # Read until size bytes or \n or EOF seen, whichever comes first
+                buf.seek(0, 2)  # seek end
+                buf_len = buf.tell()
+                if buf_len >= size:
+                    buf.seek(0)
+                    rv = buf.read(size)
+                    self._rbuf = StringIO.StringIO()
+                    self._rbuf.write(buf.read())
+                    return rv
+                self._rbuf = StringIO.StringIO()  # reset _rbuf.  we consume it via buf.
+                while True:
+                    data = self.recv(self._rbufsize)
+                    if not data:
+                        break
+                    left = size - buf_len
+                    # did we just receive a newline?
+                    nl = data.find('\n', 0, left)
+                    if nl >= 0:
+                        nl += 1
+                        # save the excess data to _rbuf
+                        self._rbuf.write(data[nl:])
+                        if buf_len:
+                            buf.write(data[:nl])
+                            break
+                        else:
+                            # Shortcut.  Avoid data copy through buf when returning
+                            # a substring of our first recv().
+                            return data[:nl]
+                    n = len(data)
+                    if n == size and not buf_len:
+                        # Shortcut.  Avoid data copy through buf when
+                        # returning exactly all of our first recv().
+                        return data
+                    if n >= left:
+                        buf.write(data[:left])
+                        self._rbuf.write(data[left:])
+                        break
+                    buf.write(data)
+                    buf_len += n
+                    #assert buf_len == buf.tell()
+                return buf.getvalue()
+
+else:
+    class CP_fileobject(socket._fileobject):
+        """Faux file object attached to a socket object."""
+
+        def sendall(self, data):
+            """Sendall for non-blocking sockets."""
+            while data:
+                try:
+                    bytes_sent = self.send(data)
+                    data = data[bytes_sent:]
+                except socket.error, e:
+                    if e.args[0] not in socket_errors_nonblocking:
+                        raise
+
+        def send(self, data):
+            return self._sock.send(data)
+
+        def flush(self):
+            if self._wbuf:
+                buffer = "".join(self._wbuf)
+                self._wbuf = []
+                self.sendall(buffer)
+
+        def recv(self, size):
+            while True:
+                try:
+                    return self._sock.recv(size)
+                except socket.error, e:
+                    if (e.args[0] not in socket_errors_nonblocking
+                        and e.args[0] not in socket_error_eintr):
+                        raise
+
+        def read(self, size=-1):
+            if size < 0:
+                # Read until EOF
+                buffers = [self._rbuf]
+                self._rbuf = ""
+                if self._rbufsize <= 1:
+                    recv_size = self.default_bufsize
+                else:
+                    recv_size = self._rbufsize
+
+                while True:
+                    data = self.recv(recv_size)
                     if not data:
                         break
                     buffers.append(data)
                 return "".join(buffers)
-            nl = data.find('\n')
-            if nl >= 0:
-                nl += 1
-                self._rbuf = data[nl:]
-                return data[:nl]
-            buffers = []
-            if data:
-                buffers.append(data)
-            self._rbuf = ""
-            while True:
-                data = self.recv(self._rbufsize)
-                if not data:
-                    break
-                buffers.append(data)
+            else:
+                # Read until size bytes or EOF seen, whichever comes first
+                data = self._rbuf
+                buf_len = len(data)
+                if buf_len >= size:
+                    self._rbuf = data[size:]
+                    return data[:size]
+                buffers = []
+                if data:
+                    buffers.append(data)
+                self._rbuf = ""
+                while True:
+                    left = size - buf_len
+                    recv_size = max(self._rbufsize, left)
+                    data = self.recv(recv_size)
+                    if not data:
+                        break
+                    buffers.append(data)
+                    n = len(data)
+                    if n >= left:
+                        self._rbuf = data[left:]
+                        buffers[-1] = data[:left]
+                        break
+                    buf_len += n
+                return "".join(buffers)
+
+        def readline(self, size=-1):
+            data = self._rbuf
+            if size < 0:
+                # Read until \n or EOF, whichever comes first
+                if self._rbufsize <= 1:
+                    # Speed up unbuffered case
+                    assert data == ""
+                    buffers = []
+                    while data != "\n":
+                        data = self.recv(1)
+                        if not data:
+                            break
+                        buffers.append(data)
+                    return "".join(buffers)
                 nl = data.find('\n')
                 if nl >= 0:
                     nl += 1
                     self._rbuf = data[nl:]
-                    buffers[-1] = data[:nl]
-                    break
-            return "".join(buffers)
-        else:
-            # Read until size bytes or \n or EOF seen, whichever comes first
-            nl = data.find('\n', 0, size)
-            if nl >= 0:
-                nl += 1
-                self._rbuf = data[nl:]
-                return data[:nl]
-            buf_len = len(data)
-            if buf_len >= size:
-                self._rbuf = data[size:]
-                return data[:size]
-            buffers = []
-            if data:
-                buffers.append(data)
-            self._rbuf = ""
-            while True:
-                data = self.recv(self._rbufsize)
-                if not data:
-                    break
-                buffers.append(data)
-                left = size - buf_len
-                nl = data.find('\n', 0, left)
+                    return data[:nl]
+                buffers = []
+                if data:
+                    buffers.append(data)
+                self._rbuf = ""
+                while True:
+                    data = self.recv(self._rbufsize)
+                    if not data:
+                        break
+                    buffers.append(data)
+                    nl = data.find('\n')
+                    if nl >= 0:
+                        nl += 1
+                        self._rbuf = data[nl:]
+                        buffers[-1] = data[:nl]
+                        break
+                return "".join(buffers)
+            else:
+                # Read until size bytes or \n or EOF seen, whichever comes first
+                nl = data.find('\n', 0, size)
                 if nl >= 0:
                     nl += 1
                     self._rbuf = data[nl:]
-                    buffers[-1] = data[:nl]
-                    break
-                n = len(data)
-                if n >= left:
-                    self._rbuf = data[left:]
-                    buffers[-1] = data[:left]
-                    break
-                buf_len += n
-            return "".join(buffers)
+                    return data[:nl]
+                buf_len = len(data)
+                if buf_len >= size:
+                    self._rbuf = data[size:]
+                    return data[:size]
+                buffers = []
+                if data:
+                    buffers.append(data)
+                self._rbuf = ""
+                while True:
+                    data = self.recv(self._rbufsize)
+                    if not data:
+                        break
+                    buffers.append(data)
+                    left = size - buf_len
+                    nl = data.find('\n', 0, left)
+                    if nl >= 0:
+                        nl += 1
+                        self._rbuf = data[nl:]
+                        buffers[-1] = data[:nl]
+                        break
+                    n = len(data)
+                    if n >= left:
+                        self._rbuf = data[left:]
+                        buffers[-1] = data[:left]
+                        break
+                    buf_len += n
+                return "".join(buffers)
     
 
 class SSL_fileobject(CP_fileobject):
@@ -1203,6 +1390,27 @@ class SSLConnection:
 """ % (f, f)
 
 
+try:
+    import fcntl
+except ImportError:
+    try:
+        from ctypes import windll, WinError
+    except ImportError:
+        def prevent_socket_inheritance(sock):
+            """Dummy function, since neither fcntl nor ctypes are available."""
+            pass
+    else:
+        def prevent_socket_inheritance(sock):
+            """Mark the given socket fd as non-inheritable (Windows)."""
+            if not windll.kernel32.SetHandleInformation(sock.fileno(), 1, 0):
+                raise WinError()
+else:
+    def prevent_socket_inheritance(sock):
+        """Mark the given socket fd as non-inheritable (POSIX)."""
+        fd = sock.fileno()
+        old_flags = fcntl.fcntl(fd, fcntl.F_GETFD)
+        fcntl.fcntl(fd, fcntl.F_SETFD, old_flags | fcntl.FD_CLOEXEC)
+
 
 class CherryPyWSGIServer(object):
     """An HTTP server for WSGI.
@@ -1249,7 +1457,7 @@ class CherryPyWSGIServer(object):
     
     protocol = "HTTP/1.1"
     _bind_addr = "127.0.0.1"
-    version = "CherryPy/3.1.0"
+    version = "CherryPy/3.1.1"
     ready = False
     _interrupt = None
     
@@ -1396,6 +1604,7 @@ class CherryPyWSGIServer(object):
     def bind(self, family, type, proto=0):
         """Create (or recreate) the actual socket object."""
         self.socket = socket.socket(family, type, proto)
+        prevent_socket_inheritance(self.socket)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         if self.nodelay:
             self.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -1409,12 +1618,25 @@ class CherryPyWSGIServer(object):
             ctx.use_certificate_file(self.ssl_certificate)
             self.socket = SSLConnection(ctx, self.socket)
             self.populate_ssl_environ()
+            
+            # If listening on the IPV6 any address ('::' = IN6ADDR_ANY),
+            # activate dual-stack. See http://www.cherrypy.org/ticket/871.
+            if (not isinstance(self.bind_addr, basestring)
+                and self.bind_addr[0] == '::' and family == socket.AF_INET6):
+                try:
+                    self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+                except (AttributeError, socket.error):
+                    # Apparently, the socket option is not available in
+                    # this machine's TCP stack
+                    pass
+        
         self.socket.bind(self.bind_addr)
     
     def tick(self):
         """Accept a new connection and put it on the Queue."""
         try:
             s, addr = self.socket.accept()
+            prevent_socket_inheritance(s)
             if not self.ready:
                 return
             if hasattr(s, 'settimeout'):
@@ -1423,7 +1645,8 @@ class CherryPyWSGIServer(object):
             environ = self.environ.copy()
             # SERVER_SOFTWARE is common for IIS. It's also helpful for
             # us to pass a default value for the "Server" response header.
-            environ["SERVER_SOFTWARE"] = "%s WSGI Server" % self.version
+            if environ.get("SERVER_SOFTWARE") is None:
+                environ["SERVER_SOFTWARE"] = "%s WSGI Server" % self.version
             # set a non-standard environ entry so the WSGI app can know what
             # the *real* server protocol is (and what features to support).
             # See http://www.faqs.org/rfcs/rfc2145.html.

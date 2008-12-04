@@ -466,7 +466,7 @@ _d.log_tracebacks = Tool('before_error_response', cptools.log_traceback)
 _d.log_headers = Tool('before_error_response', cptools.log_request_headers)
 _d.log_hooks = Tool('on_end_request', cptools.log_hooks, priority=100)
 _d.err_redirect = ErrorTool(cptools.redirect)
-_d.etags = Tool('before_finalize', cptools.validate_etags)
+_d.etags = Tool('before_finalize', cptools.validate_etags, priority=75)
 _d.decode = Tool('before_handler', encoding.decode)
 # the order of encoding, gzip, caching is important
 _d.encode = Tool('before_finalize', encoding.encode, priority=70)

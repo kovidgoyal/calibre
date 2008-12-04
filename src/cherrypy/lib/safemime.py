@@ -109,7 +109,7 @@ class MultipartWrapper(object):
 def safe_multipart(flash_only=False):
     """Wrap request.rfile in a reader that won't crash on no trailing CRLF."""
     h = cherrypy.request.headers
-    if not h.get('Content-Type').startswith('multipart/'):
+    if not h.get('Content-Type','').startswith('multipart/'):
         return
     if flash_only and not 'Shockwave Flash' in h.get('User-Agent', ''):
         return

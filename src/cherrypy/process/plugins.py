@@ -21,6 +21,7 @@ class SimplePlugin(object):
     def subscribe(self):
         """Register this object as a (multi-channel) listener on the bus."""
         for channel in self.bus.listeners:
+            # Subscribe self.start, self.exit, etc. if present.
             method = getattr(self, channel, None)
             if method is not None:
                 self.bus.subscribe(channel, method)
@@ -28,6 +29,7 @@ class SimplePlugin(object):
     def unsubscribe(self):
         """Unregister this object as a listener on the bus."""
         for channel in self.bus.listeners:
+            # Unsubscribe self.start, self.exit, etc. if present.
             method = getattr(self, channel, None)
             if method is not None:
                 self.bus.unsubscribe(channel, method)
@@ -213,9 +215,9 @@ class DropPrivileges(SimplePlugin):
             else:
                 self.bus.log('Started as uid: %r gid: %r' % current_ids())
                 if self.gid is not None:
-                    os.setgid(gid)
+                    os.setgid(self.gid)
                 if self.uid is not None:
-                    os.setuid(uid)
+                    os.setuid(self.uid)
                 self.bus.log('Running as uid: %r gid: %r' % current_ids())
         
         # umask
@@ -231,7 +233,10 @@ class DropPrivileges(SimplePlugin):
                              (old_umask, self.umask))
         
         self.finalized = True
-    start.priority = 75
+    # This is slightly higher than the priority for server.start
+    # in order to facilitate the most common use: starting on a low
+    # port (which requires root) and then dropping to another user.
+    start.priority = 77
 
 
 class Daemonizer(SimplePlugin):

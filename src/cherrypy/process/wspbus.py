@@ -153,9 +153,13 @@ class Bus(object):
                     e.code = 1
                 raise
             except:
-                self.log("Error in %r listener %r" % (channel, listener),
-                         level=40, traceback=True)
                 exc = sys.exc_info()[1]
+                if channel == 'log':
+                    # Assume any further messages to 'log' will fail.
+                    pass
+                else:
+                    self.log("Error in %r listener %r" % (channel, listener),
+                             level=40, traceback=True)
         if exc:
             raise
         return output
@@ -248,9 +252,14 @@ class Bus(object):
             self._do_execv()
     
     def wait(self, state, interval=0.1):
-        """Wait for the given state."""
+        """Wait for the given state(s)."""
+        if isinstance(state, (tuple, list)):
+            states = state
+        else:
+            states = [state]
+        
         def _wait():
-            while self.state != state:
+            while self.state not in states:
                 time.sleep(interval)
         
         # From http://psyco.sourceforge.net/psycoguide/bugs.html:
