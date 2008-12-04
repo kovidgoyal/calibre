@@ -1,45 +1,42 @@
+#!/usr/bin/env  python
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
-	Profile to download Jutarnji.hr by Valloric
+jutarnji.hr
 '''
 
-import re
-	
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Jutarnji(BasicNewsRecipe):
+    title                 = u'Jutarnji'
+    __author__            = u'Darko Miletic'
+    description           = u'Hrvatski portal'
+    oldest_article        = 7
+    max_articles_per_feed = 100
+    no_stylesheets        = True
+    use_embedded_content  = False
+    encoding              = 'cp1250'
 
-	title = 'Jutarnji'
-	description = 'News from Croatia'
-	__author__ = 'Valloric'
-	use_embedded_content   = False
-	timefmt  = ' [%d %b %Y]'
-	max_articles_per_feed = 80
-	html_description = True
-	no_stylesheets = True
+    remove_tags = [dict(name='embed')]
+    
+    feeds = [
+              (u'Naslovnica'      , u'http://www.jutarnji.hr/rss'           )
+             ,(u'Sport'           , u'http://www.jutarnji.hr/sport/rss'     )
+             ,(u'Jutarnji2'       , u'http://www.jutarnji.hr/j2/rss'        )
+             ,(u'Kultura'         , u'http://www.jutarnji.hr/kultura/rss'   )
+             ,(u'Spektakli'       , u'http://www.jutarnji.hr/spektakli/rss' )
+             ,(u'Dom i nekretnine', u'http://www.jutarnji.hr/nekretnine/rss')
+             ,(u'Uhvati ritam'    , u'http://www.jutarnji.hr/kalendar/rss'  )
+            ]
 
-	preprocess_regexps = [
-		(re.compile(r'<body.*?<span class="vijestnaslov">', re.IGNORECASE | re.DOTALL), lambda match : '<body><span class="vijestnaslov">'), 
-		(re.compile(r'</div>.*?</td>', re.IGNORECASE | re.DOTALL), lambda match : '</div></td>'), 
-   		(re.compile(r'<a name="addComment.*?</body>', re.IGNORECASE | re.DOTALL), lambda match : '</body>'), 
-		(re.compile(r'<br>', re.IGNORECASE | re.DOTALL), lambda match : ''), 
-		]
-	
-	## Getting the print version 
-	
-	def print_version(self, url):
-		return 'http://www.jutarnji.hr/ispis_clanka.jl?artid=' + url[len(url)-9:len(url)-3]
+    def print_version(self, url):
+        main = url.partition('.jl')[0]
+        rrest = main.rpartition(',')[-1]
+        return 'http://www.jutarnji.hr/ispis_clanka.jl?artid=' + rrest
 
-	
-	## Comment out the feeds you don't want retrieved.
-	## Or add any new new RSS feed URL's here, sorted alphabetically when converted to LRF
-	## If you want one of these at the top, append a space in front of the name.
-	
-	feeds =  [
-                (' Naslovnica', 'http://www.jutarnji.hr/rss'), 
-                ('Sport', 'http://www.jutarnji.hr/sport/rss'), 
-                ('Novac', 'http://www.jutarnji.hr/novac/rss'), 
-                ('Kultura i zivot', 'http://www.jutarnji.hr/kultura_i_zivot/rss'), 
-                ('Automoto', 'http://www.jutarnji.hr/auto_moto/rss'), 
-                ('Hi-Tech', 'http://www.jutarnji.hr/kultura_i_zivot/hi-tech/rss'), 
-                ('Dom i nekretnine', 'http://www.jutarnji.hr/nekretnine/rss'), 
-                ]
+    def preprocess_html(self, soup):
+        mtag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
+        soup.head.insert(0,mtag)
+        return soup
+        
