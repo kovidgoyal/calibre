@@ -32,14 +32,15 @@ Conversion of HTML/OPF files follows several stages:
     * The EPUB container is created.
 '''
 
-import os, sys, cStringIO, logging, re
+import os, sys, cStringIO, logging, re, functools
 
 from lxml.etree import XPath
+from lxml import html
 from PyQt4.Qt import QApplication, QPixmap
 
 from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
-    opf_traverse, create_metadata, rebase_toc
-from calibre.ebooks.epub import config as common_config
+    opf_traverse, create_metadata, rebase_toc, Link
+from calibre.ebooks.epub import config as common_config, tostring
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.opf2 import OPF
@@ -48,6 +49,44 @@ from calibre.ebooks.epub.split import split
 from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
 from calibre import walk
+from calibre import CurrentDir
+
+content = functools.partial(os.path.join, u'content')
+
+def remove_bad_link(element, attribute, link, pos):
+    if attribute is not None:
+        if element.tag in ['link', 'img']:
+            element.getparent().remove(element)
+        else:
+            element.set(attribute, '')
+            del element.attrib[attribute]
+
+def check(opf_path, pretty_print):
+    '''
+    Find a remove all invalid links in the HTML files 
+    '''
+    print '\tChecking files for bad links...'
+    pathtoopf = os.path.abspath(opf_path)
+    with CurrentDir(os.path.dirname(pathtoopf)):
+        opf = OPF(open(pathtoopf, 'rb'), os.path.dirname(pathtoopf))
+        html_files = []
+        for item in opf.itermanifest():
+            if 'html' in item.get('media-type', '').lower():
+                f = item.get('href').split('/')[-1].decode('utf-8')
+                html_files.append(os.path.abspath(content(f)))
+        
+        for path in html_files:
+            base = os.path.dirname(path)
+            root = html.fromstring(open(content(path), 'rb').read())
+            for element, attribute, link, pos in list(root.iterlinks()):
+                link = link.decode('utf-8')
+                plink = Link(link, base)
+                bad = False
+                if plink.path is not None and not os.path.exists(plink.path):
+                    bad = True
+                if bad:
+                    remove_bad_link(element, attribute, link, pos)
+            open(content(path), 'wb').write(tostring(root, pretty_print))
 
 def find_html_index(files):
     '''
@@ -316,6 +355,7 @@ def convert(htmlfile, opts, notification=None):
             if opts.show_ncx:
                 print toc
         split(opf_path, opts, stylesheet_map)
+        check(opf_path, opts.pretty_print)
         opf = OPF(opf_path, tdir)
         opf.remove_guide()
         if has_title_page:
