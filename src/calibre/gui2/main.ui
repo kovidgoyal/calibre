@@ -569,6 +569,15 @@
     <string>Open containing folder</string>
    </property>
   </action>
+  <action name="action_show_book_details" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/dialog_information.svg</normaloff>:/images/dialog_information.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Show book details</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

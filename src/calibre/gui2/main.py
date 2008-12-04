@@ -104,10 +104,13 @@ class Main(MainWindow, Ui_MainWindow):
         self.system_tray_menu.addAction(self.quit_action)
         self.quit_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Q))
         self.action_restart.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_R))
+        self.action_show_book_details.setShortcut(QKeySequence(Qt.Key_I))
+        self.addAction(self.action_show_book_details)
         self.system_tray_icon.setContextMenu(self.system_tray_menu)
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered(bool)'), lambda c : self.show())
+        self.connect(self.action_show_book_details, SIGNAL('triggered(bool)'), self.show_book_info)
         def restart_app(c):
             self.quit(None, restart=True)
         self.connect(self.action_restart, SIGNAL('triggered(bool)'), restart_app)
@@ -233,9 +236,10 @@ class Main(MainWindow, Ui_MainWindow):
         ####################### Library view ########################
         self.library_view.set_context_menu(self.action_edit, self.action_sync, 
                                            self.action_convert, self.action_view, 
-                                           self.action_save, self.action_open_containing_folder)
-        self.memory_view.set_context_menu(None, None, None, self.action_view, self.action_save, None)
-        self.card_view.set_context_menu(None, None, None, self.action_view, self.action_save, None)
+                                           self.action_save, self.action_open_containing_folder,
+                                           self.action_show_book_details)
+        self.memory_view.set_context_menu(None, None, None, self.action_view, self.action_save, None, None)
+        self.card_view.set_context_menu(None, None, None, self.action_view, self.action_save, None, None)
         QObject.connect(self.library_view, SIGNAL('files_dropped(PyQt_PyObject)'),
                         self.files_dropped)
         for func, target in [
