@@ -1266,7 +1266,7 @@ msgid ""
 "so we use some heuristics to guess the cover."
 msgstr ""
 "Извлечь обложку из файла lrf. Замечание: если LRF форма не содержит "
-"обложку,\n"
+"обложку, "
 "используйте вместо этого какую-нибудь эврестически подобранную обложку."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:609

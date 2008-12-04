@@ -41,6 +41,8 @@ except:
 PROFILES = {
             # Name : (width, height) in pixels
             'prs500':(584, 754),
+            # The SONY's LRF renderer (on the PRS500) only uses the first 800x600 block of the image 
+            #'prs500-landscape': (784, 1200-92)
             }
 
 def extract_comic(path_to_comic_file):
