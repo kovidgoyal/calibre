@@ -231,6 +231,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.connect(self.download, SIGNAL('clicked()'), self.download_now)
         self.search.setFocus(Qt.OtherFocusReason)
         self.old_news.setValue(gconf['oldest_news'])
+        self.rnumber.setText(_('%d recipes')%self._model.rowCount(None))
         
     def download_now(self):
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)

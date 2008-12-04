@@ -99,12 +99,18 @@ class Main(MainWindow, Ui_MainWindow):
         self.donate_action  = self.system_tray_menu.addAction(QIcon(':/images/donate.svg'), _('&Donate'))
         self.quit_action    = QAction(QIcon(':/images/window-close.svg'), _('&Quit'), self)
         self.addAction(self.quit_action)
+        self.action_restart = QAction(_('&Restart'), self)
+        self.addAction(self.action_restart)
         self.system_tray_menu.addAction(self.quit_action)
         self.quit_action.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_Q))
+        self.action_restart.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_R))
         self.system_tray_icon.setContextMenu(self.system_tray_menu)
         self.connect(self.quit_action, SIGNAL('triggered(bool)'), self.quit)
         self.connect(self.donate_action, SIGNAL('triggered(bool)'), self.donate)
         self.connect(self.restore_action, SIGNAL('triggered(bool)'), lambda c : self.show())
+        def restart_app(c):
+            self.quit(None, restart=True)
+        self.connect(self.action_restart, SIGNAL('triggered(bool)'), restart_app)
         def sta(r):
             if r == QSystemTrayIcon.Trigger:
                 self.hide() if self.isVisible() else self.show()
@@ -1275,8 +1281,9 @@ in which you want to store your books files. Any existing books will be automati
         if self.device_connected:
             self.memory_view.write_settings()
     
-    def quit(self, checked):
+    def quit(self, checked, restart=False):
         if self.shutdown():
+            self.restart_after_quit = restart
             QApplication.instance().quit()
             
     def donate(self):
@@ -1411,7 +1418,13 @@ def main(args=sys.argv):
         sys.excepthook = main.unhandled_exception
         if len(args) > 1:
             main.add_filesystem_book(args[1])
-        return app.exec_()
+        ret = app.exec_()
+        if getattr(main, 'restart_after_quit', False):
+            e = sys.executable if getattr(sys, 'froze', False) else sys.argv[0] 
+            print 'Restarting with:', e, sys.argv
+            os.execvp(e, sys.argv)
+        else:
+            return ret
     return 0
 
 

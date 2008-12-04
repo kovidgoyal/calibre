@@ -473,8 +473,8 @@ class BooksModel(QAbstractTableModel):
         if role in (Qt.DisplayRole, Qt.EditRole):
             ans = self.dc[self.column_map[index.column()]](index.row())
             return NONE if ans is None else QVariant(ans)
-        elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp'):
-            return QVariant(Qt.AlignCenter | Qt.AlignVCenter)
+        #elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp'):
+        #    return QVariant(Qt.AlignVCenter | Qt.AlignCenter)
         #elif role == Qt.ToolTipRole and index.isValid():
         #    if self.column_map[index.column()] in self.editable_cols:
         #        return QVariant(_("Double click to <b>edit</b> me<br><br>"))
