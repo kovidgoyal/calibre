@@ -61,7 +61,7 @@ class NASA(DefaultProfile):
 		(re.compile(r'<!-- Top Header starts -->.*?<!---->', re.IGNORECASE | re.DOTALL), lambda match : '<New Stuff>'),
 		
 		## This removes the "download image" of various sizes from the Image of the day.
-		(re.compile(r'<div id="download_image_box_print">.*?<div id="caption_region_print">', re.IGNORECASE | re.DOTALL), lambda match : '<New Stuff>'),
+		(re.compile(r'(?is)<div id="download_image_box_print">.*?<div id="caption_region_print">'), lambda match : '<New Stuff>'),
 
 
 		]

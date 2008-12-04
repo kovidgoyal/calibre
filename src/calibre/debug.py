@@ -22,7 +22,7 @@ Run an embedded python interpreter.
     )
     parser.add_option('-c', '--command', help='Run python code.', default=None)
     parser.add_option('--migrate', action='store_true', default=False, 
-                      help='Migrate old database. Needs two arguments. Path to library1.db and path to new library folder.', default=False)
+                      help='Migrate old database. Needs two arguments. Path to library1.db and path to new library folder.')
     return parser
 
 def update_zipfile(zipfile, mod, path):

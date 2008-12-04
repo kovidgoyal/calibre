@@ -335,9 +335,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         It can be used to do arbitrarily powerful post-processing on the :term:`HTML`.
         It should return `soup` after processing it. 
         
-        :param soup: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_ 
-        instance containing the downloaded :term:`HTML`.
+        :param soup: A `BeautifulSoup <http://www.crummy.com/software/BeautifulSoup/documentation.html>`_  instance containing the downloaded :term:`HTML`.
         :param first_fetch: True if this is the first page of an article.
+
         '''
         return soup
     

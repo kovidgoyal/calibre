@@ -53,13 +53,12 @@ class NASA(BasicNewsRecipe):
 		(r'<a.*?onclick.*?>.*?(<img .*?>)', lambda match: match.group(1),),
 		
 		## This removes header and footer information from each print version.
-       	(re.compile(r'<!-- Top Header starts -->.*?<!-- Body starts -->', re.IGNORECASE | re.DOTALL), lambda match : '<New Stuff>'),
-		(re.compile(r'<hr align="center" width="200"><p align="center">.*?<!-- Press Release standard text ends -->', re.IGNORECASE | re.DOTALL), lambda match : '<New Stuff>'),
-		(re.compile(r'<!-- Top Header starts -->.*?<!---->', re.IGNORECASE | re.DOTALL), lambda match : '<New Stuff>'),
+       	(r'<!-- Top Header starts -->.*?<!-- Body starts -->', lambda match : '<New Stuff>'),
+		(r'<hr align="center" width="200"><p align="center">.*?<!-- Press Release standard text ends -->', lambda match : '<New Stuff>'),
+		(r'<!-- Top Header starts -->.*?<!---->', lambda match : '<New Stuff>'),
 		
 		## This removes the "download image" of various sizes from the Image of the day.
-		(re.compile(r'<div id="download_image_box_print">.*?<div id="caption_region_print">', re.IGNORECASE | re.DOTALL), lambda match : '<New Stuff>'),
-
+		(r'<div id="download_image_box_print">.*?<div id="caption_region_print">', lambda match : '<New Stuff>'),
 
 		]
 	]

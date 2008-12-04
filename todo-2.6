@@ -1,0 +1,9 @@
+
+* Refactor web.fetch.simple to use per connection timeouts via the timeout kwarg for mechanize.open
+
+* Refactor IPC code to use communication logic from multiprocessing
+
+* Use multiprocessing for cpu_count instead of QThread
+
+* Windows build:
+  * Compile all dependencies with MSVC 2008 since this is what python now uses

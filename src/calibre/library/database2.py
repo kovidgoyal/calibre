@@ -304,10 +304,11 @@ class ResultCache(SearchQueryParser):
     
 class Tag(unicode):
     
-    def __init__(self, name):
-        unicode.__init__(self, name)
-        self.count = 0
-        self.state = 0
+    def __new__(cls, *args):
+        obj = super(Tag, cls).__new__(cls, *args)
+        obj.count = 0
+        obj.state = 0
+        return obj
         
     def as_string(self):
         return u'[%d] %s'%(self.count, self)
