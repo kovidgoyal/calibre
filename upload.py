@@ -236,6 +236,7 @@ def stage_three():
     check_call('rm -f dist/*')
     check_call('python setup.py register')
     check_call('python setup.py bdist_egg --exclude-source-files upload')
+    check_call('python2.5 setup.py bdist_egg --exclude-source-files upload')
     check_call('python setup.py sdist upload')
     upload_src_tarball()
     check_call('''rm -rf dist/* build/*''')
