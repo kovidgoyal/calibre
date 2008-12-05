@@ -803,11 +803,12 @@ class Processor(Parser):
             self.stylesheet.add(rule)
         css = ''
         css += '\n\n' + 'body {margin-top: 0pt; margin-bottom: 0pt; margin-left: 0pt; margin-right: 0pt;}'
-        css += '\n\n@page {margin-top: %fpt; margin-bottom: %fpt; margin-left: %fpt; margin-right: %fpt}'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)
+        css += '\n\n@page {margin-top: %fpt; margin-bottom: %fpt; }'%(self.opts.margin_top, self.opts.margin_bottom)
+        css += '\n\nbody {margin-left: %fpt; margin-right: %fpt}'%(self.opts.margin_left, self.opts.margin_right)
         # Workaround for anchor rendering bug in ADE
         css += '\n\na { color: inherit; text-decoration: inherit; cursor: default; }\na[href] { color: blue; text-decoration: underline; cursor:pointer; }'
         if self.opts.remove_paragraph_spacing:
-            css += '\n\np {text-indent: 2em; margin-top:1pt; margin-bottom:1pt; padding:0pt; border:0pt;}'
+            css += '\n\np {text-indent: 2em; margin-top:0pt; margin-bottom:0pt; padding:0pt; border:0pt;}'
         if self.opts.override_css:
             css += '\n\n' + self.opts.override_css
         self.override_css = self.css_parser.parseString(self.preprocess_css(css))
