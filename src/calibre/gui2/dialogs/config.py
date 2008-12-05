@@ -3,7 +3,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, time
 
 from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon, \
-                        QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit
+                        QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
+                        QStringListModel
 from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant, QUrl
 
 from calibre.constants import islinux, iswindows
@@ -17,6 +18,22 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.epub.iterator import is_supported
 from calibre.library import server_config
 
+class CategoryModel(QStringListModel):
+    
+    def __init__(self, *args):
+        QStringListModel.__init__(self, *args)
+        self.setStringList([_('General'), _('Interface'), _('Advanced'), 
+                            _('Content\nServer')])
+        self.icons = list(map(QVariant, map(QIcon, 
+            [':/images/dialog_information.svg', ':/images/lookfeel.svg', 
+             ':/images/view.svg', ':/images/network-server.svg'])))
+    
+    def data(self, index, role):
+        if role == Qt.DecorationRole:
+            return self.icons[index.row()]
+        return QStringListModel.data(self, index, role)
+            
+
 class ConfigDialog(QDialog, Ui_Dialog):
 
     def __init__(self, window, db, server=None):
@@ -24,10 +41,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         Ui_Dialog.__init__(self)
         self.ICON_SIZES = {0:QSize(48, 48), 1:QSize(32,32), 2:QSize(24,24)}
         self.setupUi(self)
-        self.item1 = QListWidgetItem(QIcon(':/images/metadata.svg'), _('General'), self.category_list)
-        self.item2 = QListWidgetItem(QIcon(':/images/lookfeel.svg'), _('Interface'), self.category_list)
-        self.item3 = QListWidgetItem(QIcon(':/images/view.svg'), _('Advanced'), self.category_list)
-        self.item4 = QListWidgetItem(QIcon(':/images/network-server.svg'), _('Content\nServer'), self.category_list)
+        self._category_model = CategoryModel()
+        
+        self.connect(self.category_view, SIGNAL('activated(QModelIndex)'), lambda i: self.stackedWidget.setCurrentIndex(i.row()))
+        self.category_view.setModel(self._category_model)
         self.db = db
         self.server = server
         path = prefs['library_path']
@@ -120,6 +137,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.priority.setCurrentIndex(p)
         self.priority.setVisible(iswindows)
         self.priority_label.setVisible(iswindows)
+        self.category_view.setCurrentIndex(self._category_model.index(0))
     
     def up_column(self):
         idx = self.columns.currentRow()

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>709</width>
+    <width>800</width>
     <height>563</height>
    </rect>
   </property>
@@ -21,12 +21,12 @@
    <item row="0" column="0" >
     <layout class="QHBoxLayout" >
      <item>
-      <widget class="QListWidget" name="category_list" >
-       <property name="maximumSize" >
-        <size>
-         <width>140</width>
-         <height>16777215</height>
-        </size>
+      <widget class="QListView" name="category_view" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Expanding" hsizetype="MinimumExpanding" >
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
        <property name="font" >
         <font>
@@ -34,17 +34,11 @@
          <bold>true</bold>
         </font>
        </property>
-       <property name="mouseTracking" >
-        <bool>true</bool>
-       </property>
-       <property name="verticalScrollBarPolicy" >
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="horizontalScrollBarPolicy" >
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
        <property name="tabKeyNavigation" >
         <bool>true</bool>
+       </property>
+       <property name="showDropIndicator" stdset="0" >
+        <bool>false</bool>
        </property>
        <property name="iconSize" >
         <size>
@@ -52,25 +46,31 @@
          <height>48</height>
         </size>
        </property>
-       <property name="movement" >
-        <enum>QListView::Static</enum>
+       <property name="verticalScrollMode" >
+        <enum>QAbstractItemView::ScrollPerItem</enum>
+       </property>
+       <property name="horizontalScrollMode" >
+        <enum>QAbstractItemView::ScrollPerPixel</enum>
        </property>
        <property name="flow" >
         <enum>QListView::TopToBottom</enum>
        </property>
-       <property name="isWrapping" stdset="0" >
-        <bool>false</bool>
-       </property>
        <property name="spacing" >
-        <number>25</number>
+        <number>20</number>
        </property>
        <property name="viewMode" >
-        <enum>QListView::IconMode</enum>
+        <enum>QListView::ListMode</enum>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+         <horstretch>100</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="currentIndex" >
         <number>0</number>
        </property>
@@ -801,8 +801,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>235</x>
-     <y>671</y>
+     <x>239</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -817,28 +817,12 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>303</x>
-     <y>671</y>
+     <x>307</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>category_list</sender>
-   <signal>currentRowChanged(int)</signal>
-   <receiver>stackedWidget</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>142</x>
-     <y>117</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>256</x>
-     <y>7</y>
     </hint>
    </hints>
   </connection>

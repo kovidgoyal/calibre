@@ -332,7 +332,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.scheduler = Scheduler(self)
         self.action_news.setMenu(self.scheduler.news_menu)
         self.connect(self.action_news, SIGNAL('triggered(bool)'), self.scheduler.show_dialog)
-        
+        self.location_view.setCurrentIndex(self.location_view.model().index(0))
         
     def test_server(self, *args):
         if self.content_server.exception is not None:

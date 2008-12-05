@@ -1055,7 +1055,7 @@ class LibraryDatabase2(LibraryDatabase):
                               (mi.title, mi.authors[0]))
         id = obj.lastrowid
         self.data.books_added([id], self.conn)
-        self.set_path(id, True)
+        self.set_path(id, index_is_id=True)
         self.conn.commit()
         self.set_metadata(id, mi)
         
