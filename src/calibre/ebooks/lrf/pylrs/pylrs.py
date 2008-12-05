@@ -2338,6 +2338,9 @@ class Canvas(LrsObject, LrsContainer, LrsAttributes):
         container.addLrfObject(c.objId)
         lrfWriter.append(c)
         
+    def has_text(self):
+        return bool(self.contents)
+        
     
 
 class PutObj(LrsContainer):

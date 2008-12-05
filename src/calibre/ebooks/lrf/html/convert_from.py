@@ -520,6 +520,8 @@ class HTMLConverter(object, LoggingInterface):
             self.book.append(self.current_page)
             self.current_page = None
         
+        if top not in top.parent.contents: # May have been removed for a cover image
+            top = top.parent.contents[0]
         if not top.has_text() and top.parent.contents.index(top) == len(top.parent.contents)-1:
             # Empty block at the bottom of a page
             opage = top.parent
@@ -1028,6 +1030,8 @@ class HTMLConverter(object, LoggingInterface):
             self.current_para = Paragraph()
         else:
             self.end_page()
+            if len(self.current_page.contents) == 1 and not self.current_page.has_text():
+                self.current_page.contents[0:1] = []
             self.current_page.append(Canvas(width=pwidth,
                                             height=height))
             left = int(floor((pwidth - width)/2.))
