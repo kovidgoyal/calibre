@@ -6,7 +6,7 @@ from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit
 from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant, QUrl
 
-from calibre import islinux
+from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
                          warning_dialog, ALL_COLUMNS
@@ -116,6 +116,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.systray_icon.setChecked(config['systray_icon'])
         self.sync_news.setChecked(config['upload_news_to_device'])
         self.delete_news.setChecked(config['delete_news_from_library_on_upload'])
+        p = {'normal':0, 'high':1, 'low':2}[prefs['worker_process_priority']]
+        self.priority.setCurrentIndex(p)
+        self.priority.setVisible(iswindows)
+        self.priority_label.setVisible(iswindows)
     
     def up_column(self):
         idx = self.columns.currentRow()
@@ -212,6 +216,8 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['confirm_delete'] =  bool(self.confirm_delete.isChecked())
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
+        p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]
+        prefs['worker_process_priority'] = p
         prefs['read_file_metadata'] = bool(self.pdf_metadata.isChecked())
         config['save_to_disk_single_format'] = BOOK_EXTENSIONS[self.single_format.currentIndex()]
         config['cover_flow_queue_length'] = self.cover_browse.value()

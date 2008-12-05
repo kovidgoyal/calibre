@@ -32,6 +32,7 @@ from math import ceil
 
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre import iswindows, detect_ncpus, isosx
+from calibre.utils.config import prefs
 
 DEBUG = False
 
@@ -223,6 +224,8 @@ class WorkerMother(object):
         return child
 
     def spawn_free_spirit_windows(self, arg, type='free_spirit'):
+        priority = {'high':win32process.HIGH_PRIORITY_CLASS, 'normal':win32process.NORMAL_PRIORITY_CLASS,
+                    'low':win32process.IDLE_PRIORITY_CLASS}[prefs['worker_process_priority']]
         fd, name = tempfile.mkstemp('.log', 'calibre_'+type+'_')
         handle = msvcrt.get_osfhandle(fd)
         si = win32process.STARTUPINFO()
@@ -236,7 +239,7 @@ class WorkerMother(object):
             None,    # processAttributes
             None,    # threadAttributes
             1,       # bInheritHandles
-            win32process.CREATE_NO_WINDOW, # Dont want ugly console popping up
+            win32process.CREATE_NO_WINDOW|priority, # Dont want ugly console popping up
             self.get_env(), # New environment
             None,    # Current directory
             si

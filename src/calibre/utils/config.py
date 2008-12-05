@@ -536,6 +536,8 @@ def _prefs():
               help=_('The default output format for ebook conversions.'))
     c.add_opt('read_file_metadata', default=True,
               help=_('Read metadata from files'))
+    c.add_opt('worker_process_priority', default='normal', 
+              help=_('The priority of worker processes'))
     
     c.add_opt('migrated', default=False, help='For Internal use. Don\'t modify.')
     return c
