@@ -181,7 +181,7 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.action_del, SIGNAL("triggered(bool)"), self.delete_books)
         QObject.connect(self.action_edit, SIGNAL("triggered(bool)"), self.edit_metadata)
         QObject.connect(md.actions()[0], SIGNAL('triggered(bool)'), partial(self.edit_metadata, bulk=False))
-        QObject.connect(md.actions()[1], SIGNAL('triggered(bool)'), self.edit_bulk_metadata)
+        QObject.connect(md.actions()[2], SIGNAL('triggered(bool)'), partial(self.edit_metadata, bulk=True))
         QObject.connect(sm.actions()[0], SIGNAL('triggered(bool)'), self.sync_to_main_memory)
         QObject.connect(sm.actions()[1], SIGNAL('triggered(bool)'), self.sync_to_card)
         QObject.connect(sm.actions()[2], SIGNAL('triggered(bool)'), partial(self.sync_to_main_memory, delete_from_library=True))
