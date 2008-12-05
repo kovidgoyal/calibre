@@ -103,6 +103,8 @@ class OCFDirReader(OCFReader):
         return open(os.path.join(self.root, path), *args, **kwargs)
 
 class CoverRenderer(QObject):
+    WIDTH  = 1280
+    HEIGHT = 1024
     
     def __init__(self, url, size, loop):
         QObject.__init__(self)
@@ -111,6 +113,9 @@ class CoverRenderer(QObject):
         pal = self.page.palette()
         pal.setBrush(QPalette.Background, Qt.white)
         self.page.setPalette(pal)
+        self.page.setViewportSize(QSize(self.WIDTH, self.HEIGHT))
+        self.page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
+        self.page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         QObject.connect(self.page, SIGNAL('loadFinished(bool)'), self.render_html)
         self.image_data = None
         self.rendered = False
@@ -122,7 +127,7 @@ class CoverRenderer(QObject):
             if not ok:
                 return
             size = self.page.mainFrame().contentsSize()
-            width, height = fit_image(size.width(), size.height(), 1280, 1024)[1:]
+            width, height = fit_image(size.width(), size.height(), self.WIDTH, self.HEIGHT)[1:]
             self.page.setViewportSize(QSize(width, height))
             image = QImage(self.page.viewportSize(), QImage.Format_ARGB32)
             image.setDotsPerMeterX(96*(100/2.54))
