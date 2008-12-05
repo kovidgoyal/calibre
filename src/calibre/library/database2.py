@@ -232,6 +232,9 @@ class ResultCache(SearchQueryParser):
     def row(self, id):
         return self.index(id)
     
+    def has_id(self, id):
+        return self._data[id] is not None
+    
     def refresh_ids(self, conn, ids):
         for id in ids:
             self._data[id] = conn.get('SELECT * from meta WHERE id=?', (id,))[0]
@@ -371,6 +374,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.index   = self.data.index
         self.refresh_ids = functools.partial(self.data.refresh_ids, self.conn)
         self.row     = self.data.row
+        self.has_id  = self.data.has_id
         
         self.refresh()
         
@@ -589,7 +593,7 @@ class LibraryDatabase2(LibraryDatabase):
                 data = data.read()
             p.loadFromData(data)
             p.save(path)
-            
+    
     def all_formats(self):
         formats = self.conn.get('SELECT format from data')
         if not formats:

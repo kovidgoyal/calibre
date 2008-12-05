@@ -755,6 +755,7 @@ class Main(MainWindow, Ui_MainWindow):
     def sync_news(self):
         if self.device_connected:
             ids = list(dynamic.get('news_to_be_synced', set([])))
+            ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             files = [self.library_view.model().db.format(id, prefs['output_format'], index_is_id=True, as_file=True) for id in ids]
             files = [f for f in files if f is not None]
             metadata = self.library_view.model().get_metadata(ids, rows_are_ids=True)
@@ -889,6 +890,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.job_exception(job)
             return
         id = self.library_view.model().add_news(pt.name, recipe)
+        self.library_view.model().reset()
         sync = dynamic.get('news_to_be_synced', set([]))
         sync.add(id)
         dynamic.set('news_to_be_synced', sync)
