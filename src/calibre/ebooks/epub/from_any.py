@@ -12,7 +12,7 @@ from contextlib import nested
 
 from calibre import extract, walk
 from calibre.ebooks import DRMError
-from calibre.ebooks.epub import config as common_config
+from calibre.ebooks.epub import config as common_config, process_encryption
 from calibre.ebooks.epub.from_html import convert as html2epub, find_html_index
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
@@ -72,12 +72,19 @@ def epub2opf(path, tdir, opts):
     zf = ZipFile(path)
     zf.extractall(tdir)
     opts.chapter_mark = 'none'
-    if os.path.exists(os.path.join(tdir, 'META-INF', 'encryption.xml')):
-        raise DRMError(os.path.basename(path))
+    encfile = os.path.join(tdir, 'META-INF', 'encryption.xml')
+    opf = None
     for f in walk(tdir):
         if f.lower().endswith('.opf'):
-            return f
-    raise ValueError('%s is not a valid EPUB file'%path)
+            opf = f
+            break
+    if opf and os.path.exists(encfile):
+        if not process_encryption(encfile, opf):
+            raise DRMError(os.path.basename(path))
+        
+    if opf is None:
+        raise ValueError('%s is not a valid EPUB file'%path)
+    return opf
     
 def odt2epub(path, tdir, opts):
     from calibre.ebooks.odt.to_oeb import Extract

@@ -37,14 +37,16 @@ class UnsupportedFormatError(Exception):
 
 class SpineItem(unicode):
     
-    def __init__(self, path):
-        unicode.__init__(self, path)
+    def __new__(cls, *args):
+        obj = super(SpineItem, cls).__new__(cls, *args)
+        path = args[0]
         raw = open(path, 'rb').read()
-        raw, self.encoding = xml_to_unicode(raw)
-        self.character_count = character_count(raw)
-        self.start_page = -1
-        self.pages      = -1
-        self.max_page   = -1
+        raw, obj.encoding = xml_to_unicode(raw)
+        obj.character_count = character_count(raw)
+        obj.start_page = -1
+        obj.pages      = -1
+        obj.max_page   = -1
+        return obj
 
 def html2opf(path, tdir, opts):
     opts = copy.copy(opts)
