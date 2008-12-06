@@ -126,6 +126,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
                      lambda s: self.password.setEchoMode(self.password.Normal if s == Qt.Checked else self.password.Password))
         self.password.setEchoMode(self.password.Password)
         opts = server_config().parse()
+        self.max_cover_size.setText(opts.max_cover)
         self.port.setValue(opts.port)
         self.username.setText(opts.username)
         self.password.setText(opts.password if opts.password else '')
@@ -221,6 +222,10 @@ class ConfigDialog(QDialog, Ui_Dialog):
             self.directory_list.takeItem(idx)
 
     def accept(self):
+        mcs = unicode(self.max_cover_size.text()).strip()
+        if not re.match(r'\d+x\d+', mcs):
+            error_dialog(self, _('Invalid size'), _('The size %s is invalid. must be of the form widthxheight')%mcs).exec_()
+            return
         config['use_roman_numerals_for_series_number'] = bool(self.roman_numerals.isChecked())
         config['new_version_notification'] = bool(self.new_version_notification.isChecked())
         prefs['network_timeout'] = int(self.timeout.value())
@@ -246,6 +251,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         sc.set('username', unicode(self.username.text()).strip())
         sc.set('password', unicode(self.password.text()).strip())
         sc.set('port', self.port.value())
+        sc.set('max_cover', mcs)
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
         of = str(self.output_format.currentText())
