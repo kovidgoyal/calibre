@@ -5,7 +5,7 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
 politika.rs
 '''
-import locale
+import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Politika(BasicNewsRecipe):
@@ -18,6 +18,9 @@ class Politika(BasicNewsRecipe):
     extra_css             = '.content_center_border {text-align: left;}' 
     use_embedded_content  = False
     timefmt               = ' [%A, %d %B, %Y]' 
+
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+
     remove_tags_before = dict(name='div', attrs={'class':'content_center_border'})
     remove_tags_after  = dict(name='div', attrs={'class':'datum_item_details'})
 

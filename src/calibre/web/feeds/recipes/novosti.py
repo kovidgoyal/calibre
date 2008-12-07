@@ -5,7 +5,7 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
 novosti.rs
 '''
-import locale
+import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Novosti(BasicNewsRecipe):
@@ -17,6 +17,8 @@ class Novosti(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     timefmt               = ' [%A, %d %B, %Y]' 
+
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags     = [ dict(name='div', attrs={'class':'jednaVest'}) ]
     remove_tags_after  = dict(name='div', attrs={'class':'info_bottom'})

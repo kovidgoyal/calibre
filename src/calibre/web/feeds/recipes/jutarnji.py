@@ -6,7 +6,9 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 jutarnji.hr
 '''
 
+import string, re
 from calibre.web.feeds.news import BasicNewsRecipe
+from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Jutarnji(BasicNewsRecipe):
     title                 = u'Jutarnji'
@@ -18,6 +20,8 @@ class Jutarnji(BasicNewsRecipe):
     use_embedded_content  = False
     encoding              = 'cp1250'
 
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
+    
     remove_tags = [dict(name='embed')]
     
     feeds = [
@@ -31,8 +35,8 @@ class Jutarnji(BasicNewsRecipe):
             ]
 
     def print_version(self, url):
-        main = url.partition('.jl')[0]
-        rrest = main.rpartition(',')[-1]
+        main, split, rest = url.partition('.jl')
+        rmain, rsplit, rrest = main.rpartition(',')
         return 'http://www.jutarnji.hr/ispis_clanka.jl?artid=' + rrest
 
     def preprocess_html(self, soup):

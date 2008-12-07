@@ -5,7 +5,7 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
 danas.rs
 '''
-import locale
+import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Danas(BasicNewsRecipe):
@@ -14,9 +14,11 @@ class Danas(BasicNewsRecipe):
     description           = 'Vesti'    
     oldest_article        = 7
     max_articles_per_feed = 100
-    no_stylesheets        = False
+    no_stylesheets        = True
     use_embedded_content  = False
     timefmt               = ' [%A, %d %B, %Y]' 
+
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     keep_only_tags     = [ dict(name='div', attrs={'id':'left'}) ]
     remove_tags_after  = dict(name='div', attrs={'id':'comments'})
@@ -30,6 +32,3 @@ class Danas(BasicNewsRecipe):
 
 
     feeds          = [ (u'Vesti', u'http://www.danas.rs/rss/rss.asp')]
-
-#    def print_version(self, url):
-#        return url + '&action=print'

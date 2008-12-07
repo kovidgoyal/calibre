@@ -5,7 +5,7 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
 b92.net
 '''
-import locale
+import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class B92(BasicNewsRecipe):
@@ -16,6 +16,8 @@ class B92(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
+    
+    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     remove_tags_after  = dict(name='div', attrs={'class':'gas'})
     remove_tags = [
