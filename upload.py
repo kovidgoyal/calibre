@@ -13,7 +13,10 @@ def get_ip_address(ifname):
         struct.pack('256s', ifname[:15])
     )[20:24])
 
-HOST=get_ip_address('eth0')
+try:
+    HOST=get_ip_address('eth0')
+except:
+    HOST=get_ip_address('wlan0')
 PROJECT=os.path.basename(os.getcwd())
 
 from calibre import __version__, __appname__
