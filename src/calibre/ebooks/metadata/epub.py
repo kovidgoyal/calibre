@@ -113,7 +113,7 @@ class CoverRenderer(QObject):
         pal = self.page.palette()
         pal.setBrush(QPalette.Background, Qt.white)
         self.page.setPalette(pal)
-        self.page.setViewportSize(QSize(self.WIDTH, self.HEIGHT))
+        self.page.setViewportSize(QSize(600, 800))
         self.page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
         self.page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
         QObject.connect(self.page, SIGNAL('loadFinished(bool)'), self.render_html)

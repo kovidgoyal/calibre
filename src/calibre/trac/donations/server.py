@@ -105,7 +105,7 @@ class Stats:
         mean = sum(amounts)/l
         return sqrt( sum([i**2 for i in amounts])/l - mean**2  )
 
-    def __init__(self, records):
+    def __init__(self, records, start, end):
         self.total = sum([r.amount for r in records])
         self.days = {}
         l, rg = date.max, date.min
@@ -117,15 +117,15 @@ class Stats:
                 self.days[r.date] = []
             self.days[r.date].append(r)
             
-        self.min, self.max = l, rg
-        self.period = self.max - self.min
+        self.min, self.max = start, end
+        self.period = (self.max - self.min) + timedelta(days=1)
         daily_totals = []
         day = self.min
         while day <= self.max:
             x = self.days.get(day, [])
             daily_totals.append(sum([y.amount for y in x]))
             day += timedelta(days=1)
-        self.daily_average = self.total/len(daily_totals) if len(daily_totals) else 0.
+        self.daily_average = self.total/self.period.days
         self.daily_deviation = self.get_deviation(daily_totals)
         self.average = self.total/len(records) if len(records) else 0.
         self.average_deviation = self.get_deviation(self.totals)
@@ -237,12 +237,8 @@ class Server(object):
         self.calculate_trend()
             
     def get_slice(self, start_date, end_date):
-        stats = Stats([r for r in self.records if r.date >= start_date and r.date <= end_date])
-        if start_date > date.min and end_date < date.max:
-            stats.period = end_date - start_date
-            stats.period += timedelta(days=1)
-            stats.min = start_date
-            stats.max = end_date
+        stats = Stats([r for r in self.records if r.date >= start_date and r.date <= end_date],
+                        start_date, end_date)
         return stats
     
     def month(self, year, month):

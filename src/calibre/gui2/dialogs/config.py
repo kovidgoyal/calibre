@@ -44,6 +44,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self._category_model = CategoryModel()
         
         self.connect(self.category_view, SIGNAL('activated(QModelIndex)'), lambda i: self.stackedWidget.setCurrentIndex(i.row()))
+        self.connect(self.category_view, SIGNAL('clicked(QModelIndex)'), lambda i: self.stackedWidget.setCurrentIndex(i.row()))
         self.category_view.setModel(self._category_model)
         self.db = db
         self.server = server
