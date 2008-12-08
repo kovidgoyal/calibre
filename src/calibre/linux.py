@@ -55,6 +55,7 @@ entry_points = {
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
                              'lit2oeb   = calibre.ebooks.lit.reader:main',
+                             'oeb2lit   = calibre.ebooks.lit.writer:main',
                              'comic2lrf = calibre.ebooks.lrf.comic.convert_from:main',
                              'comic2epub = calibre.ebooks.epub.from_comic:main',
                              'calibre-debug      = calibre.debug:main',
