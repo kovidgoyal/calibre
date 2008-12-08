@@ -238,7 +238,11 @@ def stage_three():
     print 'Uploading to PyPI...'
     check_call('rm -f dist/*')
     check_call('python setup.py register')
+    check_call('sudo rm -rf build')
+    os.mkdir('build')
     check_call('python2.5 setup.py bdist_egg --exclude-source-files upload')
+    shutil.rmtree('build')
+    os.mkdir('build')
     check_call('python setup.py bdist_egg --exclude-source-files upload')
     check_call('python setup.py sdist upload')
     upload_src_tarball()
