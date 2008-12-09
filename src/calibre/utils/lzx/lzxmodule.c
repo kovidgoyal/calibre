@@ -4,14 +4,15 @@
  * Python module C glue code.
  */
 
-
 #include <Python.h>
 
 #include <mspack.h>
-#include <lzx.h>
+#include <lzxd.h>
+#include <lzxc.h>
 
 static char lzx_doc[] = 
-"Provide basic LZX decompression using the code from libmspack.";
+    "Provide basic LZX compression and decompression using the code from\n"
+    "liblzxcomp and libmspack respectively.";
 
 static PyObject *LzxError = NULL;
 
@@ -214,6 +215,15 @@ initlzx(void)
     LzxError = PyErr_NewException("lzx.LzxError", NULL, NULL);
     Py_INCREF(LzxError);
     PyModule_AddObject(m, "LzxError", LzxError);
+
+    PyModule_AddObject(m, "_lzxc_init",
+        Py_BuildValue("k", (unsigned long)lzx_init));
+    PyModule_AddObject(m, "_lzxc_reset",
+        Py_BuildValue("k", (unsigned long)lzx_reset));
+    PyModule_AddObject(m, "_lzxc_compress_block",
+        Py_BuildValue("k", (unsigned long)lzx_compress_block));
+    PyModule_AddObject(m, "_lzxc_finish",
+        Py_BuildValue("k", (unsigned long)lzx_finish));
     
     return;
 }

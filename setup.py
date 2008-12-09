@@ -374,7 +374,9 @@ if __name__ == '__main__':
     ext_modules = [
                    Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',
-                                      'src/calibre/utils/lzx/lzxd.c'],
+                                      'src/calibre/utils/lzx/lzxd.c',
+                                      'src/calibre/utils/lzx/lzc.c',
+                                      'src/calibre/utils/lzx/lzxc.c'],
                              include_dirs=['src/calibre/utils/lzx']),
                    
                    Extension('calibre.plugins.msdes',

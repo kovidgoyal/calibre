@@ -3,10 +3,10 @@ import sys
 import os
 from cStringIO import StringIO
 from ctypes import *
+from calibre import plugins
+_lzx, LzxError = plugins['lzx']
 
 __all__ = ['Compressor']
-
-liblzxcomp = cdll.LoadLibrary('liblzxcomp.so')
 
 class lzx_data(Structure):
     pass
@@ -25,32 +25,22 @@ class lzx_results(Structure):
 #              lzx_at_eof_t at_eof,
 #              lzx_put_bytes_t put_bytes, void *put_bytes_arg,
 #              lzx_mark_frame_t mark_frame, void *mark_frame_arg);
-lzx_init = liblzxcomp.lzx_init
-lzx_init.restype = c_int
-lzx_init.argtypes = [POINTER(POINTER(lzx_data)), c_int,
-                     lzx_get_bytes_t, c_voidp,
-                     lzx_at_eof_t,
-                     lzx_put_bytes_t, c_voidp,
-                     lzx_mark_frame_t, c_voidp]
+lzx_init_t = CFUNCTYPE(
+    c_int, POINTER(POINTER(lzx_data)), c_int, lzx_get_bytes_t, c_voidp,
+    lzx_at_eof_t, lzx_put_bytes_t, c_voidp, lzx_mark_frame_t, c_voidp)
+lzx_init = lzx_init_t(_lzx._lzxc_init)
 
 # void  lzx_reset(lzx_data *lzxd);
-lzx_reset = liblzxcomp.lzx_reset
-lzx_reset.restype = None
-lzx_reset.argtypes = [POINTER(lzx_data)]
+lzx_reset_t = CFUNCTYPE(None, POINTER(lzx_data))
+lzx_reset = lzx_reset_t(_lzx._lzxc_reset)
 
 # int lzx_compress_block(lzx_data *lzxd, int block_size, int subdivide);
-lzx_compress_block = liblzxcomp.lzx_compress_block
-lzx_compress_block.restype = c_int
-lzx_compress_block.argtypes = [POINTER(lzx_data), c_int, c_int]
+lzx_compress_block_t = CFUNCTYPE(c_int, POINTER(lzx_data), c_int, c_int)
+lzx_compress_block = lzx_compress_block_t(_lzx._lzxc_compress_block)
 
 # int lzx_finish(struct lzx_data *lzxd, struct lzx_results *lzxr);
-lzx_finish = liblzxcomp.lzx_finish
-lzx_finish.restype = c_int
-lzx_finish.argtypes = [POINTER(lzx_data), POINTER(lzx_results)]
-
-
-class LzxError(Exception):
-    pass
+lzx_finish_t = CFUNCTYPE(c_int, POINTER(lzx_data), POINTER(lzx_results))
+lzx_finish = lzx_finish_t(_lzx._lzxc_finish)
 
 
 class Compressor(object):
