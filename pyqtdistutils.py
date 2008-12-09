@@ -6,7 +6,7 @@ __docformat__ = 'restructuredtext en'
 '''
 Build PyQt extensions. Integrates with distutils (but uses the PyQt build system).
 '''
-from distutils.core import Extension
+from distutils.core import Extension as _Extension
 from distutils.command.build_ext import build_ext as _build_ext
 from distutils.dep_util import newer_group
 from distutils import log
@@ -15,11 +15,22 @@ import sipconfig, os, sys, string, glob, shutil
 from PyQt4 import pyqtconfig
 iswindows = 'win32' in sys.platform
 QMAKE = os.path.expanduser('~/qt/bin/qmake') if 'darwin' in sys.platform else'qmake'
-WINDOWS_PYTHON = ['C:/Python25/libs']
+WINDOWS_PYTHON = ['C:/Python26/libs']
 OSX_SDK = '/Developer/SDKs/MacOSX10.4u.sdk'
 
 def replace_suffix(path, new_suffix):
     return os.path.splitext(path)[0] + new_suffix
+
+class Extension(_Extension):
+    pass
+
+if iswindows:
+    from distutils import msvc9compiler
+    msvc = msvc9compiler.MSVCCompiler()
+    msvc.initialize()
+    nmake = msvc.find_exe('nmake.exe')
+    rc = msvc.find_exe('rc.exe')
+
 
 class PyQtExtension(Extension):
 
@@ -37,9 +48,7 @@ class PyQtExtension(Extension):
 class build_ext(_build_ext):
 
     def make(self, makefile):
-        make = 'make'
-        if iswindows:
-            make = 'mingw32-make'
+        make = nmake if iswindows else 'make'
         self.spawn([make, '-f', makefile])
 
     def build_qt_objects(self, ext, bdir):
@@ -65,12 +74,13 @@ CONFIG   += x86 ppc
             open(name+'.pro', 'wb').write(pro)
             self.spawn([QMAKE, '-o', 'Makefile.qt', name+'.pro'])
             self.make('Makefile.qt')
-            pat = 'release\\*.o' if iswindows else '*.o'
+            pat = 'release\\*.obj' if iswindows else '*.o'
             return map(os.path.abspath, glob.glob(pat))
         finally:
             os.chdir(cwd)
 
     def build_sbf(self, sip, sbf, bdir):
+        print '\tBuilding spf...'
         sip_bin = self.sipcfg.sip_bin
         self.spawn([sip_bin,
                     "-c", bdir,
@@ -100,9 +110,7 @@ CONFIG   += x86 ppc
 
     def build_extension(self, ext):
         self.inplace = True # Causes extensions to be built in the source tree
-        if not isinstance(ext, PyQtExtension):
-            return _build_ext.build_extension(self, ext)
-
+        
         fullname = self.get_ext_fullname(ext.name)
         if self.inplace:
             # ignore build-lib -- put the compiled extension into
@@ -119,7 +127,38 @@ CONFIG   += x86 ppc
         else:
             ext_filename = os.path.join(self.build_lib,
                                         self.get_ext_filename(fullname))
-        bdir = os.path.abspath(os.path.join(self.build_temp, fullname))
+        bdir = os.path.abspath(os.path.join(self.build_temp, fullname))    
+        if not os.path.exists(bdir):
+            os.makedirs(bdir)
+            
+        if not isinstance(ext, PyQtExtension):
+            if not iswindows:
+                return _build_ext.build_extension(self, ext)
+            
+            c_sources = [f for f in ext.sources if os.path.splitext(f)[1].lower() in ('.c', '.cpp', '.cxx')]
+            compile_args = '/c /nologo /Ox /MD /W3 /GX /DNDEBUG'.split()
+            compile_args += ext.extra_compile_args
+            self.swig_opts = ''
+            inc_dirs = self.include_dirs + [x.replace('/', '\\') for x in ext.include_dirs]
+            cc = [msvc.cc] + compile_args + ['-I%s'%x for x in list(set(inc_dirs))]
+            objects = []
+            for f in c_sources:
+                o = os.path.join(bdir, os.path.basename(f)+'.obj')
+                objects.append(o)
+                compiler =  cc + ['/Tc'+f, '/Fo'+o]
+                self.spawn(compiler)
+            out = os.path.join(bdir, base+'.pyd') 
+            linker = [msvc.linker] + '/DLL /nologo /INCREMENTAL:NO'.split()
+            linker += ['/LIBPATH:'+x for x in self.library_dirs]
+            linker += [x+'.lib' for x in ext.libraries]
+            linker += ['/EXPORT:init'+base] + objects + ['/OUT:'+out]
+            self.spawn(linker)
+            for src in (out, out+'.manifest'):
+                shutil.copyfile(src, os.path.join('src', 'calibre', 'plugins', os.path.basename(src)))
+            return
+                
+        
+        
         if not os.path.exists(bdir):
             os.makedirs(bdir)
         ext.sources2 = map(os.path.abspath, ext.sources)
