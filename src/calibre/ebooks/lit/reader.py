@@ -10,10 +10,12 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net> ' \
 import sys, struct, cStringIO, os
 import functools
 import re
+from urlparse import urldefrag
 from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
+from calibre.ebooks.lit.oeb import urlnormalize
 from calibre.ebooks import DRMError
 from calibre import plugins
 lzx, lxzerror = plugins['lzx']
@@ -322,12 +324,12 @@ class UnBinary(object):
                 href += c
                 count -= 1
                 if count == 0:
-                    doc, m, frag = href[1:].partition('#')
+                    doc, frag = urldefrag(href[1:])
                     path = self.item_path(doc)
-                    if m and frag:
-                        path += m + frag
-                    self.buf.write((u'"%s"' % path).encode(
-                        'ascii', 'xmlcharrefreplace'))
+                    if frag:
+                        path = '#'.join((path, frag))
+                    path = urlnormalize(path)
+                    self.buf.write((u'"%s"' % path).encode('utf-8'))
                     state = 'get attr'
         return index
     

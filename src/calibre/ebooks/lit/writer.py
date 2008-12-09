@@ -10,11 +10,14 @@ import re
 import copy
 import uuid
 import functools
+from urlparse import urldefrag
+from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import msguid, DirectoryEntry
 import calibre.ebooks.lit.maps as maps
 from calibre.ebooks.lit.oeb import CSS_MIME, OPF_MIME
-from calibre.ebooks.lit.oeb import Oeb, namespace, barename
+from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize
+from calibre.ebooks.lit.oeb import Oeb
 from calibre.ebooks.lit.stylizer import Stylizer
 from calibre.ebooks.lit.lzxcomp import Compressor
 import calibre
@@ -173,15 +176,13 @@ class ReBinary(object):
         for attr, value in attrib.items():
             attr = prefixname(attr, nsrmap)
             if attr in ('href', 'src'):
-                path, hash, frag = value.partition('#')
-                path = os.path.join(self.dir, path)
-                path = os.path.normpath(path)
-                path = path.replace('\\', '/')
+                value = urlnormalize(value)
+                path, frag = urldefrag(value)
                 prefix = unichr(3)
                 if path in self.manifest.hrefs:
                     prefix = unichr(2)
                     value = self.manifest.hrefs[path].id
-                    if hash and frag:
+                    if frag:
                         value = '#'.join((value, frag))
                 value = prefix + value
             elif attr in ('id', 'name'):
@@ -420,7 +421,8 @@ class LitWriter(object):
             items.sort()
             data.write(pack('<I', len(items)))
             for item in items:
-                id, href, media_type = item.id, item.href, item.media_type
+                id, media_type = item.id, item.media_type
+                href = urlunquote(item.href)
                 item.offset = offset \
                     if state in ('linear', 'nonlinear') else 0
                 data.write(pack('<I', item.offset))

@@ -4,7 +4,8 @@ import sys
 from collections import defaultdict
 from types import StringTypes
 from itertools import izip, count
-from urlparse import urldefrag
+from urlparse import urldefrag, urlparse, urlunparse
+from urllib import unquote as urlunquote
 from lxml import etree
 
 XML_PARSER = etree.XMLParser(
@@ -55,6 +56,22 @@ def barename(name):
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
+URL_UNSAFE = r"""`!@#$%^&*[](){}?+=;:'",<>\| """
+def urlquote(href):
+    result = []
+    for char in href:
+        if char in URL_UNSAFE:
+            char = "%%%02x" % ord(char)
+        result.append(char)
+    return ''.join(result)
+
+def urlnormalize(href):
+    parts = urlparse(href)
+    parts = (part.replace('\\', '/') for part in parts)
+    parts = (urlunquote(part) for part in parts)
+    parts = (urlquote(part) for part in parts)
+    return urlunparse(parts)
+
 
 class AbstractContainer(object):
     def read_xml(self, path):
@@ -68,12 +85,12 @@ class DirContainer(AbstractContainer):
 
     def read(self, path):
         path = os.path.join(self.rootdir, path)
-        with open(path, 'rb') as f:
+        with open(urlunquote(path), 'rb') as f:
             return f.read()
 
     def write(self, path, data):
         path = os.path.join(self.rootdir, path)
-        with open(path, 'wb') as f:
+        with open(urlunquote(path), 'wb') as f:
             return f.write(data)
 
 
@@ -178,7 +195,7 @@ class Metadata(object):
         return elem
         
     def to_opf2(self, parent=None):
-        elem = element(parent, OPF('metadata'), nsmap=self.NSMAP)
+        elem = element(parent, OPF('metadata'), nsmap=self.OPF2_NSMAP)
         for term in self.items:
             for item in self.items[term]:
                 item.to_opf2(elem)
@@ -189,7 +206,7 @@ class Manifest(object):
     class Item(object):
         def __init__(self, id, href, media_type, loader=str):
             self.id = id
-            self.href = self.path = href.replace('%20', ' ')
+            self.href = self.path = urlnormalize(href)
             self.media_type = media_type
             self.spine_position = None
             self.linear = True
@@ -235,8 +252,8 @@ class Manifest(object):
 
     def add(self, id, href, media_type):
         item = self.Item(id, href, media_type, self.oeb.container.read)
-        self.items[id] = item
-        self.hrefs[href] = item
+        self.items[item.id] = item
+        self.hrefs[item.href] = item
         return item
 
     def remove(self, id):
@@ -331,7 +348,7 @@ class Guide(object):
         def __init__(self, type, title, href):
             self.type = type
             self.title = title
-            self.href = href
+            self.href = urlnormalize(href)
 
         def __repr__(self):
             return 'Reference(type=%r, title=%r, href=%r)' \
@@ -390,7 +407,7 @@ class Guide(object):
 class Toc(object):
     def __init__(self, title=None, href=None, klass=None, id=None):
         self.title = title
-        self.href = href
+        self.href = urlnormalize(href) if href else href
         self.klass = klass
         self.id = id
         self.nodes = []
@@ -414,8 +431,8 @@ class Toc(object):
 
     def to_opf1(self, tour):
         for node in self.nodes:
-            element(tour, 'site',
-                attrib={'title': node.title, 'href': node.href})
+            element(tour, 'site', attrib={
+                'title': node.title, 'href': node.href})
             node.to_opf1(tour)
         return tour
     
@@ -431,8 +448,9 @@ class Toc(object):
                 point.attrib['id'] = self.id
             label = etree.SubElement(point, NCX('navLabel'))
             etree.SubElement(label, NCX('text')).text = node.title
-            href = node.href if depth > 1 else node.href.split('#', 1)[0]
-            etree.SubElement(point, NCX('content'), attrib={'src': href})
+            href = node.href if depth > 1 else urldefrag(node.href)[0]
+            child = etree.SubElement(point,
+                NCX('content'), attrib={'src': href})
             node.to_ncx(point, playorder, depth+1)
         return parent
 
@@ -490,7 +508,8 @@ class Oeb(object):
         uid = opf.attrib['unique-identifier']
         self.metadata = metadata = Metadata(self)        
         for elem in xpath(opf, '/o2:package/o2:metadata/*'):
-            metadata.add(elem.tag, elem.text, elem.attrib)
+            if elem.text or elem.attrib:
+                metadata.add(elem.tag, elem.text, elem.attrib)
         for item in metadata.identifier:
             if item.id == uid:
                 self.uid = item
@@ -524,7 +543,7 @@ class Oeb(object):
     def _toc_from_navpoint(self, toc, navpoint):
         children = xpath(navpoint, 'ncx:navPoint')
         for child in children:
-            title = xpath(child, 'ncx:navLabel/ncx:text/text()')[0]
+            title = ''.join(xpath(child, 'ncx:navLabel/ncx:text/text()'))
             href = xpath(child, 'ncx:content/@src')[0]
             id = child.get('id')
             klass = child.get('class')
@@ -564,8 +583,13 @@ class Oeb(object):
         item = self.manifest.hrefs[itempath]
         html = item.data
         if frag:
-            elem = xpath(html, './/*[@id="%s"]' % frag)
-            html = elem[0] if elem else html
+            elems = xpath(html, './/*[@id="%s"]' % frag)
+            if not elems:
+                elems = xpath(html, './/*[@name="%s"]' % frag)
+            elem = elems[0] if elems else html
+            while elem != html and not xpath(elem, './/h:a[@href]'):
+                elem = elem.getparent()
+            html = elem
         titles = defaultdict(list)
         order = []
         for anchor in xpath(html, './/h:a[@href]'):
@@ -574,6 +598,7 @@ class Oeb(object):
             if not path:
                 href = '#'.join((itempath, frag))
             title = ' '.join(xpath(anchor, './/text()'))
+            href = urlnormalize(href)
             if href not in titles:
                 order.append(href)
             titles[href].append(title)
@@ -679,10 +704,13 @@ class Oeb(object):
         return {OPF_MIME: ('content.opf', package),
                 NCX_MIME: (href, ncx)}
 
+
 def main(argv=sys.argv):
     for arg in argv[1:]:
         oeb = Oeb(arg)
-        for name, doc in oeb.to_opf2().items():
+        for name, doc in oeb.to_opf1().values():
+            print etree.tostring(doc, pretty_print=True)
+        for name, doc in oeb.to_opf2().values():
             print etree.tostring(doc, pretty_print=True)
     return 0
 
