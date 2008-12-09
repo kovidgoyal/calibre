@@ -4,17 +4,20 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 This module provides a thin ctypes based wrapper around libusb. 
 """
 
-from ctypes import cdll, POINTER, byref, pointer, Structure, \
+from ctypes import cdll, POINTER, byref, pointer, Structure as _Structure, \
                    c_ubyte, c_ushort, c_int, c_char, c_void_p, c_byte, c_uint
 from errno import EBUSY, ENOMEM
 
-from calibre import iswindows, isosx, load_library, isfrozen
+from calibre import iswindows, isosx, load_library
 
 _libusb_name = 'libusb'
 PATH_MAX = 511 if iswindows else 1024 if isosx else 4096
 if iswindows:
-    Structure._pack_ = 1
+    class Structure(_Structure):
+        _pack_ = 1
     _libusb_name = 'libusb0'
+else:
+    Structure = _Structure
 
 try:
     try:

@@ -9,6 +9,7 @@ import time, logging, traceback, copy
 from datetime import datetime
 
 from calibre.web.feeds.feedparser import parse
+from lxml import html
 
 class Article(object):
     
@@ -19,6 +20,17 @@ class Article(object):
         self.id = id
         self.title = title.strip() if title else title
         self.url = url
+        if summary and not isinstance(summary, unicode):
+            summary = summary.decode('utf-8', 'replace')
+        if summary and '<' in summary:
+            try:
+                s = html.fragment_fromstring(summary, create_parent=True)
+                summary = html.tostring(s, method='text', encoding=unicode)
+            except:
+                print 'Failed to process article summary, deleting:'
+                print summary.encode('utf-8')
+                traceback.print_exc()
+                summary = u''
         self.summary = summary
         self.content = content
         self.date = published

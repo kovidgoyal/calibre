@@ -141,12 +141,12 @@ class FeedTemplate(Template):
         </div>
         <ul>
             <py:for each="i, article in enumerate(feed.articles)">
-            <li id="${'article_%d'%i}" py:if="getattr(article, 'downloaded', False)">
+            <li id="${'article_%d'%i}" py:if="getattr(article, 'downloaded', False)" style="padding-bottom:0.5em">
                 <a class="article" href="${article.url}">${article.title}</a>
                 <span class="article_date">${article.localtime.strftime(" [%a, %d %b %H:%M]")}</span>
-                <p class="article_decription" py:if="article.summary">
+                <div class="article_decription" py:if="article.summary">
                     ${Markup(cutoff(article.summary))}
-                </p>
+                </div>
             </li>
             </py:for>
         </ul>

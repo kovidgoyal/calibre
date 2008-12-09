@@ -586,9 +586,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         if npos < 0:
             npos = pos
         ans = src[:npos+1]
-        if isinstance(ans, unicode):
-            return ans
-        return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
+        if len(ans) < len(src):
+            return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
+        return ans
 
         
     

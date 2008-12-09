@@ -46,8 +46,8 @@
         </property>
         <property name="maximumSize" >
          <size>
-          <width>10000</width>
-          <height>110</height>
+          <width>16777215</width>
+          <height>100</height>
          </size>
         </property>
         <property name="verticalScrollBarPolicy" >
@@ -74,14 +74,17 @@
         <property name="flow" >
          <enum>QListView::LeftToRight</enum>
         </property>
-        <property name="isWrapping" stdset="0" >
-         <bool>false</bool>
-        </property>
-        <property name="spacing" >
-         <number>10</number>
+        <property name="gridSize" >
+         <size>
+          <width>175</width>
+          <height>90</height>
+         </size>
         </property>
         <property name="viewMode" >
-         <enum>QListView::IconMode</enum>
+         <enum>QListView::ListMode</enum>
+        </property>
+        <property name="wordWrap" >
+         <bool>true</bool>
         </property>
        </widget>
       </item>
