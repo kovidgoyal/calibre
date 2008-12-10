@@ -64,9 +64,11 @@ class PRS505(Device):
       <match key="info.category" string="volume">
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
-                  <match key="volume.is_partition" bool="true">
-                      <merge key="volume.label" type="string">%(storage_card)s</merge>
-                      <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
+                  <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">
+                      <match key="volume.is_partition" bool="true">
+                          <merge key="volume.label" type="string">%(storage_card)s</merge>
+                          <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
+                      </match>
                   </match>
               </match>
           </match>

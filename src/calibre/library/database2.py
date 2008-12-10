@@ -757,7 +757,10 @@ class LibraryDatabase2(LibraryDatabase):
         newspapers = self.conn.get('SELECT name FROM tags WHERE id IN (SELECT DISTINCT tag FROM books_tags_link WHERE book IN (select book from books_tags_link where tag IN (SELECT id FROM tags WHERE name=?)))', (_('News'),))
         if newspapers:
             newspapers = [f[0] for f in newspapers]
-            newspapers.remove(_('News'))
+            try:
+                newspapers.remove(_('News'))
+            except ValueError:
+                pass
             categories['news'] = list(map(Tag, newspapers))
             for tag in categories['news']:
                 tag.count = self.conn.get('SELECT COUNT(id) FROM books_tags_link WHERE tag IN (SELECT DISTINCT id FROM tags WHERE name=?)', (tag,), all=False)

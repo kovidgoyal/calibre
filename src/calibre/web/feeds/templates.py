@@ -145,7 +145,7 @@ class FeedTemplate(Template):
                 <a class="article" href="${article.url}">${article.title}</a>
                 <span class="article_date">${article.localtime.strftime(" [%a, %d %b %H:%M]")}</span>
                 <div class="article_decription" py:if="article.summary">
-                    ${Markup(cutoff(article.summary))}
+                    ${Markup(cutoff(article.text_summary))}
                 </div>
             </li>
             </py:for>
