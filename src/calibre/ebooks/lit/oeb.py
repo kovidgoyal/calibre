@@ -33,10 +33,11 @@ XHTML_MIME = 'application/xhtml+xml'
 CSS_MIME = 'text/css'
 NCX_MIME = 'application/x-dtbncx+xml'
 OPF_MIME = 'application/oebps-package+xml'
+OEB_DOC_MIME = 'text/x-oeb1-document'
+OEB_CSS_MIME = 'text/x-oeb1-css'
 
-OEB_STYLES = set([CSS_MIME, 'text/x-oeb1-css', 'text/x-oeb-css'])
-OEB_DOCS = set([XHTML_MIME, 'text/html', 'text/x-oeb1-document',
-                'text/x-oeb-document'])
+OEB_STYLES = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
+OEB_DOCS = set([XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'])
 
 
 def element(parent, *args, **kwargs):
@@ -205,10 +206,11 @@ class Metadata(object):
 
 class Manifest(object):
     class Item(object):
-        def __init__(self, id, href, media_type, loader=str):
+        def __init__(self, id, href, media_type, fallback=None, loader=str):
             self.id = id
             self.href = self.path = urlnormalize(href)
             self.media_type = media_type
+            self.fallback = fallback
             self.spine_position = None
             self.linear = True
             self._loader = loader
@@ -251,8 +253,9 @@ class Manifest(object):
         self.items = {}
         self.hrefs = {}
 
-    def add(self, id, href, media_type):
-        item = self.Item(id, href, media_type, self.oeb.container.read)
+    def add(self, id, href, media_type, fallback=None):
+        item = self.Item(
+            id, href, media_type, fallback, self.oeb.container.read)
         self.items[item.id] = item
         self.hrefs[item.href] = item
         return item
@@ -283,16 +286,25 @@ class Manifest(object):
     def to_opf1(self, parent=None):
         elem = element(parent, 'manifest')
         for item in self.items.values():
+            media_type = item.media_type
+            if media_type == XHTML_MIME:
+                media_type = OEB_DOC_MIME
+            elif media_type == CSS_MIME:
+                media_type = OEB_CSS_MIME
             attrib = {'id': item.id, 'href': item.href,
-                      'media-type': item.media_type}
+                      'media-type': media_type}
+            if item.fallback:
+                attrib['fallback'] = item.fallback
             element(elem, 'item', attrib=attrib)
-        return elem            
+        return elem
     
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('manifest'))
         for item in self.items.values():
             attrib = {'id': item.id, 'href': item.href,
                       'media-type': item.media_type}
+            if item.fallback:
+                attrib['fallback'] = item.fallback
             element(elem, OPF('item'), attrib=attrib)
         return elem
 
@@ -520,7 +532,7 @@ class Oeb(object):
         self.manifest = manifest = Manifest(self)
         for elem in xpath(opf, '/o2:package/o2:manifest/o2:item'):
             manifest.add(elem.get('id'), elem.get('href'),
-                         elem.get('media-type'))
+                         elem.get('media-type'), elem.get('fallback'))
     
     def _spine_from_opf(self, opf):
         self.spine = spine = Spine(self)

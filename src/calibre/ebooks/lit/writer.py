@@ -15,7 +15,8 @@ from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import msguid, DirectoryEntry
 import calibre.ebooks.lit.maps as maps
-from calibre.ebooks.lit.oeb import CSS_MIME, OPF_MIME, XML_NS, XML
+from calibre.ebooks.lit.oeb import OEB_STYLES, OEB_CSS_MIME, CSS_MIME, \
+    OPF_MIME, XML_NS, XML
 from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize
 from calibre.ebooks.lit.oeb import Oeb
 from calibre.ebooks.lit.stylizer import Stylizer
@@ -194,6 +195,8 @@ class ReBinary(object):
                 self.anchors.append((value, tag_offset))
             elif attr.startswith('ms--'):
                 attr = '%' + attr[4:]
+            elif attr == 'type' and value in OEB_STYLES:
+                value = OEB_CSS_MIME
             if attr in tattrs:
                 self.write(tattrs[attr])
             else:
@@ -220,8 +223,7 @@ class ReBinary(object):
         child = cstyle = nstyle = None
         for next in chain(elem, [None]):
             if self.stylizer:
-                nstyle = self.stylizer.style(next) \
-                    if (next is not None) else None
+                nstyle = None if next is None else self.stylizer.style(next)
             if child is not None:
                 if not preserve \
                    and (inhead or not nstyle
