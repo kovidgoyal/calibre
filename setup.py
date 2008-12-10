@@ -397,7 +397,8 @@ if __name__ == '__main__':
                 ))
     if isosx:
         ext_modules.append(Extension('calibre.plugins.usbobserver',
-                sources=['src/calibre/devices/usbobserver/usbobserver.c'])
+                sources=['src/calibre/devices/usbobserver/usbobserver.c'],
+                extra_link_args=['-framework', 'IOKit'])
                            )
     
     setup(
