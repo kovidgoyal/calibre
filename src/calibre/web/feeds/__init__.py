@@ -20,6 +20,7 @@ class Article(object):
         self.id = id
         self.title = title.strip() if title else title
         self.url = url
+        self.summary = summary
         if summary and not isinstance(summary, unicode):
             summary = summary.decode('utf-8', 'replace')
         if summary and '<' in summary:
@@ -31,7 +32,7 @@ class Article(object):
                 print summary.encode('utf-8')
                 traceback.print_exc()
                 summary = u''
-        self.summary = summary
+        self.text_summary = summary
         self.content = content
         self.date = published
         self.utctime = datetime(*self.date[:6])
