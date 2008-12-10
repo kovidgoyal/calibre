@@ -6,21 +6,20 @@ msgid ""
 msgstr ""
 "Project-Id-Version: calibre 0.4.55\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-12-06 07:37+0000\n"
-"PO-Revision-Date: 2008-12-07 14:04-0800\n"
-"Last-Translator: Kovid Goyal <kovid@kovidgoyal.net>\n"
+"POT-Creation-Date: 2008-12-09 02:03+0000\n"
+"PO-Revision-Date: 2008-12-07 22:09+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-12-07 21:42+0000\n"
-"X-Generator: Lokalize 0.2\n"
+"X-Launchpad-Export-Date: 2008-12-10 21:48+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
 "X-Poedit-Country: RUSSIAN FEDERATION\n"
 "X-Poedit-Language: Russian\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Poedit-Bookmarks: -1,-1,-1,-1,-1,-1,-1,329,-1,-1\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:135
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:153
@@ -41,7 +40,8 @@ msgstr "Опции контроля преобразования в EPUB"
 msgid ""
 "The output EPUB file. If not specified, it is derived from the input file "
 "name."
-msgstr "Выходной файл EPUB. Если не назначено, извлекается имя входящего файла."
+msgstr ""
+"Выходной файл EPUB. Если не назначено, извлекается имя входящего файла."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:105
 msgid ""
@@ -108,7 +108,8 @@ msgstr "Путь к обложке используемой для этой кн
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
-msgstr "Вместо заданной, использовать определение обложки из исходного файла."
+msgstr ""
+"Вместо заданной, использовать определение обложки из исходного файла."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:127
 msgid ""
@@ -243,7 +244,8 @@ msgid "Keep intermediate files during processing by html2epub"
 msgstr "Сохранить промежуточную копию файла во время обработки html2epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:170
-msgid "Extract the contents of the produced EPUB file to the specified directory."
+msgid ""
+"Extract the contents of the produced EPUB file to the specified directory."
 msgstr "Извлечь содержимое созданного файла EPUB в специальную дерикторию."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:43
@@ -342,8 +344,10 @@ msgid "%s format books are not supported"
 msgstr "%s формат книг не поддерживается"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:30
-msgid "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
-msgstr "Не могу найти приемлимое место разделения: %s Размер поддерева: %d КБ"
+msgid ""
+"Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
+msgstr ""
+"Не могу найти приемлимое место разделения: %s Размер поддерева: %d КБ"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:109
 msgid ""
@@ -739,7 +743,8 @@ msgstr ""
 "нескольких элементов."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:180
-msgid "Force a page break before tags whose names match this regular expression."
+msgid ""
+"Force a page break before tags whose names match this regular expression."
 msgstr ""
 "Устанавить разрывы страниц перед тегами, имена которых соответствуют этому "
 "регулярному выражению."
@@ -877,7 +882,8 @@ msgstr ""
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:282
-msgid "Options to control the conversion of comics (CBR, CBZ) files into ebooks"
+msgid ""
+"Options to control the conversion of comics (CBR, CBZ) files into ebooks"
 msgstr ""
 "Опции контроля преобразования файлов комиксов (CBR, CBZ) в электронную книгу"
 
@@ -886,7 +892,8 @@ msgid "Title for generated ebook. Default is to use the filename."
 msgstr "Заголовок для созданной книги. По умолчанию используется имя файла."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:290
-msgid "Set the author in the metadata of the generated ebook. Default is %default"
+msgid ""
+"Set the author in the metadata of the generated ebook. Default is %default"
 msgstr ""
 "Ввести автора в метаданные создаваемые электронной книгой. По умолчанию "
 "%default"
@@ -1098,8 +1105,10 @@ msgstr ""
 "%s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1765
-msgid "An error occurred while processing a table: %s. Ignoring table markup."
-msgstr "Призошла ошибка при обработке таблицы: %s. Пропустить разметку таблицы."
+msgid ""
+"An error occurred while processing a table: %s. Ignoring table markup."
+msgstr ""
+"Призошла ошибка при обработке таблицы: %s. Пропустить разметку таблицы."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:1767
 msgid ""
@@ -1254,11 +1263,14 @@ msgstr "Катигория этой книги. Например: История
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:598
 msgid "Path to a graphic that will be set as this files' thumbnail"
-msgstr "Путь к картинке, которая будет использоваться в этом файле как миниатюра"
+msgstr ""
+"Путь к картинке, которая будет использоваться в этом файле как миниатюра"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:601
-msgid "Path to a txt file containing the comment to be stored in the lrf file."
-msgstr "Путь к текстовому файлу содержащему комментарии сохраняемые в файл lrf."
+msgid ""
+"Path to a txt file containing the comment to be stored in the lrf file."
+msgstr ""
+"Путь к текстовому файлу содержащему комментарии сохраняемые в файл lrf."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/meta.py:605
 msgid "Extract thumbnail from LRF file"
@@ -1297,7 +1309,8 @@ msgid "Could not find pdftohtml, check it is in your PATH"
 msgstr "Не могу найти pdftohtml, проверьте наличе по PATH"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/pdf/convert_from.py:61
-msgid " is an image based PDF. Only conversion of text based PDFs is supported."
+msgid ""
+" is an image based PDF. Only conversion of text based PDFs is supported."
 msgstr ""
 " PDF содержит картинки. Поддерживается преобразование только текстовых PDF."
 
@@ -1802,49 +1815,49 @@ msgstr ""
 "Сервер\n"
 "Контента"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:161
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:162
 msgid "Error log:"
 msgstr "Лог ошибок:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:165
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:166
 msgid "Access log:"
 msgstr "Лог доступа:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:187
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:188
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:339
 msgid "Failed to start content server"
 msgstr "Сбой запуска контент сервера"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:227
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:228
 msgid "Invalid size"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:227
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:228
 msgid "The size %s is invalid. must be of the form widthxheight"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:269
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:273
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:270
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:274
 msgid "Invalid database location"
 msgstr "Неправильное расположение базы данных"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:270
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:271
 msgid "<br>Must be a directory."
 msgstr "<br>Должна быть дирректория."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:270
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:271
 msgid "Invalid database location "
 msgstr "Неправильное расположение базы данных "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:274
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:275
 msgid "Invalid database location.<br>Cannot write to "
 msgstr "Неправильное расположение базы данных.<br>Немогу записать "
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:286
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:287
 msgid "Compacting database. This may take a while."
 msgstr "Сжатие базы данных. Это займет некоторое время."
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:286
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config.py:287
 msgid "Compacting..."
 msgstr "Сжатие..."
 
@@ -1868,7 +1881,7 @@ msgstr "Просмотреть расположение новой базы да
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:389
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:399
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:400
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:374
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:373
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:509
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:282
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:288
@@ -1981,7 +1994,8 @@ msgstr "Использовать &Римские цифры для нумера�
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:391
 msgid "&Number of covers to show in browse mode (after restart):"
-msgstr "&Количество обложек показываемых в режиме просмотра (после перезагрузки):"
+msgstr ""
+"&Количество обложек показываемых в режиме просмотра (после перезагрузки):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:392
 msgid "Toolbar"
@@ -2216,7 +2230,7 @@ msgstr "Ошибка чтения файла"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:184
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single.py:60
 msgid "<p>There was an error reading from file: <br /><b>"
-msgstr "<p>Ошибка при чтении файла:<br/><b>"
+msgstr "<p>Ошибка при чтении файла:<br /><b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:190
@@ -2265,21 +2279,21 @@ msgid "Book Cover"
 msgstr "Обложка книги"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:371
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:510
-msgid "Use cover from &source file"
-msgstr "Использовать обложку из &исходного файла"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:507
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:316
 msgid "Change &cover image:"
 msgstr "Заменено изображение &обложки:"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:373
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:372
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:508
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:317
 msgid "Browse for an image to use as the cover of this book."
 msgstr "Просматреть изображения для обложки этой книги."
+
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:374
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:510
+msgid "Use cover from &source file"
+msgstr "Использовать обложку из &исходного файла"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:375
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:511
@@ -2536,7 +2550,8 @@ msgid "No metadata found"
 msgstr "Нет метаданных"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:144
-msgid "No metadata found, try adjusting the title and author or the ISBN key."
+msgid ""
+"No metadata found, try adjusting the title and author or the ISBN key."
 msgstr ""
 "Нет метаданных, попробуйте откорректировать заглавие и автора или ISBN ключ."
 
@@ -2569,7 +2584,8 @@ msgid "Matches"
 msgstr "Совпадения"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:83
-msgid "Select the book that most closely matches your copy from the list below"
+msgid ""
+"Select the book that most closely matches your copy from the list below"
 msgstr "Из списка выберете книгу, которая более соответствует вашей."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:33
@@ -2745,7 +2761,8 @@ msgstr " пикс."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:557
 msgid "&Convert tables to images (good for large/complex tables)"
-msgstr "Преобразовать таблицы в картинки (полезно для больших/сложных таблиц)"
+msgstr ""
+"Преобразовать таблицы в картинки (полезно для больших/сложных таблиц)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:558
 msgid "&Multiplier for text size in rendered tables:"
@@ -2805,19 +2822,9 @@ msgid ""
 "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
 "font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
-"family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-"
+"indent:0px;\"></p></body></html>"
 msgstr ""
-"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
-"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
-"type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
-"font-weight:400; font-style:normal;\">\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
-"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-"
-"family:'Sans Serif'; font-size:9pt;\"></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_bulk_ui.py:122
 msgid "Edit Meta information"
@@ -2956,7 +2963,8 @@ msgid "Fetch cover image from server"
 msgstr "Получить изображение обложки с сервера"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:322
-msgid "Change the username and/or password for your account at LibraryThing.com"
+msgid ""
+"Change the username and/or password for your account at LibraryThing.com"
 msgstr ""
 "Сменить имя пользователя и/или пароль для ваших данных на LibraryThing.com"
 
@@ -3019,7 +3027,7 @@ msgid "News"
 msgstr "Новости"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler_ui.py:137
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:222
 msgid "Recipes"
 msgstr "Состав"
 
@@ -3236,25 +3244,25 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:163
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:172
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:228
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:229
 msgid "Invalid input"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:164
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:173
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:229
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:230
 msgid "<p>Could not create recipe. Error:<br>%s"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:179
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:210
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:234
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:211
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:235
 msgid "Replace recipe?"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:180
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:211
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:235
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:212
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:236
 msgid "A custom recipe named %s already exists. Do you want to replace it?"
 msgstr ""
 
@@ -3266,7 +3274,7 @@ msgstr ""
 msgid "Pick the recipe to customize"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:221
+#: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:222
 msgid "Choose a recipe file"
 msgstr ""
 
@@ -3420,11 +3428,11 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:116
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:119
 #: /home/kovid/work/calibre/src/calibre/gui2/filename_pattern_ui.py:122
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:54
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:58
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:63
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:68
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:70
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:55
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:59
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:64
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:69
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:71
 msgid "No match"
 msgstr ""
 
@@ -3836,7 +3844,8 @@ msgid "No space on device"
 msgstr "Нет места на устройстве"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:635
-msgid "<p>Cannot upload books to device there is no more free space available "
+msgid ""
+"<p>Cannot upload books to device there is no more free space available "
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:665
@@ -4465,43 +4474,41 @@ msgstr "Справочный режим"
 msgid "Bookmark"
 msgstr "Закладка"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:47
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:48
 msgid "Invalid regular expression"
 msgstr "Неправильное регулярное выражение"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:48
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:49
 msgid "Invalid regular expression: %s"
 msgstr "Неправильное регулярное выражение: %s"
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:178
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:183
 msgid "Library"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:179
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:184
 msgid ""
 "Reader\n"
-"%s available"
-msgstr ""
-"Ридер\n"
-"%s доступен"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:180
-msgid ""
-"Card\n"
-"%s available"
-msgstr ""
-"Карта\n"
-"%s доступна"
-
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:184
-msgid "Click to see the list of books available on your computer"
+"%s\n"
+"available"
 msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:185
+msgid ""
+"Card\n"
+"%s\n"
+"available"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:189
+msgid "Click to see the list of books available on your computer"
+msgstr ""
+
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:190
 msgid "Click to see the list of books in the main memory of your reader"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:186
+#: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:191
 msgid "Click to see the list of books on the storage card in your reader"
 msgstr ""
 
@@ -4856,13 +4863,13 @@ msgstr ""
 msgid "Failed to authenticate with server: %s"
 msgstr ""
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:63
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:84
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:75
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:96
 msgid "Unknown feed"
 msgstr "Неизвестная заготовка"
 
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:102
-#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:124
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:114
+#: /home/kovid/work/calibre/src/calibre/web/feeds/__init__.py:136
 msgid "Untitled article"
 msgstr ""
 
@@ -4879,7 +4886,8 @@ msgstr ""
 msgid ""
 "Timeout in seconds to wait for a response from the server. Default: %default "
 "s"
-msgstr "Максимальное время ожидания ответа от сервера. По умолчанию: %default с"
+msgstr ""
+"Максимальное время ожидания ответа от сервера. По умолчанию: %default с"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:22
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:450
@@ -5035,7 +5043,8 @@ msgstr ""
 "%s\n"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:85
-msgid "Options to control web2disk (used to fetch websites linked from feeds)"
+msgid ""
+"Options to control web2disk (used to fetch websites linked from feeds)"
 msgstr ""
 "Опции контроля web2disk (обычно вызываются линки сайтов переводных страниц )"
 
@@ -5143,7 +5152,8 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:439
 msgid "Base directory into which URL is saved. Default is %default"
-msgstr "Основная директория, в которую сохранятся URL. По умолчанию: %default"
+msgstr ""
+"Основная директория, в которую сохранятся URL. По умолчанию: %default"
 
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:445
 msgid ""
@@ -5169,6 +5179,20 @@ msgstr "Показать детальную информацию. Использ
 #~ msgstr "&Очередность работ преобразования:"
 
 #~ msgid ""
+#~ "Reader\n"
+#~ "%s available"
+#~ msgstr ""
+#~ "Ридер\n"
+#~ "%s доступен"
+
+#~ msgid ""
+#~ "Card\n"
+#~ "%s available"
+#~ msgstr ""
+#~ "Карта\n"
+#~ "%s доступна"
+
+#~ msgid ""
 #~ "Detect a chapter beginning at an element having the specified attribute. The "
 #~ "format for this option is tagname regexp,attribute name,attribute value "
 #~ "regexp. For example to match all heading tags that have the attribute "
@@ -5182,4 +5206,3 @@ msgstr "Показать детальную информацию. Использ
 
 #~ msgid "Enable system &tray icon"
 #~ msgstr "Использовать иконку в панели задач"
-
