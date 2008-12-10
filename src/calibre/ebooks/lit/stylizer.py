@@ -14,7 +14,8 @@ import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
 from lxml import etree
-from calibre.ebooks.lit.oeb import XHTML_NS, CSS_MIME, OEB_STYLES, barename
+from calibre.ebooks.lit.oeb import XHTML_NS, CSS_MIME, OEB_STYLES
+from calibre.ebooks.lit.oeb import barename, urlnormalize
 from calibre.resources import html_css
 
 HTML_CSS_STYLESHEET = cssutils.parseString(html_css)
@@ -125,7 +126,7 @@ class Stylizer(object):
             elif tag == 'link' \
                  and elem.get('rel', 'stylesheet') == 'stylesheet' \
                  and elem.get('type', CSS_MIME) in OEB_STYLES:
-                href = elem.attrib['href']
+                href = urlnormalize(elem.attrib['href'])
                 path = os.path.join(base, href)
                 path = os.path.normpath(path).replace('\\', '/')
                 if path in self.STYLESHEETS:
@@ -275,13 +276,13 @@ class Style(object):
                 if name1 != name2:
                     return False
             elif item.type == 'id':
-                name1 = item.value[1:].lower()
-                name2 = element.attrib.get('id', '').lower().split()
+                name1 = item.value[1:]
+                name2 = element.get('id', '')
                 if name1 != name2:
                     return False
             elif item.type == 'class':
                 name = item.value[1:].lower()
-                classes = element.attrib.get('class', '').lower().split()
+                classes = element.get('class', '').lower().split()
                 if name not in classes:
                     return False
             elif item.type == 'child':

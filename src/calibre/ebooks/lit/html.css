@@ -410,7 +410,7 @@ tr:focus, tt:focus, u:focus, ul:focus, var:focus {
 
 /* hidden elements */
 area, base, basefont, head, meta, script, style, title,
-noembed, param {
+noembed, param, link {
    display: none;
 }
 
@@ -418,3 +418,9 @@ noembed, param {
 body {
   page-break-before: always;
 }
+
+/* Explicit line-breaks are blocks, sure... */
+br {
+  display: block;
+}
+

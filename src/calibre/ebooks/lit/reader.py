@@ -387,7 +387,7 @@ def preserve(function):
 class LitReader(object):
     PIECE_SIZE = 16
     XML_PARSER = etree.XMLParser(
-        remove_blank_text=True, resolve_entities=False)
+        recover=True, resolve_entities=False)
 
     def magic():
         @preserve

@@ -8,8 +8,8 @@ from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
 from lxml import etree
 
-XML_PARSER = etree.XMLParser(
-    remove_blank_text=True, recover=True, resolve_entities=False)
+XML_PARSER = etree.XMLParser(recover=True, resolve_entities=False)
+XML_NS = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS = 'http://www.w3.org/1999/xhtml'
 OPF1_NS = 'http://openebook.org/namespaces/oeb-package/1.0/'
 OPF2_NS = 'http://www.idpf.org/2007/opf'
@@ -23,6 +23,7 @@ XPNSMAP = {'h': XHTML_NS, 'o1': OPF1_NS, 'o2': OPF2_NS,
            'd09': DC09_NS, 'd10': DC10_NS, 'd11': DC11_NS,
            'xsi': XSI_NS, 'dt': DCTERMS_NS, 'ncx': NCX_NS}
 
+def XML(name): return '{%s}%s' % (XML_NS, name)
 def XHTML(name): return '{%s}%s' % (XHTML_NS, name)
 def OPF(name): return '{%s}%s' % (OPF2_NS, name)
 def DC(name): return '{%s}%s' % (DC11_NS, name)

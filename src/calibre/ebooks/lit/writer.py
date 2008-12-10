@@ -3,7 +3,7 @@ import sys
 import os
 from cStringIO import StringIO
 from struct import pack, unpack
-from itertools import izip, count
+from itertools import izip, count, chain
 import time
 import random
 import re
@@ -15,7 +15,7 @@ from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import msguid, DirectoryEntry
 import calibre.ebooks.lit.maps as maps
-from calibre.ebooks.lit.oeb import CSS_MIME, OPF_MIME
+from calibre.ebooks.lit.oeb import CSS_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize
 from calibre.ebooks.lit.oeb import Oeb
 from calibre.ebooks.lit.stylizer import Stylizer
@@ -116,6 +116,8 @@ def randbytes(n):
     return ''.join(chr(random.randint(0, 255)) for x in xrange(n))
 
 class ReBinary(object):
+    NSRMAP = {'': None, XML_NS: 'xml'}
+    
     def __init__(self, root, path, oeb, map=HTML_MAP):
         self.dir = os.path.dirname(path)
         self.manifest = oeb.manifest
@@ -135,8 +137,11 @@ class ReBinary(object):
             if isinstance(value, (int, long)):
                 value = unichr(value)
             self.buf.write(value.encode('utf-8'))
-        
-    def tree_to_binary(self, elem, nsrmap={'': None}, parents=[],
+
+    def is_block(self, style):
+        return style['display'] not in ('inline', 'inline-block')
+            
+    def tree_to_binary(self, elem, nsrmap=NSRMAP, parents=[],
                        inhead=False, preserve=False):
         if not isinstance(elem.tag, basestring):
             self.write(etree.tostring(elem))
@@ -158,7 +163,7 @@ class ReBinary(object):
             flags |= FLAG_CLOSING
         if inhead:
             flags |= FLAG_HEAD
-        if style and style['display'] in ('block', 'table'):
+        if style and self.is_block(style):
             flags |= FLAG_BLOCK
         self.write(0, flags)
         tattrs = self.tattrs[0]
@@ -198,24 +203,41 @@ class ReBinary(object):
             except ValueError:
                 self.write(len(value)+1, value)
         self.write(0)
+        old_preserve = preserve
+        if style:
+            preserve = (style['white-space'] in ('pre', 'pre-wrap'))
+        xml_space = elem.get(XML('space'))
+        if xml_space == 'preserve':
+            preserve = True
+        elif xml_space == 'normal':
+            preserve = False
         if elem.text:
-            text = elem.text
-            if style and style['white-space'] == 'pre':
-                preserve = True
-            if elem.get('xml:space') == 'preserve':
-                preserve = True
-            if not preserve:
-                text = COLLAPSE.sub(' ', text)
-            self.write(text)
+            if preserve:
+                self.write(elem.text)
+            elif len(elem) > 0 or not elem.text.isspace():
+                self.write(COLLAPSE.sub(' ', elem.text))
         parents.append(tag_offset)
-        for child in elem:
-            self.tree_to_binary(child, nsrmap, parents, inhead, preserve)
+        child = cstyle = nstyle = None
+        for next in chain(elem, [None]):
+            if self.stylizer:
+                nstyle = self.stylizer.style(next) \
+                    if (next is not None) else None
+            if child is not None:
+                if not preserve \
+                   and (inhead or not nstyle
+                        or self.is_block(cstyle)
+                        or self.is_block(nstyle)) \
+                   and child.tail and child.tail.isspace():
+                    child.tail = None
+                self.tree_to_binary(child, nsrmap, parents, inhead, preserve)
+            child, cstyle = next, nstyle
         parents.pop()
+        preserve = old_preserve
         if not flags & FLAG_CLOSING:
             self.write(0, (flags & ~FLAG_OPENING) | FLAG_CLOSING, 0)
-        if elem.tail:
+        if elem.tail and tag != 'html':
             tail = elem.tail
-            if tag != 'pre':
+            if not preserve:
                 tail = COLLAPSE.sub(' ', tail)
             self.write(tail)
         if style and style['page-break-after'] not in ('avoid', 'auto'):
