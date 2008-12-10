@@ -112,7 +112,7 @@ class UnBinary(object):
     AMPERSAND_RE = re.compile(
         r'&(?!(?:#[0-9]+|#x[0-9a-fA-F]+|[a-zA-Z_:][a-zA-Z0-9.-_:]+);)')
     OPEN_ANGLE_RE = re.compile(r'<<(?![!]--)')
-    CLOSE_ANGLE_RE = re.compile(r'(?<!--)>>')
+    CLOSE_ANGLE_RE = re.compile(r'(?<!--)>>(?=>>|[^>])')
     DOUBLE_ANGLE_RE = re.compile(r'([<>])\1')
     
     def __init__(self, bin, path, manifest={}, map=HTML_MAP):
