@@ -297,6 +297,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.connect(self.status_bar.tag_view_button, SIGNAL('toggled(bool)'), self.toggle_tags_view)
         self.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
                      self.tags_view.model().reinit)
+        self.connect(self.library_view.model(), SIGNAL('count_changed(int)'), self.location_view.count_changed)
+        self.library_view.model().count_changed()
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:

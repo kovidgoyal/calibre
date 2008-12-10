@@ -163,11 +163,18 @@ class BooksModel(QAbstractTableModel):
         self.reset()
 
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=False):
-        return self.db.add_books(paths, formats, metadata, uris,
+        ret = self.db.add_books(paths, formats, metadata, uris,
                                  add_duplicates=add_duplicates)
+        self.count_changed()
+        return ret
         
     def add_news(self, path, recipe):
-        return self.db.add_news(path, recipe)
+        ret = self.db.add_news(path, recipe)
+        self.count_changed()
+        return ret
+    
+    def count_changed(self, *args):
+        self.emit(SIGNAL('count_changed(int)'), self.db.count())
 
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''
@@ -189,8 +196,10 @@ class BooksModel(QAbstractTableModel):
             self.beginRemoveRows(QModelIndex(), row, row)
             self.db.delete_book(id)
             self.endRemoveRows()
+        self.count_changed()
         self.clear_caches()
         self.reset()
+        
         
     def delete_books_by_id(self, ids):
         for id in ids:
@@ -203,12 +212,14 @@ class BooksModel(QAbstractTableModel):
             self.db.delete_book(id)
             if row > -1:
                 self.endRemoveRows()
+        self.count_changed()
         self.clear_caches()
 
     def books_added(self, num):
         if num > 0:
             self.beginInsertRows(QModelIndex(), 0, num-1)
             self.endInsertRows()
+        self.count_changed()
 
     def search(self, text, refinement, reset=True):
         self.db.search(text)

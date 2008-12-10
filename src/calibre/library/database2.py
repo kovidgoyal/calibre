@@ -255,6 +255,9 @@ class ResultCache(SearchQueryParser):
             if id in self._map: self._map.remove(id)
             if id in self._map_filtered: self._map_filtered.remove(id)
     
+    def count(self):
+        return len(self._map)
+    
     def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta')
         self._data = list(itertools.repeat(None, temp[-1][0]+2)) if temp else []
@@ -375,6 +378,7 @@ class LibraryDatabase2(LibraryDatabase):
         self.refresh_ids = functools.partial(self.data.refresh_ids, self.conn)
         self.row     = self.data.row
         self.has_id  = self.data.has_id
+        self.count   = self.data.count
         
         self.refresh()
         
@@ -1191,9 +1195,6 @@ class LibraryDatabase2(LibraryDatabase):
         for i in iter(self):
             yield i['id']
             
-    def count(self):
-        return len(self.data._map)
-    
     def get_data_as_dict(self, prefix=None, authors_as_string=False):
         '''
         Return all metadata stored in the database as a dict. Includes paths to

@@ -204,7 +204,7 @@ TITLEPAGE = '''\
     </head>
     <body>
         <div>
-            <img src="%s" alt="cover" />
+            <img src="%s" alt="cover" style="height: 100%%" />
         </div>
     </body>
 </html>

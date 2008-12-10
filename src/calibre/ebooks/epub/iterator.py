@@ -168,7 +168,8 @@ class EbookIterator(object):
         if bookmarks is None:
             bookmarks = self.bookmarks
         dat = self.serialize_bookmarks(bookmarks)
-        if os.path.splitext(self.pathtoebook)[1].lower() == '.epub':
+        if os.path.splitext(self.pathtoebook)[1].lower() == '.epub' and \
+            os.access(self.pathtoebook, os.R_OK):
             zf = open(self.pathtoebook, 'r+b')
             zipf = ZipFile(zf, mode='a')
             for name in zipf.namelist():
