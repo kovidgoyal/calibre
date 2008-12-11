@@ -1,4 +1,11 @@
+'''
+Basic support for manipulating OEB 1.x/2.0 content and metadata.
+'''
 from __future__ import with_statement
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+
 import os
 import sys
 from collections import defaultdict

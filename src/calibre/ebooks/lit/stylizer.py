@@ -1,5 +1,12 @@
-#! /usr/bin/python2.5
 # -*- encoding: utf-8 -*-
+
+'''
+CSS property propagation class.
+'''
+from __future__ import with_statement
+
+__license__   = 'GPL v3'
+__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 from __future__ import with_statement
 import sys
@@ -324,12 +331,12 @@ class Style(object):
     
     def _get(self, name):
         result = None
-        styles = self._stylizer._styles
         if name in self._style:
             result = self._style[name]
         if (result == 'inherit'
             or (result is None and name in INHERITED
                 and self._has_parent())):
+            styles = self._stylizer._styles
             result = styles[self._element.getparent()]._get(name)
         if result is None:
             result = DEFAULTS[name]
