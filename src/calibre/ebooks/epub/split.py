@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Split the flows in an epub file to conform to size limitations.
 '''
 
-import os, math, logging, functools, collections, re, copy
+import os, math, logging, functools, collections, re, copy, sys
 
 from lxml.etree import XPath as _XPath
 from lxml import etree, html
@@ -34,29 +34,61 @@ class SplitError(ValueError):
 
 class Splitter(LoggingInterface):
     
-    def __init__(self, path, opts, stylesheet_map, always_remove=False):
+    def __init__(self, path, opts, stylesheet_map, opf):
         LoggingInterface.__init__(self, logging.getLogger('htmlsplit'))
         self.setup_cli_handler(opts.verbose)
         self.path = path
-        self.always_remove = always_remove
+        self.always_remove = not opts.preserve_tag_structure or \
+                    os.stat(content(path)).st_size > 5*opts.profile.flow_size
         self.base = (os.path.splitext(path)[0].replace('%', '%%') + '_split_%d.html')
         self.opts = opts
         self.orig_size = os.stat(content(path)).st_size
         self.log_info('\tSplitting %s (%d KB)', path, self.orig_size/1024.)
         root = html.fromstring(open(content(path)).read())
             
-        self.page_breaks = []
-        self.find_page_breaks(stylesheet_map[self.path], root)
-            
-        self.trees = []
+        self.page_breaks, self.trees = [], []
         self.split_size = 0
-        self.split(root.getroottree())
-        self.commit()
-        self.log_info('\t\tSplit into %d parts.', len(self.trees))
-        if self.opts.verbose:
-            for f in self.files:
-                self.log_info('\t\t\t%s - %d KB', f, os.stat(content(f)).st_size/1024.)
+        
+        # Split on page breaks
+        self.log_info('\tSplitting on page breaks...')
+        if self.path in stylesheet_map:
+            self.find_page_breaks(stylesheet_map[self.path], root)
+        self.split_on_page_breaks(root.getroottree())
+        trees = list(self.trees)
+        
+        # Split any remaining over-sized trees
+        if self.opts.profile.flow_size < sys.maxint:
+            lt_found = False
+            self.log_info('\tLooking for large trees...')
+            for i, tree in enumerate(list(trees)):
+                self.trees = []
+                size = len(tostring(tree.getroot())) 
+                if size > self.opts.profile.flow_size:
+                    lt_found = True
+                    try:
+                        self.split_to_size(tree)
+                    except (SplitError, RuntimeError): # Splitting fails
+                        if not self.always_remove:
+                            self.always_remove = True
+                            self.split_to_size(tree)
+                        else:
+                            raise
+                    trees[i:i+1] = list(self.trees)
+            if not lt_found:
+                self.log_info('\tNo large trees found')
+        
+        self.trees = trees
+        self.was_split = len(self.trees) > 1
+        if self.was_split:
+            self.commit()
+            self.log_info('\t\tSplit into %d parts.', len(self.trees))
+            if self.opts.verbose:
+                for f in self.files:
+                    self.log_info('\t\t\t%s - %d KB', f, os.stat(content(f)).st_size/1024.)
+            self.fix_opf(opf)
+            
         self.trees = None
+        
     
     def split_text(self, text, root, size):
         self.log_debug('\t\t\tSplitting text of length: %d'%len(text))
@@ -76,12 +108,7 @@ class Splitter(LoggingInterface):
         return ans
             
     
-    def split(self, tree):
-        '''
-        Split ``tree`` into a *before* and *after* tree, preserving tag structure,
-        but not duplicating any text. All tags that have had their text and tail
-        removed have the attribute ``calibre_split`` set to 1.
-        '''
+    def split_to_size(self, tree):
         self.log_debug('\t\tSplitting...')
         root = tree.getroot()
         # Split large <pre> tags
@@ -108,10 +135,48 @@ class Splitter(LoggingInterface):
             if not self.always_remove:
                 self.log_warn(_('\t\tToo much markup. Re-splitting without structure preservation. This may cause incorrect rendering.'))
             raise SplitError(self.path, root)
-        tree2 = copy.deepcopy(tree)
-        root2 = tree2.getroot()
-        body, body2 = root.body, root2.body
-        path = tree.getpath(split_point)
+        
+        for t in self.do_split(tree, split_point, before):
+            r = t.getroot()
+            size = len(tostring(r)) 
+            if size <= self.opts.profile.flow_size:
+                self.trees.append(t)
+                #print tostring(t.getroot(), pretty_print=True)
+                self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', len(self.trees), size/1024.)
+                self.split_size += size
+            else:
+                self.split_to_size(t)
+    
+    def is_page_empty(self, root):
+        body = root.find('body')
+        if body is None:
+            return False
+        txt = re.sub(r'\s+', '', html.tostring(body, method='text', encoding=unicode))
+        if len(txt) > 4:
+            #if len(txt) < 100:
+            #    print 1111111, html.tostring(body, method='html', encoding=unicode)
+            return False
+        for img in root.xpath('//img'):
+            if img.get('style', '') != 'display:none':
+                return False
+        return True
+                
+    def do_split(self, tree, split_point, before):
+        '''
+        Split ``tree`` into a *before* and *after* tree at ``split_point``, 
+        preserving tag structure, but not duplicating any text. 
+        All tags that have had their text and tail
+        removed have the attribute ``calibre_split`` set to 1.
+        
+        :param before: If True tree is split before split_point, otherwise after split_point
+        :return: before_tree, after_tree
+        '''
+        path         = tree.getpath(split_point)
+        tree, tree2  = copy.deepcopy(tree), copy.deepcopy(tree)
+        root         = tree.getroot()
+        root2        = tree2.getroot()
+        body, body2  = root.body, root2.body
+        split_point  = root.xpath(path)[0]
         split_point2 = root2.xpath(path)[0]
         
         def nix_element(elem, top=True):
@@ -129,7 +194,7 @@ class Splitter(LoggingInterface):
                 elem.tail = u''
                 elem.set(SPLIT_ATTR, '1')
                 if elem.tag.lower() in ['ul', 'ol', 'dl', 'table', 'hr', 'img']:
-                    elem.set('style', 'display:none;')
+                    elem.set('style', 'display:none')
         
         def fix_split_point(sp):
             sp.set('style', sp.get('style', '')+'page-break-before:avoid;page-break-after:avoid') 
@@ -163,20 +228,35 @@ class Splitter(LoggingInterface):
             if not hit_split_point:
                 nix_element(elem, top=False)
         
-        for t, r in [(tree, root), (tree2, root2)]:
-            size = len(tostring(r)) 
-            if size <= self.opts.profile.flow_size:
-                self.trees.append(t)
-                #print tostring(t.getroot(), pretty_print=True)
-                self.log_debug('\t\t\tCommitted sub-tree #%d (%d KB)', len(self.trees), size/1024.)
-                self.split_size += size
-            else:
-                self.split(t)
+        return tree, tree2
                 
+    
+    def split_on_page_breaks(self, orig_tree):
+        ordered_ids = []
+        for elem in orig_tree.xpath('//*[@id]'):
+            id = elem.get('id')
+            if id in self.page_break_ids:
+                ordered_ids.append(self.page_breaks[self.page_break_ids.index(id)])
+                
+        self.trees = []
+        tree = orig_tree
+        for pattern, before in ordered_ids:
+            self.log_info('\t\tSplitting on page-break')
+            elem = pattern(tree)
+            if elem:
+                before, after = self.do_split(tree, elem[0], before)
+                self.trees.append(before)
+                tree = after
+        self.trees.append(tree)
+        self.trees = [t for t in self.trees if not self.is_page_empty(t.getroot())]
+                
+            
                 
     def find_page_breaks(self, stylesheets, root):
         '''
         Find all elements that have either page-break-before or page-break-after set.
+        Populates `self.page_breaks` with id based XPath selectors (for elements that don't 
+        have ids, an id is created).
         '''
         page_break_selectors = set([])
         for rule in rules(stylesheets):
@@ -204,16 +284,18 @@ class Splitter(LoggingInterface):
             
         page_breaks = list(page_breaks)
         page_breaks.sort(cmp=lambda x,y : cmp(x.pb_order, y.pb_order))
+        self.page_break_ids = []
         for i, x in enumerate(page_breaks):
             x.set('id', x.get('id', 'calibre_pb_%d'%i))
-            self.page_breaks.append((XPath('//*[@id="%s"]'%x.get('id')), x.pb_before))
+            id = x.get('id')
+            self.page_breaks.append((XPath('//*[@id="%s"]'%id), x.pb_before))
+            self.page_break_ids.append(id)                        
         
         
     def find_split_point(self, root):
         '''
         Find the tag at which to split the tree rooted at `root`. 
         Search order is:
-            * page breaks
             * Heading tags
             * <div> tags
             * <p> tags
@@ -229,19 +311,6 @@ class Splitter(LoggingInterface):
                     elems[i].set(SPLIT_POINT_ATTR, '1')
                     return elems[i]
     
-        page_breaks = []
-        for x in self.page_breaks:
-            pb = x[0](root)
-            if pb:
-                page_breaks.append(pb[0])
-        
-        elem = pick_elem(page_breaks)
-        if elem is not None:
-            i = page_breaks.index(elem)
-            return elem, self.page_breaks[i][1]
-        
-            
-                            
         for path in (
                      '//*[re:match(name(), "h[1-6]", "i")]', 
                      '/html/body/div',
@@ -354,7 +423,8 @@ def fix_ncx(path, changes):
     anchor_maps = [f.anchor_map for f in changes]
     tree = etree.parse(path)
     changed = False
-    for content in tree.getroot().xpath('//x:content[@src]', namespaces={'x':"http://www.daisy.org/z3986/2005/ncx/"}):
+    for content in tree.getroot().xpath('//x:content[@src]', 
+                    namespaces={'x':"http://www.daisy.org/z3986/2005/ncx/"}):
         href = content.get('src')
         if not href.startswith('#'):
             href = href.split('#')
@@ -367,39 +437,37 @@ def fix_ncx(path, changes):
                 changed = True
     if changed:
         open(path, 'wb').write(etree.tostring(tree.getroot(), encoding='UTF-8', xml_declaration=True))
-       
+
+def find_html_files(opf):
+    '''
+    Find all HTML files referenced by `opf`.
+    '''
+    html_files = []
+    for item in opf.itermanifest():
+        if 'html' in item.get('media-type', '').lower():
+            f = item.get('href').split('/')[-1]
+            f2 = f.replace('&', '%26')
+            if not os.path.exists(content(f)) and os.path.exists(content(f2)):
+                f = f2
+                item.set('href', item.get('href').replace('&', '%26'))
+            if os.path.exists(content(f)):
+                html_files.append(f)
+    return html_files
+        
+
 def split(pathtoopf, opts, stylesheet_map):
     pathtoopf = os.path.abspath(pathtoopf)
+    opf = OPF(open(pathtoopf, 'rb'), os.path.dirname(pathtoopf))
+    
     with CurrentDir(os.path.dirname(pathtoopf)):
-        opf = OPF(open(pathtoopf, 'rb'), os.path.dirname(pathtoopf))
-        html_files = []
-        for item in opf.itermanifest():
-            if 'html' in item.get('media-type', '').lower():
-                f = item.get('href').split('/')[-1]
-                f2 = f.replace('&', '%26')
-                if not os.path.exists(content(f)) and os.path.exists(content(f2)):
-                    f = f2
-                    item.set('href', item.get('href').replace('&', '%26'))
-                html_files.append(f)
-        changes = []
-        always_remove = not opts.preserve_tag_structure
-        for f in html_files:
-            if os.stat(content(f)).st_size > opts.profile.flow_size:
-                try:
-                    changes.append(Splitter(f, opts, stylesheet_map,
-                        always_remove=(always_remove or \
-                        os.stat(content(f)).st_size > 5*opts.profile.flow_size)))
-                except (SplitError, RuntimeError):
-                    if not always_remove:
-                        changes.append(Splitter(f, opts, stylesheet_map, always_remove=True))
-                    else:
-                        raise
-                changes[-1].fix_opf(opf)
+        html_files = find_html_files(opf)
+        changes = [Splitter(f, opts, stylesheet_map, opf) for f in html_files]
+        changes = [c for c in changes if c.was_split]
         
-        open(pathtoopf, 'wb').write(opf.render())
         fix_content_links(html_files, changes, opts)
-        
         for item in opf.itermanifest():
             if item.get('media-type', '') == 'application/x-dtbncx+xml':
                 fix_ncx(item.get('href'), changes)
                 break 
+
+        open(pathtoopf, 'wb').write(opf.render())
