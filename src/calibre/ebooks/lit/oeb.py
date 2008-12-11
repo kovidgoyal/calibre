@@ -417,7 +417,7 @@ class Guide(object):
         return elem
 
 
-class Toc(object):
+class TOC(object):
     def __init__(self, title=None, href=None, klass=None, id=None):
         self.title = title
         self.href = urlnormalize(href) if href else href
@@ -426,7 +426,7 @@ class Toc(object):
         self.nodes = []
     
     def add(self, title, href, klass=None, id=None):
-        node = Toc(title, href, klass, id)
+        node = TOC(title, href, klass, id)
         self.nodes.append(node)
         return node
     
@@ -468,7 +468,7 @@ class Toc(object):
         return parent
 
 
-class Oeb(object):
+class OEBBook(object):
     def __init__(self, opfpath, container=None):
         if not container:
             container = DirContainer(os.path.dirname(opfpath))
@@ -571,7 +571,7 @@ class Oeb(object):
         ncx = self.manifest[id].data
         self.manifest.remove(id)
         title = xpath(ncx, 'ncx:docTitle/ncx:text/text()')[0]
-        self.toc = toc = Toc(title)
+        self.toc = toc = TOC(title)
         navmaps = xpath(ncx, 'ncx:navMap')
         for navmap in navmaps:
             self._toc_from_navpoint(toc, navmap)
@@ -582,7 +582,7 @@ class Oeb(object):
         if not result:
             return False
         tour = result[0]
-        self.toc = toc = Toc(tour.get('title'))
+        self.toc = toc = TOC(tour.get('title'))
         sites = xpath(tour, 'o2:site')
         for site in sites:
             toc.add(site.get('title'), site.get('href'))
@@ -591,7 +591,7 @@ class Oeb(object):
     def _toc_from_html(self, opf):
         if 'toc' not in self.guide:
             return False
-        self.toc = toc = Toc()
+        self.toc = toc = TOC()
         itempath, frag = urldefrag(self.guide['toc'].href)
         item = self.manifest.hrefs[itempath]
         html = item.data
@@ -620,7 +620,7 @@ class Oeb(object):
         return True
     
     def _toc_from_spine(self, opf):
-        self.toc = toc = Toc()
+        self.toc = toc = TOC()
         titles = []
         headers = []
         for item in self.spine:
@@ -720,7 +720,7 @@ class Oeb(object):
 
 def main(argv=sys.argv):
     for arg in argv[1:]:
-        oeb = Oeb(arg)
+        oeb = OEBBook(arg)
         for name, doc in oeb.to_opf1().values():
             print etree.tostring(doc, pretty_print=True)
         for name, doc in oeb.to_opf2().values():

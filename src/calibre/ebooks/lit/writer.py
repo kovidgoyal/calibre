@@ -15,10 +15,10 @@ from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import msguid, DirectoryEntry
 import calibre.ebooks.lit.maps as maps
-from calibre.ebooks.lit.oeb import OEB_CSS_MIME, CSS_MIME, XHTML_MIME, \
-    OPF_MIME, OEB_STYLES, OEB_DOCS, XML_NS, XML
+from calibre.ebooks.lit.oeb import OEB_STYLES, OEB_CSS_MIME, CSS_MIME, \
+    XHTML_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize
-from calibre.ebooks.lit.oeb import Oeb
+from calibre.ebooks.lit.oeb import OEBBook
 from calibre.ebooks.lit.stylizer import Stylizer
 from calibre.ebooks.lit.lzxcomp import Compressor
 import calibre
@@ -676,7 +676,7 @@ def main(argv=sys.argv):
     if litpath is None:
         litpath = os.path.basename(opfpath)
         litpath = os.path.splitext(litpath)[0] + '.lit'
-    lit = LitWriter(Oeb(opfpath))
+    lit = LitWriter(OEBBook(opfpath))
     with open(litpath, 'wb') as f:
         lit.dump(f)
     print _('LIT ebook created at'), litpath
