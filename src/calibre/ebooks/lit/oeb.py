@@ -499,7 +499,7 @@ class Oeb(object):
         for element in opf.xpath('metadata/x-metadata/meta'):
             metadata.append(element)
         for item in opf.xpath('manifest/item'):
-            media_type = item.attrib['media-type']
+            media_type = item.attrib['media-type'].lower()
             if media_type in OEB_DOCS:
                 media_type = XHTML_MIME
             elif media_type in OEB_STYLES:

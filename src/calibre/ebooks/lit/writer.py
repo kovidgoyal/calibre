@@ -15,8 +15,8 @@ from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import msguid, DirectoryEntry
 import calibre.ebooks.lit.maps as maps
-from calibre.ebooks.lit.oeb import OEB_STYLES, OEB_CSS_MIME, CSS_MIME, \
-    OPF_MIME, XML_NS, XML
+from calibre.ebooks.lit.oeb import OEB_CSS_MIME, CSS_MIME, XHTML_MIME, \
+    OPF_MIME, OEB_STYLES, OEB_DOCS, XML_NS, XML
 from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize
 from calibre.ebooks.lit.oeb import Oeb
 from calibre.ebooks.lit.stylizer import Stylizer
@@ -27,6 +27,9 @@ msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
 
 __all__ = ['LitWriter']
+
+LIT_IMAGES = set(['image/png', 'image/jpeg', 'image/gif'])
+LIT_MIMES = OEB_DOCS | OEB_STYLES | LIT_IMAGES
 
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
@@ -195,7 +198,7 @@ class ReBinary(object):
                 self.anchors.append((value, tag_offset))
             elif attr.startswith('ms--'):
                 attr = '%' + attr[4:]
-            elif attr == 'type' and value in OEB_STYLES:
+            elif tag == 'link' and attr == 'type' and value in OEB_STYLES:
                 value = OEB_CSS_MIME
             if attr in tattrs:
                 self.write(tattrs[attr])
@@ -411,6 +414,8 @@ class LitWriter(object):
     def _build_data(self):
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
+            if item.media_type not in LIT_MIMES:
+                continue
             name = '/data/' + item.id
             data = item.data
             secnum = 0
@@ -435,7 +440,7 @@ class LitWriter(object):
                 manifest[key].append(item)
             elif item.media_type == CSS_MIME:
                 manifest['css'].append(item)
-            else:
+            elif item.media_type in LIT_IMAGES:
                 manifest['images'].append(item)
         data = StringIO()
         data.write(pack('<Bc', 1, '\\'))
