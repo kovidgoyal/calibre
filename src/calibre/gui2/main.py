@@ -346,12 +346,12 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.setCurrentIndex(self.library_view.currentIndex())
             self.cover_flow.setVisible(True)
             self.cover_flow.setFocus(Qt.OtherFocusReason)
-            self.status_bar.book_info.book_data.setMaximumHeight(100)
-            self.status_bar.setMaximumHeight(120)
+            #self.status_bar.book_info.book_data.setMaximumHeight(100)
+            #self.status_bar.setMaximumHeight(120)
             self.library_view.scrollTo(self.library_view.currentIndex())
         else:
             self.cover_flow.setVisible(False)
-            self.status_bar.book_info.book_data.setMaximumHeight(1000)
+            #self.status_bar.book_info.book_data.setMaximumHeight(1000)
         self.setMaximumHeight(available_height())
 
     def toggle_tags_view(self, show):
