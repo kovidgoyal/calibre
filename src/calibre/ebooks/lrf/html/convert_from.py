@@ -1920,7 +1920,7 @@ def process_file(path, options, logger=None):
         options.anchor_ids = True
     files = options.spine if (options.use_spine and hasattr(options, 'spine')) else [path]
     conv = HTMLConverter(book, fonts, options, logger, files)
-    if options.use_spine and hasattr(options, 'toc'):
+    if options.use_spine and hasattr(options, 'toc') and options.toc is not None:
         conv.create_toc(options.toc)
     oname = options.output
     if not oname:
