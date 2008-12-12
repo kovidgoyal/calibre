@@ -20,11 +20,12 @@ import functools
 from urlparse import urldefrag
 from urllib import unquote as urlunquote
 from lxml import etree
+from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.reader import msguid, DirectoryEntry
 import calibre.ebooks.lit.maps as maps
 from calibre.ebooks.lit.oeb import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
     CSS_MIME, XHTML_MIME, OPF_MIME, XML_NS, XML
-from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize
+from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize, xpath
 from calibre.ebooks.lit.oeb import OEBBook
 from calibre.ebooks.lit.stylizer import Stylizer
 from calibre.ebooks.lit.lzx import Compressor
@@ -37,6 +38,14 @@ __all__ = ['LitWriter']
 
 LIT_IMAGES = set(['image/png', 'image/jpeg', 'image/gif'])
 LIT_MIMES = OEB_DOCS | OEB_STYLES | LIT_IMAGES
+
+MS_COVER_TYPE = 'other.ms-coverimage-standard'
+ALL_MS_COVER_TYPES = [
+    (MS_COVER_TYPE, 'Standard cover image'),
+    ('other.ms-thumbimage-standard', 'Standard thumbnail image'),
+    ('other.ms-coverimage', 'PocketPC cover image'),
+    ('other.ms-thumbimage', 'PocketPC thumbnail image'),
+    ]
 
 def invert_tag_map(tag_map):
     tags, dattrs, tattrs = tag_map
@@ -130,6 +139,7 @@ class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
     
     def __init__(self, root, path, oeb, map=HTML_MAP):
+        self.path = path
         self.dir = os.path.dirname(path)
         self.manifest = oeb.manifest
         self.tags, self.tattrs = map
@@ -140,8 +150,8 @@ class ReBinary(object):
         self.stylizer = Stylizer(root, path, oeb) if is_html else None
         self.tree_to_binary(root)
         self.content = self.buf.getvalue()
-        self.ahc = self.build_ahc()
-        self.aht = self.build_aht()
+        self.ahc = self.build_ahc() if is_html else None
+        self.aht = self.build_aht() if is_html else None
 
     def write(self, *values):
         for value in values:
@@ -257,6 +267,9 @@ class ReBinary(object):
             self.page_breaks.append((self.buf.tell(), list(parents)))
 
     def build_ahc(self):
+        if len(self.anchors) > 6:
+            print "calibre: warning: More than six anchors in file %r. " \
+                "Some links may not work properly." % self.path
         data = StringIO()
         data.write(unichr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
@@ -282,6 +295,31 @@ def preserve(function):
 class LitWriter(object):
     def __init__(self, oeb):
         self._oeb = oeb
+        self._litize_oeb()
+
+    def _litize_oeb(self):
+        oeb = self._oeb
+        oeb.metadata.add('calibre-oeb2lit-version', calibre.__version__)
+        cover = None
+        if oeb.metadata.cover:
+            id = str(oeb.metadata.cover[0])
+            cover = oeb.manifest[id]
+        elif MS_COVER_TYPE in oeb.guide:
+            href = oeb.guide[MS_COVER_TYPE].href
+            cover = oeb.manifest.hrefs[href]
+        else:
+            html = oeb.spine[0].data
+            imgs = xpath(html, '//img[position()=1]')
+            href = imgs[0].get('src') if imgs else None
+            cover = oeb.manifest.hrefs[href] if href else None
+        if cover:
+            if not oeb.metadata.cover:
+                oeb.metadata.add('cover', cover.id)
+            for type, title in ALL_MS_COVER_TYPES:
+                if type not in oeb.guide:
+                    oeb.guide.add(type, title, cover.href)
+        else:
+            print "calibre: warning: No suitable cover image found."
 
     def dump(self, stream):
         self._stream = stream
@@ -423,7 +461,8 @@ class LitWriter(object):
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
-                print "WARNING: excluding item %r" % item.href
+                print "calibre: warning: File %r of unknown media-type %r " \
+                    "excluded from output." % (item.href, item.media_type)
                 continue
             name = '/data/' + item.id
             data = item.data
@@ -506,10 +545,6 @@ class LitWriter(object):
         
     def _build_meta(self):
         _, meta = self._oeb.to_opf1()[OPF_MIME]
-        xmetadata, = meta.xpath('/package/metadata/x-metadata')
-        etree.SubElement(xmetadata, 'meta', attrib={
-            'name': 'calibre-oeb2lit-version',
-            'content': calibre.__version__})
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
         meta.attrib['ms--guid'] = '{%s}' % str(uuid.uuid4()).upper()
@@ -519,7 +554,7 @@ class LitWriter(object):
         self._add_file('/meta', meta)
         
     def _build_drm_storage(self):
-        drmsource = u'Fuck Microsoft\0'.encode('utf-16-le')
+        drmsource = u'Free as in freedom\0'.encode('utf-16-le')
         self._add_file('/DRMStorage/DRMSource', drmsource)
         tempkey = self._calculate_deskey([self._meta, drmsource])
         msdes.deskey(tempkey, msdes.EN0)

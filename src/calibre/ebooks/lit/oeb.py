@@ -113,15 +113,14 @@ class Metadata(object):
     
     class Item(object):
         def __init__(self, term, value, fq_attrib={}):
+            self.fq_attrib = dict(fq_attrib)
             if term == OPF('meta') and not value:
-                fq_attrib = dict(fq_attrib)
-                term = fq_attrib.pop('name')
-                value = fq_attrib.pop('content')
+                term = self.fq_attrib.pop('name')
+                value = self.fq_attrib.pop('content')
             elif term in Metadata.TERMS and not namespace(term):
                 term = DC(term)
             self.term = term
             self.value = value
-            self.fq_attrib = dict(fq_attrib)
             self.attrib = attrib = {}
             for fq_attr in fq_attrib:
                 attr = barename(fq_attr)
@@ -171,7 +170,7 @@ class Metadata(object):
         self.oeb = oeb
         self.items = defaultdict(list)
 
-    def add(self, term, value, attrib):
+    def add(self, term, value, attrib={}):
         item = self.Item(term, value, attrib)
         items = self.items[barename(term)]
         items.append(item)
