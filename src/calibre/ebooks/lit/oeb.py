@@ -462,9 +462,9 @@ class TOC(object):
             point = etree.SubElement(parent,
                 NCX('navPoint'), attrib={'playOrder': str(playorder[0])})
             if self.klass:
-                point.attrib['class'] = self.klass
+                point.attrib['class'] = node.klass
             if self.id:
-                point.attrib['id'] = self.id
+                point.attrib['id'] = node.id
             label = etree.SubElement(point, NCX('navLabel'))
             etree.SubElement(label, NCX('text')).text = node.title
             href = node.href if depth > 1 else urldefrag(node.href)[0]
