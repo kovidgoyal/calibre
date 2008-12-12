@@ -429,6 +429,6 @@ def main():
     print 'Extracting files to %s ...'%destdir
     extract_tarball(f, destdir)
     pi = os.path.join(destdir, 'calibre_postinstall')
-    subprocess.call('pi', shell=True)
+    subprocess.call(pi, shell=True)
     return 0
 '''
