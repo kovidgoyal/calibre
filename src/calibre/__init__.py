@@ -20,6 +20,11 @@ mimetypes.add_type('application/epub+zip', '.epub')
 mimetypes.add_type('text/x-sony-bbeb+xml', '.lrs')
 mimetypes.add_type('application/x-sony-bbeb', '.lrf')
 
+def to_unicode(raw, encoding='utf-8', errors='strict'):
+    if isinstance(raw, unicode):
+        return raw
+    return raw.decode(encoding, errors)
+
 def unicode_path(path, abs=False):
     if not isinstance(path, unicode):
         path = path.decode(sys.getfilesystemencoding())
@@ -317,7 +322,12 @@ class LoggingInterface:
     def ___log(self, func, msg, args, kwargs):
         args = [msg] + list(args)
         for i in range(len(args)):
-            if isinstance(args[i], unicode):
+            if not isinstance(args[i], basestring):
+                continue
+            if sys.version_info[:2] > (2, 5):
+                if not isinstance(args[i], unicode):
+                    args[i] = args[i].decode(preferred_encoding, 'replace')
+            elif isinstance(args[i], unicode):
                 args[i] = args[i].encode(preferred_encoding, 'replace')
         func(*args, **kwargs)
 
