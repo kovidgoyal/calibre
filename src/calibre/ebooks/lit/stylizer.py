@@ -122,12 +122,14 @@ class Stylizer(object):
         basename = os.path.basename(path)
         cssname = os.path.splitext(basename)[0] + '.css'
         stylesheets = [HTML_CSS_STYLESHEET]
-        head = xpath(tree, '/h:html/h:head')[0] 
+        head = xpath(tree, '/h:html/h:head')[0]
+        parser = cssutils.CSSParser()
+        parser.setFetcher(lambda path: ('utf-8', oeb.container.read(path)))
         for elem in head:
             tag = barename(elem.tag)
             if tag == 'style':
                 text = ''.join(elem.text)
-                stylesheet = cssutils.parseString(text, href=cssname)
+                stylesheet = parser.parseString(text, href=cssname)
                 stylesheets.append(stylesheet)
             elif tag == 'link' \
                  and elem.get('rel', 'stylesheet') == 'stylesheet' \
@@ -140,7 +142,7 @@ class Stylizer(object):
                 else:
                     data = XHTML_CSS_NAMESPACE
                     data += oeb.manifest.hrefs[path].data
-                    stylesheet = cssutils.parseString(data, href=path)
+                    stylesheet = parser.parseString(data, href=path)
                     self.STYLESHEETS[path] = stylesheet
                 stylesheets.append(stylesheet)
         rules = []

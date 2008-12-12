@@ -172,7 +172,7 @@ class Metadata(object):
 
     def add(self, term, value, attrib={}):
         item = self.Item(term, value, attrib)
-        items = self.items[barename(term)]
+        items = self.items[barename(item.term)]
         items.append(item)
         return item
 
