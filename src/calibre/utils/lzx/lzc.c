@@ -16,6 +16,11 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+/* Force using (actually working) non-sliding version. */
+#define NONSLIDE 1
+#define LZ_ONEBUFFER 1
+#define LAZY 1
+
 /* 
  * Document here
  */
@@ -28,7 +33,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #endif
-#include <lzc.h>
+#include "lzc.h"
 
 #define MAX_MATCH 253
 #define MIN_MATCH 2

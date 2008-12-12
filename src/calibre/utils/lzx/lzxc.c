@@ -15,6 +15,12 @@
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
+
+/* Force using (actually working) non-sliding version. */
+#define NONSLIDE 1
+#define LZ_ONEBUFFER 1
+#define LAZY 1
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -22,11 +28,17 @@
 #include <assert.h>
 #include <math.h>
 
-#include <lzc.h>
-#include <lzxc.h>
+#if BYTE_ORDER == BIG_ENDIAN
+#define LZX_BIG_ENDIAN
+#endif
 
-/* Force using (actually working) non-sliding version. */
-#define NONSLIDE
+#ifdef NONSLIDE
+#include "lzc.h"
+#else
+#include "hash_slide.h"
+#include "lz_slide.h"
+#endif
+#include "lzxc.h"
 
 /* these named constants are from the Microsoft LZX documentation */
 #define MIN_MATCH                            2
@@ -34,6 +46,16 @@
 #define NUM_CHARS                          256
 #define NUM_PRIMARY_LENGTHS                  7
 #define NUM_SECONDARY_LENGTHS              249
+
+/* the names of these constants are specific to this library */
+#define LZX_MAX_CODE_LENGTH                 16
+#define LZX_FRAME_SIZE                   32768
+#define LZX_PRETREE_SIZE                    20
+#define LZX_ALIGNED_BITS                     3
+#define LZX_ALIGNED_SIZE                     8
+
+#define LZX_VERBATIM_BLOCK                   1
+#define LZX_ALIGNED_OFFSET_BLOCK             2
 
 /* Debugging defines useful during development.  All add diagnostic output
    at various points in the system */
@@ -393,15 +415,15 @@ static void lzx_init_static(void)
   }
 }
 
-struct lzx_data
+struct lzxc_data
 {
   void *in_arg;
   void *out_arg;
   void *mark_frame_arg;
-  lzx_get_bytes_t get_bytes;
-  lzx_at_eof_t at_eof;
-  lzx_put_bytes_t put_bytes;
-  lzx_mark_frame_t mark_frame;
+  lzxc_get_bytes_t get_bytes;
+  lzxc_at_eof_t at_eof;
+  lzxc_put_bytes_t put_bytes;
+  lzxc_mark_frame_t mark_frame;
   struct lz_info *lzi;
   /* a 'frame' is an 0x8000 byte thing.  Called that because otherwise
      I'd confuse myself overloading 'block' */
@@ -439,7 +461,7 @@ lzx_get_chars(lz_info *lzi, int n, u_char *buf)
   int chars_read;
   int chars_pad;
 
-  lzx_data *lzud = (lzx_data *)lzi->user_data;
+  lzxc_data *lzud = (lzxc_data *)lzi->user_data;
 #ifdef OLDFRAMING
   if (lzud->subdivide < 0) return 0;
   if (n > lzud->left_in_frame)
@@ -534,7 +556,7 @@ static int find_match_at(lz_info *lzi, int loc, int match_len, int *match_locp)
   return -1;
 }
 #endif
-static void check_entropy(lzx_data *lzud, int main_index) 
+static void check_entropy(lzxc_data *lzud, int main_index) 
 {
   /* entropy = - sum_alphabet P(x) * log2 P(x) */
   /* entropy = - sum_alphabet f(x)/N * log2 (f(x)/N) */
@@ -599,7 +621,7 @@ static void check_entropy(lzx_data *lzud, int main_index)
 static int
 lzx_output_match(lz_info *lzi, int match_pos, int match_len)
 {
-  lzx_data *lzud = (lzx_data *)lzi->user_data;
+  lzxc_data *lzud = (lzxc_data *)lzi->user_data;
   uint32_t formatted_offset;
   uint32_t position_footer;
   uint8_t length_footer;
@@ -774,7 +796,7 @@ lzx_output_match(lz_info *lzi, int match_pos, int match_len)
 static void 
 lzx_output_literal(lz_info *lzi, u_char ch)
 {
-  lzx_data *lzud = (lzx_data *)lzi->user_data;
+  lzxc_data *lzud = (lzxc_data *)lzi->user_data;
 
 #ifndef OLDFRAMING
   lzud->left_in_block--;
@@ -788,7 +810,7 @@ lzx_output_literal(lz_info *lzi, u_char ch)
     check_entropy(lzud, ch);
 }
 
-static void lzx_write_bits(lzx_data *lzxd, int nbits, uint32_t bits)
+static void lzx_write_bits(lzxc_data *lzxd, int nbits, uint32_t bits)
 {
   int cur_bits;
   int shift_bits;
@@ -836,7 +858,7 @@ static void lzx_write_bits(lzx_data *lzxd, int nbits, uint32_t bits)
   lzxd->bits_in_buf = cur_bits;
 }
 
-static void lzx_align_output(lzx_data *lzxd)
+static void lzx_align_output(lzxc_data *lzxd)
 {
   if (lzxd->bits_in_buf) {
     lzx_write_bits(lzxd, 16 - lzxd->bits_in_buf, 0);
@@ -846,7 +868,7 @@ static void lzx_align_output(lzx_data *lzxd)
 }
 
 static void
-lzx_write_compressed_literals(lzx_data *lzxd, int block_type)
+lzx_write_compressed_literals(lzxc_data *lzxd, int block_type)
 {
   uint32_t *cursor = lzxd->block_codes;
   uint32_t *endp = lzxd->block_codesp;
@@ -931,7 +953,7 @@ lzx_write_compressed_literals(lzx_data *lzxd, int block_type)
 }
 
 static int 
-lzx_write_compressed_tree(struct lzx_data *lzxd,
+lzx_write_compressed_tree(struct lzxc_data *lzxd,
 			  struct huff_entry *tree, uint8_t *prevlengths,
 			  int treesize)
 {
@@ -1054,7 +1076,7 @@ lzx_write_compressed_tree(struct lzx_data *lzxd,
 }
 
 void 
-lzx_reset(lzx_data *lzxd)
+lzxc_reset(lzxc_data *lzxd)
 {
   lzxd->need_1bit_header = 1;
   lzxd->R0 = lzxd->R1 = lzxd->R2 = 1;
@@ -1063,7 +1085,7 @@ lzx_reset(lzx_data *lzxd)
   lz_reset(lzxd->lzi);
 }
 
-int lzx_compress_block(lzx_data *lzxd, int block_size, int subdivide)
+int lzxc_compress_block(lzxc_data *lzxd, int block_size, int subdivide)
 {
   int i;
   uint32_t written_sofar = 0;
@@ -1190,14 +1212,14 @@ int lzx_compress_block(lzx_data *lzxd, int block_size, int subdivide)
   return 0;
 }
 
-int lzx_init(struct lzx_data **lzxdp, int wsize_code, 
-	     lzx_get_bytes_t get_bytes, void *get_bytes_arg,
-	     lzx_at_eof_t at_eof,
-	     lzx_put_bytes_t put_bytes, void *put_bytes_arg,
-	     lzx_mark_frame_t mark_frame, void *mark_frame_arg)
+int lzxc_init(struct lzxc_data **lzxdp, int wsize_code, 
+	     lzxc_get_bytes_t get_bytes, void *get_bytes_arg,
+	     lzxc_at_eof_t at_eof,
+	     lzxc_put_bytes_t put_bytes, void *put_bytes_arg,
+	     lzxc_mark_frame_t mark_frame, void *mark_frame_arg)
 {
   int wsize;
-  struct lzx_data *lzxd;
+  struct lzxc_data *lzxd;
 
   if ((wsize_code < 15) || (wsize_code > 21)) {
     return -1;
@@ -1234,11 +1256,11 @@ int lzx_init(struct lzx_data **lzxdp, int wsize_code,
 	  lzx_get_chars, lzx_output_match, lzx_output_literal,lzxd);
   lzxd->len_uncompressed_input = 0;
   lzxd->len_compressed_output = 0;
-  lzx_reset(lzxd);
+  lzxc_reset(lzxd);
   return 0;
 }
 
-int lzx_finish(struct lzx_data *lzxd, struct lzx_results *lzxr)
+int lzxc_finish(struct lzxc_data *lzxd, struct lzxc_results *lzxr)
 {
   /*  lzx_align_output(lzxd);  Not needed as long as frame padding is in place */
   if (lzxr) {

@@ -6,7 +6,6 @@ from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-from __future__ import with_statement
 import sys
 import os
 from cStringIO import StringIO
@@ -23,12 +22,12 @@ from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import msguid, DirectoryEntry
 import calibre.ebooks.lit.maps as maps
-from calibre.ebooks.lit.oeb import OEB_STYLES, OEB_CSS_MIME, CSS_MIME, \
-    XHTML_MIME, OPF_MIME, XML_NS, XML
+from calibre.ebooks.lit.oeb import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
+    CSS_MIME, XHTML_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize
 from calibre.ebooks.lit.oeb import OEBBook
 from calibre.ebooks.lit.stylizer import Stylizer
-from calibre.ebooks.lit.lzxcomp import Compressor
+from calibre.ebooks.lit.lzx import Compressor
 import calibre
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
@@ -104,7 +103,7 @@ LZXC_CONTROL = \
     "\x04\x00\x00\x00\x02\x00\x00\x00" \
     "\x00\x00\x00\x00\x00\x00\x00\x00"
 
-COLLAPSE = re.compile(r'[ \r\n\v]+')
+COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
 def prefixname(name, nsrmap):
     prefix = nsrmap[namespace(name)]
@@ -228,8 +227,9 @@ class ReBinary(object):
         if elem.text:
             if preserve:
                 self.write(elem.text)
-            elif len(elem) > 0 or not elem.text.isspace():
+            elif len(elem) == 0 or not elem.text.isspace():
                 self.write(COLLAPSE.sub(' ', elem.text))
+            # else: de nada
         parents.append(tag_offset)
         child = cstyle = nstyle = None
         for next in chain(elem, [None]):
@@ -423,6 +423,7 @@ class LitWriter(object):
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
+                print "WARNING: excluding item %r" % item.href
                 continue
             name = '/data/' + item.id
             data = item.data
@@ -563,8 +564,8 @@ class LitWriter(object):
                     cdata = LZXC_CONTROL + cdata
                     if not data: continue
                     unlen = len(data)
-                    with Compressor(17) as lzx:
-                        data, rtable = lzx.compress(data, flush=True)
+                    lzx = Compressor(17)
+                    data, rtable = lzx.compress(data, flush=True)
                     rdata = StringIO()
                     rdata.write(pack('<IIIIQQQQ',
                         3, len(rtable), 8, 0x28, unlen, len(data), 0x8000, 0))

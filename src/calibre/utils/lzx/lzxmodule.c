@@ -8,22 +8,23 @@
 
 #include <mspack.h>
 #include <lzxd.h>
-#include <lzxc.h>
+
+#include <lzxmodule.h>
 
 static char lzx_doc[] = 
     "Provide basic LZX compression and decompression using the code from\n"
     "liblzxcomp and libmspack respectively.";
 
-static PyObject *LzxError = NULL;
+PyObject *LZXError = NULL;
 
 typedef struct memory_file {
     unsigned int magic;	/* 0xB5 */
-    void * buffer;
+    void *buffer;
     int total_bytes;
     int current_bytes;
 } memory_file;
 
-void *
+static void *
 glue_alloc(struct mspack_system *this, size_t bytes)
 {
     void *p = NULL;
@@ -34,33 +35,33 @@ glue_alloc(struct mspack_system *this, size_t bytes)
     return p;
 }
 
-void
+static void
 glue_free(void *p)
 {
     free(p);
 }
 
-void
+static void
 glue_copy(void *src, void *dest, size_t bytes)
 {
     memcpy(dest, src, bytes);
 }
 
-struct mspack_file *
+static struct mspack_file *
 glue_open(struct mspack_system *this, char *filename, int mode)
 {
-    PyErr_SetString(LzxError, "MSPACK_OPEN unsupported");
+    PyErr_SetString(LZXError, "MSPACK_OPEN unsupported");
     return NULL;
 }
 
-void
+static void
 glue_close(struct mspack_file *file)
 {
     return;
 }
 
-int
-glue_read(struct mspack_file *file, void * buffer, int bytes)
+static int
+glue_read(struct mspack_file *file, void *buffer, int bytes)
 {
     memory_file *mem;
     int remaining;
@@ -77,8 +78,8 @@ glue_read(struct mspack_file *file, void * buffer, int bytes)
     return bytes;
 }
 
-int
-glue_write(struct mspack_file * file, void * buffer, int bytes)
+static int
+glue_write(struct mspack_file *file, void *buffer, int bytes)
 {
     memory_file *mem;
     int remaining;
@@ -87,9 +88,8 @@ glue_write(struct mspack_file * file, void * buffer, int bytes)
     if (mem->magic != 0xB5) return -1;
   
     remaining = mem->total_bytes - mem->current_bytes;
-    if (!remaining)  return 0;
     if (bytes > remaining) {
-        PyErr_SetString(LzxError,
+        PyErr_SetString(LZXError,
             "MSPACK_WRITE tried to write beyond end of buffer");
         bytes = remaining;
     }
@@ -189,7 +189,7 @@ decompress(PyObject *self, PyObject *args)
     if (err != MSPACK_ERR_OK) {
         Py_DECREF(retval);
         retval = NULL;
-        PyErr_SetString(LzxError, "LZX decompression failed");
+        PyErr_SetString(LZXError, "LZX decompression failed");
     }
     
     return retval;
@@ -199,7 +199,7 @@ static PyMethodDef lzx_methods[] = {
     { "init", &init, METH_VARARGS, "Initialize the LZX decompressor" },
     { "reset", &reset, METH_VARARGS, "Reset the LZX decompressor" },
     { "decompress", &decompress, METH_VARARGS, "Run the LZX decompressor" },
-    { NULL, NULL }
+    { NULL }
 };
 
 PyMODINIT_FUNC
@@ -207,23 +207,21 @@ initlzx(void)
 {
     PyObject *m;
 
+    if (PyType_Ready(&CompressorType) < 0) {
+        return;
+    }
+
     m = Py_InitModule3("lzx", lzx_methods, lzx_doc);
     if (m == NULL) {
         return;
     }
     
-    LzxError = PyErr_NewException("lzx.LzxError", NULL, NULL);
-    Py_INCREF(LzxError);
-    PyModule_AddObject(m, "LzxError", LzxError);
+    LZXError = PyErr_NewException("lzx.LZXError", NULL, NULL);
+    Py_INCREF(LZXError);
+    PyModule_AddObject(m, "LZXError", LZXError);
 
-    PyModule_AddObject(m, "_lzxc_init",
-        Py_BuildValue("k", (unsigned long)lzx_init));
-    PyModule_AddObject(m, "_lzxc_reset",
-        Py_BuildValue("k", (unsigned long)lzx_reset));
-    PyModule_AddObject(m, "_lzxc_compress_block",
-        Py_BuildValue("k", (unsigned long)lzx_compress_block));
-    PyModule_AddObject(m, "_lzxc_finish",
-        Py_BuildValue("k", (unsigned long)lzx_finish));
-    
+    Py_INCREF(&CompressorType);
+    PyModule_AddObject(m, "Compressor", (PyObject *)&CompressorType);
+
     return;
 }

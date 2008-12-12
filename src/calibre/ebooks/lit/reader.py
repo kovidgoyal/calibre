@@ -783,7 +783,7 @@ class LitReader(object):
                     try:
                         result.append(
                             lzx.decompress(content[base:size], window_bytes))
-                    except lzx.LzxError:
+                    except lzx.LZXError:
                         self._warn("LZX decompression error; skipping chunk")
                     bytes_remaining -= window_bytes
                     base = size
@@ -793,7 +793,7 @@ class LitReader(object):
             lzx.reset()
             try:
                 result.append(lzx.decompress(content[base:], bytes_remaining))
-            except lzx.LzxError:
+            except lzx.LZXError:
                 self._warn("LZX decompression error; skipping chunk")
             bytes_remaining = 0
         if bytes_remaining > 0:
