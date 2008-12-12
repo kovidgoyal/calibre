@@ -138,7 +138,9 @@ class Splitter(LoggingInterface):
         
         for t in self.do_split(tree, split_point, before):
             r = t.getroot()
-            size = len(tostring(r)) 
+            if self.is_page_empty(r):
+                continue
+            size = len(tostring(r))
             if size <= self.opts.profile.flow_size:
                 self.trees.append(t)
                 #print tostring(t.getroot(), pretty_print=True)
@@ -384,6 +386,9 @@ class Splitter(LoggingInterface):
                 frag = None
                 if len(href) > 1:
                     frag = href[1]
+                if frag not in self.anchor_map:
+                    self.log_warning('\t\tUnable to re-map OPF link', href)
+                    continue
                 new_file = self.anchor_map[frag]
                 ref.set('href', 'content/'+new_file+('' if frag is None else ('#'+frag)))
 
@@ -410,7 +415,11 @@ def fix_content_links(html_files, changes, opts):
                 anchor = href[1] if len(href) > 1 else None
                 href = href[0]
                 if href in split_files:
-                    newf = anchor_maps[split_files.index(href)][anchor]
+                    try:
+                        newf = anchor_maps[split_files.index(href)][anchor]
+                    except:
+                        print '\t\tUnable to remap HTML link:', href, anchor
+                        continue
                     frag = ('#'+anchor) if anchor else ''
                     a.set('href', newf+frag)
                     changed = True
@@ -431,7 +440,10 @@ def fix_ncx(path, changes):
             anchor = href[1] if len(href) > 1 else None
             href = href[0].split('/')[-1]
             if href in split_files:
-                newf = anchor_maps[split_files.index(href)][anchor]
+                try:
+                    newf = anchor_maps[split_files.index(href)][anchor]
+                except:
+                    print 'Unable to remap NCX link:', href, anchor
                 frag = ('#'+anchor) if anchor else ''
                 content.set('src', 'content/'+newf+frag)
                 changed = True

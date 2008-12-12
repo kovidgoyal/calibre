@@ -48,8 +48,7 @@ from calibre.ebooks.epub import initialize_container, PROFILES
 from calibre.ebooks.epub.split import split
 from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
-from calibre import walk
-from calibre import CurrentDir
+from calibre import walk, CurrentDir, to_unicode
 
 content = functools.partial(os.path.join, u'content')
 
@@ -79,7 +78,7 @@ def check(opf_path, pretty_print):
             base = os.path.dirname(path)
             root = html.fromstring(open(content(path), 'rb').read())
             for element, attribute, link, pos in list(root.iterlinks()):
-                link = link.decode('utf-8')
+                link = to_unicode(link)
                 plink = Link(link, base)
                 bad = False
                 if plink.path is not None and not os.path.exists(plink.path):
