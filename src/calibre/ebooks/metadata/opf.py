@@ -70,7 +70,7 @@ class Manifest(ResourceCollection):
     @staticmethod
     def from_opf_manifest_element(manifest, dir):
         m = Manifest()
-        for item in manifest.findAll('item'):
+        for item in manifest.findAll(re.compile('item')):
             try:
                 m.append(ManifestItem.from_opf_manifest_item(item, dir))
                 id = item.get('id', '')
@@ -130,7 +130,7 @@ class Spine(ResourceCollection):
     @staticmethod
     def from_opf_spine_element(spine, manifest):
         s = Spine(manifest)
-        for itemref in spine.findAll('itemref'):
+        for itemref in spine.findAll(re.compile('itemref')):
             if itemref.has_key('idref'):
                 r = Spine.Item(s.manifest.id_for_path,
                                s.manifest.path_for_id(itemref['idref']), is_path=True)
@@ -216,7 +216,7 @@ class standard_field(object):
     def __get__(self, obj, typ=None):
         return getattr(obj, 'get_'+self.name)()
     
-        
+
 class OPF(MetaInformation):
     
     MIMETYPE = 'application/oebps-package+xml'
@@ -242,14 +242,27 @@ class OPF(MetaInformation):
     def __init__(self):
         raise NotImplementedError('Abstract base class')
     
+    @apply
+    def package():
+        def fget(self):
+            return self.soup.find(re.compile('package'))
+        return property(fget=fget)
+    
+    @apply
+    def metadata():
+        def fget(self):
+            return self.package.find(re.compile('metadata'))
+        return property(fget=fget)
+    
+    
     def get_title(self):
-        title = self.soup.package.metadata.find('dc:title')
+        title = self.metadata.find('dc:title')
         if title and title.string:
             return self.ENTITY_PATTERN.sub(entity_to_unicode, title.string).strip()
         return self.default_title.strip()
     
     def get_authors(self):
-        creators = self.soup.package.metadata.findAll('dc:creator')
+        creators = self.metadata.findAll('dc:creator')
         for elem in creators:
             role = elem.get('role')
             if not role:
@@ -266,7 +279,7 @@ class OPF(MetaInformation):
         return []
     
     def get_author_sort(self):
-        creators = self.soup.package.metadata.findAll('dc:creator')
+        creators = self.metadata.findAll('dc:creator')
         for elem in creators:
             role = elem.get('role')
             if not role:
@@ -277,7 +290,7 @@ class OPF(MetaInformation):
         return None
     
     def get_title_sort(self):
-        title = self.soup.package.find('dc:title')
+        title = self.package.find('dc:title')
         if title:
             if title.has_key('file-as'):
                 return title['file-as'].strip()
@@ -290,7 +303,7 @@ class OPF(MetaInformation):
         return None
     
     def get_uid(self):
-        package = self.soup.find('package')
+        package = self.package
         if package.has_key('unique-identifier'):
             return package['unique-identifier']
         
@@ -307,7 +320,7 @@ class OPF(MetaInformation):
         return None
     
     def get_isbn(self):
-        for item in self.soup.package.metadata.findAll('dc:identifier'):
+        for item in self.metadata.findAll('dc:identifier'):
             scheme = item.get('scheme')
             if not scheme:
                 scheme = item.get('opf:scheme')
@@ -316,13 +329,13 @@ class OPF(MetaInformation):
         return None
     
     def get_language(self):
-        item = self.soup.package.metadata.find('dc:language')
+        item = self.metadata.find('dc:language')
         if not item:
             return _('Unknown')
         return ''.join(item.findAll(text=True)).strip()
     
     def get_application_id(self):
-        for item in self.soup.package.metadata.findAll('dc:identifier'):
+        for item in self.metadata.findAll('dc:identifier'):
             scheme = item.get('scheme', None)
             if scheme is None:
                 scheme = item.get('opf:scheme', None)
@@ -342,7 +355,7 @@ class OPF(MetaInformation):
     
     def possible_cover_prefixes(self):
         isbn, ans = [], []
-        for item in self.soup.package.metadata.findAll('dc:identifier'):
+        for item in self.metadata.findAll('dc:identifier'):
             scheme = item.get('scheme')
             if not scheme:
                 scheme = item.get('opf:scheme')
@@ -352,13 +365,13 @@ class OPF(MetaInformation):
         return ans
     
     def get_series(self):
-        s = self.soup.package.metadata.find('series')
+        s = self.metadata.find('series')
         if s is not None:
             return str(s.string).strip()
         return None
     
     def get_series_index(self):
-        s = self.soup.package.metadata.find('series-index')
+        s = self.metadata.find('series-index')
         if s and s.string:
             try:
                 return int(str(s.string).strip())
@@ -367,7 +380,7 @@ class OPF(MetaInformation):
         return None
     
     def get_rating(self):
-        s = self.soup.package.metadata.find('rating')
+        s = self.metadata.find('rating')
         if s and s.string:
             try:
                 return int(str(s.string).strip())
@@ -400,17 +413,17 @@ class OPFReader(OPF):
         if manage:
             stream.close()
         self.manifest = Manifest()
-        m = self.soup.find('manifest')
+        m = self.soup.find(re.compile('manifest'))
         if m is not None:
             self.manifest = Manifest.from_opf_manifest_element(m, dir)
         self.spine = None
-        spine = self.soup.find('spine')
+        spine = self.soup.find(re.compile('spine'))
         if spine is not None:
             self.spine = Spine.from_opf_spine_element(spine, self.manifest)
         
         self.toc = TOC(base_path=dir)
         self.toc.read_from_opf(self)
-        guide = self.soup.find('guide')
+        guide = self.soup.find(re.compile('guide'))
         if guide is not None:
             self.guide = Guide.from_opf_guide(guide, dir)
         self.base_dir = dir 

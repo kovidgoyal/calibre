@@ -177,7 +177,7 @@ _check_symlinks_prescript()
     
     def fix_python_dependencies(self, files):
         for f in files:
-            subprocess.check_call(['/usr/bin/install_name_tool', '-change', '/Library/Frameworks/Python.framework/Versions/2.5/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.5/Python', f])
+            subprocess.check_call(['/usr/bin/install_name_tool', '-change', '/Library/Frameworks/Python.framework/Versions/2.6/Python', '@executable_path/../Frameworks/Python.framework/Versions/2.6/Python', f])
             
     def fix_misc_dependencies(self, files):
         for path in files:
@@ -247,10 +247,13 @@ _check_symlinks_prescript()
         print 'Adding pdftohtml'
         os.link(os.path.expanduser('~/pdftohtml'), os.path.join(frameworks_dir, 'pdftohtml'))
         print 'Adding plugins'
-        module_dir = os.path.join(resource_dir, 'lib', 'python2.5', 'lib-dynload')
+        module_dir = os.path.join(resource_dir, 'lib', 'python2.6', 'lib-dynload')
         print 'Adding fontconfig'
         for f in glob.glob(os.path.expanduser('~/fontconfig-bundled/*')):
-            os.link(f, os.path.join(frameworks_dir, os.path.basename(f)))
+            dest = os.path.join(frameworks_dir, os.path.basename(f))
+            if os.path.exists(dest):
+                os.remove(dest)
+            os.link(f, dest)
         dst = os.path.join(resource_dir, 'fonts')
         if os.path.exists(dst):
             shutil.rmtree(dst)
@@ -258,7 +261,7 @@ _check_symlinks_prescript()
         
         print
         print 'Adding IPython'
-        dst = os.path.join(resource_dir, 'lib', 'python2.5', 'IPython')
+        dst = os.path.join(resource_dir, 'lib', 'python2.6', 'IPython')
         if os.path.exists(dst): shutil.rmtree(dst)
         shutil.copytree(os.path.expanduser('~/build/ipython/IPython'), dst)
         
@@ -280,6 +283,7 @@ _check_symlinks_prescript()
         f = open(launcher_path, 'r')
         src = f.read()
         f.close()
+        src = src.replace('import Image', 'from PIL import Image')
         src = re.sub('(_run\s*\(.*?.py.*?\))', cs+'%s'%(
 '''
 sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), 'Frameworks')
@@ -290,7 +294,7 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         f.close()
         print 
         print 'Adding main scripts to site-packages'
-        f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python2.5', 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
+        f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python2.6', 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
         for script in scripts['gui']+scripts['console']:
             f.write(script, script.partition('/')[-1])
         f.close()
@@ -322,7 +326,8 @@ def main():
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
                                        'keyword', 'codeop', 'pydoc', 'readline',
-                                       'BeautifulSoup'],
+                                       'BeautifulSoup'
+                                       ],
                          'packages' : ['PIL', 'Authorization', 'lxml'],
                          'excludes' : ['IPython'],
                          'plist'    : { 'CFBundleGetInfoString' : '''calibre, an E-book management application.'''

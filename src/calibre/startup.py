@@ -85,6 +85,8 @@ if not _run_once:
         to byte strings using `encoding`, calls abspath and then decodes back to unicode.
         '''
         to_unicode = False
+        if encoding is None:
+            encoding = preferred_encoding
         if isinstance(path, unicode):
             path = path.encode(encoding)
             to_unicode = True
@@ -97,6 +99,8 @@ if not _run_once:
     _join = os.path.join
     def my_join(a, *p):
         encoding=sys.getfilesystemencoding()
+        if not encoding:
+            encoding = preferred_encoding
         p = [a] + list(p)
         _unicode = False
         for i in p:

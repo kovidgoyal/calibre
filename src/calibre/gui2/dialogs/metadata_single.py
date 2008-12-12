@@ -129,6 +129,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         QDialog.__init__(self, window)
         Ui_MetadataSingleDialog.__init__(self)        
         self.setupUi(self)
+        self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.splitter.setStretchFactor(100, 1)
         self.db = db
         self.accepted_callback = accepted_callback

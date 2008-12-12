@@ -512,11 +512,19 @@ class DocumentView(QWebView):
         
     def wheelEvent(self, event):
         if event.delta() < -14:
-            self.next_page()
+            if self.document.at_bottom:
+                if self.manager is not None:
+                    self.manager.next_document()
+                    event.accept()
+                    return
         elif event.delta() > 14:
-            self.previous_page()
-        event.accept()
-        
+            if self.document.at_top:
+                if self.manager is not None:
+                    self.manager.previous_document()
+                    event.accept()
+                    return
+        return QWebView.wheelEvent(self, event)
+    
     def keyPressEvent(self, event):
         key = event.key()
         if key in [Qt.Key_PageDown, Qt.Key_Space, Qt.Key_Down]:

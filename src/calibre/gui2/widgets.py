@@ -136,10 +136,11 @@ class LocationModel(QAbstractListModel):
         self.icons = [QVariant(QIcon(':/library')),
                       QVariant(QIcon(':/images/reader.svg')),
                       QVariant(QIcon(':/images/sd.svg'))]
-        self.text = [_('Library'),
+        self.text = [_('Library\n%d\nbooks'),
                      _('Reader\n%s\navailable'),
                      _('Card\n%s\navailable')]
         self.free = [-1, -1]
+        self.count = 0
         self.highlight_row = 0
         self.tooltips = [
                          _('Click to see the list of books available on your computer'),
@@ -155,7 +156,7 @@ class LocationModel(QAbstractListModel):
         data = NONE
         if role == Qt.DisplayRole:
             text = self.text[row]%(human_readable(self.free[row-1])) if row > 0 \
-                            else self.text[row]
+                            else self.text[row]%self.count
             data = QVariant(text)
         elif role == Qt.DecorationRole:                
             data = self.icons[row]
@@ -191,6 +192,10 @@ class LocationView(QListView):
         self.reset()
         QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)
         self.setCursor(Qt.PointingHandCursor)      
+    
+    def count_changed(self, new_count):
+        self.model().count = new_count
+        self.model().reset()
     
     def current_changed(self, current, previous):
         i = current.row()

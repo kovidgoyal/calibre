@@ -297,6 +297,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.connect(self.status_bar.tag_view_button, SIGNAL('toggled(bool)'), self.toggle_tags_view)
         self.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
                      self.tags_view.model().reinit)
+        self.connect(self.library_view.model(), SIGNAL('count_changed(int)'), self.location_view.count_changed)
+        self.library_view.model().count_changed()
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
@@ -344,12 +346,12 @@ class Main(MainWindow, Ui_MainWindow):
             self.library_view.setCurrentIndex(self.library_view.currentIndex())
             self.cover_flow.setVisible(True)
             self.cover_flow.setFocus(Qt.OtherFocusReason)
-            self.status_bar.book_info.book_data.setMaximumHeight(100)
-            self.status_bar.setMaximumHeight(120)
+            #self.status_bar.book_info.book_data.setMaximumHeight(100)
+            #self.status_bar.setMaximumHeight(120)
             self.library_view.scrollTo(self.library_view.currentIndex())
         else:
             self.cover_flow.setVisible(False)
-            self.status_bar.book_info.book_data.setMaximumHeight(1000)
+            #self.status_bar.book_info.book_data.setMaximumHeight(1000)
         self.setMaximumHeight(available_height())
 
     def toggle_tags_view(self, show):

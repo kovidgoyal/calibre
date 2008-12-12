@@ -465,6 +465,17 @@ def post_install():
             if os.stat(f).st_uid == 0:
                 os.unlink(f)
 
+def binary_install():
+    manifest = os.path.join(sys.frozen_path, 'manifest')
+    exes = [x.strip() for x in open(manifest).readlines()]
+    print 'Creating symlinks...'
+    for exe in exes:
+        dest = os.path.join('/usr', 'bin', exe)
+        if os.path.exists(dest):
+            os.remove(dest)
+        os.symlink(os.path.join(sys.frozen_path, exe), dest)
+    post_install()
+    return 0
 
 VIEWER = '''\
 [Desktop Entry]
@@ -580,7 +591,7 @@ def setup_desktop_integration(fatal_errors):
         print >>sys.stderr, 'Could not setup desktop integration. Error:'
         print err
 
-
+main = post_install
 if __name__ == '__main__':
     post_install()
 
