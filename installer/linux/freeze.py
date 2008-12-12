@@ -69,7 +69,7 @@ def freeze():
     if not os.path.exists(DIST_DIR):
         os.makedirs(DIST_DIR)
     
-    includes = []
+    includes = [x[0] for x in executables.values()]
     
     excludes = ['matplotlib', "Tkconstants", "Tkinter", "tcl", "_imagingtk", 
                 "ImageTk", "FixTk", 'wx', 'PyQt4.QtAssistant', 'PyQt4.QtOpenGL.so', 
