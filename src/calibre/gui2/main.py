@@ -258,7 +258,7 @@ class Main(MainWindow, Ui_MainWindow):
             db = LibraryDatabase2(self.library_path)
         except OSError, err:
             error_dialog(self, _('Bad database location'), unicode(err)).exec_()
-            dir = unicode(QFileDialog.getExistingDirectory(self, 
+            dir = unicode(QFileDialog.getExistingDirectory(self,
                             _('Choose a location for your ebook library.'), os.path.expanduser('~')))
             if not dir:
                 QCoreApplication.exit(1)

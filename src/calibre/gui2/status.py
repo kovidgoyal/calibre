@@ -32,7 +32,10 @@ class BookInfoDisplay(QWidget):
             self.setMaximumWidth(width)
             QLabel.setPixmap(self, pixmap)
              
-            aspect_ratio = pixmap.width()/float(pixmap.height())
+            try:
+                aspect_ratio = pixmap.width()/float(pixmap.height())
+            except ZeroDivisionError:
+                aspect_ratio = 1
             self.setMaximumWidth(int(aspect_ratio*self.HEIGHT))
         
         def sizeHint(self):
