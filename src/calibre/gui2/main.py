@@ -621,13 +621,13 @@ class Main(MainWindow, Ui_MainWindow):
                                         files, names, on_card=on_card,
                                         titles=titles
                                         )
-        self.upload_memory[job] = (metadata, on_card, memory)
+        self.upload_memory[job] = (metadata, on_card, memory, files)
     
     def books_uploaded(self, job):
         '''
         Called once books have been uploaded.
         '''
-        metadata, on_card, memory = self.upload_memory.pop(job)
+        metadata, on_card, memory, files = self.upload_memory.pop(job)
         
         if job.exception is not None:
             if isinstance(job.exception, FreeSpaceError):
@@ -648,6 +648,8 @@ class Main(MainWindow, Ui_MainWindow):
         view = self.card_view if on_card else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
+        for f in files:
+            getattr(f, 'close', lambda : True)()
         if memory and memory[1]:
             self.library_view.model().delete_books_by_id(memory[1])
 
