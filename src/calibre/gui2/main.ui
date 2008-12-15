@@ -581,6 +581,42 @@
     <string>Show book details</string>
    </property>
   </action>
+  <action name="action_books_by_same_author" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/user_profile.svg</normaloff>:/images/user_profile.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books by same author</string>
+   </property>
+  </action>
+  <action name="action_books_in_this_series" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/books_in_series.svg</normaloff>:/images/books_in_series.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books in this series</string>
+   </property>
+  </action>
+  <action name="action_books_by_this_publisher" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/publisher.png</normaloff>:/images/publisher.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Books by this publisher</string>
+   </property>
+  </action>
+  <action name="action_books_with_the_same_tags" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/tags.svg</normaloff>:/images/tags.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books with the same tags</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
