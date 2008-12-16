@@ -188,6 +188,6 @@ class DetailView(QDialog, Ui_Dialog):
         
             
     def update(self):
-        self.log.setPlainText(self.job.gui_text())
+        self.log.setPlainText(self.job.console_text())
         vbar = self.log.verticalScrollBar()
         vbar.setValue(vbar.maximum())

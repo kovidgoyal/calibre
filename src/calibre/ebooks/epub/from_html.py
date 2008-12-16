@@ -39,7 +39,7 @@ from lxml import html
 from PyQt4.Qt import QApplication, QPixmap
 
 from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
-    opf_traverse, create_metadata, rebase_toc, Link
+    opf_traverse, create_metadata, rebase_toc, Link, parser
 from calibre.ebooks.epub import config as common_config, tostring
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata.toc import TOC
@@ -77,7 +77,7 @@ def check(opf_path, pretty_print):
         
         for path in html_files:
             base = os.path.dirname(path)
-            root = html.fromstring(open(content(path), 'rb').read())
+            root = html.fromstring(open(content(path), 'rb').read(), parser=parser)
             for element, attribute, link, pos in list(root.iterlinks()):
                 link = to_unicode(link)
                 plink = Link(link, base)

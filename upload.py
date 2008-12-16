@@ -213,7 +213,7 @@ def upload_src_tarball():
     check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS)
 
 def stage_one():
-    check_call('sudo rm -rf build', shell=True)
+    check_call('sudo rm -rf build src/calibre/plugins/*', shell=True)
     os.mkdir('build')
     shutil.rmtree('docs')
     os.mkdir('docs')
