@@ -128,7 +128,7 @@ class UnBinary(object):
         self.dir = os.path.dirname(path)
         buf = StringIO()
         self.binary_to_text(bin, buf)
-        self.raw = buf.getvalue().lstrip().decode('utf-8')
+        self.raw = buf.getvalue().lstrip()
         self.escape_reserved()
         self._tree = None
 
@@ -157,6 +157,9 @@ class UnBinary(object):
         return '/'.join(relpath)
     
     def __unicode__(self):
+        return self.raw.decode('utf-8')
+
+    def __str__(self):
         return self.raw
 
     def tree():
@@ -837,7 +840,7 @@ class LitReader(object):
                 content += etree.tostring(unbin.tree,
                     encoding='ascii', pretty_print=True)
             else:
-                content += unicode(unbin)
+                content += str(unbin)
         else:
             internal = '/'.join(('/data', entry.internal))
             content = self._litfile.get_file(internal)

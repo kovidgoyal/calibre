@@ -247,6 +247,7 @@ class Manifest(object):
                 elif self.media_type.startswith('application/') \
                      and self.media_type.endswith('+xml'):
                     data = etree.fromstring(data, parser=XML_PARSER)
+                self._data = data
                 return data
             def fset(self, value):
                 self._data = value
@@ -476,6 +477,12 @@ class TOC(object):
         node = TOC(title, href, klass, id)
         self.nodes.append(node)
         return node
+
+    def iterdescendents(self):
+        for node in self.nodes:
+            yield node
+            for child in node.iterdescendents():
+                yield child
     
     def __iter__(self):
         for node in self.nodes:
