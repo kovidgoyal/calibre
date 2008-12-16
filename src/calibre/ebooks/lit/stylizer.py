@@ -148,6 +148,7 @@ class Stylizer(object):
         rules = []
         index = 0
         self.stylesheets = set()
+        self.page_rule = {}
         for stylesheet in stylesheets:
             href = stylesheet.href
             self.stylesheets.add(href)
@@ -169,7 +170,7 @@ class Stylizer(object):
                 results.append((specificity, selector, style, text, href))
         elif isinstance(rule, CSSPageRule):
             style = self.flatten_style(rule.style)
-            results.append(((0, 0, 0, 0), [], style, '@page', href))
+            self.page_rule.update(style)
         return results
 
     def flatten_style(self, cssstyle):
@@ -441,4 +442,8 @@ class Style(object):
     
     def __str__(self):
         items = self._style.items()
+        items.sort()
         return '; '.join("%s: %s" % (key, val) for key, val in items)
+
+    def cssdict(self):
+        return dict(self._style)

@@ -36,12 +36,14 @@ def OPF(name): return '{%s}%s' % (OPF2_NS, name)
 def DC(name): return '{%s}%s' % (DC11_NS, name)
 def NCX(name): return '{%s}%s' % (NCX_NS, name)
 
+EPUB_MIME = 'application/epub+zip'
 XHTML_MIME = 'application/xhtml+xml'
 CSS_MIME = 'text/css'
 NCX_MIME = 'application/x-dtbncx+xml'
 OPF_MIME = 'application/oebps-package+xml'
 OEB_DOC_MIME = 'text/x-oeb1-document'
 OEB_CSS_MIME = 'text/x-oeb1-css'
+OPENTYPE_MIME = 'font/opentype'
 
 OEB_STYLES = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
 OEB_DOCS = set([XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'])
@@ -65,7 +67,11 @@ def barename(name):
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
-URL_UNSAFE = r"""`!@#$%^&*[](){}?+=;:'",<>\| """
+ASCII_CHARS = set(chr(x) for x in xrange(128))
+URL_SAFE = set(u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+               u'abcdefghijklmnopqrstuvwxyz'
+               u'0123456789' u'_.-/~')
+URL_UNSAFE = ASCII_CHARS - URL_SAFE
 def urlquote(href):
     result = []
     for char in href:
@@ -212,7 +218,8 @@ class Metadata(object):
 
 class Manifest(object):
     class Item(object):
-        def __init__(self, id, href, media_type, fallback=None, loader=str):
+        def __init__(self, id, href, media_type,
+                     fallback=None, loader=str, data=None):
             self.id = id
             self.href = self.path = urlnormalize(href)
             self.media_type = media_type
@@ -220,7 +227,7 @@ class Manifest(object):
             self.spine_position = None
             self.linear = True
             self._loader = loader
-            self._data = None
+            self._data = data
 
         def __repr__(self):
             return 'Item(id=%r, href=%r, media_type=%r)' \
@@ -228,10 +235,10 @@ class Manifest(object):
 
         def data():
             def fget(self):
-                if self._data:
+                if self._data is not None:
                     return self._data
                 data = self._loader(self.href)
-                if self.media_type == XHTML_MIME:
+                if self.media_type in OEB_DOCS:
                     data = etree.fromstring(data, parser=XML_PARSER)
                     if namespace(data.tag) != XHTML_NS:
                         data.attrib['xmlns'] = XHTML_NS
@@ -256,42 +263,59 @@ class Manifest(object):
     
     def __init__(self, oeb):
         self.oeb = oeb
-        self.items = {}
+        self.ids = {}
         self.hrefs = {}
 
-    def add(self, id, href, media_type, fallback=None):
+    def add(self, id, href, media_type, fallback=None, loader=None, data=None):
+        loader = loader or self.oeb.container.read
         item = self.Item(
-            id, href, media_type, fallback, self.oeb.container.read)
-        self.items[item.id] = item
+            id, href, media_type, fallback, loader, data)
+        self.ids[item.id] = item
         self.hrefs[item.href] = item
         return item
 
-    def remove(self, id):
-        href = self.items[id].href
-        del self.items[id]
-        del self.hrefs[href]
+    def remove(self, item):
+        if item in self.ids:
+            item = self.ids[item]
+        del self.ids[item.id]
+        del self.hrefs[item.href]
+        if item in self.oeb.spine:
+            self.oeb.spine.remove(item)
+
+    def generate(self, id, href):
+        base = id
+        index = 1
+        while id in self.ids:
+            id = base + str(index)
+            index += 1
+        base, ext = os.path.splitext(href)
+        index = 1
+        while href in self.hrefs:
+            href = base + str(index) + ext
+            index += 1
+        return id, href
 
     def __iter__(self):
-        for id in self.items:
+        for id in self.ids:
             yield id
 
     def __getitem__(self, id):
-        return self.items[id]
+        return self.ids[id]
 
     def values(self):
-        for item in self.items.values():
+        for item in self.ids.values():
             yield item
 
     def items(self):
-        for id, item in self.refs.items():
-            yield id, items
+        for id, item in self.ids.items():
+            yield id, item
     
     def __contains__(self, key):
-        return id in self.items
+        return id in self.ids
 
     def to_opf1(self, parent=None):
         elem = element(parent, 'manifest')
-        for item in self.items.values():
+        for item in self.ids.values():
             media_type = item.media_type
             if media_type == XHTML_MIME:
                 media_type = OEB_DOC_MIME
@@ -306,7 +330,7 @@ class Manifest(object):
     
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('manifest'))
-        for item in self.items.values():
+        for item in self.ids.values():
             attrib = {'id': item.id, 'href': item.href,
                       'media-type': item.media_type}
             if item.fallback:
@@ -320,17 +344,34 @@ class Spine(object):
         self.oeb = oeb
         self.items = []
 
-    def add(self, item, linear):
+    def _linear(self, linear):
         if isinstance(linear, StringTypes):
             linear = linear.lower()
         if linear is None or linear in ('yes', 'true'):
             linear = True
         elif linear in ('no', 'false'):
             linear = False
-        item.linear = linear
+        return linear
+        
+    def add(self, item, linear=None):
+        item.linear = self._linear(linear)
         item.spine_position = len(self.items)
         self.items.append(item)
         return item
+    
+    def insert(self, index, item, linear):
+        item.linear = self._linear(linear)
+        item.spine_position = index
+        self.items.insert(index, item)
+        for i in xrange(index, len(self.items)):
+            self.items[i].spine_position = i
+        return item
+    
+    def remove(self, item):
+        index = item.spine_position
+        self.items.pop(index)
+        for i in xrange(index, len(self.items)):
+            self.items[i].spine_position = i
     
     def __iter__(self):
         for item in self.items:
