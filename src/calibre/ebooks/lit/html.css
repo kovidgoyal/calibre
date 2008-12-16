@@ -1,0 +1,426 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ * Version: MPL 1.1/GPL 2.0/LGPL 2.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ * http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is mozilla.org code.
+ *
+ * The Initial Developer of the Original Code is
+ * Netscape Communications Corporation.
+ * Portions created by the Initial Developer are Copyright (C) 1998
+ * the Initial Developer. All Rights Reserved.
+ *
+ * Contributor(s):
+ *   Blake Ross <BlakeR1234@aol.com>
+ *
+ * Alternatively, the contents of this file may be used under the terms of
+ * either of the GNU General Public License Version 2 or later (the "GPL"),
+ * or the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
+ * in which case the provisions of the GPL or the LGPL are applicable instead
+ * of those above. If you wish to allow use of your version of this file only
+ * under the terms of either the GPL or the LGPL, and not to allow others to
+ * use your version of this file under the terms of the MPL, indicate your
+ * decision by deleting the provisions above and replace them with the notice
+ * and other provisions required by the GPL or the LGPL. If you do not delete
+ * the provisions above, a recipient may use your version of this file under
+ * the terms of any one of the MPL, the GPL or the LGPL.
+ *
+ * ***** END LICENSE BLOCK ***** */
+
+@namespace url(http://www.w3.org/1999/xhtml); /* set default namespace to HTML */
+
+/* blocks */
+
+html, div, map, dt, isindex, form {
+  display: block;
+}
+
+body {
+  display: block;
+  margin: 8px;
+}
+
+p, dl, multicol {
+  display: block;
+  margin: 1em 0;
+}
+
+dd {
+  display: block;
+}
+
+blockquote {
+  display: block;
+  margin: 1em 40px;
+}
+
+address {
+  display: block;
+  font-style: italic;
+}
+
+center {
+  display: block;
+  text-align: center;
+}
+
+blockquote[type=cite] {
+  display: block;
+  margin: 1em 0px;
+  border-color: blue;
+  border-width: thin;
+}
+
+span[_moz_quote=true] {
+  color: blue;
+}
+
+pre[_moz_quote=true] {
+  color: blue;
+}
+
+h1 {
+  display: block;
+  font-size: 2em;
+  font-weight: bold;
+  margin: .67em 0;
+}
+
+h2 {
+  display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+  margin: .83em 0;
+}
+
+h3 {
+  display: block;
+  font-size: 1.17em;
+  font-weight: bold;
+  margin: 1em 0;
+}
+
+h4 {
+  display: block;
+  font-weight: bold;
+  margin: 1.33em 0;
+}
+
+h5 {
+  display: block;
+  font-size: 0.83em;
+  font-weight: bold;
+  margin: 1.67em 0;
+}
+
+h6 {
+  display: block;
+  font-size: 0.67em;
+  font-weight: bold;
+  margin: 2.33em 0;
+}
+
+listing {
+  display: block;
+  font-family: monospace;
+  font-size: medium;
+  white-space: pre;
+  margin: 1em 0;
+}
+
+xmp, pre, plaintext {
+  display: block;
+  font-family: monospace;
+  white-space: pre;
+  margin: 1em 0;
+}
+
+/* tables */
+
+table {
+  display: table;
+  border-spacing: 2px;
+  border-collapse: separate;
+  margin-top: 0;
+  margin-bottom: 0;
+  text-indent: 0;
+}
+
+table[align="left"] {
+  float: left;
+}
+
+table[align="right"] {
+  float: right;
+}
+
+table[rules]:not([rules="none"]) {
+  border-collapse: collapse;
+}
+   
+/* caption inherits from table not table-outer */  
+caption {
+  display: table-caption;
+  text-align: center;
+}
+
+table[align="center"] > caption {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table[align="center"] > caption[align="left"] {
+  margin-right: 0;
+}
+
+table[align="center"] > caption[align="right"] {
+  margin-left: 0;
+}
+
+tr {
+  display: table-row;
+  vertical-align: inherit;
+}
+
+col {
+  display: table-column;
+}
+
+colgroup {
+  display: table-column-group;
+}
+
+tbody {
+  display: table-row-group;
+  vertical-align: middle;
+}
+
+thead {
+  display: table-header-group;
+  vertical-align: middle;
+}
+
+tfoot {
+  display: table-footer-group;
+  vertical-align: middle;
+}
+
+/* for XHTML tables without tbody */
+table > tr {
+  vertical-align: middle;
+}
+
+td { 
+  display: table-cell;
+  vertical-align: inherit;
+  text-align: inherit; 
+  padding: 1px;
+}
+
+th {
+  display: table-cell;
+  vertical-align: inherit;
+  font-weight: bold;
+  padding: 1px;
+}
+
+/* inlines */
+
+q:before {
+  content: open-quote;
+}
+
+q:after {
+  content: close-quote;
+}
+
+b, strong {
+  font-weight: bolder;
+}
+
+i, cite, em, var, dfn {
+  font-style: italic;
+}
+
+tt, code, kbd, samp {
+  font-family: monospace;
+}
+
+u, ins {
+  text-decoration: underline;
+}
+
+s, strike, del {
+  text-decoration: line-through;
+}
+
+blink {
+  text-decoration: blink;
+}
+
+big {
+  font-size: larger;
+}
+
+small {
+  font-size: smaller;
+}
+
+sub {
+  vertical-align: sub;
+  font-size: smaller;
+  line-height: normal;
+}
+
+sup {
+  vertical-align: super;
+  font-size: smaller;
+  line-height: normal;
+}
+
+nobr {
+  white-space: nowrap;
+}
+
+/* titles */
+abbr[title], acronym[title] {
+  border-bottom: dotted 1px;
+}
+
+/* lists */
+
+ul, menu, dir {
+  display: block;
+  list-style-type: disc;
+  margin: 1em 0;
+}
+
+ol {
+  display: block;
+  list-style-type: decimal;
+  margin: 1em 0;
+}
+
+li {
+  display: list-item;
+}
+
+/* nested lists have no top/bottom margins */
+ul ul,   ul ol,   ul dir,   ul menu,   ul dl,
+ol ul,   ol ol,   ol dir,   ol menu,   ol dl,
+dir ul,  dir ol,  dir dir,  dir menu,  dir dl,
+menu ul, menu ol, menu dir, menu menu, menu dl,
+dl ul,   dl ol,   dl dir,   dl menu,   dl dl {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* 2 deep unordered lists use a circle */
+ol ul,   ul ul,   menu ul,   dir ul,
+ol menu, ul menu, menu menu, dir menu,
+ol dir,  ul dir,  menu dir,  dir dir {
+  list-style-type: circle;
+}
+
+/* 3 deep (or more) unordered lists use a square */
+ol ol ul,     ol ul ul,     ol menu ul,     ol dir ul,
+ol ol menu,   ol ul menu,   ol menu menu,   ol dir menu,
+ol ol dir,    ol ul dir,    ol menu dir,    ol dir dir,
+ul ol ul,     ul ul ul,     ul menu ul,     ul dir ul,
+ul ol menu,   ul ul menu,   ul menu menu,   ul dir menu,
+ul ol dir,    ul ul dir,    ul menu dir,    ul dir dir,
+menu ol ul,   menu ul ul,   menu menu ul,   menu dir ul,
+menu ol menu, menu ul menu, menu menu menu, menu dir menu,
+menu ol dir,  menu ul dir,  menu menu dir,  menu dir dir,
+dir ol ul,    dir ul ul,    dir menu ul,    dir dir ul,
+dir ol menu,  dir ul menu,  dir menu menu,  dir dir menu,
+dir ol dir,   dir ul dir,   dir menu dir,   dir dir dir {
+  list-style-type: square;
+}
+
+
+/* leafs */
+
+/* <hr> noshade and color attributes are handled completely by
+ * the nsHTMLHRElement attribute mapping code
+ */
+hr {
+  display: block;
+  height: 2px;
+  border: 1px inset;
+  margin: 0.5em auto 0.5em auto;
+  color: gray;
+}
+
+hr[size="1"] {
+  border-style: solid none none none;
+}
+
+img[usemap], object[usemap] {
+  color: blue;
+}
+
+frameset {
+  display: block ! important;
+  position: static ! important;
+  float: none ! important;
+  border: none ! important;
+}
+
+frame {
+  border: none ! important;
+}
+
+iframe {
+  border: 2px inset;
+}
+
+noframes {
+  display: none;
+}
+
+spacer {
+  position: static ! important;
+  float: none ! important;
+}
+
+/* focusable content: anything w/ tabindex >=0 is focusable */
+abbr:focus, acronym:focus, address:focus, applet:focus, b:focus, 
+base:focus, big:focus, blockquote:focus, br:focus, canvas:focus, caption:focus,
+center:focus, cite:focus, code:focus, col:focus, colgroup:focus, dd:focus,
+del:focus, dfn:focus, dir:focus, div:focus, dl:focus, dt:focus, em:focus,
+fieldset:focus, font:focus, form:focus, h1:focus, h2:focus, h3:focus, h4:focus,
+h5:focus, h6:focus, hr:focus, i:focus, img:focus, ins:focus, 
+kbd:focus, label:focus, legend:focus, li:focus, link:focus, menu:focus, 
+object:focus, ol:focus, p:focus, pre:focus, q:focus, s:focus, samp:focus, 
+small:focus, span:focus, strike:focus, strong:focus, sub:focus, sup:focus, 
+table:focus, tbody:focus, td:focus, tfoot:focus, th:focus, thead:focus, 
+tr:focus, tt:focus, u:focus, ul:focus, var:focus {
+  /* Don't specify the outline-color, we should always use initial value. */
+   outline: 1px dotted;
+}
+
+/* hidden elements */
+area, base, basefont, head, meta, script, style, title,
+noembed, param, link {
+   display: none;
+}
+
+/* Page breaks at body tags, to help out with LIT-generation */
+body {
+  page-break-before: always;
+}
+
+/* Explicit line-breaks are blocks, sure... */
+br {
+  display: block;
+}
+
