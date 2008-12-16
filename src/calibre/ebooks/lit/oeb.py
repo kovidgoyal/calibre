@@ -478,10 +478,10 @@ class TOC(object):
         self.nodes.append(node)
         return node
 
-    def iterdescendents(self):
+    def iterdescendants(self):
         for node in self.nodes:
             yield node
-            for child in node.iterdescendents():
+            for child in node.iterdescendants():
                 yield child
     
     def __iter__(self):
