@@ -47,6 +47,7 @@ entry_points = {
                              'fb2-meta  = calibre.ebooks.metadata.fb2:main',
                              'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
                              'any2epub  = calibre.ebooks.epub.from_any:main',
+                             'any2lit   = calibre.ebooks.lit.from_any:main',
                              'lrf2lrs   = calibre.ebooks.lrf.lrfparser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
                              'pdfreflow = calibre.ebooks.lrf.pdf.reflow:main',
@@ -184,6 +185,7 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.odt.to_oeb import option_parser as odt2oeb
         from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
         from calibre.ebooks.epub.from_any import option_parser as any2epub
+        from calibre.ebooks.lit.from_any import option_parser as any2lit
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
         from calibre.gui2.main import option_parser as guiop 
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
@@ -207,7 +209,8 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('any2lrf', htmlop, any_formats))
         f.write(opts_and_exts('calibre', guiop, any_formats))
-        f.write(opts_and_exts('any2lrf', any2epub, any_formats))
+        f.write(opts_and_exts('any2epub', any2epub, any_formats))
+        f.write(opts_and_exts('any2lit', any2lit, any_formats))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
