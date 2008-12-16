@@ -104,8 +104,8 @@ def xpath(elem, expr):
 
 class Page(object):
     def __init__(self, width, height, dpi):
-        self.width = float(width)
-        self.height = float(height)
+        self.width = (float(width) / dpi) * 72.
+        self.height = (float(height) / dpi) * 72.
         self.dpi = float(dpi)
 
 class Profiles(object):
@@ -250,6 +250,7 @@ class Stylizer(object):
             style = ';\n    '.join(': '.join(item) for item in style.items())
             rules.append('%s {\n    %s;\n}' % (selector, style))
         return '\n'.join(rules)
+
 
 class Style(object):
     def __init__(self, element, stylizer):

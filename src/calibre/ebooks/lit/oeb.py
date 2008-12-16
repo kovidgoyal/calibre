@@ -490,6 +490,15 @@ class TOC(object):
     
     def __getitem__(self, index):
         return self.nodes[index]
+
+    def autolayer(self):
+        prev = None
+        for node in list(self.nodes):
+            if prev and urldefrag(prev.href)[0] == urldefrag(node.href)[0]:
+                self.nodes.remove(node)
+                prev.nodes.append(node)
+            else:
+                prev = node
     
     def depth(self, level=0):
         if self.nodes:
