@@ -7,9 +7,9 @@ import re, os, traceback
 from PyQt4.QtGui import QListView, QIcon, QFont, QLabel, QListWidget, \
                         QListWidgetItem, QTextCharFormat, QApplication, \
                         QSyntaxHighlighter, QCursor, QColor, QWidget, QDialog, \
-                        QAbstractItemDelegate, QPixmap, QStyle, QFontMetrics
+                        QPixmap
 from PyQt4.QtCore import QAbstractListModel, QVariant, Qt, SIGNAL, \
-                         QObject, QRegExp, QString, QSettings
+                         QObject, QRegExp, QString, QSettings, QSize
 
 from calibre.gui2.jobs2 import DetailView
 from calibre.gui2 import human_readable, NONE, TableView, \
@@ -128,57 +128,19 @@ class ImageView(QLabel):
         self.setMaximumWidth(width)
         self.setMaximumHeight(height) 
 
-class LocationDelegate(QAbstractItemDelegate):
-    
-    def __init__(self):
-        QAbstractItemDelegate.__init__(self)
-        self.pixmap = QPixmap(40, 40)
-        self.text = QString('Reader\n999.9 MB Available202')
-    
-    def rects(self, option):
-        style = QApplication.style()
-        font = QFont(option.font)
-        font.setBold(True)
-        irect = style.itemPixmapRect(option.rect, Qt.AlignHCenter|Qt.AlignTop, self.pixmap)
-        trect = style.itemTextRect(QFontMetrics(font), option.rect, 
-                                   Qt.AlignHCenter|Qt.AlignTop, True, self.text)
-        trect.moveTop(irect.bottom())
-        return irect, trect
-    
-    def sizeHint(self, option, index):
-        irect, trect = self.rects(option) 
-        return irect.united(trect).size()
-    
-    def paint(self, painter, option, index):
-        style = QApplication.style()
-        painter.save()
-        if hasattr(QStyle, 'CE_ItemViewItem'):
-            QApplication.style().drawControl(QStyle.CE_ItemViewItem, option, painter)
-        highlight = getattr(index.model(), 'highlight_row', -1) == index.row()
-        mode = QIcon.Active if highlight else QIcon.Normal
-        pixmap = QIcon(index.model().data(index, Qt.DecorationRole)).pixmap(self.pixmap.size())
-        pixmap = style.generatedIconPixmap(mode, pixmap, option)
-        text = index.model().data(index, Qt.DisplayRole).toString()
-        irect, trect = self.rects(option)
-        style.drawItemPixmap(painter, irect, Qt.AlignHCenter|Qt.AlignTop, pixmap)
-        font = QFont(option.font)
-        font.setBold(highlight)
-        painter.setFont(font)
-        style.drawItemText(painter, trect, Qt.AlignHCenter|Qt.AlignBottom,
-                           option.palette, True, text)
-        painter.restore()
-        
         
 class LocationModel(QAbstractListModel):
+    
     def __init__(self, parent):
         QAbstractListModel.__init__(self, parent)
         self.icons = [QVariant(QIcon(':/library')),
                       QVariant(QIcon(':/images/reader.svg')),
                       QVariant(QIcon(':/images/sd.svg'))]
-        self.text = [_('Library'),
-                     _('Reader\n%s available'),
-                     _('Card\n%s available')]
+        self.text = [_('Library\n%d\nbooks'),
+                     _('Reader\n%s\navailable'),
+                     _('Card\n%s\navailable')]
         self.free = [-1, -1]
+        self.count = 0
         self.highlight_row = 0
         self.tooltips = [
                          _('Click to see the list of books available on your computer'),
@@ -194,12 +156,18 @@ class LocationModel(QAbstractListModel):
         data = NONE
         if role == Qt.DisplayRole:
             text = self.text[row]%(human_readable(self.free[row-1])) if row > 0 \
-                            else self.text[row]
+                            else self.text[row]%self.count
             data = QVariant(text)
         elif role == Qt.DecorationRole:                
             data = self.icons[row]
         elif role == Qt.ToolTipRole:
-            return QVariant(self.tooltips[row])
+            data = QVariant(self.tooltips[row])
+        elif role == Qt.SizeHintRole:
+            data = QVariant(QSize(155, 90))
+        elif role == Qt.FontRole:
+            font = QFont('monospace')
+            font.setBold(row == self.highlight_row)
+            data = QVariant(font)
         return data
     
     def headerData(self, section, orientation, role):
@@ -223,9 +191,11 @@ class LocationView(QListView):
         self.setModel(LocationModel(self))
         self.reset()
         QObject.connect(self.selectionModel(), SIGNAL('currentChanged(QModelIndex, QModelIndex)'), self.current_changed)
-        self.delegate = LocationDelegate()
-        self.setItemDelegate(self.delegate)  
         self.setCursor(Qt.PointingHandCursor)      
+    
+    def count_changed(self, new_count):
+        self.model().count = new_count
+        self.model().reset()
     
     def current_changed(self, current, previous):
         i = current.row()
@@ -270,7 +240,6 @@ class FontFamilyModel(QAbstractListModel):
         try:
             family = self.families[index.row()]
         except:
-            import traceback
             traceback.print_exc()
             return NONE
         if role == Qt.DisplayRole:

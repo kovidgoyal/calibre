@@ -256,7 +256,9 @@ class LibraryServer(object):
         ' Feeds to read calibre books on a ipod with stanza.'
         books = []
         for record in iter(self.db):
-            if 'EPUB' in record[FIELD_MAP['formats']].upper():
+            r = record[FIELD_MAP['formats']]
+            r = r.upper() if r else ''
+            if 'EPUB' in r:
                 authors = ' & '.join([i.replace('|', ',') for i in record[FIELD_MAP['authors']].split(',')])
                 extra = []
                 rating = record[FIELD_MAP['rating']]

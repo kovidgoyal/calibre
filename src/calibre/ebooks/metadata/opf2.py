@@ -30,7 +30,6 @@ class Resource(object):
     :member:`path`
     :member:`mime_type`
     :method:`href`
-    
     '''
     
     def __init__(self, href_or_path, basedir=os.getcwd(), is_path=True):

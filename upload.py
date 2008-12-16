@@ -102,15 +102,12 @@ def build_osx(shutdown=True):
     return os.path.basename(installer)
 
 
-def build_linux(shutdown=True):
+def build_linux(*args, **kwargs):
     installer = installer_name('tar.bz2')
-    vm = '/vmware/linux/libprs500-gentoo.vmx'
-    start_vm(vm, 'linux', (BUILD_SCRIPT%('sudo python setup.py develop', 'python','installer/linux/freeze.py')).replace('rm ', 'sudo rm '), sleep=120)
-    subprocess.check_call(('scp', 'linux:/tmp/%s'%os.path.basename(installer), 'dist'))
+    exec open('installer/linux/freeze.py')
+    freeze()
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
-    if shutdown:
-        subprocess.Popen(('ssh', 'linux', 'sudo', '/sbin/poweroff'))
     return os.path.basename(installer)
 
 def build_installers():
@@ -238,7 +235,11 @@ def stage_three():
     print 'Uploading to PyPI...'
     check_call('rm -f dist/*')
     check_call('python setup.py register')
+    check_call('sudo rm -rf build')
+    os.mkdir('build')
     check_call('python2.5 setup.py bdist_egg --exclude-source-files upload')
+    shutil.rmtree('build')
+    os.mkdir('build')
     check_call('python setup.py bdist_egg --exclude-source-files upload')
     check_call('python setup.py sdist upload')
     upload_src_tarball()

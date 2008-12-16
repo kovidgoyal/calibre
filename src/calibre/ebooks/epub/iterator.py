@@ -168,8 +168,12 @@ class EbookIterator(object):
         if bookmarks is None:
             bookmarks = self.bookmarks
         dat = self.serialize_bookmarks(bookmarks)
-        if os.path.splitext(self.pathtoebook)[1].lower() == '.epub':
-            zf = open(self.pathtoebook, 'r+b')
+        if os.path.splitext(self.pathtoebook)[1].lower() == '.epub' and \
+            os.access(self.pathtoebook, os.R_OK):
+            try:
+                zf = open(self.pathtoebook, 'r+b')
+            except IOError:
+                return
             zipf = ZipFile(zf, mode='a')
             for name in zipf.namelist():
                 if name == 'META-INF/calibre_bookmarks.txt':

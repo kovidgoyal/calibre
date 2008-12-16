@@ -46,8 +46,8 @@
         </property>
         <property name="maximumSize" >
          <size>
-          <width>10000</width>
-          <height>110</height>
+          <width>16777215</width>
+          <height>100</height>
          </size>
         </property>
         <property name="verticalScrollBarPolicy" >
@@ -74,14 +74,17 @@
         <property name="flow" >
          <enum>QListView::LeftToRight</enum>
         </property>
-        <property name="isWrapping" stdset="0" >
-         <bool>false</bool>
-        </property>
-        <property name="spacing" >
-         <number>10</number>
+        <property name="gridSize" >
+         <size>
+          <width>175</width>
+          <height>90</height>
+         </size>
         </property>
         <property name="viewMode" >
-         <enum>QListView::IconMode</enum>
+         <enum>QListView::ListMode</enum>
+        </property>
+        <property name="wordWrap" >
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -576,6 +579,42 @@
    </property>
    <property name="text" >
     <string>Show book details</string>
+   </property>
+  </action>
+  <action name="action_books_by_same_author" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/user_profile.svg</normaloff>:/images/user_profile.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books by same author</string>
+   </property>
+  </action>
+  <action name="action_books_in_this_series" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/books_in_series.svg</normaloff>:/images/books_in_series.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books in this series</string>
+   </property>
+  </action>
+  <action name="action_books_by_this_publisher" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/publisher.png</normaloff>:/images/publisher.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Books by this publisher</string>
+   </property>
+  </action>
+  <action name="action_books_with_the_same_tags" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/tags.svg</normaloff>:/images/tags.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books with the same tags</string>
    </property>
   </action>
  </widget>

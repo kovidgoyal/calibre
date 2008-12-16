@@ -16,6 +16,7 @@ from calibre.ebooks.metadata.epub import get_metadata as epub_metadata
 from calibre.ebooks.metadata.html import get_metadata as html_metadata
 from calibre.ebooks.mobi.reader   import get_metadata as mobi_metadata
 from calibre.ebooks.metadata.odt  import get_metadata as odt_metadata
+from calibre.ebooks.metadata.lrx  import get_metadata as lrx_metadata 
 from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
 from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
@@ -29,12 +30,12 @@ except OSError:
 from calibre.libunzip import extract_member as zip_extract_first
 
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ptempfile import TemporaryDirectory
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
                        'rtf', 'fb2', 'pdf', 'prc', 'odt',
-                       'epub', 'lit', 'lrf', 'mobi', 'rb', 'imp'
+                       'epub', 'lit', 'lrx', 'lrf', 'mobi', 
+                       'rb', 'imp'
                       ]
 
 # The priorities for loading metadata from different file types

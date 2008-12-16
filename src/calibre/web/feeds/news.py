@@ -7,12 +7,18 @@ Defines various abstract base classes that can be subclassed to create powerful 
 __docformat__ = "restructuredtext en"
 
 
-import logging, os, cStringIO, time, traceback, re, urlparse, sys
+import logging, os, cStringIO, time, traceback, re, urlparse, sys, tempfile, functools
 from collections import defaultdict
 from functools import partial
 from contextlib import nested, closing
 
-from calibre import browser, __appname__, iswindows, LoggingInterface, strftime
+from PyQt4.Qt import QApplication, QFile, Qt, QPalette, QSize, QImage, QPainter, \
+                     QBuffer, QByteArray, SIGNAL, QUrl, QEventLoop, QIODevice
+from PyQt4.QtWebKit import QWebPage
+
+
+from calibre import browser, __appname__, iswindows, LoggingInterface, \
+                    strftime, __version__, preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
@@ -23,6 +29,7 @@ from calibre.web.fetch.simple import option_parser as web2disk_option_parser
 from calibre.web.fetch.simple import RecursiveFetcher
 from calibre.utils.threadpool import WorkRequest, ThreadPool, NoResultsPending
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.gui2 import images_rc # Needed for default cover
 
 
 class BasicNewsRecipe(object, LoggingInterface):
@@ -586,9 +593,9 @@ class BasicNewsRecipe(object, LoggingInterface):
         if npos < 0:
             npos = pos
         ans = src[:npos+1]
-        if isinstance(ans, unicode):
-            return ans
-        return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
+        if len(ans) < len(src):
+            return ans+u'\u2026' if isinstance(ans, unicode) else ans + '...'
+        return ans
 
         
     
@@ -766,6 +773,90 @@ class BasicNewsRecipe(object, LoggingInterface):
             self.cover_path = cpath
             
     
+    def default_cover(self, cover_file):
+        '''
+        Create a generic cover for recipes that dont have a cover
+        '''
+        if QApplication.instance() is None: QApplication([])
+        f = QFile(':/library')
+        f.open(QIODevice.ReadOnly)
+        img = str(f.readAll())
+        f.close()
+        f = tempfile.NamedTemporaryFile(suffix='library.png')
+        f.write(img)
+        f.flush()
+        img = f.name
+        html= u'''\
+        <html>
+            <head>
+                <style type="text/css">
+                    body {
+                        background: white no-repeat fixed center center;
+                        text-align: center;
+                        vertical-align: center;
+                        overflow: hidden;
+                        font-size: 18px;
+                    }
+                    h1 { font-family: serif; }
+                    h2, h4 { font-family: monospace; }
+                </style>
+            </head>
+            <body>
+                <h1>%(title)s</h1>
+                <br/><br/>
+                <div style="position:relative">
+                    <div style="position: absolute; left: 0; top: 0; width:100%%; height:100%%; vertical-align:center">
+                        <img src="%(img)s" alt="calibre" style="opacity:0.3"/>
+                    </div>
+                    <div style="position: absolute; left: 0; top: 0; width:100%%; height:100%%; vertical-align:center">
+                        <h2>%(date)s</h2>
+                        <br/><br/><br/><br/><br/>
+                        <h3>%(author)s</h3>
+                        <br/><br/></br/><br/><br/><br/><br/><br/><br/>
+                        <h4>Produced by %(app)s</h4>
+                    </div>
+                </div>
+            </body>
+        </html>
+        '''%dict(title=self.title if isinstance(self.title, unicode) else self.title.decode(preferred_encoding, 'replace'), 
+                 author=self.__author__ if isinstance(self.__author__, unicode) else self.__author__.decode(preferred_encoding, 'replace'),
+                 date=strftime(self.timefmt), 
+                 app=__appname__ +' '+__version__,
+                 img=img)
+        f2 = tempfile.NamedTemporaryFile(suffix='cover.html')
+        f2.write(html)
+        f2.flush()
+        page = QWebPage()
+        pal = page.palette()
+        pal.setBrush(QPalette.Background, Qt.white)
+        page.setPalette(pal)
+        page.setViewportSize(QSize(590, 750))
+        page.mainFrame().setScrollBarPolicy(Qt.Vertical, Qt.ScrollBarAlwaysOff)
+        page.mainFrame().setScrollBarPolicy(Qt.Horizontal, Qt.ScrollBarAlwaysOff)
+        loop = QEventLoop()
+        def render_html(page, loop, ok):
+            try:
+                image = QImage(page.viewportSize(), QImage.Format_ARGB32)
+                image.setDotsPerMeterX(96*(100/2.54))
+                image.setDotsPerMeterY(96*(100/2.54))
+                painter = QPainter(image)
+                page.mainFrame().render(painter)
+                painter.end()
+                ba = QByteArray()
+                buf = QBuffer(ba)
+                buf.open(QBuffer.WriteOnly)
+                image.save(buf, 'JPEG')
+                image_data = str(ba.data())
+                cover_file.write(image_data)
+                cover_file.flush()
+            finally:
+                loop.exit(0)
+    
+        page.connect(page, SIGNAL('loadFinished(bool)'), functools.partial(render_html, page, loop))
+        page.mainFrame().load(QUrl.fromLocalFile(f2.name))
+        loop.exec_()
+
+    
     def create_opf(self, feeds, dir=None):
         if dir is None:
             dir = self.output_dir
@@ -778,7 +869,11 @@ class BasicNewsRecipe(object, LoggingInterface):
         
         manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
         manifest.append(os.path.join(dir, 'index.html'))
-        cpath = getattr(self, 'cover_path', None) 
+        cpath = getattr(self, 'cover_path', None)
+        if cpath is None:
+            pf = PersistentTemporaryFile('_recipe_cover.jpg')
+            self.default_cover(pf)
+            cpath =  pf.name
         if cpath is not None and os.access(cpath, os.R_OK):
             opf.cover = cpath
             manifest.append(cpath)

@@ -46,10 +46,10 @@ main_functions = {
                }
 
 if __name__ == '__main__':
-    from setuptools import setup, find_packages, Extension
+    from setuptools import setup, find_packages
     from distutils.command.build import build as _build
     from distutils.core import Command as _Command
-    from pyqtdistutils import PyQtExtension, build_ext
+    from pyqtdistutils import PyQtExtension, build_ext, Extension
     import subprocess, glob
     
     def newer(targets, sources):
@@ -391,11 +391,14 @@ if __name__ == '__main__':
         ext_modules.append(Extension('calibre.plugins.winutil',
                 sources=['src/calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi'],
-                include_dirs=['C:/WinDDK/6001.18001/inc/api/'])
-                           )
+                include_dirs=['C:/WinDDK/6001.18001/inc/api/',
+                              'C:/WinDDK/6001.18001/inc/crt/'],
+                extra_compile_args=['/X']
+                ))
     if isosx:
         ext_modules.append(Extension('calibre.plugins.usbobserver',
-                sources=['src/calibre/devices/usbobserver/usbobserver.c'])
+                sources=['src/calibre/devices/usbobserver/usbobserver.c'],
+                extra_link_args=['-framework', 'IOKit'])
                            )
     
     setup(

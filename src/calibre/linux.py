@@ -422,7 +422,8 @@ def install_man_pages(fatal_errors):
                 raise
             print 'Failed to install MAN pages as help2man is missing from your system'
             break
-        raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', p.stdout.read())
+        o = p.stdout.read()
+        raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', o)
         if not raw.strip():
             print 'Unable to create MAN page for', prog
             continue
@@ -464,6 +465,17 @@ def post_install():
             if os.stat(f).st_uid == 0:
                 os.unlink(f)
 
+def binary_install():
+    manifest = os.path.join(sys.frozen_path, 'manifest')
+    exes = [x.strip() for x in open(manifest).readlines()]
+    print 'Creating symlinks...'
+    for exe in exes:
+        dest = os.path.join('/usr', 'bin', exe)
+        if os.path.exists(dest):
+            os.remove(dest)
+        os.symlink(os.path.join(sys.frozen_path, exe), dest)
+    post_install()
+    return 0
 
 VIEWER = '''\
 [Desktop Entry]
@@ -579,7 +591,7 @@ def setup_desktop_integration(fatal_errors):
         print >>sys.stderr, 'Could not setup desktop integration. Error:'
         print err
 
-
+main = post_install
 if __name__ == '__main__':
     post_install()
 

@@ -1920,7 +1920,7 @@ def process_file(path, options, logger=None):
         options.anchor_ids = True
     files = options.spine if (options.use_spine and hasattr(options, 'spine')) else [path]
     conv = HTMLConverter(book, fonts, options, logger, files)
-    if options.use_spine and hasattr(options, 'toc'):
+    if options.use_spine and hasattr(options, 'toc') and options.toc is not None:
         conv.create_toc(options.toc)
     oname = options.output
     if not oname:
@@ -1948,7 +1948,8 @@ def try_opf(path, options, logger):
         return
     
     dirpath = os.path.dirname(os.path.abspath(opf))
-    opf = OPFReader(open(opf, 'rb'), dirpath)
+    from calibre.ebooks.metadata.opf2 import OPF as OPF2
+    opf = OPF2(open(opf, 'rb'), dirpath)
     try:
         title = opf.title        
         if title and not getattr(options, 'title', None):
@@ -1962,10 +1963,6 @@ def try_opf(path, options, logger):
             publisher = opf.publisher
             if publisher:
                 options.publisher = publisher
-        if not getattr(options, 'category', None):
-            category = opf.category
-            if category:
-                options.category = category
         if not getattr(options, 'cover', None) or options.use_metadata_cover:
             orig_cover = getattr(options, 'cover', None)
             options.cover = None
