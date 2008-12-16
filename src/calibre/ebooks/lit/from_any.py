@@ -38,6 +38,7 @@ def any2lit(opts, path):
         os.mkdir(oebdir)
         opts.output = os.path.join(tdir, 'dummy.epub')
         opts.extract_to = oebdir
+        opts.profile = 'None'
         any2epub(opts, path)
         opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
         opts.output = orig_output

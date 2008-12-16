@@ -62,7 +62,7 @@ def remove_bad_link(element, attribute, link, pos):
 
 def check(opf_path, pretty_print):
     '''
-    Find a remove all invalid links in the HTML files 
+    Find and remove all invalid links in the HTML files 
     '''
     logger = logging.getLogger('html2epub')
     logger.info('\tChecking files for bad links...')
