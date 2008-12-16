@@ -16,7 +16,7 @@ from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
-from calibre.ebooks.lit.oeb import urlnormalize
+from calibre.ebooks.lit.oeb import XML_PARSER, urlnormalize
 from calibre.ebooks import DRMError
 from calibre import plugins
 lzx, lxzerror = plugins['lzx']
@@ -111,6 +111,8 @@ def consume_sized_utf8_string(bytes, zpad=False):
         pos += 1
     return u''.join(result), bytes[pos:]
 
+def encode(string):
+    return unicode(string).encode('ascii', 'xmlcharrefreplace')
 
 class UnBinary(object):
     AMPERSAND_RE = re.compile(
@@ -126,39 +128,17 @@ class UnBinary(object):
         self.dir = os.path.dirname(path)
         buf = StringIO()
         self.binary_to_text(bin, buf)
-        raw = buf.getvalue().lstrip().decode('utf-8')
-        raw = self.escape_reserved(raw)
-        self.tree = self.fixup_tree(raw)
+        self.raw = buf.getvalue().lstrip().decode('utf-8')
+        self.escape_reserved()
+        self._tree = None
 
-    def fixup_node(self, node, in_head=False):
-        in_head = in_head or (node.tag == 'head')
-        if self.is_html and not in_head:
-            text = node.text
-            if text and text.isspace() and len(node) > 0:
-                node.text = None
-                span = etree.SubElement(node, 'span')
-                span.text = text
-        text = node.tail
-        if text and text.isspace():
-            node.tail = None
-            if self.is_html and not in_head:
-                span = etree.Element('span')
-                span.text = text
-                node.addnext(span)
-        for child in node.iterchildren():
-            if isinstance(child.tag, basestring):
-                self.fixup_node(child, in_head)
-        return node
-        
-    def fixup_tree(self, raw):
-        return self.fixup_node(etree.fromstring(raw))
-        
-    def escape_reserved(self, raw):
+    def escape_reserved(self):
+        raw = self.raw
         raw = self.AMPERSAND_RE.sub(r'&amp;', raw)
         raw = self.OPEN_ANGLE_RE.sub(r'&lt;', raw)
         raw = self.CLOSE_ANGLE_RE.sub(r'&gt;', raw)
         raw = self.DOUBLE_ANGLE_RE.sub(r'\1', raw)
-        return raw
+        self.raw = raw
     
     def item_path(self, internal_id):
         try:
@@ -175,6 +155,17 @@ class UnBinary(object):
             index += 1
         relpath = (['..'] * (len(base) - index)) + target[index:]
         return '/'.join(relpath)
+    
+    def __unicode__(self):
+        return self.raw
+
+    def tree():
+        def fget(self):
+            if not self._tree:
+                self._tree = etree.fromstring(self.raw, parser=XML_PARSER)
+            return self._tree
+        return property(fget=fget)
+    tree = tree()
     
     def binary_to_text(self, bin, buf, index=0, depth=0):
         tag_name = current_map = None
@@ -197,7 +188,7 @@ class UnBinary(object):
                     c = '>>'
                 elif c == '<':
                     c = '<<'
-                buf.write(c.encode('ascii', 'xmlcharrefreplace'))
+                buf.write(encode(c))
             
             elif state == 'get flags':
                 if oc == 0:
@@ -227,7 +218,7 @@ class UnBinary(object):
                         tag_name = '?'+unichr(tag)+'?'
                         current_map = self.tag_to_attr_map[tag]
                         print 'WARNING: tag %s unknown' % unichr(tag)
-                    buf.write(unicode(tag_name).encode('utf-8'))
+                    buf.write(encode(tag_name))
                 elif flags & FLAG_CLOSING:
                     if depth == 0:
                         raise LitError('Extra closing tag')
@@ -246,8 +237,7 @@ class UnBinary(object):
                         is_goingdown = False
                         if not tag_name:
                             raise LitError('Tag ends before it begins.')
-                        buf.write(u''.join(
-                                ('</', tag_name, '>')).encode('utf-8'))
+                        buf.write(encode(u''.join(('</', tag_name, '>'))))
                         dynamic_tag = 0
                         tag_name = None
                     state = 'text'
@@ -267,7 +257,7 @@ class UnBinary(object):
                         in_censorship = True
                         state = 'get value length'
                         continue
-                    buf.write(' ' + unicode(attr).encode('utf-8') + '=')
+                    buf.write(' ' + encode(attr) + '=')
                     if attr in ['href', 'src']:
                         state = 'get href length'
                     else:
@@ -297,8 +287,7 @@ class UnBinary(object):
                     state = 'get attr'
                 elif count > 0:
                     if not in_censorship:
-                        buf.write(c.encode(
-                            'ascii', 'xmlcharrefreplace'))
+                        buf.write(encode(c))
                     count -= 1
                 if count == 0:
                     if not in_censorship:
@@ -318,7 +307,7 @@ class UnBinary(object):
                 tag_name += c
                 count -= 1
                 if count == 0:
-                    buf.write(unicode(tag_name).encode('utf-8'))
+                    buf.write(encode(tag_name))
                     state = 'get attr'
             
             elif state == 'get attr length':
@@ -329,7 +318,7 @@ class UnBinary(object):
                 state = 'get custom attr'
             
             elif state == 'get custom attr':
-                buf.write(unicode(c).encode('utf-8'))
+                buf.write(encode(c))
                 count -= 1
                 if count == 0:
                     buf.write('=')
@@ -351,7 +340,7 @@ class UnBinary(object):
                     if frag:
                         path = '#'.join((path, frag))
                     path = urlnormalize(path)
-                    self.buf.write((u'"%s"' % path).encode('utf-8'))
+                    buf.write(encode(u'"%s"' % path))
                     state = 'get attr'
         return index
     
@@ -816,9 +805,61 @@ class LitFile(object):
 class LitReader(object):
     def __init__(self, filename_or_stream):
         self._litfile = LitFile(filename_or_stream)
-
+    
     def namelist(self):
         return self._litfile.paths.keys()
+    
+    def read_xml(self, name):
+        entry = self._litfile.paths[name] if name else None
+        if entry is None:
+            content = self._read_meta()
+        elif 'spine' in entry.state:
+            internal = '/'.join(('/data', entry.internal, 'content'))
+            raw = self._litfile.get_file(internal)
+            unbin = UnBinary(raw, name, self._litfile.manifest, HTML_MAP)
+            content = unbin.tree
+        else:
+            raise LitError('Requested non-XML content as XML')
+        return content
+    
+    def read(self, name, pretty_print=False):
+        entry = self._litfile.paths[name] if name else None
+        if entry is None:
+            meta = self._read_meta()
+            content = OPF_DECL + etree.tostring(
+                meta, encoding='ascii', pretty_print=pretty_print)
+        elif 'spine' in entry.state:
+            internal = '/'.join(('/data', entry.internal, 'content'))
+            raw = self._litfile.get_file(internal)
+            unbin = UnBinary(raw, name, self._litfile.manifest, HTML_MAP)
+            content = HTML_DECL
+            if pretty_print:
+                content += etree.tostring(unbin.tree,
+                    encoding='ascii', pretty_print=True)
+            else:
+                content += unicode(unbin)
+        else:
+            internal = '/'.join(('/data', entry.internal))
+            content = self._litfile.get_file(internal)
+        return content
+    
+    def meta():
+        def fget(self):
+            return self.read(self._litfile.opf_path)
+        return property(fget=fget)
+    meta = meta()
+    
+    def _ensure_dir(self, path):
+        dir = os.path.dirname(path)
+        if not os.path.isdir(dir):
+            os.makedirs(dir)
+    
+    def extract_content(self, output_dir=os.getcwdu(), pretty_print=False):
+        for name in self.namelist():
+            path = os.path.join(output_dir, name)
+            self._ensure_dir(path)
+            with open(path, 'wb') as f:
+                f.write(self.read(name, pretty_print=pretty_print))
     
     def _read_meta(self):
         path = 'content.opf'
@@ -832,54 +873,6 @@ class LitReader(object):
                 'PENGUIN group', '\x00\x01\x18\x00PENGUIN group', 1)
             unbin = UnBinary(raw, path, self._litfile.manifest, OPF_MAP)
         return unbin.tree
-
-    def read_xml(self, name):
-        entry = self._litfile.paths[name] if name else None
-        if entry is None:
-            content = self._read_meta()
-        elif 'spine' in entry.state:
-            internal = '/'.join(('/data', entry.internal, 'content'))
-            raw = self._litfile.get_file(internal)
-            unbin = UnBinary(raw, name, self._litfile.manifest, HTML_MAP)
-            content = unbin.tree
-        else:
-            raise LitError('Requested non-XML content as XML')
-        return content
-
-    def read(self, name, pretty_print=False):
-        entry = self._litfile.paths[name] if name else None
-        if entry is None:
-            meta = self._read_meta()
-            content = OPF_DECL + etree.tostring(
-                meta, encoding='ascii', pretty_print=pretty_print)
-        elif 'spine' in entry.state:
-            internal = '/'.join(('/data', entry.internal, 'content'))
-            raw = self._litfile.get_file(internal)
-            unbin = UnBinary(raw, name, self._litfile.manifest, HTML_MAP)
-            content = HTML_DECL + etree.tostring(
-                unbin.tree, encoding='ascii', pretty_print=pretty_print)
-        else:
-            internal = '/'.join(('/data', entry.internal))
-            content = self._litfile.get_file(internal)
-        return content
-
-    def meta():
-        def fget(self):
-            return self.read(self._litfile.opf_path)
-        return property(fget=fget)
-    meta = meta()
-    
-    def _ensure_dir(self, path):
-        dir = os.path.dirname(path)
-        if not os.path.isdir(dir):
-            os.makedirs(dir)
-
-    def extract_content(self, output_dir=os.getcwdu(), pretty_print=False):
-        for name in self.namelist():
-            path = os.path.join(output_dir, name)
-            self._ensure_dir(path)
-            with open(path, 'wb') as f:
-                f.write(self.read(name, pretty_print=pretty_print))
 
 
 def option_parser():

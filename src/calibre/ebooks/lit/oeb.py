@@ -516,7 +516,9 @@ class TOC(object):
 
 
 class OEBBook(object):
-    def __init__(self, opfpath, container=None):
+    def __init__(self, opfpath=None, container=None):
+        if not opfpath:
+            opfpath = 'content.opf'
         if not container:
             container = DirContainer(os.path.dirname(opfpath))
             opfpath = os.path.basename(opfpath)
