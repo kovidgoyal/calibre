@@ -82,14 +82,14 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
 
-FONT_SIZE_LIST = [('xx-small', 1,     6.),
-                  ('x-small',  None,  7.),
-                  ('small',    2,     8.),
-                  ('medium',   3,     9.),
-                  ('large',    4,    11.),
-                  ('x-large',  5,    13.),
-                  ('xx-large', 6,    15.),
-                  (None,       7,    17.)]
+FONT_SIZE_LIST = [('xx-small', 1,    10.),
+                  ('x-small',  None, 11.),
+                  ('small',    2,    13.),
+                  ('medium',   3,    16.),
+                  ('large',    4,    18.),
+                  ('x-large',  5,    20.),
+                  ('xx-large', 6,    22.),
+                  (None,       7,    24.)]
 
 FONT_SIZE_BY_NAME = {}
 FONT_SIZE_BY_NUM = {}
