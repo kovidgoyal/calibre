@@ -88,10 +88,10 @@ def initialize_container(path_to_container, opf_name='metadata.opf'):
     zf.writestr('META-INF/container.xml', CONTAINER)
     return zf
 
-def config(defaults=None):
+def config(defaults=None, name='epub'):
     desc = _('Options to control the conversion to EPUB')
     if defaults is None:
-        c = Config('epub', desc)
+        c = Config(name, desc)
     else:
         c = StringConfig(defaults, desc)
     

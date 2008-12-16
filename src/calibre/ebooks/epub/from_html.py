@@ -64,7 +64,8 @@ def check(opf_path, pretty_print):
     '''
     Find a remove all invalid links in the HTML files 
     '''
-    print '\tChecking files for bad links...'
+    logger = logging.getLogger('html2epub')
+    logger.info('\tChecking files for bad links...')
     pathtoopf = os.path.abspath(opf_path)
     with CurrentDir(os.path.dirname(pathtoopf)):
         opf = OPF(open(pathtoopf, 'rb'), os.path.dirname(pathtoopf))

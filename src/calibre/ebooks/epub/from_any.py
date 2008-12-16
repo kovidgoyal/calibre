@@ -148,14 +148,14 @@ def config(defaults=None):
 def formats():
     return ['html', 'rar', 'zip', 'oebzip']+list(MAP.keys())
 
-def option_parser():
-    
-    return config().option_parser(usage=_('''\
+USAGE = _('''\
 %%prog [options] filename
 
-Convert any of a large number of ebook formats to an epub file. Supported formats are: %s
-''')%formats()
-)
+Convert any of a large number of ebook formats to a %s file. Supported formats are: %s
+''')
+
+def option_parser(usage=USAGE):
+    return config().option_parser(usage=usage%('EPUB', formats()))
 
 def main(args=sys.argv):
     parser = option_parser()
