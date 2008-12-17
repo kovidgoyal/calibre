@@ -101,7 +101,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         for item in items:
             self.language.addItem(item[1], QVariant(item[0]))
             
-        self.output_format.setCurrentIndex(0 if prefs['output_format'] == 'LRF' else 1)
         self.pdf_metadata.setChecked(prefs['read_file_metadata'])
         
         added_html = False
@@ -255,16 +254,11 @@ class ConfigDialog(QDialog, Ui_Dialog):
         sc.set('max_cover', mcs)
         config['delete_news_from_library_on_upload'] = self.delete_news.isChecked()
         config['upload_news_to_device'] = self.sync_news.isChecked()
-        of = str(self.output_format.currentText())
         fmts = []
         for i in range(self.viewer.count()):
             if self.viewer.item(i).checkState() == Qt.Checked:
                 fmts.append(str(self.viewer.item(i).text()))
         config['internally_viewed_formats'] = fmts
-        if of != prefs['output_format'] and 'epub' in of.lower():
-            warning_dialog(self, 'Warning', 
-                '<p>EPUB support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.').exec_()
-        prefs['output_format'] = of 
         
         if not path or not os.path.exists(path) or not os.path.isdir(path):
             d = error_dialog(self, _('Invalid database location'),

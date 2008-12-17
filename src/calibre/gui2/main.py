@@ -126,6 +126,21 @@ class Main(MainWindow, Ui_MainWindow):
                         self.location_selected)
         QObject.connect(self.stack, SIGNAL('currentChanged(int)'),
                         self.location_view.location_changed)
+        
+        self.output_formats = sorted(['EPUB', 'LRF'])
+        for f in self.output_formats:
+            self.output_format.addItem(f)
+        self.output_format.setCurrentIndex(self.output_formats.index(prefs['output_format']))
+        def change_output_format(x):
+            of = unicode(x).strip()
+            if of != prefs['output_format']:
+                if of in ('EPUB', 'LIT'):
+                    warning_dialog(self, 'Warning', 
+                                   '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
+                prefs.set('output_format', of)
+        
+        self.connect(self.output_format, SIGNAL('currentIndexChanged(QString)'), 
+                     change_output_format)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help visit <a href="http://%s.kovidgoyal.net/user_manual">%s.kovidgoyal.net</a><br>')%(__appname__, __appname__)
@@ -489,7 +504,7 @@ class Main(MainWindow, Ui_MainWindow):
             return
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
-        self.device_info = _('Connected ')+' '.join(info[:-1])
+        self.device_info = _('Connected ')+info[0]
         self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=self.device_info))
 
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
