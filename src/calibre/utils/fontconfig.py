@@ -111,9 +111,12 @@ class FcValue(Structure):
                 ('u', _FcValue)
                 ]
 
+class FcObjectSet(Structure): pass
+    
 lib = load_library()
+lib.FcPatternBuild.restype = POINTER(FcPattern)
 lib.FcPatternCreate.restype   = c_void_p
-lib.FcObjectSetCreate.restype = c_void_p
+lib.FcObjectSetCreate.restype = POINTER(FcObjectSet)
 lib.FcFontSetDestroy.argtypes = [POINTER(FcFontSet)]
 lib.FcFontList.restype = POINTER(FcFontSet)
 lib.FcNameUnparse.argtypes = [POINTER(FcPattern)]
@@ -238,7 +241,7 @@ def files_for_family(family, normalize=True):
     join()
     if isinstance(family, unicode):
         family = family.encode(preferred_encoding)
-    family_pattern = lib.FcPatternBuild(0, 'family', FcTypeString, family, 0)
+    family_pattern = lib.FcPatternBuild(0, 'family', FcTypeString, family, None)
     if not family_pattern:
         raise RuntimeError('Allocation failure')
     #lib.FcPatternPrint(family_pattern)
@@ -256,8 +259,8 @@ def files_for_family(family, normalize=True):
     fonts = {}
     fs = lib.FcFontList(0, family_pattern, oset)
     font_set = fs.contents
-    file  = pointer(create_string_buffer(chr(0), 5000))
-    full_name  = pointer(create_string_buffer(chr(0), 200))
+    file  = pointer(create_string_buffer(5000))
+    full_name  = pointer(create_string_buffer(200))
     weight = c_int(0)
     slant = c_int(0)
     fname = ''

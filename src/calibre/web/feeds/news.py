@@ -789,6 +789,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         html= u'''\
         <html>
             <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
                 <style type="text/css">
                     body {
                         background: white no-repeat fixed center center;
@@ -824,7 +825,7 @@ class BasicNewsRecipe(object, LoggingInterface):
                  app=__appname__ +' '+__version__,
                  img=img)
         f2 = tempfile.NamedTemporaryFile(suffix='cover.html')
-        f2.write(html)
+        f2.write(html.encode('utf-8'))
         f2.flush()
         page = QWebPage()
         pal = page.palette()
