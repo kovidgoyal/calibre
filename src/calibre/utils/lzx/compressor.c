@@ -21,7 +21,7 @@
      + ((compressor)->input.size - (compressor)->input.offset))
 
 typedef struct buffer_t {
-    void *data;
+    unsigned char *data;
     unsigned int size;
     unsigned int offset;
 } buffer_t;
