@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-12-15 02:49+0000\n"
-"PO-Revision-Date: 2008-12-12 09:25+0000\n"
+"PO-Revision-Date: 2008-12-15 22:58+0000\n"
 "Last-Translator: Michael Gallo <michael.gallo@tiscali.it>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2008-12-15 18:24+0000\n"
+"X-Launchpad-Export-Date: 2008-12-17 21:17+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:137
@@ -2473,7 +2473,7 @@ msgstr "Automatické rozoznávanie &kapitol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:408
 msgid "&XPath:"
-msgstr ""
+msgstr "Výraz &XPath:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:409
 msgid ""
@@ -2492,151 +2492,173 @@ msgid ""
 "style=\" text-decoration: underline; color:#0000ff;\">XPath "
 "tutorial</span></a></p></body></html>"
 msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" "
+"\"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style "
+"type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:10pt; "
+"font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Automatické rozoznávanie "
+"kapitol môžete ovládať pomocou výrazu XPath. Viac informácií o výrazoch "
+"XPath nájdete v <a "
+"href=\"https://calibre.kovidgoyal.net/user_manual/xpath.html\"><span "
+"style=\" text-decoration: underline; color:#0000ff;\">XPath "
+"tutoriáli.</span></a></p></body></html>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:414
 msgid "Chapter &mark:"
-msgstr ""
+msgstr "&Značka kapitol:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:415
 msgid "Automatic &Table of Contents"
-msgstr ""
+msgstr "Automatický &obsah"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:416
 msgid "Number of &links to add to Table of Contents"
-msgstr ""
+msgstr "&Počet odkazov, ktoré budú pridané do obsahu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:417
 msgid "Do not add &detected chapters to the Table of Contents"
-msgstr ""
+msgstr "&Nepridávať automaticky rozoznané kapitoly do obsahu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:418
 msgid "Chapter &threshold"
-msgstr ""
+msgstr "Prahová úroveň &kapitol"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:419
 msgid "&Force use of auto-generated Table of Contents"
-msgstr ""
+msgstr "&Vždy použiť automaticky generovaný obsah"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:420
 msgid "Level &1 TOC"
-msgstr ""
+msgstr "Obsah úrovne &1"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:421
 msgid "Level &2 TOC"
-msgstr ""
+msgstr "Obsah úrovne &2"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:38
 msgid "Author Sort"
-msgstr ""
+msgstr "Autor (triediť ako)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:40
 msgid "ISBN"
-msgstr ""
+msgstr "ISBN"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:104
 msgid "Cannot connect"
-msgstr ""
+msgstr "Spojenie zlyhalo"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:105
 msgid "You must specify a valid access key for isbndb.com"
-msgstr ""
+msgstr "Musíte zadať platný kľúč pre isbndb.com"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:139
 msgid "Error fetching metadata"
-msgstr ""
+msgstr "Chyba preberania metadát"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:144
 msgid "No metadata found"
-msgstr ""
+msgstr "Žiadne metadáta neboli nájdené"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:144
 msgid ""
 "No metadata found, try adjusting the title and author or the ISBN key."
 msgstr ""
+"Žiadne metadáta neboli nájdené, skúste pozmeniť titul a autora, alebo ISBN "
+"kód."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:77
 msgid "Fetch metadata"
-msgstr ""
+msgstr "Prevziať metadáta"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:78
 msgid "Fetching metadata for <b>%1</b>"
-msgstr ""
+msgstr "Preberám metadáta pre <b>%1</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:79
 msgid ""
 "Sign up for a free account from <a "
 "href=\"http://www.isbndb.com\">ISBNdb.com</a> to get an access key."
 msgstr ""
+"Založte si bezplatný účet na <a "
+"href=\"http://www.isbndb.com\">ISBNdb.com</a> a získate prístupový kľúč."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:80
 msgid "&Access Key:"
-msgstr ""
+msgstr "&Prístupový kľúč:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:81
 msgid "Fetch"
-msgstr ""
+msgstr "Prevziať"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:82
 msgid "Matches"
-msgstr ""
+msgstr "Zhody"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata_ui.py:83
 msgid ""
 "Select the book that most closely matches your copy from the list below"
-msgstr ""
+msgstr "Zo zoznamu dole vyberte knihu, ktorá sa najviac zhoduje s vašou"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/job_view_ui.py:33
 msgid "Details of job"
-msgstr ""
+msgstr "Podrobnosti úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:27
 msgid "Unavailable"
-msgstr ""
+msgstr "Nie sú k dispozícii"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs.py:38
 msgid " - Jobs"
-msgstr ""
+msgstr " - Úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:38
 msgid "Active Jobs"
-msgstr ""
+msgstr "Aktívne úlohy"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/jobs_ui.py:39
 msgid "&Stop selected job"
-msgstr ""
+msgstr "&Zastaviť označenú úlohu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:98
 msgid "Choose the format to convert into LRF"
-msgstr ""
+msgstr "Vyberte zdrojový formát na prevod do LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:106
 msgid "Convert %s to LRF"
-msgstr ""
+msgstr "Previesť %s do formátu LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:109
 #: /home/kovid/work/calibre/src/calibre/gui2/tools.py:347
 msgid "Set conversion defaults"
-msgstr ""
+msgstr "Štandardné nastavenie prevodu"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:260
 msgid ""
 "Preprocess the file before converting to LRF. This is useful if you know "
 "that the file is from a specific source. Known sources:"
 msgstr ""
+"Predspracovať súbor pred prevodom do LRF. Užitočné ak poznáte zdroj z "
+"ktorého súbor pochádza. Známe zdroje:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:261
 msgid "<ol><li><b>baen</b> - Books from BAEN Publishers</li>"
-msgstr ""
+msgstr "<ol><li><b>baen</b> - Knihy z vydavateľstva BAEN</li>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:262
 msgid ""
 "<li><b>pdftohtml</b> - HTML files that are the output of the program "
 "pdftohtml</li>"
 msgstr ""
+"<li><b>pdftohtml</b> - HTML súbory vygenerované programom pdftohtml</li>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:263
 msgid "<li><b>book-designer</b> - HTML0 files from Book Designer</li>"
 msgstr ""
+"<li><b>book-designer</b> - súbory HTML0 z programu Book Designer</li>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single.py:296
 msgid ""
