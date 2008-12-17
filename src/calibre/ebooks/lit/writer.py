@@ -26,10 +26,11 @@ import calibre.ebooks.lit.maps as maps
 from calibre.ebooks.lit.oeb import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
     CSS_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize, xpath
-from calibre.ebooks.lit.oeb import OEBBook
+from calibre.ebooks.lit.oeb import FauxLogger, OEBBook
 from calibre.ebooks.lit.stylizer import Stylizer
 from calibre.ebooks.lit.lzx import Compressor
 import calibre
+from calibre import LoggingInterface
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
@@ -141,9 +142,9 @@ def warn(x):
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
     
-    def __init__(self, root, path, oeb, map=HTML_MAP, warn=warn):
+    def __init__(self, root, path, oeb, map=HTML_MAP, logger=FauxLogger()):
         self.path = path
-        self.log_warn = warn
+        self.logger = logger
         self.dir = os.path.dirname(path)
         self.manifest = oeb.manifest
         self.tags, self.tattrs = map
@@ -272,7 +273,7 @@ class ReBinary(object):
 
     def build_ahc(self):
         if len(self.anchors) > 6:
-            self.log_warn("More than six anchors in file %r. " \
+            self.logger.log_warn("More than six anchors in file %r. " \
                 "Some links may not work properly." % self.path)
         data = StringIO()
         data.write(unichr(len(self.anchors)).encode('utf-8'))
@@ -296,11 +297,10 @@ def preserve(function):
     functools.update_wrapper(wrapper, function)
     return wrapper
     
-class LitWriter(object, calibre.LoggingInterface):
-    def __init__(self, oeb, verbose=0):
-        calibre.LoggingInterface.__init__(self, logging.getLogger('oeb2lit'))
-        self.setup_cli_handler(verbose)
+class LitWriter(object):
+    def __init__(self, oeb, logger=FauxLogger()):
         self._oeb = oeb
+        self._logger = logger
         self._litize_oeb()
 
     def _litize_oeb(self):
@@ -325,7 +325,7 @@ class LitWriter(object, calibre.LoggingInterface):
                 if type not in oeb.guide:
                     oeb.guide.add(type, title, cover.href)
         else:
-            self.log_warn('No suitable cover image found.')
+            self._logger.log_warn('No suitable cover image found.')
 
     def dump(self, stream):
         self._stream = stream
@@ -467,7 +467,7 @@ class LitWriter(object, calibre.LoggingInterface):
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
-                self.log_warn("File %r of unknown media-type %r " \
+                self._logger.log_warn("File %r of unknown media-type %r " \
                     "excluded from output." % (item.href, item.media_type))
                 continue
             name = '/data/' + item.id
@@ -475,7 +475,8 @@ class LitWriter(object, calibre.LoggingInterface):
             secnum = 0
             if not isinstance(data, basestring):
                 self._add_folder(name)
-                rebin = ReBinary(data, item.href, self._oeb, warn=self.log_warn)
+                rebin = ReBinary(data, item.href, self._oeb, map=HTML_MAP,
+                                 logger=self._logger)
                 self._add_file(name + '/ahc', rebin.ahc, 0)
                 self._add_file(name + '/aht', rebin.aht, 0)
                 item.page_breaks = rebin.page_breaks
@@ -554,7 +555,8 @@ class LitWriter(object, calibre.LoggingInterface):
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
         meta.attrib['ms--guid'] = '{%s}' % str(uuid.uuid4()).upper()
-        rebin = ReBinary(meta, 'content.opf', self._oeb, map=OPF_MAP, warn=self.log_warn)
+        rebin = ReBinary(meta, 'content.opf', self._oeb, map=OPF_MAP,
+                         logger=self._logger)
         meta = rebin.content
         self._meta = meta
         self._add_file('/meta', meta)
@@ -713,19 +715,23 @@ def option_parser():
     parser.add_option(
         '-o', '--output', default=None, 
         help=_('Output file. Default is derived from input filename.'))
+    parser.add_option(
+        '--verbose', default=False, action='store_true',
+        help=_('Useful for debugging.'))
     return parser
 
 def oeb2lit(opts, opfpath):
+    logger = LoggingInterface(logging.getLogger('oeb2lit'))
+    logger.setup_cli_handler(opts.verbose)
     litpath = opts.output
     if litpath is None:
         litpath = os.path.basename(opfpath)
         litpath = os.path.splitext(litpath)[0] + '.lit'
     litpath = os.path.abspath(litpath)
-    lit = LitWriter(OEBBook(opfpath), opts.verbose)
+    lit = LitWriter(OEBBook(opfpath))
     with open(litpath, 'wb') as f:
         lit.dump(f)
-    logger = logging.getLogger('oeb2lit')
-    logger.info(_('Output written to ')+litpath)
+    logger.log_info(_('Output written to ')+litpath)
     
 
 def main(argv=sys.argv):
