@@ -312,7 +312,7 @@ class Manifest(object):
             yield id, item
     
     def __contains__(self, key):
-        return id in self.ids
+        return key in self.ids
 
     def to_opf1(self, parent=None):
         elem = element(parent, 'manifest')
