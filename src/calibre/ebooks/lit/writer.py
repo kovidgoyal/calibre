@@ -313,6 +313,9 @@ class LitWriter(object):
         elif MS_COVER_TYPE in oeb.guide:
             href = oeb.guide[MS_COVER_TYPE].href
             cover = oeb.manifest.hrefs[href]
+        elif 'cover' in oeb.guide:
+            href = oeb.guide['cover'].href
+            cover = oeb.manifest.hrefs[href]
         else:
             html = oeb.spine[0].data
             imgs = xpath(html, '//img[position()=1]')

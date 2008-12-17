@@ -32,7 +32,7 @@ Conversion of HTML/OPF files follows several stages:
     * The EPUB container is created.
 '''
 
-import os, sys, cStringIO, logging, re, functools
+import os, sys, cStringIO, logging, re, functools, shutil
 
 from lxml.etree import XPath
 from lxml import html
@@ -210,17 +210,16 @@ TITLEPAGE = '''\
 </html>
 '''
 
-def create_cover_image(src, dest, screen_size):
-    from PyQt4.Qt import QApplication, QImage, Qt
-    if QApplication.instance() is None:
-        app = QApplication([])
-        app
-    im = QImage()
+def create_cover_image(src, dest, screen_size, rescale_cover=True):
     try:
+        from PyQt4.Qt import QImage, Qt
+        if QApplication.instance() is None:
+            QApplication([])
+        im = QImage()
         im.load(src)
         if im.isNull():
-            raise ValueError
-        if screen_size is not None:
+            raise ValueError('Invalid cover image')
+        if rescale_cover and screen_size is not None:
             width, height = im.width(), im.height()
             dw, dh = (screen_size[0]-width)/float(width), (screen_size[1]-height)/float(height)
             delta = min(dw, dh)
@@ -228,7 +227,7 @@ def create_cover_image(src, dest, screen_size):
                 nwidth = int(width + delta*(width))
                 nheight = int(height + delta*(height))
                 im = im.scaled(int(nwidth), int(nheight), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-            im.save(dest)
+        im.save(dest)
     except:
         import traceback
         traceback.print_exc()
@@ -241,7 +240,6 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     if mi.cover:
         if f(filelist[0].path) == f(mi.cover):
             old_title_page = htmlfilemap[filelist[0].path]
-            
     #logger = logging.getLogger('html2epub')
     metadata_cover = mi.cover
     if metadata_cover and not os.path.exists(metadata_cover):
@@ -250,14 +248,15 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     cpath = '/'.join(('resources', '_cover_.jpg'))
     cover_dest = os.path.join(tdir, 'content', *cpath.split('/'))
     if metadata_cover is not None:
-        if not create_cover_image(metadata_cover, cover_dest, opts.profile.screen_size):
+        if not create_cover_image(metadata_cover, cover_dest, 
+                                  opts.profile.screen_size):
             metadata_cover = None
-                
     specified_cover = opts.cover
     if specified_cover and not os.path.exists(specified_cover):
         specified_cover = None
     if specified_cover is not None:
-        if not create_cover_image(specified_cover, cover_dest, opts.profile.screen_size):
+        if not create_cover_image(specified_cover, cover_dest, 
+                                  opts.profile.screen_size):
             specified_cover = None
             
     cover = metadata_cover if specified_cover is None or (opts.prefer_metadata_cover and metadata_cover is not None) else specified_cover
@@ -272,9 +271,16 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     elif os.path.exists(cover_dest):
         os.remove(cover_dest)
     return None, old_title_page is not None
-    
 
-def convert(htmlfile, opts, notification=None):
+def find_oeb_cover(htmlfile):
+    if os.stat(htmlfile).st_size > 2048:
+        return None
+    match = re.search(r'(?i)<img[^<>]+src\s*=\s*[\'"](.+?)[\'"]', open(htmlfile, 'rb').read())
+    if match:
+        return match.group(1)
+
+def convert(htmlfile, opts, notification=None, create_epub=True, 
+            oeb_cover=False, extract_to=None):
     htmlfile = os.path.abspath(htmlfile)
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(htmlfile))[0] + '.epub'
@@ -326,7 +332,7 @@ def convert(htmlfile, opts, notification=None):
         
         title_page, has_title_page = process_title_page(mi, filelist, htmlfile_map, opts, tdir)
         spine = [htmlfile_map[f.path] for f in filelist]
-        if title_page is not None:
+        if not oeb_cover and title_page is not None:
             spine = [title_page] + spine
         mi.cover = None
         mi.cover_data = (None, None)
@@ -358,24 +364,43 @@ def convert(htmlfile, opts, notification=None):
         check(opf_path, opts.pretty_print)
         opf = OPF(opf_path, tdir)
         opf.remove_guide()
-        if has_title_page:
+        oeb_cover_file = None
+        if oeb_cover and title_page is not None:
+            oeb_cover_file = find_oeb_cover(os.path.join(tdir, 'content', title_page))
+        if has_title_page or (oeb_cover and oeb_cover_file):
             opf.create_guide_element()
-            opf.add_guide_item('cover', 'Cover', 'content/'+spine[0])
+            if has_title_page and not oeb_cover:
+                opf.add_guide_item('cover', 'Cover', 'content/'+spine[0])
+            if oeb_cover and oeb_cover_file:
+                opf.add_guide_item('cover', 'Cover', 'content/'+oeb_cover_file)
         
-        opf.add_path_to_manifest(os.path.join(tdir, 'content', 'resources', '_cover_.jpg'), 'image/jpeg')    
+        cpath = os.path.join(tdir, 'content', 'resources', '_cover_.jpg')
+        if os.path.exists(cpath):
+            opf.add_path_to_manifest(cpath, 'image/jpeg')    
         with open(opf_path, 'wb') as f:
             raw = opf.render()
             if not raw.startswith('<?xml '):
                 raw = '<?xml version="1.0"  encoding="UTF-8"?>\n'+raw
             f.write(raw)
-        epub = initialize_container(opts.output)
-        epub.add_dir(tdir)
+        if create_epub:
+            epub = initialize_container(opts.output)
+            epub.add_dir(tdir)
+            epub.close()
+            logger.info(_('Output written to ')+opts.output)
+        
         if opts.show_opf:
             print open(os.path.join(tdir, 'metadata.opf')).read()
-        logger.info('Output written to %s'%opts.output)
+        
         if opts.extract_to is not None:
-            epub.extractall(opts.extract_to)
-        epub.close()
+            if os.path.exists(opts.extract_to):
+                shutil.rmtree(opts.extract_to)
+            shutil.copytree(tdir, opts.extract_to)
+            
+        if extract_to is not None:
+            if os.path.exists(extract_to):
+                shutil.rmtree(extract_to)
+            shutil.copytree(tdir, extract_to)
+            
         
             
 def main(args=sys.argv):
