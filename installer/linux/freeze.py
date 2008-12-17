@@ -122,6 +122,8 @@ def freeze():
     elif exe not in executables:
         print >>sys.stderr, 'Invalid invocation of calibre loader. CALIBRE_CX_EXE=%%s is unknown'%%exe
     else:
+        from PyQt4.QtCore import QCoreApplication
+        QCoreApplication.setLibraryPaths([sys.frozen_path, os.path.join(sys.frozen_path, "qtplugins")])
         sys.argv[0] = exe
         module, func = executables[exe]
         module = __import__(module, fromlist=[1])
@@ -179,7 +181,7 @@ def freeze():
             if not f.endswith('.so') or 'designer' in dirpath or 'codecs' in dirpath or 'sqldrivers' in dirpath: 
                 continue
             f = os.path.join(dirpath, f)
-            dest_dir = dirpath.replace(plugdir, os.path.join(FREEZE_DIR, 'qtlugins'))
+            dest_dir = dirpath.replace(plugdir, os.path.join(FREEZE_DIR, 'qtplugins'))
             copy_binary(f, dest_dir)
 
     print 'Creating launchers'

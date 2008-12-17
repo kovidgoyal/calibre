@@ -116,7 +116,8 @@ def unarchive(path, tdir):
                 return f, ext
     return find_html_index(files)
 
-def any2epub(opts, path, notification=None):
+def any2epub(opts, path, notification=None, create_epub=True, 
+             oeb_cover=False, extract_to=None):
     ext = os.path.splitext(path)[1]
     if not ext:
         raise ValueError('Unknown file type: '+path)
@@ -139,7 +140,9 @@ def any2epub(opts, path, notification=None):
             raise ValueError('Conversion from %s is not supported'%ext.upper())
         
         print 'Creating EPUB file...'
-        html2epub(path, opts, notification=notification)
+        html2epub(path, opts, notification=notification, 
+                  create_epub=create_epub, oeb_cover=oeb_cover,
+                  extract_to=extract_to)
 
 def config(defaults=None):
     return common_config(defaults=defaults)
