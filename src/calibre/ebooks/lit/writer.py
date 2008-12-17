@@ -731,7 +731,7 @@ def oeb2lit(opts, opfpath):
         litpath = os.path.basename(opfpath)
         litpath = os.path.splitext(litpath)[0] + '.lit'
     litpath = os.path.abspath(litpath)
-    lit = LitWriter(OEBBook(opfpath))
+    lit = LitWriter(OEBBook(opfpath, logger=logger), logger=logger)
     with open(litpath, 'wb') as f:
         lit.dump(f)
     logger.log_info(_('Output written to ')+litpath)
