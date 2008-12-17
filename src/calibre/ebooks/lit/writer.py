@@ -9,7 +9,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import sys
 import os
 from cStringIO import StringIO
-from struct import pack, unpack
+from struct import pack
 from itertools import izip, count, chain
 import time
 import random
@@ -17,19 +17,20 @@ import re
 import copy
 import uuid
 import functools
+import logging
 from urlparse import urldefrag
 from urllib import unquote as urlunquote
 from lxml import etree
-from calibre.ebooks.lit import LitError
-from calibre.ebooks.lit.reader import msguid, DirectoryEntry
+from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps
 from calibre.ebooks.lit.oeb import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
-    CSS_MIME, XHTML_MIME, OPF_MIME, XML_NS, XML
+    CSS_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize, xpath
-from calibre.ebooks.lit.oeb import OEBBook
+from calibre.ebooks.lit.oeb import FauxLogger, OEBBook
 from calibre.ebooks.lit.stylizer import Stylizer
 from calibre.ebooks.lit.lzx import Compressor
 import calibre
+from calibre import LoggingInterface
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
@@ -135,11 +136,15 @@ def decint(value):
 def randbytes(n):
     return ''.join(chr(random.randint(0, 255)) for x in xrange(n))
 
+def warn(x):
+    print x
+
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
     
-    def __init__(self, root, path, oeb, map=HTML_MAP):
+    def __init__(self, root, path, oeb, map=HTML_MAP, logger=FauxLogger()):
         self.path = path
+        self.logger = logger
         self.dir = os.path.dirname(path)
         self.manifest = oeb.manifest
         self.tags, self.tattrs = map
@@ -268,8 +273,8 @@ class ReBinary(object):
 
     def build_ahc(self):
         if len(self.anchors) > 6:
-            print "calibre: warning: More than six anchors in file %r. " \
-                "Some links may not work properly." % self.path
+            self.logger.log_warn("More than six anchors in file %r. " \
+                "Some links may not work properly." % self.path)
         data = StringIO()
         data.write(unichr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
@@ -293,8 +298,9 @@ def preserve(function):
     return wrapper
     
 class LitWriter(object):
-    def __init__(self, oeb):
+    def __init__(self, oeb, logger=FauxLogger()):
         self._oeb = oeb
+        self._logger = logger
         self._litize_oeb()
 
     def _litize_oeb(self):
@@ -306,6 +312,9 @@ class LitWriter(object):
             cover = oeb.manifest[id]
         elif MS_COVER_TYPE in oeb.guide:
             href = oeb.guide[MS_COVER_TYPE].href
+            cover = oeb.manifest.hrefs[href]
+        elif 'cover' in oeb.guide:
+            href = oeb.guide['cover'].href
             cover = oeb.manifest.hrefs[href]
         else:
             html = oeb.spine[0].data
@@ -319,7 +328,7 @@ class LitWriter(object):
                 if type not in oeb.guide:
                     oeb.guide.add(type, title, cover.href)
         else:
-            print "calibre: warning: No suitable cover image found."
+            self._logger.log_warn('No suitable cover image found.')
 
     def dump(self, stream):
         self._stream = stream
@@ -461,15 +470,16 @@ class LitWriter(object):
         self._add_folder('/data')
         for item in self._oeb.manifest.values():
             if item.media_type not in LIT_MIMES:
-                print "calibre: warning: File %r of unknown media-type %r " \
-                    "excluded from output." % (item.href, item.media_type)
+                self._logger.log_warn("File %r of unknown media-type %r " \
+                    "excluded from output." % (item.href, item.media_type))
                 continue
             name = '/data/' + item.id
             data = item.data
             secnum = 0
             if not isinstance(data, basestring):
                 self._add_folder(name)
-                rebin = ReBinary(data, item.href, self._oeb)
+                rebin = ReBinary(data, item.href, self._oeb, map=HTML_MAP,
+                                 logger=self._logger)
                 self._add_file(name + '/ahc', rebin.ahc, 0)
                 self._add_file(name + '/aht', rebin.aht, 0)
                 item.page_breaks = rebin.page_breaks
@@ -548,7 +558,8 @@ class LitWriter(object):
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
         meta.attrib['ms--guid'] = '{%s}' % str(uuid.uuid4()).upper()
-        rebin = ReBinary(meta, 'content.opf', self._oeb, OPF_MAP)
+        rebin = ReBinary(meta, 'content.opf', self._oeb, map=OPF_MAP,
+                         logger=self._logger)
         meta = rebin.content
         self._meta = meta
         self._add_file('/meta', meta)
@@ -707,7 +718,24 @@ def option_parser():
     parser.add_option(
         '-o', '--output', default=None, 
         help=_('Output file. Default is derived from input filename.'))
+    parser.add_option(
+        '--verbose', default=False, action='store_true',
+        help=_('Useful for debugging.'))
     return parser
+
+def oeb2lit(opts, opfpath):
+    logger = LoggingInterface(logging.getLogger('oeb2lit'))
+    logger.setup_cli_handler(opts.verbose)
+    litpath = opts.output
+    if litpath is None:
+        litpath = os.path.basename(opfpath)
+        litpath = os.path.splitext(litpath)[0] + '.lit'
+    litpath = os.path.abspath(litpath)
+    lit = LitWriter(OEBBook(opfpath))
+    with open(litpath, 'wb') as f:
+        lit.dump(f)
+    logger.log_info(_('Output written to ')+litpath)
+    
 
 def main(argv=sys.argv):
     parser = option_parser()
@@ -716,14 +744,7 @@ def main(argv=sys.argv):
         parser.print_help()
         return 1
     opfpath = args[0]
-    litpath = opts.output
-    if litpath is None:
-        litpath = os.path.basename(opfpath)
-        litpath = os.path.splitext(litpath)[0] + '.lit'
-    lit = LitWriter(OEBBook(opfpath))
-    with open(litpath, 'wb') as f:
-        lit.dump(f)
-    print _('LIT ebook created at'), litpath
+    oeb2lit(opts, opfpath)
     return 0
     
 if __name__ == '__main__':

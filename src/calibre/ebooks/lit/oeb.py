@@ -13,7 +13,9 @@ from types import StringTypes
 from itertools import izip, count
 from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
+import logging
 from lxml import etree
+from calibre import LoggingInterface
 
 XML_PARSER = etree.XMLParser(recover=True, resolve_entities=False)
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
@@ -88,6 +90,13 @@ def urlnormalize(href):
     return urlunparse(parts)
 
 
+class FauxLogger(object):
+    def __getattr__(self, name):
+        return self
+    def __call__(self, message):
+        print message
+
+
 class AbstractContainer(object):
     def read_xml(self, path):
         return etree.fromstring(
@@ -107,6 +116,10 @@ class DirContainer(AbstractContainer):
         path = os.path.join(self.rootdir, path)
         with open(urlunquote(path), 'wb') as f:
             return f.write(data)
+
+    def exists(self, path):
+        path = os.path.join(self.rootdir, path)
+        return os.path.isfile(path)
 
 
 class Metadata(object):
@@ -530,13 +543,14 @@ class TOC(object):
             node.to_ncx(point, playorder, depth+1)
         return parent
 
-
+    
 class OEBBook(object):
-    def __init__(self, opfpath=None, container=None):
+    def __init__(self, opfpath=None, container=None, logger=FauxLogger()):
         if not container:
             container = DirContainer(os.path.dirname(opfpath))
             opfpath = os.path.basename(opfpath)
         self.container = container
+        self.logger = logger
         opf = self._read_opf(opfpath)
         self._all_from_opf(opf)
     
@@ -590,17 +604,28 @@ class OEBBook(object):
             if item.id == uid:
                 self.uid = item
                 break
+        else:
+            self.logger.log_warn(u'Unique-identifier %r not found.' % uid)
+            self.uid = metadata.identifier[0]
     
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)
         for elem in xpath(opf, '/o2:package/o2:manifest/o2:item'):
-            manifest.add(elem.get('id'), elem.get('href'),
-                         elem.get('media-type'), elem.get('fallback'))
+            href = elem.get('href')
+            if not self.container.exists(href):
+                self.logger.log_warn(u'Manifest item %r not found.' % href)
+                continue
+            manifest.add(elem.get('id'), href, elem.get('media-type'),
+                         elem.get('fallback'))
     
     def _spine_from_opf(self, opf):
         self.spine = spine = Spine(self)
         for elem in xpath(opf, '/o2:package/o2:spine/o2:itemref'):
-            item = self.manifest[elem.get('idref')]
+            idref = elem.get('idref')
+            if idref not in self.manifest:
+                self.logger.log_warn(u'Spine item %r not found.' % idref)
+                continue
+            item = self.manifest[idref]
             spine.add(item, elem.get('linear'))
         extras = []
         for item in self.manifest.values():
@@ -614,7 +639,11 @@ class OEBBook(object):
     def _guide_from_opf(self, opf):
         self.guide = guide = Guide(self)
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
-            guide.add(elem.get('type'), elem.get('title'), elem.get('href'))
+            href = elem.get('href')
+            if href not in self.manifest.hrefs:
+                self.logger.log_warn(u'Guide reference %r not found' % href)
+                continue
+            guide.add(elem.get('type'), elem.get('title'), href)
 
     def _toc_from_navpoint(self, toc, navpoint):
         children = xpath(navpoint, 'ncx:navPoint')

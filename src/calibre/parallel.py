@@ -567,23 +567,27 @@ class Job(object):
             return 'ERROR'
             
     def console_text(self):
-        ans = [u'Error in job: ']
+        ans = [u'Job: ']
         if self.description:
             ans[0] += self.description
+        if self.exception is not None:
+            header = unicode(self.exception.__class__.__name__) if \
+                    hasattr(self.exception, '__class__') else u'Error'
+            header = u'**%s**'%header
+            header += u': '
+            try:
+                header += unicode(self.exception)
+            except:
+                header += unicode(repr(self.exception))
+            ans.append(header)
+            if self.traceback:
+                ans.append(u'**Traceback**:')
+                ans.extend(self.traceback.split('\n'))
+        
         if self.log:
             if isinstance(self.log, str):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.append(self.log)
-        header = unicode(self.exception.__class__.__name__) if \
-                hasattr(self.exception, '__class__') else u'Error'
-        header += u': '
-        try:
-            header += unicode(self.exception)
-        except:
-            header += unicode(repr(self.exception))
-        ans.append(header)
-        if self.traceback:
-            ans.append(self.traceback)
         return (u'\n'.join(ans)).encode('utf-8')
     
     def gui_text(self):
@@ -611,7 +615,7 @@ class Job(object):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.extend(self.log.split('\n'))
             
-        return '\n'.join(ans)
+        return '<br>'.join(ans)
 
 
 class ParallelJob(Job):

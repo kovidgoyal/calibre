@@ -17,7 +17,7 @@ recipe_modules = [
            'blic', 'novosti', 'danas', 'vreme', 'times_online', 'the_scotsman',
            'nytimes_sub', 'security_watch', 'cyberpresse', 'st_petersburg_times',
            'clarin', 'financial_times', 'heise', 'le_monde', 'harpers', 'science_aas',
-           'science_news', 'the_nation', 'lrb', 'harpers_full'
+           'science_news', 'the_nation', 'lrb', 'harpers_full', 'liberation',
           ]
 
 import re, imp, inspect, time, os

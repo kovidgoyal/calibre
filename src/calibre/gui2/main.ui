@@ -27,15 +27,9 @@
     <normaloff>:/library</normaloff>:/library</iconset>
   </property>
   <widget class="QWidget" name="centralwidget" >
-   <layout class="QGridLayout" >
+   <layout class="QGridLayout" name="gridLayout" >
     <item row="0" column="0" >
-     <layout class="QHBoxLayout" >
-      <property name="spacing" >
-       <number>6</number>
-      </property>
-      <property name="margin" >
-       <number>0</number>
-      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3" >
       <item>
        <widget class="LocationView" name="location_view" >
         <property name="sizePolicy" >
@@ -89,29 +83,47 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="vanity" >
-        <property name="sizePolicy" >
-         <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="maximumSize" >
-         <size>
-          <width>16777215</width>
-          <height>90</height>
-         </size>
-        </property>
-        <property name="text" >
-         <string/>
-        </property>
-        <property name="textFormat" >
-         <enum>Qt::RichText</enum>
-        </property>
-        <property name="openExternalLinks" >
-         <bool>true</bool>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_3" >
+        <item>
+         <widget class="QLabel" name="vanity" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Preferred" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximumSize" >
+           <size>
+            <width>16777215</width>
+            <height>90</height>
+           </size>
+          </property>
+          <property name="text" >
+           <string/>
+          </property>
+          <property name="textFormat" >
+           <enum>Qt::RichText</enum>
+          </property>
+          <property name="openExternalLinks" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2" >
+          <item>
+           <widget class="QLabel" name="label_2" >
+            <property name="text" >
+             <string>Output:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="output_format" />
+          </item>
+         </layout>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -579,6 +591,42 @@
    </property>
    <property name="text" >
     <string>Show book details</string>
+   </property>
+  </action>
+  <action name="action_books_by_same_author" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/user_profile.svg</normaloff>:/images/user_profile.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books by same author</string>
+   </property>
+  </action>
+  <action name="action_books_in_this_series" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/books_in_series.svg</normaloff>:/images/books_in_series.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books in this series</string>
+   </property>
+  </action>
+  <action name="action_books_by_this_publisher" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/publisher.png</normaloff>:/images/publisher.png</iconset>
+   </property>
+   <property name="text" >
+    <string>Books by this publisher</string>
+   </property>
+  </action>
+  <action name="action_books_with_the_same_tags" >
+   <property name="icon" >
+    <iconset resource="images.qrc" >
+     <normaloff>:/images/tags.svg</normaloff>:/images/tags.svg</iconset>
+   </property>
+   <property name="text" >
+    <string>Books with the same tags</string>
    </property>
   </action>
  </widget>

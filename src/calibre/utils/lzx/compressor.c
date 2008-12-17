@@ -175,7 +175,7 @@ mark_frame(void *context, uint32_t uncomp, uint32_t comp)
     PyObject *rtable = self->rtable;
     PyObject *entry = NULL;
 
-    entry = Py_BuildValue("(LL)", uncomp, comp);
+    entry = Py_BuildValue("(II)", uncomp, comp);
     if (entry) {
         PyList_Append(rtable, entry);
         Py_DECREF(entry);

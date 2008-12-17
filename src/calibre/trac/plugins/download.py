@@ -240,7 +240,7 @@ If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Tra
         return 'download.html', data, None
                             
 
-LINUX_INSTALLER = '''
+LINUX_INSTALLER = r'''
 import sys, os, shutil, tarfile, subprocess, tempfile, urllib2, re, stat
 
 MOBILEREAD='https://dev.mobileread.com/dist/kovid/calibre/'
@@ -428,7 +428,7 @@ def main():
     
     print 'Extracting files to %s ...'%destdir
     extract_tarball(f, destdir)
-    pi = os.path.join(destdir, calibre_postinstall)
-    subprocess.call('pi', shell=True)
+    pi = os.path.join(destdir, 'calibre_postinstall')
+    subprocess.call(pi, shell=True)
     return 0
 '''

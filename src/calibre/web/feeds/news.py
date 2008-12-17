@@ -17,7 +17,8 @@ from PyQt4.Qt import QApplication, QFile, Qt, QPalette, QSize, QImage, QPainter,
 from PyQt4.QtWebKit import QWebPage
 
 
-from calibre import browser, __appname__, iswindows, LoggingInterface, strftime, __version__
+from calibre import browser, __appname__, iswindows, LoggingInterface, \
+                    strftime, __version__, preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
@@ -788,6 +789,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         html= u'''\
         <html>
             <head>
+                <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
                 <style type="text/css">
                     body {
                         background: white no-repeat fixed center center;
@@ -817,12 +819,13 @@ class BasicNewsRecipe(object, LoggingInterface):
                 </div>
             </body>
         </html>
-        '''%dict(title=self.title, author=self.__author__,
-                 date=time.strftime(self.timefmt), 
+        '''%dict(title=self.title if isinstance(self.title, unicode) else self.title.decode(preferred_encoding, 'replace'), 
+                 author=self.__author__ if isinstance(self.__author__, unicode) else self.__author__.decode(preferred_encoding, 'replace'),
+                 date=strftime(self.timefmt), 
                  app=__appname__ +' '+__version__,
                  img=img)
         f2 = tempfile.NamedTemporaryFile(suffix='cover.html')
-        f2.write(html)
+        f2.write(html.encode('utf-8'))
         f2.flush()
         page = QWebPage()
         pal = page.palette()

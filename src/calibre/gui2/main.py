@@ -126,6 +126,21 @@ class Main(MainWindow, Ui_MainWindow):
                         self.location_selected)
         QObject.connect(self.stack, SIGNAL('currentChanged(int)'),
                         self.location_view.location_changed)
+        
+        self.output_formats = sorted(['EPUB', 'LRF'])
+        for f in self.output_formats:
+            self.output_format.addItem(f)
+        self.output_format.setCurrentIndex(self.output_formats.index(prefs['output_format']))
+        def change_output_format(x):
+            of = unicode(x).strip()
+            if of != prefs['output_format']:
+                if of in ('EPUB', 'LIT'):
+                    warning_dialog(self, 'Warning', 
+                                   '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
+                prefs.set('output_format', of)
+        
+        self.connect(self.output_format, SIGNAL('currentIndexChanged(QString)'), 
+                     change_output_format)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help visit <a href="http://%s.kovidgoyal.net/user_manual">%s.kovidgoyal.net</a><br>')%(__appname__, __appname__)
@@ -234,10 +249,33 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
         
         ####################### Library view ########################
+        similar_menu = QMenu(_('Similar books...'))
+        similar_menu.addAction(self.action_books_by_same_author)
+        similar_menu.addAction(self.action_books_in_this_series)
+        similar_menu.addAction(self.action_books_with_the_same_tags)
+        similar_menu.addAction(self.action_books_by_this_publisher)
+        self.action_books_by_same_author.setShortcut(Qt.ALT + Qt.Key_A)
+        self.action_books_in_this_series.setShortcut(Qt.ALT + Qt.Key_S)
+        self.action_books_by_this_publisher.setShortcut(Qt.ALT + Qt.Key_P)
+        self.action_books_with_the_same_tags.setShortcut(Qt.ALT+Qt.Key_T)
+        self.addAction(self.action_books_by_same_author)
+        self.addAction(self.action_books_by_this_publisher)
+        self.addAction(self.action_books_in_this_series)
+        self.addAction(self.action_books_with_the_same_tags)
+        self.similar_menu = similar_menu
+        self.connect(self.action_books_by_same_author, SIGNAL('triggered()'),
+                     lambda : self.show_similar_books('author'))
+        self.connect(self.action_books_in_this_series, SIGNAL('triggered()'),
+                     lambda : self.show_similar_books('series'))
+        self.connect(self.action_books_with_the_same_tags, SIGNAL('triggered()'),
+                     lambda : self.show_similar_books('tag'))
+        self.connect(self.action_books_by_this_publisher, SIGNAL('triggered()'),
+                     lambda : self.show_similar_books('publisher'))
         self.library_view.set_context_menu(self.action_edit, self.action_sync, 
                                            self.action_convert, self.action_view, 
                                            self.action_save, self.action_open_containing_folder,
-                                           self.action_show_book_details)
+                                           self.action_show_book_details,
+                                           similar_menu=similar_menu)
         self.memory_view.set_context_menu(None, None, None, self.action_view, self.action_save, None, None)
         self.card_view.set_context_menu(None, None, None, self.action_view, self.action_save, None, None)
         QObject.connect(self.library_view, SIGNAL('files_dropped(PyQt_PyObject)'),
@@ -258,7 +296,7 @@ class Main(MainWindow, Ui_MainWindow):
             db = LibraryDatabase2(self.library_path)
         except OSError, err:
             error_dialog(self, _('Bad database location'), unicode(err)).exec_()
-            dir = unicode(QFileDialog.getExistingDirectory(self, 
+            dir = unicode(QFileDialog.getExistingDirectory(self,
                             _('Choose a location for your ebook library.'), os.path.expanduser('~')))
             if not dir:
                 QCoreApplication.exit(1)
@@ -341,6 +379,34 @@ class Main(MainWindow, Ui_MainWindow):
             error_dialog(self, _('Failed to start content server'), 
                          unicode(self.content_server.exception)).exec_()
 
+    def show_similar_books(self, type):
+        search, join = [], ' '
+        idx = self.library_view.currentIndex()
+        if not idx.isValid():
+            return
+        row = idx.row()
+        if type == 'series':
+            series = idx.model().db.series(row)
+            if series:
+                search = ['series:'+series]
+        elif type == 'publisher':
+            publisher = idx.model().db.publisher(row)
+            if publisher:
+                search = ['publisher:'+publisher]
+        elif type == 'tag':
+            tags = idx.model().db.tags(row)
+            if tags:
+                search = ['tag:'+t for t in tags.split(',')]
+        elif type == 'author':
+            authors = idx.model().db.authors(row)
+            if authors:
+                search = ['author:'+a.strip().replace('|', ',') for a in authors.split(',')]
+                join = ' or '
+        if search:
+            self.search.set_search_string(join.join(search))
+            
+                
+    
     def toggle_cover_flow(self, show):
         if show:
             self.library_view.setCurrentIndex(self.library_view.currentIndex())
@@ -438,7 +504,7 @@ class Main(MainWindow, Ui_MainWindow):
             return
         info, cp, fs = job.result
         self.location_view.model().update_devices(cp, fs)
-        self.device_info = _('Connected ')+' '.join(info[:-1])
+        self.device_info = _('Connected ')+info[0]
         self.vanity.setText(self.vanity_template%dict(version=self.latest_version, device=self.device_info))
 
         self.device_manager.books(Dispatcher(self.metadata_downloaded))
@@ -621,13 +687,13 @@ class Main(MainWindow, Ui_MainWindow):
                                         files, names, on_card=on_card,
                                         titles=titles
                                         )
-        self.upload_memory[job] = (metadata, on_card, memory)
+        self.upload_memory[job] = (metadata, on_card, memory, files)
     
     def books_uploaded(self, job):
         '''
         Called once books have been uploaded.
         '''
-        metadata, on_card, memory = self.upload_memory.pop(job)
+        metadata, on_card, memory, files = self.upload_memory.pop(job)
         
         if job.exception is not None:
             if isinstance(job.exception, FreeSpaceError):
@@ -648,6 +714,8 @@ class Main(MainWindow, Ui_MainWindow):
         view = self.card_view if on_card else self.memory_view
         view.model().resort(reset=False)
         view.model().research()
+        for f in files:
+            getattr(f, 'close', lambda : True)()
         if memory and memory[1]:
             self.library_view.model().delete_books_by_id(memory[1])
 
