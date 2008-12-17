@@ -20,7 +20,7 @@ import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
 from lxml import etree
-from calibre.ebooks.lit.oeb import XHTML_NS, CSS_MIME, OEB_STYLES
+from calibre.ebooks.lit.oeb import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.lit.oeb import barename, urlnormalize
 from calibre.resources import html_css
 
@@ -126,12 +126,12 @@ class Stylizer(object):
         parser = cssutils.CSSParser()
         parser.setFetcher(lambda path: ('utf-8', oeb.container.read(path)))
         for elem in head:
-            tag = barename(elem.tag)
-            if tag == 'style':
-                text = ''.join(elem.text)
+            if elem.tag == XHTML('style') and elem.text \
+               and elem.get('type', CSS_MIME) in OEB_STYLES:
+                text = XHTML_CSS_NAMESPACE + elem.text
                 stylesheet = parser.parseString(text, href=cssname)
                 stylesheets.append(stylesheet)
-            elif tag == 'link' \
+            elif elem.tag == XHTML('link') and elem.get('href') \
                  and elem.get('rel', 'stylesheet') == 'stylesheet' \
                  and elem.get('type', CSS_MIME) in OEB_STYLES:
                 href = urlnormalize(elem.attrib['href'])
