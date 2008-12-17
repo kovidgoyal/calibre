@@ -23,7 +23,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#ifdef _MSC_VER
+# include "msstdint.h"
+#else /* _MSC_VER */
+# include <stdint.h>
+#endif /* _MSC_VER */
 #include <string.h> /* for memset on Linux */
 #include <assert.h>
 #include <math.h>
