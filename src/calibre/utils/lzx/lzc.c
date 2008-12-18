@@ -74,7 +74,7 @@ void lz_init(lz_info *lzi, int wsize, int max_dist,
   lzi->user_data = user_data;
   lzi->frame_size = frame_size;
   lzi->lentab = calloc(lzi->block_buf_size + 1, sizeof(int));
-  lzi->prevtab = calloc(lzi->block_buf_size + 1, sizeof(u_char *));
+  lzi->prevtab = calloc(lzi->block_buf_size + 1, sizeof(unsigned char *));
   lzi->analysis_valid = 0;
 }
 
@@ -102,7 +102,7 @@ typedef struct lz_user_data
   int R0, R1, R2;
 } lz_user_data;
 
-int tmp_get_chars(lz_info *lzi, int n, u_char *buf)
+int tmp_get_chars(lz_info *lzi, int n, unsigned char *buf)
 {
   lz_user_data *lzud = (lz_user_data *)lzi->user_data;
   return fread(buf, 1, n, lzud->infile);
@@ -119,7 +119,7 @@ int tmp_output_match(lz_info *lzi, int match_pos, int match_len)
   return 0;
 }
 
-void tmp_output_literal(lz_info *lzi, u_char ch)
+void tmp_output_literal(lz_info *lzi, unsigned char ch)
 {
   lz_user_data *lzud = (lz_user_data *)lzi->user_data;
   fprintf(lzud->outfile, "'%c'", ch);
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 }
 #endif
 
-__inline__ int lz_left_to_process(lz_info *lzi)
+int lz_left_to_process(lz_info *lzi)
 {
   return lzi->chars_in_buf - lzi->block_loc;
 }
@@ -146,7 +146,7 @@ static void
 fill_blockbuf(lz_info *lzi, int maxchars)
 {
   int toread;
-  u_char *readhere;
+  unsigned char *readhere;
   int nread;
 
   if (lzi->eofcount) return;
@@ -163,10 +163,10 @@ fill_blockbuf(lz_info *lzi, int maxchars)
 static void lz_analyze_block(lz_info *lzi)
 {
   int *lentab, *lenp;
-  u_char **prevtab, **prevp;
-  u_char *bbp, *bbe;
-  u_char *chartab[256];
-  u_char *cursor;
+  unsigned char **prevtab, **prevp;
+  unsigned char *bbp, *bbe;
+  unsigned char *chartab[256];
+  unsigned char *cursor;
   int prevlen;
   int ch;
   int maxlen;
@@ -287,9 +287,9 @@ void lz_stop_compressing(lz_info *lzi)
 int lz_compress(lz_info *lzi, int nchars) 
 {
 
-  u_char *bbp, *bbe;
+  unsigned char *bbp, *bbe;
   int *lentab, *lenp;
-  u_char **prevtab, **prevp;
+  unsigned char **prevtab, **prevp;
   int len;
   int holdback;
   short trimmed;
