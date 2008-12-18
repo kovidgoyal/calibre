@@ -1432,7 +1432,7 @@ class Page(LrsObject, LrsContainer):
 
         #print "page contents:", pageContent
         # ObjectList not needed and causes slowdown in SONY LRF renderer
-        p.appendLrfTag(LrfTag("ObjectList", pageContent))
+        #p.appendLrfTag(LrfTag("ObjectList", pageContent))
         p.appendLrfTag(LrfTag("Link", self.pageStyle.objId))
         p.appendLrfTag(LrfTag("ParentPageTree", lrfWriter.getPageTreeId()))
         p.appendTagDict(self.settings)
