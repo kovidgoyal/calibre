@@ -27,7 +27,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <strings.h>
 #include <string.h>
 #ifdef DEBUG_PERF
 #include <sys/time.h>

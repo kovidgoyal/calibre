@@ -32,7 +32,6 @@ from calibre.ebooks.lrf.html.table import Table
 from calibre import filename_to_utf8,  setup_cli_handlers, __appname__, \
                     fit_image, LoggingInterface, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.metadata.opf import OPFReader
 from calibre.devices.interface import Device
 from calibre.ebooks.lrf.html.color_map import lrs_color
 from calibre.ebooks.chardet import xml_to_unicode
@@ -106,6 +105,8 @@ class HTMLConverter(object, LoggingInterface):
                         (re.compile(r'(<style.*?</style>)', re.IGNORECASE|re.DOTALL),
                          strip_style_comments),
                          
+                        # Remove self closing script tags as they also mess up BeautifulSoup
+                        (re.compile(r'(?i)<script[^<>]+?/>'), lambda match: ''),
                         
                         ]
     # Fix Baen markup
@@ -334,7 +335,8 @@ class HTMLConverter(object, LoggingInterface):
                 soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.XHTML_ENTITIES,
                          markupMassage=nmassage)
-        
+            else:
+                raise
         if not self.baen and self.is_baen(soup):
             self.baen = True
             self.log_info(_('\tBaen file detected. Re-parsing...'))
