@@ -21,7 +21,7 @@
      + ((compressor)->input.size - (compressor)->input.offset))
 
 typedef struct buffer_t {
-    void *data;
+    char *data;
     unsigned int size;
     unsigned int offset;
 } buffer_t;
@@ -222,7 +222,7 @@ Compressor_init(Compressor *self, PyObject *args, PyObject *kwds)
 
 static PyObject *
 Compressor_compress__(
-    Compressor *self, unsigned char *data, unsigned int inlen, int flush)
+    Compressor *self, char *data, unsigned int inlen, int flush)
 {
     buffer_t *residue = &self->residue;
     buffer_t *input = &self->input;
@@ -305,7 +305,7 @@ static PyObject *
 Compressor_compress(Compressor *self, PyObject *args, PyObject *kwds)
 {
     static char *kwlist[] = {"data", "flush", NULL};
-    unsigned char *data = NULL;
+    char *data = NULL;
     unsigned int inlen = 0;
     int flush = 0;
 
