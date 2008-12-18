@@ -16,24 +16,24 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 typedef struct lz_info lz_info;
-typedef int (*get_chars_t)(lz_info *lzi, int n, u_char *buf);
+typedef int (*get_chars_t)(lz_info *lzi, int n, unsigned char *buf);
 typedef int (*output_match_t)(lz_info *lzi, int match_pos, int match_len);
-typedef void (*output_literal_t)(lz_info *lzi, u_char ch);
+typedef void (*output_literal_t)(lz_info *lzi, unsigned char ch);
 
 struct lz_info
 {
   int wsize; /* window size in bytes */
   int max_match; /* size of longest match in bytes */
   int min_match;
-  u_char *block_buf;
-  u_char *block_bufe;
+  unsigned char *block_buf;
+  unsigned char *block_bufe;
   int block_buf_size;
   int chars_in_buf;
   int cur_loc;            /* location within stream */
   int block_loc;
   int frame_size;
   int max_dist;
-  u_char **prevtab;
+  unsigned char **prevtab;
   int *lentab;
   short eofcount;
   short stop;

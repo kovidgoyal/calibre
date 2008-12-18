@@ -101,7 +101,7 @@ class BookHeader(object):
             if ident == 'TEXTREAD' or self.length < 0xE4 or 0xE8 < self.length:
                 self.extra_flags = 0
             else:
-                self.extra_flags, = struct.unpack('>L', raw[0xF0:0xF4])
+                self.extra_flags, = struct.unpack('>H', raw[0xF2:0xF4])
             
             if self.compression_type == 'DH':
                 self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78]) 

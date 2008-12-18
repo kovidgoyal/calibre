@@ -219,6 +219,7 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.view_menu.actions()[1], SIGNAL("triggered(bool)"), self.view_specific_format)
         self.connect(self.action_open_containing_folder, SIGNAL('triggered(bool)'), self.view_folder)
         self.action_open_containing_folder.setShortcut(Qt.Key_O)
+        self.addAction(self.action_open_containing_folder)
         self.action_sync.setShortcut(Qt.Key_D)
         self.action_sync.setMenu(sm)
         self.action_edit.setMenu(md)

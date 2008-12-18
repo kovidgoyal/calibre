@@ -23,7 +23,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#ifdef _MSC_VER
+# include "msstdint.h"
+#else /* _MSC_VER */
+# include <stdint.h>
+#endif /* _MSC_VER */
 #include <string.h> /* for memset on Linux */
 #include <assert.h>
 #include <math.h>
@@ -75,7 +79,7 @@
 /* as corrected by Caie */
 short num_position_slots[] = {30, 32, 34, 36, 38, 42, 50};
 unsigned long position_base[51];
-u_char extra_bits[52];
+unsigned char extra_bits[52];
 double rloge2;
 
 typedef struct ih_elem {
@@ -455,7 +459,7 @@ struct lzxc_data
 };
 
 static int
-lzx_get_chars(lz_info *lzi, int n, u_char *buf)
+lzx_get_chars(lz_info *lzi, int n, unsigned char *buf)
 {
   /* force lz compression to stop after every block */
   int chars_read;
@@ -500,9 +504,9 @@ lzx_get_chars(lz_info *lzi, int n, u_char *buf)
 #ifdef NONSLIDE
 static int find_match_at(lz_info *lzi, int loc, int match_len, int *match_locp)
 {
-  u_char *matchb;
-  u_char *nmatchb;
-  u_char *c1, *c2;
+  unsigned char *matchb;
+  unsigned char *nmatchb;
+  unsigned char *c1, *c2;
   int j;
 
   if (-*match_locp == loc) return -1;
@@ -527,9 +531,9 @@ static int find_match_at(lz_info *lzi, int loc, int match_len, int *match_locp)
 #else
 static int find_match_at(lz_info *lzi, int loc, int match_len, int *match_locp)
 {
-  u_char *matchb;
-  u_char *nmatchb;
-  u_char *c1, *c2;
+  unsigned char *matchb;
+  unsigned char *nmatchb;
+  unsigned char *c1, *c2;
   int j;
 
   if (-*match_locp == loc) return -1;
@@ -794,7 +798,7 @@ lzx_output_match(lz_info *lzi, int match_pos, int match_len)
 }
 
 static void 
-lzx_output_literal(lz_info *lzi, u_char ch)
+lzx_output_literal(lz_info *lzi, unsigned char ch)
 {
   lzxc_data *lzud = (lzxc_data *)lzi->user_data;
 
@@ -957,15 +961,15 @@ lzx_write_compressed_tree(struct lzxc_data *lzxd,
 			  struct huff_entry *tree, uint8_t *prevlengths,
 			  int treesize)
 {
-  u_char *codes;
-  u_char *runs;
+  unsigned char *codes;
+  unsigned char *runs;
   int freqs[LZX_PRETREE_SIZE];
   int cur_run;
   int last_len;
   huff_entry pretree[20];
-  u_char *codep;
-  u_char *codee;
-  u_char *runp;
+  unsigned char *codep;
+  unsigned char *codee;
+  unsigned char *runp;
   int excess;
   int i;
   int cur_code;
