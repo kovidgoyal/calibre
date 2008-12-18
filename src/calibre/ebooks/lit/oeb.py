@@ -119,7 +119,7 @@ class DirContainer(AbstractContainer):
 
     def exists(self, path):
         path = os.path.join(self.rootdir, path)
-        return os.path.isfile(path)
+        return os.path.isfile(urlunquote(path))
 
 
 class Metadata(object):
@@ -274,6 +274,22 @@ class Manifest(object):
             if result != 0:
                 return result
             return cmp(self.id, other.id)
+        
+        def relhref(self, href):
+            if '/' not in self.href:
+                return href
+            base = os.path.dirname(self.href).split('/')
+            target, frag = urldefrag(href)
+            target = target.split('/')
+            for index in xrange(min(len(base), len(target))):
+                if base[index] != target[index]: break
+            else:
+                index += 1
+            relhref = (['..'] * (len(base) - index)) + target[index:]
+            relhref = '/'.join(relhref)
+            if frag:
+                relhref = '#'.join((relhref, frag))
+            return relhref
     
     def __init__(self, oeb):
         self.oeb = oeb
@@ -297,6 +313,7 @@ class Manifest(object):
             self.oeb.spine.remove(item)
 
     def generate(self, id, href):
+        href = urlnormalize(href)
         base = id
         index = 1
         while id in self.ids:
@@ -640,7 +657,8 @@ class OEBBook(object):
         self.guide = guide = Guide(self)
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
             href = elem.get('href')
-            if href not in self.manifest.hrefs:
+            path, frag = urldefrag(href)
+            if path not in self.manifest.hrefs:
                 self.logger.log_warn(u'Guide reference %r not found' % href)
                 continue
             guide.add(elem.get('type'), elem.get('title'), href)
