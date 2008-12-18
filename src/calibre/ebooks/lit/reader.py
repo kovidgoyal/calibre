@@ -12,6 +12,7 @@ import functools
 import re
 from urlparse import urldefrag
 from cStringIO import StringIO
+from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
@@ -811,9 +812,12 @@ class LitReader(object):
     
     def namelist(self):
         return self._litfile.paths.keys()
+
+    def exists(self, name):
+        return urlunquote(name) in self._litfile.paths
     
     def read_xml(self, name):
-        entry = self._litfile.paths[name] if name else None
+        entry = self._litfile.paths[urlunquote(name)] if name else None
         if entry is None:
             content = self._read_meta()
         elif 'spine' in entry.state:
@@ -826,7 +830,7 @@ class LitReader(object):
         return content
     
     def read(self, name, pretty_print=False):
-        entry = self._litfile.paths[name] if name else None
+        entry = self._litfile.paths[urlunquote(name)] if name else None
         if entry is None:
             meta = self._read_meta()
             content = OPF_DECL + etree.tostring(
