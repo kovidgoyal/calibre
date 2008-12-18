@@ -17,7 +17,7 @@
 */
 
 #ifdef _MSC_VER
-#include "stdint.h"
+#include "msstdint.h"
 #endif
 
 typedef struct lzxc_data lzxc_data;
