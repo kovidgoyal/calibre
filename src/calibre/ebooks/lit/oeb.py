@@ -602,7 +602,10 @@ class OEBBook(object):
     def _toc_from_ncx(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@toc')
         if not result:
-            return False
+            expr = '/o2:package/o2:manifest/o2:item[@media-type="%s"]/@id'
+            result = xpath(opf, expr % NCX_MIME)
+            if len(result) != 1:
+                return False
         id = result[0]
         ncx = self.manifest[id].data
         self.manifest.remove(id)
