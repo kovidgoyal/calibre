@@ -363,18 +363,18 @@ class Style(object):
             factor = None
             if value == 'inherit':
                 # We should only see this if the root element
-                value = self._stylizer.page.fbase
+                value = self._page.fbase
             if value in FONT_SIZE_NAMES:
-                result = self._stylizer.page.fnames[value]
+                result = self._page.fnames[value]
             elif value == 'smaller':
                 factor = 1.0/1.2
-                for _, _, size in self._stylizer.page.fsizes:
+                for _, _, size in self._page.fsizes:
                     if base <= size: break
                     factor = None
                     result = size
             elif value == 'larger':
                 factor = 1.2
-                for _, _, size in reversed(self._stylizer.page.fsizes):
+                for _, _, size in reversed(self._page.fsizes):
                     if base >= size: break
                     factor = None
                     result = size
@@ -390,7 +390,7 @@ class Style(object):
             styles = self._stylizer._styles
             base = styles[self._element.getparent()].fontSize
         else:
-            base = self._stylizer.page.fbase
+            base = self._page.fbase
         if 'font-size' in self._style:
             size = self._style['font-size']
             result = normalize_fontsize(size, base)
