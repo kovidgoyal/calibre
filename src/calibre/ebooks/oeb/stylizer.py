@@ -112,7 +112,7 @@ class Page(object):
 
 class Profiles(object):
     PRS505 = Page(584, 754, 168.451, 12, [7.5, 9, 10, 12, 15.5, 20, 22, 24])
-    MSLIT = Page(652, 480, 168.451, 13, [10, 11, 13, 16, 18, 20, 22, 24])
+    MSLIT = Page(652, 480, 168.451, 13, [10, 11, 13, 16, 18, 20, 22, 26])
 
     
 class Stylizer(object):    
@@ -415,7 +415,7 @@ class Style(object):
             styles = self._stylizer._styles
             base = styles[self._element.getparent()].fontSize
         else:
-            base = self._styles.page.fbase
+            base = self._stylizer.page.fbase
         if 'font-size' in self._style:
             size = self._style['font-size']
             result = normalize_fontsize(size, base)
