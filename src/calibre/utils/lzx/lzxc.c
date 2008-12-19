@@ -32,9 +32,11 @@
 #include <assert.h>
 #include <math.h>
 
-#if BYTE_ORDER == BIG_ENDIAN
-#define LZX_BIG_ENDIAN
-#endif
+#ifdef BYTE_ORDER
+# if BYTE_ORDER == BIG_ENDIAN
+#  define LZX_BIG_ENDIAN
+# endif /* BYTE_ORDER == BIG_ENDIAN */
+#endif /* BYTE_ORDER */
 
 #ifdef NONSLIDE
 #include "lzc.h"
