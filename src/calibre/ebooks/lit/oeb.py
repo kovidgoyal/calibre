@@ -677,7 +677,7 @@ class OEBBook(object):
     def _toc_from_ncx(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@toc')
         if not result:
-            expr = '/o2:package/o2:manifest[@media-type="%s"]/@id'
+            expr = '/o2:package/o2:manifest/o2:item[@media-type="%s"]/@id'
             result = xpath(opf, expr % NCX_MIME)
             if len(result) != 1:
                 return False
