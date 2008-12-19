@@ -21,12 +21,14 @@ import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
 from lxml import etree
+from lxml.cssselect import css_to_xpath, ExpressionError
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import barename, urlnormalize
 from calibre.resources import html_css
 
-HTML_CSS_STYLESHEET = cssutils.parseString(html_css)
 XHTML_CSS_NAMESPACE = "@namespace url(%s);\n" % XHTML_NS
+HTML_CSS_STYLESHEET = cssutils.parseString(html_css)
+HTML_CSS_STYLESHEET.namespaces['h'] = XHTML_NS
 
 INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
                  'caption-side', 'color', 'cursor', 'direction', 'elevation',
@@ -97,6 +99,18 @@ XPNSMAP = {'h': XHTML_NS,}
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
+class CSSSelector(etree.XPath):
+    def __init__(self, css, namespaces=XPNSMAP):
+        path = css_to_xpath(css)
+        etree.XPath.__init__(self, path, namespaces=namespaces)
+        self.css = css
+
+    def __repr__(self):
+        return '<%s %s for %r>' % (
+            self.__class__.__name__,
+            hex(abs(id(self)))[2:],
+            self.css)
+
 
 class Page(object):
     def __init__(self, width, height, dpi, fbase, fsizes):
@@ -132,6 +146,7 @@ class Stylizer(object):
                and elem.get('type', CSS_MIME) in OEB_STYLES:
                 text = XHTML_CSS_NAMESPACE + elem.text
                 stylesheet = parser.parseString(text, href=cssname)
+                stylesheet.namespaces['h'] = XHTML_NS
                 stylesheets.append(stylesheet)
             elif elem.tag == XHTML('link') and elem.get('href') \
                  and elem.get('rel', 'stylesheet') == 'stylesheet' \
@@ -145,6 +160,7 @@ class Stylizer(object):
                     data = XHTML_CSS_NAMESPACE
                     data += oeb.manifest.hrefs[path].data
                     stylesheet = parser.parseString(data, href=path)
+                    stylesheet.namespaces['h'] = XHTML_NS
                     self.STYLESHEETS[path] = stylesheet
                 stylesheets.append(stylesheet)
         rules = []
@@ -160,6 +176,16 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
+        for _, _, cssdict, text, _ in rules:
+            try:
+                selector = CSSSelector(text)
+            except ExpressionError:
+                continue
+            for elem in selector(tree):
+                self.style(elem)._update_cssdict(cssdict)
+        for elem in tree.xpath('//*[@style]'):
+            self.style(elem)._apply_style_tag()
+        
 
     def flatten_rule(self, rule, href, index):
         results = []
@@ -236,9 +262,10 @@ class Stylizer(object):
         return style
 
     def style(self, element):
-        try: return self._styles[element]
-        except: pass
-        return Style(element, self)
+        try:
+            return self._styles[element]
+        except KeyError:
+            return Style(element, self)
 
     def stylesheet(self, name, font_scale=None):
         rules = []
@@ -259,69 +286,17 @@ class Style(object):
         self._element = element
         self._page = stylizer.page
         self._stylizer = stylizer
-        self._style = self._assemble_style(element, stylizer)
+        self._style = {}
         stylizer._styles[element] = self
+
+    def _update_cssdict(self, cssdict):
+        self._style.update(cssdict)
         
-    def _assemble_style(self, element, stylizer):
-        result = {}
-        rules = stylizer.rules
-        for _, selector, style, _, _ in rules:
-            if self._selects_element(element, selector):
-                result.update(style)
-        try:
-            style = CSSStyleDeclaration(element.attrib['style'])
-            result.update(stylizer.flatten_style(style))
-        except KeyError:
-            pass
-        return result
-        
-    def _selects_element(self, element, selector):
-        def _selects_element(element, items, index):
-            if index == -1:
-                return True
-            item = items[index]
-            if item.type == 'universal':
-                pass
-            elif item.type == 'type-selector':
-                name1 = ("{%s}%s" % item.value).lower()
-                name2 = element.tag.lower()
-                if name1 != name2:
-                    return False
-            elif item.type == 'id':
-                name1 = item.value[1:]
-                name2 = element.get('id', '')
-                if name1 != name2:
-                    return False
-            elif item.type == 'class':
-                name = item.value[1:].lower()
-                classes = element.get('class', '').lower().split()
-                if name not in classes:
-                    return False
-            elif item.type == 'child':
-                parent = element.getparent()
-                if parent is None:
-                    return False
-                element = parent
-            elif item.type == 'descendant':
-                element = element.getparent()
-                while element is not None:
-                    if _selects_element(element, items, index - 1):
-                        return True
-                    element = element.getparent()
-                return False
-            elif item.type == 'pseudo-class':
-                if item.value == ':first-child':
-                    e = element.getprevious()
-                    if e is not None:
-                        return False
-                else:
-                    return False
-            elif item.type == 'pseudo-element':
-                return False
-            else:
-                return False
-            return _selects_element(element, items, index - 1)
-        return _selects_element(element, selector, len(selector) - 1)
+    def _apply_style_tag(self):
+        attrib = self._element.attrib
+        if 'style' in attrib:
+            style = CSSStyleDeclaration(attrib['style'])
+            self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
         parent = self._element.getparent()
