@@ -583,7 +583,8 @@ class OEBBook(object):
         self.guide = guide = Guide(self)
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
             href = elem.get('href')
-            if href not in self.manifest.hrefs:
+            path, frag = urldefrag(href)
+            if path not in self.manifest.hrefs:
                 self.logger.log_warn(u'Guide reference %r not found' % href)
                 continue
             guide.add(elem.get('type'), elem.get('title'), href)
@@ -601,7 +602,10 @@ class OEBBook(object):
     def _toc_from_ncx(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@toc')
         if not result:
-            return False
+            expr = '/o2:package/o2:manifest/o2:item[@media-type="%s"]/@id'
+            result = xpath(opf, expr % NCX_MIME)
+            if len(result) != 1:
+                return False
         id = result[0]
         ncx = self.manifest[id].data
         self.manifest.remove(id)
