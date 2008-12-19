@@ -17,7 +17,7 @@ from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
 import calibre.ebooks.lit.mssha1 as mssha1
-from calibre.ebooks.lit.oeb import XML_PARSER, urlnormalize
+from calibre.ebooks.oeb.base import XML_PARSER, urlnormalize
 from calibre.ebooks import DRMError
 from calibre import plugins
 lzx, lxzerror = plugins['lzx']

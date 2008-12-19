@@ -21,8 +21,8 @@ import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
 from lxml import etree
-from calibre.ebooks.lit.oeb import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
-from calibre.ebooks.lit.oeb import barename, urlnormalize
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
+from calibre.ebooks.oeb.base import barename, urlnormalize
 from calibre.resources import html_css
 
 HTML_CSS_STYLESHEET = cssutils.parseString(html_css)

@@ -146,7 +146,7 @@ if __name__ == '__main__':
             metadata_sqlite = 'library/metadata_sqlite.sql',
             jquery          = 'gui2/viewer/jquery.js',
             jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',
-            html_css        = 'ebooks/lit/html.css',
+            html_css        = 'ebooks/oeb/html.css',
         )
         
         DEST = os.path.join('src', APPNAME, 'resources.py')
