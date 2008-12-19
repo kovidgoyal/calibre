@@ -583,7 +583,8 @@ class OEBBook(object):
         self.guide = guide = Guide(self)
         for elem in xpath(opf, '/o2:package/o2:guide/o2:reference'):
             href = elem.get('href')
-            if href not in self.manifest.hrefs:
+            path, frag = urldefrag(href)
+            if path not in self.manifest.hrefs:
                 self.logger.log_warn(u'Guide reference %r not found' % href)
                 continue
             guide.add(elem.get('type'), elem.get('title'), href)
