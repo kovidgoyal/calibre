@@ -16,6 +16,7 @@ import itertools
 import types
 import re
 import copy
+from itertools import izip
 import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
@@ -25,7 +26,7 @@ from calibre.ebooks.lit.oeb import barename, urlnormalize
 from calibre.resources import html_css
 
 HTML_CSS_STYLESHEET = cssutils.parseString(html_css)
-XHTML_CSS_NAMESPACE = "@namespace url(http://www.w3.org/1999/xhtml);\n"
+XHTML_CSS_NAMESPACE = "@namespace url(%s);\n" % XHTML_NS
 
 INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
                  'caption-side', 'color', 'cursor', 'direction', 'elevation',
@@ -82,20 +83,15 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
 
-FONT_SIZE_LIST = [('xx-small', 1,    10.),
-                  ('x-small',  None, 11.),
-                  ('small',    2,    13.),
-                  ('medium',   3,    16.),
-                  ('large',    4,    18.),
-                  ('x-large',  5,    20.),
-                  ('xx-large', 6,    22.),
-                  (None,       7,    24.)]
+FONT_SIZES = [('xx-small', 1),
+              ('x-small',  None),
+              ('small',    2),
+              ('medium',   3),
+              ('large',    4),
+              ('x-large',  5),
+              ('xx-large', 6),
+              (None,       7)]
 
-FONT_SIZE_BY_NAME = {}
-FONT_SIZE_BY_NUM = {}
-for name, num, size in FONT_SIZE_LIST:
-    FONT_SIZE_BY_NAME[name] = size
-    FONT_SIZE_BY_NUM[num] = size
 
 XPNSMAP = {'h': XHTML_NS,}
 def xpath(elem, expr):
@@ -103,14 +99,20 @@ def xpath(elem, expr):
 
 
 class Page(object):
-    def __init__(self, width, height, dpi):
+    def __init__(self, width, height, dpi, fbase, fsizes):
         self.width = (float(width) / dpi) * 72.
         self.height = (float(height) / dpi) * 72.
         self.dpi = float(dpi)
+        self.fbase = float(fbase)
+        self.fsizes = []
+        for (name, num), size in izip(FONT_SIZES, fsizes):
+            self.fsizes.append((name, num, float(size)))
+        self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
+        self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
 
 class Profiles(object):
-    PRS500 = Page(584, 754, 168.451)
-    PRS505 = PRS500
+    PRS505 = Page(584, 754, 168.451, 12, [7.5, 9, 10, 12, 15.5, 20, 22, 24])
+    MSLIT = Page(652, 480, 168.451, 13, [10, 11, 13, 16, 18, 20, 22, 24])
 
     
 class Stylizer(object):    
@@ -187,7 +189,7 @@ class Stylizer(object):
             size = style['font-size']
             if size == 'normal': size = 'medium'
             if size in FONT_SIZE_NAMES:
-                style['font-size'] = "%dpt" % FONT_SIZE_BY_NAME[size]
+                style['font-size'] = "%dpt" % self.page.fnames[size]
         return style
     
     def _normalize_edge(self, cssvalue, name):
@@ -385,18 +387,19 @@ class Style(object):
             result = None
             factor = None
             if value == 'inherit':
-                value = 'medium'
+                # We should only see this if the root element
+                value = self._stylizer.page.fbase
             if value in FONT_SIZE_NAMES:
-                result = FONT_SIZE_BY_NAME[value]
+                result = self._stylizer.page.fnames[value]
             elif value == 'smaller':
                 factor = 1.0/1.2
-                for _, _, size in FONT_SIZE_LIST:
+                for _, _, size in self._stylizer.page.fsizes:
                     if base <= size: break
                     factor = None
                     result = size
             elif value == 'larger':
                 factor = 1.2
-                for _, _, size in reversed(FONT_SIZE_LIST):
+                for _, _, size in reversed(self._stylizer.page.fsizes):
                     if base >= size: break
                     factor = None
                     result = size
@@ -412,7 +415,7 @@ class Style(object):
             styles = self._stylizer._styles
             base = styles[self._element.getparent()].fontSize
         else:
-            base = normalize_fontsize(DEFAULTS['font-size'])
+            base = self._styles.page.fbase
         if 'font-size' in self._style:
             size = self._style['font-size']
             result = normalize_fontsize(size, base)

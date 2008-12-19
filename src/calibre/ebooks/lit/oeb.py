@@ -563,13 +563,14 @@ class TOC(object):
     
 class OEBBook(object):
     def __init__(self, opfpath=None, container=None, logger=FauxLogger()):
-        if not container:
+        if opfpath and not container:
             container = DirContainer(os.path.dirname(opfpath))
             opfpath = os.path.basename(opfpath)
         self.container = container
         self.logger = logger
-        opf = self._read_opf(opfpath)
-        self._all_from_opf(opf)
+        if opfpath or container:
+            opf = self._read_opf(opfpath)
+            self._all_from_opf(opf)
     
     def _convert_opf1(self, opf):
         nroot = etree.Element(OPF('package'),
@@ -676,7 +677,10 @@ class OEBBook(object):
     def _toc_from_ncx(self, opf):
         result = xpath(opf, '/o2:package/o2:spine/@toc')
         if not result:
-            return False
+            expr = '/o2:package/o2:manifest[@media-type="%s"]/@id'
+            result = xpath(opf, expr % NCX_MIME)
+            if len(result) != 1:
+                return False
         id = result[0]
         ncx = self.manifest[id].data
         self.manifest.remove(id)
