@@ -8,10 +8,14 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
 import sys
 from calibre import plugins
-_lzx, LZXError = plugins['lzx']
+
+_lzx, _error = plugins['lzx']
+if _lzx is None:
+    raise RuntimeError('Failed to load the lzx plugin: %s' % _error)
 
 __all__ = ['Compressor', 'Decompressor', 'LZXError']
 
+LZXError = _lzx.LZXError
 Compressor = _lzx.Compressor
 
 class Decompressor(object):
