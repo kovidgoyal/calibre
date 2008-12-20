@@ -26,7 +26,7 @@ from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import barename, urlnormalize
 from calibre.resources import html_css
 
-XHTML_CSS_NAMESPACE = "@namespace url(%s);\n" % XHTML_NS
+XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
 HTML_CSS_STYLESHEET = cssutils.parseString(html_css)
 HTML_CSS_STYLESHEET.namespaces['h'] = XHTML_NS
 
@@ -126,7 +126,7 @@ class Page(object):
 
 class Profiles(object):
     PRS505 = Page(584, 754, 168.451, 12, [7.5, 9, 10, 12, 15.5, 20, 22, 24])
-    MSLIT = Page(652, 480, 168.451, 13, [10, 11, 13, 16, 18, 20, 22, 26])
+    MSLIT = Page(652, 480, 100.0, 13, [10, 11, 13, 16, 18, 20, 22, 26])
 
     
 class Stylizer(object):    
