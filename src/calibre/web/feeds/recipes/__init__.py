@@ -18,7 +18,7 @@ recipe_modules = [
            'nytimes_sub', 'security_watch', 'cyberpresse', 'st_petersburg_times',
            'clarin', 'financial_times', 'heise', 'le_monde', 'harpers', 'science_aas',
            'science_news', 'the_nation', 'lrb', 'harpers_full', 'liberation',
-           'linux_magazine', 'telegraph_uk'
+           'linux_magazine', 'telegraph_uk', 'utne',
           ]
 
 import re, imp, inspect, time, os
