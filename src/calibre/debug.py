@@ -21,6 +21,8 @@ Run an embedded python interpreter.
     'Module specifications are of the form full.name.of.module,path_to_module.py', default=None
     )
     parser.add_option('-c', '--command', help='Run python code.', default=None)
+    parser.add_option('-g', '--run-gui', help='Run the GUI', default=False, 
+                      action='store_true')
     parser.add_option('--migrate', action='store_true', default=False, 
                       help='Migrate old database. Needs two arguments. Path to library1.db and path to new library folder.')
     return parser
@@ -72,7 +74,10 @@ def migrate(old, new):
 
 def main(args=sys.argv):
     opts, args = option_parser().parse_args(args)
-    if opts.update_module:
+    if opts.run_gui:
+        from calibre.gui2.main import main
+        main()
+    elif opts.update_module:
         mod, path = opts.update_module.partition(',')[0], opts.update_module.partition(',')[-1]
         update_module(mod, os.path.expanduser(path))
     elif opts.command:
