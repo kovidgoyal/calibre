@@ -36,11 +36,11 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.model = model
         self.setWindowModality(Qt.NonModal)
         self.setWindowTitle(__appname__ + _(' - Jobs'))
-        QObject.connect(self.jobs_view.model(), SIGNAL('modelReset()'), 
+        QObject.connect(self.jobs_view.model(), SIGNAL('modelReset()'),
                         self.jobs_view.resizeColumnsToContents)
         QObject.connect(self.kill_button, SIGNAL('clicked()'),
                         self.kill_job)
-        QObject.connect(self, SIGNAL('kill_job(int, PyQt_PyObject)'), 
+        QObject.connect(self, SIGNAL('kill_job(int, PyQt_PyObject)'),
                         self.jobs_view.model().kill_job)
         self.pb_delegate = ProgressBarDelegate(self)
         self.jobs_view.setItemDelegateForColumn(2, self.pb_delegate)
@@ -53,7 +53,7 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         model = self.model
         for row, job in enumerate(model.jobs):
             if job.is_running:
-                self.jobs_view.dataChanged(model.index(row, 3), model.index(row, 3))    
+                self.jobs_view.dataChanged(model.index(row, 3), model.index(row, 3))
     
     def kill_job(self):
         for index in self.jobs_view.selectedIndexes():
