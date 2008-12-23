@@ -252,6 +252,7 @@ if __name__ == '__main__':
         description='''Compile all GUI forms and images'''
         PATH  = os.path.join('src', APPNAME, 'gui2')
         IMAGES_DEST = os.path.join(PATH, 'images_rc.py')
+        QRC = os.path.join(PATH, 'images.qrc')
         
         @classmethod
         def find_forms(cls):
@@ -331,9 +332,9 @@ if __name__ == '__main__':
                 c = cls.form_to_compiled_form(form)
                 if os.path.exists(c):
                     os.remove(c)
-            images = cls.IMAGES_DEST
-            if os.path.exists(images):
-                os.remove(images)
+            for x in (cls.IMAGES_DEST, cls.QRC):
+                if os.path.exists(x):
+                    os.remove(x)
     
     class clean(Command):
         description='''Delete all computer generated files in the source tree'''
@@ -349,17 +350,13 @@ if __name__ == '__main__':
                 os.remove(f)
             for root, dirs, files in os.walk('.'):
                 for name in files:
-                    if name.endswith('~') or \
-                       name.endswith('.pyc') or \
-                       name.endswith('.pyo'):
-                        os.remove(os.path.join(root, name))
+                    for t in ('.pyc', '.pyo', '~'):
+                        if name.endswith(t):
+                            os.remove(os.path.join(root, name))
+                            break
                         
-            for dir in 'build', 'dist':
-                for f in os.listdir(dir):
-                    if os.path.isdir(dir + os.sep + f):
-                        shutil.rmtree(dir + os.sep + f)
-                    else:
-                        os.remove(dir + os.sep + f)
+            for dir in ('build', 'dist', os.path.join('src', 'calibre.egg-info')):
+                shutil.rmtree(dir, ignore_errors=True)
     
     class build(_build):
         
