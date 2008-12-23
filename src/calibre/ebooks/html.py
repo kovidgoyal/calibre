@@ -1044,11 +1044,12 @@ def main(args=sys.argv):
         
     return 0
 
-def gui_main(htmlfile):
+def gui_main(htmlfile, pt=None):
     '''
     Convenience wrapper for use in recursively importing HTML files.
     '''
-    pt = PersistentTemporaryFile('_html2oeb_gui.oeb.zip')
+    if pt is None:
+        pt = PersistentTemporaryFile('_html2oeb_gui.oeb.zip')
     pt.close()
     opts = '''
 pretty_print = True

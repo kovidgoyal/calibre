@@ -4,8 +4,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, shutil, traceback, functools, sys
 
-from calibre.customize import Plugin
-from calibre.customize.filetype import Plugin as FileTypePlugin
+from calibre.customize import Plugin, FileTypePlugin
+from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.constants import __version__, iswindows, isosx
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser
@@ -24,7 +24,7 @@ from zipfile import ZipFile
 def _config():
     c = Config('customize')
     c.add_opt('plugins', default={}, help=_('Installed plugins'))
-    c.add_opt('filetype_mapping', default={}, help=_('Maping for filetype plugins'))
+    c.add_opt('filetype_mapping', default={}, help=_('Mapping for filetype plugins'))
     c.add_opt('plugin_customization', default={}, help=_('Local plugin customization'))
     c.add_opt('disabled_plugins', default=set([]), help=_('Disabled plugins'))
     
@@ -100,12 +100,13 @@ def _run_filetype_plugins(path_to_file, ft, occasion='preprocess'):
     for plugin in occasion.get(ft, []):
         if is_disabled(plugin):
             continue
-        sc = customization.get(plugin.name, '')
-        try:
-            nfp = plugin.run(path_to_file, sc)
-        except:
-            print 'Running file type plugin %s failed with traceback:'%plugin.name
-            traceback.print_exc()
+        plugin.site_customization = customization.get(plugin.name, '') 
+        with plugin:
+            try:
+                nfp = plugin.run(path_to_file)
+            except:
+                print 'Running file type plugin %s failed with traceback:'%plugin.name
+                traceback.print_exc()
     return nfp
 
 run_plugins_on_import      = functools.partial(_run_filetype_plugins, 
@@ -117,10 +118,10 @@ run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
                 
 
 def initialize_plugin(plugin, path_to_zip_file):
-    print 'Initializing plugin', plugin.name
     try:
         plugin(path_to_zip_file)
     except Exception:
+        print 'Failed to initialize plugin:', plugin.name, plugin.version
         tb = traceback.format_exc()
         raise InvalidPlugin((_('Initialization of plugin %s failed with traceback:')
                             %tb) + '\n'+tb)
@@ -164,10 +165,10 @@ def enable_plugin(plugin_or_name):
 def initialize_plugins():
     global _initialized_plugins
     _initialized_plugins = []
-    for zfp in config['plugins'].values():
+    for zfp in list(config['plugins'].values()) + builtin_plugins:
         try:
-            plugin = load_plugin(zfp)
-            initialize_plugin(plugin, zfp)
+            plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
+            initialize_plugin(plugin, zfp if not isinstance(zfp, type) else zfp)
             _initialized_plugins.append(plugin)
         except:
             print 'Failed to initialize plugin...'
@@ -195,6 +196,9 @@ def option_parser():
                       help=_('Disable the named plugin'))
     return parser
 
+def initialized_plugins():
+    return _initialized_plugins
+
 def main(args=sys.argv):
     parser = option_parser()
     if len(args) < 2:
@@ -216,11 +220,19 @@ def main(args=sys.argv):
     if opts.disable_plugin is not None:
         disable_plugin(opts.disable_plugin.strip())
     if opts.list_plugins:
-        print 'Name\tVersion\tDisabled\tLocal Customization'
-        for plugin in _initialized_plugins:
-            print '%s\t%s\t%s\t%s'%(plugin.name, plugin.version, is_disabled(plugin), 
-                                config['plugin_customization'].get(plugin.name))
-            print '\t', plugin.customization_help()
+        fmt = '%-15s%-20s%-15s%-15s%s'
+        print fmt%tuple(('Type|Name|Version|Disabled|Site Customization'.split('|')))
+        print
+        for plugin in initialized_plugins():
+            print fmt%(
+                                plugin.type, plugin.name, 
+                                plugin.version, is_disabled(plugin), 
+                                config['plugin_customization'].get(plugin.name, '')
+                                )
+            print '\t', plugin.description
+            if plugin.is_customizable():
+                print '\t', plugin.customization_help()
+            print
         
     return 0
     

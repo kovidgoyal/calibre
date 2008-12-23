@@ -49,11 +49,8 @@ class JobsDialog(QDialog, Ui_JobsDialog):
         self.connect(self.running_time_timer, SIGNAL('timeout()'), self.update_running_time)
         self.running_time_timer.start(1000)
         
-    def update_running_time(self):
-        model = self.model
-        for row, job in enumerate(model.jobs):
-            if job.is_running:
-                self.jobs_view.dataChanged(model.index(row, 3), model.index(row, 3))
+    def update_running_time(self, *args):
+        self.model.running_time_updated()
     
     def kill_job(self):
         for index in self.jobs_view.selectedIndexes():

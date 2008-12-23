@@ -11,7 +11,7 @@ from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
 
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
-                           choose_files, pixmap_to_data, choose_images, import_format
+                           choose_files, pixmap_to_data, choose_images
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -21,6 +21,7 @@ from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, a
 from calibre.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
 from calibre import islinux
 from calibre.utils.config import prefs
+from calibre.customize.ui import run_plugins_on_import
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, size, path=None):
@@ -84,9 +85,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 QErrorMessage(self.window).showMessage("You do not have "+\
                                     "permission to read the file: " + _file)
                 continue
-            nf = import_format(_file)[0]
-            if nf is not None:
-                _file = nf
+            _file = run_plugins_on_import(_file, os.path.splitext(_file)[1].lower())
             size = os.stat(_file).st_size
             ext = os.path.splitext(_file)[1].lower()
             if '.' in ext:

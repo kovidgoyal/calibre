@@ -21,7 +21,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
                            SingleApplication, Application, available_height, \
-                           max_available_height, config, info_dialog, import_format
+                           max_available_height, config, info_dialog
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
@@ -658,11 +658,11 @@ class Main(MainWindow, Ui_MainWindow):
             model = self.library_view.model()
             
             paths = list(paths)
-            for i, path in enumerate(paths):
-                npath, fmt = import_format(path)
-                if npath is not None:
-                    paths[i] = npath
-                    formats[i] = fmt
+            #for i, path in enumerate(paths):
+            #    npath, fmt = import_format(path)
+            #    if npath is not None:
+            #        paths[i] = npath
+            #        formats[i] = fmt
             duplicates, number_added = model.add_books(paths, formats, metadata)
             if duplicates:
                 files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
