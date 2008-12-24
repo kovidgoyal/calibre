@@ -268,7 +268,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             plugin = self._plugin_model.index_to_plugin(index)
             if not plugin.can_be_disabled:
                 error_dialog(self,_('Plugin cannot be disabled'), 
-                             _('The plugin %s cannot be disabled')%plugin.name).exec_()
+                             _('The plugin: %s cannot be disabled')%plugin.name).exec_()
                 return
             if op == 'toggle':
                 if is_disabled(plugin):
@@ -279,7 +279,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
             if op == 'customize':
                 if not plugin.is_customizable():
                     info_dialog(self, _('Plugin not customizable'),
-                                _('Plugin %s does not need customization')%plugin.name).exec_()
+                                _('Plugin: %s does not need customization')%plugin.name).exec_()
                     return
                 help = plugin.customization_help()
                 text, ok = QInputDialog.getText(self, _('Customize %s')%plugin.name,
