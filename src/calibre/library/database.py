@@ -1471,11 +1471,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                                   (usize, data, id, ext))
         self.conn.commit()
 
-    def import_book_directory_multiple(self, dirpath):
+    def import_book_directory_multiple(self, dirpath, callback=None):
         dirpath = os.path.abspath(dirpath)
         duplicates = []
         books = {}
         for path in os.listdir(dirpath):
+            if callable(callback):
+                callback('.')
             path = os.path.abspath(os.path.join(dirpath, path))
             if os.path.isdir(path) or not os.access(path, os.R_OK):
                 continue
@@ -1500,13 +1502,18 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 duplicates.append((mi, formats))
                 continue
             self.import_book(mi, formats)
+            if callable(callback):
+                if callback(mi.title):
+                    break
         return duplicates
 
 
-    def import_book_directory(self, dirpath):
+    def import_book_directory(self, dirpath, callback=None):
         dirpath = os.path.abspath(dirpath)
         formats = []
         for path in os.listdir(dirpath):
+            if callable(callback):
+                callback('.')
             path = os.path.abspath(os.path.join(dirpath, path))
             if os.path.isdir(path) or not os.access(path, os.R_OK):
                 continue
@@ -1527,6 +1534,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if self.has_book(mi):
             return [(mi, formats)]
         self.import_book(mi, formats)
+        if callable(callback):
+            callback(mi.title)
+            
 
 
     def has_book(self, mi):
@@ -1535,13 +1545,19 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def has_id(self, id):
         return self.conn.get('SELECT id FROM books where id=?', (id,), all=False) is not None
 
-    def recursive_import(self, root, single_book_per_directory=True):
+    def recursive_import(self, root, single_book_per_directory=True, callback=None):
         root = os.path.abspath(root)
         duplicates  = []
         for dirpath in os.walk(root):
-            res = self.import_book_directory(dirpath[0]) if single_book_per_directory else self.import_book_directory_multiple(dirpath[0])
+            res = self.import_book_directory(dirpath[0], callback=callback) if \
+                single_book_per_directory else \
+                  self.import_book_directory_multiple(dirpath[0], callback=callback)
             if res is not None:
                 duplicates.extend(res)
+            if callable(callback):
+                if callback(''):
+                    break
+            
         return duplicates
 
     def export_single_format_to_dir(self, dir, indices, format, index_is_id=False):
