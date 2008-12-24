@@ -92,10 +92,12 @@ def reread_filetype_plugins():
                     _on_postprocess[ft].append(plugin)
                     
                 
-def _run_filetype_plugins(path_to_file, ft, occasion='preprocess'):
+def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
     occasion = {'import':_on_import, 'preprocess':_on_preprocess, 
                 'postprocess':_on_postprocess}[occasion]
     customization = config['plugin_customization']
+    if ft is None:
+        ft = os.path.splitext(path_to_file)[-1].lower().replace('.', '')        
     nfp = path_to_file
     for plugin in occasion.get(ft, []):
         if is_disabled(plugin):
@@ -107,6 +109,10 @@ def _run_filetype_plugins(path_to_file, ft, occasion='preprocess'):
             except:
                 print 'Running file type plugin %s failed with traceback:'%plugin.name
                 traceback.print_exc()
+    x = lambda j : os.path.normpath(os.path.normcase(j))
+    if occasion == 'postprocess' and x(nfp) != x(path_to_file):
+        shutil.copyfile(nfp, path_to_file)
+        nfp = path_to_file
     return nfp
 
 run_plugins_on_import      = functools.partial(_run_filetype_plugins, 
@@ -119,7 +125,7 @@ run_plugins_on_postprocess = functools.partial(_run_filetype_plugins,
 
 def initialize_plugin(plugin, path_to_zip_file):
     try:
-        plugin(path_to_zip_file)
+        return plugin(path_to_zip_file)
     except Exception:
         print 'Failed to initialize plugin:', plugin.name, plugin.version
         tb = traceback.format_exc()
@@ -130,9 +136,9 @@ def initialize_plugin(plugin, path_to_zip_file):
 def add_plugin(path_to_zip_file):
     make_config_dir()
     plugin = load_plugin(path_to_zip_file)
-    initialize_plugin(plugin, path_to_zip_file)
+    plugin = initialize_plugin(plugin, path_to_zip_file)
     plugins = config['plugins']
-    zfp = os.path.join(plugin_dir, 'name.zip')
+    zfp = os.path.join(plugin_dir, plugin.name+'.zip')
     if os.path.exists(zfp):
         os.remove(zfp)
     shutil.copyfile(path_to_zip_file, zfp)
@@ -151,6 +157,9 @@ def find_plugin(name):
 
 def disable_plugin(plugin_or_name):
     x = getattr(plugin_or_name, 'name', plugin_or_name)
+    plugin = find_plugin(x)
+    if not plugin.can_be_disabled:
+        raise ValueError('Plugin %s cannot be disabled'%x)
     dp = config['disabled_plugins']
     dp.add(x)
     config['disabled_plugins'] = dp
@@ -168,7 +177,7 @@ def initialize_plugins():
     for zfp in list(config['plugins'].values()) + builtin_plugins:
         try:
             plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
-            initialize_plugin(plugin, zfp if not isinstance(zfp, type) else zfp)
+            plugin = initialize_plugin(plugin, zfp if not isinstance(zfp, type) else zfp)
             _initialized_plugins.append(plugin)
         except:
             print 'Failed to initialize plugin...'
@@ -199,6 +208,14 @@ def option_parser():
 def initialized_plugins():
     return _initialized_plugins
 
+def customize_plugin(plugin, custom):
+    d = config['plugin_customization']
+    d[plugin.name] = custom.strip()
+    config['plugin_customization'] = d
+
+def plugin_customization(plugin):
+    return config['plugin_customization'].get(plugin.name, '')
+
 def main(args=sys.argv):
     parser = option_parser()
     if len(args) < 2:
@@ -214,7 +231,7 @@ def main(args=sys.argv):
         if plugin is None:
             print 'No plugin with the name %s exists'%name
             return 1
-        config['plugin_customization'][plugin.name] = custom.strip()
+        customize_plugin(plugin, custom)
     if opts.enable_plugin is not None:
         enable_plugin(opts.enable_plugin.strip())
     if opts.disable_plugin is not None:
@@ -227,7 +244,7 @@ def main(args=sys.argv):
             print fmt%(
                                 plugin.type, plugin.name, 
                                 plugin.version, is_disabled(plugin), 
-                                config['plugin_customization'].get(plugin.name, '')
+                                plugin_customization(plugin)
                                 )
             print '\t', plugin.description
             if plugin.is_customizable():

@@ -18,6 +18,7 @@ from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.zipfile import ZipFile
+from calibre.customize.ui import run_plugins_on_preprocess
 
 def lit2opf(path, tdir, opts):
     from calibre.ebooks.lit.reader import LitReader
@@ -118,6 +119,7 @@ def unarchive(path, tdir):
 
 def any2epub(opts, path, notification=None, create_epub=True, 
              oeb_cover=False, extract_to=None):
+    path = run_plugins_on_preprocess(path)
     ext = os.path.splitext(path)[1]
     if not ext:
         raise ValueError('Unknown file type: '+path)

@@ -12,6 +12,7 @@ from urllib import unquote
 from urlparse import urlparse
 from math import ceil, floor
 from functools import partial
+from calibre.customize.ui import run_plugins_on_postprocess
 
 try:
     from PIL import Image as PILImage
@@ -1931,6 +1932,7 @@ def process_file(path, options, logger=None):
         oname = os.path.join(os.getcwd(), name)
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
+    run_plugins_on_postprocess(oname, 'lrf')
     logger.info('Output written to %s', oname)
     conv.cleanup()
     return oname

@@ -48,6 +48,7 @@ from calibre.ebooks.epub import initialize_container, PROFILES
 from calibre.ebooks.epub.split import split
 from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
+from calibre.customize.ui import run_plugins_on_postprocess
 from calibre import walk, CurrentDir, to_unicode
 
 content = functools.partial(os.path.join, u'content')
@@ -386,6 +387,7 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             epub = initialize_container(opts.output)
             epub.add_dir(tdir)
             epub.close()
+            run_plugins_on_postprocess(opts.output, 'epub')
             logger.info(_('Output written to ')+opts.output)
         
         if opts.show_opf:

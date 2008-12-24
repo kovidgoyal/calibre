@@ -661,6 +661,7 @@ class LibraryDatabase2(LibraryDatabase):
     def add_format_with_hooks(self, index, format, fpath, index_is_id=False, 
                               path=None, notify=True):
         npath = self.run_import_plugins(fpath, format)
+        format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
         return self.add_format(index, format, open(npath, 'rb'), 
                                index_is_id=index_is_id, path=path, notify=notify)
     
@@ -1126,6 +1127,7 @@ class LibraryDatabase2(LibraryDatabase):
             self.conn.commit()
             self.set_metadata(id, mi)
             npath = self.run_import_plugins(path, format)
+            format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
             stream = open(npath, 'rb')
             self.add_format(id, format, stream, index_is_id=True)
             stream.close()

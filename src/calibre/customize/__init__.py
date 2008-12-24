@@ -52,6 +52,12 @@ class Plugin(object):
     #: The earliest version of calibre this plugin requires
     minimum_calibre_version = (0, 4, 118)
     
+    #: If False, the user will not be able to disable this plugin. Use with
+    #: care.
+    can_be_disabled = True
+    
+    #: The type of this plugin. Used for categorizing plugins in the
+    #: GUI
     type = _('Base')
 
     def __init__(self, plugin_path):
@@ -71,8 +77,7 @@ class Plugin(object):
         '''
         pass
     
-    @classmethod
-    def customization_help(cls):
+    def customization_help(self, gui=False):
         '''
         Return a string giving help on how to customize this plugin.
         By default raise a :class:`NotImplementedError`, which indicates that
@@ -84,7 +89,9 @@ class Plugin(object):
         ``self.site_customization``.
         
         Site customization could be anything, for example, the path to
-        a needed binary on the user's computer. 
+        a needed binary on the user's computer.
+        
+        :param gui: If True return HTML help, otherwise return plain text help. 
         '''
         raise NotImplementedError
         
@@ -99,10 +106,9 @@ class Plugin(object):
         '''
         return PersistentTemporaryFile(suffix)
     
-    @classmethod
-    def is_customizable(cls):
+    def is_customizable(self):
         try:
-            cls.customization_help()
+            self.customization_help()
             return True
         except NotImplementedError:
             return False

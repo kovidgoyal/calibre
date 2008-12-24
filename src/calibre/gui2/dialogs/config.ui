@@ -839,6 +839,10 @@
                 <property name="text" >
                  <string>...</string>
                 </property>
+                <property name="icon" >
+                 <iconset resource="../images.qrc" >
+                  <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+                </property>
                </widget>
               </item>
              </layout>

@@ -85,11 +85,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 QErrorMessage(self.window).showMessage("You do not have "+\
                                     "permission to read the file: " + _file)
                 continue
-            _file = run_plugins_on_import(_file, os.path.splitext(_file)[1].lower())
+            _file = run_plugins_on_import(_file)
             size = os.stat(_file).st_size
-            ext = os.path.splitext(_file)[1].lower()
-            if '.' in ext:
-                ext = ext.replace('.', '')
+            ext = os.path.splitext(_file)[1].lower().replace('.', '')
             for row in range(self.formats.count()):
                 fmt = self.formats.item(row)
                 if fmt.ext == ext:

@@ -34,6 +34,7 @@ from calibre import LoggingInterface
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
+from calibre.customize.ui import run_plugins_on_postprocess
 
 __all__ = ['LitWriter']
 
@@ -734,6 +735,7 @@ def oeb2lit(opts, opfpath):
     lit = LitWriter(OEBBook(opfpath, logger=logger), logger=logger)
     with open(litpath, 'wb') as f:
         lit.dump(f)
+    run_plugins_on_postprocess(litpath, 'lit')
     logger.log_info(_('Output written to ')+litpath)
     
 
