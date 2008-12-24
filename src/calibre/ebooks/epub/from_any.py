@@ -30,7 +30,7 @@ def lit2opf(path, tdir, opts):
 
 def mobi2opf(path, tdir, opts):
     from calibre.ebooks.mobi.reader import MobiReader
-    print 'Exploding MOBI file:', path
+    print 'Exploding MOBI file:', path.encode('utf-8') if isinstance(path, unicode) else path
     reader = MobiReader(path)
     reader.extract_content(tdir)
     files = list(walk(tdir))
