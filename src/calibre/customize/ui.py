@@ -4,9 +4,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, shutil, traceback, functools, sys
 
-from calibre.customize import Plugin, FileTypePlugin
+from calibre.customize import Plugin, FileTypePlugin, MetadataReaderPlugin, \
+                              MetadataWriterPlugin
 from calibre.customize.builtins import plugins as builtin_plugins
 from calibre.constants import __version__, iswindows, isosx
+from calibre.ebooks.metadata import MetaInformation
 from calibre.utils.config import make_config_dir, Config, ConfigProxy, \
                                  plugin_dir, OptionParser
 
@@ -90,7 +92,38 @@ def reread_filetype_plugins():
                     if not _on_postprocess.has_key(ft):
                         _on_postprocess[ft] = []
                     _on_postprocess[ft].append(plugin)
-                    
+
+_metadata_readers = {}
+_metadata_writers = {}
+def reread_metadata_plugins():
+    global _metadata_readers
+    global _metadata_writers
+    _metadata_readers = {}
+    for plugin in _initialized_plugins:
+        if isinstance(plugin, MetadataReaderPlugin):
+            for ft in plugin.file_types:
+                _metadata_readers[ft] = plugin
+        elif isinstance(plugin, MetadataWriterPlugin):
+            for ft in plugin.file_types:
+                _metadata_writers[ft] = plugin 
+                
+def get_file_type_metadata(stream, ftype):
+    mi = MetaInformation(None, None)
+    try:
+        plugin = _metadata_readers[ftype.lower().strip()]
+        if not is_disabled(plugin):
+            mi = plugin.get_metadata(stream, ftype.lower().strip())
+    except:
+        pass
+    return mi
+
+def set_file_type_metadata(stream, mi, ftype):
+    try:
+        plugin = _metadata_writers[ftype.lower().strip()]
+        if not is_disabled(plugin):
+            plugin.set_metadata(stream, mi, ftype.lower().strip())
+    except:
+        traceback.print_exc()
                 
 def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
     occasion = {'import':_on_import, 'preprocess':_on_preprocess, 
@@ -184,6 +217,7 @@ def initialize_plugins():
             traceback.print_exc()
     _initialized_plugins.sort(cmp=lambda x,y:cmp(x.priority, y.priority), reverse=True)    
     reread_filetype_plugins()
+    reread_metadata_plugins()
     
 initialize_plugins()
 

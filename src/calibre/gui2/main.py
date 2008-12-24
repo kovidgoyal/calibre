@@ -698,8 +698,6 @@ class Main(MainWindow, Ui_MainWindow):
                     if d.exec_() == QDialog.Accepted:
                         num = model.add_books(*duplicates, **dict(add_duplicates=True))[1]
                         number_added += num
-                #self.library_view.sortByColumn(3, Qt.DescendingOrder)
-                #model.research()
                 model.books_added(number_added)
             else:
                 self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)

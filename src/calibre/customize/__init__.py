@@ -5,6 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import sys
 
 from calibre.ptempfile import PersistentTemporaryFile
+from calibre.constants import __version__, __author__
 
 class Plugin(object):
     '''
@@ -127,7 +128,7 @@ class FileTypePlugin(Plugin):
     A plugin that is associated with a particular set of file types.
     '''
     
-    #: List of file types for which this plugin should be run
+    #: Set of file types for which this plugin should be run
     #: For example: ``set(['lit', 'mobi', 'prc'])``
     file_types     = set([])
     
@@ -162,4 +163,57 @@ class FileTypePlugin(Plugin):
         :return: Absolute path to the modified ebook. 
         '''
         # Default implementation does nothing
-        return path_to_ebook 
+        return path_to_ebook
+    
+class MetadataReaderPlugin(Plugin):
+    '''
+    A plugin that implements reading metadata from a set of file types.
+    '''
+    #: Set of file types for which this plugin should be run
+    #: For example: ``set(['lit', 'mobi', 'prc'])``
+    file_types     = set([])
+    
+    supported_platforms = ['windows', 'osx', 'linux']
+    version = tuple(map(int, (__version__.split('.'))[:3]))
+    author  = 'Kovid Goyal'
+    
+    type = _('Metadata reader')
+    
+    def get_metadata(self, stream, type):
+        '''
+        Return metadata for the file represented by stream (a file like object
+        that supports reading). Raise an exception when there is an error 
+        with the input data.
+        
+        :param type: The type of file. Guaranteed to be one of the entries
+        in :member:`file_types`.
+        :return: A :class:`calibre.ebooks.metadata.MetaInformation` object 
+        '''
+        return None
+    
+class MetadataWriterPlugin(Plugin):
+    '''
+    A plugin that implements reading metadata from a set of file types.
+    '''
+    #: Set of file types for which this plugin should be run
+    #: For example: ``set(['lit', 'mobi', 'prc'])``
+    file_types     = set([])
+    
+    supported_platforms = ['windows', 'osx', 'linux']
+    version = tuple(map(int, (__version__.split('.'))[:3]))
+    author  = 'Kovid Goyal'
+    
+    type = _('Metadata writer')
+    
+    def set_metadata(self, stream, mi, type):
+        '''
+        Set metadata for the file represented by stream (a file like object
+        that supports reading). Raise an exception when there is an error 
+        with the input data.
+        
+        :param type: The type of file. Guaranteed to be one of the entries
+        in :member:`file_types`.
+        :param mi: A :class:`calibre.ebooks.metadata.MetaInformation` object 
+        '''
+        pass
+    
