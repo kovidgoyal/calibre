@@ -112,7 +112,8 @@ def get_file_type_metadata(stream, ftype):
     try:
         plugin = _metadata_readers[ftype.lower().strip()]
         if not is_disabled(plugin):
-            mi = plugin.get_metadata(stream, ftype.lower().strip())
+            with plugin:
+                mi = plugin.get_metadata(stream, ftype.lower().strip())
     except:
         pass
     return mi
@@ -121,7 +122,8 @@ def set_file_type_metadata(stream, mi, ftype):
     try:
         plugin = _metadata_writers[ftype.lower().strip()]
         if not is_disabled(plugin):
-            plugin.set_metadata(stream, mi, ftype.lower().strip())
+            with plugin:
+                plugin.set_metadata(stream, mi, ftype.lower().strip())
     except:
         traceback.print_exc()
                 

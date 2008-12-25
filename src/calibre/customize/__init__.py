@@ -19,12 +19,12 @@ class Plugin(object):
                                       
     Methods that should be overridden in sub classes:
     
-       * :method:`initialize`
-       * :method:`customization_help`
+       * :meth:`initialize`
+       * :meth:`customization_help`
     
     Useful methods:
     
-        * :method:`temporary_file`
+        * :meth:`temporary_file`
         
     '''
     #: List of platforms this plugin works on
@@ -93,6 +93,7 @@ class Plugin(object):
         a needed binary on the user's computer.
         
         :param gui: If True return HTML help, otherwise return plain text help. 
+        
         '''
         raise NotImplementedError
         
@@ -157,9 +158,10 @@ class FileTypePlugin(Plugin):
         simply return the path to the original ebook.
         
         The modified ebook file should be created with the 
-        :method:`temporary_file` method.
+        :meth:`temporary_file` method.
         
         :param path_to_ebook: Absolute path to the ebook.
+
         :return: Absolute path to the modified ebook. 
         '''
         # Default implementation does nothing
@@ -186,7 +188,8 @@ class MetadataReaderPlugin(Plugin):
         with the input data.
         
         :param type: The type of file. Guaranteed to be one of the entries
-        in :member:`file_types`.
+        in :attr:`file_types`.
+
         :return: A :class:`calibre.ebooks.metadata.MetaInformation` object 
         '''
         return None
@@ -212,8 +215,9 @@ class MetadataWriterPlugin(Plugin):
         with the input data.
         
         :param type: The type of file. Guaranteed to be one of the entries
-        in :member:`file_types`.
+        in :attr:`file_types`.
         :param mi: A :class:`calibre.ebooks.metadata.MetaInformation` object 
+
         '''
         pass
     

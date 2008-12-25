@@ -72,7 +72,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex" >
-        <number>4</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="page_3" >
         <layout class="QVBoxLayout" name="verticalLayout" >
