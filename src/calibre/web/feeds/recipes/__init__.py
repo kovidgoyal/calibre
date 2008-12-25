@@ -19,7 +19,7 @@ recipe_modules = [
            'clarin', 'financial_times', 'heise', 'le_monde', 'harpers', 'science_aas',
            'science_news', 'the_nation', 'lrb', 'harpers_full', 'liberation',
            'linux_magazine', 'telegraph_uk', 'utne', 'sciencedaily', 'forbes',
-           'time',
+           'time', 'endgadget', 'fudzilla',
           ]
 
 import re, imp, inspect, time, os

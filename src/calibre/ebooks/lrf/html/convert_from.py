@@ -1853,7 +1853,7 @@ def process_file(path, options, logger=None):
                       scaled else im
                 cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
                 cf.close()
-                cim.save(cf.name)
+                cim.convert('RGB').save(cf.name)
                 options.cover = cf.name
                 
                 tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
