@@ -120,7 +120,7 @@ class Main(MainWindow, Ui_MainWindow):
                 self.hide() if self.isVisible() else self.show()
         self.connect(self.system_tray_icon, SIGNAL('activated(QSystemTrayIcon::ActivationReason)'), sta)
         def tcme(self, *args):
-            print args
+            pass
         self.tool_bar.contextMenuEvent = tcme
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),

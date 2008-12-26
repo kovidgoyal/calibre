@@ -402,6 +402,8 @@ if __name__ == '__main__':
                 extra_link_args=['-framework', 'IOKit'])
                            )
     
+    plugins = ['plugins/%s.so'%(x.name.rpartition('.')[-1]) for x in ext_modules]
+
     setup(
           name           = APPNAME,
           packages       = find_packages('src'),
@@ -410,7 +412,7 @@ if __name__ == '__main__':
           author         = 'Kovid Goyal',
           author_email   = 'kovid@kovidgoyal.net',
           url            = 'http://%s.kovidgoyal.net'%APPNAME,
-          package_data   = {'calibre':['plugins/*']},
+          package_data   = {'calibre':plugins},
           include_package_data = True,
           entry_points   = entry_points,
           zip_safe       = False,

@@ -5,7 +5,7 @@ import re, collections
 from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QWidget, QHBoxLayout, QPixmap, \
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon, QScrollArea, QFrame
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
-from calibre import fit_image, preferred_encoding
+from calibre import fit_image, preferred_encoding, isosx
 from calibre.gui2 import qstring_to_unicode
 
 class BookInfoDisplay(QWidget):
@@ -196,9 +196,12 @@ class StatusBar(QStatusBar):
         self.book_info.show_data({})
         
     def showMessage(self, msg, timeout=0):
+        ret = QStatusBar.showMessage(self, msg, timeout)
         if self.systray is not None:
+            if isosx and isinstance(msg, unicode):
+                msg = msg.encode(preferred_encoding)
             self.systray.showMessage('calibre', msg, self.systray.Information, 10000)
-        return QStatusBar.showMessage(self, msg, timeout)
+        return ret
     
     def jobs(self):
         src = qstring_to_unicode(self.movie_button.jobs.text())
