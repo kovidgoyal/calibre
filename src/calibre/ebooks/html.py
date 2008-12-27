@@ -528,6 +528,7 @@ class Processor(Parser):
     
     LINKS_PATH = XPath('//a[@href]')
     PIXEL_PAT  = re.compile(r'([-]?\d+|[-]?\d*\.\d+)px')
+    PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
     
     def __init__(self, *args, **kwargs):
         Parser.__init__(self, *args, **kwargs)
@@ -697,7 +698,9 @@ class Processor(Parser):
                 return ''
             return '%fpt'%(72 * val/dpi)
         
-        return cls.PIXEL_PAT.sub(rescale, css)
+        css = cls.PIXEL_PAT.sub(rescale, css)
+        css = cls.PAGE_PAT.sub('', css)
+        return css
         
     def extract_css(self, parsed_sheets):
         '''
@@ -733,7 +736,12 @@ class Processor(Parser):
                             self.log_error('Failed to open stylesheet: %s'%file)
                         else:
                             try:
-                                parsed_sheets[file] = self.css_parser.parseString(css)
+                                try:
+                                    parsed_sheets[file] = self.css_parser.parseString(css)
+                                except ValueError:
+                                    parsed_sheets[file] = \
+                                        self.css_parser.parseString(\
+                                                css.decode('utf8', 'replace'))
                             except:
                                 parsed_sheets[file] = css.decode('utf8', 'replace')
                                 self.log_warning('Failed to parse stylesheet: %s'%file)
