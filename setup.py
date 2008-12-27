@@ -47,6 +47,7 @@ main_functions = {
 
 if __name__ == '__main__':
     from setuptools import setup, find_packages
+    from setuptools.command.build_py import build_py as _build_py, convert_path
     from distutils.command.build import build as _build
     from distutils.core import Command as _Command
     from pyqtdistutils import PyQtExtension, build_ext, Extension
@@ -64,6 +65,25 @@ if __name__ == '__main__':
         stimes = map(lambda x: os.stat(x).st_mtime, sources)
         newest_source, oldest_target = max(stimes), min(ttimes)
         return newest_source > oldest_target
+    
+    class build_py(_build_py):
+        
+        def find_data_files(self, package, src_dir):
+            """
+            Return filenames for package's data files in 'src_dir'
+            Modified to treat data file specs as paths not globs
+            """
+            globs = (self.package_data.get('', [])
+                     + self.package_data.get(package, []))
+            files = self.manifest_files.get(package, [])[:]
+            for pattern in globs:
+                # Each pattern has to be converted to a platform-specific path
+                pattern = os.path.join(src_dir, convert_path(pattern))
+                next = glob.glob(pattern)
+                files.extend(next if next else [pattern])
+                
+            return self.exclude_data_files(package, src_dir, files)
+
     
     class Command(_Command):
         user_options = []
@@ -413,7 +433,6 @@ if __name__ == '__main__':
           author_email   = 'kovid@kovidgoyal.net',
           url            = 'http://%s.kovidgoyal.net'%APPNAME,
           package_data   = {'calibre':plugins},
-          include_package_data = True,
           entry_points   = entry_points,
           zip_safe       = False,
           options        = { 'bdist_egg' : {'exclude_source_files': True,}, },
@@ -454,7 +473,8 @@ if __name__ == '__main__':
             ],
           cmdclass       = {
                       'build_ext'     : build_ext, 
-                      'build'         : build, 
+                      'build'         : build,
+                      'build_py'      : build_py, 
                       'pot'           : pot,
                       'manual'        : manual,
                       'resources'     : resources,
