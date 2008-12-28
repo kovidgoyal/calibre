@@ -69,6 +69,9 @@ def barename(name):
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
+def xml2str(root):
+    return etree.tostring(root, encoding='utf-8', xml_declaration=True)
+
 ASCII_CHARS = set(chr(x) for x in xrange(128))
 URL_SAFE = set(u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
                u'abcdefghijklmnopqrstuvwxyz'
@@ -114,12 +117,30 @@ class DirContainer(AbstractContainer):
 
     def write(self, path, data):
         path = os.path.join(self.rootdir, path)
+        dir = os.path.dirname(path)
+        if not os.path.isdir(dir):
+            os.makedirs(dir)
         with open(urlunquote(path), 'wb') as f:
             return f.write(data)
 
     def exists(self, path):
         path = os.path.join(self.rootdir, path)
         return os.path.isfile(urlunquote(path))
+
+class DirWriter(object):
+    def __init__(self, version=2.0):
+        self.version = version
+
+    def dump(self, oeb, path):
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        output = DirContainer(path)
+        for item in oeb.manifest.values():
+            output.write(item.href, str(item))
+        metadata = oeb.to_opf2() if self.version == 2 else oeb.to_opf1()
+        for href, data in metadata.values():
+            output.write(href, xml2str(data))
+        return
 
 
 class Metadata(object):
@@ -268,6 +289,12 @@ class Manifest(object):
                 self._data = None
             return property(fget, fset, fdel)
         data = data()
+
+        def __str__(self):
+            data = self.data
+            if isinstance(data, etree._Element):
+                return xml2str(data)
+            return str(data)
 
         def __cmp__(self, other):
             result = cmp(self.spine_position, other.spine_position)
