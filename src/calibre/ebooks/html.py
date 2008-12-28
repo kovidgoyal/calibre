@@ -771,9 +771,9 @@ class Processor(Parser):
         class_counter = 0
         for font in self.root.xpath('//font'):
             try:
-                size = int(font.attrib.pop('size', '3'))
+                size = font.attrib.pop('size', '3')
             except:
-                size = 3
+                size = '3'
             if size and size.strip() and size.strip()[0] in ('+', '-'):
                 size = 3 + float(size) # Hack assumes basefont=3
             setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
