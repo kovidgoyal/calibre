@@ -53,6 +53,8 @@ That's all. To add this code to |app| as a plugin, simply create a zip file with
 
     zip plugin.zip my_plugin.py
 
+You can download the Hellow World plugin from 
+`helloworld_plugin.zip  <http://calibre.kovidgoyal.net/wiki/UserRecipes>`_. 
 Now either use the configuration dialog in |app| GUI to add this zip file as a plugin, or
 use the command::
 

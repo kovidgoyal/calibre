@@ -38,6 +38,9 @@ config = _config()
 class InvalidPlugin(ValueError):
     pass
 
+class PluginNotFound(ValueError):
+    pass
+
 def load_plugin(path_to_zip_file):
     '''
     Load plugin from zip file or raise InvalidPlugin error
@@ -45,6 +48,8 @@ def load_plugin(path_to_zip_file):
     :return: A :class:`Plugin` instance.
     '''
     print 'Loading plugin from', path_to_zip_file
+    if not os.access(path_to_zip_file, os.R_OK):
+        raise PluginNotFound
     zf = ZipFile(path_to_zip_file)
     for name in zf.namelist():
         if name.lower().endswith('plugin.py'):
@@ -52,14 +57,12 @@ def load_plugin(path_to_zip_file):
             exec zf.read(name) in locals
             for x in locals.values():
                 if isinstance(x, type) and issubclass(x, Plugin):
-                    if x.minimum_calibre_version > version:
-                        raise InvalidPlugin(_('%s needs calibre version at least %s')%
-                                            (x.name, x.minimum_calibre_version))
-                    if platform not in x.supported_platforms:
-                        raise InvalidPlugin(_('%s is not supported on %s')%
-                                            (x.name, platform))
+                    if x.minimum_calibre_version > version or \
+                        platform not in x.supported_platforms:
+                        continue
                     
                     return x
+            
     raise InvalidPlugin(_('No valid plugin found in ')+path_to_zip_file)
 
 _initialized_plugins = []
@@ -211,7 +214,10 @@ def initialize_plugins():
     _initialized_plugins = []
     for zfp in list(config['plugins'].values()) + builtin_plugins:
         try:
-            plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
+            try:
+                plugin = load_plugin(zfp) if not isinstance(zfp, type) else zfp
+            except PluginNotFound:
+                continue
             plugin = initialize_plugin(plugin, zfp if not isinstance(zfp, type) else zfp)
             _initialized_plugins.append(plugin)
         except:
