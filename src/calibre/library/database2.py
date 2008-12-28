@@ -22,7 +22,8 @@ from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.meta import get_metadata
 from calibre.constants import preferred_encoding, iswindows, isosx
-
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.customize.ui import run_plugins_on_import
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
 filesystem_encoding = sys.getfilesystemencoding()
@@ -37,6 +38,7 @@ def normpath(x):
     return x
 
 _filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+\[\]/]')
+
 def sanitize_file_name(name, substitute='_'):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
@@ -656,6 +658,13 @@ class LibraryDatabase2(LibraryDatabase):
         if self.has_format(index, format, index_is_id):
             self.remove_format(id, format, index_is_id=True)
         
+    def add_format_with_hooks(self, index, format, fpath, index_is_id=False, 
+                              path=None, notify=True):
+        npath = self.run_import_plugins(fpath, format)
+        format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+        return self.add_format(index, format, open(npath, 'rb'), 
+                               index_is_id=index_is_id, path=path, notify=notify)
+    
     def add_format(self, index, format, stream, index_is_id=False, path=None, notify=True):
         id = index if index_is_id else self.id(index)
         if path is None:
@@ -1077,6 +1086,18 @@ class LibraryDatabase2(LibraryDatabase):
         self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
         return id
     
+    def run_import_plugins(self, path_or_stream, format):
+        format = format.lower()
+        if hasattr(path_or_stream, 'seek'):
+            path_or_stream.seek(0)
+            pt = PersistentTemporaryFile('_import_plugin.'+format)
+            shutil.copyfileobj(path_or_stream, pt, 1024**2)
+            pt.close()
+            path = pt.name
+        else:
+            path = path_or_stream
+            return run_plugins_on_import(path, format)
+    
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
         Add a book to the database. The result cache is not updated.
@@ -1105,12 +1126,11 @@ class LibraryDatabase2(LibraryDatabase):
             self.set_path(id, True)
             self.conn.commit()
             self.set_metadata(id, mi)
-            stream = path if hasattr(path, 'read') else open(path, 'rb')
-            stream.seek(0)
-            
+            npath = self.run_import_plugins(path, format)
+            format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+            stream = open(npath, 'rb')
             self.add_format(id, format, stream, index_is_id=True)
-            if not hasattr(path, 'read'):
-                stream.close()
+            stream.close()
         self.conn.commit()
         self.data.refresh_ids(self.conn, ids) # Needed to update format list and size
         if duplicates:

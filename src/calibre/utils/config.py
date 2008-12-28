@@ -28,9 +28,11 @@ else:
     bdir = os.path.abspath(os.path.expanduser(os.environ.get('XDG_CONFIG_HOME', '~/.config')))
     config_dir = os.path.join(bdir, 'calibre')
 
+plugin_dir = os.path.join(config_dir, 'plugins')
+
 def make_config_dir():
-    if not os.path.exists(config_dir):
-        os.makedirs(config_dir, mode=448) # 0700 == 448
+    if not os.path.exists(plugin_dir):
+        os.makedirs(plugin_dir, mode=448) # 0700 == 448
 
 
 class CustomHelpFormatter(IndentedHelpFormatter):
@@ -78,6 +80,7 @@ class OptionParser(_OptionParser):
                  gui_mode=False,
                  conflict_handler='resolve',
                  **kwds):
+        usage = textwrap.dedent(usage)
         usage += '''\n\nWhenever you pass arguments to %prog that have spaces in them, '''\
                  '''enclose the arguments in quotation marks.'''
         _OptionParser.__init__(self, usage=usage, version=version, epilog=epilog, 

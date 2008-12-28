@@ -18,7 +18,7 @@ class Time(BasicNewsRecipe):
     no_stylesheets        = False
     use_embedded_content  = False
     
-    cover_url = 'http://img.timeinc.net/time/rd/trunk/www/web/feds/i/logo_time_home.gif'
+    #cover_url = 'http://img.timeinc.net/time/rd/trunk/www/web/feds/i/logo_time_home.gif'
     
     keep_only_tags = [dict(name='div', attrs={'class':'tout1'})]
 
@@ -32,7 +32,14 @@ class Time(BasicNewsRecipe):
                        ,(u'Politics', u'http://feedproxy.google.com/time/politics')
                        ,(u'Travel', u'http://feedproxy.google.com/time/travel')
                      ]
-
+    
+    def get_cover_url(self):
+        soup = self.index_to_soup('http://www.time.com/time/')
+        img = soup.find('img', alt='Current Time.com Cover', width='107')
+        if img is not None:
+            return img.get('src', None)
+        
+    
     def print_version(self, url):
         raw = self.browser.open(url).read()
         soup = BeautifulSoup(raw.decode('utf8', 'replace'))

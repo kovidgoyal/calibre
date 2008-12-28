@@ -358,8 +358,8 @@ list of id numbers (you can get id numbers by using the list command). For examp
 
     return 0
 
-def do_add_format(db, id, fmt, buffer):
-    db.add_format(id, fmt.upper(), buffer, index_is_id=True)
+def do_add_format(db, id, fmt, path):
+    db.add_format_with_hooks(id, fmt.upper(), path, index_is_id=True)
 
 
 def command_add_format(args, dbpath):
@@ -377,10 +377,10 @@ by id. You can get id by using the list command. If the format already exists, i
         print >>sys.stderr, _('You must specify an id and an ebook file')
         return 1
 
-    id, file, fmt = int(args[1]), open(args[2], 'rb'), os.path.splitext(args[2])[-1]
+    id, path, fmt = int(args[1]), args[2], os.path.splitext(args[2])[-1]
     if not fmt:
         print _('ebook file must have an extension')
-    do_add_format(get_db(dbpath, opts), id, fmt[1:], file)
+    do_add_format(get_db(dbpath, opts), id, fmt[1:], path)
     return 0
 
 def do_remove_format(db, id, fmt):

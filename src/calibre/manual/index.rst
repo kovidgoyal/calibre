@@ -30,6 +30,7 @@ Sections
    metadata
    faq 
    xpath
+   customize
    glossary
 
 Convenience

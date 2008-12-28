@@ -184,13 +184,27 @@ def expose(func):
 class Server(object):
     
     TRENDS = '/tmp/donations_trend.png'
+    MONTH_TRENDS = '/tmp/donations_month_trend.png'
     
     def __init__(self, apache=False, root='/', data_file='/tmp/donations.xml'):
         self.apache = apache
         self.document_root = root
         self.data_file = data_file
         self.read_records()
-        
+    
+    def calculate_month_trend(self, days=31):
+        stats = self.get_slice(date.today()-timedelta(days=days-1), date.today())
+        fig = plt.figure(2, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        ax = fig.add_subplot(111)
+        x = list(range(days-1, -1, -1))
+        y = stats.daily_totals
+        ax.plot(x, y)#, align='center', width=20, color='g')
+        ax.set_xlabel('Day')
+        ax.set_ylabel('Income ($)')
+        ax.hlines([stats.daily_average], 0, days-1)
+        ax.set_xlim([0, days-1])
+        fig.savefig(self.MONTH_TRENDS)
+    
     def calculate_trend(self):
         def months(start, end):
             pos = range_for_month(start.year, start.month)[0]
@@ -208,7 +222,7 @@ class Server(object):
         x = [m.min for m in _months]
         y = [m.total for m in _months]
         ml   = mdates.MonthLocator() # every month
-        fig = plt.figure(None, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        fig = plt.figure(1, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
         ax = fig.add_subplot(111)
         ax.bar(x, y, align='center', width=20, color='g')
         ax.xaxis.set_major_locator(ml)
@@ -235,6 +249,7 @@ class Server(object):
             max_date = max(max_date, d)
         self.earliest, self.latest = min_date, max_date
         self.calculate_trend()
+        self.calculate_month_trend()
             
     def get_slice(self, start_date, end_date):
         stats = Stats([r for r in self.records if r.date >= start_date and r.date <= end_date],
@@ -298,6 +313,8 @@ class Server(object):
             range_stats = '<pre>Invalid input:\n%s</pre>'%err
         else:
             range_stats = self.get_slice(*range_stats).to_html(num_of_countries=10)
+        
+        today = self.get_slice(date.today(), date.today())
         
         return textwrap.dedent('''\
         <?xml version="1.0" encoding="UTF-8"?>
@@ -420,6 +437,7 @@ class Server(object):
                                     <input type="submit" value="Update" />
                                 </form>
                             </fieldset>
+                            <b>Donations today: $%(today).2f</b><br />
                             %(range_stats)s
                         </td>
                     </tr>
@@ -428,6 +446,8 @@ class Server(object):
                 <div style="text-align:center">
                     <h3>Income trends for the last year</h3>
                     <img src="%(root)strend.png" alt="Income trends" />
+                    <h3>Income trends for the last 31 days</h3>
+                    <img src="%(root)smonth_trend.png" alt="Month income trend" />
                 </div>
             </body>
         </html>
@@ -438,6 +458,7 @@ class Server(object):
                   rc = 'checked="checked"' if period_type=="range" else '',
                   month_month=mmlist, month_year=mylist, year_year=yylist,
                   rl=rl, rr=rr, range_stats=range_stats, root=self.document_root,
+                  today=today.total
                   )
     
     @expose
@@ -451,6 +472,11 @@ class Server(object):
     def trend_png(self):
         cherrypy.response.headers['Content-Type'] = 'image/png'
         return open(self.TRENDS, 'rb').read()
+    
+    @expose
+    def month_trend_png(self):
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        return open(self.MONTH_TRENDS, 'rb').read()
     
     @expose
     def show(self, period_type='month', month_month='', month_year='', 

@@ -203,7 +203,7 @@ There can be several causes for this:
 
 If it still wont launch, start a command prompt (press the windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
 
-    calibre-debug -c "from calibre.gui2.main import main; main()"
+    calibre-debug -g
 
 Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
     

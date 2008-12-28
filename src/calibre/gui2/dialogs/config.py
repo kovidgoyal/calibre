@@ -1,32 +1,131 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
-import os, re, time
+import os, re, time, textwrap
 
-from PyQt4.QtGui import QDialog, QMessageBox, QListWidgetItem, QIcon, \
+from PyQt4.Qt import    QDialog, QMessageBox, QListWidgetItem, QIcon, \
                         QDesktopServices, QVBoxLayout, QLabel, QPlainTextEdit, \
-                        QStringListModel
-from PyQt4.QtCore import SIGNAL, QTimer, Qt, QSize, QVariant, QUrl
+                        QStringListModel, QAbstractItemModel, \
+                        SIGNAL, QTimer, Qt, QSize, QVariant, QUrl, \
+                        QModelIndex, QInputDialog
 
 from calibre.constants import islinux, iswindows
 from calibre.gui2.dialogs.config_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode, choose_dir, error_dialog, config, \
-                         warning_dialog, ALL_COLUMNS
+                         ALL_COLUMNS, NONE, info_dialog, choose_files
 from calibre.utils.config import prefs
 from calibre.gui2.widgets import FilenamePattern
 from calibre.gui2.library import BooksModel
 from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.epub.iterator import is_supported
 from calibre.library import server_config
+from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
+                                 disable_plugin, customize_plugin, \
+                                 plugin_customization, add_plugin
+
+class PluginModel(QAbstractItemModel):
+    
+    def __init__(self, *args):
+        QAbstractItemModel.__init__(self, *args)
+        self.icon = QVariant(QIcon(':/images/plugins.svg'))
+        self.populate()
+        
+    def populate(self):
+        self._data = {}
+        for plugin in initialized_plugins():
+            if plugin.type not in self._data:
+                self._data[plugin.type] = [plugin]
+            else:
+                self._data[plugin.type].append(plugin)
+        self.categories = sorted(self._data.keys())
+        
+    def index(self, row, column, parent):
+        if not self.hasIndex(row, column, parent):
+            return QModelIndex()
+        
+        if parent.isValid():
+            return self.createIndex(row, column, parent.row())
+        else:
+            return self.createIndex(row, column, -1)
+        
+    def parent(self, index):
+        if not index.isValid() or index.internalId() == -1:
+            return QModelIndex()
+        return self.createIndex(index.internalId(), 0, -1)
+    
+    def rowCount(self, parent):
+        if not parent.isValid():
+            return len(self.categories)
+        if parent.internalId() == -1:
+            category = self.categories[parent.row()]
+            return len(self._data[category])
+        return 0
+    
+    def columnCount(self, parent):
+        return 1
+    
+    def index_to_plugin(self, index):
+        category = self.categories[index.parent().row()]
+        return self._data[category][index.row()]
+    
+    def plugin_to_index(self, plugin):
+        for i, category in enumerate(self.categories):
+            parent = self.index(i, 0, QModelIndex())
+            for j, p in enumerate(self._data[category]):
+                if plugin == p:
+                    return self.index(j, 0, parent)
+        return QModelIndex()
+    
+    def refresh_plugin(self, plugin, rescan=False):
+        if rescan:
+            self.populate()
+        idx = self.plugin_to_index(plugin)
+        self.emit(SIGNAL('dataChanged(QModelIndex,QModelIndex)'), idx, idx)
+    
+    def flags(self, index):
+        if not index.isValid():
+            return 0
+        if index.internalId() == -1:
+            return Qt.ItemIsEnabled
+        flags = Qt.ItemIsSelectable
+        if not is_disabled(self.data(index, Qt.UserRole)):
+            flags |= Qt.ItemIsEnabled
+        return flags
+            
+    def data(self, index, role):
+        if not index.isValid():
+            return NONE
+        if index.internalId() == -1:
+            if role == Qt.DisplayRole:
+                category = self.categories[index.row()]
+                return QVariant(category + _(' plugins'))
+        else:
+            plugin = self.index_to_plugin(index)
+            if role == Qt.DisplayRole:
+                ver = '.'.join(map(str, plugin.version))
+                desc = '\n'.join(textwrap.wrap(plugin.description, 50))
+                ans='%s (%s) %s %s\n%s'%(plugin.name, ver, _('by'), plugin.author, desc)
+                c = plugin_customization(plugin)
+                if c:
+                    ans += '\nCustomization: '+c
+                return QVariant(ans)
+            if role == Qt.DecorationRole:
+                return self.icon
+            if role == Qt.UserRole:
+                return plugin
+        return NONE
+                
+            
 
 class CategoryModel(QStringListModel):
     
     def __init__(self, *args):
         QStringListModel.__init__(self, *args)
         self.setStringList([_('General'), _('Interface'), _('Advanced'), 
-                            _('Content\nServer')])
+                            _('Content\nServer'), _('Plugins')])
         self.icons = list(map(QVariant, map(QIcon, 
             [':/images/dialog_information.svg', ':/images/lookfeel.svg', 
-             ':/images/view.svg', ':/images/network-server.svg'])))
+             ':/images/view.svg', ':/images/network-server.svg',
+             ':/images/plugins.svg'])))
     
     def data(self, index, role):
         if role == Qt.DecorationRole:
@@ -139,6 +238,56 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.priority.setVisible(iswindows)
         self.priority_label.setVisible(iswindows)
         self.category_view.setCurrentIndex(self._category_model.index(0))
+        self._plugin_model = PluginModel()
+        self.plugin_view.setModel(self._plugin_model)
+        self.connect(self.toggle_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='toggle'))
+        self.connect(self.customize_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='customize'))
+        self.connect(self.button_plugin_browse, SIGNAL('clicked()'), self.find_plugin)
+        self.connect(self.button_plugin_add, SIGNAL('clicked()'), self.add_plugin)
+    
+    def add_plugin(self):
+        path = unicode(self.plugin_path.text())
+        if path and os.access(path, os.R_OK) and path.lower().endswith('.zip'):
+            add_plugin(path)
+            self._plugin_model.populate()
+            self._plugin_model.reset()
+        else:
+            error_dialog(self, _('No valid plugin path'), 
+                         _('%s is not a valid plugin path')%path).exec_()
+    
+    def find_plugin(self):
+        path = choose_files(self, 'choose plugin dialog', _('Choose plugin'),
+                            filters=[('Plugins', ['zip'])], all_files=False, 
+                            select_only_single_file=True)
+        if path:
+            self.plugin_path.setText(path[0])
+    
+    def modify_plugin(self, op=''):
+        index = self.plugin_view.currentIndex()
+        if index.isValid():
+            plugin = self._plugin_model.index_to_plugin(index)
+            if not plugin.can_be_disabled:
+                error_dialog(self,_('Plugin cannot be disabled'), 
+                             _('The plugin: %s cannot be disabled')%plugin.name).exec_()
+                return
+            if op == 'toggle':
+                if is_disabled(plugin):
+                    enable_plugin(plugin)
+                else:
+                    disable_plugin(plugin)
+                self._plugin_model.refresh_plugin(plugin)
+            if op == 'customize':
+                if not plugin.is_customizable():
+                    info_dialog(self, _('Plugin not customizable'),
+                                _('Plugin: %s does not need customization')%plugin.name).exec_()
+                    return
+                help = plugin.customization_help()
+                text, ok = QInputDialog.getText(self, _('Customize %s')%plugin.name,
+                                                help)
+                if ok:
+                    customize_plugin(plugin, unicode(text))
+                    self._plugin_model.refresh_plugin(plugin)
+            
     
     def up_column(self):
         idx = self.columns.currentRow()

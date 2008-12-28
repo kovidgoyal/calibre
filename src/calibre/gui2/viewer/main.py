@@ -242,6 +242,8 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                      lambda x:self.view.previous_page())
         self.connect(self.action_find_next, SIGNAL('triggered(bool)'), 
                      lambda x:self.find(unicode(self.search.text()), True, repeat=True))
+        self.connect(self.action_full_screen, SIGNAL('triggered(bool)'),
+                     self.toggle_fullscreen)
         self.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
         self.connect(self.action_bookmark, SIGNAL('triggered(bool)'), self.bookmark)
         self.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
@@ -263,6 +265,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar.widgetForAction(self.action_bookmark).setPopupMode(QToolButton.MenuButtonPopup)
+        self.action_full_screen.setCheckable(True)
+
+    def toggle_fullscreen(self, x):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
     
     def goto(self, ref):
         if ref:
@@ -574,7 +583,7 @@ View an ebook.
 
 def main(args=sys.argv):
     parser = option_parser()
-    opts, args = parser.parse_args(args)
+    args = parser.parse_args(args)[-1]
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = Application(args)

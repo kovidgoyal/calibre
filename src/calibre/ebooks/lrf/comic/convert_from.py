@@ -19,6 +19,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, Image
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.epub.from_html import config as html2epub_config, convert as html2epub
+from calibre.customize.ui import run_plugins_on_preprocess
 try:
     from calibre.utils.PythonMagickWand import \
             NewMagickWand, NewPixelWand, \
@@ -383,7 +384,9 @@ def create_lrf(pages, profile, opts, thumbnail=None):
     
     
 def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='lrf'):
+    path_to_file = run_plugins_on_preprocess(path_to_file)
     source = path_to_file
+    
     if not opts.title:
         opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:

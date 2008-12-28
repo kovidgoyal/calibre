@@ -132,6 +132,13 @@ class JobManager(QAbstractTableModel):
         self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
                   self.index(row, 0), self.index(row, 3))
         
+    def running_time_updated(self):
+        for job in self.jobs:
+            if not job.is_running:
+                continue
+            row = self.jobs.index(job)
+            self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
+                      self.index(row, 3), self.index(row, 3))
             
     def has_device_jobs(self):
         for job in self.jobs:

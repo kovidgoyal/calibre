@@ -18,6 +18,8 @@ from calibre.ebooks.lrf.epub.convert_from import process_file as epub2lrf
 from calibre.ebooks.lrf.mobi.convert_from import process_file as mobi2lrf
 from calibre.ebooks.lrf.fb2.convert_from  import process_file as fb22lrf
 
+from calibre.customize.ui import run_plugins_on_postprocess, run_plugins_on_preprocess
+
 def largest_file(files):
     maxsize, file = 0, None
     for f in files:
@@ -108,6 +110,7 @@ def odt2lrf(path, options, logger):
 
 def process_file(path, options, logger=None):
     path = os.path.abspath(os.path.expanduser(path))
+    path = run_plugins_on_preprocess(path)
     tdir = None
     if logger is None:
         level = logging.DEBUG if options.verbose else logging.INFO
@@ -160,6 +163,7 @@ def process_file(path, options, logger=None):
         if not convertor:
             raise UnknownFormatError(_('Converting from %s to LRF is not supported.')%ext)
         convertor(path, options, logger)
+        
     finally:
         os.chdir(cwd)
         if tdir and os.path.exists(tdir):

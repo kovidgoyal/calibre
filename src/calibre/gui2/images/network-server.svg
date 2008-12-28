@@ -2254,7 +2254,7 @@
        id="mask7160"
        maskUnits="userSpaceOnUse">
       <path
-         style="opacity:1;fill:url(#radialGradient7164);fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.08779998;stroke-opacity:1"
+         style="opacity:1;fill-opacity:1;stroke:none;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:1.08779998;stroke-opacity:1"
          d="M 137.37423,-51.650649 C 136.90963,-51.650649 136.53048,-51.183286 136.53048,-50.619399 L 136.53048,-0.18189907 C 141.47984,0.40821793 146.5415,0.72435094 151.68673,0.72435094 C 164.60291,0.72435094 176.96094,-1.191205 188.40548,-4.713149 L 188.40548,-50.619399 C 188.40548,-51.183286 188.02634,-51.650649 187.56173,-51.650649 L 137.37423,-51.650649 z "
          id="path7162" />
     </mask>

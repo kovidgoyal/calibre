@@ -6,7 +6,8 @@ from functools import partial
 from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer
 from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
                         QToolButton, QDialog, QDesktopServices, QFileDialog, \
-                        QSystemTrayIcon, QApplication, QKeySequence, QAction
+                        QSystemTrayIcon, QApplication, QKeySequence, QAction, \
+                        QProgressDialog
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
@@ -21,7 +22,7 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
                            SingleApplication, Application, available_height, \
-                           max_available_height, config, info_dialog, import_format
+                           max_available_height, config, info_dialog
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
@@ -119,7 +120,7 @@ class Main(MainWindow, Ui_MainWindow):
                 self.hide() if self.isVisible() else self.show()
         self.connect(self.system_tray_icon, SIGNAL('activated(QSystemTrayIcon::ActivationReason)'), sta)
         def tcme(self, *args):
-            print args
+            pass
         self.tool_bar.contextMenuEvent = tcme
         ####################### Location View ########################
         QObject.connect(self.location_view, SIGNAL('location_selected(PyQt_PyObject)'),
@@ -566,8 +567,23 @@ class Main(MainWindow, Ui_MainWindow):
         root = choose_dir(self, 'recursive book import root dir dialog', 'Select root folder')
         if not root:
             return
-        duplicates = self.library_view.model().db.recursive_import(root, single)
-
+        progress = QProgressDialog('', '&'+_('Stop'),
+                                   0, 0, self)
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setWindowTitle(_('Adding books recursively...'))
+        progress.show()
+        def callback(msg):
+            if msg != '.':
+                progress.setLabelText((_('Added ')+msg) if msg else _('Searching...'))
+            stop =  progress.wasCanceled()
+            QApplication.processEvents()
+            QApplication.sendPostedEvents()
+            QApplication.flush()
+            return stop
+        try:
+            duplicates = self.library_view.model().db.recursive_import(root, single, callback=callback)
+        finally:
+            progress.close()
         if duplicates:
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
             for mi, formats in duplicates:
@@ -634,49 +650,59 @@ class Main(MainWindow, Ui_MainWindow):
     def _add_books(self, paths, to_device, on_card=None):
         if on_card is None:
             on_card = self.stack.currentIndex() == 2
+        if not paths:
+            return
         # Get format and metadata information
         formats, metadata, names, infos = [], [], [], []
-        for book in paths:
-            format = os.path.splitext(book)[1]
-            format = format[1:] if format else None
-            stream = open(book, 'rb')
-            try:
-                mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
-            except:
-                mi = MetaInformation(None, None)
-            if not mi.title:
-                mi.title = os.path.splitext(os.path.basename(book))[0]
-            if not mi.authors:
-                mi.authors = [_('Unknown')]
-            formats.append(format)
-            metadata.append(mi)
-            names.append(os.path.basename(book))
-            infos.append({'title':mi.title, 'authors':', '.join(mi.authors),
-                          'cover':self.default_thumbnail, 'tags':[]})
-
-        if not to_device:
-            model = self.library_view.model()
+        progress = QProgressDialog(_('Reading metadata...'), _('Stop'), 0, len(paths), self)
+        progress.setWindowTitle(_('Adding books...'))
+        progress.setWindowModality(Qt.ApplicationModal)
+        progress.setLabelText(_('Reading metadata...'))
+        progress.show()
+        try:
+            for c, book in enumerate(paths):
+                progress.setValue(c)
+                if progress.wasCanceled():
+                    return
+                format = os.path.splitext(book)[1]
+                format = format[1:] if format else None
+                stream = open(book, 'rb')
+                try:
+                    mi = get_metadata(stream, stream_type=format, use_libprs_metadata=True)
+                except:
+                    mi = MetaInformation(None, None)
+                if not mi.title:
+                    mi.title = os.path.splitext(os.path.basename(book))[0]
+                if not mi.authors:
+                    mi.authors = [_('Unknown')]
+                formats.append(format)
+                metadata.append(mi)
+                names.append(os.path.basename(book))
+                infos.append({'title':mi.title, 'authors':', '.join(mi.authors),
+                              'cover':self.default_thumbnail, 'tags':[]})
+                title = mi.title if isinstance(mi.title, unicode) else mi.title.decode(preferred_encoding, 'replace')
+                progress.setLabelText(_('Read metadata from ')+title)
             
-            paths = list(paths)
-            for i, path in enumerate(paths):
-                npath, fmt = import_format(path)
-                if npath is not None:
-                    paths[i] = npath
-                    formats[i] = fmt
-            duplicates, number_added = model.add_books(paths, formats, metadata)
-            if duplicates:
-                files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
-                for mi in duplicates[2]:
-                    files += '<li>'+mi.title+'</li>\n'
-                d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', parent=self)
-                if d.exec_() == QDialog.Accepted:
-                    num = model.add_books(*duplicates, **dict(add_duplicates=True))[1]
-                    number_added += num
-            #self.library_view.sortByColumn(3, Qt.DescendingOrder)
-            #model.research()
-            model.books_added(number_added)
-        else:
-            self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
+            if not to_device:
+                progress.setLabelText(_('Adding books to database...'))
+                model = self.library_view.model()
+                
+                paths = list(paths)
+                duplicates, number_added = model.add_books(paths, formats, metadata)
+                progress.cancel()
+                if duplicates:
+                    files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
+                    for mi in duplicates[2]:
+                        files += '<li>'+mi.title+'</li>\n'
+                    d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', parent=self)
+                    if d.exec_() == QDialog.Accepted:
+                        num = model.add_books(*duplicates, **dict(add_duplicates=True))[1]
+                        number_added += num
+                model.books_added(number_added)
+            else:
+                self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
+        finally:
+            progress.setValue(len(paths))
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''

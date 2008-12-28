@@ -447,6 +447,7 @@ class Parser(PreProcessor, LoggingInterface):
         ''' Create lxml ElementTree from HTML '''
         self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace').strip()
+        src = src.replace('\x00', '')
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
         for pat in ENCODING_PATS:
@@ -527,6 +528,7 @@ class Processor(Parser):
     
     LINKS_PATH = XPath('//a[@href]')
     PIXEL_PAT  = re.compile(r'([-]?\d+|[-]?\d*\.\d+)px')
+    PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
     
     def __init__(self, *args, **kwargs):
         Parser.__init__(self, *args, **kwargs)
@@ -696,7 +698,9 @@ class Processor(Parser):
                 return ''
             return '%fpt'%(72 * val/dpi)
         
-        return cls.PIXEL_PAT.sub(rescale, css)
+        css = cls.PIXEL_PAT.sub(rescale, css)
+        css = cls.PAGE_PAT.sub('', css)
+        return css
         
     def extract_css(self, parsed_sheets):
         '''
@@ -732,7 +736,12 @@ class Processor(Parser):
                             self.log_error('Failed to open stylesheet: %s'%file)
                         else:
                             try:
-                                parsed_sheets[file] = self.css_parser.parseString(css)
+                                try:
+                                    parsed_sheets[file] = self.css_parser.parseString(css)
+                                except ValueError:
+                                    parsed_sheets[file] = \
+                                        self.css_parser.parseString(\
+                                                css.decode('utf8', 'replace'))
                             except:
                                 parsed_sheets[file] = css.decode('utf8', 'replace')
                                 self.log_warning('Failed to parse stylesheet: %s'%file)
@@ -762,9 +771,11 @@ class Processor(Parser):
         class_counter = 0
         for font in self.root.xpath('//font'):
             try:
-                size = int(font.attrib.pop('size', '3'))
+                size = font.attrib.pop('size', '3')
             except:
-                size = 3
+                size = '3'
+            if size and size.strip() and size.strip()[0] in ('+', '-'):
+                size = 3 + float(size) # Hack assumes basefont=3
             setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
             face = font.attrib.pop('face', None)
             if face is not None:
@@ -1043,11 +1054,12 @@ def main(args=sys.argv):
         
     return 0
 
-def gui_main(htmlfile):
+def gui_main(htmlfile, pt=None):
     '''
     Convenience wrapper for use in recursively importing HTML files.
     '''
-    pt = PersistentTemporaryFile('_html2oeb_gui.oeb.zip')
+    if pt is None:
+        pt = PersistentTemporaryFile('_html2oeb_gui.oeb.zip')
     pt.close()
     opts = '''
 pretty_print = True

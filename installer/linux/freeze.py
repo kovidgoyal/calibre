@@ -36,7 +36,9 @@ def freeze():
                        '/usr/lib/libpoppler.so.4',
                        '/usr/lib/libxml2.so.2',
                        '/usr/lib/libxslt.so.1',
-                       '/usr/lib/libxslt.so.1'
+                       '/usr/lib/libxslt.so.1',
+                       '/usr/lib/libMagickWand.so',
+                       '/usr/lib/libMagickCore.so',
                        ]
     
     binary_includes += [os.path.join(QTDIR, 'lib%s.so.4'%x) for x in QTDLLS]
@@ -158,8 +160,8 @@ def freeze():
         dest = os.path.join(dest_dir, os.path.basename(src))
         if not os.path.exists(dest_dir):
             os.makedirs(dest_dir)
-        shutil.copyfile(src, dest)
-        shutil.copymode(src, dest)
+        shutil.copyfile(os.path.realpath(src), dest)
+        shutil.copymode(os.path.realpath(src), dest)
     
     for f in binary_includes:
         copy_binary(f, FREEZE_DIR)

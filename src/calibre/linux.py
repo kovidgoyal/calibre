@@ -62,7 +62,8 @@ entry_points = {
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
-                             'calibre-parallel   = calibre.parallel:main',                             
+                             'calibre-parallel   = calibre.parallel:main',
+                             'calibre-customize  = calibre.customize.ui:main',                             
                            ],
         'gui_scripts'    : [
                             __appname__+' = calibre.gui2.main:main',
