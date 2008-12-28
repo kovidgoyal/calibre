@@ -217,7 +217,7 @@ def stage_one():
     os.mkdir('build')
     shutil.rmtree('docs')
     os.mkdir('docs')
-    check_call('python setup.py build', shell=True)
+    check_call('python setup.py build_ext build', shell=True)
     check_call('sudo python setup.py develop', shell=True)
     tag_release()
     upload_demo()
