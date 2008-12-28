@@ -179,7 +179,7 @@ class Stylizer(object):
         for _, _, cssdict, text, _ in rules:
             try:
                 selector = CSSSelector(text)
-            except ExpressionError:
+            except ExpressionError, e:
                 continue
             for elem in selector(tree):
                 self.style(elem)._update_cssdict(cssdict)

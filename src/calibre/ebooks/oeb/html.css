@@ -45,7 +45,6 @@ html, div, map, dt, isindex, form {
 
 body {
   display: block;
-  margin: 8px;
 }
 
 p, dl, multicol {
@@ -59,7 +58,7 @@ dd {
 
 blockquote {
   display: block;
-  margin: 1em 40px;
+  margin: 1em;
 }
 
 address {
@@ -74,7 +73,7 @@ center {
 
 blockquote[type=cite] {
   display: block;
-  margin: 1em 0px;
+  margin: 1em 0em;
   border-color: blue;
   border-width: thin;
 }
@@ -233,14 +232,6 @@ th {
 }
 
 /* inlines */
-
-q:before {
-  content: open-quote;
-}
-
-q:after {
-  content: close-quote;
-}
 
 b, strong {
   font-weight: bolder;
