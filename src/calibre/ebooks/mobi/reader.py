@@ -22,6 +22,7 @@ from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
+from calibre import sanitize_file_name
 
 class EXTHHeader(object):
     
@@ -200,7 +201,8 @@ class MobiReader(object):
         guide = soup.find('guide')
         for elem in soup.findAll(['metadata', 'guide']):
             elem.extract()
-        htmlfile = os.path.join(output_dir, self.name+'.html')
+        htmlfile = os.path.join(output_dir, 
+                                sanitize_file_name(self.name)+'.html')
         try:
             for ref in guide.findAll('reference', href=True):
                 ref['href'] = os.path.basename(htmlfile)+ref['href']

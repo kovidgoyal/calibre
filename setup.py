@@ -380,13 +380,16 @@ if __name__ == '__main__':
     
     class build(_build):
         
-        sub_commands = \
-                        [
+        sub_commands = [
                          ('resources',    lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
                          ('translations', lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
                          ('gui',          lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
-                         ] + _build.sub_commands
-    
+                         ('build_ext',    lambda self: True),
+                         ('build_py',     lambda self: True),
+                         ('build_clib',    _build.has_c_libraries),
+                         ('build_scripts', _build.has_scripts),
+                       ]
+        
     entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
     ext_modules = [
                    Extension('calibre.plugins.lzx',

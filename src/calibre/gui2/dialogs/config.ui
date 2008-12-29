@@ -72,7 +72,7 @@
         </sizepolicy>
        </property>
        <property name="currentIndex" >
-        <number>0</number>
+        <number>4</number>
        </property>
        <widget class="QWidget" name="page_3" >
         <layout class="QVBoxLayout" name="verticalLayout" >
@@ -808,6 +808,13 @@
             <widget class="QPushButton" name="customize_plugin" >
              <property name="text" >
               <string>&amp;Customize plugin</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="remove_plugin" >
+             <property name="text" >
+              <string>&amp;Remove plugin</string>
              </property>
             </widget>
            </item>

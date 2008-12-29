@@ -187,8 +187,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.metadata_menu = md
         self.add_menu = QMenu()
         self.add_menu.addAction(_('Add books from a single directory'))
-        self.add_menu.addAction(_('Add books recursively (One book per directory, assumes every ebook file is the same book in a different format)'))
-        self.add_menu.addAction(_('Add books recursively (Multiple books per directory, assumes every ebook file is a different book)'))
+        self.add_menu.addAction(_('Add books from directories, including sub-directories (One book per directory, assumes every ebook file is the same book in a different format)'))
+        self.add_menu.addAction(_('Add books from directories, including sub directories (Multiple books per directory, assumes every ebook file is a different book)'))
         self.action_add.setMenu(self.add_menu)
         QObject.connect(self.action_add, SIGNAL("triggered(bool)"), self.add_books)
         QObject.connect(self.add_menu.actions()[0], SIGNAL("triggered(bool)"), self.add_books)

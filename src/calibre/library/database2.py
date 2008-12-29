@@ -21,13 +21,12 @@ from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.constants import preferred_encoding, iswindows, isosx
+from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.customize.ui import run_plugins_on_import
+from calibre import sanitize_file_name
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
-filesystem_encoding = sys.getfilesystemencoding()
-if filesystem_encoding is None: filesystem_encoding = 'utf-8'
 iscaseinsensitive = iswindows or isosx
 
 def normpath(x):
@@ -37,23 +36,6 @@ def normpath(x):
         x = x.lower()
     return x
 
-_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+\[\]/]')
-
-def sanitize_file_name(name, substitute='_'):
-    '''
-    Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
-    The set of invalid characters is the union of the invalid characters in Windows,
-    OS X and Linux. Also removes leading an trailing whitespace.
-    **WARNING:** This function also replaces path separators, so only pass file names
-    and not full paths to it.
-    *NOTE:* This function always returns byte strings, not unicode objects. The byte strings
-    are encoded in the filesystem encoding of the platform, or UTF-8. 
-    '''
-    if isinstance(name, unicode):
-        name = name.encode(filesystem_encoding, 'ignore')
-    one = _filename_sanitize.sub(substitute, name)
-    one = re.sub(r'\s', ' ', one).strip()
-    return re.sub(r'^\.+$', '_', one)
 
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5, 
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,

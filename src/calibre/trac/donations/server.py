@@ -199,7 +199,7 @@ class Server(object):
         x = list(range(days-1, -1, -1))
         y = stats.daily_totals
         ax.plot(x, y)#, align='center', width=20, color='g')
-        ax.set_xlabel('Day')
+        ax.set_xlabel('Days ago')
         ax.set_ylabel('Income ($)')
         ax.hlines([stats.daily_average], 0, days-1)
         ax.set_xlim([0, days-1])

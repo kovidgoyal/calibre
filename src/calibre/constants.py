@@ -29,6 +29,10 @@ winerror   = __import__('winerror') if iswindows else None
 win32api   = __import__('win32api') if iswindows else None
 fcntl      = None if iswindows else __import__('fcntl')
 
+filesystem_encoding = sys.getfilesystemencoding()
+if filesystem_encoding is None: filesystem_encoding = 'utf-8'
+
+
 ################################################################################
 plugins = None
 if plugins is None:
