@@ -115,7 +115,7 @@ class DirContainer(AbstractContainer):
 
     def exists(self, path):
         path = os.path.join(self.rootdir, path)
-        return os.path.isfile(path)
+        return os.path.isfile(urlunquote(path))
 
 
 class Metadata(object):
@@ -227,7 +227,8 @@ class Metadata(object):
 
 class Manifest(object):
     class Item(object):
-        def __init__(self, id, href, media_type, fallback=None, loader=str):
+        def __init__(self, id, href, media_type,
+                     fallback=None, loader=str, data=None):
             self.id = id
             self.href = self.path = urlnormalize(href)
             self.media_type = media_type
@@ -235,7 +236,7 @@ class Manifest(object):
             self.spine_position = None
             self.linear = True
             self._loader = loader
-            self._data = None
+            self._data = data
 
         def __repr__(self):
             return 'Item(id=%r, href=%r, media_type=%r)' \
@@ -243,10 +244,10 @@ class Manifest(object):
 
         def data():
             def fget(self):
-                if self._data:
+                if self._data is not None:
                     return self._data
                 data = self._loader(self.href)
-                if self.media_type == XHTML_MIME:
+                if self.media_type in OEB_DOCS:
                     data = etree.fromstring(data, parser=XML_PARSER)
                     if namespace(data.tag) != XHTML_NS:
                         data.attrib['xmlns'] = XHTML_NS
@@ -255,6 +256,7 @@ class Manifest(object):
                 elif self.media_type.startswith('application/') \
                      and self.media_type.endswith('+xml'):
                     data = etree.fromstring(data, parser=XML_PARSER)
+                self._data = data
                 return data
             def fset(self, value):
                 self._data = value
@@ -271,38 +273,56 @@ class Manifest(object):
     
     def __init__(self, oeb):
         self.oeb = oeb
-        self.items = {}
+        self.ids = {}
         self.hrefs = {}
 
-    def add(self, id, href, media_type, fallback=None):
+    def add(self, id, href, media_type, fallback=None, loader=None, data=None):
+        loader = loader or self.oeb.container.read
         item = self.Item(
-            id, href, media_type, fallback, self.oeb.container.read)
-        self.items[item.id] = item
+            id, href, media_type, fallback, loader, data)
+        self.ids[item.id] = item
         self.hrefs[item.href] = item
         return item
 
-    def remove(self, id):
-        href = self.items[id].href
-        del self.items[id]
-        del self.hrefs[href]
+    def remove(self, item):
+        if item in self.ids:
+            item = self.ids[item]
+        del self.ids[item.id]
+        del self.hrefs[item.href]
+        if item in self.oeb.spine:
+            self.oeb.spine.remove(item)
+
+    def generate(self, id, href):
+        href = urlnormalize(href)
+        base = id
+        index = 1
+        while id in self.ids:
+            id = base + str(index)
+            index += 1
+        base, ext = os.path.splitext(href)
+        index = 1
+        while href in self.hrefs:
+            href = base + str(index) + ext
+            index += 1
+        return id, href
 
     def __iter__(self):
-        for id in self.items:
+        for id in self.ids:
             yield id
 
     def __getitem__(self, id):
-        return self.items[id]
+        return self.ids[id]
 
     def values(self):
-        for item in self.items.values():
+        for item in self.ids.values():
             yield item
 
     def items(self):
-        for id, item in self.refs.items():
-            yield id, items
+        for id, item in self.ids.items():
+            yield id, item
     
     def __contains__(self, key):
-        return key in self.items
+        return key in self.ids
 
     def to_opf1(self, parent=None):
         elem = element(parent, 'manifest')
@@ -706,9 +726,8 @@ class OEBBook(object):
             imgs = xpath(html, '//h:img[position()=1]')
             href = imgs[0].get('src') if imgs else None
             cover = self.manifest.hrefs[href] if href else None
-        if cover:
-            if not self.metadata.cover:
-                self.metadata.add('cover', cover.id)
+        if cover and not self.metadata.cover:
+            self.metadata.add('cover', cover.id)
             
     def _all_from_opf(self, opf):
         self._metadata_from_opf(opf)

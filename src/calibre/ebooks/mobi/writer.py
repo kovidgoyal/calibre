@@ -18,6 +18,7 @@ from itertools import izip, count
 from collections import defaultdict
 from urlparse import urldefrag
 from lxml import etree
+from PIL import Image
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.lit.oeb import XHTML, XHTML_NS, OEB_DOCS
 from calibre.ebooks.lit.oeb import xpath, barename, namespace
@@ -213,10 +214,21 @@ class MobiWriter(object):
     def _generate_images(self):
         images = [(index, href) for href, index in self._images.items()]
         images.sort()
+        metadata = self._oeb.metadata
+        coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
             data = item.data
             # TODO: Re-size etc images
+            image = Image.open(StringIO(item.data))
+            maxsizek = 89 if coverid == item.id else 63
+            maxsizeb = maxsizek * 1024
+            for quality in xrange(95, -1, -1):
+                data = StringIO()
+                image.save(data, 'JPEG', quality=quality)
+                data = data.getvalue()
+                if len(data) <= maxsizeb:
+                    break
             self._records.append(data)
     
     def _generate_record0(self):
@@ -262,16 +274,37 @@ class MobiWriter(object):
                 nrecs += 1
         if oeb.metadata.cover:
             id = str(oeb.metadata.cover[0])
-            href = oeb.manifest[id].href
-            index = self._images[href] + self._text_nrecords - 1
+            item = oeb.manifest[id]
+            href = item.href
+            index = self._images[href] - 1
             exth.write(pack('>III', 0xc9, 0x0c, index))
-            nrecs += 1
-        trail = exth.tell() % 4
-        pad = '' if not trail else '\0' * (4 - trail)
+            exth.write(pack('>III', 0xcb, 0x0c, 0))
+            index = self._add_thumbnail(item) - 1
+            exth.write(pack('>III', 0xca, 0x0c, index))
+            nrecs += 3
         exth = exth.getvalue()
+        trail = len(exth) % 4
+        pad = '' if not trail else '\0' * (4 - trail)
         exth = ['EXTH', pack('>II', len(exth) + 12, nrecs), exth, pad]
         return ''.join(exth)
 
+    def _add_thumbnail(self, item):
+        thumbnail = Image.open(StringIO(item.data))
+        thumbnail.thumbnail((180, 240), Image.ANTIALIAS)
+        for quality in xrange(95, -1, -1):
+            data = StringIO()
+            thumbnail.save(data, 'JPEG', quality=quality)
+            data = data.getvalue()
+            if len(data) <= (1024 * 16):
+                break
+        manifest = self._oeb.manifest
+        id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
+        manifest.add(id, href, 'image/jpeg', data=data)
+        index = len(self._images) + 1
+        self._images[href] = index
+        self._records.append(data)
+        return index
+    
     def _write_header(self):
         title = str(self._oeb.metadata.title[0])
         title = re.sub('[^-A-Za-z0-9]+', '_', title)[:32]
