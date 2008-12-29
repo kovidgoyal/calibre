@@ -13,7 +13,8 @@ from calibre.startup import plugins, winutil, winutilerror
 from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               terminal_controller, preferred_encoding, \
                               __appname__, __version__, __author__, \
-                              win32event, win32api, winerror, fcntl
+                              win32event, win32api, winerror, fcntl, \
+                              filesystem_encoding
 import mechanize
 
 mimetypes.add_type('application/epub+zip', '.epub')
@@ -39,6 +40,25 @@ def osx_version():
         m = re.match(r'(\d+)\.(\d+)\.(\d+)', src)
         if m:
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
+
+
+_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+\[\]/]')
+
+def sanitize_file_name(name, substitute='_'):
+    '''
+    Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
+    The set of invalid characters is the union of the invalid characters in Windows,
+    OS X and Linux. Also removes leading an trailing whitespace.
+    **WARNING:** This function also replaces path separators, so only pass file names
+    and not full paths to it.
+    *NOTE:* This function always returns byte strings, not unicode objects. The byte strings
+    are encoded in the filesystem encoding of the platform, or UTF-8. 
+    '''
+    if isinstance(name, unicode):
+        name = name.encode(filesystem_encoding, 'ignore')
+    one = _filename_sanitize.sub(substitute, name)
+    one = re.sub(r'\s', ' ', one).strip()
+    return re.sub(r'^\.+$', '_', one)
 
 
 class CommandLineError(Exception):
@@ -201,13 +221,6 @@ class CurrentDir(object):
     def __exit__(self, *args):
         os.chdir(self.cwd)
 
-def sanitize_file_name(name):
-    '''
-    Remove characters that are illegal in filenames from name.
-    Also remove path separators. All illegal characters are replaced by
-    underscores.
-    '''
-    return re.sub(r'\s', ' ', re.sub(r'[\xae"\'\|\~\:\?\\\/]|^-', '_', name.strip()))
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
