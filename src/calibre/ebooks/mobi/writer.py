@@ -46,10 +46,8 @@ UNCOMPRESSED = 1
 PALMDOC = 2
 HUFFDIC = 17480
 
-COLLAPSE = re.compile(r'[ \t\r\n\v]+')
-
 def encode(data):
-    return COLLAPSE.sub(' ', data).encode('ascii', 'xmlcharrefreplace')
+    return data.encode('ascii', 'xmlcharrefreplace')
 
 
 class Serializer(object):
@@ -72,7 +70,37 @@ class Serializer(object):
     def serialize_head(self):
         buffer = self.buffer
         buffer.write('<head>')
+        if len(self.oeb.guide) > 0:
+            self.serialize_guide()
         buffer.write('</head>')
+
+    def serialize_guide(self):
+        buffer = self.buffer
+        buffer.write('<guide>')
+        for ref in self.oeb.guide.values():
+            buffer.write('<reference title="%s" type="%s" '
+                         % (ref.title, ref.type))
+            self.serialize_href(ref.href)
+            buffer.write('/>')
+        buffer.write('</guide>')
+
+    def serialize_href(self, href, baseid=None):
+        hrefs = self.oeb.manifest.hrefs
+        path, frag = urldefrag(href)
+        # TODO: Absolute path translation
+        if path and path not in hrefs:
+            return False
+        buffer = self.buffer
+        item = hrefs[path] if path else None
+        if item and item.spine_position is None:
+            return False
+        id =  item.id if item else baseid
+        frag = frag if frag else 'calibre_top'
+        href = '_'.join((id, frag))
+        buffer.write('filepos=')
+        self.href_offsets[href].append(buffer.tell())
+        buffer.write('0000000000')
+        return True
         
     def serialize_body(self):
         buffer = self.buffer
@@ -109,30 +137,22 @@ class Serializer(object):
             for attr, val in elem.attrib.items():
                 buffer.write(' ')
                 if attr == 'href':
-                    path, frag = urldefrag(val)
-                    # TODO: Absolute path translation
-                    if not path or path in hrefs:
-                        id = hrefs[path].id if path else item.id
-                        frag = frag if frag else 'calibre_top'
-                        href = '_'.join((id, frag))
-                        buffer.write('filepos=')
-                        self.href_offsets[href].append(buffer.tell())
-                        buffer.write('0000000000')
+                    if self.serialize_href(val, item.id):
                         continue
                 elif attr == 'src' and val in hrefs:
                     index = self.images[val]
                     buffer.write('recindex="%05d"' % index)
                     continue
                 buffer.write('%s="%s"' % (attr, val))
-        if not elem.text and len(elem) == 0:
+        if elem.text or len(elem) > 0:
+            buffer.write('>')
+            if elem.text:
+                buffer.write(encode(elem.text))
+            for child in elem:
+                self.serialize_elem(child, item)
+            buffer.write('</%s>' % tag)
+        else:
             buffer.write('/>')
-            return
-        buffer.write('>')
-        if elem.text:
-            buffer.write(encode(elem.text))
-        for child in elem:
-            self.serialize_elem(child, item)
-        buffer.write('</%s>' % tag)
         if elem.tail:
             buffer.write(encode(elem.tail))
 

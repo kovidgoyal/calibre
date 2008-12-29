@@ -439,6 +439,9 @@ class Guide(object):
     def __contains__(self, key):
         return key in self.refs
 
+    def __len__(self):
+        return len(self.refs)
+
     def to_opf1(self, parent=None):
         elem = element(parent, 'guide')
         for ref in self.refs.values():
