@@ -20,7 +20,7 @@ from calibre.ebooks.epub.iterator import is_supported
 from calibre.library import server_config
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, customize_plugin, \
-                                 plugin_customization, add_plugin
+                                 plugin_customization, add_plugin, remove_plugin
 
 class PluginModel(QAbstractItemModel):
     
@@ -242,6 +242,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.plugin_view.setModel(self._plugin_model)
         self.connect(self.toggle_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='toggle'))
         self.connect(self.customize_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='customize'))
+        self.connect(self.remove_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='remove'))
         self.connect(self.button_plugin_browse, SIGNAL('clicked()'), self.find_plugin)
         self.connect(self.button_plugin_add, SIGNAL('clicked()'), self.add_plugin)
     
@@ -287,6 +288,13 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 if ok:
                     customize_plugin(plugin, unicode(text))
                     self._plugin_model.refresh_plugin(plugin)
+            if op == 'remove':
+                if remove_plugin(plugin):
+                    self._plugin_model.populate()
+                    self._plugin_model.reset()
+                else:
+                    error_dialog(self, _('Cannot remove builtin plugin'), 
+                                 plugin.name + _(' cannot be removed. It is a builtin plugin. Try disabling it instead.')).exec_()
             
     
     def up_column(self):
