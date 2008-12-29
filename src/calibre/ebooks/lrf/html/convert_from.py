@@ -1907,7 +1907,7 @@ def process_file(path, options, logger=None):
          re.compile('$')
     cq = options.chapter_attr.split(',')
     if len(cq) < 3:
-        raise ValueError('The --chapter-attr setting must have at least 3 commas.')
+        raise ValueError('The --chapter-attr setting must have 2 commas.')
     options.chapter_attr = [re.compile(cq[0], re.IGNORECASE), cq[1], 
                             re.compile(cq[2], re.IGNORECASE)]
     options.force_page_break = fpb
