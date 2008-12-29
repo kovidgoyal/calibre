@@ -48,6 +48,8 @@ OEB_CSS_MIME = 'text/x-oeb1-css'
 OEB_STYLES = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
 OEB_DOCS = set([XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'])
 
+MS_COVER_TYPE = 'other.ms-coverimage-standard'
+
 
 def element(parent, *args, **kwargs):
     if parent is not None:
@@ -153,7 +155,7 @@ class Metadata(object):
                 % (barename(self.term), self.value, self.attrib)
 
         def __str__(self):
-            return str(self.value)
+            return self.value.encode('ascii', 'xmlcharrefreplace')
 
         def __unicode__(self):
             return unicode(self.value)
@@ -687,6 +689,26 @@ class OEBBook(object):
         if self._toc_from_tour(opf): return
         if self._toc_from_html(opf): return
         self._toc_from_spine(opf)
+
+    def _ensure_cover_image(self):
+        cover = None
+        if self.metadata.cover:
+            id = str(self.metadata.cover[0])
+            cover = self.manifest[id]
+        elif MS_COVER_TYPE in self.guide:
+            href = self.guide[MS_COVER_TYPE].href
+            cover = self.manifest.hrefs[href]
+        elif 'cover' in self.guide:
+            href = self.guide['cover'].href
+            cover = self.manifest.hrefs[href]
+        else:
+            html = self.spine[0].data
+            imgs = xpath(html, '//h:img[position()=1]')
+            href = imgs[0].get('src') if imgs else None
+            cover = self.manifest.hrefs[href] if href else None
+        if cover:
+            if not self.metadata.cover:
+                self.metadata.add('cover', cover.id)
             
     def _all_from_opf(self, opf):
         self._metadata_from_opf(opf)
@@ -694,6 +716,7 @@ class OEBBook(object):
         self._spine_from_opf(opf)
         self._guide_from_opf(opf)
         self._toc_from_opf(opf)
+        self._ensure_cover_image()
 
     def to_opf1(self):
         package = etree.Element('package',
@@ -755,6 +778,7 @@ class OEBBook(object):
         ncx = self._to_ncx()
         return {OPF_MIME: ('content.opf', package),
                 NCX_MIME: (href, ncx)}
+
 
 
 def main(argv=sys.argv):

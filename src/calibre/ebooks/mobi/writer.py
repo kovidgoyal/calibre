@@ -15,10 +15,12 @@ import random
 from cStringIO import StringIO
 import re
 from itertools import izip, count
+from collections import defaultdict
+from urlparse import urldefrag
 from lxml import etree
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.lit.oeb import XHTML, XHTML_NS, OEB_DOCS
-from calibre.ebooks.lit.oeb import barename, namespace
+from calibre.ebooks.lit.oeb import xpath, barename, namespace
 from calibre.ebooks.lit.oeb import FauxLogger, OEBBook
 
 MBP_NS = 'http://mobipocket.cam/ns/mbp'
@@ -43,31 +45,105 @@ UNCOMPRESSED = 1
 PALMDOC = 2
 HUFFDIC = 17480
 
+COLLAPSE = re.compile(r'[ \t\r\n\v]+')
+
+def encode(data):
+    return COLLAPSE.sub(' ', data).encode('ascii', 'xmlcharrefreplace')
+
 
 class Serializer(object):
     def __init__(self, oeb, images):
         self.oeb = oeb
         self.images = images
-        self.root = etree.Element(XHTML('html'),
-            nsmap={None: XHTML_NS, 'mbp': MBP_NS})
-        self.generate_head()
-        self.generate_body()
+        self.id_offsets = {}
+        self.href_offsets = defaultdict(list)
+        buffer = self.buffer = StringIO()
+        buffer.write('<html>')
+        self.serialize_head()
+        self.serialize_body()
+        buffer.write('</html>')
+        self.fixup_links()
+        self.raw = buffer.getvalue()
 
     def __str__(self):
-        return etree.tostring(self.root)
+        return self.raw
 
-    def generate_head(self):
-        head = etree.SubElement(self.root, XHTML('head'))
-
-    def generate_body(self):
-        body = etree.SubElement(self.root, XHTML('body'))
-        first = True
+    def serialize_head(self):
+        buffer = self.buffer
+        buffer.write('<head>')
+        buffer.write('</head>')
+        
+    def serialize_body(self):
+        buffer = self.buffer
+        buffer.write('<body>')
         for item in self.oeb.spine:
-            if item.media_type not in OEB_DOCS: continue
-            for elem in item.data.find(XHTML('body')):
-                body.append(elem)
-            etree.SubElement(body, MBP('pagebreak'))
+            self.serialize_item(item)
+        buffer.write('</body>')
 
+    def serialize_item(self, item):
+        buffer = self.buffer
+        buffer.write('<mbp:pagebreak/>')
+        # TODO: Figure out how to make the 'crossable' stuff work for
+        # non-"linear" spine items.
+        self.id_offsets[item.id + '_calibre_top'] = buffer.tell()
+        for elem in item.data.find(XHTML('body')):
+            self.serialize_elem(elem, item)
+
+    def serialize_elem(self, elem, item):
+        ns = namespace(elem.tag)
+        if ns not in (XHTML_NS, MBP_NS):
+            return
+        buffer = self.buffer
+        hrefs = self.oeb.manifest.hrefs
+        tag = barename(elem.tag)
+        if ns == MBP_NS: tag = 'mbp:' + tag
+        for attr in ('name', 'id'):
+            if attr in elem.attrib:
+                id = '_'.join((item.id, elem.attrib[attr]))
+                self.id_offsets[id] = buffer.tell()
+                del elem.attrib[attr]
+        buffer.write('<')
+        buffer.write(tag)
+        if elem.attrib:
+            for attr, val in elem.attrib.items():
+                buffer.write(' ')
+                if attr == 'href':
+                    path, frag = urldefrag(val)
+                    # TODO: Absolute path translation
+                    if not path or path in hrefs:
+                        id = hrefs[path].id if path else item.id
+                        frag = frag if frag else 'calibre_top'
+                        href = '_'.join((id, frag))
+                        buffer.write('filepos=')
+                        self.href_offsets[href].append(buffer.tell())
+                        buffer.write('0000000000')
+                        continue
+                elif attr == 'src' and val in hrefs:
+                    index = self.images[val]
+                    buffer.write('recindex="%05d"' % index)
+                    continue
+                buffer.write('%s="%s"' % (attr, val))
+        if not elem.text and len(elem) == 0:
+            buffer.write('/>')
+            return
+        buffer.write('>')
+        if elem.text:
+            buffer.write(encode(elem.text))
+        for child in elem:
+            self.serialize_elem(child, item)
+        buffer.write('</%s>' % tag)
+        if elem.tail:
+            buffer.write(encode(elem.tail))
+
+    def fixup_links(self):
+        buffer = self.buffer
+        for id, hoffs in self.href_offsets.items():
+            ioff = self.id_offsets[id]
+            for hoff in hoffs:
+                buffer.seek(hoff)
+                buffer.write('%010d' % ioff)
+
+    
 def preserve(function):
     def wrapper(self, *args, **kwargs):
         opos = self._stream.tell()
@@ -79,8 +155,8 @@ def preserve(function):
     return wrapper
     
 class MobiWriter(object):
-    def __init__(self, compress=PALMDOC, logger=FauxLogger()):
-        self._compress = compress or 1
+    def __init__(self, compress=None, logger=FauxLogger()):
+        self._compress = compress or UNCOMPRESSED
         self._logger = logger
 
     def dump(self, oeb, path):
@@ -92,11 +168,6 @@ class MobiWriter(object):
     def _write(self, *data):
         for datum in data:
             self._stream.write(datum)
-    
-    @preserve
-    def _writeat(self, pos, *data):
-        self._stream.seek(pos)
-        self._write(*data)
     
     def _tell(self):
         return self._stream.tell()
@@ -116,7 +187,7 @@ class MobiWriter(object):
         self._generate_images()
 
     def _map_image_names(self):
-        index = 0
+        index = 1
         self._images = images = {}
         for item in self._oeb.manifest.values():
             if item.media_type.startswith('image/'):
@@ -140,7 +211,13 @@ class MobiWriter(object):
         self._text_nrecords = nrecords
 
     def _generate_images(self):
-        pass
+        images = [(index, href) for href, index in self._images.items()]
+        images.sort()
+        for _, href in images:
+            item = self._oeb.manifest.hrefs[href]
+            data = item.data
+            # TODO: Re-size etc images
+            self._records.append(data)
     
     def _generate_record0(self):
         exth = self._build_exth()
@@ -167,8 +244,6 @@ class MobiWriter(object):
             0, 0, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff,
             0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 1, 0xffffffff))
         record0.write(exth)
-        npad = 4 - (record0.tell() % 4)
-        if npad < 4: record0.write('\0' * npad)
         record0.write(title)
         record0 = record0.getvalue()
         self._records[0] = record0 + ('\0' * (2452 - len(record0)))
@@ -185,8 +260,17 @@ class MobiWriter(object):
                 exth.write(pack('>II', code, len(data) + 8))
                 exth.write(data)
                 nrecs += 1
+        if oeb.metadata.cover:
+            id = str(oeb.metadata.cover[0])
+            href = oeb.manifest[id].href
+            index = self._images[href] + self._text_nrecords - 1
+            exth.write(pack('>III', 0xc9, 0x0c, index))
+            nrecs += 1
+        trail = exth.tell() % 4
+        pad = '' if not trail else '\0' * (4 - trail)
         exth = exth.getvalue()
-        return ''.join(['EXTH', pack('>II', len(exth) + 12, nrecs), exth])
+        exth = ['EXTH', pack('>II', len(exth) + 12, nrecs), exth, pad]
+        return ''.join(exth)
 
     def _write_header(self):
         title = str(self._oeb.metadata.title[0])
