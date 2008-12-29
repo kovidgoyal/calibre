@@ -49,6 +49,7 @@ from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
 from calibre.utils.filenames import ascii_filename
 from calibre.gui2.widgets import WarningDialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 
 class Main(MainWindow, Ui_MainWindow):
 
@@ -758,13 +759,9 @@ class Main(MainWindow, Ui_MainWindow):
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return
-        if config['confirm_delete']:
-            d = question_dialog(self, _('Confirm delete'), 
-                            _('Are you sure you want to delete these %d books?')%len(rows))
-            if d.exec_() != QMessageBox.Yes:
-                return
-            
         if self.stack.currentIndex() == 0:
+            if not confirm('<p>'+_('The selected books will be <b>permanently deleted</b> and the files removed from your computer. Are you sure?')+'</p>', 'library_delete_books', self):
+                return
             view.model().delete_books(rows)
         else:
             view = self.memory_view if self.stack.currentIndex() == 1 else self.card_view
