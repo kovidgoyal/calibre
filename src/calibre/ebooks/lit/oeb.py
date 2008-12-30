@@ -66,6 +66,12 @@ def barename(name):
         return name.split('}', 1)[1]
     return name
 
+def prefixname(name, nsrmap):
+    prefix = nsrmap[namespace(name)]
+    if not prefix:
+        return barename(name)
+    return ':'.join((prefix, barename(name)))
+
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 

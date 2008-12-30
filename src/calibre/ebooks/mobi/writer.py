@@ -20,11 +20,11 @@ from urlparse import urldefrag
 from lxml import etree
 from PIL import Image
 from calibre.ebooks.mobi.palmdoc import compress_doc
-from calibre.ebooks.lit.oeb import XHTML, XHTML_NS, OEB_DOCS
-from calibre.ebooks.lit.oeb import xpath, barename, namespace
+from calibre.ebooks.lit.oeb import XML_NS, XHTML, XHTML_NS, OEB_DOCS
+from calibre.ebooks.lit.oeb import xpath, barename, namespace, prefixname
 from calibre.ebooks.lit.oeb import FauxLogger, OEBBook
 
-MBP_NS = 'http://mobipocket.cam/ns/mbp'
+MBP_NS = 'http://mobipocket.com/ns/mbp'
 def MBP(name): return '{%s}%s' % (MBP_NS, name)
 
 EXTH_CODES = {
@@ -50,7 +50,10 @@ def encode(data):
     return data.encode('ascii', 'xmlcharrefreplace')
 
 
+
 class Serializer(object):
+    NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
+    
     def __init__(self, oeb, images):
         self.oeb = oeb
         self.images = images
@@ -118,14 +121,12 @@ class Serializer(object):
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
 
-    def serialize_elem(self, elem, item):
-        ns = namespace(elem.tag)
-        if ns not in (XHTML_NS, MBP_NS):
+    def serialize_elem(self, elem, item, nsrmap=NSRMAP):
+        if namespace(elem.tag) not in nsrmap:
             return
         buffer = self.buffer
         hrefs = self.oeb.manifest.hrefs
-        tag = barename(elem.tag)
-        if ns == MBP_NS: tag = 'mbp:' + tag
+        tag = prefixname(elem.tag, nsrmap)
         for attr in ('name', 'id'):
             if attr in elem.attrib:
                 id = '_'.join((item.id, elem.attrib[attr]))
@@ -135,6 +136,9 @@ class Serializer(object):
         buffer.write(tag)
         if elem.attrib:
             for attr, val in elem.attrib.items():
+                if namespace(attr) not in nsrmap:
+                    continue
+                attr = prefixname(attr, nsrmap)
                 buffer.write(' ')
                 if attr == 'href':
                     if self.serialize_href(val, item.id):

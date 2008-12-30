@@ -26,7 +26,7 @@ import calibre.ebooks.lit.maps as maps
 from calibre.ebooks.lit.oeb import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
     CSS_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize, xpath
-from calibre.ebooks.lit.oeb import FauxLogger, OEBBook
+from calibre.ebooks.lit.oeb import prefixname, FauxLogger, OEBBook
 from calibre.ebooks.lit.stylizer import Stylizer
 from calibre.ebooks.lit.lzx import Compressor
 import calibre
@@ -115,12 +115,6 @@ LZXC_CONTROL = \
     "\x00\x00\x00\x00\x00\x00\x00\x00"
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
-
-def prefixname(name, nsrmap):
-    prefix = nsrmap[namespace(name)]
-    if not prefix:
-        return barename(name)
-    return ':'.join((prefix, barename(name)))
 
 def decint(value):
     bytes = []
