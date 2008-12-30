@@ -123,6 +123,10 @@ class HTMLProcessor(Processor, Rationalizer):
         if opts.verbose > 2:
             self.debug_tree('nocss')
             
+        if hasattr(self.body, 'xpath'):
+            for script in list(self.body.xpath('descendant::script')):
+                script.getparent().remove(script)
+            
     def convert_image(self, img):
         rpath = img.get('src', '')
         path = os.path.join(os.path.dirname(self.save_path()), *rpath.split('/'))
