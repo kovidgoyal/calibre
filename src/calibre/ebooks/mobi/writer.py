@@ -169,16 +169,6 @@ class Serializer(object):
                 buffer.write('%010d' % ioff)
 
     
-def preserve(function):
-    def wrapper(self, *args, **kwargs):
-        opos = self._stream.tell()
-        try:
-            return function(self, *args, **kwargs)
-        finally:
-            self._stream.seek(opos)
-    functools.update_wrapper(wrapper, function)
-    return wrapper
-    
 class MobiWriter(object):
     def __init__(self, compress=None, logger=FauxLogger()):
         self._compress = compress or UNCOMPRESSED
@@ -235,6 +225,24 @@ class MobiWriter(object):
             data = text.read(0x1000)
         self._text_nrecords = nrecords
 
+    def _rescale_image(self, data, maxsizeb, dimen=None):
+        if dimen is not None:
+            image = Image.open(StringIO(data))
+            image.thumbnail(dimen, Image.ANTIALIAS)
+            data = StringIO()
+            image.save(data, image.format)
+            data = data.getvalue()
+        if len(data) < maxsizeb:
+            return data
+        image = Image.open(StringIO(data))
+        for quality in xrange(95, -1, -1):
+            data = StringIO()
+            image.save(data, 'JPEG', quality=quality)
+            data = data.getvalue()
+            if len(data) <= maxsizeb:
+                break
+        return data
+        
     def _generate_images(self):
         images = [(index, href) for href, index in self._images.items()]
         images.sort()
@@ -242,17 +250,9 @@ class MobiWriter(object):
         coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
-            data = item.data
-            # TODO: Re-size etc images
-            image = Image.open(StringIO(item.data))
             maxsizek = 89 if coverid == item.id else 63
             maxsizeb = maxsizek * 1024
-            for quality in xrange(95, -1, -1):
-                data = StringIO()
-                image.save(data, 'JPEG', quality=quality)
-                data = data.getvalue()
-                if len(data) <= maxsizeb:
-                    break
+            data = self._rescale_image(item.data, maxsizeb)
             self._records.append(data)
     
     def _generate_record0(self):
@@ -313,14 +313,9 @@ class MobiWriter(object):
         return ''.join(exth)
 
     def _add_thumbnail(self, item):
-        thumbnail = Image.open(StringIO(item.data))
-        thumbnail.thumbnail((180, 240), Image.ANTIALIAS)
-        for quality in xrange(95, -1, -1):
-            data = StringIO()
-            thumbnail.save(data, 'JPEG', quality=quality)
-            data = data.getvalue()
-            if len(data) <= (1024 * 16):
-                break
+        maxsizeb = 16 * 1024
+        dimen = (180, 240)
+        data = self._rescale_image(item.data, maxsizeb, dimen)
         manifest = self._oeb.manifest
         id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
         manifest.add(id, href, 'image/jpeg', data=data)
