@@ -15,7 +15,8 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database2 import FIELD_MAP
-from calibre.gui2 import NONE, TableView, qstring_to_unicode, config
+from calibre.gui2 import NONE, TableView, qstring_to_unicode, config,\
+    error_dialog
 from calibre.utils.search_query_parser import SearchQueryParser
 
 class LibraryDelegate(QItemDelegate):
@@ -657,6 +658,8 @@ class DeviceBooksView(BooksView):
         self.rating_delegate = None
         for i in range(10):
             self.setItemDelegateForColumn(i, self.itemDelegate())
+        self.setDragDropMode(self.NoDragDrop)
+        self.setAcceptDrops(False)
 
     def resizeColumnsToContents(self):
         QTableView.resizeColumnsToContents(self)
@@ -667,6 +670,10 @@ class DeviceBooksView(BooksView):
         
     def sortByColumn(self, col, order):
         TableView.sortByColumn(self, col, order)
+        
+    def dropEvent(self, *args):
+        error_dialog(self, _('Not allowed'), 
+        _('Dropping onto a device is not supported. First add the book to the calibre library.')).exec_()
 
 class OnDeviceSearch(SearchQueryParser):
     
