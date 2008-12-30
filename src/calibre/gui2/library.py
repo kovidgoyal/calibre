@@ -15,8 +15,8 @@ from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database2 import FIELD_MAP
-from calibre.gui2 import NONE, TableView, qstring_to_unicode, config,\
-    error_dialog
+from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
+                         error_dialog
 from calibre.utils.search_query_parser import SearchQueryParser
 
 class LibraryDelegate(QItemDelegate):
