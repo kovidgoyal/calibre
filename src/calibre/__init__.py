@@ -378,7 +378,13 @@ def strftime(fmt, t=time.localtime()):
             fmt = fmt.encode('mbcs')
         return plugins['winutil'][0].strftime(fmt, t)
     return time.strftime(fmt, t).decode(preferred_encoding, 'replace')
-    
+
+def my_unichr(num):
+    try:
+        unichr(num)
+    except ValueError:
+        return u'?'
+
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''
     @param match: A match object such that '&'+match.group(1)';' is the entity.
@@ -394,7 +400,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     if ent.startswith(u'#x'):
         num = int(ent[2:], 16)
         if encoding is None or num > 255:
-            return unichr(num)
+            return my_unichr(num)
         return chr(num).decode(encoding)
     if ent.startswith(u'#'):
         try:
@@ -402,13 +408,13 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
         except ValueError:
             return '&'+ent+';'
         if encoding is None or num > 255:
-            return unichr(num)
+            return my_unichr(num)
         try:
             return chr(num).decode(encoding)
         except UnicodeDecodeError:
-            return unichr(num)
+            return my_unichr(num)
     try:
-        return unichr(name2codepoint[ent])
+        return my_unichr(name2codepoint[ent])
     except KeyError:
         return '&'+ent+';'
 
