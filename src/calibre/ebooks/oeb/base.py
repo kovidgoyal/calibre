@@ -14,6 +14,7 @@ from itertools import izip, count
 from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
 import logging
+import re
 from lxml import etree
 from calibre import LoggingInterface
 
@@ -266,6 +267,8 @@ class Metadata(object):
 
 class Manifest(object):
     class Item(object):
+        NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
+    
         def __init__(self, id, href, media_type,
                      fallback=None, loader=str, data=None):
             self.id = id
@@ -314,7 +317,15 @@ class Manifest(object):
             result = cmp(self.spine_position, other.spine_position)
             if result != 0:
                 return result
-            return cmp(self.id, other.id)
+            smatch = self.NUM_RE.search(self.href)
+            sref = smatch.group(1) if smatch else self.href
+            snum = float(smatch.group(2)) if smatch else 0.0
+            skey = (sref, snum, self.id)
+            omatch = self.NUM_RE.search(other.href)
+            oref = omatch.group(1) if omatch else other.href
+            onum = float(omatch.group(2)) if omatch else 0.0
+            okey = (oref, onum, other.id)
+            return cmp(skey, okey)
         
         def relhref(self, href):
             if '/' not in self.href:
