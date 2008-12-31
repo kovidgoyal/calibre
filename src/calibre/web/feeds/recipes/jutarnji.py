@@ -11,18 +11,30 @@ from calibre.web.feeds.news import BasicNewsRecipe
 from calibre.ebooks.BeautifulSoup import BeautifulSoup
 
 class Jutarnji(BasicNewsRecipe):
-    title                 = u'Jutarnji'
-    __author__            = u'Darko Miletic'
-    description           = u'Hrvatski portal'
-    oldest_article        = 7
+    title                 = 'Jutarnji'
+    __author__            = 'Darko Miletic'
+    description           = 'Online izdanje Jutarnjeg lista'
+    oldest_article        = 2
     max_articles_per_feed = 100
+    simultaneous_downloads = 1
+    delay = 1    
     no_stylesheets        = True
     use_embedded_content  = False
     encoding              = 'cp1250'
-
+    cover_url = 'http://www.jutarnji.hr/EPHResources/Images/2008/06/05/jhrlogo.png'
+    html2lrf_options = [
+                          '--comment', description
+                        , '--base-font-size', '10'
+                        , '--category', 'news, Croatia'
+                        , '--publisher', 'Europapress holding d.o.o.'
+                        ]    
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
     
-    remove_tags = [dict(name='embed')]
+    remove_tags = [ 
+                    dict(name='embed')
+                   ,dict(name='a', attrs={'class':'a11'})
+                   ,dict(name='hr')
+                  ]
     
     feeds = [
               (u'Naslovnica'      , u'http://www.jutarnji.hr/rss'           )
@@ -37,10 +49,11 @@ class Jutarnji(BasicNewsRecipe):
     def print_version(self, url):
         main, split, rest = url.partition('.jl')
         rmain, rsplit, rrest = main.rpartition(',')
-        return 'http://www.jutarnji.hr/ispis_clanka.jl?artid=' + rrest
+        return u'http://www.jutarnji.hr/ispis_clanka.jl?artid=' + rrest
 
     def preprocess_html(self, soup):
         mtag = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
         soup.head.insert(0,mtag)
+        soup.prettify()
         return soup
         

@@ -15,13 +15,16 @@ class Vreme(BasicNewsRecipe):
     title       = 'Vreme'
     __author__  = 'Darko Miletic'
     description = 'Politicki Nedeljnik Srbije'
-    timefmt = ' [%A, %d %B, %Y]'
     no_stylesheets = True
-    simultaneous_downloads = 1
-    delay = 1
-    needs_subscription = True
+    needs_subscription = True    
     INDEX = 'http://www.vreme.com'
     LOGIN = 'http://www.vreme.com/account/index.php'
+    html2lrf_options = [
+                          '--comment', description
+                        , '--base-font-size', '10'
+                        , '--category', 'news, politics, Serbia'
+                        , '--publisher', 'Vreme d.o.o.'
+                        ]
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
@@ -66,3 +69,11 @@ class Vreme(BasicNewsRecipe):
         
     def print_version(self, url):
         return url + '&print=yes'
+
+    def get_cover_url(self):
+        cover_url = None
+        soup = self.index_to_soup(self.INDEX)
+        cover_item = soup.find('img',attrs={'alt':'Naslovna strana broja'})
+        if cover_item:
+           cover_url = self.INDEX + cover_item['src']
+        return cover_url

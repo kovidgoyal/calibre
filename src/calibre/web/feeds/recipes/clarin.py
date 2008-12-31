@@ -9,14 +9,19 @@ clarin.com
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Clarin(BasicNewsRecipe):
-    title                 = u'Clarin'
+    title                 = 'Clarin'
     __author__            = 'Darko Miletic'
     description           = 'Noticias de Argentina y mundo'
     oldest_article        = 2
     max_articles_per_feed = 100
     use_embedded_content  = False
-    simultaneous_downloads = 1
-    delay = 1
+    cover_url = 'http://www.clarin.com/shared/v10/img/Hd/lg_Clarin.gif'
+    html2lrf_options = [
+                          '--comment', description
+                        , '--base-font-size', '10'
+                        , '--category', 'news, Argentina'
+                        , '--publisher', 'Grupo Clarin'
+                        ]
     
     remove_tags = [
                      dict(name='a'   , attrs={'class':'Imp'   })

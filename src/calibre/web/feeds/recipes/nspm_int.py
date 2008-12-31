@@ -3,17 +3,16 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
-nspm.rs
+nspm.rs/nspm-in-english
 '''
 
-import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
-class Nspm(BasicNewsRecipe):
-    title                 = u'Nova srpska politicka misao'
+class Nspm_int(BasicNewsRecipe):
+    title                 = 'NSPM in English'
     __author__            = 'Darko Miletic'
-    description           = 'Casopis za politicku teoriju i drustvena istrazivanja'    
-    oldest_article        = 7
+    description           = 'Magazine dedicated to political theory and sociological research'        
+    oldest_article        = 20
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
@@ -22,18 +21,17 @@ class Nspm(BasicNewsRecipe):
     html2lrf_options = [
                           '--comment', description
                         , '--base-font-size', '10'
-                        , '--category', 'news, politics, Serbia'
+                        , '--category', 'news, politics, Serbia, english'
                         , '--publisher', 'IIC NSPM'
                         ]
-
-    preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
     def get_browser(self):
         br = BasicNewsRecipe.get_browser()
         br.open(self.INDEX)
         return br
 
-    feeds = [ (u'Nova srpska politicka misao', u'http://www.nspm.rs/feed/rss.html')]
 
-    def print_version(self, url):
-        return url.replace('.html','/stampa.html')
+    keep_only_tags = [dict(name='div', attrs={'id':'jsn-mainbody'})]
+    remove_tags    = [dict(name='div', attrs={'id':'yvComment'   })]
+
+    feeds = [ (u'NSPM in English', u'http://nspm.rs/nspm-in-english/feed/rss.html')]
