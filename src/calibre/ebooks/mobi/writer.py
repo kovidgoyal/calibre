@@ -241,12 +241,13 @@ class MobiWriter(object):
             record = [data, '\0']
             nextra = 0
             pbreak = 0
-            running = 0
+            running = offset
             while breaks and (breaks[0] - offset) < RECORD_SIZE:
                 pbreak = (breaks.pop(0) - running) >> 3
-                record.append(decint(pbreak))
+                encoded = decint(pbreak)
+                record.append(encoded)
                 running += pbreak << 3
-                nextra += 1
+                nextra += len(encoded)
             record.append(decint(nextra + 1))
             self._records.append(''.join(record))
             nrecords += 1
