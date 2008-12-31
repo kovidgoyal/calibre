@@ -1935,7 +1935,7 @@ def process_file(path, options, logger=None):
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
     run_plugins_on_postprocess(oname, 'lrf')
-    logger.info('Output written to %s', oname)
+    conv.log_info('Output written to %s', oname)
     conv.cleanup()
     return oname
     
