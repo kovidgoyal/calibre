@@ -13,7 +13,7 @@ from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.chardet import xml_to_unicode
 
 def get_metadata(stream):
-    src = xml_to_unicode(stream.read())
+    src = xml_to_unicode(stream.read())[0]
     
     # Title
     title = None
