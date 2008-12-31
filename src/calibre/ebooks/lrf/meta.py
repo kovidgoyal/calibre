@@ -603,12 +603,18 @@ Show/edit the metadata in an LRF file.\n\n'''),
     parser.add_option("--get-thumbnail", action="store_true", \
                     dest="get_thumbnail", default=False, \
                     help=_("Extract thumbnail from LRF file"))
+    parser.add_option('--publisher', default=None, help=_('Set the publisher'))
+    parser.add_option('--classification', default=None, help=_('Set the book classification'))
+    parser.add_option('--creator', default=None, help=_('Set the book creator'))
+    parser.add_option('--producer', default=None, help=_('Set the book producer'))
     parser.add_option('--get-cover', action='store_true', default=False, 
                       help=_('Extract cover from LRF file. Note that the LRF format has no defined cover, so we use some heuristics to guess the cover.'))
     parser.add_option('--bookid', action='store', type='string', default=None,
                       dest='book_id', help=_('Set book ID'))
-    parser.add_option("-p", "--page", action="store", type="string", \
-                    dest="page", help=_("Don't know what this is for"))
+    # The SumPage element specifies the number of "View"s (visible pages for the BookSetting element conditions) of the content.
+    # Basically, the total pages per the page size, font size, etc. when the LRF is first created. Since this will change as the book is reflowed, it is probably not worth using.
+    #parser.add_option("-p", "--page", action="store", type="string", \
+    #                dest="page", help=_("Don't know what this is for"))
     
     return parser
 
@@ -624,6 +630,8 @@ def set_metadata(stream, mi):
         lrf.free_text = mi.comments
     if mi.author_sort:
         lrf.author_reading = mi.author_sort
+    if mi.publisher:
+        lrf.publisher = mi.publisher
         
 
 def main(args=sys.argv):
@@ -644,10 +652,16 @@ def main(args=sys.argv):
         lrf.author_reading = options.author_reading
     if options.author:
         lrf.author    = options.author
+    if options.publisher:
+        lrf.publisher = options.publisher
+    if options.classification:
+        lrf.classification = options.classification
     if options.category: 
         lrf.category = options.category
-    if options.page: 
-        lrf.page = options.page
+    if options.creator:
+        lrf.creator = options.creator
+    if options.producer:
+        lrf.producer = options.producer
     if options.thumbnail:
         path = os.path.expanduser(os.path.expandvars(options.thumbnail))
         f = open(path, "rb")
