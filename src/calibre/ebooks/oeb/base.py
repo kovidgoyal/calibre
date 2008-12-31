@@ -38,12 +38,14 @@ def OPF(name): return '{%s}%s' % (OPF2_NS, name)
 def DC(name): return '{%s}%s' % (DC11_NS, name)
 def NCX(name): return '{%s}%s' % (NCX_NS, name)
 
+EPUB_MIME = 'application/epub+zip'
 XHTML_MIME = 'application/xhtml+xml'
 CSS_MIME = 'text/css'
 NCX_MIME = 'application/x-dtbncx+xml'
 OPF_MIME = 'application/oebps-package+xml'
 OEB_DOC_MIME = 'text/x-oeb1-document'
 OEB_CSS_MIME = 'text/x-oeb1-css'
+OPENTYPE_MIME = 'font/opentype'
 
 OEB_STYLES = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
 OEB_DOCS = set([XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'])
@@ -75,7 +77,14 @@ def prefixname(name, nsrmap):
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
-URL_UNSAFE = r"""`!@#$%^&*[](){}?+=;:'",<>\| """
+def xml2str(root):
+    return etree.tostring(root, encoding='utf-8', xml_declaration=True)
+
+ASCII_CHARS = set(chr(x) for x in xrange(128))
+URL_SAFE = set(u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+               u'abcdefghijklmnopqrstuvwxyz'
+               u'0123456789' u'_.-/~')
+URL_UNSAFE = ASCII_CHARS - URL_SAFE
 def urlquote(href):
     result = []
     for char in href:
@@ -116,12 +125,30 @@ class DirContainer(AbstractContainer):
 
     def write(self, path, data):
         path = os.path.join(self.rootdir, path)
+        dir = os.path.dirname(path)
+        if not os.path.isdir(dir):
+            os.makedirs(dir)
         with open(urlunquote(path), 'wb') as f:
             return f.write(data)
 
     def exists(self, path):
         path = os.path.join(self.rootdir, path)
         return os.path.isfile(urlunquote(path))
+
+class DirWriter(object):
+    def __init__(self, version=2.0):
+        self.version = version
+
+    def dump(self, oeb, path):
+        if not os.path.isdir(path):
+            os.mkdir(path)
+        output = DirContainer(path)
+        for item in oeb.manifest.values():
+            output.write(item.href, str(item))
+        metadata = oeb.to_opf2() if self.version == 2 else oeb.to_opf1()
+        for href, data in metadata.values():
+            output.write(href, xml2str(data))
+        return
 
 
 class Metadata(object):
@@ -277,11 +304,33 @@ class Manifest(object):
             return property(fget, fset, fdel)
         data = data()
 
+        def __str__(self):
+            data = self.data
+            if isinstance(data, etree._Element):
+                return xml2str(data)
+            return str(data)
+
         def __cmp__(self, other):
             result = cmp(self.spine_position, other.spine_position)
             if result != 0:
                 return result
             return cmp(self.id, other.id)
+        
+        def relhref(self, href):
+            if '/' not in self.href:
+                return href
+            base = os.path.dirname(self.href).split('/')
+            target, frag = urldefrag(href)
+            target = target.split('/')
+            for index in xrange(min(len(base), len(target))):
+                if base[index] != target[index]: break
+            else:
+                index += 1
+            relhref = (['..'] * (len(base) - index)) + target[index:]
+            relhref = '/'.join(relhref)
+            if frag:
+                relhref = '#'.join((relhref, frag))
+            return relhref
 
         def abshref(self, href):
             if '/' not in self.href:
@@ -361,7 +410,7 @@ class Manifest(object):
     
     def to_opf2(self, parent=None):
         elem = element(parent, OPF('manifest'))
-        for item in self.items.values():
+        for item in self.ids.values():
             attrib = {'id': item.id, 'href': item.href,
                       'media-type': item.media_type}
             if item.fallback:
@@ -375,17 +424,34 @@ class Spine(object):
         self.oeb = oeb
         self.items = []
 
-    def add(self, item, linear):
+    def _linear(self, linear):
         if isinstance(linear, StringTypes):
             linear = linear.lower()
         if linear is None or linear in ('yes', 'true'):
             linear = True
         elif linear in ('no', 'false'):
             linear = False
-        item.linear = linear
+        return linear
+        
+    def add(self, item, linear=None):
+        item.linear = self._linear(linear)
         item.spine_position = len(self.items)
         self.items.append(item)
         return item
+    
+    def insert(self, index, item, linear):
+        item.linear = self._linear(linear)
+        item.spine_position = index
+        self.items.insert(index, item)
+        for i in xrange(index, len(self.items)):
+            self.items[i].spine_position = i
+        return item
+    
+    def remove(self, item):
+        index = item.spine_position
+        self.items.pop(index)
+        for i in xrange(index, len(self.items)):
+            self.items[i].spine_position = i
     
     def __iter__(self):
         for item in self.items:
@@ -493,6 +559,12 @@ class TOC(object):
         node = TOC(title, href, klass, id)
         self.nodes.append(node)
         return node
+
+    def iterdescendants(self):
+        for node in self.nodes:
+            yield node
+            for child in node.iterdescendants():
+                yield child
     
     def __iter__(self):
         for node in self.nodes:
@@ -500,6 +572,15 @@ class TOC(object):
     
     def __getitem__(self, index):
         return self.nodes[index]
+
+    def autolayer(self):
+        prev = None
+        for node in list(self.nodes):
+            if prev and urldefrag(prev.href)[0] == urldefrag(node.href)[0]:
+                self.nodes.remove(node)
+                prev.nodes.append(node)
+            else:
+                prev = node
     
     def depth(self, level=0):
         if self.nodes:
@@ -533,14 +614,15 @@ class TOC(object):
 
     
 class OEBBook(object):
-    def __init__(self, opfpath, container=None, logger=FauxLogger()):
-        if not container:
+    def __init__(self, opfpath=None, container=None, logger=FauxLogger()):
+        if opfpath and not container:
             container = DirContainer(os.path.dirname(opfpath))
             opfpath = os.path.basename(opfpath)
         self.container = container
         self.logger = logger
-        opf = self._read_opf(opfpath)
-        self._all_from_opf(opf)
+        if opfpath or container:
+            opf = self._read_opf(opfpath)
+            self._all_from_opf(opf)
     
     def _convert_opf1(self, opf):
         nroot = etree.Element(OPF('package'),

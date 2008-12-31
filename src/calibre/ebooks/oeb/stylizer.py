@@ -16,16 +16,19 @@ import itertools
 import types
 import re
 import copy
+from itertools import izip
 import cssutils
 from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
     CSSValueList, cssproperties
 from lxml import etree
-from calibre.ebooks.lit.oeb import XHTML_NS, CSS_MIME, OEB_STYLES
-from calibre.ebooks.lit.oeb import barename, urlnormalize
+from lxml.cssselect import css_to_xpath, ExpressionError
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
+from calibre.ebooks.oeb.base import barename, urlnormalize
 from calibre.resources import html_css
 
+XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
 HTML_CSS_STYLESHEET = cssutils.parseString(html_css)
-XHTML_CSS_NAMESPACE = "@namespace url(http://www.w3.org/1999/xhtml);\n"
+HTML_CSS_STYLESHEET.namespaces['h'] = XHTML_NS
 
 INHERITED = set(['azimuth', 'border-collapse', 'border-spacing',
                  'caption-side', 'color', 'cursor', 'direction', 'elevation',
@@ -82,35 +85,48 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
 
-FONT_SIZE_LIST = [('xx-small', 1,     6.),
-                  ('x-small',  None,  7.),
-                  ('small',    2,     8.),
-                  ('medium',   3,     9.),
-                  ('large',    4,    11.),
-                  ('x-large',  5,    13.),
-                  ('xx-large', 6,    15.),
-                  (None,       7,    17.)]
+FONT_SIZES = [('xx-small', 1),
+              ('x-small',  None),
+              ('small',    2),
+              ('medium',   3),
+              ('large',    4),
+              ('x-large',  5),
+              ('xx-large', 6),
+              (None,       7)]
 
-FONT_SIZE_BY_NAME = {}
-FONT_SIZE_BY_NUM = {}
-for name, num, size in FONT_SIZE_LIST:
-    FONT_SIZE_BY_NAME[name] = size
-    FONT_SIZE_BY_NUM[num] = size
 
 XPNSMAP = {'h': XHTML_NS,}
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
+class CSSSelector(etree.XPath):
+    def __init__(self, css, namespaces=XPNSMAP):
+        path = css_to_xpath(css)
+        etree.XPath.__init__(self, path, namespaces=namespaces)
+        self.css = css
+
+    def __repr__(self):
+        return '<%s %s for %r>' % (
+            self.__class__.__name__,
+            hex(abs(id(self)))[2:],
+            self.css)
+
 
 class Page(object):
-    def __init__(self, width, height, dpi):
-        self.width = float(width)
-        self.height = float(height)
+    def __init__(self, width, height, dpi, fbase, fsizes):
+        self.width = (float(width) / dpi) * 72.
+        self.height = (float(height) / dpi) * 72.
         self.dpi = float(dpi)
+        self.fbase = float(fbase)
+        self.fsizes = []
+        for (name, num), size in izip(FONT_SIZES, fsizes):
+            self.fsizes.append((name, num, float(size)))
+        self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
+        self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
 
 class Profiles(object):
-    PRS500 = Page(584, 754, 168.451)
-    PRS505 = PRS500
+    PRS505 = Page(584, 754, 168.451, 12, [7.5, 9, 10, 12, 15.5, 20, 22, 24])
+    MSLIT = Page(652, 480, 100.0, 13, [10, 11, 13, 16, 18, 20, 22, 26])
 
     
 class Stylizer(object):    
@@ -126,12 +142,13 @@ class Stylizer(object):
         parser = cssutils.CSSParser()
         parser.setFetcher(lambda path: ('utf-8', oeb.container.read(path)))
         for elem in head:
-            tag = barename(elem.tag)
-            if tag == 'style':
-                text = ''.join(elem.text)
+            if elem.tag == XHTML('style') and elem.text \
+               and elem.get('type', CSS_MIME) in OEB_STYLES:
+                text = XHTML_CSS_NAMESPACE + elem.text
                 stylesheet = parser.parseString(text, href=cssname)
+                stylesheet.namespaces['h'] = XHTML_NS
                 stylesheets.append(stylesheet)
-            elif tag == 'link' \
+            elif elem.tag == XHTML('link') and elem.get('href') \
                  and elem.get('rel', 'stylesheet') == 'stylesheet' \
                  and elem.get('type', CSS_MIME) in OEB_STYLES:
                 href = urlnormalize(elem.attrib['href'])
@@ -143,11 +160,13 @@ class Stylizer(object):
                     data = XHTML_CSS_NAMESPACE
                     data += oeb.manifest.hrefs[path].data
                     stylesheet = parser.parseString(data, href=path)
+                    stylesheet.namespaces['h'] = XHTML_NS
                     self.STYLESHEETS[path] = stylesheet
                 stylesheets.append(stylesheet)
         rules = []
         index = 0
         self.stylesheets = set()
+        self.page_rule = {}
         for stylesheet in stylesheets:
             href = stylesheet.href
             self.stylesheets.add(href)
@@ -157,6 +176,16 @@ class Stylizer(object):
         rules.sort()
         self.rules = rules
         self._styles = {}
+        for _, _, cssdict, text, _ in rules:
+            try:
+                selector = CSSSelector(text)
+            except ExpressionError, e:
+                continue
+            for elem in selector(tree):
+                self.style(elem)._update_cssdict(cssdict)
+        for elem in tree.xpath('//*[@style]'):
+            self.style(elem)._apply_style_tag()
+        
 
     def flatten_rule(self, rule, href, index):
         results = []
@@ -169,7 +198,7 @@ class Stylizer(object):
                 results.append((specificity, selector, style, text, href))
         elif isinstance(rule, CSSPageRule):
             style = self.flatten_style(rule.style)
-            results.append(((0, 0, 0, 0), [], style, '@page', href))
+            self.page_rule.update(style)
         return results
 
     def flatten_style(self, cssstyle):
@@ -186,7 +215,7 @@ class Stylizer(object):
             size = style['font-size']
             if size == 'normal': size = 'medium'
             if size in FONT_SIZE_NAMES:
-                style['font-size'] = "%dpt" % FONT_SIZE_BY_NAME[size]
+                style['font-size'] = "%dpt" % self.page.fnames[size]
         return style
     
     def _normalize_edge(self, cssvalue, name):
@@ -233,9 +262,10 @@ class Stylizer(object):
         return style
 
     def style(self, element):
-        try: return self._styles[element]
-        except: pass
-        return Style(element, self)
+        try:
+            return self._styles[element]
+        except KeyError:
+            return Style(element, self)
 
     def stylesheet(self, name, font_scale=None):
         rules = []
@@ -250,74 +280,23 @@ class Stylizer(object):
             rules.append('%s {\n    %s;\n}' % (selector, style))
         return '\n'.join(rules)
 
+
 class Style(object):
     def __init__(self, element, stylizer):
         self._element = element
         self._page = stylizer.page
         self._stylizer = stylizer
-        self._style = self._assemble_style(element, stylizer)
+        self._style = {}
         stylizer._styles[element] = self
+
+    def _update_cssdict(self, cssdict):
+        self._style.update(cssdict)
         
-    def _assemble_style(self, element, stylizer):
-        result = {}
-        rules = stylizer.rules
-        for _, selector, style, _, _ in rules:
-            if self._selects_element(element, selector):
-                result.update(style)
-        try:
-            style = CSSStyleDeclaration(element.attrib['style'])
-            result.update(stylizer.flatten_style(style))
-        except KeyError:
-            pass
-        return result
-        
-    def _selects_element(self, element, selector):
-        def _selects_element(element, items, index):
-            if index == -1:
-                return True
-            item = items[index]
-            if item.type == 'universal':
-                pass
-            elif item.type == 'type-selector':
-                name1 = ("{%s}%s" % item.value).lower()
-                name2 = element.tag.lower()
-                if name1 != name2:
-                    return False
-            elif item.type == 'id':
-                name1 = item.value[1:]
-                name2 = element.get('id', '')
-                if name1 != name2:
-                    return False
-            elif item.type == 'class':
-                name = item.value[1:].lower()
-                classes = element.get('class', '').lower().split()
-                if name not in classes:
-                    return False
-            elif item.type == 'child':
-                parent = element.getparent()
-                if parent is None:
-                    return False
-                element = parent
-            elif item.type == 'descendant':
-                element = element.getparent()
-                while element is not None:
-                    if _selects_element(element, items, index - 1):
-                        return True
-                    element = element.getparent()
-                return False
-            elif item.type == 'pseudo-class':
-                if item.value == ':first-child':
-                    e = element.getprevious()
-                    if e is not None:
-                        return False
-                else:
-                    return False
-            elif item.type == 'pseudo-element':
-                return False
-            else:
-                return False
-            return _selects_element(element, items, index - 1)
-        return _selects_element(element, selector, len(selector) - 1)
+    def _apply_style_tag(self):
+        attrib = self._element.attrib
+        if 'style' in attrib:
+            style = CSSStyleDeclaration(attrib['style'])
+            self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
         parent = self._element.getparent()
@@ -383,18 +362,19 @@ class Style(object):
             result = None
             factor = None
             if value == 'inherit':
-                value = 'medium'
+                # We should only see this if the root element
+                value = self._page.fbase
             if value in FONT_SIZE_NAMES:
-                result = FONT_SIZE_BY_NAME[value]
+                result = self._page.fnames[value]
             elif value == 'smaller':
                 factor = 1.0/1.2
-                for _, _, size in FONT_SIZE_LIST:
+                for _, _, size in self._page.fsizes:
                     if base <= size: break
                     factor = None
                     result = size
             elif value == 'larger':
                 factor = 1.2
-                for _, _, size in reversed(FONT_SIZE_LIST):
+                for _, _, size in reversed(self._page.fsizes):
                     if base >= size: break
                     factor = None
                     result = size
@@ -410,7 +390,7 @@ class Style(object):
             styles = self._stylizer._styles
             base = styles[self._element.getparent()].fontSize
         else:
-            base = normalize_fontsize(DEFAULTS['font-size'])
+            base = self._page.fbase
         if 'font-size' in self._style:
             size = self._style['font-size']
             result = normalize_fontsize(size, base)
@@ -441,4 +421,8 @@ class Style(object):
     
     def __str__(self):
         items = self._style.items()
+        items.sort()
         return '; '.join("%s: %s" % (key, val) for key, val in items)
+
+    def cssdict(self):
+        return dict(self._style)

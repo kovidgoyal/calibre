@@ -23,11 +23,12 @@ from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit.reader import DirectoryEntry
 import calibre.ebooks.lit.maps as maps
-from calibre.ebooks.lit.oeb import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
+from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
     CSS_MIME, OPF_MIME, XML_NS, XML
-from calibre.ebooks.lit.oeb import namespace, barename, urlnormalize, xpath
-from calibre.ebooks.lit.oeb import prefixname, FauxLogger, OEBBook
-from calibre.ebooks.lit.stylizer import Stylizer
+from calibre.ebooks.oeb.base import namespace, barename, prefixname, \
+    urlnormalize, xpath
+from calibre.ebooks.oeb.base import FauxLogger, OEBBook
+from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.lit.lzx import Compressor
 import calibre
 from calibre import LoggingInterface
