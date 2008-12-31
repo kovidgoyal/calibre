@@ -4,7 +4,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 '''
 Builtin recipes.
 '''
-recipe_modules = [
+recipe_modules = ['recipe_' + r for r in (
            'newsweek', 'atlantic', 'economist', 'portfolio',
            'nytimes', 'usatoday', 'outlook_india', 'bbc', 'greader', 'wsj',
            'wired', 'globe_and_mail', 'smh', 'espn', 'business_week',
@@ -21,7 +21,7 @@ recipe_modules = [
            'linux_magazine', 'telegraph_uk', 'utne', 'sciencedaily', 'forbes',
            'time_magazine', 'endgadget', 'fudzilla', 'nspm_int', 'nspm', 'pescanik',
            'spiegel_int', 'themarketticker', 'tomshardware',
-          ]
+          )]
 
 import re, imp, inspect, time, os
 from calibre.web.feeds.news import BasicNewsRecipe, CustomIndexRecipe, AutomaticNewsRecipe
