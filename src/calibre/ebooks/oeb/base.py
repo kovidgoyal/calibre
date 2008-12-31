@@ -50,6 +50,8 @@ OPENTYPE_MIME = 'font/opentype'
 OEB_STYLES = set([CSS_MIME, OEB_CSS_MIME, 'text/x-oeb-css'])
 OEB_DOCS = set([XHTML_MIME, 'text/html', OEB_DOC_MIME, 'text/x-oeb-document'])
 
+MS_COVER_TYPE = 'other.ms-coverimage-standard'
+
 
 def element(parent, *args, **kwargs):
     if parent is not None:
@@ -65,6 +67,12 @@ def barename(name):
     if '}' in name:
         return name.split('}', 1)[1]
     return name
+
+def prefixname(name, nsrmap):
+    prefix = nsrmap[namespace(name)]
+    if not prefix:
+        return barename(name)
+    return ':'.join((prefix, barename(name)))
 
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
@@ -147,6 +155,7 @@ class Metadata(object):
     TERMS = set(['contributor', 'coverage', 'creator', 'date', 'description',
                  'format', 'identifier', 'language', 'publisher', 'relation',
                  'rights', 'source', 'subject', 'title', 'type'])
+    ATTRS = set(['role', 'file-as', 'scheme'])
     OPF1_NSMAP = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
     OPF2_NSMAP = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                   'xsi': XSI_NS}
@@ -163,7 +172,12 @@ class Metadata(object):
             self.value = value
             self.attrib = attrib = {}
             for fq_attr in fq_attrib:
-                attr = barename(fq_attr)
+                if fq_attr in Metadata.ATTRS:
+                    attr = fq_attr
+                    fq_attr = OPF2(fq_attr)
+                    fq_attrib[fq_attr] = fq_attrib.pop(attr)
+                else:
+                    attr = barename(fq_attr)
                 attrib[attr] = fq_attrib[fq_attr]
         
         def __getattr__(self, name):
@@ -180,7 +194,7 @@ class Metadata(object):
                 % (barename(self.term), self.value, self.attrib)
 
         def __str__(self):
-            return str(self.value)
+            return unicode(self.value).encode('ascii', 'xmlcharrefreplace')
 
         def __unicode__(self):
             return unicode(self.value)
@@ -317,6 +331,14 @@ class Manifest(object):
             if frag:
                 relhref = '#'.join((relhref, frag))
             return relhref
+
+        def abshref(self, href):
+            if '/' not in self.href:
+                return href
+            dirname = os.path.dirname(self.href)
+            href = os.path.join(dirname, href)
+            href = os.path.normpath(href).replace('\\', '/')
+            return href
     
     def __init__(self, oeb):
         self.oeb = oeb
@@ -503,6 +525,9 @@ class Guide(object):
     def __contains__(self, key):
         return key in self.refs
 
+    def __len__(self):
+        return len(self.refs)
+
     def to_opf1(self, parent=None):
         elem = element(parent, 'guide')
         for ref in self.refs.values():
@@ -652,6 +677,15 @@ class OEBBook(object):
         else:
             self.logger.log_warn(u'Unique-identifier %r not found.' % uid)
             self.uid = metadata.identifier[0]
+        if not metadata.language:
+            self.logger.log_warn(u'Language not specified.')
+            metadata.add('language', 'en')
+        if not metadata.creator:
+            self.logger.log_warn(u'Creator not specified.')
+            metadata.add('creator', 'Unknown')
+        if not metadata.title:
+            self.logger.log_warn(u'Title not specified.')
+            metadata.add('title', 'Unknown')
     
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)
@@ -789,6 +823,25 @@ class OEBBook(object):
         if self._toc_from_tour(opf): return
         if self._toc_from_html(opf): return
         self._toc_from_spine(opf)
+
+    def _ensure_cover_image(self):
+        cover = None
+        if self.metadata.cover:
+            id = str(self.metadata.cover[0])
+            cover = self.manifest[id]
+        elif MS_COVER_TYPE in self.guide:
+            href = self.guide[MS_COVER_TYPE].href
+            cover = self.manifest.hrefs[href]
+        elif 'cover' in self.guide:
+            href = self.guide['cover'].href
+            cover = self.manifest.hrefs[href]
+        else:
+            html = self.spine[0].data
+            imgs = xpath(html, '//h:img[position()=1]')
+            href = imgs[0].get('src') if imgs else None
+            cover = self.manifest.hrefs[href] if href else None
+        if cover and not self.metadata.cover:
+            self.metadata.add('cover', cover.id)
             
     def _all_from_opf(self, opf):
         self._metadata_from_opf(opf)
@@ -796,6 +849,7 @@ class OEBBook(object):
         self._spine_from_opf(opf)
         self._guide_from_opf(opf)
         self._toc_from_opf(opf)
+        self._ensure_cover_image()
 
     def to_opf1(self):
         package = etree.Element('package',
@@ -857,6 +911,7 @@ class OEBBook(object):
         ncx = self._to_ncx()
         return {OPF_MIME: ('content.opf', package),
                 NCX_MIME: (href, ncx)}
+
 
 
 def main(argv=sys.argv):
