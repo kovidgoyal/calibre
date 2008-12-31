@@ -418,7 +418,8 @@ class OPF(object):
     tags_path       = XPath('descendant::*[re:match(name(), "subject", "i")]')
     isbn_path       = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@scheme, "isbn", "i") or re:match(@opf:scheme, "isbn", "i"))]')
-    application_id_path= XPath('descendant::*[re:match(name(), "identifier", "i") and '+
+    identifier_path = XPath('descendant::*[re:match(name(), "identifier", "i")]')
+    application_id_path = XPath('descendant::*[re:match(name(), "identifier", "i") and '+
                             '(re:match(@opf:scheme, "calibre|libprs500", "i") or re:match(@scheme, "calibre|libprs500", "i"))]')
     manifest_path   = XPath('descendant::*[re:match(name(), "manifest", "i")]/*[re:match(name(), "item", "i")]')
     manifest_ppath  = XPath('descendant::*[re:match(name(), "manifest", "i")]') 
@@ -719,6 +720,27 @@ class OPF(object):
         return property(fget=fget, fset=fset)
     
     
+    def guess_cover(self):
+        '''
+        Try to guess a cover. Needed for some old/badly formed OPF files.
+        '''
+        if self.base_dir and os.path.exists(self.base_dir):
+            for item in self.identifier_path(self.metadata):
+                scheme = None
+                for key in item.attrib.keys():
+                    if key.endswith('scheme'):
+                        scheme = item.get(key)
+                        break
+                if scheme is None:
+                    continue
+                if item.text:
+                    prefix = item.text.replace('-', '')
+                    for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
+                        cpath = os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK)
+                        if os.access(os.path.join(self.base_dir, prefix+suffix), os.R_OK):
+                            return cpath
+            
+    
     @apply
     def cover():
         
@@ -728,6 +750,10 @@ class OPF(object):
                     for item in self.guide:
                         if item.type.lower() == t:
                             return item.path
+            try:
+                return self.guess_cover()
+            except:
+                pass
                         
         def fset(self, path):
             if self.guide is not None:

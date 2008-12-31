@@ -1982,17 +1982,7 @@ def try_opf(path, options, logger):
                         PILImage.open(cover)
                         options.cover = cover
                     except:
-                        for prefix in opf.possible_cover_prefixes():
-                            if options.cover:
-                                break
-                            for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
-                                cpath = os.path.join(os.path.dirname(path), prefix+suffix)
-                                try:
-                                    PILImage.open(cpath)
-                                    options.cover = cpath
-                                    break
-                                except:
-                                    continue
+                        pass
             if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover
         if getattr(opf, 'spine', False):

@@ -2,14 +2,14 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import os, sys, shutil, logging
-from tempfile import mkdtemp
 from calibre.ebooks.lrf import option_parser as lrf_option_parser
 from calibre.ebooks import ConversionError, DRMError
 from calibre.ebooks.lrf.html.convert_from import process_file as html_process_file
 from calibre.ebooks.metadata.opf import OPF
 from calibre.ebooks.metadata.epub import OCFDirReader
 from calibre.utils.zipfile import ZipFile
-from calibre import __appname__, setup_cli_handlers
+from calibre import setup_cli_handlers
+from calibre.ptempfile import PersistentTemporaryDirectory
 
 
 def option_parser():
@@ -22,17 +22,16 @@ _('''Usage: %prog [options] mybook.epub
 
 def generate_html(pathtoepub, logger):
     if not os.access(pathtoepub, os.R_OK):
-        raise ConversionError, 'Cannot read from ' + pathtoepub
-    tdir = mkdtemp(prefix=__appname__+'_')
-    os.rmdir(tdir)
+        raise ConversionError('Cannot read from ' + pathtoepub)
+    tdir = PersistentTemporaryDirectory('_epub2lrf')
+    #os.rmdir(tdir)
     try:
         ZipFile(pathtoepub).extractall(tdir)
-        if os.path.exists(os.path.join(tdir, 'META-INF', 'encryption.xml')):
-            raise DRMError(os.path.basename(pathtoepub))
     except:
-        if os.path.exists(tdir) and os.path.isdir(tdir):
-            shutil.rmtree(tdir)
         raise ConversionError, '.epub extraction failed'
+    if os.path.exists(os.path.join(tdir, 'META-INF', 'encryption.xml')):
+            raise DRMError(os.path.basename(pathtoepub))
+    
     return tdir
 
 def process_file(path, options, logger=None):
