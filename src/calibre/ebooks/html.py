@@ -809,7 +809,7 @@ class Processor(Parser):
         
         css = '\n'.join(['.%s {%s;}'%(cn, setting) for \
                          setting, cn in cache.items()])
-        sheet = self.css_parser.parseString(self.preprocess_css(css))
+        sheet = self.css_parser.parseString(self.preprocess_css(css.replace(';;}', ';}')))
         for rule in sheet:
             self.stylesheet.add(rule)
         css = ''
