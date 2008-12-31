@@ -305,8 +305,8 @@ IANA_MOBI = \
             'TW': (4, 4)},
      'zu': {None: (53, 0)}}
 
-def iana2mobi(self, icode):
-    subtags = list(code.split('-'))
+def iana2mobi(icode):
+    subtags = list(icode.split('-'))
     langdict = IANA_MOBI[None]
     while len(subtags) > 0:
         lang = subtags.pop(0).lower()
@@ -316,6 +316,8 @@ def iana2mobi(self, icode):
     mcode = langdict[None]
     while len(subtags) > 0:
         subtag = subtags.pop(0)
+        if subtag not in langdict:
+            subtag = subtag.title()
         if subtag not in langdict:
             subtag = subtag.upper()
         if subtag in langdict:
