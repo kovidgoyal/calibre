@@ -89,7 +89,7 @@ class LRFDocument(LRFMetaFile):
         bookinfo += u'<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
         th = self.doc_info.thumbnail
         if th:
-            prefix = sanitize_file_name(self.metadata.title)
+            prefix = sanitize_file_name(self.metadata.title, as_unicode=True)
             bookinfo += u'<CThumbnail file="%s" />\n'%(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension,)
             open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)
         bookinfo += u'<Language reading="">%s</Language>\n'%(self.doc_info.language,)

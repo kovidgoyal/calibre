@@ -44,7 +44,7 @@ def osx_version():
 
 _filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+\[\]/]')
 
-def sanitize_file_name(name, substitute='_'):
+def sanitize_file_name(name, substitute='_', as_unicode=False):
     '''
     Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
     The set of invalid characters is the union of the invalid characters in Windows,
@@ -58,7 +58,10 @@ def sanitize_file_name(name, substitute='_'):
         name = name.encode(filesystem_encoding, 'ignore')
     one = _filename_sanitize.sub(substitute, name)
     one = re.sub(r'\s', ' ', one).strip()
-    return re.sub(r'^\.+$', '_', one)
+    one = re.sub(r'^\.+$', '_', one)
+    if as_unicode:
+        one = one.decode(filesystem_encoding)
+    return one
 
 
 class CommandLineError(Exception):

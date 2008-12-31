@@ -1100,8 +1100,13 @@ class LibraryDatabase2(LibraryDatabase):
                 continue
             series_index = 1 if mi.series_index is None else mi.series_index
             aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
+            title = mi.title
+            if isinstance(aus, str):
+                aus = aus.decode(preferred_encoding, 'replace')
+            if isinstance(title, str):
+                title = title.decode(preferred_encoding)
             obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
-                              (mi.title, uri, series_index, aus))
+                              (title, uri, series_index, aus))
             id = obj.lastrowid
             self.data.books_added([id], self.conn)
             ids.append(id)
