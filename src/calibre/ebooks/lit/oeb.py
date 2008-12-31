@@ -346,7 +346,7 @@ class Manifest(object):
 
     def to_opf1(self, parent=None):
         elem = element(parent, 'manifest')
-        for item in self.items.values():
+        for item in self.ids.values():
             media_type = item.media_type
             if media_type == XHTML_MIME:
                 media_type = OEB_DOC_MIME
