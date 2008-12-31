@@ -21,9 +21,9 @@ from lxml import etree
 from PIL import Image
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
-from calibre.ebooks.lit.oeb import XML_NS, XHTML, XHTML_NS, OEB_DOCS
-from calibre.ebooks.lit.oeb import xpath, barename, namespace, prefixname
-from calibre.ebooks.lit.oeb import FauxLogger, OEBBook
+from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS
+from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
+from calibre.ebooks.oeb.base import FauxLogger, OEBBook
 
 MBP_NS = 'http://mobipocket.com/ns/mbp'
 def MBP(name): return '{%s}%s' % (MBP_NS, name)
@@ -43,6 +43,8 @@ EXTH_CODES = {
     'title': 503,
     }
 
+RECORD_SIZE = 0x1000
+
 UNCOMPRESSED = 1
 PALMDOC = 2
 HUFFDIC = 17480
@@ -50,6 +52,18 @@ HUFFDIC = 17480
 def encode(data):
     return data.encode('ascii', 'xmlcharrefreplace')
 
+# Almost like the one for MS LIT, but not quite.
+def decint(value):
+    bytes = []
+    while True:
+        b = value & 0x7f
+        value >>= 7
+        if not bytes:
+            b |= 0x80
+        bytes.append(chr(b))
+        if value == 0:
+            break
+    return ''.join(reversed(bytes))
 
 
 class Serializer(object):
@@ -60,16 +74,14 @@ class Serializer(object):
         self.images = images
         self.id_offsets = {}
         self.href_offsets = defaultdict(list)
+        self.breaks = []
         buffer = self.buffer = StringIO()
         buffer.write('<html>')
         self.serialize_head()
         self.serialize_body()
         buffer.write('</html>')
         self.fixup_links()
-        self.raw = buffer.getvalue()
-
-    def __str__(self):
-        return self.raw
+        self.text = buffer.getvalue()
 
     def serialize_head(self):
         buffer = self.buffer
@@ -110,18 +122,20 @@ class Serializer(object):
     def serialize_body(self):
         buffer = self.buffer
         buffer.write('<body>')
-        for item in self.oeb.spine:
+        spine = [item for item in self.oeb.spine if item.linear]
+        spine.extend([item for item in self.oeb.spine if not item.linear])
+        for item in spine:
             self.serialize_item(item)
         buffer.write('</body>')
 
     def serialize_item(self, item):
         buffer = self.buffer
-        buffer.write('<mbp:pagebreak/>')
-        # TODO: Figure out how to make the 'crossable' stuff work for
-        # non-"linear" spine items.
+        if not item.linear:
+            self.breaks.append(buffer.tell() - 1)
         self.id_offsets[item.id + '#calibre_top'] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
+        buffer.write(' <mbp:pagebreak/>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         if namespace(elem.tag) not in nsrmap:
@@ -213,18 +227,31 @@ class MobiWriter(object):
         
     def _generate_text(self):
         serializer = Serializer(self._oeb, self._images)
-        text = str(serializer)
+        breaks = serializer.breaks
+        text = serializer.text
         self._text_length = len(text)
         text = StringIO(text)
         nrecords = 0
-        data = text.read(0x1000)
+        offset = 0
+        data = text.read(RECORD_SIZE)
         while len(data) > 0:
-            nrecords += 1
             if self._compress == PALMDOC:
                 data = compress_doc(data)
             # Without the NUL Mobipocket Desktop 6.2 will thrash.  Why?
-            self._records.append(data + '\0')
-            data = text.read(0x1000)
+            record = [data, '\0']
+            nextra = 0
+            pbreak = 0
+            running = 0
+            while breaks and (breaks[0] - offset) < RECORD_SIZE:
+                pbreak = (breaks.pop(0) - running) >> 3
+                record.append(decint(pbreak))
+                running += pbreak << 3
+                nextra += 1
+            record.append(decint(nextra + 1))
+            self._records.append(''.join(record))
+            nrecords += 1
+            offset += RECORD_SIZE
+            data = text.read(RECORD_SIZE)
         self._text_nrecords = nrecords
 
     def _rescale_image(self, data, maxsizeb, dimen=None):
@@ -262,17 +289,17 @@ class MobiWriter(object):
         exth = self._build_exth()
         record0 = StringIO()
         record0.write(pack('>HHIHHHH', self._compress, 0, self._text_length,
-            self._text_nrecords, 0x1000, 0, 0))
+            self._text_nrecords, RECORD_SIZE, 0, 0))
         uid = random.randint(0, 0xffffffff)
         title = str(metadata.title[0])
         record0.write('MOBI')
-        record0.write(pack('>IIIII', 0xe8, 2, 65001, uid, 5))
+        record0.write(pack('>IIIII', 0xe8, 2, 65001, uid, 6))
         record0.write('\xff' * 40)
         record0.write(pack('>I', self._text_nrecords + 1))
         record0.write(pack('>II', 0xe8 + 16 + len(exth), len(title)))
         record0.write(iana2mobi(str(metadata.language[0])))
         record0.write('\0' * 8)
-        record0.write(pack('>II', 5, self._text_nrecords + 1))
+        record0.write(pack('>II', 6, self._text_nrecords + 1))
         record0.write('\0' * 16)
         record0.write(pack('>I', 0x50))
         record0.write('\0' * 32)
@@ -280,7 +307,7 @@ class MobiWriter(object):
         # TODO: What the hell are these fields?
         record0.write(pack('>IIIIIIIIIIIIIIIII',
             0, 0, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff,
-            0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 1, 0xffffffff))
+            0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 5, 0xffffffff))
         record0.write(exth)
         record0.write(title)
         record0 = record0.getvalue()
