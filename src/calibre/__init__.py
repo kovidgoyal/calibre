@@ -381,7 +381,7 @@ def strftime(fmt, t=time.localtime()):
 
 def my_unichr(num):
     try:
-        unichr(num)
+        return unichr(num)
     except ValueError:
         return u'?'
 
