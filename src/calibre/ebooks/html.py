@@ -314,10 +314,22 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
             
 
 convert_entities = functools.partial(entity_to_unicode, exceptions=['quot', 'apos', 'lt', 'gt', 'amp'])
+_span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
+
+def sanitize_head(match):
+    x = match.group(1)
+    x = _span_pat.sub('', x)
+    return '<head>\n'+x+'\n</head>'
+    
 class PreProcessor(object):
     PREPROCESS = [
+                  # Some idiotic HTML generators (Frontpage I'm looking at you)
+                  # Put all sorts of crap into <head>. This messes up lxml
+                  (re.compile(r'<head[^>]*>(.*?)</head>', re.IGNORECASE|re.DOTALL), 
+                   sanitize_head),
                   # Convert all entities, since lxml doesn't handle them well
                   (re.compile(r'&(\S+?);'), convert_entities),
+                  
                   ]
                      
     # Fix pdftohtml markup
@@ -875,7 +887,7 @@ def option_parser():
 %prog [options] file.html|opf
 
 Follow all links in an HTML file and collect them into the specified directory.
-Also collects any references resources like images, stylesheets, scripts, etc. 
+Also collects any resources like images, stylesheets, scripts, etc. 
 If an OPF file is specified instead, the list of files in its <spine> element
 is used.
 '''))

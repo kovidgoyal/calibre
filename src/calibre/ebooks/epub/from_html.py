@@ -55,7 +55,7 @@ content = functools.partial(os.path.join, u'content')
 
 def remove_bad_link(element, attribute, link, pos):
     if attribute is not None:
-        if element.tag in ['link', 'img']:
+        if element.tag in ['link']:
             element.getparent().remove(element)
         else:
             element.set(attribute, '')
