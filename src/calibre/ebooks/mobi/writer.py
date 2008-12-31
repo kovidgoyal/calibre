@@ -256,15 +256,21 @@ class MobiWriter(object):
         self._text_nrecords = nrecords
 
     def _rescale_image(self, data, maxsizeb, dimen=None):
+        image = Image.open(StringIO(data))
+        format = image.format
+        changed = False
+        if image.format not in ('JPEG', 'GIF'):
+            format = 'GIF'
+            changed = True
         if dimen is not None:
-            image = Image.open(StringIO(data))
             image.thumbnail(dimen, Image.ANTIALIAS)
+            changed = True
+        if changed:
             data = StringIO()
-            image.save(data, image.format)
+            image.save(data, format)
             data = data.getvalue()
         if len(data) < maxsizeb:
             return data
-        image = Image.open(StringIO(data))
         for quality in xrange(95, -1, -1):
             data = StringIO()
             image.save(data, 'JPEG', quality=quality)
