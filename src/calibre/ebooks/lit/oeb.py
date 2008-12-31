@@ -128,6 +128,7 @@ class Metadata(object):
     TERMS = set(['contributor', 'coverage', 'creator', 'date', 'description',
                  'format', 'identifier', 'language', 'publisher', 'relation',
                  'rights', 'source', 'subject', 'title', 'type'])
+    ATTRS = set(['role', 'file-as', 'scheme'])
     OPF1_NSMAP = {'dc': DC11_NS, 'oebpackage': OPF1_NS}
     OPF2_NSMAP = {'opf': OPF2_NS, 'dc': DC11_NS, 'dcterms': DCTERMS_NS,
                   'xsi': XSI_NS}
@@ -144,7 +145,12 @@ class Metadata(object):
             self.value = value
             self.attrib = attrib = {}
             for fq_attr in fq_attrib:
-                attr = barename(fq_attr)
+                if fq_attr in Metadata.ATTRS:
+                    attr = fq_attr
+                    fq_attr = OPF2(fq_attr)
+                    fq_attrib[fq_attr] = fq_attrib.pop(attr)
+                else:
+                    attr = barename(fq_attr)
                 attrib[attr] = fq_attrib[fq_attr]
         
         def __getattr__(self, name):
@@ -161,7 +167,7 @@ class Metadata(object):
                 % (barename(self.term), self.value, self.attrib)
 
         def __str__(self):
-            return self.value.encode('ascii', 'xmlcharrefreplace')
+            return unicode(self.value).encode('ascii', 'xmlcharrefreplace')
 
         def __unicode__(self):
             return unicode(self.value)
@@ -276,6 +282,14 @@ class Manifest(object):
             if result != 0:
                 return result
             return cmp(self.id, other.id)
+
+        def abshref(self, href):
+            if '/' not in self.href:
+                return href
+            dirname = os.path.dirname(self.href)
+            href = os.path.join(dirname, href)
+            href = os.path.normpath(href).replace('\\', '/')
+            return href
     
     def __init__(self, oeb):
         self.oeb = oeb
@@ -581,6 +595,15 @@ class OEBBook(object):
         else:
             self.logger.log_warn(u'Unique-identifier %r not found.' % uid)
             self.uid = metadata.identifier[0]
+        if not metadata.language:
+            self.logger.log_warn(u'Language not specified.')
+            metadata.add('language', 'en')
+        if not metadata.creator:
+            self.logger.log_warn(u'Creator not specified.')
+            metadata.add('creator', 'Unknown')
+        if not metadata.title:
+            self.logger.log_warn(u'Title not specified.')
+            metadata.add('title', 'Unknown')
     
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)

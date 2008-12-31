@@ -20,6 +20,7 @@ from urlparse import urldefrag
 from lxml import etree
 from PIL import Image
 from calibre.ebooks.mobi.palmdoc import compress_doc
+from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.lit.oeb import XML_NS, XHTML, XHTML_NS, OEB_DOCS
 from calibre.ebooks.lit.oeb import xpath, barename, namespace, prefixname
 from calibre.ebooks.lit.oeb import FauxLogger, OEBBook
@@ -87,19 +88,20 @@ class Serializer(object):
             buffer.write('/>')
         buffer.write('</guide>')
 
-    def serialize_href(self, href, baseid=None):
+    def serialize_href(self, href, base=None):
         hrefs = self.oeb.manifest.hrefs
         path, frag = urldefrag(href)
-        # TODO: Absolute path translation
+        if path and base:
+            path = base.abshref(path)
         if path and path not in hrefs:
             return False
         buffer = self.buffer
         item = hrefs[path] if path else None
         if item and item.spine_position is None:
             return False
-        id =  item.id if item else baseid
+        id =  item.id if item else base.id
         frag = frag if frag else 'calibre_top'
-        href = '_'.join((id, frag))
+        href = '#'.join((id, frag))
         buffer.write('filepos=')
         self.href_offsets[href].append(buffer.tell())
         buffer.write('0000000000')
@@ -117,7 +119,7 @@ class Serializer(object):
         buffer.write('<mbp:pagebreak/>')
         # TODO: Figure out how to make the 'crossable' stuff work for
         # non-"linear" spine items.
-        self.id_offsets[item.id + '_calibre_top'] = buffer.tell()
+        self.id_offsets[item.id + '#calibre_top'] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
 
@@ -129,7 +131,7 @@ class Serializer(object):
         tag = prefixname(elem.tag, nsrmap)
         for attr in ('name', 'id'):
             if attr in elem.attrib:
-                id = '_'.join((item.id, elem.attrib[attr]))
+                id = '#'.join((item.id, elem.attrib[attr]))
                 self.id_offsets[id] = buffer.tell()
                 del elem.attrib[attr]
         buffer.write('<')
@@ -141,7 +143,7 @@ class Serializer(object):
                 attr = prefixname(attr, nsrmap)
                 buffer.write(' ')
                 if attr == 'href':
-                    if self.serialize_href(val, item.id):
+                    if self.serialize_href(val, item):
                         continue
                 elif attr == 'src' and val in hrefs:
                     index = self.images[val]
@@ -256,19 +258,19 @@ class MobiWriter(object):
             self._records.append(data)
     
     def _generate_record0(self):
+        metadata = self._oeb.metadata
         exth = self._build_exth()
         record0 = StringIO()
         record0.write(pack('>HHIHHHH', self._compress, 0, self._text_length,
             self._text_nrecords, 0x1000, 0, 0))
         uid = random.randint(0, 0xffffffff)
-        title = str(self._oeb.metadata.title[0])
+        title = str(metadata.title[0])
         record0.write('MOBI')
         record0.write(pack('>IIIII', 0xe8, 2, 65001, uid, 5))
         record0.write('\xff' * 40)
         record0.write(pack('>I', self._text_nrecords + 1))
         record0.write(pack('>II', 0xe8 + 16 + len(exth), len(title)))
-        # TODO: Translate <dc:language/> to language code
-        record0.write(pack('>I', 9))
+        record0.write(iana2mobi(str(metadata.language[0])))
         record0.write('\0' * 8)
         record0.write(pack('>II', 5, self._text_nrecords + 1))
         record0.write('\0' * 16)
