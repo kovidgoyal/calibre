@@ -244,6 +244,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                      lambda x:self.find(unicode(self.search.text()), True, repeat=True))
         self.connect(self.action_full_screen, SIGNAL('triggered(bool)'),
                      self.toggle_fullscreen)
+        self.action_full_screen.setShortcuts([Qt.Key_F11, Qt.CTRL+Qt.SHIFT+Qt.Key_F])
         self.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
         self.connect(self.action_bookmark, SIGNAL('triggered(bool)'), self.bookmark)
         self.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
