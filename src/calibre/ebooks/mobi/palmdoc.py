@@ -74,12 +74,13 @@ def compress_doc(data):
         else:
             j = i
             binseq = [ch]
-            while True:
+            while j < ldata:
                 ch = data[j]
                 och = ord(ch)
                 if och < 1 or (och > 8 and och < 0x80):
                     break
                 binseq.append(ch)
+                j += 1
             out.write(pack('>B', len(binseq)))
             out.write(''.join(binseq))
             i += len(binseq) - 1
