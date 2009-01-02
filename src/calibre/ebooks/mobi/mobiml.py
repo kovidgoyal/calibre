@@ -23,6 +23,8 @@ HEADER_TAGS = set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td'])
 CONTENT_TAGS = set(['img', 'hr', 'br'])
 
+PAGE_BREAKS = set(['always', 'odd', 'even'])
+
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
 class BlockState(object):
@@ -34,6 +36,7 @@ class BlockState(object):
         self.vpadding = 0.
         self.vmargin = 0.
         self.left = 0.
+        self.pbreak = False
         self.istate = None
 
 class FormatState(object):
@@ -92,6 +95,9 @@ class MobiMLizer(object):
         istate = istates[-1]
         if bstate.para is None:
             bstate.istate = None
+            if bstate.pbreak:
+                etree.SubElement(bstate.body, MBP('pagebreak'))
+                bstate.pbreak = False
             if tag in NESTABLE_TAGS:
                 parent = bstate.nested[-1] if bstate.nested else bstate.body
                 para = wrapper = etree.SubElement(parent, tag)
@@ -117,8 +123,11 @@ class MobiMLizer(object):
         pstate = bstate.istate
         para = bstate.para
         if istate.ids:
+            body = bstate.body
+            index = max((0, len(body) - 2))
             for id in istate.ids:
-                etree.SubElement(para, 'a', id=id)
+                body.insert(index, etree.Element('a', attrib={'id': id}))
+            istate.ids.clear()
         if tag in CONTENT_TAGS:
             bstate.inline = para
             pstate = bstate.istate = None
@@ -176,9 +185,12 @@ class MobiMLizer(object):
             left = margin + padding
             bstate.left += left
             bstate.vmargin = max((bstate.vmargin, style['margin-top']))
-            if style['padding-top']:
+            padding = style['padding-top']
+            if isinstance(padding, (int, float)) and padding > 0:
                 bstate.vpadding += bstate.vmargin
-                bstate.vpadding = style['padding-top']
+                bstate.vpadding = padding
+        if style['page-break-before'] in PAGE_BREAKS:
+            bstate.pbreak = True
         istate.fsize = self.mobimlize_font(style['font-size'])
         istate.italic = True if style['font-style'] == 'italic' else False
         weight = style['font-weight']
@@ -207,6 +219,7 @@ class MobiMLizer(object):
         istate.attrib.clear()
         if tag == 'img' and 'src' in elem.attrib:
             istate.attrib['src'] = elem.attrib['src']
+            istate.attrib['align'] = 'baseline'
         if tag == 'hr' and 'width' in style.cssdict():
             istate.attrib['width'] = mobimlize_measure(style['width'])
         text = None
@@ -225,19 +238,25 @@ class MobiMLizer(object):
             if child.tail:
                 if istate.preserve:
                     tail = child.tail
-                elif bstate.para is None and child.text.isspace():
+                elif bstate.para is None and child.tail.isspace():
                     tail = None
                 else:
                     tail = COLLAPSE.sub(' ', child.tail)
             if tail:
                 self.mobimlize_content(tag, tail, bstate, istates)
+        if style['page-break-after'] in PAGE_BREAKS:
+            bstate.pbreak = True
         if isblock:
+            para = bstate.para
+            if para is not None and para.text == u'\xa0':
+                para.getparent().replace(para, etree.Element('br'))
             bstate.para = None
             bstate.left -= left
             bstate.vmargin = max((bstate.vmargin, style['margin-bottom']))
-            if style['padding-bottom']:
+            padding = style['padding-bottom']
+            if isinstance(padding, (int, float)) and padding > 0:
                 bstate.vpadding += bstate.vmargin
-                bstate.vpadding = style['padding-bottom']
+                bstate.vpadding = padding
         if bstate.nested:
             bstate.nested.pop()
         istates.pop()

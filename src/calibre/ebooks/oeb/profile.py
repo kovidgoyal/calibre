@@ -42,7 +42,7 @@ PROFILES = {
     # No clue on usable screen size and DPI
     'Cybook3':
         Profile(width=584, height=754, dpi=168.451, fbase=12,
-                fsizes=[9, 10, 11, 12, 14, 16, 18, 20]),
+                fsizes=[9, 10, 11, 12, 14, 17, 20, 24]),
 
     'Firefox':
         Profile(width=800, height=600, dpi=100.0, fbase=12,

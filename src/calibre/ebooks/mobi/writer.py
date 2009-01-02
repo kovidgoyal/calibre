@@ -50,7 +50,8 @@ PALMDOC = 2
 HUFFDIC = 17480
 
 def encode(data):
-    return data.encode('ascii', 'xmlcharrefreplace')
+    #return data.encode('ascii', 'xmlcharrefreplace')
+    return data.encode('utf-8')
 
 # Almost like the one for MS LIT, but not quite.
 def decint(value):
@@ -92,12 +93,16 @@ class Serializer(object):
 
     def serialize_guide(self):
         buffer = self.buffer
+        hrefs = self.oeb.manifest.hrefs
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
+            path, frag = urldefrag(ref.href)
+            if hrefs[path].media_type not in OEB_DOCS:
+                continue
             buffer.write('<reference title="%s" type="%s" '
                          % (ref.title, ref.type))
             self.serialize_href(ref.href)
-            buffer.write('/>')
+            buffer.write(' />')
         buffer.write('</guide>')
 
     def serialize_href(self, href, base=None):
@@ -238,19 +243,21 @@ class MobiWriter(object):
         while len(data) > 0:
             if self._compress == PALMDOC:
                 data = compress_doc(data)
+            record = StringIO()
+            record.write(data)
             # Without the NUL Mobipocket Desktop 6.2 will thrash.  Why?
-            record = [data, '\0']
+            record.write('\0')
             nextra = 0
             pbreak = 0
             running = offset
             while breaks and (breaks[0] - offset) < RECORD_SIZE:
                 pbreak = (breaks.pop(0) - running) >> 3
                 encoded = decint(pbreak)
-                record.append(encoded)
+                record.write(encoded)
                 running += pbreak << 3
                 nextra += len(encoded)
-            record.append(decint(nextra + 1))
-            self._records.append(''.join(record))
+            record.write(decint(nextra + 1))
+            self._records.append(record.getvalue())
             nrecords += 1
             offset += RECORD_SIZE
             data = text.read(RECORD_SIZE)
@@ -385,7 +392,7 @@ def main(argv=sys.argv):
     inpath, outpath = argv[1:]
     context = Context('MSReader', 'Cybook3')
     oeb = OEBBook(inpath)
-    writer = MobiWriter()
+    writer = MobiWriter(compress=PALMDOC)
     #writer = DirWriter()
     fbase = context.dest.fbase
     fkey = context.dest.fnums.values()
