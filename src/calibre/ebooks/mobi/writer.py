@@ -50,8 +50,9 @@ PALMDOC = 2
 HUFFDIC = 17480
 
 def encode(data):
-    #return data.encode('ascii', 'xmlcharrefreplace')
-    return data.encode('utf-8')
+    # Using UTF-8 means needing to worry about multibyte characters crossing
+    # record boundaries, so let's not for now.
+    return data.encode('ascii', 'xmlcharrefreplace')
 
 # Almost like the one for MS LIT, but not quite.
 def decint(value):
