@@ -234,6 +234,15 @@ class MobiReader(object):
     def cleanup_soup(self, soup):
         if self.verbose:
             print 'Replacing height, width and align attributes'
+        size_map = {
+                    'xx-small' : '0.5',
+                    'x-small'  : '1',
+                    'small'    : '2',
+                    'medium'   : '3',
+                    'large'    : '4',
+                    'x-large'  : '5',
+                    'xx-large' : '6',
+                    }
         for tag in soup.recursiveChildGenerator():
             if not isinstance(tag, Tag): continue
             styles = []
@@ -258,6 +267,15 @@ class MobiReader(object):
                 pass
             if styles:
                 tag['style'] = '; '.join(styles)
+                
+            if tag.name.lower() == 'font':
+                sz = tag.get('size', '')
+                try:
+                    float(sz)
+                except ValueError:
+                    sz = sz.lower()
+                    if sz in size_map.keys():
+                        tag['size'] = size_map[sz]
     
     def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi

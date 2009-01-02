@@ -788,7 +788,10 @@ class Processor(Parser):
                 size = '3'
             if size and size.strip() and size.strip()[0] in ('+', '-'):
                 size = 3 + float(size) # Hack assumes basefont=3
-            setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
+            try:
+                setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
+            except ValueError:
+                setting = ''
             face = font.attrib.pop('face', None)
             if face is not None:
                 setting += 'font-face:%s;'%face
