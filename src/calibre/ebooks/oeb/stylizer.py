@@ -24,6 +24,7 @@ from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
 from calibre.ebooks.oeb.base import barename, urlnormalize
+from calibre.ebooks.oeb.profile import PROFILES
 from calibre.resources import html_css
 
 XHTML_CSS_NAMESPACE = '@namespace "%s";\n' % XHTML_NS
@@ -75,7 +76,7 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
             '50', 'right': 'auto', 'speak': 'normal', 'speak-header': 'once',
             'speak-numeral': 'continuous', 'speak-punctuation': 'none',
             'speech-rate': 'medium', 'stress': '50', 'table-layout': 'auto',
-            'text-align': 'left', 'text-decoration': 'none', 'text-indent':
+            'text-align': 'auto', 'text-decoration': 'none', 'text-indent':
             0, 'text-transform': 'none', 'top': 'auto', 'unicode-bidi':
             'normal', 'vertical-align': 'baseline', 'visibility': 'visible',
             'voice-family': 'default', 'volume': 'medium', 'white-space':
@@ -84,15 +85,6 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
 
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
-
-FONT_SIZES = [('xx-small', 1),
-              ('x-small',  None),
-              ('small',    2),
-              ('medium',   3),
-              ('large',    4),
-              ('x-large',  5),
-              ('xx-large', 6),
-              (None,       7)]
 
 
 XPNSMAP = {'h': XHTML_NS,}
@@ -112,28 +104,11 @@ class CSSSelector(etree.XPath):
             self.css)
 
 
-class Page(object):
-    def __init__(self, width, height, dpi, fbase, fsizes):
-        self.width = (float(width) / dpi) * 72.
-        self.height = (float(height) / dpi) * 72.
-        self.dpi = float(dpi)
-        self.fbase = float(fbase)
-        self.fsizes = []
-        for (name, num), size in izip(FONT_SIZES, fsizes):
-            self.fsizes.append((name, num, float(size)))
-        self.fnames = dict((name, sz) for name, _, sz in self.fsizes if name)
-        self.fnums = dict((num, sz) for _, num, sz in self.fsizes if num)
-
-class Profiles(object):
-    PRS505 = Page(584, 754, 168.451, 12, [7.5, 9, 10, 12, 15.5, 20, 22, 24])
-    MSLIT = Page(652, 480, 100.0, 13, [10, 11, 13, 16, 18, 20, 22, 26])
-
-    
 class Stylizer(object):    
     STYLESHEETS = {}
     
-    def __init__(self, tree, path, oeb, page=Profiles.PRS505):
-        self.page = page
+    def __init__(self, tree, path, oeb, profile=PROFILES['PRS505']):
+        self.profile = profile
         base = os.path.dirname(path)
         basename = os.path.basename(path)
         cssname = os.path.splitext(basename)[0] + '.css'
@@ -215,7 +190,7 @@ class Stylizer(object):
             size = style['font-size']
             if size == 'normal': size = 'medium'
             if size in FONT_SIZE_NAMES:
-                style['font-size'] = "%dpt" % self.page.fnames[size]
+                style['font-size'] = "%dpt" % self.profile.fnames[size]
         return style
     
     def _normalize_edge(self, cssvalue, name):
@@ -284,7 +259,7 @@ class Stylizer(object):
 class Style(object):
     def __init__(self, element, stylizer):
         self._element = element
-        self._page = stylizer.page
+        self._profile = stylizer.profile
         self._stylizer = stylizer
         self._style = {}
         stylizer._styles[element] = self
@@ -340,7 +315,7 @@ class Style(object):
                 base = base or self.width
                 result = (value/100.0) * base
             elif unit == 'px':
-                result = value * 72.0 / self._page.dpi
+                result = value * 72.0 / self._profile.dpi
             elif unit == 'in':
                 result = value * 72.0
             elif unit == 'pt':
@@ -363,18 +338,18 @@ class Style(object):
             factor = None
             if value == 'inherit':
                 # We should only see this if the root element
-                value = self._page.fbase
+                value = self._profile.fbase
             if value in FONT_SIZE_NAMES:
-                result = self._page.fnames[value]
+                result = self._profile.fnames[value]
             elif value == 'smaller':
                 factor = 1.0/1.2
-                for _, _, size in self._page.fsizes:
+                for _, _, size in self._profile.fsizes:
                     if base <= size: break
                     factor = None
                     result = size
             elif value == 'larger':
                 factor = 1.2
-                for _, _, size in reversed(self._page.fsizes):
+                for _, _, size in reversed(self._profile.fsizes):
                     if base >= size: break
                     factor = None
                     result = size
@@ -390,7 +365,7 @@ class Style(object):
             styles = self._stylizer._styles
             base = styles[self._element.getparent()].fontSize
         else:
-            base = self._page.fbase
+            base = self._profile.fbase
         if 'font-size' in self._style:
             size = self._style['font-size']
             result = normalize_fontsize(size, base)
@@ -407,7 +382,7 @@ class Style(object):
             styles = self._stylizer._styles
             base = styles[self._element.getparent()].width
         else:
-            base = self._page.width
+            base = self._profile.width
         if 'width' in self._style:
             width = self._style['width']
             if width == 'auto':

@@ -19,14 +19,14 @@ from collections import defaultdict
 from urlparse import urldefrag
 from lxml import etree
 from PIL import Image
-from calibre.ebooks.mobi.palmdoc import compress_doc
-from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS
 from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
 from calibre.ebooks.oeb.base import FauxLogger, OEBBook
-
-MBP_NS = 'http://mobipocket.com/ns/mbp'
-def MBP(name): return '{%s}%s' % (MBP_NS, name)
+from calibre.ebooks.oeb.profile import Context
+from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
+from calibre.ebooks.mobi.palmdoc import compress_doc
+from calibre.ebooks.mobi.langcodes import iana2mobi
+from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
 
 EXTH_CODES = {
     'creator': 100,
@@ -138,9 +138,10 @@ class Serializer(object):
         buffer.write(' <mbp:pagebreak/>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
-        if namespace(elem.tag) not in nsrmap:
-            return
         buffer = self.buffer
+        if not isinstance(elem.tag, basestring) \
+           or namespace(elem.tag) not in nsrmap:
+            return
         hrefs = self.oeb.manifest.hrefs
         tag = prefixname(elem.tag, nsrmap)
         for attr in ('name', 'id'):
@@ -170,11 +171,11 @@ class Serializer(object):
                 buffer.write(encode(elem.text))
             for child in elem:
                 self.serialize_elem(child, item)
+                if child.tail:
+                    buffer.write(encode(child.tail))
             buffer.write('</%s>' % tag)
         else:
             buffer.write('/>')
-        if elem.tail:
-            buffer.write(encode(elem.tail))
 
     def fixup_links(self):
         buffer = self.buffer
@@ -380,9 +381,18 @@ class MobiWriter(object):
 
 
 def main(argv=sys.argv):
+    from calibre.ebooks.oeb.base import DirWriter
     inpath, outpath = argv[1:]
+    context = Context('MSReader', 'Cybook3')
     oeb = OEBBook(inpath)
     writer = MobiWriter()
+    #writer = DirWriter()
+    fbase = context.dest.fbase
+    fkey = context.dest.fnums.values()
+    flattener = CSSFlattener(unfloat=True, fbase=fbase, fkey=fkey)
+    mobimlizer = MobiMLizer()
+    flattener.transform(oeb, context)
+    mobimlizer.transform(oeb, context)
     writer.dump(oeb, outpath)
     return 0
 
