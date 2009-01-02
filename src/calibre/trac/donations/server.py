@@ -21,7 +21,7 @@ from lxml import etree
 
 def range_for_month(year, month):
     ty, tm = date.today().year, date.today().month
-    min = date(year=year, month=month, day=1)
+    min = max = date(year=year, month=month, day=1)
     x = date.today().day if ty == year and tm == month else 31
     while x > 1:
         try:
