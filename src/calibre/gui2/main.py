@@ -1046,6 +1046,8 @@ class Main(MainWindow, Ui_MainWindow):
     def convert_single(self, checked):
         r = self.get_books_for_conversion()
         if r is None: return
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in self.library_view.selectionModel().selectedRows()]
         comics, others = r
         jobs, changed = convert_single_ebook(self, self.library_view.model().db, comics, others)
         for func, args, desc, fmt, id, temp_files in jobs:
@@ -1054,8 +1056,9 @@ class Main(MainWindow, Ui_MainWindow):
             self.conversion_jobs[job] = (temp_files, fmt, id)
             
         if changed:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
                     
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
