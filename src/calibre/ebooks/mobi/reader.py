@@ -309,7 +309,8 @@ class MobiReader(object):
                     except:
                         text = ''
                     text = ent_pat.sub(entity_to_unicode, text)
-                    tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
+                    if a['href'].startswith('#'):
+                        tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
             if tocobj is not None:
                 opf.set_toc(tocobj)
         
