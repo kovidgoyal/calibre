@@ -8,7 +8,7 @@ import os, fnmatch, time
 from calibre.devices.interface import BookList as _BookList
 
 EBOOK_DIR = "eBooks"
-EBOOK_TYPES = ['mobi', 'prc', 'pdf', 'txt']
+EBOOK_TYPES = ['mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
 
 class Book(object):
     def __init__(self, path, title, authors):

@@ -10,12 +10,12 @@ from itertools import cycle
 from calibre.devices.interface import Device
 from calibre.devices.errors import DeviceError, FreeSpaceError
 
-from calibre.devices.cybookg3.books import BookList, EBOOK_DIR
+from calibre.devices.cybookg3.books import BookList, EBOOK_DIR, EBOOK_TYPES
 from calibre import iswindows, islinux, isosx, __appname__
 
 class CYBOOKG3(Device):
     # Ordered list of supported formats
-    FORMATS     = ["mobi", "prc", "pdf", "txt"]
+    FORMATS     = EBOOK_TYPES
     VENDOR_ID   = 0x0bda
     PRODUCT_ID  = 0x0703
     BCD         = 0x110
