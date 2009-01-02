@@ -512,7 +512,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.metadata.show_opf(self.iterator.opf)
             title = self.iterator.opf.title
             if not title:
-                title = os.path.splitext(os.path.basename(pathtoebook))
+                title = os.path.splitext(os.path.basename(pathtoebook))[0]
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
             if self.iterator.toc:
                 self.toc_model = TOC(self.iterator.toc)
