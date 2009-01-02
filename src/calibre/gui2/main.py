@@ -703,6 +703,7 @@ class Main(MainWindow, Ui_MainWindow):
                 self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
         finally:
             progress.setValue(len(paths))
+            progress.close()
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
