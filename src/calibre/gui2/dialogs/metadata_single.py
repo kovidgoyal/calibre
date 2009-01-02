@@ -20,6 +20,7 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, authors_to_string
 from calibre.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
 from calibre import islinux
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs
 from calibre.customize.ui import run_plugins_on_import
 
@@ -102,6 +103,39 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             self.formats.takeItem(row.row())
             self.formats_changed = True
     
+    def set_cover(self):
+        row = self.formats.currentRow()
+        fmt = self.formats.item(row)
+        ext = fmt.ext.lower()
+        if fmt.path is None:
+            stream = self.db.format(self.row, ext, as_file=True)
+        else:
+            stream = open(fmt.path, 'r+b')
+        try:
+            mi = get_metadata(stream, ext)
+        except:
+            error_dialog(self, _('Could not read metadata'), 
+                         _('Could not read metadata from %s format')%ext).exec_()
+            return
+        cdata = None
+        if mi.cover and os.access(mi.cover, os.R_OK):
+            cdata = open(mi.cover).read()
+        elif mi.cover_data[1] is not None:
+            cdata = mi.cover_data[1]
+        if cdata is None:
+            error_dialog(self, _('Could not read cover'), 
+                         _('Could not read cover from %s format')%ext).exec_()
+            return
+        pix = QPixmap()
+        pix.loadFromData(cdata)
+        if pix.isNull():
+            error_dialog(self, _('Could not read cover'), 
+                         _('The cover in the %s format is invalid')%ext).exec_()
+            return
+        self.cover.setPixmap(pix)
+        self.cover_changed = True
+        self.cpixmap = pix
+    
     def sync_formats(self):
         old_extensions, new_extensions, paths = set(), set(), {}
         for row in range(self.formats.count()):
@@ -155,6 +189,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        self.connect(self.button_set_cover, SIGNAL('clicked()'), self.set_cover)
         self.connect(self.reset_cover, SIGNAL('clicked()'), self.do_reset_cover)
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
         self.timeout = float(prefs['network_timeout'])
