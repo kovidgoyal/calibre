@@ -143,6 +143,15 @@ Where are the book files stored?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 When you first run |app|, it will ask you for a folder in which to store your books. Whenever you add a book to |app|, it will copy the book into that folder. Books in the folder are nicely arranged into sub-folders by Author and Title. Metadata about the books is stored in the file ``metadata.db`` (which is a sqlite database).
 
+Why doesn't |app| let me store books in my own directory structure?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The whole point if |app|'s library management features is that they provide an interface for locating books that is *much* more efficient than any possible directory scheme you could come up with for your collection. Indeed, once you become comfortable using |app|'s interface to find, sort and browse your collection, you wont ever feel the need to hunt through the files on your disk to find a book again. By managing books in its own directory struture of Author -> Title -> Book files, |app| is able to achieve a high level of reliability and standardization.  
+
+Why doesn't |app| have a column for foo?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|app| is designed to have columns for the most frequently and widely used fields. If it does not have a coulmn for your favorite field, you can always add a tag to the book for that piece of information. |app| also supports a general purpose "comments" fields for longer items.
+
 
 Content From The Web
 ---------------------
