@@ -42,6 +42,8 @@ class BookList(_BookList):
             # Filter out anything that isn't in the list of supported ebook types
             for book_type in EBOOK_TYPES:
                 for filename in fnmatch.filter(files, '*.%s' % (book_type)):
+                    book_title = ''
+                    book_author = ''
                     # Calibre uses a specific format for file names. They take the form
                     # title_-_author_number.extention We want to see if the file name is
                     # in this format.
@@ -55,9 +57,8 @@ class BookList(_BookList):
                     # the filename without the extension
                     else:
                         book_title = os.path.splitext(filename)[0].replace('_', ' ')
-                        
-                    book_path = os.path.join(path, filename)
-                    self.append(Book(book_path, book_title, book_author))
+
+                    self.append(Book(os.path.join(path, filename), book_title, book_author))
             
     def add_book(self, path, title):
         self.append(Book(path, title, ""))
