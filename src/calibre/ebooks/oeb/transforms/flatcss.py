@@ -170,6 +170,9 @@ class CSSFlattener(object):
                 left -= style['text-indent']
             if self.unfloat and 'float' in cssdict and tag != 'img':
                 del cssdict['float']
+            if 'vertical-align' in cssdict:
+                if cssdict['vertical-align'] == 'sup':
+                    cssdict['vertical-align'] = 'super'
         if self.lineh and 'line-height' not in cssdict:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh

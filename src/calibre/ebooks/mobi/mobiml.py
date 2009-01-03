@@ -21,6 +21,7 @@ def MBP(name): return '{%s}%s' % (MBP_NS, name)
 
 HEADER_TAGS = set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td'])
+SPECIAL_TAGS = set(['hr', 'br'])
 CONTENT_TAGS = set(['img', 'hr', 'br'])
 
 PAGE_BREAKS = set(['always', 'odd', 'even'])
@@ -59,6 +60,9 @@ class FormatState(object):
                and self.href == other.href \
                and self.valign == other.valign
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class MobiMLizer(object):
     def __init__(self):
@@ -86,14 +90,26 @@ class MobiMLizer(object):
         return self.fnums[self.fmap[ptsize]]
 
     def mobimlize_measure(self, ptsize):
-        # All MobiML measures occur in the default font-space
         if isinstance(ptsize, basestring):
             return ptsize
-        return "%dem" % int(round(ptsize / self.profile.fbase))
+        # All MobiML measures occur in the default font-space
+        fbase = self.profile.fbase
+        if ptsize < fbase:
+            return "%dpt" % int(round(ptsize * 2))
+        return "%dem" % int(round(ptsize / fbase))
 
     def mobimlize_content(self, tag, text, bstate, istates):
         istate = istates[-1]
-        if bstate.para is None:
+        if istate.ids:
+            body = bstate.body
+            index = max((0, len(body) - 2))
+            for id in istate.ids:
+                body.insert(index, etree.Element('a', attrib={'id': id}))
+            istate.ids.clear()
+        para = bstate.para
+        if tag in SPECIAL_TAGS and not text:
+            para = para if para is not None else bstate.body
+        elif para is None:
             bstate.istate = None
             if bstate.pbreak:
                 etree.SubElement(bstate.body, MBP('pagebreak'))
@@ -102,7 +118,7 @@ class MobiMLizer(object):
                 parent = bstate.nested[-1] if bstate.nested else bstate.body
                 para = wrapper = etree.SubElement(parent, tag)
                 bstate.nested.append(para)
-            elif bstate.left > 0:
+            elif bstate.left > 0 and istate.indent >= 0:
                 para = wrapper = etree.SubElement(bstate.body, 'blockquote')
                 left = int(round(bstate.left / self.profile.fbase)) - 1
                 while left > 0:
@@ -118,16 +134,7 @@ class MobiMLizer(object):
             para.attrib['width'] = self.mobimlize_measure(istate.indent)
             if istate.halign != 'auto':
                 wrapper.attrib['align'] = istate.halign
-            if istate.ids:
-                wrapper.attrib['id'] = istate.ids.pop()
         pstate = bstate.istate
-        para = bstate.para
-        if istate.ids:
-            body = bstate.body
-            index = max((0, len(body) - 2))
-            for id in istate.ids:
-                body.insert(index, etree.Element('a', attrib={'id': id}))
-            istate.ids.clear()
         if tag in CONTENT_TAGS:
             bstate.inline = para
             pstate = bstate.istate = None
@@ -143,7 +150,7 @@ class MobiMLizer(object):
                 inline = etree.SubElement(inline, 'sup')
             elif valign == 'sub':
                 inline = etree.SubElement(inline, 'sub')
-            elif fsize != 3:
+            if fsize != 3:
                 inline = etree.SubElement(inline, 'font', size=str(fsize))
             if istate.italic:
                 inline = etree.SubElement(inline, 'i')

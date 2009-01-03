@@ -50,9 +50,7 @@ PALMDOC = 2
 HUFFDIC = 17480
 
 def encode(data):
-    # Using UTF-8 means needing to worry about multibyte characters crossing
-    # record boundaries, so let's not for now.
-    return data.encode('ascii', 'xmlcharrefreplace')
+    return data.encode('utf-8')
 
 # Almost like the one for MS LIT, but not quite.
 def decint(value):
@@ -193,8 +191,8 @@ class Serializer(object):
 
     
 class MobiWriter(object):
-    def __init__(self, compress=None, logger=FauxLogger()):
-        self._compress = compress or UNCOMPRESSED
+    def __init__(self, compression=None, logger=FauxLogger()):
+        self._compression = compression or UNCOMPRESSED
         self._logger = logger
 
     def dump(self, oeb, path):
@@ -231,7 +229,39 @@ class MobiWriter(object):
             if item.media_type.startswith('image/'):
                 images[item.href] = index
                 index += 1
-        
+
+    def _read_text_record(self, text):
+        pos = text.tell()
+        text.seek(0, 2)
+        npos = min((pos + RECORD_SIZE, text.tell()))
+        last = ''
+        while not last.decode('utf-8', 'ignore'):
+            size = len(last) + 1
+            text.seek(npos - size)
+            last = text.read(size)
+        try:
+            last.decode('utf-8')
+        except UnicodeDecodeError:
+            pass
+        else:
+            text.seek(pos)
+            return text.read(RECORD_SIZE)
+        prev = len(last)
+        while True:
+            text.seek(npos - prev)
+            last = text.read(len(last) + 1)
+            try:
+                last.decode('utf-8')
+            except UnicodeDecodeError:
+                pass
+            else:
+                break
+        extra = len(last) - prev
+        text.seek(pos)
+        data = text.read(RECORD_SIZE + extra)
+        text.seek(npos)
+        return data
+                
     def _generate_text(self):
         serializer = Serializer(self._oeb, self._images)
         breaks = serializer.breaks
@@ -240,14 +270,14 @@ class MobiWriter(object):
         text = StringIO(text)
         nrecords = 0
         offset = 0
-        data = text.read(RECORD_SIZE)
+        data = self._read_text_record(text)
         while len(data) > 0:
-            if self._compress == PALMDOC:
+            size = len(data)
+            if self._compression == PALMDOC:
                 data = compress_doc(data)
             record = StringIO()
             record.write(data)
-            # Without the NUL Mobipocket Desktop 6.2 will thrash.  Why?
-            record.write('\0')
+            record.write(pack('>B', max((0, size - RECORD_SIZE))))
             nextra = 0
             pbreak = 0
             running = offset
@@ -261,7 +291,7 @@ class MobiWriter(object):
             self._records.append(record.getvalue())
             nrecords += 1
             offset += RECORD_SIZE
-            data = text.read(RECORD_SIZE)
+            data = self._read_text_record(text)
         self._text_nrecords = nrecords
 
     def _rescale_image(self, data, maxsizeb, dimen=None):
@@ -304,8 +334,8 @@ class MobiWriter(object):
         metadata = self._oeb.metadata
         exth = self._build_exth()
         record0 = StringIO()
-        record0.write(pack('>HHIHHHH', self._compress, 0, self._text_length,
-            self._text_nrecords, RECORD_SIZE, 0, 0))
+        record0.write(pack('>HHIHHHH', self._compression, 0,
+            self._text_length, self._text_nrecords, RECORD_SIZE, 0, 0))
         uid = random.randint(0, 0xffffffff)
         title = str(metadata.title[0])
         record0.write('MOBI')
@@ -320,7 +350,11 @@ class MobiWriter(object):
         record0.write(pack('>I', 0x50))
         record0.write('\0' * 32)
         record0.write(pack('>IIII', 0xffffffff, 0xffffffff, 0, 0))
-        # TODO: What the hell are these fields?
+        # The '5' is a bitmask of extra record data at the end:
+        #   - 0x1: <extra multibyte bytes><size> (?)
+        #   - 0x4: <uncrossable breaks><size>
+        # Of course, the formats aren't quite the same.
+        # TODO: What the hell are the rest of these fields?
         record0.write(pack('>IIIIIIIIIIIIIIIII',
             0, 0, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff,
             0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 5, 0xffffffff))
@@ -391,9 +425,10 @@ class MobiWriter(object):
 def main(argv=sys.argv):
     from calibre.ebooks.oeb.base import DirWriter
     inpath, outpath = argv[1:]
-    context = Context('MSReader', 'Cybook3')
+    context = Context('MSReader', 'MobiDesktop')
     oeb = OEBBook(inpath)
-    writer = MobiWriter(compress=PALMDOC)
+    #writer = MobiWriter(compression=PALMDOC)
+    writer = MobiWriter(compression=UNCOMPRESSED)
     #writer = DirWriter()
     fbase = context.dest.fbase
     fkey = context.dest.fnums.values()
