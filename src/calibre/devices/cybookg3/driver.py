@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2009, John Schember <john at nachtimwald.com'
 
 '''
 Device driver for Bookeen's Cybook Gen 3

@@ -7,7 +7,7 @@ add/remove formats
 import os
 
 from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt
-from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
+from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog, QCompleter
 
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
@@ -32,6 +32,13 @@ class Format(QListWidgetItem):
         text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext), 
                                  text, parent, QListWidgetItem.UserType)
+
+class AuthorCompleter(QCompleter):
+    
+    def __init__(self, db):
+        all_authors = db.all_authors()
+        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        QCompleter.__init__(self, [x[1] for x in all_authors])
 
 class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     
@@ -171,6 +178,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.cover_changed = False
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
+        self._author_completer = AuthorCompleter(self.db)
+        self.authors.setCompleter(self._author_completer)
         self.connect(self.cover, SIGNAL('cover_changed()'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
                                                     self.select_cover)
@@ -206,8 +215,6 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             self.authors.setText('')
         aus = self.db.author_sort(row)
         self.author_sort.setText(aus if aus else '')
-        pub = self.db.publisher(row)
-        self.publisher.setText(pub if pub else '')
         tags = self.db.tags(row)
         self.tags.setText(tags if tags else '')
         rating = self.db.rating(row)
@@ -225,8 +232,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     ext = ''
                 size = self.db.sizeof_format(row, ext)
                 Format(self.formats, ext, size)
+        
             
-        self.initialize_series()
+        self.initialize_series_and_publisher()
             
         self.series_index.setValue(self.db.series_index(row))
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
@@ -259,7 +267,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     def cover_dropped(self):
         self.cover_changed = True
     
-    def initialize_series(self):
+    def initialize_series_and_publisher(self):
         all_series = self.db.all_series()
         all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         series_id = self.db.series_id(self.row)
@@ -282,6 +290,22 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             if l:
                 l.invalidate()
                 l.activate()
+        
+        all_publishers = self.db.all_publishers()
+        all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        publisher_id = self.db.publisher_id(self.row)
+        idx, c = None, 0
+        for i in all_publishers:
+            id, name = i
+            if id == publisher_id:
+                idx = c
+            self.publisher.addItem(name)
+            c += 1
+        
+        self.publisher.setEditText('')
+        if idx is not None:
+            self.publisher.setCurrentIndex(idx)
+        
                 
         self.layout().activate()
     
@@ -337,7 +361,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         isbn   = qstring_to_unicode(self.isbn.text())
         title  = qstring_to_unicode(self.title.text())
         author = string_to_authors(unicode(self.authors.text()))[0]
-        publisher = qstring_to_unicode(self.publisher.text()) 
+        publisher = qstring_to_unicode(self.publisher.currentText()) 
         if isbn or title or author or publisher:
             d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
             d.exec_()
@@ -347,7 +371,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     self.title.setText(book.title)
                     self.authors.setText(authors_to_string(book.authors))
                     if book.author_sort: self.author_sort.setText(book.author_sort)
-                    if book.publisher: self.publisher.setText(book.publisher)
+                    if book.publisher: self.publisher.setEditText(book.publisher)
                     if book.isbn: self.isbn.setText(book.isbn)
                     summ = book.comments
                     if summ:
@@ -386,7 +410,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             self.db.set_author_sort(self.id, aus, notify=False)
         self.db.set_isbn(self.id, qstring_to_unicode(self.isbn.text()), notify=False)
         self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
-        self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.text()), notify=False)
+        self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.currentText()), notify=False)
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','), notify=False)
         self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()), notify=False)
         self.db.set_series_index(self.id, self.series_index.value(), notify=False)
