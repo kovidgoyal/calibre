@@ -583,7 +583,8 @@ class Main(MainWindow, Ui_MainWindow):
         try:
             duplicates = self.library_view.model().db.recursive_import(root, single, callback=callback)
         finally:
-            progress.close()
+            progress.hide()
+            progress.close()            
         if duplicates:
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
             for mi, formats in duplicates:
@@ -702,7 +703,8 @@ class Main(MainWindow, Ui_MainWindow):
             else:
                 self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
         finally:
-            progress.setValue(len(paths))
+            progress.setValue(progress.maximum())
+            progress.hide()
             progress.close()
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):

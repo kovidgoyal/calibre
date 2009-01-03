@@ -458,6 +458,8 @@ class Parser(PreProcessor, LoggingInterface):
     def parse_html(self):
         ''' Create lxml ElementTree from HTML '''
         self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
+        if self.htmlfile.is_binary:
+            raise ValueError('Not a valid HTML file: '+self.htmlfile.path)
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace').strip()
         src = src.replace('\x00', '')
         src = self.preprocess(src)
