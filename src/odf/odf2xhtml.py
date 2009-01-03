@@ -22,7 +22,7 @@
 #pdb.set_trace()
 import zipfile
 import xml.sax
-from xml.sax import handler
+from xml.sax import handler, expatreader
 from xml.sax.xmlreader import InputSource
 from xml.sax.saxutils import escape, quoteattr
 
@@ -206,10 +206,10 @@ class StyleToCSS:
         if hpos == "center":
             sdict['margin-left'] = "auto"
             sdict['margin-right'] = "auto"
-        else:
-            # force it to be *something* then delete it
-            sdict['margin-left'] = sdict['margin-right'] = ''
-            del sdict['margin-left'], sdict['margin-right']
+#       else:
+#           # force it to be *something* then delete it
+#           sdict['margin-left'] = sdict['margin-right'] = ''
+#           del sdict['margin-left'], sdict['margin-right']
 
         if hpos in ("right","outside"):
             if wrap in ( "left", "parallel","dynamic"):
@@ -336,8 +336,9 @@ special_styles = {
 class ODF2XHTML(handler.ContentHandler):
     """ The ODF2XHTML parses an ODF file and produces XHTML"""
 
-    def __init__(self):
+    def __init__(self, generate_css=True, embedable=False):
         # Tags
+        self.generate_css = generate_css
         self.elements = {
         (DCNS, 'title'): (self.s_processcont, self.e_dc_title),
         (DCNS, 'language'): (self.s_processcont, self.e_dc_contentlanguage),
@@ -349,6 +350,7 @@ class ODF2XHTML(handler.ContentHandler):
         (DRAWNS, 'fill-image'): (self.s_draw_fill_image, None),
         (DRAWNS, "layer-set"):(self.s_ignorexml, None),
         (DRAWNS, 'page'): (self.s_draw_page, self.e_draw_page),
+        (DRAWNS, 'text-box'): (self.s_draw_textbox, self.e_draw_textbox),
         (METANS, 'creation-date'):(self.s_processcont, self.e_dc_metatag),
         (METANS, 'generator'):(self.s_processcont, self.e_dc_metatag),
         (METANS, 'initial-creator'): (self.s_processcont, self.e_dc_metatag),
@@ -421,6 +423,12 @@ class ODF2XHTML(handler.ContentHandler):
         (TEXTNS, "table-of-content-source"):(self.s_text_x_source, self.e_text_x_source),
         (TEXTNS, "user-index-source"):(self.s_text_x_source, self.e_text_x_source),
         }
+        if embedable:
+            self.elements[(OFFICENS, u"text")] = (None,None)
+            self.elements[(OFFICENS, u"spreadsheet")] = (None,None)
+            self.elements[(OFFICENS, u"presentation")] = (None,None)
+            self.elements[(OFFICENS, u"document-content")] = (None,None)
+
 
     def writeout(self, s):
         if s != '':
@@ -548,14 +556,18 @@ class ODF2XHTML(handler.ContentHandler):
         """ A <draw:frame> is made into a <div> in HTML which is then styled
         """
         anchor_type = attrs.get((TEXTNS,'anchor-type'),'char')
+        htmltag = 'div'
         name = "G-" + attrs.get( (DRAWNS,'style-name'), "")
         if name == 'G-':
             name = "PR-" + attrs.get( (PRESENTATIONNS,'style-name'), "")
         name = name.replace(".","_")
         if anchor_type == "paragraph":
-            style = ""
+            style = 'position:relative;'
         elif anchor_type == 'char':
-            style = "position: relative;"
+            style = "position:relative;"
+        elif anchor_type == 'as-char':
+            htmltag = 'div'
+            style = ''
         else:
             style = "position: absolute;"
         if attrs.has_key( (SVGNS,"width") ):
@@ -566,7 +578,10 @@ class ODF2XHTML(handler.ContentHandler):
             style = style + "left:" +  attrs[(SVGNS,"x")] + ";"
         if attrs.has_key( (SVGNS,"y") ):
             style = style + "top:" +  attrs[(SVGNS,"y")] + ";"
-        self.opentag('div', {'class': name, 'style': style})
+        if self.generate_css:
+            self.opentag(htmltag, {'class': name, 'style': style})
+        else:
+            self.opentag(htmltag)
 
     def e_draw_frame(self, tag, attrs):
         """ End the <draw:frame>
@@ -593,8 +608,9 @@ class ODF2XHTML(handler.ContentHandler):
         imghref = attrs[(XLINKNS,"href")]
         imghref = self.rewritelink(imghref)
         htmlattrs = {'alt':"", 'src':imghref }
-        if anchor_type != "char":
-            htmlattrs['style'] = "display: block;"
+        if self.generate_css:
+            if anchor_type != "char":
+                htmlattrs['style'] = "display: block;"
         self.emptytag('img', htmlattrs)
 
     def s_draw_page(self, tag, attrs):
@@ -607,7 +623,10 @@ class ODF2XHTML(handler.ContentHandler):
         stylename = stylename.replace(".","_")
         masterpage = attrs.get( (DRAWNS,'master-page-name'),"")
         masterpage = masterpage.replace(".","_")
-        self.opentag('fieldset', {'class':"DP-%s MP-%s" % (stylename, masterpage) })
+        if self.generate_css:
+            self.opentag('fieldset', {'class':"DP-%s MP-%s" % (stylename, masterpage) })
+        else:
+            self.opentag('fieldset')
         self.opentag('legend')
         self.writeout(escape(name))
         self.closetag('legend')
@@ -615,17 +634,30 @@ class ODF2XHTML(handler.ContentHandler):
     def e_draw_page(self, tag, attrs):
         self.closetag('fieldset')
 
+    def s_draw_textbox(self, tag, attrs):
+        style = ''
+        if attrs.has_key( (FONS,"min-height") ):
+            style = style + "min-height:" +  attrs[(FONS,"min-height")] + ";"
+        self.opentag('div')
+#       self.opentag('div', {'style': style})
+
+    def e_draw_textbox(self, tag, attrs):
+        """ End the <draw:text-box>
+        """
+        self.closetag('div')
+
     def html_body(self, tag, attrs):
         self.writedata()
-        self.opentag('style', {'type':"text/css"}, True)
-        self.writeout('/*<![CDATA[*/\n')
-        self.writeout('\nimg { width: 100%; height: 100%; }\n')
-        self.writeout('* { padding: 0; margin: 0; }\n')
-        self.writeout('body { margin: 0 1em; }\n')
-        self.writeout('ol, ul { padding-left: 2em; }\n')
-        self.generate_stylesheet()
-        self.writeout('/*]]>*/\n')
-        self.closetag('style')
+        if self.generate_css:
+            self.opentag('style', {'type':"text/css"}, True)
+            self.writeout('/*<![CDATA[*/\n')
+            self.writeout('\nimg { width: 100%; height: 100%; }\n')
+            self.writeout('* { padding: 0; margin: 0;  background-color:white; }\n')
+            self.writeout('body { margin: 0 1em; }\n')
+            self.writeout('ol, ul { padding-left: 2em; }\n')
+            self.generate_stylesheet()
+            self.writeout('/*]]>*/\n')
+            self.closetag('style')
         self.purgedata()
         self.closetag('head')
         self.opentag('body', block=True)
@@ -660,7 +692,10 @@ class ODF2XHTML(handler.ContentHandler):
     def generate_footnotes(self):
         if self.currentnote == 0:
             return
-        self.opentag('ol', {'style':'border-top: 1px solid black'}, True)
+        if self.generate_css:
+            self.opentag('ol', {'style':'border-top: 1px solid black'}, True)
+        else:
+            self.opentag('ol')
         for key in range(1,self.currentnote+1):
             note = self.notedict[key]
 #       for key,note in self.notedict.items():
@@ -874,7 +909,7 @@ class ODF2XHTML(handler.ContentHandler):
         """ Start a table
         """
         c = attrs.get( (TABLENS,'style-name'), None)
-        if c:
+        if c and self.generate_css:
             c = c.replace(".","_")
             self.opentag('table',{ 'class': "T-%s" % c })
         else:
@@ -958,7 +993,7 @@ class ODF2XHTML(handler.ContentHandler):
         for x in range(level + 1,10):
             self.headinglevels[x] = 0
         special = special_styles.get("P-"+name)
-        if special:
+        if special or not self.generate_css:
             self.opentag('h%s' % level)
         else:
             self.opentag('h%s' % level, {'class':"P-%s" % name })
@@ -997,7 +1032,10 @@ class ODF2XHTML(handler.ContentHandler):
             # textbox itself may be nested within another list.
             level = self.tagstack.count_tags(tag) + 1
             name = self.tagstack.rfindattr( (TEXTNS,'style-name') )
-        self.opentag('%s' % self.listtypes.get(name), {'class':"%s_%d" % (name, level) })
+        if self.generate_css:
+            self.opentag('%s' % self.listtypes.get(name), {'class':"%s_%d" % (name, level) })
+        else:
+            self.opentag('%s' % self.listtypes.get(name))
         self.purgedata()
 
     def e_text_list(self, tag, attrs):
@@ -1113,7 +1151,8 @@ class ODF2XHTML(handler.ContentHandler):
             specialtag = special_styles.get("P-"+c)
             if specialtag is None:
                 specialtag = 'p'
-                htmlattrs['class'] = "P-%s" % c
+                if self.generate_css:
+                    htmlattrs['class'] = "P-%s" % c
         self.opentag(specialtag, htmlattrs)
         self.purgedata()
 
@@ -1149,7 +1188,7 @@ class ODF2XHTML(handler.ContentHandler):
         if c:
             c = c.replace(".","_")
             special = special_styles.get("S-"+c)
-            if special is None:
+            if special is None and self.generate_css:
                 htmlattrs['class'] = "S-%s" % c
         self.opentag('span', htmlattrs)
         self.purgedata()
@@ -1219,7 +1258,10 @@ class ODF2XHTML(handler.ContentHandler):
         # Extract the interesting files
         z = zipfile.ZipFile(self._odffile)
 
-        parser = xml.sax.make_parser()
+        # For some reason Trac has trouble when xml.sax.make_parser() is used.
+        # Could it be because PyXML is installed, and therefore a different parser
+        # might be chosen? By calling expatreader directly we avoid this issue
+        parser = expatreader.create_parser()
         parser.setFeature(handler.feature_namespaces, 1)
         parser.setContentHandler(self)
         parser.setErrorHandler(handler.ErrorHandler())
