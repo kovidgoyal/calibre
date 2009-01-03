@@ -220,10 +220,44 @@ class CYBOOKG3(Device):
             path = path.replace('card:', self._card_prefix[:-1])
         return path
         
+
+    def _windows_match_device(self, device_id):
+        device_id = device_id.upper()
+        vid, pid = hex(cls.VENDOR_ID)[2:], hex(cls.PRODUCT_ID)[2:]        
+        while len(vid) < 4: vid = '0' + vid
+        while len(pid) < 4: pid = '0' + pid        
+        if 'VID_'+vid in device_id and 'PID_'+pid in device_id:
+            return True
+        return False
+
+    # This only supports Windows >= 2000
     def open_windows(self):
-        raise NotImplementedError()
+        drives = []
+        wmi = __import__('wmi', globals(), locals(), [], -1) 
+        c = wmi.WMI()
+        for drive in c.Win32_DiskDrive():
+            if self._windows_match_device(str(drive.PNPDeviceID)):
+                if drive.Partitions == 0:
+                    continue
+                try:
+                    partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
+                    logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
+                    prefix = logical_disk.DeviceID+os.sep
+                    drives.append((drive.Index, prefix))
+                except IndexError:
+                    continue
+                
+        if not drives:
+            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
+        
+        drives.sort(cmp=lambda a, b: cmp(a[0], b[0]))
+        self._main_prefix = drives[0][1]
+        if len(drives) > 1:
+            self._card_prefix = drives[1][1]            
+        
     def open_osx(self):
         raise NotImplementedError()
+
     def open_linux(self):
         import dbus
         bus = dbus.SystemBus() 
