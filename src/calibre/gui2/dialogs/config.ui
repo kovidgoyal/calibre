@@ -128,16 +128,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="confirm_delete" >
-           <property name="text" >
-            <string>Ask for &amp;confirmation before deleting files</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QCheckBox" name="pdf_metadata" >
            <property name="toolTip" >
-            <string>If you disable this setting, metadatas is guessed from the filename instead. This can be configured in the Advanced section.</string>
+            <string>If you disable this setting, metadata is guessed from the filename instead. This can be configured in the Advanced section.</string>
            </property>
            <property name="text" >
             <string>Read &amp;metadata from files</string>
@@ -808,6 +801,13 @@
             <widget class="QPushButton" name="customize_plugin" >
              <property name="text" >
               <string>&amp;Customize plugin</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="remove_plugin" >
+             <property name="text" >
+              <string>&amp;Remove plugin</string>
              </property>
             </widget>
            </item>

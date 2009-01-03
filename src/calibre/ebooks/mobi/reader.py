@@ -22,6 +22,7 @@ from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
+from calibre import sanitize_file_name
 
 class EXTHHeader(object):
     
@@ -200,7 +201,8 @@ class MobiReader(object):
         guide = soup.find('guide')
         for elem in soup.findAll(['metadata', 'guide']):
             elem.extract()
-        htmlfile = os.path.join(output_dir, self.name+'.html')
+        htmlfile = os.path.join(output_dir, 
+                                sanitize_file_name(self.name)+'.html')
         try:
             for ref in guide.findAll('reference', href=True):
                 ref['href'] = os.path.basename(htmlfile)+ref['href']
@@ -232,6 +234,15 @@ class MobiReader(object):
     def cleanup_soup(self, soup):
         if self.verbose:
             print 'Replacing height, width and align attributes'
+        size_map = {
+                    'xx-small' : '0.5',
+                    'x-small'  : '1',
+                    'small'    : '2',
+                    'medium'   : '3',
+                    'large'    : '4',
+                    'x-large'  : '5',
+                    'xx-large' : '6',
+                    }
         for tag in soup.recursiveChildGenerator():
             if not isinstance(tag, Tag): continue
             styles = []
@@ -256,6 +267,15 @@ class MobiReader(object):
                 pass
             if styles:
                 tag['style'] = '; '.join(styles)
+                
+            if tag.name.lower() == 'font':
+                sz = tag.get('size', '')
+                try:
+                    float(sz)
+                except ValueError:
+                    sz = sz.lower()
+                    if sz in size_map.keys():
+                        tag['size'] = size_map[sz]
     
     def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
@@ -289,7 +309,8 @@ class MobiReader(object):
                     except:
                         text = ''
                     text = ent_pat.sub(entity_to_unicode, text)
-                    tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
+                    if a['href'].startswith('#'):
+                        tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
             if tocobj is not None:
                 opf.set_toc(tocobj)
         

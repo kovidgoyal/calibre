@@ -523,7 +523,10 @@ class DocumentView(QWebView):
                     self.manager.previous_document()
                     event.accept()
                     return
-        return QWebView.wheelEvent(self, event)
+        ret = QWebView.wheelEvent(self, event)
+        if self.manager is not None:
+            self.manager.scrolled(self.scroll_fraction)
+        return ret
     
     def keyPressEvent(self, event):
         key = event.key()

@@ -943,7 +943,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         if index_is_id:
             return self.conn.get('SELECT publisher FROM meta WHERE id=?', (index,), all=False)
         return self.data[index][3]
-
+    
+    def publisher_id(self, index, index_is_id=False):
+        id  = index if index_is_id else self.id(index)
+        return self.conn.get('SELECT publisher from books_publishers_link WHERE book=?', (id,), all=False)
+    
     def rating(self, index, index_is_id=False):
         if index_is_id:
             return self.conn.get('SELECT rating FROM meta WHERE id=?', (index,), all=False)
@@ -1041,6 +1045,14 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
     def all_series(self):
         return [ (i[0], i[1]) for i in \
                 self.conn.get('SELECT id, name FROM series')]
+        
+    def all_authors(self):
+        return [ (i[0], i[1]) for i in \
+                self.conn.get('SELECT id, name FROM authors')]
+    
+    def all_publishers(self):
+        return [ (i[0], i[1]) for i in \
+                self.conn.get('SELECT id, name FROM publishers')]
 
     def all_tags(self):
         return [i[0].strip() for i in self.conn.get('SELECT name FROM tags') if i[0].strip()]

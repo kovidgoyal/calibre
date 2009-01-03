@@ -18,7 +18,13 @@ class Nspm(BasicNewsRecipe):
     no_stylesheets        = True
     use_embedded_content  = False
     INDEX                 = 'http://www.nspm.rs/?alphabet=l'
-    timefmt               = ' [%A, %d %B, %Y]' 
+    cover_url = 'http://nspm.rs/templates/jsn_epic_pro/images/logol.jpg'
+    html2lrf_options = [
+                          '--comment', description
+                        , '--base-font-size', '10'
+                        , '--category', 'news, politics, Serbia'
+                        , '--publisher', 'IIC NSPM'
+                        ]
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 

@@ -199,7 +199,10 @@ class StatusBar(QStatusBar):
         ret = QStatusBar.showMessage(self, msg, timeout)
         if self.systray is not None:
             if isosx and isinstance(msg, unicode):
-                msg = msg.encode(preferred_encoding)
+                try:
+                    msg = msg.encode(preferred_encoding)
+                except UnicodeEncodeError:
+                    msg = msg.encode('utf-8')
             self.systray.showMessage('calibre', msg, self.systray.Information, 10000)
         return ret
     

@@ -11,12 +11,18 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class Blic(BasicNewsRecipe):
     title                 = u'Blic'
     __author__            = 'Darko Miletic'
-    description           = 'Vesti'    
+    description           = 'Blic.rs online verzija najtiraznije novine u Srbiji donosi najnovije vesti iz Srbije i sveta, komentare, politicke analize, poslovne i ekonomske vesti, vesti iz regiona, intervjue, informacije iz kulture, reportaze, pokriva sve sportske dogadjaje, detaljan tv program, nagradne igre, zabavu, fenomenalni Blic strip, dnevni horoskop, arhivu svih dogadjaja'
     oldest_article        = 7
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    timefmt               = ' [%A, %d %B, %Y]' 
+    cover_url = 'http://www.blic.rs/resources/images/header_back_tile.png'
+    html2lrf_options = [
+                          '--comment', description
+                        , '--base-font-size', '10'
+                        , '--category', 'news, Serbia'
+                        , '--publisher', 'Blic'
+                        ]
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 

@@ -108,6 +108,8 @@ def option_parser(usage, gui_mode=False):
                       help=_('Add a header to all the pages with title and author.'))
     laf.add_option('--headerformat', default="%t by %a", dest='headerformat', type='string',
                         help=_('Set the format of the header. %a is replaced by the author and %t by the title. Default is %default'))
+    laf.add_option('--header-separation', default=0, type='int', 
+                   help=_('Add extra spacing below the header. Default is %default px.'))
     laf.add_option('--override-css', default=None, dest='_override_css', type='string',
                    help=_('Override the CSS. Can be either a path to a CSS stylesheet or a string. If it is a string it is interpreted as CSS.'))
     laf.add_option('--use-spine', default=False, dest='use_spine', action='store_true',
@@ -260,10 +262,11 @@ def Book(options, logger, font_delta=0, header=None,
         hb.append(header)
         hdr.PutObj(hb)
         ps['headheight'] = profile.header_height
+        ps['headsep']    = options.header_separation
         ps['header']     = hdr
         ps['topmargin']  = 0
         ps['textheight'] = profile.screen_height - (options.bottom_margin + ps['topmargin']) \
-                                                 - ps['headheight'] - profile.fudge
+                                                 - ps['headheight'] - ps['headsep'] - profile.fudge
         
     fontsize = int(10*profile.font_size+font_delta*20)
     baselineskip = fontsize + 20

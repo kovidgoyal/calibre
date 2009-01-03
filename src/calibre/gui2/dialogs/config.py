@@ -20,7 +20,7 @@ from calibre.ebooks.epub.iterator import is_supported
 from calibre.library import server_config
 from calibre.customize.ui import initialized_plugins, is_disabled, enable_plugin, \
                                  disable_plugin, customize_plugin, \
-                                 plugin_customization, add_plugin
+                                 plugin_customization, add_plugin, remove_plugin
 
 class PluginModel(QAbstractItemModel):
     
@@ -186,7 +186,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         single_format = config['save_to_disk_single_format']
         self.single_format.setCurrentIndex(BOOK_EXTENSIONS.index(single_format))
         self.cover_browse.setValue(config['cover_flow_queue_length'])
-        self.confirm_delete.setChecked(config['confirm_delete'])
         from calibre.translations.compiled import translations
         from calibre.translations import language_codes
         from calibre.startup import get_lang
@@ -242,6 +241,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.plugin_view.setModel(self._plugin_model)
         self.connect(self.toggle_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='toggle'))
         self.connect(self.customize_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='customize'))
+        self.connect(self.remove_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='remove'))
         self.connect(self.button_plugin_browse, SIGNAL('clicked()'), self.find_plugin)
         self.connect(self.button_plugin_add, SIGNAL('clicked()'), self.add_plugin)
     
@@ -287,6 +287,13 @@ class ConfigDialog(QDialog, Ui_Dialog):
                 if ok:
                     customize_plugin(plugin, unicode(text))
                     self._plugin_model.refresh_plugin(plugin)
+            if op == 'remove':
+                if remove_plugin(plugin):
+                    self._plugin_model.populate()
+                    self._plugin_model.reset()
+                else:
+                    error_dialog(self, _('Cannot remove builtin plugin'), 
+                                 plugin.name + _(' cannot be removed. It is a builtin plugin. Try disabling it instead.')).exec_()
             
     
     def up_column(self):
@@ -385,7 +392,6 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['column_map'] = cols
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
-        config['confirm_delete'] =  bool(self.confirm_delete.isChecked())
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]

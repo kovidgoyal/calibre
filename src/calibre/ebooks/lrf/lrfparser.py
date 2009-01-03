@@ -77,7 +77,7 @@ class LRFDocument(LRFMetaFile):
         for obj in self.image_map.values() + self.font_map.values():
             open(obj.file, 'wb').write(obj.stream)            
         
-    def to_xml(self):
+    def to_xml(self, write_files=True):
         bookinfo = u'<BookInformation>\n<Info version="1.1">\n<BookInfo>\n'
         bookinfo += u'<Title reading="%s">%s</Title>\n'%(self.metadata.title_reading, self.metadata.title)
         bookinfo += u'<Author reading="%s">%s</Author>\n'%(self.metadata.author_reading, self.metadata.author)
@@ -89,9 +89,10 @@ class LRFDocument(LRFMetaFile):
         bookinfo += u'<FreeText reading="">%s</FreeText>\n</BookInfo>\n<DocInfo>\n'%(self.metadata.free_text,)
         th = self.doc_info.thumbnail
         if th:
-            prefix = sanitize_file_name(self.metadata.title)
+            prefix = sanitize_file_name(self.metadata.title, as_unicode=True)
             bookinfo += u'<CThumbnail file="%s" />\n'%(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension,)
-            open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)
+            if write_files:
+                open(prefix+'_thumbnail.'+self.doc_info.thumbnail_extension, 'wb').write(th)
         bookinfo += u'<Language reading="">%s</Language>\n'%(self.doc_info.language,)
         bookinfo += u'<Creator reading="">%s</Creator>\n'%(self.doc_info.creator,)
         bookinfo += u'<Producer reading="">%s</Producer>\n'%(self.doc_info.producer,)
@@ -127,12 +128,16 @@ class LRFDocument(LRFMetaFile):
                 objects += unicode(obj)
         styles += '</Style>\n'
         objects += '</Objects>\n'
-        self.write_files()
+        if write_files:
+            self.write_files()
         return '<BBeBXylog version="1.0">\n' + bookinfo + pages + styles + objects + '</BBeBXylog>'
         
 def option_parser():
     parser = OptionParser(usage=_('%prog book.lrf\nConvert an LRF file into an LRS (XML UTF-8 encoded) file'))
     parser.add_option('--output', '-o', default=None, help=_('Output LRS file'), dest='out')
+    parser.add_option('--dont-output-resources', default=True, action='store_false', 
+                      help=_('Do not save embedded image and font files to disk'), 
+                      dest='output_resources')
     parser.add_option('--verbose', default=False, action='store_true', dest='verbose')
     return parser
     
@@ -154,7 +159,7 @@ def main(args=sys.argv, logger=None):
     d = LRFDocument(open(args[1], 'rb'))
     d.parse()
     logger.info(_('Creating XML...'))
-    o.write(d.to_xml())
+    o.write(d.to_xml(write_files=opts.output_resources))
     logger.info(_('LRS written to ')+opts.out)
     return 0
 

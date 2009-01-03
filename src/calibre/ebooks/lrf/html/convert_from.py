@@ -1906,6 +1906,8 @@ def process_file(path, options, logger=None):
     fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
          re.compile('$')
     cq = options.chapter_attr.split(',')
+    if len(cq) < 3:
+        raise ValueError('The --chapter-attr setting must have 2 commas.')
     options.chapter_attr = [re.compile(cq[0], re.IGNORECASE), cq[1], 
                             re.compile(cq[2], re.IGNORECASE)]
     options.force_page_break = fpb
@@ -1933,7 +1935,7 @@ def process_file(path, options, logger=None):
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
     run_plugins_on_postprocess(oname, 'lrf')
-    logger.info('Output written to %s', oname)
+    conv.log_info('Output written to %s', oname)
     conv.cleanup()
     return oname
     
@@ -1980,17 +1982,7 @@ def try_opf(path, options, logger):
                         PILImage.open(cover)
                         options.cover = cover
                     except:
-                        for prefix in opf.possible_cover_prefixes():
-                            if options.cover:
-                                break
-                            for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
-                                cpath = os.path.join(os.path.dirname(path), prefix+suffix)
-                                try:
-                                    PILImage.open(cpath)
-                                    options.cover = cpath
-                                    break
-                                except:
-                                    continue
+                        pass
             if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover
         if getattr(opf, 'spine', False):

@@ -15,12 +15,13 @@ class Time(BasicNewsRecipe):
     description           = 'Weekly magazine'    
     oldest_article        = 7
     max_articles_per_feed = 100
-    no_stylesheets        = False
+    no_stylesheets        = True
     use_embedded_content  = False
     
     #cover_url = 'http://img.timeinc.net/time/rd/trunk/www/web/feds/i/logo_time_home.gif'
     
     keep_only_tags = [dict(name='div', attrs={'class':'tout1'})]
+    remove_tags    = [dict(name='ul', attrs={'class':['button', 'find']})]
 
     feeds          = [
                        (u'Top Stories', u'http://feedproxy.google.com/time/topstories')
