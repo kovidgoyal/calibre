@@ -95,13 +95,6 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1" >
-           <widget class="QLineEdit" name="authors" >
-            <property name="toolTip" >
-             <string>Change the author(s) of this book. Multiple authors should be separated by an &amp;. If the author name contains an &amp;, use &amp;&amp; to represent it.</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0" >
            <widget class="QLabel" name="label_8" >
             <property name="text" >
@@ -111,7 +104,7 @@
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
             <property name="buddy" >
-             <cstring>authors</cstring>
+             <cstring>author_sort</cstring>
             </property>
            </widget>
           </item>
@@ -182,13 +175,6 @@
             </property>
             <property name="buddy" >
              <cstring>publisher</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1" colspan="2" >
-           <widget class="QLineEdit" name="publisher" >
-            <property name="toolTip" >
-             <string>Change the publisher of this book</string>
             </property>
            </widget>
           </item>
@@ -329,6 +315,16 @@
           </item>
           <item row="8" column="1" colspan="2" >
            <widget class="QLineEdit" name="isbn" />
+          </item>
+          <item row="4" column="1" >
+           <widget class="QComboBox" name="publisher" >
+            <property name="editable" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QLineEdit" name="authors" />
           </item>
          </layout>
         </widget>
@@ -615,8 +611,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>257</x>
-     <y>646</y>
+     <x>261</x>
+     <y>710</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -631,8 +627,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>325</x>
-     <y>646</y>
+     <x>329</x>
+     <y>710</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>

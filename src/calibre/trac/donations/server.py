@@ -102,6 +102,8 @@ class Stats:
 
     def get_deviation(self, amounts):
         l = float(len(amounts))
+        if l == 0:
+            return 0
         mean = sum(amounts)/l
         return sqrt( sum([i**2 for i in amounts])/l - mean**2  )
 

@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+__copyright__ = '2009, John Schember <john at nachtimwald.com'
 
 '''
 '''
@@ -22,7 +22,7 @@ class Book(object):
         
     @apply
     def thumbnail():
-        return 0
+        return None
         
     def __str__(self):
         """ Return a utf-8 encoded string with title author and path information """
