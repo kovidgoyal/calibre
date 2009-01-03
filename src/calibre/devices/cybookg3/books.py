@@ -8,7 +8,7 @@ import os, fnmatch, time
 from calibre.devices.interface import BookList as _BookList
 
 EBOOK_DIR = "eBooks"
-EBOOK_TYPES = ['mobi', 'prc', 'pdf', 'txt']
+EBOOK_TYPES = ['mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
 
 class Book(object):
     def __init__(self, path, title, authors):
@@ -37,10 +37,27 @@ class BookList(_BookList):
         self.return_books(mountpath)  
 
     def return_books(self, mountpath):
+        # Get all books in all directories under the root EBOOK_DIR directory
         for path, dirs, files in os.walk(os.path.join(mountpath, EBOOK_DIR)):
+            # Filter out anything that isn't in the list of supported ebook types
             for book_type in EBOOK_TYPES:
                 for filename in fnmatch.filter(files, '*.%s' % (book_type)):
-                    self.append(Book(os.path.join(path, filename), filename, ""))
+                    # Calibre uses a specific format for file names. They take the form
+                    # title_-_author_number.extention We want to see if the file name is
+                    # in this format.
+                    if fnmatch.fnmatchcase(filename, '*_-_*.*'):
+                        # Get the title and author from the file name
+                        title, sep, author = filename.rpartition('_-_')
+                        author, sep, ext = author.rpartition('_')
+                        book_title = title.replace('_', ' ')
+                        book_author = author.replace('_', ' ')
+                    # if the filename did not match just set the title to
+                    # the filename without the extension
+                    else:
+                        book_title = os.path.splitext(filename)[0].replace('_', ' ')
+                        
+                    book_path = os.path.join(path, filename)
+                    self.append(Book(book_path, book_title, book_author))
             
     def add_book(self, path, title):
         self.append(Book(path, title, ""))
