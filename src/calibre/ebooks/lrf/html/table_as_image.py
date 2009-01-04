@@ -6,14 +6,11 @@ __docformat__ = 'restructuredtext en'
 '''
 Render HTML tables as images.
 '''
-import os, tempfile, atexit, shutil, time
-from PyQt4.Qt import QUrl, QApplication, QSize, \
+import os, tempfile, atexit, shutil
+from PyQt4.Qt import QUrl, QApplication, QSize, QEventLoop, \
                      SIGNAL, QPainter, QImage, QObject, Qt
 from PyQt4.QtWebKit import QWebPage
 
-from calibre.parallel import ParallelJob
-
-__app = None
 
 class HTMLTableRenderer(QObject):
 
@@ -27,13 +24,15 @@ class HTMLTableRenderer(QObject):
         self.app = None
         self.width, self.height, self.dpi = width, height, dpi
         self.base_dir = base_dir
+        self.images = []
+        self.tdir = tempfile.mkdtemp(prefix='calibre_render_table')
+        self.loop = QEventLoop()
         self.page = QWebPage()
         self.connect(self.page, SIGNAL('loadFinished(bool)'), self.render_html)
         self.page.mainFrame().setTextSizeMultiplier(factor)
         self.page.mainFrame().setHtml(html, 
                                 QUrl('file:'+os.path.abspath(self.base_dir)))
-        self.images = []
-        self.tdir = tempfile.mkdtemp(prefix='calibre_render_table')
+        
         
     def render_html(self, ok):
         try:
@@ -63,7 +62,7 @@ class HTMLTableRenderer(QObject):
         finally:
             QApplication.quit()
         
-def render_table(server, soup, table, css, base_dir, width, height, dpi, factor=1.0):
+def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
     head = ''
     for e in soup.findAll(['link', 'style']):
         head += unicode(e)+'\n\n'
@@ -83,24 +82,13 @@ def render_table(server, soup, table, css, base_dir, width, height, dpi, factor=
     </body>
 </html>
     '''%(head, width-10, style, unicode(table))
-    job = ParallelJob('render_table',  lambda j : j, None,
-                            args=[html, base_dir, width, height, dpi, factor])
-    server.add_job(job)
-    while not job.has_run:
-        time.sleep(2)
-    
-    if job.exception is not None:
-        print 'Failed to render table'
-        print job.exception
-        print job.traceback
-    images, tdir = job.result
+    images, tdir = do_render(html, base_dir, width, height, dpi, factor)
     atexit.register(shutil.rmtree, tdir)
     return images
     
 def do_render(html, base_dir, width, height, dpi, factor):
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication([])
+    if QApplication.instance() is None:
+                QApplication([])
     tr = HTMLTableRenderer(html, base_dir, width, height, dpi, factor)
-    app.exec_()
+    tr.loop.exec_()
     return tr.images, tr.tdir

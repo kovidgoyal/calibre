@@ -44,4 +44,3 @@ class cdnet(BasicNewsRecipe):
 
 
 
-!DSPAM:3,496093f075721028352036!

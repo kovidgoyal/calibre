@@ -47,4 +47,3 @@ class FTheiseDe(BasicNewsRecipe):
     feeds =  [ ('FTD', 'http://www.ftd.de/static/ticker/ftd-topnews.rdf') ] 
     
 
-!DSPAM:3,496093f075721028352036!
