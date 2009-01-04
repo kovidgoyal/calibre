@@ -766,6 +766,8 @@ class ODF2XHTML(handler.ContentHandler):
         """ Copy all attributes to a struct.
             We will later convert them to CSS2
         """
+        if self.currentstyle is None:
+            return
         for key,attr in attrs.items():
             self.styledict[self.currentstyle][key] = attr
 
