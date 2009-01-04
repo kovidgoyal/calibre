@@ -20,7 +20,8 @@ MBP_NS = 'http://mobipocket.com/ns/mbp'
 def MBP(name): return '{%s}%s' % (MBP_NS, name)
 
 HEADER_TAGS = set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
-NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td'])
+NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td', 'th'])
+TABLE_TAGS = set(['table', 'tr', 'td', 'th'])
 SPECIAL_TAGS = set(['hr', 'br'])
 CONTENT_TAGS = set(['img', 'hr', 'br'])
 
@@ -51,6 +52,7 @@ class FormatState(object):
         self.bold = False
         self.preserve = True
         self.href = None
+        self.list_num = 0
         self.attrib = {}
 
     def __eq__(self, other):
@@ -98,6 +100,18 @@ class MobiMLizer(object):
             return "%dpt" % int(round(ptsize * 2))
         return "%dem" % int(round(ptsize / fbase))
 
+    def preize_text(self, text):
+        text = unicode(text).replace(u' ', u'\xa0')
+        text = text.replace('\r\n', '\n')
+        text = text.replace('\r', '\n')
+        lines = text.split('\n')
+        result = lines[:1]
+        for line in lines[1:]:
+            result.append(etree.Element('br'))
+            if line:
+                result.append(line)
+        return result
+    
     def mobimlize_content(self, tag, text, bstate, istates):
         istate = istates[-1]
         if istate.ids:
@@ -111,29 +125,34 @@ class MobiMLizer(object):
             para = para if para is not None else bstate.body
         elif para is None:
             bstate.istate = None
+            parent = bstate.nested[-1] if bstate.nested else bstate.body
             if bstate.pbreak:
-                etree.SubElement(bstate.body, MBP('pagebreak'))
+                etree.SubElement(parent, MBP('pagebreak'))
                 bstate.pbreak = False
             if tag in NESTABLE_TAGS:
-                parent = bstate.nested[-1] if bstate.nested else bstate.body
                 para = wrapper = etree.SubElement(parent, tag)
                 bstate.nested.append(para)
+                # Should instead support full CSS lists?
+                if tag == 'li' and len(istates) > 1:
+                    istates[-2].list_num += 1
+                    para.attrib['value'] = str(istates[-2].list_num)
             elif bstate.left > 0 and istate.indent >= 0:
-                para = wrapper = etree.SubElement(bstate.body, 'blockquote')
+                para = wrapper = etree.SubElement(parent, 'blockquote')
                 left = int(round(bstate.left / self.profile.fbase)) - 1
                 while left > 0:
                     para = etree.SubElement(para, 'blockquote')
                     left -= 1
             else:
                 ptag = tag if tag in HEADER_TAGS else 'p'
-                para = wrapper = etree.SubElement(bstate.body, ptag)
+                para = wrapper = etree.SubElement(parent, ptag)
             bstate.inline = bstate.para = para
             vspace = bstate.vpadding + bstate.vmargin
             bstate.vpadding = bstate.vmargin = 0
-            wrapper.attrib['height'] = self.mobimlize_measure(vspace)
-            para.attrib['width'] = self.mobimlize_measure(istate.indent)
+            if tag not in TABLE_TAGS:
+                wrapper.attrib['height'] = self.mobimlize_measure(vspace)
+                para.attrib['width'] = self.mobimlize_measure(istate.indent)
             if istate.halign != 'auto':
-                wrapper.attrib['align'] = istate.halign
+                para.attrib['align'] = istate.halign
         pstate = bstate.istate
         if tag in CONTENT_TAGS:
             bstate.inline = para
@@ -150,6 +169,8 @@ class MobiMLizer(object):
                 inline = etree.SubElement(inline, 'sup')
             elif valign == 'sub':
                 inline = etree.SubElement(inline, 'sub')
+            if istate.preserve:
+                inline = etree.SubElement(inline, 'tt')
             if fsize != 3:
                 inline = etree.SubElement(inline, 'font', size=str(fsize))
             if istate.italic:
@@ -161,20 +182,23 @@ class MobiMLizer(object):
             bstate.inline = inline
         bstate.istate = istate
         inline = bstate.inline
-        if inline == para:
-            if len(para) == 0:
-                para.text = (para.text or '') + text
+        items = self.preize_text(text) if istate.preserve else [text]
+        for item in items:
+            if isinstance(item, basestring):
+                if len(inline) == 0:
+                    inline.text = (inline.text or '') + item
+                else:
+                    last = inline[-1]
+                    last.tail = (last.tail or '') + item
             else:
-                last = para[-1]
-                last.tail = (last.tail or '') + text
-        else:
-            inline.text = (inline.text or '') + text
+                inline.append(item)
     
     def mobimlize_elem(self, elem, stylizer, bstate, istates):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) != XHTML_NS:
             return
         istate = copy.copy(istates[-1])
+        istate.list_num = 0
         istates.append(istate)
         tag = barename(elem.tag)
         style = stylizer.style(elem)
@@ -227,8 +251,10 @@ class MobiMLizer(object):
         if tag == 'img' and 'src' in elem.attrib:
             istate.attrib['src'] = elem.attrib['src']
             istate.attrib['align'] = 'baseline'
-        if tag == 'hr' and 'width' in style.cssdict():
+        elif tag == 'hr' and 'width' in style.cssdict():
             istate.attrib['width'] = mobimlize_measure(style['width'])
+        elif tag in TABLE_TAGS:
+            istate.attrib.update(dict(elem.attrib))
         text = None
         if elem.text:
             if istate.preserve:
@@ -237,7 +263,7 @@ class MobiMLizer(object):
                 text = None
             else:
                 text = COLLAPSE.sub(' ', elem.text)
-        if text or tag in CONTENT_TAGS:
+        if text or tag in CONTENT_TAGS or tag in NESTABLE_TAGS:
             self.mobimlize_content(tag, text, bstate, istates)
         for child in elem:
             self.mobimlize_elem(child, stylizer, bstate, istates)
