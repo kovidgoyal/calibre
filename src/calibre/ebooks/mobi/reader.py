@@ -257,6 +257,8 @@ class MobiReader(object):
                 pass
             try:
                 styles.append('text-indent: %s' % tag['width'])
+                if tag['width'].startswith('-'):
+                    styles.append('margin-left: %s'%(tag['width'][1:]))
                 del tag['width']
             except KeyError:
                 pass

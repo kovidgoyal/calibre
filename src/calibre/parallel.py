@@ -615,7 +615,7 @@ class Job(object):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.extend(self.log.split('\n'))
         
-        ans = [x.decode(preferred_encoding, 'replace') if isinstance(x, 'str') else x for x in ans]
+        ans = [x.decode(preferred_encoding, 'replace') if isinstance(x, str) else x for x in ans]
         
         return u'<br>'.join(ans)
 

@@ -244,6 +244,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         self.connect(self.remove_plugin, SIGNAL('clicked()'), lambda : self.modify_plugin(op='remove'))
         self.connect(self.button_plugin_browse, SIGNAL('clicked()'), self.find_plugin)
         self.connect(self.button_plugin_add, SIGNAL('clicked()'), self.add_plugin)
+        self.separate_cover_flow.setChecked(config['separate_cover_flow'])
     
     def add_plugin(self):
         path = unicode(self.plugin_path.text())
@@ -392,6 +393,7 @@ class ConfigDialog(QDialog, Ui_Dialog):
         config['column_map'] = cols
         config['toolbar_icon_size'] = self.ICON_SIZES[self.toolbar_button_size.currentIndex()]
         config['show_text_in_toolbar'] = bool(self.show_toolbar_text.isChecked())
+        config['separate_cover_flow'] = bool(self.separate_cover_flow.isChecked())
         pattern = self.filename_pattern.commit()
         prefs['filename_pattern'] = pattern
         p = {0:'normal', 1:'high', 2:'low'}[self.priority.currentIndex()]

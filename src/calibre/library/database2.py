@@ -877,6 +877,14 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.commit()
         if notify:
             self.notify('metadata', [id])
+            
+    def set_timestamp(self, id, dt, notify=True):
+        if dt:
+            self.conn.execute('UPDATE books SET timestamp=? WHERE id=?', (dt, id))
+            self.data.set(id, FIELD_MAP['timestamp'], dt, row_is_id=True)
+            self.conn.commit()
+            if notify:
+                self.notify('metadata', [id])
     
     def set_publisher(self, id, publisher, notify=True):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))

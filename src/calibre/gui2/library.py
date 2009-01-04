@@ -8,9 +8,9 @@ from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, \
-                        QPalette, QImage, QApplication, QMenu
+                        QPalette, QImage, QApplication, QMenu, QStyledItemDelegate
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         SIGNAL, QObject, QSize, QModelIndex
+                         SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
@@ -82,6 +82,17 @@ class LibraryDelegate(QItemDelegate):
         sb.setMaximum(5)
         return sb
 
+class DateDelegate(QStyledItemDelegate):
+    
+    def displayText(self, val, locale):
+        d = val.toDate()
+        return d.toString('dd MMM yyyy')
+        if d.isNull():
+            return ''
+        d = datetime(d.year(), d.month(), d.day())
+        return strftime(BooksView.TIME_FMT, d.timetuple())
+        
+
 class BooksModel(QAbstractTableModel):
     coding = zip(
     [1000,900,500,400,100,90,50,40,10,9,5,4,1],
@@ -114,7 +125,8 @@ class BooksModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.column_map = config['column_map']
-        self.editable_cols = ['title', 'authors', 'rating', 'publisher', 'tags', 'series']
+        self.editable_cols = ['title', 'authors', 'rating', 'publisher', 
+                              'tags', 'series', 'timestamp']
         self.default_image = QImage(':/images/book.svg')
         self.sorted_on = ('timestamp', Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
@@ -136,7 +148,12 @@ class BooksModel(QAbstractTableModel):
                 idx = self.column_map.index('rating')
             except ValueError:
                 idx = -1
-            self.emit(SIGNAL('columns_sorted(int)'), idx)
+            try:
+                tidx = self.column_map.index('timestamp')
+            except ValueError:
+                tidx = -1
+            
+            self.emit(SIGNAL('columns_sorted(int,int)'), idx, tidx)
         
     
     def set_database(self, db):
@@ -443,7 +460,7 @@ class BooksModel(QAbstractTableModel):
             dt = self.db.data[r][tmdx]
             if dt:
                 dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                return strftime(BooksView.TIME_FMT, dt.timetuple())
+                return QDate(dt.year, dt.month, dt.day)
         
         def rating(r):
             r = self.db.data[r][ridx]
@@ -508,35 +525,40 @@ class BooksModel(QAbstractTableModel):
         return flags
 
     def setData(self, index, value, role):
-        done = False
         if role == Qt.EditRole:
             row, col = index.row(), index.column()
             column = self.column_map[col]
             if column not in self.editable_cols:
                 return False
-            val = unicode(value.toString().toUtf8(), 'utf-8').strip() if column != 'rating' else \
-                  int(value.toInt()[0])
+            val = int(value.toInt()[0]) if column == 'rating' else \
+                  value.toDate() if column == 'timestamp' else \
+                  unicode(value.toString())
+            id = self.db.id(row)  
             if column == 'rating':
                 val = 0 if val < 0 else 5 if val > 5 else val
                 val *= 2
-            if column == 'series':
+            elif column == 'series':
                 pat = re.compile(r'\[(\d+)\]')
                 match = pat.search(val)
-                id = self.db.id(row)
                 if match is not None:
                     self.db.set_series_index(id, int(match.group(1)))
                     val = pat.sub('', val)
                 val = val.strip()
                 if val:
                     self.db.set_series(id, val)
+            elif column == 'timestamp':
+                if val.isNull() or not val.isValid():
+                    return False
+                dt = datetime(val.year(), val.month(), val.day()) + timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
+                self.db.set_timestamp(id, dt)
             else:
                 self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                                 index, index)
             if column == self.sorted_on[0]:
                 self.resort()
-            done = True
-        return done
+            
+        return True
 
 class BooksView(TableView):
     TIME_FMT = '%d %b %Y'
@@ -555,25 +577,29 @@ class BooksView(TableView):
     def __init__(self, parent, modelcls=BooksModel):
         TableView.__init__(self, parent)
         self.rating_delegate = LibraryDelegate(self)
+        self.timestamp_delegate = DateDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         try:
-            self.columns_sorted(self._model.column_map.index('rating'))
+            self.columns_sorted(self._model.column_map.index('rating'),
+                                self._model.column_map.index('timestamp'))
         except ValueError:
             pass
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
-        self.connect(self._model, SIGNAL('columns_sorted(int)'), self.columns_sorted, Qt.QueuedConnection)
+        self.connect(self._model, SIGNAL('columns_sorted(int, int)'), self.columns_sorted, Qt.QueuedConnection)
         
-    def columns_sorted(self, col):
+    def columns_sorted(self, rating_col, timestamp_col):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) == self.rating_delegate:
                 self.setItemDelegateForColumn(i, self.itemDelegate())
-        if col > -1:
-            self.setItemDelegateForColumn(col, self.rating_delegate)
+        if rating_col > -1:
+            self.setItemDelegateForColumn(rating_col, self.rating_delegate)
+        if timestamp_col > -1:
+            self.setItemDelegateForColumn(timestamp_col, self.timestamp_delegate)
             
     def set_context_menu(self, edit_metadata, send_to_device, convert, view, 
                          save, open_folder, book_details, similar_menu=None):
