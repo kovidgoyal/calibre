@@ -20,8 +20,6 @@ from calibre.ebooks.oeb.base import namespace, barename
 from calibre.ebooks.oeb.base import OEBBook
 from calibre.ebooks.oeb.stylizer import Stylizer
 
-BASEFONT_CSS = 'body { font-size: %0.5fpt; }'
-
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 STRIPNUM = re.compile(r'[-0-9]+$')
 
@@ -90,19 +88,11 @@ class CSSFlattener(object):
     def transform(self, oeb, context):
         self.oeb = oeb
         self.context = context
-        self.premangle_css()
         self.stylize_spine()
         self.sbase = self.baseline_spine() if self.fbase else None
         self.fmap = FontMapper(self.sbase, self.fbase, self.fkey)
         self.flatten_spine()
 
-    def premangle_css(self):
-        fbase = self.context.source.fbase
-        for item in self.oeb.manifest.values():
-            if item.media_type in OEB_STYLES:
-                basefont_css = BASEFONT_CSS % (fbase,)
-                item.data = basefont_css + item.data
-        
     def stylize_spine(self):
         self.stylizers = {}
         profile = self.context.source
@@ -112,13 +102,13 @@ class CSSFlattener(object):
             self.stylizers[item] = stylizer
 
     def baseline_node(self, node, stylizer, sizes, csize):
-        if node.tail:
-            sizes[csize] += len(COLLAPSE.sub(' ', node.tail))
         csize = stylizer.style(node)['font-size']
         if node.text:
             sizes[csize] += len(COLLAPSE.sub(' ', node.text))
         for child in node:
             self.baseline_node(child, stylizer, sizes, csize)
+            if child.tail:
+                sizes[csize] += len(COLLAPSE.sub(' ', child.tail))
     
     def baseline_spine(self):
         sizes = defaultdict(float)
@@ -155,6 +145,27 @@ class CSSFlattener(object):
         tag = barename(node.tag)
         style = stylizer.style(node)
         cssdict = style.cssdict()
+        if 'align' in node.attrib:
+            cssdict['text-align'] = node.attrib['align']
+            del node.attrib['align']
+        if node.tag == XHTML('font'):
+            node.tag = XHTML('span')
+            if 'size' in node.attrib:
+                size = node.attrib['size']
+                if size.startswith('+'):
+                    cssdict['font-size'] = 'larger'
+                elif size.startswith('-'):
+                    cssdict['font-size'] = 'smaller'
+                else:
+                    fnums = self.context.source.fnums
+                    cssdict['font-size'] = fnums[int(size)]
+                del node.attrib['size']
+        if 'color' in node.attrib:
+            cssdict['color'] = node.attrib['color']
+            del node.attrib['color']
+        if 'bgcolor' in node.attrib:
+            cssdict['background-color'] = node.attrib['bgcolor']
+            del node.attrib['bgcolor']
         if cssdict:
             if 'font-size' in cssdict:
                 fsize = self.fmap[style['font-size']]
@@ -170,6 +181,8 @@ class CSSFlattener(object):
                 left -= style['text-indent']
             if self.unfloat and 'float' in cssdict and tag != 'img':
                 del cssdict['float']
+                if cssdict.get('display', 'none') != 'none':
+                    del cssdict['display']
             if 'vertical-align' in cssdict:
                 if cssdict['vertical-align'] == 'sup':
                     cssdict['vertical-align'] = 'super'

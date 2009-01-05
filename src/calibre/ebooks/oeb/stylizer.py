@@ -92,7 +92,10 @@ def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
 class CSSSelector(etree.XPath):
+    MIN_SPACE_RE = re.compile(r' *([>~+]) *')
+    
     def __init__(self, css, namespaces=XPNSMAP):
+        css = self.MIN_SPACE_RE.sub(r'\1', css)
         path = css_to_xpath(css)
         etree.XPath.__init__(self, path, namespaces=namespaces)
         self.css = css
@@ -158,8 +161,8 @@ class Stylizer(object):
                 continue
             for elem in selector(tree):
                 self.style(elem)._update_cssdict(cssdict)
-        for elem in tree.xpath('//*[@style]'):
-            self.style(elem)._apply_style_tag()
+        for elem in xpath(tree, '//h:*[@style]'):
+            self.style(elem)._apply_style_attr()
         
 
     def flatten_rule(self, rule, href, index):
@@ -262,12 +265,14 @@ class Style(object):
         self._profile = stylizer.profile
         self._stylizer = stylizer
         self._style = {}
+        self._fontSize = None
+        self._width = None
         stylizer._styles[element] = self
 
     def _update_cssdict(self, cssdict):
         self._style.update(cssdict)
         
-    def _apply_style_tag(self):
+    def _apply_style_attr(self):
         attrib = self._element.attrib
         if 'style' in attrib:
             style = CSSStyleDeclaration(attrib['style'])
@@ -333,12 +338,11 @@ class Style(object):
 
     @property
     def fontSize(self):
-        def normalize_fontsize(value, base=None):
+        def normalize_fontsize(value, base):
             result = None
             factor = None
             if value == 'inherit':
-                # We should only see this if the root element
-                value = self._profile.fbase
+                value = base
             if value in FONT_SIZE_NAMES:
                 result = self._profile.fnames[value]
             elif value == 'smaller':
@@ -360,39 +364,41 @@ class Style(object):
             if factor:
                 result = factor * base
             return result
-        result = None
-        if self._has_parent():
-            styles = self._stylizer._styles
-            base = styles[self._element.getparent()].fontSize
-        else:
-            base = self._profile.fbase
-        if 'font-size' in self._style:
-            size = self._style['font-size']
-            result = normalize_fontsize(size, base)
-        else:
-            result = base
-        self.__dict__['fontSize'] = result
-        return result
+        if self._fontSize is None:
+            result = None
+            if self._has_parent():
+                styles = self._stylizer._styles
+                base = styles[self._element.getparent()].fontSize
+            else:
+                base = self._profile.fbase
+            if 'font-size' in self._style:
+                size = self._style['font-size']
+                result = normalize_fontsize(size, base)
+            else:
+                result = base
+            self._fontSize = result
+        return self._fontSize
 
     @property
     def width(self):
-        result = None
-        base = None
-        if self._has_parent():
-            styles = self._stylizer._styles
-            base = styles[self._element.getparent()].width
-        else:
-            base = self._profile.width
-        if 'width' in self._style:
-            width = self._style['width']
-            if width == 'auto':
-                result = base
+        if self._width is None:
+            result = None
+            base = None
+            if self._has_parent():
+                styles = self._stylizer._styles
+                base = styles[self._element.getparent()].width
             else:
-                result = self._unit_convert(width, base=base)
-        else:
-            result = base
-        self.__dict__['width'] = result
-        return result
+                base = self._profile.width
+            if 'width' in self._style:
+                width = self._style['width']
+                if width == 'auto':
+                    result = base
+                else:
+                    result = self._unit_convert(width, base=base)
+            else:
+                result = base
+            self._width = result
+        return self._width
     
     def __str__(self):
         items = self._style.items()

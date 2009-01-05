@@ -310,6 +310,7 @@ class MobiWriter(object):
             data = data.getvalue()
         if len(data) < maxsizeb:
             return data
+        image = image.convert('RGBA')
         for quality in xrange(95, -1, -1):
             data = StringIO()
             image.save(data, 'JPEG', quality=quality)
@@ -425,7 +426,7 @@ class MobiWriter(object):
 def main(argv=sys.argv):
     from calibre.ebooks.oeb.base import DirWriter
     inpath, outpath = argv[1:]
-    context = Context('MSReader', 'MobiDesktop')
+    context = Context('Firefox', 'MobiDesktop')
     oeb = OEBBook(inpath)
     #writer = MobiWriter(compression=PALMDOC)
     writer = MobiWriter(compression=UNCOMPRESSED)
