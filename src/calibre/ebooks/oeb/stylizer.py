@@ -93,10 +93,12 @@ def xpath(elem, expr):
 
 class CSSSelector(etree.XPath):
     MIN_SPACE_RE = re.compile(r' *([>~+]) *')
+    LOCAL_NAME_RE = re.compile(r"(?<!local-)name[(][)] *= *'[^:]+:")
     
     def __init__(self, css, namespaces=XPNSMAP):
         css = self.MIN_SPACE_RE.sub(r'\1', css)
         path = css_to_xpath(css)
+        path = self.LOCAL_NAME_RE.sub(r"local-name() = '", path)
         etree.XPath.__init__(self, path, namespaces=namespaces)
         self.css = css
 
@@ -163,8 +165,7 @@ class Stylizer(object):
                 self.style(elem)._update_cssdict(cssdict)
         for elem in xpath(tree, '//h:*[@style]'):
             self.style(elem)._apply_style_attr()
-        
-
+    
     def flatten_rule(self, rule, href, index):
         results = []
         if isinstance(rule, CSSStyleRule):
@@ -178,7 +179,7 @@ class Stylizer(object):
             style = self.flatten_style(rule.style)
             self.page_rule.update(style)
         return results
-
+    
     def flatten_style(self, cssstyle):
         style = {}
         for prop in cssstyle:

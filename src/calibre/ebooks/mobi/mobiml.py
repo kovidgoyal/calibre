@@ -55,7 +55,7 @@ class FormatState(object):
         self.valign = 'baseline'
         self.italic = False
         self.bold = False
-        self.preserve = True
+        self.preserve = False
         self.family = 'serif'
         self.href = None
         self.list_num = 0
@@ -278,6 +278,10 @@ class MobiMLizer(object):
         istate.preserve = (style['white-space'] in ('pre', 'pre-wrap'))
         if 'monospace' in style['font-family']:
             istate.family = 'monospace'
+        elif 'sans-serif' in style['font-family']:
+            istate.family = 'sans-serif'
+        else:
+            istate.family = 'serif'
         valign = style['vertical-align']
         if valign in ('super', 'sup') and asfloat(valign) > 0:
             istate.valign = 'super'

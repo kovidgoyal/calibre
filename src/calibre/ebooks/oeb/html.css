@@ -399,3 +399,8 @@ br {
   display: block;
 }
 
+/* Images and embedded object size defaults */
+img, object {
+    width: auto;
+    height: auto;
+}

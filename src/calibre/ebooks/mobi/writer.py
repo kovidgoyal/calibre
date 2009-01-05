@@ -19,11 +19,13 @@ from collections import defaultdict
 from urlparse import urldefrag
 from lxml import etree
 from PIL import Image
-from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS
+from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
+    OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
 from calibre.ebooks.oeb.base import FauxLogger, OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
+from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
@@ -168,18 +170,29 @@ class Serializer(object):
                     index = self.images[val]
                     buffer.write('recindex="%05d"' % index)
                     continue
-                buffer.write('%s="%s"' % (attr, val))
+                buffer.write(attr)
+                buffer.write('="')
+                self.serialize_text(val, quot=True)
+                buffer.write('"')
         if elem.text or len(elem) > 0:
             buffer.write('>')
             if elem.text:
-                buffer.write(encode(elem.text))
+                self.serialize_text(elem.text)
             for child in elem:
                 self.serialize_elem(child, item)
                 if child.tail:
-                    buffer.write(encode(child.tail))
+                    self.serialize_text(child.tail)
             buffer.write('</%s>' % tag)
         else:
             buffer.write('/>')
+
+    def serialize_text(self, text, quot=False):
+        text = text.replace('&', '&amp;')
+        text = text.replace('<', '&lt;')
+        text = text.replace('>', '&gt;')
+        if quot:
+            text = text.replace('"', '&quot;')
+        self.buffer.write(encode(text))
 
     def fixup_links(self):
         buffer = self.buffer
@@ -226,7 +239,7 @@ class MobiWriter(object):
         index = 1
         self._images = images = {}
         for item in self._oeb.manifest.values():
-            if item.media_type.startswith('image/'):
+            if item.media_type in OEB_RASTER_IMAGES:
                 images[item.href] = index
                 index += 1
 
@@ -298,8 +311,8 @@ class MobiWriter(object):
         image = Image.open(StringIO(data))
         format = image.format
         changed = False
-        if image.format not in ('JPEG', 'GIF'):
-            format = 'GIF'
+        if image.format not in ('JPEG', 'GIF', 'PNG'):
+            format = 'PNG'
             changed = True
         if dimen is not None:
             image.thumbnail(dimen, Image.ANTIALIAS)
@@ -434,9 +447,11 @@ def main(argv=sys.argv):
     fbase = context.dest.fbase
     fkey = context.dest.fnums.values()
     flattener = CSSFlattener(unfloat=True, fbase=fbase, fkey=fkey)
+    rasterizer = SVGRasterizer()
     mobimlizer = MobiMLizer()
     flattener.transform(oeb, context)
-    mobimlizer.transform(oeb, context)
+    rasterizer.transform(oeb, context)
+    mobimlizer.transform(oeb, context)    
     writer.dump(oeb, outpath)
     return 0
 
