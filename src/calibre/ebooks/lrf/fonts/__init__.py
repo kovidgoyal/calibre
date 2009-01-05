@@ -51,7 +51,7 @@ def get_font_path(name):
             font_mod = __import__('calibre.ebooks.lrf.fonts.prs500', {}, {}, 
                                   [fname], -1)
             getattr(font_mod, fname)
-        except ImportError, AttributeError:
+        except (ImportError, AttributeError):
             font_mod = __import__('calibre.ebooks.lrf.fonts.liberation', {}, {}, 
                                   [LIBERATION_FONT_MAP[name]], -1)
         p = PersistentTemporaryFile('.ttf', 'font_')

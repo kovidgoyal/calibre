@@ -22,7 +22,7 @@ match to a given font specification. The main functions in this module are:
 .. autofunction:: match
 '''
 
-import sys, os, locale, codecs
+import sys, os, locale, codecs, subprocess, re
 from ctypes import cdll, c_void_p, Structure, c_int, POINTER, c_ubyte, c_char, util, \
                    pointer, byref, create_string_buffer, Union, c_char_p, c_double
 
@@ -58,6 +58,13 @@ def load_library():
         return cdll.LoadLibrary(lib)
     elif iswindows:
         return cdll.LoadLibrary('libfontconfig-1')
+    elif isbsd:
+        raw = subprocess.Popen('pkg-config --libs-only-L fontconfig'.split(), 
+                         stdout=subprocess.PIPE).stdout.read().strip()
+        match = re.search(r'-L([^\s,]+)', raw)
+        if not match:
+            return cdll.LoadLibrary('libfontconfig.so')
+        return cdll.LoadLibrary(match.group(1)+'/libfontconfig.so')
     else:
         try:
             return cdll.LoadLibrary(util.find_library('fontconfig'))
