@@ -311,8 +311,8 @@ class MobiWriter(object):
         image = Image.open(StringIO(data))
         format = image.format
         changed = False
-        if image.format not in ('JPEG', 'GIF', 'PNG'):
-            format = 'PNG'
+        if image.format not in ('JPEG', 'GIF'):
+            format = 'GIF'
             changed = True
         if dimen is not None:
             image.thumbnail(dimen, Image.ANTIALIAS)

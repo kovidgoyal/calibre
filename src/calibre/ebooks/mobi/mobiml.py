@@ -232,6 +232,7 @@ class MobiMLizer(object):
         left = 0
         display = style['display']
         isblock = not display.startswith('inline')
+        isblock = isblock and style['float'] == 'none'
         isblock = isblock and tag != 'br'
         if isblock:
             bstate.para = None

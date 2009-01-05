@@ -181,7 +181,6 @@ class CSSFlattener(object):
                 left -= style['text-indent']
             if self.unfloat and 'float' in cssdict \
                and tag not in ('img', 'object'):
-                del cssdict['float']
                 if cssdict.get('display', 'none') != 'none':
                     del cssdict['display']
             if 'vertical-align' in cssdict:
