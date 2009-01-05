@@ -231,7 +231,7 @@ NULL = DevNull()
 
 def do_add(db, paths, one_book_per_directory, recurse, add_duplicates):
     orig = sys.stdout
-    sys.stdout = NULL
+    #sys.stdout = NULL
     try:
         files, dirs = [], []
         for path in paths:

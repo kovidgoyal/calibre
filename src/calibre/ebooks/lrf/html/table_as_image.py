@@ -88,7 +88,7 @@ def render_table(soup, table, css, base_dir, width, height, dpi, factor=1.0):
     
 def do_render(html, base_dir, width, height, dpi, factor):
     if QApplication.instance() is None:
-                QApplication([])
+        QApplication([])
     tr = HTMLTableRenderer(html, base_dir, width, height, dpi, factor)
     tr.loop.exec_()
     return tr.images, tr.tdir

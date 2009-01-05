@@ -34,6 +34,7 @@ except:
 
 iswindows = 'win32' in sys.platform or 'win64' in sys.platform
 isosx     = 'darwin' in sys.platform
+isbsd     = 'bsd' in sys.platform
 DISABLED  = False 
 #if isosx:
 #    libc = ctypes.cdll.LoadLibrary(ctypes.util.find_library('c'))
