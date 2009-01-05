@@ -600,6 +600,33 @@
    <header>widgets.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>title</tabstop>
+  <tabstop>swap_button</tabstop>
+  <tabstop>authors</tabstop>
+  <tabstop>author_sort</tabstop>
+  <tabstop>auto_author_sort</tabstop>
+  <tabstop>rating</tabstop>
+  <tabstop>publisher</tabstop>
+  <tabstop>tags</tabstop>
+  <tabstop>tag_editor_button</tabstop>
+  <tabstop>series</tabstop>
+  <tabstop>remove_series_button</tabstop>
+  <tabstop>series_index</tabstop>
+  <tabstop>isbn</tabstop>
+  <tabstop>comments</tabstop>
+  <tabstop>fetch_metadata_button</tabstop>
+  <tabstop>fetch_cover_button</tabstop>
+  <tabstop>password_button</tabstop>
+  <tabstop>cover_button</tabstop>
+  <tabstop>reset_cover</tabstop>
+  <tabstop>cover_path</tabstop>
+  <tabstop>add_format_button</tabstop>
+  <tabstop>button_set_cover</tabstop>
+  <tabstop>remove_format_button</tabstop>
+  <tabstop>formats</tabstop>
+  <tabstop>button_box</tabstop>
+ </tabstops>
  <resources>
   <include location="../images.qrc" />
  </resources>
