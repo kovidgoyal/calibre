@@ -15,7 +15,7 @@ from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
 import logging
 import re
-from htmlentitydefs import entitydefs
+import htmlentitydefs
 import uuid
 from lxml import etree
 from calibre import LoggingInterface
@@ -63,6 +63,12 @@ OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
 OEB_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
+
+ENTITYDEFS = dict(htmlentitydefs.entitydefs)
+del ENTITYDEFS['lt']
+del ENTITYDEFS['gt']
+del ENTITYDEFS['quot']
+del ENTITYDEFS['amp']
 
 
 def element(parent, *args, **kwargs):
@@ -301,7 +307,7 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _force_xhtml(self, data):
-            repl = lambda m: entitydefs.get(m.group(1), m.group(0))
+            repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
             data = self.ENTITY_RE.sub(repl, data)
             data = etree.fromstring(data, parser=XML_PARSER)
             if namespace(data.tag) != XHTML_NS:
