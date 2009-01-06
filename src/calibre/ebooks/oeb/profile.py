@@ -41,8 +41,8 @@ PROFILES = {
 
     # Not really, but let's pretend
     'MobiDesktop':
-        Profile(width=280, height=300, dpi=96, fbase=12,
-                fsizes=[9, 10, 11, 12, 14, 17, 20, 24]),
+        Profile(width=280, height=300, dpi=96, fbase=18,
+                fsizes=[14, 14, 16, 18, 20, 22, 22, 24]),
     
     # No clue on usable screen size and DPI
     'CybookG3':

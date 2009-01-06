@@ -17,6 +17,7 @@ import logging
 import re
 import htmlentitydefs
 import uuid
+import copy
 from lxml import etree
 from calibre import LoggingInterface
 
@@ -32,10 +33,11 @@ XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
 DCTERMS_NS = 'http://purl.org/dc/terms/'
 NCX_NS = 'http://www.daisy.org/z3986/2005/ncx/'
 SVG_NS = 'http://www.w3.org/2000/svg'
+XLINK_NS = 'http://www.w3.org/1999/xlink'
 XPNSMAP = {'h': XHTML_NS, 'o1': OPF1_NS, 'o2': OPF2_NS,
            'd09': DC09_NS, 'd10': DC10_NS, 'd11': DC11_NS,
            'xsi': XSI_NS, 'dt': DCTERMS_NS, 'ncx': NCX_NS,
-           'svg': SVG_NS}
+           'svg': SVG_NS, 'xl': XLINK_NS}
 
 def XML(name): return '{%s}%s' % (XML_NS, name)
 def XHTML(name): return '{%s}%s' % (XHTML_NS, name)
@@ -43,6 +45,7 @@ def OPF(name): return '{%s}%s' % (OPF2_NS, name)
 def DC(name): return '{%s}%s' % (DC11_NS, name)
 def NCX(name): return '{%s}%s' % (NCX_NS, name)
 def SVG(name): return '{%s}%s' % (SVG_NS, name)
+def XLINK(name): return '{%s}%s' % (XLINK_NS, name)
 
 EPUB_MIME = 'application/epub+zip'
 XHTML_MIME = 'application/xhtml+xml'
@@ -246,10 +249,10 @@ class Metadata(object):
         self.oeb = oeb
         self.items = defaultdict(list)
 
-    def add(self, term, value, attrib={}, **kwargs):
+    def add(self, term, value, attrib={}, index=-1, **kwargs):
         item = self.Item(term, value, attrib, **kwargs)
         items = self.items[barename(item.term)]
-        items.append(item)
+        items.insert(index, item)
         return item
 
     def iterkeys(self):
@@ -323,8 +326,7 @@ class Manifest(object):
                 data = self._loader(self.href)
                 if self.media_type in OEB_DOCS:
                     data = self._force_xhtml(data)
-                elif self.media_type[-4:] in ('+xml', '/xml') \
-                     and self.media_type != SVG_MIME:
+                elif self.media_type[-4:] in ('+xml', '/xml'):
                     data = etree.fromstring(data, parser=XML_PARSER)
                 self._data = data
                 return data
@@ -340,6 +342,9 @@ class Manifest(object):
             if isinstance(data, etree._Element):
                 return xml2str(data)
             return str(data)
+
+        def __eq__(self, other):
+            return id(self) == id(other)
 
         def __cmp__(self, other):
             result = cmp(self.spine_position, other.spine_position)
@@ -558,9 +563,12 @@ class Guide(object):
         for type, ref in self.refs.items():
             yield type, ref
     
-    def __getitem__(self, index):
-        return self.refs[index]
+    def __getitem__(self, key):
+        return self.refs[key]
 
+    def __delitem__(self, key):
+        del self.refs[key]
+    
     def __contains__(self, key):
         return key in self.refs
 
@@ -891,20 +899,27 @@ class OEBBook(object):
 
     def _ensure_cover_image(self):
         cover = None
+        spine0 = self.spine[0]
+        html = spine0.data
         if self.metadata.cover:
             id = str(self.metadata.cover[0])
-            cover = self.manifest[id]
+            cover = self.manifest.ids[id]
         elif MS_COVER_TYPE in self.guide:
             href = self.guide[MS_COVER_TYPE].href
             cover = self.manifest.hrefs[href]
-        elif 'cover' in self.guide:
-            href = self.guide['cover'].href
+        elif xpath(html, '//h:img[position()=1]'):
+            img = xpath(html, '//h:img[position()=1]')[0]
+            href = img.get('src')
             cover = self.manifest.hrefs[href]
-        else:
-            html = self.spine[0].data
-            imgs = xpath(html, '//h:img[position()=1]')
-            href = imgs[0].get('src') if imgs else None
-            cover = self.manifest.hrefs[href] if href else None
+        elif xpath(html, '//h:object[position()=1]'):
+            object = xpath(html, '//h:object[position()=1]')[0]
+            href = object.get('data')
+            cover = self.manifest.hrefs[href]
+        elif xpath(html, '//svg:svg[position()=1]'):
+            svg = copy.deepcopy(xpath(html, '//svg:svg[position()=1]')[0])
+            href = os.path.splitext(spine0.href)[0] + '.svg'
+            id, href = self.manifest.generate(spine0.id, href)
+            cover = self.manifest.add(id, href, SVG_MIME, data=svg)
         if cover and not self.metadata.cover:
             self.metadata.add('cover', cover.id)
             

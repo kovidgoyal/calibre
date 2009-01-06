@@ -225,10 +225,21 @@ class MobiWriter(object):
         self._oeb = oeb
         self._stream = stream
         self._records = [None]
+        self._remove_html_cover()
         self._generate_content()
         self._generate_record0()
         self._write_header()
         self._write_content()
+
+    def _remove_html_cover(self):
+        oeb = self._oeb
+        if not oeb.metadata.cover \
+           or 'cover' not in oeb.guide:
+            return
+        href = oeb.guide['cover'].href
+        del oeb.guide['cover']
+        item = oeb.manifest.hrefs[href]
+        oeb.manifest.remove(item)
 
     def _generate_content(self):
         self._map_image_names()
@@ -391,7 +402,7 @@ class MobiWriter(object):
                 nrecs += 1
         if oeb.metadata.cover:
             id = str(oeb.metadata.cover[0])
-            item = oeb.manifest[id]
+            item = oeb.manifest.ids[id]
             href = item.href
             index = self._images[href] - 1
             exth.write(pack('>III', 0xc9, 0x0c, index))

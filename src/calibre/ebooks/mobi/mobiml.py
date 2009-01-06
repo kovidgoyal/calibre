@@ -104,7 +104,7 @@ class MobiMLizer(object):
             return ptsize
         fbase = self.profile.fbase
         if ptsize < fbase:
-            return "%dpt" % int(round(ptsize * 2))
+            return "%dpt" % int(round(ptsize))
         return "%dem" % int(round(ptsize / fbase))
 
     def preize_text(self, text):
@@ -284,9 +284,9 @@ class MobiMLizer(object):
         else:
             istate.family = 'serif'
         valign = style['vertical-align']
-        if valign in ('super', 'sup') and asfloat(valign) > 0:
+        if valign in ('super', 'sup') or asfloat(valign) > 0:
             istate.valign = 'super'
-        elif valign == 'sub'  and asfloat(valign) < 0:
+        elif valign == 'sub'  or asfloat(valign) < 0:
             istate.valign = 'sub'
         else:
             istate.valign = 'baseline'
@@ -300,6 +300,15 @@ class MobiMLizer(object):
         if tag == 'img' and 'src' in elem.attrib:
             istate.attrib['src'] = elem.attrib['src']
             istate.attrib['align'] = 'baseline'
+            for prop in ('width', 'height'):
+                if style[prop] != 'auto':
+                    value = style[prop]
+                    if value == getattr(self.profile, prop):
+                        result = '100%'
+                    else:
+                        ems = int(round(value / self.profile.fbase))
+                        result = "%dem" % ems
+                    istate.attrib[prop] = result
         elif tag == 'hr' and asfloat(style['width']) > 0:
             prop = style['width'] / self.profile.width
             istate.attrib['width'] = "%d%%" % int(round(prop * 100))

@@ -268,6 +268,7 @@ class Style(object):
         self._style = {}
         self._fontSize = None
         self._width = None
+        self._height = None
         stylizer._styles[element] = self
 
     def _update_cssdict(self, cssdict):
@@ -390,16 +391,37 @@ class Style(object):
                 base = styles[self._element.getparent()].width
             else:
                 base = self._profile.width
-            if 'width' in self._style:
+            if 'width' is self._element.attrib:
+                width = self._element.attrib['width']
+            elif 'width' in self._style:
                 width = self._style['width']
-                if width == 'auto':
-                    result = base
-                else:
-                    result = self._unit_convert(width, base=base)
             else:
                 result = base
+            if not result:
+                result = self._unit_convert(width, base=base)
             self._width = result
         return self._width
+    
+    @property
+    def height(self):
+        if self._height is None:
+            result = None
+            base = None
+            if self._has_parent():
+                styles = self._stylizer._styles
+                base = styles[self._element.getparent()].height
+            else:
+                base = self._profile.height
+            if 'height' is self._element.attrib:
+                height = self._element.attrib['height']
+            elif 'height' in self._style:
+                height = self._style['height']
+            else:
+                result = base
+            if not result:
+                result = self._unit_convert(height, base=base)
+            self._height = result
+        return self._height
     
     def __str__(self):
         items = self._style.items()
