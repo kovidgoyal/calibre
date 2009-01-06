@@ -17,7 +17,9 @@ from calibre.constants import terminal_controller, iswindows, isosx, \
 from calibre.utils.lock import LockError, ExclusiveFile 
 from collections import defaultdict
 
-if iswindows:
+if os.environ.has_key('CALIBRE_CONFIG_DIRECTORY'):
+    config_dir = os.path.abspath(os.environ['CALIBRE_CONFIG_DIRECTORY'])
+elif iswindows:
     config_dir = plugins['winutil'][0].special_folder_path(plugins['winutil'][0].CSIDL_APPDATA)
     if not os.access(config_dir, os.W_OK|os.X_OK):
         config_dir = os.path.expanduser('~')
