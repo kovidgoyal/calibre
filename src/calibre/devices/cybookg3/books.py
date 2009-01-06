@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com'
+__copyright__ = '2009, John Schember <john at nachtimwald.com>'
 
 '''
 '''
@@ -20,6 +20,13 @@ class Book(object):
         self.thumbnail = None
         self.tags = []
         
+    @apply
+    def title_sorter():
+        doc = '''String to sort the title. If absent, title is returned'''
+        def fget(self):
+            return re.sub('^\s*A\s+|^\s*The\s+|^\s*An\s+', '', self.title).rstrip()
+        return property(doc=doc, fget=fget)
+
     @apply
     def thumbnail():
         return None

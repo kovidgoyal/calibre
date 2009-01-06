@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com'
+__copyright__ = '2009, John Schember <john at nachtimwald.com>'
 
 '''
 Device driver for Bookeen's Cybook Gen 3
@@ -19,7 +19,9 @@ class CYBOOKG3(Device):
     VENDOR_ID   = 0x0bda
     PRODUCT_ID  = 0x0703
     BCD         = 0x110
-    #THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
+
+    VENDOR_NAME = 'BOOKEEN'
+    PRODUCT_NAME = 'CYBOOK_GEN3'
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
@@ -223,11 +225,16 @@ class CYBOOKG3(Device):
 
     def _windows_match_device(self, device_id):
         device_id = device_id.upper()
+        if 'VEN_'+self.VENDOR_NAME in device_id and \
+               'PROD_'+self.PRODUCT_NAME in device_id:
+            return True
+                    
         vid, pid = hex(cls.VENDOR_ID)[2:], hex(cls.PRODUCT_ID)[2:]        
         while len(vid) < 4: vid = '0' + vid
         while len(pid) < 4: pid = '0' + pid        
         if 'VID_'+vid in device_id and 'PID_'+pid in device_id:
             return True
+            
         return False
 
     # This only supports Windows >= 2000
