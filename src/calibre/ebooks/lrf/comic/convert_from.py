@@ -51,7 +51,7 @@ PROFILES = {
             # Name : (width, height) in pixels
             'prs500':(584, 754),
             # The SONY's LRF renderer (on the PRS500) only uses the first 800x600 block of the image 
-            'prs500-landscape': (784, 1200-92)
+            'prs500-landscape': (784, 1012)
             }
 
 def extract_comic(path_to_comic_file):
@@ -401,6 +401,9 @@ def create_pdf(pages, profile, opts, thumbnail=None):
             raise RuntimeError('Failed to load reportlab')
 
     pdf = canvas.Canvas(filename=opts.output, pagesize=(width,height+15))
+    pdf.setAuthor(opts.author)
+    pdf.setTitle(opts.title)
+
 
     for page in pages:
        pdf.drawImage(page, x=0,y=0,width=width, height=height) 
