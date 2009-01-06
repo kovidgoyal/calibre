@@ -38,6 +38,7 @@ def freeze():
                        '/usr/lib/libxml2.so.2',
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libxslt.so.1',
+                       '/usr/lib/libexslt.so.0',
                        '/usr/lib/libMagickWand.so',
                        '/usr/lib/libMagickCore.so',
                        ]
