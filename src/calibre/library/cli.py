@@ -83,9 +83,11 @@ STANZA_TEMPLATE='''\
       <link py:if="record['cover']" rel="x-stanza-cover-image-thumbnail" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
       <content type="xhtml">
           <div xmlns="http://www.w3.org/1999/xhtml">
-              <py:for each="f in ('authors','publisher','rating','tags','series', 'isbn')">
+              <py:for each="f in ('authors', 'publisher', 'rating', 'tags', 'series', 'isbn')">
               <py:if test="record[f]">
-              ${f.capitalize()}:${unicode(', '.join(record[f]) if f=='tags' else record[f])}<br/>
+              ${f.capitalize()}:${unicode(', '.join(record[f]) if f=='tags' else record[f])}
+              <py:if test="f =='series'"># ${str(record['series_index'])}</py:if>
+              <br/>
               </py:if>
               </py:for>
               <py:if test="record['comments']">
