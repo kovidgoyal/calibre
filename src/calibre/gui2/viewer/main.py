@@ -242,6 +242,9 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
                      lambda x:self.view.previous_page())
         self.connect(self.action_find_next, SIGNAL('triggered(bool)'), 
                      lambda x:self.find(unicode(self.search.text()), True, repeat=True))
+        self.connect(self.action_full_screen, SIGNAL('triggered(bool)'),
+                     self.toggle_fullscreen)
+        self.action_full_screen.setShortcuts([Qt.Key_F11, Qt.CTRL+Qt.SHIFT+Qt.Key_F])
         self.connect(self.action_back, SIGNAL('triggered(bool)'), self.back)
         self.connect(self.action_bookmark, SIGNAL('triggered(bool)'), self.bookmark)
         self.connect(self.action_forward, SIGNAL('triggered(bool)'), self.forward)
@@ -263,6 +266,13 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar2.setContextMenuPolicy(Qt.PreventContextMenu)
         self.tool_bar.widgetForAction(self.action_bookmark).setPopupMode(QToolButton.MenuButtonPopup)
+        self.action_full_screen.setCheckable(True)
+
+    def toggle_fullscreen(self, x):
+        if self.isFullScreen():
+            self.showNormal()
+        else:
+            self.showFullScreen()
     
     def goto(self, ref):
         if ref:
@@ -473,9 +483,12 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
         return current_page
         
     def save_current_position(self):
-        pos = self.view.bookmark()
-        bookmark = '%d#%s'%(self.current_index, pos)
-        self.iterator.add_bookmark(('calibre_current_page_bookmark', bookmark))
+        try:
+            pos = self.view.bookmark()
+            bookmark = '%d#%s'%(self.current_index, pos)
+            self.iterator.add_bookmark(('calibre_current_page_bookmark', bookmark))
+        except:
+            traceback.print_exc()
     
     def load_ebook(self, pathtoebook):
         if self.iterator is not None:
@@ -499,7 +512,7 @@ class EbookViewer(MainWindow, Ui_EbookViewer):
             self.metadata.show_opf(self.iterator.opf)
             title = self.iterator.opf.title
             if not title:
-                title = os.path.splitext(os.path.basename(pathtoebook))
+                title = os.path.splitext(os.path.basename(pathtoebook))[0]
             self.action_table_of_contents.setDisabled(not self.iterator.toc)
             if self.iterator.toc:
                 self.toc_model = TOC(self.iterator.toc)
@@ -571,7 +584,7 @@ View an ebook.
 
 def main(args=sys.argv):
     parser = option_parser()
-    opts, args = parser.parse_args(args)
+    args = parser.parse_args(args)[-1]
     pid = os.fork() if islinux else -1
     if pid <= 0:
         app = Application(args)

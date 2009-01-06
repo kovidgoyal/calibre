@@ -10,7 +10,7 @@ import time
 import urllib
 
 import cherrypy
-from cherrypy.lib import cptools, http
+from cherrypy.lib import cptools, http, file_generator_limited
 
 
 def serve_file(path, content_type=None, disposition=None, name=None):
@@ -83,13 +83,15 @@ def serve_file(path, content_type=None, disposition=None, name=None):
             if len(r) == 1:
                 # Return a single-part response.
                 start, stop = r[0]
+                if stop > c_len:
+                    stop = c_len
                 r_len = stop - start
                 response.status = "206 Partial Content"
                 response.headers['Content-Range'] = ("bytes %s-%s/%s" %
                                                        (start, stop - 1, c_len))
                 response.headers['Content-Length'] = r_len
                 bodyfile.seek(start)
-                response.body = bodyfile.read(r_len)
+                response.body = file_generator_limited(bodyfile, r_len)
             else:
                 # Return a multipart/byteranges response.
                 response.status = "206 Partial Content"
@@ -111,7 +113,8 @@ def serve_file(path, content_type=None, disposition=None, name=None):
                         yield ("\r\nContent-range: bytes %s-%s/%s\r\n\r\n"
                                % (start, stop - 1, c_len))
                         bodyfile.seek(start)
-                        yield bodyfile.read(stop - start)
+                        for chunk in file_generator_limited(bodyfile, stop-start):
+                            yield chunk
                         yield "\r\n"
                     # Final boundary
                     yield "--" + boundary + "--"

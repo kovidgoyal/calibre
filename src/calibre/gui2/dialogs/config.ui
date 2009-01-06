@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>709</width>
-    <height>563</height>
+    <width>800</width>
+    <height>570</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -21,12 +21,12 @@
    <item row="0" column="0" >
     <layout class="QHBoxLayout" >
      <item>
-      <widget class="QListWidget" name="category_list" >
-       <property name="maximumSize" >
-        <size>
-         <width>140</width>
-         <height>16777215</height>
-        </size>
+      <widget class="QListView" name="category_view" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Expanding" hsizetype="MinimumExpanding" >
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
        </property>
        <property name="font" >
         <font>
@@ -34,17 +34,11 @@
          <bold>true</bold>
         </font>
        </property>
-       <property name="mouseTracking" >
-        <bool>true</bool>
-       </property>
-       <property name="verticalScrollBarPolicy" >
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="horizontalScrollBarPolicy" >
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
        <property name="tabKeyNavigation" >
         <bool>true</bool>
+       </property>
+       <property name="showDropIndicator" stdset="0" >
+        <bool>false</bool>
        </property>
        <property name="iconSize" >
         <size>
@@ -52,25 +46,31 @@
          <height>48</height>
         </size>
        </property>
-       <property name="movement" >
-        <enum>QListView::Static</enum>
+       <property name="verticalScrollMode" >
+        <enum>QAbstractItemView::ScrollPerItem</enum>
+       </property>
+       <property name="horizontalScrollMode" >
+        <enum>QAbstractItemView::ScrollPerPixel</enum>
        </property>
        <property name="flow" >
         <enum>QListView::TopToBottom</enum>
        </property>
-       <property name="isWrapping" stdset="0" >
-        <bool>false</bool>
-       </property>
        <property name="spacing" >
-        <number>25</number>
+        <number>20</number>
        </property>
        <property name="viewMode" >
-        <enum>QListView::IconMode</enum>
+        <enum>QListView::ListMode</enum>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QStackedWidget" name="stackedWidget" >
+       <property name="sizePolicy" >
+        <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+         <horstretch>100</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="currentIndex" >
         <number>0</number>
        </property>
@@ -128,16 +128,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QCheckBox" name="confirm_delete" >
-           <property name="text" >
-            <string>Ask for &amp;confirmation before deleting files</string>
-           </property>
-          </widget>
-         </item>
-         <item>
           <widget class="QCheckBox" name="pdf_metadata" >
            <property name="toolTip" >
-            <string>If you disable this setting, metadatas is guessed from the filename instead. This can be configured in the Advanced section.</string>
+            <string>If you disable this setting, metadata is guessed from the filename instead. This can be configured in the Advanced section.</string>
            </property>
            <property name="text" >
             <string>Read &amp;metadata from files</string>
@@ -149,7 +142,7 @@
          </item>
          <item>
           <layout class="QGridLayout" name="gridLayout_2" >
-           <item row="1" column="0" >
+           <item row="0" column="0" >
             <widget class="QLabel" name="label_5" >
              <property name="text" >
               <string>Format for &amp;single file save:</string>
@@ -159,10 +152,10 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1" >
+           <item row="0" column="1" >
             <widget class="QComboBox" name="single_format" />
            </item>
-           <item row="2" column="0" >
+           <item row="1" column="0" >
             <widget class="QLabel" name="label_2" >
              <property name="text" >
               <string>Default network &amp;timeout:</string>
@@ -172,7 +165,7 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="1" >
+           <item row="1" column="1" >
             <widget class="QSpinBox" name="timeout" >
              <property name="toolTip" >
               <string>Set the default timeout for network fetches (i.e. anytime we go out to the internet to get information)</string>
@@ -191,10 +184,10 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1" >
+           <item row="2" column="1" >
             <widget class="QComboBox" name="language" />
            </item>
-           <item row="3" column="0" >
+           <item row="2" column="0" >
             <widget class="QLabel" name="label_7" >
              <property name="text" >
               <string>Choose &amp;language (requires restart):</string>
@@ -204,30 +197,32 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1" >
-            <widget class="QComboBox" name="output_format" >
-             <property name="toolTip" >
-              <string>The default output format for ebook conversions.</string>
-             </property>
+           <item row="3" column="1" >
+            <widget class="QComboBox" name="priority" >
              <item>
               <property name="text" >
-               <string>LRF</string>
+               <string>Normal</string>
               </property>
              </item>
              <item>
               <property name="text" >
-               <string>EPUB</string>
+               <string>High</string>
+              </property>
+             </item>
+             <item>
+              <property name="text" >
+               <string>Low</string>
               </property>
              </item>
             </widget>
            </item>
-           <item row="0" column="0" >
-            <widget class="QLabel" name="label_8" >
+           <item row="3" column="0" >
+            <widget class="QLabel" name="priority_label" >
              <property name="text" >
-              <string>&amp;Output format:</string>
+              <string>Job &amp;priority:</string>
              </property>
              <property name="buddy" >
-              <cstring>output_format</cstring>
+              <cstring>priority</cstring>
              </property>
             </widget>
            </item>
@@ -361,7 +356,7 @@
            </item>
           </layout>
          </item>
-         <item row="5" column="0" >
+         <item row="7" column="0" >
           <widget class="QGroupBox" name="groupBox_2" >
            <property name="title" >
             <string>Toolbar</string>
@@ -409,7 +404,7 @@
            </layout>
           </widget>
          </item>
-         <item row="6" column="0" >
+         <item row="8" column="0" >
           <widget class="QGroupBox" name="groupBox" >
            <property name="title" >
             <string>Select visible &amp;columns in library view</string>
@@ -497,17 +492,24 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" >
+         <item row="4" column="0" >
           <widget class="QCheckBox" name="sync_news" >
            <property name="text" >
             <string>Automatically send downloaded &amp;news to ebook reader</string>
            </property>
           </widget>
          </item>
-         <item row="4" column="0" >
+         <item row="5" column="0" >
           <widget class="QCheckBox" name="delete_news" >
            <property name="text" >
             <string>&amp;Delete news from library when it is sent to reader</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" >
+          <widget class="QCheckBox" name="separate_cover_flow" >
+           <property name="text" >
+            <string>Show cover &amp;browser in a separate window (needs restart)</string>
            </property>
           </widget>
          </item>
@@ -646,10 +648,30 @@
              </property>
             </widget>
            </item>
-           <item row="3" column="1" >
+           <item row="4" column="1" >
             <widget class="QCheckBox" name="show_server_password" >
              <property name="text" >
               <string>&amp;Show password</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1" >
+            <widget class="QLineEdit" name="max_cover_size" >
+             <property name="toolTip" >
+              <string>The maximum size (widthxheight) for displayed covers. Larger covers are resized. </string>
+             </property>
+             <property name="text" >
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0" >
+            <widget class="QLabel" name="label_3" >
+             <property name="text" >
+              <string>Max. &amp;cover size:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>max_cover_size</cstring>
              </property>
             </widget>
            </item>
@@ -745,6 +767,122 @@
          </item>
         </layout>
        </widget>
+       <widget class="QWidget" name="page_5" >
+        <layout class="QVBoxLayout" name="verticalLayout_6" >
+         <item>
+          <widget class="QLabel" name="label_8" >
+           <property name="text" >
+            <string>Here you can customize the behavior of Calibre by controlling what plugins it uses.</string>
+           </property>
+           <property name="wordWrap" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTreeView" name="plugin_view" >
+           <property name="iconSize" >
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+           <property name="animated" >
+            <bool>true</bool>
+           </property>
+           <property name="headerHidden" >
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6" >
+           <item>
+            <widget class="QPushButton" name="toggle_plugin" >
+             <property name="text" >
+              <string>Enable/&amp;Disable plugin</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="customize_plugin" >
+             <property name="text" >
+              <string>&amp;Customize plugin</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="remove_plugin" >
+             <property name="text" >
+              <string>&amp;Remove plugin</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox_4" >
+           <property name="title" >
+            <string>Add new plugin</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5" >
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_5" >
+              <item>
+               <widget class="QLabel" name="label_14" >
+                <property name="text" >
+                 <string>Plugin &amp;file:</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>plugin_path</cstring>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="plugin_path" />
+              </item>
+              <item>
+               <widget class="QToolButton" name="button_plugin_browse" >
+                <property name="text" >
+                 <string>...</string>
+                </property>
+                <property name="icon" >
+                 <iconset resource="../images.qrc" >
+                  <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_4" >
+              <item>
+               <spacer name="horizontalSpacer_2" >
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0" >
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="button_plugin_add" >
+                <property name="text" >
+                 <string>&amp;Add</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
     </layout>
@@ -772,8 +910,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>235</x>
-     <y>671</y>
+     <x>239</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -788,28 +926,12 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>303</x>
-     <y>671</y>
+     <x>307</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
      <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>category_list</sender>
-   <signal>currentRowChanged(int)</signal>
-   <receiver>stackedWidget</receiver>
-   <slot>setCurrentIndex(int)</slot>
-   <hints>
-    <hint type="sourcelabel" >
-     <x>142</x>
-     <y>117</y>
-    </hint>
-    <hint type="destinationlabel" >
-     <x>256</x>
-     <y>7</y>
     </hint>
    </hints>
   </connection>

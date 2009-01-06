@@ -10,6 +10,14 @@ Based on ideas from comiclrf created by FangornUK.
 import os, sys, shutil, traceback, textwrap
 from uuid import uuid4
 
+try:
+	from reportlab.pdfgen import canvas
+	_reportlab = True
+except:
+	_reportlab = False
+
+
+
 from calibre import extract, terminal_controller, __appname__, __version__
 from calibre.utils.config import Config, StringConfig
 from calibre.ptempfile import PersistentTemporaryDirectory
@@ -19,6 +27,7 @@ from calibre.ebooks.lrf.pylrs.pylrs import Book, BookSetting, ImageStream, Image
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.epub.from_html import config as html2epub_config, convert as html2epub
+from calibre.customize.ui import run_plugins_on_preprocess
 try:
     from calibre.utils.PythonMagickWand import \
             NewMagickWand, NewPixelWand, \
@@ -41,6 +50,8 @@ except:
 PROFILES = {
             # Name : (width, height) in pixels
             'prs500':(584, 754),
+            # The SONY's LRF renderer (on the PRS500) only uses the first 800x600 block of the image 
+            'prs500-landscape': (784, 1200-92)
             }
 
 def extract_comic(path_to_comic_file):
@@ -276,7 +287,7 @@ def process_pages(pages, opts, update):
         failures += failures_
     return ans, failures, tdir
     
-def config(defaults=None):
+def config(defaults=None,output_format='lrf'):
     desc = _('Options to control the conversion of comics (CBR, CBZ) files into ebooks')
     if defaults is None:
         c = Config('comic', desc)
@@ -313,10 +324,13 @@ def config(defaults=None):
               help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
     c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False,
                       help=_("Don't show progress bar."))
+    if output_format == 'pdf':
+           c.add_opt('no_process',['--no_process'], default=False,
+    		      help=_("Apply no processing to the image"))
     return c
 
-def option_parser():
-    c = config()
+def option_parser(output_format='lrf'):
+    c = config(output_format=output_format)
     return c.option_parser(usage=_('''\
 %prog [options] comic.cb[z|r]
 
@@ -379,38 +393,60 @@ def create_lrf(pages, profile, opts, thumbnail=None):
     book.renderLrf(open(opts.output, 'wb'))
     print _('Output written to'), opts.output
     
+
+def create_pdf(pages, profile, opts, thumbnail=None):
+    width, height = PROFILES[profile]
+
+    if not _reportlab:
+            raise RuntimeError('Failed to load reportlab')
+
+    pdf = canvas.Canvas(filename=opts.output, pagesize=(width,height+15))
+
+    for page in pages:
+       pdf.drawImage(page, x=0,y=0,width=width, height=height) 
+       pdf.showPage() 
+	 
+    # Write the document to disk
+    pdf.save() 
+
     
 def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='lrf'):
+    path_to_file = run_plugins_on_preprocess(path_to_file)
     source = path_to_file
+    
     if not opts.title:
         opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:
         opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.'+output_format)
     tdir  = extract_comic(source)
     pages = find_pages(tdir, sort_on_mtime=opts.no_sort, verbose=opts.verbose)
+    thumbnail = None
     if not pages:
         raise ValueError('Could not find any pages in the comic: %s'%source)
-    pages, failures, tdir2 = process_pages(pages, opts, notification)
-    if not pages:
-        raise ValueError('Could not find any valid pages in the comic: %s'%source)
-    if failures:
-        print 'Could not process the following pages (run with --verbose to see why):'
-        for f in failures:
-            print '\t', f
-    thumbnail = os.path.join(tdir2, 'thumbnail.png')
-    if not os.access(thumbnail, os.R_OK):
-        thumbnail = None
-    
+    if not opts.no_process:
+       pages, failures, tdir2 = process_pages(pages, opts, notification)
+       if not pages:
+          raise ValueError('Could not find any valid pages in the comic: %s'%source)
+       if failures:
+          print 'Could not process the following pages (run with --verbose to see why):'
+          for f in failures:
+              print '\t', f
+       thumbnail = os.path.join(tdir2, 'thumbnail.png')
+       if not os.access(thumbnail, os.R_OK):
+          thumbnail = None
     if output_format == 'lrf':
         create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
-    else:
+    if output_format == 'epub':
         create_epub(pages, opts.profile, opts, thumbnail=thumbnail)
+    if output_format == 'pdf':
+	create_pdf(pages, opts.profile, opts, thumbnail=thumbnail)
     shutil.rmtree(tdir)
-    shutil.rmtree(tdir2)
+    if not opts.no_process:
+        shutil.rmtree(tdir2)
 
 
 def main(args=sys.argv, notification=None, output_format='lrf'):
-    parser = option_parser()
+    parser = option_parser(output_format=output_format)
     opts, args = parser.parse_args(args)
     if len(args) < 2:
         parser.print_help()
@@ -424,7 +460,6 @@ def main(args=sys.argv, notification=None, output_format='lrf'):
     
     source = os.path.abspath(args[1])
     do_convert(source, opts, notification, output_format=output_format)
-    
     return 0
 
 if __name__ == '__main__':

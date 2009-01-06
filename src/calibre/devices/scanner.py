@@ -43,7 +43,8 @@ class DeviceScanner(object):
         if iswindows:
             for device_id in self.devices:
                 vid, pid = 'vid_%4.4x'%device.VENDOR_ID, 'pid_%4.4x'%device.PRODUCT_ID
-                if vid in device_id and pid in device_id:
+                rev = ('rev_%4.4x'%device.BCD).replace('a', ':') # Bug in winutil.get_usb_devices converts a to :
+                if vid in device_id and pid in device_id and rev in device_id:
                     return True
             return False
         else:

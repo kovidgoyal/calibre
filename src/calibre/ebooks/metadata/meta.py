@@ -5,36 +5,17 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, re, collections
 
 from calibre.utils.config import prefs
-from calibre.ebooks.metadata.rtf  import get_metadata as rtf_metadata
-from calibre.ebooks.metadata.fb2  import get_metadata as fb2_metadata
-from calibre.ebooks.lrf.meta      import get_metadata as lrf_metadata
-from calibre.ebooks.metadata.pdf  import get_metadata as pdf_metadata
-from calibre.ebooks.metadata.lit  import get_metadata as lit_metadata
-from calibre.ebooks.metadata.imp  import get_metadata as imp_metadata
-from calibre.ebooks.metadata.rb   import get_metadata as rb_metadata
-from calibre.ebooks.metadata.epub import get_metadata as epub_metadata
-from calibre.ebooks.metadata.html import get_metadata as html_metadata
-from calibre.ebooks.mobi.reader   import get_metadata as mobi_metadata
-from calibre.ebooks.metadata.odt  import get_metadata as odt_metadata
+ 
 from calibre.ebooks.metadata.opf2 import OPF
-from calibre.ebooks.metadata.rtf  import set_metadata as set_rtf_metadata
-from calibre.ebooks.lrf.meta      import set_metadata as set_lrf_metadata
-from calibre.ebooks.metadata.epub import set_metadata as set_epub_metadata
-from calibre.ebooks.metadata.pdf  import set_metadata as set_pdf_metadata
-try:
-    from calibre.libunrar import extract_member as rar_extract_first
-except OSError:
-    rar_extract_first = None
-    
-from calibre.libunzip import extract_member as zip_extract_first
 
+from calibre.customize.ui import get_file_type_metadata, set_file_type_metadata
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ptempfile import TemporaryDirectory
 
 _METADATA_PRIORITIES = [
                        'html', 'htm', 'xhtml', 'xhtm',
                        'rtf', 'fb2', 'pdf', 'prc', 'odt',
-                       'epub', 'lit', 'lrf', 'mobi', 'rb', 'imp'
+                       'epub', 'lit', 'lrx', 'lrf', 'mobi',
+                       'rb', 'imp'
                       ]
 
 # The priorities for loading metadata from different file types
@@ -87,11 +68,7 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     
     mi = MetaInformation(None, None)
     if prefs['read_file_metadata']:
-        try:
-            func = eval(stream_type + '_metadata')
-            mi = func(stream)
-        except NameError:
-            pass
+        mi = get_file_type_metadata(stream, stream_type)
         
     name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name)
@@ -103,37 +80,14 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     if opf is not None:
         base.smart_update(opf)
         
-    if stream_type in ('cbr', 'cbz'):
-        try:
-            cdata = get_comic_cover(stream, stream_type)
-            if cdata is not None:
-                base.cover_data = cdata
-        except:
-            import traceback
-            traceback.print_exc()
-            pass
-        
     return base
 
-def get_comic_cover(stream, type):
-    extract_first = zip_extract_first if type.lower() == 'cbz' else rar_extract_first
-    ret = extract_first(stream)
-    if ret is not None:
-        path, data = ret
-        ext = os.path.splitext(path)[1][1:]
-        return (ext.lower(), data)
-        
 def set_metadata(stream, mi, stream_type='lrf'):
-    if stream_type: stream_type = stream_type.lower()
-    if stream_type == 'lrf':
-        set_lrf_metadata(stream, mi)
-    elif stream_type == 'epub':
-        set_epub_metadata(stream, mi)
-    elif stream_type == 'rtf':
-        set_rtf_metadata(stream, mi)
-    #elif stream_type == 'pdf':
-    #    set_pdf_metadata(stream, mi)
-
+    if stream_type:
+        stream_type = stream_type.lower()
+    set_file_type_metadata(stream, mi, stream_type)
+    
+    
 def metadata_from_filename(name, pat=None):
     name = os.path.splitext(name)[0]
     mi = MetaInformation(None, None)

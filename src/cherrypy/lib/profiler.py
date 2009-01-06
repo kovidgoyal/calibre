@@ -160,7 +160,15 @@ class ProfileAggregator(Profiler):
 
 class make_app:
     def __init__(self, nextapp, path=None, aggregate=False):
-        """Make a WSGI middleware app which wraps 'nextapp' with profiling."""
+        """Make a WSGI middleware app which wraps 'nextapp' with profiling.
+        
+        nextapp: the WSGI application to wrap, usually an instance of
+            cherrypy.Application.
+        path: where to dump the profiling output.
+        aggregate: if True, profile data for all HTTP requests will go in
+            a single file. If False (the default), each HTTP request will
+            dump its profile data into a separate file.
+        """
         self.nextapp = nextapp
         self.aggregate = aggregate
         if aggregate:

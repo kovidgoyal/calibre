@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 from PyQt4.QtGui import QDialog
 from calibre.gui2.dialogs.comicconf_ui import Ui_Dialog
 from calibre.gui2 import qstring_to_unicode
-from calibre.ebooks.lrf.comic.convert_from import config
+from calibre.ebooks.lrf.comic.convert_from import config, PROFILES
 
 def set_conversion_defaults(window):
     d = ComicConf(window)
@@ -52,6 +52,9 @@ class ComicConf(QDialog, Ui_Dialog):
             self.opt_author.setText(author)
         self.opt_colors.setValue(opts.colors)
         self.opt_profile.addItem(opts.profile)
+        for x in PROFILES.keys():
+            if x != opts.profile:
+                self.opt_profile.addItem(x)
         self.opt_dont_normalize.setChecked(opts.dont_normalize)
         self.opt_keep_aspect_ratio.setChecked(opts.keep_aspect_ratio)
         self.opt_dont_sharpen.setChecked(opts.dont_sharpen)

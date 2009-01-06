@@ -21,12 +21,12 @@ from calibre.library.sqlite import connect, IntegrityError
 from calibre.utils.search_query_parser import SearchQueryParser
 from calibre.ebooks.metadata import string_to_authors, authors_to_string
 from calibre.ebooks.metadata.meta import get_metadata
-from calibre.constants import preferred_encoding, iswindows, isosx
-
+from calibre.constants import preferred_encoding, iswindows, isosx, filesystem_encoding
+from calibre.ptempfile import PersistentTemporaryFile
+from calibre.customize.ui import run_plugins_on_import
+from calibre import sanitize_file_name
 
 copyfile = os.link if hasattr(os, 'link') else shutil.copyfile
-filesystem_encoding = sys.getfilesystemencoding()
-if filesystem_encoding is None: filesystem_encoding = 'utf-8'
 iscaseinsensitive = iswindows or isosx
 
 def normpath(x):
@@ -36,22 +36,6 @@ def normpath(x):
         x = x.lower()
     return x
 
-_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+\[\]/]')
-def sanitize_file_name(name, substitute='_'):
-    '''
-    Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
-    The set of invalid characters is the union of the invalid characters in Windows,
-    OS X and Linux. Also removes leading an trailing whitespace.
-    **WARNING:** This function also replaces path separators, so only pass file names
-    and not full paths to it.
-    *NOTE:* This function always returns byte strings, not unicode objects. The byte strings
-    are encoded in the filesystem encoding of the platform, or UTF-8. 
-    '''
-    if isinstance(name, unicode):
-        name = name.encode(filesystem_encoding, 'ignore')
-    one = _filename_sanitize.sub(substitute, name)
-    one = re.sub(r'\s', ' ', one).strip()
-    return re.sub(r'^\.+$', '_', one)
 
 FIELD_MAP = {'id':0, 'title':1, 'authors':2, 'publisher':3, 'rating':4, 'timestamp':5, 
              'size':6, 'tags':7, 'comments':8, 'series':9, 'series_index':10,
@@ -232,6 +216,9 @@ class ResultCache(SearchQueryParser):
     def row(self, id):
         return self.index(id)
     
+    def has_id(self, id):
+        return self._data[id] is not None
+    
     def refresh_ids(self, conn, ids):
         for id in ids:
             self._data[id] = conn.get('SELECT * from meta WHERE id=?', (id,))[0]
@@ -251,6 +238,9 @@ class ResultCache(SearchQueryParser):
             self._data[id] = None
             if id in self._map: self._map.remove(id)
             if id in self._map_filtered: self._map_filtered.remove(id)
+    
+    def count(self):
+        return len(self._map)
     
     def refresh(self, db, field=None, ascending=True):
         temp = db.conn.get('SELECT * FROM meta')
@@ -304,10 +294,11 @@ class ResultCache(SearchQueryParser):
     
 class Tag(unicode):
     
-    def __init__(self, name):
-        unicode.__init__(self, name)
-        self.count = 0
-        self.state = 0
+    def __new__(cls, *args):
+        obj = super(Tag, cls).__new__(cls, *args)
+        obj.count = 0
+        obj.state = 0
+        return obj
         
     def as_string(self):
         return u'[%d] %s'%(self.count, self)
@@ -370,6 +361,8 @@ class LibraryDatabase2(LibraryDatabase):
         self.index   = self.data.index
         self.refresh_ids = functools.partial(self.data.refresh_ids, self.conn)
         self.row     = self.data.row
+        self.has_id  = self.data.has_id
+        self.count   = self.data.count
         
         self.refresh()
         
@@ -478,8 +471,8 @@ class LibraryDatabase2(LibraryDatabase):
         authors = self.authors(id, index_is_id=True)
         if not authors:
             authors = _('Unknown')
-        author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding)
-        title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding)
+        author = sanitize_file_name(authors.split(',')[0][:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
+        title  = sanitize_file_name(self.title(id, index_is_id=True)[:self.PATH_LIMIT]).decode(filesystem_encoding, 'replace')
         name   = title + ' - ' + author
         return name
     
@@ -588,7 +581,7 @@ class LibraryDatabase2(LibraryDatabase):
                 data = data.read()
             p.loadFromData(data)
             p.save(path)
-            
+    
     def all_formats(self):
         formats = self.conn.get('SELECT format from data')
         if not formats:
@@ -647,6 +640,13 @@ class LibraryDatabase2(LibraryDatabase):
         if self.has_format(index, format, index_is_id):
             self.remove_format(id, format, index_is_id=True)
         
+    def add_format_with_hooks(self, index, format, fpath, index_is_id=False, 
+                              path=None, notify=True):
+        npath = self.run_import_plugins(fpath, format)
+        format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+        return self.add_format(index, format, open(npath, 'rb'), 
+                               index_is_id=index_is_id, path=path, notify=notify)
+    
     def add_format(self, index, format, stream, index_is_id=False, path=None, notify=True):
         id = index if index_is_id else self.id(index)
         if path is None:
@@ -752,7 +752,10 @@ class LibraryDatabase2(LibraryDatabase):
         newspapers = self.conn.get('SELECT name FROM tags WHERE id IN (SELECT DISTINCT tag FROM books_tags_link WHERE book IN (select book from books_tags_link where tag IN (SELECT id FROM tags WHERE name=?)))', (_('News'),))
         if newspapers:
             newspapers = [f[0] for f in newspapers]
-            newspapers.remove(_('News'))
+            try:
+                newspapers.remove(_('News'))
+            except ValueError:
+                pass
             categories['news'] = list(map(Tag, newspapers))
             for tag in categories['news']:
                 tag.count = self.conn.get('SELECT COUNT(id) FROM books_tags_link WHERE tag IN (SELECT DISTINCT id FROM tags WHERE name=?)', (tag,), all=False)
@@ -874,6 +877,14 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.commit()
         if notify:
             self.notify('metadata', [id])
+            
+    def set_timestamp(self, id, dt, notify=True):
+        if dt:
+            self.conn.execute('UPDATE books SET timestamp=? WHERE id=?', (dt, id))
+            self.data.set(id, FIELD_MAP['timestamp'], dt, row_is_id=True)
+            self.conn.commit()
+            if notify:
+                self.notify('metadata', [id])
     
     def set_publisher(self, id, publisher, notify=True):
         self.conn.execute('DELETE FROM books_publishers_link WHERE book=?',(id,))
@@ -1054,7 +1065,7 @@ class LibraryDatabase2(LibraryDatabase):
                               (mi.title, mi.authors[0]))
         id = obj.lastrowid
         self.data.books_added([id], self.conn)
-        self.set_path(id, True)
+        self.set_path(id, index_is_id=True)
         self.conn.commit()
         self.set_metadata(id, mi)
         
@@ -1064,6 +1075,18 @@ class LibraryDatabase2(LibraryDatabase):
         self.conn.commit()
         self.data.refresh_ids(self.conn, [id]) # Needed to update format list and size
         return id
+    
+    def run_import_plugins(self, path_or_stream, format):
+        format = format.lower()
+        if hasattr(path_or_stream, 'seek'):
+            path_or_stream.seek(0)
+            pt = PersistentTemporaryFile('_import_plugin.'+format)
+            shutil.copyfileobj(path_or_stream, pt, 1024**2)
+            pt.close()
+            path = pt.name
+        else:
+            path = path_or_stream
+            return run_plugins_on_import(path, format)
     
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=True):
         '''
@@ -1085,20 +1108,24 @@ class LibraryDatabase2(LibraryDatabase):
                 continue
             series_index = 1 if mi.series_index is None else mi.series_index
             aus = mi.author_sort if mi.author_sort else ', '.join(mi.authors)
+            title = mi.title
+            if isinstance(aus, str):
+                aus = aus.decode(preferred_encoding, 'replace')
+            if isinstance(title, str):
+                title = title.decode(preferred_encoding)
             obj = self.conn.execute('INSERT INTO books(title, uri, series_index, author_sort) VALUES (?, ?, ?, ?)', 
-                              (mi.title, uri, series_index, aus))
+                              (title, uri, series_index, aus))
             id = obj.lastrowid
             self.data.books_added([id], self.conn)
             ids.append(id)
             self.set_path(id, True)
             self.conn.commit()
             self.set_metadata(id, mi)
-            stream = path if hasattr(path, 'read') else open(path, 'rb')
-            stream.seek(0)
-            
+            npath = self.run_import_plugins(path, format)
+            format = os.path.splitext(npath)[-1].lower().replace('.', '').upper()
+            stream = open(npath, 'rb')
             self.add_format(id, format, stream, index_is_id=True)
-            if not hasattr(path, 'read'):
-                stream.close()
+            stream.close()
         self.conn.commit()
         self.data.refresh_ids(self.conn, ids) # Needed to update format list and size
         if duplicates:
@@ -1183,9 +1210,6 @@ class LibraryDatabase2(LibraryDatabase):
         for i in iter(self):
             yield i['id']
             
-    def count(self):
-        return len(self.data._map)
-    
     def get_data_as_dict(self, prefix=None, authors_as_string=False):
         '''
         Return all metadata stored in the database as a dict. Includes paths to

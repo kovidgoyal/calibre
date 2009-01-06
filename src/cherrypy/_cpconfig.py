@@ -303,13 +303,26 @@ def _engine_namespace_handler(k, v):
     elif k == 'autoreload_match':
         engine.autoreload.match = v
     elif k == 'reload_files':
-        engine.autoreload.files = v
+        engine.autoreload.files = set(v)
     elif k == 'deadlock_poll_freq':
         engine.timeout_monitor.frequency = v
     elif k == 'SIGHUP':
         engine.listeners['SIGHUP'] = set([v])
     elif k == 'SIGTERM':
         engine.listeners['SIGTERM'] = set([v])
+    elif "." in k:
+        plugin, attrname = k.split(".", 1)
+        plugin = getattr(engine, plugin)
+        if attrname == 'on':
+            if v and callable(getattr(plugin, 'subscribe', None)):
+                plugin.subscribe()
+                return
+            elif (not v) and callable(getattr(plugin, 'unsubscribe', None)):
+                plugin.unsubscribe()
+                return
+        setattr(plugin, attrname, v)
+    else:
+        setattr(engine, k, v)
 Config.namespaces["engine"] = _engine_namespace_handler
 
 

@@ -155,10 +155,11 @@ class RecipeModel(QAbstractListModel, SearchQueryParser):
             return recipe
         elif role == Qt.DecorationRole:
             icon = self.default_icon
+            icon_path = (':/images/news/%s.png'%recipe.id).replace('recipe_', '') 
             if not recipe.builtin:
                 icon = self.custom_icon
-            elif QFile(':/images/news/%s.png'%recipe.id).exists():
-                icon = QIcon(':/images/news/%s.png'%recipe.id)
+            elif QFile().exists(icon_path):
+                icon = QIcon(icon_path)
             return QVariant(icon)
         
         return NONE
@@ -231,6 +232,7 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.connect(self.download, SIGNAL('clicked()'), self.download_now)
         self.search.setFocus(Qt.OtherFocusReason)
         self.old_news.setValue(gconf['oldest_news'])
+        self.rnumber.setText(_('%d recipes')%self._model.rowCount(None))
         
     def download_now(self):
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)

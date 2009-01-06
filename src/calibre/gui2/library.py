@@ -8,14 +8,15 @@ from math import cos, sin, pi
 from PyQt4.QtGui import QTableView, QAbstractItemView, QColor, \
                         QItemDelegate, QPainterPath, QLinearGradient, QBrush, \
                         QPen, QStyle, QPainter, QLineEdit, \
-                        QPalette, QImage, QApplication, QMenu
+                        QPalette, QImage, QApplication, QMenu, QStyledItemDelegate
 from PyQt4.QtCore import QAbstractTableModel, QVariant, Qt, QString, \
-                         SIGNAL, QObject, QSize, QModelIndex
+                         SIGNAL, QObject, QSize, QModelIndex, QDate
 
 from calibre import strftime
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.library.database2 import FIELD_MAP
-from calibre.gui2 import NONE, TableView, qstring_to_unicode, config
+from calibre.gui2 import NONE, TableView, qstring_to_unicode, config, \
+                         error_dialog
 from calibre.utils.search_query_parser import SearchQueryParser
 
 class LibraryDelegate(QItemDelegate):
@@ -81,6 +82,17 @@ class LibraryDelegate(QItemDelegate):
         sb.setMaximum(5)
         return sb
 
+class DateDelegate(QStyledItemDelegate):
+    
+    def displayText(self, val, locale):
+        d = val.toDate()
+        return d.toString('dd MMM yyyy')
+        if d.isNull():
+            return ''
+        d = datetime(d.year(), d.month(), d.day())
+        return strftime(BooksView.TIME_FMT, d.timetuple())
+        
+
 class BooksModel(QAbstractTableModel):
     coding = zip(
     [1000,900,500,400,100,90,50,40,10,9,5,4,1],
@@ -113,7 +125,8 @@ class BooksModel(QAbstractTableModel):
         QAbstractTableModel.__init__(self, parent)
         self.db = None
         self.column_map = config['column_map']
-        self.editable_cols = ['title', 'authors', 'rating', 'publisher', 'tags', 'series']
+        self.editable_cols = ['title', 'authors', 'rating', 'publisher', 
+                              'tags', 'series', 'timestamp']
         self.default_image = QImage(':/images/book.svg')
         self.sorted_on = ('timestamp', Qt.AscendingOrder)
         self.last_search = '' # The last search performed on this model
@@ -135,7 +148,12 @@ class BooksModel(QAbstractTableModel):
                 idx = self.column_map.index('rating')
             except ValueError:
                 idx = -1
-            self.emit(SIGNAL('columns_sorted(int)'), idx)
+            try:
+                tidx = self.column_map.index('timestamp')
+            except ValueError:
+                tidx = -1
+            
+            self.emit(SIGNAL('columns_sorted(int,int)'), idx, tidx)
         
     
     def set_database(self, db):
@@ -163,11 +181,18 @@ class BooksModel(QAbstractTableModel):
         self.reset()
 
     def add_books(self, paths, formats, metadata, uris=[], add_duplicates=False):
-        return self.db.add_books(paths, formats, metadata, uris,
+        ret = self.db.add_books(paths, formats, metadata, uris,
                                  add_duplicates=add_duplicates)
+        self.count_changed()
+        return ret
         
     def add_news(self, path, recipe):
-        return self.db.add_news(path, recipe)
+        ret = self.db.add_news(path, recipe)
+        self.count_changed()
+        return ret
+    
+    def count_changed(self, *args):
+        self.emit(SIGNAL('count_changed(int)'), self.db.count())
 
     def row_indices(self, index):
         ''' Return list indices of all cells in index.row()'''
@@ -189,8 +214,10 @@ class BooksModel(QAbstractTableModel):
             self.beginRemoveRows(QModelIndex(), row, row)
             self.db.delete_book(id)
             self.endRemoveRows()
+        self.count_changed()
         self.clear_caches()
         self.reset()
+        
         
     def delete_books_by_id(self, ids):
         for id in ids:
@@ -203,12 +230,14 @@ class BooksModel(QAbstractTableModel):
             self.db.delete_book(id)
             if row > -1:
                 self.endRemoveRows()
+        self.count_changed()
         self.clear_caches()
 
     def books_added(self, num):
         if num > 0:
             self.beginInsertRows(QModelIndex(), 0, num-1)
             self.endInsertRows()
+        self.count_changed()
 
     def search(self, text, refinement, reset=True):
         self.db.search(text)
@@ -431,7 +460,7 @@ class BooksModel(QAbstractTableModel):
             dt = self.db.data[r][tmdx]
             if dt:
                 dt = dt - timedelta(seconds=time.timezone) + timedelta(hours=time.daylight)
-                return strftime(BooksView.TIME_FMT, dt.timetuple())
+                return QDate(dt.year, dt.month, dt.day)
         
         def rating(r):
             r = self.db.data[r][ridx]
@@ -473,8 +502,8 @@ class BooksModel(QAbstractTableModel):
         if role in (Qt.DisplayRole, Qt.EditRole):
             ans = self.dc[self.column_map[index.column()]](index.row())
             return NONE if ans is None else QVariant(ans)
-        elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp'):
-            return QVariant(Qt.AlignCenter | Qt.AlignVCenter)
+        #elif role == Qt.TextAlignmentRole and self.column_map[index.column()] in ('size', 'timestamp'):
+        #    return QVariant(Qt.AlignVCenter | Qt.AlignCenter)
         #elif role == Qt.ToolTipRole and index.isValid():
         #    if self.column_map[index.column()] in self.editable_cols:
         #        return QVariant(_("Double click to <b>edit</b> me<br><br>"))
@@ -496,35 +525,40 @@ class BooksModel(QAbstractTableModel):
         return flags
 
     def setData(self, index, value, role):
-        done = False
         if role == Qt.EditRole:
             row, col = index.row(), index.column()
             column = self.column_map[col]
             if column not in self.editable_cols:
                 return False
-            val = unicode(value.toString().toUtf8(), 'utf-8').strip() if column != 'rating' else \
-                  int(value.toInt()[0])
+            val = int(value.toInt()[0]) if column == 'rating' else \
+                  value.toDate() if column == 'timestamp' else \
+                  unicode(value.toString())
+            id = self.db.id(row)  
             if column == 'rating':
                 val = 0 if val < 0 else 5 if val > 5 else val
                 val *= 2
-            if column == 'series':
+            elif column == 'series':
                 pat = re.compile(r'\[(\d+)\]')
                 match = pat.search(val)
-                id = self.db.id(row)
                 if match is not None:
                     self.db.set_series_index(id, int(match.group(1)))
                     val = pat.sub('', val)
                 val = val.strip()
                 if val:
                     self.db.set_series(id, val)
+            elif column == 'timestamp':
+                if val.isNull() or not val.isValid():
+                    return False
+                dt = datetime(val.year(), val.month(), val.day()) + timedelta(seconds=time.timezone) - timedelta(hours=time.daylight)
+                self.db.set_timestamp(id, dt)
             else:
                 self.db.set(row, column, val)
             self.emit(SIGNAL("dataChanged(QModelIndex, QModelIndex)"), \
                                 index, index)
             if column == self.sorted_on[0]:
                 self.resort()
-            done = True
-        return done
+            
+        return True
 
 class BooksView(TableView):
     TIME_FMT = '%d %b %Y'
@@ -543,27 +577,32 @@ class BooksView(TableView):
     def __init__(self, parent, modelcls=BooksModel):
         TableView.__init__(self, parent)
         self.rating_delegate = LibraryDelegate(self)
+        self.timestamp_delegate = DateDelegate(self)
         self.display_parent = parent
         self._model = modelcls(self)
         self.setModel(self._model)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSortingEnabled(True)
         try:
-            self.columns_sorted(self._model.column_map.index('rating'))
+            self.columns_sorted(self._model.column_map.index('rating'),
+                                self._model.column_map.index('timestamp'))
         except ValueError:
             pass
         QObject.connect(self.selectionModel(), SIGNAL('currentRowChanged(QModelIndex, QModelIndex)'),
                         self._model.current_changed)
-        self.connect(self._model, SIGNAL('columns_sorted(int)'), self.columns_sorted, Qt.QueuedConnection)
+        self.connect(self._model, SIGNAL('columns_sorted(int, int)'), self.columns_sorted, Qt.QueuedConnection)
         
-    def columns_sorted(self, col):
+    def columns_sorted(self, rating_col, timestamp_col):
         for i in range(self.model().columnCount(None)):
             if self.itemDelegateForColumn(i) == self.rating_delegate:
                 self.setItemDelegateForColumn(i, self.itemDelegate())
-        if col > -1:
-            self.setItemDelegateForColumn(col, self.rating_delegate)
+        if rating_col > -1:
+            self.setItemDelegateForColumn(rating_col, self.rating_delegate)
+        if timestamp_col > -1:
+            self.setItemDelegateForColumn(timestamp_col, self.timestamp_delegate)
             
-    def set_context_menu(self, edit_metadata, send_to_device, convert, view, save, open_folder):
+    def set_context_menu(self, edit_metadata, send_to_device, convert, view, 
+                         save, open_folder, book_details, similar_menu=None):
         self.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.context_menu = QMenu(self)
         if edit_metadata is not None:
@@ -576,6 +615,10 @@ class BooksView(TableView):
         self.context_menu.addAction(save)
         if open_folder is not None:
             self.context_menu.addAction(open_folder)
+        if book_details is not None:
+            self.context_menu.addAction(book_details)
+        if similar_menu is not None:
+            self.context_menu.addMenu(similar_menu)
         
     def contextMenuEvent(self, event):
         self.context_menu.popup(event.globalPos())
@@ -641,6 +684,8 @@ class DeviceBooksView(BooksView):
         self.rating_delegate = None
         for i in range(10):
             self.setItemDelegateForColumn(i, self.itemDelegate())
+        self.setDragDropMode(self.NoDragDrop)
+        self.setAcceptDrops(False)
 
     def resizeColumnsToContents(self):
         QTableView.resizeColumnsToContents(self)
@@ -651,6 +696,10 @@ class DeviceBooksView(BooksView):
         
     def sortByColumn(self, col, order):
         TableView.sortByColumn(self, col, order)
+        
+    def dropEvent(self, *args):
+        error_dialog(self, _('Not allowed'), 
+        _('Dropping onto a device is not supported. First add the book to the calibre library.')).exec_()
 
 class OnDeviceSearch(SearchQueryParser):
     

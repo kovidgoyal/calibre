@@ -126,7 +126,6 @@ class LogManager(object):
                 if stream is None:
                     stream=sys.stderr
                 h = logging.StreamHandler(stream)
-                h.setLevel(logging.DEBUG)
                 h.setFormatter(logfmt)
                 h._cpbuiltin = "screen"
                 log.addHandler(h)
@@ -149,7 +148,6 @@ class LogManager(object):
     
     def _add_builtin_file_handler(self, log, fname):
         h = logging.FileHandler(fname)
-        h.setLevel(logging.DEBUG)
         h.setFormatter(logfmt)
         h._cpbuiltin = "file"
         log.addHandler(h)
@@ -197,7 +195,6 @@ class LogManager(object):
         if enable:
             if not h:
                 h = WSGIErrorHandler()
-                h.setLevel(logging.DEBUG)
                 h.setFormatter(logfmt)
                 h._cpbuiltin = "wsgi"
                 log.addHandler(h)

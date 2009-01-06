@@ -1,4 +1,4 @@
-#!/usr/bin/env  python
+from __future__ import with_statement
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
@@ -6,10 +6,12 @@ __docformat__ = 'restructuredtext en'
 '''
 Conversion to EPUB.
 '''
-import sys, textwrap, re
+import sys, textwrap, re, os, uuid
+from itertools import cycle
 from calibre.utils.config import Config, StringConfig
 from calibre.utils.zipfile import ZipFile, ZIP_STORED
 from calibre.ebooks.html import config as common_config, tostring
+from lxml import etree
 
 class DefaultProfile(object):
     
@@ -36,6 +38,38 @@ def rules(stylesheets):
                 if r.type == r.STYLE_RULE:
                     yield r
 
+def decrypt_font(key, path):
+    raw = open(path, 'rb').read()
+    crypt = raw[:1024]
+    key = cycle(iter(key))
+    decrypt = ''.join([chr(ord(x)^key.next()) for x in crypt])
+    with open(path, 'wb') as f:
+        f.write(decrypt)
+        f.write(raw[1024:])
+
+def process_encryption(encfile, opf):
+    key = None
+    m = re.search(r'(?i)(urn:uuid:[0-9a-f-]+)', open(opf, 'rb').read())
+    if m:
+        key = m.group(1)
+        key = list(map(ord, uuid.UUID(key).bytes))
+    try:
+        root = etree.parse(encfile)
+        for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
+            algorithm = em.get('Algorithm', '')
+            if algorithm != 'http://ns.adobe.com/pdf/enc#RC':
+                return False
+            cr = em.getparent().xpath('descendant::*[contains(name(), "CipherReference")]')[0]
+            uri = cr.get('URI')
+            path = os.path.abspath(os.path.join(os.path.dirname(encfile), '..', *uri.split('/')))
+            if os.path.exists(path):
+                decrypt_font(key, path)
+        return True
+    except:
+        import traceback
+        traceback.print_exc()
+    return False
+
 def initialize_container(path_to_container, opf_name='metadata.opf'):
     '''
     Create an empty EPUB document, with a default skeleton.
@@ -54,10 +88,10 @@ def initialize_container(path_to_container, opf_name='metadata.opf'):
     zf.writestr('META-INF/container.xml', CONTAINER)
     return zf
 
-def config(defaults=None):
+def config(defaults=None, name='epub'):
     desc = _('Options to control the conversion to EPUB')
     if defaults is None:
-        c = Config('epub', desc)
+        c = Config(name, desc)
     else:
         c = StringConfig(defaults, desc)
     

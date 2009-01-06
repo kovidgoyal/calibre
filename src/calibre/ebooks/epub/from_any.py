@@ -12,12 +12,13 @@ from contextlib import nested
 
 from calibre import extract, walk
 from calibre.ebooks import DRMError
-from calibre.ebooks.epub import config as common_config
+from calibre.ebooks.epub import config as common_config, process_encryption
 from calibre.ebooks.epub.from_html import convert as html2epub, find_html_index
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.utils.zipfile import ZipFile
+from calibre.customize.ui import run_plugins_on_preprocess
 
 def lit2opf(path, tdir, opts):
     from calibre.ebooks.lit.reader import LitReader
@@ -30,7 +31,7 @@ def lit2opf(path, tdir, opts):
 
 def mobi2opf(path, tdir, opts):
     from calibre.ebooks.mobi.reader import MobiReader
-    print 'Exploding MOBI file:', path
+    print 'Exploding MOBI file:', path.encode('utf-8') if isinstance(path, unicode) else path
     reader = MobiReader(path)
     reader.extract_content(tdir)
     files = list(walk(tdir))
@@ -72,12 +73,19 @@ def epub2opf(path, tdir, opts):
     zf = ZipFile(path)
     zf.extractall(tdir)
     opts.chapter_mark = 'none'
-    if os.path.exists(os.path.join(tdir, 'META-INF', 'encryption.xml')):
-        raise DRMError(os.path.basename(path))
+    encfile = os.path.join(tdir, 'META-INF', 'encryption.xml')
+    opf = None
     for f in walk(tdir):
         if f.lower().endswith('.opf'):
-            return f
-    raise ValueError('%s is not a valid EPUB file'%path)
+            opf = f
+            break
+    if opf and os.path.exists(encfile):
+        if not process_encryption(encfile, opf):
+            raise DRMError(os.path.basename(path))
+        
+    if opf is None:
+        raise ValueError('%s is not a valid EPUB file'%path)
+    return opf
     
 def odt2epub(path, tdir, opts):
     from calibre.ebooks.odt.to_oeb import Extract
@@ -109,7 +117,9 @@ def unarchive(path, tdir):
                 return f, ext
     return find_html_index(files)
 
-def any2epub(opts, path, notification=None):
+def any2epub(opts, path, notification=None, create_epub=True, 
+             oeb_cover=False, extract_to=None):
+    path = run_plugins_on_preprocess(path)
     ext = os.path.splitext(path)[1]
     if not ext:
         raise ValueError('Unknown file type: '+path)
@@ -132,7 +142,9 @@ def any2epub(opts, path, notification=None):
             raise ValueError('Conversion from %s is not supported'%ext.upper())
         
         print 'Creating EPUB file...'
-        html2epub(path, opts, notification=notification)
+        html2epub(path, opts, notification=notification, 
+                  create_epub=create_epub, oeb_cover=oeb_cover,
+                  extract_to=extract_to)
 
 def config(defaults=None):
     return common_config(defaults=defaults)
@@ -141,14 +153,14 @@ def config(defaults=None):
 def formats():
     return ['html', 'rar', 'zip', 'oebzip']+list(MAP.keys())
 
-def option_parser():
-    
-    return config().option_parser(usage=_('''\
+USAGE = _('''\
 %%prog [options] filename
 
-Convert any of a large number of ebook formats to an epub file. Supported formats are: %s
-''')%formats()
-)
+Convert any of a large number of ebook formats to a %s file. Supported formats are: %s
+''')
+
+def option_parser(usage=USAGE):
+    return config().option_parser(usage=usage%('EPUB', formats()))
 
 def main(args=sys.argv):
     parser = option_parser()

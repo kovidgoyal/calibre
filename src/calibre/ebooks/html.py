@@ -314,10 +314,22 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
             
 
 convert_entities = functools.partial(entity_to_unicode, exceptions=['quot', 'apos', 'lt', 'gt', 'amp'])
+_span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
+
+def sanitize_head(match):
+    x = match.group(1)
+    x = _span_pat.sub('', x)
+    return '<head>\n'+x+'\n</head>'
+    
 class PreProcessor(object):
     PREPROCESS = [
+                  # Some idiotic HTML generators (Frontpage I'm looking at you)
+                  # Put all sorts of crap into <head>. This messes up lxml
+                  (re.compile(r'<head[^>]*>(.*?)</head>', re.IGNORECASE|re.DOTALL), 
+                   sanitize_head),
                   # Convert all entities, since lxml doesn't handle them well
                   (re.compile(r'&(\S+?);'), convert_entities),
+                  
                   ]
                      
     # Fix pdftohtml markup
@@ -446,7 +458,10 @@ class Parser(PreProcessor, LoggingInterface):
     def parse_html(self):
         ''' Create lxml ElementTree from HTML '''
         self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
+        if self.htmlfile.is_binary:
+            raise ValueError('Not a valid HTML file: '+self.htmlfile.path)
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace').strip()
+        src = src.replace('\x00', '')
         src = self.preprocess(src)
         # lxml chokes on unicode input when it contains encoding declarations
         for pat in ENCODING_PATS:
@@ -527,6 +542,7 @@ class Processor(Parser):
     
     LINKS_PATH = XPath('//a[@href]')
     PIXEL_PAT  = re.compile(r'([-]?\d+|[-]?\d*\.\d+)px')
+    PAGE_PAT   = re.compile(r'@page[^{]*?{[^}]*?}')
     
     def __init__(self, *args, **kwargs):
         Parser.__init__(self, *args, **kwargs)
@@ -696,7 +712,9 @@ class Processor(Parser):
                 return ''
             return '%fpt'%(72 * val/dpi)
         
-        return cls.PIXEL_PAT.sub(rescale, css)
+        css = cls.PIXEL_PAT.sub(rescale, css)
+        css = cls.PAGE_PAT.sub('', css)
+        return css
         
     def extract_css(self, parsed_sheets):
         '''
@@ -732,7 +750,12 @@ class Processor(Parser):
                             self.log_error('Failed to open stylesheet: %s'%file)
                         else:
                             try:
-                                parsed_sheets[file] = self.css_parser.parseString(css)
+                                try:
+                                    parsed_sheets[file] = self.css_parser.parseString(css)
+                                except ValueError:
+                                    parsed_sheets[file] = \
+                                        self.css_parser.parseString(\
+                                                css.decode('utf8', 'replace'))
                             except:
                                 parsed_sheets[file] = css.decode('utf8', 'replace')
                                 self.log_warning('Failed to parse stylesheet: %s'%file)
@@ -762,10 +785,15 @@ class Processor(Parser):
         class_counter = 0
         for font in self.root.xpath('//font'):
             try:
-                size = int(font.attrib.pop('size', '3'))
+                size = font.attrib.pop('size', '3')
             except:
-                size = 3
-            setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
+                size = '3'
+            if size and size.strip() and size.strip()[0] in ('+', '-'):
+                size = 3 + float(size) # Hack assumes basefont=3
+            try:
+                setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
+            except ValueError:
+                setting = ''
             face = font.attrib.pop('face', None)
             if face is not None:
                 setting += 'font-face:%s;'%face
@@ -798,16 +826,17 @@ class Processor(Parser):
         
         css = '\n'.join(['.%s {%s;}'%(cn, setting) for \
                          setting, cn in cache.items()])
-        sheet = self.css_parser.parseString(self.preprocess_css(css))
+        sheet = self.css_parser.parseString(self.preprocess_css(css.replace(';;}', ';}')))
         for rule in sheet:
             self.stylesheet.add(rule)
         css = ''
         css += '\n\n' + 'body {margin-top: 0pt; margin-bottom: 0pt; margin-left: 0pt; margin-right: 0pt;}'
-        css += '\n\n@page {margin-top: %fpt; margin-bottom: %fpt; margin-left: %fpt; margin-right: %fpt}'%(self.opts.margin_top, self.opts.margin_bottom, self.opts.margin_left, self.opts.margin_right)
+        css += '\n\n@page {margin-top: %fpt; margin-bottom: %fpt; }'%(self.opts.margin_top, self.opts.margin_bottom)
+        css += '\n\nbody {margin-left: %fpt; margin-right: %fpt}'%(self.opts.margin_left, self.opts.margin_right)
         # Workaround for anchor rendering bug in ADE
         css += '\n\na { color: inherit; text-decoration: inherit; cursor: default; }\na[href] { color: blue; text-decoration: underline; cursor:pointer; }'
         if self.opts.remove_paragraph_spacing:
-            css += '\n\np {text-indent: 2em; margin-top:1pt; margin-bottom:1pt; padding:0pt; border:0pt;}'
+            css += '\n\np {text-indent: 2em; margin-top:0pt; margin-bottom:0pt; padding:0pt; border:0pt;}'
         if self.opts.override_css:
             css += '\n\n' + self.opts.override_css
         self.override_css = self.css_parser.parseString(self.preprocess_css(css))
@@ -863,7 +892,7 @@ def option_parser():
 %prog [options] file.html|opf
 
 Follow all links in an HTML file and collect them into the specified directory.
-Also collects any references resources like images, stylesheets, scripts, etc. 
+Also collects any resources like images, stylesheets, scripts, etc. 
 If an OPF file is specified instead, the list of files in its <spine> element
 is used.
 '''))
@@ -1042,11 +1071,12 @@ def main(args=sys.argv):
         
     return 0
 
-def gui_main(htmlfile):
+def gui_main(htmlfile, pt=None):
     '''
     Convenience wrapper for use in recursively importing HTML files.
     '''
-    pt = PersistentTemporaryFile('_html2oeb_gui.oeb.zip')
+    if pt is None:
+        pt = PersistentTemporaryFile('_html2oeb_gui.oeb.zip')
     pt.close()
     opts = '''
 pretty_print = True

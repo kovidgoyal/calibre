@@ -143,7 +143,7 @@ class Session(object):
         # Stick the clean_thread in the class, not the instance.
         # The instances are created and destroyed per-request.
         cls = self.__class__
-        if not cls.clean_thread:
+        if self.clean_freq and not cls.clean_thread:
             # clean_up is in instancemethod and not a classmethod,
             # so that tool config can be accessed inside the method.
             t = cherrypy.process.plugins.Monitor(
@@ -282,14 +282,19 @@ class FileSession(Session):
     SESSION_PREFIX = 'session-'
     LOCK_SUFFIX = '.lock'
     
+    def __init__(self, id=None, **kwargs):
+        # The 'storage_path' arg is required for file-based sessions.
+        kwargs['storage_path'] = os.path.abspath(kwargs['storage_path'])
+        Session.__init__(self, id=id, **kwargs)
+    
     def setup(cls, **kwargs):
         """Set up the storage system for file-based sessions.
         
         This should only be called once per process; this will be done
         automatically when using sessions.init (as the built-in Tool does).
         """
-        if 'storage_path' in kwargs:
-            kwargs['storage_path'] = os.path.abspath(kwargs['storage_path'])
+        # The 'storage_path' arg is required for file-based sessions.
+        kwargs['storage_path'] = os.path.abspath(kwargs['storage_path'])
         
         for k, v in kwargs.iteritems():
             setattr(cls, k, v)

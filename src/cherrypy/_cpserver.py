@@ -49,6 +49,7 @@ class Server(ServerAdapter):
     protocol_version = 'HTTP/1.1'
     reverse_dns = False
     thread_pool = 10
+    thread_pool_max = -1
     max_request_header_size = 500 * 1024
     max_request_body_size = 100 * 1024 * 1024
     instance = None

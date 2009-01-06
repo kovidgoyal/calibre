@@ -12,6 +12,7 @@ from urllib import unquote
 from urlparse import urlparse
 from math import ceil, floor
 from functools import partial
+from calibre.customize.ui import run_plugins_on_postprocess
 
 try:
     from PIL import Image as PILImage
@@ -32,7 +33,6 @@ from calibre.ebooks.lrf.html.table import Table
 from calibre import filename_to_utf8,  setup_cli_handlers, __appname__, \
                     fit_image, LoggingInterface, preferred_encoding
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre.ebooks.metadata.opf import OPFReader
 from calibre.devices.interface import Device
 from calibre.ebooks.lrf.html.color_map import lrs_color
 from calibre.ebooks.chardet import xml_to_unicode
@@ -106,6 +106,8 @@ class HTMLConverter(object, LoggingInterface):
                         (re.compile(r'(<style.*?</style>)', re.IGNORECASE|re.DOTALL),
                          strip_style_comments),
                          
+                        # Remove self closing script tags as they also mess up BeautifulSoup
+                        (re.compile(r'(?i)<script[^<>]+?/>'), lambda match: ''),
                         
                         ]
     # Fix Baen markup
@@ -243,7 +245,6 @@ class HTMLConverter(object, LoggingInterface):
         
         self.override_css = {}
         self.override_pcss = {}
-        self.table_render_job_server = None
          
         if self._override_css is not None:
             if os.access(self._override_css, os.R_OK):
@@ -264,41 +265,37 @@ class HTMLConverter(object, LoggingInterface):
         paths = [os.path.abspath(path) for path in paths]
         paths = [path.decode(sys.getfilesystemencoding()) if not isinstance(path, unicode) else path for path in paths]
         
-        try:
-            while len(paths) > 0 and self.link_level <= self.link_levels:
-                for path in paths:
-                    if path in self.processed_files:
-                        continue
-                    try:
-                        self.add_file(path)
-                    except KeyboardInterrupt:
+        while len(paths) > 0 and self.link_level <= self.link_levels:
+            for path in paths:
+                if path in self.processed_files:
+                    continue
+                try:
+                    self.add_file(path)
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    if self.link_level == 0: # Die on errors in the first level
                         raise
-                    except:
-                        if self.link_level == 0: # Die on errors in the first level
-                            raise
-                        for link in self.links:
-                            if link['path'] == path:
-                                self.links.remove(link)
-                                break
-                        self.log_warn('Could not process '+path)
-                        if self.verbose:
-                            self.log_exception(' ')
-                self.links = self.process_links()
-                self.link_level += 1
-                paths = [link['path'] for link in self.links]
-                
-            if self.current_page is not None and self.current_page.has_text():
-                self.book.append(self.current_page)
-                
-            for text, tb in self.extra_toc_entries:
-                self.book.addTocEntry(text, tb)
-                
-            if self.base_font_size > 0:
-                self.log_info('\tRationalizing font sizes...')
-                self.book.rationalize_font_sizes(self.base_font_size)
-        finally:
-            if self.table_render_job_server is not None:
-                self.table_render_job_server.killall()
+                    for link in self.links:
+                        if link['path'] == path:
+                            self.links.remove(link)
+                            break
+                    self.log_warn('Could not process '+path)
+                    if self.verbose:
+                        self.log_exception(' ')
+            self.links = self.process_links()
+            self.link_level += 1
+            paths = [link['path'] for link in self.links]
+            
+        if self.current_page is not None and self.current_page.has_text():
+            self.book.append(self.current_page)
+            
+        for text, tb in self.extra_toc_entries:
+            self.book.addTocEntry(text, tb)
+            
+        if self.base_font_size > 0:
+            self.log_info('\tRationalizing font sizes...')
+            self.book.rationalize_font_sizes(self.base_font_size)
         
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
@@ -334,7 +331,8 @@ class HTMLConverter(object, LoggingInterface):
                 soup = BeautifulSoup(raw, 
                          convertEntities=BeautifulSoup.XHTML_ENTITIES,
                          markupMassage=nmassage)
-        
+            else:
+                raise
         if not self.baen and self.is_baen(soup):
             self.baen = True
             self.log_info(_('\tBaen file detected. Re-parsing...'))
@@ -520,6 +518,8 @@ class HTMLConverter(object, LoggingInterface):
             self.book.append(self.current_page)
             self.current_page = None
         
+        if top not in top.parent.contents: # May have been removed for a cover image
+            top = top.parent.contents[0]
         if not top.has_text() and top.parent.contents.index(top) == len(top.parent.contents)-1:
             # Empty block at the bottom of a page
             opage = top.parent
@@ -809,7 +809,7 @@ class HTMLConverter(object, LoggingInterface):
         
         def append_text(src):
             fp, key, variant = self.font_properties(css)
-            for x, y in [(u'\xa0', ' '), (u'\ufb00', 'ff'), (u'\ufb01', 'fi'), (u'\ufb02', 'fl'), (u'\ufb03', 'ffi'), (u'\ufb04', 'ffl')]:
+            for x, y in [(u'\xad', ''), (u'\xa0', ' '), (u'\ufb00', 'ff'), (u'\ufb01', 'fi'), (u'\ufb02', 'fl'), (u'\ufb03', 'ffi'), (u'\ufb04', 'ffl')]:
                 src = src.replace(x, y)
             
             valigner = lambda x: x
@@ -1028,6 +1028,8 @@ class HTMLConverter(object, LoggingInterface):
             self.current_para = Paragraph()
         else:
             self.end_page()
+            if len(self.current_page.contents) == 1 and not self.current_page.has_text():
+                self.current_page.contents[0:1] = []
             self.current_page.append(Canvas(width=pwidth,
                                             height=height))
             left = int(floor((pwidth - width)/2.))
@@ -1725,15 +1727,11 @@ class HTMLConverter(object, LoggingInterface):
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'table' and not self.ignore_tables and not self.in_table:
                 if self.render_tables_as_images:
-                    if self.table_render_job_server is None:
-                        from calibre.parallel import Server
-                        self.table_render_job_server = Server(number_of_workers=1)
                     print 'Rendering table...'
                     from calibre.ebooks.lrf.html.table_as_image import render_table
                     pheight = int(self.current_page.pageStyle.attrs['textheight'])
                     pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
-                    images = render_table(self.table_render_job_server,
-                                          self.soup, tag, tag_css, 
+                    images = render_table(self.soup, tag, tag_css, 
                                           os.path.dirname(self.target_prefix), 
                                           pwidth, pheight, self.profile.dpi, 
                                           self.text_size_multiplier_for_rendered_tables)
@@ -1846,7 +1844,7 @@ def process_file(path, options, logger=None):
                       scaled else im
                 cf = PersistentTemporaryFile(prefix=__appname__+"_", suffix=".jpg")
                 cf.close()
-                cim.save(cf.name)
+                cim.convert('RGB').save(cf.name)
                 options.cover = cf.name
                 
                 tim = im.resize((int(0.75*th), th), PILImage.ANTIALIAS).convert('RGB')
@@ -1899,6 +1897,8 @@ def process_file(path, options, logger=None):
     fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
          re.compile('$')
     cq = options.chapter_attr.split(',')
+    if len(cq) < 3:
+        raise ValueError('The --chapter-attr setting must have 2 commas.')
     options.chapter_attr = [re.compile(cq[0], re.IGNORECASE), cq[1], 
                             re.compile(cq[2], re.IGNORECASE)]
     options.force_page_break = fpb
@@ -1916,7 +1916,7 @@ def process_file(path, options, logger=None):
         options.anchor_ids = True
     files = options.spine if (options.use_spine and hasattr(options, 'spine')) else [path]
     conv = HTMLConverter(book, fonts, options, logger, files)
-    if options.use_spine and hasattr(options, 'toc'):
+    if options.use_spine and hasattr(options, 'toc') and options.toc is not None:
         conv.create_toc(options.toc)
     oname = options.output
     if not oname:
@@ -1925,7 +1925,8 @@ def process_file(path, options, logger=None):
         oname = os.path.join(os.getcwd(), name)
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
-    logger.info('Output written to %s', oname)
+    run_plugins_on_postprocess(oname, 'lrf')
+    conv.log_info('Output written to %s', oname)
     conv.cleanup()
     return oname
     
@@ -1944,7 +1945,8 @@ def try_opf(path, options, logger):
         return
     
     dirpath = os.path.dirname(os.path.abspath(opf))
-    opf = OPFReader(open(opf, 'rb'), dirpath)
+    from calibre.ebooks.metadata.opf2 import OPF as OPF2
+    opf = OPF2(open(opf, 'rb'), dirpath)
     try:
         title = opf.title        
         if title and not getattr(options, 'title', None):
@@ -1958,10 +1960,6 @@ def try_opf(path, options, logger):
             publisher = opf.publisher
             if publisher:
                 options.publisher = publisher
-        if not getattr(options, 'category', None):
-            category = opf.category
-            if category:
-                options.category = category
         if not getattr(options, 'cover', None) or options.use_metadata_cover:
             orig_cover = getattr(options, 'cover', None)
             options.cover = None
@@ -1975,17 +1973,7 @@ def try_opf(path, options, logger):
                         PILImage.open(cover)
                         options.cover = cover
                     except:
-                        for prefix in opf.possible_cover_prefixes():
-                            if options.cover:
-                                break
-                            for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
-                                cpath = os.path.join(os.path.dirname(path), prefix+suffix)
-                                try:
-                                    PILImage.open(cpath)
-                                    options.cover = cpath
-                                    break
-                                except:
-                                    continue
+                        pass
             if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover
         if getattr(opf, 'spine', False):

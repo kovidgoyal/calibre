@@ -32,14 +32,15 @@ Conversion of HTML/OPF files follows several stages:
     * The EPUB container is created.
 '''
 
-import os, sys, cStringIO, logging, re
+import os, sys, cStringIO, logging, re, functools, shutil
 
 from lxml.etree import XPath
+from lxml import html, etree
 from PyQt4.Qt import QApplication, QPixmap
 
 from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
-    opf_traverse, create_metadata, rebase_toc
-from calibre.ebooks.epub import config as common_config
+    opf_traverse, create_metadata, rebase_toc, Link, parser
+from calibre.ebooks.epub import config as common_config, tostring
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata.opf2 import OPF
@@ -47,7 +48,46 @@ from calibre.ebooks.epub import initialize_container, PROFILES
 from calibre.ebooks.epub.split import split
 from calibre.ebooks.epub.fonts import Rationalizer
 from calibre.constants import preferred_encoding
-from calibre import walk
+from calibre.customize.ui import run_plugins_on_postprocess
+from calibre import walk, CurrentDir, to_unicode
+
+content = functools.partial(os.path.join, u'content')
+
+def remove_bad_link(element, attribute, link, pos):
+    if attribute is not None:
+        if element.tag in ['link']:
+            element.getparent().remove(element)
+        else:
+            element.set(attribute, '')
+            del element.attrib[attribute]
+
+def check_links(opf_path, pretty_print):
+    '''
+    Find and remove all invalid links in the HTML files 
+    '''
+    logger = logging.getLogger('html2epub')
+    logger.info('\tChecking files for bad links...')
+    pathtoopf = os.path.abspath(opf_path)
+    with CurrentDir(os.path.dirname(pathtoopf)):
+        opf = OPF(open(pathtoopf, 'rb'), os.path.dirname(pathtoopf))
+        html_files = []
+        for item in opf.itermanifest():
+            if 'html' in item.get('media-type', '').lower():
+                f = item.get('href').split('/')[-1].decode('utf-8')
+                html_files.append(os.path.abspath(content(f)))
+        
+        for path in html_files:
+            base = os.path.dirname(path)
+            root = html.fromstring(open(content(path), 'rb').read(), parser=parser)
+            for element, attribute, link, pos in list(root.iterlinks()):
+                link = to_unicode(link)
+                plink = Link(link, base)
+                bad = False
+                if plink.path is not None and not os.path.exists(plink.path):
+                    bad = True
+                if bad:
+                    remove_bad_link(element, attribute, link, pos)
+            open(content(path), 'wb').write(tostring(root, pretty_print))
 
 def find_html_index(files):
     '''
@@ -82,6 +122,10 @@ class HTMLProcessor(Processor, Rationalizer):
                                              self.root, self.opts)
         if opts.verbose > 2:
             self.debug_tree('nocss')
+            
+        if hasattr(self.body, 'xpath'):
+            for script in list(self.body.xpath('descendant::script')):
+                script.getparent().remove(script)
             
     def convert_image(self, img):
         rpath = img.get('src', '')
@@ -165,23 +209,22 @@ TITLEPAGE = '''\
     </head>
     <body>
         <div>
-            <img src="%s" alt="cover" />
+            <img src="%s" alt="cover" style="height: 100%%" />
         </div>
     </body>
 </html>
 '''
 
-def create_cover_image(src, dest, screen_size):
-    from PyQt4.Qt import QApplication, QImage, Qt
-    if QApplication.instance() is None:
-        app = QApplication([])
-        app
-    im = QImage()
+def create_cover_image(src, dest, screen_size, rescale_cover=True):
     try:
+        from PyQt4.Qt import QImage, Qt
+        if QApplication.instance() is None:
+            QApplication([])
+        im = QImage()
         im.load(src)
         if im.isNull():
-            raise ValueError
-        if screen_size is not None:
+            raise ValueError('Invalid cover image')
+        if rescale_cover and screen_size is not None:
             width, height = im.width(), im.height()
             dw, dh = (screen_size[0]-width)/float(width), (screen_size[1]-height)/float(height)
             delta = min(dw, dh)
@@ -189,7 +232,7 @@ def create_cover_image(src, dest, screen_size):
                 nwidth = int(width + delta*(width))
                 nheight = int(height + delta*(height))
                 im = im.scaled(int(nwidth), int(nheight), Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-            im.save(dest)
+        im.save(dest)
     except:
         import traceback
         traceback.print_exc()
@@ -202,7 +245,6 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     if mi.cover:
         if f(filelist[0].path) == f(mi.cover):
             old_title_page = htmlfilemap[filelist[0].path]
-            
     #logger = logging.getLogger('html2epub')
     metadata_cover = mi.cover
     if metadata_cover and not os.path.exists(metadata_cover):
@@ -211,14 +253,15 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     cpath = '/'.join(('resources', '_cover_.jpg'))
     cover_dest = os.path.join(tdir, 'content', *cpath.split('/'))
     if metadata_cover is not None:
-        if not create_cover_image(metadata_cover, cover_dest, opts.profile.screen_size):
+        if not create_cover_image(metadata_cover, cover_dest, 
+                                  opts.profile.screen_size):
             metadata_cover = None
-                
     specified_cover = opts.cover
     if specified_cover and not os.path.exists(specified_cover):
         specified_cover = None
     if specified_cover is not None:
-        if not create_cover_image(specified_cover, cover_dest, opts.profile.screen_size):
+        if not create_cover_image(specified_cover, cover_dest, 
+                                  opts.profile.screen_size):
             specified_cover = None
             
     cover = metadata_cover if specified_cover is None or (opts.prefer_metadata_cover and metadata_cover is not None) else specified_cover
@@ -233,9 +276,26 @@ def process_title_page(mi, filelist, htmlfilemap, opts, tdir):
     elif os.path.exists(cover_dest):
         os.remove(cover_dest)
     return None, old_title_page is not None
-    
 
-def convert(htmlfile, opts, notification=None):
+def find_oeb_cover(htmlfile):
+    if os.stat(htmlfile).st_size > 2048:
+        return None
+    match = re.search(r'(?i)<img[^<>]+src\s*=\s*[\'"](.+?)[\'"]', open(htmlfile, 'rb').read())
+    if match:
+        return match.group(1)
+
+def condense_ncx(ncx_path):
+    tree = etree.parse(ncx_path)
+    for tag in tree.getroot().iter(tag=etree.Element):
+        if tag.text:
+            tag.text = tag.text.strip()
+        if tag.tail:
+            tag.tail = tag.tail.strip()
+    compressed = etree.tostring(tree.getroot(), encoding='utf-8')
+    open(ncx_path, 'wb').write(compressed)
+
+def convert(htmlfile, opts, notification=None, create_epub=True, 
+            oeb_cover=False, extract_to=None):
     htmlfile = os.path.abspath(htmlfile)
     if opts.output is None:
         opts.output = os.path.splitext(os.path.basename(htmlfile))[0] + '.epub'
@@ -287,7 +347,7 @@ def convert(htmlfile, opts, notification=None):
         
         title_page, has_title_page = process_title_page(mi, filelist, htmlfile_map, opts, tdir)
         spine = [htmlfile_map[f.path] for f in filelist]
-        if title_page is not None:
+        if not oeb_cover and title_page is not None:
             spine = [title_page] + spine
         mi.cover = None
         mi.cover_data = (None, None)
@@ -316,26 +376,55 @@ def convert(htmlfile, opts, notification=None):
             if opts.show_ncx:
                 print toc
         split(opf_path, opts, stylesheet_map)
+        check_links(opf_path, opts.pretty_print)
+        
         opf = OPF(opf_path, tdir)
         opf.remove_guide()
-        if has_title_page:
+        oeb_cover_file = None
+        if oeb_cover and title_page is not None:
+            oeb_cover_file = find_oeb_cover(os.path.join(tdir, 'content', title_page))
+        if has_title_page or (oeb_cover and oeb_cover_file):
             opf.create_guide_element()
-            opf.add_guide_item('cover', 'Cover', 'content/'+spine[0])
+            if has_title_page and not oeb_cover:
+                opf.add_guide_item('cover', 'Cover', 'content/'+spine[0])
+            if oeb_cover and oeb_cover_file:
+                opf.add_guide_item('cover', 'Cover', 'content/'+oeb_cover_file)
         
-        opf.add_path_to_manifest(os.path.join(tdir, 'content', 'resources', '_cover_.jpg'), 'image/jpeg')    
+        cpath = os.path.join(tdir, 'content', 'resources', '_cover_.jpg')
+        if os.path.exists(cpath):
+            opf.add_path_to_manifest(cpath, 'image/jpeg')    
         with open(opf_path, 'wb') as f:
             raw = opf.render()
             if not raw.startswith('<?xml '):
                 raw = '<?xml version="1.0"  encoding="UTF-8"?>\n'+raw
             f.write(raw)
-        epub = initialize_container(opts.output)
-        epub.add_dir(tdir)
+        ncx_path = os.path.join(os.path.dirname(opf_path), 'toc.ncx')
+        if os.path.exists(ncx_path) and os.stat(ncx_path).st_size > opts.profile.flow_size:
+            logger.info('Condensing NCX from %d bytes...'%os.stat(ncx_path).st_size)
+            condense_ncx(ncx_path)
+            if os.stat(ncx_path).st_size > opts.profile.flow_size:
+                logger.warn('NCX still larger than allowed size at %d bytes. Menu based Table of Contents may not work on device.'%os.stat(ncx_path).st_size)
+            
+        if create_epub:
+            epub = initialize_container(opts.output)
+            epub.add_dir(tdir)
+            epub.close()
+            run_plugins_on_postprocess(opts.output, 'epub')
+            logger.info(_('Output written to ')+opts.output)
+        
         if opts.show_opf:
             print open(os.path.join(tdir, 'metadata.opf')).read()
-        logger.info('Output written to %s'%opts.output)
+        
         if opts.extract_to is not None:
-            epub.extractall(opts.extract_to)
-        epub.close()
+            if os.path.exists(opts.extract_to):
+                shutil.rmtree(opts.extract_to)
+            shutil.copytree(tdir, opts.extract_to)
+            
+        if extract_to is not None:
+            if os.path.exists(extract_to):
+                shutil.rmtree(extract_to)
+            shutil.copytree(tdir, extract_to)
+            
         
             
 def main(args=sys.argv):

@@ -9,9 +9,10 @@ from PyQt4.QtGui import QDialog
 from calibre.gui2 import qstring_to_unicode
 from calibre.gui2.dialogs.metadata_bulk_ui import Ui_MetadataBulkDialog
 from calibre.gui2.dialogs.tag_editor import TagEditor
-from calibre.ebooks.metadata import string_to_authors
+from calibre.ebooks.metadata import string_to_authors, authors_to_sort_string
 
 class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
+    
     def __init__(self, window, rows, db):
         QDialog.__init__(self, window)
         Ui_MetadataBulkDialog.__init__(self)
@@ -54,8 +55,15 @@ class MetadataBulkDialog(QDialog, Ui_MetadataBulkDialog):
             if au:
                 au = string_to_authors(au)
                 self.db.set_authors(id, au, notify=False)
+            if self.auto_author_sort.isChecked():
+                aut = self.db.authors(id, index_is_id=True)
+                aut = aut if aut else ''
+                aut = [a.strip().replace('|', ',') for a in aut.strip().split(',')]
+                x = authors_to_sort_string(aut)
+                if x:
+                    self.db.set_author_sort(id, x, notify=False)
             aus = qstring_to_unicode(self.author_sort.text())
-            if aus:
+            if aus and self.author_sort.isEnabled():
                 self.db.set_author_sort(id, aus, notify=False)
             if self.write_rating:
                 self.db.set_rating(id, 2*self.rating.value(), notify=False)

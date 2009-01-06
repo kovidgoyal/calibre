@@ -128,10 +128,20 @@ class JobManager(QAbstractTableModel):
         self.emit(SIGNAL('layoutChanged()'))
     
     def _status_update(self, job):
-        row = self.jobs.index(job)
+        try:
+            row = self.jobs.index(job)
+        except ValueError: # Job has been stopped
+            return
         self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
                   self.index(row, 0), self.index(row, 3))
         
+    def running_time_updated(self):
+        for job in self.jobs:
+            if not job.is_running:
+                continue
+            row = self.jobs.index(job)
+            self.emit(SIGNAL('dataChanged(QModelIndex, QModelIndex)'),
+                      self.index(row, 3), self.index(row, 3))
             
     def has_device_jobs(self):
         for job in self.jobs:
@@ -188,6 +198,6 @@ class DetailView(QDialog, Ui_Dialog):
         
             
     def update(self):
-        self.log.setPlainText(self.job.gui_text())
+        self.log.setPlainText(self.job.console_text())
         vbar = self.log.verticalScrollBar()
         vbar.setValue(vbar.maximum())

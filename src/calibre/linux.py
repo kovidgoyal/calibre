@@ -2,10 +2,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Post installation script for linux '''
 import sys, os, re, shutil
-
 from subprocess import check_call, call
-from calibre import __version__, __appname__
+from tempfile import NamedTemporaryFile
 
+from calibre import __version__, __appname__
 from calibre.devices import devices
 
 DEVICES = devices()
@@ -47,6 +47,7 @@ entry_points = {
                              'fb2-meta  = calibre.ebooks.metadata.fb2:main',
                              'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
                              'any2epub  = calibre.ebooks.epub.from_any:main',
+                             'any2lit   = calibre.ebooks.lit.from_any:main',
                              'lrf2lrs   = calibre.ebooks.lrf.lrfparser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
                              'pdfreflow = calibre.ebooks.lrf.pdf.reflow:main',
@@ -55,12 +56,15 @@ entry_points = {
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
                              'lit2oeb   = calibre.ebooks.lit.reader:main',
+                             'oeb2lit   = calibre.ebooks.lit.writer:main',
                              'comic2lrf = calibre.ebooks.lrf.comic.convert_from:main',
                              'comic2epub = calibre.ebooks.epub.from_comic:main',
+			     'comic2pdf  = calibre.ebooks.pdf.from_comic:main',
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
-                             'calibre-parallel   = calibre.parallel:main',                             
+                             'calibre-parallel   = calibre.parallel:main',
+                             'calibre-customize  = calibre.customize.ui:main',                             
                            ],
         'gui_scripts'    : [
                             __appname__+' = calibre.gui2.main:main',
@@ -183,6 +187,7 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.odt.to_oeb import option_parser as odt2oeb
         from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
         from calibre.ebooks.epub.from_any import option_parser as any2epub
+        from calibre.ebooks.lit.from_any import option_parser as any2lit
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
         from calibre.gui2.main import option_parser as guiop 
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
@@ -206,7 +211,8 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('pdf2lrf', htmlop, ['pdf']))
         f.write(opts_and_exts('any2lrf', htmlop, any_formats))
         f.write(opts_and_exts('calibre', guiop, any_formats))
-        f.write(opts_and_exts('any2lrf', any2epub, any_formats))
+        f.write(opts_and_exts('any2epub', any2epub, any_formats))
+        f.write(opts_and_exts('any2lit', any2lit, any_formats))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
@@ -223,6 +229,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('lit2oeb', lit2oeb, ['lit']))
         f.write(opts_and_exts('comic2lrf', comicop, ['cbz', 'cbr']))
         f.write(opts_and_exts('comic2epub', comic2epub, ['cbz', 'cbr']))
+	f.write(opts_and_exts('comic2pdf', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2epub, feed_titles))
@@ -396,9 +403,9 @@ def install_man_pages(fatal_errors):
     import subprocess
     print 'Installing MAN pages...'
     manpath = '/usr/share/man/man1'
-    f = open_file('/tmp/man_extra', 'wb')
+    f = NamedTemporaryFile()
     f.write('[see also]\nhttp://%s.kovidgoyal.net\n'%__appname__)
-    f.close()
+    f.flush()
     manifest = []
     os.environ['PATH'] += ':'+os.path.expanduser('~/bin')
     for src in entry_points['console_scripts']:
@@ -422,7 +429,8 @@ def install_man_pages(fatal_errors):
                 raise
             print 'Failed to install MAN pages as help2man is missing from your system'
             break
-        raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', p.stdout.read())
+        o = p.stdout.read()
+        raw = re.compile(r'^\.IP\s*^([A-Z :]+)$', re.MULTILINE).sub(r'.SS\n\1', o)
         if not raw.strip():
             print 'Unable to create MAN page for', prog
             continue
@@ -464,6 +472,17 @@ def post_install():
             if os.stat(f).st_uid == 0:
                 os.unlink(f)
 
+def binary_install():
+    manifest = os.path.join(sys.frozen_path, 'manifest')
+    exes = [x.strip() for x in open(manifest).readlines()]
+    print 'Creating symlinks...'
+    for exe in exes:
+        dest = os.path.join('/usr', 'bin', exe)
+        if os.path.exists(dest):
+            os.remove(dest)
+        os.symlink(os.path.join(sys.frozen_path, exe), dest)
+    post_install()
+    return 0
 
 VIEWER = '''\
 [Desktop Entry]
@@ -579,7 +598,7 @@ def setup_desktop_integration(fatal_errors):
         print >>sys.stderr, 'Could not setup desktop integration. Error:'
         print err
 
-
+main = post_install
 if __name__ == '__main__':
     post_install()
 

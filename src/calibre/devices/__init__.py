@@ -1,5 +1,6 @@
 __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
+
 '''
 Device drivers.
 '''
@@ -8,8 +9,9 @@ def devices():
     from calibre.devices.prs500.driver import PRS500
     from calibre.devices.prs505.driver import PRS505
     from calibre.devices.prs700.driver import PRS700
+    from calibre.devices.cybookg3.driver import CYBOOKG3
     #from calibre.devices.kindle.driver import KINDLE
-    return (PRS500, PRS505, PRS700)
+    return (PRS500, PRS505, PRS700, CYBOOKG3)
 
 import time
 

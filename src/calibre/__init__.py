@@ -13,12 +13,18 @@ from calibre.startup import plugins, winutil, winutilerror
 from calibre.constants import iswindows, isosx, islinux, isfrozen, \
                               terminal_controller, preferred_encoding, \
                               __appname__, __version__, __author__, \
-                              win32event, win32api, winerror, fcntl
+                              win32event, win32api, winerror, fcntl, \
+                              filesystem_encoding
 import mechanize
 
 mimetypes.add_type('application/epub+zip', '.epub')
 mimetypes.add_type('text/x-sony-bbeb+xml', '.lrs')
 mimetypes.add_type('application/x-sony-bbeb', '.lrf')
+
+def to_unicode(raw, encoding='utf-8', errors='strict'):
+    if isinstance(raw, unicode):
+        return raw
+    return raw.decode(encoding, errors)
 
 def unicode_path(path, abs=False):
     if not isinstance(path, unicode):
@@ -34,6 +40,28 @@ def osx_version():
         m = re.match(r'(\d+)\.(\d+)\.(\d+)', src)
         if m:
             return int(m.group(1)), int(m.group(2)), int(m.group(3))
+
+
+_filename_sanitize = re.compile(r'[\xae\0\\|\?\*<":>\+\[\]/]')
+
+def sanitize_file_name(name, substitute='_', as_unicode=False):
+    '''
+    Sanitize the filename `name`. All invalid characters are replaced by `substitute`.
+    The set of invalid characters is the union of the invalid characters in Windows,
+    OS X and Linux. Also removes leading an trailing whitespace.
+    **WARNING:** This function also replaces path separators, so only pass file names
+    and not full paths to it.
+    *NOTE:* This function always returns byte strings, not unicode objects. The byte strings
+    are encoded in the filesystem encoding of the platform, or UTF-8. 
+    '''
+    if isinstance(name, unicode):
+        name = name.encode(filesystem_encoding, 'ignore')
+    one = _filename_sanitize.sub(substitute, name)
+    one = re.sub(r'\s', ' ', one).strip()
+    one = re.sub(r'^\.+$', '_', one)
+    if as_unicode:
+        one = one.decode(filesystem_encoding)
+    return one
 
 
 class CommandLineError(Exception):
@@ -196,13 +224,6 @@ class CurrentDir(object):
     def __exit__(self, *args):
         os.chdir(self.cwd)
 
-def sanitize_file_name(name):
-    '''
-    Remove characters that are illegal in filenames from name.
-    Also remove path separators. All illegal characters are replaced by
-    underscores.
-    '''
-    return re.sub(r'\s', ' ', re.sub(r'[\xae"\'\|\~\:\?\\\/]|^-', '_', name.strip()))
 
 def detect_ncpus():
     """Detects the number of effective CPUs in the system"""
@@ -317,7 +338,12 @@ class LoggingInterface:
     def ___log(self, func, msg, args, kwargs):
         args = [msg] + list(args)
         for i in range(len(args)):
-            if isinstance(args[i], unicode):
+            if not isinstance(args[i], basestring):
+                continue
+            if sys.version_info[:2] > (2, 5):
+                if not isinstance(args[i], unicode):
+                    args[i] = args[i].decode(preferred_encoding, 'replace')
+            elif isinstance(args[i], unicode):
                 args[i] = args[i].encode(preferred_encoding, 'replace')
         func(*args, **kwargs)
 
@@ -355,7 +381,13 @@ def strftime(fmt, t=time.localtime()):
             fmt = fmt.encode('mbcs')
         return plugins['winutil'][0].strftime(fmt, t)
     return time.strftime(fmt, t).decode(preferred_encoding, 'replace')
-    
+
+def my_unichr(num):
+    try:
+        return unichr(num)
+    except ValueError:
+        return u'?'
+
 def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     '''
     @param match: A match object such that '&'+match.group(1)';' is the entity.
@@ -371,7 +403,7 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
     if ent.startswith(u'#x'):
         num = int(ent[2:], 16)
         if encoding is None or num > 255:
-            return unichr(num)
+            return my_unichr(num)
         return chr(num).decode(encoding)
     if ent.startswith(u'#'):
         try:
@@ -379,13 +411,13 @@ def entity_to_unicode(match, exceptions=[], encoding='cp1252'):
         except ValueError:
             return '&'+ent+';'
         if encoding is None or num > 255:
-            return unichr(num)
+            return my_unichr(num)
         try:
             return chr(num).decode(encoding)
         except UnicodeDecodeError:
-            return unichr(num)
+            return my_unichr(num)
     try:
-        return unichr(name2codepoint[ent])
+        return my_unichr(name2codepoint[ent])
     except KeyError:
         return '&'+ent+';'
 

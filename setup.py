@@ -46,10 +46,11 @@ main_functions = {
                }
 
 if __name__ == '__main__':
-    from setuptools import setup, find_packages, Extension
+    from setuptools import setup, find_packages
+    from setuptools.command.build_py import build_py as _build_py, convert_path
     from distutils.command.build import build as _build
     from distutils.core import Command as _Command
-    from pyqtdistutils import PyQtExtension, build_ext
+    from pyqtdistutils import PyQtExtension, build_ext, Extension
     import subprocess, glob
     
     def newer(targets, sources):
@@ -64,6 +65,25 @@ if __name__ == '__main__':
         stimes = map(lambda x: os.stat(x).st_mtime, sources)
         newest_source, oldest_target = max(stimes), min(ttimes)
         return newest_source > oldest_target
+    
+    class build_py(_build_py):
+        
+        def find_data_files(self, package, src_dir):
+            """
+            Return filenames for package's data files in 'src_dir'
+            Modified to treat data file specs as paths not globs
+            """
+            globs = (self.package_data.get('', [])
+                     + self.package_data.get(package, []))
+            files = self.manifest_files.get(package, [])[:]
+            for pattern in globs:
+                # Each pattern has to be converted to a platform-specific path
+                pattern = os.path.join(src_dir, convert_path(pattern))
+                next = glob.glob(pattern)
+                files.extend(next if next else [pattern])
+                
+            return self.exclude_data_files(package, src_dir, files)
+
     
     class Command(_Command):
         user_options = []
@@ -146,6 +166,7 @@ if __name__ == '__main__':
             metadata_sqlite = 'library/metadata_sqlite.sql',
             jquery          = 'gui2/viewer/jquery.js',
             jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',
+            html_css        = 'ebooks/lit/html.css',
         )
         
         DEST = os.path.join('src', APPNAME, 'resources.py')
@@ -251,6 +272,7 @@ if __name__ == '__main__':
         description='''Compile all GUI forms and images'''
         PATH  = os.path.join('src', APPNAME, 'gui2')
         IMAGES_DEST = os.path.join(PATH, 'images_rc.py')
+        QRC = os.path.join(PATH, 'images.qrc')
         
         @classmethod
         def find_forms(cls):
@@ -330,9 +352,9 @@ if __name__ == '__main__':
                 c = cls.form_to_compiled_form(form)
                 if os.path.exists(c):
                     os.remove(c)
-            images = cls.IMAGES_DEST
-            if os.path.exists(images):
-                os.remove(images)
+            for x in (cls.IMAGES_DEST, cls.QRC):
+                if os.path.exists(x):
+                    os.remove(x)
     
     class clean(Command):
         description='''Delete all computer generated files in the source tree'''
@@ -348,32 +370,34 @@ if __name__ == '__main__':
                 os.remove(f)
             for root, dirs, files in os.walk('.'):
                 for name in files:
-                    if name.endswith('~') or \
-                       name.endswith('.pyc') or \
-                       name.endswith('.pyo'):
-                        os.remove(os.path.join(root, name))
+                    for t in ('.pyc', '.pyo', '~'):
+                        if name.endswith(t):
+                            os.remove(os.path.join(root, name))
+                            break
                         
-            for dir in 'build', 'dist':
-                for f in os.listdir(dir):
-                    if os.path.isdir(dir + os.sep + f):
-                        shutil.rmtree(dir + os.sep + f)
-                    else:
-                        os.remove(dir + os.sep + f)
+            for dir in ('build', 'dist', os.path.join('src', 'calibre.egg-info')):
+                shutil.rmtree(dir, ignore_errors=True)
     
     class build(_build):
         
-        sub_commands = \
-                        [
+        sub_commands = [
                          ('resources',    lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
                          ('translations', lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
                          ('gui',          lambda self : 'CALIBRE_BUILDBOT' not in os.environ.keys()),
-                         ] + _build.sub_commands
-    
+                         ('build_ext',    lambda self: True),
+                         ('build_py',     lambda self: True),
+                         ('build_clib',    _build.has_c_libraries),
+                         ('build_scripts', _build.has_scripts),
+                       ]
+        
     entry_points['console_scripts'].append('calibre_postinstall = calibre.linux:post_install')
     ext_modules = [
                    Extension('calibre.plugins.lzx',
                              sources=['src/calibre/utils/lzx/lzxmodule.c',
-                                      'src/calibre/utils/lzx/lzxd.c'],
+                                      'src/calibre/utils/lzx/compressor.c',
+                                      'src/calibre/utils/lzx/lzxd.c',
+                                      'src/calibre/utils/lzx/lzc.c',
+                                      'src/calibre/utils/lzx/lzxc.c'],
                              include_dirs=['src/calibre/utils/lzx']),
                    
                    Extension('calibre.plugins.msdes',
@@ -391,13 +415,18 @@ if __name__ == '__main__':
         ext_modules.append(Extension('calibre.plugins.winutil',
                 sources=['src/calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi'],
-                include_dirs=['C:/WinDDK/6001.18001/inc/api/'])
-                           )
+                include_dirs=['C:/WinDDK/6001.18001/inc/api/',
+                              'C:/WinDDK/6001.18001/inc/crt/'],
+                extra_compile_args=['/X']
+                ))
     if isosx:
         ext_modules.append(Extension('calibre.plugins.usbobserver',
-                sources=['src/calibre/devices/usbobserver/usbobserver.c'])
+                sources=['src/calibre/devices/usbobserver/usbobserver.c'],
+                extra_link_args=['-framework', 'IOKit'])
                            )
     
+    plugins = ['plugins/%s.so'%(x.name.rpartition('.')[-1]) for x in ext_modules]
+
     setup(
           name           = APPNAME,
           packages       = find_packages('src'),
@@ -406,8 +435,7 @@ if __name__ == '__main__':
           author         = 'Kovid Goyal',
           author_email   = 'kovid@kovidgoyal.net',
           url            = 'http://%s.kovidgoyal.net'%APPNAME,
-          package_data   = {'calibre':['plugins/*']},
-          include_package_data = True,
+          package_data   = {'calibre':plugins},
           entry_points   = entry_points,
           zip_safe       = False,
           options        = { 'bdist_egg' : {'exclude_source_files': True,}, },
@@ -448,7 +476,8 @@ if __name__ == '__main__':
             ],
           cmdclass       = {
                       'build_ext'     : build_ext, 
-                      'build'         : build, 
+                      'build'         : build,
+                      'build_py'      : build_py, 
                       'pot'           : pot,
                       'manual'        : manual,
                       'resources'     : resources,

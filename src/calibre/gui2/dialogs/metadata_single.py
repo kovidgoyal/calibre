@@ -7,11 +7,11 @@ add/remove formats
 import os
 
 from PyQt4.QtCore import SIGNAL, QObject, QCoreApplication, Qt
-from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog
+from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog, QCompleter
 
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
-                           choose_files, pixmap_to_data, choose_images, import_format
+                           choose_files, pixmap_to_data, choose_images
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -20,7 +20,9 @@ from calibre.ebooks import BOOK_EXTENSIONS
 from calibre.ebooks.metadata import authors_to_sort_string, string_to_authors, authors_to_string
 from calibre.ebooks.metadata.library_thing import login, cover_from_isbn, LibraryThingError
 from calibre import islinux
+from calibre.ebooks.metadata.meta import get_metadata
 from calibre.utils.config import prefs
+from calibre.customize.ui import run_plugins_on_import
 
 class Format(QListWidgetItem):
     def __init__(self, parent, ext, size, path=None):
@@ -30,6 +32,13 @@ class Format(QListWidgetItem):
         text = '%s (%.2f MB)'%(self.ext.upper(), self.size)
         QListWidgetItem.__init__(self, file_icon_provider().icon_from_ext(ext), 
                                  text, parent, QListWidgetItem.UserType)
+
+class AuthorCompleter(QCompleter):
+    
+    def __init__(self, db):
+        all_authors = db.all_authors()
+        all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        QCompleter.__init__(self, [x[1] for x in all_authors])
 
 class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     
@@ -84,13 +93,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 QErrorMessage(self.window).showMessage("You do not have "+\
                                     "permission to read the file: " + _file)
                 continue
-            nf = import_format(_file)[0]
-            if nf is not None:
-                _file = nf
+            _file = run_plugins_on_import(_file)
             size = os.stat(_file).st_size
-            ext = os.path.splitext(_file)[1].lower()
-            if '.' in ext:
-                ext = ext.replace('.', '')
+            ext = os.path.splitext(_file)[1].lower().replace('.', '')
             for row in range(self.formats.count()):
                 fmt = self.formats.item(row)
                 if fmt.ext == ext:
@@ -104,6 +109,39 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         for row in rows:
             self.formats.takeItem(row.row())
             self.formats_changed = True
+    
+    def set_cover(self):
+        row = self.formats.currentRow()
+        fmt = self.formats.item(row)
+        ext = fmt.ext.lower()
+        if fmt.path is None:
+            stream = self.db.format(self.row, ext, as_file=True)
+        else:
+            stream = open(fmt.path, 'r+b')
+        try:
+            mi = get_metadata(stream, ext)
+        except:
+            error_dialog(self, _('Could not read metadata'), 
+                         _('Could not read metadata from %s format')%ext).exec_()
+            return
+        cdata = None
+        if mi.cover and os.access(mi.cover, os.R_OK):
+            cdata = open(mi.cover).read()
+        elif mi.cover_data[1] is not None:
+            cdata = mi.cover_data[1]
+        if cdata is None:
+            error_dialog(self, _('Could not read cover'), 
+                         _('Could not read cover from %s format')%ext).exec_()
+            return
+        pix = QPixmap()
+        pix.loadFromData(cdata)
+        if pix.isNull():
+            error_dialog(self, _('Could not read cover'), 
+                         _('The cover in the %s format is invalid')%ext).exec_()
+            return
+        self.cover.setPixmap(pix)
+        self.cover_changed = True
+        self.cpixmap = pix
     
     def sync_formats(self):
         old_extensions, new_extensions, paths = set(), set(), {}
@@ -129,6 +167,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         QDialog.__init__(self, window)
         Ui_MetadataSingleDialog.__init__(self)        
         self.setupUi(self)
+        self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.splitter.setStretchFactor(100, 1)
         self.db = db
         self.accepted_callback = accepted_callback
@@ -139,6 +178,8 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         self.cover_changed = False
         self.cpixmap = None
         self.cover.setAcceptDrops(True)
+        self._author_completer = AuthorCompleter(self.db)
+        self.authors.setCompleter(self._author_completer)
         self.connect(self.cover, SIGNAL('cover_changed()'), self.cover_dropped)
         QObject.connect(self.cover_button, SIGNAL("clicked(bool)"), \
                                                     self.select_cover)
@@ -157,6 +198,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                         self.remove_unused_series)
         QObject.connect(self.auto_author_sort, SIGNAL('clicked()'),
                         self.deduce_author_sort)
+        self.connect(self.button_set_cover, SIGNAL('clicked()'), self.set_cover)
         self.connect(self.reset_cover, SIGNAL('clicked()'), self.do_reset_cover)
         self.connect(self.swap_button, SIGNAL('clicked()'), self.swap_title_author)
         self.timeout = float(prefs['network_timeout'])
@@ -173,8 +215,6 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             self.authors.setText('')
         aus = self.db.author_sort(row)
         self.author_sort.setText(aus if aus else '')
-        pub = self.db.publisher(row)
-        self.publisher.setText(pub if pub else '')
         tags = self.db.tags(row)
         self.tags.setText(tags if tags else '')
         rating = self.db.rating(row)
@@ -192,8 +232,9 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     ext = ''
                 size = self.db.sizeof_format(row, ext)
                 Format(self.formats, ext, size)
+        
             
-        self.initialize_series()
+        self.initialize_series_and_publisher()
             
         self.series_index.setValue(self.db.series_index(row))
         QObject.connect(self.series, SIGNAL('currentIndexChanged(int)'), self.enable_series_index)
@@ -226,7 +267,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
     def cover_dropped(self):
         self.cover_changed = True
     
-    def initialize_series(self):
+    def initialize_series_and_publisher(self):
         all_series = self.db.all_series()
         all_series.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         series_id = self.db.series_id(self.row)
@@ -249,6 +290,22 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             if l:
                 l.invalidate()
                 l.activate()
+        
+        all_publishers = self.db.all_publishers()
+        all_publishers.sort(cmp=lambda x, y : cmp(x[1], y[1]))
+        publisher_id = self.db.publisher_id(self.row)
+        idx, c = None, 0
+        for i in all_publishers:
+            id, name = i
+            if id == publisher_id:
+                idx = c
+            self.publisher.addItem(name)
+            c += 1
+        
+        self.publisher.setEditText('')
+        if idx is not None:
+            self.publisher.setCurrentIndex(idx)
+        
                 
         self.layout().activate()
     
@@ -304,7 +361,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
         isbn   = qstring_to_unicode(self.isbn.text())
         title  = qstring_to_unicode(self.title.text())
         author = string_to_authors(unicode(self.authors.text()))[0]
-        publisher = qstring_to_unicode(self.publisher.text()) 
+        publisher = qstring_to_unicode(self.publisher.currentText()) 
         if isbn or title or author or publisher:
             d = FetchMetadata(self, isbn, title, author, publisher, self.timeout)
             d.exec_()
@@ -314,7 +371,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                     self.title.setText(book.title)
                     self.authors.setText(authors_to_string(book.authors))
                     if book.author_sort: self.author_sort.setText(book.author_sort)
-                    if book.publisher: self.publisher.setText(book.publisher)
+                    if book.publisher: self.publisher.setEditText(book.publisher)
                     if book.isbn: self.isbn.setText(book.isbn)
                     summ = book.comments
                     if summ:
@@ -353,7 +410,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
             self.db.set_author_sort(self.id, aus, notify=False)
         self.db.set_isbn(self.id, qstring_to_unicode(self.isbn.text()), notify=False)
         self.db.set_rating(self.id, 2*self.rating.value(), notify=False)
-        self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.text()), notify=False)
+        self.db.set_publisher(self.id, qstring_to_unicode(self.publisher.currentText()), notify=False)
         self.db.set_tags(self.id, qstring_to_unicode(self.tags.text()).split(','), notify=False)
         self.db.set_series(self.id, qstring_to_unicode(self.series.currentText()), notify=False)
         self.db.set_series_index(self.id, self.series_index.value(), notify=False)

@@ -102,7 +102,7 @@ Device Integration
 
 What devices does |app| support?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-At the moment |app| has full support for the SONY PRS500 and PRS505. However, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
+At the moment |app| has full support for the SONY PRS 500/505/700 as well as the iPhone. In addition, using the :guilabel:`Save to disk` function you can use it with any ebook reader that exports itself as a USB disk.
 
 I used |app| to transfer some books to my reader, and now the SONY software hangs every time I connect the reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,6 +116,17 @@ Can I use the collections feature of the SONY reader?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 |app| has full support for collections. When you add tags to a book's metadata, those tags are turned into collections when you upload the book to the SONY reader. Also, the series information is automatically
 turned into a collection on the reader. Note that the PRS-500 does not support collections for books stored on the SD card. The PRS-505 does. 
+
+How do I use |app| with my iPhone?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+First install the Stanza reader on your iPhone from http://www.lexcycle.com . Then,
+  * Set the output format for calibre to EPUB (this can be done in the configuration dialog accessed by the little hammer icon next to the search bar)
+  * Convert the books you want to read on your iPhone to EPUB format by selecting them and clicking the Convert button.
+  * Turn on the Content Server in the configurations dialog and leave |app| running.
+  * In the Stanza reader on your iPhone, add a new catalog. The URL of the catalog is of the form 
+    ``http://10.34.56.89:8080/stanza``,  where you should replace the IP address ``10.34.56.89`` 
+    with the IP address of your computer. Stanza will the use the |app| content server to access all the
+    EPUB books in your |app| database.
 
 Library Management
 ------------------
@@ -132,6 +143,15 @@ Where are the book files stored?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 When you first run |app|, it will ask you for a folder in which to store your books. Whenever you add a book to |app|, it will copy the book into that folder. Books in the folder are nicely arranged into sub-folders by Author and Title. Metadata about the books is stored in the file ``metadata.db`` (which is a sqlite database).
 
+Why doesn't |app| let me store books in my own directory structure?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The whole point if |app|'s library management features is that they provide an interface for locating books that is *much* more efficient than any possible directory scheme you could come up with for your collection. Indeed, once you become comfortable using |app|'s interface to find, sort and browse your collection, you wont ever feel the need to hunt through the files on your disk to find a book again. By managing books in its own directory struture of Author -> Title -> Book files, |app| is able to achieve a high level of reliability and standardization.  
+
+Why doesn't |app| have a column for foo?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+|app| is designed to have columns for the most frequently and widely used fields. If it does not have a coulmn for your favorite field, you can always add a tag to the book for that piece of information. |app| also supports a general purpose "comments" fields for longer items.
+
 
 Content From The Web
 ---------------------
@@ -142,8 +162,9 @@ Content From The Web
 My downloaded news content causes the reader to reset. 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 This is a bug in the SONY firmware. The problem can be mitigated by switching the output format to EPUB
-in the configuration dialog. EPUB files typically only cause the reader to reset when clicking on certain
-links. Alternatively, you can use the LRF output format and use the SONY software to transfer the files to the reader. The SONY software pre-paginates the LRF file, thereby reducing the number of resets.
+in the configuration dialog. Alternatively, you can use the LRF output format and use the SONY software 
+to transfer the files to the reader. The SONY software pre-paginates the LRF file, 
+thereby reducing the number of resets.
 
 I obtained a recipe for a news site as a .py file from somewhere, how do I use it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -191,7 +212,7 @@ There can be several causes for this:
 
 If it still wont launch, start a command prompt (press the windows key and R; then type :command:`cmd.exe` in the Run dialog that appears). At the command prompt type the following command and press Enter::
 
-    calibre-debug -c "from calibre.gui2.main import main; main()"
+    calibre-debug -g
 
 Post any output you see in a help message on the `Forum <http://www.mobileread.com/forums/forumdisplay.php?f=166>`_.
     

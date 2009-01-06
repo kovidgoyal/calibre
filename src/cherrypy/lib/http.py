@@ -251,7 +251,12 @@ def valid_status(status):
 image_map_pattern = re.compile(r"[0-9]+,[0-9]+")
 
 def parse_query_string(query_string, keep_blank_values=True):
-    """Build a params dictionary from a query_string."""
+    """Build a params dictionary from a query_string.
+    
+    Duplicate key/value pairs in the provided query_string will be
+    returned as {'key': [val1, val2, ...]}. Single key/values will
+    be returned as strings: {'key': 'value'}.
+    """
     if image_map_pattern.match(query_string):
         # Server-side image map. Map the coords to 'x' and 'y'
         # (like CGI::Request does).

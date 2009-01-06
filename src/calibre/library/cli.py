@@ -76,13 +76,23 @@ STANZA_TEMPLATE='''\
   <entry>
       <title>${record['title']}</title>
       <id>urn:calibre:${record['id']}</id>
-      <author><name>${record['authors']}</name></author>
+      <author><name>${record['author_sort']}</name></author>
       <updated>${record['timestamp'].strftime('%Y-%m-%dT%H:%M:%SZ')}</updated>
       <link type="application/epub+zip" href="${quote(record['fmt_epub'].replace(sep, '/')).replace('http%3A', 'http:')}" />
       <link py:if="record['cover']" rel="x-stanza-cover-image" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
       <link py:if="record['cover']" rel="x-stanza-cover-image-thumbnail" type="image/png" href="${quote(record['cover'].replace(sep, '/')).replace('http%3A', 'http:')}" />
       <content type="xhtml">
-          <div xmlns="http://www.w3.org/1999/xhtml">${record['comments']}</div>
+          <div xmlns="http://www.w3.org/1999/xhtml">
+              <py:for each="f in ('authors','publisher','rating','tags','series', 'isbn')">
+              <py:if test="record[f]">
+              ${f.capitalize()}:${unicode(', '.join(record[f]) if f=='tags' else record[f])}<br/>
+              </py:if>
+              </py:for>
+              <py:if test="record['comments']">
+              <br/>
+              ${record['comments']}
+              </py:if>
+          </div>
       </content>
   </entry>
   </py:for>
@@ -358,8 +368,8 @@ list of id numbers (you can get id numbers by using the list command). For examp
 
     return 0
 
-def do_add_format(db, id, fmt, buffer):
-    db.add_format(id, fmt.upper(), buffer, index_is_id=True)
+def do_add_format(db, id, fmt, path):
+    db.add_format_with_hooks(id, fmt.upper(), path, index_is_id=True)
 
 
 def command_add_format(args, dbpath):
@@ -377,10 +387,10 @@ by id. You can get id by using the list command. If the format already exists, i
         print >>sys.stderr, _('You must specify an id and an ebook file')
         return 1
 
-    id, file, fmt = int(args[1]), open(args[2], 'rb'), os.path.splitext(args[2])[-1]
+    id, path, fmt = int(args[1]), args[2], os.path.splitext(args[2])[-1]
     if not fmt:
         print _('ebook file must have an extension')
-    do_add_format(get_db(dbpath, opts), id, fmt[1:], file)
+    do_add_format(get_db(dbpath, opts), id, fmt[1:], path)
     return 0
 
 def do_remove_format(db, id, fmt):

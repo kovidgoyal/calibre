@@ -19,10 +19,10 @@ class File(object):
         self.is_readonly = not os.access(path, os.W_OK)
         self.ctime = stats.st_ctime
         self.wtime = stats.st_mtime
-        self.size  = stats.st_size 
-        if path.endswith(os.sep): 
+        self.size  = stats.st_size
+        if path.endswith(os.sep):
             path = path[:-1]
-        self.path = path                        
+        self.path = path
         self.name = os.path.basename(path)
         
 
@@ -64,9 +64,11 @@ class PRS505(Device):
       <match key="info.category" string="volume">
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
-                  <match key="volume.is_partition" bool="true">
-                      <merge key="volume.label" type="string">%(storage_card)s</merge>
-                      <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
+                  <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">
+                      <match key="volume.is_partition" bool="true">
+                          <merge key="volume.label" type="string">%(storage_card)s</merge>
+                          <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
+                      </match>
                   </match>
               </match>
           </match>
@@ -106,7 +108,10 @@ class PRS505(Device):
     @classmethod
     def get_osx_mountpoints(cls, raw=None):
         if raw is None:
-            raw = subprocess.Popen('ioreg -w 0 -S -c IOMedia'.split(), 
+            ioreg = '/usr/sbin/ioreg'
+            if not os.access(ioreg, os.X_OK):
+                ioreg = 'ioreg'
+            raw = subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(),
                                    stdout=subprocess.PIPE).stdout.read()
         lines = raw.splitlines()
         names = {}

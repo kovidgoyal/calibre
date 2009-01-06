@@ -39,6 +39,18 @@ class Device(object):
         '''Return the FDI description of this device for HAL on linux.'''
         return ''
     
+    def open(self):
+        '''
+        Perform any device specific initialization. Called after the device is
+        detected but before any other functions that communicate with the device.
+        For example: For devices that present themselves as USB Mass storage
+        devices, this method would be responsible for mounting the device or
+        if the device has been automounted, for finding out where it has been 
+        mounted. The driver for the PRS505 has a implementation of this function
+        that should serve as a good example for USB Mass storage devices.
+        '''
+        raise NotImplementedError()
+    
     def set_progress_reporter(self, report_progress):
         '''
         @param report_progress: Function that is called with a % progress 

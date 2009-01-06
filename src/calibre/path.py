@@ -29,7 +29,7 @@ Date:    9 Mar 2007
 
 from __future__ import generators
 
-import sys, warnings, os, fnmatch, glob, shutil, codecs, md5
+import sys, warnings, os, fnmatch, glob, shutil, codecs, hashlib
 
 __version__ = '2.2'
 __all__ = ['path']
@@ -767,7 +767,7 @@ class path(_base):
         """
         f = self.open('rb')
         try:
-            m = md5.new()
+            m = hashlib.md5()
             while True:
                 d = f.read(8192)
                 if not d:

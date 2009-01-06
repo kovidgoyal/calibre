@@ -13,7 +13,10 @@ def get_ip_address(ifname):
         struct.pack('256s', ifname[:15])
     )[20:24])
 
-HOST=get_ip_address('eth0')
+try:
+    HOST=get_ip_address('eth0')
+except:
+    HOST=get_ip_address('wlan0')
 PROJECT=os.path.basename(os.getcwd())
 
 from calibre import __version__, __appname__
@@ -99,15 +102,12 @@ def build_osx(shutdown=True):
     return os.path.basename(installer)
 
 
-def build_linux(shutdown=True):
+def build_linux(*args, **kwargs):
     installer = installer_name('tar.bz2')
-    vm = '/vmware/linux/libprs500-gentoo.vmx'
-    start_vm(vm, 'linux', (BUILD_SCRIPT%('sudo python setup.py develop', 'python','installer/linux/freeze.py')).replace('rm ', 'sudo rm '), sleep=120)
-    subprocess.check_call(('scp', 'linux:/tmp/%s'%os.path.basename(installer), 'dist'))
+    exec open('installer/linux/freeze.py')
+    freeze()
     if not os.path.exists(installer):
         raise Exception('Failed to build installer '+installer)
-    if shutdown:
-        subprocess.Popen(('ssh', 'linux', 'sudo', '/sbin/poweroff'))
     return os.path.basename(installer)
 
 def build_installers():
@@ -213,11 +213,11 @@ def upload_src_tarball():
     check_call('scp dist/calibre-*.tar.gz divok:%s/'%DOWNLOADS)
 
 def stage_one():
-    check_call('sudo rm -rf build', shell=True)
+    check_call('sudo rm -rf build src/calibre/plugins/*', shell=True)
     os.mkdir('build')
     shutil.rmtree('docs')
     os.mkdir('docs')
-    check_call('python setup.py build', shell=True)
+    check_call('python setup.py build_ext build', shell=True)
     check_call('sudo python setup.py develop', shell=True)
     tag_release()
     upload_demo()
@@ -235,7 +235,12 @@ def stage_three():
     print 'Uploading to PyPI...'
     check_call('rm -f dist/*')
     check_call('python setup.py register')
-    check_call('python setup.py bdist_egg --exclude-source-files upload')
+    check_call('sudo rm -rf build src/calibre/plugins/*')
+    os.mkdir('build')
+    check_call('python2.5 setup.py build_ext bdist_egg --exclude-source-files upload')
+    check_call('sudo rm -rf build src/calibre/plugins/*')
+    os.mkdir('build')
+    check_call('python setup.py build_ext bdist_egg --exclude-source-files upload')
     check_call('python setup.py sdist upload')
     upload_src_tarball()
     check_call('''rm -rf dist/* build/*''')

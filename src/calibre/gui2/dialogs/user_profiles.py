@@ -191,7 +191,7 @@ class %(classname)s(%(base_class)s):
         
         class Recipe(object):
             def __init__(self, title, id, recipes):
-                self.title = title
+                self.title = unicode(title)
                 self.id = id
                 self.text = recipes[id]
             def __cmp__(self, other):
@@ -202,8 +202,9 @@ class %(classname)s(%(base_class)s):
         title, ok = QInputDialog.getItem(self, _('Pick recipe'), _('Pick the recipe to customize'),
                                      items, 0, False)
         if ok:
+            title = unicode(title)
             for r in recipes:
-                if r.title == unicode(title):
+                if r.title == title:
                     try:
                         self.available_profiles.add_item(title, (title, r.text), replace=False)
                     except ValueError:
@@ -228,16 +229,16 @@ class %(classname)s(%(base_class)s):
                 error_dialog(self, _('Invalid input'), 
                         _('<p>Could not create recipe. Error:<br>%s')%str(err)).exec_()
                 return
-        try:
-            self.available_profiles.add_item(title, (title, src), replace=False)
-        except ValueError:
-            d = question_dialog(self, _('Replace recipe?'), 
-                    _('A custom recipe named %s already exists. Do you want to replace it?')%title)
-            if d.exec_() == QMessageBox.Yes:
-                self.available_profiles.add_item(title, (title, src), replace=True)
-            else:
-                return
-        self.clear()
+            try:
+                self.available_profiles.add_item(title, (title, src), replace=False)
+            except ValueError:
+                d = question_dialog(self, _('Replace recipe?'), 
+                        _('A custom recipe named %s already exists. Do you want to replace it?')%title)
+                if d.exec_() == QMessageBox.Yes:
+                    self.available_profiles.add_item(title, (title, src), replace=True)
+                else:
+                    return
+            self.clear()
         
     def populate_options(self, profile):
         self.oldest_article.setValue(profile.oldest_article)

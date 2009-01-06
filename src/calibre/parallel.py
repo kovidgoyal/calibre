@@ -31,7 +31,8 @@ from threading import RLock, Thread, Event
 from math import ceil
 
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre import iswindows, detect_ncpus, isosx
+from calibre import iswindows, detect_ncpus, isosx, preferred_encoding
+from calibre.utils.config import prefs
 
 DEBUG = False
 
@@ -223,6 +224,8 @@ class WorkerMother(object):
         return child
 
     def spawn_free_spirit_windows(self, arg, type='free_spirit'):
+        priority = {'high':win32process.HIGH_PRIORITY_CLASS, 'normal':win32process.NORMAL_PRIORITY_CLASS,
+                    'low':win32process.IDLE_PRIORITY_CLASS}[prefs['worker_process_priority']]
         fd, name = tempfile.mkstemp('.log', 'calibre_'+type+'_')
         handle = msvcrt.get_osfhandle(fd)
         si = win32process.STARTUPINFO()
@@ -236,7 +239,7 @@ class WorkerMother(object):
             None,    # processAttributes
             None,    # threadAttributes
             1,       # bInheritHandles
-            win32process.CREATE_NO_WINDOW, # Dont want ugly console popping up
+            win32process.CREATE_NO_WINDOW|priority, # Dont want ugly console popping up
             self.get_env(), # New environment
             None,    # Current directory
             si
@@ -564,23 +567,27 @@ class Job(object):
             return 'ERROR'
             
     def console_text(self):
-        ans = [u'Error in job: ']
+        ans = [u'Job: ']
         if self.description:
             ans[0] += self.description
+        if self.exception is not None:
+            header = unicode(self.exception.__class__.__name__) if \
+                    hasattr(self.exception, '__class__') else u'Error'
+            header = u'**%s**'%header
+            header += u': '
+            try:
+                header += unicode(self.exception)
+            except:
+                header += unicode(repr(self.exception))
+            ans.append(header)
+            if self.traceback:
+                ans.append(u'**Traceback**:')
+                ans.extend(self.traceback.split('\n'))
+        
         if self.log:
             if isinstance(self.log, str):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.append(self.log)
-        header = unicode(self.exception.__class__.__name__) if \
-                hasattr(self.exception, '__class__') else u'Error'
-        header += u': '
-        try:
-            header += unicode(self.exception)
-        except:
-            header += unicode(repr(self.exception))
-        ans.append(header)
-        if self.traceback:
-            ans.append(self.traceback)
         return (u'\n'.join(ans)).encode('utf-8')
     
     def gui_text(self):
@@ -607,8 +614,10 @@ class Job(object):
             if isinstance(self.log, str):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.extend(self.log.split('\n'))
-            
-        return '\n'.join(ans)
+        
+        ans = [x.decode(preferred_encoding, 'replace') if isinstance(x, str) else x for x in ans]
+        
+        return u'<br>'.join(ans)
 
 
 class ParallelJob(Job):

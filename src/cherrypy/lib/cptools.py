@@ -212,7 +212,7 @@ class SessionAuth(object):
     def on_check(self, username):
         pass
     
-    def login_screen(self, from_page='..', username='', error_msg=''):
+    def login_screen(self, from_page='..', username='', error_msg='', **kwargs):
         return """<html><body>
 Message: %(error_msg)s
 <form method="post" action="do_login">
@@ -224,7 +224,7 @@ Message: %(error_msg)s
 </body></html>""" % {'from_page': from_page, 'username': username,
                      'error_msg': error_msg}
     
-    def do_login(self, username, password, from_page='..'):
+    def do_login(self, username, password, from_page='..', **kwargs):
         """Login. May raise redirect, or return True if request handled."""
         error_msg = self.check_username_and_password(username, password)
         if error_msg:
@@ -239,7 +239,7 @@ Message: %(error_msg)s
             self.on_login(username)
             raise cherrypy.HTTPRedirect(from_page or "/")
     
-    def do_logout(self, from_page='..'):
+    def do_logout(self, from_page='..', **kwargs):
         """Logout. May raise redirect, or return True if request handled."""
         sess = cherrypy.session
         username = sess.get(self.session_key)

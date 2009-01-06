@@ -6,13 +6,13 @@ __docformat__ = 'restructuredtext en'
 '''
 Freeze app into executable using py2exe.
 '''
-QT_DIR           = 'C:\\Qt\\4.4.1'
+QT_DIR           = 'C:\\Qt\\4.4.3'
 LIBUSB_DIR       = 'C:\\libusb'
 LIBUNRAR         = 'C:\\Program Files\\UnrarDLL\\unrar.dll'
 PDFTOHTML        = 'C:\\pdftohtml\\pdftohtml.exe'
 IMAGEMAGICK_DIR  = 'C:\\ImageMagick'
 FONTCONFIG_DIR   = 'C:\\fontconfig'
-
+VC90             = r'C:\Program Files\Microsoft Visual Studio 9.0\VC\redist\x86\Microsoft.VC90.CRT'
 
 import sys, os, py2exe, shutil, zipfile, glob, subprocess, re
 from distutils.core import setup
@@ -65,6 +65,8 @@ class BuildEXE(py2exe.build_exe.py2exe):
             shutil.copyfile(f, os.path.join(self.dist_dir, os.path.basename(f)))
         for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.pyd')):
             shutil.copyfile(f, os.path.join(tgt, os.path.basename(f)))
+        for f in glob.glob(os.path.join(BASE_DIR, 'src', 'calibre', 'plugins', '*.manifest')):
+            shutil.copyfile(f, os.path.join(tgt, os.path.basename(f)))
         shutil.copyfile('LICENSE', os.path.join(self.dist_dir, 'LICENSE'))
         print
         print 'Adding QtXml4.dll'
@@ -115,11 +117,16 @@ class BuildEXE(py2exe.build_exe.py2exe):
                 shutil.copytree(f, tgt)
             else:
                 shutil.copyfile(f, tgt)
-        
+                
         print 
         print 'Doing DLL redirection' # See http://msdn.microsoft.com/en-us/library/ms682600(VS.85).aspx
         for f in glob.glob(os.path.join(PY2EXE_DIR, '*.exe')):
             open(f + '.local', 'w').write('\n')
+        
+        print
+        print 'Adding Windows runtime dependencies...'
+        for f in glob.glob(os.path.join(VC90, '*')):
+            shutil.copyfile(f, os.path.join(PY2EXE_DIR, os.path.basename(f)))
         
         
     @classmethod
@@ -142,17 +149,17 @@ def main(args=sys.argv):
                      {'script'          : scripts['gui'][0],
                       'dest_base'       : APPNAME,
                       'icon_resources'  : [(1, ICONS[0])],
-                      'other_resources' : [BuildEXE.manifest(APPNAME)],
+                      #'other_resources' : [BuildEXE.manifest(APPNAME)],
                       },
                       {'script'         : scripts['gui'][1],
                       'dest_base'       : 'lrfviewer',
                       'icon_resources'  : [(1, ICONS[1])],
-                      'other_resources' : [BuildEXE.manifest('lrfviewer')],
+                      #'other_resources' : [BuildEXE.manifest('lrfviewer')],
                       },
                       {'script'         : scripts['gui'][2],
                       'dest_base'       : 'ebook-viewer',
                       'icon_resources'  : [(1, ICONS[1])],
-                      'other_resources' : [BuildEXE.manifest('ebook-viewer')],
+                      #'other_resources' : [BuildEXE.manifest('ebook-viewer')],
                       },
                       ],
           console = console,
@@ -162,12 +169,12 @@ def main(args=sys.argv):
                                   'includes'  : [
                                              'sip', 'pkg_resources', 'PyQt4.QtSvg',
                                              'mechanize', 'ClientForm', 'wmi',
-                                             'win32file', 'pythoncom', 'rtf2xml',
+                                             'win32file', 'pythoncom', 
                                              'win32process', 'win32api', 'msvcrt',
                                              'win32event', 'calibre.ebooks.lrf.any.*',
                                              'calibre.ebooks.lrf.feeds.*',
-                                             'genshi', 'BeautifulSoup',
-                                             'path', 'pydoc', 'IPython.Extensions.*',
+                                             'BeautifulSoup', 'pyreadline',
+                                             'pydoc', 'IPython.Extensions.*',
                                              'calibre.web.feeds.recipes.*',
                                              'PyQt4.QtWebKit', 'PyQt4.QtNetwork',
                                              ],

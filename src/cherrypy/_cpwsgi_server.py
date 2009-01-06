@@ -43,6 +43,7 @@ class CPWSGIServer(wsgiserver.CherryPyWSGIServer):
         s.__init__(self, bind_addr, cherrypy.tree,
                    server.thread_pool,
                    server.socket_host,
+                   max = server.thread_pool_max,
                    request_queue_size = server.socket_queue_size,
                    timeout = server.socket_timeout,
                    shutdown_timeout = server.shutdown_timeout,

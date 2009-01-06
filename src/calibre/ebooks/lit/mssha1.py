@@ -4,6 +4,9 @@ Modified version of SHA-1 used in Microsoft LIT files.
 Adapted from the PyPy pure-Python SHA-1 implementation.
 """
 
+__license__   = 'GPL v3'
+__copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
+
 import struct, copy
 
 # ======================================================================

@@ -69,11 +69,11 @@ if pictureflow is not None:
             
     class CoverFlow(pictureflow.PictureFlow):
         
-        def __init__(self, height=300, parent=None):
+        def __init__(self, height=300, parent=None, text_height=25):
             pictureflow.PictureFlow.__init__(self, parent, 
                                 config['cover_flow_queue_length']+1)
             self.setSlideSize(QSize(int(2/3. * height), height))
-            self.setMinimumSize(QSize(int(2.35*0.67*height), (5/3.)*height+25))
+            self.setMinimumSize(QSize(int(2.35*0.67*height), (5/3.)*height+text_height))
             self.setFocusPolicy(Qt.WheelFocus)
             self.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
             

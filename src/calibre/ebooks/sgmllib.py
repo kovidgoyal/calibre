@@ -351,7 +351,7 @@ class SGMLParser(markupbase.ParserBase):
             if tag not in self.stack:
                 try:
                     method = getattr(self, 'end_' + tag)
-                except AttributeError:
+                except (AttributeError, ValueError):
                     self.unknown_endtag(tag)
                 else:
                     self.report_unbalanced(tag)

@@ -233,7 +233,7 @@ class ParseRtf:
                 bug_handler = RtfInvalidCodeException,
                     )
             check_encoding_obj.check_encoding(self.__file)
-            sys.stderr.write('File "%s" does not appear to be RTF.\n' % self.__file)
+            sys.stderr.write('File "%s" does not appear to be RTF.\n' % self.__file if isinstance(self.__file, str) else self.__file.encode('utf-8'))
             raise InvalidRtfException, msg
         delete_info_obj = delete_info.DeleteInfo(
             in_file = self.__temp_file,

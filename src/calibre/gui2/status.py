@@ -2,16 +2,18 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import re, collections
 
-from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QFrame, QHBoxLayout, QPixmap, \
-                        QVBoxLayout, QSizePolicy, QToolButton, QIcon
+from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QWidget, QHBoxLayout, QPixmap, \
+                        QVBoxLayout, QSizePolicy, QToolButton, QIcon, QScrollArea, QFrame
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
-from calibre import fit_image, preferred_encoding
+from calibre import fit_image, preferred_encoding, isosx
 from calibre.gui2 import qstring_to_unicode
 
-class BookInfoDisplay(QFrame):
+class BookInfoDisplay(QWidget):
     class BookCoverDisplay(QLabel):
-        WIDTH = 80
-        HEIGHT = 100
+        
+        WIDTH = 81
+        HEIGHT = 108
+        
         def __init__(self, coverpath=':/images/book.svg'):
             QLabel.__init__(self)
             self.default_pixmap = QPixmap(coverpath).scaled(self.__class__.WIDTH,
@@ -19,6 +21,7 @@ class BookInfoDisplay(QFrame):
                                                             Qt.IgnoreAspectRatio,
                                                             Qt.SmoothTransformation)
             self.setScaledContents(True)
+            self.setMaximumHeight(self.HEIGHT)
             self.setPixmap(self.default_pixmap)
             
         
@@ -29,7 +32,10 @@ class BookInfoDisplay(QFrame):
             self.setMaximumWidth(width)
             QLabel.setPixmap(self, pixmap)
              
-            aspect_ratio = pixmap.width()/float(pixmap.height())
+            try:
+                aspect_ratio = pixmap.width()/float(pixmap.height())
+            except ZeroDivisionError:
+                aspect_ratio = 1
             self.setMaximumWidth(int(aspect_ratio*self.HEIGHT))
         
         def sizeHint(self):
@@ -39,11 +45,9 @@ class BookInfoDisplay(QFrame):
     class BookDataDisplay(QLabel):
         def __init__(self):
             QLabel.__init__(self)
-            #self.setTextInteractionFlags(Qt.TextSelectableByMouse)
             self.setText('')
             self.setWordWrap(True)
-            self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum))
-            self.setMaximumHeight(100)
+            self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
             
         def mouseReleaseEvent(self, ev):
             self.emit(SIGNAL('mr(int)'), 1)
@@ -56,18 +60,20 @@ class BookInfoDisplay(QFrame):
     WEIGHTS[_('Tags')] = 4
     
     def __init__(self, clear_message):
-        QFrame.__init__(self)
+        QWidget.__init__(self)
         self.setCursor(Qt.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+        self._layout = QHBoxLayout()
+        self.setLayout(self._layout)
         self.clear_message = clear_message
-        self.layout = QHBoxLayout()
-        self.setLayout(self.layout)
         self.cover_display = BookInfoDisplay.BookCoverDisplay()
-        self.layout.addWidget(self.cover_display)
+        self._layout.addWidget(self.cover_display)
         self.book_data = BookInfoDisplay.BookDataDisplay()
         self.connect(self.book_data, SIGNAL('mr(int)'), self.mouseReleaseEvent)
-        self.layout.addWidget(self.book_data)
+        self._layout.addWidget(self.book_data)
         self.data = {}
         self.setVisible(False)
+        self._layout.setAlignment(self.cover_display, Qt.AlignTop|Qt.AlignLeft)
         
     def mouseReleaseEvent(self, ev):
         self.emit(SIGNAL('show_book_info()'))
@@ -85,7 +91,6 @@ class BookInfoDisplay(QFrame):
         keys.sort(cmp=lambda x, y: cmp(self.WEIGHTS[x], self.WEIGHTS[y]))
         for key in keys:
             txt = data[key]
-            #txt = '<br />\n'.join(textwrap.wrap(txt, 120))
             if isinstance(key, str):
                 key = key.decode(preferred_encoding, 'replace')
             if isinstance(txt, str):
@@ -94,6 +99,8 @@ class BookInfoDisplay(QFrame):
         self.book_data.setText(u'<table>'+rows+u'</table>')
         
         self.clear_message()
+        self.book_data.updateGeometry()
+        self.updateGeometry()
         self.setVisible(True)
 
 class MovieButton(QFrame):
@@ -164,6 +171,7 @@ class TagViewButton(QToolButton):
     
 
 class StatusBar(QStatusBar):
+    
     def __init__(self, jobs_dialog, systray=None):
         QStatusBar.__init__(self)
         self.systray = systray
@@ -174,17 +182,29 @@ class StatusBar(QStatusBar):
         self.addPermanentWidget(self.tag_view_button)
         self.addPermanentWidget(self.movie_button)
         self.book_info = BookInfoDisplay(self.clearMessage)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidget(self.book_info)
+        self.scroll_area.setMaximumHeight(120)
+        self.scroll_area.setWidgetResizable(True)
         self.connect(self.book_info, SIGNAL('show_book_info()'), self.show_book_info)
-        self.addWidget(self.book_info)
+        self.addWidget(self.scroll_area, 100)
         self.setMinimumHeight(120)
+        self.setMaximumHeight(120)
+        
     
     def reset_info(self):
         self.book_info.show_data({})
         
     def showMessage(self, msg, timeout=0):
+        ret = QStatusBar.showMessage(self, msg, timeout)
         if self.systray is not None:
+            if isosx and isinstance(msg, unicode):
+                try:
+                    msg = msg.encode(preferred_encoding)
+                except UnicodeEncodeError:
+                    msg = msg.encode('utf-8')
             self.systray.showMessage('calibre', msg, self.systray.Information, 10000)
-        return QStatusBar.showMessage(self, msg, timeout)
+        return ret
     
     def jobs(self):
         src = qstring_to_unicode(self.movie_button.jobs.text())

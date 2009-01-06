@@ -10,13 +10,14 @@ Try to read metadata from an HTML file.
 import re
 
 from calibre.ebooks.metadata import MetaInformation
+from calibre.ebooks.chardet import xml_to_unicode
 
 def get_metadata(stream):
-    src = stream.read()
+    src = xml_to_unicode(stream.read())[0]
     
     # Title
     title = None
-    pat = re.compile(r'<!--.*?TITLE=(?P<q>[\'"])(.+)(?P=q).*?-->', re.DOTALL)
+    pat = re.compile(r'<!--.*?TITLE=(?P<q>[\'"])(.+?)(?P=q).*?-->', re.DOTALL)
     match = pat.search(src)
     if match:
         title = match.group(2)
@@ -28,7 +29,7 @@ def get_metadata(stream):
         
     # Author
     author = None
-    pat = re.compile(r'<!--.*?AUTHOR=(?P<q>[\'"])(.+)(?P=q).*?-->', re.DOTALL)
+    pat = re.compile(r'<!--.*?AUTHOR=(?P<q>[\'"])(.+?)(?P=q).*?-->', re.DOTALL)
     match = pat.search(src)
     if match:
         author = match.group(2).replace(',', ';')
@@ -36,7 +37,7 @@ def get_metadata(stream):
     mi = MetaInformation(title, [author] if author else None)
     
     # Publisher
-    pat = re.compile(r'<!--.*?PUBLISHER=(?P<q>[\'"])(.+)(?P=q).*?-->', re.DOTALL)
+    pat = re.compile(r'<!--.*?PUBLISHER=(?P<q>[\'"])(.+?)(?P=q).*?-->', re.DOTALL)
     match = pat.search(src)
     if match:
         mi.publisher = match.group(2)

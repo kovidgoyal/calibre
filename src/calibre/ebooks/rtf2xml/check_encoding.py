@@ -23,7 +23,10 @@ class CheckEncoding:
             try:
                 line.decode(encoding)
             except UnicodeError:
-                self.__get_position_error(line, encoding, line_num)
+                if len(line) < 1000:
+                    self.__get_position_error(line, encoding, line_num)
+                else:
+                    sys.stderr.write('line: %d has bad encoding\n'%line_num)
 if __name__ == '__main__':
     check_encoding_obj = CheckEncoding()
     check_encoding_obj.check_encoding(sys.argv[1])

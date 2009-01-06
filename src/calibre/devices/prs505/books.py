@@ -60,7 +60,7 @@ class Book(object):
     rpath        = book_metadata_field("path")
     id           = book_metadata_field("id", formatter=int)
     sourceid     = book_metadata_field("sourceid", formatter=int)
-    size         = book_metadata_field("size", formatter=int)
+    size         = book_metadata_field("size", formatter=lambda x : int(float(x)))
     # When setting this attribute you must use an epoch
     datetime     = book_metadata_field("date", formatter=strptime, setter=strftime)
     

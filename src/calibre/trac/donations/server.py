@@ -21,7 +21,7 @@ from lxml import etree
 
 def range_for_month(year, month):
     ty, tm = date.today().year, date.today().month
-    min = date(year=year, month=month, day=1)
+    min = max = date(year=year, month=month, day=1)
     x = date.today().day if ty == year and tm == month else 31
     while x > 1:
         try:
@@ -102,10 +102,12 @@ class Stats:
 
     def get_deviation(self, amounts):
         l = float(len(amounts))
+        if l == 0:
+            return 0
         mean = sum(amounts)/l
         return sqrt( sum([i**2 for i in amounts])/l - mean**2  )
 
-    def __init__(self, records):
+    def __init__(self, records, start, end):
         self.total = sum([r.amount for r in records])
         self.days = {}
         l, rg = date.max, date.min
@@ -117,15 +119,15 @@ class Stats:
                 self.days[r.date] = []
             self.days[r.date].append(r)
             
-        self.min, self.max = l, rg
-        self.period = self.max - self.min
+        self.min, self.max = start, end
+        self.period = (self.max - self.min) + timedelta(days=1)
         daily_totals = []
         day = self.min
         while day <= self.max:
             x = self.days.get(day, [])
             daily_totals.append(sum([y.amount for y in x]))
             day += timedelta(days=1)
-        self.daily_average = self.total/len(daily_totals) if len(daily_totals) else 0.
+        self.daily_average = self.total/self.period.days
         self.daily_deviation = self.get_deviation(daily_totals)
         self.average = self.total/len(records) if len(records) else 0.
         self.average_deviation = self.get_deviation(self.totals)
@@ -184,13 +186,27 @@ def expose(func):
 class Server(object):
     
     TRENDS = '/tmp/donations_trend.png'
+    MONTH_TRENDS = '/tmp/donations_month_trend.png'
     
     def __init__(self, apache=False, root='/', data_file='/tmp/donations.xml'):
         self.apache = apache
         self.document_root = root
         self.data_file = data_file
         self.read_records()
-        
+    
+    def calculate_month_trend(self, days=31):
+        stats = self.get_slice(date.today()-timedelta(days=days-1), date.today())
+        fig = plt.figure(2, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        ax = fig.add_subplot(111)
+        x = list(range(days-1, -1, -1))
+        y = stats.daily_totals
+        ax.plot(x, y)#, align='center', width=20, color='g')
+        ax.set_xlabel('Days ago')
+        ax.set_ylabel('Income ($)')
+        ax.hlines([stats.daily_average], 0, days-1)
+        ax.set_xlim([0, days-1])
+        fig.savefig(self.MONTH_TRENDS)
+    
     def calculate_trend(self):
         def months(start, end):
             pos = range_for_month(start.year, start.month)[0]
@@ -208,7 +224,7 @@ class Server(object):
         x = [m.min for m in _months]
         y = [m.total for m in _months]
         ml   = mdates.MonthLocator() # every month
-        fig = plt.figure(None, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
+        fig = plt.figure(1, (8, 3), 96)#, facecolor, edgecolor, frameon, FigureClass)
         ax = fig.add_subplot(111)
         ax.bar(x, y, align='center', width=20, color='g')
         ax.xaxis.set_major_locator(ml)
@@ -235,14 +251,11 @@ class Server(object):
             max_date = max(max_date, d)
         self.earliest, self.latest = min_date, max_date
         self.calculate_trend()
+        self.calculate_month_trend()
             
     def get_slice(self, start_date, end_date):
-        stats = Stats([r for r in self.records if r.date >= start_date and r.date <= end_date])
-        if start_date > date.min and end_date < date.max:
-            stats.period = end_date - start_date
-            stats.period += timedelta(days=1)
-            stats.min = start_date
-            stats.max = end_date
+        stats = Stats([r for r in self.records if r.date >= start_date and r.date <= end_date],
+                        start_date, end_date)
         return stats
     
     def month(self, year, month):
@@ -302,6 +315,8 @@ class Server(object):
             range_stats = '<pre>Invalid input:\n%s</pre>'%err
         else:
             range_stats = self.get_slice(*range_stats).to_html(num_of_countries=10)
+        
+        today = self.get_slice(date.today(), date.today())
         
         return textwrap.dedent('''\
         <?xml version="1.0" encoding="UTF-8"?>
@@ -424,6 +439,7 @@ class Server(object):
                                     <input type="submit" value="Update" />
                                 </form>
                             </fieldset>
+                            <b>Donations today: $%(today).2f</b><br />
                             %(range_stats)s
                         </td>
                     </tr>
@@ -432,6 +448,8 @@ class Server(object):
                 <div style="text-align:center">
                     <h3>Income trends for the last year</h3>
                     <img src="%(root)strend.png" alt="Income trends" />
+                    <h3>Income trends for the last 31 days</h3>
+                    <img src="%(root)smonth_trend.png" alt="Month income trend" />
                 </div>
             </body>
         </html>
@@ -442,6 +460,7 @@ class Server(object):
                   rc = 'checked="checked"' if period_type=="range" else '',
                   month_month=mmlist, month_year=mylist, year_year=yylist,
                   rl=rl, rr=rr, range_stats=range_stats, root=self.document_root,
+                  today=today.total
                   )
     
     @expose
@@ -455,6 +474,11 @@ class Server(object):
     def trend_png(self):
         cherrypy.response.headers['Content-Type'] = 'image/png'
         return open(self.TRENDS, 'rb').read()
+    
+    @expose
+    def month_trend_png(self):
+        cherrypy.response.headers['Content-Type'] = 'image/png'
+        return open(self.MONTH_TRENDS, 'rb').read()
     
     @expose
     def show(self, period_type='month', month_month='', month_year='', 

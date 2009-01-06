@@ -8,7 +8,7 @@ import types
 import cherrypy
 from cherrypy import _cpcgifs, _cpconfig
 from cherrypy._cperror import format_exc, bare_error
-from cherrypy.lib import http
+from cherrypy.lib import http, file_generator
 
 
 class Hook(object):
@@ -745,15 +745,6 @@ class Request(object):
         except cherrypy.HTTPRedirect, inst:
             inst.set_response()
             cherrypy.response.finalize()
-
-
-def file_generator(input, chunkSize=65536):
-    """Yield the given input (a file object) in chunks (default 64k). (Core)"""
-    chunk = input.read(chunkSize)
-    while chunk:
-        yield chunk
-        chunk = input.read(chunkSize)
-    input.close()
 
 
 class Body(object):

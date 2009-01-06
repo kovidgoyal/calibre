@@ -14,7 +14,7 @@ from datetime import datetime
 from threading import Thread
 
 import cherrypy
-from PIL import Image
+from PyQt4.Qt import QImage, QApplication, QByteArray, Qt, QBuffer
 
 from calibre.constants import __version__, __appname__
 from calibre.utils.genshi.template import MarkupTemplate
@@ -112,6 +112,8 @@ class LibraryServer(object):
             item
             break
         self.opts = opts
+        self.max_cover_width, self.max_cover_height = \
+                        map(int, self.opts.max_cover.split('x'))
         
         cherrypy.config.update({
                                 'log.screen'             : opts.develop,
@@ -179,27 +181,37 @@ class LibraryServer(object):
         cherrypy.engine.exit()
     
     def get_cover(self, id, thumbnail=False):
-        cover = self.db.cover(id, index_is_id=True, as_file=True)
+        cover = self.db.cover(id, index_is_id=True, as_file=False)
         if cover is None:
-            cover = cStringIO.StringIO(server_resources['default_cover.jpg'])
+            cover = server_resources['default_cover.jpg']
         cherrypy.response.headers['Content-Type'] = 'image/jpeg'
         path = getattr(cover, 'name', False)
         updated = datetime.utcfromtimestamp(os.stat(path).st_mtime) if path and os.access(path, os.R_OK) else build_time
         cherrypy.response.headers['Last-Modified'] = self.last_modified(updated)
-        if not thumbnail:
-            return cover.read()
         try:
-            im = Image.open(cover)
-            width, height = im.size
-            scaled, width, height = fit_image(width, height, 80, 60)
+            if QApplication.instance() is None:
+                QApplication([])
+            
+            im = QImage()
+            im.loadFromData(cover)
+            if im.isNull():
+                raise cherrypy.HTTPError(404, 'No valid cover found')
+            width, height = im.width(), im.height()
+            scaled, width, height = fit_image(width, height, 
+                60 if thumbnail else self.max_cover_width, 
+                80 if thumbnail else self.max_cover_height)
             if not scaled:
-                return cover.read()
-            im.thumbnail((width, height))
-            o = cStringIO.StringIO()
-            im.save(o, 'JPEG')
-            return o.getvalue()
+                return cover
+            im = im.scaled(width, height, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            ba = QByteArray()
+            buf = QBuffer(ba)
+            buf.open(QBuffer.WriteOnly)
+            im.save(buf, 'PNG')
+            return str(ba.data())
         except Exception, err:
-            raise cherrypy.HTTPError(404, 'failed to generate thumbnail: %s'%err)
+            import traceback
+            traceback.print_exc()
+            raise cherrypy.HTTPError(404, 'Failed to generate cover: %s'%err)
         
     def get_format(self, id, format):
         format = format.upper()
@@ -244,7 +256,9 @@ class LibraryServer(object):
         ' Feeds to read calibre books on a ipod with stanza.'
         books = []
         for record in iter(self.db):
-            if 'EPUB' in record[FIELD_MAP['formats']].upper():
+            r = record[FIELD_MAP['formats']]
+            r = r.upper() if r else ''
+            if 'EPUB' in r:
                 authors = ' & '.join([i.replace('|', ',') for i in record[FIELD_MAP['authors']].split(',')])
                 extra = []
                 rating = record[FIELD_MAP['rating']]

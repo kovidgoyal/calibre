@@ -68,9 +68,10 @@ def save_soup(soup, target):
     
 class response(str):
     
-    def __init__(self, *args):
-        str.__init__(self, *args)
-        self.newurl = None
+    def __new__(cls, *args):
+        obj = super(response, cls).__new__(cls, *args)
+        obj.newurl = None
+        return obj
         
 class DummyLock(object):
     
