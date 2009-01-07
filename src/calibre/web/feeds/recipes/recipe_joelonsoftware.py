@@ -5,6 +5,7 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 '''
 joelonsoftware.com
 '''
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class Joelonsoftware(BasicNewsRecipe):
     
