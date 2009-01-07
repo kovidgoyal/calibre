@@ -7,7 +7,7 @@ from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
                      QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
                      QToolButton, QDialog, QDesktopServices, QFileDialog, \
                      QSystemTrayIcon, QApplication, QKeySequence, QAction, \
-                     QProgressDialog, QMessageBox
+                     QProgressDialog, QMessageBox, QStackedLayout
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
@@ -22,7 +22,8 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
                            SingleApplication, Application, available_height, \
-                           max_available_height, config, info_dialog
+                           max_available_height, config, info_dialog, \
+                           available_width
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
@@ -342,9 +343,16 @@ class Main(MainWindow, Ui_MainWindow):
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
-            self.cover_flow = CoverFlow(height=220 if available_height() > 950 else 170 if available_height() > 850 else 140)
+            text_height = 40 if config['separate_cover_flow'] else 25
+            ah = available_height()
+            cfh = ah-100
+            cfh = 3./5 * cfh - text_height
+            if not config['separate_cover_flow']:
+                cfh = 220 if ah > 950 else 170 if ah > 850 else 140
+            self.cover_flow = CoverFlow(height=cfh, text_height=text_height)
             self.cover_flow.setVisible(False)
-            self.library.layout().addWidget(self.cover_flow)
+            if not config['separate_cover_flow']:
+                self.library.layout().addWidget(self.cover_flow)
             self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), self.sync_cf_to_listview)
             self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), self.show_book_info)
             self.connect(self.status_bar.cover_flow_button, SIGNAL('toggled(bool)'), self.toggle_cover_flow)
@@ -410,17 +418,40 @@ class Main(MainWindow, Ui_MainWindow):
                 
     
     def toggle_cover_flow(self, show):
-        if show:
-            self.library_view.setCurrentIndex(self.library_view.currentIndex())
-            self.cover_flow.setVisible(True)
-            self.cover_flow.setFocus(Qt.OtherFocusReason)
-            #self.status_bar.book_info.book_data.setMaximumHeight(100)
-            #self.status_bar.setMaximumHeight(120)
-            self.library_view.scrollTo(self.library_view.currentIndex())
+        if config['separate_cover_flow']:
+            if show:
+                d = QDialog(self)
+                ah, aw = available_height(), available_width()
+                d.resize(int(aw/2.), ah-60)
+                d._layout = QStackedLayout()
+                d.setLayout(d._layout)
+                d.setWindowTitle(_('Browse by covers'))
+                d.layout().addWidget(self.cover_flow)
+                self.cover_flow.setVisible(True)
+                self.cover_flow.setFocus(Qt.OtherFocusReason)
+                self.library_view.scrollTo(self.library_view.currentIndex())
+                d.show()
+                self.connect(d, SIGNAL('finished(int)'), 
+                             lambda x: self.status_bar.cover_flow_button.setChecked(False))
+                self.cf_dialog = d
+            else:
+                cfd = getattr(self, 'cf_dialog', None)
+                if cfd is not None:
+                    self.cover_flow.setVisible(False)
+                    cfd.hide()
+                    self.cf_dialog = None
         else:
-            self.cover_flow.setVisible(False)
-            #self.status_bar.book_info.book_data.setMaximumHeight(1000)
-        self.setMaximumHeight(available_height())
+            if show:
+                self.library_view.setCurrentIndex(self.library_view.currentIndex())
+                self.cover_flow.setVisible(True)
+                self.cover_flow.setFocus(Qt.OtherFocusReason)
+                #self.status_bar.book_info.book_data.setMaximumHeight(100)
+                #self.status_bar.setMaximumHeight(120)
+                self.library_view.scrollTo(self.library_view.currentIndex())
+            else:
+                self.cover_flow.setVisible(False)
+                #self.status_bar.book_info.book_data.setMaximumHeight(1000)
+            self.setMaximumHeight(available_height())
 
     def toggle_tags_view(self, show):
         if show:
@@ -583,7 +614,8 @@ class Main(MainWindow, Ui_MainWindow):
         try:
             duplicates = self.library_view.model().db.recursive_import(root, single, callback=callback)
         finally:
-            progress.close()
+            progress.hide()
+            progress.close()            
         if duplicates:
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
             for mi, formats in duplicates:
@@ -702,7 +734,8 @@ class Main(MainWindow, Ui_MainWindow):
             else:
                 self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
         finally:
-            progress.setValue(len(paths))
+            progress.setValue(progress.maximum())
+            progress.hide()
             progress.close()
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
@@ -1391,9 +1424,14 @@ in which you want to store your books files. Any existing books will be automati
             self.memory_view.write_settings()
     
     def quit(self, checked, restart=False):
-        if self.shutdown():
-            self.restart_after_quit = restart
-            QApplication.instance().quit()
+        if not self.confirm_quit():
+            return
+        try:
+            self.shutdown()
+        except:
+            pass
+        self.restart_after_quit = restart
+        QApplication.instance().quit()
             
     def donate(self):
         BUTTON = '''
@@ -1424,22 +1462,26 @@ in which you want to store your books files. Any existing books will be automati
         QDesktopServices.openUrl(QUrl.fromLocalFile(pt.name))
             
     
-    def shutdown(self):
-        msg = _('There are active jobs. Are you sure you want to quit?')
-        if self.job_manager.has_device_jobs():
-            msg = '<p>'+__appname__ + _(''' is communicating with the device!<br>
-                  'Quitting may cause corruption on the device.<br>
-                  'Are you sure you want to quit?''')+'</p>'
+    def confirm_quit(self):
         if self.job_manager.has_jobs():
+            msg = _('There are active jobs. Are you sure you want to quit?')
+            if self.job_manager.has_device_jobs():
+                msg = '<p>'+__appname__ + _(''' is communicating with the device!<br>
+                      'Quitting may cause corruption on the device.<br>
+                      'Are you sure you want to quit?''')+'</p>'
+            
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
             d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
             d.setDefaultButton(QMessageBox.No)
             if d.exec_() != QMessageBox.Yes:
                 return False
+        return True
 
-        self.job_manager.terminate_all_jobs()
+    
+    def shutdown(self):
         self.write_settings()
+        self.job_manager.terminate_all_jobs()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()
@@ -1465,7 +1507,11 @@ in which you want to store your books files. Any existing books will be automati
             self.hide()
             e.ignore()
         else:
-            if self.shutdown():
+            if self.confirm_quit():
+                try:
+                    self.shutdown()
+                except:
+                    pass
                 e.accept()
             else:
                 e.ignore()

@@ -35,7 +35,7 @@ Conversion of HTML/OPF files follows several stages:
 import os, sys, cStringIO, logging, re, functools, shutil
 
 from lxml.etree import XPath
-from lxml import html
+from lxml import html, etree
 from PyQt4.Qt import QApplication, QPixmap
 
 from calibre.ebooks.html import Processor, merge_metadata, get_filelist,\
@@ -61,7 +61,7 @@ def remove_bad_link(element, attribute, link, pos):
             element.set(attribute, '')
             del element.attrib[attribute]
 
-def check(opf_path, pretty_print):
+def check_links(opf_path, pretty_print):
     '''
     Find and remove all invalid links in the HTML files 
     '''
@@ -284,6 +284,16 @@ def find_oeb_cover(htmlfile):
     if match:
         return match.group(1)
 
+def condense_ncx(ncx_path):
+    tree = etree.parse(ncx_path)
+    for tag in tree.getroot().iter(tag=etree.Element):
+        if tag.text:
+            tag.text = tag.text.strip()
+        if tag.tail:
+            tag.tail = tag.tail.strip()
+    compressed = etree.tostring(tree.getroot(), encoding='utf-8')
+    open(ncx_path, 'wb').write(compressed)
+
 def convert(htmlfile, opts, notification=None, create_epub=True, 
             oeb_cover=False, extract_to=None):
     htmlfile = os.path.abspath(htmlfile)
@@ -366,7 +376,8 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             if opts.show_ncx:
                 print toc
         split(opf_path, opts, stylesheet_map)
-        check(opf_path, opts.pretty_print)
+        check_links(opf_path, opts.pretty_print)
+        
         opf = OPF(opf_path, tdir)
         opf.remove_guide()
         oeb_cover_file = None
@@ -387,6 +398,13 @@ def convert(htmlfile, opts, notification=None, create_epub=True,
             if not raw.startswith('<?xml '):
                 raw = '<?xml version="1.0"  encoding="UTF-8"?>\n'+raw
             f.write(raw)
+        ncx_path = os.path.join(os.path.dirname(opf_path), 'toc.ncx')
+        if os.path.exists(ncx_path) and os.stat(ncx_path).st_size > opts.profile.flow_size:
+            logger.info('Condensing NCX from %d bytes...'%os.stat(ncx_path).st_size)
+            condense_ncx(ncx_path)
+            if os.stat(ncx_path).st_size > opts.profile.flow_size:
+                logger.warn('NCX still larger than allowed size at %d bytes. Menu based Table of Contents may not work on device.'%os.stat(ncx_path).st_size)
+            
         if create_epub:
             epub = initialize_container(opts.output)
             epub.add_dir(tdir)

@@ -16,6 +16,7 @@ def freeze():
     from calibre.linux import entry_points
     from calibre import walk
     from calibre.web.feeds.recipes import recipe_modules
+    from calibre.ebooks.lrf.fonts import FONT_MAP
     import calibre
     
 
@@ -37,6 +38,7 @@ def freeze():
                        '/usr/lib/libxml2.so.2',
                        '/usr/lib/libxslt.so.1',
                        '/usr/lib/libxslt.so.1',
+                       '/usr/lib/libexslt.so.0',
                        '/usr/lib/libMagickWand.so',
                        '/usr/lib/libMagickCore.so',
                        ]
@@ -72,6 +74,7 @@ def freeze():
         os.makedirs(DIST_DIR)
     
     includes = [x[0] for x in executables.values()]
+    includes += ['calibre.ebooks.lrf.fonts.prs500.'+x for x in FONT_MAP.values()]
     
     excludes = ['matplotlib', "Tkconstants", "Tkinter", "tcl", "_imagingtk", 
                 "ImageTk", "FixTk", 'wx', 'PyQt4.QtAssistant', 'PyQt4.QtOpenGL.so', 

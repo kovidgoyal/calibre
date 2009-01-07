@@ -46,7 +46,7 @@ Create a file name :file:`my_plugin.py` (the file name must end with plugin.py) 
       ext  = os.path.splitext(path_to_ebook)[-1][1:].lower()
       mi = get_metadata(file, ext)
       mi.publisher = 'Hello World'
-      set_metadata(file, ext, mi)
+      set_metadata(file, mi, ext)
       return path_to_ebook
 
 That's all. To add this code to |app| as a plugin, simply create a zip file with::

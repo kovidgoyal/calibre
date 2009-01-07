@@ -257,6 +257,8 @@ class MobiReader(object):
                 pass
             try:
                 styles.append('text-indent: %s' % tag['width'])
+                if tag['width'].startswith('-'):
+                    styles.append('margin-left: %s'%(tag['width'][1:]))
                 del tag['width']
             except KeyError:
                 pass
@@ -335,9 +337,8 @@ class MobiReader(object):
             if flags & 1:
                 num += sizeof_trailing_entry(data, size - num)
             flags >>= 1
-        # Flag indicates overlapping multibyte character data
         if self.book_header.extra_flags & 1:
-            num += ord(data[size - num - 1]) + 1
+            num += (ord(data[size - num - 1]) & 0x3) + 1
         return num
 
     def text_section(self, index):

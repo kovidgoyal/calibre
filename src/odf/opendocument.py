@@ -287,7 +287,7 @@ class OpenDocument:
             else:
                 ext = mimetypes.guess_extension(mediatype)
             manifestfn = "Pictures/%0.0f%s" % ((time.time()*10000000000), ext)
-            self.Pictures[manifestfn] = (IS_FILENAME, fileobj, mediatype)
+            self.Pictures[manifestfn] = (IS_FILENAME, filename, mediatype)
         else:
             manifestfn = filename
             self.Pictures[manifestfn] = (IS_IMAGE, content, mediatype)
