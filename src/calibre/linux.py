@@ -59,6 +59,7 @@ entry_points = {
                              'oeb2lit   = calibre.ebooks.lit.writer:main',
                              'comic2lrf = calibre.ebooks.lrf.comic.convert_from:main',
                              'comic2epub = calibre.ebooks.epub.from_comic:main',
+			     'comic2pdf  = calibre.ebooks.pdf.from_comic:main',
                              'calibre-debug      = calibre.debug:main',
                              'calibredb          = calibre.library.cli:main',
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
@@ -228,6 +229,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('lit2oeb', lit2oeb, ['lit']))
         f.write(opts_and_exts('comic2lrf', comicop, ['cbz', 'cbr']))
         f.write(opts_and_exts('comic2epub', comic2epub, ['cbz', 'cbr']))
+	f.write(opts_and_exts('comic2pdf', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2epub, feed_titles))
