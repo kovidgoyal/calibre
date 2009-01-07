@@ -171,7 +171,7 @@ class SVGRasterizer(object):
         cover = self.oeb.manifest.ids[str(covers[0])]
         if not cover.media_type == SVG_MIME:
             return
-        data = self.rasterize_svg(cover.data, 600, 800)
+        data = self.rasterize_svg(cover.data, 500, 800)
         href = os.path.splitext(cover.href)[0] + '.png'
         id, href = self.oeb.manifest.generate(cover.id, href)
         self.oeb.manifest.add(id, href, PNG_MIME, data=data)

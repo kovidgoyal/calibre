@@ -79,11 +79,13 @@ def FontMapper(sbase=None, dbase=None, dkey=None):
 
 
 class CSSFlattener(object):
-    def __init__(self, unfloat=False, fbase=None, fkey=None, lineh=None):
-        self.unfloat = unfloat
+    def __init__(self, fbase=None, fkey=None, lineh=None, unfloat=False,
+                 untable=False):
         self.fbase = fbase
         self.fkey = fkey
         self.lineh = lineh
+        self.unfloat = unfloat
+        self.untable = untable
 
     def transform(self, oeb, context):
         self.oeb = oeb
@@ -180,12 +182,19 @@ class CSSFlattener(object):
                 cssdict['margin-left'] = "%d%%" % (percent * 100)
                 left -= style['text-indent']
             if self.unfloat and 'float' in cssdict \
-               and tag not in ('img', 'object'):
-                if cssdict.get('display', 'none') != 'none':
+               and tag not in ('img', 'object') \
+               and cssdict.get('display', 'none') != 'none':
                     del cssdict['display']
-            if 'vertical-align' in cssdict:
-                if cssdict['vertical-align'] == 'sup':
-                    cssdict['vertical-align'] = 'super'
+            if self.untable and 'display' in cssdict \
+               and cssdict['display'].startswith('table'):
+                display = cssdict['display']
+                if display == 'table-cell':
+                    cssdict['display'] = 'inline'
+                else:
+                    cssdict['display'] = 'block'
+            if 'vertical-align' in cssdict \
+               and cssdict['vertical-align'] == 'sup':
+                cssdict['vertical-align'] = 'super'
         if self.lineh and 'line-height' not in cssdict:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh

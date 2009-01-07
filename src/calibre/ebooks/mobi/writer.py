@@ -30,6 +30,13 @@ from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
 
+# TODO:
+# - Image scaling
+# - Clean unused files
+# - Override CSS
+# - Generate in-content ToC
+# - Command line options, etc.
+
 EXTH_CODES = {
     'creator': 100,
     'publisher': 101,
@@ -50,6 +57,10 @@ RECORD_SIZE = 0x1000
 UNCOMPRESSED = 1
 PALMDOC = 2
 HUFFDIC = 17480
+
+MAX_IMAGE_SIZE = 63 * 1024
+MAX_THUMB_SIZE = 16 * 1024
+MAX_THUMB_DIMEN = (180, 240)
 
 def encode(data):
     return data.encode('utf-8')
@@ -265,28 +276,26 @@ class MobiWriter(object):
             size = len(last) + 1
             text.seek(npos - size)
             last = text.read(size)
+        extra = 0
         try:
             last.decode('utf-8')
         except UnicodeDecodeError:
-            pass
-        else:
-            text.seek(pos)
-            return text.read(RECORD_SIZE)
-        prev = len(last)
-        while True:
-            text.seek(npos - prev)
-            last = text.read(len(last) + 1)
-            try:
-                last.decode('utf-8')
-            except UnicodeDecodeError:
-                pass
-            else:
-                break
-        extra = len(last) - prev
+            prev = len(last)
+            while True:
+                text.seek(npos - prev)
+                last = text.read(len(last) + 1)
+                try:
+                    last.decode('utf-8')
+                except UnicodeDecodeError:
+                    pass
+                else:
+                    break
+            extra = len(last) - prev
         text.seek(pos)
-        data = text.read(RECORD_SIZE + extra)
+        data = text.read(RECORD_SIZE)
+        overlap = text.read(extra)
         text.seek(npos)
-        return data
+        return data, overlap
                 
     def _generate_text(self):
         serializer = Serializer(self._oeb, self._images)
@@ -296,14 +305,14 @@ class MobiWriter(object):
         text = StringIO(text)
         nrecords = 0
         offset = 0
-        data = self._read_text_record(text)
+        data, overlap = self._read_text_record(text)
         while len(data) > 0:
-            size = len(data)
             if self._compression == PALMDOC:
                 data = compress_doc(data)
             record = StringIO()
             record.write(data)
-            record.write(pack('>B', max((0, size - RECORD_SIZE))))
+            record.write(overlap)
+            record.write(pack('>B', len(overlap)))
             nextra = 0
             pbreak = 0
             running = offset
@@ -317,7 +326,7 @@ class MobiWriter(object):
             self._records.append(record.getvalue())
             nrecords += 1
             offset += RECORD_SIZE
-            data = self._read_text_record(text)
+            data, overlap = self._read_text_record(text)
         self._text_nrecords = nrecords
 
     def _rescale_image(self, data, maxsizeb, dimen=None):
@@ -334,7 +343,7 @@ class MobiWriter(object):
             data = StringIO()
             image.save(data, format)
             data = data.getvalue()
-        if len(data) < maxsizeb:
+        if len(data) <= maxsizeb:
             return data
         image = image.convert('RGBA')
         for quality in xrange(95, -1, -1):
@@ -342,7 +351,19 @@ class MobiWriter(object):
             image.save(data, 'JPEG', quality=quality)
             data = data.getvalue()
             if len(data) <= maxsizeb:
-                break
+                return data
+        width, height = image.size
+        for scale in xrange(99, 0, -1):
+            scale = scale / 100.
+            data = StringIO()
+            scaled = image.copy()
+            size = (int(width * scale), (height * scale))
+            scaled.thumbnail(size, Image.ANTIALIAS)
+            scaled.save(data, 'JPEG', quality=0)
+            data = data.getvalue()
+            if len(data) <= maxsizeb:
+                return data
+        # Well, we tried?
         return data
         
     def _generate_images(self):
@@ -352,9 +373,7 @@ class MobiWriter(object):
         coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
-            maxsizek = 89 if coverid == item.id else 63
-            maxsizeb = maxsizek * 1024
-            data = self._rescale_image(item.data, maxsizeb)
+            data = self._rescale_image(item.data, MAX_IMAGE_SIZE)
             self._records.append(data)
     
     def _generate_record0(self):
@@ -398,7 +417,7 @@ class MobiWriter(object):
             if term not in EXTH_CODES: continue
             code = EXTH_CODES[term]
             for item in oeb.metadata[term]:
-                data = str(item)
+                data = unicode(item).encode('utf-8')
                 exth.write(pack('>II', code, len(data) + 8))
                 exth.write(data)
                 nrecs += 1
@@ -419,9 +438,7 @@ class MobiWriter(object):
         return ''.join(exth)
 
     def _add_thumbnail(self, item):
-        maxsizeb = 16 * 1024
-        dimen = (180, 240)
-        data = self._rescale_image(item.data, maxsizeb, dimen)
+        data = self._rescale_image(item.data, MAX_THUMB_SIZE, MAX_THUMB_DIMEN)
         manifest = self._oeb.manifest
         id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
         manifest.add(id, href, 'image/jpeg', data=data)
@@ -459,12 +476,13 @@ def main(argv=sys.argv):
     #writer = DirWriter()
     fbase = context.dest.fbase
     fkey = context.dest.fnums.values()
-    flattener = CSSFlattener(unfloat=True, fbase=fbase, fkey=fkey)
+    flattener = CSSFlattener(fbase=fbase, fkey=fkey, unfloat=True,
+                             untable=True)
     rasterizer = SVGRasterizer()
     mobimlizer = MobiMLizer()
-    flattener.transform(oeb, context)
+    #flattener.transform(oeb, context)
     rasterizer.transform(oeb, context)
-    mobimlizer.transform(oeb, context)    
+    #mobimlizer.transform(oeb, context)    
     writer.dump(oeb, outpath)
     return 0
 

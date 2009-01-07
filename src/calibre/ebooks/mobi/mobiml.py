@@ -40,6 +40,7 @@ class BlockState(object):
         self.nested = []
         self.para = None
         self.inline = None
+        self.anchor = None
         self.vpadding = 0.
         self.vmargin = 0.
         self.pbreak = False
@@ -136,6 +137,7 @@ class MobiMLizer(object):
                     etree.SubElement(body, 'a', attrib={'id': id})
                 istate.ids.clear()
             bstate.istate = None
+            bstate.anchor = None
             parent = bstate.nested[-1] if bstate.nested else bstate.body
             indent = istate.indent
             left = istate.left
@@ -190,6 +192,13 @@ class MobiMLizer(object):
             valign = istate.valign
             fsize = istate.fsize
             href = istate.href
+            if not href:
+                bstate.anchor = None
+            elif pstate and pstate.href == href:
+                inline = bstate.anchor
+            else:
+                inline = etree.SubElement(inline, 'a', href=href)
+                bstate.anchor = inline
             if valign == 'super':
                 inline = etree.SubElement(inline, 'sup')
             elif valign == 'sub':
@@ -202,8 +211,6 @@ class MobiMLizer(object):
                 inline = etree.SubElement(inline, 'i')
             if istate.bold:
                 inline = etree.SubElement(inline, 'b')
-            if href:
-                inline = etree.SubElement(inline, 'a', href=href)
             bstate.inline = inline
         bstate.istate = istate
         inline = bstate.inline
@@ -254,7 +261,7 @@ class MobiMLizer(object):
                 bstate.vpadding += bstate.vmargin
                 bstate.vmargin = 0
                 bstate.vpadding += vpadding
-        else:
+        elif not istate.href:
             margin = asfloat(style['margin-left'])
             padding = asfloat(style['padding-left'])
             lspace = margin + padding
