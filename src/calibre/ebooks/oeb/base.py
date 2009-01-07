@@ -249,10 +249,10 @@ class Metadata(object):
         self.oeb = oeb
         self.items = defaultdict(list)
 
-    def add(self, term, value, attrib={}, index=-1, **kwargs):
+    def add(self, term, value, attrib={}, **kwargs):
         item = self.Item(term, value, attrib, **kwargs)
         items = self.items[barename(item.term)]
-        items.insert(index, item)
+        items.append(item)
         return item
 
     def iterkeys(self):

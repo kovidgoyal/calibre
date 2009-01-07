@@ -103,7 +103,7 @@ class Serializer(object):
             buffer.write('<reference title="%s" type="%s" '
                          % (ref.title, ref.type))
             self.serialize_href(ref.href)
-            buffer.write(' />')
+            buffer.write('/>')
         buffer.write('</guide>')
 
     def serialize_href(self, href, base=None):
@@ -118,8 +118,7 @@ class Serializer(object):
         if item and item.spine_position is None:
             return False
         id =  item.id if item else base.id
-        frag = frag if frag else 'calibre_top'
-        href = '#'.join((id, frag))
+        href = '#'.join((id, frag)) if frag else id
         buffer.write('filepos=')
         self.href_offsets[href].append(buffer.tell())
         buffer.write('0000000000')
@@ -138,10 +137,10 @@ class Serializer(object):
         buffer = self.buffer
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
-        self.id_offsets[item.id + '#calibre_top'] = buffer.tell()
+        self.id_offsets[item.id] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
-        buffer.write(' <mbp:pagebreak/>')
+        buffer.write('<mbp:pagebreak/>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
         buffer = self.buffer
@@ -155,6 +154,9 @@ class Serializer(object):
                 id = '#'.join((item.id, elem.attrib[attr]))
                 self.id_offsets[id] = buffer.tell()
                 del elem.attrib[attr]
+        if tag == 'a' and not elem.attrib \
+           and not len(elem) and not elem.text:
+            return
         buffer.write('<')
         buffer.write(tag)
         if elem.attrib:

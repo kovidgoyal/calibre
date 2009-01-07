@@ -44,6 +44,7 @@ class BlockState(object):
         self.vmargin = 0.
         self.pbreak = False
         self.istate = None
+        self.content = False
 
 class FormatState(object):
     def __init__(self):
@@ -120,17 +121,20 @@ class MobiMLizer(object):
         return result
     
     def mobimlize_content(self, tag, text, bstate, istates):
+        bstate.content = True
         istate = istates[-1]
-        if istate.ids:
-            body = bstate.body
-            index = max((0, len(body) - 1))
-            for id in istate.ids:
-                body.insert(index, etree.Element('a', attrib={'id': id}))
-            istate.ids.clear()
         para = bstate.para
         if tag in SPECIAL_TAGS and not text:
             para = para if para is not None else bstate.body
         elif para is None:
+            body = bstate.body
+            if bstate.pbreak:
+                etree.SubElement(body, MBP('pagebreak'))
+                bstate.pbreak = False
+            if istate.ids:
+                for id in istate.ids:
+                    etree.SubElement(body, 'a', attrib={'id': id})
+                istate.ids.clear()
             bstate.istate = None
             parent = bstate.nested[-1] if bstate.nested else bstate.body
             indent = istate.indent
@@ -140,9 +144,6 @@ class MobiMLizer(object):
                 indent = 0
             elif indent != 0 and abs(indent) < self.profile.fbase:
                 indent = (indent / abs(indent)) * self.profile.fbase
-            if bstate.pbreak:
-                etree.SubElement(parent, MBP('pagebreak'))
-                bstate.pbreak = False
             if tag in NESTABLE_TAGS:
                 para = wrapper = etree.SubElement(parent, tag)
                 bstate.nested.append(para)
@@ -270,7 +271,7 @@ class MobiMLizer(object):
                 else:
                     last = elem[-1]
                     last.text = (last.text or '') + (u'\xa0' * spaces)
-        if style['page-break-before'] in PAGE_BREAKS:
+        if bstate.content and style['page-break-before'] in PAGE_BREAKS:
             bstate.pbreak = True
         istate.fsize = self.mobimlize_font(style['font-size'])
         istate.italic = True if style['font-style'] == 'italic' else False
@@ -340,7 +341,7 @@ class MobiMLizer(object):
                     tail = COLLAPSE.sub(' ', child.tail)
             if tail:
                 self.mobimlize_content(tag, tail, bstate, istates)
-        if style['page-break-after'] in PAGE_BREAKS:
+        if bstate.content and style['page-break-after'] in PAGE_BREAKS:
             bstate.pbreak = True
         if isblock:
             para = bstate.para
