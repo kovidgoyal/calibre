@@ -336,7 +336,9 @@ class MobiReader(object):
         while flags:
             if flags & 1:
                 num += sizeof_trailing_entry(data, size - num)
-            flags >>= 1        
+            flags >>= 1
+        if self.book_header.extra_flags & 1:
+            num += (ord(data[size - num - 1]) & 0x3) + 1
         return num
 
     def text_section(self, index):
