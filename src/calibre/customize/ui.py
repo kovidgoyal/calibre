@@ -105,30 +105,43 @@ def reread_metadata_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, MetadataReaderPlugin):
             for ft in plugin.file_types:
-                _metadata_readers[ft] = plugin
+                if not _metadata_readers.has_key(ft):
+                    _metadata_readers[ft] = []
+                _metadata_readers[ft].append(plugin)
         elif isinstance(plugin, MetadataWriterPlugin):
             for ft in plugin.file_types:
-                _metadata_writers[ft] = plugin 
+                if not _metadata_writers.has_key(ft):
+                    _metadata_writers[ft] = []
+                _metadata_writers[ft].append(plugin) 
+                
+    
                 
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
-    try:
-        plugin = _metadata_readers[ftype.lower().strip()]
-        if not is_disabled(plugin):
-            with plugin:
-                mi = plugin.get_metadata(stream, ftype.lower().strip())
-    except:
-        pass
+    ftype = ftype.lower().strip()
+    if _metadata_readers.has_key(ftype):
+        for plugin in _metadata_readers[ftype]:
+            if not is_disabled(plugin):
+                with plugin:
+                    try:
+                        mi = plugin.get_metadata(stream, ftype.lower().strip())
+                        break
+                    except:
+                        continue
     return mi
 
 def set_file_type_metadata(stream, mi, ftype):
-    try:
-        plugin = _metadata_writers[ftype.lower().strip()]
-        if not is_disabled(plugin):
-            with plugin:
-                plugin.set_metadata(stream, mi, ftype.lower().strip())
-    except:
-        traceback.print_exc()
+    ftype = ftype.lower().strip()
+    if _metadata_writers.has_key(ftype):
+        for plugin in _metadata_writers[ftype]:
+            if not is_disabled(plugin):
+                with plugin:
+                    try:
+                        plugin.set_metadata(stream, mi, ftype.lower().strip())
+                        break
+                    except:
+                        traceback.print_exc()
+    
                 
 def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
     occasion = {'import':_on_import, 'preprocess':_on_preprocess, 

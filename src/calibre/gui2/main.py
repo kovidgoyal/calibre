@@ -1424,9 +1424,14 @@ in which you want to store your books files. Any existing books will be automati
             self.memory_view.write_settings()
     
     def quit(self, checked, restart=False):
-        if self.shutdown():
-            self.restart_after_quit = restart
-            QApplication.instance().quit()
+        if not self.confirm_quit():
+            return
+        try:
+            self.shutdown()
+        except:
+            pass
+        self.restart_after_quit = restart
+        QApplication.instance().quit()
             
     def donate(self):
         BUTTON = '''
@@ -1457,22 +1462,26 @@ in which you want to store your books files. Any existing books will be automati
         QDesktopServices.openUrl(QUrl.fromLocalFile(pt.name))
             
     
-    def shutdown(self):
-        msg = _('There are active jobs. Are you sure you want to quit?')
-        if self.job_manager.has_device_jobs():
-            msg = '<p>'+__appname__ + _(''' is communicating with the device!<br>
-                  'Quitting may cause corruption on the device.<br>
-                  'Are you sure you want to quit?''')+'</p>'
+    def confirm_quit(self):
         if self.job_manager.has_jobs():
+            msg = _('There are active jobs. Are you sure you want to quit?')
+            if self.job_manager.has_device_jobs():
+                msg = '<p>'+__appname__ + _(''' is communicating with the device!<br>
+                      'Quitting may cause corruption on the device.<br>
+                      'Are you sure you want to quit?''')+'</p>'
+            
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
             d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
             d.setDefaultButton(QMessageBox.No)
             if d.exec_() != QMessageBox.Yes:
                 return False
+        return True
 
-        self.job_manager.terminate_all_jobs()
+    
+    def shutdown(self):
         self.write_settings()
+        self.job_manager.terminate_all_jobs()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()
@@ -1498,7 +1507,11 @@ in which you want to store your books files. Any existing books will be automati
             self.hide()
             e.ignore()
         else:
-            if self.shutdown():
+            if self.confirm_quit():
+                try:
+                    self.shutdown()
+                except:
+                    pass
                 e.accept()
             else:
                 e.ignore()
