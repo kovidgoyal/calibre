@@ -1,5 +1,5 @@
 __license__   = 'GPL v3'
-__copyright__ = '2009, John Schember <john at nachtimwald.com'
+__copyright__ = '2009, John Schember <john at nachtimwald.com>'
 '''
 Generic USB Mass storage device driver. This is not a complete stand alone
 driver. It is intended to be subclassed with the relevant parts implemented
@@ -11,6 +11,7 @@ from itertools import cycle
 
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
+from calibre.devices.errors import FreeSpaceError
 
 class USBMS(Device):
     EBOOK_DIR = ''
@@ -57,11 +58,9 @@ class USBMS(Device):
         size = sum(sizes)
     
         if on_card and size > self.free_space()[2] - 1024*1024: 
-            raise FreeSpaceError("There is insufficient free space "+\
-                                          "on the storage card")
+            raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if not on_card and size > self.free_space()[0] - 2*1024*1024: 
-            raise FreeSpaceError("There is insufficient free space " +\
-                                         "in main memory")
+            raise FreeSpaceError(_("There is insufficient free space in main memory"))
 
         paths = []
         names = iter(names)

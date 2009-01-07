@@ -9,10 +9,15 @@ device. This class handles devive detection.
 import os, time
 
 from calibre.devices.interface import Device as _Device
-from calibre.devices.errors import DeviceError, FreeSpaceError
+from calibre.devices.errors import DeviceError
 from calibre import iswindows, islinux, isosx, __appname__
 
 class Device(_Device):
+    '''
+    This class provides logic common to all drivers for devices that export themselves
+    as USB Mass Storage devices. If you are writing such a driver, inherit from this
+    class.
+    '''
         
     FDI_TEMPLATE = \
 '''
