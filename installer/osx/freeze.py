@@ -326,7 +326,7 @@ def main():
                                        'genshi', 'calibre.web.feeds.recipes.*',
                                        'calibre.ebooks.lrf.any.*', 'calibre.ebooks.lrf.feeds.*',
                                        'keyword', 'codeop', 'pydoc', 'readline',
-                                       'BeautifulSoup'
+                                       'BeautifulSoup', 'calibre.ebooks.lrf.fonts.prs500.*',
                                        ],
                          'packages' : ['PIL', 'Authorization', 'lxml'],
                          'excludes' : ['IPython'],

@@ -222,11 +222,11 @@ class CYBOOKG3(Device):
             path = path.replace('card:', self._card_prefix[:-1])
         return path
         
-
-    def _windows_match_device(self, device_id):
+    @classmethod
+    def windows_match_device(cls, device_id):
         device_id = device_id.upper()
-        if 'VEN_'+self.VENDOR_NAME in device_id and \
-               'PROD_'+self.PRODUCT_NAME in device_id:
+        if 'VEN_'+cls.VENDOR_NAME in device_id and \
+               'PROD_'+cls.PRODUCT_NAME in device_id:
             return True
                     
         vid, pid = hex(cls.VENDOR_ID)[2:], hex(cls.PRODUCT_ID)[2:]        
@@ -243,7 +243,7 @@ class CYBOOKG3(Device):
         wmi = __import__('wmi', globals(), locals(), [], -1) 
         c = wmi.WMI()
         for drive in c.Win32_DiskDrive():
-            if self._windows_match_device(str(drive.PNPDeviceID)):
+            if self.__class__.windows_match_device(str(drive.PNPDeviceID)):
                 if drive.Partitions == 0:
                     continue
                 try:
