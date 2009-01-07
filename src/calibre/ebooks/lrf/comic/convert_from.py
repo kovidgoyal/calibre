@@ -11,10 +11,10 @@ import os, sys, shutil, traceback, textwrap
 from uuid import uuid4
 
 try:
-	from reportlab.pdfgen import canvas
-	_reportlab = True
+    from reportlab.pdfgen import canvas
+    _reportlab = True
 except:
-	_reportlab = False
+    _reportlab = False
 
 
 
@@ -325,7 +325,7 @@ def config(defaults=None,output_format='lrf'):
     c.add_opt('no_progress_bar', ['--no-progress-bar'], default=False,
                       help=_("Don't show progress bar."))
     if output_format == 'pdf':
-           c.add_opt('no_process',['--no_process'], default=False,
+        c.add_opt('no_process',['--no_process'], default=False,
     		      help=_("Apply no processing to the image"))
     return c
 
@@ -406,9 +406,8 @@ def create_pdf(pages, profile, opts, thumbnail=None):
 
 
     for page in pages:
-       pdf.drawImage(page, x=0,y=0,width=width, height=height) 
-       pdf.showPage() 
-	 
+        pdf.drawImage(page, x=0,y=0,width=width, height=height) 
+        pdf.showPage()
     # Write the document to disk
     pdf.save() 
 
@@ -427,22 +426,22 @@ def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='l
     if not pages:
         raise ValueError('Could not find any pages in the comic: %s'%source)
     if not opts.no_process:
-       pages, failures, tdir2 = process_pages(pages, opts, notification)
-       if not pages:
-          raise ValueError('Could not find any valid pages in the comic: %s'%source)
-       if failures:
-          print 'Could not process the following pages (run with --verbose to see why):'
-          for f in failures:
-              print '\t', f
-       thumbnail = os.path.join(tdir2, 'thumbnail.png')
-       if not os.access(thumbnail, os.R_OK):
-          thumbnail = None
+        pages, failures, tdir2 = process_pages(pages, opts, notification)
+        if not pages:
+            raise ValueError('Could not find any valid pages in the comic: %s'%source)
+        if failures:
+            print 'Could not process the following pages (run with --verbose to see why):'
+            for f in failures:
+                print '\t', f
+        thumbnail = os.path.join(tdir2, 'thumbnail.png')
+        if not os.access(thumbnail, os.R_OK):
+            thumbnail = None
     if output_format == 'lrf':
         create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
     if output_format == 'epub':
         create_epub(pages, opts.profile, opts, thumbnail=thumbnail)
     if output_format == 'pdf':
-	create_pdf(pages, opts.profile, opts, thumbnail=thumbnail)
+        create_pdf(pages, opts.profile, opts, thumbnail=thumbnail)
     shutil.rmtree(tdir)
     if not opts.no_process:
         shutil.rmtree(tdir2)
