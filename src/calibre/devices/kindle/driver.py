@@ -7,9 +7,8 @@ Device driver for Amazon's Kindle
 import os, fnmatch
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.devices.usbms.cli import CLI
 
-class KINDLE(USBMS, CLI):
+class KINDLE(USBMS):
     MIME_MAP   = { 
                 'azw' : 'application/azw',
                 'mobi' : 'application/mobi',

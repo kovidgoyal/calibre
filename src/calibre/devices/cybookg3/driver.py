@@ -7,9 +7,8 @@ Device driver for Bookeen's Cybook Gen 3
 import os, fnmatch
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.devices.usbms.cli import CLI
 
-class CYBOOKG3(USBMS, CLI):
+class CYBOOKG3(USBMS):
     MIME_MAP   = { 
                 'mobi' : 'application/mobi',
                 'prc' : 'application/prc',
@@ -27,6 +26,9 @@ class CYBOOKG3(USBMS, CLI):
     
     VENDOR_NAME = 'BOOKEEN'
     PRODUCT_NAME = 'CYBOOK_GEN3'
+    
+    OSX_NAME_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
+    OSX_NAME_CARD_MEM = 'Bookeen Cybook Gen3 -SD Media'
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
