@@ -65,6 +65,7 @@ entry_points = {
                              'calibre-fontconfig = calibre.utils.fontconfig:main',
                              'calibre-parallel   = calibre.parallel:main',
                              'calibre-customize  = calibre.customize.ui:main',                             
+			     'pdftrim = calibre.ebooks.pdf.pdftrim:main' ,
                            ],
         'gui_scripts'    : [
                             __appname__+' = calibre.gui2.main:main',
