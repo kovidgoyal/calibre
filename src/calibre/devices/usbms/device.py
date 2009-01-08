@@ -18,6 +18,19 @@ class Device(_Device):
     as USB Mass Storage devices. If you are writing such a driver, inherit from this
     class.
     '''
+    
+    VENDOR_ID   = 0x0
+    PRODUCT_ID  = 0x0
+    BCD         = 0x0
+    
+    VENDOR_NAME = ''
+    PRODUCT_NAME = ''
+    
+    OSX_NAME_MAIN_MEM = ''
+    OSX_NAME_CARD_MEM = ''
+    
+    MAIN_MEMORY_VOLUME_LABEL  = ''
+    STORAGE_CARD_VOLUME_LABEL = ''
         
     FDI_TEMPLATE = \
 '''
@@ -156,11 +169,50 @@ class Device(_Device):
         drives.sort(cmp=lambda a, b: cmp(a[0], b[0]))
         self._main_prefix = drives[0][1]
         if len(drives) > 1:
-            self._card_prefix = drives[1][1]            
-        
-    def open_osx(self):
-        raise NotImplementedError()
+            self._card_prefix = drives[1][1]
 
+    @classmethod
+    def get_osx_mountpoints(cls, raw=None):
+        if raw is None:
+            ioreg = '/usr/sbin/ioreg'
+            if not os.access(ioreg, os.X_OK):
+                ioreg = 'ioreg'
+            raw = subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(), stdout=subprocess.PIPE).stdout.read()
+        lines = raw.splitlines()
+        names = {}
+        
+        def get_dev_node(lines, loc):
+            for line in lines:
+                line = line.strip()
+                if line.endswith('}'):
+                    break
+                match = re.search(r'"BSD Name"\s+=\s+"(.*?)"', line)
+                if match is not None:
+                    names[loc] = match.group(1)
+                    break
+                    
+        for i, line in enumerate(lines):
+            if line.strip().endswith('<class IOMedia>') and OSX_NAME_MAIN_MEM in line:
+                get_dev_node(lines[i+1:], 'main')
+            if line.strip().endswith('<class IOMedia>') and OSX_NAME_CARD_MEM in line:
+                get_dev_node(lines[i+1:], 'card')
+            if len(names.keys()) == 2:
+                break
+        return names
+    
+    def open_osx(self):
+        mount = subprocess.Popen('mount', shell=True,  stdout=subprocess.PIPE).stdout.read()
+        names = self.get_osx_mountpoints()
+        dev_pat = r'/dev/%s(\w*)\s+on\s+([^\(]+)\s+'
+        if 'main' not in names.keys():
+            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
+        main_pat = dev_pat%names['main']
+        self._main_prefix = re.search(main_pat, mount).group(2) + os.sep
+        card_pat = names['card'] if 'card' in names.keys() else None
+        if card_pat is not None:
+            card_pat = dev_pat%card_pat
+            self._card_prefix = re.search(card_pat, mount).group(2) + os.sep
+            
     def open_linux(self):
         import dbus
         bus = dbus.SystemBus() 

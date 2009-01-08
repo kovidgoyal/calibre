@@ -16,6 +16,7 @@ from calibre.devices.errors import FreeSpaceError
 class USBMS(Device):
     EBOOK_DIR = ''
     MIME_MAP = {}
+    FORMATS = []
 
     def __init__(self, key='-1', log_packets=False, report_progress=None):
         pass

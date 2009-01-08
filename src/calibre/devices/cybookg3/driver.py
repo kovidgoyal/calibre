@@ -27,6 +27,9 @@ class CYBOOKG3(USBMS):
     VENDOR_NAME = 'BOOKEEN'
     PRODUCT_NAME = 'CYBOOK_GEN3'
     
+    OSX_NAME_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
+    OSX_NAME_CARD_MEM = 'Bookeen Cybook Gen3 -SD Media'
+    
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
     
