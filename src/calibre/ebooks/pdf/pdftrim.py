@@ -8,6 +8,8 @@ __docformat__ = 'restructuredtext en'
 import os, sys, shutil, re
 from calibre.utils.config import Config, StringConfig
 from pyPdf import PdfFileWriter, PdfFileReader
+from calibre.ebooks.metadata.pdf import set_metadata
+from calibre.ebooks.metadata import MetaInformation
 
 def config(defaults=None):
     desc = _('Options to control the transformation of pdf')
@@ -19,9 +21,9 @@ def config(defaults=None):
     c.add_opt('verbose', ['-v', '--verbose'], default=0, action='count',
           help=_('Be verbose, useful for debugging. Can be specified multiple times for greater verbosity.'))
     c.add_opt('title', ['-t', '--title'],
-          help=_('Title for generated ebook. Default is to not change.'))
+          help=_('Title for generated ebook. Default is to not change, until our libraries are extended the title is lost.'))
     c.add_opt('author', ['-a', '--author'],
-          help=_('Set the author in the metadata of the generated ebook. Default is not to change'))
+          help=_('Set the author in the metadata of the generated ebook. Default is not to change, until our libraries are extended the author is lost.'))
     c.add_opt('output', ['-o', '--output'],default='cropped.pdf',
           help=_('Path to output file. By default a file is created in the current directory.'))
     c.add_opt('bottom_left_x', [ '-x', '--leftx'], default=default_crop,
@@ -49,8 +51,15 @@ def main(args=sys.argv):
     parser = option_parser()
     opts, args = parser.parse_args(args)
     source = os.path.abspath(args[1])
-    output_pdf = PdfFileWriter()
     input_pdf = PdfFileReader(file(source, "rb"))
+    info = input_pdf.getDocumentInfo()
+    title   = 'Unknown'
+    author  = 'Unknown'
+    subject = 'Unknown'
+    if info.title:
+	title   = info.title
+        author  = info.author
+        subject = info.subject
     if opts.bounding != None:
        try:
           bounding = open( opts.bounding , 'r' )
@@ -58,7 +67,11 @@ def main(args=sys.argv):
        except:
           print 'Error opening %s' % opts.bounding 
           return 1
-    print opts.bounding
+    if opts.title != None:
+          title=opts.title
+    if opts.author != None:
+          author=opts.author
+    output_pdf = PdfFileWriter()
     for page_number in range (0, input_pdf.getNumPages() ):
        page = input_pdf.getPage(page_number)
        if opts.bounding != None:
@@ -77,7 +90,12 @@ def main(args=sys.argv):
        bounding.close()
     output_file = file(opts.output, "wb")
     output_pdf.write(output_file)
+    #mi = MetaInformation(_('Unknown'), [_('Unknown')])
+    #mi.title=title
+    #mi.author=author
+    #set_metadata(output_file, mi)
     output_file.close()
+
 
     return 0
 
