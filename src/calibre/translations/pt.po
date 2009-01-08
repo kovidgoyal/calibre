@@ -8,18 +8,18 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-12-30 15:33+0000\n"
-"PO-Revision-Date: 2008-12-18 18:01+0000\n"
-"Last-Translator: Fabio Malcher Miranda <mirand863@hotmail.com>\n"
+"PO-Revision-Date: 2009-01-07 00:01+0000\n"
+"Last-Translator: ricdiogo <ricardofdiogo@gmail.com>\n"
 "Language-Team: Portuguese <pt@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-04 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-01-07 18:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
-msgstr ""
+msgstr "Não faz absolutamente nada"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:44
@@ -77,23 +77,23 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:808
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:841
 msgid "Unknown"
-msgstr ""
+msgstr "Desconhecido"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:62
 msgid "Base"
-msgstr ""
+msgstr "Base"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "File type"
-msgstr ""
+msgstr "Tipo de ficheiro"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:182
 msgid "Metadata reader"
-msgstr ""
+msgstr "Leitor de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:209
 msgid "Metadata writer"
-msgstr ""
+msgstr "Editor de metadados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:12
 msgid ""
@@ -101,6 +101,9 @@ msgid ""
 "linked files. This plugin is run every time you add an HTML file to the "
 "library."
 msgstr ""
+"Siga todas as ligações locais num ficheiro HTML e crie um ficheiro ZIP "
+"contendo todos os ficheiros para os quais são feitas ligações. Este plugin "
+"corre cada vez que você acrescenta um ficheiro HTML à bilbioteca."
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:32
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:42
@@ -115,27 +118,27 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:135
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:145
 msgid "Read metadata from %s files"
-msgstr ""
+msgstr "Ler metadados dos ficheiros %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:155
 msgid "Extract cover from comic files"
-msgstr ""
+msgstr "Extrair a capa de ficheiros de banda desenhada"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:175
 msgid "Set metadata in EPUB files"
-msgstr ""
+msgstr "Definir metadados em ficheiros EPUB"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:185
 msgid "Set metadata in LRF files"
-msgstr ""
+msgstr "Definir metadados em ficheiros LRF"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:195
 msgid "Set metadata in RTF files"
-msgstr ""
+msgstr "Definir metadados em ficheiros RTF"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:28
 msgid "Installed plugins"
-msgstr ""
+msgstr "Plugins instalados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:29
 msgid "Mapping for filetype plugins"
@@ -143,19 +146,19 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:30
 msgid "Local plugin customization"
-msgstr ""
+msgstr "Personalização de plugin local"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:31
 msgid "Disabled plugins"
-msgstr ""
+msgstr "Plugins desactivados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:66
 msgid "No valid plugin found in "
-msgstr ""
+msgstr "Nenhum plugin válido encontrado em "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:170
 msgid "Initialization of plugin %s failed with traceback:"
-msgstr ""
+msgstr "A inicialização do plugin %s falhou, deixando o seguinte relatório:"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:247
 msgid ""
@@ -164,43 +167,53 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    opções do %prog\n"
+"    \n"
+"    Personalizar o Calibre carregando plugins externos.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:253
 msgid "Add a plugin by specifying the path to the zip file containing it."
 msgstr ""
+"Acrescentar um plugin especificando um caminho para o ficheiro zip que o "
+"contém."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:255
 msgid "Remove a custom plugin by name. Has no effect on builtin plugins"
 msgstr ""
+"Remover um plugin predefenido pelo seu nome. Não tem qualquer efeito sobre "
+"os plugins integrados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:257
 msgid ""
 "Customize plugin. Specify name of plugin and customization string separated "
 "by a comma."
 msgstr ""
+"Personalizar plugin. Especifique o nome do plugin e uma expressão "
+"identificadora, separados por uma vírgula."
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:259
 msgid "List all installed plugins"
-msgstr ""
+msgstr "Listar todos os 'plugins' instalados"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:261
 msgid "Enable the named plugin"
-msgstr ""
+msgstr "Activar o plugin mencionado"
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:263
 msgid "Disable the named plugin"
-msgstr ""
+msgstr "Desactivar o plugin mencionado"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:140
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:158
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:196
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:224
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr "Incapaz de detectar o disco %s. Tente reinicializar"
+msgstr "Incapaz de detectar o disco %s. Tente reiniciar"
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:412
 msgid "The reader has no storage card connected."
-msgstr "O leitor não tem cartão de armazenamento conectado"
+msgstr "O leitor não tem um cartão de armazenamento conectado."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:92
 msgid "Options to control the conversion to EPUB"
@@ -212,7 +225,7 @@ msgid ""
 "name."
 msgstr ""
 "O arquivo de saída EPUB. Se não especificado, ele será herdado do nome do "
-"arquivo aberto"
+"arquivo aberto."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:105
 msgid ""
@@ -220,21 +233,22 @@ msgid ""
 "device independent EPUB. The profile is used for device specific "
 "restrictions on the EPUB. Choices are: "
 msgstr ""
-"Perfil do disco para o qual este EPUB foi especificado. Selecione nenhum "
-"para criar um EPUB diferente. Este perfil é usado para especificar "
-"restrições no EPUB. As escolhas são: "
+"Perfil do dispositivo para o qual este EPUB foi especificado. Selecione "
+"Nenhum para criar um EPUB independente de quaiquer dispositivos. Este perfil "
+"é usado para definir restrições específicas de cada dispositivo quanto ao "
+"EPUB. As escolhas são: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:107
 msgid ""
 "Either the path to a CSS stylesheet or raw CSS. This CSS will override any "
 "existing CSS declarations in the source files."
 msgstr ""
-"Ou o caminho para uma folha de estilos CSS ou raw CSS. Este CSS irá "
-"substituir qualquer declaração CSS existente nos arquivos fontes"
+"O caminho para uma folha de estilos CSS ou CSS puro. Esta CSS vai reescrever "
+"quaisquer indicações CSS existentes nos ficheiros de origem."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
 msgid "Control auto-detection of document structure."
-msgstr "Controlar auto detecção da estrutura do documento"
+msgstr "Controlar a autodetecção da estrutura de um documento."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:110
 msgid ""
@@ -279,7 +293,7 @@ msgstr "Caminho para a capa a ser usada por este livro"
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
-msgstr ""
+msgstr "Usa a capa detectada no ficheiro-fonte em vez da capa especificada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:127
 msgid ""
@@ -289,6 +303,11 @@ msgid ""
 "trying\n"
 "to auto-generate a Table of Contents.\n"
 msgstr ""
+"Controle a criação automática de uma Tabela de Conteúdos. Se for detectado "
+"um ficheiro OPF\n"
+"que especifique uma Tabela de Conteúdos, esse ficheiro será utilizado em vez "
+"de se tentar\n"
+"gerar automaticamente uma Tabela de Conteúdos.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:133
 msgid ""
@@ -296,16 +315,22 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the --toc-"
 "threshold number of chapters were detected."
 msgstr ""
+"Número máximo de ligações a inserir uma Tabela de Conteúdos. A predefinição "
+"é: %default. As ligações apenas são acrescentadas à TdC se forem detectados "
+"menos capítulos do que o limite."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:135
 msgid "Don't add auto-detected chapters to the Table of Contents."
 msgstr ""
+"Não acrescentar à Tabela de Conteúdos capítulos detectados automaticamente."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:137
 msgid ""
 "If fewer than this number of chapters is detected, then links are added to "
 "the Table of Contents. Default: %default"
 msgstr ""
+"Se forem detectados menos capítulos do que este número, as ligações são "
+"acrescentadas à Tabela de Conteúdos. Predefinição: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:139
 msgid ""
@@ -313,6 +338,9 @@ msgid ""
 "of Contents at level one. If this is specified, it takes precedence over "
 "other forms of auto-detection."
 msgstr ""
+"Expressão XPath  que especifica todas as etiquetas que devem ser "
+"acrescentadas à Tabela de Conteúdos com o nível 1. Se isto for especificado, "
+"assume prevalência sobre outras formas de auto-detecção."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:141
 msgid ""
@@ -320,6 +348,9 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
 msgstr ""
+"Expressão xPath que especifica todas as etiquetas que devem ser "
+"acrescentadas à Tabela de Conteúdos com o nível 2. Cada entrada é "
+"acrescentada abaixo da entrada antecedente com o nível 1."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:143
 msgid ""
@@ -328,6 +359,10 @@ msgid ""
 "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
 "an overview of the NCX format."
 msgstr ""
+"Caminho para um ficheiro .ncx que contém a tabela de conteúdos a utilizar "
+"neste ebook. O ficheiro NCX contém ligações relativas à directoria na qual é "
+"colocado. Visite a página http://www.niso.org/workrooms/daisy/Z39-86-"
+"2005.html#NCX  para ter uma visão geral sobre o formato NCX."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:145
 msgid ""
@@ -335,26 +370,29 @@ msgid ""
 "preference to the autodetected one. With this option, the autodetected one "
 "is always used."
 msgstr ""
+"Normalmente, se o ficheiro de origem já tem uma Tabela de Conteúdos, ela é "
+"usada preferencialmente, em vez de uma autodetectada. Com esta opção, a "
+"autodetectada é sempre utilizada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:147
 msgid "Control page layout"
-msgstr ""
+msgstr "Controlar a aparência da página"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:149
 msgid "Set the top margin in pts. Default is %default"
-msgstr ""
+msgstr "Definir a margem superior em pontos. A predefinição é: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:151
 msgid "Set the bottom margin in pts. Default is %default"
-msgstr ""
+msgstr "Definir a margem inferior em pontos. A predefinição é: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:153
 msgid "Set the left margin in pts. Default is %default"
-msgstr ""
+msgstr "Definir a margem esquerda em pontos. A predefinição é: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:155
 msgid "Set the right margin in pts. Default is %default"
-msgstr ""
+msgstr "Definir a margem direita em pontos. A predefinição é: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
 msgid ""
@@ -367,6 +405,8 @@ msgid ""
 "Remove spacing between paragraphs. Will not work if the source file forces "
 "inter-paragraph spacing."
 msgstr ""
+"Remover espaçamento entre parágrafos. Não irá funcionar se o ficheiro de "
+"origem forçar o espaçamento entre parágrafos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
 msgid ""
@@ -377,20 +417,23 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:164
 msgid "Print generated OPF file to stdout"
-msgstr ""
+msgstr "Mostrar o ficheiro OPF gerado no stdout"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:166
 msgid "Print generated NCX file to stdout"
-msgstr ""
+msgstr "Mostrar o ficheiro NCX gerado no stdout"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:168
 msgid "Keep intermediate files during processing by html2epub"
 msgstr ""
+"Manter os ficheiros intermédios durante o processamento pelo html2epub"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:170
 msgid ""
 "Extract the contents of the produced EPUB file to the specified directory."
 msgstr ""
+"Extrair os conteúdos do ficheiro EPUB produzido para a directoria "
+"especificada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:156
 msgid ""
@@ -399,10 +442,14 @@ msgid ""
 "Convert any of a large number of ebook formats to a %s file. Supported "
 "formats are: %s\n"
 msgstr ""
+"%%prog [options] filename\n"
+"\n"
+"Converter um grande númedo de formatos de ebook para um ficheiro %s. Os "
+"formatos suportados são: %s\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:100
 msgid "Could not find an ebook inside the archive"
-msgstr ""
+msgstr "Foi impossível localizar um ebook dentro do arquivo"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:158
 msgid ""
@@ -418,31 +465,35 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:391
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:739
 msgid "Output written to "
-msgstr ""
+msgstr "Resultado escrito para "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:413
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1046
 msgid "You must specify an input HTML file"
-msgstr ""
+msgstr "Deve especificar um ficheiro para importação em HTML"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/iterator.py:36
 msgid "%s format books are not supported"
-msgstr ""
+msgstr "Os livros em formato %s não são suportados"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:30
 msgid ""
 "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
 msgstr ""
+"Não foi possível encontrar um ponto razoável no qual dividir: %s Tamanho da "
+"sub-árvore: %d KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:136
 msgid ""
 "\t\tToo much markup. Re-splitting without structure preservation. This may "
 "cause incorrect rendering."
 msgstr ""
+"\t\tDemasiada formatação. Dividindo novamente sem preservação da estrutura. "
+"Isto pode levar a uma representação incorrecta."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:490
 msgid "Written processed HTML to "
-msgstr ""
+msgstr "HTML processado escrito no "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:831
 msgid "Options to control the traversal of HTML"
@@ -450,21 +501,25 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:838
 msgid "The output directory. Default is the current directory."
-msgstr ""
+msgstr "Directoria de saída. A directoria actual é a predefinida."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:840
 msgid "Character encoding for HTML files. Default is to auto detect."
 msgstr ""
+"Codificação de caracteres para os ficheiros HTML. A predefinição é auto-"
+"detectar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:842
 msgid ""
 "Create the output in a zip file. If this option is specified, the --output "
 "should be the name of a file not a directory."
 msgstr ""
+"Criar a saída num ficheiro zip. Se esta opção for especificada a --output "
+"deve ser o nome de um ficheiro, não de uma directoria."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:844
 msgid "Control the following of links in HTML files."
-msgstr ""
+msgstr "Controlar a sequência das ligações nos ficheiros HTML."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:846
 msgid ""
@@ -480,41 +535,43 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:850
 msgid "Set metadata of the generated ebook"
-msgstr ""
+msgstr "Definir metadados do ebook gerado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:852
 msgid "Set the title. Default is to autodetect."
-msgstr ""
+msgstr "Definir o título. A predefinição é auto-detectar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:854
 msgid "The author(s) of the ebook, as a comma separated list."
-msgstr ""
+msgstr "O(s) autor(es) do ebooks, como uma lista separada por vírgulas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:856
 msgid "The subject(s) of this book, as a comma separated list."
-msgstr ""
+msgstr "O(s) assunto(s) deste ebook, como uma lista separada por vírgulas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:858
 msgid "Set the publisher of this book."
-msgstr ""
+msgstr "Defina a editora deste livro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:860
 msgid "A summary of this book."
-msgstr ""
+msgstr "Um resumo deste livro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:862
 msgid "Load metadata from the specified OPF file"
-msgstr ""
+msgstr "Carregar metadados a partir de um ficheiro OPF especificado"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:864
 msgid "Options useful for debugging"
-msgstr ""
+msgstr "Opções úteis para depurar"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:866
 msgid ""
 "Be more verbose while processing. Can be specified multiple times to "
 "increase verbosity."
 msgstr ""
+"Apresentar mais indicações durante o processamento. Pode ser especificado "
+"mais do que uma vez para aumentar a prolixidez."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:868
 msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
@@ -535,16 +592,16 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:44
 msgid "Creating LIT file from EPUB..."
-msgstr ""
+msgstr "Criando ficheiro LIT a partir de um EPUB..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:849
 msgid "%prog [options] LITFILE"
-msgstr ""
+msgstr "%prog [options] LITFILE"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:852
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:444
 msgid "Output directory. Defaults to current directory."
-msgstr ""
+msgstr "Directoria de saída. A predefinição é a directoria actual."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:855
 msgid "Legibly format extracted markup. May modify meaningful whitespace."
@@ -553,73 +610,80 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:858
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:724
 msgid "Useful for debugging."
-msgstr ""
+msgstr "Útil para depurar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:869
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:468
 msgid "OEB ebook created in"
-msgstr ""
+msgstr "Ebook em OEB criado em"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:718
 msgid "%prog [options] OPFFILE"
-msgstr ""
+msgstr "%prog [options] OPFFILE"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:721
 msgid "Output file. Default is derived from input filename."
-msgstr ""
+msgstr "Ficheiro de saída. A predefinição é o nome do ficheiro de origem."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:74
 msgid "Set the title. Default: filename."
-msgstr ""
+msgstr "Defina o título. Predefinição: nome do ficheiro."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:76
 msgid ""
 "Set the author(s). Multiple authors should be set as a comma separated list. "
 "Default: %default"
 msgstr ""
+"Defina o(s) autor(es). Múltiplos autores devem ser definidos como uma lista "
+"separada por vírgulas. Predefenição: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:79
 msgid "Set the comment."
-msgstr ""
+msgstr "Defina um comentário."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
 msgid "Set the category"
-msgstr ""
+msgstr "Defina uma categoria"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
 msgid "Sort key for the title"
-msgstr ""
+msgstr "Palavra do título para a listagem"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:85
 msgid "Sort key for the author"
-msgstr ""
+msgstr "Palavra do nome do autor para a listagem"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:87
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:97
 msgid "Publisher"
-msgstr ""
+msgstr "Editora"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
 msgid "Path to file containing image to be used as cover"
-msgstr ""
+msgstr "Caminho para o ficheiro que contém a imagem a usar como capa"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
 msgid ""
 "If there is a cover graphic detected in the source file, use that instead of "
 "the specified cover."
 msgstr ""
+"Se uma imagem de capa for detectada no ficheiro de origem, usa essa em vez "
+"da capa especificada."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:94
 msgid "Output file name. Default is derived from input filename"
 msgstr ""
+"Nome do ficheiro de saída. A predefinição é o nome do ficheiro de origem."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:96
 msgid ""
 "Render HTML tables as blocks of text instead of actual tables. This is "
 "neccessary if the HTML contains very large or complex tables."
 msgstr ""
+"Mostrar as tabelas em HTML como blocos de texto em vez de tabelas reais. "
+"Isto é necessário se o HMTL contiver tabelas muito grandes ou complexas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:99
 msgid ""
@@ -627,28 +691,35 @@ msgid ""
 "option obsoletes the --font-delta option and takes precedence over it. To "
 "use --font-delta, set this to 0. Default: %defaultpt"
 msgstr ""
+"Especificar tamanho de letra base em pontos. Todas os tipos de letra são "
+"redimensionados em conformidade. Esta opção torna obsoleta a opção --font-"
+"delta e tem prevalência sobre ela. Para usar --font-delta, defina isto como "
+"0. Predefinição: %defaultpt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
 msgid "Enable autorotation of images that are wider than the screen width."
 msgstr ""
+"Activar a rotação automática de imagens mais largas do que a largura do ecrã."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:104
 msgid "Set the space between words in pts. Default is %default"
-msgstr ""
+msgstr "Defina o espaço entre palavras em pontos. A predefinição é %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:106
 msgid "Separate paragraphs by blank lines."
-msgstr ""
+msgstr "Separar parágrafos por linhas em branco."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:108
 msgid "Add a header to all the pages with title and author."
-msgstr ""
+msgstr "Acrescentar um cabeçalho com o título e o autor em todas as páginas."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:110
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
 msgstr ""
+"Definir o formato do cabeçalho. %a é substituído pelo autor e %t pelo "
+"título. A predefinição é %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:112
 msgid ""
@@ -662,12 +733,17 @@ msgid ""
 "the HTML files are appended to the LRF. The .opf file must be in the same "
 "directory as the base HTML file."
 msgstr ""
+"Use o elemento <spine> do ficheiro OPF para determinar a ordem pela qual os "
+"ficheiros HTML são apensardos ao LRF. O ficheiro .opt deve estar na mesma "
+"directoria que o ficheiro HTML base."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:116
 msgid ""
 "Minimum paragraph indent (the indent of the first line of a paragraph) in "
 "pts. Default: %default"
 msgstr ""
+"Avanço mínimo do parágrafo (avanço da primeira linha do parágrafo) em "
+"pontos. Predefinição: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:118
 msgid ""
@@ -675,12 +751,17 @@ msgid ""
 "FONT_DELTA pts. FONT_DELTA can be a fraction.If FONT_DELTA is negative, the "
 "font size is decreased."
 msgstr ""
+"Aumentar o tamanho da letra em 2 * FONT_DELTA pontos e o espaçamento entre "
+"as linhas em FONT_DELTA pontos. Se  FONT_DELTA for negativo, o tamanho da "
+"letra diminui."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:123
 msgid ""
 "Render all content as black on white instead of the colors specified by the "
 "HTML or CSS."
 msgstr ""
+"Apresenta todo o conteúdo como preto sobre fundo branco em vez das cores "
+"especificadas pelo HTML ou CSS."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:129
 msgid ""
@@ -688,34 +769,41 @@ msgid ""
 "profile determines things like the resolution and screen size of the target "
 "device. Default: %s Supported profiles: "
 msgstr ""
+"Perfil do dispositivo de destino para o qual este LRF está a ser gerado. O "
+"perfil determina coisas como a relolução e o tamanho do ecrã do dispositivo "
+"de destino. Predefinição: %s Perfis suportados: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:135
 msgid "Left margin of page. Default is %default px."
-msgstr ""
+msgstr "Margem esquerda da página. A predefinição é %default px."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:137
 msgid "Right margin of page. Default is %default px."
-msgstr ""
+msgstr "Margem direita da página. A predefinição é %default px."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:139
 msgid "Top margin of page. Default is %default px."
-msgstr ""
+msgstr "Margem superior da página. A predefinição é %default px."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:141
 msgid "Bottom margin of page. Default is %default px."
-msgstr ""
+msgstr "Margem inferior da página. A predefinição é %default px."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:143
 msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
 msgstr ""
+"Apresenta as tabelas existentes no HTML como imagens (útil se o documento "
+"tem tabelas grandes ou complexas)"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:145
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
 msgstr ""
+"Multiplica o tamanho do texto nas tabelas a apresentar por este factor. A "
+"predefinição é %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:150
 msgid ""
@@ -729,20 +817,24 @@ msgid ""
 "A regular expression. <a> tags whose href matches will be ignored. Defaults "
 "to %default"
 msgstr ""
+"Uma expressão regular. As etiquetas <a> que encontram correspondência com "
+"href serão ignoradas. A predefinição é %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:158
 msgid "Don't add links to the table of contents."
-msgstr ""
+msgstr "Não acrescente ligações à tabela de conteúdos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:162
 msgid "Prevent the automatic detection chapters."
-msgstr ""
+msgstr "Impede a detecção automática de capítulos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:165
 msgid ""
 "The regular expression used to detect chapter titles. It is searched for in "
 "heading tags (h1-h6). Defaults to %default"
 msgstr ""
+"A expressão regular utilizada para detectar os títulos dos capítulos. É "
+"procurada nas etiquetas de cabeçalho (h1-h6). A predefinição é %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:168
 msgid ""
@@ -764,11 +856,21 @@ msgid ""
 "turn performance of the LRF. Thus this option is ignored if the current page "
 "has only a few elements."
 msgstr ""
+"Se o html2lrf não encontrar nenhuma quebra de página no ficheiro html e não "
+"conseguir detectar os títulos dos capítulos, inserirá automaticamente "
+"quebras de linha antes de etiquetas cujos nomes correspondam a esta "
+"expressão regular.A predefinição é %default. Você pode desactivar isto "
+"definindo a expressão regular como\"$\". A finalidade desta opção é tentar "
+"assegurar que não existem de facto páginas longas uma vez que isso diminui o "
+"desempenho do LRF nas mudanças de página. Deste modo, esta opção é ignorada "
+"se a página actual tiver apenas alguns elementos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:180
 msgid ""
 "Force a page break before tags whose names match this regular expression."
 msgstr ""
+"Força uma quebra de página antes das etiquetas cujos nomes correspondam a "
+"esta expressão regular."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:182
 msgid ""

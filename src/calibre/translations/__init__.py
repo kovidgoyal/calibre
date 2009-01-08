@@ -63,7 +63,7 @@ def check_for_critical_bugs():
         shutil.rmtree('.errors')
     pofilter = ('pofilter', '-i', '.', '-o', '.errors',
                 '-t', 'accelerators', '-t', 'escapes', '-t', 'variables',
-                '-t', 'xmltags')
+                '-t', 'xmltags', '-t', 'printf')
     subprocess.check_call(pofilter)
     errs = os.listdir('.errors')
     if errs:

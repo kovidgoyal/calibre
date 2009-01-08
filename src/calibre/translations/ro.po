@@ -1,16 +1,16 @@
-# Czech translation for calibre
-# Copyright (c) 2008 Rosetta Contributors and Canonical Ltd 2008
+# Romanian translation for calibre
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
 # This file is distributed under the same license as the calibre package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2008.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-12-30 15:33+0000\n"
-"PO-Revision-Date: 2008-10-23 12:18+0000\n"
-"Last-Translator: raduz <raduzator@gmail.com>\n"
-"Language-Team: Czech <cs@li.org>\n"
+"PO-Revision-Date: 2009-01-05 18:48+0000\n"
+"Last-Translator: petre <Unknown>\n"
+"Language-Team: Romanian <ro@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
 msgid "Does absolutely nothing"
-msgstr ""
+msgstr "Nu face absolut nimic"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:44
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:44
@@ -77,7 +77,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:808
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:841
 msgid "Unknown"
-msgstr "Neznámý"
+msgstr "Necunoscut(ă)"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:62
 msgid "Base"
@@ -85,7 +85,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:148
 msgid "File type"
-msgstr ""
+msgstr "Tip de fișier"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:182
 msgid "Metadata reader"
@@ -196,23 +196,21 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:196
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:224
 msgid "Unable to detect the %s disk drive. Try rebooting."
-msgstr "Disk %s nebyl nalezen. Zkuste restart."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/devices/prs505/driver.py:412
 msgid "The reader has no storage card connected."
-msgstr "Do čtecího zařízení není vložena žádná paměťová karta."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:92
 msgid "Options to control the conversion to EPUB"
-msgstr "Nastavení pro převod do formátu EPUB"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:103
 msgid ""
 "The output EPUB file. If not specified, it is derived from the input file "
 "name."
 msgstr ""
-"Název výsledného EPUB souboru. Není-li zadán, bude odvozen z názvu vstupního "
-"souboru."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:105
 msgid ""
@@ -220,9 +218,6 @@ msgid ""
 "device independent EPUB. The profile is used for device specific "
 "restrictions on the EPUB. Choices are: "
 msgstr ""
-"Profil cílového zařízení, pro který je EPUB určen. Pro vytvoření souboru "
-"EPUB nezávislého na na zařízení zadejte Žádný. Profiul je určen pro omezení "
-"specifická pro dané zařízení. Možnosti jsou: "
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:107
 msgid ""
@@ -232,7 +227,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:108
 msgid "Control auto-detection of document structure."
-msgstr "Nastavení autodetekce struktury dokumentu."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:110
 msgid ""
@@ -247,16 +242,6 @@ msgid ""
 "for further\n"
 "help on using this feature.\n"
 msgstr ""
-"XPath výraz pro detekci názvů kapitol. Standardně jsou za kapitoly "
-"považovány tagy <h1> \n"
-"nebo <h2>,  jenž obsahují slova \"chapter\", \"book\", \"section\" nebo "
-"\"part\", stejně \n"
-"jako všechny tagy, které obsahují class=\"chapter\". \n"
-"Výraz musí být vyhodnocen na seznam elementů. Pro vypnutí detekce kapitol "
-"zadejte \n"
-"výraz \"/\". Pro další možnosti použití této vlastnosti viz. také XPath "
-"Tutorial \n"
-"v uživatelské příručce calibre.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:119
 msgid ""
@@ -265,22 +250,16 @@ msgid ""
 "chapters. A value of \"none\" will disable chapter marking and a value of "
 "\"both\" will use both page breaks and lines to mark chapters."
 msgstr ""
-"Zadejte jak označovat detekované kapitoly. Volba \"zlom stránky\" vloží před "
-"kapitoly zlom stránky. Volba \"čára\" vloží před kapitolu čáru. Volba "
-"\"žádné\" vypne označování kapitol,volba \"obojí\" použije pro označování "
-"jak zlomy stránky, tak čáry."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:121
 msgid "Path to the cover to be used for this book"
-msgstr "Cesta k titulní stránce pro tuto knihu."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:124
 msgid ""
 "Use the cover detected from the source file in preference to the specified "
 "cover."
 msgstr ""
-"Použít titulní stranu nalezenou ve zdrojovém souboru namísto zadané titulní "
-"stránky."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:127
 msgid ""
@@ -297,13 +276,10 @@ msgid ""
 "is: %default. Links are only added to the TOC if less than the --toc-"
 "threshold number of chapters were detected."
 msgstr ""
-"Maximální počet řádků, které budou vloženy do obsahu. Pro vypnutí zadejte 0. "
-"Standardně nastaveno: %default. Řádky jsou přidány do obsahu pouze v tom "
-"případě, kdy je detekováno méně kapitol než je zadáno v --toc-treshold."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:135
 msgid "Don't add auto-detected chapters to the Table of Contents."
-msgstr "Nepřidávat automaticky detekované kapitoly do obsahu."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:137
 msgid ""
@@ -317,9 +293,6 @@ msgid ""
 "of Contents at level one. If this is specified, it takes precedence over "
 "other forms of auto-detection."
 msgstr ""
-"Výraz XPath, který určuje všechny tagy, které by měly být přidány do obsahu "
-"na úrovni jedna. Je-li zadán, má přednost před ostatními formami auto-"
-"detekce."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:141
 msgid ""
@@ -327,8 +300,6 @@ msgid ""
 "of Contents at level two. Each entry is added under the previous level one "
 "entry."
 msgstr ""
-"Výraz XPath, který určuje všechny tagy, které by měly být přidány do obsahu "
-"na úrovni dvě. Každá položka je přidána pod předchozí položku úrovně jedna."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:143
 msgid ""
@@ -337,10 +308,6 @@ msgid ""
 "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
 "an overview of the NCX format."
 msgstr ""
-"Cesta k .ncx souboru, který obsahuje obsah jenž má být použit pro tuto "
-"knihu. Odkazy obsažené v NCX souboru by měly být relativní k adresáři, ve "
-"kterém je soubor umístěn. Pro popis formátu NCX viz. "
-"http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:145
 msgid ""
@@ -348,45 +315,38 @@ msgid ""
 "preference to the autodetected one. With this option, the autodetected one "
 "is always used."
 msgstr ""
-"Pokud má zdrojový soubor obsah, je mu normálně dána přednost před "
-"automaticky vygenerovaným. Je-li zapnuta tato volba, je vždy použit "
-"automaticky generovaný obsah."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:147
 msgid "Control page layout"
-msgstr "Rozvržení ovládací stránky."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:149
 msgid "Set the top margin in pts. Default is %default"
-msgstr "Nastaví horní okraj v bodech. Standardně je %default"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:151
 msgid "Set the bottom margin in pts. Default is %default"
-msgstr "Nastaví dolní okraj v bodech. Standardně je %default"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:153
 msgid "Set the left margin in pts. Default is %default"
-msgstr "Nastaví levý okraj v bodech. Standardně je %default"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:155
 msgid "Set the right margin in pts. Default is %default"
-msgstr "Nastaví pravý okraj v bodech. Standardně je %default"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:157
 msgid ""
 "The base font size in pts. Default is %defaultpt. Set to 0 to disable "
 "rescaling of fonts."
 msgstr ""
-"Velikost základního fontu v bodech. Standardní je %defaultpt. Je-li zadáno "
-"0, bude vypnuto škálování fontů."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:159
 msgid ""
 "Remove spacing between paragraphs. Will not work if the source file forces "
 "inter-paragraph spacing."
 msgstr ""
-"Odstranit mezery mezi odstavci. Nebude fungovat, pokud zdrojový soubor "
-"mezery mezi odstavci vyžaduje."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:161
 msgid ""
@@ -394,27 +354,23 @@ msgid ""
 "only neccessary if the HTML files contain CSS that uses sibling selectors. "
 "Enabling this greatly slows down processing of large HTML files."
 msgstr ""
-"Zachovat strukturz HTML tagů při rozdělovaní velkých HTML souborů. Toto je "
-"potřeba pouze v případě, kdy HTML soubor obsahuje CSS, které používá "
-"vybíraní sourozenců. Zvolení této funkce výrazně zpomalí zpracování velkých "
-"HTML souborů."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:164
 msgid "Print generated OPF file to stdout"
-msgstr "Vytiskne generovaný OPF soubor na standardní výstup."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:166
 msgid "Print generated NCX file to stdout"
-msgstr "Vytiskne generovaný NCX soubor na standardní výstup."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:168
 msgid "Keep intermediate files during processing by html2epub"
-msgstr "Zachovat mezisoubory při zpracovávání nástrojem html2epub"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:170
 msgid ""
 "Extract the contents of the produced EPUB file to the specified directory."
-msgstr "Extrahovat obsah vytvořeného EPUB souboru do určeného adresáře."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_any.py:156
 msgid ""
@@ -426,7 +382,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:100
 msgid "Could not find an ebook inside the archive"
-msgstr "V archivu nebyl nalezen žádný ebook."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:158
 msgid ""
@@ -447,114 +403,102 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:413
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:1046
 msgid "You must specify an input HTML file"
-msgstr "Musíte specifikovat vstupní HTML soubor."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/iterator.py:36
 msgid "%s format books are not supported"
-msgstr "Knihy ve formátu %s nejsou podporovány."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:30
 msgid ""
 "Could not find reasonable point at which to split: %s Sub-tree size: %d KB"
 msgstr ""
-"Nepodařilo se najit vhodný bod pro rozdělení: %s Velikost podstromu:%d KB"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/split.py:136
 msgid ""
 "\t\tToo much markup. Re-splitting without structure preservation. This may "
 "cause incorrect rendering."
 msgstr ""
-"\t\tPříliš mnoho tagů. Přerozděleno bez zachování struktury. To může "
-"způsobit nesprávné zobrazení."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:490
 msgid "Written processed HTML to "
-msgstr "Zpracované HTML bylo zapsano do "
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:831
 msgid "Options to control the traversal of HTML"
-msgstr "Volby pro nastavení průchodu HTML souborem."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:838
 msgid "The output directory. Default is the current directory."
-msgstr "Výstupní adresář. Standardně je aktuální adresář."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:840
 msgid "Character encoding for HTML files. Default is to auto detect."
-msgstr "Kódování znakové sady HTML souborů. Standardně je autodetekována."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:842
 msgid ""
 "Create the output in a zip file. If this option is specified, the --output "
 "should be the name of a file not a directory."
 msgstr ""
-"Výstuo je uložen do ZIP souboru. Pokud je zvolena tato volba, položka --"
-"output by měly obsahovat název souboru, nikoliv adresáře."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:844
 msgid "Control the following of links in HTML files."
-msgstr "Nastavuje následovaní odkazů v HTML souborech."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:846
 msgid ""
 "Traverse links in HTML files breadth first. Normally, they are traversed "
 "depth first"
 msgstr ""
-"Nastavuje procházení HTML souborů do šířky. Normálně je nastaveno procházení "
-"do hloubky."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:848
 msgid ""
 "Maximum levels of recursion when following links in HTML files. Must be non-"
 "negative. 0 implies that no links in the root HTML file are followed."
 msgstr ""
-"Maximální úroveň rekurze při následování odkazů v HTML souborech. Musí být "
-"nezáporné číslo. 0 znamená, že nejsou následovány žádné odkazy obsažené v "
-"HTML souboru."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:850
 msgid "Set metadata of the generated ebook"
-msgstr "Nastavit metadata pro generovanou knihu."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:852
 msgid "Set the title. Default is to autodetect."
-msgstr "Zadat název. Standardně je autodetekován."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:854
 msgid "The author(s) of the ebook, as a comma separated list."
-msgstr "Autor/ři knihy v seznamu odděleném čárkou."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:856
 msgid "The subject(s) of this book, as a comma separated list."
-msgstr "Téma(ta) knihy jako seznam oddělený čárkami."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:858
 msgid "Set the publisher of this book."
-msgstr "Zadat vydavatele této knihy."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:860
 msgid "A summary of this book."
-msgstr "Shrnutí této knihy."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:862
 msgid "Load metadata from the specified OPF file"
-msgstr "Nahrát metadata ze zadaného OPF souboru."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:864
 msgid "Options useful for debugging"
-msgstr "Nastavení užitečná pro odlaďování."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:866
 msgid ""
 "Be more verbose while processing. Can be specified multiple times to "
 "increase verbosity."
 msgstr ""
-"Zobrazovat více informací při zpracování. Může být zadáno několikrát pro "
-"zvětšení množství informací."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:868
 msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
-msgstr "Výstupní HTML je zobrazeno v podobě lépe čitelné pro člověka."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:874
 msgid ""
@@ -568,13 +512,6 @@ msgid ""
 "element\n"
 "is used.\n"
 msgstr ""
-"%prog [volby] soubor.html|opf\n"
-"\n"
-"Následuje všechny odkazy v HTML souboru a shromažďuje je v zadaném "
-"adresáři.\n"
-"Stejně tak shromažďuje všechny referenční zdroje jako jsou obrázky, CSS, "
-"skripty atd. \n"
-"Pokud je zadán OPF soubor, je použit seznam souborů v elementu <spine>.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/from_any.py:44
 msgid "Creating LIT file from EPUB..."
@@ -582,12 +519,12 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:849
 msgid "%prog [options] LITFILE"
-msgstr "%prog [options] LIT_soubor"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:852
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:444
 msgid "Output directory. Defaults to current directory."
-msgstr "Výstupní adresář. Standardně je použit aktuální adresář."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:855
 msgid "Legibly format extracted markup. May modify meaningful whitespace."
@@ -596,12 +533,12 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:858
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:724
 msgid "Useful for debugging."
-msgstr "Užitečné pro ladění programu."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:869
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:468
 msgid "OEB ebook created in"
-msgstr "OEB kniha vytvořena v"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/writer.py:718
 msgid "%prog [options] OPFFILE"
@@ -613,63 +550,56 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:74
 msgid "Set the title. Default: filename."
-msgstr "Nastavení názvu. Standardně: název souboru"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:76
 msgid ""
 "Set the author(s). Multiple authors should be set as a comma separated list. "
 "Default: %default"
 msgstr ""
-"Zadejte autor(a/y). Více autorů by mělo být zadáno jako seznam oddělený "
-"čárkou. Standardně: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:79
 msgid "Set the comment."
-msgstr "Viz. komentář."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:81
 msgid "Set the category"
-msgstr "Nastavení kategorie"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:83
 msgid "Sort key for the title"
-msgstr "Třídící klíč pro název"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:85
 msgid "Sort key for the author"
-msgstr "Třídící klíč pro autora"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:87
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:275
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/fetch_metadata.py:39
 #: /home/kovid/work/calibre/src/calibre/gui2/library.py:97
 msgid "Publisher"
-msgstr "Vydavatel"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:89
 msgid "Path to file containing image to be used as cover"
-msgstr "Cesta k souboru který má být použit jako titulní stránka"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:91
 msgid ""
 "If there is a cover graphic detected in the source file, use that instead of "
 "the specified cover."
 msgstr ""
-"Jestliže je ve zdrojovém souboru detekována grafika titulní stránky, bude "
-"použita místo zadané titulní stránky."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:94
 msgid "Output file name. Default is derived from input filename"
 msgstr ""
-"Název výstupního souboru. Standardně je odvozeno z názvu vstupního souboru."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:96
 msgid ""
 "Render HTML tables as blocks of text instead of actual tables. This is "
 "neccessary if the HTML contains very large or complex tables."
 msgstr ""
-"Vykreslí HTML tabulky jako bloky textu místo skutečných tabulek. To je "
-"nezbytné v případě, že HTML obsahuje velmi velké nebo složité tabulky."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:99
 msgid ""
@@ -677,35 +607,28 @@ msgid ""
 "option obsoletes the --font-delta option and takes precedence over it. To "
 "use --font-delta, set this to 0. Default: %defaultpt"
 msgstr ""
-"Zadání základní velikosti fontu v bodech. Všechny fonty jsou náležitým "
-"způsobem upraveny. Tato volba činí volbu --font-delta zastaralou, a je jí "
-"před ní dána přednost. Pro použití --font-delta nastavte tuto hodnotu na 0. "
-"Standardně: %defaultpt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
 msgid "Enable autorotation of images that are wider than the screen width."
 msgstr ""
-"Použít autorotaci u obrázků, které jsou širší než je šířka obrazovky."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:104
 msgid "Set the space between words in pts. Default is %default"
-msgstr "Mezera mezi slovy v bodech. Standardně je %default"
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:106
 msgid "Separate paragraphs by blank lines."
-msgstr "Oddělit odstavce černými čárami."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:108
 msgid "Add a header to all the pages with title and author."
-msgstr "Přidat na všech stránkách záhlaví s názvem a jménem autora."
+msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:110
 msgid ""
 "Set the format of the header. %a is replaced by the author and %t by the "
 "title. Default is %default"
 msgstr ""
-"Formát záhlaví. %a je nahrazeno jménem autorem, %t názvem. Standardně je "
-"%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:112
 msgid ""
@@ -5152,21 +5075,3 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:459
 msgid "Show detailed output information. Useful for debugging"
 msgstr ""
-
-#~ msgid ""
-#~ "If fewer than this number of chapters is detected, then links are added to "
-#~ "the Table of Contents."
-#~ msgstr ""
-#~ "Pokud je detekováno méně kapitol než je tato hodnota, budou odkazy přidány "
-#~ "do obsahu."
-
-#~ msgid ""
-#~ "%%prog [options] filename\n"
-#~ "\n"
-#~ "Convert any of a large number of ebook formats to an epub file. Supported "
-#~ "formats are: %s\n"
-#~ msgstr ""
-#~ "%%prog [volby] soubor\n"
-#~ "\n"
-#~ "Převede kterýkoliv z velkého množství ebook formátů do epub souboru. "
-#~ "Podporované  formáty jsou: %s\n"

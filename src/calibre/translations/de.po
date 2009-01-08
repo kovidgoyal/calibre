@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-12-30 15:33+0000\n"
-"PO-Revision-Date: 2009-01-04 01:11+0000\n"
-"Last-Translator: S. Dorscht <Unknown>\n"
+"PO-Revision-Date: 2009-01-07 18:09+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-04 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-01-07 18:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -1945,7 +1945,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf.py:49
 msgid "Set options for converting %s"
-msgstr "Einstellungen für das Konvertieren &s setzen"
+msgstr "Einstellungen für das Konvertieren %s setzen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/comicconf_ui.py:89
 msgid "&Title:"
@@ -4641,7 +4641,7 @@ msgstr "V"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:350
 msgid "Open containing folder"
-msgstr "Öffne enthaltenes Verzeichnis"
+msgstr "Öffne Speicherort"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:351
 msgid "Show book details"
