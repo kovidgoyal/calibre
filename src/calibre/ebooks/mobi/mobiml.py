@@ -19,6 +19,8 @@ from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 MBP_NS = 'http://mobipocket.com/ns/mbp'
 def MBP(name): return '{%s}%s' % (MBP_NS, name)
 
+MOBI_NSMAP = {None: XHTML_NS, 'mbp': MBP_NS}
+
 HEADER_TAGS = set(['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
 NESTABLE_TAGS = set(['ol', 'ul', 'li', 'table', 'tr', 'td', 'th'])
 TABLE_TAGS = set(['table', 'tr', 'td', 'th'])
@@ -77,26 +79,34 @@ class FormatState(object):
 
 
 class MobiMLizer(object):
-    def __init__(self):
-        pass
-
     def transform(self, oeb, context):
+        oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
         self.profile = profile = context.dest
         self.fnums = fnums = dict((v, k) for k, v in profile.fnums.items())
         self.fmap = KeyMapper(profile.fbase, profile.fbase, fnums.keys())
+        self.remove_html_cover()
         self.mobimlize_spine()
+
+    def remove_html_cover(self):
+        oeb = self.oeb
+        if not oeb.metadata.cover \
+           or 'cover' not in oeb.guide:
+            return
+        href = oeb.guide['cover'].href
+        del oeb.guide['cover']
+        item = oeb.manifest.hrefs[href]
+        oeb.manifest.remove(item)
 
     def mobimlize_spine(self):
         for item in self.oeb.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb, self.profile)
-            data = item.data
-            data.remove(data.find(XHTML('head')))
-            body = data.find(XHTML('body'))
-            nbody = etree.Element(XHTML('body'))
+            body = item.data.find(XHTML('body'))
+            nroot = etree.Element(XHTML('html'), nsmap=MOBI_NSMAP)
+            nbody = etree.SubElement(nroot, XHTML('body'))
             self.mobimlize_elem(body, stylizer, BlockState(nbody),
                                 [FormatState()])
-            data.replace(body, nbody)
+            item.data = nroot
 
     def mobimlize_font(self, ptsize):
         return self.fnums[self.fmap[ptsize]]
@@ -116,7 +126,7 @@ class MobiMLizer(object):
         lines = text.split('\n')
         result = lines[:1]
         for line in lines[1:]:
-            result.append(etree.Element('br'))
+            result.append(etree.Element(XHTML('br')))
             if line:
                 result.append(line)
         return result
@@ -134,7 +144,7 @@ class MobiMLizer(object):
                 bstate.pbreak = False
             if istate.ids:
                 for id in istate.ids:
-                    etree.SubElement(body, 'a', attrib={'id': id})
+                    etree.SubElement(body, XHTML('a'), attrib={'id': id})
                 istate.ids.clear()
             bstate.istate = None
             bstate.anchor = None
@@ -147,22 +157,22 @@ class MobiMLizer(object):
             elif indent != 0 and abs(indent) < self.profile.fbase:
                 indent = (indent / abs(indent)) * self.profile.fbase
             if tag in NESTABLE_TAGS:
-                para = wrapper = etree.SubElement(parent, tag)
+                para = wrapper = etree.SubElement(parent, XHTML(tag))
                 bstate.nested.append(para)
                 if tag == 'li' and len(istates) > 1:
                     istates[-2].list_num += 1
                     para.attrib['value'] = str(istates[-2].list_num)
             elif left > 0 and indent >= 0:
-                para = wrapper = etree.SubElement(parent, 'blockquote')
+                para = wrapper = etree.SubElement(parent, XHTML('blockquote'))
                 para = wrapper
                 emleft = int(round(left / self.profile.fbase)) - 1
                 emleft = min((emleft, 10))
                 while emleft > 0:
-                    para = etree.SubElement(para, 'blockquote')
+                    para = etree.SubElement(para, XHTML('blockquote'))
                     emleft -= 1
             else:
                 ptag = tag if tag in HEADER_TAGS else 'p'
-                para = wrapper = etree.SubElement(parent, ptag)
+                para = wrapper = etree.SubElement(parent, XHTML(ptag))
             bstate.inline = bstate.para = para
             vspace = bstate.vpadding + bstate.vmargin
             bstate.vpadding = bstate.vmargin = 0
@@ -174,7 +184,7 @@ class MobiMLizer(object):
                 vspace = int(round(vspace / self.profile.fbase))
                 index = max((0, len(body) - 1))
                 while vspace > 0:
-                    body.insert(index, etree.Element('br'))
+                    body.insert(index, etree.Element(XHTML('br')))
                     vspace -= 1
             if istate.halign != 'auto':
                 para.attrib['align'] = istate.halign
@@ -182,7 +192,7 @@ class MobiMLizer(object):
         if tag in CONTENT_TAGS:
             bstate.inline = para
             pstate = bstate.istate = None
-            etree.SubElement(para, tag, attrib=istate.attrib)
+            etree.SubElement(para, XHTML(tag), attrib=istate.attrib)
         elif tag in TABLE_TAGS:
             para.attrib['valign'] = 'top'
         if not text:
@@ -197,20 +207,21 @@ class MobiMLizer(object):
             elif pstate and pstate.href == href:
                 inline = bstate.anchor
             else:
-                inline = etree.SubElement(inline, 'a', href=href)
+                inline = etree.SubElement(inline, XHTML('a'), href=href)
                 bstate.anchor = inline
             if valign == 'super':
-                inline = etree.SubElement(inline, 'sup')
+                inline = etree.SubElement(inline, XHTML('sup'))
             elif valign == 'sub':
-                inline = etree.SubElement(inline, 'sub')
+                inline = etree.SubElement(inline, XHTML('sub'))
             if istate.family == 'monospace':
-                inline = etree.SubElement(inline, 'tt')
+                inline = etree.SubElement(inline, XHTML('tt'))
             if fsize != 3:
-                inline = etree.SubElement(inline, 'font', size=str(fsize))
+                inline = etree.SubElement(inline, XHTML('font'),
+                                          size=str(fsize))
             if istate.italic:
-                inline = etree.SubElement(inline, 'i')
+                inline = etree.SubElement(inline, XHTML('i'))
             if istate.bold:
-                inline = etree.SubElement(inline, 'b')
+                inline = etree.SubElement(inline, XHTML('b'))
             bstate.inline = inline
         bstate.istate = istate
         inline = bstate.inline
@@ -353,7 +364,7 @@ class MobiMLizer(object):
         if isblock:
             para = bstate.para
             if para is not None and para.text == u'\xa0':
-                para.getparent().replace(para, etree.Element('br'))
+                para.getparent().replace(para, etree.Element(XHTML('br')))
             bstate.para = None
             bstate.istate = None
             vmargin = asfloat(style['margin-bottom'])

@@ -88,6 +88,7 @@ class CSSFlattener(object):
         self.untable = untable
 
     def transform(self, oeb, context):
+        oeb.logger.info('Flattening CSS and remapping font sizes...')
         self.oeb = oeb
         self.context = context
         self.stylize_spine()

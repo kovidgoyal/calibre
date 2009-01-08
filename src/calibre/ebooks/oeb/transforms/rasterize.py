@@ -33,6 +33,7 @@ class SVGRasterizer(object):
             QApplication([])
 
     def transform(self, oeb, context):
+        oeb.logger.info('Rasterizing SVG images...')
         self.oeb = oeb
         self.profile = context.dest
         self.images = {}
@@ -143,6 +144,9 @@ class SVGRasterizer(object):
         if key in self.images:
             href = self.images[key]
         else:
+            logger = self.oeb.logger
+            logger.info('Rasterizing %r to %dx%d'
+                        % (svgitem.href, size.width(), size.height()))
             image = QImage(size, QImage.Format_ARGB32_Premultiplied)
             image.fill(QColor("white").rgb())
             painter = QPainter(image)

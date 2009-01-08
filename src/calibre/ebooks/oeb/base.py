@@ -125,11 +125,16 @@ def urlnormalize(href):
 class OEBError(Exception):
     pass
 
+
 class FauxLogger(object):
     def __getattr__(self, name):
         return self
     def __call__(self, message):
         print message
+
+class Logger(LoggingInterface, object):
+    def __getattr__(self, name):
+        return object.__getattribute__(self, 'log_' + name)
 
 
 class AbstractContainer(object):
@@ -745,19 +750,19 @@ class OEBBook(object):
                 self.uid = item
                 break
         else:
-            self.logger.log_warn(u'Unique-identifier %r not found.' % uid)
+            self.logger.warn(u'Unique-identifier %r not found.' % uid)
             for ident in metadata.identifier:
                 if 'id' in ident.attrib:
                     self.uid = metadata.identifier[0]
                     break
         if not metadata.language:
-            self.logger.log_warn(u'Language not specified.')
+            self.logger.warn(u'Language not specified.')
             metadata.add('language', 'en')
         if not metadata.creator:
-            self.logger.log_warn(u'Creator not specified.')
+            self.logger.warn(u'Creator not specified.')
             metadata.add('creator', 'Unknown')
         if not metadata.title:
-            self.logger.log_warn(u'Title not specified.')
+            self.logger.warn(u'Title not specified.')
             metadata.add('title', 'Unknown')
     
     def _manifest_from_opf(self, opf):
@@ -765,7 +770,7 @@ class OEBBook(object):
         for elem in xpath(opf, '/o2:package/o2:manifest/o2:item'):
             href = elem.get('href')
             if not self.container.exists(href):
-                self.logger.log_warn(u'Manifest item %r not found.' % href)
+                self.logger.warn(u'Manifest item %r not found.' % href)
                 continue
             manifest.add(elem.get('id'), href, elem.get('media-type'),
                          elem.get('fallback'))
@@ -775,7 +780,7 @@ class OEBBook(object):
         for elem in xpath(opf, '/o2:package/o2:spine/o2:itemref'):
             idref = elem.get('idref')
             if idref not in self.manifest:
-                self.logger.log_warn(u'Spine item %r not found.' % idref)
+                self.logger.warn(u'Spine item %r not found.' % idref)
                 continue
             item = self.manifest[idref]
             spine.add(item, elem.get('linear'))
@@ -794,7 +799,7 @@ class OEBBook(object):
             href = elem.get('href')
             path, frag = urldefrag(href)
             if path not in self.manifest.hrefs:
-                self.logger.log_warn(u'Guide reference %r not found' % href)
+                self.logger.warn(u'Guide reference %r not found' % href)
                 continue
             guide.add(elem.get('type'), elem.get('title'), href)
 
@@ -991,7 +996,6 @@ class OEBBook(object):
         ncx = self._to_ncx()
         return {OPF_MIME: ('content.opf', package),
                 NCX_MIME: (href, ncx)}
-
 
 
 def main(argv=sys.argv):

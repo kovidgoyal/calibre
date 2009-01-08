@@ -26,6 +26,7 @@ from calibre.ebooks.oeb.base import FauxLogger, OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
 from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
+from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
@@ -66,23 +67,28 @@ def encode(data):
     return data.encode('utf-8')
 
 # Almost like the one for MS LIT, but not quite.
-def decint(value):
+DECINT_FORWARD = 0
+DECINT_BACKWARD = 1
+def decint(value, direction):
     bytes = []
     while True:
         b = value & 0x7f
         value >>= 7
-        if not bytes:
-            b |= 0x80
-        bytes.append(chr(b))
+        bytes.append(b)
         if value == 0:
             break
-    return ''.join(reversed(bytes))
+    if direction == DECINT_FORWARD:
+        bytes[0] |= 0x80
+    elif direction == DECINT_BACKWARD:
+        bytes[-1] |= 0x80
+    return ''.join(chr(b) for b in reversed(bytes))
 
 
 class Serializer(object):
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
     
     def __init__(self, oeb, images):
+        oeb.logger.info('Serializing markup content...')
         self.oeb = oeb
         self.images = images
         self.id_offsets = {}
@@ -238,21 +244,10 @@ class MobiWriter(object):
         self._oeb = oeb
         self._stream = stream
         self._records = [None]
-        self._remove_html_cover()
         self._generate_content()
         self._generate_record0()
         self._write_header()
         self._write_content()
-
-    def _remove_html_cover(self):
-        oeb = self._oeb
-        if not oeb.metadata.cover \
-           or 'cover' not in oeb.guide:
-            return
-        href = oeb.guide['cover'].href
-        del oeb.guide['cover']
-        item = oeb.manifest.hrefs[href]
-        oeb.manifest.remove(item)
 
     def _generate_content(self):
         self._map_image_names()
@@ -318,11 +313,17 @@ class MobiWriter(object):
             running = offset
             while breaks and (breaks[0] - offset) < RECORD_SIZE:
                 pbreak = (breaks.pop(0) - running) >> 3
-                encoded = decint(pbreak)
+                encoded = decint(pbreak, DECINT_FORWARD)
                 record.write(encoded)
                 running += pbreak << 3
                 nextra += len(encoded)
-            record.write(decint(nextra + 1))
+            lsize = 1
+            while True:
+                size = decint(nextra + lsize, DECINT_BACKWARD)
+                if len(size) == lsize:
+                    break
+                lsize += 1
+            record.write(size)
             self._records.append(record.getvalue())
             nrecords += 1
             offset += RECORD_SIZE
@@ -479,10 +480,12 @@ def main(argv=sys.argv):
     flattener = CSSFlattener(fbase=fbase, fkey=fkey, unfloat=True,
                              untable=True)
     rasterizer = SVGRasterizer()
+    trimmer = ManifestTrimmer()
     mobimlizer = MobiMLizer()
-    #flattener.transform(oeb, context)
+    flattener.transform(oeb, context)
     rasterizer.transform(oeb, context)
-    #mobimlizer.transform(oeb, context)    
+    mobimlizer.transform(oeb, context)
+    trimmer.transform(oeb, context)
     writer.dump(oeb, outpath)
     return 0
 
