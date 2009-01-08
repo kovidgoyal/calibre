@@ -141,3 +141,5 @@ class USBMS(Device):
             
         return book_title, book_author, book_mime
 
+# ls, rm, cp, mkdir, touch, cat
+

@@ -7,9 +7,8 @@ Device driver for Bookeen's Cybook Gen 3
 import os, fnmatch
 
 from calibre.devices.usbms.driver import USBMS
-from calibre.devices.usbms.cli import CLI
 
-class CYBOOKG3(USBMS, CLI):
+class CYBOOKG3(USBMS):
     MIME_MAP   = { 
                 'mobi' : 'application/mobi',
                 'prc' : 'application/prc',
