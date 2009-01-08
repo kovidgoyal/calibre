@@ -86,7 +86,7 @@ class PRS505(Device):
                                      deviceclass=cls.__name__,
                                      vendor_id=hex(cls.VENDOR_ID),
                                      product_id=hex(cls.PRODUCT_ID),
-                                     bcd=hex(cls.BCD),
+                                     bcd=hex(cls.BCD[0]),
                                      main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
                                      storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
                                      )

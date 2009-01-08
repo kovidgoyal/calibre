@@ -21,7 +21,7 @@ class Device(_Device):
     
     VENDOR_ID   = 0x0
     PRODUCT_ID  = 0x0
-    BCD         = 0x0
+    BCD         = None
     
     VENDOR_NAME = ''
     PRODUCT_NAME = ''
@@ -38,11 +38,9 @@ class Device(_Device):
       <match key="info.category" string="volume">
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
-                  <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">
-                      <match key="volume.is_partition" bool="false">
+                  <match key="volume.is_partition" bool="false">
                           <merge key="volume.label" type="string">%(main_memory)s</merge>
                           <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
-                      </match>
                   </match>
               </match>
           </match>
@@ -52,11 +50,9 @@ class Device(_Device):
       <match key="info.category" string="volume">
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
-                  <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">
-                      <match key="volume.is_partition" bool="true">
+                  <match key="volume.is_partition" bool="true">
                           <merge key="volume.label" type="string">%(storage_card)s</merge>
                           <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
-                      </match>
                   </match>
               </match>
           </match>
@@ -68,16 +64,21 @@ class Device(_Device):
         self._main_prefix = self._card_prefix = None
     
     @classmethod
-    def get_fdi(cls):
+    def get_bcd_less_fdi(cls):
         return cls.FDI_TEMPLATE%dict(
                                      app=__appname__,
                                      deviceclass=cls.__name__,
                                      vendor_id=hex(cls.VENDOR_ID),
                                      product_id=hex(cls.PRODUCT_ID),
-                                     bcd=hex(cls.BCD),
                                      main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
                                      storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
                                      )
+    
+    @classmethod
+    def get_fdi(cls):
+        if cls.BCD is None:
+            return cls.get_bcd_less_fdi()
+        raise NotImplementedError('TODO:')
     
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
