@@ -59,8 +59,8 @@ class DeviceScanner(object):
     
     def is_device_connected(self, device):
         if iswindows:
+            vid, pid = 'vid_%4.4x'%device.VENDOR_ID, 'pid_%4.4x'%device.PRODUCT_ID
             for device_id in self.devices:
-                vid, pid = 'vid_%4.4x'%device.VENDOR_ID, 'pid_%4.4x'%device.PRODUCT_ID
                 if vid in device_id and pid in device_id:
                     if self.test_bcd_windows(device_id, getattr(device, 'BCD', None)):
                         return True
