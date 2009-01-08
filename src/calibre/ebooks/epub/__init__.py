@@ -122,7 +122,8 @@ help on using this feature.
     structure('prefer_metadata_cover', ['--prefer-metadata-cover'], default=False,
               action='store_true',
               help=_('Use the cover detected from the source file in preference to the specified cover.'))
-    
+    structure('dont_split_on_page_breaks', ['--dont-split-on-page-breaks'], default=False,
+              help=_('Turn off splitting at page breaks. Normally, input files are automatically split at every page break into two files. This gives an output ebook that can be parsed faster and with less resources. However, splitting is slow and if your source file contains a very large number of page breaks, you should turn off splitting on page breaks.'))
     toc = c.add_group('toc', 
         _('''\
 Control the automatic generation of a Table of Contents. If an OPF file is detected

@@ -9,13 +9,13 @@ msgstr ""
 "Project-Id-Version: calibre_calibre-it\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-12-30 15:33+0000\n"
-"PO-Revision-Date: 2009-01-01 18:58+0000\n"
-"Last-Translator: Iacopo Benesperi <Unknown>\n"
+"PO-Revision-Date: 2009-01-07 18:21+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: italiano\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-04 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-01-07 18:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -439,7 +439,11 @@ msgid ""
 "\n"
 "Convert any of a large number of ebook formats to a %s file. Supported "
 "formats are: %s\n"
-msgstr "%%prog [opzioni] nomefile\n"
+msgstr ""
+"%%prog [opzioni] nomefile\n"
+"\n"
+"Converte un grande numero di formati di libro in un file %s. Formati "
+"supportati: %s\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/from_html.py:100
 msgid "Could not find an ebook inside the archive"
@@ -711,7 +715,8 @@ msgid ""
 msgstr ""
 "Specifica la dimensione del testo base in punti. Tutti i caratteri saranno "
 "scalati in accordo. Questa opzione rende obsoleta l'opzione --font-delta e "
-"ha precedenza su quest'ultima. Per usare --font-delta, impostare questa a 0"
+"ha precedenza su quest'ultima. Per usare --font-delta, impostare questa a 0. "
+"Default: %default pt"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:101
 msgid "Enable autorotation of images that are wider than the screen width."
@@ -1236,7 +1241,7 @@ msgstr "Impossibile analizzare il file: %s"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:542
 msgid "%s is an empty file"
-msgstr "%S è un file vuoto"
+msgstr "%s è un file vuoto"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/html/convert_from.py:562
 msgid "Failed to parse link %s %s"
@@ -3504,7 +3509,7 @@ msgstr "Il feed deve avere una URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:116
 msgid "The feed %s must have a URL"
-msgstr "Il feed %S deve avere una URL"
+msgstr "Il feed %s deve avere una URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:121
 msgid "Already exists"
