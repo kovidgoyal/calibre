@@ -62,11 +62,13 @@ class DeviceScanner(object):
             for device_id in self.devices:
                 vid, pid = 'vid_%4.4x'%device.VENDOR_ID, 'pid_%4.4x'%device.PRODUCT_ID
                 if vid in device_id and pid in device_id:
-                    return self.test_bcd_windows(device_id, getattr(device, 'BCD', None))
+                    if self.test_bcd_windows(device_id, getattr(device, 'BCD', None)):
+                        return True
         else:
             for vendor, product, bcdDevice in self.devices:
                 if device.VENDOR_ID == vendor and device.PRODUCT_ID == product:
-                    return self.test_bcd(bcdDevice, getattr(device, 'BCD', None))
+                    if self.test_bcd(bcdDevice, getattr(device, 'BCD', None)):
+                        return True
         return False
 
 
