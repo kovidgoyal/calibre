@@ -39,20 +39,35 @@ class DeviceScanner(object):
         '''Fetch list of connected USB devices from operating system'''
         self.devices = self.scanner()
 
+    def test_bcd_windows(self, device_id, bcd):
+        if bcd is None or len(bcd) == 0:
+            return True
+        for c in bcd:
+            # Bug in winutil.get_usb_devices converts a to :
+            rev = ('rev_%4.4x'%c).replace(':', 'a')
+            if rev in device_id:
+                return True
+        return False 
+            
+    def test_bcd(self, bcdDevice, bcd):
+        if bcd is None or len(bcd) == 0:
+            return True
+        for c in bcd:
+            if c == bcdDevice:
+                return True
+        return False
+    
     def is_device_connected(self, device):
         if iswindows:
             for device_id in self.devices:
                 vid, pid = 'vid_%4.4x'%device.VENDOR_ID, 'pid_%4.4x'%device.PRODUCT_ID
-                rev = ('rev_%4.4x'%device.BCD).replace('a', ':') # Bug in winutil.get_usb_devices converts a to :
-                if vid in device_id and pid in device_id and rev in device_id:
-                    return True
-            return False
+                if vid in device_id and pid in device_id:
+                    return self.test_bcd_windows(device_id, getattr(device, 'BCD', None))
         else:
             for vendor, product, bcdDevice in self.devices:
                 if device.VENDOR_ID == vendor and device.PRODUCT_ID == product:
-                    if hasattr(device, 'BCD') and device.BCD == bcdDevice:
-                        return True
-            return False
+                    return self.test_bcd(bcdDevice, getattr(device, 'BCD', None))
+        return False
 
 
 def main(args=sys.argv):
