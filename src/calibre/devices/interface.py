@@ -20,7 +20,9 @@ class Device(object):
     FORMATS     = ["lrf", "rtf", "pdf", "txt"]
     VENDOR_ID   = 0x0000
     PRODUCT_ID  = 0x0000
-    BCD         = 0x0000
+    # BCD can be either None to not distinguish between devices based on BCD, or 
+    # it can be a list of the BCD numbers of all devices supported by this driver.
+    BCD         = None
     THUMBNAIL_HEIGHT = 68 # Height for thumbnails on device
     
     def __init__(self, key='-1', log_packets=False, report_progress=None) :
