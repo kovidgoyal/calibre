@@ -44,7 +44,7 @@ class DeviceScanner(object):
             return True
         for c in bcd:
             # Bug in winutil.get_usb_devices converts a to :
-            rev = ('rev_%4.4x'%c).replace(':', 'a')
+            rev = ('rev_%4.4x'%c).replace('a', ':')
             if rev in device_id:
                 return True
         return False 
