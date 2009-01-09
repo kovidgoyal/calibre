@@ -171,7 +171,7 @@ class MobiMLizer(object):
                     para = etree.SubElement(para, XHTML('blockquote'))
                     emleft -= 1
             else:
-                ptag = tag if tag in HEADER_TAGS else 'p'
+                ptag = 'p' #tag if tag in HEADER_TAGS else 'p'
                 para = wrapper = etree.SubElement(parent, XHTML(ptag))
             bstate.inline = bstate.para = para
             vspace = bstate.vpadding + bstate.vmargin

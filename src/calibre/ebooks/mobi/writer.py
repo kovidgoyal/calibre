@@ -27,6 +27,7 @@ from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
 from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
 from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
+from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
@@ -476,11 +477,13 @@ def main(argv=sys.argv):
     #writer = DirWriter()
     fbase = context.dest.fbase
     fkey = context.dest.fnums.values()
+    tocadder = HTMLTOCAdder()
     flattener = CSSFlattener(
         fbase=fbase, fkey=fkey, unfloat=True, untable=True)
     rasterizer = SVGRasterizer()
     trimmer = ManifestTrimmer()
     mobimlizer = MobiMLizer()
+    tocadder.transform(oeb, context)
     flattener.transform(oeb, context)
     rasterizer.transform(oeb, context)
     mobimlizer.transform(oeb, context)
