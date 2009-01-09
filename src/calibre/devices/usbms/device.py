@@ -38,10 +38,12 @@ class Device(_Device):
       <match key="info.category" string="volume">
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
+                %(BCD_start)s
                   <match key="volume.is_partition" bool="false">
                           <merge key="volume.label" type="string">%(main_memory)s</merge>
                           <merge key="%(app)s.mainvolume" type="string">%(deviceclass)s</merge>
                   </match>
+                %(BCD_end)s
               </match>
           </match>
       </match>
@@ -50,35 +52,47 @@ class Device(_Device):
       <match key="info.category" string="volume">
           <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.vendor_id" int="%(vendor_id)s">
               <match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.product_id" int="%(product_id)s">
+                %(BCD_start)s
                   <match key="volume.is_partition" bool="true">
                           <merge key="volume.label" type="string">%(storage_card)s</merge>
                           <merge key="%(app)s.cardvolume" type="string">%(deviceclass)s</merge>
                   </match>
+                %(BCD_end)s
               </match>
           </match>
       </match>
   </device>
 '''
+    FDI_BCD_TEMPLATE = '<match key="@info.parent:@info.parent:@info.parent:@info.parent:usb.device_revision_bcd" int="%(bcd)s">'
+    
     
     def __init__(self, key='-1', log_packets=False, report_progress=None) :
         self._main_prefix = self._card_prefix = None
     
     @classmethod
-    def get_bcd_less_fdi(cls):
-        return cls.FDI_TEMPLATE%dict(
-                                     app=__appname__,
-                                     deviceclass=cls.__name__,
-                                     vendor_id=hex(cls.VENDOR_ID),
-                                     product_id=hex(cls.PRODUCT_ID),
-                                     main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
-                                     storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
-                                     )
-    
-    @classmethod
     def get_fdi(cls):
+        fdi = ''
+        
+        fdi_base_values = dict(
+                               app=__appname__,
+                               deviceclass=cls.__name__,
+                               vendor_id=hex(cls.VENDOR_ID),
+                               product_id=hex(cls.PRODUCT_ID),
+                               main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
+                               storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
+                          )
         if cls.BCD is None:
-            return cls.get_bcd_less_fdi()
-        raise NotImplementedError('TODO:')
+            fdi_base_values['BCD_start'] = ''
+            fdi_base_values['BCD_end'] = ''
+            fdi = cls.FDI_TEMPLATE % fdi_base_values
+        else:
+            for bcd in cls.BCD:
+                fdi_bcd_values = fdi_base_values
+                fdi_bcd_values['BCD_start'] = cls.FDI_BCD_TEMPLATE % dict(bcd=hex(bcd))
+                fdi_bcd_values['BCD_end'] = '</match>'
+                fdi += cls.FDI_TEMPLATE % fdi_bcd_values
+                
+        return fdi
     
     def set_progress_reporter(self, report_progress):
         self.report_progress = report_progress
@@ -173,7 +187,7 @@ class Device(_Device):
             self._card_prefix = drives[1][1]
 
     @classmethod
-    def get_osx_mountpoints(cls, raw=None):
+    def get_osx_mountpoints(self, raw=None):
         if raw is None:
             ioreg = '/usr/sbin/ioreg'
             if not os.access(ioreg, os.X_OK):
@@ -193,9 +207,9 @@ class Device(_Device):
                     break
                     
         for i, line in enumerate(lines):
-            if line.strip().endswith('<class IOMedia>') and OSX_NAME_MAIN_MEM in line:
+            if line.strip().endswith('<class IOMedia>') and self.OSX_NAME_MAIN_MEM in line:
                 get_dev_node(lines[i+1:], 'main')
-            if line.strip().endswith('<class IOMedia>') and OSX_NAME_CARD_MEM in line:
+            if line.strip().endswith('<class IOMedia>') and self.OSX_NAME_CARD_MEM in line:
                 get_dev_node(lines[i+1:], 'card')
             if len(names.keys()) == 2:
                 break

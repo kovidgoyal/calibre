@@ -22,7 +22,7 @@ class CYBOOKG3(USBMS):
     
     VENDOR_ID   = 0x0bda
     PRODUCT_ID  = 0x0703
-    BCD         = 0x110
+    BCD         = [0x110, 0x132]
     
     VENDOR_NAME = 'BOOKEEN'
     PRODUCT_NAME = 'CYBOOK_GEN3'
