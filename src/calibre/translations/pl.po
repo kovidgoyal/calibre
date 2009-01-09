@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-12-30 15:33+0000\n"
-"PO-Revision-Date: 2009-01-03 20:09+0000\n"
-"Last-Translator: Radian <Unknown>\n"
+"PO-Revision-Date: 2009-01-07 18:24+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-04 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-01-07 18:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -167,6 +167,10 @@ msgid ""
 "    Customize calibre by loading external plugins.\n"
 "    "
 msgstr ""
+"    %prog opcje\n"
+"    \n"
+"    Dostosuj calibre poprzez załadowanie zewnętrznych wtyczek.\n"
+"    "
 
 #: /home/kovid/work/calibre/src/calibre/customize/ui.py:253
 msgid "Add a plugin by specifying the path to the zip file containing it."
@@ -455,6 +459,8 @@ msgid ""
 "takes from\n"
 "the <spine> element of the OPF file.  \n"
 msgstr ""
+"%prog [options] file.html|opf\n"
+"\n"
 "Konwertuj plik HTML na e-book EPUB. Rekurencyjnie podąża za odnośnikami w "
 "pliku HTML. \n"
 "Jeśli wybierzesz plik OPF zamiast pliku HTML, lista odnośników będzie brana "
@@ -695,6 +701,8 @@ msgid ""
 "Render HTML tables as blocks of text instead of actual tables. This is "
 "neccessary if the HTML contains very large or complex tables."
 msgstr ""
+"Wyświetlaj tabele HTML jako bloki tekstu zamiast właściwych tabel. To jest "
+"konieczne jeśli HTML zawiera bardzo duże lub złożone tabele."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:99
 msgid ""
@@ -726,7 +734,7 @@ msgid ""
 "title. Default is %default"
 msgstr ""
 "Ustaw format nagłówka. %a jest zastępowane nazwiskiem autora, %t - tytułem "
-"książki. Styl domyślny: &default"
+"książki. Styl domyślny: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:112
 msgid ""
@@ -1025,6 +1033,8 @@ msgid ""
 "Keep aspect ratio and scale image using screen height as image width for "
 "viewing in landscape mode."
 msgstr ""
+"Zachowaj format i skalę obrazu używając wysokości ekranu jako szerokość "
+"obrazu podczas wyświetlania w trybie panoramicznym."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/comic/convert_from.py:308
 msgid ""
@@ -1416,11 +1426,11 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:42
 msgid "Set the authors"
-msgstr ""
+msgstr "Ustaw autorów"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:46
 msgid "Set the comment"
-msgstr ""
+msgstr "Ustaw komentarz"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/__init__.py:273
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/book_info.py:69
@@ -1484,7 +1494,7 @@ msgstr "Język"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:199
 msgid "A comma separated list of tags to set"
-msgstr "Lista etykiet do ustawienia odzielonych przecinkiem"
+msgstr "Lista etykiet do ustawienia oddzielonych przecinkami"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/metadata/epub.py:201
 msgid "The series to which this book belongs"
@@ -1601,7 +1611,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/odt/to_oeb.py:57
 msgid "The output directory. Defaults to the current directory."
-msgstr ""
+msgstr "Folder wyjściowy. Domyślnie jest to bieżący folder."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:25
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:424
@@ -1611,6 +1621,7 @@ msgstr "Ostatnio używane foldery"
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:27
 msgid "Send file to storage card instead of main memory by default"
 msgstr ""
+"Wyślij plik do karty pamięci zamiast domyślnie ustawionej głównej pamięci."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:29
 msgid "The format to use when saving single files to disk"
@@ -1646,11 +1657,11 @@ msgstr "Sortuj etykiety według popularności"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:45
 msgid "Number of covers to show in the cover browsing mode"
-msgstr ""
+msgstr "Liczba okładek wyświetlanych w trybie przeglądania okładek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:47
 msgid "Defaults for conversion to LRF"
-msgstr ""
+msgstr "Domyślne wartości dla konwersji do LRF"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:49
 msgid "Options for the LRF ebook viewer"
@@ -1946,10 +1957,12 @@ msgid ""
 "&Location of ebooks (The ebooks are stored in folders sorted by author and "
 "metadata is stored in the file metadata.db)"
 msgstr ""
+"&Lokalizacja książek (Książki są przechowywane w folderach posortowanych "
+"według autorów a metadane znajdują się w pliku metadata.db)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:410
 msgid "Browse for the new database location"
-msgstr ""
+msgstr "Wybierz nową lokalizację bazy danych"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:411
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:426
@@ -2046,6 +2059,8 @@ msgstr "Używaj numeracji &rzymskiej do numerowania serii"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:430
 msgid "&Number of covers to show in browse mode (after restart):"
 msgstr ""
+"&Liczba wyświetlanych okładek podczas przeglądania (po ponownym "
+"uruchomieniu):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:431
 msgid "Toolbar"
@@ -2082,6 +2097,7 @@ msgstr "Użyj wewnętrznej &przeglądarki do wyświetlania poniższych formatów
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:441
 msgid "Enable system &tray icon (needs restart)"
 msgstr ""
+"Aktywuj ikonę w &zasobniku systemowym (wymaga ponownego uruchomienia)"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:442
 msgid "Automatically send downloaded &news to ebook reader"
@@ -2109,6 +2125,9 @@ msgid ""
 "collection using a browser from anywhere in the world. Any changes to the "
 "settings will only take effect after a server restart."
 msgstr ""
+"calibre zawiera serwer, który daje ci dostęp do twojej kolekcji książek za "
+"pomocą przeglądarki z dowolnego miejsca na świecie. Jakiekolwiek zmiany w "
+"ustawieniach zostaną zatwierdzone po ponownym uruchomieniu serwera."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:448
 msgid "Server &port:"
@@ -2364,7 +2383,7 @@ msgstr "Zmień grafikę &okładki:"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:508
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/metadata_single_ui.py:317
 msgid "Browse for an image to use as the cover of this book."
-msgstr ""
+msgstr "Wybierz obraz, który będzie użyty jako okładka tej książki."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/epub_ui.py:374
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/lrf_single_ui.py:510
@@ -3717,7 +3736,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:168
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:170
 msgid "Send to storage card"
-msgstr ""
+msgstr "Wyślij do karty pamięci."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:169
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:170
@@ -3726,7 +3745,7 @@ msgstr "i usuń z biblioteki"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:172
 msgid "Send to storage card by default"
-msgstr ""
+msgstr "Wysyłaj do karty pamięci domyślnie."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:185
 msgid "Edit metadata individually"
@@ -4313,13 +4332,15 @@ msgstr "Kliknij, aby przeglądać książki po okładkach"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:153
 msgid "Click to turn off Cover Browsing"
-msgstr ""
+msgstr "Kliknij aby wyłączyć Przeglądanie Okładek"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:158
 msgid ""
 "<p>Browsing books by their covers is disabled.<br>Import of pictureflow "
 "module failed:<br>"
 msgstr ""
+"<p>Przeglądanie książek za pomocą ich okładek jest wyłączone.<br>Załadowanie "
+"modułu pictureflow nie powiodło się:<br>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/status.py:166
 msgid "Click to browse books by tags"
@@ -4638,6 +4659,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/widgets.py:148
 msgid "Click to see the list of books on the storage card in your reader"
 msgstr ""
+"Kliknij aby zobaczyć listę książek na karcie pamięci w twoim czytniku."
 
 #: /home/kovid/work/calibre/src/calibre/library/__init__.py:16
 msgid "Settings to control the calibre content server"

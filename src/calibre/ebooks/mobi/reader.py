@@ -12,15 +12,17 @@ try:
 except ImportError:
     import Image as PILImage
 
+from lxml import html, etree
+
 from calibre import __appname__, entity_to_unicode
 from calibre.ebooks import DRMError
-from calibre.ebooks.BeautifulSoup import BeautifulSoup, Tag
+from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
 from calibre.ebooks.mobi.huffcdic import HuffReader
 from calibre.ebooks.mobi.palmdoc import decompress_doc
 from calibre.ebooks.mobi.langcodes import main_language, sub_language
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.metadata.toc import TOC
 from calibre import sanitize_file_name
 
@@ -176,6 +178,8 @@ class MobiReader(object):
         processed_records = self.extract_text()
         self.add_anchors()
         self.processed_html = self.processed_html.decode(self.book_header.codec, 'ignore')
+        for pat in ENCODING_PATS:
+            self.processed_html = pat.sub('', self.processed_html)
         self.extract_images(processed_records, output_dir)
         self.replace_page_breaks()
         self.cleanup_html()
@@ -185,7 +189,6 @@ class MobiReader(object):
         self.processed_html = \
             re.compile('<head>', re.IGNORECASE).sub(
                 '\n<head>\n'
-                '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n'
                 '<style type="text/css">\n'
                 'blockquote { margin: 0em 0em 0em 1.25em; text-align: justify; }\n'
                 'p { margin: 0em; text-align: justify; }\n'
@@ -196,23 +199,33 @@ class MobiReader(object):
         
         if self.verbose:
             print 'Parsing HTML...'
-        soup = BeautifulSoup(self.processed_html)
-        self.cleanup_soup(soup)
-        guide = soup.find('guide')
-        for elem in soup.findAll(['metadata', 'guide']):
-            elem.extract()
+        root = html.fromstring(self.processed_html)
+        self.upshift_markup(root)
+        guides = root.xpath('//guide')
+        guide = guides[0] if guides else None
+        for elem in guides + root.xpath('//metadata'):
+            elem.getparent().remove(elem)
         htmlfile = os.path.join(output_dir, 
                                 sanitize_file_name(self.name)+'.html')
         try:
-            for ref in guide.findAll('reference', href=True):
-                ref['href'] = os.path.basename(htmlfile)+ref['href']
+            for ref in guide.xpath('descendant::reference'):
+                if ref.attrib.has_key('href'):
+                    ref.attrib['href'] = os.path.basename(htmlfile)+ref.attrib['href']
         except AttributeError:
             pass
+        if self.verbose:
+            print 'Serializing...'
         with open(htmlfile, 'wb') as f:
-            f.write(unicode(soup).encode('utf8'))
+            raw = html.tostring(root, encoding='utf-8', method='xml', 
+                         include_meta_content_type=True, pretty_print=True)
+            raw = raw.replace('<head>', 
+            '<head>\n<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />\n')
+            f.write(raw)
         self.htmlfile = htmlfile
         
         if self.book_header.exth is not None:
+            if self.verbose:
+                print 'Creating OPF...'
             ncx = cStringIO.StringIO()
             opf = self.create_opf(htmlfile, guide)
             opf.render(open(os.path.splitext(htmlfile)[0]+'.opf', 'wb'), ncx)
@@ -231,9 +244,9 @@ class MobiReader(object):
             self.processed_html = re.sub(r'(?i)<%s>'%t, r'<span class="%s">'%c, self.processed_html)
             self.processed_html = re.sub(r'(?i)</%s>'%t, r'</span>', self.processed_html)
         
-    def cleanup_soup(self, soup):
+    def upshift_markup(self, root):
         if self.verbose:
-            print 'Replacing height, width and align attributes'
+            print 'Converting style information to CSS...'
         size_map = {
                     'xx-small' : '0.5',
                     'x-small'  : '1',
@@ -243,41 +256,36 @@ class MobiReader(object):
                     'x-large'  : '5',
                     'xx-large' : '6',
                     }
-        for tag in soup.recursiveChildGenerator():
-            if not isinstance(tag, Tag): continue
-            styles = []
-            try:
-                styles.append(tag['style'])
-            except KeyError:
-                pass
-            try:
-                styles.append('margin-top: %s' % tag['height'])
-                del tag['height']
-            except KeyError:
-                pass
-            try:
-                styles.append('text-indent: %s' % tag['width'])
-                if tag['width'].startswith('-'):
-                    styles.append('margin-left: %s'%(tag['width'][1:]))
-                del tag['width']
-            except KeyError:
-                pass
-            try:
-                styles.append('text-align: %s' % tag['align'])
-                del tag['align']
-            except KeyError:
-                pass
+        for tag in root.iter(etree.Element):
+            styles, attrib = [], tag.attrib
+            if attrib.has_key('style'):
+                style = attrib.pop('style').strip()
+                if style:
+                    styles.append(style)
+            if attrib.has_key('height'):
+                height = attrib.pop('height').strip()
+                if height:
+                    styles.append('margin-top: %s' % height)
+            if attrib.has_key('width'):
+                width = attrib.pop('width').strip()
+                if width:
+                    styles.append('text-indent: %s' % width)
+                    if width.startswith('-'):
+                        styles.append('margin-left: %s'%(width[1:]))
+            if attrib.has_key('align'):
+                align = attrib.pop('align').strip()
+                if align:
+                    styles.append('text-align: %s' % align)
             if styles:
-                tag['style'] = '; '.join(styles)
+                attrib['style'] = '; '.join(styles)
                 
-            if tag.name.lower() == 'font':
-                sz = tag.get('size', '')
+            if tag.tag.lower() == 'font':
+                sz = tag.get('size', '').lower()
                 try:
                     float(sz)
                 except ValueError:
-                    sz = sz.lower()
                     if sz in size_map.keys():
-                        tag['size'] = size_map[sz]
+                        attrib['size'] = size_map[sz]
     
     def create_opf(self, htmlfile, guide=None):
         mi = self.book_header.exth.mi
@@ -292,7 +300,7 @@ class MobiReader(object):
         opf.create_manifest(manifest)
         opf.create_spine([os.path.basename(htmlfile)])
         toc = None
-        if guide:
+        if guide is not None:
             opf.create_guide(guide)
             for ref in opf.guide:
                 if ref.type.lower() == 'toc':
@@ -303,16 +311,16 @@ class MobiReader(object):
             ent_pat = re.compile(r'&(\S+?);')
             if index > -1:
                 raw = '<html><body>'+self.processed_html[index:]
-                soup = BeautifulSoup(raw)
+                root = html.fromstring(raw)
                 tocobj = TOC()
-                for a in soup.findAll('a', href=True):
+                for a in root.xpath('//a[@href]'):
                     try:
-                        text = u''.join(a.findAll(text=True)).strip()
+                        text = u' '.join([t.strip() for t in a.xpath('descendant::text()')])
                     except:
                         text = ''
                     text = ent_pat.sub(entity_to_unicode, text)
-                    if a['href'].startswith('#'):
-                        tocobj.add_item(toc.partition('#')[0], a['href'][1:], text)
+                    if a.get('href', '').startswith('#'):
+                        tocobj.add_item(toc.partition('#')[0], a.attrib['href'][1:], text)
             if tocobj is not None:
                 opf.set_toc(tocobj)
         

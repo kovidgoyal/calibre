@@ -85,7 +85,7 @@ class PRS500(Device):
 
     VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x029b #: Product Id for the PRS-500
-    BCD          = 0x100
+    BCD          = [0x100]
     PRODUCT_NAME = 'PRS-500'
     VENDOR_NAME  = 'SONY'
     INTERFACE_ID = 0      #: The interface we use to talk to the device

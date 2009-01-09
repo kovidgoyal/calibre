@@ -9,7 +9,7 @@ from calibre.devices.prs505.driver import PRS505
 
 class PRS700(PRS505):
     
-    BCD          = 0x31a
+    BCD          = [0x31a]
     PRODUCT_NAME = 'PRS-700'
     OSX_NAME     = 'Sony PRS-700'
      

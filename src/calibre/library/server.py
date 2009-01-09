@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 HTTP server for remote access to the calibre database.
 '''
 
-import sys, textwrap, cStringIO, mimetypes, operator, os, re, logging
+import sys, textwrap, mimetypes, operator, os, re, logging
 from itertools import repeat
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
@@ -285,7 +285,8 @@ class LibraryServer(object):
                     updated=updated, id='urn:calibre:main').render('xml')
     
     @expose
-    def library(self, start='0', num='50', sort=None, search=None, _=None, order='ascending'):
+    def library(self, start='0', num='50', sort=None, search=None, 
+                _=None, order='ascending'):
         '''
         Serves metadata from the calibre database as XML.
         
@@ -321,7 +322,7 @@ class LibraryServer(object):
                                      total=len(ids)).render('xml')
     
     @expose
-    def index(self):
+    def index(self, **kwargs):
         'The / URL'
         return self.static('index.html')
     
@@ -357,7 +358,8 @@ class LibraryServer(object):
                      ''      : 'application/octet-stream',
                      }[name.rpartition('.')[-1].lower()]
         cherrypy.response.headers['Last-Modified'] = self.last_modified(build_time)
-        if self.opts.develop and name in ('gui.js', 'gui.css', 'index.html'):
+        if self.opts.develop and not getattr(sys, 'frozen', False) and \
+            name in ('gui.js', 'gui.css', 'index.html'):
             path = os.path.join(os.path.dirname(__file__), 'static', name)
             lm = datetime.fromtimestamp(os.stat(path).st_mtime)
             cherrypy.response.headers['Last-Modified'] = self.last_modified(lm)
