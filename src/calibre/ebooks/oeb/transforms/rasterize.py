@@ -90,21 +90,26 @@ class SVGRasterizer(object):
         for item in self.oeb.spine:
             html = item.data
             stylizer = Stylizer(html, item.href, self.oeb, self.profile)
-            self.rasterize_elem(html.find(XHTML('body')), item, stylizer)
+            self.rasterize_item(item, stylizer)
 
-    def rasterize_elem(self, elem, item, stylizer):
-        if not isinstance(elem.tag, basestring): return
-        style = stylizer.style(elem)
-        if namespace(elem.tag) == SVG_NS:
-            return self.rasterize_inline(elem, style, item)
-        if elem.tag in IMAGE_TAGS:
-            manifest = self.oeb.manifest
-            src = elem.get('src', None) or elem.get('data', None)
-            image = manifest.hrefs[item.abshref(src)] if src else None
+    def rasterize_item(self, item, stylizer):
+        html = item.data
+        hrefs = self.oeb.manifest.hrefs
+        for elem in xpath(html, '//h:img'):
+            src = elem.get('src', None)
+            image = hrefs.get(item.abshref(src), None) if src else None
             if image and image.media_type == SVG_MIME:
-                return self.rasterize_external(elem, style, item, image)
-        for child in elem:
-            self.rasterize_elem(child, item, stylizer)
+                style = stylizer.style(elem)
+                self.rasterize_external(elem, style, item, image)
+        for elem in xpath(html, '//h:object[@type="%s"]' % SVG_MIME):
+            data = elem.get('data', None)
+            image = hrefs.get(item.abshref(data), None) if data else None
+            if image and image.media_type == SVG_MIME:
+                style = stylizer.style(elem)
+                self.rasterize_external(elem, style, item, image)
+        for elem in xpath(html, '//svg:svg'):
+            style = stylizer.style(elem)
+            self.rasterize_inline(elem, style, item)
 
     def rasterize_inline(self, elem, style, item):
         width = style['width']
@@ -175,7 +180,9 @@ class SVGRasterizer(object):
         cover = self.oeb.manifest.ids[str(covers[0])]
         if not cover.media_type == SVG_MIME:
             return
-        data = self.rasterize_svg(cover.data, 500, 800)
+        logger = self.oeb.logger
+        logger.info('Rasterizing %r to %dx%d' % (cover.href, 600, 800))
+        data = self.rasterize_svg(cover.data, 600, 800)
         href = os.path.splitext(cover.href)[0] + '.png'
         id, href = self.oeb.manifest.generate(cover.id, href)
         self.oeb.manifest.add(id, href, PNG_MIME, data=data)

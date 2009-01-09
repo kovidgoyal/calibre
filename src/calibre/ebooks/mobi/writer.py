@@ -32,9 +32,8 @@ from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
 
 # TODO:
-# - Image scaling
-# - Clean unused files
-# - Override CSS
+# - Allow override CSS (?)
+# - Generate index records
 # - Generate in-content ToC
 # - Command line options, etc.
 
@@ -477,8 +476,8 @@ def main(argv=sys.argv):
     #writer = DirWriter()
     fbase = context.dest.fbase
     fkey = context.dest.fnums.values()
-    flattener = CSSFlattener(fbase=fbase, fkey=fkey, unfloat=True,
-                             untable=True)
+    flattener = CSSFlattener(
+        fbase=fbase, fkey=fkey, unfloat=True, untable=True)
     rasterizer = SVGRasterizer()
     trimmer = ManifestTrimmer()
     mobimlizer = MobiMLizer()

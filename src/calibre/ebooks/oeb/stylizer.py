@@ -281,9 +281,13 @@ class Style(object):
             self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
-        parent = self._element.getparent()
-        return (parent is not None) \
-            and (parent in self._stylizer._styles)
+        return (self._element.getparent() is not None)
+
+    def _get_parent(self):
+        elem = self._element.getparent()
+        if elem is None:
+            return None
+        return self._stylizer.style(elem)
     
     def __getitem__(self, name):
         domname = cssproperties._toDOMname(name)
@@ -298,8 +302,8 @@ class Style(object):
         if (result == 'inherit'
             or (result is None and name in INHERITED
                 and self._has_parent())):
-            styles = self._stylizer._styles
-            result = styles[self._element.getparent()]._get(name)
+            stylizer = self._stylizer
+            result = stylizer.style(self._element.getparent())._get(name)
         if result is None:
             result = DEFAULTS[name]
         return result
@@ -368,9 +372,9 @@ class Style(object):
             return result
         if self._fontSize is None:
             result = None
-            if self._has_parent():
-                styles = self._stylizer._styles
-                base = styles[self._element.getparent()].fontSize
+            parent = self._get_parent()
+            if parent is not None:
+                base = parent.fontSize
             else:
                 base = self._profile.fbase
             if 'font-size' in self._style:
@@ -386,9 +390,9 @@ class Style(object):
         if self._width is None:
             result = None
             base = None
-            if self._has_parent():
-                styles = self._stylizer._styles
-                base = styles[self._element.getparent()].width
+            parent = self._get_parent()
+            if parent is not None:
+                base = parent.width
             else:
                 base = self._profile.width
             if 'width' is self._element.attrib:
@@ -407,9 +411,9 @@ class Style(object):
         if self._height is None:
             result = None
             base = None
-            if self._has_parent():
-                styles = self._stylizer._styles
-                base = styles[self._element.getparent()].height
+            parent = self._get_parent()
+            if parent is not None:
+                base = parent.height
             else:
                 base = self._profile.height
             if 'height' is self._element.attrib:
