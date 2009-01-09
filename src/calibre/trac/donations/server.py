@@ -217,8 +217,7 @@ class Server(object):
                     pos = pos.replace(month = 1)
                 else:
                     pos = pos.replace(month = pos.month + 1)
-
-        _months = list(months(self.earliest, self.latest))[:-1][:12]
+        _months = list(months(self.earliest, self.latest))[:-1][-12:]
         _months = [range_for_month(*m) for m in _months]
         _months = [self.get_slice(*m) for m in _months]
         x = [m.min for m in _months]
