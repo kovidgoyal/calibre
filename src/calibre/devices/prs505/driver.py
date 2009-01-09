@@ -29,7 +29,7 @@ class File(object):
 class PRS505(Device):
     VENDOR_ID    = 0x054c #: SONY Vendor Id
     PRODUCT_ID   = 0x031e #: Product Id for the PRS-505
-    BCD          = 0x229  #: Needed to disambiguate 505 and 700 on linux
+    BCD          = [0x229]  #: Needed to disambiguate 505 and 700 on linux
     PRODUCT_NAME = 'PRS-505'
     VENDOR_NAME  = 'SONY'
     FORMATS      = ['lrf', 'epub', "rtf", "pdf", "txt"]
@@ -86,7 +86,7 @@ class PRS505(Device):
                                      deviceclass=cls.__name__,
                                      vendor_id=hex(cls.VENDOR_ID),
                                      product_id=hex(cls.PRODUCT_ID),
-                                     bcd=hex(cls.BCD),
+                                     bcd=hex(cls.BCD[0]),
                                      main_memory=cls.MAIN_MEMORY_VOLUME_LABEL,
                                      storage_card=cls.STORAGE_CARD_VOLUME_LABEL,
                                      )

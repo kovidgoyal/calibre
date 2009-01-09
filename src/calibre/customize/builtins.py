@@ -25,6 +25,17 @@ every time you add an HTML file to the library.\
         html2oeb(htmlfile, of)
         return of.name
 
+class OPFMetadataReader(MetadataReaderPlugin):
+    
+    name        = 'Read OPF metadata'
+    file_types  = set(['opf'])
+    description = _('Read metadata from %s files')%'OPF'
+    
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.opf2 import OPF
+        from calibre.ebooks.metadata import MetaInformation
+        return MetaInformation(OPF(stream, os.getcwd()))
+
 class RTFMetadataReader(MetadataReaderPlugin):
     
     name        = 'Read RTF metadata' 
@@ -167,6 +178,16 @@ class ComicMetadataReader(MetadataReaderPlugin):
             ext = os.path.splitext(path)[1][1:]
             mi.cover_data = (ext.lower(), data)
         return mi
+    
+class ZipMetadataReader(MetadataReaderPlugin):
+    
+    name = 'Read ZIP metadata'
+    file_types = set(['zip', 'oebzip'])
+    description = _('Read metadata from ebooks in ZIP archives')
+    
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.zip import get_metadata
+        return get_metadata(stream)
 
 class EPUBMetadataWriter(MetadataWriterPlugin):
     

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2008-12-30 15:33+0000\n"
-"PO-Revision-Date: 2008-12-05 23:40+0000\n"
-"Last-Translator: Helene Klungvik <Unknown>\n"
+"PO-Revision-Date: 2009-01-07 18:22+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-04 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-01-07 18:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -559,7 +559,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:849
 msgid "%prog [options] LITFILE"
-msgstr "%applikasjon [opsjoner] LITFIL"
+msgstr "%prog [opsjoner] LITFIL"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lit/reader.py:852
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:444

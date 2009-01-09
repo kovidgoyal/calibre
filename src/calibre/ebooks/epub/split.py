@@ -50,11 +50,15 @@ class Splitter(LoggingInterface):
         self.split_size = 0
         
         # Split on page breaks
-        self.log_info('\tSplitting on page breaks...')
-        if self.path in stylesheet_map:
-            self.find_page_breaks(stylesheet_map[self.path], root)
-        self.split_on_page_breaks(root.getroottree())
-        trees = list(self.trees)
+        if not opts.dont_split_on_page_breaks:
+            self.log_info('\tSplitting on page breaks...')
+            if self.path in stylesheet_map:
+                self.find_page_breaks(stylesheet_map[self.path], root)
+            self.split_on_page_breaks(root.getroottree())
+            trees = list(self.trees)
+        else:
+            self.trees = [root.getroottree()]
+            trees = list(self.trees)
         
         # Split any remaining over-sized trees
         if self.opts.profile.flow_size < sys.maxint:

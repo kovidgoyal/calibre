@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-12-30 15:33+0000\n"
-"PO-Revision-Date: 2008-12-28 11:11+0000\n"
-"Last-Translator: Paco Molinero <paco@byasl.com>\n"
+"PO-Revision-Date: 2009-01-07 18:17+0000\n"
+"Last-Translator: Kovid Goyal <Unknown>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-04 04:32+0000\n"
+"X-Launchpad-Export-Date: 2009-01-07 18:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -125,7 +125,7 @@ msgstr "Leer metadatos desde archivos %s"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:155
 msgid "Extract cover from comic files"
-msgstr ""
+msgstr "Extraer portada de los archivos del cómic"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:175
 msgid "Set metadata in EPUB files"
@@ -407,6 +407,8 @@ msgid ""
 "takes from\n"
 "the <spine> element of the OPF file.  \n"
 msgstr ""
+"%prog [options] file.html|opf\n"
+"\n"
 "Convertir un archivo HTML a ebook en formato EPUB. Seguir los enlaces del "
 "archivo HTML de manera recursiva.\n"
 "Si especifica un archivo OPF en lugar de un archivo HTML, la lista de "
@@ -1546,6 +1548,8 @@ msgid ""
 "isbndb.com.\n"
 "\n"
 msgstr ""
+"\n"
+"%prog [options] key\n"
 "\n"
 "Se han adquirido los metadatos desde isndb.com. Puede indicar el ISBN de los "
 "libros, o los títulos y autores.\n"
@@ -3327,7 +3331,7 @@ msgstr "El feed ha de tener una URL"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:116
 msgid "The feed %s must have a URL"
-msgstr "el Feed debe tener una dirección"
+msgstr "el Feed %s debe tener una dirección"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/user_profiles.py:121
 msgid "Already exists"
@@ -5163,7 +5167,7 @@ msgid ""
 "s"
 msgstr ""
 "Intervalo minimo de segundos entre adquisiciones de datos consecutivas. Por "
-"omisión %s segundos"
+"omisión %default segundos"
 
 #: /home/kovid/work/calibre/src/calibre/web/feeds/main.py:24
 #: /home/kovid/work/calibre/src/calibre/web/fetch/simple.py:452

@@ -314,6 +314,8 @@ def main(args=sys.argv, logger=None):
         sys.excepthook = main.unhandled_exception
         main.show()
         main.render()
+        main.activateWindow()
+        main.raise_()
         return app.exec_()        
     return 0
 

@@ -127,6 +127,7 @@ def get_file_type_metadata(stream, ftype):
                         mi = plugin.get_metadata(stream, ftype.lower().strip())
                         break
                     except:
+                        traceback.print_exc()
                         continue
     return mi
 
