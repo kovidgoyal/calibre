@@ -19,14 +19,23 @@ from collections import defaultdict
 from urlparse import urldefrag
 from lxml import etree
 from PIL import Image
+from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
+    OEB_RASTER_IMAGES
+from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
+from calibre.ebooks.oeb.base import FauxLogger, OEBBook
+from calibre.ebooks.oeb.profile import Context
+from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
+from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
+from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
-from calibre.ebooks.lit.oeb import XML_NS, XHTML, XHTML_NS, OEB_DOCS
-from calibre.ebooks.lit.oeb import xpath, barename, namespace, prefixname
-from calibre.ebooks.lit.oeb import FauxLogger, OEBBook
+from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
 
-MBP_NS = 'http://mobipocket.com/ns/mbp'
-def MBP(name): return '{%s}%s' % (MBP_NS, name)
+# TODO:
+# - Allow override CSS (?)
+# - Generate index records
+# - Generate in-content ToC
+# - Command line options, etc.
 
 EXTH_CODES = {
     'creator': 100,
@@ -43,33 +52,54 @@ EXTH_CODES = {
     'title': 503,
     }
 
+RECORD_SIZE = 0x1000
+
 UNCOMPRESSED = 1
 PALMDOC = 2
 HUFFDIC = 17480
 
-def encode(data):
-    return data.encode('ascii', 'xmlcharrefreplace')
+MAX_IMAGE_SIZE = 63 * 1024
+MAX_THUMB_SIZE = 16 * 1024
+MAX_THUMB_DIMEN = (180, 240)
 
+def encode(data):
+    return data.encode('utf-8')
+
+# Almost like the one for MS LIT, but not quite.
+DECINT_FORWARD = 0
+DECINT_BACKWARD = 1
+def decint(value, direction):
+    bytes = []
+    while True:
+        b = value & 0x7f
+        value >>= 7
+        bytes.append(b)
+        if value == 0:
+            break
+    if direction == DECINT_FORWARD:
+        bytes[0] |= 0x80
+    elif direction == DECINT_BACKWARD:
+        bytes[-1] |= 0x80
+    return ''.join(chr(b) for b in reversed(bytes))
 
 
 class Serializer(object):
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
     
     def __init__(self, oeb, images):
+        oeb.logger.info('Serializing markup content...')
         self.oeb = oeb
         self.images = images
         self.id_offsets = {}
         self.href_offsets = defaultdict(list)
+        self.breaks = []
         buffer = self.buffer = StringIO()
         buffer.write('<html>')
         self.serialize_head()
         self.serialize_body()
         buffer.write('</html>')
         self.fixup_links()
-        self.raw = buffer.getvalue()
-
-    def __str__(self):
-        return self.raw
+        self.text = buffer.getvalue()
 
     def serialize_head(self):
         buffer = self.buffer
@@ -80,8 +110,12 @@ class Serializer(object):
 
     def serialize_guide(self):
         buffer = self.buffer
+        hrefs = self.oeb.manifest.hrefs
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
+            path, frag = urldefrag(ref.href)
+            if hrefs[path].media_type not in OEB_DOCS:
+                continue
             buffer.write('<reference title="%s" type="%s" '
                          % (ref.title, ref.type))
             self.serialize_href(ref.href)
@@ -100,8 +134,7 @@ class Serializer(object):
         if item and item.spine_position is None:
             return False
         id =  item.id if item else base.id
-        frag = frag if frag else 'calibre_top'
-        href = '#'.join((id, frag))
+        href = '#'.join((id, frag)) if frag else id
         buffer.write('filepos=')
         self.href_offsets[href].append(buffer.tell())
         buffer.write('0000000000')
@@ -110,23 +143,26 @@ class Serializer(object):
     def serialize_body(self):
         buffer = self.buffer
         buffer.write('<body>')
-        for item in self.oeb.spine:
+        spine = [item for item in self.oeb.spine if item.linear]
+        spine.extend([item for item in self.oeb.spine if not item.linear])
+        for item in spine:
             self.serialize_item(item)
         buffer.write('</body>')
 
     def serialize_item(self, item):
         buffer = self.buffer
-        buffer.write('<mbp:pagebreak/>')
-        # TODO: Figure out how to make the 'crossable' stuff work for
-        # non-"linear" spine items.
-        self.id_offsets[item.id + '#calibre_top'] = buffer.tell()
+        if not item.linear:
+            self.breaks.append(buffer.tell() - 1)
+        self.id_offsets[item.id] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
+        buffer.write('<mbp:pagebreak/>')
 
     def serialize_elem(self, elem, item, nsrmap=NSRMAP):
-        if namespace(elem.tag) not in nsrmap:
-            return
         buffer = self.buffer
+        if not isinstance(elem.tag, basestring) \
+           or namespace(elem.tag) not in nsrmap:
+            return
         hrefs = self.oeb.manifest.hrefs
         tag = prefixname(elem.tag, nsrmap)
         for attr in ('name', 'id'):
@@ -134,6 +170,9 @@ class Serializer(object):
                 id = '#'.join((item.id, elem.attrib[attr]))
                 self.id_offsets[id] = buffer.tell()
                 del elem.attrib[attr]
+        if tag == 'a' and not elem.attrib \
+           and not len(elem) and not elem.text:
+            return
         buffer.write('<')
         buffer.write(tag)
         if elem.attrib:
@@ -149,18 +188,29 @@ class Serializer(object):
                     index = self.images[val]
                     buffer.write('recindex="%05d"' % index)
                     continue
-                buffer.write('%s="%s"' % (attr, val))
+                buffer.write(attr)
+                buffer.write('="')
+                self.serialize_text(val, quot=True)
+                buffer.write('"')
         if elem.text or len(elem) > 0:
             buffer.write('>')
             if elem.text:
-                buffer.write(encode(elem.text))
+                self.serialize_text(elem.text)
             for child in elem:
                 self.serialize_elem(child, item)
+                if child.tail:
+                    self.serialize_text(child.tail)
             buffer.write('</%s>' % tag)
         else:
             buffer.write('/>')
-        if elem.tail:
-            buffer.write(encode(elem.tail))
+
+    def serialize_text(self, text, quot=False):
+        text = text.replace('&', '&amp;')
+        text = text.replace('<', '&lt;')
+        text = text.replace('>', '&gt;')
+        if quot:
+            text = text.replace('"', '&quot;')
+        self.buffer.write(encode(text))
 
     def fixup_links(self):
         buffer = self.buffer
@@ -172,8 +222,8 @@ class Serializer(object):
 
     
 class MobiWriter(object):
-    def __init__(self, compress=None, logger=FauxLogger()):
-        self._compress = compress or UNCOMPRESSED
+    def __init__(self, compression=None, logger=FauxLogger()):
+        self._compression = compression or UNCOMPRESSED
         self._logger = logger
 
     def dump(self, oeb, path):
@@ -207,42 +257,113 @@ class MobiWriter(object):
         index = 1
         self._images = images = {}
         for item in self._oeb.manifest.values():
-            if item.media_type.startswith('image/'):
+            if item.media_type in OEB_RASTER_IMAGES:
                 images[item.href] = index
                 index += 1
-        
+
+    def _read_text_record(self, text):
+        pos = text.tell()
+        text.seek(0, 2)
+        npos = min((pos + RECORD_SIZE, text.tell()))
+        last = ''
+        while not last.decode('utf-8', 'ignore'):
+            size = len(last) + 1
+            text.seek(npos - size)
+            last = text.read(size)
+        extra = 0
+        try:
+            last.decode('utf-8')
+        except UnicodeDecodeError:
+            prev = len(last)
+            while True:
+                text.seek(npos - prev)
+                last = text.read(len(last) + 1)
+                try:
+                    last.decode('utf-8')
+                except UnicodeDecodeError:
+                    pass
+                else:
+                    break
+            extra = len(last) - prev
+        text.seek(pos)
+        data = text.read(RECORD_SIZE)
+        overlap = text.read(extra)
+        text.seek(npos)
+        return data, overlap
+                
     def _generate_text(self):
         serializer = Serializer(self._oeb, self._images)
-        text = str(serializer)
+        breaks = serializer.breaks
+        text = serializer.text
         self._text_length = len(text)
         text = StringIO(text)
         nrecords = 0
-        data = text.read(0x1000)
+        offset = 0
+        data, overlap = self._read_text_record(text)
         while len(data) > 0:
-            nrecords += 1
-            if self._compress == PALMDOC:
+            if self._compression == PALMDOC:
                 data = compress_doc(data)
-            # Without the NUL Mobipocket Desktop 6.2 will thrash.  Why?
-            self._records.append(data + '\0')
-            data = text.read(0x1000)
+            record = StringIO()
+            record.write(data)
+            record.write(overlap)
+            record.write(pack('>B', len(overlap)))
+            nextra = 0
+            pbreak = 0
+            running = offset
+            while breaks and (breaks[0] - offset) < RECORD_SIZE:
+                pbreak = (breaks.pop(0) - running) >> 3
+                encoded = decint(pbreak, DECINT_FORWARD)
+                record.write(encoded)
+                running += pbreak << 3
+                nextra += len(encoded)
+            lsize = 1
+            while True:
+                size = decint(nextra + lsize, DECINT_BACKWARD)
+                if len(size) == lsize:
+                    break
+                lsize += 1
+            record.write(size)
+            self._records.append(record.getvalue())
+            nrecords += 1
+            offset += RECORD_SIZE
+            data, overlap = self._read_text_record(text)
         self._text_nrecords = nrecords
 
     def _rescale_image(self, data, maxsizeb, dimen=None):
-        if dimen is not None:
-            image = Image.open(StringIO(data))
-            image.thumbnail(dimen, Image.ANTIALIAS)
-            data = StringIO()
-            image.save(data, image.format)
-            data = data.getvalue()
-        if len(data) < maxsizeb:
-            return data
         image = Image.open(StringIO(data))
+        format = image.format
+        changed = False
+        if image.format not in ('JPEG', 'GIF'):
+            format = 'GIF'
+            changed = True
+        if dimen is not None:
+            image.thumbnail(dimen, Image.ANTIALIAS)
+            changed = True
+        if changed:
+            data = StringIO()
+            image.save(data, format)
+            data = data.getvalue()
+        if len(data) <= maxsizeb:
+            return data
+        image = image.convert('RGBA')
         for quality in xrange(95, -1, -1):
             data = StringIO()
             image.save(data, 'JPEG', quality=quality)
             data = data.getvalue()
             if len(data) <= maxsizeb:
-                break
+                return data
+        width, height = image.size
+        for scale in xrange(99, 0, -1):
+            scale = scale / 100.
+            data = StringIO()
+            scaled = image.copy()
+            size = (int(width * scale), (height * scale))
+            scaled.thumbnail(size, Image.ANTIALIAS)
+            scaled.save(data, 'JPEG', quality=0)
+            data = data.getvalue()
+            if len(data) <= maxsizeb:
+                return data
+        # Well, we tried?
         return data
         
     def _generate_images(self):
@@ -252,35 +373,37 @@ class MobiWriter(object):
         coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
-            maxsizek = 89 if coverid == item.id else 63
-            maxsizeb = maxsizek * 1024
-            data = self._rescale_image(item.data, maxsizeb)
+            data = self._rescale_image(item.data, MAX_IMAGE_SIZE)
             self._records.append(data)
     
     def _generate_record0(self):
         metadata = self._oeb.metadata
         exth = self._build_exth()
         record0 = StringIO()
-        record0.write(pack('>HHIHHHH', self._compress, 0, self._text_length,
-            self._text_nrecords, 0x1000, 0, 0))
+        record0.write(pack('>HHIHHHH', self._compression, 0,
+            self._text_length, self._text_nrecords, RECORD_SIZE, 0, 0))
         uid = random.randint(0, 0xffffffff)
         title = str(metadata.title[0])
         record0.write('MOBI')
-        record0.write(pack('>IIIII', 0xe8, 2, 65001, uid, 5))
+        record0.write(pack('>IIIII', 0xe8, 2, 65001, uid, 6))
         record0.write('\xff' * 40)
         record0.write(pack('>I', self._text_nrecords + 1))
         record0.write(pack('>II', 0xe8 + 16 + len(exth), len(title)))
         record0.write(iana2mobi(str(metadata.language[0])))
         record0.write('\0' * 8)
-        record0.write(pack('>II', 5, self._text_nrecords + 1))
+        record0.write(pack('>II', 6, self._text_nrecords + 1))
         record0.write('\0' * 16)
         record0.write(pack('>I', 0x50))
         record0.write('\0' * 32)
         record0.write(pack('>IIII', 0xffffffff, 0xffffffff, 0, 0))
-        # TODO: What the hell are these fields?
+        # The '5' is a bitmask of extra record data at the end:
+        #   - 0x1: <extra multibyte bytes><size> (?)
+        #   - 0x4: <uncrossable breaks><size>
+        # Of course, the formats aren't quite the same.
+        # TODO: What the hell are the rest of these fields?
         record0.write(pack('>IIIIIIIIIIIIIIIII',
             0, 0, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff, 0, 0xffffffff,
-            0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 1, 0xffffffff))
+            0, 0xffffffff, 0, 0xffffffff, 0xffffffff, 5, 0xffffffff))
         record0.write(exth)
         record0.write(title)
         record0 = record0.getvalue()
@@ -294,13 +417,13 @@ class MobiWriter(object):
             if term not in EXTH_CODES: continue
             code = EXTH_CODES[term]
             for item in oeb.metadata[term]:
-                data = str(item)
+                data = unicode(item).encode('utf-8')
                 exth.write(pack('>II', code, len(data) + 8))
                 exth.write(data)
                 nrecs += 1
         if oeb.metadata.cover:
             id = str(oeb.metadata.cover[0])
-            item = oeb.manifest[id]
+            item = oeb.manifest.ids[id]
             href = item.href
             index = self._images[href] - 1
             exth.write(pack('>III', 0xc9, 0x0c, index))
@@ -315,9 +438,7 @@ class MobiWriter(object):
         return ''.join(exth)
 
     def _add_thumbnail(self, item):
-        maxsizeb = 16 * 1024
-        dimen = (180, 240)
-        data = self._rescale_image(item.data, maxsizeb, dimen)
+        data = self._rescale_image(item.data, MAX_THUMB_SIZE, MAX_THUMB_DIMEN)
         manifest = self._oeb.manifest
         id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
         manifest.add(id, href, 'image/jpeg', data=data)
@@ -346,9 +467,24 @@ class MobiWriter(object):
 
 
 def main(argv=sys.argv):
+    from calibre.ebooks.oeb.base import DirWriter
     inpath, outpath = argv[1:]
+    context = Context('Firefox', 'MobiDesktop')
     oeb = OEBBook(inpath)
-    writer = MobiWriter()
+    #writer = MobiWriter(compression=PALMDOC)
+    writer = MobiWriter(compression=UNCOMPRESSED)
+    #writer = DirWriter()
+    fbase = context.dest.fbase
+    fkey = context.dest.fnums.values()
+    flattener = CSSFlattener(
+        fbase=fbase, fkey=fkey, unfloat=True, untable=True)
+    rasterizer = SVGRasterizer()
+    trimmer = ManifestTrimmer()
+    mobimlizer = MobiMLizer()
+    flattener.transform(oeb, context)
+    rasterizer.transform(oeb, context)
+    mobimlizer.transform(oeb, context)
+    trimmer.transform(oeb, context)
     writer.dump(oeb, outpath)
     return 0
 

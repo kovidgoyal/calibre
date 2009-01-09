@@ -2,10 +2,10 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Post installation script for linux '''
 import sys, os, re, shutil
-
 from subprocess import check_call, call
-from calibre import __version__, __appname__
+from tempfile import NamedTemporaryFile
 
+from calibre import __version__, __appname__
 from calibre.devices import devices
 
 DEVICES = devices()
@@ -401,9 +401,9 @@ def install_man_pages(fatal_errors):
     import subprocess
     print 'Installing MAN pages...'
     manpath = '/usr/share/man/man1'
-    f = open_file('/tmp/man_extra', 'wb')
+    f = NamedTemporaryFile()
     f.write('[see also]\nhttp://%s.kovidgoyal.net\n'%__appname__)
-    f.close()
+    f.flush()
     manifest = []
     os.environ['PATH'] += ':'+os.path.expanduser('~/bin')
     for src in entry_points['console_scripts']:

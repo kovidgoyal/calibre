@@ -9,25 +9,30 @@ import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Politika(BasicNewsRecipe):
-    title                 = u'Politika Online'
+    title                 = 'Politika Online'
     __author__            = 'Darko Miletic'
     description           = 'Najstariji dnevni list na Balkanu'    
-    oldest_article        = 7
+    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     extra_css             = '.content_center_border {text-align: left;}' 
     use_embedded_content  = False
-    timefmt               = ' [%A, %d %B, %Y]' 
+    cover_url = 'http://www.politika.rs:8080/images/politika.gif'
+    html2lrf_options = [
+                          '--comment', description
+                        , '--base-font-size', '10'
+                        , '--category', 'news, Serbia'
+                        , '--publisher', 'POLITIKA NOVINE I MAGAZINI d.o.o.'
+                        ]
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 
-    remove_tags_before = dict(name='div', attrs={'class':'content_center_border'})
+    keep_only_tags     = [ dict(name='div', attrs={'class':'contentcenter'}) ] 
     remove_tags_after  = dict(name='div', attrs={'class':'datum_item_details'})
 
     feeds          = [  
                          (u'Politika'             , u'http://www.politika.rs/rubrike/Politika/index.1.lt.xml'             )
                         ,(u'Svet'                 , u'http://www.politika.rs/rubrike/Svet/index.1.lt.xml'                 )
-                        ,(u'Redakcijski komentari', u'http://www.politika.rs/rubrike/redakcijski-komentari/index.1.lt.xml')
                         ,(u'Pogledi'              , u'http://www.politika.rs/pogledi/index.lt.xml'                        )
                         ,(u'Pogledi sa strane'    , u'http://www.politika.rs/rubrike/Pogledi-sa-strane/index.1.lt.xml'    )
                         ,(u'Tema dana'            , u'http://www.politika.rs/rubrike/tema-dana/index.1.lt.xml'            )

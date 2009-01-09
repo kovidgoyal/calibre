@@ -13,7 +13,7 @@ from calibre.utils.config import prefs
 from calibre.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
 from calibre.gui2.dialogs.epub import Config as EPUBConvert
 import calibre.gui2.dialogs.comicconf as ComicConf
-from calibre.gui2 import warning_dialog, dynamic
+from calibre.gui2 import warning_dialog
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_FORMATS
 from calibre.ebooks.metadata.opf import OPFCreator
@@ -22,7 +22,9 @@ from calibre.ebooks.epub.from_any import SOURCE_FORMATS as EPUB_PREFERRED_SOURCE
 def convert_single_epub(parent, db, comics, others):
     changed = False
     jobs = []
-    for row in others:
+    others_ids = [db.id(row) for row in others]
+    comics_ids = [db.id(row) for row in comics]
+    for row, row_id in zip(others, others_ids):
         temp_files = []
         d = EPUBConvert(parent, db, row)
         if d.source_format is not None:
@@ -44,10 +46,10 @@ def convert_single_epub(parent, db, comics, others):
                     opts.cover = d.cover_file.name
                 temp_files.extend([d.opf_file, pt, of])
                 jobs.append(('any2epub', args, _('Convert book: ')+d.mi.title, 
-                             'EPUB', db.id(row), temp_files))
+                             'EPUB', row_id, temp_files))
                 changed = True
                 
-    for row in comics:
+    for row, row_id in zip(comics, comics_ids):
         mi = db.get_metadata(row)
         title = author = _('Unknown')
         if mi.title:
@@ -76,7 +78,7 @@ def convert_single_epub(parent, db, comics, others):
         args = [pt.name, opts]
         changed = True
         jobs.append(('comic2epub', args, _('Convert comic: ')+opts.title, 
-                     'EPUB', db.id(row), [pt, of]))
+                     'EPUB', row_id, [pt, of]))
         
     return jobs, changed
     
@@ -85,7 +87,9 @@ def convert_single_epub(parent, db, comics, others):
 def convert_single_lrf(parent, db, comics, others):
     changed = False
     jobs = []
-    for row in others:
+    others_ids = [db.id(row) for row in others]
+    comics_ids = [db.id(row) for row in comics]
+    for row, row_id in zip(others, others_ids):
         temp_files = []
         d = LRFSingleDialog(parent, db, row)
         if d.selected_format:
@@ -104,10 +108,10 @@ def convert_single_lrf(parent, db, comics, others):
                     temp_files.append(d.cover_file)
                 temp_files.extend([pt, of])
                 jobs.append(('any2lrf', [cmdline], _('Convert book: ')+d.title(), 
-                             'LRF', db.id(row), temp_files))
+                             'LRF', row_id, temp_files))
                 changed = True
                 
-    for row in comics:
+    for row, row_id in zip(comics, comics_ids):
         mi = db.get_metadata(row)
         title = author = _('Unknown')
         if mi.title:
@@ -138,7 +142,7 @@ def convert_single_lrf(parent, db, comics, others):
         args = [pt.name, opts]
         changed = True
         jobs.append(('comic2lrf', args, _('Convert comic: ')+opts.title, 
-                     'LRF', db.id(row), [pt, of]))
+                     'LRF', row_id, [pt, of]))
         
     return jobs, changed
 
@@ -162,6 +166,7 @@ def convert_bulk_epub(parent, db, comics, others):
     parent.status_bar.showMessage(_('Starting Bulk conversion of %d books')%total, 2000)
     
     for i, row in enumerate(others+comics):
+        row_id = db.id(row)
         if row in others:
             data = None
             for fmt in EPUB_PREFERRED_SOURCE_FORMATS:
@@ -198,7 +203,7 @@ def convert_bulk_epub(parent, db, comics, others):
             desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
             temp_files = [cf] if cf is not None else []
             temp_files.extend([opf_file, pt, of])
-            jobs.append(('any2epub', args, desc, 'EPUB', db.id(row), temp_files))
+            jobs.append(('any2epub', args, desc, 'EPUB', row_id, temp_files))
         else:
             options = comic_opts.copy()
             mi = db.get_metadata(row)
@@ -224,7 +229,7 @@ def convert_bulk_epub(parent, db, comics, others):
             options.verbose = 1
             args = [pt.name, options]
             desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            jobs.append(('comic2epub', args, desc, 'EPUB', db.id(row), [pt, of]))        
+            jobs.append(('comic2epub', args, desc, 'EPUB', row_id, [pt, of]))        
         
     if bad_rows:
         res = []
@@ -255,6 +260,7 @@ def convert_bulk_lrf(parent, db, comics, others):
     parent.status_bar.showMessage(_('Starting Bulk conversion of %d books')%total, 2000)
     
     for i, row in enumerate(others+comics):
+        row_id = db.id(row)
         if row in others:
             cmdline = list(d.cmdline)
             mi = db.get_metadata(row)
@@ -294,7 +300,7 @@ def convert_bulk_lrf(parent, db, comics, others):
             desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
             temp_files = [cf] if cf is not None else []
             temp_files.extend([pt, of])
-            jobs.append(('any2lrf', [cmdline], desc, 'LRF', db.id(row), temp_files))
+            jobs.append(('any2lrf', [cmdline], desc, 'LRF', row_id, temp_files))
         else:
             options = comic_opts.copy()
             mi = db.get_metadata(row)
@@ -320,7 +326,7 @@ def convert_bulk_lrf(parent, db, comics, others):
             options.verbose = 1
             args = [pt.name, options]
             desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            jobs.append(('comic2lrf', args, desc, 'LRF', db.id(row), [pt, of]))        
+            jobs.append(('comic2lrf', args, desc, 'LRF', row_id, [pt, of]))        
         
     if bad_rows:
         res = []

@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>866</width>
-    <height>671</height>
+    <height>679</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -115,7 +115,7 @@
           <item row="0" column="0" >
            <widget class="QStackedWidget" name="stack" >
             <property name="currentIndex" >
-             <number>0</number>
+             <number>1</number>
             </property>
             <widget class="QWidget" name="metadata_page" >
              <layout class="QHBoxLayout" >
@@ -652,7 +652,7 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="0" >
+                 <item row="2" column="0" >
                   <widget class="QLabel" name="label_10" >
                    <property name="text" >
                     <string>&amp;Header format:</string>
@@ -662,8 +662,25 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1" >
+                 <item row="2" column="1" >
                   <widget class="QLineEdit" name="gui_headerformat" />
+                 </item>
+                 <item row="1" column="1" >
+                  <widget class="QSpinBox" name="gui_header_separation" >
+                   <property name="suffix" >
+                    <string> px</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" >
+                  <widget class="QLabel" name="label_29" >
+                   <property name="text" >
+                    <string>Header &amp;separation:</string>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>gui_header_separation</cstring>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </widget>
@@ -985,8 +1002,8 @@
              <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
-&lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
-&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">&lt;/p>&lt;/body>&lt;/html></string>
+&lt;/style>&lt;/head>&lt;body style=" font-family:'Sans Serif'; font-size:10pt; font-weight:400; font-style:normal;">
+&lt;p style="-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'DejaVu Sans';">&lt;/p>&lt;/body>&lt;/html></string>
             </property>
            </widget>
           </item>
@@ -1078,12 +1095,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>650</x>
-     <y>122</y>
+     <x>308</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>788</x>
-     <y>140</y>
+     <x>308</x>
+     <y>74</y>
     </hint>
    </hints>
   </connection>
@@ -1094,12 +1111,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>543</x>
-     <y>122</y>
+     <x>308</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>544</x>
-     <y>211</y>
+     <x>308</x>
+     <y>74</y>
     </hint>
    </hints>
   </connection>
@@ -1110,12 +1127,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>298</x>
-     <y>398</y>
+     <x>308</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>660</x>
-     <y>435</y>
+     <x>308</x>
+     <y>74</y>
     </hint>
    </hints>
   </connection>
@@ -1126,12 +1143,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>330</x>
-     <y>367</y>
+     <x>345</x>
+     <y>363</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>823</x>
-     <y>372</y>
+     <x>837</x>
+     <y>435</y>
     </hint>
    </hints>
   </connection>
@@ -1142,12 +1159,28 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>344</x>
-     <y>107</y>
+     <x>308</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>489</x>
-     <y>465</y>
+     <x>308</x>
+     <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gui_header</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>gui_header_separation</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>261</x>
+     <y>346</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>379</x>
+     <y>378</y>
     </hint>
    </hints>
   </connection>

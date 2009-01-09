@@ -314,10 +314,22 @@ def opf_traverse(opf_reader, verbose=0, encoding=None):
             
 
 convert_entities = functools.partial(entity_to_unicode, exceptions=['quot', 'apos', 'lt', 'gt', 'amp'])
+_span_pat = re.compile('<span.*?</span>', re.DOTALL|re.IGNORECASE)
+
+def sanitize_head(match):
+    x = match.group(1)
+    x = _span_pat.sub('', x)
+    return '<head>\n'+x+'\n</head>'
+    
 class PreProcessor(object):
     PREPROCESS = [
+                  # Some idiotic HTML generators (Frontpage I'm looking at you)
+                  # Put all sorts of crap into <head>. This messes up lxml
+                  (re.compile(r'<head[^>]*>(.*?)</head>', re.IGNORECASE|re.DOTALL), 
+                   sanitize_head),
                   # Convert all entities, since lxml doesn't handle them well
                   (re.compile(r'&(\S+?);'), convert_entities),
+                  
                   ]
                      
     # Fix pdftohtml markup
@@ -446,6 +458,8 @@ class Parser(PreProcessor, LoggingInterface):
     def parse_html(self):
         ''' Create lxml ElementTree from HTML '''
         self.log_info('\tParsing '+os.sep.join(self.htmlfile.path.split(os.sep)[-3:]))
+        if self.htmlfile.is_binary:
+            raise ValueError('Not a valid HTML file: '+self.htmlfile.path)
         src = open(self.htmlfile.path, 'rb').read().decode(self.htmlfile.encoding, 'replace').strip()
         src = src.replace('\x00', '')
         src = self.preprocess(src)
@@ -776,7 +790,10 @@ class Processor(Parser):
                 size = '3'
             if size and size.strip() and size.strip()[0] in ('+', '-'):
                 size = 3 + float(size) # Hack assumes basefont=3
-            setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
+            try:
+                setting = 'font-size: %d%%;'%int((float(size)/3) * 100)
+            except ValueError:
+                setting = ''
             face = font.attrib.pop('face', None)
             if face is not None:
                 setting += 'font-face:%s;'%face
@@ -809,7 +826,7 @@ class Processor(Parser):
         
         css = '\n'.join(['.%s {%s;}'%(cn, setting) for \
                          setting, cn in cache.items()])
-        sheet = self.css_parser.parseString(self.preprocess_css(css))
+        sheet = self.css_parser.parseString(self.preprocess_css(css.replace(';;}', ';}')))
         for rule in sheet:
             self.stylesheet.add(rule)
         css = ''
@@ -875,7 +892,7 @@ def option_parser():
 %prog [options] file.html|opf
 
 Follow all links in an HTML file and collect them into the specified directory.
-Also collects any references resources like images, stylesheets, scripts, etc. 
+Also collects any resources like images, stylesheets, scripts, etc. 
 If an OPF file is specified instead, the list of files in its <spine> element
 is used.
 '''))

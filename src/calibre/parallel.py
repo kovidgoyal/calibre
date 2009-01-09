@@ -31,7 +31,7 @@ from threading import RLock, Thread, Event
 from math import ceil
 
 from calibre.ptempfile import PersistentTemporaryFile
-from calibre import iswindows, detect_ncpus, isosx
+from calibre import iswindows, detect_ncpus, isosx, preferred_encoding
 from calibre.utils.config import prefs
 
 DEBUG = False
@@ -614,8 +614,10 @@ class Job(object):
             if isinstance(self.log, str):
                 self.log = unicode(self.log, 'utf-8', 'replace')
             ans.extend(self.log.split('\n'))
-            
-        return '<br>'.join(ans)
+        
+        ans = [x.decode(preferred_encoding, 'replace') if isinstance(x, str) else x for x in ans]
+        
+        return u'<br>'.join(ans)
 
 
 class ParallelJob(Job):

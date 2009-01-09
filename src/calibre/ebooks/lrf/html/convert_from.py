@@ -245,7 +245,6 @@ class HTMLConverter(object, LoggingInterface):
         
         self.override_css = {}
         self.override_pcss = {}
-        self.table_render_job_server = None
          
         if self._override_css is not None:
             if os.access(self._override_css, os.R_OK):
@@ -266,41 +265,37 @@ class HTMLConverter(object, LoggingInterface):
         paths = [os.path.abspath(path) for path in paths]
         paths = [path.decode(sys.getfilesystemencoding()) if not isinstance(path, unicode) else path for path in paths]
         
-        try:
-            while len(paths) > 0 and self.link_level <= self.link_levels:
-                for path in paths:
-                    if path in self.processed_files:
-                        continue
-                    try:
-                        self.add_file(path)
-                    except KeyboardInterrupt:
+        while len(paths) > 0 and self.link_level <= self.link_levels:
+            for path in paths:
+                if path in self.processed_files:
+                    continue
+                try:
+                    self.add_file(path)
+                except KeyboardInterrupt:
+                    raise
+                except:
+                    if self.link_level == 0: # Die on errors in the first level
                         raise
-                    except:
-                        if self.link_level == 0: # Die on errors in the first level
-                            raise
-                        for link in self.links:
-                            if link['path'] == path:
-                                self.links.remove(link)
-                                break
-                        self.log_warn('Could not process '+path)
-                        if self.verbose:
-                            self.log_exception(' ')
-                self.links = self.process_links()
-                self.link_level += 1
-                paths = [link['path'] for link in self.links]
-                
-            if self.current_page is not None and self.current_page.has_text():
-                self.book.append(self.current_page)
-                
-            for text, tb in self.extra_toc_entries:
-                self.book.addTocEntry(text, tb)
-                
-            if self.base_font_size > 0:
-                self.log_info('\tRationalizing font sizes...')
-                self.book.rationalize_font_sizes(self.base_font_size)
-        finally:
-            if self.table_render_job_server is not None:
-                self.table_render_job_server.killall()
+                    for link in self.links:
+                        if link['path'] == path:
+                            self.links.remove(link)
+                            break
+                    self.log_warn('Could not process '+path)
+                    if self.verbose:
+                        self.log_exception(' ')
+            self.links = self.process_links()
+            self.link_level += 1
+            paths = [link['path'] for link in self.links]
+            
+        if self.current_page is not None and self.current_page.has_text():
+            self.book.append(self.current_page)
+            
+        for text, tb in self.extra_toc_entries:
+            self.book.addTocEntry(text, tb)
+            
+        if self.base_font_size > 0:
+            self.log_info('\tRationalizing font sizes...')
+            self.book.rationalize_font_sizes(self.base_font_size)
         
     def is_baen(self, soup):
         return bool(soup.find('meta', attrs={'name':'Publisher', 
@@ -1732,15 +1727,11 @@ class HTMLConverter(object, LoggingInterface):
                 self.process_children(tag, tag_css, tag_pseudo_css)
             elif tagname == 'table' and not self.ignore_tables and not self.in_table:
                 if self.render_tables_as_images:
-                    if self.table_render_job_server is None:
-                        from calibre.parallel import Server
-                        self.table_render_job_server = Server(number_of_workers=1)
                     print 'Rendering table...'
                     from calibre.ebooks.lrf.html.table_as_image import render_table
                     pheight = int(self.current_page.pageStyle.attrs['textheight'])
                     pwidth  = int(self.current_page.pageStyle.attrs['textwidth'])
-                    images = render_table(self.table_render_job_server,
-                                          self.soup, tag, tag_css, 
+                    images = render_table(self.soup, tag, tag_css, 
                                           os.path.dirname(self.target_prefix), 
                                           pwidth, pheight, self.profile.dpi, 
                                           self.text_size_multiplier_for_rendered_tables)
@@ -1906,6 +1897,8 @@ def process_file(path, options, logger=None):
     fpb = re.compile(options.force_page_break, re.IGNORECASE) if options.force_page_break else \
          re.compile('$')
     cq = options.chapter_attr.split(',')
+    if len(cq) < 3:
+        raise ValueError('The --chapter-attr setting must have 2 commas.')
     options.chapter_attr = [re.compile(cq[0], re.IGNORECASE), cq[1], 
                             re.compile(cq[2], re.IGNORECASE)]
     options.force_page_break = fpb
@@ -1933,7 +1926,7 @@ def process_file(path, options, logger=None):
     oname = os.path.abspath(os.path.expanduser(oname))
     conv.writeto(oname, lrs=options.lrs)
     run_plugins_on_postprocess(oname, 'lrf')
-    logger.info('Output written to %s', oname)
+    conv.log_info('Output written to %s', oname)
     conv.cleanup()
     return oname
     
@@ -1980,17 +1973,7 @@ def try_opf(path, options, logger):
                         PILImage.open(cover)
                         options.cover = cover
                     except:
-                        for prefix in opf.possible_cover_prefixes():
-                            if options.cover:
-                                break
-                            for suffix in ['.jpg', '.jpeg', '.gif', '.png', '.bmp']:
-                                cpath = os.path.join(os.path.dirname(path), prefix+suffix)
-                                try:
-                                    PILImage.open(cpath)
-                                    options.cover = cpath
-                                    break
-                                except:
-                                    continue
+                        pass
             if not getattr(options, 'cover', None) and orig_cover is not None:
                 options.cover = orig_cover
         if getattr(opf, 'spine', False):

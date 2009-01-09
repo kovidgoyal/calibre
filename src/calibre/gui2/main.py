@@ -3,11 +3,11 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import os, sys, textwrap, collections, traceback, time
 from xml.parsers.expat import ExpatError
 from functools import partial
-from PyQt4.QtCore import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer
-from PyQt4.QtGui import QPixmap, QColor, QPainter, QMenu, QIcon, QMessageBox, \
-                        QToolButton, QDialog, QDesktopServices, QFileDialog, \
-                        QSystemTrayIcon, QApplication, QKeySequence, QAction, \
-                        QProgressDialog
+from PyQt4.Qt import Qt, SIGNAL, QObject, QCoreApplication, QUrl, QTimer, \
+                     QModelIndex, QPixmap, QColor, QPainter, QMenu, QIcon, \
+                     QToolButton, QDialog, QDesktopServices, QFileDialog, \
+                     QSystemTrayIcon, QApplication, QKeySequence, QAction, \
+                     QProgressDialog, QMessageBox, QStackedLayout
 from PyQt4.QtSvg import QSvgRenderer
 
 from calibre import __version__, __appname__, islinux, sanitize_file_name, \
@@ -22,7 +22,8 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            pixmap_to_data, choose_dir, ORG_NAME, \
                            set_sidebar_directories, Dispatcher, \
                            SingleApplication, Application, available_height, \
-                           max_available_height, config, info_dialog
+                           max_available_height, config, info_dialog, \
+                           available_width
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
@@ -49,6 +50,7 @@ from calibre.library.database2 import LibraryDatabase2, CoverCache
 from calibre.parallel import JobKilled
 from calibre.utils.filenames import ascii_filename
 from calibre.gui2.widgets import WarningDialog
+from calibre.gui2.dialogs.confirm_delete import confirm
 
 class Main(MainWindow, Ui_MainWindow):
 
@@ -187,8 +189,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.metadata_menu = md
         self.add_menu = QMenu()
         self.add_menu.addAction(_('Add books from a single directory'))
-        self.add_menu.addAction(_('Add books recursively (One book per directory, assumes every ebook file is the same book in a different format)'))
-        self.add_menu.addAction(_('Add books recursively (Multiple books per directory, assumes every ebook file is a different book)'))
+        self.add_menu.addAction(_('Add books from directories, including sub-directories (One book per directory, assumes every ebook file is the same book in a different format)'))
+        self.add_menu.addAction(_('Add books from directories, including sub directories (Multiple books per directory, assumes every ebook file is a different book)'))
         self.action_add.setMenu(self.add_menu)
         QObject.connect(self.action_add, SIGNAL("triggered(bool)"), self.add_books)
         QObject.connect(self.add_menu.actions()[0], SIGNAL("triggered(bool)"), self.add_books)
@@ -307,7 +309,6 @@ class Main(MainWindow, Ui_MainWindow):
                 db = LibraryDatabase2(self.library_path)
         self.library_view.set_database(db)
         if self.olddb is not None:
-            from PyQt4.QtGui import QProgressDialog
             pd = QProgressDialog('', '', 0, 100, self)
             pd.setWindowModality(Qt.ApplicationModal)
             pd.setCancelButton(None)
@@ -342,9 +343,16 @@ class Main(MainWindow, Ui_MainWindow):
         ########################### Cover Flow ################################
         self.cover_flow = None
         if CoverFlow is not None:
-            self.cover_flow = CoverFlow(height=220 if available_height() > 950 else 170 if available_height() > 850 else 140)
+            text_height = 40 if config['separate_cover_flow'] else 25
+            ah = available_height()
+            cfh = ah-100
+            cfh = 3./5 * cfh - text_height
+            if not config['separate_cover_flow']:
+                cfh = 220 if ah > 950 else 170 if ah > 850 else 140
+            self.cover_flow = CoverFlow(height=cfh, text_height=text_height)
             self.cover_flow.setVisible(False)
-            self.library.layout().addWidget(self.cover_flow)
+            if not config['separate_cover_flow']:
+                self.library.layout().addWidget(self.cover_flow)
             self.connect(self.cover_flow, SIGNAL('currentChanged(int)'), self.sync_cf_to_listview)
             self.connect(self.cover_flow, SIGNAL('itemActivated(int)'), self.show_book_info)
             self.connect(self.status_bar.cover_flow_button, SIGNAL('toggled(bool)'), self.toggle_cover_flow)
@@ -410,17 +418,40 @@ class Main(MainWindow, Ui_MainWindow):
                 
     
     def toggle_cover_flow(self, show):
-        if show:
-            self.library_view.setCurrentIndex(self.library_view.currentIndex())
-            self.cover_flow.setVisible(True)
-            self.cover_flow.setFocus(Qt.OtherFocusReason)
-            #self.status_bar.book_info.book_data.setMaximumHeight(100)
-            #self.status_bar.setMaximumHeight(120)
-            self.library_view.scrollTo(self.library_view.currentIndex())
+        if config['separate_cover_flow']:
+            if show:
+                d = QDialog(self)
+                ah, aw = available_height(), available_width()
+                d.resize(int(aw/2.), ah-60)
+                d._layout = QStackedLayout()
+                d.setLayout(d._layout)
+                d.setWindowTitle(_('Browse by covers'))
+                d.layout().addWidget(self.cover_flow)
+                self.cover_flow.setVisible(True)
+                self.cover_flow.setFocus(Qt.OtherFocusReason)
+                self.library_view.scrollTo(self.library_view.currentIndex())
+                d.show()
+                self.connect(d, SIGNAL('finished(int)'), 
+                             lambda x: self.status_bar.cover_flow_button.setChecked(False))
+                self.cf_dialog = d
+            else:
+                cfd = getattr(self, 'cf_dialog', None)
+                if cfd is not None:
+                    self.cover_flow.setVisible(False)
+                    cfd.hide()
+                    self.cf_dialog = None
         else:
-            self.cover_flow.setVisible(False)
-            #self.status_bar.book_info.book_data.setMaximumHeight(1000)
-        self.setMaximumHeight(available_height())
+            if show:
+                self.library_view.setCurrentIndex(self.library_view.currentIndex())
+                self.cover_flow.setVisible(True)
+                self.cover_flow.setFocus(Qt.OtherFocusReason)
+                #self.status_bar.book_info.book_data.setMaximumHeight(100)
+                #self.status_bar.setMaximumHeight(120)
+                self.library_view.scrollTo(self.library_view.currentIndex())
+            else:
+                self.cover_flow.setVisible(False)
+                #self.status_bar.book_info.book_data.setMaximumHeight(1000)
+            self.setMaximumHeight(available_height())
 
     def toggle_tags_view(self, show):
         if show:
@@ -583,7 +614,8 @@ class Main(MainWindow, Ui_MainWindow):
         try:
             duplicates = self.library_view.model().db.recursive_import(root, single, callback=callback)
         finally:
-            progress.close()
+            progress.hide()
+            progress.close()            
         if duplicates:
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
             for mi, formats in duplicates:
@@ -702,7 +734,9 @@ class Main(MainWindow, Ui_MainWindow):
             else:
                 self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
         finally:
-            progress.setValue(len(paths))
+            progress.setValue(progress.maximum())
+            progress.hide()
+            progress.close()
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
@@ -758,13 +792,9 @@ class Main(MainWindow, Ui_MainWindow):
         rows = view.selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             return
-        if config['confirm_delete']:
-            d = question_dialog(self, _('Confirm delete'), 
-                            _('Are you sure you want to delete these %d books?')%len(rows))
-            if d.exec_() != QMessageBox.Yes:
-                return
-            
         if self.stack.currentIndex() == 0:
+            if not confirm('<p>'+_('The selected books will be <b>permanently deleted</b> and the files removed from your computer. Are you sure?')+'</p>', 'library_delete_books', self):
+                return
             view.model().delete_books(rows)
         else:
             view = self.memory_view if self.stack.currentIndex() == 1 else self.card_view
@@ -801,6 +831,7 @@ class Main(MainWindow, Ui_MainWindow):
         Edit metadata of selected books in library.
         '''
         rows = self.library_view.selectionModel().selectedRows()
+        previous = self.library_view.currentIndex()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot edit metadata'), _('No books selected'))
             d.exec_()
@@ -817,7 +848,10 @@ class Main(MainWindow, Ui_MainWindow):
                                     self.library_view.model().db,
                                     accepted_callback=accepted)
             d.exec_()
-
+        if rows:
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
+            
     def edit_bulk_metadata(self, checked):
         '''
         Edit metadata of selected books in library in bulk.
@@ -1046,6 +1080,8 @@ class Main(MainWindow, Ui_MainWindow):
     def convert_single(self, checked):
         r = self.get_books_for_conversion()
         if r is None: return
+        previous = self.library_view.currentIndex()
+        rows = [x.row() for x in self.library_view.selectionModel().selectedRows()]
         comics, others = r
         jobs, changed = convert_single_ebook(self, self.library_view.model().db, comics, others)
         for func, args, desc, fmt, id, temp_files in jobs:
@@ -1054,8 +1090,9 @@ class Main(MainWindow, Ui_MainWindow):
             self.conversion_jobs[job] = (temp_files, fmt, id)
             
         if changed:
-            self.library_view.model().resort(reset=False)
-            self.library_view.model().research()
+            self.library_view.model().refresh_rows(rows)
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, previous)
                     
     def book_converted(self, job):
         temp_files, fmt, book_id = self.conversion_jobs.pop(job)
@@ -1074,6 +1111,9 @@ class Main(MainWindow, Ui_MainWindow):
                         os.remove(f.name)
                 except:
                     pass
+        if self.current_view() is self.library_view:
+            current = self.library_view.currentIndex()
+            self.library_view.model().current_changed(current, QModelIndex())
     
     #############################View book######################################
 
@@ -1206,7 +1246,6 @@ class Main(MainWindow, Ui_MainWindow):
                     newloc = d.database_location
                     if not os.path.exists(os.path.join(newloc, 'metadata.db')):
                         if os.access(self.library_path, os.R_OK):
-                            from PyQt4.QtGui import QProgressDialog
                             pd = QProgressDialog('', '', 0, 100, self)
                             pd.setWindowModality(Qt.ApplicationModal)
                             pd.setCancelButton(None)
@@ -1385,9 +1424,14 @@ in which you want to store your books files. Any existing books will be automati
             self.memory_view.write_settings()
     
     def quit(self, checked, restart=False):
-        if self.shutdown():
-            self.restart_after_quit = restart
-            QApplication.instance().quit()
+        if not self.confirm_quit():
+            return
+        try:
+            self.shutdown()
+        except:
+            pass
+        self.restart_after_quit = restart
+        QApplication.instance().quit()
             
     def donate(self):
         BUTTON = '''
@@ -1418,22 +1462,26 @@ in which you want to store your books files. Any existing books will be automati
         QDesktopServices.openUrl(QUrl.fromLocalFile(pt.name))
             
     
-    def shutdown(self):
-        msg = _('There are active jobs. Are you sure you want to quit?')
-        if self.job_manager.has_device_jobs():
-            msg = '<p>'+__appname__ + _(''' is communicating with the device!<br>
-                  'Quitting may cause corruption on the device.<br>
-                  'Are you sure you want to quit?''')+'</p>'
+    def confirm_quit(self):
         if self.job_manager.has_jobs():
+            msg = _('There are active jobs. Are you sure you want to quit?')
+            if self.job_manager.has_device_jobs():
+                msg = '<p>'+__appname__ + _(''' is communicating with the device!<br>
+                      'Quitting may cause corruption on the device.<br>
+                      'Are you sure you want to quit?''')+'</p>'
+            
             d = QMessageBox(QMessageBox.Warning, _('WARNING: Active jobs'), msg,
                             QMessageBox.Yes|QMessageBox.No, self)
             d.setIconPixmap(QPixmap(':/images/dialog_warning.svg'))
             d.setDefaultButton(QMessageBox.No)
             if d.exec_() != QMessageBox.Yes:
                 return False
+        return True
 
-        self.job_manager.terminate_all_jobs()
+    
+    def shutdown(self):
         self.write_settings()
+        self.job_manager.terminate_all_jobs()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
         self.hide()
@@ -1459,7 +1507,11 @@ in which you want to store your books files. Any existing books will be automati
             self.hide()
             e.ignore()
         else:
-            if self.shutdown():
+            if self.confirm_quit():
+                try:
+                    self.shutdown()
+                except:
+                    pass
                 e.accept()
             else:
                 e.ignore()

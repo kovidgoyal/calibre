@@ -9,14 +9,19 @@ import string,re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class Novosti(BasicNewsRecipe):
-    title                 = u'Vecernje Novosti'
-    __author__            = u'Darko Miletic'
-    description           = u'Vesti'
-    oldest_article        = 7
+    title                 = 'Vecernje Novosti'
+    __author__            = 'Darko Miletic'
+    description           = 'novosti, vesti, politika, dosije, drustvo, ekonomija, hronika, reportaze, svet, kultura, sport, beograd, regioni, mozaik, feljton, intrvju, pjer, fudbal, kosarka, podvig, arhiva, komentari, kolumne, srbija, republika srpska,Vecernje novosti'
+    oldest_article        = 2
     max_articles_per_feed = 100
     no_stylesheets        = True
     use_embedded_content  = False
-    timefmt               = ' [%A, %d %B, %Y]' 
+    html2lrf_options = [
+                          '--comment', description
+                        , '--base-font-size', '10'
+                        , '--category', 'news, Serbia'
+                        , '--publisher', 'Novosti AD'
+                        ]
 
     preprocess_regexps = [(re.compile(u'\u0110'), lambda match: u'\u00D0')]
 

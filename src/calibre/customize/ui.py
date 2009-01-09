@@ -105,30 +105,43 @@ def reread_metadata_plugins():
     for plugin in _initialized_plugins:
         if isinstance(plugin, MetadataReaderPlugin):
             for ft in plugin.file_types:
-                _metadata_readers[ft] = plugin
+                if not _metadata_readers.has_key(ft):
+                    _metadata_readers[ft] = []
+                _metadata_readers[ft].append(plugin)
         elif isinstance(plugin, MetadataWriterPlugin):
             for ft in plugin.file_types:
-                _metadata_writers[ft] = plugin 
+                if not _metadata_writers.has_key(ft):
+                    _metadata_writers[ft] = []
+                _metadata_writers[ft].append(plugin) 
+                
+    
                 
 def get_file_type_metadata(stream, ftype):
     mi = MetaInformation(None, None)
-    try:
-        plugin = _metadata_readers[ftype.lower().strip()]
-        if not is_disabled(plugin):
-            with plugin:
-                mi = plugin.get_metadata(stream, ftype.lower().strip())
-    except:
-        pass
+    ftype = ftype.lower().strip()
+    if _metadata_readers.has_key(ftype):
+        for plugin in _metadata_readers[ftype]:
+            if not is_disabled(plugin):
+                with plugin:
+                    try:
+                        mi = plugin.get_metadata(stream, ftype.lower().strip())
+                        break
+                    except:
+                        continue
     return mi
 
 def set_file_type_metadata(stream, mi, ftype):
-    try:
-        plugin = _metadata_writers[ftype.lower().strip()]
-        if not is_disabled(plugin):
-            with plugin:
-                plugin.set_metadata(stream, mi, ftype.lower().strip())
-    except:
-        traceback.print_exc()
+    ftype = ftype.lower().strip()
+    if _metadata_writers.has_key(ftype):
+        for plugin in _metadata_writers[ftype]:
+            if not is_disabled(plugin):
+                with plugin:
+                    try:
+                        plugin.set_metadata(stream, mi, ftype.lower().strip())
+                        break
+                    except:
+                        traceback.print_exc()
+    
                 
 def _run_filetype_plugins(path_to_file, ft=None, occasion='preprocess'):
     occasion = {'import':_on_import, 'preprocess':_on_preprocess, 
@@ -185,6 +198,20 @@ def add_plugin(path_to_zip_file):
     initialize_plugins()
     return plugin
 
+def remove_plugin(plugin_or_name):
+    name = getattr(plugin_or_name, 'name', plugin_or_name)
+    plugins = config['plugins']
+    removed = False
+    if name in plugins.keys():
+        removed = True
+        zfp = plugins[name]
+        if os.path.exists(zfp):
+            os.remove(zfp)
+        plugins.pop(name)
+    config['plugins'] = plugins
+    initialize_plugins()
+    return removed
+
 def is_disabled(plugin):
     return plugin.name in config['disabled_plugins']
 
@@ -237,6 +264,8 @@ def option_parser():
     '''))
     parser.add_option('-a', '--add-plugin', default=None, 
                       help=_('Add a plugin by specifying the path to the zip file containing it.'))
+    parser.add_option('-r', '--remove-plugin', default=None, 
+                      help=_('Remove a custom plugin by name. Has no effect on builtin plugins'))
     parser.add_option('--customize-plugin', default=None,
                       help=_('Customize plugin. Specify name of plugin and customization string separated by a comma.'))
     parser.add_option('-l', '--list-plugins', default=False, action='store_true',
@@ -267,6 +296,11 @@ def main(args=sys.argv):
     if opts.add_plugin is not None:
         plugin = add_plugin(opts.add_plugin)
         print 'Plugin added:', plugin.name, plugin.version
+    if opts.remove_plugin is not None:
+        if remove_plugin(opts.remove_plugin):
+            print 'Plugin removed'
+        else:
+            print 'No custom pluginnamed', opts.remove_plugin
     if opts.customize_plugin is not None:
         name, custom = opts.customize_plugin.split(',')
         plugin = find_plugin(name.strip())

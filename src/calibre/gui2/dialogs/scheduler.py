@@ -155,10 +155,11 @@ class RecipeModel(QAbstractListModel, SearchQueryParser):
             return recipe
         elif role == Qt.DecorationRole:
             icon = self.default_icon
+            icon_path = (':/images/news/%s.png'%recipe.id).replace('recipe_', '') 
             if not recipe.builtin:
                 icon = self.custom_icon
-            elif QFile(':/images/news/%s.png'%recipe.id).exists():
-                icon = QIcon(':/images/news/%s.png'%recipe.id)
+            elif QFile().exists(icon_path):
+                icon = QIcon(icon_path)
             return QVariant(icon)
         
         return NONE

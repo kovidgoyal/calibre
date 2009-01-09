@@ -21,7 +21,7 @@ from lxml import etree
 
 def range_for_month(year, month):
     ty, tm = date.today().year, date.today().month
-    min = date(year=year, month=month, day=1)
+    min = max = date(year=year, month=month, day=1)
     x = date.today().day if ty == year and tm == month else 31
     while x > 1:
         try:
@@ -102,6 +102,8 @@ class Stats:
 
     def get_deviation(self, amounts):
         l = float(len(amounts))
+        if l == 0:
+            return 0
         mean = sum(amounts)/l
         return sqrt( sum([i**2 for i in amounts])/l - mean**2  )
 
@@ -199,7 +201,7 @@ class Server(object):
         x = list(range(days-1, -1, -1))
         y = stats.daily_totals
         ax.plot(x, y)#, align='center', width=20, color='g')
-        ax.set_xlabel('Day')
+        ax.set_xlabel('Days ago')
         ax.set_ylabel('Income ($)')
         ax.hlines([stats.daily_average], 0, days-1)
         ax.set_xlim([0, days-1])

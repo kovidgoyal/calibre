@@ -35,7 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-@namespace url(http://www.w3.org/1999/xhtml); /* set default namespace to HTML */
+@namespace url(http://www.w3.org/1999/xhtml);
+@namespace svg url(http://www.w3.org/2000/svg);
 
 /* blocks */
 
@@ -399,3 +400,8 @@ br {
   display: block;
 }
 
+/* Images, embedded object, and SVG size defaults */
+img, object, svg|svg {
+    width: auto;
+    height: auto;
+}

@@ -2,7 +2,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal kovid@kovidgoyal.net'
 __docformat__ = 'restructuredtext en'
 __appname__   = 'calibre'
-__version__   = '0.4.121'
+__version__   = '0.4.126'
 __author__    = "Kovid Goyal <kovid@kovidgoyal.net>"
 '''
 Various run time constants.
@@ -28,6 +28,10 @@ win32event = __import__('win32event') if iswindows else None
 winerror   = __import__('winerror') if iswindows else None
 win32api   = __import__('win32api') if iswindows else None
 fcntl      = None if iswindows else __import__('fcntl')
+
+filesystem_encoding = sys.getfilesystemencoding()
+if filesystem_encoding is None: filesystem_encoding = 'utf-8'
+
 
 ################################################################################
 plugins = None

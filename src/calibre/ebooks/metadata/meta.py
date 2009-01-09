@@ -83,7 +83,7 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
     return base
 
 def set_metadata(stream, mi, stream_type='lrf'):
-    if stream_type: 
+    if stream_type:
         stream_type = stream_type.lower()
     set_file_type_metadata(stream, mi, stream_type)
     
