@@ -41,10 +41,15 @@ PROFILES = {
 
     # Not really, but let's pretend
     'MobiDesktop':
-        Profile(width=280, height=300, dpi=96, fbase=18,
+        Profile(width=600, height=800, dpi=96, fbase=18,
                 fsizes=[14, 14, 16, 18, 20, 22, 24, 26]),
     
-    # No clue on usable screen size and DPI
+    # No clue on usable screen size; DPI should be good
+    'EZReader':
+        Profile(width=584, height=754, dpi=168.451, fbase=18,
+                fsizes=[14, 14, 16, 18, 20, 22, 24, 26]),
+
+    # No clue on usable screen size; DPI should be good
     'CybookG3':
         Profile(width=584, height=754, dpi=168.451, fbase=12,
                 fsizes=[9, 10, 11, 12, 14, 17, 20, 24]),
