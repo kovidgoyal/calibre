@@ -88,7 +88,6 @@ class Serializer(object):
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
     
     def __init__(self, oeb, images):
-        oeb.logger.info('Serializing markup content...')
         self.oeb = oeb
         self.images = images
         self.id_offsets = {}
@@ -226,6 +225,8 @@ class Serializer(object):
 
     
 class MobiWriter(object):
+    COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
+    
     def __init__(self, compression=None, logger=FauxLogger()):
         self._compression = compression or UNCOMPRESSED
         self._logger = logger
@@ -296,6 +297,7 @@ class MobiWriter(object):
         return data, overlap
                 
     def _generate_text(self):
+        self._oeb.logger.info('Serializing markup content...')
         serializer = Serializer(self._oeb, self._images)
         breaks = serializer.breaks
         text = serializer.text
@@ -371,6 +373,7 @@ class MobiWriter(object):
         return data
         
     def _generate_images(self):
+        self._oeb.logger.warn('Serializing images...')
         images = [(index, href) for href, index in self._images.items()]
         images.sort()
         metadata = self._oeb.metadata
@@ -421,7 +424,8 @@ class MobiWriter(object):
             if term not in EXTH_CODES: continue
             code = EXTH_CODES[term]
             for item in oeb.metadata[term]:
-                data = unicode(item).encode('utf-8')
+                data = self.COLLAPSE_RE.sub(' ', unicode(item))
+                data = data.encode('utf-8')
                 exth.write(pack('>II', code, len(data) + 8))
                 exth.write(data)
                 nrecs += 1
@@ -473,7 +477,7 @@ class MobiWriter(object):
 def main(argv=sys.argv):
     from calibre.ebooks.oeb.base import DirWriter
     inpath, outpath = argv[1:]
-    context = Context('Firefox', 'MobiDesktop')
+    context = Context('Firefox', 'EZReader')
     oeb = OEBBook(inpath)
     #writer = MobiWriter(compression=PALMDOC)
     writer = MobiWriter(compression=UNCOMPRESSED)
