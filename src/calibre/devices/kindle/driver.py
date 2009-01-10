@@ -23,7 +23,7 @@ class KINDLE(USBMS):
     BCD         = [0x399]
     
     VENDOR_NAME = 'AMAZON'
-    PRODUCT_NAME = 'KINDLE'
+    WINDOWS_MAIN_MEM = 'KINDLE'
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Kindle Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Kindle Storage Card'

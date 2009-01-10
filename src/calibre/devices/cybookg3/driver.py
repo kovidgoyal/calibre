@@ -25,10 +25,11 @@ class CYBOOKG3(USBMS):
     BCD         = [0x110, 0x132]
     
     VENDOR_NAME = 'BOOKEEN'
-    PRODUCT_NAME = 'CYBOOK_GEN3'
+    WINDOWS_MAIN_MEM = 'CYBOOK_GEN3__-FD'
+    WINDOWS_CARD_MEM = 'CYBOOK_GEN3__-SD'
     
-    OSX_NAME_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
-    OSX_NAME_CARD_MEM = 'Bookeen Cybook Gen3 -SD Media'
+    OSX_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
+    OSX_CARD_MEM = 'Bookeen Cybook Gen3 -SD Media'
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
