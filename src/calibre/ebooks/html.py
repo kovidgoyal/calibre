@@ -806,7 +806,8 @@ class Processor(Parser):
                         break
                 else:
                     faces.append('serif')
-                setting += 'font-family:%s;'% ', '.join(faces)
+                family = ', '.join(faces)
+                setting += 'font-family: %s;' % family
             color = font.attrib.pop('color', None)
             if color is not None:
                 setting += 'color:%s'%color
