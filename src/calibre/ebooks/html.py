@@ -796,7 +796,17 @@ class Processor(Parser):
                 setting = ''
             face = font.attrib.pop('face', None)
             if face is not None:
-                setting += 'font-face:%s;'%face
+                faces = []
+                for face in face.split(','):
+                    if ' ' in face:
+                        face = "%s" % face
+                    faces.append(face)
+                for generic in ('serif', 'sans-serif', 'monospace'):
+                    if generic in faces:
+                        break
+                else:
+                    faces.append('serif')
+                setting += 'font-family:%s;'% ', '.join(faces)
             color = font.attrib.pop('color', None)
             if color is not None:
                 setting += 'color:%s'%color
