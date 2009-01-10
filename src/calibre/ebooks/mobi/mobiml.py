@@ -171,8 +171,7 @@ class MobiMLizer(object):
                     para = etree.SubElement(para, XHTML('blockquote'))
                     emleft -= 1
             else:
-                ptag = 'p' #tag if tag in HEADER_TAGS else 'p'
-                para = wrapper = etree.SubElement(parent, XHTML(ptag))
+                para = wrapper = etree.SubElement(parent, XHTML('p'))
             bstate.inline = bstate.para = para
             vspace = bstate.vpadding + bstate.vmargin
             bstate.vpadding = bstate.vmargin = 0
@@ -241,7 +240,8 @@ class MobiMLizer(object):
            or namespace(elem.tag) != XHTML_NS:
             return
         style = stylizer.style(elem)
-        if style['display'] == 'none' \
+        # <mbp:frame-set/> does not exist lalalala
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
             return
         tag = barename(elem.tag)
