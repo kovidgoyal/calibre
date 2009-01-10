@@ -218,7 +218,9 @@ class CSSFlattener(object):
         for child in node:
             self.flatten_node(child, stylizer, names, styles, psize, left)
 
-    def flatten_head(self, head, stylizer, href):
+    def flatten_head(self, item, stylizer, href):
+        html = item.data
+        head = html.find(XHTML('head'))
         for node in head:
             if node.tag == XHTML('link') \
                and node.get('rel', 'stylesheet') == 'stylesheet' \
@@ -227,6 +229,7 @@ class CSSFlattener(object):
             elif node.tag == XHTML('style') \
                  and node.get('type', CSS_MIME) in OEB_STYLES:
                 head.remove(node)
+        href = item.relhref(href)
         etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
         if stylizer.page_rule:
@@ -259,7 +262,5 @@ class CSSFlattener(object):
         css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)
         href = self.replace_css(css)
         for item in self.oeb.spine:
-            html = item.data
             stylizer = self.stylizers[item]
-            head = html.find(XHTML('head'))
-            self.flatten_head(head, stylizer, href)
+            self.flatten_head(item, stylizer, href)

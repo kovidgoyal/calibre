@@ -186,10 +186,12 @@ class Serializer(object):
                 if attr == 'href':
                     if self.serialize_href(val, item):
                         continue
-                elif attr == 'src' and val in hrefs:
-                    index = self.images[val]
-                    buffer.write('recindex="%05d"' % index)
-                    continue
+                elif attr == 'src':
+                    href = item.abshref(val)
+                    if href in hrefs:
+                        index = self.images[href]
+                        buffer.write('recindex="%05d"' % index)
+                        continue
                 buffer.write(attr)
                 buffer.write('="')
                 self.serialize_text(val, quot=True)

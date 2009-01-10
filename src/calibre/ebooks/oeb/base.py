@@ -914,11 +914,11 @@ class OEBBook(object):
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//h:img[position()=1]'):
             img = xpath(html, '//h:img[position()=1]')[0]
-            href = img.get('src')
+            href = spine0.abshref(img.get('src'))
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//h:object[position()=1]'):
             object = xpath(html, '//h:object[position()=1]')[0]
-            href = object.get('data')
+            href = spine0.abshref(object.get('data'))
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//svg:svg[position()=1]'):
             svg = copy.deepcopy(xpath(html, '//svg:svg[position()=1]')[0])
