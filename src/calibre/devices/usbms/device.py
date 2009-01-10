@@ -26,8 +26,8 @@ class Device(_Device):
     VENDOR_NAME = ''
     PRODUCT_NAME = ''
     
-    OSX_NAME_MAIN_MEM = ''
-    OSX_NAME_CARD_MEM = ''
+    OSX_NAME_MAIN_MEM = None
+    OSX_NAME_CARD_MEM = None
     
     MAIN_MEMORY_VOLUME_LABEL  = ''
     STORAGE_CARD_VOLUME_LABEL = ''
@@ -207,9 +207,9 @@ class Device(_Device):
                     break
                     
         for i, line in enumerate(lines):
-            if line.strip().endswith('<class IOMedia>') and self.OSX_NAME_MAIN_MEM in line:
+            if self.OSX_NAME_MAIN_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_NAME_MAIN_MEM in line:
                 get_dev_node(lines[i+1:], 'main')
-            if line.strip().endswith('<class IOMedia>') and self.OSX_NAME_CARD_MEM in line:
+            if self.OSX_NAME_CARD_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_NAME_CARD_MEM in line:
                 get_dev_node(lines[i+1:], 'card')
             if len(names.keys()) == 2:
                 break
