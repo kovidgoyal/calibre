@@ -52,6 +52,9 @@ class SVGRasterizer(object):
             size.setHeight(box[3] - box[1])
         if width or height:
             size.scale(width, height, Qt.KeepAspectRatio)
+        logger = self.oeb.logger
+        logger.info('Rasterizing %r to %dx%d'
+                    % (elem, size.width(), size.height()))
         image = QImage(size, QImage.Format_ARGB32_Premultiplied)
         image.fill(QColor("white").rgb())
         painter = QPainter(image)
@@ -180,9 +183,9 @@ class SVGRasterizer(object):
         cover = self.oeb.manifest.ids[str(covers[0])]
         if not cover.media_type == SVG_MIME:
             return
-        logger = self.oeb.logger
-        logger.info('Rasterizing %r to %dx%d' % (cover.href, 600, 800))
-        data = self.rasterize_svg(cover.data, 600, 800)
+        width = (self.profile.width / 72) * self.profile.dpi
+        height = (self.profile.height / 72) * self.profile.dpi
+        data = self.rasterize_svg(cover.data, width, height)
         href = os.path.splitext(cover.href)[0] + '.png'
         id, href = self.oeb.manifest.generate(cover.id, href)
         self.oeb.manifest.add(id, href, PNG_MIME, data=data)
