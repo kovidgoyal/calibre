@@ -120,7 +120,8 @@ class Serializer(object):
             buffer.write('<reference title="%s" type="%s" '
                          % (ref.title, ref.type))
             self.serialize_href(ref.href)
-            buffer.write('/>')
+            # Space required or won't work, I kid you not
+            buffer.write(' />')
         buffer.write('</guide>')
 
     def serialize_href(self, href, base=None):
