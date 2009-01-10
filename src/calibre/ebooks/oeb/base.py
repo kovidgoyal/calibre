@@ -67,11 +67,13 @@ OEB_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
 
-ENTITYDEFS = dict(htmlentitydefs.entitydefs)
+recode = lambda s: s.decode('iso-8859-1').encode('ascii', 'xmlcharrefreplace')
+ENTITYDEFS = dict((k, recode(v)) for k, v in htmlentitydefs.entitydefs.items())
 del ENTITYDEFS['lt']
 del ENTITYDEFS['gt']
 del ENTITYDEFS['quot']
 del ENTITYDEFS['amp']
+del recode
 
 
 def element(parent, *args, **kwargs):
