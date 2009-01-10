@@ -28,7 +28,7 @@ class KINDLE(USBMS):
     MAIN_MEMORY_VOLUME_LABEL  = 'Kindle Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Kindle Storage Card'
     
-    EBOOK_DIR = "documents"
+    EBOOK_DIR_MAIN = "documents"
 
     def delete_books(self, paths, end_session=True):
         for path in paths:

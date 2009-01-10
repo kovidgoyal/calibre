@@ -14,7 +14,8 @@ from calibre.devices.usbms.books import BookList, Book
 from calibre.devices.errors import FreeSpaceError
 
 class USBMS(Device):
-    EBOOK_DIR = ''
+    EBOOK_DIR_MAIN = ''
+    EBOOK_DIR_CARD = ''
     MIME_MAP = {}
     FORMATS = []
 
@@ -35,9 +36,10 @@ class USBMS(Device):
             return bl
 
         prefix = self._card_prefix if oncard else self._main_prefix
+        ebook_dir = self.EBOOK_DIR_CARD if oncard else self.EBOOK_DIR_MAIN
         
-        # Get all books in all directories under the root EBOOK_DIR directory
-        for path, dirs, files in os.walk(os.path.join(prefix, self.EBOOK_DIR)):
+        # Get all books in all directories under the root ebook_dir directory
+        for path, dirs, files in os.walk(os.path.join(prefix, ebook_dir)):
             # Filter out anything that isn't in the list of supported ebook types
             for book_type in self.MIME_MAP.keys():
                 for filename in fnmatch.filter(files, '*.%s' % (book_type)):
@@ -51,9 +53,9 @@ class USBMS(Device):
             raise ValueError(_('The reader has no storage card connected.'))
             
         if not on_card:
-            path = os.path.join(self._main_prefix, self.EBOOK_DIR)
+            path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
         else:
-            path = os.path.join(self._card_prefix, self.EBOOK_DIR)
+            path = os.path.join(self._card_prefix, self.EBOOK_DIR_CARD)
             
         sizes = map(os.path.getsize, files)
         size = sum(sizes)

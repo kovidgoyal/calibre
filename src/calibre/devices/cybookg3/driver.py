@@ -33,7 +33,7 @@ class CYBOOKG3(USBMS):
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
     
-    EBOOK_DIR = "eBooks"
+    EBOOK_DIR_MAIN = "eBooks"
 
     def delete_books(self, paths, end_session=True):
         for path in paths:
