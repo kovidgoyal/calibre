@@ -21,7 +21,7 @@ recipe_modules = ['recipe_' + r for r in (
            'linux_magazine', 'telegraph_uk', 'utne', 'sciencedaily', 'forbes',
            'time_magazine', 'endgadget', 'fudzilla', 'nspm_int', 'nspm', 'pescanik',
            'spiegel_int', 'themarketticker', 'tomshardware', 'xkcd', 'ftd', 'zdnet',
-           'joelonsoftware',
+           'joelonsoftware', 'telepolis', 'common_dreams',
           )]
 
 import re, imp, inspect, time, os

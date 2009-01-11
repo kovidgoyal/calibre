@@ -41,6 +41,20 @@ class Device(object):
         '''Return the FDI description of this device for HAL on linux.'''
         return ''
     
+    @classmethod
+    def can_handle(cls, device_info):
+        '''
+        Optional method to perform further checks on a device to see if this driver
+        is capable of handling it. If it is not it should return False. This method
+        is only called after the vendor, product ids and the bcd have matched, so
+        it can do some relatively time intensive checks. The default implementation
+        returns True.
+        
+        :param device_info: On windows a device ID string. On Unix a tuple of 
+        ``(vendor_id, product_id, bcd)``. 
+        '''
+        return True
+    
     def open(self):
         '''
         Perform any device specific initialization. Called after the device is

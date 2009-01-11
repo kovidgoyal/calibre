@@ -33,6 +33,7 @@ class TimesOnline(BasicNewsRecipe):
                         ('Sports News', 'http://www.timesonline.co.uk/tol/feeds/rss/sport.xml'),
                         ('Film News', 'http://www.timesonline.co.uk/tol/feeds/rss/film.xml'),
                         ('Tech news', 'http://www.timesonline.co.uk/tol/feeds/rss/tech.xml'),
+                        ('Literary Supplement', 'http://www.timesonline.co.uk/tol/feeds/rss/thetls.xml'),
                      ]
 
     def print_version(self, url):

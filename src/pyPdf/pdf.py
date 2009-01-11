@@ -55,7 +55,7 @@ from utils import readNonWhitespace, readUntilWhitespace, ConvertFunctionsToVirt
 # This class supports writing PDF files out, given pages produced by another
 # class (typically {@link #PdfFileReader PdfFileReader}).
 class PdfFileWriter(object):
-    def __init__(self):
+    def __init__(self,title=u"Unknown",author=u"Unknown"):
         self._header = "%PDF-1.3"
         self._objects = []  # array of indirect objects
 
@@ -71,7 +71,9 @@ class PdfFileWriter(object):
         # info object
         info = DictionaryObject()
         info.update({
-                NameObject("/Producer"): createStringObject(u"Python PDF Library - http://pybrary.net/pyPdf/")
+                NameObject("/Producer"): createStringObject(u"Python PDF Library - http://pybrary.net/pyPdf/"),
+                NameObject("/Author"): createStringObject(author),
+                NameObject("/Title"): createStringObject(title),
                 })
         self._info = self._addObject(info)
 

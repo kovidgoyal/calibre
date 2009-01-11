@@ -560,7 +560,7 @@ class Processor(Parser):
                 hr = etree.Element('hr')
                 if elem.getprevious() is None:
                     elem.getparent()[:0] = [hr]
-                else:
+                elif elem.getparent() is not None:
                     insert = None
                     for i, c in enumerate(elem.getparent()):
                         if c is elem:
@@ -796,7 +796,18 @@ class Processor(Parser):
                 setting = ''
             face = font.attrib.pop('face', None)
             if face is not None:
-                setting += 'font-face:%s;'%face
+                faces = []
+                for face in face.split(','):
+                    if ' ' in face:
+                        face = "%s" % face
+                    faces.append(face)
+                for generic in ('serif', 'sans-serif', 'monospace'):
+                    if generic in faces:
+                        break
+                else:
+                    faces.append('serif')
+                family = ', '.join(faces)
+                setting += 'font-family: %s;' % family
             color = font.attrib.pop('color', None)
             if color is not None:
                 setting += 'color:%s'%color
