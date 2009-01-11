@@ -425,7 +425,7 @@ def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='l
     thumbnail = None
     if not pages:
         raise ValueError('Could not find any pages in the comic: %s'%source)
-    if not opts.no_process:
+    if not getattr(opts, 'no_process', False):
         pages, failures, tdir2 = process_pages(pages, opts, notification)
         if not pages:
             raise ValueError('Could not find any valid pages in the comic: %s'%source)

@@ -560,7 +560,7 @@ class Processor(Parser):
                 hr = etree.Element('hr')
                 if elem.getprevious() is None:
                     elem.getparent()[:0] = [hr]
-                else:
+                elif elem.getparent() is not None:
                     insert = None
                     for i, c in enumerate(elem.getparent()):
                         if c is elem:

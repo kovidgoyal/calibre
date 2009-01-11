@@ -23,11 +23,12 @@ class Device(_Device):
     PRODUCT_ID  = 0x0
     BCD         = None
     
-    VENDOR_NAME = ''
-    PRODUCT_NAME = ''
+    VENDOR_NAME = None
+    WINDOWS_MAIN_MEM = None
+    WINDOWS_CARD_MEM = None
     
-    OSX_NAME_MAIN_MEM = ''
-    OSX_NAME_CARD_MEM = ''
+    OSX_MAIN_MEM = None
+    OSX_CARD_MEM = None
     
     MAIN_MEMORY_VOLUME_LABEL  = ''
     STORAGE_CARD_VOLUME_LABEL = ''
@@ -148,43 +149,46 @@ class Device(_Device):
                 
         return (msz, 0, csz)
 
-    @classmethod
-    def windows_match_device(cls, device_id):
-        device_id = device_id.upper()
-        if 'VEN_'+cls.VENDOR_NAME in device_id and \
-               'PROD_'+cls.PRODUCT_NAME in device_id:
-            return True
-        vid, pid = hex(cls.VENDOR_ID)[2:], hex(cls.PRODUCT_ID)[2:]        
-        while len(vid) < 4: vid = '0' + vid
-        while len(pid) < 4: pid = '0' + pid        
-        if 'VID_'+vid in device_id and 'PID_'+pid in device_id:
-            return True
+    def windows_match_device(self, pnp_id, device_id):
+        if device_id and pnp_id is not None:
+            pnp_id = pnp_id.upper()
+            device_id = device_id.upper()
+            
+            if 'VEN_' + self.VENDOR_NAME in pnp_id and 'PROD_' + device_id in pnp_id:
+                return True
+            
         return False
 
-    # This only supports Windows >= 2000
+    def windows_get_drive_prefix(self, drive):
+        prefix = None
+        
+        try:
+            partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
+            logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
+            prefix = logical_disk.DeviceID + os.sep
+        except IndexError:
+            pass
+            
+        return prefix
+
     def open_windows(self):
-        drives = []
+        drives = {}
         wmi = __import__('wmi', globals(), locals(), [], -1) 
         c = wmi.WMI()
         for drive in c.Win32_DiskDrive():
-            if self.__class__.windows_match_device(str(drive.PNPDeviceID)):
-                if drive.Partitions == 0:
-                    continue
-                try:
-                    partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
-                    logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
-                    prefix = logical_disk.DeviceID+os.sep
-                    drives.append((drive.Index, prefix))
-                except IndexError:
-                    continue
+            if self.windows_match_device(str(drive.PNPDeviceID), WINDOWS_MAIN_MEM):
+                drives['main'] = self.windows_get_drive_prefix(drive)
+            else if self.windows_match_device(str(drive.PNPDeviceID), WINDOWS_CARD_MEM):
+                drives['card'] = self.windows_get_drive_prefix(drive)
+                
+            if 'main' and 'card' in drives.keys():
+                break
                 
         if not drives:
-            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
-        
-        drives.sort(cmp=lambda a, b: cmp(a[0], b[0]))
-        self._main_prefix = drives[0][1]
-        if len(drives) > 1:
-            self._card_prefix = drives[1][1]
+            raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.') % self.__class__.__name__)
+            
+        self._main_prefix = drives['main'] if 'main' in names.keys() else None
+        self._card_prefix = drives['card'] if 'card' in names.keys() else None
 
     @classmethod
     def get_osx_mountpoints(self, raw=None):
@@ -207,9 +211,9 @@ class Device(_Device):
                     break
                     
         for i, line in enumerate(lines):
-            if line.strip().endswith('<class IOMedia>') and self.OSX_NAME_MAIN_MEM in line:
+            if self.OSX_MAIN_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_MAIN_MEM in line:
                 get_dev_node(lines[i+1:], 'main')
-            if line.strip().endswith('<class IOMedia>') and self.OSX_NAME_CARD_MEM in line:
+            if self.OSX_CARD_MEM is not None and line.strip().endswith('<class IOMedia>') and self.OSX_CARD_MEM in line:
                 get_dev_node(lines[i+1:], 'card')
             if len(names.keys()) == 2:
                 break
