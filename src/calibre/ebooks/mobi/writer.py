@@ -28,6 +28,7 @@ from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
 from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
 from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
 from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
+from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
@@ -114,7 +115,8 @@ class Serializer(object):
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
             path, frag = urldefrag(ref.href)
-            if hrefs[path].media_type not in OEB_DOCS:
+            if hrefs[path].media_type not in OEB_DOCS or
+               not ref.title:
                 continue
             buffer.write('<reference title="%s" type="%s" '
                          % (ref.title, ref.type))
@@ -485,12 +487,14 @@ def main(argv=sys.argv):
     fbase = context.dest.fbase
     fkey = context.dest.fnums.values()
     tocadder = HTMLTOCAdder()
+    mangler = CaseMangler()
     flattener = CSSFlattener(
         fbase=fbase, fkey=fkey, unfloat=True, untable=True)
     rasterizer = SVGRasterizer()
     trimmer = ManifestTrimmer()
     mobimlizer = MobiMLizer()
     tocadder.transform(oeb, context)
+    mangler.transform(oeb, context)
     flattener.transform(oeb, context)
     rasterizer.transform(oeb, context)
     mobimlizer.transform(oeb, context)

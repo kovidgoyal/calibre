@@ -303,7 +303,7 @@ class MobiMLizer(object):
         else:
             istate.family = 'serif'
         valign = style['vertical-align']
-        if valign in ('super', 'sup') or asfloat(valign) > 0:
+        if valign in ('super', 'text-top') or asfloat(valign) > 0:
             istate.valign = 'super'
         elif valign == 'sub'  or asfloat(valign) < 0:
             istate.valign = 'sub'

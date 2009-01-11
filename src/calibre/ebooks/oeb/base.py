@@ -66,6 +66,25 @@ OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
 OEB_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
+GUIDE_TITLES = {
+    'cover': 'Cover',
+    'title-page': 'Title Page',
+    'toc': 'Table of Contents',
+    'index': 'Index',
+    'glossary': 'Glossary',
+    'acknowledgements': 'Acknowledgements',
+    'bibliography': 'Bibliography',
+    'colophon': 'Colophon',
+    'copyright-page': 'Copyright',
+    'dedication': 'Dedication',
+    'epigraph': 'Epigraph',
+    'foreword': 'Foreword',
+    'loi': 'List of Illustrations',
+    'lot': 'List of Tables',
+    'notes': 'Notes',
+    'preface': 'Preface',
+    'text': 'Begin Reading'
+}
 
 recode = lambda s: s.decode('iso-8859-1').encode('ascii', 'xmlcharrefreplace')
 ENTITYDEFS = dict((k, recode(v)) for k, v in htmlentitydefs.entitydefs.items())
@@ -537,10 +556,12 @@ class Spine(object):
 class Guide(object):
     class Reference(object):
         def __init__(self, type, title, href):
+            if not title and type in GUIDE_TITLES:
+                title = GUIDE_TITLES[type]
             self.type = type
             self.title = title
             self.href = urlnormalize(href)
-
+        
         def __repr__(self):
             return 'Reference(type=%r, title=%r, href=%r)' \
                 % (self.type, self.title, self.href)
