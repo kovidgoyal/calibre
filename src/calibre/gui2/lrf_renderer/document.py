@@ -406,7 +406,8 @@ class Document(QGraphicsScene):
         for font in lrf.font_map:
             fdata = QByteArray(lrf.font_map[font].data)
             id = QFontDatabase.addApplicationFontFromData(fdata)
-            font_map[font] = [str(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
+            if id != -1:
+                font_map[font] = [str(i) for i in QFontDatabase.applicationFontFamilies(id)][0]
         
         if load_substitutions:
             from calibre.ebooks.lrf.fonts.liberation import LiberationMono_BoldItalic
