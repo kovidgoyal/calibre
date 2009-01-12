@@ -9,14 +9,8 @@ import os, fnmatch
 from calibre.devices.usbms.driver import USBMS
 
 class KINDLE(USBMS):
-    MIME_MAP   = { 
-                'azw' : 'application/azw',
-                'mobi' : 'application/mobi',
-                'prc' : 'application/prc',
-                'txt' : 'text/plain',
-              }
     # Ordered list of supported formats
-    FORMATS     = MIME_MAP.keys()
+    FORMATS     = ['azw', 'mobi', 'prc', 'txt']
     
     VENDOR_ID   = 0x1949
     PRODUCT_ID  = 0x0001

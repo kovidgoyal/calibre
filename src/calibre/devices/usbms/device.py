@@ -6,7 +6,7 @@ intended to be subclassed with the relevant parts implemented for a particular
 device. This class handles devive detection.
 '''
 
-import os, time
+import os, subprocess, time
 
 from calibre.devices.interface import Device as _Device
 from calibre.devices.errors import DeviceError
@@ -150,13 +150,14 @@ class Device(_Device):
         return (msz, 0, csz)
 
     def windows_match_device(self, pnp_id, device_id):
+        pnp_id = pnp_id.upper()
+        
         if device_id and pnp_id is not None:
-            pnp_id = pnp_id.upper()
             device_id = device_id.upper()
             
             if 'VEN_' + self.VENDOR_NAME in pnp_id and 'PROD_' + device_id in pnp_id:
                 return True
-            
+
         return False
 
     def windows_get_drive_prefix(self, drive):

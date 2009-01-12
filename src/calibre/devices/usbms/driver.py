@@ -12,11 +12,11 @@ from itertools import cycle
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.devices.errors import FreeSpaceError
+from calibre.devices.mime import MIME_MAP
 
 class USBMS(Device):
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD = ''
-    MIME_MAP = {}
     FORMATS = []
 
     def __init__(self, key='-1', log_packets=False, report_progress=None):
@@ -41,7 +41,7 @@ class USBMS(Device):
         # Get all books in all directories under the root ebook_dir directory
         for path, dirs, files in os.walk(os.path.join(prefix, ebook_dir)):
             # Filter out anything that isn't in the list of supported ebook types
-            for book_type in self.MIME_MAP.keys():
+            for book_type in self.FORMATS:
                 for filename in fnmatch.filter(files, '*.%s' % (book_type)):
                     title, author, mime = self.__class__.extract_book_metadata_by_filename(filename)
                     
@@ -138,10 +138,11 @@ class USBMS(Device):
         else:
             book_title = os.path.splitext(filename)[0].replace('_', ' ')
            
-        fileext = os.path.splitext(filename)[1]
-        if fileext in cls.MIME_MAP.keys():
-            book_mime = cls.MIME_MAP[fileext]
-            
+        fileext = os.path.splitext(filename)[1][1:]
+
+        if fileext in cls.FORMATS:
+            book_mime = MIME_MAP[fileext] if fileext in MIME_MAP.keys() else 'Unknown'
+
         return book_title, book_author, book_mime
 
 # ls, rm, cp, mkdir, touch, cat

@@ -9,16 +9,9 @@ import os, fnmatch
 from calibre.devices.usbms.driver import USBMS
 
 class CYBOOKG3(USBMS):
-    MIME_MAP   = { 
-                'mobi' : 'application/mobi',
-                'prc' : 'application/prc',
-                'html' : 'application/html', 
-                'pdf' : 'application/pdf',  
-                'rtf' : 'application/rtf', 
-                'txt' : 'text/plain',
-              }
     # Ordered list of supported formats
-    FORMATS     = MIME_MAP.keys()
+    # Be sure these have an entry in calibre.devices.mime
+    FORMATS     = ['mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
     
     VENDOR_ID   = 0x0bda
     PRODUCT_ID  = 0x0703
