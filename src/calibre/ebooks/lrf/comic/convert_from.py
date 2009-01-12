@@ -443,7 +443,7 @@ def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='l
     if output_format == 'pdf':
         create_pdf(pages, opts.profile, opts, thumbnail=thumbnail)
     shutil.rmtree(tdir)
-    if not opts.no_process:
+    if not getattr(opts, 'no_process', False):
         shutil.rmtree(tdir2)
 
 
@@ -457,7 +457,7 @@ def main(args=sys.argv, notification=None, output_format='lrf'):
     
     if not callable(notification):
         pb = ProgressBar(terminal_controller, _('Rendering comic pages...'), 
-                         no_progress_bar=opts.no_progress_bar)
+                         no_progress_bar=opts.no_progress_bar or getattr(opts, 'no_process', False))
         notification = pb.update
     
     source = os.path.abspath(args[1])
