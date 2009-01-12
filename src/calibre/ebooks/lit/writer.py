@@ -27,11 +27,16 @@ from calibre.ebooks.oeb.base import OEB_DOCS, OEB_STYLES, OEB_CSS_MIME, \
     CSS_MIME, OPF_MIME, XML_NS, XML
 from calibre.ebooks.oeb.base import namespace, barename, prefixname, \
     urlnormalize, xpath
-from calibre.ebooks.oeb.base import FauxLogger, OEBBook
+from calibre.ebooks.oeb.base import Logger, OEBBook
+from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.stylizer import Stylizer
+from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
+from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
+from calibre.ebooks.oeb.transforms.trimmanifest import ManifestTrimmer
+from calibre.ebooks.oeb.transforms.htmltoc import HTMLTOCAdder
+from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
 from calibre.ebooks.lit.lzx import Compressor
 import calibre
-from calibre import LoggingInterface
 from calibre import plugins
 msdes, msdeserror = plugins['msdes']
 import calibre.ebooks.lit.mssha1 as mssha1
@@ -138,9 +143,9 @@ def warn(x):
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
     
-    def __init__(self, root, path, oeb, map=HTML_MAP, logger=FauxLogger()):
+    def __init__(self, root, path, oeb, map=HTML_MAP):
         self.path = path
-        self.logger = logger
+        self.logger = oeb.logger
         self.dir = os.path.dirname(path)
         self.manifest = oeb.manifest
         self.tags, self.tattrs = map
@@ -294,10 +299,9 @@ def preserve(function):
     return wrapper
     
 class LitWriter(object):
-    def __init__(self, oeb, logger=FauxLogger()):
-        self._oeb = oeb
-        self._logger = logger
-        self._litize_oeb()
+    def __init__(self):
+        # Wow, no options
+        pass
 
     def _litize_oeb(self):
         oeb = self._oeb
@@ -306,32 +310,27 @@ class LitWriter(object):
         if oeb.metadata.cover:
             id = str(oeb.metadata.cover[0])
             cover = oeb.manifest[id]
-        elif MS_COVER_TYPE in oeb.guide:
-            href = oeb.guide[MS_COVER_TYPE].href
-            cover = oeb.manifest.hrefs[href]
-        elif 'cover' in oeb.guide:
-            href = oeb.guide['cover'].href
-            cover = oeb.manifest.hrefs[href]
-        else:
-            html = oeb.spine[0].data
-            imgs = xpath(html, '//img[position()=1]')
-            href = imgs[0].get('src') if imgs else None
-            cover = oeb.manifest.hrefs[href] if href else None
-        if cover:
-            if not oeb.metadata.cover:
-                oeb.metadata.add('cover', cover.id)
             for type, title in ALL_MS_COVER_TYPES:
                 if type not in oeb.guide:
                     oeb.guide.add(type, title, cover.href)
         else:
-            self._logger.log_warn('No suitable cover image found.')
+            self._logger.warn('No suitable cover image found.')
 
-    def dump(self, stream):
+    def dump(self, oeb, path):
+        if hasattr(path, 'write'):
+            return self._dump_stream(oeb, path)
+        with open(path, 'w+b') as stream:
+            return self._dump_stream(oeb, stream)
+        
+    def _dump_stream(self, oeb, stream):
+        self._oeb = oeb
+        self._logger = oeb.logger
         self._stream = stream
         self._sections = [StringIO() for i in xrange(4)]
         self._directory = []
         self._meta = None
-        self._dump()
+        self._litize_oeb()
+        self._write_content()
         
     def _write(self, *data):
         for datum in data:
@@ -345,7 +344,7 @@ class LitWriter(object):
     def _tell(self):
         return self._stream.tell()
         
-    def _dump(self):
+    def _write_content(self):
         # Build content sections
         self._build_sections()
 
@@ -474,8 +473,7 @@ class LitWriter(object):
             secnum = 0
             if not isinstance(data, basestring):
                 self._add_folder(name)
-                rebin = ReBinary(data, item.href, self._oeb, map=HTML_MAP,
-                                 logger=self._logger)
+                rebin = ReBinary(data, item.href, self._oeb, map=HTML_MAP)
                 self._add_file(name + '/ahc', rebin.ahc, 0)
                 self._add_file(name + '/aht', rebin.aht, 0)
                 item.page_breaks = rebin.page_breaks
@@ -554,8 +552,7 @@ class LitWriter(object):
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
         meta.attrib['ms--guid'] = '{%s}' % str(uuid.uuid4()).upper()
-        rebin = ReBinary(meta, 'content.opf', self._oeb, map=OPF_MAP,
-                         logger=self._logger)
+        rebin = ReBinary(meta, 'content.opf', self._oeb, map=OPF_MAP)
         meta = rebin.content
         self._meta = meta
         self._add_file('/meta', meta)
@@ -719,19 +716,33 @@ def option_parser():
         help=_('Useful for debugging.'))
     return parser
 
-def oeb2lit(opts, opfpath):
-    logger = LoggingInterface(logging.getLogger('oeb2lit'))
+def oeb2lit(opts, inpath):
+    logger = Logger(logging.getLogger('oeb2lit'))
     logger.setup_cli_handler(opts.verbose)
-    litpath = opts.output
-    if litpath is None:
-        litpath = os.path.basename(opfpath)
-        litpath = os.path.splitext(litpath)[0] + '.lit'
-    litpath = os.path.abspath(litpath)
-    lit = LitWriter(OEBBook(opfpath, logger=logger), logger=logger)
-    with open(litpath, 'wb') as f:
-        lit.dump(f)
-    run_plugins_on_postprocess(litpath, 'lit')
-    logger.log_info(_('Output written to ')+litpath)
+    outpath = opts.output
+    if outpath is None:
+        outpath = os.path.basename(inpath)
+        outpath = os.path.splitext(outpath)[0] + '.lit'
+    outpath = os.path.abspath(outpath)
+    context = Context('Firefox', 'MSReader')
+    oeb = OEBBook(inpath, logger=logger)
+    tocadder = HTMLTOCAdder()
+    tocadder.transform(oeb, context)
+    mangler = CaseMangler()
+    mangler.transform(oeb, context)
+    fbase = context.dest.fbase
+    fkey = context.dest.fnames.values()
+    flattener = CSSFlattener(
+        fbase=fbase, fkey=fkey, unfloat=True, untable=True)
+    flattener.transform(oeb, context)
+    rasterizer = SVGRasterizer()
+    rasterizer.transform(oeb, context)
+    trimmer = ManifestTrimmer()
+    trimmer.transform(oeb, context)
+    lit = LitWriter()
+    lit.dump(oeb, outpath)
+    run_plugins_on_postprocess(outpath, 'lit')
+    logger.info(_('Output written to ') + outpath)
     
 
 def main(argv=sys.argv):
@@ -740,8 +751,8 @@ def main(argv=sys.argv):
     if len(args) != 1:
         parser.print_help()
         return 1
-    opfpath = args[0]
-    oeb2lit(opts, opfpath)
+    inpath = args[0]
+    oeb2lit(opts, inpath)
     return 0
     
 if __name__ == '__main__':

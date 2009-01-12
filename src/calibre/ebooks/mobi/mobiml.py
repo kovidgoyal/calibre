@@ -114,10 +114,10 @@ class MobiMLizer(object):
     def mobimlize_measure(self, ptsize):
         if isinstance(ptsize, basestring):
             return ptsize
-        fbase = self.profile.fbase
-        if ptsize < fbase:
+        embase = self.profile.fbase
+        if ptsize < embase:
             return "%dpt" % int(round(ptsize))
-        return "%dem" % int(round(ptsize / fbase))
+        return "%dem" % int(round(ptsize / embase))
 
     def preize_text(self, text):
         text = unicode(text).replace(u' ', u'\xa0')

@@ -186,9 +186,8 @@ class CSSFlattener(object):
                 cssdict['margin-left'] = "%d%%" % (percent * 100)
                 left -= style['text-indent']
             if self.unfloat and 'float' in cssdict \
-               and tag not in ('img', 'object') \
                and cssdict.get('display', 'none') != 'none':
-                    del cssdict['display']
+                del cssdict['display']
             if self.untable and 'display' in cssdict \
                and cssdict['display'].startswith('table'):
                 display = cssdict['display']

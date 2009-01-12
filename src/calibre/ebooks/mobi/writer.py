@@ -17,12 +17,13 @@ import re
 from itertools import izip, count
 from collections import defaultdict
 from urlparse import urldefrag
+import logging
 from lxml import etree
 from PIL import Image
 from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
     OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
-from calibre.ebooks.oeb.base import FauxLogger, OEBBook
+from calibre.ebooks.oeb.base import Logger, OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
 from calibre.ebooks.oeb.transforms.rasterize import SVGRasterizer
@@ -32,12 +33,12 @@ from calibre.ebooks.oeb.transforms.manglecase import CaseMangler
 from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
+from calibre.customize.ui import run_plugins_on_postprocess
 
 # TODO:
 # - Allow override CSS (?)
 # - Generate index records
-# - Generate in-content ToC
-# - Command line options, etc.
+# - Optionally rasterize tables
 
 EXTH_CODES = {
     'creator': 100,
@@ -60,7 +61,8 @@ UNCOMPRESSED = 1
 PALMDOC = 2
 HUFFDIC = 17480
 
-MAX_IMAGE_SIZE = 63 * 1024
+PALM_MAX_IMAGE_SIZE = 63 * 1024
+OTHER_MAX_IMAGE_SIZE = 10 * 1024 * 1024
 MAX_THUMB_SIZE = 16 * 1024
 MAX_THUMB_DIMEN = (180, 240)
 
@@ -115,7 +117,7 @@ class Serializer(object):
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
             path, frag = urldefrag(ref.href)
-            if hrefs[path].media_type not in OEB_DOCS or
+            if hrefs[path].media_type not in OEB_DOCS or \
                not ref.title:
                 continue
             buffer.write('<reference title="%s" type="%s" '
@@ -229,9 +231,9 @@ class Serializer(object):
 class MobiWriter(object):
     COLLAPSE_RE = re.compile(r'[ \t\r\n\v]+')
     
-    def __init__(self, compression=None, logger=FauxLogger()):
+    def __init__(self, compression=None, imagemax=None):
         self._compression = compression or UNCOMPRESSED
-        self._logger = logger
+        self._imagemax = imagemax or OTHER_MAX_IMAGE_SIZE
 
     def dump(self, oeb, path):
         if hasattr(path, 'write'):
@@ -307,6 +309,8 @@ class MobiWriter(object):
         text = StringIO(text)
         nrecords = 0
         offset = 0
+        if self._compression != UNCOMPRESSED:
+            self._oeb.logger.info('Compressing markup content...')
         data, overlap = self._read_text_record(text)
         while len(data) > 0:
             if self._compression == PALMDOC:
@@ -382,7 +386,7 @@ class MobiWriter(object):
         coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
-            data = self._rescale_image(item.data, MAX_IMAGE_SIZE)
+            data = self._rescale_image(item.data, self._imagemax)
             self._records.append(data)
     
     def _generate_record0(self):
@@ -476,30 +480,62 @@ class MobiWriter(object):
             self._write(record)
 
 
-def main(argv=sys.argv):
-    from calibre.ebooks.oeb.base import DirWriter
-    inpath, outpath = argv[1:]
+def option_parser():
+    from calibre.utils.config import OptionParser
+    parser = OptionParser(usage=_('%prog [options] OPFFILE'))
+    parser.add_option(
+        '-o', '--output', default=None, 
+        help=_('Output file. Default is derived from input filename.'))
+    parser.add_option(
+        '-c', '--compress', default=False, action='store_true',
+        help=_('Compress file text using PalmDOC compression.'))
+    parser.add_option(
+        '-r', '--rescale-images', default=False, action='store_true',
+        help=_('Modify images to meet Palm device size limitations.'))
+    parser.add_option(
+        '-v', '--verbose', default=False, action='store_true',
+        help=_('Useful for debugging.'))
+    return parser
+
+def oeb2mobi(opts, inpath):
+    logger = Logger(logging.getLogger('oeb2mobi'))
+    logger.setup_cli_handler(opts.verbose)
+    outpath = opts.output
+    if outpath is None:
+        outpath = os.path.basename(inpath)
+        outpath = os.path.splitext(outpath)[0] + '.mobi'
+    compression = PALMDOC if opts.compress else UNCOMPRESSED
+    imagemax = MAX_IMAGE_SIZE if opts.rescale_images else None
     context = Context('Firefox', 'EZReader')
-    oeb = OEBBook(inpath)
-    #writer = MobiWriter(compression=PALMDOC)
-    writer = MobiWriter(compression=UNCOMPRESSED)
-    #writer = DirWriter()
+    oeb = OEBBook(inpath, logger=logger)
+    tocadder = HTMLTOCAdder()
+    tocadder.transform(oeb, context)
+    mangler = CaseMangler()
+    mangler.transform(oeb, context)
     fbase = context.dest.fbase
     fkey = context.dest.fnums.values()
-    tocadder = HTMLTOCAdder()
-    mangler = CaseMangler()
     flattener = CSSFlattener(
         fbase=fbase, fkey=fkey, unfloat=True, untable=True)
-    rasterizer = SVGRasterizer()
-    trimmer = ManifestTrimmer()
-    mobimlizer = MobiMLizer()
-    tocadder.transform(oeb, context)
-    mangler.transform(oeb, context)
     flattener.transform(oeb, context)
+    rasterizer = SVGRasterizer()
     rasterizer.transform(oeb, context)
-    mobimlizer.transform(oeb, context)
+    trimmer = ManifestTrimmer()
     trimmer.transform(oeb, context)
+    mobimlizer = MobiMLizer()
+    mobimlizer.transform(oeb, context)
+    writer = MobiWriter(compression=compression, imagemax=imagemax)
     writer.dump(oeb, outpath)
+    run_plugins_on_postprocess(outpath, 'mobi')
+    logger.info(_('Output written to ') + outpath)
+    
+def main(argv=sys.argv):
+    parser = option_parser()
+    opts, args = parser.parse_args(argv[1:])
+    if len(args) != 1:
+        parser.print_help()
+        return 1
+    inpath = args[0]
+    oeb2mobi(opts, inpath)
     return 0
 
 if __name__ == '__main__':

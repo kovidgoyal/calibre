@@ -21,7 +21,7 @@ from PyQt4.QtGui import QPainter
 from PyQt4.QtSvg import QSvgRenderer
 from PyQt4.QtGui import QApplication
 from calibre.ebooks.oeb.base import XHTML_NS, XHTML, SVG_NS, SVG, XLINK
-from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME
+from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME, JPEG_MIME
 from calibre.ebooks.oeb.base import xml2str, xpath, namespace, barename
 from calibre.ebooks.oeb.stylizer import Stylizer
 
@@ -41,7 +41,7 @@ class SVGRasterizer(object):
         self.rasterize_spine()
         self.rasterize_cover()
 
-    def rasterize_svg(self, elem, width=0, height=0):
+    def rasterize_svg(self, elem, width=0, height=0, format='PNG'):
         data = QByteArray(xml2str(elem))
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
@@ -63,7 +63,7 @@ class SVGRasterizer(object):
         array = QByteArray()
         buffer = QBuffer(array)
         buffer.open(QIODevice.WriteOnly)
-        image.save(buffer, 'PNG')
+        image.save(buffer, format)
         return str(array)
 
     def dataize_manifest(self):
@@ -171,6 +171,8 @@ class SVGRasterizer(object):
             manifest.add(id, href, PNG_MIME, data=data)
             self.images[key] = href
         elem.tag = XHTML('img')
+        for attr in elem.attrib:
+            del elem.attrib[attr]
         elem.attrib['src'] = item.relhref(href)
         elem.text = None
         for child in elem:

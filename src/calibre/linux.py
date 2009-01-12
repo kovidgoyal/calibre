@@ -54,6 +54,7 @@ entry_points = {
                              'isbndb    = calibre.ebooks.metadata.isbndb:main',
                              'librarything = calibre.ebooks.metadata.library_thing:main',
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
+                             'oeb2mobi  = calibre.ebooks.mobi.writer:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
                              'lit2oeb   = calibre.ebooks.lit.reader:main',
                              'oeb2lit   = calibre.ebooks.lit.writer:main',

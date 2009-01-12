@@ -66,7 +66,8 @@ class HTMLTOCAdder(object):
         element(head, XHTML('link'), rel='stylesheet', type=CSS_MIME,
                 href=css_href)
         body = element(contents, XHTML('body'),
-                       attrib={'class': 'calibre_toc'})
+                       attrib={'id': 'calibre_toc',
+                               'class': 'calibre_toc'})
         h1 = element(body, XHTML('h1'),
                      attrib={'class': 'calibre_toc_header'})
         h1.text = 'Table of Contents'
@@ -74,13 +75,13 @@ class HTMLTOCAdder(object):
         id, href = oeb.manifest.generate('contents', 'contents.xhtml')
         item = oeb.manifest.add(id, href, XHTML_MIME, data=contents)
         oeb.spine.add(item, linear=False)
-        oeb.guide.add('toc', 'Table of Contents', href)
+        oeb.guide.add('toc', 'Table of Contents', href + '#calibre_toc')
 
     def add_toc_level(self, elem, toc):
         for node in toc:
             block = element(elem, XHTML('div'),
                             attrib={'class': 'calibre_toc_block'})
-            line = element(elem, XHTML('a'),
+            line = element(block, XHTML('a'),
                            attrib={'href': node.href,
                                    'class': 'calibre_toc_line'})
             line.text = node.title

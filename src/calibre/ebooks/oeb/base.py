@@ -362,16 +362,19 @@ class Manifest(object):
                 self._data = None
             return property(fget, fset, fdel)
         data = data()
-
+        
         def __str__(self):
             data = self.data
             if isinstance(data, etree._Element):
                 return xml2str(data)
             return str(data)
-
+        
         def __eq__(self, other):
             return id(self) == id(other)
-
+        
+        def __ne__(self, other):
+            return not self.__eq__(other)
+        
         def __cmp__(self, other):
             result = cmp(self.spine_position, other.spine_position)
             if result != 0:

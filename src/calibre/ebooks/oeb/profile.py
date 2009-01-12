@@ -36,24 +36,27 @@ PROFILES = {
                 fsizes=[7.5, 9, 10, 12, 15.5, 20, 22, 24]),
 
     'MSReader':
-        Profile(width=480, height=652, dpi=100.0, fbase=13,
+        Profile(width=480, height=652, dpi=96, fbase=13,
                 fsizes=[10, 11, 13, 16, 18, 20, 22, 26]),
 
     # Not really, but let's pretend
-    'MobiDesktop':
+    'Mobipocket':
         Profile(width=600, height=800, dpi=96, fbase=18,
                 fsizes=[14, 14, 16, 18, 20, 22, 24, 26]),
     
     # No clue on usable screen size; DPI should be good
     'EZReader':
-        Profile(width=584, height=754, dpi=168.451, fbase=18,
-                fsizes=[14, 14, 16, 18, 20, 22, 24, 26]),
+        Profile(width=584, height=754, dpi=168.451, fbase=16,
+                fsizes=[12, 12, 14, 16, 18, 21, 24, 28]),
 
-    # No clue on usable screen size; DPI should be good
     'CybookG3':
-        Profile(width=584, height=754, dpi=168.451, fbase=12,
-                fsizes=[9, 10, 11, 12, 14, 17, 20, 24]),
+        Profile(width=584, height=754, dpi=168.451, fbase=16,
+                fsizes=[12, 12, 14, 16, 18, 21, 24, 28]),
 
+    'Kindle':
+        Profile(width=525, height=640, dpi=168.451, fbase=16,
+                fsizes=[12, 12, 14, 16, 18, 21, 24, 28]),
+    
     'Firefox':
         Profile(width=800, height=600, dpi=100.0, fbase=12,
                 fsizes=[5, 7, 9, 12, 13.5, 17, 20, 22, 24])

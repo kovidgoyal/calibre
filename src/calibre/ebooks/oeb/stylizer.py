@@ -23,7 +23,7 @@ from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
-from calibre.ebooks.oeb.base import barename, urlnormalize
+from calibre.ebooks.oeb.base import XPNSMAP, xpath, barename, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
 from calibre.resources import html_css
 
@@ -86,10 +86,6 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
 
-
-XPNSMAP = {'h': XHTML_NS,}
-def xpath(elem, expr):
-    return elem.xpath(expr, namespaces=XPNSMAP)
 
 class CSSSelector(etree.XPath):
     MIN_SPACE_RE = re.compile(r' *([>~+]) *')
@@ -269,6 +265,7 @@ class Style(object):
         self._fontSize = None
         self._width = None
         self._height = None
+        self._lineHeight = None
         stylizer._styles[element] = self
 
     def _update_cssdict(self, cssdict):
@@ -426,6 +423,27 @@ class Style(object):
                 result = self._unit_convert(height, base=base)
             self._height = result
         return self._height
+
+    @property
+    def lineHeight(self):
+        if self._lineHeight is None:
+            result = None
+            parent = self._getparent()
+            if 'line-height' in self._style:
+                lineh = self._style['line-height']
+                try:
+                    float(lineh)
+                except ValueError:
+                    result = self._unit_convert(lineh, base=self.fontSize)
+                else:
+                    result = float(lineh) * self.fontSize
+            elif parent is not None:
+                # TODO: proper inheritance
+                result = parent.lineHeight
+            else:
+                result = 1.2 * self.fontSize
+            self._lineHeight = result
+        return self._lineHeight
     
     def __str__(self):
         items = self._style.items()
