@@ -889,6 +889,9 @@ class Main(MainWindow, Ui_MainWindow):
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             files = [self.library_view.model().db.format(id, prefs['output_format'], index_is_id=True, as_file=True) for id in ids]
             files = [f for f in files if f is not None]
+            if not files:
+                dynamic.set('news_to_be_synced', set([]))
+                return
             metadata = self.library_view.model().get_metadata(ids, rows_are_ids=True)
             names = []
             for mi in metadata: 

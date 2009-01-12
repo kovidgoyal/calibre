@@ -217,7 +217,11 @@ class ResultCache(SearchQueryParser):
         return self.index(id)
     
     def has_id(self, id):
-        return self._data[id] is not None
+        try:
+            return self._data[id] is not None
+        except IndexError:
+            pass
+        return False
     
     def refresh_ids(self, conn, ids):
         for id in ids:
