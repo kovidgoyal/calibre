@@ -52,7 +52,13 @@ class EXTHHeader(object):
             #    print 'unknown record', id, repr(content)
         title = re.search(r'\0+([^\0]+)\0+', raw[pos:])
         if title:
-            self.mi.title = title.group(1).decode(codec, 'ignore')
+            title = title.group(1).decode(codec, 'replace')
+            if len(title) > 2:
+                self.mi.title = title
+            else:
+                title = re.search(r'\0+([^\0]+)\0+', ''.join(reversed(raw[pos:])))
+                if title:
+                    self.mi.title = ''.join(reversed(title.group(1).decode(codec, 'replace')))
             
                 
     def process_metadata(self, id, content, codec):
