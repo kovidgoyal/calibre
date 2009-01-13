@@ -266,6 +266,14 @@ class Manifest(object):
             if result != 0:
                 return result
             return cmp(self.id, other.id)
+        
+        def abshref(self, href):
+            if '/' not in self.href:
+                return href
+            dirname = os.path.dirname(self.href)
+            href = os.path.join(dirname, href)
+            href = os.path.normpath(href).replace('\\', '/')
+            return href
     
     def __init__(self, oeb):
         self.oeb = oeb
