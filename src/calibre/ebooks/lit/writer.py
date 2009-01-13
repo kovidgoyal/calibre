@@ -144,16 +144,15 @@ class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
     
     def __init__(self, root, path, oeb, map=HTML_MAP):
-        self.path = path
+        self.item = item
         self.logger = oeb.logger
-        self.dir = os.path.dirname(path)
         self.manifest = oeb.manifest
         self.tags, self.tattrs = map
         self.buf = StringIO()
         self.anchors = []
         self.page_breaks = []
         self.is_html  = is_html = map is HTML_MAP
-        self.stylizer = Stylizer(root, path, oeb) if is_html else None
+        self.stylizer = Stylizer(root, item.href, oeb) if is_html else None
         self.tree_to_binary(root)
         self.content = self.buf.getvalue()
         self.ahc = self.build_ahc() if is_html else None
@@ -210,6 +209,8 @@ class ReBinary(object):
             if attr in ('href', 'src'):
                 value = urlnormalize(value)
                 path, frag = urldefrag(value)
+                if self.item:
+                    path = self.item.abshref(path)
                 prefix = unichr(3)
                 if path in self.manifest.hrefs:
                     prefix = unichr(2)
@@ -222,7 +223,7 @@ class ReBinary(object):
             elif attr.startswith('ms--'):
                 attr = '%' + attr[4:]
             elif tag == 'link' and attr == 'type' and value in OEB_STYLES:
-                value = OEB_CSS_MIME
+                value = CSS_MIME
             if attr in tattrs:
                 self.write(tattrs[attr])
             else:
@@ -275,7 +276,7 @@ class ReBinary(object):
     def build_ahc(self):
         if len(self.anchors) > 6:
             self.logger.log_warn("More than six anchors in file %r. " \
-                "Some links may not work properly." % self.path)
+                "Some links may not work properly." % self.item.href)
         data = StringIO()
         data.write(unichr(len(self.anchors)).encode('utf-8'))
         for anchor, offset in self.anchors:
@@ -473,7 +474,7 @@ class LitWriter(object):
             secnum = 0
             if not isinstance(data, basestring):
                 self._add_folder(name)
-                rebin = ReBinary(data, item.href, self._oeb, map=HTML_MAP)
+                rebin = ReBinary(data, item, self._oeb, map=HTML_MAP)
                 self._add_file(name + '/ahc', rebin.ahc, 0)
                 self._add_file(name + '/aht', rebin.aht, 0)
                 item.page_breaks = rebin.page_breaks
@@ -552,7 +553,7 @@ class LitWriter(object):
         meta.attrib['ms--minimum_level'] = '0'
         meta.attrib['ms--attr5'] = '1'
         meta.attrib['ms--guid'] = '{%s}' % str(uuid.uuid4()).upper()
-        rebin = ReBinary(meta, 'content.opf', self._oeb, map=OPF_MAP)
+        rebin = ReBinary(meta, None, self._oeb, map=OPF_MAP)
         meta = rebin.content
         self._meta = meta
         self._add_file('/meta', meta)

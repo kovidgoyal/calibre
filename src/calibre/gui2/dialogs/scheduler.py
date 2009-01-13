@@ -75,7 +75,13 @@ def save_recipes(recipes):
     
 def load_recipes():
     config.refresh()
-    return [Recipe().unpickle(r) for r in config.get('scheduled_recipes', [])]
+    recipes = []
+    for r in config.get('scheduled_recipes', []):
+        r = Recipe().unpickle(r)
+        if r.builtin and not str(r.id).startswith('recipe_'):
+            continue
+        recipes.append(r)
+    return recipes
 
 class RecipeModel(QAbstractListModel, SearchQueryParser):
     
@@ -438,7 +444,7 @@ class Scheduler(QObject):
             self.lock.unlock()
 
 def main(args=sys.argv):
-    app = QApplication([])
+    QApplication([])
     from calibre.library.database2 import LibraryDatabase2
     d = SchedulerDialog(LibraryDatabase2('/home/kovid/documents/library'))
     d.exec_()

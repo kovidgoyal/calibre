@@ -35,7 +35,7 @@ class Distribution(object):
         ('xdg-utils', '1.0.2', 'xdg-utils', 'xdg-utils', 'xdg-utils'),
         ('dbus-python', '0.82.2', 'dbus-python', 'python-dbus', 'dbus-python'),
         ('lxml', '2.0.5', 'lxml', 'python-lxml', 'python-lxml'),
-        ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-beautifulsoup'),
+        ('BeautifulSoup', '3.0.5', 'beautifulsoup', 'python-beautifulsoup', 'python-BeautifulSoup'),
         ('help2man', '1.36.4', 'help2man', 'help2man', 'help2man'),
         ]
     
@@ -205,23 +205,7 @@ select Install.</li>
 <ol>
 <li>Before trying to use the command line tools, you must run the app at least once. This will ask you for you password and then setup the symbolic links for the command line tools.</li>
 <li>The app cannot be run from within the dmg. You must drag it to a folder on your filesystem (The Desktop, Applications, wherever).</li> 
-<li>In order for the conversion of RTF to LRF to support WMF images (common in older RTF files) you need to install ImageMagick.</li>
-<li>In order for localization of the user interface in your language you must create the file <code>~/.MacOSX/environment.plist</code> as shown below:
-<pre class="wiki">
-&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
-&lt;plist version="1.0"&gt;
-&lt;dict&gt;
-        &lt;key&gt;LANG&lt;/key&gt;
-        &lt;string&gt;de_DE&lt;/string&gt;
-&lt;/dict&gt;
-&lt;/plist&gt;
-</pre>
-The example above is for the German language. Substitute the language code you need. 
-After creating the file you need to log out and log in again for the changes to become
-active. Of course, this will only work if calibre has been translated for your language.
-If not, head over to <a href="http://calibre.kovidgoyal.net/wiki/Development#Translations">Translations</a> to see how you can translate it.
-</li>
+<li>In order for localization of the user interface in your language, select your language in the configuration dialog (by clicking the hammer icon next to the search bar) and select your language.</li>
 </ol>
 '''))
         return 'binary.html', data, None

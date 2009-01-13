@@ -889,6 +889,9 @@ class Main(MainWindow, Ui_MainWindow):
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
             files = [self.library_view.model().db.format(id, prefs['output_format'], index_is_id=True, as_file=True) for id in ids]
             files = [f for f in files if f is not None]
+            if not files:
+                dynamic.set('news_to_be_synced', set([]))
+                return
             metadata = self.library_view.model().get_metadata(ids, rows_are_ids=True)
             names = []
             for mi in metadata: 
@@ -1479,8 +1482,9 @@ in which you want to store your books files. Any existing books will be automati
         return True
 
     
-    def shutdown(self):
-        self.write_settings()
+    def shutdown(self, write_settings=True):
+        if write_settings:
+            self.write_settings()
         self.job_manager.terminate_all_jobs()
         self.device_manager.keep_going = False
         self.cover_cache.stop()
@@ -1500,6 +1504,7 @@ in which you want to store your books files. Any existing books will be automati
 
     
     def closeEvent(self, e):
+        self.write_settings()
         if self.system_tray_icon.isVisible():
             if not dynamic['systray_msg'] and not isosx:
                 info_dialog(self, 'calibre', 'calibre '+_('will keep running in the system tray. To close it, choose <b>Quit</b> in the context menu of the system tray.')).exec_()
@@ -1509,7 +1514,7 @@ in which you want to store your books files. Any existing books will be automati
         else:
             if self.confirm_quit():
                 try:
-                    self.shutdown()
+                    self.shutdown(write_settings=False)
                 except:
                     pass
                 e.accept()

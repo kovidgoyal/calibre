@@ -49,8 +49,10 @@ class Economist(BasicNewsRecipe):
                 if not index_started:
                     continue
                 text = string.capwords(text)
-                feeds[text] = []
-                ans.append(text)
+                if text not in feeds.keys():
+                    feeds[text] = []
+                if text not in ans:
+                    ans.append(text)
                 key = text
                 continue
             if key is None:

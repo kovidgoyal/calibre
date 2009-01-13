@@ -338,7 +338,7 @@ class ZipInfo (object):
         if isinstance(self.filename, unicode):
             try:
                 return self.filename.encode('ascii'), self.flag_bits
-            except UnicodeEncodeError:
+            except:
                 return self.filename.encode('utf-8'), self.flag_bits | 0x800
         else:
             return self.filename, self.flag_bits

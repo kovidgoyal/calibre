@@ -67,6 +67,7 @@ def txt2opf(path, tdir, opts):
 def pdf2opf(path, tdir, opts):
     from calibre.ebooks.lrf.pdf.convert_from import generate_html
     generate_html(path, tdir)
+    opts.dont_split_on_page_breaks = True
     return os.path.join(tdir, 'metadata.opf')
 
 def epub2opf(path, tdir, opts):

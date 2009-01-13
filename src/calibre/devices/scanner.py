@@ -63,12 +63,14 @@ class DeviceScanner(object):
             for device_id in self.devices:
                 if vid in device_id and pid in device_id:
                     if self.test_bcd_windows(device_id, getattr(device, 'BCD', None)):
-                        return True
+                        if device.can_handle(device_id):
+                            return True
         else:
             for vendor, product, bcdDevice in self.devices:
                 if device.VENDOR_ID == vendor and device.PRODUCT_ID == product:
                     if self.test_bcd(bcdDevice, getattr(device, 'BCD', None)):
-                        return True
+                        if device.can_handle((vendor, product, bcdDevice)):
+                            return True
         return False
 
 
