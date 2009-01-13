@@ -217,7 +217,11 @@ class ResultCache(SearchQueryParser):
         return self.index(id)
     
     def has_id(self, id):
-        return self._data[id] is not None
+        try:
+            return self._data[id] is not None
+        except IndexError:
+            pass
+        return False
     
     def refresh_ids(self, conn, ids):
         for id in ids:
@@ -557,7 +561,15 @@ class LibraryDatabase2(LibraryDatabase):
                 img.loadFromData(f.read())
                 return img
             return f if as_file else f.read()
-        
+    
+    def has_book(self, mi):
+        title = mi.title
+        if title:
+            if not isinstance(title, unicode):
+                title = title.decode(preferred_encoding, 'replace')
+            return bool(self.conn.get('SELECT id FROM books where title=?', (title,), all=False))
+        return False
+    
     def has_cover(self, index, index_is_id=False):
         id = index if  index_is_id else self.id(index)
         path = os.path.join(self.library_path, self.path(id, index_is_id=True), 'cover.jpg')

@@ -1551,9 +1551,6 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             
 
 
-    def has_book(self, mi):
-        return bool(self.conn.get('SELECT id FROM books where title=?', (mi.title,), all=False))
-
     def has_id(self, id):
         return self.conn.get('SELECT id FROM books where id=?', (id,), all=False) is not None
 
