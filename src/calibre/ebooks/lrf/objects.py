@@ -1166,7 +1166,9 @@ class TOCObject(LRFStream):
             refpage = struct.unpack("<I", stream.read(4))[0]
             refobj  = struct.unpack("<I", stream.read(4))[0]
             cnt = struct.unpack("<H", stream.read(2))[0]
-            label = unicode(stream.read(cnt), "utf_16")
+            raw = stream.read(cnt)
+            print repr(raw) 
+            label = raw.decode('utf_16_le')
             self._contents.append(TocLabel(refpage, refobj, label))
             c -= 1
             
