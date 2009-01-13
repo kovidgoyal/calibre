@@ -698,9 +698,12 @@ class Text(LRFStream):
     lineposition_map = {1:'before', 2:'after'}
     
     def add_text(self, text):
-        s = unicode(text, "utf-16-le")
+        try:
+            s = unicode(text, "utf-16-le")
+        except UnicodeDecodeError: # Work around for Book Designer
+            s = unicode(text+'\x00', 'utf-16-le')
         if s:
-            s = s.translate(self.text_map)            
+            s = s.translate(self.text_map)
             self.content.append(self.entity_pattern.sub(entity_to_unicode, s))
     
     def end_container(self, tag, stream):
