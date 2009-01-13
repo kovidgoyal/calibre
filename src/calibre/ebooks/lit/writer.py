@@ -731,9 +731,7 @@ def oeb2lit(opts, inpath):
     mangler = CaseMangler()
     mangler.transform(oeb, context)
     fbase = context.dest.fbase
-    fkey = context.dest.fnames.values()
-    flattener = CSSFlattener(
-        fbase=fbase, fkey=fkey, unfloat=True, untable=True)
+    flattener = CSSFlattener(fbase=fbase, unfloat=True, untable=True)
     flattener.transform(oeb, context)
     rasterizer = SVGRasterizer()
     rasterizer.transform(oeb, context)

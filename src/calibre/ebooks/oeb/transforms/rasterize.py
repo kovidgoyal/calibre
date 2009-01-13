@@ -26,6 +26,7 @@ from calibre.ebooks.oeb.base import xml2str, xpath, namespace, barename
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 IMAGE_TAGS = set([XHTML('img'), XHTML('object')])
+KEEP_ATTRS = set(['class', 'style', 'width', 'height', 'align'])
 
 class SVGRasterizer(object):
     def __init__(self):
@@ -172,12 +173,15 @@ class SVGRasterizer(object):
             self.images[key] = href
         elem.tag = XHTML('img')
         for attr in elem.attrib:
-            del elem.attrib[attr]
+            if attr not in KEEP_ATTRS:
+                del elem.attrib[attr]
         elem.attrib['src'] = item.relhref(href)
-        elem.text = None
+        if elem.text:
+            elem.attrib['alt'] = elem.text
+            elem.text = None
         for child in elem:
             elem.remove(child)
-            
+    
     def rasterize_cover(self):
         covers = self.oeb.metadata.cover
         if not covers:
