@@ -212,11 +212,11 @@ class MobiMLizer(object):
                 inline = etree.SubElement(inline, XHTML('sup'))
             elif valign == 'sub':
                 inline = etree.SubElement(inline, XHTML('sub'))
-            if istate.family == 'monospace':
-                inline = etree.SubElement(inline, XHTML('tt'))
-            if fsize != 3:
+            elif fsize != 3:
                 inline = etree.SubElement(inline, XHTML('font'),
                                           size=str(fsize))
+            if istate.family == 'monospace':
+                inline = etree.SubElement(inline, XHTML('tt'))
             if istate.italic:
                 inline = etree.SubElement(inline, XHTML('i'))
             if istate.bold:
