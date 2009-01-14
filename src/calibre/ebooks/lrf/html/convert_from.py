@@ -109,6 +109,10 @@ class HTMLConverter(object, LoggingInterface):
                         # Remove self closing script tags as they also mess up BeautifulSoup
                         (re.compile(r'(?i)<script[^<>]+?/>'), lambda match: ''),
                         
+                        # BeautifulSoup treats self closing <div> tags as open <div> tags
+                        (re.compile(r'(?i)<\s*div([^>]*)/\s*>'), 
+                         lambda match: '<div%s></div>'%match.group(1))
+                        
                         ]
     # Fix Baen markup
     BAEN = [ 
