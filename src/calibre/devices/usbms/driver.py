@@ -56,10 +56,18 @@ class USBMS(Device):
             path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
         else:
             path = os.path.join(self._card_prefix, self.EBOOK_DIR_CARD)
-            
-        sizes = map(os.path.getsize, files)
+
+        def get_size(obj):
+            if hasattr(obj, 'seek'):
+                obj.seek(0, os.SEEK_END)
+                size = obj.tell()
+                obj.seek(0)
+                return size
+            return os.path.getsize(obj)
+
+        sizes = map(get_size, files)
         size = sum(sizes)
-    
+
         if on_card and size > self.free_space()[2] - 1024*1024: 
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if not on_card and size > self.free_space()[0] - 2*1024*1024: 
@@ -72,7 +80,16 @@ class USBMS(Device):
             filepath = os.path.join(path, names.next())
             paths.append(filepath)
             
-            shutil.copy2(infile, filepath)
+            if hasattr(infile, 'read'):
+                infile.seek(0)
+                
+                dest = open(filepath, 'wb')
+                shutil.copyfileobj(infile, dest, 10*1024*1024)
+
+                dest.flush()                
+                dest.close()
+            else:
+                shutil.copy2(infile, filepath)
     
         return zip(paths, cycle([on_card]))
     
