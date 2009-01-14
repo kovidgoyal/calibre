@@ -136,16 +136,18 @@ class DeviceManager(Thread):
         return self.create_job(self._sync_booklists, done, args=[booklists],
                         description=_('Send metadata to device'))
     
-    def _upload_books(self, files, names, on_card=False):
+    def _upload_books(self, files, names, on_card=False, metadata=None):
         '''Upload books to device: '''
-        return self.device.upload_books(files, names, on_card, end_session=False)
+        return self.device.upload_books(files, names, on_card, 
+                                        metadata=metadata, end_session=False)
         
-    def upload_books(self, done, files, names, on_card=False, titles=None):
+    def upload_books(self, done, files, names, on_card=False, titles=None, 
+                     metadata=None):
         desc = _('Upload %d books to device')%len(names)
         if titles:
             desc += u':' + u', '.join(titles)
         return self.create_job(self._upload_books, done, args=[files, names], 
-                kwargs={'on_card':on_card}, description=desc)
+                kwargs={'on_card':on_card,'metadata':metadata}, description=desc)
         
     def add_books_to_metadata(self, locations, metadata, booklists):
         self.device.add_books_to_metadata(locations, metadata, booklists)

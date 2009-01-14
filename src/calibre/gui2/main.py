@@ -745,8 +745,8 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         titles = [i['title'] for i in metadata]
         job = self.device_manager.upload_books(Dispatcher(self.books_uploaded),
-                                        files, names, on_card=on_card,
-                                        titles=titles
+                                        files, names, on_card=on_card, 
+                                        metadata=metadata, titles=titles
                                         )
         self.upload_memory[job] = (metadata, on_card, memory, files)
     

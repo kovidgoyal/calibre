@@ -407,7 +407,8 @@ class PRS505(Device):
         if not os.path.isdir(path):
             os.utime(path, None)
             
-    def upload_books(self, files, names, on_card=False, end_session=True):
+    def upload_books(self, files, names, on_card=False, end_session=True, 
+                     metadata=None):
         if on_card and not self._card_prefix:
             raise ValueError(_('The reader has no storage card connected.'))
         path = os.path.join(self._card_prefix, self.CARD_PATH_PREFIX) if on_card \
