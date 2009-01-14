@@ -40,8 +40,9 @@ class CaseMangler(object):
         self.oeb.manifest.add(id, href, CSS_MIME, data=CASE_MANGLER_CSS)
         for item in self.oeb.spine:
             html = item.data
+            relhref = item.relhref(href)
             etree.SubElement(html.find(XHTML('head')), XHTML('link'),
-                             rel='stylesheet', href=href, type=CSS_MIME)
+                             rel='stylesheet', href=relhref, type=CSS_MIME)
             stylizer = Stylizer(html, item.href, self.oeb, self.profile)
             self.mangle_elem(html.find(XHTML('body')), stylizer)
     

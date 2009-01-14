@@ -115,7 +115,7 @@ class MobiMLizer(object):
         if isinstance(ptsize, basestring):
             return ptsize
         embase = self.profile.fbase
-        if ptsize < embase:
+        if round(ptsize) < embase:
             return "%dpt" % int(round(ptsize))
         return "%dem" % int(round(ptsize / embase))
 

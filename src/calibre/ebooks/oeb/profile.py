@@ -45,7 +45,7 @@ PROFILES = {
                 fsizes=[14, 14, 16, 18, 20, 22, 24, 26]),
     
     # No clue on usable screen size; DPI should be good
-    'EZReader':
+    'HanlinV3':
         Profile(width=584, height=754, dpi=168.451, fbase=16,
                 fsizes=[12, 12, 14, 16, 18, 21, 24, 28]),
 
@@ -57,13 +57,15 @@ PROFILES = {
         Profile(width=525, height=640, dpi=168.451, fbase=16,
                 fsizes=[12, 12, 14, 16, 18, 21, 24, 28]),
     
-    'Firefox':
+    'Browser':
         Profile(width=800, height=600, dpi=100.0, fbase=12,
                 fsizes=[5, 7, 9, 12, 13.5, 17, 20, 22, 24])
     }
 
 
 class Context(object):
+    PROFILES = PROFILES
+    
     def __init__(self, source, dest):
         if source in PROFILES:
             source = PROFILES[source]

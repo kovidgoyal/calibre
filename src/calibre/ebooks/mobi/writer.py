@@ -346,7 +346,9 @@ class MobiWriter(object):
         format = image.format
         changed = False
         if image.format not in ('JPEG', 'GIF'):
-            format = 'GIF'
+            width, height = image.size
+            area = width * height
+            format = 'GIF' if area <= 40000 else 'JPEG'
             changed = True
         if dimen is not None:
             image.thumbnail(dimen, Image.ANTIALIAS)
@@ -481,7 +483,11 @@ class MobiWriter(object):
 
 
 def option_parser():
+    profiles = Context.PROFILES.keys()
+    profiles.sort()
+    profiles = ', '.join(profiles)
     from calibre.utils.config import OptionParser
+    from optparse import OptionGroup
     parser = OptionParser(usage=_('%prog [options] OPFFILE'))
     parser.add_option(
         '-o', '--output', default=None, 
@@ -495,6 +501,16 @@ def option_parser():
     parser.add_option(
         '-v', '--verbose', default=False, action='store_true',
         help=_('Useful for debugging.'))
+    group = OptionGroup(parser, _('Profiles'), _('Device renderer profiles. '
+        'Affects conversion of default font sizes and rasterization '
+        'resolution.  Valid profiles are: %s.') % profiles)
+    group.add_option(
+        '--source-profile', default='Browser', metavar='PROFILE',
+        help=_("Source renderer profile. Default is 'Browser'."))
+    group.add_option(
+        '--dest-profile', default='CybookG3', metavar='PROFILE',
+        help=_("Destination renderer profile. Default is 'CybookG3'."))
+    parser.add_option_group(group)
     return parser
 
 def oeb2mobi(opts, inpath):
@@ -504,9 +520,17 @@ def oeb2mobi(opts, inpath):
     if outpath is None:
         outpath = os.path.basename(inpath)
         outpath = os.path.splitext(outpath)[0] + '.mobi'
+    source = opts.source_profile
+    if source not in Context.PROFILES:
+        logger.error(_('Unknown source profile %r') % source)
+        return 1
+    dest = opts.dest_profile
+    if dest not in Context.PROFILES:
+        logger.error(_('Unknown destination profile %r') % dest)
+        return 1
     compression = PALMDOC if opts.compress else UNCOMPRESSED
     imagemax = MAX_IMAGE_SIZE if opts.rescale_images else None
-    context = Context('Firefox', 'EZReader')
+    context = Context(source, dest)
     oeb = OEBBook(inpath, logger=logger)
     tocadder = HTMLTOCAdder()
     tocadder.transform(oeb, context)
@@ -535,8 +559,8 @@ def main(argv=sys.argv):
         parser.print_help()
         return 1
     inpath = args[0]
-    oeb2mobi(opts, inpath)
-    return 0
+    retval = oeb2mobi(opts, inpath)
+    return retval
 
 if __name__ == '__main__':
     sys.exit(main())
