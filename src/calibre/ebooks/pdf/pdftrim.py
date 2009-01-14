@@ -49,13 +49,13 @@ def main(args=sys.argv):
         input_pdf = PdfFileReader(file(source, "rb"))
     except:
         print "Unable to read input"
-	return 2
+        return 2
     info = input_pdf.getDocumentInfo()
     title   = 'Unknown'
     author  = 'Unknown'
     if info.title:
-       title   = info.title
-       author  = info.author
+        title   = info.title
+        author  = info.author
     if opts.bounding != None:
         try:
             bounding = open( opts.bounding , 'r' )

@@ -385,13 +385,35 @@ class BooksModel(QAbstractTableModel):
             metadata.append(mi)
         return metadata
 
+    def get_preferred_formats_from_ids(self, ids, all_formats, mode='r+b'):
+        ans = []
+        for id in ids:
+            format = None
+            fmts = self.db.formats(id, index_is_id=True)
+            if not fmts:
+                fmts = ''
+            available_formats = set(fmts.lower().split(','))
+            for f in all_formats:
+                if f.lower() in available_formats:
+                    format = f.lower()
+                    break
+            if format is None:
+                ans.append(format)
+            else:
+                f = self.db.format(id, format, index_is_id=True, as_file=True, 
+                                   mode=mode)
+                ans.append(f)
+        return ans
+                     
+            
+    
     def get_preferred_formats(self, rows, formats, paths=False):
         ans = []
         for row in (row.row() for row in rows):
             format = None
             fmts = self.db.formats(row)
             if not fmts:
-                return []
+                fmts = ''
             db_formats = set(fmts.lower().split(','))
             available_formats = set([f.lower() for f in formats]) 
             u = available_formats.intersection(db_formats)
