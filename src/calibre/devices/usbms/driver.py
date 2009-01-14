@@ -77,7 +77,7 @@ class USBMS(Device):
         return zip(paths, cycle([on_card]))
     
     @classmethod
-    def add_books_to_metadata(cls, locations, metadata, booklists):
+    def add_books_to_metadata(cls, locations, metadata, booklists):    
         for location in locations:
             path = location[0]
             on_card = 1 if location[1] else 0
