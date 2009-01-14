@@ -66,25 +66,6 @@ OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
 OEB_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
-GUIDE_TITLES = {
-    'cover': 'Cover',
-    'title-page': 'Title Page',
-    'toc': 'Table of Contents',
-    'index': 'Index',
-    'glossary': 'Glossary',
-    'acknowledgements': 'Acknowledgements',
-    'bibliography': 'Bibliography',
-    'colophon': 'Colophon',
-    'copyright-page': 'Copyright',
-    'dedication': 'Dedication',
-    'epigraph': 'Epigraph',
-    'foreword': 'Foreword',
-    'loi': 'List of Illustrations',
-    'lot': 'List of Tables',
-    'notes': 'Notes',
-    'preface': 'Preface',
-    'text': 'Begin Reading'
-}
 
 recode = lambda s: s.decode('iso-8859-1').encode('ascii', 'xmlcharrefreplace')
 ENTITYDEFS = dict((k, recode(v)) for k, v in htmlentitydefs.entitydefs.items())
@@ -558,9 +539,27 @@ class Spine(object):
 
 class Guide(object):
     class Reference(object):
+        _TYPES_TITLES = [('cover', 'Cover'), ('title-page', 'Title Page'),
+            ('toc', 'Table of Contents'), ('index', 'Index'),
+            ('glossary', 'Glossary'), ('acknowledgements', 'Acknowledgements'),
+            ('bibliography', 'Bibliography'), ('colophon', 'Colophon'),
+            ('copyright-page', 'Copyright'), ('dedication', 'Dedication'),
+            ('epigraph', 'Epigraph'), ('foreword', 'Foreword'),
+            ('loi', 'List of Illustrations'), ('lot', 'List of Tables'),
+            ('notes', 'Notes'), ('preface', 'Preface'),
+            ('text', 'Begin Reading')]
+        TYPES = set(t for t, _ in _TYPES_TITLES)
+        TITLES = dict(_TYPES_TITLES)
+        ORDER = dict((t, i) for (t, _), i in izip(_TYPES_TITLES, count(0)))
+    
         def __init__(self, type, title, href):
-            if not title and type in GUIDE_TITLES:
-                title = GUIDE_TITLES[type]
+            if type.lower() in self.TYPES:
+                type = type.lower()
+            elif type not in self.TYPES and \
+                 not type.startswith('other.'):
+                type = 'other.' + type
+            if not title:
+                title = self.TITLES.get(type, None)
             self.type = type
             self.title = title
             self.href = urlnormalize(href)
@@ -568,44 +567,53 @@ class Guide(object):
         def __repr__(self):
             return 'Reference(type=%r, title=%r, href=%r)' \
                 % (self.type, self.title, self.href)
+        
+        def _order():
+            def fget(self):
+                return self.ORDER.get(self.type, self.type)
+            return property(fget=fget)
+        _order = _order()
+        
+        def __cmp__(self, other):
+            if not isinstance(other, Guide.Reference):
+                return NotImplemented
+            return cmp(self._order, other._order)
     
     def __init__(self, oeb):
         self.oeb = oeb
         self.refs = {}
-
+    
     def add(self, type, title, href):
         ref = self.Reference(type, title, href)
         self.refs[type] = ref
         return ref
-
-    def by_type(self, type):
-        return self.ref_types[type]
-
+    
     def iterkeys(self):
         for type in self.refs:
             yield type
     __iter__ = iterkeys
-
+    
     def values(self):
-        for ref in self.refs.values():
-            yield ref
-
+        values = list(self.refs.values())
+        values.sort()
+        return values
+    
     def items(self):
         for type, ref in self.refs.items():
             yield type, ref
     
     def __getitem__(self, key):
         return self.refs[key]
-
+    
     def __delitem__(self, key):
         del self.refs[key]
     
     def __contains__(self, key):
         return key in self.refs
-
+    
     def __len__(self):
         return len(self.refs)
-
+    
     def to_opf1(self, parent=None):
         elem = element(parent, 'guide')
         for ref in self.refs.values():
