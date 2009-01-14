@@ -335,7 +335,7 @@ class PreProcessor(object):
     # Fix pdftohtml markup
     PDFTOHTML  = [
                   # Remove <hr> tags
-                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<span style="page-break-after:always"> </span>'),
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
                   # Remove page numbers
                   (re.compile(r'\d+<br>', re.IGNORECASE), lambda match: ''),
                   # Remove <br> and replace <br><br> with <p>

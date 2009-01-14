@@ -43,7 +43,11 @@ def update_module(mod, path):
         zp = os.path.join(os.path.dirname(sys.executable), 'library.zip')
     elif isosx:
         zp = os.path.join(os.path.dirname(getattr(sys, 'frameworks_dir')),
-                            'Resources', 'lib', 'python2.5', 'site-packages.zip')
+                            'Resources', 'lib', 
+                            'python'+'.'.join(map(str, sys.version_info[:2])), 
+                            'site-packages.zip')
+    else:
+        zp = os.path.join(getattr(sys, 'frozen_path'), 'loader.zip')
     if zp is not None:
         update_zipfile(zp, mod, path)
     else:
