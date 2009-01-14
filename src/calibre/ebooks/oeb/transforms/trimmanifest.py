@@ -9,6 +9,7 @@ __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 import sys
 import os
 from itertools import chain
+from urlparse import urldefrag
 from lxml import etree
 import cssutils
 from calibre.ebooks.oeb.base import XPNSMAP, CSS_MIME, OEB_DOCS
@@ -29,6 +30,11 @@ class ManifestTrimmer(object):
                     used.add(oeb.manifest.hrefs[item.value])
                 elif item.value in oeb.manifest.ids:
                     used.add(oeb.manifest.ids[item.value])
+        for ref in oeb.guide.values():
+            path, _ = urldefrag(ref.href)
+            if path in oeb.manifest.hrefs:
+                used.add(oeb.manifest.hrefs[path])
+        # TOC items are required to be in the spine
         for item in oeb.spine:
             used.add(item)
         unchecked = used
@@ -56,7 +62,6 @@ class ManifestTrimmer(object):
                     cssutils.replaceUrls(sheet, replacer)
             used.update(new)
             unchecked = new
-        # All guide and TOC items are required to be in the spine
         for item in oeb.manifest.values():
             if item not in used:
                 oeb.logger.info('Trimming %r from manifest' % item.href)
