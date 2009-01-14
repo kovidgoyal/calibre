@@ -529,7 +529,7 @@ def oeb2mobi(opts, inpath):
         logger.error(_('Unknown destination profile %r') % dest)
         return 1
     compression = PALMDOC if opts.compress else UNCOMPRESSED
-    imagemax = MAX_IMAGE_SIZE if opts.rescale_images else None
+    imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
     context = Context(source, dest)
     oeb = OEBBook(inpath, logger=logger)
     tocadder = HTMLTOCAdder()
