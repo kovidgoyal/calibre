@@ -50,12 +50,16 @@ def main(args=sys.argv):
     except:
         print "Unable to read input"
         return 2
-    info = input_pdf.getDocumentInfo()
-    title   = 'Unknown'
-    author  = 'Unknown'
-    if info.title:
-        title   = info.title
-        author  = info.author
+    title   = _('Unknown')
+    author  = _('Unknown')
+    try:
+        info = input_pdf.getDocumentInfo()
+        if info.title:
+            title   = info.title
+        if info.author:
+            author  = info.author
+    except:
+        pass
     if opts.bounding != None:
         try:
             bounding = open( opts.bounding , 'r' )
