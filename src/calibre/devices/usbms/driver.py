@@ -48,7 +48,8 @@ class USBMS(Device):
                     bl.append(Book(os.path.join(path, filename), title, author, mime))
         return bl
     
-    def upload_books(self, files, names, on_card=False, end_session=True):
+    def upload_books(self, files, names, on_card=False, end_session=True, 
+                     metadata=None):
         if on_card and not self._card_prefix:
             raise ValueError(_('The reader has no storage card connected.'))
             

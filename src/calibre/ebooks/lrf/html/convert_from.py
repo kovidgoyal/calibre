@@ -109,6 +109,10 @@ class HTMLConverter(object, LoggingInterface):
                         # Remove self closing script tags as they also mess up BeautifulSoup
                         (re.compile(r'(?i)<script[^<>]+?/>'), lambda match: ''),
                         
+                        # BeautifulSoup treats self closing <div> tags as open <div> tags
+                        (re.compile(r'(?i)<\s*div([^>]*)/\s*>'), 
+                         lambda match: '<div%s></div>'%match.group(1))
+                        
                         ]
     # Fix Baen markup
     BAEN = [ 
@@ -576,20 +580,20 @@ class HTMLConverter(object, LoggingInterface):
         if (css.has_key('display') and css['display'].lower() == 'none') or \
            (css.has_key('visibility') and css['visibility'].lower() == 'hidden'):
             return ''
-        text = u''
+        text, alt_text = u'', u''
         for c in tag.contents:
             if limit != None and len(text) > limit:
                 break
             if isinstance(c, HTMLConverter.IGNORED_TAGS):
-                return u''
+                continue
             if isinstance(c, NavigableString):
                 text += unicode(c)                
             elif isinstance(c, Tag):
                 if c.name.lower() == 'img' and c.has_key('alt'):
-                    text += c['alt']
-                    return text
+                    alt_text += c['alt']
+                    continue
                 text += self.get_text(c)
-        return text
+        return text if text.strip() else alt_text
     
     def process_links(self):
         def add_toc_entry(text, target):

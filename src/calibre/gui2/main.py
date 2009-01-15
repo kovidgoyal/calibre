@@ -745,8 +745,8 @@ class Main(MainWindow, Ui_MainWindow):
         '''
         titles = [i['title'] for i in metadata]
         job = self.device_manager.upload_books(Dispatcher(self.books_uploaded),
-                                        files, names, on_card=on_card,
-                                        titles=titles
+                                        files, names, on_card=on_card, 
+                                        metadata=metadata, titles=titles
                                         )
         self.upload_memory[job] = (metadata, on_card, memory, files)
     
@@ -887,7 +887,8 @@ class Main(MainWindow, Ui_MainWindow):
         if self.device_connected:
             ids = list(dynamic.get('news_to_be_synced', set([])))
             ids = [id for id in ids if self.library_view.model().db.has_id(id)]
-            files = [self.library_view.model().db.format(id, prefs['output_format'], index_is_id=True, as_file=True) for id in ids]
+            files = self.library_view.model().get_preferred_formats_from_ids(
+                                ids, self.device_manager.device_class.FORMATS)
             files = [f for f in files if f is not None]
             if not files:
                 dynamic.set('news_to_be_synced', set([]))
@@ -922,7 +923,7 @@ class Main(MainWindow, Ui_MainWindow):
             if cdata:
                 mi['cover'] = self.cover_to_thumbnail(cdata)
         metadata = iter(metadata)
-        _files = self.library_view.model().get_preferred_formats(rows,
+        _files   = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, paths=True)
         files = [getattr(f, 'name', None) for f in _files]
         bad, good, gf, names = [], [], [], []
