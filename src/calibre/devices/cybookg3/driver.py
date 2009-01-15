@@ -28,6 +28,7 @@ class CYBOOKG3(USBMS):
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
     
     EBOOK_DIR_MAIN = "eBooks"
+    SUPPORTS_SUB_DIRS = True
 
     def delete_books(self, paths, end_session=True):
         for path in paths:
@@ -45,4 +46,9 @@ class CYBOOKG3(USBMS):
                 for p, d, files in os.walk(basepath):
                     for filen in fnmatch.filter(files, filename + "*.t2b"):
                         os.unlink(os.path.join(p, filen))
+
+                try:
+                    os.removedirs(os.path.dirname(path))
+                except:
+                    pass
 
