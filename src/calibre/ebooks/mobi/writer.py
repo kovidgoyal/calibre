@@ -117,11 +117,15 @@ class Serializer(object):
         buffer.write('<guide>')
         for ref in self.oeb.guide.values():
             path, frag = urldefrag(ref.href)
-            if hrefs[path].media_type not in OEB_DOCS or \
-               not ref.title:
+            if hrefs[path].media_type not in OEB_DOCS:
                 continue
-            buffer.write('<reference title="%s" type="%s" '
-                         % (ref.title, ref.type))
+            buffer.write('<reference type="')
+            self.serialize_text(ref.type)
+            buffer.write('" ')
+            if ref.title is not None:
+                buffer.write('title="')
+                self.serialize_text(ref.title)
+                buffer.write('" ')
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not
             buffer.write(' />')
@@ -148,6 +152,12 @@ class Serializer(object):
     def serialize_body(self):
         buffer = self.buffer
         buffer.write('<body>')
+        # CybookG3 'Start Reading' link
+        if 'text' in self.oeb.guide:
+            href = self.oeb.guide['text'].href
+            buffer.write('<a ')
+            self.serialize_href(href)
+            buffer.write(' />')
         spine = [item for item in self.oeb.spine if item.linear]
         spine.extend([item for item in self.oeb.spine if not item.linear])
         for item in spine:

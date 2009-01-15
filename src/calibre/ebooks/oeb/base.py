@@ -547,7 +547,7 @@ class Guide(object):
             ('epigraph', 'Epigraph'), ('foreword', 'Foreword'),
             ('loi', 'List of Illustrations'), ('lot', 'List of Tables'),
             ('notes', 'Notes'), ('preface', 'Preface'),
-            ('text', 'Begin Reading')]
+            ('text', 'Main Text')]
         TYPES = set(t for t, _ in _TYPES_TITLES)
         TITLES = dict(_TYPES_TITLES)
         ORDER = dict((t, i) for (t, _), i in izip(_TYPES_TITLES, count(0)))
