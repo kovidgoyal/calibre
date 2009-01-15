@@ -123,7 +123,8 @@ class Device(object):
         """    
         raise NotImplementedError()
     
-    def upload_books(self, files, names, on_card=False, end_session=True):
+    def upload_books(self, files, names, on_card=False, end_session=True,
+                     metadata=None):
         '''
         Upload a list of books to the device. If a file already
         exists on the device, it should be replaced.
@@ -135,6 +136,10 @@ class Device(object):
         once uploaded to the device. len(names) == len(files)
         @return: A list of 3-element tuples. The list is meant to be passed 
         to L{add_books_to_metadata}.
+        @param metadata: If not None, it is a list of dictionaries. Each dictionary 
+        will have at least the key tags to allow the driver to choose book location
+        based on tags. len(metadata) == len(files). If your device does not support
+        hierarchical ebook folders, you can safely ignore this parameter.
         '''
         raise NotImplementedError()
     

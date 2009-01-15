@@ -841,7 +841,8 @@ class PRS500(Device):
             self.upload_book_list(booklists[1], end_session=False)
     
     @safe
-    def upload_books(self, files, names, on_card=False, end_session=True):
+    def upload_books(self, files, names, on_card=False, end_session=True, 
+                     metadata=None):
         card = self.card(end_session=False)
         prefix = card + '/' + self.CARD_PATH_PREFIX +'/' if on_card else '/Data/media/books/'
         if on_card and not self._exists(prefix)[0]:

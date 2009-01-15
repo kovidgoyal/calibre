@@ -15,9 +15,10 @@ from calibre.devices.errors import FreeSpaceError
 from calibre.devices.mime import MIME_MAP
 
 class USBMS(Device):
+    FORMATS = []
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD = ''
-    FORMATS = []
+    SUPPORTS_SUB_DIRS = False
 
     def __init__(self, key='-1', log_packets=False, report_progress=None):
         pass
@@ -48,7 +49,8 @@ class USBMS(Device):
                     bl.append(Book(os.path.join(path, filename), title, author, mime))
         return bl
     
-    def upload_books(self, files, names, on_card=False, end_session=True):
+    def upload_books(self, files, names, on_card=False, end_session=True, 
+                     metadata=None):
         if on_card and not self._card_prefix:
             raise ValueError(_('The reader has no storage card connected.'))
             
@@ -75,9 +77,25 @@ class USBMS(Device):
 
         paths = []
         names = iter(names)
+        metadata = iter(metadata)
         
         for infile in files:
-            filepath = os.path.join(path, names.next())
+            newpath = path
+            
+            if self.SUPPORTS_SUB_DIRS:
+                mdata = metadata.next()
+                
+                if 'tags' in mdata.keys():
+                    for tag in mdata['tags']:
+                        if tag.startswith('/'):
+                            newpath += tag
+                            newpath = os.path.normpath(newpath)
+                            break
+
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            
+            filepath = os.path.join(newpath, names.next())                
             paths.append(filepath)
             
             if hasattr(infile, 'read'):
@@ -107,6 +125,10 @@ class USBMS(Device):
             if os.path.exists(path):
                 # Delete the ebook
                 os.unlink(path)
+                try:
+                    os.removedirs(os.path.dirname(path))
+                except:
+                    pass
     
     @classmethod
     def remove_books_from_metadata(cls, paths, booklists):
@@ -115,7 +137,6 @@ class USBMS(Device):
                 for book in bl:
                     if path.endswith(book.path):
                         bl.remove(book)
-                        break
         
     def sync_booklists(self, booklists, end_session=True):
         # There is no meta data on the device to update. The device is treated
