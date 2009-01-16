@@ -33,7 +33,7 @@ class EXTHHeader(object):
         self.length, self.num_items = struct.unpack('>LL', raw[4:12])
         raw = raw[12:]
         pos = 0
-        self.mi = MetaInformation('Unknown', ['Unknown'])
+        self.mi = MetaInformation(_('Unknown'), [_('Unknown')])
         self.has_fake_cover = True
         
         for i in range(self.num_items):
@@ -63,7 +63,9 @@ class EXTHHeader(object):
                 
     def process_metadata(self, id, content, codec):
         if id == 100:
-            self.mi.authors   = [content.decode(codec, 'ignore').strip()]
+            if self.mi.authors == [_('Unknown')]:
+                self.mi.authors = []
+            self.mi.authors.append(content.decode(codec, 'ignore').strip())
         elif id == 101:
             self.mi.publisher = content.decode(codec, 'ignore').strip()
         elif id == 103:
