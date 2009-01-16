@@ -7,8 +7,8 @@ var column_titles = {
     'rating'   : 'Rating',
     'date'     : 'Date',
     'tags'     : 'Tags',
-    'series'   : 'Series',
-}
+    'series'   : 'Series'
+};
 
 String.prototype.format = function() {
     var pattern = /\{\d+\}/g;
@@ -47,7 +47,7 @@ function render_book(book) {
     // Render title cell
     var title = '<i>{0}</i>'.format(book.attr("title")) + '<br /><span class="subtitle">';
     var id    = book.attr("id");
-    var comments = $.trim(book.text()).replace(/\n\n/, '<br/>'); 
+    var comments = $.trim(book.text()).replace(/\n\n/, '<br/>');
     var formats = new Array();
     var size = (parseFloat(book.attr('size'))/(1024*1024)).toFixed(1);
     var tags = book.attr('tags').replace(/,/g, ', ');
@@ -70,22 +70,22 @@ function render_book(book) {
         authors += jQuery.trim(_authors[i]).replace(/ /g, '&nbsp;')+'<br />';
     }
     if (authors) { authors = authors.slice(0, authors.length-6); }
-    
+
     // Render rating cell
     var _rating = parseFloat(book.attr('rating'))/2.;
     var rating = '';
     for (i = 0; i < _rating; i++) { rating += '&#9733;'}
-    
+
     // Render date cell
     var _date = Date.parseExact(book.attr('timestamp'), 'yyyy/MM/dd HH:mm:ss');
     var date = _date.toString('d MMM yyyy').replace(/ /g, '&nbsp;');
-    
+
     // Render series cell
     var series = book.attr("series")
     if (series) {
         series += '&nbsp;[{0}]'.format(book.attr('series_index'));
     }
-    
+
     var cells = {
         'title'   : title,
         'authors' : authors,
@@ -93,12 +93,12 @@ function render_book(book) {
         'date'    : date,
         'series'  : series
     };
-    
+
     var row = '';
     for (i = 0; i < cmap.length; i++) {
         row += '<td class="{0}">{1}</td>'.format(cmap[i], cells[cmap[i]]);
     }
-    return '<tr id="{0}">{1}</tr>'.format(id, row);    
+    return '<tr id="{0}">{1}</tr>'.format(id, row);
 }
 
 function fetch_library_books(start, num, timeout, sort, order, search) {
@@ -112,15 +112,15 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
     last_search = search;
     last_sort = sort;
     last_sort_order = order;
-    
+
     if (current_library_request != null) {
         current_library_request.abort();
         current_library_request = null;
     }
-    
+
     $('#cover_pane').css('visibility', 'hidden');
     $('#loading').css('visibility', 'visible');
-    
+
     current_library_request = $.ajax({
       type: "GET",
       url: "library",
@@ -128,18 +128,18 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
       cache: false,
       timeout: timeout, //milliseconds
       dataType: "xml",
-      
+
       error : function(XMLHttpRequest, textStatus, errorThrown) {
-          alert('Error: '+textStatus+'\n\n'+errorThrown);       
+          alert('Error: '+textStatus+'\n\n'+errorThrown);
       },
-      
+
       success : function(xml, textStatus) {
           var library = $(xml).find('library');
           total = parseInt(library.attr('total'));
           var num   = parseInt(library.attr('num'));
           var start = parseInt(library.attr('start'));
           update_count_bar(start, num, total);
-          var display = ''; 
+          var display = '';
           library.find('book').each( function() {
               var book = $(this);
               var row = render_book(book);
@@ -170,18 +170,18 @@ function fetch_library_books(start, num, timeout, sort, order, search) {
                   $('#cover_pane').css('visibility', 'visible');
               }
           });
-          
-          
+
+
           layout();
           $('#book_list tbody tr:even()').css('background-color', '#eeeeee');
       },
-      
+
       complete : function(XMLHttpRequest, textStatus) {
           current_library_request = null;
           document.getElementById('main').scrollTop = 0;
           $('#loading').css('visibility', 'hidden');
       }
-    
+
     });
 
 }
@@ -196,7 +196,7 @@ function update_count_bar(start, num, total) {
     left.css('opacity', (start <= 0) ? 0.3 : 1);
     var right = cb.find('#right');
     right.css('opacity', (start + num >= total) ? 0.3 : 1);
-    
+
 }
 
 function setup_count_bar() {
@@ -205,7 +205,7 @@ function setup_count_bar() {
             fetch_library_books(0, last_num, LIBRARY_FETCH_TIMEOUT, last_sort, last_sort_order, last_search);
         }
     });
-    
+
     $('#count_bar * img:eq(1)').click(function(){
         if (last_start > 0) {
             var new_start = last_start - last_num;
@@ -215,14 +215,14 @@ function setup_count_bar() {
             fetch_library_books(new_start, last_num, LIBRARY_FETCH_TIMEOUT, last_sort, last_sort_order, last_search);
         }
     });
-    
+
     $('#count_bar * img:eq(2)').click(function(){
         if (last_start + last_num < total) {
             var new_start = last_start + last_num;
             fetch_library_books(new_start, last_num, LIBRARY_FETCH_TIMEOUT, last_sort, last_sort_order, last_search);
         }
     });
-    
+
     $('#count_bar * img:eq(3)').click(function(){
         if (total - last_num > 0) {
             fetch_library_books(total - last_num, last_num, LIBRARY_FETCH_TIMEOUT, last_sort, last_sort_order, last_search);
@@ -234,7 +234,7 @@ function setup_count_bar() {
 
 function search() {
     var search = $.trim($('#search_box * #s').val());
-    fetch_library_books(0, last_num, LIBRARY_FETCH_TIMEOUT, 
+    fetch_library_books(0, last_num, LIBRARY_FETCH_TIMEOUT,
                         last_sort, last_sort_order, search);
 }
 
@@ -245,11 +245,11 @@ function setup_sorting() {
     $('table#book_list  thead tr td').mouseover(function() {
         this.style.backgroundColor = "#fff2a8";
     });
-    
+
     $('table#book_list  thead tr td').mouseout(function() {
         this.style.backgroundColor = "inherit";
     });
-    
+
     for (i = 0; i < cmap.length; i++) {
         $('table#book_list span#{0}_sort'.format(cmap[i])).parent().click(function() {
             var sort_indicator = $($(this).find('span'));
@@ -258,7 +258,7 @@ function setup_sorting() {
             var col = id.slice(0, id.indexOf("_"));
             var order = 'ascending';
             var html = '↑';
-            
+
             if (sort_indicator.html() == '↑') {
                 order = 'descending'; html = '↓';
             }
@@ -291,13 +291,13 @@ function layout() {
 $(function() {
 	// document is ready
     create_table_headers();
-    
+
     // Setup widgets
     setup_sorting();
     setup_count_bar();
     $('#search_box * #s').val('');
     $(window).resize(layout);
-    
+
     $($('#book_list * span#date_sort').parent()).click();
 
 });

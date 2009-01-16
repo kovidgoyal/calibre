@@ -6,7 +6,6 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 tomshardware.com
 '''
 
-from calibre.ebooks.BeautifulSoup import BeautifulSoup
 from calibre.web.feeds.recipes import BasicNewsRecipe
 
 class Tomshardware(BasicNewsRecipe):
@@ -50,7 +49,7 @@ class Tomshardware(BasicNewsRecipe):
         rmain, rsep, article_id = main.rpartition(',')
         tmain, tsep, trest = rmain.rpartition('/reviews/')
         if tsep:
-           return 'http://www.tomshardware.com/review_print.php?p1=' + article_id
+            return 'http://www.tomshardware.com/review_print.php?p1=' + article_id
         return 'http://www.tomshardware.com/news_print.php?p1=' + article_id        
 
     def preprocess_html(self, soup):
