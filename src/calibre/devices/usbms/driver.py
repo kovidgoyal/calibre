@@ -125,10 +125,11 @@ class USBMS(Device):
             if os.path.exists(path):
                 # Delete the ebook
                 os.unlink(path)
-                try:
-                    os.removedirs(os.path.dirname(path))
-                except:
-                    pass
+                if self.SUPPORTS_SUB_DIRS:
+                    try:
+                        os.removedirs(os.path.dirname(path))
+                    except:
+                        pass
     
     @classmethod
     def remove_books_from_metadata(cls, paths, booklists):
@@ -148,7 +149,18 @@ class USBMS(Device):
         path = self.munge_path(path)
         src = open(path, 'rb')
         shutil.copyfileobj(src, outfile, 10*1024*1024)
-    
+
+    def put_file(self, infile, path, replace_file=False, end_session=True):
+        path = self.munge_path(path)
+        if os.path.isdir(path):
+            path = os.path.join(path, infile.name)
+        if not replace_file and os.path.exists(path):
+            raise PathError('File already exists: ' + path)
+        dest = open(path, 'wb')
+        shutil.copyfileobj(infile, dest, 10*1024*1024)
+        dest.flush()
+        dest.close()
+
     def munge_path(self, path):
         if path.startswith('/') and not (path.startswith(self._main_prefix) or \
             (self._card_prefix and path.startswith(self._card_prefix))):
@@ -156,6 +168,34 @@ class USBMS(Device):
         elif path.startswith('card:'):
             path = path.replace('card:', self._card_prefix[:-1])
         return path
+
+    def list(self, path, recurse=False, end_session=True, munge=True):
+        if munge:
+            path = self.munge_path(path)
+        if os.path.isfile(path):
+            return [(os.path.dirname(path), [File(path)])]
+        entries = [File(os.path.join(path, f)) for f in os.listdir(path)]
+        dirs = [(path, entries)]
+        for _file in entries:
+            if recurse and _file.is_dir:
+                dirs[len(dirs):] = self.list(_file.path, recurse=True, munge=False)
+        return dirs
+
+    def mkdir(self, path, end_session=True):
+        if self.SUPPORTS_SUB_DIRS:
+            path = self.munge_path(path)
+            os.mkdir(path)
+
+    def rm(self, path, end_session=True):
+        path = self.munge_path(path)
+        self.delete_books([path])
+
+    def touch(self, path, end_session=True):
+        path = self.munge_path(path)
+        if not os.path.exists(path):
+            open(path, 'w').close()
+        if not os.path.isdir(path):
+            os.utime(path, None)
 
     @classmethod
     def extract_book_metadata_by_filename(cls, filename):
@@ -182,6 +222,4 @@ class USBMS(Device):
             book_mime = MIME_MAP[fileext] if fileext in MIME_MAP.keys() else 'Unknown'
 
         return book_title, book_author, book_mime
-
-# ls, rm, cp, mkdir, touch, cat
 
