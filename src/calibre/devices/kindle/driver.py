@@ -16,13 +16,18 @@ class KINDLE(USBMS):
     PRODUCT_ID  = 0x0001
     BCD         = [0x399]
     
-    VENDOR_NAME = 'AMAZON'
-    WINDOWS_MAIN_MEM = 'KINDLE'
+    VENDOR_NAME = 'KINDLE'
+    WINDOWS_MAIN_MEM = 'INTERNAL_STORAGE'
+    WINDOWS_CARD_MEM = 'CARD_STORAGE'
+    
+    OSX_MAIN_MEM = 'Kindle Internal Storage Media'
+    OSX_CARD_MEM = 'Kindle Card Storage Media'
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Kindle Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Kindle Storage Card'
     
     EBOOK_DIR_MAIN = "documents"
+    SUPPORTS_SUB_DIRS = True
 
     def delete_books(self, paths, end_session=True):
         for path in paths:
