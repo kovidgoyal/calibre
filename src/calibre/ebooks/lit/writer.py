@@ -143,7 +143,7 @@ def warn(x):
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
     
-    def __init__(self, root, path, oeb, map=HTML_MAP):
+    def __init__(self, root, item, oeb, map=HTML_MAP):
         self.item = item
         self.logger = oeb.logger
         self.manifest = oeb.manifest
