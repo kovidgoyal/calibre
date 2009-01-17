@@ -47,15 +47,15 @@ PROFILES = {
     # No clue on usable screen size; DPI should be good
     'HanlinV3':
         Profile(width=584, height=754, dpi=168.451, fbase=16,
-                fsizes=[12, 12, 14, 16, 18, 21, 24, 28]),
+                fsizes=[12, 12, 14, 16, 18, 20, 22, 24]),
 
     'CybookG3':
         Profile(width=600, height=800, dpi=168.451, fbase=16,
-                fsizes=[12, 12, 14, 16, 18, 21, 24, 28]),
+                fsizes=[12, 12, 14, 16, 18, 20, 22, 24]),
 
     'Kindle':
         Profile(width=525, height=640, dpi=168.451, fbase=16,
-                fsizes=[12, 12, 14, 16, 18, 21, 24, 28]),
+                fsizes=[12, 12, 14, 16, 18, 20, 22, 24]),
     
     'Browser':
         Profile(width=800, height=600, dpi=100.0, fbase=12,
