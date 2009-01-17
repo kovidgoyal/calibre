@@ -725,7 +725,7 @@ def oeb2lit(opts, inpath):
         outpath = os.path.basename(inpath)
         outpath = os.path.splitext(outpath)[0] + '.lit'
     outpath = os.path.abspath(outpath)
-    context = Context('Firefox', 'MSReader')
+    context = Context('Browser', 'MSReader')
     oeb = OEBBook(inpath, logger=logger)
     tocadder = HTMLTOCAdder()
     tocadder.transform(oeb, context)
