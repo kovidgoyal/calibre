@@ -33,8 +33,7 @@ class EXTHHeader(object):
         self.length, self.num_items = struct.unpack('>LL', raw[4:12])
         raw = raw[12:]
         pos = 0
-        
-        self.mi = MetaInformation('Unknown', ['Unknown'])
+        self.mi = MetaInformation(_('Unknown'), [_('Unknown')])
         self.has_fake_cover = True
         
         for i in range(self.num_items):
@@ -49,14 +48,24 @@ class EXTHHeader(object):
                 self.cover_offset, = struct.unpack('>L', content)
             elif id == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
+            #else:
+            #    print 'unknown record', id, repr(content)
         title = re.search(r'\0+([^\0]+)\0+', raw[pos:])
         if title:
-            self.mi.title = title.group(1).decode(codec, 'ignore')
+            title = title.group(1).decode(codec, 'replace')
+            if len(title) > 2:
+                self.mi.title = title
+            else:
+                title = re.search(r'\0+([^\0]+)\0+', ''.join(reversed(raw[pos:])))
+                if title:
+                    self.mi.title = ''.join(reversed(title.group(1).decode(codec, 'replace')))
             
                 
     def process_metadata(self, id, content, codec):
         if id == 100:
-            self.mi.authors   = [content.decode(codec, 'ignore').strip()]
+            if self.mi.authors == [_('Unknown')]:
+                self.mi.authors = []
+            self.mi.authors.append(content.decode(codec, 'ignore').strip())
         elif id == 101:
             self.mi.publisher = content.decode(codec, 'ignore').strip()
         elif id == 103:
@@ -67,7 +76,8 @@ class EXTHHeader(object):
             if not self.mi.tags:
                 self.mi.tags = []
             self.mi.tags.append(content.decode(codec, 'ignore'))
-         
+        #else:
+        #    print 'unhandled metadata record', id, repr(content), codec 
             
 
 class BookHeader(object):
@@ -466,6 +476,10 @@ def get_metadata(stream):
             cover =  os.path.join(tdir, mi.cover)
             if os.access(cover, os.R_OK):
                 mi.cover_data = ('JPEG', open(os.path.join(tdir, mi.cover), 'rb').read())
+        else:
+            path = os.path.join(tdir, 'images', '00001.jpg')
+            if os.access(path, os.R_OK):
+                mi.cover_data = ('JPEG', open(path, 'rb').read())
     return mi
         
 def option_parser():

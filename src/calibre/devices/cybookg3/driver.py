@@ -9,31 +9,26 @@ import os, fnmatch
 from calibre.devices.usbms.driver import USBMS
 
 class CYBOOKG3(USBMS):
-    MIME_MAP   = { 
-                'mobi' : 'application/mobi',
-                'prc' : 'application/prc',
-                'html' : 'application/html', 
-                'pdf' : 'application/pdf',  
-                'rtf' : 'application/rtf', 
-                'txt' : 'text/plain',
-              }
     # Ordered list of supported formats
-    FORMATS     = MIME_MAP.keys()
+    # Be sure these have an entry in calibre.devices.mime
+    FORMATS     = ['mobi', 'prc', 'html', 'pdf', 'rtf', 'txt']
     
     VENDOR_ID   = 0x0bda
     PRODUCT_ID  = 0x0703
     BCD         = [0x110, 0x132]
     
     VENDOR_NAME = 'BOOKEEN'
-    PRODUCT_NAME = 'CYBOOK_GEN3'
+    WINDOWS_MAIN_MEM = 'CYBOOK_GEN3__-FD'
+    WINDOWS_CARD_MEM = 'CYBOOK_GEN3__-SD'
     
-    OSX_NAME_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
-    OSX_NAME_CARD_MEM = 'Bookeen Cybook Gen3 -SD Media'
+    OSX_MAIN_MEM = 'Bookeen Cybook Gen3 -FD Media'
+    OSX_CARD_MEM = 'Bookeen Cybook Gen3 -SD Media'
     
     MAIN_MEMORY_VOLUME_LABEL  = 'Cybook Gen 3 Main Memory'
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
     
-    EBOOK_DIR = "eBooks"
+    EBOOK_DIR_MAIN = "eBooks"
+    SUPPORTS_SUB_DIRS = True
 
     def delete_books(self, paths, end_session=True):
         for path in paths:
@@ -51,4 +46,9 @@ class CYBOOKG3(USBMS):
                 for p, d, files in os.walk(basepath):
                     for filen in fnmatch.filter(files, filename + "*.t2b"):
                         os.unlink(os.path.join(p, filen))
+
+                try:
+                    os.removedirs(os.path.dirname(path))
+                except:
+                    pass
 

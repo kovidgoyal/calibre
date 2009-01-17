@@ -33,12 +33,13 @@ class KeyMapper(object):
     def relate(size, base):
         size = float(size)
         base = float(base)
-        if size == base: return 0
+        if abs(size - base) < 0.1: return 0
         sign = -1 if size < base else 1
         endp = 0 if size < base else 36
         diff = (abs(base - size) * 3) + ((36 - size) / 100)
         logb = abs(base - endp) 
-        return sign * math.log(diff, logb)
+        result = sign * math.log(diff, logb)
+        return result
         
     def __getitem__(self, ssize):
         if ssize in self.cache:
@@ -122,6 +123,8 @@ class CSSFlattener(object):
             fsize = self.context.source.fbase
             self.baseline_node(body, stylizer, sizes, fsize)
         sbase = max(sizes.items(), key=operator.itemgetter(1))[0]
+        self.oeb.logger.info(
+            "Source base font size is %0.05fpt" % sbase)
         return sbase
 
     def clean_edges(self, cssdict, style, fsize):
@@ -154,14 +157,14 @@ class CSSFlattener(object):
         if node.tag == XHTML('font'):
             node.tag = XHTML('span')
             if 'size' in node.attrib:
-                size = node.attrib['size']
-                if size.startswith('+'):
-                    cssdict['font-size'] = 'larger'
-                elif size.startswith('-'):
-                    cssdict['font-size'] = 'smaller'
-                else:
+                size = node.attrib['size'].strip()
+                if size:
                     fnums = self.context.source.fnums
-                    cssdict['font-size'] = fnums[int(size)]
+                    if size[0] in ('+', '-'):
+                        # Oh, the warcrimes
+                        cssdict['font-size'] = fnums[3+int(size)]
+                    else:
+                        cssdict['font-size'] = fnums[int(size)]
                 del node.attrib['size']
         if 'color' in node.attrib:
             cssdict['color'] = node.attrib['color']
@@ -182,10 +185,11 @@ class CSSFlattener(object):
                 percent = (margin - style['text-indent']) / style['width']
                 cssdict['margin-left'] = "%d%%" % (percent * 100)
                 left -= style['text-indent']
+            if 'display' in cssdict and cssdict['display'] == 'in-line':
+                cssdict['display'] = 'inline'
             if self.unfloat and 'float' in cssdict \
-               and tag not in ('img', 'object') \
                and cssdict.get('display', 'none') != 'none':
-                    del cssdict['display']
+                del cssdict['display']
             if self.untable and 'display' in cssdict \
                and cssdict['display'].startswith('table'):
                 display = cssdict['display']
@@ -218,7 +222,9 @@ class CSSFlattener(object):
         for child in node:
             self.flatten_node(child, stylizer, names, styles, psize, left)
 
-    def flatten_head(self, head, stylizer, href):
+    def flatten_head(self, item, stylizer, href):
+        html = item.data
+        head = html.find(XHTML('head'))
         for node in head:
             if node.tag == XHTML('link') \
                and node.get('rel', 'stylesheet') == 'stylesheet' \
@@ -227,6 +233,7 @@ class CSSFlattener(object):
             elif node.tag == XHTML('style') \
                  and node.get('type', CSS_MIME) in OEB_STYLES:
                 head.remove(node)
+        href = item.relhref(href)
         etree.SubElement(head, XHTML('link'),
             rel='stylesheet', type=CSS_MIME, href=href)
         if stylizer.page_rule:
@@ -259,7 +266,5 @@ class CSSFlattener(object):
         css = ''.join(".%s {\n%s;\n}\n\n" % (key, val) for key, val in items)
         href = self.replace_css(css)
         for item in self.oeb.spine:
-            html = item.data
             stylizer = self.stylizers[item]
-            head = html.find(XHTML('head'))
-            self.flatten_head(head, stylizer, href)
+            self.flatten_head(item, stylizer, href)

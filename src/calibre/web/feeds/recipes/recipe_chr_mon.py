@@ -42,3 +42,9 @@ class ChristianScienceMonitor(BasicNewsRecipe):
                     feeds[-1][1].append(art)
         return feeds
       
+    def postprocess_html(self, soup, first_fetch):
+        html = soup.find('html')
+        if html is None:
+            return soup
+        html.extract()
+        return html

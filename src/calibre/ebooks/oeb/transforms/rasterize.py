@@ -21,11 +21,12 @@ from PyQt4.QtGui import QPainter
 from PyQt4.QtSvg import QSvgRenderer
 from PyQt4.QtGui import QApplication
 from calibre.ebooks.oeb.base import XHTML_NS, XHTML, SVG_NS, SVG, XLINK
-from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME
+from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME, JPEG_MIME
 from calibre.ebooks.oeb.base import xml2str, xpath, namespace, barename
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 IMAGE_TAGS = set([XHTML('img'), XHTML('object')])
+KEEP_ATTRS = set(['class', 'style', 'width', 'height', 'align'])
 
 class SVGRasterizer(object):
     def __init__(self):
@@ -41,7 +42,7 @@ class SVGRasterizer(object):
         self.rasterize_spine()
         self.rasterize_cover()
 
-    def rasterize_svg(self, elem, width=0, height=0):
+    def rasterize_svg(self, elem, width=0, height=0, format='PNG'):
         data = QByteArray(xml2str(elem))
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
@@ -52,6 +53,9 @@ class SVGRasterizer(object):
             size.setHeight(box[3] - box[1])
         if width or height:
             size.scale(width, height, Qt.KeepAspectRatio)
+        logger = self.oeb.logger
+        logger.info('Rasterizing %r to %dx%d'
+                    % (elem, size.width(), size.height()))
         image = QImage(size, QImage.Format_ARGB32_Premultiplied)
         image.fill(QColor("white").rgb())
         painter = QPainter(image)
@@ -60,7 +64,7 @@ class SVGRasterizer(object):
         array = QByteArray()
         buffer = QBuffer(array)
         buffer.open(QIODevice.WriteOnly)
-        image.save(buffer, 'PNG')
+        image.save(buffer, format)
         return str(array)
 
     def dataize_manifest(self):
@@ -113,11 +117,7 @@ class SVGRasterizer(object):
 
     def rasterize_inline(self, elem, style, item):
         width = style['width']
-        if width == 'auto':
-            width = self.profile.width
         height = style['height']
-        if height == 'auto':
-            height = self.profile.height
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
         elem = self.dataize_svg(item, elem)
@@ -134,11 +134,7 @@ class SVGRasterizer(object):
 
     def rasterize_external(self, elem, style, item, svgitem):
         width = style['width']
-        if width == 'auto':
-            width = self.profile.width
         height = style['height']
-        if height == 'auto':
-            height = self.profile.height
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
         data = QByteArray(str(svgitem))
@@ -168,11 +164,16 @@ class SVGRasterizer(object):
             manifest.add(id, href, PNG_MIME, data=data)
             self.images[key] = href
         elem.tag = XHTML('img')
+        for attr in elem.attrib:
+            if attr not in KEEP_ATTRS:
+                del elem.attrib[attr]
         elem.attrib['src'] = item.relhref(href)
-        elem.text = None
+        if elem.text:
+            elem.attrib['alt'] = elem.text
+            elem.text = None
         for child in elem:
             elem.remove(child)
-            
+    
     def rasterize_cover(self):
         covers = self.oeb.metadata.cover
         if not covers:
@@ -180,9 +181,9 @@ class SVGRasterizer(object):
         cover = self.oeb.manifest.ids[str(covers[0])]
         if not cover.media_type == SVG_MIME:
             return
-        logger = self.oeb.logger
-        logger.info('Rasterizing %r to %dx%d' % (cover.href, 600, 800))
-        data = self.rasterize_svg(cover.data, 600, 800)
+        width = (self.profile.width / 72) * self.profile.dpi
+        height = (self.profile.height / 72) * self.profile.dpi
+        data = self.rasterize_svg(cover.data, width, height)
         href = os.path.splitext(cover.href)[0] + '.png'
         id, href = self.oeb.manifest.generate(cover.id, href)
         self.oeb.manifest.add(id, href, PNG_MIME, data=data)

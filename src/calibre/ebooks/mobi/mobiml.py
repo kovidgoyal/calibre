@@ -114,10 +114,10 @@ class MobiMLizer(object):
     def mobimlize_measure(self, ptsize):
         if isinstance(ptsize, basestring):
             return ptsize
-        fbase = self.profile.fbase
-        if ptsize < fbase:
+        embase = self.profile.fbase
+        if round(ptsize) < embase:
             return "%dpt" % int(round(ptsize))
-        return "%dem" % int(round(ptsize / fbase))
+        return "%dem" % int(round(ptsize / embase))
 
     def preize_text(self, text):
         text = unicode(text).replace(u' ', u'\xa0')
@@ -171,8 +171,7 @@ class MobiMLizer(object):
                     para = etree.SubElement(para, XHTML('blockquote'))
                     emleft -= 1
             else:
-                ptag = 'p' #tag if tag in HEADER_TAGS else 'p'
-                para = wrapper = etree.SubElement(parent, XHTML(ptag))
+                para = wrapper = etree.SubElement(parent, XHTML('p'))
             bstate.inline = bstate.para = para
             vspace = bstate.vpadding + bstate.vmargin
             bstate.vpadding = bstate.vmargin = 0
@@ -213,11 +212,11 @@ class MobiMLizer(object):
                 inline = etree.SubElement(inline, XHTML('sup'))
             elif valign == 'sub':
                 inline = etree.SubElement(inline, XHTML('sub'))
-            if istate.family == 'monospace':
-                inline = etree.SubElement(inline, XHTML('tt'))
-            if fsize != 3:
+            elif fsize != 3:
                 inline = etree.SubElement(inline, XHTML('font'),
                                           size=str(fsize))
+            if istate.family == 'monospace':
+                inline = etree.SubElement(inline, XHTML('tt'))
             if istate.italic:
                 inline = etree.SubElement(inline, XHTML('i'))
             if istate.bold:
@@ -241,7 +240,8 @@ class MobiMLizer(object):
            or namespace(elem.tag) != XHTML_NS:
             return
         style = stylizer.style(elem)
-        if style['display'] == 'none' \
+        # <mbp:frame-set/> does not exist lalalala
+        if style['display'] in ('none', 'oeb-page-head', 'oeb-page-foot') \
            or style['visibility'] == 'hidden':
             return
         tag = barename(elem.tag)
@@ -303,7 +303,7 @@ class MobiMLizer(object):
         else:
             istate.family = 'serif'
         valign = style['vertical-align']
-        if valign in ('super', 'sup') or asfloat(valign) > 0:
+        if valign in ('super', 'text-top') or asfloat(valign) > 0:
             istate.valign = 'super'
         elif valign == 'sub'  or asfloat(valign) < 0:
             istate.valign = 'sub'

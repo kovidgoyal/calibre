@@ -23,7 +23,7 @@ from cssutils.css import CSSStyleRule, CSSPageRule, CSSStyleDeclaration, \
 from lxml import etree
 from lxml.cssselect import css_to_xpath, ExpressionError
 from calibre.ebooks.oeb.base import XHTML, XHTML_NS, CSS_MIME, OEB_STYLES
-from calibre.ebooks.oeb.base import barename, urlnormalize
+from calibre.ebooks.oeb.base import XPNSMAP, xpath, barename, urlnormalize
 from calibre.ebooks.oeb.profile import PROFILES
 from calibre.resources import html_css
 
@@ -86,10 +86,6 @@ DEFAULTS = {'azimuth': 'center', 'background-attachment': 'scroll',
 FONT_SIZE_NAMES = set(['xx-small', 'x-small', 'small', 'medium', 'large',
                        'x-large', 'xx-large'])
 
-
-XPNSMAP = {'h': XHTML_NS,}
-def xpath(elem, expr):
-    return elem.xpath(expr, namespaces=XPNSMAP)
 
 class CSSSelector(etree.XPath):
     MIN_SPACE_RE = re.compile(r' *([>~+]) *')
@@ -269,6 +265,7 @@ class Style(object):
         self._fontSize = None
         self._width = None
         self._height = None
+        self._lineHeight = None
         stylizer._styles[element] = self
 
     def _update_cssdict(self, cssdict):
@@ -288,13 +285,13 @@ class Style(object):
         if elem is None:
             return None
         return self._stylizer.style(elem)
-    
+
     def __getitem__(self, name):
         domname = cssproperties._toDOMname(name)
         if hasattr(self, domname):
             return getattr(self, domname)
         return self._unit_convert(self._get(name))
-    
+
     def _get(self, name):
         result = None
         if name in self._style:
@@ -324,7 +321,7 @@ class Style(object):
             unit = m.group(2)
             if unit == '%':
                 base = base or self.width
-                result = (value/100.0) * base
+                result = (value / 100.0) * base
             elif unit == 'px':
                 result = value * 72.0 / self._profile.dpi
             elif unit == 'in':
@@ -388,7 +385,7 @@ class Style(object):
     @property
     def width(self):
         if self._width is None:
-            result = None
+            width = None
             base = None
             parent = self._get_parent()
             if parent is not None:
@@ -399,9 +396,9 @@ class Style(object):
                 width = self._element.attrib['width']
             elif 'width' in self._style:
                 width = self._style['width']
-            else:
+            if not width or width == 'auto':
                 result = base
-            if not result:
+            else:
                 result = self._unit_convert(width, base=base)
             self._width = result
         return self._width
@@ -409,7 +406,7 @@ class Style(object):
     @property
     def height(self):
         if self._height is None:
-            result = None
+            height = None
             base = None
             parent = self._get_parent()
             if parent is not None:
@@ -420,12 +417,53 @@ class Style(object):
                 height = self._element.attrib['height']
             elif 'height' in self._style:
                 height = self._style['height']
-            else:
+            if not height or height == 'auto':
                 result = base
-            if not result:
+            else:
                 result = self._unit_convert(height, base=base)
             self._height = result
         return self._height
+
+    @property
+    def lineHeight(self):
+        if self._lineHeight is None:
+            result = None
+            parent = self._getparent()
+            if 'line-height' in self._style:
+                lineh = self._style['line-height']
+                try:
+                    float(lineh)
+                except ValueError:
+                    result = self._unit_convert(lineh, base=self.fontSize)
+                else:
+                    result = float(lineh) * self.fontSize
+            elif parent is not None:
+                # TODO: proper inheritance
+                result = parent.lineHeight
+            else:
+                result = 1.2 * self.fontSize
+            self._lineHeight = result
+        return self._lineHeight
+    
+    @property
+    def marginTop(self):
+        return self._unit_convert(
+            self._get('margin-top'), base=self.height)
+    
+    @property
+    def marginBottom(self):
+        return self._unit_convert(
+            self._get('margin-bottom'), base=self.height)
+    
+    @property
+    def paddingTop(self):
+        return self._unit_convert(
+            self._get('padding-top'), base=self.height)
+    
+    @property
+    def paddingBottom(self):
+        return self._unit_convert(
+            self._get('padding-bottom'), base=self.height)
     
     def __str__(self):
         items = self._style.items()

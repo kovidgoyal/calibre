@@ -700,7 +700,7 @@ class Text(LRFStream):
     def add_text(self, text):
         s = unicode(text, "utf-16-le")
         if s:
-            s = s.translate(self.text_map)            
+            s = s.translate(self.text_map)
             self.content.append(self.entity_pattern.sub(entity_to_unicode, s))
     
     def end_container(self, tag, stream):
@@ -799,18 +799,39 @@ class Text(LRFStream):
         length = len(self.stream)
         style = self.style.as_dict()
         current_style = style.copy()
+        text_tags = set(list(TextAttr.tag_map.keys()) + \
+                        list(Text.text_tags.keys()) + \
+                        list(ruby_tags.keys()))
+        text_tags -= set([0xf500+i for i in range(10)])
+        text_tags.add(0xf5cc)
         
         while stream.tell() < length:
         
-            # Is there some text beofre a tag?
-            pos = self.stream.find('\xf5', stream.tell()) - 1
-            if pos > 0:
-                self.add_text(self.stream[stream.tell():pos])
-                stream.seek(pos)
-            elif pos == -2: # No tags in this stream
+            # Is there some text before a tag?
+            def find_first_tag(start):
+                pos = self.stream.find('\xf5', start)
+                if pos == -1:
+                    return -1
+                try:
+                    stream.seek(pos-1)
+                    _t = Tag(stream)
+                    if _t.id in text_tags:
+                        return pos-1
+                    return find_first_tag(pos+1)
+                    
+                    
+                except:
+                    return find_first_tag(pos+1)
+                    
+            start_pos = stream.tell()        
+            tag_pos = find_first_tag(start_pos)
+            if tag_pos >= start_pos:
+                if tag_pos > start_pos:
+                    self.add_text(self.stream[start_pos:tag_pos])
+                stream.seek(tag_pos)
+            else: # No tags in this stream
                 self.add_text(self.stream)
                 stream.seek(0, 2)
-                print repr(self.stream)
                 break
             
             tag = Tag(stream)
@@ -1166,7 +1187,8 @@ class TOCObject(LRFStream):
             refpage = struct.unpack("<I", stream.read(4))[0]
             refobj  = struct.unpack("<I", stream.read(4))[0]
             cnt = struct.unpack("<H", stream.read(2))[0]
-            label = unicode(stream.read(cnt), "utf_16")
+            raw = stream.read(cnt)
+            label = raw.decode('utf_16_le')
             self._contents.append(TocLabel(refpage, refobj, label))
             c -= 1
             

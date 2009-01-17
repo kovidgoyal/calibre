@@ -36,26 +36,36 @@ PROFILES = {
                 fsizes=[7.5, 9, 10, 12, 15.5, 20, 22, 24]),
 
     'MSReader':
-        Profile(width=480, height=652, dpi=100.0, fbase=13,
+        Profile(width=480, height=652, dpi=96, fbase=13,
                 fsizes=[10, 11, 13, 16, 18, 20, 22, 26]),
 
     # Not really, but let's pretend
-    'MobiDesktop':
-        Profile(width=280, height=300, dpi=96, fbase=18,
-                fsizes=[14, 14, 16, 18, 20, 22, 22, 24]),
+    'Mobipocket':
+        Profile(width=600, height=800, dpi=96, fbase=18,
+                fsizes=[14, 14, 16, 18, 20, 22, 24, 26]),
     
-    # No clue on usable screen size and DPI
-    'CybookG3':
-        Profile(width=584, height=754, dpi=168.451, fbase=12,
-                fsizes=[9, 10, 11, 12, 14, 17, 20, 24]),
+    # No clue on usable screen size; DPI should be good
+    'HanlinV3':
+        Profile(width=584, height=754, dpi=168.451, fbase=16,
+                fsizes=[12, 12, 14, 16, 18, 20, 22, 24]),
 
-    'Firefox':
+    'CybookG3':
+        Profile(width=600, height=800, dpi=168.451, fbase=16,
+                fsizes=[12, 12, 14, 16, 18, 20, 22, 24]),
+
+    'Kindle':
+        Profile(width=525, height=640, dpi=168.451, fbase=16,
+                fsizes=[12, 12, 14, 16, 18, 20, 22, 24]),
+    
+    'Browser':
         Profile(width=800, height=600, dpi=100.0, fbase=12,
                 fsizes=[5, 7, 9, 12, 13.5, 17, 20, 22, 24])
     }
 
 
 class Context(object):
+    PROFILES = PROFILES
+    
     def __init__(self, source, dest):
         if source in PROFILES:
             source = PROFILES[source]

@@ -335,7 +335,7 @@ class PreProcessor(object):
     # Fix pdftohtml markup
     PDFTOHTML  = [
                   # Remove <hr> tags
-                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<span style="page-break-after:always"> </span>'),
+                  (re.compile(r'<hr.*?>', re.IGNORECASE), lambda match: '<br />'),
                   # Remove page numbers
                   (re.compile(r'\d+<br>', re.IGNORECASE), lambda match: ''),
                   # Remove <br> and replace <br><br> with <p>
@@ -560,7 +560,7 @@ class Processor(Parser):
                 hr = etree.Element('hr')
                 if elem.getprevious() is None:
                     elem.getparent()[:0] = [hr]
-                else:
+                elif elem.getparent() is not None:
                     insert = None
                     for i, c in enumerate(elem.getparent()):
                         if c is elem:
@@ -796,7 +796,19 @@ class Processor(Parser):
                 setting = ''
             face = font.attrib.pop('face', None)
             if face is not None:
-                setting += 'font-face:%s;'%face
+                faces = []
+                for face in face.split(','):
+                    face = face.strip()
+                    if ' ' in face and not (face[0] == face[-1] == '"'):
+                        face = '"%s"' % face.replace('"', r'\"')
+                    faces.append(face)
+                for generic in ('serif', 'sans-serif', 'monospace'):
+                    if generic in faces:
+                        break
+                else:
+                    faces.append('serif')
+                family = ', '.join(faces)
+                setting += 'font-family: %s;' % family
             color = font.attrib.pop('color', None)
             if color is not None:
                 setting += 'color:%s'%color

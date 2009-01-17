@@ -765,6 +765,8 @@ class BasicNewsRecipe(object, LoggingInterface):
             self.log_debug(traceback.format_exc())
         if cu is not None:
             ext = cu.rpartition('.')[-1]
+            if '?' in ext:
+                ext = ''
             ext = ext.lower() if ext else 'jpg'
             self.report_progress(1, _('Downloading cover from %s')%cu)
             cpath = os.path.join(self.output_dir, 'cover.'+ext)
