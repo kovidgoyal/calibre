@@ -120,11 +120,11 @@ class Serializer(object):
             if hrefs[path].media_type not in OEB_DOCS:
                 continue
             buffer.write('<reference type="')
-            self.serialize_text(ref.type)
+            self.serialize_text(ref.type, quot=True)
             buffer.write('" ')
             if ref.title is not None:
                 buffer.write('title="')
-                self.serialize_text(ref.title)
+                self.serialize_text(ref.title, quot=True)
                 buffer.write('" ')
             self.serialize_href(ref.href)
             # Space required or won't work, I kid you not

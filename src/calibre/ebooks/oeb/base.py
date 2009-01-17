@@ -551,7 +551,7 @@ class Guide(object):
         TYPES = set(t for t, _ in _TYPES_TITLES)
         TITLES = dict(_TYPES_TITLES)
         ORDER = dict((t, i) for (t, _), i in izip(_TYPES_TITLES, count(0)))
-    
+        
         def __init__(self, type, title, href):
             if type.lower() in self.TYPES:
                 type = type.lower()
