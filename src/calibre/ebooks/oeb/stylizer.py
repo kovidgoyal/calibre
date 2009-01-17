@@ -285,13 +285,13 @@ class Style(object):
         if elem is None:
             return None
         return self._stylizer.style(elem)
-    
+
     def __getitem__(self, name):
         domname = cssproperties._toDOMname(name)
         if hasattr(self, domname):
             return getattr(self, domname)
         return self._unit_convert(self._get(name))
-    
+
     def _get(self, name):
         result = None
         if name in self._style:
@@ -321,7 +321,7 @@ class Style(object):
             unit = m.group(2)
             if unit == '%':
                 base = base or self.width
-                result = (value/100.0) * base
+                result = (value / 100.0) * base
             elif unit == 'px':
                 result = value * 72.0 / self._profile.dpi
             elif unit == 'in':
@@ -385,7 +385,7 @@ class Style(object):
     @property
     def width(self):
         if self._width is None:
-            result = None
+            width = None
             base = None
             parent = self._get_parent()
             if parent is not None:
@@ -396,9 +396,9 @@ class Style(object):
                 width = self._element.attrib['width']
             elif 'width' in self._style:
                 width = self._style['width']
-            else:
+            if not width or width == 'auto':
                 result = base
-            if not result:
+            else:
                 result = self._unit_convert(width, base=base)
             self._width = result
         return self._width
@@ -406,7 +406,7 @@ class Style(object):
     @property
     def height(self):
         if self._height is None:
-            result = None
+            height = None
             base = None
             parent = self._get_parent()
             if parent is not None:
@@ -417,9 +417,9 @@ class Style(object):
                 height = self._element.attrib['height']
             elif 'height' in self._style:
                 height = self._style['height']
-            else:
+            if not height or height == 'auto':
                 result = base
-            if not result:
+            else:
                 result = self._unit_convert(height, base=base)
             self._height = result
         return self._height
@@ -444,6 +444,26 @@ class Style(object):
                 result = 1.2 * self.fontSize
             self._lineHeight = result
         return self._lineHeight
+    
+    @property
+    def marginTop(self):
+        return self._unit_convert(
+            self._get('margin-top'), base=self.height)
+    
+    @property
+    def marginBottom(self):
+        return self._unit_convert(
+            self._get('margin-bottom'), base=self.height)
+    
+    @property
+    def paddingTop(self):
+        return self._unit_convert(
+            self._get('padding-top'), base=self.height)
+    
+    @property
+    def paddingBottom(self):
+        return self._unit_convert(
+            self._get('padding-bottom'), base=self.height)
     
     def __str__(self):
         items = self._style.items()
