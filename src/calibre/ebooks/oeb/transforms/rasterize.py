@@ -117,11 +117,7 @@ class SVGRasterizer(object):
 
     def rasterize_inline(self, elem, style, item):
         width = style['width']
-        if width == 'auto':
-            width = self.profile.width
         height = style['height']
-        if height == 'auto':
-            height = self.profile.height
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
         elem = self.dataize_svg(item, elem)
@@ -138,11 +134,7 @@ class SVGRasterizer(object):
 
     def rasterize_external(self, elem, style, item, svgitem):
         width = style['width']
-        if width == 'auto':
-            width = self.profile.width
         height = style['height']
-        if height == 'auto':
-            height = self.profile.height
         width = (width / 72) * self.profile.dpi
         height = (height / 72) * self.profile.dpi
         data = QByteArray(str(svgitem))
