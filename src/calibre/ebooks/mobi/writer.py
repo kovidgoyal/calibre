@@ -34,6 +34,8 @@ from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
 from calibre.customize.ui import run_plugins_on_postprocess
+from calibre.utils.config import OptionParser
+from optparse import OptionGroup
 
 # TODO:
 # - Allow override CSS (?)
@@ -492,25 +494,19 @@ class MobiWriter(object):
             self._write(record)
 
 
-def option_parser():
+def add_mobi_options(parser):
     profiles = Context.PROFILES.keys()
     profiles.sort()
     profiles = ', '.join(profiles)
-    from calibre.utils.config import OptionParser
-    from optparse import OptionGroup
-    parser = OptionParser(usage=_('%prog [options] OPFFILE'))
-    parser.add_option(
-        '-o', '--output', default=None, 
-        help=_('Output file. Default is derived from input filename.'))
-    parser.add_option(
+    group = OptionGroup(parser, _('Mobipocket'),
+        _('Mobipocket-specific options.'))
+    group.add_option(
         '-c', '--compress', default=False, action='store_true',
         help=_('Compress file text using PalmDOC compression.'))
-    parser.add_option(
+    group.add_option(
         '-r', '--rescale-images', default=False, action='store_true',
         help=_('Modify images to meet Palm device size limitations.'))
-    parser.add_option(
-        '-v', '--verbose', default=False, action='store_true',
-        help=_('Useful for debugging.'))
+    parser.add_option_group(group)
     group = OptionGroup(parser, _('Profiles'), _('Device renderer profiles. '
         'Affects conversion of default font sizes and rasterization '
         'resolution.  Valid profiles are: %s.') % profiles)
@@ -521,6 +517,17 @@ def option_parser():
         '--dest-profile', default='CybookG3', metavar='PROFILE',
         help=_("Destination renderer profile. Default is 'CybookG3'."))
     parser.add_option_group(group)
+    return
+            
+def option_parser():
+    parser = OptionParser(usage=_('%prog [options] OPFFILE'))
+    parser.add_option(
+        '-o', '--output', default=None, 
+        help=_('Output file. Default is derived from input filename.'))
+    parser.add_option(
+        '-v', '--verbose', default=False, action='store_true',
+        help=_('Useful for debugging.'))
+    add_mobi_options(parser)
     return parser
 
 def oeb2mobi(opts, inpath):
