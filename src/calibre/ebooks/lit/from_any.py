@@ -38,6 +38,7 @@ def any2lit(opts, path):
         os.mkdir(oebdir)
         opts.output = os.path.join(tdir, 'dummy.epub')
         opts.profile = 'None'
+        opts.dont_split_on_page_breaks = True
         any2epub(opts, path, create_epub=False, oeb_cover=True, extract_to=oebdir)
         opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
         opts.output = orig_output
