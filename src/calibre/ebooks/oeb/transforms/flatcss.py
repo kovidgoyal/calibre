@@ -144,7 +144,8 @@ class CSSFlattener(object):
                     value = round(value / slineh) * dlineh
                     cssdict[property] = "%0.5fem" % (value / fsize)
     
-    def flatten_node(self, node, stylizer, names, styles, psize, left=0):
+    def flatten_node(self, node, stylizer, names, styles, psize, left=0,
+                     valigned=False):
         if not isinstance(node.tag, basestring) \
            or namespace(node.tag) != XHTML_NS:
             return
@@ -154,18 +155,6 @@ class CSSFlattener(object):
         if 'align' in node.attrib:
             cssdict['text-align'] = node.attrib['align']
             del node.attrib['align']
-        if node.tag == XHTML('font'):
-            node.tag = XHTML('span')
-            if 'size' in node.attrib:
-                size = node.attrib['size'].strip()
-                if size:
-                    fnums = self.context.source.fnums
-                    if size[0] in ('+', '-'):
-                        # Oh, the warcrimes
-                        cssdict['font-size'] = fnums[3+int(size)]
-                    else:
-                        cssdict['font-size'] = fnums[int(size)]
-                del node.attrib['size']
         if 'color' in node.attrib:
             cssdict['color'] = node.attrib['color']
             del node.attrib['color']
@@ -173,7 +162,7 @@ class CSSFlattener(object):
             cssdict['background-color'] = node.attrib['bgcolor']
             del node.attrib['bgcolor']
         if cssdict:
-            if 'font-size' in cssdict:
+            if 'font-size' in cssdict or tag == 'body':
                 fsize = self.fmap[style['font-size']]
                 cssdict['font-size'] = "%0.5fem" % (fsize / psize)
                 psize = fsize
@@ -197,10 +186,13 @@ class CSSFlattener(object):
                     cssdict['display'] = 'inline'
                 else:
                     cssdict['display'] = 'block'
-            if 'vertical-align' in cssdict \
-               and cssdict['vertical-align'] == 'sup':
-                cssdict['vertical-align'] = 'super'
-        if self.lineh and 'line-height' not in cssdict:
+            if 'vertical-align' in cssdict:
+                if cssdict['vertical-align'] == 'sup':
+                    cssdict['vertical-align'] = 'text-top'
+                if style['vertical-align'] != 'baseline':
+                    cssdict['line-height'] = '0'
+                    valigned = True
+        if self.lineh and 'line-height' not in cssdict and not valigned:
             lineh = self.lineh / psize
             cssdict['line-height'] = "%0.5fem" % lineh
         if cssdict:
@@ -220,7 +212,8 @@ class CSSFlattener(object):
         if 'style' in node.attrib:
             del node.attrib['style']
         for child in node:
-            self.flatten_node(child, stylizer, names, styles, psize, left)
+            self.flatten_node(child, stylizer, names, styles, psize, left,
+                              valigned)
 
     def flatten_head(self, item, stylizer, href):
         html = item.data
