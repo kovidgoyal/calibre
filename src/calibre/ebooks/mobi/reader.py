@@ -466,16 +466,28 @@ class MobiReader(object):
 def get_metadata(stream):
     mr = MobiReader(stream)
     if mr.book_header.exth is None:
-        mi = MetaInformation(mr.name, ['Unknown'])
+        mi = MetaInformation(mr.name, [_('Unknown')])
     else:
-        tdir = tempfile.mkdtemp('_mobi_meta', __appname__)
+        tdir = tempfile.mkdtemp('_mobi_meta', __appname__+'_')
         atexit.register(shutil.rmtree, tdir)
         mr.extract_images([], tdir)
         mi = mr.create_opf('dummy.html')
         if mi.cover:
             cover =  os.path.join(tdir, mi.cover)
+            if not os.access(cover, os.R_OK):
+                fname = os.path.basename(cover)
+                match = re.match(r'(\d+)(.+)', fname)
+                if match:
+                    num, ext = int(match.group(1), 10), match.group(2)
+                    while num > 0:
+                        num -= 1
+                        candidate = os.path.join(os.path.dirname(cover), '%05d%s'%(num, ext))
+                        if os.access(candidate, os.R_OK):
+                            cover = candidate
+                            break
+                    
             if os.access(cover, os.R_OK):
-                mi.cover_data = ('JPEG', open(os.path.join(tdir, mi.cover), 'rb').read())
+                mi.cover_data = ('JPEG', open(os.path.join(tdir, cover), 'rb').read())
         else:
             path = os.path.join(tdir, 'images', '00001.jpg')
             if os.access(path, os.R_OK):
