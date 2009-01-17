@@ -798,8 +798,9 @@ class Processor(Parser):
             if face is not None:
                 faces = []
                 for face in face.split(','):
-                    if ' ' in face:
-                        face = "%s" % face
+                    face = face.strip()
+                    if ' ' in face and not (face[0] == face[-1] == '"'):
+                        face = '"%s"' % face.replace('"', r'\"')
                     faces.append(face)
                 for generic in ('serif', 'sans-serif', 'monospace'):
                     if generic in faces:
