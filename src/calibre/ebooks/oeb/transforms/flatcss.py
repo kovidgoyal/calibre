@@ -172,11 +172,11 @@ class CSSFlattener(object):
         if 'bgcolor' in node.attrib:
             cssdict['background-color'] = node.attrib['bgcolor']
             del node.attrib['bgcolor']
+        if 'font-size' in cssdict or tag == 'body':
+            fsize = self.fmap[style['font-size']]
+            cssdict['font-size'] = "%0.5fem" % (fsize / psize)
+            psize = fsize
         if cssdict:
-            if 'font-size' in cssdict:
-                fsize = self.fmap[style['font-size']]
-                cssdict['font-size'] = "%0.5fem" % (fsize / psize)
-                psize = fsize
             if self.lineh and self.fbase and tag != 'body':
                 self.clean_edges(cssdict, style, psize)
             margin = style['margin-left']
