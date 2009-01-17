@@ -15,9 +15,10 @@ from calibre.devices.errors import FreeSpaceError
 from calibre.devices.mime import MIME_MAP
 
 class USBMS(Device):
+    FORMATS = []
     EBOOK_DIR_MAIN = ''
     EBOOK_DIR_CARD = ''
-    FORMATS = []
+    SUPPORTS_SUB_DIRS = False
 
     def __init__(self, key='-1', log_packets=False, report_progress=None):
         pass
@@ -57,10 +58,18 @@ class USBMS(Device):
             path = os.path.join(self._main_prefix, self.EBOOK_DIR_MAIN)
         else:
             path = os.path.join(self._card_prefix, self.EBOOK_DIR_CARD)
-            
-        sizes = map(os.path.getsize, files)
+
+        def get_size(obj):
+            if hasattr(obj, 'seek'):
+                obj.seek(0, os.SEEK_END)
+                size = obj.tell()
+                obj.seek(0)
+                return size
+            return os.path.getsize(obj)
+
+        sizes = map(get_size, files)
         size = sum(sizes)
-    
+
         if on_card and size > self.free_space()[2] - 1024*1024: 
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if not on_card and size > self.free_space()[0] - 2*1024*1024: 
@@ -68,17 +77,42 @@ class USBMS(Device):
 
         paths = []
         names = iter(names)
+        metadata = iter(metadata)
         
         for infile in files:
-            filepath = os.path.join(path, names.next())
+            newpath = path
+            
+            if self.SUPPORTS_SUB_DIRS:
+                mdata = metadata.next()
+                
+                if 'tags' in mdata.keys():
+                    for tag in mdata['tags']:
+                        if tag.startswith('/'):
+                            newpath += tag
+                            newpath = os.path.normpath(newpath)
+                            break
+
+            if not os.path.exists(newpath):
+                os.makedirs(newpath)
+            
+            filepath = os.path.join(newpath, names.next())                
             paths.append(filepath)
             
-            shutil.copy2(infile, filepath)
+            if hasattr(infile, 'read'):
+                infile.seek(0)
+                
+                dest = open(filepath, 'wb')
+                shutil.copyfileobj(infile, dest, 10*1024*1024)
+
+                dest.flush()                
+                dest.close()
+            else:
+                shutil.copy2(infile, filepath)
     
         return zip(paths, cycle([on_card]))
     
     @classmethod
-    def add_books_to_metadata(cls, locations, metadata, booklists):
+    def add_books_to_metadata(cls, locations, metadata, booklists):    
         for location in locations:
             path = location[0]
             on_card = 1 if location[1] else 0
@@ -91,6 +125,10 @@ class USBMS(Device):
             if os.path.exists(path):
                 # Delete the ebook
                 os.unlink(path)
+                try:
+                    os.removedirs(os.path.dirname(path))
+                except:
+                    pass
     
     @classmethod
     def remove_books_from_metadata(cls, paths, booklists):
@@ -99,7 +137,6 @@ class USBMS(Device):
                 for book in bl:
                     if path.endswith(book.path):
                         bl.remove(book)
-                        break
         
     def sync_booklists(self, booklists, end_session=True):
         # There is no meta data on the device to update. The device is treated

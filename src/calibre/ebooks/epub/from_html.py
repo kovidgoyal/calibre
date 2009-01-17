@@ -77,6 +77,8 @@ def check_links(opf_path, pretty_print):
                 html_files.append(os.path.abspath(content(f)))
         
         for path in html_files:
+            if not os.access(path, os.R_OK):
+                continue
             base = os.path.dirname(path)
             root = html.fromstring(open(content(path), 'rb').read(), parser=parser)
             for element, attribute, link, pos in list(root.iterlinks()):
