@@ -38,8 +38,10 @@ def any2lit(opts, path):
         os.mkdir(oebdir)
         opts.output = os.path.join(tdir, 'dummy.epub')
         opts.profile = 'None'
-        opts.dont_split_on_page_breaks = True
+        orig_bfs = opts.base_font_size2
+        opts.base_font_size2 = 0
         any2epub(opts, path, create_epub=False, oeb_cover=True, extract_to=oebdir)
+        opts.base_font_size2 = orig_bfs
         opf = glob.glob(os.path.join(oebdir, '*.opf'))[0]
         opts.output = orig_output
         logging.getLogger('html2epub').info(_('Creating LIT file from EPUB...'))
