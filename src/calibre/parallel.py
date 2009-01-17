@@ -286,7 +286,7 @@ def write(socket, msg, timeout=5):
 def read(socket, timeout=5):
     '''
     Read a message from `socket`. The message must have been sent with the :function:`write`
-    function. Raises a `RuntimeError` if the message is corrpted. Can return an
+    function. Raises a `RuntimeError` if the message is corrupted. Can return an
     empty string.
     '''
     if isworker:
@@ -299,7 +299,12 @@ def read(socket, timeout=5):
             if not msg:
                 break
             if length is None:
-                length, msg = int(msg[:12]), msg[12:]
+                try:
+                    length, msg = int(msg[:12]), msg[12:]
+                except ValueError:
+                    if DEBUG:
+                        print >>sys.__stdout__, 'read(%s):'%('worker' if isworker else 'overseer'), 'no length in', msg
+                    return ''
             buf.write(msg)
             if buf.tell() >= length:
                 break
