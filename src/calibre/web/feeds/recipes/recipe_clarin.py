@@ -6,7 +6,7 @@ __copyright__ = '2008, Darko Miletic <darko.miletic at gmail.com>'
 clarin.com
 '''
 
-from calibre.web.feeds.news import BasicNewsRecipe
+from calibre import strftime
 
 class Clarin(BasicNewsRecipe):
     title                 = 'Clarin'
@@ -15,7 +15,9 @@ class Clarin(BasicNewsRecipe):
     oldest_article        = 2
     max_articles_per_feed = 100
     use_embedded_content  = False
-    cover_url = 'http://www.clarin.com/shared/v10/img/Hd/lg_Clarin.gif'
+    no_stylesheets        = True
+    cover_url             = strftime('http://www.clarin.com/diario/%Y/%m/%d/portada.jpg')
+    
     html2lrf_options = [
                           '--comment', description
                         , '--base-font-size', '10'
@@ -45,3 +47,4 @@ class Clarin(BasicNewsRecipe):
         rest  = artl.partition('-0')[-1]
         lmain = rest.partition('.')[0]
         return 'http://www.servicios.clarin.com/notas/jsp/clarin/v9/notas/imprimir.jsp?pagid=' + lmain
+        

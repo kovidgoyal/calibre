@@ -267,6 +267,12 @@ class MobiReader(object):
                     'xx-large' : '6',
                     }
         for tag in root.iter(etree.Element):
+            if tag.tag in ('country-region', 'place', 'placetype', 'placename',
+                           'state', 'city'):
+                tag.tag = 'span'
+                for key in tag.attrib.keys():
+                    tag.attrib.pop(key)
+                continue
             styles, attrib = [], tag.attrib
             if attrib.has_key('style'):
                 style = attrib.pop('style').strip()
