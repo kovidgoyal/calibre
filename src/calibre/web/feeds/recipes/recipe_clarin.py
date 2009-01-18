@@ -7,6 +7,7 @@ clarin.com
 '''
 
 from calibre import strftime
+from calibre.web.feeds.news import BasicNewsRecipe
 
 class Clarin(BasicNewsRecipe):
     title                 = 'Clarin'
