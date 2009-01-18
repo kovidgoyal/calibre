@@ -415,8 +415,9 @@ if __name__ == '__main__':
         ext_modules.append(Extension('calibre.plugins.winutil',
                 sources=['src/calibre/utils/windows/winutil.c'],
                 libraries=['shell32', 'setupapi'],
-                include_dirs=['C:/WinDDK/6001.18001/inc/api/',
-                              'C:/WinDDK/6001.18001/inc/crt/'],
+                include_dirs=os.environ.get('INCLUDE', 
+                        'C:/WinDDK/6001.18001/inc/api/;'
+                        'C:/WinDDK/6001.18001/inc/crt/').split(';'),
                 extra_compile_args=['/X']
                 ))
     if isosx:
