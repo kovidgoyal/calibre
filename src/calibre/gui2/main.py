@@ -28,6 +28,7 @@ from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
 from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
+from calibre.gui2.dialogs.progress import ProgressDialog
 from calibre.gui2.main_window import MainWindow, option_parser as _option_parser
 from calibre.gui2.main_ui import Ui_MainWindow
 from calibre.gui2.device import DeviceManager
@@ -598,29 +599,26 @@ class Main(MainWindow, Ui_MainWindow):
         root = choose_dir(self, 'recursive book import root dir dialog', 'Select root folder')
         if not root:
             return
-        progress = QProgressDialog('', '&'+_('Stop'),
-                                   0, 0, self)
-        progress.setWindowModality(Qt.ApplicationModal)
-        progress.setWindowTitle(_('Adding books recursively...'))
+        progress = ProgressDialog(_('Adding books recursively...'),
+                                   min=0, max=0, parent=self)
         progress.show()
         def callback(msg):
             if msg != '.':
-                progress.setLabelText((_('Added ')+msg) if msg else _('Searching...'))
-            stop =  progress.wasCanceled()
+                progress.set_msg((_('Added ')+msg) if msg else _('Searching...'))
             QApplication.processEvents()
             QApplication.sendPostedEvents()
             QApplication.flush()
-            return stop
+            return progress.canceled
         try:
             duplicates = self.library_view.model().db.recursive_import(root, single, callback=callback)
         finally:
-            progress.hide()
-            progress.close()            
+            progress.hide()            
         if duplicates:
             files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
             for mi, formats in duplicates:
                 files += '<li>'+mi.title+'</li>\n'
-            d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), files+'</ul></p>', self)
+            d = WarningDialog(_('Duplicates found!'), _('Duplicates found!'), 
+                              files+'</ul></p>', self)
             if d.exec_() == QDialog.Accepted:
                 for mi, formats in duplicates:
                     self.library_view.model().db.import_book(mi, formats )
@@ -686,15 +684,13 @@ class Main(MainWindow, Ui_MainWindow):
             return
         # Get format and metadata information
         formats, metadata, names, infos = [], [], [], []
-        progress = QProgressDialog(_('Reading metadata...'), _('Stop'), 0, len(paths), self)
-        progress.setWindowTitle(_('Adding books...'))
-        progress.setWindowModality(Qt.ApplicationModal)
-        progress.setLabelText(_('Reading metadata...'))
+        progress = ProgressDialog(_('Adding books...'), _('Reading metadata...'),
+                                  min=0, max=len(paths), parent=self)
         progress.show()
         try:
             for c, book in enumerate(paths):
-                progress.setValue(c)
-                if progress.wasCanceled():
+                progress.set_value(c)
+                if progress.canceled:
                     return
                 format = os.path.splitext(book)[1]
                 format = format[1:] if format else None
@@ -713,15 +709,14 @@ class Main(MainWindow, Ui_MainWindow):
                 infos.append({'title':mi.title, 'authors':', '.join(mi.authors),
                               'cover':self.default_thumbnail, 'tags':[]})
                 title = mi.title if isinstance(mi.title, unicode) else mi.title.decode(preferred_encoding, 'replace')
-                progress.setLabelText(_('Read metadata from ')+title)
+                progress.set_msg(_('Read metadata from ')+title)
             
             if not to_device:
-                progress.setLabelText(_('Adding books to database...'))
+                progress.set_msg(_('Adding books to database...'))
                 model = self.library_view.model()
                 
                 paths = list(paths)
                 duplicates, number_added = model.add_books(paths, formats, metadata)
-                progress.cancel()
                 if duplicates:
                     files = _('<p>Books with the same title as the following already exist in the database. Add them anyway?<ul>')
                     for mi in duplicates[2]:
@@ -734,9 +729,7 @@ class Main(MainWindow, Ui_MainWindow):
             else:
                 self.upload_books(paths, list(map(sanitize_file_name, names)), infos, on_card=on_card)
         finally:
-            progress.setValue(progress.maximum())
             progress.hide()
-            progress.close()
 
     def upload_books(self, files, names, metadata, on_card=False, memory=None):
         '''
@@ -979,28 +972,49 @@ class Main(MainWindow, Ui_MainWindow):
         self.save_to_disk(checked, True)
 
     def save_to_disk(self, checked, single_dir=False, single_format=None):
+        
         rows = self.current_view().selectionModel().selectedRows()
         if not rows or len(rows) == 0:
             d = error_dialog(self, _('Cannot save to disk'), _('No books selected'))
             d.exec_()
             return
-
+        
+        progress = ProgressDialog(_('Saving to disk...'), min=0, max=len(rows),
+                                  parent=self)
+        
+        def callback(count, msg):
+            progress.set_value(count)
+            progress.set_msg(_('Saved')+' '+msg)
+            QApplication.processEvents()
+            QApplication.sendPostedEvents()
+            QApplication.flush()
+            return not progress.canceled
+        
         dir = choose_dir(self, 'save to disk dialog', _('Choose destination directory'))
         if not dir:
             return
-        if self.current_view() == self.library_view:
-            failures = self.current_view().model().save_to_disk(rows, dir,
-                                    single_dir=single_dir, single_format=single_format)
-            if failures and single_format is not None:
-                msg = _('<p>Could not save the following books to disk, because the %s format is not available for them:<ul>')%single_format.upper()
-                for f in failures:
-                    msg += '<li>%s</li>'%f[1]
-                msg += '</ul>'
-                warning_dialog(self, _('Could not save some ebooks'), msg).exec_()
-            QDesktopServices.openUrl(QUrl('file:'+dir))
-        else:
-            paths = self.current_view().model().paths(rows)
-            self.device_manager.save_books(Dispatcher(self.books_saved), paths, dir)
+            
+        progress.show()
+        QApplication.processEvents()
+        QApplication.sendPostedEvents()
+        QApplication.flush()
+        try:
+            if self.current_view() == self.library_view:
+                failures = self.current_view().model().save_to_disk(rows, dir,
+                                        single_dir=single_dir, callback=callback, 
+                                        single_format=single_format)
+                if failures and single_format is not None:
+                    msg = _('<p>Could not save the following books to disk, because the %s format is not available for them:<ul>')%single_format.upper()
+                    for f in failures:
+                        msg += '<li>%s</li>'%f[1]
+                    msg += '</ul>'
+                    warning_dialog(self, _('Could not save some ebooks'), msg).exec_()
+                QDesktopServices.openUrl(QUrl('file:'+dir))
+            else:
+                paths = self.current_view().model().paths(rows)
+                self.device_manager.save_books(Dispatcher(self.books_saved), paths, dir)
+        finally:
+            progress.hide()
             
     def books_saved(self, job):
         if job.exception is not None:

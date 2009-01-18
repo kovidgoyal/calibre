@@ -38,7 +38,6 @@ class cmd_commit(_cmd_commit):
         print attributes['summary']
         return attributes['summary']
         
-    
     def expand_bug(self, msg, nick, config, bug_tracker, type='trac'):
         prefix = '%s_%s_'%(type, nick)
         username = config.get_user_option(prefix+'username')
