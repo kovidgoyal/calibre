@@ -35,7 +35,8 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-@namespace url(http://www.w3.org/1999/xhtml); /* set default namespace to HTML */
+@namespace url(http://www.w3.org/1999/xhtml);
+@namespace svg url(http://www.w3.org/2000/svg);
 
 /* blocks */
 
@@ -45,7 +46,6 @@ html, div, map, dt, isindex, form {
 
 body {
   display: block;
-  margin: 8px;
 }
 
 p, dl, multicol {
@@ -59,7 +59,7 @@ dd {
 
 blockquote {
   display: block;
-  margin: 1em 40px;
+  margin: 1em;
 }
 
 address {
@@ -74,7 +74,7 @@ center {
 
 blockquote[type=cite] {
   display: block;
-  margin: 1em 0px;
+  margin: 1em 0em;
   border-color: blue;
   border-width: thin;
 }
@@ -234,14 +234,6 @@ th {
 
 /* inlines */
 
-q:before {
-  content: open-quote;
-}
-
-q:after {
-  content: close-quote;
-}
-
 b, strong {
   font-weight: bolder;
 }
@@ -392,22 +384,6 @@ spacer {
   float: none ! important;
 }
 
-/* focusable content: anything w/ tabindex >=0 is focusable */
-abbr:focus, acronym:focus, address:focus, applet:focus, b:focus, 
-base:focus, big:focus, blockquote:focus, br:focus, canvas:focus, caption:focus,
-center:focus, cite:focus, code:focus, col:focus, colgroup:focus, dd:focus,
-del:focus, dfn:focus, dir:focus, div:focus, dl:focus, dt:focus, em:focus,
-fieldset:focus, font:focus, form:focus, h1:focus, h2:focus, h3:focus, h4:focus,
-h5:focus, h6:focus, hr:focus, i:focus, img:focus, ins:focus, 
-kbd:focus, label:focus, legend:focus, li:focus, link:focus, menu:focus, 
-object:focus, ol:focus, p:focus, pre:focus, q:focus, s:focus, samp:focus, 
-small:focus, span:focus, strike:focus, strong:focus, sub:focus, sup:focus, 
-table:focus, tbody:focus, td:focus, tfoot:focus, th:focus, thead:focus, 
-tr:focus, tt:focus, u:focus, ul:focus, var:focus {
-  /* Don't specify the outline-color, we should always use initial value. */
-   outline: 1px dotted;
-}
-
 /* hidden elements */
 area, base, basefont, head, meta, script, style, title,
 noembed, param, link {
@@ -424,3 +400,8 @@ br {
   display: block;
 }
 
+/* Images, embedded object, and SVG size defaults */
+img, object, svg|svg {
+    width: auto;
+    height: auto;
+}

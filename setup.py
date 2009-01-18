@@ -166,7 +166,7 @@ if __name__ == '__main__':
             metadata_sqlite = 'library/metadata_sqlite.sql',
             jquery          = 'gui2/viewer/jquery.js',
             jquery_scrollTo = 'gui2/viewer/jquery_scrollTo.js',
-            html_css        = 'ebooks/lit/html.css',
+            html_css        = 'ebooks/oeb/html.css',
         )
         
         DEST = os.path.join('src', APPNAME, 'resources.py')
@@ -425,7 +425,11 @@ if __name__ == '__main__':
                 extra_link_args=['-framework', 'IOKit'])
                            )
     
-    plugins = ['plugins/%s.so'%(x.name.rpartition('.')[-1]) for x in ext_modules]
+    if not iswindows:
+        plugins = ['plugins/%s.so'%(x.name.rpartition('.')[-1]) for x in ext_modules]
+    else:
+        plugins = ['plugins/%s.pyd'%(x.name.rpartition('.')[-1]) for x in ext_modules] + \
+                  ['plugins/%s.pyd.manifest'%(x.name.rpartition('.')[-1]) for x in ext_modules if 'pictureflow' not in x.name]
 
     setup(
           name           = APPNAME,

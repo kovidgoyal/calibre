@@ -48,12 +48,14 @@ entry_points = {
                              'any2lrf   = calibre.ebooks.lrf.any.convert_from:main',
                              'any2epub  = calibre.ebooks.epub.from_any:main',
                              'any2lit   = calibre.ebooks.lit.from_any:main',
+                             'any2mobi  = calibre.ebooks.mobi.from_any:main',
                              'lrf2lrs   = calibre.ebooks.lrf.lrfparser:main',
                              'lrs2lrf   = calibre.ebooks.lrf.lrs.convert_from:main',
                              'pdfreflow = calibre.ebooks.lrf.pdf.reflow:main',
                              'isbndb    = calibre.ebooks.metadata.isbndb:main',
                              'librarything = calibre.ebooks.metadata.library_thing:main',
                              'mobi2oeb  = calibre.ebooks.mobi.reader:main',
+                             'oeb2mobi  = calibre.ebooks.mobi.writer:main',
                              'lrf2html  = calibre.ebooks.lrf.html.convert_to:main',
                              'lit2oeb   = calibre.ebooks.lit.reader:main',
                              'oeb2lit   = calibre.ebooks.lit.writer:main',
@@ -190,6 +192,8 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.epub.from_any import option_parser as any2epub
         from calibre.ebooks.lit.from_any import option_parser as any2lit
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
+        from calibre.ebooks.mobi.from_any import option_parser as any2mobi
+        from calibre.ebooks.mobi.writer import option_parser as oeb2mobi
         from calibre.gui2.main import option_parser as guiop 
         any_formats = ['epub', 'htm', 'html', 'xhtml', 'xhtm', 'rar', 'zip',
              'txt', 'lit', 'rtf', 'pdf', 'prc', 'mobi', 'fb2', 'odt'] 
@@ -214,6 +218,8 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('calibre', guiop, any_formats))
         f.write(opts_and_exts('any2epub', any2epub, any_formats))
         f.write(opts_and_exts('any2lit', any2lit, any_formats))
+        f.write(opts_and_exts('any2mobi', any2mobi, any_formats))
+        f.write(opts_and_exts('oeb2mobi', oeb2mobi, ['mobi', 'prc']))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
@@ -230,7 +236,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('lit2oeb', lit2oeb, ['lit']))
         f.write(opts_and_exts('comic2lrf', comicop, ['cbz', 'cbr']))
         f.write(opts_and_exts('comic2epub', comic2epub, ['cbz', 'cbr']))
-	f.write(opts_and_exts('comic2pdf', comic2epub, ['cbz', 'cbr']))
+        f.write(opts_and_exts('comic2pdf', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2epub, feed_titles))
