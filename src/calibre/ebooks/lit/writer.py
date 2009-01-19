@@ -143,7 +143,7 @@ def warn(x):
 class ReBinary(object):
     NSRMAP = {'': None, XML_NS: 'xml'}
     
-    def __init__(self, root, path, oeb, map=HTML_MAP):
+    def __init__(self, root, item, oeb, map=HTML_MAP):
         self.item = item
         self.logger = oeb.logger
         self.manifest = oeb.manifest
@@ -713,7 +713,7 @@ def option_parser():
         '-o', '--output', default=None, 
         help=_('Output file. Default is derived from input filename.'))
     parser.add_option(
-        '--verbose', default=False, action='store_true',
+        '-v', '--verbose', default=0, action='count',
         help=_('Useful for debugging.'))
     return parser
 
@@ -725,7 +725,7 @@ def oeb2lit(opts, inpath):
         outpath = os.path.basename(inpath)
         outpath = os.path.splitext(outpath)[0] + '.lit'
     outpath = os.path.abspath(outpath)
-    context = Context('Firefox', 'MSReader')
+    context = Context('Browser', 'MSReader')
     oeb = OEBBook(inpath, logger=logger)
     tocadder = HTMLTOCAdder()
     tocadder.transform(oeb, context)

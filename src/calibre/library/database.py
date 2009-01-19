@@ -1390,10 +1390,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
         return [i[0] for i in self.conn.get('SELECT id FROM books')]
 
     def export_to_dir(self, dir, indices, byauthor=False, single_dir=False,
-                      index_is_id=False):
+                      index_is_id=False, callback=None):
         if not os.path.exists(dir):
             raise IOError('Target directory does not exist: '+dir)
         by_author = {}
+        count = 0
         for index in indices:
             id = index if index_is_id else self.id(index)
             au = self.conn.get('SELECT author_sort FROM books WHERE id=?',
@@ -1403,8 +1404,6 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                 if not au:
                     au = _('Unknown')
                 au = au.split(',')[0]
-            else:
-                au = au.replace(',', ';')
             if not by_author.has_key(au):
                 by_author[au] = []
             by_author[au].append(index)
@@ -1456,6 +1455,11 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
                         print 'Error setting metadata for book:', mi.title
                         traceback.print_exc()
                     f.close()
+                count += 1
+                if callable(callback):
+                    if not callback(count, mi.title):
+                        return
+                     
 
 
     def import_book(self, mi, formats):
@@ -1569,12 +1573,13 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             
         return duplicates
 
-    def export_single_format_to_dir(self, dir, indices, format, index_is_id=False):
+    def export_single_format_to_dir(self, dir, indices, format, 
+                                    index_is_id=False, callback=None):
         dir = os.path.abspath(dir)
         if not index_is_id:
             indices = map(self.id, indices)
         failures = []
-        for id in indices:
+        for count, id in enumerate(indices):
             try:
                 data = self.format(id, format, index_is_id=True)
                 if not data:
@@ -1599,6 +1604,9 @@ ALTER TABLE books ADD COLUMN isbn TEXT DEFAULT "" COLLATE NOCASE;
             except:
                 pass
             f.close()
+            if callable(callback):
+                if not callback(count, title):
+                    break
         return failures
 
 

@@ -393,7 +393,7 @@ class MobiWriter(object):
         return data
         
     def _generate_images(self):
-        self._oeb.logger.warn('Serializing images...')
+        self._oeb.logger.info('Serializing images...')
         images = [(index, href) for href, index in self._images.items()]
         images.sort()
         metadata = self._oeb.metadata
@@ -502,7 +502,8 @@ def add_mobi_options(parser):
         _('Mobipocket-specific options.'))
     group.add_option(
         '-c', '--compress', default=False, action='store_true',
-        help=_('Compress file text using PalmDOC compression.'))
+        help=_('Compress file text using PalmDOC compression. '
+               'Results in smaller files, but takes a long time to run.'))
     group.add_option(
         '-r', '--rescale-images', default=False, action='store_true',
         help=_('Modify images to meet Palm device size limitations.'))
@@ -525,7 +526,7 @@ def option_parser():
         '-o', '--output', default=None, 
         help=_('Output file. Default is derived from input filename.'))
     parser.add_option(
-        '-v', '--verbose', default=False, action='store_true',
+        '-v', '--verbose', default=0, action='count',
         help=_('Useful for debugging.'))
     add_mobi_options(parser)
     return parser
