@@ -4,7 +4,7 @@ class SecurityWatch(BasicNewsRecipe):
     title          = u'securitywatch'
     description = 'security news'
     timefmt  = ' [%d %b %Y]'
-    __author__ = 'Oliver'
+    __author__ = 'Oliver Niesner'
     no_stylesheets = True
     oldest_article = 14
     max_articles_per_feed = 100

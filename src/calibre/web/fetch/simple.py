@@ -395,7 +395,11 @@ class RecursiveFetcher(object, LoggingInterface):
                     if self.download_stylesheets:
                         self.process_stylesheets(soup, newbaseurl)
                     
-                    res = os.path.join(linkdiskpath, basename(iurl))
+                    _fname = basename(iurl)
+                    if not isinstance(_fname, unicode):
+                        _fname.decode('latin1', 'replace')
+                    _fname.encode('ascii', 'replace').replace('%', '')
+                    res = os.path.join(linkdiskpath, _fname)
                     self.downloaded_paths.append(res)
                     self.filemap[nurl] = res
                     if recursion_level < self.max_recursions:

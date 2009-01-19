@@ -10,11 +10,6 @@ Based on ideas from comiclrf created by FangornUK.
 import os, sys, shutil, traceback, textwrap
 from uuid import uuid4
 
-try:
-    from reportlab.pdfgen import canvas
-    _reportlab = True
-except:
-    _reportlab = False
 
 
 
@@ -396,10 +391,9 @@ def create_lrf(pages, profile, opts, thumbnail=None):
 
 def create_pdf(pages, profile, opts, thumbnail=None):
     width, height = PROFILES[profile]
-
-    if not _reportlab:
-            raise RuntimeError('Failed to load reportlab')
-
+    
+    from reportlab.pdfgen import canvas
+    
     pdf = canvas.Canvas(filename=opts.output, pagesize=(width,height+15))
     pdf.setAuthor(opts.author)
     pdf.setTitle(opts.title)
