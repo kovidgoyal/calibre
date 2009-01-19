@@ -41,8 +41,9 @@ class ManifestTrimmer(object):
         while unchecked:
             new = set()
             for item in unchecked:
-                if item.media_type in OEB_DOCS or \
-                   item.media_type[-4:] in ('/xml', '+xml'):
+                if (item.media_type in OEB_DOCS or 
+                    item.media_type[-4:] in ('/xml', '+xml')) and \
+                   item.data is not None:
                     hrefs = [sel(item.data) for sel in LINK_SELECTORS]
                     for href in chain(*hrefs):
                         href = item.abshref(href)
