@@ -848,7 +848,7 @@ class Processor(Parser):
         # Workaround for anchor rendering bug in ADE
         css += '\n\na { color: inherit; text-decoration: inherit; cursor: default; }\na[href] { color: blue; text-decoration: underline; cursor:pointer; }'
         if self.opts.remove_paragraph_spacing:
-            css += '\n\np {text-indent: 2em; margin-top:0pt; margin-bottom:0pt; padding:0pt; border:0pt;}'
+            css += '\n\np {text-indent: 1.5em; margin-top:0pt; margin-bottom:0pt; padding:0pt; border:0pt;}'
         if self.opts.override_css:
             css += '\n\n' + self.opts.override_css
         self.override_css = self.css_parser.parseString(self.preprocess_css(css))

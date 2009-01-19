@@ -156,7 +156,7 @@ to auto-generate a Table of Contents.
            help=_('Set the right margin in pts. Default is %default'))
     layout('base_font_size2', ['--base-font-size'], default=12.0,
            help=_('The base font size in pts. Default is %defaultpt. Set to 0 to disable rescaling of fonts.'))
-    layout('remove_paragraph_spacing', ['--remove-paragraph-spacing'], default=True,
+    layout('remove_paragraph_spacing', ['--remove-paragraph-spacing'], default=False,
            help=_('Remove spacing between paragraphs. Will not work if the source file forces inter-paragraph spacing.'))
     layout('preserve_tag_structure', ['--preserve-tag-structure'], default=False,
            help=_('Preserve the HTML tag structure while splitting large HTML files. This is only neccessary if the HTML files contain CSS that uses sibling selectors. Enabling this greatly slows down processing of large HTML files.'))
