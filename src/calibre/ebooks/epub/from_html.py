@@ -128,6 +128,8 @@ class HTMLProcessor(Processor, Rationalizer):
         if hasattr(self.body, 'xpath'):
             for script in list(self.body.xpath('descendant::script')):
                 script.getparent().remove(script)
+                
+        self.fix_markup()
             
     def convert_image(self, img):
         rpath = img.get('src', '')
@@ -145,6 +147,17 @@ class HTMLProcessor(Processor, Rationalizer):
                     if val == rpath:
                         self.resource_map[key] = rpath+'_calibre_converted.jpg'
         img.set('src', rpath+'_calibre_converted.jpg')
+        
+    def fix_markup(self):
+        '''
+        Perform various markup transforms to get the output to render correctly 
+        in the quirky ADE.
+        '''
+        # Replace <br> that are children of <body> with <p>&nbsp;</p>
+        if hasattr(self.body, 'xpath'):
+            for br in self.body.xpath('./br'):
+                br.tag = 'p'
+                br.text = u'\u00a0'
     
     def save(self):
         for meta in list(self.root.xpath('//meta')):
