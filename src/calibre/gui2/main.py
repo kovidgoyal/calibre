@@ -340,6 +340,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'),
                      self.tags_view.model().reinit)
         self.connect(self.library_view.model(), SIGNAL('count_changed(int)'), self.location_view.count_changed)
+        self.connect(self.library_view.model(), SIGNAL('count_changed(int)'),
+                     self.tags_view.recount)
         self.library_view.model().count_changed()
         ########################### Cover Flow ################################
         self.cover_flow = None
@@ -1129,6 +1131,7 @@ class Main(MainWindow, Ui_MainWindow):
                         os.remove(f.name)
                 except:
                     pass
+        self.tags_view.recount()
         if self.current_view() is self.library_view:
             current = self.library_view.currentIndex()
             self.library_view.model().current_changed(current, QModelIndex())

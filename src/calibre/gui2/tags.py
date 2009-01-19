@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Browsing book collection by tags.
 '''
 from PyQt4.Qt import QAbstractItemModel, Qt, QVariant, QTreeView, QModelIndex, \
-                     QFont, SIGNAL, QSize, QColor, QIcon
+                     QFont, SIGNAL, QSize, QColor, QIcon, QPoint
 from calibre.gui2 import config
 NONE = QVariant()
 
@@ -36,6 +36,14 @@ class TagsView(QTreeView):
         if self._model.toggle(index):
             self.emit(SIGNAL('tags_marked(PyQt_PyObject, PyQt_PyObject)'), 
                       self._model.tokens(), self.match_all.isChecked())
+            
+    def recount(self, *args):
+        ci = self.currentIndex()
+        if not ci.isValid():
+            ci = self.indexAt(QPoint(10, 10))
+        self.model().refresh()
+        if ci.isValid():
+            self.scrollTo(ci, QTreeView.PositionAtTop) 
 
 class TagsModel(QAbstractItemModel):
     
