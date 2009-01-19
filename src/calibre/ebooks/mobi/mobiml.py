@@ -12,7 +12,7 @@ import copy
 import re
 from lxml import etree
 from calibre.ebooks.oeb.base import namespace, barename
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, OEB_DOCS
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 
@@ -96,8 +96,11 @@ class MobiMLizer(object):
         href = oeb.guide['cover'].href
         del oeb.guide['cover']
         item = oeb.manifest.hrefs[href]
-        oeb.manifest.remove(item)
-
+        if item.spine_position is not None:
+            oeb.spine.remove(item)                
+            if item.media_type in OEB_DOCS:
+                self.oeb.manifest.remove(item)
+    
     def mobimlize_spine(self):
         for item in self.oeb.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb, self.profile)
