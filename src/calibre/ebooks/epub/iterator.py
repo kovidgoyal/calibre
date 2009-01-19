@@ -95,7 +95,7 @@ class EbookIterator(object):
                 for match in re.compile(r'@font-face\s*{([^}]+)}').finditer(css):
                     block  = match.group(1)
                     family = re.compile(r'font-family\s*:\s*([^;]+)').search(block)
-                    url    = re.compile(r'url\s*\((.+?)\)', re.DOTALL).search(block)
+                    url    = re.compile(r'url\s*\([\'"]*(.+?)[\'"]*\)', re.DOTALL).search(block)
                     if url:
                         path = url.group(1).split('/')
                         path = os.path.join(os.path.dirname(item.path), *path) 
