@@ -15,10 +15,10 @@ from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
 import logging
 import re
-import htmlentitydefs
 import uuid
 import copy
 from lxml import etree
+from lxml import html
 from calibre import LoggingInterface
 
 XML_PARSER = etree.XMLParser(recover=True)
@@ -66,14 +66,6 @@ OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
 OEB_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
-
-recode = lambda s: s.decode('iso-8859-1').encode('ascii', 'xmlcharrefreplace')
-ENTITYDEFS = dict((k, recode(v)) for k, v in htmlentitydefs.entitydefs.items())
-del ENTITYDEFS['lt']
-del ENTITYDEFS['gt']
-del ENTITYDEFS['quot']
-del ENTITYDEFS['amp']
-del recode
 
 
 def element(parent, *args, **kwargs):
@@ -298,7 +290,6 @@ class Metadata(object):
 
 class Manifest(object):
     class Item(object):
-        ENTITY_RE = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9.-_:]+);')
         NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
     
         def __init__(self, id, href, media_type,
@@ -317,9 +308,12 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _force_xhtml(self, data):
-            repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-            data = self.ENTITY_RE.sub(repl, data)
-            data = etree.fromstring(data, parser=XML_PARSER)
+            try:
+                data = etree.fromstring(data, parser=XML_PARSER)
+            except etree.XMLSyntaxError:
+                data = html.fromstring(data, parser=XML_PARSER)
+                data = etree.tostring(data, encoding=unicode)
+                data = etree.fromstring(data, parser=XML_PARSER)
             if namespace(data.tag) != XHTML_NS:
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data)
