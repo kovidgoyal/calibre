@@ -56,3 +56,7 @@ class Sueddeutsche(BasicNewsRecipe):
     
     feeds =  [ (u'Sueddeutsche', u'http://www.sueddeutsche.de/app/service/rss/alles/rss.xml') ] 
 
+    def postprocess_html(self, soup, first_fetch):
+        for t in soup.findAll(['table', 'tr', 'td']):
+            t.name = 'div'
+        return soup

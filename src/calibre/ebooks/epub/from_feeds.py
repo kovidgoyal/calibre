@@ -40,6 +40,7 @@ def convert(opts, recipe_arg, notification=None):
         c.smart_update(recipe_opts, opts)
         opts = recipe_opts
         opts.chapter_mark = 'none'
+        opts.dont_split_on_page_breaks = True
         opf = glob.glob(os.path.join(tdir, '*.opf'))
         if not opf:
             raise Exception('Downloading of recipe: %s failed'%recipe_arg)
