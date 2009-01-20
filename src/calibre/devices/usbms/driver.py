@@ -11,8 +11,21 @@ from itertools import cycle
 
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
-from calibre.devices.errors import FreeSpaceError
+from calibre.devices.errors import FreeSpaceError, PathError
 from calibre.devices.mime import MIME_MAP
+
+class File(object):
+    def __init__(self, path):
+        stats = os.stat(path)
+        self.is_dir = os.path.isdir(path)
+        self.is_readonly = not os.access(path, os.W_OK)
+        self.ctime = stats.st_ctime
+        self.wtime = stats.st_mtime
+        self.size  = stats.st_size
+        if path.endswith(os.sep):
+            path = path[:-1]
+        self.path = path
+        self.name = os.path.basename(path)
 
 class USBMS(Device):
     FORMATS = []
