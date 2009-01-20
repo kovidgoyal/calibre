@@ -32,6 +32,11 @@ class NavBarTemplate(Template):
       xmlns:py="http://genshi.edgewall.org/" 
        
 >
+    <head>
+        <style py:if="extra_css" type="text/css">
+        ${extra_css}
+        </style>
+    </head>
     <body>
         <div class="navbar" style="text-align:${'center' if center else 'left'};">
             <hr py:if="bottom" />
@@ -60,14 +65,15 @@ class NavBarTemplate(Template):
 ''')
 
     def generate(self, bottom, feed, art, number_of_articles_in_feed, 
-                 two_levels, url, __appname__, prefix='', center=True):
+                 two_levels, url, __appname__, prefix='', center=True,
+                 extra_css=None):
         if prefix and not prefix.endswith('/'):
             prefix += '/'
         return Template.generate(self, bottom=bottom, art=art, feed=feed,
                                  num=number_of_articles_in_feed, 
                                  two_levels=two_levels, url=url,
                                  __appname__=__appname__, prefix=prefix,
-                                 center=center)
+                                 center=center, extra_css=extra_css)
     
 
 class IndexTemplate(Template):
@@ -88,11 +94,14 @@ class IndexTemplate(Template):
         <style py:if="style" type="text/css">
             ${style}
         </style>
+        <style py:if="extra_css" type="text/css">
+            ${extra_css}
+        </style>
     </head>
     <body>
-        <h1>${title}</h1>
+        <h1 class="calibre_recipe_title">${title}</h1>
         <p style="text-align:right">${date}</p>
-        <ul>
+        <ul class="calibre_feed_list">
             <py:for each="i, feed in enumerate(feeds)">
             <li py:if="feed" id="feed_${str(i)}">
                 <a class="feed" href="${'feed_%d/index.html'%i}">${feed.title}</a>
@@ -103,11 +112,12 @@ class IndexTemplate(Template):
 </html>
 ''')
 
-    def generate(self, title, datefmt, feeds):
+    def generate(self, title, datefmt, feeds, extra_css=None):
         if isinstance(datefmt, unicode):
             datefmt = datefmt.encode(preferred_encoding)
         date = strftime(datefmt)
-        return Template.generate(self, title=title, date=date, feeds=feeds)
+        return Template.generate(self, title=title, date=date, feeds=feeds,
+                                 extra_css=extra_css)
     
     
 class FeedTemplate(Template):
@@ -128,18 +138,21 @@ class FeedTemplate(Template):
         <style py:if="style" type="text/css">
             ${style}
         </style>
+        <style py:if="extra_css" type="text/css">
+            ${extra_css}
+        </style>
     </head>
     <body style="page-break-before:always">
-        <h2 class="feed_title">${feed.title}</h2>
+        <h2 class="calibre_feed_title">${feed.title}</h2>
         <py:if test="getattr(feed, 'image', None)">
-        <div class="feed_image">
+        <div class="calibre_feed_image">
             <img alt="${feed.image_alt}" src="${feed.image_url}" />
         </div>
         </py:if>
-        <div py:if="getattr(feed, 'description', None)">
+        <div class="calibre_feed_description" py:if="getattr(feed, 'description', None)">
             ${feed.description}<br />
         </div>
-        <ul>
+        <ul class="calibre_article_list">
             <py:for each="i, article in enumerate(feed.articles)">
             <li id="${'article_%d'%i}" py:if="getattr(article, 'downloaded', False)" style="padding-bottom:0.5em">
                 <a class="article" href="${article.url}">${article.title}</a>
@@ -157,8 +170,9 @@ class FeedTemplate(Template):
 </html>
 ''')
         
-    def generate(self, feed, cutoff):
-        return Template.generate(self, feed=feed, cutoff=cutoff)
+    def generate(self, feed, cutoff, extra_css=None):
+        return Template.generate(self, feed=feed, cutoff=cutoff, 
+                                 extra_css=extra_css)
 
 class EmbeddedContent(Template):
     

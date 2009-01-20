@@ -158,6 +158,10 @@ class HTMLProcessor(Processor, Rationalizer):
             for br in self.body.xpath('./br'):
                 br.tag = 'p'
                 br.text = u'\u00a0'
+                
+        if self.opts.profile.remove_object_tags:
+            for tag in self.root.xpath('//object|//embed'):
+                tag.getparent().remove(tag)
     
     def save(self):
         for meta in list(self.root.xpath('//meta')):

@@ -296,6 +296,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.card_view.connect_dirtied_signal(self.upload_booklists)
 
         self.show()
+        if self.system_tray_icon.isVisible() and opts.start_in_tray:
+            self.hide()
         self.stack.setCurrentIndex(0)
         try:
             db = LibraryDatabase2(self.library_path)
@@ -1527,6 +1529,8 @@ path_to_ebook to the database.
 ''')
     parser.add_option('--with-library', default=None, action='store', 
                       help=_('Use the library located at the specified path.'))
+    parser.add_option('--start-in-tray', default=False, action='store_true',
+                      help=_('Start minimized to system tray.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help=_('Log debugging information to console'))
     return parser

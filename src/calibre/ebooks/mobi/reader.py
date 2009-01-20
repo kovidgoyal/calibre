@@ -124,6 +124,7 @@ class BookHeader(object):
             sublangid = (langcode >> 10) & 0xFF
             self.language = main_language.get(langid, 'ENGLISH')
             self.sublanguage = sub_language.get(sublangid, 'NEUTRAL')
+            self.first_image_index = struct.unpack('>L', raw[0x6c:0x6c+4])[0]
             
             self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
             self.exth = None
@@ -441,17 +442,18 @@ class MobiReader(object):
             os.makedirs(output_dir)
         image_index = 0
         self.image_names = []
-        for i in range(self.num_sections):
+        for i in range(self.book_header.first_image_index, self.num_sections):
             if i in processed_records:
                 continue
             processed_records.append(i)
             data  = self.sections[i][0]
             buf = cStringIO.StringIO(data)
+            image_index += 1
             try:
                 im = PILImage.open(buf)                
-            except IOError:
+            except IOError, e:
                 continue
-            image_index += 1 
+             
             path = os.path.join(output_dir, '%05d.jpg'%image_index)
             self.image_names.append(os.path.basename(path))
             im.convert('RGB').save(open(path, 'wb'), format='JPEG')
@@ -476,6 +478,7 @@ def get_metadata(stream):
     else:
         tdir = tempfile.mkdtemp('_mobi_meta', __appname__+'_')
         atexit.register(shutil.rmtree, tdir)
+        #print tdir
         mr.extract_images([], tdir)
         mi = mr.create_opf('dummy.html')
         if mi.cover:
@@ -491,7 +494,6 @@ def get_metadata(stream):
                         if os.access(candidate, os.R_OK):
                             cover = candidate
                             break
-                    
             if os.access(cover, os.R_OK):
                 mi.cover_data = ('JPEG', open(os.path.join(tdir, cover), 'rb').read())
         else:

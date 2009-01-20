@@ -532,7 +532,9 @@ class BasicNewsRecipe(object, LoggingInterface):
             if body is not None:
                 templ = self.navbar.generate(False, f, a, feed_len, 
                                              not self.has_single_feed, 
-                                             url, __appname__, center=self.center_navbar)
+                                             url, __appname__, 
+                                             center=self.center_navbar,
+                                             extra_css=self.extra_css)
                 elem = BeautifulSoup(templ.render(doctype='xhtml').decode('utf-8')).find('div')
                 body.insert(0, elem)
         if self.remove_javascript:
@@ -575,7 +577,8 @@ class BasicNewsRecipe(object, LoggingInterface):
     
     def feeds2index(self, feeds):
         templ = templates.IndexTemplate()
-        return templ.generate(self.title, self.timefmt, feeds).render(doctype='xhtml')
+        return templ.generate(self.title, self.timefmt, feeds,
+                              extra_css=self.extra_css).render(doctype='xhtml')
     
     @classmethod
     def description_limiter(cls, src):
@@ -626,7 +629,8 @@ class BasicNewsRecipe(object, LoggingInterface):
                 
                 
         templ = templates.FeedTemplate()
-        return templ.generate(feed, self.description_limiter).render(doctype='xhtml')
+        return templ.generate(feed, self.description_limiter, 
+                              extra_css=self.extra_css).render(doctype='xhtml')
         
     
     def create_logger(self, feed_number, article_number):

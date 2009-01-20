@@ -16,6 +16,14 @@ class NewYorker(BasicNewsRecipe):
     max_articles_per_feed = 100
     no_stylesheets        = False
     use_embedded_content  = False
+    extra_css = '''
+    .calibre_feed_list {font-size:xx-small}
+    .calibre_article_list {font-size:xx-small}
+    .calibre_feed_title {font-size:normal}
+    .calibre_recipe_title {font-size:normal}
+    .calibre_feed_description {font-size:xx-small}
+    '''
+                    
 
     keep_only_tags = [
                         dict(name='div'  , attrs={'id':'printbody'   })

@@ -52,6 +52,7 @@ def convert(opts, recipe_arg, notification=None):
         
         print 'Generating epub...'
         opts.encoding = 'utf-8'
+        opts.remove_paragraph_spacing = True
         html2epub(opf, opts, notification=notification)
     
 
