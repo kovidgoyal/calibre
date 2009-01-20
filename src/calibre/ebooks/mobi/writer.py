@@ -180,7 +180,6 @@ class Serializer(object):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) not in nsrmap:
             return
-        hrefs = self.oeb.manifest.hrefs
         tag = prefixname(elem.tag, nsrmap)
         for attr in ('name', 'id'):
             if attr in elem.attrib:
@@ -203,7 +202,7 @@ class Serializer(object):
                         continue
                 elif attr == 'src':
                     href = item.abshref(val)
-                    if href in hrefs:
+                    if href in self.images:
                         index = self.images[href]
                         buffer.write('recindex="%05d"' % index)
                         continue

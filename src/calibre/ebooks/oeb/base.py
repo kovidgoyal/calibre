@@ -506,6 +506,7 @@ class Spine(object):
         self.items.pop(index)
         for i in xrange(index, len(self.items)):
             self.items[i].spine_position = i
+        item.spine_position = None
     
     def __iter__(self):
         for item in self.items:
