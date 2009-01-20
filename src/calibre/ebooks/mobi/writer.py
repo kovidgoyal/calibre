@@ -364,7 +364,11 @@ class MobiWriter(object):
         if image.format not in ('JPEG', 'GIF'):
             width, height = image.size
             area = width * height
-            format = 'GIF' if area <= 40000 else 'JPEG'
+            if area <= 40000:
+                format = 'GIF'
+            else:
+                image = image.convert('RGBA')
+                format = 'JPEG'
             changed = True
         if dimen is not None:
             image.thumbnail(dimen, Image.ANTIALIAS)
