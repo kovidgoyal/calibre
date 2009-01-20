@@ -3,10 +3,10 @@ __copyright__ = '2009, John Schember <john at nachtimwald.com>'
 '''
 Generic device driver. This is not a complete stand alone driver. It is
 intended to be subclassed with the relevant parts implemented for a particular
-device. This class handles devive detection.
+device. This class handles device detection.
 '''
 
-import os, subprocess, time
+import os, subprocess, time, re
 
 from calibre.devices.interface import Device as _Device
 from calibre.devices.errors import DeviceError
