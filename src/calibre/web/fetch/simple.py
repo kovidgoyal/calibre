@@ -187,7 +187,7 @@ class RecursiveFetcher(object, LoggingInterface):
                     raise FetchError, responses[err.code]
                 if getattr(err, 'reason', [0])[0] == 104 or \
                     getattr(err, 'errno', None) == -2: # Connection reset by peer or Name or service not know
-                    self.log_debug('Temporary error, retyring in 1 second')
+                    self.log_debug('Temporary error, retrying in 1 second')
                     time.sleep(1)
                     with closing(self.browser.open(url)) as f:
                         data = response(f.read()+f.read())

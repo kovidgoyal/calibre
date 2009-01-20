@@ -177,9 +177,9 @@ class Device(_Device):
         wmi = __import__('wmi', globals(), locals(), [], -1) 
         c = wmi.WMI()
         for drive in c.Win32_DiskDrive():
-            if self.windows_match_device(str(drive.PNPDeviceID), WINDOWS_MAIN_MEM):
+            if self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_MAIN_MEM):
                 drives['main'] = self.windows_get_drive_prefix(drive)
-            elif self.windows_match_device(str(drive.PNPDeviceID), WINDOWS_CARD_MEM):
+            elif self.windows_match_device(str(drive.PNPDeviceID), self.WINDOWS_CARD_MEM):
                 drives['card'] = self.windows_get_drive_prefix(drive)
                 
             if 'main' and 'card' in drives.keys():
