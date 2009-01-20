@@ -160,7 +160,11 @@ class HTMLProcessor(Processor, Rationalizer):
                 br.text = u'\u00a0'
                 
         if self.opts.profile.remove_object_tags:
-            for tag in self.root.xpath('//object|//embed'):
+            for tag in self.root.xpath('//embed'):
+                tag.getparent().remove(tag)
+            for tag in self.root.xpath('//object'):
+                if tag.get('type', '').lower().strip() in ('image/svg+xml',):
+                    continue
                 tag.getparent().remove(tag)
     
     def save(self):

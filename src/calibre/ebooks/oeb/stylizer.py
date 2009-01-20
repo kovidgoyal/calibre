@@ -223,8 +223,11 @@ class Stylizer(object):
             for key in composition:
                 style[key] = 'inherit'
         else:
-            primitives = [v.cssText for v in cssvalue]
-            primitites.reverse()
+            try:
+                primitives = [v.cssText for v in cssvalue]
+            except TypeError:
+                primitives = [cssvalue.cssText]
+            primitives.reverse()
             value = primitives.pop()
             for key in composition:
                 if cssproperties.cssvalues[key](value):

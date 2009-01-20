@@ -20,7 +20,7 @@ from PyQt4.QtWebKit import QWebPage
 from calibre import browser, __appname__, iswindows, LoggingInterface, \
                     strftime, __version__, preferred_encoding
 from calibre.ebooks.BeautifulSoup import BeautifulSoup, NavigableString, CData, Tag
-from calibre.ebooks.metadata.opf import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator
 from calibre.ebooks.lrf import entity_to_unicode
 from calibre.ebooks.metadata.toc import TOC
 from calibre.ebooks.metadata import MetaInformation
@@ -152,6 +152,8 @@ class BasicNewsRecipe(object, LoggingInterface):
     
     #: Options to pass to html2epub to customize generation of EPUB ebooks.
     html2epub_options     = ''
+    #: Options to pass to oeb2mobi to customize generation of MOBI ebooks.
+    oeb2mobi_options     = ''
     
     #: List of tags to be removed. Specified tags are removed from downloaded HTML.
     #: A tag is specified as a dictionary of the form::
@@ -876,6 +878,7 @@ class BasicNewsRecipe(object, LoggingInterface):
         
         manifest = [os.path.join(dir, 'feed_%d'%i) for i in range(len(feeds))]
         manifest.append(os.path.join(dir, 'index.html'))
+        manifest.append(os.path.join(dir, 'index.ncx'))
         cpath = getattr(self, 'cover_path', None)
         if cpath is None:
             pf = PersistentTemporaryFile('_recipe_cover.jpg')
@@ -885,6 +888,9 @@ class BasicNewsRecipe(object, LoggingInterface):
             opf.cover = cpath
             manifest.append(cpath)
         opf.create_manifest_from_files_in(manifest)
+        for mani in opf.manifest:
+            if mani.path.endswith('.ncx'):
+                mani.id = 'ncx'
         
         entries = ['index.html']
         toc = TOC(base_path=dir)

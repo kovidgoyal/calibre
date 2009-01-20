@@ -45,6 +45,8 @@ If you specify this option, any argument to %prog is ignored and a default recip
                  help='Optimize fetching for subsequent conversion to LRF.')
     c.add_opt('epub', ['--epub'], default=False, action='store_true', 
                  help='Optimize fetching for subsequent conversion to EPUB.')
+    c.add_opt('mobi', ['--mobi'], default=False, action='store_true', 
+                 help='Optimize fetching for subsequent conversion to MOBI.')
     c.add_opt('recursions', ['--recursions'], default=0,
                  help=_('Number of levels of links to follow on webpages that are linked to from feeds. Defaul %default'))
     c.add_opt('output_dir', ['--output-dir'], default='.', 
