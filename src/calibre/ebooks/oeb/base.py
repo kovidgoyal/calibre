@@ -803,12 +803,20 @@ class OEBBook(object):
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)
         for elem in xpath(opf, '/o2:package/o2:manifest/o2:item'):
+            id = elem.get('id')
             href = elem.get('href')
+            media_type = elem.get('media-type')
+            fallback = elem.get('fallback')
+            if href in manifest.hrefs:
+                self.logger.warn(u'Duplicate manifest entry for %r.' % href)
+                continue
             if not self.container.exists(href):
                 self.logger.warn(u'Manifest item %r not found.' % href)
                 continue
-            manifest.add(elem.get('id'), href, elem.get('media-type'),
-                         elem.get('fallback'))
+            if id in manifest.ids:
+                self.logger.warn(u'Duplicate manifest id %r.' % id)
+                id, href = manifest.generate(id, href)
+            manifest.add(id, href, media_type, fallback)
     
     def _spine_from_opf(self, opf):
         self.spine = spine = Spine(self)
