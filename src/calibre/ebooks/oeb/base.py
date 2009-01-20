@@ -20,6 +20,7 @@ import copy
 from lxml import etree
 from lxml import html
 from calibre import LoggingInterface
+from calibre.translations.dynamic import translate
 
 XML_PARSER = etree.XMLParser(recover=True)
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
@@ -973,6 +974,11 @@ class OEBBook(object):
         self._toc_from_opf(opf)
         self._ensure_cover_image()
 
+    def translate(self, text):
+        lang = str(self.metadata.language[0])
+        lang = lang.split('-', 1)[0].lower()
+        return translate(lang, text)
+    
     def to_opf1(self):
         package = etree.Element('package',
             attrib={'unique-identifier': self.uid.id})
