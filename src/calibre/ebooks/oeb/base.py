@@ -15,10 +15,10 @@ from urlparse import urldefrag, urlparse, urlunparse
 from urllib import unquote as urlunquote
 import logging
 import re
-import htmlentitydefs
 import uuid
 import copy
 from lxml import etree
+from lxml import html
 from calibre import LoggingInterface
 
 XML_PARSER = etree.XMLParser(recover=True)
@@ -66,14 +66,6 @@ OEB_RASTER_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME])
 OEB_IMAGES = set([GIF_MIME, JPEG_MIME, PNG_MIME, SVG_MIME])
 
 MS_COVER_TYPE = 'other.ms-coverimage-standard'
-
-recode = lambda s: s.decode('iso-8859-1').encode('ascii', 'xmlcharrefreplace')
-ENTITYDEFS = dict((k, recode(v)) for k, v in htmlentitydefs.entitydefs.items())
-del ENTITYDEFS['lt']
-del ENTITYDEFS['gt']
-del ENTITYDEFS['quot']
-del ENTITYDEFS['amp']
-del recode
 
 
 def element(parent, *args, **kwargs):
@@ -298,7 +290,6 @@ class Metadata(object):
 
 class Manifest(object):
     class Item(object):
-        ENTITY_RE = re.compile(r'&([a-zA-Z_:][a-zA-Z0-9.-_:]+);')
         NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
     
         def __init__(self, id, href, media_type,
@@ -317,9 +308,12 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _force_xhtml(self, data):
-            repl = lambda m: ENTITYDEFS.get(m.group(1), m.group(0))
-            data = self.ENTITY_RE.sub(repl, data)
-            data = etree.fromstring(data, parser=XML_PARSER)
+            try:
+                data = etree.fromstring(data, parser=XML_PARSER)
+            except etree.XMLSyntaxError:
+                data = html.fromstring(data, parser=XML_PARSER)
+                data = etree.tostring(data, encoding=unicode)
+                data = etree.fromstring(data, parser=XML_PARSER)
             if namespace(data.tag) != XHTML_NS:
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data)
@@ -681,22 +675,22 @@ class TOC(object):
             node.to_opf1(tour)
         return tour
     
-    def to_ncx(self, parent, playorder=None, depth=1):
-        if not playorder: playorder = [0]
+    def to_ncx(self, parent, order=None, depth=1):
+        if not order: order = [0]
         for node in self.nodes:
-            playorder[0] += 1
+            order[0] += 1
+            playOrder = str(order[0])
+            id = self.id or 'np' + playOrder
             point = etree.SubElement(parent,
-                NCX('navPoint'), attrib={'playOrder': str(playorder[0])})
+                NCX('navPoint'), id=id, playOrder=playOrder)
             if self.klass:
                 point.attrib['class'] = node.klass
-            if self.id:
-                point.attrib['id'] = node.id
             label = etree.SubElement(point, NCX('navLabel'))
             etree.SubElement(label, NCX('text')).text = node.title
             href = node.href if depth > 1 else urldefrag(node.href)[0]
             child = etree.SubElement(point,
                 NCX('content'), attrib={'src': href})
-            node.to_ncx(point, playorder, depth+1)
+            node.to_ncx(point, order, depth+1)
         return parent
 
     
@@ -992,22 +986,11 @@ class OEBBook(object):
         guide = self.guide.to_opf1(package)
         return {OPF_MIME: ('content.opf', package)}
 
-    def _generate_ncx_item(self):
-        id = 'ncx'
-        index = 0
-        while id in self.manifest:
-            id = 'ncx' + str(index)
-            index = index + 1
-        href = 'toc'
-        index = 0
-        while (href + '.ncx') in self.manifest.hrefs:
-            href = 'toc' + str(index)
-        href += '.ncx'
-        return (id, href)
-        
     def _to_ncx(self):
-        ncx = etree.Element(NCX('ncx'), attrib={'version': '2005-1'},
-                            nsmap={None: NCX_NS})
+        lang = unicode(self.metadata.language[0])
+        ncx = etree.Element(NCX('ncx'),
+            attrib={'version': '2005-1', XML('lang'): lang},
+            nsmap={None: NCX_NS})
         head = etree.SubElement(ncx, NCX('head'))
         etree.SubElement(head, NCX('meta'),
             attrib={'name': 'dtb:uid', 'content': unicode(self.uid)})
@@ -1030,7 +1013,7 @@ class OEBBook(object):
             nsmap={None: OPF2_NS})
         metadata = self.metadata.to_opf2(package)
         manifest = self.manifest.to_opf2(package)
-        id, href = self._generate_ncx_item()
+        id, href = self.manifest.generate('ncx', 'toc.ncx')
         etree.SubElement(manifest, OPF('item'),
             attrib={'id': id, 'href': href, 'media-type': NCX_MIME})
         spine = self.spine.to_opf2(package)
