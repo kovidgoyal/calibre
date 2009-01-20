@@ -675,22 +675,22 @@ class TOC(object):
             node.to_opf1(tour)
         return tour
     
-    def to_ncx(self, parent, playorder=None, depth=1):
-        if not playorder: playorder = [0]
+    def to_ncx(self, parent, order=None, depth=1):
+        if not order: order = [0]
         for node in self.nodes:
-            playorder[0] += 1
+            order[0] += 1
+            playOrder = str(order[0])
+            id = self.id or 'np' + playOrder
             point = etree.SubElement(parent,
-                NCX('navPoint'), attrib={'playOrder': str(playorder[0])})
+                NCX('navPoint'), id=id, playOrder=playOrder)
             if self.klass:
                 point.attrib['class'] = node.klass
-            if self.id:
-                point.attrib['id'] = node.id
             label = etree.SubElement(point, NCX('navLabel'))
             etree.SubElement(label, NCX('text')).text = node.title
             href = node.href if depth > 1 else urldefrag(node.href)[0]
             child = etree.SubElement(point,
                 NCX('content'), attrib={'src': href})
-            node.to_ncx(point, playorder, depth+1)
+            node.to_ncx(point, order, depth+1)
         return parent
 
     
@@ -986,22 +986,11 @@ class OEBBook(object):
         guide = self.guide.to_opf1(package)
         return {OPF_MIME: ('content.opf', package)}
 
-    def _generate_ncx_item(self):
-        id = 'ncx'
-        index = 0
-        while id in self.manifest:
-            id = 'ncx' + str(index)
-            index = index + 1
-        href = 'toc'
-        index = 0
-        while (href + '.ncx') in self.manifest.hrefs:
-            href = 'toc' + str(index)
-        href += '.ncx'
-        return (id, href)
-        
     def _to_ncx(self):
-        ncx = etree.Element(NCX('ncx'), attrib={'version': '2005-1'},
-                            nsmap={None: NCX_NS})
+        lang = unicode(self.metadata.language[0])
+        ncx = etree.Element(NCX('ncx'),
+            attrib={'version': '2005-1', XML('lang'): lang},
+            nsmap={None: NCX_NS})
         head = etree.SubElement(ncx, NCX('head'))
         etree.SubElement(head, NCX('meta'),
             attrib={'name': 'dtb:uid', 'content': unicode(self.uid)})
@@ -1024,7 +1013,7 @@ class OEBBook(object):
             nsmap={None: OPF2_NS})
         metadata = self.metadata.to_opf2(package)
         manifest = self.manifest.to_opf2(package)
-        id, href = self._generate_ncx_item()
+        id, href = self.manifest.generate('ncx', 'toc.ncx')
         etree.SubElement(manifest, OPF('item'),
             attrib={'id': id, 'href': href, 'media-type': NCX_MIME})
         spine = self.spine.to_opf2(package)
