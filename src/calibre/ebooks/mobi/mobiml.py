@@ -12,7 +12,7 @@ import copy
 import re
 from lxml import etree
 from calibre.ebooks.oeb.base import namespace, barename
-from calibre.ebooks.oeb.base import XHTML, XHTML_NS
+from calibre.ebooks.oeb.base import XHTML, XHTML_NS, OEB_DOCS
 from calibre.ebooks.oeb.stylizer import Stylizer
 from calibre.ebooks.oeb.transforms.flatcss import KeyMapper
 
@@ -96,8 +96,11 @@ class MobiMLizer(object):
         href = oeb.guide['cover'].href
         del oeb.guide['cover']
         item = oeb.manifest.hrefs[href]
-        oeb.manifest.remove(item)
-
+        if item.spine_position is not None:
+            oeb.spine.remove(item)                
+            if item.media_type in OEB_DOCS:
+                self.oeb.manifest.remove(item)
+    
     def mobimlize_spine(self):
         for item in self.oeb.spine:
             stylizer = Stylizer(item.data, item.href, self.oeb, self.profile)
@@ -137,7 +140,7 @@ class MobiMLizer(object):
         para = bstate.para
         if tag in SPECIAL_TAGS and not text:
             para = para if para is not None else bstate.body
-        elif para is None:
+        elif para is None or tag in ('td', 'th'):
             body = bstate.body
             if bstate.pbreak:
                 etree.SubElement(body, MBP('pagebreak'))
@@ -157,7 +160,8 @@ class MobiMLizer(object):
             elif indent != 0 and abs(indent) < self.profile.fbase:
                 indent = (indent / abs(indent)) * self.profile.fbase
             if tag in NESTABLE_TAGS:
-                para = wrapper = etree.SubElement(parent, XHTML(tag))
+                para = wrapper = etree.SubElement(
+                    parent, XHTML(tag), attrib=istate.attrib)
                 bstate.nested.append(para)
                 if tag == 'li' and len(istates) > 1:
                     istates[-2].list_num += 1
@@ -337,6 +341,10 @@ class MobiMLizer(object):
             tag = 'tr'
         elif display == 'table-cell':
             tag = 'td'
+        if tag in TABLE_TAGS:
+            for attr in ('rowspan', 'colspan'):
+                if attr in elem.attrib:
+                    istate.attrib[attr] = elem.attrib[attr]
         text = None
         if elem.text:
             if istate.preserve:
@@ -374,6 +382,6 @@ class MobiMLizer(object):
                 bstate.vpadding += bstate.vmargin
                 bstate.vmargin = 0
                 bstate.vpadding += vpadding
-        if tag in NESTABLE_TAGS and bstate.nested:
+        if bstate.nested and bstate.nested[-1].tag == elem.tag:
             bstate.nested.pop()
         istates.pop()

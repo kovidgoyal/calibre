@@ -95,6 +95,7 @@ class Serializer(object):
     def __init__(self, oeb, images):
         self.oeb = oeb
         self.images = images
+        self.logger = oeb.logger
         self.id_offsets = {}
         self.href_offsets = defaultdict(list)
         self.breaks = []
@@ -144,8 +145,8 @@ class Serializer(object):
         item = hrefs[path] if path else None
         if item and item.spine_position is None:
             return False
-        id =  item.id if item else base.id
-        href = '#'.join((id, frag)) if frag else id
+        path =  item.href if item else base.href
+        href = '#'.join((path, frag)) if frag else path
         buffer.write('filepos=')
         self.href_offsets[href].append(buffer.tell())
         buffer.write('0000000000')
@@ -170,7 +171,7 @@ class Serializer(object):
         buffer = self.buffer
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
-        self.id_offsets[item.id] = buffer.tell()
+        self.id_offsets[item.href] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
         buffer.write('<mbp:pagebreak/>')
@@ -180,12 +181,11 @@ class Serializer(object):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) not in nsrmap:
             return
-        hrefs = self.oeb.manifest.hrefs
         tag = prefixname(elem.tag, nsrmap)
         for attr in ('name', 'id'):
             if attr in elem.attrib:
-                id = '#'.join((item.id, elem.attrib[attr]))
-                self.id_offsets[id] = buffer.tell()
+                href = '#'.join((item.href, elem.attrib[attr]))
+                self.id_offsets[href] = buffer.tell()
                 del elem.attrib[attr]
         if tag == 'a' and not elem.attrib \
            and not len(elem) and not elem.text:
@@ -203,7 +203,7 @@ class Serializer(object):
                         continue
                 elif attr == 'src':
                     href = item.abshref(val)
-                    if href in hrefs:
+                    if href in self.images:
                         index = self.images[href]
                         buffer.write('recindex="%05d"' % index)
                         continue
@@ -233,8 +233,12 @@ class Serializer(object):
 
     def fixup_links(self):
         buffer = self.buffer
-        for id, hoffs in self.href_offsets.items():
-            ioff = self.id_offsets[id]
+        id_offsets = self.id_offsets
+        for href, hoffs in self.href_offsets.items():
+            if href not in id_offsets:
+                self.logger.warn('Hyperlink target %r not found' % href)
+                href, _ = urldefrag(href)
+            ioff = self.id_offsets[href]
             for hoff in hoffs:
                 buffer.seek(hoff)
                 buffer.write('%010d' % ioff)
@@ -360,7 +364,11 @@ class MobiWriter(object):
         if image.format not in ('JPEG', 'GIF'):
             width, height = image.size
             area = width * height
-            format = 'GIF' if area <= 40000 else 'JPEG'
+            if area <= 40000:
+                format = 'GIF'
+            else:
+                image = image.convert('RGBA')
+                format = 'JPEG'
             changed = True
         if dimen is not None:
             image.thumbnail(dimen, Image.ANTIALIAS)
