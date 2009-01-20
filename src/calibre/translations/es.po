@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: es\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-19 04:38+0000\n"
-"PO-Revision-Date: 2009-01-19 06:30+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-01-20 01:11+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-19 06:40+0000\n"
+"X-Launchpad-Export-Date: 2009-01-20 17:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -382,6 +382,9 @@ msgid ""
 "preference to the autodetected one. With this option, the autodetected one "
 "is always used."
 msgstr ""
+"Normalmente, si el archivo fuente ya tiene una Tabla de contenidos, se usa "
+"esa en vez de la autodetectada. Con esta opción la autodetectada es la que "
+"siempre se usa."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:148
 msgid "Control page layout"
@@ -1748,7 +1751,7 @@ msgstr "Uso: rb-meta file.rb"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/from_any.py:52
 msgid "Creating Mobipocket file from EPUB..."
-msgstr ""
+msgstr "Creando archivo Mobipocket de un EPUB..."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/reader.py:505
 msgid "%prog [options] myebook.mobi"
@@ -1760,21 +1763,25 @@ msgstr "HTML MOBI en bruto guardado en"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:501
 msgid "Mobipocket"
-msgstr ""
+msgstr "Mobipocket"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:502
 msgid "Mobipocket-specific options."
-msgstr ""
+msgstr "Opciones específicas de Mobipocket"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:505
 msgid ""
 "Compress file text using PalmDOC compression. Results in smaller files, but "
 "takes a long time to run."
 msgstr ""
+"Comprimir archivo de texto usando compresión PalmDOC. Genera archivos de "
+"menor tamaño, pero tarda bastante tiempo en terminar."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:509
 msgid "Modify images to meet Palm device size limitations."
 msgstr ""
+"Modificar imágenes para adecuarse a las limitecaiones de tamaño del "
+"dispositivo de Palm"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:511
 msgid ""
@@ -1784,7 +1791,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:511
 msgid "Profiles"
-msgstr ""
+msgstr "Perfiles"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/mobi/writer.py:516
 msgid "Source renderer profile. Default is 'Browser'."
@@ -3396,7 +3403,7 @@ msgstr "Se necesita contraseña."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/progress.py:42
 msgid "Aborting..."
-msgstr ""
+msgstr "Abortando..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/scheduler.py:39
 msgid "You"
@@ -4404,11 +4411,11 @@ msgstr "No se puede guardar en disco"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:973
 msgid "Saving to disk..."
-msgstr ""
+msgstr "Guardando al disco..."
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:978
 msgid "Saved"
-msgstr ""
+msgstr "Guardado"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main.py:984
 msgid "Choose destination directory"
@@ -5412,6 +5419,15 @@ msgid ""
 "\n"
 "For help on an individual command: %%prog command --help\n"
 msgstr ""
+"%%prog orden [opciones] [argumentos]\n"
+"\n"
+"%%prog es la interfaz de línea de órdenes a la base de datos de libros de "
+"calibre.\n"
+"\n"
+"orden es una de:\n"
+"  %s\n"
+"\n"
+"Para ver la ayuda a cada orden ejecuta: %%prog orden --help\n"
 
 #: /home/kovid/work/calibre/src/calibre/library/database2.py:1171
 msgid "<p>Copying books to %s<br><center>"

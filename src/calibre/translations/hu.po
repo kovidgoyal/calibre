@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: calibre\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-01-19 04:38+0000\n"
-"PO-Revision-Date: 2009-01-19 06:34+0000\n"
-"Last-Translator: Kovid Goyal <Unknown>\n"
+"PO-Revision-Date: 2009-01-20 11:05+0000\n"
+"Last-Translator: Molnár Gábor <csirkus@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-19 06:40+0000\n"
+"X-Launchpad-Export-Date: 2009-01-20 17:04+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: /home/kovid/work/calibre/src/calibre/customize/__init__.py:41
@@ -330,6 +330,11 @@ msgid ""
 "if your source file contains a very large number of page breaks, you should "
 "turn off splitting on page breaks."
 msgstr ""
+"Oldaltörésnél ne legyen szétvágás. Normális esetben a bemeneti fájlok minden "
+"oldaltörésnél két részre lesznek vágva. Ez olyan e-könyv formátumot "
+"eredmenyez, amelyet gyorsabban, kevesebb erőforrást igényelve lehet "
+"beolvasni. Ez a művelet azonban lassú, és ha a forrásfájlod sok oldaltörést "
+"tartalmaz, akkor érdemes alkalmazni ezt az opciót."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:128
 msgid ""
@@ -339,6 +344,11 @@ msgid ""
 "trying\n"
 "to auto-generate a Table of Contents.\n"
 msgstr ""
+"Az automatkius tartalomjegyzék generálásás beállítása. Ha egy OPF fájllal "
+"dolgozunk\n"
+"és a fájlban található tartalomjegyzék, akkor azt használja a generált "
+"tartalomjegyzék\n"
+"helyett.\n"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:134
 msgid ""
@@ -390,6 +400,10 @@ msgid ""
 "placed in. See http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX for "
 "an overview of the NCX format."
 msgstr ""
+"Egy .ncx fájl helye, amely tartalmazza ennek a könyvnek a tartalomjegyzékét. "
+"Az NCX fájlnak a saját könyvtárához viszonyított linkeket kell tartalmaznia, "
+"nem abszolút linkeket. Áttekintés az NCX formátumról: "
+"http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCX"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/epub/__init__.py:146
 msgid ""
@@ -622,6 +636,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:897
 msgid "Output HTML is \"pretty printed\" for easier parsing by humans"
 msgstr ""
+"A kimenet HTML kód \"szépen formázott\" lesz a könnyebb olvashatóság kedvéért"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/html.py:903
 msgid ""
@@ -737,6 +752,8 @@ msgid ""
 "Render HTML tables as blocks of text instead of actual tables. This is "
 "neccessary if the HTML contains very large or complex tables."
 msgstr ""
+"A HTML táblázatokat alakítsa át szövegblokkokká. Ez akkor szükséges, ha a "
+"HTML nagy vagy bonyolult táblázatokat tartalmaz."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:99
 msgid ""
@@ -773,12 +790,15 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:112
 msgid "Add extra spacing below the header. Default is %default px."
 msgstr ""
+"Hagyjon ki ennyi helyet a fejléc alatt. Az alapértelmezés %default pixel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:114
 msgid ""
 "Override the CSS. Can be either a path to a CSS stylesheet or a string. If "
 "it is a string it is interpreted as CSS."
 msgstr ""
+"Használja formázáshoz a következő CSS-t. Lehet egy útvonal egy CSS fájlhoz, "
+"vagy maga a CSS kód."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:116
 msgid ""
@@ -819,31 +839,35 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:137
 msgid "Left margin of page. Default is %default px."
-msgstr ""
+msgstr "Bal margó mérete. Alapértelmezés: %default pixel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:139
 msgid "Right margin of page. Default is %default px."
-msgstr ""
+msgstr "Jobb margó mérete. Alapértelmezés: %default pixel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:141
 msgid "Top margin of page. Default is %default px."
-msgstr ""
+msgstr "Felső margó mérete. Alapértelmezés: %default pixel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:143
 msgid "Bottom margin of page. Default is %default px."
-msgstr ""
+msgstr "Alsó margó mérete. Alapértelmezés: %default pixel."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:145
 msgid ""
 "Render tables in the HTML as images (useful if the document has large or "
 "complex tables)"
 msgstr ""
+"A HTML táblázatokat képként szúrja be a szövegbe. Ez bonyolult vagy nagy "
+"táblázatoknál hasznos."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:147
 msgid ""
 "Multiply the size of text in rendered tables by this factor. Default is "
 "%default"
 msgstr ""
+"A betűméret szorzótényezője. Ennyiszer lesz nagyobb minden betű. "
+"Alapértelmezés: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:152
 msgid ""
@@ -857,6 +881,8 @@ msgid ""
 "A regular expression. <a> tags whose href matches will be ignored. Defaults "
 "to %default"
 msgstr ""
+"Azok az <a> tag-ek, amelyek illeszkednek erre a reguláris kifejezésre nem "
+"fognak szerepelni a kimenetben. Alapértelmezés: %default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:160
 msgid "Don't add links to the table of contents."
@@ -871,6 +897,9 @@ msgid ""
 "The regular expression used to detect chapter titles. It is searched for in "
 "heading tags (h1-h6). Defaults to %default"
 msgstr ""
+"Reguláris kifejezés, amely a fejezetcímek automatikus felismeréséhez "
+"használatos. A h1-h6 tag-ekben keresünk illeszkedést. Alapértelmezés: "
+"%default"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:170
 msgid ""
@@ -897,6 +926,8 @@ msgstr ""
 msgid ""
 "Force a page break before tags whose names match this regular expression."
 msgstr ""
+"Sortörés beszúrása azon tag-ek előtt amelyek neve illeszkedik erre a "
+"reguláris kifejezésre."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:184
 msgid ""
@@ -913,16 +944,21 @@ msgstr "Az automatikusan észlelt fejezetek hozzáadása a tartalomjegyzékhez."
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:190
 msgid "Preprocess Baen HTML files to improve generated LRF."
 msgstr ""
+"A Baen HTML fájlok előfeldolgozása a jobb minőségű kimenet érdekében."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:192
 msgid ""
 "You must add this option if processing files generated by pdftohtml, "
 "otherwise conversion will fail."
 msgstr ""
+"Ezt a kapcsolót abban az esetben kell használnod, ha a HTML fájlt a "
+"pdftohtml program generálta, ellenkező esetben nem lesz sikeres a "
+"konvertálás!"
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:194
 msgid "Use this option on html0 files from Book Designer."
 msgstr ""
+"Ezt a kapcsolót a Book Designer program html0 fájljaihoz kell használni."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:197
 msgid ""
@@ -957,6 +993,8 @@ msgid ""
 "Minimize memory usage at the cost of longer processing times. Use this "
 "option if you are on a memory constrained machine."
 msgstr ""
+"Memória használat minimalizálása hosszabb feldolgozási időért cserébe. Kevés "
+"memóriával rendelkező számítógépeken érdemes használni."
 
 #: /home/kovid/work/calibre/src/calibre/ebooks/lrf/__init__.py:221
 msgid ""
