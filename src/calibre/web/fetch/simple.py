@@ -398,7 +398,7 @@ class RecursiveFetcher(object, LoggingInterface):
                     _fname = basename(iurl)
                     if not isinstance(_fname, unicode):
                         _fname.decode('latin1', 'replace')
-                    _fname.encode('ascii', 'replace').replace('%', '').replace(os.sep, '')
+                    _fname = _fname.encode('ascii', 'replace').replace('%', '').replace(os.sep, '')
                     res = os.path.join(linkdiskpath, _fname)
                     self.downloaded_paths.append(res)
                     self.filemap[nurl] = res
