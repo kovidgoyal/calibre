@@ -44,13 +44,15 @@ body > .calibre_toc_block {
     }
 
 class HTMLTOCAdder(object):
-    def __init__(self, style='nested'):
+    def __init__(self, title=None, style='nested'):
+        self.title = title
         self.style = style
     
     def transform(self, oeb, context):
         if 'toc' in oeb.guide:
             return
         oeb.logger.info('Generating in-line TOC...')
+        title = self.title or oeb.translate('Table of Contents')
         style = self.style
         if style not in STYLE_CSS:
             oeb.logger.error('Unknown TOC style %r' % style)
@@ -61,15 +63,15 @@ class HTMLTOCAdder(object):
         contents = element(None, XHTML('html'), nsmap={None: XHTML_NS},
                            attrib={XML('lang'): language})
         head = element(contents, XHTML('head'))
-        title = element(head, XHTML('title'))
-        title.text = 'Table of Contents'
+        htitle = element(head, XHTML('title'))
+        htitle.text = title
         element(head, XHTML('link'), rel='stylesheet', type=CSS_MIME,
                 href=css_href)
         body = element(contents, XHTML('body'),
                        attrib={'class': 'calibre_toc'})
         h1 = element(body, XHTML('h1'),
                      attrib={'class': 'calibre_toc_header'})
-        h1.text = 'Table of Contents'
+        h1.text = title
         self.add_toc_level(body, oeb.toc)
         id, href = oeb.manifest.generate('contents', 'contents.xhtml')
         item = oeb.manifest.add(id, href, XHTML_MIME, data=contents)

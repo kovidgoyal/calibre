@@ -515,6 +515,9 @@ def add_mobi_options(parser):
     group.add_option(
         '-r', '--rescale-images', default=False, action='store_true',
         help=_('Modify images to meet Palm device size limitations.'))
+    group.add_option(
+        '--toc-title', default=None, action='store',
+        help=_('Title for any generated in-line table of contents.'))
     parser.add_option_group(group)
     group = OptionGroup(parser, _('Profiles'), _('Device renderer profiles. '
         'Affects conversion of default font sizes and rasterization '
@@ -558,7 +561,7 @@ def oeb2mobi(opts, inpath):
     imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
     context = Context(source, dest)
     oeb = OEBBook(inpath, logger=logger)
-    tocadder = HTMLTOCAdder()
+    tocadder = HTMLTOCAdder(title=opts.toc_title)
     tocadder.transform(oeb, context)
     mangler = CaseMangler()
     mangler.transform(oeb, context)
