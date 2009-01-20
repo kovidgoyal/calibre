@@ -188,8 +188,8 @@ class Device(_Device):
         if not drives:
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.') % self.__class__.__name__)
             
-        self._main_prefix = drives['main'] if 'main' in names.keys() else None
-        self._card_prefix = drives['card'] if 'card' in names.keys() else None
+        self._main_prefix = drives.get('main', None)
+        self._card_prefix = drives.get('card', None)
 
     @classmethod
     def get_osx_mountpoints(self, raw=None):
@@ -197,7 +197,8 @@ class Device(_Device):
             ioreg = '/usr/sbin/ioreg'
             if not os.access(ioreg, os.X_OK):
                 ioreg = 'ioreg'
-            raw = subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(), stdout=subprocess.PIPE).stdout.read()
+            raw = subprocess.Popen((ioreg+' -w 0 -S -c IOMedia').split(), 
+                                   stdout=subprocess.PIPE).stdout.read()
         lines = raw.splitlines()
         names = {}
         
