@@ -28,7 +28,7 @@ def option_parser(usage=USAGE):
     parser = config().option_parser(usage=usage)
     return parser
 
-def any2mobi(opts, path):
+def any2mobi(opts, path, notification=None):
     ext = os.path.splitext(path)[1]
     if not ext:
         raise ValueError('Unknown file type: '+path)
