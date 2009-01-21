@@ -121,7 +121,7 @@ if __name__ == '__main__':
                 buf = cStringIO.StringIO()
                 print 'Creating translations template'
                 tempdir = tempfile.mkdtemp()
-                pygettext(buf, ['-p', tempdir]+files)
+                pygettext(buf, ['-k', '__', '-p', tempdir]+files)
                 src = buf.getvalue()
                 pot = os.path.join(tempdir, 'calibre.pot')
                 f = open(pot, 'wb')
