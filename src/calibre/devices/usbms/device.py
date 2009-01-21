@@ -191,7 +191,6 @@ class Device(_Device):
         self._main_prefix = drives.get('main', None)
         self._card_prefix = drives.get('card', None)
 
-    @classmethod
     def get_osx_mountpoints(self, raw=None):
         if raw is None:
             ioreg = '/usr/sbin/ioreg'
@@ -227,11 +226,11 @@ class Device(_Device):
         dev_pat = r'/dev/%s(\w*)\s+on\s+([^\(]+)\s+'
         if 'main' not in names.keys():
             raise DeviceError(_('Unable to detect the %s disk drive. Try rebooting.')%self.__class__.__name__)
-        main_pat = dev_pat%names['main']
+        main_pat = dev_pat % names['main']
         self._main_prefix = re.search(main_pat, mount).group(2) + os.sep
         card_pat = names['card'] if 'card' in names.keys() else None
         if card_pat is not None:
-            card_pat = dev_pat%card_pat
+            card_pat = dev_pat % card_pat
             self._card_prefix = re.search(card_pat, mount).group(2) + os.sep
 
     def open_linux(self):

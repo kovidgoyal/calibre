@@ -52,10 +52,10 @@ class CYBOOKG3(USBMS):
                 return size
             return os.path.getsize(obj)
 
-        sizes = map(get_size, files)
+        sizes = [get_size(f) for f in files]
         size = sum(sizes)
 
-        if on_card and size > self.free_space()[2] - 1024*1024: 
+        if on_card and size > self.free_space()[2] - 1024*1024:
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if not on_card and size > self.free_space()[0] - 2*1024*1024: 
             raise FreeSpaceError(_("There is insufficient free space in main memory"))
