@@ -560,7 +560,7 @@ def oeb2mobi(opts, inpath):
     compression = PALMDOC if opts.compress else UNCOMPRESSED
     imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
     context = Context(source, dest)
-    oeb = OEBBook(inpath, logger=logger)
+    oeb = OEBBook(inpath, logger=logger, encoding=opts.encoding)
     tocadder = HTMLTOCAdder(title=opts.toc_title)
     tocadder.transform(oeb, context)
     mangler = CaseMangler()
