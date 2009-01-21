@@ -535,27 +535,36 @@ class Spine(object):
 
 class Guide(object):
     class Reference(object):
-        _TYPES_TITLES = [('cover', 'Cover'), ('title-page', 'Title Page'),
-            ('toc', 'Table of Contents'), ('index', 'Index'),
-            ('glossary', 'Glossary'), ('acknowledgements', 'Acknowledgements'),
-            ('bibliography', 'Bibliography'), ('colophon', 'Colophon'),
-            ('copyright-page', 'Copyright'), ('dedication', 'Dedication'),
-            ('epigraph', 'Epigraph'), ('foreword', 'Foreword'),
-            ('loi', 'List of Illustrations'), ('lot', 'List of Tables'),
-            ('notes', 'Notes'), ('preface', 'Preface'),
-            ('text', 'Main Text')]
+        _TYPES_TITLES = [('cover', __('Cover')),
+                         ('title-page', __('Title Page')),
+                         ('toc', __('Table of Contents')),
+                         ('index', __('Index')),
+                         ('glossary', __('Glossary')),
+                         ('acknowledgements', __('Acknowledgements')),
+                         ('bibliography', __('Bibliography')),
+                         ('colophon', __('Colophon')),
+                         ('copyright-page', __('Copyright')),
+                         ('dedication', __('Dedication')),
+                         ('epigraph', __('Epigraph')),
+                         ('foreword', __('Foreword')),
+                         ('loi', __('List of Illustrations')),
+                         ('lot', __('List of Tables')),
+                         ('notes', __('Notes')),
+                         ('preface', __('Preface')),
+                         ('text', __('Main Text'))]
         TYPES = set(t for t, _ in _TYPES_TITLES)
         TITLES = dict(_TYPES_TITLES)
         ORDER = dict((t, i) for (t, _), i in izip(_TYPES_TITLES, count(0)))
         
-        def __init__(self, type, title, href):
+        def __init__(self, oeb, type, title, href):
+            self.oeb = oeb
             if type.lower() in self.TYPES:
                 type = type.lower()
             elif type not in self.TYPES and \
                  not type.startswith('other.'):
                 type = 'other.' + type
-            if not title:
-                title = self.TITLES.get(type, None)
+            if not title and type in self.TITLES:
+                title = oeb.translate(self.TITLES[type])
             self.type = type
             self.title = title
             self.href = urlnormalize(href)
@@ -574,13 +583,21 @@ class Guide(object):
             if not isinstance(other, Guide.Reference):
                 return NotImplemented
             return cmp(self._order, other._order)
+        
+        def item():
+            def fget(self):
+                path, frag = urldefrag(self.href)
+                hrefs = self.oeb.manifest.hrefs
+                return hrefs.get(path, None)
+            return property(fget=fget)
+        item = item()
     
     def __init__(self, oeb):
         self.oeb = oeb
         self.refs = {}
     
     def add(self, type, title, href):
-        ref = self.Reference(type, title, href)
+        ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref
     
