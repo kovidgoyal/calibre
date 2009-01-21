@@ -34,7 +34,7 @@ class USBMS(Device):
     SUPPORTS_SUB_DIRS = False
 
     def __init__(self, key='-1', log_packets=False, report_progress=None):
-        pass
+        Device.__init__(self, key, log_packets, report_progress)
             
     def get_device_information(self, end_session=True):
         """ 
@@ -54,7 +54,8 @@ class USBMS(Device):
         
         # Get all books in all directories under the root ebook_dir directory
         for path, dirs, files in os.walk(os.path.join(prefix, ebook_dir)):
-            # Filter out anything that isn't in the list of supported ebook types
+            # Filter out anything that isn't in the list of supported ebook
+            # types
             for book_type in self.FORMATS:
                 for filename in fnmatch.filter(files, '*.%s' % (book_type)):
                     title, author, mime = self.__class__.extract_book_metadata_by_filename(filename)
@@ -80,7 +81,7 @@ class USBMS(Device):
                 return size
             return os.path.getsize(obj)
 
-        sizes = map(get_size, files)
+        sizes = [get_size(f) for f in files]
         size = sum(sizes)
 
         if on_card and size > self.free_space()[2] - 1024*1024: 
