@@ -109,7 +109,7 @@ class USBMS(Device):
             if not os.path.exists(newpath):
                 os.makedirs(newpath)
             
-            filepath = os.path.join(newpath, names.next())                
+            filepath = os.path.join(newpath, names.next())
             paths.append(filepath)
             
             if hasattr(infile, 'read'):
@@ -132,7 +132,10 @@ class USBMS(Device):
             on_card = 1 if location[1] else 0
             
             title, author, mime = cls.extract_book_metadata_by_filename(os.path.basename(path))
-            booklists[on_card].append(Book(path, title, author, mime))
+            book = Book(path, title, author, mime)
+            
+            if not book in booklists[on_card]:
+                booklists[on_card].append(book)
     
     def delete_books(self, paths, end_session=True):
         for path in paths:
