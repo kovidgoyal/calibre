@@ -7,6 +7,7 @@ Device driver for Bookeen's Cybook Gen 3
 import os, shutil
 from itertools import cycle
 
+from calibre.devices.errors import FreeSpaceError
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
 from calibre.devices.errors import FreeSpaceError
