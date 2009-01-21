@@ -40,7 +40,7 @@ function create_table_headers() {
 
 
 function format_url(format, id, title) {
-    return 'get/'+format.toLowerCase() + '/'+title.replace('#', '') + '_' + id+'.'+format.toLowerCase();
+    return 'get/'+format.toLowerCase() + '/'+encodeURIComponent(title) + '_' + id+'.'+format.toLowerCase();
 }
 
 function render_book(book) {
