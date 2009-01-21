@@ -162,7 +162,8 @@ class BooksModel(QAbstractTableModel):
 
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
-        self.refresh_rows(rows, current_row=current_row)
+        if rows:
+            self.refresh_rows(rows, current_row=current_row)
             
     def refresh_rows(self, rows, current_row=-1):
         for row in rows:
