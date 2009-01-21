@@ -29,5 +29,5 @@ def server_config(defaults=None):
     c.add_opt('develop', ['--develop'], default=False,
               help='Development mode. Server automatically restarts on file changes and serves code files (html, css, js) from the file system instead of calibre\'s resource system.')
     c.add_opt('max_cover', ['--max-cover'], default='600x800', 
-              help=_('The maximum size for displayed covers'))
+              help=_('The maximum size for displayed covers. Default is %default.'))
     return c
