@@ -166,6 +166,14 @@ class HTMLProcessor(Processor, Rationalizer):
                 if tag.get('type', '').lower().strip() in ('image/svg+xml',):
                     continue
                 tag.getparent().remove(tag)
+                
+        
+        for tag in self.root.xpath('//title|//style'):
+            if not tag.text:
+                tag.getparent().remove(tag)
+        for tag in self.root.xpath('//script'):
+            if not tag.text and not tag.get('src', False):
+                tag.getparent().remove(tag)
     
     def save(self):
         for meta in list(self.root.xpath('//meta')):

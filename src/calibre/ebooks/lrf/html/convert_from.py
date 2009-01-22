@@ -1720,7 +1720,7 @@ class HTMLConverter(object, LoggingInterface):
                 self.previous_text = '\n'
             elif tagname in ['hr', 'tr']: # tr needed for nested tables
                 self.end_current_block()
-                if tagname == 'hr':
+                if tagname == 'hr' and not tag_css.get('width', '').strip().startswith('0'):
                     self.current_page.RuledLine(linelength=int(self.current_page.pageStyle.attrs['textwidth']))
                 self.previous_text = '\n'
                 self.process_children(tag, tag_css, tag_pseudo_css)
