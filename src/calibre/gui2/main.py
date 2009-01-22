@@ -25,7 +25,6 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            max_available_height, config, info_dialog, \
                            available_width
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
-from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.dialogs.progress import ProgressDialog
@@ -131,14 +130,14 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.stack, SIGNAL('currentChanged(int)'),
                         self.location_view.location_changed)
         
-        self.output_formats = sorted(['EPUB', 'LRF'])
+        self.output_formats = sorted(['EPUB', 'MOBI', 'LRF'])
         for f in self.output_formats:
             self.output_format.addItem(f)
         self.output_format.setCurrentIndex(self.output_formats.index(prefs['output_format']))
         def change_output_format(x):
             of = unicode(x).strip()
             if of != prefs['output_format']:
-                if of in ('EPUB', 'LIT'):
+                if of not in ('LRF',):
                     warning_dialog(self, 'Warning', 
                                    '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
                 prefs.set('output_format', of)

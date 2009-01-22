@@ -40,6 +40,7 @@ entry_points = {
                              'calibre-server = calibre.library.server:main',
                              'feeds2lrf  = calibre.ebooks.lrf.feeds.convert_from:main',
                              'feeds2epub = calibre.ebooks.epub.from_feeds:main',
+                             'feeds2mobi = calibre.ebooks.mobi.from_feeds:main',
                              'web2lrf   = calibre.ebooks.lrf.web.convert_from:main',
                              'pdf2lrf   = calibre.ebooks.lrf.pdf.convert_from:main',
                              'mobi2lrf  = calibre.ebooks.lrf.mobi.convert_from:main',
@@ -189,6 +190,7 @@ def setup_completion(fatal_errors):
         from calibre.ebooks.html import option_parser as html2oeb
         from calibre.ebooks.odt.to_oeb import option_parser as odt2oeb
         from calibre.ebooks.epub.from_feeds import option_parser as feeds2epub
+        from calibre.ebooks.mobi.from_feeds import option_parser as feeds2mobi
         from calibre.ebooks.epub.from_any import option_parser as any2epub
         from calibre.ebooks.lit.from_any import option_parser as any2lit
         from calibre.ebooks.epub.from_comic import option_parser as comic2epub
@@ -219,7 +221,7 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('any2epub', any2epub, any_formats))
         f.write(opts_and_exts('any2lit', any2lit, any_formats))
         f.write(opts_and_exts('any2mobi', any2mobi, any_formats))
-        f.write(opts_and_exts('oeb2mobi', oeb2mobi, ['mobi', 'prc']))
+        f.write(opts_and_exts('oeb2mobi', oeb2mobi, ['opf']))
         f.write(opts_and_exts('lrf2lrs', lrf2lrsop, ['lrf']))
         f.write(opts_and_exts('lrf-meta', metaop, ['lrf']))
         f.write(opts_and_exts('rtf-meta', metaop, ['rtf']))
@@ -239,7 +241,8 @@ def setup_completion(fatal_errors):
         f.write(opts_and_exts('comic2pdf', comic2epub, ['cbz', 'cbr']))
         f.write(opts_and_words('feeds2disk', feeds2disk, feed_titles))
         f.write(opts_and_words('feeds2lrf', feeds2lrf, feed_titles))
-        f.write(opts_and_words('feeds2lrf', feeds2epub, feed_titles))
+        f.write(opts_and_words('feeds2epub', feeds2epub, feed_titles))
+        f.write(opts_and_words('feeds2mobi', feeds2mobi, feed_titles))
         f.write(opts_and_exts('html2epub', html2epub, ['html', 'htm', 'xhtm', 'xhtml', 'opf']))
         f.write(opts_and_exts('html2oeb', html2oeb, ['html', 'htm', 'xhtm', 'xhtml']))
         f.write(opts_and_exts('odt2oeb', odt2oeb, ['odt']))

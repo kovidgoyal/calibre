@@ -12,6 +12,7 @@ from PyQt4.Qt import QDialog
 from calibre.utils.config import prefs
 from calibre.gui2.dialogs.lrf_single import LRFSingleDialog, LRFBulkDialog
 from calibre.gui2.dialogs.epub import Config as EPUBConvert
+from calibre.gui2.dialogs.mobi import Config as MOBIConvert
 import calibre.gui2.dialogs.comicconf as ComicConf
 from calibre.gui2 import warning_dialog
 from calibre.ptempfile import PersistentTemporaryFile
@@ -19,14 +20,20 @@ from calibre.ebooks.lrf import preferred_source_formats as LRF_PREFERRED_SOURCE_
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.epub.from_any import SOURCE_FORMATS as EPUB_PREFERRED_SOURCE_FORMATS
 
-def convert_single_epub(parent, db, comics, others):
+def get_dialog(fmt):
+    return {
+              'epub':EPUBConvert,
+              'mobi':MOBIConvert,
+              }[fmt]
+
+def convert_single(fmt, parent, db, comics, others):
     changed = False
     jobs = []
     others_ids = [db.id(row) for row in others]
     comics_ids = [db.id(row) for row in comics]
     for row, row_id in zip(others, others_ids):
         temp_files = []
-        d = EPUBConvert(parent, db, row)
+        d = get_dialog(fmt)(parent, db, row)
         if d.source_format is not None:
             d.exec_()
             if d.result() == QDialog.Accepted:
@@ -35,7 +42,7 @@ def convert_single_epub(parent, db, comics, others):
                 pt = PersistentTemporaryFile('.'+d.source_format.lower())
                 pt.write(data)
                 pt.close()
-                of = PersistentTemporaryFile('.epub')
+                of = PersistentTemporaryFile('.'+fmt)
                 of.close()
                 opts.output = of.name
                 opts.from_opf = d.opf_file.name
@@ -45,8 +52,8 @@ def convert_single_epub(parent, db, comics, others):
                     temp_files.append(d.cover_file)
                     opts.cover = d.cover_file.name
                 temp_files.extend([d.opf_file, pt, of])
-                jobs.append(('any2epub', args, _('Convert book: ')+d.mi.title, 
-                             'EPUB', row_id, temp_files))
+                jobs.append(('any2'+fmt, args, _('Convert book: ')+d.mi.title, 
+                             fmt.upper(), row_id, temp_files))
                 changed = True
                 
     for row, row_id in zip(comics, comics_ids):
@@ -61,24 +68,24 @@ def convert_single_epub(parent, db, comics, others):
         if defaults is not None:
             db.set_conversion_options(db.id(row), 'comic', defaults)
         if opts is None: continue
-        for fmt in ['cbz', 'cbr']:
+        for _fmt in ['cbz', 'cbr']:
             try:
-                data = db.format(row, fmt.upper())
+                data = db.format(row, _fmt.upper())
                 if data is not None:
                     break                    
             except:
                 continue
-        pt = PersistentTemporaryFile('.'+fmt)
+        pt = PersistentTemporaryFile('.'+_fmt)
         pt.write(data)
         pt.close()
-        of = PersistentTemporaryFile('.epub')
+        of = PersistentTemporaryFile('.'+fmt)
         of.close()
         opts.output = of.name
         opts.verbose = 2
         args = [pt.name, opts]
         changed = True
-        jobs.append(('comic2epub', args, _('Convert comic: ')+opts.title, 
-                     'EPUB', row_id, [pt, of]))
+        jobs.append(('comic2'+fmt, args, _('Convert comic: ')+opts.title, 
+                     fmt.upper(), row_id, [pt, of]))
         
     return jobs, changed
     
@@ -146,9 +153,9 @@ def convert_single_lrf(parent, db, comics, others):
         
     return jobs, changed
 
-def convert_bulk_epub(parent, db, comics, others):
+def convert_bulk(fmt, parent, db, comics, others):
     if others:
-        d = EPUBConvert(parent, db)
+        d = get_dialog(fmt)(parent, db)
         if d.exec_() != QDialog.Accepted:
             others = []
         else:
@@ -169,9 +176,9 @@ def convert_bulk_epub(parent, db, comics, others):
         row_id = db.id(row)
         if row in others:
             data = None
-            for fmt in EPUB_PREFERRED_SOURCE_FORMATS:
+            for _fmt in EPUB_PREFERRED_SOURCE_FORMATS:
                 try:
-                    data = db.format(row, fmt.upper())
+                    data = db.format(row, _fmt.upper())
                     if data is not None:
                         break
                 except:
@@ -185,10 +192,10 @@ def convert_bulk_epub(parent, db, comics, others):
             opf_file = PersistentTemporaryFile('.opf')
             opf.render(opf_file)
             opf_file.close()
-            pt = PersistentTemporaryFile('.'+fmt.lower())
+            pt = PersistentTemporaryFile('.'+_fmt.lower())
             pt.write(data)
             pt.close()
-            of = PersistentTemporaryFile('.epub')
+            of = PersistentTemporaryFile('.'+fmt)
             of.close()
             cover = db.cover(row)
             cf = None
@@ -203,7 +210,7 @@ def convert_bulk_epub(parent, db, comics, others):
             desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
             temp_files = [cf] if cf is not None else []
             temp_files.extend([opf_file, pt, of])
-            jobs.append(('any2epub', args, desc, 'EPUB', row_id, temp_files))
+            jobs.append(('any2'+fmt, args, desc, fmt.upper(), row_id, temp_files))
         else:
             options = comic_opts.copy()
             mi = db.get_metadata(row)
@@ -212,24 +219,24 @@ def convert_bulk_epub(parent, db, comics, others):
             if mi.authors:
                 options.author =  ','.join(mi.authors)
             data = None
-            for fmt in ['cbz', 'cbr']:
+            for _fmt in ['cbz', 'cbr']:
                 try:
-                    data = db.format(row, fmt.upper())
+                    data = db.format(row, _fmt.upper())
                     if data is not None:
                         break                    
                 except:
                     continue
             
-            pt = PersistentTemporaryFile('.'+fmt.lower())
+            pt = PersistentTemporaryFile('.'+_fmt.lower())
             pt.write(data)
             pt.close()
-            of = PersistentTemporaryFile('.epub')
+            of = PersistentTemporaryFile('.'+fmt)
             of.close()
             setattr(options, 'output', of.name)
             options.verbose = 1
             args = [pt.name, options]
             desc = _('Convert book %d of %d (%s)')%(i+1, total, repr(mi.title))
-            jobs.append(('comic2epub', args, desc, 'EPUB', row_id, [pt, of]))        
+            jobs.append(('comic2'+fmt, args, desc, fmt.upper(), row_id, [pt, of]))        
         
     if bad_rows:
         res = []
@@ -345,14 +352,13 @@ def set_conversion_defaults_lrf(comic, parent, db):
     else:
         LRFSingleDialog(parent, None, None).exec_()
 
-def set_conversion_defaults_epub(comic, parent, db):
+def _set_conversion_defaults(dialog, comic, parent, db):
     if comic:
         ComicConf.set_conversion_defaults(parent)
     else:
-        d = EPUBConvert(parent, db)
+        d = dialog(parent, db)
         d.setWindowTitle(_('Set conversion defaults'))
         d.exec_()
-
 
 def _fetch_news(data, fmt):
     pt = PersistentTemporaryFile(suffix='_feeds2%s.%s'%(fmt.lower(), fmt.lower()))
@@ -385,22 +391,22 @@ def convert_single_ebook(*args):
     fmt = prefs['output_format'].lower()
     if fmt == 'lrf':
         return convert_single_lrf(*args)
-    elif fmt == 'epub':
-        return convert_single_epub(*args)
+    elif fmt in ('epub', 'mobi'):
+        return convert_single(fmt, *args)
     
 def convert_bulk_ebooks(*args):
     fmt = prefs['output_format'].lower()
     if fmt == 'lrf':
         return convert_bulk_lrf(*args)
-    elif fmt == 'epub':
-        return convert_bulk_epub(*args)
+    elif fmt in ('epub', 'mobi'):
+        return convert_bulk(fmt, *args)
     
 def set_conversion_defaults(comic, parent, db):
     fmt = prefs['output_format'].lower()
     if fmt == 'lrf':
         return set_conversion_defaults_lrf(comic, parent, db)
-    elif fmt == 'epub':
-        return set_conversion_defaults_epub(comic, parent, db)
+    elif fmt in ('epub', 'mobi'):
+        return _set_conversion_defaults(get_dialog(fmt), comic, parent, db)
 
 def fetch_news(data):
     fmt = prefs['output_format'].lower()

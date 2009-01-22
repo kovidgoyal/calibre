@@ -20,6 +20,7 @@ import mechanize
 mimetypes.add_type('application/epub+zip', '.epub')
 mimetypes.add_type('text/x-sony-bbeb+xml', '.lrs')
 mimetypes.add_type('application/x-sony-bbeb', '.lrf')
+mimetypes.add_type('application/x-dtbncx+xml', '.ncx')
 
 def to_unicode(raw, encoding='utf-8', errors='strict'):
     if isinstance(raw, unicode):

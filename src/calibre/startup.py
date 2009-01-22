@@ -13,6 +13,10 @@ from gettext import GNUTranslations
 import __builtin__
 __builtin__.__dict__['_'] = lambda s: s
 
+# For strings which belong in the translation tables, but which shouldn't be
+# immediately translated to the environment language
+__builtin__.__dict__['__'] = lambda s: s
+
 from calibre.constants import iswindows, preferred_encoding, plugins
 from calibre.utils.config import prefs
 from calibre.translations.msgfmt import make

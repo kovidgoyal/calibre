@@ -19,9 +19,16 @@ class Newsweek(BasicNewsRecipe):
 
     remove_tags = [
         dict(name=['script',  'noscript']),
-        dict(name='div',  attrs={'class':['ad', 'SocialLinks', 'SocialLinksDiv', 'channel', 'bot', 'nav', 'top', 'EmailArticleBlock']}),
+        dict(name='div',  attrs={'class':['ad', 'SocialLinks', 'SocialLinksDiv',
+                                          'channel', 'bot', 'nav', 'top', 
+                                          'EmailArticleBlock', 
+                                          'comments-and-social-links-wrapper',
+                                          'inline-social-links-wrapper',
+                                          'inline-social-links',
+                                          ]}),
         dict(name='div',  attrs={'class':re.compile('box')}),
-        dict(id=['ToolBox', 'EmailMain', 'EmailArticle', ])
+        dict(id=['ToolBox', 'EmailMain', 'EmailArticle', 'comment-box',
+                 'nw-comments'])
     ]
     
     recursions = 1
