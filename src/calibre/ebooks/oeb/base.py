@@ -202,7 +202,7 @@ class Metadata(object):
             for fq_attr in fq_attrib:
                 if fq_attr in Metadata.ATTRS:
                     attr = fq_attr
-                    fq_attr = OPF2(fq_attr)
+                    fq_attr = OPF(fq_attr)
                     fq_attrib[fq_attr] = fq_attrib.pop(attr)
                 else:
                     attr = barename(fq_attr)
@@ -817,10 +817,10 @@ class OEBBook(object):
             metadata.add('language', 'en')
         if not metadata.creator:
             self.logger.warn(u'Creator not specified.')
-            metadata.add('creator', 'Unknown')
+            metadata.add('creator', _('Unknown'))
         if not metadata.title:
             self.logger.warn(u'Title not specified.')
-            metadata.add('title', 'Unknown')
+            metadata.add('title', _('Unknown'))
     
     def _manifest_from_opf(self, opf):
         self.manifest = manifest = Manifest(self)
