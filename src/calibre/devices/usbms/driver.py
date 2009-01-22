@@ -9,6 +9,7 @@ for a particular device.
 import os, fnmatch, shutil
 from itertools import cycle
 
+from calibre.ebooks.metadata.meta import metadata_from_formats, path_to_ext
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.devices.errors import FreeSpaceError, PathError
@@ -59,9 +60,7 @@ class USBMS(Device):
             # types
             for book_type in self.FORMATS:
                 for filename in fnmatch.filter(files, '*.%s' % (book_type)):
-                    title, author, mime = self.__class__.extract_book_metadata_by_filename(filename)
-
-                    bl.append(Book(os.path.join(path, filename), title, author, mime))
+                    bl.append(self.__class__.book_from_path(os.path.join(path, filename)))
         return bl
 
     def upload_books(self, files, names, on_card=False, end_session=True,
@@ -132,8 +131,7 @@ class USBMS(Device):
             path = location[0]
             on_card = 1 if location[1] else 0
 
-            title, author, mime = cls.extract_book_metadata_by_filename(os.path.basename(path))
-            book = Book(path, title, author, mime)
+            book = cls.book_from_path(path)
 
             if not book in booklists[on_card]:
                 booklists[on_card].append(book)
@@ -217,28 +215,18 @@ class USBMS(Device):
             os.utime(path, None)
 
     @classmethod
-    def extract_book_metadata_by_filename(cls, filename):
-        book_title = ''
-        book_author = ''
-        book_mime = ''
-        # Calibre uses a specific format for file names. They take the form
-        # title_-_author_number.extention We want to see if the file name is
-        # in this format.
-        if fnmatch.fnmatchcase(filename, '*_-_*.*'):
-            # Get the title and author from the file name
-            title, sep, author = filename.rpartition('_-_')
-            author, sep, ext = author.rpartition('_')
-            book_title = title.replace('_', ' ')
-            book_author = author.replace('_', ' ')
-        # if the filename did not match just set the title to
-        # the filename without the extension
-        else:
-            book_title = os.path.splitext(filename)[0].replace('_', ' ')
-
-        fileext = os.path.splitext(filename)[1][1:]
-
-        if fileext in cls.FORMATS:
-            book_mime = MIME_MAP[fileext] if fileext in MIME_MAP.keys() else 'Unknown'
-
-        return book_title, book_author, book_mime
+    def book_from_path(cls, path):
+        fileext = path_to_ext(path)
+    
+        mi = metadata_from_formats([path])
+        mime = MIME_MAP[fileext] if fileext in MIME_MAP.keys() else 'Unknown'
+        
+        authors = 'Unknown'
+        for author in mi.authors:
+            if authors == 'Unknown':
+                authors = author
+            else:
+                authors += ', %s' % author
+        
+        return Book(path, mi.title, authors, mime)
 
