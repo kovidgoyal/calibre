@@ -16,7 +16,7 @@ from calibre.ebooks.epub import config as common_config, process_encryption
 from calibre.ebooks.epub.from_html import convert as html2epub, find_html_index
 from calibre.ptempfile import TemporaryDirectory
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf2 import OPFCreator
+from calibre.ebooks.metadata.opf2 import OPFCreator, OPF
 from calibre.utils.zipfile import ZipFile
 from calibre.customize.ui import run_plugins_on_preprocess
 
@@ -25,9 +25,36 @@ def lit2opf(path, tdir, opts):
     print 'Exploding LIT file:', path
     reader = LitReader(path)
     reader.extract_content(tdir, False)
-    for f in walk(tdir):
-        if f.lower().endswith('.opf'):
-            return f
+    opf = None
+    for opf in walk(tdir):
+        if opf.lower().endswith('.opf'):
+            break
+    if not opf.endswith('.opf'):
+        opf = None
+    if opf is not None: # Check for url-quoted filenames
+        _opf = OPF(opf, os.path.dirname(opf))
+        replacements = []
+        for item in _opf.itermanifest():
+            href = item.get('href', '')
+            path = os.path.join(os.path.dirname(opf), *(href.split('/')))
+            if not os.path.exists(path) and os.path.exists(path.replace('&', '%26')):
+                npath = path
+                path = path.replace('&', '%26')
+                replacements.append((path, npath))
+        if replacements:
+            print 'Fixing quoted filenames...'
+            for path, npath in replacements:
+                if os.path.exists(path):
+                    os.rename(path, npath)
+            for f in walk(tdir):
+                with open(f, 'r+b') as f:
+                    raw = f.read()
+                    for path, npath in replacements:
+                        raw = raw.replace(os.path.basename(path), os.path.basename(npath))
+                        f.seek(0)
+                        f.truncate()
+                        f.write(raw)
+    return opf
 
 def mobi2opf(path, tdir, opts):
     from calibre.ebooks.mobi.reader import MobiReader

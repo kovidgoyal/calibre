@@ -26,6 +26,7 @@ entry_points = {
                              'opf-meta  = calibre.ebooks.metadata.opf2:main',
                              'odt-meta  = calibre.ebooks.metadata.odt:main',
                              'epub-meta = calibre.ebooks.metadata.epub:main',
+                             'mobi-meta = calibre.ebooks.metadata.mobi:main',
                              'txt2lrf   = calibre.ebooks.lrf.txt.convert_from:main',
                              'html2lrf  = calibre.ebooks.lrf.html.convert_from:main',
                              'html2oeb  = calibre.ebooks.html:main',
@@ -423,7 +424,7 @@ def install_man_pages(fatal_errors):
         if prog in ('prs500', 'pdf-meta', 'epub-meta', 'lit-meta',
                     'markdown-calibre', 'calibre-debug', 'fb2-meta',
                     'calibre-fontconfig', 'calibre-parallel', 'odt-meta',
-                    'rb-meta', 'imp-meta'):
+                    'rb-meta', 'imp-meta', 'mobi-meta'):
             continue
 
         help2man = ('help2man', prog, '--name', 'part of %s'%__appname__,

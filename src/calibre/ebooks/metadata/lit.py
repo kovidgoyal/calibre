@@ -6,33 +6,28 @@ Support for reading the metadata from a LIT file.
 
 import sys, cStringIO, os
 
-from calibre import relpath
 from calibre.ebooks.metadata import MetaInformation
-from calibre.ebooks.metadata.opf import OPFReader
+from calibre.ebooks.metadata.opf2 import OPF
 from calibre.ebooks.lit.reader import LitReader
 
 def get_metadata(stream):
-    try:
-        litfile = LitReader(stream)
-        src = litfile.meta.encode('utf-8')
-        mi = OPFReader(cStringIO.StringIO(src), dir=os.getcwd())
-        cover_url, cover_item = mi.cover, None
-        if cover_url:
-            cover_url = relpath(cover_url, os.getcwd())
-            for item in litfile.manifest.values():
-                if item.path == cover_url:
-                    cover_item = item.internal
-        if cover_item is not None:
-            ext = cover_url.rpartition('.')[-1]
-            if not ext:
-                ext = 'jpg'
-            else:
-                ext = ext.lower()
-            cd = litfile.get_file('/data/' + cover_item)
-            mi.cover_data = (ext, cd) if cd else (None, None)
-    except:
-        title = stream.name if hasattr(stream, 'name') and stream.name else 'Unknown'
-        mi = MetaInformation(title, ['Unknown'])
+    litfile = LitReader(stream)
+    src = litfile.meta.encode('utf-8')
+    opf = OPF(cStringIO.StringIO(src), os.getcwd())
+    mi = MetaInformation(opf)
+    covers = []
+    for item in opf.iterguide():
+        if 'cover' not in item.get('type', '').lower():
+            continue
+        href = item.get('href', '')
+        candidates = [href, href.replace('&', '%26')]
+        for item in litfile.manifest.values():
+            if item.path in candidates:
+                covers.append(item.internal)
+                break
+    covers = [litfile.get_file('/data/' + i) for i in covers]
+    covers.sort(cmp=lambda x, y:cmp(len(x), len(y)))
+    mi.cover_data = ('jpg', covers[-1])
     return mi
 
 def main(args=sys.argv):
