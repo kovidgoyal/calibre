@@ -478,7 +478,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
-            self.library_view.model().resort()
+            self.library_view.model().refresh()
             self.library_view.model().research()
         else:
             print msg
