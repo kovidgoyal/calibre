@@ -34,8 +34,7 @@ from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
 from calibre.customize.ui import run_plugins_on_postprocess
-from calibre.utils.config import OptionParser
-from optparse import OptionGroup
+from calibre.utils.config import Config, StringConfig
 
 # TODO:
 # - Allow override CSS (?)
@@ -95,6 +94,7 @@ class Serializer(object):
     def __init__(self, oeb, images):
         self.oeb = oeb
         self.images = images
+        self.logger = oeb.logger
         self.id_offsets = {}
         self.href_offsets = defaultdict(list)
         self.breaks = []
@@ -144,8 +144,8 @@ class Serializer(object):
         item = hrefs[path] if path else None
         if item and item.spine_position is None:
             return False
-        id =  item.id if item else base.id
-        href = '#'.join((id, frag)) if frag else id
+        path =  item.href if item else base.href
+        href = '#'.join((path, frag)) if frag else path
         buffer.write('filepos=')
         self.href_offsets[href].append(buffer.tell())
         buffer.write('0000000000')
@@ -170,7 +170,7 @@ class Serializer(object):
         buffer = self.buffer
         if not item.linear:
             self.breaks.append(buffer.tell() - 1)
-        self.id_offsets[item.id] = buffer.tell()
+        self.id_offsets[item.href] = buffer.tell()
         for elem in item.data.find(XHTML('body')):
             self.serialize_elem(elem, item)
         buffer.write('<mbp:pagebreak/>')
@@ -180,12 +180,11 @@ class Serializer(object):
         if not isinstance(elem.tag, basestring) \
            or namespace(elem.tag) not in nsrmap:
             return
-        hrefs = self.oeb.manifest.hrefs
         tag = prefixname(elem.tag, nsrmap)
         for attr in ('name', 'id'):
             if attr in elem.attrib:
-                id = '#'.join((item.id, elem.attrib[attr]))
-                self.id_offsets[id] = buffer.tell()
+                href = '#'.join((item.href, elem.attrib[attr]))
+                self.id_offsets[href] = buffer.tell()
                 del elem.attrib[attr]
         if tag == 'a' and not elem.attrib \
            and not len(elem) and not elem.text:
@@ -203,7 +202,7 @@ class Serializer(object):
                         continue
                 elif attr == 'src':
                     href = item.abshref(val)
-                    if href in hrefs:
+                    if href in self.images:
                         index = self.images[href]
                         buffer.write('recindex="%05d"' % index)
                         continue
@@ -233,8 +232,12 @@ class Serializer(object):
 
     def fixup_links(self):
         buffer = self.buffer
-        for id, hoffs in self.href_offsets.items():
-            ioff = self.id_offsets[id]
+        id_offsets = self.id_offsets
+        for href, hoffs in self.href_offsets.items():
+            if href not in id_offsets:
+                self.logger.warn('Hyperlink target %r not found' % href)
+                href, _ = urldefrag(href)
+            ioff = self.id_offsets[href]
             for hoff in hoffs:
                 buffer.seek(hoff)
                 buffer.write('%010d' % ioff)
@@ -360,7 +363,11 @@ class MobiWriter(object):
         if image.format not in ('JPEG', 'GIF'):
             width, height = image.size
             area = width * height
-            format = 'GIF' if area <= 40000 else 'JPEG'
+            if area <= 40000:
+                format = 'GIF'
+            else:
+                image = image.convert('RGBA')
+                format = 'JPEG'
             changed = True
         if dimen is not None:
             image.thumbnail(dimen, Image.ANTIALIAS)
@@ -494,41 +501,45 @@ class MobiWriter(object):
             self._write(record)
 
 
-def add_mobi_options(parser):
-    profiles = Context.PROFILES.keys()
-    profiles.sort()
-    profiles = ', '.join(profiles)
-    group = OptionGroup(parser, _('Mobipocket'),
-        _('Mobipocket-specific options.'))
-    group.add_option(
-        '-c', '--compress', default=False, action='store_true',
-        help=_('Compress file text using PalmDOC compression. '
+def config(defaults=None):
+    desc = _('Options to control the conversion to MOBI')
+    _profiles = list(sorted(Context.PROFILES.keys()))
+    if defaults is None:
+        c = Config('mobi', desc)
+    else:
+        c = StringConfig(defaults, desc)
+        
+    mobi = c.add_group('mobipocket', _('Mobipocket-specific options.'))
+    mobi('compress', ['--compress'], default=False,
+         help=_('Compress file text using PalmDOC compression. '
                'Results in smaller files, but takes a long time to run.'))
-    group.add_option(
-        '-r', '--rescale-images', default=False, action='store_true',
+    mobi('rescale_images', ['--rescale-images'], default=False, 
         help=_('Modify images to meet Palm device size limitations.'))
-    parser.add_option_group(group)
-    group = OptionGroup(parser, _('Profiles'), _('Device renderer profiles. '
-        'Affects conversion of default font sizes and rasterization '
-        'resolution.  Valid profiles are: %s.') % profiles)
-    group.add_option(
-        '--source-profile', default='Browser', metavar='PROFILE',
-        help=_("Source renderer profile. Default is 'Browser'."))
-    group.add_option(
-        '--dest-profile', default='CybookG3', metavar='PROFILE',
-        help=_("Destination renderer profile. Default is 'CybookG3'."))
-    parser.add_option_group(group)
-    return
-            
+    mobi('toc_title', ['--toc-title'], default=None, 
+         help=_('Title for any generated in-line table of contents.'))
+    profiles = c.add_group('profiles', _('Device renderer profiles. '
+        'Affects conversion of font sizes, image rescaling and rasterization '
+        'of tables. Valid profiles are: %s.') % ', '.join(_profiles))
+    profiles('source_profile', ['--source-profile'],
+             default='Browser', choices=_profiles,
+             help=_("Source renderer profile. Default is %default."))
+    profiles('dest_profile', ['--dest-profile'],
+             default='CybookG3', choices=_profiles,
+             help=_("Destination renderer profile. Default is %default."))
+    c.add_opt('encoding', ['--encoding'], default=None,
+              help=_('Character encoding for HTML files. Default is to auto detect.'))
+    return c
+    
+
 def option_parser():
-    parser = OptionParser(usage=_('%prog [options] OPFFILE'))
+    c = config()
+    parser = c.option_parser(usage='%prog '+_('[options]')+' file.opf')
     parser.add_option(
         '-o', '--output', default=None, 
         help=_('Output file. Default is derived from input filename.'))
     parser.add_option(
         '-v', '--verbose', default=0, action='count',
         help=_('Useful for debugging.'))
-    add_mobi_options(parser)
     return parser
 
 def oeb2mobi(opts, inpath):
@@ -549,8 +560,8 @@ def oeb2mobi(opts, inpath):
     compression = PALMDOC if opts.compress else UNCOMPRESSED
     imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
     context = Context(source, dest)
-    oeb = OEBBook(inpath, logger=logger)
-    tocadder = HTMLTOCAdder()
+    oeb = OEBBook(inpath, logger=logger, encoding=opts.encoding)
+    tocadder = HTMLTOCAdder(title=opts.toc_title)
     tocadder.transform(oeb, context)
     mangler = CaseMangler()
     mangler.transform(oeb, context)

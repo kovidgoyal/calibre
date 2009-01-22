@@ -435,7 +435,7 @@ class OPF(object):
     rating          = MetadataField('rating', is_dc=False, formatter=int)
     
     
-    def __init__(self, stream, basedir=os.getcwdu()):
+    def __init__(self, stream, basedir=os.getcwdu(), unquote_urls=True):
         if not hasattr(stream, 'read'):
             stream = open(stream, 'rb')
         self.basedir  = self.base_dir = basedir
@@ -446,7 +446,8 @@ class OPF(object):
         if not self.metadata:
             raise ValueError('Malformed OPF file: No <metadata> element')
         self.metadata      = self.metadata[0]
-        self.unquote_urls()
+        if unquote_urls:
+            self.unquote_urls()
         self.manifest = Manifest()
         m = self.manifest_path(self.root)
         if m:

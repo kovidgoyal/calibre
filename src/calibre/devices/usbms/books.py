@@ -18,6 +18,9 @@ class Book(object):
         self.thumbnail = None
         self.tags = []
         
+    def __eq__(self, other):
+        return self.path == other.path
+        
     @apply
     def title_sorter():
         doc = '''String to sort the title. If absent, title is returned'''

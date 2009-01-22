@@ -67,7 +67,15 @@ PARALLEL_FUNCS = {
         
       'comic2epub'    :
         ('calibre.ebooks.epub.from_comic', 'convert', {}, 'notification'),
-
+        
+      'any2mobi'     :
+        ('calibre.ebooks.mobi.from_any', 'any2mobi', {}, None),
+        
+      'feeds2mobi'   :
+        ('calibre.ebooks.mobi.from_feeds', 'main', {}, 'notification'),
+        
+      'comic2mobi'    :
+        ('calibre.ebooks.mobi.from_comic', 'convert', {}, 'notification'),
 }
 
 

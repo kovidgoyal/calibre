@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Fetch xkcd.
 '''
 
-import time
+import time, re
 from calibre.web.feeds.news import BasicNewsRecipe
 
 class XkcdCom(BasicNewsRecipe):
@@ -17,6 +17,11 @@ class XkcdCom(BasicNewsRecipe):
     keep_only_tags = [dict(id='middleContent')]
     remove_tags = [dict(name='ul'), dict(name='h3'), dict(name='br')]
     no_stylesheets = True
+    # turn image bubblehelp into a paragraph
+    preprocess_regexps = [
+        (re.compile(r'(<img.*title=")([^"]+)(".*>)'),
+         lambda m: '%s%s<p>%s</p>' % (m.group(1), m.group(3), m.group(2)))
+    ]
     
     def parse_index(self):
         INDEX = 'http://xkcd.com/archive/'

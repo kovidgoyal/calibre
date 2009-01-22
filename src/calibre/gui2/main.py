@@ -25,7 +25,6 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            max_available_height, config, info_dialog, \
                            available_width
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
-from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.dialogs.progress import ProgressDialog
@@ -131,14 +130,14 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.stack, SIGNAL('currentChanged(int)'),
                         self.location_view.location_changed)
         
-        self.output_formats = sorted(['EPUB', 'LRF'])
+        self.output_formats = sorted(['EPUB', 'MOBI', 'LRF'])
         for f in self.output_formats:
             self.output_format.addItem(f)
         self.output_format.setCurrentIndex(self.output_formats.index(prefs['output_format']))
         def change_output_format(x):
             of = unicode(x).strip()
             if of != prefs['output_format']:
-                if of in ('EPUB', 'LIT'):
+                if of not in ('LRF',):
                     warning_dialog(self, 'Warning', 
                                    '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
                 prefs.set('output_format', of)
@@ -296,6 +295,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.card_view.connect_dirtied_signal(self.upload_booklists)
 
         self.show()
+        if self.system_tray_icon.isVisible() and opts.start_in_tray:
+            self.hide()
         self.stack.setCurrentIndex(0)
         try:
             db = LibraryDatabase2(self.library_path)
@@ -309,18 +310,7 @@ class Main(MainWindow, Ui_MainWindow):
                 self.library_path = dir
                 db = LibraryDatabase2(self.library_path)
         self.library_view.set_database(db)
-        if self.olddb is not None:
-            pd = QProgressDialog('', '', 0, 100, self)
-            pd.setWindowModality(Qt.ApplicationModal)
-            pd.setCancelButton(None)
-            pd.setWindowTitle(_('Migrating database'))
-            pd.show()
-            number_of_books = db.migrate_old(self.olddb, pd)
-            self.olddb.close()
-            if number_of_books == 0:
-                os.remove(self.olddb.dbpath)
-            self.olddb = None
-            prefs['library_path'] = self.library_path
+        prefs['library_path'] = self.library_path
         self.library_view.sortByColumn(*dynamic.get('sort_column', ('timestamp', Qt.DescendingOrder)))
         if not self.library_view.restore_column_widths():
             self.library_view.resizeColumnsToContents()
@@ -488,7 +478,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
-            self.library_view.model().resort()
+            self.library_view.model().refresh()
             self.library_view.model().research()
         else:
             print msg
@@ -1392,39 +1382,14 @@ class Main(MainWindow, Ui_MainWindow):
 
     def initialize_database(self):
         self.library_path = prefs['library_path']
-        self.olddb = None
         if self.library_path is None: # Need to migrate to new database layout
-            QMessageBox.information(self, 'Database format changed',
-                '''\
-<p>calibre's book storage format has changed. Instead of storing book files in a database, the
-files are now stored in a folder on your filesystem. You will now be asked to choose the folder 
-in which you want to store your books files. Any existing books will be automatically migrated.
-                ''')
-            self.database_path = prefs['database_path']
-            if not os.access(os.path.dirname(self.database_path), os.W_OK):
-                error_dialog(self, _('Database does not exist'), 
-                             _('The directory in which the database should be: %s no longer exists. Please choose a new database location.')%self.database_path).exec_()
-                self.database_path = choose_dir(self, 'database path dialog', 
-                                                _('Choose new location for database'))
-                if not self.database_path:
-                    self.database_path = os.path.expanduser('~').decode(sys.getfilesystemencoding())
-                if not os.path.exists(self.database_path):
-                    os.makedirs(self.database_path)
-                self.database_path = os.path.join(self.database_path, 'library1.db')
-                prefs['database_path'] = self.database_path
-            home = os.path.dirname(self.database_path)
-            if not os.path.exists(home):
-                home = os.getcwd()
             dir = unicode(QFileDialog.getExistingDirectory(self, 
-                            _('Choose a location for your ebook library.'), home))
+                            _('Choose a location for your ebook library.'), os.getcwd()))
             if not dir:
-                dir = os.path.dirname(self.database_path)
+                dir = os.path.expanduser('~/Library')
             self.library_path = os.path.abspath(dir)
-            try:
-                self.olddb = LibraryDatabase(self.database_path)
-            except:
-                traceback.print_exc()
-                self.olddb = None
+        if not os.path.exists(self.library_path):
+            os.makedirs(self.library_path)
 
 
     def read_settings(self):
@@ -1563,6 +1528,8 @@ path_to_ebook to the database.
 ''')
     parser.add_option('--with-library', default=None, action='store', 
                       help=_('Use the library located at the specified path.'))
+    parser.add_option('--start-in-tray', default=False, action='store_true',
+                      help=_('Start minimized to system tray.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help=_('Log debugging information to console'))
     return parser

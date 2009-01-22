@@ -138,7 +138,7 @@ ProjectID
 DA98A0C6-9102-73EC-2516-B147E972D3F7
 
 ProjectVersion
-1.2.7.0
+1.2.12.0
 
 SaveOnlyToplevelDirs
 No
@@ -211,7 +211,8 @@ File ::8E5D85A4-7608-47A1-CF7C-309060D5FF40 -filemethod {Always overwrite files}
 Component ::F6829AB7-9F66-4CEE-CA0E-21F54C6D3609 -setup Install -active Yes -platforms {AIX-ppc FreeBSD-4-x86 FreeBSD-x86 HPUX-hppa Linux-x86 Solaris-sparc Windows} -name Main -parent Components
 SetupType ::D9ADE41C-B744-690C-2CED-CF826BF03D2E -setup Install -active Yes -platforms {AIX-ppc FreeBSD-4-x86 FreeBSD-x86 HPUX-hppa Linux-x86 Solaris-sparc Windows} -name Typical -parent SetupTypes
 
-InstallComponent 3EA07B17-04D8-6508-B535-96CC7173B49A -setup Install -type pane -title {Welcome Screen} -component Welcome -active Yes -parent StandardInstall
+InstallComponent 3EA07B17-04D8-6508-B535-96CC7173B49A -setup Install -type pane -conditions D7F585DB-0DEC-A94E-DAB0-94D558D82764 -title {Welcome Screen} -component Welcome -command reorder -active Yes -parent StandardInstall
+Condition D7F585DB-0DEC-A94E-DAB0-94D558D82764 -active Yes -parent 3EA07B17-04D8-6508-B535-96CC7173B49A -title {Execute Script Condition} -component ExecuteScriptCondition -TreeObject::id D7F585DB-0DEC-A94E-DAB0-94D558D82764
 InstallComponent 7CCDA4BB-861C-C21E-3011-E93DB58F07D6 -setup Install -type action -title {Check for Previous Install} -component CheckForPreviousInstall -active Yes -parent 3EA07B17-04D8-6508-B535-96CC7173B49A
 InstallComponent 580ACF2C-517F-5E48-9DEF-7DAEFBA59FDD -setup Install -type action -conditions 6DE3B369-9D6B-6BC1-4EA0-2C54ECE159EB -title {Set Virtual Text} -component SetVirtualText -command insert -active Yes -parent 3EA07B17-04D8-6508-B535-96CC7173B49A
 Condition 6DE3B369-9D6B-6BC1-4EA0-2C54ECE159EB -active Yes -parent 580ACF2C-517F-5E48-9DEF-7DAEFBA59FDD -title {String Is Condition} -component StringIsCondition -TreeObject::id 6DE3B369-9D6B-6BC1-4EA0-2C54ECE159EB
@@ -513,7 +514,7 @@ false
 1
 
 3EA07B17-04D8-6508-B535-96CC7173B49A,Conditions
-{0 conditions}
+{1 condition}
 
 3EA07B17-04D8-6508-B535-96CC7173B49A,Message,subst
 1
@@ -1100,6 +1101,9 @@ AAFE58A0-2DFB-CA20-1F6E-D3815F885996,Alias
 AIX-ppc,Active
 No
 
+AIX-ppc,BuildSeparateArchives
+No
+
 AIX-ppc,DefaultDirectoryPermission
 0755
 
@@ -1285,6 +1289,26 @@ CFBE4459-450B-1FAB-3422-609544334AA2,String
 
 D79DC0D2-38BC-9D9F-2DF4-3C76D89BF933,ExitType
 Finish
+
+D7F585DB-0DEC-A94E-DAB0-94D558D82764,CheckCondition
+{Before Next Pane is Displayed}
+
+D7F585DB-0DEC-A94E-DAB0-94D558D82764,Comment
+{Check if calibre.exe is still running}
+
+D7F585DB-0DEC-A94E-DAB0-94D558D82764,FailureMessage
+{calibre is still running. Please shut it down before proceeding. You can quit calibre by right clicking on the calibre system tray icon.}
+
+D7F585DB-0DEC-A94E-DAB0-94D558D82764,ResultVirtualText
+CalibreRunning
+
+D7F585DB-0DEC-A94E-DAB0-94D558D82764,Script
+{set pid [::InstallAPI::FindProcesses -name calibre.exe]
+if {$pid eq ""} {
+    ## myapp.exe is not running
+    return 1
+}
+return 0}
 
 D86BBA5C-4903-33BA-59F8-4266A3D45896,Conditions
 {2 conditions}
@@ -1475,6 +1499,9 @@ FBA33088-C809-DD6B-D337-EADBF1CEE966,String
 FreeBSD-4-x86,Active
 No
 
+FreeBSD-4-x86,BuildSeparateArchives
+No
+
 FreeBSD-4-x86,DefaultDirectoryPermission
 0755
 
@@ -1524,6 +1551,9 @@ FreeBSD-4-x86,RootInstallDir
 /usr/local/<%ShortAppName%>
 
 FreeBSD-x86,Active
+No
+
+FreeBSD-x86,BuildSeparateArchives
 No
 
 FreeBSD-x86,DefaultDirectoryPermission
@@ -1577,6 +1607,9 @@ FreeBSD-x86,RootInstallDir
 HPUX-hppa,Active
 No
 
+HPUX-hppa,BuildSeparateArchives
+No
+
 HPUX-hppa,DefaultDirectoryPermission
 0755
 
@@ -1626,6 +1659,9 @@ HPUX-hppa,RootInstallDir
 /usr/local/<%ShortAppName%>
 
 Linux-x86,Active
+No
+
+Linux-x86,BuildSeparateArchives
 No
 
 Linux-x86,DefaultDirectoryPermission
@@ -1679,6 +1715,9 @@ Linux-x86,RootInstallDir
 Solaris-sparc,Active
 No
 
+Solaris-sparc,BuildSeparateArchives
+No
+
 Solaris-sparc,DefaultDirectoryPermission
 0755
 
@@ -1728,6 +1767,9 @@ Solaris-sparc,RootInstallDir
 /usr/local/<%ShortAppName%>
 
 TarArchive,Active
+No
+
+TarArchive,BuildSeparateArchives
 No
 
 TarArchive,CompressionLevel
@@ -1790,8 +1832,14 @@ TarArchive,VirtualTextMap
 Windows,Active
 Yes
 
+Windows,BuildSeparateArchives
+No
+
 Windows,Executable
 <%AppName%>-<%Version%><%Ext%>
+
+Windows,FileDescription
+{<%AppName%> <%Version%> Setup}
 
 Windows,IncludeTWAPI
 Yes
@@ -1827,6 +1875,9 @@ Windows,WindowsIcon
 {Setup Blue Screen.ico}
 
 ZipArchive,Active
+No
+
+ZipArchive,BuildSeparateArchives
 No
 
 ZipArchive,CompressionLevel
