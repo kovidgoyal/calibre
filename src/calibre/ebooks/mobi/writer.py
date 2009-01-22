@@ -34,8 +34,7 @@ from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
 from calibre.customize.ui import run_plugins_on_postprocess
-from calibre.utils.config import OptionParser
-from optparse import OptionGroup
+from calibre.utils.config import Config, StringConfig
 
 # TODO:
 # - Allow override CSS (?)
@@ -502,44 +501,45 @@ class MobiWriter(object):
             self._write(record)
 
 
-def add_mobi_options(parser):
-    profiles = Context.PROFILES.keys()
-    profiles.sort()
-    profiles = ', '.join(profiles)
-    group = OptionGroup(parser, _('Mobipocket'),
-        _('Mobipocket-specific options.'))
-    group.add_option(
-        '-c', '--compress', default=False, action='store_true',
-        help=_('Compress file text using PalmDOC compression. '
+def config(defaults=None):
+    desc = _('Options to control the conversion to MOBI')
+    _profiles = list(sorted(Context.PROFILES.keys()))
+    if defaults is None:
+        c = Config('mobi', desc)
+    else:
+        c = StringConfig(defaults, desc)
+        
+    mobi = c.add_group('mobipocket', _('Mobipocket-specific options.'))
+    mobi('compress', ['--compress'], default=False,
+         help=_('Compress file text using PalmDOC compression. '
                'Results in smaller files, but takes a long time to run.'))
-    group.add_option(
-        '-r', '--rescale-images', default=False, action='store_true',
+    mobi('rescale_images', ['--rescale-images'], default=False, 
         help=_('Modify images to meet Palm device size limitations.'))
-    group.add_option(
-        '--toc-title', default=None, action='store',
-        help=_('Title for any generated in-line table of contents.'))
-    parser.add_option_group(group)
-    group = OptionGroup(parser, _('Profiles'), _('Device renderer profiles. '
-        'Affects conversion of default font sizes and rasterization '
-        'resolution.  Valid profiles are: %s.') % profiles)
-    group.add_option(
-        '--source-profile', default='Browser', metavar='PROFILE',
-        help=_("Source renderer profile. Default is 'Browser'."))
-    group.add_option(
-        '--dest-profile', default='CybookG3', metavar='PROFILE',
-        help=_("Destination renderer profile. Default is 'CybookG3'."))
-    parser.add_option_group(group)
-    return
-            
+    mobi('toc_title', ['--toc-title'], default=None, 
+         help=_('Title for any generated in-line table of contents.'))
+    profiles = c.add_group('profiles', _('Device renderer profiles. '
+        'Affects conversion of font sizes, image rescaling and rasterization '
+        'of tables. Valid profiles are: %s.') % ', '.join(_profiles))
+    profiles('source_profile', ['--source-profile'],
+             default='Browser', choices=_profiles,
+             help=_("Source renderer profile. Default is %default."))
+    profiles('dest_profile', ['--dest-profile'],
+             default='CybookG3', choices=_profiles,
+             help=_("Destination renderer profile. Default is %default."))
+    c.add_opt('encoding', ['--encoding'], default=None,
+              help=_('Character encoding for HTML files. Default is to auto detect.'))
+    return c
+    
+
 def option_parser():
-    parser = OptionParser(usage=_('%prog [options] OPFFILE'))
+    c = config()
+    parser = c.option_parser(usage='%prog '+_('[options]')+' file.opf')
     parser.add_option(
         '-o', '--output', default=None, 
         help=_('Output file. Default is derived from input filename.'))
     parser.add_option(
         '-v', '--verbose', default=0, action='count',
         help=_('Useful for debugging.'))
-    add_mobi_options(parser)
     return parser
 
 def oeb2mobi(opts, inpath):
@@ -560,7 +560,7 @@ def oeb2mobi(opts, inpath):
     compression = PALMDOC if opts.compress else UNCOMPRESSED
     imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
     context = Context(source, dest)
-    oeb = OEBBook(inpath, logger=logger)
+    oeb = OEBBook(inpath, logger=logger, encoding=opts.encoding)
     tocadder = HTMLTOCAdder(title=opts.toc_title)
     tocadder.transform(oeb, context)
     mangler = CaseMangler()

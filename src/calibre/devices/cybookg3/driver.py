@@ -7,8 +7,10 @@ Device driver for Bookeen's Cybook Gen 3
 import os, shutil
 from itertools import cycle
 
+from calibre.devices.errors import FreeSpaceError
 from calibre.devices.usbms.driver import USBMS
 import calibre.devices.cybookg3.t2b as t2b
+from calibre.devices.errors import FreeSpaceError
 
 class CYBOOKG3(USBMS):
     # Ordered list of supported formats
@@ -50,10 +52,10 @@ class CYBOOKG3(USBMS):
                 return size
             return os.path.getsize(obj)
 
-        sizes = map(get_size, files)
+        sizes = [get_size(f) for f in files]
         size = sum(sizes)
 
-        if on_card and size > self.free_space()[2] - 1024*1024: 
+        if on_card and size > self.free_space()[2] - 1024*1024:
             raise FreeSpaceError(_("There is insufficient free space on the storage card"))
         if not on_card and size > self.free_space()[0] - 2*1024*1024: 
             raise FreeSpaceError(_("There is insufficient free space in main memory"))

@@ -90,6 +90,9 @@ def prefixname(name, nsrmap):
         return barename(name)
     return ':'.join((prefix, barename(name)))
 
+def XPath(expr):
+    return etree.XPath(expr, namespaces=XPNSMAP)
+
 def xpath(elem, expr):
     return elem.xpath(expr, namespaces=XPNSMAP)
 
@@ -292,15 +295,19 @@ class Metadata(object):
 class Manifest(object):
     class Item(object):
         NUM_RE = re.compile('^(.*)([0-9][0-9.]*)(?=[.]|$)')
+        META_XP = XPath('/h:html/h:head/h:meta[@http-equiv="Content-Type"]')
     
-        def __init__(self, id, href, media_type,
+        def __init__(self, oeb, id, href, media_type,
                      fallback=None, loader=str, data=None):
+            self.oeb = oeb
             self.id = id
             self.href = self.path = urlnormalize(href)
             self.media_type = media_type
             self.fallback = fallback
             self.spine_position = None
             self.linear = True
+            if loader is None and data is None:
+                loader = oeb.container.read
             self._loader = loader
             self._data = data
 
@@ -309,16 +316,20 @@ class Manifest(object):
                 % (self.id, self.href, self.media_type)
 
         def _force_xhtml(self, data):
+            if self.oeb.encoding is not None:
+                data = data.decode(self.oeb.encoding, 'replace')
             try:
                 data = etree.fromstring(data, parser=XML_PARSER)
             except etree.XMLSyntaxError:
-                data = html.fromstring(data, parser=XML_PARSER)
+                data = html.fromstring(data)
                 data = etree.tostring(data, encoding=unicode)
                 data = etree.fromstring(data, parser=XML_PARSER)
             if namespace(data.tag) != XHTML_NS:
                 data.attrib['xmlns'] = XHTML_NS
-                data = etree.tostring(data)
+                data = etree.tostring(data, encoding=unicode)
                 data = etree.fromstring(data, parser=XML_PARSER)
+            for meta in self.META_XP(data):
+                meta.getparent().remove(meta)
             return data
         
         def data():
@@ -395,9 +406,8 @@ class Manifest(object):
         self.hrefs = {}
 
     def add(self, id, href, media_type, fallback=None, loader=None, data=None):
-        loader = loader or self.oeb.container.read
         item = self.Item(
-            id, href, media_type, fallback, loader, data)
+            self.oeb, id, href, media_type, fallback, loader, data)
         self.ids[item.id] = item
         self.hrefs[item.href] = item
         return item
@@ -535,27 +545,36 @@ class Spine(object):
 
 class Guide(object):
     class Reference(object):
-        _TYPES_TITLES = [('cover', 'Cover'), ('title-page', 'Title Page'),
-            ('toc', 'Table of Contents'), ('index', 'Index'),
-            ('glossary', 'Glossary'), ('acknowledgements', 'Acknowledgements'),
-            ('bibliography', 'Bibliography'), ('colophon', 'Colophon'),
-            ('copyright-page', 'Copyright'), ('dedication', 'Dedication'),
-            ('epigraph', 'Epigraph'), ('foreword', 'Foreword'),
-            ('loi', 'List of Illustrations'), ('lot', 'List of Tables'),
-            ('notes', 'Notes'), ('preface', 'Preface'),
-            ('text', 'Main Text')]
+        _TYPES_TITLES = [('cover', __('Cover')),
+                         ('title-page', __('Title Page')),
+                         ('toc', __('Table of Contents')),
+                         ('index', __('Index')),
+                         ('glossary', __('Glossary')),
+                         ('acknowledgements', __('Acknowledgements')),
+                         ('bibliography', __('Bibliography')),
+                         ('colophon', __('Colophon')),
+                         ('copyright-page', __('Copyright')),
+                         ('dedication', __('Dedication')),
+                         ('epigraph', __('Epigraph')),
+                         ('foreword', __('Foreword')),
+                         ('loi', __('List of Illustrations')),
+                         ('lot', __('List of Tables')),
+                         ('notes', __('Notes')),
+                         ('preface', __('Preface')),
+                         ('text', __('Main Text'))]
         TYPES = set(t for t, _ in _TYPES_TITLES)
         TITLES = dict(_TYPES_TITLES)
         ORDER = dict((t, i) for (t, _), i in izip(_TYPES_TITLES, count(0)))
         
-        def __init__(self, type, title, href):
+        def __init__(self, oeb, type, title, href):
+            self.oeb = oeb
             if type.lower() in self.TYPES:
                 type = type.lower()
             elif type not in self.TYPES and \
                  not type.startswith('other.'):
                 type = 'other.' + type
-            if not title:
-                title = self.TITLES.get(type, None)
+            if not title and type in self.TITLES:
+                title = oeb.translate(self.TITLES[type])
             self.type = type
             self.title = title
             self.href = urlnormalize(href)
@@ -574,13 +593,21 @@ class Guide(object):
             if not isinstance(other, Guide.Reference):
                 return NotImplemented
             return cmp(self._order, other._order)
+        
+        def item():
+            def fget(self):
+                path, frag = urldefrag(self.href)
+                hrefs = self.oeb.manifest.hrefs
+                return hrefs.get(path, None)
+            return property(fget=fget)
+        item = item()
     
     def __init__(self, oeb):
         self.oeb = oeb
         self.refs = {}
     
     def add(self, type, title, href):
-        ref = self.Reference(type, title, href)
+        ref = self.Reference(self.oeb, type, title, href)
         self.refs[type] = ref
         return ref
     
@@ -590,9 +617,7 @@ class Guide(object):
     __iter__ = iterkeys
     
     def values(self):
-        values = list(self.refs.values())
-        values.sort()
-        return values
+        return sorted(self.refs.values())
     
     def items(self):
         for type, ref in self.refs.items():
@@ -696,11 +721,13 @@ class TOC(object):
 
     
 class OEBBook(object):
-    def __init__(self, opfpath=None, container=None, logger=FauxLogger()):
+    def __init__(self, opfpath=None, container=None, encoding=None,
+                 logger=FauxLogger()):
         if opfpath and not container:
             container = DirContainer(os.path.dirname(opfpath))
             opfpath = os.path.basename(opfpath)
         self.container = container
+        self.encoding = encoding
         self.logger = logger
         if opfpath or container:
             opf = self._read_opf(opfpath)

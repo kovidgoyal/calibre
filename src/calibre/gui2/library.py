@@ -162,7 +162,8 @@ class BooksModel(QAbstractTableModel):
 
     def refresh_ids(self, ids, current_row=-1):
         rows = self.db.refresh_ids(ids)
-        self.refresh_rows(rows, current_row=current_row)
+        if rows:
+            self.refresh_rows(rows, current_row=current_row)
             
     def refresh_rows(self, rows, current_row=-1):
         for row in rows:
@@ -261,7 +262,17 @@ class BooksModel(QAbstractTableModel):
             self.reset()
         self.sorted_on = (self.column_map[col], order)
         
-
+    
+    def refresh(self, reset=True):
+        try:
+            col = self.column_map.index(self.sorted_on[0])
+        except:
+            col = 0
+        self.db.refresh(field=self.column_map[col], 
+                        ascending=self.sorted_on[1]==Qt.AscendingOrder)
+        if reset:
+            self.reset()
+    
     def resort(self, reset=True):
         try:
             col = self.column_map.index(self.sorted_on[0])

@@ -311,7 +311,7 @@ class MobiReader(object):
             opf.cover = 'images/%05d.jpg'%(self.book_header.exth.cover_offset+1)
         manifest = [(htmlfile, 'text/x-oeb1-document')]
         bp = os.path.dirname(htmlfile)
-        for i in self.image_names:
+        for i in getattr(self, 'image_names', []):
             manifest.append((os.path.join(bp, 'images/', i), 'image/jpg'))
         
         opf.create_manifest(manifest)
@@ -451,7 +451,7 @@ class MobiReader(object):
             image_index += 1
             try:
                 im = PILImage.open(buf)                
-            except IOError, e:
+            except IOError:
                 continue
              
             path = os.path.join(output_dir, '%05d.jpg'%image_index)
@@ -476,31 +476,23 @@ def get_metadata(stream):
     if mr.book_header.exth is None:
         mi = MetaInformation(mr.name, [_('Unknown')])
     else:
-        tdir = tempfile.mkdtemp('_mobi_meta', __appname__+'_')
-        atexit.register(shutil.rmtree, tdir)
-        #print tdir
-        mr.extract_images([], tdir)
         mi = mr.create_opf('dummy.html')
-        if mi.cover:
-            cover =  os.path.join(tdir, mi.cover)
-            if not os.access(cover, os.R_OK):
-                fname = os.path.basename(cover)
-                match = re.match(r'(\d+)(.+)', fname)
-                if match:
-                    num, ext = int(match.group(1), 10), match.group(2)
-                    while num > 0:
-                        num -= 1
-                        candidate = os.path.join(os.path.dirname(cover), '%05d%s'%(num, ext))
-                        if os.access(candidate, os.R_OK):
-                            cover = candidate
-                            break
-            if os.access(cover, os.R_OK):
-                mi.cover_data = ('JPEG', open(os.path.join(tdir, cover), 'rb').read())
-        else:
-            path = os.path.join(tdir, 'images', '00001.jpg')
-            if os.access(path, os.R_OK):
-                mi.cover_data = ('JPEG', open(path, 'rb').read())
-    return mi
+        try:
+            if hasattr(mr.book_header.exth, 'cover_offset'):
+                cover_index = mr.book_header.first_image_index + mr.book_header.exth.cover_offset
+                data  = mr.sections[cover_index][0]
+            else:
+                data  = mr.sections[mr.book_header.first_image_index][0]
+            buf = cStringIO.StringIO(data)
+            im = PILImage.open(buf)
+            obuf = cStringIO.StringIO()
+            im.convert('RGBA').save(obuf, format='JPEG')
+            mi.cover_data = ('jpg', obuf.getvalue())
+        except:
+            import traceback
+            traceback.print_exc()
+        return mi
+        
         
 def option_parser():
     from calibre.utils.config import OptionParser

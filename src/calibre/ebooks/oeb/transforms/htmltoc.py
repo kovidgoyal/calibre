@@ -13,6 +13,10 @@ from calibre.ebooks.oeb.base import XML, XHTML, XHTML_NS
 from calibre.ebooks.oeb.base import XHTML_MIME, CSS_MIME
 from calibre.ebooks.oeb.base import element
 
+__all__ = ['HTMLTOCAdder']
+
+DEFAULT_TITLE = __('Table of Contents')
+
 STYLE_CSS = {
     'nested': """
 .calibre_toc_header {
@@ -52,7 +56,7 @@ class HTMLTOCAdder(object):
         if 'toc' in oeb.guide:
             return
         oeb.logger.info('Generating in-line TOC...')
-        title = self.title or oeb.translate('Table of Contents')
+        title = self.title or oeb.translate(DEFAULT_TITLE)
         style = self.style
         if style not in STYLE_CSS:
             oeb.logger.error('Unknown TOC style %r' % style)

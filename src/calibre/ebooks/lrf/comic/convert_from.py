@@ -409,36 +409,64 @@ def create_pdf(pages, profile, opts, thumbnail=None):
 def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='lrf'):
     path_to_file = run_plugins_on_preprocess(path_to_file)
     source = path_to_file
+    to_delete = []
+    toc = []
+    list = [] 
+    pages = []
+
     
     if not opts.title:
         opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:
         opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.'+output_format)
-    tdir  = extract_comic(source)
-    pages = find_pages(tdir, sort_on_mtime=opts.no_sort, verbose=opts.verbose)
-    thumbnail = None
-    if not pages:
-        raise ValueError('Could not find any pages in the comic: %s'%source)
-    if not getattr(opts, 'no_process', False):
-        pages, failures, tdir2 = process_pages(pages, opts, notification)
-        if not pages:
-            raise ValueError('Could not find any valid pages in the comic: %s'%source)
-        if failures:
-            print 'Could not process the following pages (run with --verbose to see why):'
-            for f in failures:
-                print '\t', f
-        thumbnail = os.path.join(tdir2, 'thumbnail.png')
-        if not os.access(thumbnail, os.R_OK):
-            thumbnail = None
+    if os.path.isdir(source):
+        for path in all_files( source , '*.cbr|*.cbz' ):
+            list.append( path )
+    else:
+            list= [ os.path.abspath(source) ]
+
+    for source in list:
+        tdir  = extract_comic(source)
+        new_pages = find_pages(tdir, sort_on_mtime=opts.no_sort, verbose=opts.verbose)
+        thumbnail = None
+        if not new_pages:
+            raise ValueError('Could not find any pages in the comic: %s'%source)
+        if not getattr(opts, 'no_process', False):
+            new_pages, failures, tdir2 = process_pages(pages, opts, notification)
+            if not new_pages:
+                 raise ValueError('Could not find any valid pages in the comic: %s'%source)
+            if failures:
+            	print 'Could not process the following pages (run with --verbose to see why):'
+            	for f in failures:
+                	print '\t', f
+            thumbnail = os.path.join(tdir2, 'thumbnail.png')
+            if not os.access(thumbnail, os.R_OK):
+                thumbnail = None
+        toc.append((source,len(pages)))
+        pages.extend(new_pages)
+        to_delete.append(tdir)
+
+
     if output_format == 'lrf':
         create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
     if output_format == 'epub':
         create_epub(pages, opts.profile, opts, thumbnail=thumbnail)
     if output_format == 'pdf':
         create_pdf(pages, opts.profile, opts, thumbnail=thumbnail)
-    shutil.rmtree(tdir)
-    if not getattr(opts, 'no_process', False):
-        shutil.rmtree(tdir2)
+    for tdir in to_delete:
+        shutil.rmtree(tdir)
+
+
+def all_files(root, patterns='*'):
+    # Expand patterns from semicolon-separated string to list
+    patterns = patterns.split('|')
+    for path, subdirs, files in os.walk(root):
+        files.sort( )
+        for name in files:
+            for pattern in patterns:
+                if fnmatch.fnmatch(name, pattern):
+                    yield os.path.join(path, name)
+                    break
 
 
 def main(args=sys.argv, notification=None, output_format='lrf'):

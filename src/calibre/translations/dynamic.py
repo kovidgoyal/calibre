@@ -5,9 +5,8 @@ Dynamic language lookup of translations for user-visible strings.
 __license__   = 'GPL v3'
 __copyright__ = '2008, Marshall T. Vandegrift <llasram@gmail.com>'
 
-import sys
 from cStringIO import StringIO
-from gettext import GNUTranslations, NullTranslations
+from gettext import GNUTranslations
 from calibre.translations.compiled import translations
 
 __all__ = ['translate']
@@ -23,5 +22,5 @@ def translate(lang, text):
         trans = GNUTranslations(buf)
         _CACHE[lang] = trans
     if trans is None:
-        return _(text)
+        return getattr(__builtins__, '_', lambda x: x)(text)
     return trans.ugettext(text)

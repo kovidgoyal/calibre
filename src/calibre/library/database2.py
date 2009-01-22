@@ -224,9 +224,17 @@ class ResultCache(SearchQueryParser):
         return False
     
     def refresh_ids(self, conn, ids):
+        '''
+        Refresh the data in the cache for books identified by ids.
+        Returns a list of affected rows or None if the rows are filtered.
+        '''
         for id in ids:
             self._data[id] = conn.get('SELECT * from meta WHERE id=?', (id,))[0]
-        return map(self.row, ids)
+        try:
+            return map(self.row, ids)
+        except ValueError:
+            pass
+        return None
     
     def books_added(self, ids, conn):
         if not ids:

@@ -89,36 +89,6 @@
               <string>Book Cover</string>
              </property>
              <layout class="QGridLayout" name="_2" >
-              <item row="0" column="0" >
-               <layout class="QHBoxLayout" name="_3" >
-                <item>
-                 <widget class="ImageView" name="cover" >
-                  <property name="text" >
-                   <string/>
-                  </property>
-                  <property name="pixmap" >
-                   <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
-                  </property>
-                  <property name="scaledContents" >
-                   <bool>true</bool>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="2" column="0" >
-               <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
-                <property name="text" >
-                 <string>Use cover from &amp;source file</string>
-                </property>
-                <property name="checked" >
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
               <item row="1" column="0" >
                <layout class="QVBoxLayout" name="_4" >
                 <property name="spacing" >
@@ -167,6 +137,36 @@
                    </widget>
                   </item>
                  </layout>
+                </item>
+               </layout>
+              </item>
+              <item row="2" column="0" >
+               <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
+                <property name="text" >
+                 <string>Use cover from &amp;source file</string>
+                </property>
+                <property name="checked" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <layout class="QHBoxLayout" name="_3" >
+                <item>
+                 <widget class="ImageView" name="cover" >
+                  <property name="text" >
+                   <string/>
+                  </property>
+                  <property name="pixmap" >
+                   <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
+                  </property>
+                  <property name="scaledContents" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignCenter</set>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
@@ -456,6 +456,13 @@
              </property>
             </widget>
            </item>
+           <item row="4" column="0" >
+            <widget class="QCheckBox" name="opt_rescale_images" >
+             <property name="text" >
+              <string>&amp;Rescale images</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </item>
          <item>
@@ -475,7 +482,7 @@
        <widget class="QWidget" name="pagesetup_page" >
         <layout class="QGridLayout" name="_13" >
          <item row="0" column="0" >
-          <widget class="QLabel" name="label_11" >
+          <widget class="QLabel" name="profile_label" >
            <property name="text" >
             <string>&amp;Profile:</string>
            </property>
@@ -494,7 +501,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0" >
+         <item row="3" column="0" >
           <widget class="QLabel" name="label_12" >
            <property name="text" >
             <string>&amp;Left Margin:</string>
@@ -504,7 +511,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1" >
+         <item row="3" column="1" >
           <widget class="QSpinBox" name="opt_margin_left" >
            <property name="suffix" >
             <string> pt</string>
@@ -517,7 +524,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" >
+         <item row="4" column="0" >
           <widget class="QLabel" name="label_13" >
            <property name="text" >
             <string>&amp;Right Margin:</string>
@@ -527,7 +534,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1" >
+         <item row="4" column="1" >
           <widget class="QSpinBox" name="opt_margin_right" >
            <property name="suffix" >
             <string> pt</string>
@@ -540,7 +547,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" >
+         <item row="5" column="0" >
           <widget class="QLabel" name="label_14" >
            <property name="text" >
             <string>&amp;Top Margin:</string>
@@ -550,7 +557,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1" >
+         <item row="5" column="1" >
           <widget class="QSpinBox" name="opt_margin_top" >
            <property name="suffix" >
             <string> pt</string>
@@ -563,7 +570,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" >
+         <item row="6" column="0" >
           <widget class="QLabel" name="label_15" >
            <property name="text" >
             <string>&amp;Bottom Margin:</string>
@@ -573,7 +580,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="1" >
+         <item row="6" column="1" >
           <widget class="QSpinBox" name="opt_margin_bottom" >
            <property name="suffix" >
             <string> pt</string>
@@ -586,12 +593,38 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0" >
+         <item row="7" column="0" >
           <widget class="QCheckBox" name="opt_dont_split_on_page_breaks" >
            <property name="text" >
             <string>Do not &amp;split on page breaks</string>
            </property>
           </widget>
+         </item>
+         <item row="1" column="0" >
+          <widget class="QLabel" name="source_profile_label" >
+           <property name="text" >
+            <string>&amp;Source profile:</string>
+           </property>
+           <property name="buddy" >
+            <cstring>opt_source_profile</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" >
+          <widget class="QComboBox" name="opt_source_profile" />
+         </item>
+         <item row="2" column="0" >
+          <widget class="QLabel" name="dest_profile_label" >
+           <property name="text" >
+            <string>&amp;Destination profile:</string>
+           </property>
+           <property name="buddy" >
+            <cstring>opt_dest_profile</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1" >
+          <widget class="QComboBox" name="opt_dest_profile" />
          </item>
         </layout>
        </widget>
@@ -720,6 +753,19 @@ p, li { white-space: pre-wrap; }
             </item>
             <item row="5" column="1" >
              <widget class="QLineEdit" name="opt_level2_toc" />
+            </item>
+            <item row="6" column="1" >
+             <widget class="QLineEdit" name="opt_toc_title" />
+            </item>
+            <item row="6" column="0" >
+             <widget class="QLabel" name="toc_title_label" >
+              <property name="text" >
+               <string>&amp;Title for generated TOC</string>
+              </property>
+              <property name="buddy" >
+               <cstring>opt_toc_title</cstring>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
