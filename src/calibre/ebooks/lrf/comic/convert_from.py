@@ -7,7 +7,7 @@ __docformat__ = 'restructuredtext en'
 Based on ideas from comiclrf created by FangornUK.
 '''
 
-import os, sys, shutil, traceback, textwrap
+import os, sys, shutil, traceback, textwrap, fnmatch
 from uuid import uuid4
 
 
@@ -389,10 +389,33 @@ def create_lrf(pages, profile, opts, thumbnail=None):
     print _('Output written to'), opts.output
     
 
-def create_pdf(pages, profile, opts, thumbnail=None):
+def create_pdf(pages, profile, opts, thumbnail=None,toc=None):
     width, height = PROFILES[profile]
     
     from reportlab.pdfgen import canvas
+
+    cur_page=0
+    heading = []
+    if toc != None:
+        if len(toc) == 1:
+            toc = None
+        else:
+            toc_index = 0
+            base_cur = 0
+            rem = 0
+            breaker = False
+            while True:
+                letter=toc[0][0][base_cur]
+                for i in range(len(toc)):
+                    if letter != toc[i][0][base_cur]:
+                        breaker = True
+                if breaker:
+                    break
+                if letter == os.sep:
+                    rem=base_cur
+                base_cur += 1
+            toc.append(("Not seen",-1))
+
     
     pdf = canvas.Canvas(filename=opts.output, pagesize=(width,height+15))
     pdf.setAuthor(opts.author)
@@ -400,7 +423,52 @@ def create_pdf(pages, profile, opts, thumbnail=None):
 
 
     for page in pages:
-        pdf.drawImage(page, x=0,y=0,width=width, height=height) 
+        if opts.keep_aspect_ratio:
+            img = NewMagickWand()
+            if img < 0:
+                raise RuntimeError('Cannot create wand.')
+            if not MagickReadImage(img, page):
+                raise IOError('Failed to read image from: %'%page)
+            sizex  = MagickGetImageWidth(img)
+            sizey = MagickGetImageHeight(img)
+            if opts.keep_aspect_ratio:
+                # Preserve the aspect ratio by adding border
+                aspect = float(sizex) / float(sizey)
+                if aspect <= (float(width) / float(height)):
+                    newsizey = height 
+                    newsizex = int(newsizey * aspect)
+                    deltax = (width - newsizex) / 2
+                    deltay = 0
+                else:
+                    newsizex = width 
+                    newsizey = int(newsizex / aspect)
+                    deltax = 0
+                    deltay = (height - newsizey) / 2
+            pdf.drawImage(page, x=deltax,y=deltay,width=newsizex, height=newsizey)
+        else:
+            pdf.drawImage(page, x=0,y=0,width=width, height=height) 
+        if toc != None:
+            if toc[toc_index][1] == cur_page:
+                tmp=toc[toc_index][0]
+                toc_current=tmp[rem:len(tmp)-4]
+                index=0
+                while True:
+                    key = 'page%d-%d' % (cur_page, index)
+                    pdf.bookmarkPage(key)
+                    (head,dummy,list)=toc_current.partition(os.sep)
+                    try:
+                        if heading[index] != head:
+                            heading[index] = head
+                            pdf.addOutlineEntry(title=head,key=key,level=index)
+                    except:
+                        heading.append(head)
+                        pdf.addOutlineEntry(title=head,key=key,level=index)
+                    index += 1
+                    toc_current=list
+                    if dummy == "":
+                        break
+                toc_index += 1
+            cur_page += 1
         pdf.showPage()
     # Write the document to disk
     pdf.save() 
@@ -409,36 +477,64 @@ def create_pdf(pages, profile, opts, thumbnail=None):
 def do_convert(path_to_file, opts, notification=lambda m, p: p, output_format='lrf'):
     path_to_file = run_plugins_on_preprocess(path_to_file)
     source = path_to_file
+    to_delete = []
+    toc = []
+    list = [] 
+    pages = []
+
     
     if not opts.title:
         opts.title = os.path.splitext(os.path.basename(source))[0]
     if not opts.output:
         opts.output = os.path.abspath(os.path.splitext(os.path.basename(source))[0]+'.'+output_format)
-    tdir  = extract_comic(source)
-    pages = find_pages(tdir, sort_on_mtime=opts.no_sort, verbose=opts.verbose)
-    thumbnail = None
-    if not pages:
-        raise ValueError('Could not find any pages in the comic: %s'%source)
-    if not getattr(opts, 'no_process', False):
-        pages, failures, tdir2 = process_pages(pages, opts, notification)
-        if not pages:
-            raise ValueError('Could not find any valid pages in the comic: %s'%source)
-        if failures:
-            print 'Could not process the following pages (run with --verbose to see why):'
-            for f in failures:
-                print '\t', f
-        thumbnail = os.path.join(tdir2, 'thumbnail.png')
-        if not os.access(thumbnail, os.R_OK):
-            thumbnail = None
+    if os.path.isdir(source):
+        for path in all_files( source , '*.cbr|*.cbz' ):
+            list.append( path )
+    else:
+            list= [ os.path.abspath(source) ]
+
+    for source in list:
+        tdir  = extract_comic(source)
+        new_pages = find_pages(tdir, sort_on_mtime=opts.no_sort, verbose=opts.verbose)
+        thumbnail = None
+        if not new_pages:
+            raise ValueError('Could not find any pages in the comic: %s'%source)
+        if not getattr(opts, 'no_process', False):
+            new_pages, failures, tdir2 = process_pages(new_pages, opts, notification)
+            if not new_pages:
+                raise ValueError('Could not find any valid pages in the comic: %s'%source)
+            if failures:
+                print 'Could not process the following pages (run with --verbose to see why):'
+                for f in failures:
+                    print '\t', f
+            thumbnail = os.path.join(tdir2, 'thumbnail.png')
+            if not os.access(thumbnail, os.R_OK):
+                thumbnail = None
+        toc.append((source,len(pages)))
+        pages.extend(new_pages)
+        to_delete.append(tdir)
+
+
     if output_format == 'lrf':
         create_lrf(pages, opts.profile, opts, thumbnail=thumbnail)
     if output_format == 'epub':
         create_epub(pages, opts.profile, opts, thumbnail=thumbnail)
     if output_format == 'pdf':
-        create_pdf(pages, opts.profile, opts, thumbnail=thumbnail)
-    shutil.rmtree(tdir)
-    if not getattr(opts, 'no_process', False):
-        shutil.rmtree(tdir2)
+        create_pdf(pages, opts.profile, opts, thumbnail=thumbnail,toc=toc)
+    for tdir in to_delete:
+        shutil.rmtree(tdir)
+
+
+def all_files(root, patterns='*'):
+    # Expand patterns from semicolon-separated string to list
+    patterns = patterns.split('|')
+    for path, subdirs, files in os.walk(root):
+        files.sort( )
+        for name in files:
+            for pattern in patterns:
+                if fnmatch.fnmatch(name, pattern):
+                    yield os.path.join(path, name)
+                    break
 
 
 def main(args=sys.argv, notification=None, output_format='lrf'):
