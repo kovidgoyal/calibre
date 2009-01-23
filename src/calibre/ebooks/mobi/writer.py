@@ -452,6 +452,13 @@ class MobiWriter(object):
             code = EXTH_CODES[term]
             for item in oeb.metadata[term]:
                 data = self.COLLAPSE_RE.sub(' ', unicode(item))
+                if term == 'identifier':
+                    if data.lower().startswith('urn:isbn:'):
+                        data = data[9:]
+                    elif item.get('scheme', '').lower() == 'isbn':
+                        pass
+                    else:
+                        continue
                 data = data.encode('utf-8')
                 exth.write(pack('>II', code, len(data) + 8))
                 exth.write(data)
@@ -468,7 +475,7 @@ class MobiWriter(object):
             nrecs += 3
         exth = exth.getvalue()
         trail = len(exth) % 4
-        pad = '' if not trail else '\0' * (4 - trail)
+        pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
         exth = ['EXTH', pack('>II', len(exth) + 12, nrecs), exth, pad]
         return ''.join(exth)
 

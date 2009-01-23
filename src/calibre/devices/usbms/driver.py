@@ -10,6 +10,7 @@ import os, fnmatch, shutil
 from itertools import cycle
 
 from calibre.ebooks.metadata.meta import metadata_from_formats, path_to_ext
+from calibre.ebooks.metadata import authors_to_string
 from calibre.devices.usbms.device import Device
 from calibre.devices.usbms.books import BookList, Book
 from calibre.devices.errors import FreeSpaceError, PathError
@@ -221,12 +222,7 @@ class USBMS(Device):
         mi = metadata_from_formats([path])
         mime = MIME_MAP[fileext] if fileext in MIME_MAP.keys() else 'Unknown'
         
-        authors = 'Unknown'
-        for author in mi.authors:
-            if authors == 'Unknown':
-                authors = author
-            else:
-                authors += ', %s' % author
+        authors = authors_to_string(mi.authors)
         
         return Book(path, mi.title, authors, mime)
 
