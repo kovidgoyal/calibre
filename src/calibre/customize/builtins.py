@@ -189,6 +189,17 @@ class ZipMetadataReader(MetadataReaderPlugin):
         from calibre.ebooks.metadata.zip import get_metadata
         return get_metadata(stream)
 
+class RARMetadataReader(MetadataReaderPlugin):
+    
+    name = 'Read RAR metadata'
+    file_types = set(['rar'])
+    description = _('Read metadata from ebooks in RAR archives')
+    
+    def get_metadata(self, stream, ftype):
+        from calibre.ebooks.metadata.rar import get_metadata
+        return get_metadata(stream)
+
+
 class EPUBMetadataWriter(MetadataWriterPlugin):
     
     name = 'Set EPUB metadata'

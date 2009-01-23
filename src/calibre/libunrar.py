@@ -188,8 +188,31 @@ def extract(path, dir):
     finally:
         os.chdir(cwd)
         _libunrar.RARCloseArchive(arc_data)
-        
-def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)):
+
+def names(path):
+    if hasattr(path, 'read'):
+        data = path.read()
+        f = NamedTemporaryFile(suffix='.rar')
+        f.write(data)
+        f.flush()
+        path = f.name
+    open_archive_data = RAROpenArchiveDataEx(ArcName=path, OpenMode=RAR_OM_LIST, CmtBuf=None)
+    arc_data = _libunrar.RAROpenArchiveEx(byref(open_archive_data))
+    try:
+        if open_archive_data.OpenResult != 0:
+            raise UnRARException(_interpret_open_error(open_archive_data.OpenResult, path))
+        header_data = RARHeaderDataEx(CmtBuf=None)
+        while True:
+            if _libunrar.RARReadHeaderEx(arc_data, byref(header_data)) != 0:
+                break
+            PFCode = _libunrar.RARProcessFileW(arc_data, RAR_SKIP, None, None)
+            if PFCode != 0:
+                raise UnRARException(_interpret_process_file_error(PFCode))
+            yield header_data.FileNameW
+    finally:
+        _libunrar.RARCloseArchive(arc_data)
+
+def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I), name=None):
     if hasattr(path, 'read'):
         data = path.read()
         f = NamedTemporaryFile(suffix='.rar')
@@ -210,7 +233,9 @@ def extract_member(path, match=re.compile(r'\.(jpg|jpeg|gif|png)\s*$', re.I)):
                     PFCode = _libunrar.RARProcessFileW(arc_data, RAR_EXTRACT, None, None)
                     if PFCode != 0:
                         raise UnRARException(_interpret_process_file_error(PFCode))
-                    if match.search(header_data.FileNameW):
+                    file_name = header_data.FileNameW
+                    if (name is not None and file_name == name) or \
+                       (match is not None and match.search(file_name)):
                         return header_data.FileNameW.replace('/', os.sep), \
                                 open(os.path.join(dir, *header_data.FileNameW.split('/')), 'rb').read()
             finally:
