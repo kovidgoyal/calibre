@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>570</height>
+    <height>581</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -339,7 +339,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="0" >
+         <item row="3" column="0" >
           <layout class="QHBoxLayout" name="horizontalLayout" >
            <item>
             <widget class="QLabel" name="label_6" >
@@ -356,7 +356,7 @@
            </item>
           </layout>
          </item>
-         <item row="7" column="0" >
+         <item row="8" column="0" >
           <widget class="QGroupBox" name="groupBox_2" >
            <property name="title" >
             <string>Toolbar</string>
@@ -404,7 +404,7 @@
            </layout>
           </widget>
          </item>
-         <item row="8" column="0" >
+         <item row="9" column="0" >
           <widget class="QGroupBox" name="groupBox" >
            <property name="title" >
             <string>Select visible &amp;columns in library view</string>
@@ -492,24 +492,31 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" >
+         <item row="5" column="0" >
           <widget class="QCheckBox" name="sync_news" >
            <property name="text" >
             <string>Automatically send downloaded &amp;news to ebook reader</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0" >
+         <item row="6" column="0" >
           <widget class="QCheckBox" name="delete_news" >
            <property name="text" >
             <string>&amp;Delete news from library when it is sent to reader</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0" >
+         <item row="4" column="0" >
           <widget class="QCheckBox" name="separate_cover_flow" >
            <property name="text" >
             <string>Show cover &amp;browser in a separate window (needs restart)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0" >
+          <widget class="QCheckBox" name="systray_notifications" >
+           <property name="text" >
+            <string>Show &amp;notifications in system tray</string>
            </property>
           </widget>
          </item>

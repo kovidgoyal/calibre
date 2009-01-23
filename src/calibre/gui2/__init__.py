@@ -60,6 +60,8 @@ def _config():
               help=_('Delete books from library after uploading to device'))
     c.add_opt('separate_cover_flow', default=False, 
               help=_('Show the cover flow in a separate window instead of in the main calibre window'))
+    c.add_opt('disable_tray_notification', default=False, 
+              help=_('Disable notifications from the system tray icon'))
     return ConfigProxy(c)
     
 config = _config()
