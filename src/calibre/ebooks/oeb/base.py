@@ -222,7 +222,16 @@ class Metadata(object):
                 raise AttributeError(
                     '%r object has no attribute %r' \
                         % (self.__class__.__name__, name))
-
+        
+        def __getitem__(self, key):
+            return self.attrib[key]
+        
+        def __contains__(self, key):
+            return key in self.attrib
+        
+        def get(self, key, default=None):
+            return self.attrib.get(key, default)
+        
         def __repr__(self):
             return 'Item(term=%r, value=%r, attrib=%r)' \
                 % (barename(self.term), self.value, self.attrib)
