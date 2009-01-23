@@ -21,6 +21,7 @@ from lxml import etree
 from lxml import html
 from calibre import LoggingInterface
 from calibre.translations.dynamic import translate
+from calibre.startup import get_lang
 
 XML_PARSER = etree.XMLParser(recover=True)
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
@@ -30,6 +31,7 @@ OPF2_NS = 'http://www.idpf.org/2007/opf'
 DC09_NS = 'http://purl.org/metadata/dublin_core'
 DC10_NS = 'http://purl.org/dc/elements/1.0/'
 DC11_NS = 'http://purl.org/dc/elements/1.1/'
+DC_NSES = set([DC09_NS, DC10_NS, DC11_NS])
 XSI_NS = 'http://www.w3.org/2001/XMLSchema-instance'
 DCTERMS_NS = 'http://purl.org/dc/terms/'
 NCX_NS = 'http://www.daisy.org/z3986/2005/ncx/'
@@ -194,8 +196,12 @@ class Metadata(object):
             if term == OPF('meta') and not value:
                 term = self.fq_attrib.pop('name')
                 value = self.fq_attrib.pop('content')
-            elif term in Metadata.TERMS and not namespace(term):
-                term = DC(term)
+            elif barename(term).lower() in Metadata.TERMS and \
+                 (not namespace(term) or namespace(term) in DC_NSES):
+                # Anything looking like Dublin Core is coerced
+                term = DC(barename(term).lower())
+            elif namespace(term) == OPF2_NS:
+                term = barename(term)
             self.term = term
             self.value = value
             self.attrib = attrib = {}
@@ -814,7 +820,7 @@ class OEBBook(object):
                     break
         if not metadata.language:
             self.logger.warn(u'Language not specified.')
-            metadata.add('language', 'en')
+            metadata.add('language', get_lang())
         if not metadata.creator:
             self.logger.warn(u'Creator not specified.')
             metadata.add('creator', _('Unknown'))
@@ -857,6 +863,8 @@ class OEBBook(object):
         extras.sort()
         for item in extras:
             spine.add(item, False)
+        if len(spine) == 0:
+            raise OEBError("Spine is empty")
 
     def _guide_from_opf(self, opf):
         self.guide = guide = Guide(self)
@@ -886,8 +894,11 @@ class OEBBook(object):
             if len(result) != 1:
                 return False
         id = result[0]
-        ncx = self.manifest[id].data
-        self.manifest.remove(id)
+        if id not in self.manifest.ids:
+            return False
+        item = self.manifest.ids[id]
+        ncx = item.data
+        self.manifest.remove(item)
         title = xpath(ncx, 'ncx:docTitle/ncx:text/text()')[0]
         self.toc = toc = TOC(title)
         navmaps = xpath(ncx, 'ncx:navMap')
