@@ -153,11 +153,27 @@ class HTMLProcessor(Processor, Rationalizer):
         Perform various markup transforms to get the output to render correctly 
         in the quirky ADE.
         '''
-        # Replace <br> that are children of <body> with <p>&nbsp;</p>
+        # Replace <br> that are children of <body> as ADE doesn't handle them
         if hasattr(self.body, 'xpath'):
             for br in self.body.xpath('./br'):
+                if br.getparent() is None:
+                    continue
+                try:
+                    sibling = br.itersiblings().next()
+                except:
+                    sibling = None
                 br.tag = 'p'
                 br.text = u'\u00a0'
+                if (br.tail and br.tail.strip()) or sibling is None or \
+                    getattr(sibling, 'tag', '') != 'br':
+                    br.set('style', br.get('style', '')+'; margin: 0pt; border:0pt; height:0pt')
+                else:
+                    sibling.getparent().remove(sibling)
+                    if sibling.tail:
+                        if not br.tail:
+                            br.tail = ''
+                        br.tail += sibling.tail
+                
                 
         if self.opts.profile.remove_object_tags:
             for tag in self.root.xpath('//embed'):
