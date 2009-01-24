@@ -32,6 +32,7 @@ class CYBOOKG3(USBMS):
     STORAGE_CARD_VOLUME_LABEL = 'Cybook Gen 3 Storage Card'
     
     EBOOK_DIR_MAIN = "eBooks"
+    EBOOK_DIR_CARD = "eBooks"
     SUPPORTS_SUB_DIRS = True
     
     def upload_books(self, files, names, on_card=False, end_session=True, 
