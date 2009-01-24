@@ -8,7 +8,7 @@ __docformat__ = 'restructuredtext en'
 import sys, time, subprocess, os, re
 from calibre import __appname__, __version__
 
-INSTALLJAMMER = '/home/kovid/installjammer/installjammer' 
+INSTALLJAMMER = '/usr/local/installjammer/installjammer' 
 
 sv = re.sub(r'[a-z]\d+', '', __version__)
 
@@ -26,6 +26,7 @@ cmdline = [
     '-DLicense', open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'LICENSE')).read().replace('\n', '\r\n'),
     '--output-dir', os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'dist'),
     '--platform', 'Windows',
+    '--verbose'
 ]
 
 def run_install_jammer(installer_name='<%AppName%>-<%Version%><%Ext%>', build_for_release=True):
@@ -43,7 +44,7 @@ def run_install_jammer(installer_name='<%AppName%>-<%Version%><%Ext%>', build_fo
     subprocess.check_call(cmdline)
 
 def main(args=sys.argv):
-    run_install_jammer(build_for_release=False)
+    run_install_jammer(build_for_release=True)
     return 0
 
 if __name__ == '__main__':
