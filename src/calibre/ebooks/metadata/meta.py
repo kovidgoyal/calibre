@@ -72,6 +72,17 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
         
     name = os.path.basename(getattr(stream, 'name', ''))
     base = metadata_from_filename(name)
+    if base.title == os.path.splitext(name)[0] and base.authors is None:
+        # Assume that there was no metadata in the file and the user set pattern
+        # to match meta info from the file name did not match.
+        # The regex is meant to match the standard format filenames are written
+        # in: title_-_author_number.extension
+        base.smart_update(metadata_from_filename(name, re.compile(
+                            '^(?P<title>[^\s]+?)_-_(?P<author>[^\s]+?)_+\d+')))
+        if base.title:
+            base.title = base.title.replace('_', ' ')
+        if base.authors:
+            base.authors = [a.replace('_', ' ').strip() for a in base.authors]
     if not base.authors:
         base.authors = [_('Unknown')]
     if not base.title:
