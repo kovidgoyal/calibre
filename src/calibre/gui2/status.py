@@ -6,7 +6,7 @@ from PyQt4.QtGui import QStatusBar, QMovie, QLabel, QWidget, QHBoxLayout, QPixma
                         QVBoxLayout, QSizePolicy, QToolButton, QIcon, QScrollArea, QFrame
 from PyQt4.QtCore import Qt, QSize, SIGNAL, QCoreApplication
 from calibre import fit_image, preferred_encoding, isosx
-from calibre.gui2 import qstring_to_unicode
+from calibre.gui2 import qstring_to_unicode, config
 
 class BookInfoDisplay(QWidget):
     class BookCoverDisplay(QLabel):
@@ -197,7 +197,7 @@ class StatusBar(QStatusBar):
         
     def showMessage(self, msg, timeout=0):
         ret = QStatusBar.showMessage(self, msg, timeout)
-        if self.systray is not None:
+        if self.systray is not None and not config['disable_tray_notification']:
             if isosx and isinstance(msg, unicode):
                 try:
                     msg = msg.encode(preferred_encoding)
