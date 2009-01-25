@@ -24,6 +24,7 @@ recipe_modules = ['recipe_' + r for r in (
            'joelonsoftware', 'telepolis', 'common_dreams', 'nin', 'tomshardware_de',
            'pagina12', 'infobae', 'ambito', 'elargentino', 'sueddeutsche', 'the_age',
            'laprensa', 'amspec', 'freakonomics', 'criticadigital', 'elcronista',
+           'shacknews',
           )]
 
 import re, imp, inspect, time, os
