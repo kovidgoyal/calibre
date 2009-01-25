@@ -844,7 +844,7 @@ class Processor(Parser):
                          setting, cn in cache.items()])
         css += '\n\n'
         css += '\n'.join(['%s {%s;}'%(selector, setting) for \
-                         selector, setting in cache.items()])
+                         selector, setting in id_css.items()])
         sheet = self.css_parser.parseString(self.preprocess_css(css.replace(';;}', ';}')))
         for rule in sheet:
             self.stylesheet.add(rule)
