@@ -27,7 +27,7 @@ TABLE_TAGS = set(['table', 'tr', 'td', 'th'])
 SPECIAL_TAGS = set(['hr', 'br'])
 CONTENT_TAGS = set(['img', 'hr', 'br'])
 
-PAGE_BREAKS = set(['always', 'odd', 'even'])
+PAGE_BREAKS = set(['always', 'left', 'right'])
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
