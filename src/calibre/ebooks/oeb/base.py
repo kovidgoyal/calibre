@@ -23,7 +23,6 @@ from calibre import LoggingInterface
 from calibre.translations.dynamic import translate
 from calibre.startup import get_lang
 
-XML_PARSER = etree.XMLParser(recover=True)
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS = 'http://www.w3.org/1999/xhtml'
 OPF1_NS = 'http://openebook.org/namespaces/oeb-package/1.0/'
@@ -140,8 +139,7 @@ class Logger(LoggingInterface, object):
 class AbstractContainer(object):
     def read_xml(self, path):
         return etree.fromstring(
-            self.read(path), parser=XML_PARSER,
-            base_url=os.path.dirname(path))
+            self.read(path), base_url=os.path.dirname(path))
 
 class DirContainer(AbstractContainer):
     def __init__(self, rootdir):
@@ -334,15 +332,15 @@ class Manifest(object):
             if self.oeb.encoding is not None:
                 data = data.decode(self.oeb.encoding, 'replace')
             try:
-                data = etree.fromstring(data, parser=XML_PARSER)
+                data = etree.fromstring(data)
             except etree.XMLSyntaxError:
                 data = html.fromstring(data)
                 data = etree.tostring(data, encoding=unicode)
-                data = etree.fromstring(data, parser=XML_PARSER)
+                data = etree.fromstring(data)
             if namespace(data.tag) != XHTML_NS:
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
-                data = etree.fromstring(data, parser=XML_PARSER)
+                data = etree.fromstring(data)
             for meta in self.META_XP(data):
                 meta.getparent().remove(meta)
             return data
@@ -355,7 +353,7 @@ class Manifest(object):
                 if self.media_type in OEB_DOCS:
                     data = self._force_xhtml(data)
                 elif self.media_type[-4:] in ('+xml', '/xml'):
-                    data = etree.fromstring(data, parser=XML_PARSER)
+                    data = etree.fromstring(data)
                 self._data = data
                 return data
             def fset(self, value):
@@ -788,7 +786,7 @@ class OEBBook(object):
         for tag in ('manifest', 'spine', 'tours', 'guide'):
             for element in opf.xpath(tag):
                 nroot.append(element)
-        return etree.fromstring(etree.tostring(nroot), parser=XML_PARSER)
+        return etree.fromstring(etree.tostring(nroot))
     
     def _read_opf(self, opfpath):
         opf = self.container.read_xml(opfpath)
