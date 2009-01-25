@@ -165,8 +165,11 @@ class HTMLProcessor(Processor, Rationalizer):
                 br.tag = 'p'
                 br.text = u'\u00a0'
                 if (br.tail and br.tail.strip()) or sibling is None or \
-                    getattr(sibling, 'tag', '') != 'br':
-                    br.set('style', br.get('style', '')+'; margin: 0pt; border:0pt; height:0pt')
+                   getattr(sibling, 'tag', '') != 'br':
+                    style = br.get('style', '').split(';')
+                    style = filter(None, map(lambda x: x.strip(), style))
+                    style.append('margin: 0pt; border:0pt; height:0pt')
+                    br.set('style', '; '.join(style))
                 else:
                     sibling.getparent().remove(sibling)
                     if sibling.tail:
