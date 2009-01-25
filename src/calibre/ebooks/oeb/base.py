@@ -331,6 +331,13 @@ class Manifest(object):
         def _force_xhtml(self, data):
             if self.oeb.encoding is not None:
                 data = data.decode(self.oeb.encoding, 'replace')
+            # Handle broken XHTML w/ SVG (ugh)
+            if 'svg:' in data and SVG_NS not in data:
+                data = data.replace(
+                    '<html', '<html xmlns:svg="%s"' % SVG_NS, 1)
+            if 'xlink:' in data and XLINK_NS not in data:
+                data = data.replace(
+                    '<html', '<html xmlns:xlink="%s"' % XLINK_NS, 1)
             try:
                 data = etree.fromstring(data)
             except etree.XMLSyntaxError:
