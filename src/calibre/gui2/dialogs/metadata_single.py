@@ -11,7 +11,7 @@ from PyQt4.QtGui import QPixmap, QListWidgetItem, QErrorMessage, QDialog, QCompl
 
 
 from calibre.gui2 import qstring_to_unicode, error_dialog, file_icon_provider, \
-                           choose_files, pixmap_to_data, choose_images
+                           choose_files, pixmap_to_data, choose_images, ResizableDialog
 from calibre.gui2.dialogs.metadata_single_ui import Ui_MetadataSingleDialog
 from calibre.gui2.dialogs.fetch_metadata import FetchMetadata
 from calibre.gui2.dialogs.tag_editor import TagEditor
@@ -40,7 +40,7 @@ class AuthorCompleter(QCompleter):
         all_authors.sort(cmp=lambda x, y : cmp(x[1], y[1]))
         QCompleter.__init__(self, [x[1] for x in all_authors])
 
-class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
+class MetadataSingleDialog(ResizableDialog, Ui_MetadataSingleDialog):
     
     def do_reset_cover(self, *args):
         pix = QPixmap(':/images/book.svg')
@@ -164,9 +164,7 @@ class MetadataSingleDialog(QDialog, Ui_MetadataSingleDialog):
                 self.db.remove_format(self.row, ext, notify=False)
     
     def __init__(self, window, row, db, accepted_callback=None):
-        QDialog.__init__(self, window)
-        Ui_MetadataSingleDialog.__init__(self)        
-        self.setupUi(self)
+        ResizableDialog.__init__(self, window)
         self.bc_box.layout().setAlignment(self.cover, Qt.AlignCenter|Qt.AlignHCenter)
         self.splitter.setStretchFactor(100, 1)
         self.db = db
