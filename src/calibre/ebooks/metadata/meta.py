@@ -78,7 +78,7 @@ def get_metadata(stream, stream_type='lrf', use_libprs_metadata=False):
         # The regex is meant to match the standard format filenames are written
         # in: title_-_author_number.extension
         base.smart_update(metadata_from_filename(name, re.compile(
-                            '^(?P<title>[^\s]+?)_-_(?P<author>[^\s]+?)_+\d+')))
+                            r'^(?P<title>\S+?)_-_(?P<author>\S+?)_+\d+')))
         if base.title:
             base.title = base.title.replace('_', ' ')
         if base.authors:

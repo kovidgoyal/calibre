@@ -134,16 +134,8 @@ class Main(MainWindow, Ui_MainWindow):
         for f in self.output_formats:
             self.output_format.addItem(f)
         self.output_format.setCurrentIndex(self.output_formats.index(prefs['output_format']))
-        def change_output_format(x):
-            of = unicode(x).strip()
-            if of != prefs['output_format']:
-                if of not in ('LRF',):
-                    warning_dialog(self, 'Warning', 
-                                   '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
-                prefs.set('output_format', of)
-        
         self.connect(self.output_format, SIGNAL('currentIndexChanged(QString)'), 
-                     change_output_format)
+                     self.change_output_format, Qt.QueuedConnection)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help visit <a href="http://%s.kovidgoyal.net/user_manual">%s.kovidgoyal.net</a><br>')%(__appname__, __appname__)
@@ -376,6 +368,15 @@ class Main(MainWindow, Ui_MainWindow):
         self.action_news.setMenu(self.scheduler.news_menu)
         self.connect(self.action_news, SIGNAL('triggered(bool)'), self.scheduler.show_dialog)
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
+    
+    def change_output_format(self, x):
+        of = unicode(x).strip()
+        if of != prefs['output_format']:
+            if of not in ('LRF',):
+                warning_dialog(self, 'Warning', 
+                               '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
+            prefs.set('output_format', of)
+        
         
     def test_server(self, *args):
         if self.content_server.exception is not None:

@@ -22,7 +22,7 @@ def string_to_authors(raw):
 
 def authors_to_string(authors):
     if authors is not None:
-        return ' & '.join([a.replace('&', '&&') for a in authors])
+        return ' & '.join([a.replace('&', '&&') for a in authors if a])
     else:
         return ''
 
