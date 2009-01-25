@@ -132,7 +132,7 @@ class HTMLMetadataReader(MetadataReaderPlugin):
 class MOBIMetadataReader(MetadataReaderPlugin):
     
     name        = 'Read MOBI metadata'
-    file_types  = set(['mobi'])
+    file_types  = set(['mobi', 'prc'])
     description = _('Read metadata from %s files')%'MOBI'
     
     def get_metadata(self, stream, ftype):
@@ -204,7 +204,7 @@ class EPUBMetadataWriter(MetadataWriterPlugin):
     
     name = 'Set EPUB metadata'
     file_types = set(['epub'])
-    description = _('Set metadata in EPUB files')
+    description = _('Set metadata in %s files')%'EPUB'
     
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.epub import set_metadata
@@ -214,7 +214,7 @@ class LRFMetadataWriter(MetadataWriterPlugin):
     
     name = 'Set LRF metadata'
     file_types = set(['lrf'])
-    description = _('Set metadata in LRF files')
+    description = _('Set metadata in %s files')%'LRF'
     
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.lrf.meta import set_metadata
@@ -224,11 +224,23 @@ class RTFMetadataWriter(MetadataWriterPlugin):
     
     name = 'Set RTF metadata'
     file_types = set(['rtf'])
-    description = _('Set metadata in RTF files')
+    description = _('Set metadata in %s files')%'RTF'
     
     def set_metadata(self, stream, mi, type):
         from calibre.ebooks.metadata.rtf import set_metadata
         set_metadata(stream, mi)
+
+class MOBIMetadataWriter(MetadataWriterPlugin):
+    
+    name        = 'Set MOBI metadata'
+    file_types  = set(['mobi', 'prc'])
+    description = _('Set metadata in %s files')%'MOBI'
+    author      = 'Marshall T. Vandegrift'
+    
+    def set_metadata(self, stream, mi, type):
+        from calibre.ebooks.metadata.mobi import set_metadata
+        set_metadata(stream, mi)
+
 
 plugins = [HTML2ZIP]
 plugins += [x for x in list(locals().values()) if isinstance(x, type) and \
