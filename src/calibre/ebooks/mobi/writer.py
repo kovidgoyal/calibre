@@ -87,6 +87,49 @@ def decint(value, direction):
         bytes[-1] |= 0x80
     return ''.join(chr(b) for b in reversed(bytes))
 
+def rescale_image(data, maxsizeb, dimen=None):
+    image = Image.open(StringIO(data))
+    format = image.format
+    changed = False
+    if image.format not in ('JPEG', 'GIF'):
+        width, height = image.size
+        area = width * height
+        if area <= 40000:
+            format = 'GIF'
+        else:
+            image = image.convert('RGBA')
+            format = 'JPEG'
+        changed = True
+    if dimen is not None:
+        image.thumbnail(dimen, Image.ANTIALIAS)
+        changed = True
+    if changed:
+        data = StringIO()
+        image.save(data, format)
+        data = data.getvalue()
+    if len(data) <= maxsizeb:
+        return data
+    image = image.convert('RGBA')
+    for quality in xrange(95, -1, -1):
+        data = StringIO()
+        image.save(data, 'JPEG', quality=quality)
+        data = data.getvalue()
+        if len(data) <= maxsizeb:
+            return data
+    width, height = image.size
+    for scale in xrange(99, 0, -1):
+        scale = scale / 100.
+        data = StringIO()
+        scaled = image.copy()
+        size = (int(width * scale), (height * scale))
+        scaled.thumbnail(size, Image.ANTIALIAS)
+        scaled.save(data, 'JPEG', quality=0)
+        data = data.getvalue()
+        if len(data) <= maxsizeb:
+            return data
+    # Well, we tried?
+    return data
+
 
 class Serializer(object):
     NSRMAP = {'': None, XML_NS: 'xml', XHTML_NS: '', MBP_NS: 'mbp'}
@@ -355,50 +398,7 @@ class MobiWriter(object):
             offset += RECORD_SIZE
             data, overlap = self._read_text_record(text)
         self._text_nrecords = nrecords
-
-    def _rescale_image(self, data, maxsizeb, dimen=None):
-        image = Image.open(StringIO(data))
-        format = image.format
-        changed = False
-        if image.format not in ('JPEG', 'GIF'):
-            width, height = image.size
-            area = width * height
-            if area <= 40000:
-                format = 'GIF'
-            else:
-                image = image.convert('RGBA')
-                format = 'JPEG'
-            changed = True
-        if dimen is not None:
-            image.thumbnail(dimen, Image.ANTIALIAS)
-            changed = True
-        if changed:
-            data = StringIO()
-            image.save(data, format)
-            data = data.getvalue()
-        if len(data) <= maxsizeb:
-            return data
-        image = image.convert('RGBA')
-        for quality in xrange(95, -1, -1):
-            data = StringIO()
-            image.save(data, 'JPEG', quality=quality)
-            data = data.getvalue()
-            if len(data) <= maxsizeb:
-                return data
-        width, height = image.size
-        for scale in xrange(99, 0, -1):
-            scale = scale / 100.
-            data = StringIO()
-            scaled = image.copy()
-            size = (int(width * scale), (height * scale))
-            scaled.thumbnail(size, Image.ANTIALIAS)
-            scaled.save(data, 'JPEG', quality=0)
-            data = data.getvalue()
-            if len(data) <= maxsizeb:
-                return data
-        # Well, we tried?
-        return data
-        
+    
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
         images = [(index, href) for href, index in self._images.items()]
@@ -407,7 +407,7 @@ class MobiWriter(object):
         coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
-            data = self._rescale_image(item.data, self._imagemax)
+            data = rescale_image(item.data, self._imagemax)
             self._records.append(data)
     
     def _generate_record0(self):
@@ -480,7 +480,7 @@ class MobiWriter(object):
         return ''.join(exth)
 
     def _add_thumbnail(self, item):
-        data = self._rescale_image(item.data, MAX_THUMB_SIZE, MAX_THUMB_DIMEN)
+        data = rescale_image(item.data, MAX_THUMB_SIZE, MAX_THUMB_DIMEN)
         manifest = self._oeb.manifest
         id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
         manifest.add(id, href, 'image/jpeg', data=data)
