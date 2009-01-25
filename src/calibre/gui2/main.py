@@ -912,13 +912,14 @@ class Main(MainWindow, Ui_MainWindow):
         _files   = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, paths=True)
         files = [getattr(f, 'name', None) for f in _files]
-        bad, good, gf, names = [], [], [], []
+        bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
             mi = metadata.next()
             id = ids.next()
             if f is None:
                 bad.append(mi['title'])
             else:
+                remove_ids.append(id)
                 aus = mi['authors'].split(',')
                 aus2 = []
                 for a in aus:
@@ -945,7 +946,7 @@ class Main(MainWindow, Ui_MainWindow):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
-        remove = [self.library_view.model().id(r) for r in rows] if delete_from_library else []
+        remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
