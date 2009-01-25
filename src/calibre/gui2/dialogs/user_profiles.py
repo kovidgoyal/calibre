@@ -3,21 +3,20 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 import time, os
 
 from PyQt4.QtCore import SIGNAL, QUrl
-from PyQt4.QtGui import QDialog, QMessageBox, QDesktopServices
+from PyQt4.QtGui import QMessageBox, QDesktopServices
 
 from calibre.web.feeds.recipes import compile_recipe
 from calibre.web.feeds.news import AutomaticNewsRecipe
 from calibre.gui2.dialogs.user_profiles_ui import Ui_Dialog
-from calibre.gui2 import qstring_to_unicode, error_dialog, question_dialog, choose_files
+from calibre.gui2 import qstring_to_unicode, error_dialog, question_dialog, \
+                         choose_files, ResizableDialog
 from calibre.gui2.widgets import PythonHighlighter
 from calibre.ptempfile import PersistentTemporaryFile
 
-class UserProfiles(QDialog, Ui_Dialog):
+class UserProfiles(ResizableDialog, Ui_Dialog):
     
     def __init__(self, parent, feeds):
-        QDialog.__init__(self, parent)
-        Ui_Dialog.__init__(self)
-        self.setupUi(self)
+        ResizableDialog.__init__(self, parent)
         
         self.connect(self.remove_feed_button, SIGNAL('clicked(bool)'), 
                      self.added_feeds.remove_selected_items)
