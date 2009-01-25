@@ -277,7 +277,10 @@ class Style(object):
     def _apply_style_attr(self):
         attrib = self._element.attrib
         if 'style' in attrib:
-            style = CSSStyleDeclaration(attrib['style'])
+            css = attrib['style'].strip()
+            if css.startswith(';'):
+                css = css[1:]
+            style = CSSStyleDeclaration(css)
             self._style.update(self._stylizer.flatten_style(style))
 
     def _has_parent(self):
