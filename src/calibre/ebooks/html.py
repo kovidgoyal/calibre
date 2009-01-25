@@ -836,7 +836,7 @@ class Processor(Parser):
                     classname = 'calibre_class_%d'%class_counter
                     class_counter += 1
                     cache[setting] = classname
-                cn = elem.get('class', '')
+                cn = elem.get('class', classname)
                 elem.set('class', cn)
             elem.attrib.pop('style')
         
