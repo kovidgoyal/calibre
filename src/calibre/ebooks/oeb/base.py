@@ -350,6 +350,24 @@ class Manifest(object):
                 data = etree.fromstring(data)
             for meta in self.META_XP(data):
                 meta.getparent().remove(meta)
+            head = xpath(data, '/h:html/h:head')
+            head = head[0] if head else None
+            if head is None:
+                self.oeb.logger.warn(
+                    'File %r missing <head/> element' % self.href)
+                head = etree.Element(XHTML('head'))
+                data.insert(0, head)
+                title = etree.SubElement(head, XHTML('title'))
+                title.text = self.oeb.translate(__('Unknown'))
+            elif not xpath(data, '/h:html/h:head/h:title'):
+                self.oeb.logger.warn(
+                    'File %r missing <title/> element' % self.href)
+                title = etree.SubElement(head, XHTML('title'))
+                title.text = self.oeb.translate(__('Unknown'))
+            if not xpath(data, '/h:html/h:body'):
+                self.oeb.logger.warn(
+                    'File %r missing <body/> element' % self.href)
+                etree.SubElement(data, XHTML('body'))
             return data
         
         def data():
