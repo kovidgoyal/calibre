@@ -21,6 +21,7 @@ Run an embedded python interpreter.
     'Module specifications are of the form full.name.of.module,path_to_module.py', default=None
     )
     parser.add_option('-c', '--command', help='Run python code.', default=None)
+    parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
                       help='Run the GUI',)
     parser.add_option('--migrate', action='store_true', default=False, 
@@ -87,6 +88,9 @@ def main(args=sys.argv):
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command
+    elif opts.exec_file:
+        sys.argv = args[:1]
+        execfile(opts.exec_file)
     elif opts.migrate:
         if len(args) < 3:
             print 'You must specify the path to library1.db and the path to the new library folder'

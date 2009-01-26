@@ -3,7 +3,7 @@ __license__   = 'GPL v3'
 __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 ''' Create an OSX installer '''
 
-import sys, re, os, shutil, subprocess, stat, glob, zipfile
+import sys, re, os, shutil, subprocess, stat, glob, zipfile, plistlib
 l = {}
 exec open('setup.py').read() in l
 VERSION = l['VERSION']
@@ -36,7 +36,7 @@ loader = open(loader_path, 'w')
 site_packages = glob.glob(resources_dir+'/lib/python*/site-packages.zip')[0]
 print >>loader, '#!'+python
 print >>loader, 'import sys'
-print >>loader, 'sys.path.remove('+repr(dirpath)+')'
+print >>loader, 'if', repr(dirpath), 'in sys.path: sys.path.remove(', repr(dirpath), ')'
 print >>loader, 'sys.path.append(', repr(site_packages), ')'
 print >>loader, 'sys.frozen = "macosx_app"'
 print >>loader, 'sys.frameworks_dir =', repr(frameworks_dir)
@@ -294,10 +294,25 @@ sys.frameworks_dir = os.path.join(os.path.dirname(os.environ['RESOURCEPATH']), '
         f.close()
         print 
         print 'Adding main scripts to site-packages'
-        f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python2.6', 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
+        f = zipfile.ZipFile(os.path.join(self.dist_dir, APPNAME+'.app', 'Contents', 'Resources', 'lib', 'python'+sys.version[:3], 'site-packages.zip'), 'a', zipfile.ZIP_DEFLATED)
         for script in scripts['gui']+scripts['console']:
             f.write(script, script.partition('/')[-1])
         f.close()
+        print 
+        print 'Creating console.app'
+        contents_dir = os.path.dirname(resource_dir)
+        cc_dir = os.path.join(contents_dir, 'console.app', 'Contents')
+        os.makedirs(cc_dir)
+        for x in os.listdir(contents_dir):
+            if x == 'console.app':
+                continue
+            if x == 'Info.plist':
+                plist = plistlib.readPlist(os.path.join(contents_dir, x))
+                plist['LSUIElement'] = '1'
+                plistlib.writePlist(plist, os.path.join(cc_dir, x))
+            else:
+                os.symlink(os.path.join('../..', x), 
+                           os.path.join(cc_dir, x))
         print
         print 'Building disk image'
         BuildAPP.makedmg(os.path.join(self.dist_dir, APPNAME+'.app'), APPNAME+'-'+VERSION)
