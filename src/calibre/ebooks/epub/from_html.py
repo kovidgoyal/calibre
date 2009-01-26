@@ -193,6 +193,8 @@ class HTMLProcessor(Processor, Rationalizer):
         for tag in self.root.xpath('//script'):
             if not tag.text and not tag.get('src', False):
                 tag.getparent().remove(tag)
+                
+        
     
     def save(self):
         for meta in list(self.root.xpath('//meta')):

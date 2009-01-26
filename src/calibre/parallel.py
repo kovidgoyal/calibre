@@ -158,21 +158,27 @@ class WorkerMother(object):
             self.executable = os.path.join(os.path.dirname(sys.executable),
                    'calibre-parallel.exe' if isfrozen else 'Scripts\\calibre-parallel.exe')
         elif isosx:
-            self.executable = sys.executable
+            self.executable = self.gui_executable = sys.executable
             self.prefix = ''
             if isfrozen:
                 fd = getattr(sys, 'frameworks_dir')
                 contents = os.path.dirname(fd)
+                self.gui_executable = os.path.join(contents, 'MacOS',
+                                               os.path.basename(sys.executable))
+                contents = os.path.join(contents, 'console.app', 'Contents')
+                self.executable = os.path.join(contents, 'MacOS',
+                                               os.path.basename(sys.executable))
+                
                 resources = os.path.join(contents, 'Resources')
+                fd = os.path.join(contents, 'Frameworks')
                 sp = os.path.join(resources, 'lib', 'python'+sys.version[:3], 'site-packages.zip')
-
                 self.prefix += 'import sys; sys.frameworks_dir = "%s"; sys.frozen = "macosx_app"; '%fd
                 self.prefix += 'sys.path.insert(0, %s); '%repr(sp)
                 if fd not in os.environ['PATH']:
                     self.env['PATH']    = os.environ['PATH']+':'+fd
                 self.env['PYTHONHOME']  = resources
-                self.env['MAGICK_HOME'] = os.path.join(getattr(sys, 'frameworks_dir'), 'ImageMagick')
-                self.env['DYLD_LIBRARY_PATH'] = os.path.join(getattr(sys, 'frameworks_dir'), 'ImageMagick', 'lib')
+                self.env['MAGICK_HOME'] = os.path.join(fd, 'ImageMagick')
+                self.env['DYLD_LIBRARY_PATH'] = os.path.join(fd, 'ImageMagick', 'lib')
         else:
             self.executable = os.path.join(getattr(sys, 'frozen_path'), 'calibre-parallel') \
                                 if isfrozen else 'calibre-parallel'
@@ -186,7 +192,7 @@ class WorkerMother(object):
         for func in ('spawn_free_spirit', 'spawn_worker'):
             setattr(self, func, getattr(self, func+'_'+ext))
 
-
+    
     def cleanup_child_windows(self, child, name=None, fd=None):
         try:
             child.kill()
@@ -219,7 +225,8 @@ class WorkerMother(object):
 
     def spawn_free_spirit_osx(self, arg, type='free_spirit'):
         script = 'from calibre.parallel import main; main(args=["calibre-parallel", %s]);'%repr(arg)
-        cmdline = [self.executable, '-c', self.prefix+script]
+        exe = self.gui_executable if type == 'free_spirit' else self.executable
+        cmdline = [exe, '-c', self.prefix+script]
         child = WorkerStatus(subprocess.Popen(cmdline, env=self.get_env()))
         atexit.register(self.cleanup_child_linux, child)
         return child

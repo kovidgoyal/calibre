@@ -46,9 +46,10 @@ class SVGRasterizer(object):
         data = QByteArray(xml2str(elem))
         svg = QSvgRenderer(data)
         size = svg.defaultSize()
+        view_box = elem.get('viewBox', elem.get('viewbox', None))
         if size.width() == 100 and size.height() == 100 \
-           and 'viewBox' in elem.attrib:
-            box = [float(x) for x in elem.attrib['viewBox'].split()]
+           and view_box is not None:
+            box = [float(x) for x in view_box.split()]
             size.setWidth(box[2] - box[0])
             size.setHeight(box[3] - box[1])
         if width or height:

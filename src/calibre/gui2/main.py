@@ -63,7 +63,8 @@ class Main(MainWindow, Ui_MainWindow):
         p.end()
         self.default_thumbnail = (pixmap.width(), pixmap.height(), pixmap_to_data(pixmap))
 
-    def __init__(self, single_instance, opts, parent=None):
+    def __init__(self, single_instance, opts, actions, parent=None):
+        self.preferences_action, self.quit_action = actions
         MainWindow.__init__(self, opts, parent)
         # Initialize fontconfig in a separate thread as this can be a lengthy
         # process if run for the first time on this machine
@@ -100,7 +101,6 @@ class Main(MainWindow, Ui_MainWindow):
         self.system_tray_menu = QMenu()
         self.restore_action = self.system_tray_menu.addAction(QIcon(':/images/page.svg'), _('&Restore'))
         self.donate_action  = self.system_tray_menu.addAction(QIcon(':/images/donate.svg'), _('&Donate'))
-        self.quit_action    = QAction(QIcon(':/images/window-close.svg'), _('&Quit'), self)
         self.addAction(self.quit_action)
         self.action_restart = QAction(_('&Restart'), self)
         self.addAction(self.action_restart)
@@ -242,6 +242,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.tool_bar.setContextMenuPolicy(Qt.PreventContextMenu)
 
         QObject.connect(self.config_button, SIGNAL('clicked(bool)'), self.do_config)
+        self.connect(self.preferences_action, SIGNAL('triggered(bool)'), self.do_config)
         QObject.connect(self.advanced_search_button, SIGNAL('clicked(bool)'), self.do_advanced_search)
         
         ####################### Library view ########################
@@ -1547,6 +1548,7 @@ def main(args=sys.argv):
             prefs.set('library_path', opts.with_library)
             print 'Using library at', prefs['library_path']
         app = Application(args)
+        actions = tuple(Main.create_application_menubar())
         app.setWindowIcon(QIcon(':/library'))
         QCoreApplication.setOrganizationName(ORG_NAME)
         QCoreApplication.setApplicationName(APP_UID)
@@ -1561,7 +1563,7 @@ def main(args=sys.argv):
                                  '<p>%s is already running. %s</p>'%(__appname__, extra))
             return 1
         initialize_file_icon_provider()
-        main = Main(single_instance, opts)
+        main = Main(single_instance, opts, actions)
         sys.excepthook = main.unhandled_exception
         if len(args) > 1:
             main.add_filesystem_book(args[1])
