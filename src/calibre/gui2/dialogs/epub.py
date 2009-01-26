@@ -14,19 +14,21 @@ from lxml.etree import XPath
 
 from calibre.gui2.dialogs.choose_format import ChooseFormatDialog
 from calibre.gui2.dialogs.epub_ui import Ui_Dialog 
-from calibre.gui2 import error_dialog, choose_images, pixmap_to_data
-from calibre.ebooks.epub.from_any import SOURCE_FORMATS, config
+from calibre.gui2 import error_dialog, choose_images, pixmap_to_data, ResizableDialog
+from calibre.ebooks.epub.from_any import SOURCE_FORMATS, config as epubconfig
 from calibre.ebooks.metadata import MetaInformation
 from calibre.ptempfile import PersistentTemporaryFile
 from calibre.ebooks.metadata.opf import OPFCreator
 from calibre.ebooks.metadata import authors_to_string, string_to_authors
 
 
-class Config(QDialog, Ui_Dialog):
+class Config(ResizableDialog, Ui_Dialog):
     
-    def __init__(self, parent, db, row=None):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
+    OUTPUT = 'EPUB'
+        
+    def __init__(self, parent, db, row=None, config=epubconfig):
+        ResizableDialog.__init__(self, parent)
+        self.hide_controls()
         self.connect(self.category_list, SIGNAL('itemEntered(QListWidgetItem *)'),
                         self.show_category_help)
         self.connect(self.cover_button, SIGNAL("clicked()"), self.select_cover)
@@ -38,7 +40,7 @@ class Config(QDialog, Ui_Dialog):
         if row is not None:
             self.id = db.id(row)
             base = config().as_string() + '\n\n'
-            defaults = self.db.conversion_options(self.id, 'epub')
+            defaults = self.db.conversion_options(self.id, self.OUTPUT.lower())
             defaults = base + (defaults if defaults else '')
             self.config = config(defaults=defaults)
         else:
@@ -47,20 +49,29 @@ class Config(QDialog, Ui_Dialog):
         self.get_source_format()
         self.category_list.setCurrentRow(0)
         if self.row is None:
-            self.setWindowTitle(_('Bulk convert to EPUB'))
+            self.setWindowTitle(_('Bulk convert to ')+self.OUTPUT)
         else:
-            self.setWindowTitle(_(u'Convert %s to EPUB')%unicode(self.title.text()))
+            self.setWindowTitle((_(u'Convert %s to ')%unicode(self.title.text()))+self.OUTPUT)
+    
+    def hide_controls(self):
+        self.source_profile_label.setVisible(False)
+        self.opt_source_profile.setVisible(False)
+        self.dest_profile_label.setVisible(False)
+        self.opt_dest_profile.setVisible(False)
+        self.opt_toc_title.setVisible(False)
+        self.toc_title_label.setVisible(False)
+        self.opt_rescale_images.setVisible(False)
         
     def initialize(self):
         self.__w = []
         self.__w.append(QIcon(':/images/dialog_information.svg'))
         self.item1 = QListWidgetItem(self.__w[-1], _('Metadata'), self.category_list)
         self.__w.append(QIcon(':/images/lookfeel.svg'))
-        self.item2 = QListWidgetItem(self.__w[-1], _('Look & Feel'), self.category_list)
+        self.item2 = QListWidgetItem(self.__w[-1], _('Look & Feel').replace(' ','\n'), self.category_list)
         self.__w.append(QIcon(':/images/page.svg'))
-        self.item3 = QListWidgetItem(self.__w[-1], _('Page Setup'), self.category_list)
+        self.item3 = QListWidgetItem(self.__w[-1], _('Page Setup').replace(' ','\n'), self.category_list)
         self.__w.append(QIcon(':/images/chapters.svg'))
-        self.item4 = QListWidgetItem(self.__w[-1], _('Chapter Detection'), self.category_list)
+        self.item4 = QListWidgetItem(self.__w[-1], _('Chapter Detection').replace(' ','\n'), self.category_list)
         self.setup_tooltips()
         self.initialize_options()
     
@@ -81,12 +92,12 @@ class Config(QDialog, Ui_Dialog):
     def show_category_help(self, item):
         text = unicode(item.text())
         help = {
-                _('Metadata')          : _('Specify metadata such as title and author for the book.\n\nMetadata will be updated in the database as well as the generated EPUB file.'),
-                _('Look & Feel')       : _('Adjust the look of the generated EPUB file by specifying things like font sizes.'),
+                _('Metadata')          : _('Specify metadata such as title and author for the book.\n\nMetadata will be updated in the database as well as the generated %s file.')%self.OUTPUT,
+                _('Look & Feel')       : _('Adjust the look of the generated ebook by specifying things like font sizes.'),
                 _('Page Setup')        : _('Specify the page layout settings like margins.'),
                 _('Chapter Detection') : _('Fine tune the detection of chapter and section headings.'),                  
                 }
-        self.set_help(help[text])
+        self.set_help(help[text.replace('\n', ' ')])
     
     def select_cover(self):
         files = choose_images(self, 'change cover dialog', 
@@ -195,7 +206,7 @@ class Config(QDialog, Ui_Dialog):
                 elif isinstance(g, QCheckBox):
                     self.config.set(pref.name, bool(g.isChecked()))
         if self.row is not None:
-            self.db.set_conversion_options(self.id, 'epub', self.config.src)        
+            self.db.set_conversion_options(self.id, self.OUTPUT.lower(), self.config.src)        
         
     
     def initialize_options(self):
@@ -235,7 +246,7 @@ class Config(QDialog, Ui_Dialog):
             elif len(choices) == 1:
                 self.source_format = choices[0]
             else:
-                d = ChooseFormatDialog(self.parent(), _('Choose the format to convert to EPUB'), choices)
+                d = ChooseFormatDialog(self.parent(), _('Choose the format to convert to ')+self.OUTPUT, choices)
                 if d.exec_() == QDialog.Accepted:
                     self.source_format = d.format()
                 

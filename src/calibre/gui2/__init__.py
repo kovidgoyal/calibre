@@ -6,7 +6,7 @@ from PyQt4.QtCore import QVariant, QFileInfo, QObject, SIGNAL, QBuffer, Qt, QSiz
                          QByteArray, QLocale, QUrl, QTranslator, QCoreApplication, \
                          QModelIndex
 from PyQt4.QtGui import QFileDialog, QMessageBox, QPixmap, QFileIconProvider, \
-                        QIcon, QTableView, QDialogButtonBox, QApplication
+                        QIcon, QTableView, QDialogButtonBox, QApplication, QDialog
 
 ORG_NAME = 'KovidsBrain'
 APP_UID  = 'libprs500'
@@ -60,6 +60,8 @@ def _config():
               help=_('Delete books from library after uploading to device'))
     c.add_opt('separate_cover_flow', default=False, 
               help=_('Show the cover flow in a separate window instead of in the main calibre window'))
+    c.add_opt('disable_tray_notification', default=False, 
+              help=_('Disable notifications from the system tray icon'))
     return ConfigProxy(c)
     
 config = _config()
@@ -392,7 +394,20 @@ def pixmap_to_data(pixmap, format='JPEG'):
     pixmap.save(buf, format)
     return str(ba.data())
 
-
+class ResizableDialog(QDialog):
+    
+    def __init__(self, *args, **kwargs):
+        QDialog.__init__(self, *args)
+        self.setupUi(self)
+        nh, nw = min_available_height()-25, available_width()-10
+        if nh < 0:
+            nh = 800
+        if nw < 0:
+            nw = 600
+        nh = min(self.height(), nh)
+        nw = min(self.width(), nw)
+        self.resize(nw, nh)
+        
 try:
     from calibre.utils.single_qt_application import SingleApplication
 except:

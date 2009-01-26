@@ -122,6 +122,8 @@ LZXC_CONTROL = \
 
 COLLAPSE = re.compile(r'[ \t\r\n\v]+')
 
+PAGE_BREAKS = set(['always', 'left', 'right'])
+
 def decint(value):
     bytes = []
     while True:
@@ -202,7 +204,7 @@ class ReBinary(object):
             self.write(FLAG_CUSTOM, len(tag)+1, tag)
         last_break = self.page_breaks[-1][0] if self.page_breaks else None
         if style and last_break != tag_offset \
-           and style['page-break-before'] not in ('avoid', 'auto'):
+           and style['page-break-before'] in PAGE_BREAKS:
             self.page_breaks.append((tag_offset, list(parents)))
         for attr, value in attrib.items():
             attr = prefixname(attr, nsrmap)

@@ -11,7 +11,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class ZeitDe(BasicNewsRecipe):
     
     title = 'Die Zeit Nachrichten'
-    description = 'News from Germany'
+    description = 'Die Zeit - Online Nachrichten'
     __author__ = 'Kovid Goyal'
     use_embedded_content   = False
     timefmt = ' [%d %b %Y]'

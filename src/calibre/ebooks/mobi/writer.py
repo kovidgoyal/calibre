@@ -34,8 +34,7 @@ from calibre.ebooks.mobi.palmdoc import compress_doc
 from calibre.ebooks.mobi.langcodes import iana2mobi
 from calibre.ebooks.mobi.mobiml import MBP_NS, MBP, MobiMLizer
 from calibre.customize.ui import run_plugins_on_postprocess
-from calibre.utils.config import OptionParser
-from optparse import OptionGroup
+from calibre.utils.config import Config, StringConfig
 
 # TODO:
 # - Allow override CSS (?)
@@ -87,6 +86,49 @@ def decint(value, direction):
     elif direction == DECINT_BACKWARD:
         bytes[-1] |= 0x80
     return ''.join(chr(b) for b in reversed(bytes))
+
+def rescale_image(data, maxsizeb, dimen=None):
+    image = Image.open(StringIO(data))
+    format = image.format
+    changed = False
+    if image.format not in ('JPEG', 'GIF'):
+        width, height = image.size
+        area = width * height
+        if area <= 40000:
+            format = 'GIF'
+        else:
+            image = image.convert('RGBA')
+            format = 'JPEG'
+        changed = True
+    if dimen is not None:
+        image.thumbnail(dimen, Image.ANTIALIAS)
+        changed = True
+    if changed:
+        data = StringIO()
+        image.save(data, format)
+        data = data.getvalue()
+    if len(data) <= maxsizeb:
+        return data
+    image = image.convert('RGBA')
+    for quality in xrange(95, -1, -1):
+        data = StringIO()
+        image.save(data, 'JPEG', quality=quality)
+        data = data.getvalue()
+        if len(data) <= maxsizeb:
+            return data
+    width, height = image.size
+    for scale in xrange(99, 0, -1):
+        scale = scale / 100.
+        data = StringIO()
+        scaled = image.copy()
+        size = (int(width * scale), (height * scale))
+        scaled.thumbnail(size, Image.ANTIALIAS)
+        scaled.save(data, 'JPEG', quality=0)
+        data = data.getvalue()
+        if len(data) <= maxsizeb:
+            return data
+    # Well, we tried?
+    return data
 
 
 class Serializer(object):
@@ -356,50 +398,7 @@ class MobiWriter(object):
             offset += RECORD_SIZE
             data, overlap = self._read_text_record(text)
         self._text_nrecords = nrecords
-
-    def _rescale_image(self, data, maxsizeb, dimen=None):
-        image = Image.open(StringIO(data))
-        format = image.format
-        changed = False
-        if image.format not in ('JPEG', 'GIF'):
-            width, height = image.size
-            area = width * height
-            if area <= 40000:
-                format = 'GIF'
-            else:
-                image = image.convert('RGBA')
-                format = 'JPEG'
-            changed = True
-        if dimen is not None:
-            image.thumbnail(dimen, Image.ANTIALIAS)
-            changed = True
-        if changed:
-            data = StringIO()
-            image.save(data, format)
-            data = data.getvalue()
-        if len(data) <= maxsizeb:
-            return data
-        image = image.convert('RGBA')
-        for quality in xrange(95, -1, -1):
-            data = StringIO()
-            image.save(data, 'JPEG', quality=quality)
-            data = data.getvalue()
-            if len(data) <= maxsizeb:
-                return data
-        width, height = image.size
-        for scale in xrange(99, 0, -1):
-            scale = scale / 100.
-            data = StringIO()
-            scaled = image.copy()
-            size = (int(width * scale), (height * scale))
-            scaled.thumbnail(size, Image.ANTIALIAS)
-            scaled.save(data, 'JPEG', quality=0)
-            data = data.getvalue()
-            if len(data) <= maxsizeb:
-                return data
-        # Well, we tried?
-        return data
-        
+    
     def _generate_images(self):
         self._oeb.logger.info('Serializing images...')
         images = [(index, href) for href, index in self._images.items()]
@@ -408,7 +407,7 @@ class MobiWriter(object):
         coverid = metadata.cover[0] if metadata.cover else None
         for _, href in images:
             item = self._oeb.manifest.hrefs[href]
-            data = self._rescale_image(item.data, self._imagemax)
+            data = rescale_image(item.data, self._imagemax)
             self._records.append(data)
     
     def _generate_record0(self):
@@ -453,6 +452,13 @@ class MobiWriter(object):
             code = EXTH_CODES[term]
             for item in oeb.metadata[term]:
                 data = self.COLLAPSE_RE.sub(' ', unicode(item))
+                if term == 'identifier':
+                    if data.lower().startswith('urn:isbn:'):
+                        data = data[9:]
+                    elif item.get('scheme', '').lower() == 'isbn':
+                        pass
+                    else:
+                        continue
                 data = data.encode('utf-8')
                 exth.write(pack('>II', code, len(data) + 8))
                 exth.write(data)
@@ -469,12 +475,12 @@ class MobiWriter(object):
             nrecs += 3
         exth = exth.getvalue()
         trail = len(exth) % 4
-        pad = '' if not trail else '\0' * (4 - trail)
+        pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
         exth = ['EXTH', pack('>II', len(exth) + 12, nrecs), exth, pad]
         return ''.join(exth)
 
     def _add_thumbnail(self, item):
-        data = self._rescale_image(item.data, MAX_THUMB_SIZE, MAX_THUMB_DIMEN)
+        data = rescale_image(item.data, MAX_THUMB_SIZE, MAX_THUMB_DIMEN)
         manifest = self._oeb.manifest
         id, href = manifest.generate('thumbnail', 'thumbnail.jpeg')
         manifest.add(id, href, 'image/jpeg', data=data)
@@ -502,41 +508,45 @@ class MobiWriter(object):
             self._write(record)
 
 
-def add_mobi_options(parser):
-    profiles = Context.PROFILES.keys()
-    profiles.sort()
-    profiles = ', '.join(profiles)
-    group = OptionGroup(parser, _('Mobipocket'),
-        _('Mobipocket-specific options.'))
-    group.add_option(
-        '-c', '--compress', default=False, action='store_true',
-        help=_('Compress file text using PalmDOC compression. '
+def config(defaults=None):
+    desc = _('Options to control the conversion to MOBI')
+    _profiles = list(sorted(Context.PROFILES.keys()))
+    if defaults is None:
+        c = Config('mobi', desc)
+    else:
+        c = StringConfig(defaults, desc)
+        
+    mobi = c.add_group('mobipocket', _('Mobipocket-specific options.'))
+    mobi('compress', ['--compress'], default=False,
+         help=_('Compress file text using PalmDOC compression. '
                'Results in smaller files, but takes a long time to run.'))
-    group.add_option(
-        '-r', '--rescale-images', default=False, action='store_true',
+    mobi('rescale_images', ['--rescale-images'], default=False, 
         help=_('Modify images to meet Palm device size limitations.'))
-    parser.add_option_group(group)
-    group = OptionGroup(parser, _('Profiles'), _('Device renderer profiles. '
-        'Affects conversion of default font sizes and rasterization '
-        'resolution.  Valid profiles are: %s.') % profiles)
-    group.add_option(
-        '--source-profile', default='Browser', metavar='PROFILE',
-        help=_("Source renderer profile. Default is 'Browser'."))
-    group.add_option(
-        '--dest-profile', default='CybookG3', metavar='PROFILE',
-        help=_("Destination renderer profile. Default is 'CybookG3'."))
-    parser.add_option_group(group)
-    return
-            
+    mobi('toc_title', ['--toc-title'], default=None, 
+         help=_('Title for any generated in-line table of contents.'))
+    profiles = c.add_group('profiles', _('Device renderer profiles. '
+        'Affects conversion of font sizes, image rescaling and rasterization '
+        'of tables. Valid profiles are: %s.') % ', '.join(_profiles))
+    profiles('source_profile', ['--source-profile'],
+             default='Browser', choices=_profiles,
+             help=_("Source renderer profile. Default is %default."))
+    profiles('dest_profile', ['--dest-profile'],
+             default='CybookG3', choices=_profiles,
+             help=_("Destination renderer profile. Default is %default."))
+    c.add_opt('encoding', ['--encoding'], default=None,
+              help=_('Character encoding for HTML files. Default is to auto detect.'))
+    return c
+    
+
 def option_parser():
-    parser = OptionParser(usage=_('%prog [options] OPFFILE'))
+    c = config()
+    parser = c.option_parser(usage='%prog '+_('[options]')+' file.opf')
     parser.add_option(
         '-o', '--output', default=None, 
         help=_('Output file. Default is derived from input filename.'))
     parser.add_option(
         '-v', '--verbose', default=0, action='count',
         help=_('Useful for debugging.'))
-    add_mobi_options(parser)
     return parser
 
 def oeb2mobi(opts, inpath):
@@ -557,8 +567,8 @@ def oeb2mobi(opts, inpath):
     compression = PALMDOC if opts.compress else UNCOMPRESSED
     imagemax = PALM_MAX_IMAGE_SIZE if opts.rescale_images else None
     context = Context(source, dest)
-    oeb = OEBBook(inpath, logger=logger)
-    tocadder = HTMLTOCAdder()
+    oeb = OEBBook(inpath, logger=logger, encoding=opts.encoding)
+    tocadder = HTMLTOCAdder(title=opts.toc_title)
     tocadder.transform(oeb, context)
     mangler = CaseMangler()
     mangler.transform(oeb, context)

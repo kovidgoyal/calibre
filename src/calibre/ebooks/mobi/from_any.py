@@ -14,18 +14,21 @@ import sys, os, glob, logging
 from calibre.ebooks.epub.from_any import any2epub, formats, USAGE
 from calibre.ebooks.epub import config as common_config
 from calibre.ptempfile import TemporaryDirectory
-from calibre.ebooks.mobi.writer import oeb2mobi, add_mobi_options
+from calibre.ebooks.mobi.writer import oeb2mobi, config as mobi_config
 
 def config(defaults=None):
-    return common_config(defaults=defaults, name='mobi')
+    c = common_config(defaults=defaults, name='mobi')
+    c.remove_opt('profile')
+    mobic = mobi_config(defaults=defaults)
+    c.update(mobic)
+    return c 
 
 def option_parser(usage=USAGE):
     usage = usage % ('Mobipocket', formats())
     parser = config().option_parser(usage=usage)
-    add_mobi_options(parser)
     return parser
 
-def any2mobi(opts, path):
+def any2mobi(opts, path, notification=None):
     ext = os.path.splitext(path)[1]
     if not ext:
         raise ValueError('Unknown file type: '+path)

@@ -25,7 +25,6 @@ from calibre.gui2 import APP_UID, warning_dialog, choose_files, error_dialog, \
                            max_available_height, config, info_dialog, \
                            available_width
 from calibre.gui2.cover_flow import CoverFlow, DatabaseImages, pictureflowerror
-from calibre.library.database import LibraryDatabase
 from calibre.gui2.dialogs.scheduler import Scheduler
 from calibre.gui2.update import CheckForUpdates
 from calibre.gui2.dialogs.progress import ProgressDialog
@@ -131,20 +130,12 @@ class Main(MainWindow, Ui_MainWindow):
         QObject.connect(self.stack, SIGNAL('currentChanged(int)'),
                         self.location_view.location_changed)
         
-        self.output_formats = sorted(['EPUB', 'LRF'])
+        self.output_formats = sorted(['EPUB', 'MOBI', 'LRF'])
         for f in self.output_formats:
             self.output_format.addItem(f)
         self.output_format.setCurrentIndex(self.output_formats.index(prefs['output_format']))
-        def change_output_format(x):
-            of = unicode(x).strip()
-            if of != prefs['output_format']:
-                if of in ('EPUB', 'LIT'):
-                    warning_dialog(self, 'Warning', 
-                                   '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
-                prefs.set('output_format', of)
-        
         self.connect(self.output_format, SIGNAL('currentIndexChanged(QString)'), 
-                     change_output_format)
+                     self.change_output_format, Qt.QueuedConnection)
 
         ####################### Vanity ########################
         self.vanity_template  = _('<p>For help visit <a href="http://%s.kovidgoyal.net/user_manual">%s.kovidgoyal.net</a><br>')%(__appname__, __appname__)
@@ -296,6 +287,8 @@ class Main(MainWindow, Ui_MainWindow):
         self.card_view.connect_dirtied_signal(self.upload_booklists)
 
         self.show()
+        if self.system_tray_icon.isVisible() and opts.start_in_tray:
+            self.hide()
         self.stack.setCurrentIndex(0)
         try:
             db = LibraryDatabase2(self.library_path)
@@ -375,6 +368,15 @@ class Main(MainWindow, Ui_MainWindow):
         self.action_news.setMenu(self.scheduler.news_menu)
         self.connect(self.action_news, SIGNAL('triggered(bool)'), self.scheduler.show_dialog)
         self.location_view.setCurrentIndex(self.location_view.model().index(0))
+    
+    def change_output_format(self, x):
+        of = unicode(x).strip()
+        if of != prefs['output_format']:
+            if of not in ('LRF',):
+                warning_dialog(self, 'Warning', 
+                               '<p>%s support is still in beta. If you find bugs, please report them by opening a <a href="http://calibre.kovidgoyal.net">ticket</a>.'%of).exec_()
+            prefs.set('output_format', of)
+        
         
     def test_server(self, *args):
         if self.content_server.exception is not None:
@@ -477,7 +479,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.raise_()
             self.activateWindow()
         elif msg.startswith('refreshdb:'):
-            self.library_view.model().resort()
+            self.library_view.model().refresh()
             self.library_view.model().research()
         else:
             print msg
@@ -910,13 +912,14 @@ class Main(MainWindow, Ui_MainWindow):
         _files   = self.library_view.model().get_preferred_formats(rows,
                                     self.device_manager.device_class.FORMATS, paths=True)
         files = [getattr(f, 'name', None) for f in _files]
-        bad, good, gf, names = [], [], [], []
+        bad, good, gf, names, remove_ids = [], [], [], [], []
         for f in files:
             mi = metadata.next()
             id = ids.next()
             if f is None:
                 bad.append(mi['title'])
             else:
+                remove_ids.append(id)
                 aus = mi['authors'].split(',')
                 aus2 = []
                 for a in aus:
@@ -943,7 +946,7 @@ class Main(MainWindow, Ui_MainWindow):
                     prefix = prefix.decode(preferred_encoding, 'replace')
                 prefix = ascii_filename(prefix)
                 names.append('%s_%d%s'%(prefix, id, os.path.splitext(f)[1]))
-        remove = [self.library_view.model().id(r) for r in rows] if delete_from_library else []
+        remove = remove_ids if delete_from_library else []
         self.upload_books(gf, names, good, on_card, memory=(_files, remove))
         self.status_bar.showMessage(_('Sending books to device.'), 5000)
         if bad:
@@ -1527,6 +1530,8 @@ path_to_ebook to the database.
 ''')
     parser.add_option('--with-library', default=None, action='store', 
                       help=_('Use the library located at the specified path.'))
+    parser.add_option('--start-in-tray', default=False, action='store_true',
+                      help=_('Start minimized to system tray.'))
     parser.add_option('-v', '--verbose', default=0, action='count',
                       help=_('Log debugging information to console'))
     return parser

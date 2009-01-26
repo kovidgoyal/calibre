@@ -50,6 +50,7 @@ class Splitter(LoggingInterface):
         self.split_size = 0
         
         # Split on page breaks
+        self.splitting_on_page_breaks = True
         if not opts.dont_split_on_page_breaks:
             self.log_info('\tSplitting on page breaks...')
             if self.path in stylesheet_map:
@@ -61,6 +62,7 @@ class Splitter(LoggingInterface):
             trees = list(self.trees)
         
         # Split any remaining over-sized trees
+        self.splitting_on_page_breaks = False
         if self.opts.profile.flow_size < sys.maxint:
             lt_found = False
             self.log_info('\tLooking for large trees...')
@@ -203,7 +205,8 @@ class Splitter(LoggingInterface):
                     elem.set('style', 'display:none')
         
         def fix_split_point(sp):
-            sp.set('style', sp.get('style', '')+'page-break-before:avoid;page-break-after:avoid') 
+            if not self.splitting_on_page_breaks:
+                sp.set('style', sp.get('style', '')+'page-break-before:avoid;page-break-after:avoid') 
         
         # Tree 1
         hit_split_point = False

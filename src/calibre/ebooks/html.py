@@ -823,21 +823,28 @@ class Processor(Parser):
             font.set('class', cn)
             font.tag = 'span'
             
+        id_css, id_css_counter = {}, 0
         for elem in self.root.xpath('//*[@style]'):
             setting = elem.get('style')
-            classname = cache.get(setting, None)
-            if classname is None:
-                classname = 'calibre_class_%d'%class_counter
-                class_counter += 1
-                cache[setting] = classname
-            cn = elem.get('class', '')
-            if cn: cn += ' '
-            cn += classname
-            elem.set('class', cn)
+            if elem.get('id', False) or elem.get('class', False):
+                elem.set('id', elem.get('id', 'calibre_css_id_%d'%id_css_counter))
+                id_css_counter += 1
+                id_css[elem.tag+'#'+elem.get('id')] = setting
+            else:
+                classname = cache.get(setting, None)
+                if classname is None:
+                    classname = 'calibre_class_%d'%class_counter
+                    class_counter += 1
+                    cache[setting] = classname
+                cn = elem.get('class', classname)
+                elem.set('class', cn)
             elem.attrib.pop('style')
         
         css = '\n'.join(['.%s {%s;}'%(cn, setting) for \
                          setting, cn in cache.items()])
+        css += '\n\n'
+        css += '\n'.join(['%s {%s;}'%(selector, setting) for \
+                         selector, setting in id_css.items()])
         sheet = self.css_parser.parseString(self.preprocess_css(css.replace(';;}', ';}')))
         for rule in sheet:
             self.stylesheet.add(rule)

@@ -119,7 +119,11 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="output_format" />
+           <widget class="QComboBox" name="output_format" >
+            <property name="toolTip" >
+             <string>Set the output format that is used when converting ebooks and downloading news</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>

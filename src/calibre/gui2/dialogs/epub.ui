@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>868</width>
-    <height>670</height>
+    <width>965</width>
+    <height>698</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -21,124 +21,92 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_2" >
    <item row="0" column="0" >
-    <layout class="QHBoxLayout" name="horizontalLayout" >
-     <item>
-      <widget class="QListWidget" name="category_list" >
-       <property name="maximumSize" >
-        <size>
-         <width>172</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="font" >
-        <font>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="mouseTracking" >
-        <bool>true</bool>
-       </property>
-       <property name="verticalScrollBarPolicy" >
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="horizontalScrollBarPolicy" >
-        <enum>Qt::ScrollBarAlwaysOff</enum>
-       </property>
-       <property name="tabKeyNavigation" >
-        <bool>true</bool>
-       </property>
-       <property name="iconSize" >
-        <size>
-         <width>48</width>
-         <height>48</height>
-        </size>
-       </property>
-       <property name="flow" >
-        <enum>QListView::TopToBottom</enum>
-       </property>
-       <property name="isWrapping" stdset="0" >
-        <bool>false</bool>
-       </property>
-       <property name="spacing" >
-        <number>10</number>
-       </property>
-       <property name="viewMode" >
-        <enum>QListView::IconMode</enum>
-       </property>
-       <property name="uniformItemSizes" >
-        <bool>true</bool>
-       </property>
-       <property name="currentRow" >
-        <number>-1</number>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QStackedWidget" name="stack" >
-       <property name="currentIndex" >
+    <widget class="QListWidget" name="category_list" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Expanding" hsizetype="Minimum" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="font" >
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="mouseTracking" >
+      <bool>true</bool>
+     </property>
+     <property name="verticalScrollBarPolicy" >
+      <enum>Qt::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="tabKeyNavigation" >
+      <bool>true</bool>
+     </property>
+     <property name="iconSize" >
+      <size>
+       <width>48</width>
+       <height>48</height>
+      </size>
+     </property>
+     <property name="spacing" >
+      <number>20</number>
+     </property>
+     <property name="wordWrap" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="QScrollArea" name="scrollArea" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+       <horstretch>10</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape" >
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="widgetResizable" >
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents" >
+      <property name="geometry" >
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>697</width>
+        <height>554</height>
+       </rect>
+      </property>
+      <property name="minimumSize" >
+       <size>
+        <width>680</width>
+        <height>520</height>
+       </size>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3" >
+       <property name="margin" >
         <number>0</number>
        </property>
-       <widget class="QWidget" name="metadata_page" >
-        <layout class="QGridLayout" name="gridLayout_4" >
-         <item row="0" column="0" >
-          <layout class="QHBoxLayout" name="horizontalLayout_2" >
-           <item>
-            <widget class="QGroupBox" name="groupBox_4" >
-             <property name="title" >
-              <string>Book Cover</string>
-             </property>
-             <layout class="QGridLayout" name="_2" >
-              <item row="0" column="0" >
-               <layout class="QHBoxLayout" name="_3" >
-                <item>
-                 <widget class="ImageView" name="cover" >
-                  <property name="text" >
-                   <string/>
-                  </property>
-                  <property name="pixmap" >
-                   <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
-                  </property>
-                  <property name="scaledContents" >
-                   <bool>true</bool>
-                  </property>
-                  <property name="alignment" >
-                   <set>Qt::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item row="2" column="0" >
-               <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
-                <property name="text" >
-                 <string>Use cover from &amp;source file</string>
-                </property>
-                <property name="checked" >
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" >
-               <layout class="QVBoxLayout" name="_4" >
-                <property name="spacing" >
-                 <number>6</number>
-                </property>
-                <property name="margin" >
-                 <number>0</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_5" >
-                  <property name="text" >
-                   <string>Change &amp;cover image:</string>
-                  </property>
-                  <property name="buddy" >
-                   <cstring>cover_path</cstring>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <layout class="QHBoxLayout" name="_5" >
+       <item>
+        <widget class="QStackedWidget" name="stack" >
+         <property name="currentIndex" >
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="metadata_page" >
+          <layout class="QGridLayout" name="gridLayout_4" >
+           <item row="0" column="0" >
+            <layout class="QHBoxLayout" name="horizontalLayout_2" >
+             <item>
+              <widget class="QGroupBox" name="groupBox_4" >
+               <property name="title" >
+                <string>Book Cover</string>
+               </property>
+               <layout class="QGridLayout" name="_2" >
+                <item row="1" column="0" >
+                 <layout class="QVBoxLayout" name="_4" >
                   <property name="spacing" >
                    <number>6</number>
                   </property>
@@ -146,601 +114,687 @@
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="QLineEdit" name="cover_path" >
-                    <property name="readOnly" >
-                     <bool>true</bool>
+                   <widget class="QLabel" name="label_5" >
+                    <property name="text" >
+                     <string>Change &amp;cover image:</string>
+                    </property>
+                    <property name="buddy" >
+                     <cstring>cover_path</cstring>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <widget class="QToolButton" name="cover_button" >
-                    <property name="toolTip" >
-                     <string>Browse for an image to use as the cover of this book.</string>
+                   <layout class="QHBoxLayout" name="_5" >
+                    <property name="spacing" >
+                     <number>6</number>
                     </property>
+                    <property name="margin" >
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QLineEdit" name="cover_path" >
+                      <property name="readOnly" >
+                       <bool>true</bool>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QToolButton" name="cover_button" >
+                      <property name="toolTip" >
+                       <string>Browse for an image to use as the cover of this book.</string>
+                      </property>
+                      <property name="text" >
+                       <string>...</string>
+                      </property>
+                      <property name="icon" >
+                       <iconset resource="../images.qrc" >
+                        <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </item>
+                 </layout>
+                </item>
+                <item row="2" column="0" >
+                 <widget class="QCheckBox" name="opt_prefer_metadata_cover" >
+                  <property name="text" >
+                   <string>Use cover from &amp;source file</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" >
+                 <layout class="QHBoxLayout" name="_3" >
+                  <item>
+                   <widget class="ImageView" name="cover" >
                     <property name="text" >
-                     <string>...</string>
+                     <string/>
                     </property>
-                    <property name="icon" >
-                     <iconset resource="../images.qrc" >
-                      <normaloff>:/images/document_open.svg</normaloff>:/images/document_open.svg</iconset>
+                    <property name="pixmap" >
+                     <pixmap resource="../images.qrc" >:/images/book.svg</pixmap>
+                    </property>
+                    <property name="scaledContents" >
+                     <bool>true</bool>
+                    </property>
+                    <property name="alignment" >
+                     <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
                  </layout>
                 </item>
                </layout>
-              </item>
-             </layout>
-             <zorder>opt_prefer_metadata_cover</zorder>
-             <zorder></zorder>
-            </widget>
-           </item>
-           <item>
-            <layout class="QVBoxLayout" name="verticalLayout_2" >
+               <zorder>opt_prefer_metadata_cover</zorder>
+               <zorder></zorder>
+              </widget>
+             </item>
              <item>
-              <layout class="QGridLayout" name="_7" >
-               <item row="0" column="0" >
-                <widget class="QLabel" name="label" >
-                 <property name="text" >
-                  <string>&amp;Title: </string>
-                 </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="buddy" >
-                  <cstring>title</cstring>
-                 </property>
-                </widget>
+              <layout class="QVBoxLayout" name="verticalLayout_2" >
+               <item>
+                <layout class="QGridLayout" name="_7" >
+                 <item row="0" column="0" >
+                  <widget class="QLabel" name="label" >
+                   <property name="text" >
+                    <string>&amp;Title: </string>
+                   </property>
+                   <property name="alignment" >
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>title</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1" >
+                  <widget class="QLineEdit" name="title" >
+                   <property name="toolTip" >
+                    <string>Change the title of this book</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" >
+                  <widget class="QLabel" name="label_2" >
+                   <property name="text" >
+                    <string>&amp;Author(s): </string>
+                   </property>
+                   <property name="alignment" >
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>author</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1" >
+                  <widget class="QLineEdit" name="author" >
+                   <property name="sizePolicy" >
+                    <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                     <horstretch>1</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="toolTip" >
+                    <string>Change the author(s) of this book. Multiple authors should be separated by an &amp;. If the author name contains an &amp;, use &amp;&amp; to represent it.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="0" >
+                  <widget class="QLabel" name="label_6" >
+                   <property name="text" >
+                    <string>Author So&amp;rt:</string>
+                   </property>
+                   <property name="alignment" >
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>author_sort</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1" >
+                  <widget class="QLineEdit" name="author_sort" >
+                   <property name="sizePolicy" >
+                    <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="toolTip" >
+                    <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0" >
+                  <widget class="QLabel" name="label_3" >
+                   <property name="text" >
+                    <string>&amp;Publisher: </string>
+                   </property>
+                   <property name="alignment" >
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>publisher</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="1" >
+                  <widget class="QLineEdit" name="publisher" >
+                   <property name="toolTip" >
+                    <string>Change the publisher of this book</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="0" >
+                  <widget class="QLabel" name="label_4" >
+                   <property name="text" >
+                    <string>Ta&amp;gs: </string>
+                   </property>
+                   <property name="alignment" >
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>tags</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="4" column="1" >
+                  <widget class="QLineEdit" name="tags" >
+                   <property name="toolTip" >
+                    <string>Tags categorize the book. This is particularly useful while searching. &lt;br>&lt;br>They can be any words or phrases, separated by commas.</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="0" >
+                  <widget class="QLabel" name="label_7" >
+                   <property name="text" >
+                    <string>&amp;Series:</string>
+                   </property>
+                   <property name="textFormat" >
+                    <enum>Qt::PlainText</enum>
+                   </property>
+                   <property name="alignment" >
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buddy" >
+                    <cstring>series</cstring>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="5" column="1" >
+                  <widget class="QComboBox" name="series" >
+                   <property name="sizePolicy" >
+                    <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
+                     <horstretch>10</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="toolTip" >
+                    <string>List of known series. You can add new series.</string>
+                   </property>
+                   <property name="whatsThis" >
+                    <string>List of known series. You can add new series.</string>
+                   </property>
+                   <property name="editable" >
+                    <bool>true</bool>
+                   </property>
+                   <property name="insertPolicy" >
+                    <enum>QComboBox::InsertAlphabetically</enum>
+                   </property>
+                   <property name="sizeAdjustPolicy" >
+                    <enum>QComboBox::AdjustToContents</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="6" column="1" >
+                  <widget class="QSpinBox" name="series_index" >
+                   <property name="enabled" >
+                    <bool>true</bool>
+                   </property>
+                   <property name="toolTip" >
+                    <string>Series index.</string>
+                   </property>
+                   <property name="whatsThis" >
+                    <string>Series index.</string>
+                   </property>
+                   <property name="prefix" >
+                    <string>Book </string>
+                   </property>
+                   <property name="minimum" >
+                    <number>1</number>
+                   </property>
+                   <property name="maximum" >
+                    <number>10000</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
                </item>
-               <item row="0" column="1" >
-                <widget class="QLineEdit" name="title" >
-                 <property name="toolTip" >
-                  <string>Change the title of this book</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="0" >
-                <widget class="QLabel" name="label_2" >
-                 <property name="text" >
-                  <string>&amp;Author(s): </string>
-                 </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="buddy" >
-                  <cstring>author</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="1" column="1" >
-                <widget class="QLineEdit" name="author" >
+               <item>
+                <widget class="QGroupBox" name="groupBox_2" >
                  <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-                   <horstretch>1</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip" >
-                  <string>Change the author(s) of this book. Multiple authors should be separated by an &amp;. If the author name contains an &amp;, use &amp;&amp; to represent it.</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="0" >
-                <widget class="QLabel" name="label_6" >
-                 <property name="text" >
-                  <string>Author So&amp;rt:</string>
-                 </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="buddy" >
-                  <cstring>author_sort</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="2" column="1" >
-                <widget class="QLineEdit" name="author_sort" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                  <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
-                 <property name="toolTip" >
-                  <string>Change the author(s) of this book. Multiple authors should be separated by a comma</string>
+                 <property name="maximumSize" >
+                  <size>
+                   <width>16777215</width>
+                   <height>200</height>
+                  </size>
                  </property>
-                </widget>
-               </item>
-               <item row="3" column="0" >
-                <widget class="QLabel" name="label_3" >
-                 <property name="text" >
-                  <string>&amp;Publisher: </string>
+                 <property name="title" >
+                  <string>Comments</string>
                  </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="buddy" >
-                  <cstring>publisher</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="3" column="1" >
-                <widget class="QLineEdit" name="publisher" >
-                 <property name="toolTip" >
-                  <string>Change the publisher of this book</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="0" >
-                <widget class="QLabel" name="label_4" >
-                 <property name="text" >
-                  <string>Ta&amp;gs: </string>
-                 </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="buddy" >
-                  <cstring>tags</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="4" column="1" >
-                <widget class="QLineEdit" name="tags" >
-                 <property name="toolTip" >
-                  <string>Tags categorize the book. This is particularly useful while searching. &lt;br>&lt;br>They can be any words or phrases, separated by commas.</string>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="0" >
-                <widget class="QLabel" name="label_7" >
-                 <property name="text" >
-                  <string>&amp;Series:</string>
-                 </property>
-                 <property name="textFormat" >
-                  <enum>Qt::PlainText</enum>
-                 </property>
-                 <property name="alignment" >
-                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                 </property>
-                 <property name="buddy" >
-                  <cstring>series</cstring>
-                 </property>
-                </widget>
-               </item>
-               <item row="5" column="1" >
-                <widget class="QComboBox" name="series" >
-                 <property name="sizePolicy" >
-                  <sizepolicy vsizetype="Fixed" hsizetype="Preferred" >
-                   <horstretch>10</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="toolTip" >
-                  <string>List of known series. You can add new series.</string>
-                 </property>
-                 <property name="whatsThis" >
-                  <string>List of known series. You can add new series.</string>
-                 </property>
-                 <property name="editable" >
-                  <bool>true</bool>
-                 </property>
-                 <property name="insertPolicy" >
-                  <enum>QComboBox::InsertAlphabetically</enum>
-                 </property>
-                 <property name="sizeAdjustPolicy" >
-                  <enum>QComboBox::AdjustToContents</enum>
-                 </property>
-                </widget>
-               </item>
-               <item row="6" column="1" >
-                <widget class="QSpinBox" name="series_index" >
-                 <property name="enabled" >
-                  <bool>true</bool>
-                 </property>
-                 <property name="toolTip" >
-                  <string>Series index.</string>
-                 </property>
-                 <property name="whatsThis" >
-                  <string>Series index.</string>
-                 </property>
-                 <property name="prefix" >
-                  <string>Book </string>
-                 </property>
-                 <property name="minimum" >
-                  <number>1</number>
-                 </property>
-                 <property name="maximum" >
-                  <number>10000</number>
-                 </property>
+                 <layout class="QGridLayout" name="_8" >
+                  <item row="0" column="0" >
+                   <widget class="QTextEdit" name="comment" >
+                    <property name="maximumSize" >
+                     <size>
+                      <width>16777215</width>
+                      <height>180</height>
+                     </size>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </widget>
                </item>
               </layout>
              </item>
-             <item>
-              <widget class="QGroupBox" name="groupBox_2" >
-               <property name="sizePolicy" >
-                <sizepolicy vsizetype="Minimum" hsizetype="Minimum" >
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="lookandfeel_page" >
+          <layout class="QVBoxLayout" name="verticalLayout" >
+           <item>
+            <layout class="QGridLayout" name="gridLayout_6" >
+             <item row="0" column="0" >
+              <widget class="QLabel" name="label_26" >
+               <property name="text" >
+                <string>Source en&amp;coding:</string>
                </property>
-               <property name="maximumSize" >
-                <size>
-                 <width>16777215</width>
-                 <height>200</height>
-                </size>
+               <property name="buddy" >
+                <cstring>opt_encoding</cstring>
                </property>
-               <property name="title" >
-                <string>Comments</string>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="2" >
+              <widget class="QLineEdit" name="opt_encoding" />
+             </item>
+             <item row="1" column="0" colspan="2" >
+              <widget class="QLabel" name="label_18" >
+               <property name="text" >
+                <string>Base &amp;font size:</string>
                </property>
-               <layout class="QGridLayout" name="_8" >
-                <item row="0" column="0" >
-                 <widget class="QTextEdit" name="comment" >
-                  <property name="maximumSize" >
-                   <size>
-                    <width>16777215</width>
-                    <height>180</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <property name="buddy" >
+                <cstring>opt_base_font_size2</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2" >
+              <widget class="QDoubleSpinBox" name="opt_base_font_size2" >
+               <property name="suffix" >
+                <string> pt</string>
+               </property>
+               <property name="decimals" >
+                <number>0</number>
+               </property>
+               <property name="minimum" >
+                <double>0.000000000000000</double>
+               </property>
+               <property name="maximum" >
+                <double>30.000000000000000</double>
+               </property>
+               <property name="singleStep" >
+                <double>1.000000000000000</double>
+               </property>
+               <property name="value" >
+                <double>30.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" >
+              <widget class="QCheckBox" name="opt_remove_paragraph_spacing" >
+               <property name="text" >
+                <string>Remove &amp;spacing between paragraphs</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0" >
+              <widget class="QCheckBox" name="opt_preserve_tag_structure" >
+               <property name="text" >
+                <string>Preserve &amp;tag structure when splitting</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0" >
+              <widget class="QCheckBox" name="opt_rescale_images" >
+               <property name="text" >
+                <string>&amp;Rescale images</string>
+               </property>
               </widget>
              </item>
             </layout>
            </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox" >
+             <property name="title" >
+              <string>Override &amp;CSS</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_3" >
+              <item row="0" column="0" >
+               <widget class="QTextEdit" name="opt_override_css" />
+              </item>
+             </layout>
+            </widget>
+           </item>
           </layout>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="lookandfeel_page" >
-        <layout class="QVBoxLayout" name="verticalLayout" >
-         <item>
-          <layout class="QGridLayout" name="gridLayout_6" >
+         </widget>
+         <widget class="QWidget" name="pagesetup_page" >
+          <layout class="QGridLayout" name="_13" >
            <item row="0" column="0" >
-            <widget class="QLabel" name="label_26" >
+            <widget class="QLabel" name="profile_label" >
              <property name="text" >
-              <string>Source en&amp;coding:</string>
+              <string>&amp;Profile:</string>
              </property>
              <property name="buddy" >
-              <cstring>opt_encoding</cstring>
+              <cstring>opt_profile</cstring>
              </property>
             </widget>
            </item>
-           <item row="0" column="1" colspan="2" >
-            <widget class="QLineEdit" name="opt_encoding" />
-           </item>
-           <item row="1" column="0" colspan="2" >
-            <widget class="QLabel" name="label_18" >
-             <property name="text" >
-              <string>Base &amp;font size:</string>
+           <item row="0" column="1" >
+            <widget class="QComboBox" name="opt_profile" >
+             <property name="currentIndex" >
+              <number>-1</number>
              </property>
-             <property name="buddy" >
-              <cstring>opt_base_font_size2</cstring>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="2" >
-            <widget class="QDoubleSpinBox" name="opt_base_font_size2" >
-             <property name="suffix" >
-              <string> pt</string>
-             </property>
-             <property name="decimals" >
-              <number>0</number>
-             </property>
-             <property name="minimum" >
-              <double>0.000000000000000</double>
-             </property>
-             <property name="maximum" >
-              <double>30.000000000000000</double>
-             </property>
-             <property name="singleStep" >
-              <double>1.000000000000000</double>
-             </property>
-             <property name="value" >
-              <double>30.000000000000000</double>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0" >
-            <widget class="QCheckBox" name="opt_remove_paragraph_spacing" >
-             <property name="text" >
-              <string>Remove &amp;spacing between paragraphs</string>
+             <property name="minimumContentsLength" >
+              <number>1</number>
              </property>
             </widget>
            </item>
            <item row="3" column="0" >
-            <widget class="QCheckBox" name="opt_preserve_tag_structure" >
+            <widget class="QLabel" name="label_12" >
              <property name="text" >
-              <string>Preserve &amp;tag structure when splitting</string>
+              <string>&amp;Left Margin:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_margin_left</cstring>
              </property>
             </widget>
            </item>
+           <item row="3" column="1" >
+            <widget class="QSpinBox" name="opt_margin_left" >
+             <property name="suffix" >
+              <string> pt</string>
+             </property>
+             <property name="maximum" >
+              <number>200</number>
+             </property>
+             <property name="value" >
+              <number>20</number>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0" >
+            <widget class="QLabel" name="label_13" >
+             <property name="text" >
+              <string>&amp;Right Margin:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_margin_right</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1" >
+            <widget class="QSpinBox" name="opt_margin_right" >
+             <property name="suffix" >
+              <string> pt</string>
+             </property>
+             <property name="maximum" >
+              <number>200</number>
+             </property>
+             <property name="value" >
+              <number>20</number>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0" >
+            <widget class="QLabel" name="label_14" >
+             <property name="text" >
+              <string>&amp;Top Margin:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_margin_top</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1" >
+            <widget class="QSpinBox" name="opt_margin_top" >
+             <property name="suffix" >
+              <string> pt</string>
+             </property>
+             <property name="maximum" >
+              <number>200</number>
+             </property>
+             <property name="value" >
+              <number>10</number>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0" >
+            <widget class="QLabel" name="label_15" >
+             <property name="text" >
+              <string>&amp;Bottom Margin:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_margin_bottom</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1" >
+            <widget class="QSpinBox" name="opt_margin_bottom" >
+             <property name="suffix" >
+              <string> pt</string>
+             </property>
+             <property name="maximum" >
+              <number>200</number>
+             </property>
+             <property name="value" >
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" >
+            <widget class="QCheckBox" name="opt_dont_split_on_page_breaks" >
+             <property name="text" >
+              <string>Do not &amp;split on page breaks</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" >
+            <widget class="QLabel" name="source_profile_label" >
+             <property name="text" >
+              <string>&amp;Source profile:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_source_profile</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1" >
+            <widget class="QComboBox" name="opt_source_profile" />
+           </item>
+           <item row="2" column="0" >
+            <widget class="QLabel" name="dest_profile_label" >
+             <property name="text" >
+              <string>&amp;Destination profile:</string>
+             </property>
+             <property name="buddy" >
+              <cstring>opt_dest_profile</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1" >
+            <widget class="QComboBox" name="opt_dest_profile" />
+           </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox" >
-           <property name="title" >
-            <string>Override &amp;CSS</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_3" >
-            <item row="0" column="0" >
-             <widget class="QTextEdit" name="opt_override_css" />
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="pagesetup_page" >
-        <layout class="QGridLayout" name="_13" >
-         <item row="0" column="0" >
-          <widget class="QLabel" name="label_11" >
-           <property name="text" >
-            <string>&amp;Profile:</string>
-           </property>
-           <property name="buddy" >
-            <cstring>opt_profile</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" >
-          <widget class="QComboBox" name="opt_profile" >
-           <property name="currentIndex" >
-            <number>-1</number>
-           </property>
-           <property name="minimumContentsLength" >
-            <number>1</number>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" >
-          <widget class="QLabel" name="label_12" >
-           <property name="text" >
-            <string>&amp;Left Margin:</string>
-           </property>
-           <property name="buddy" >
-            <cstring>opt_margin_left</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" >
-          <widget class="QSpinBox" name="opt_margin_left" >
-           <property name="suffix" >
-            <string> pt</string>
-           </property>
-           <property name="maximum" >
-            <number>200</number>
-           </property>
-           <property name="value" >
-            <number>20</number>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0" >
-          <widget class="QLabel" name="label_13" >
-           <property name="text" >
-            <string>&amp;Right Margin:</string>
-           </property>
-           <property name="buddy" >
-            <cstring>opt_margin_right</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" >
-          <widget class="QSpinBox" name="opt_margin_right" >
-           <property name="suffix" >
-            <string> pt</string>
-           </property>
-           <property name="maximum" >
-            <number>200</number>
-           </property>
-           <property name="value" >
-            <number>20</number>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" >
-          <widget class="QLabel" name="label_14" >
-           <property name="text" >
-            <string>&amp;Top Margin:</string>
-           </property>
-           <property name="buddy" >
-            <cstring>opt_margin_top</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1" >
-          <widget class="QSpinBox" name="opt_margin_top" >
-           <property name="suffix" >
-            <string> pt</string>
-           </property>
-           <property name="maximum" >
-            <number>200</number>
-           </property>
-           <property name="value" >
-            <number>10</number>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0" >
-          <widget class="QLabel" name="label_15" >
-           <property name="text" >
-            <string>&amp;Bottom Margin:</string>
-           </property>
-           <property name="buddy" >
-            <cstring>opt_margin_bottom</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1" >
-          <widget class="QSpinBox" name="opt_margin_bottom" >
-           <property name="suffix" >
-            <string> pt</string>
-           </property>
-           <property name="maximum" >
-            <number>200</number>
-           </property>
-           <property name="value" >
-            <number>0</number>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0" >
-          <widget class="QCheckBox" name="opt_dont_split_on_page_breaks" >
-           <property name="text" >
-            <string>Do not &amp;split on page breaks</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="chapterdetection_page" >
-        <layout class="QVBoxLayout" name="_14" >
-         <item>
-          <widget class="QGroupBox" name="groupBox_6" >
-           <property name="title" >
-            <string>Automatic &amp;chapter detection</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout" >
-            <item row="1" column="0" >
-             <widget class="QLabel" name="label_17" >
-              <property name="text" >
-               <string>&amp;XPath:</string>
-              </property>
-              <property name="buddy" >
-               <cstring>opt_chapter</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" >
-             <widget class="QLineEdit" name="opt_chapter" />
-            </item>
-            <item row="0" column="0" colspan="2" >
-             <widget class="QLabel" name="label_8" >
-              <property name="text" >
-               <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
+         </widget>
+         <widget class="QWidget" name="chapterdetection_page" >
+          <layout class="QVBoxLayout" name="_14" >
+           <item>
+            <widget class="QGroupBox" name="groupBox_6" >
+             <property name="title" >
+              <string>Automatic &amp;chapter detection</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout" >
+              <item row="1" column="0" >
+               <widget class="QLabel" name="label_17" >
+                <property name="text" >
+                 <string>&amp;XPath:</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_chapter</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <widget class="QLineEdit" name="opt_chapter" />
+              </item>
+              <item row="0" column="0" colspan="2" >
+               <widget class="QLabel" name="label_8" >
+                <property name="text" >
+                 <string>&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN" "http://www.w3.org/TR/REC-html40/strict.dtd">
 &lt;html>&lt;head>&lt;meta name="qrichtext" content="1" />&lt;style type="text/css">
 p, li { white-space: pre-wrap; }
 &lt;/style>&lt;/head>&lt;body style=" font-family:'DejaVu Sans'; font-size:10pt; font-weight:400; font-style:normal;">
 &lt;p style=" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">You can control how calibre detects chapters using a XPath expression. To learn how to use XPath expressions see the &lt;a href="https://calibre.kovidgoyal.net/user_manual/xpath.html">&lt;span style=" text-decoration: underline; color:#0000ff;">XPath tutorial&lt;/span>&lt;/a>&lt;/p>&lt;/body>&lt;/html></string>
-              </property>
-              <property name="textFormat" >
-               <enum>Qt::RichText</enum>
-              </property>
-              <property name="wordWrap" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1" >
-             <widget class="QComboBox" name="opt_chapter_mark" />
-            </item>
-            <item row="2" column="0" >
-             <widget class="QLabel" name="label_9" >
-              <property name="text" >
-               <string>Chapter &amp;mark:</string>
-              </property>
-              <property name="buddy" >
-               <cstring>opt_chapter_mark</cstring>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox_7" >
-           <property name="title" >
-            <string>Automatic &amp;Table of Contents</string>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_5" >
-            <item row="2" column="1" >
-             <widget class="QSpinBox" name="opt_max_toc_links" />
-            </item>
-            <item row="2" column="0" >
-             <widget class="QLabel" name="label_10" >
-              <property name="text" >
-               <string>Number of &amp;links to add to Table of Contents</string>
-              </property>
-              <property name="buddy" >
-               <cstring>opt_max_toc_links</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="opt_no_chapters_in_toc" >
-              <property name="text" >
-               <string>Do not add &amp;detected chapters to the Table of Contents</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1" >
-             <widget class="QSpinBox" name="opt_toc_threshold" />
-            </item>
-            <item row="3" column="0" >
-             <widget class="QLabel" name="label_16" >
-              <property name="text" >
-               <string>Chapter &amp;threshold</string>
-              </property>
-              <property name="buddy" >
-               <cstring>opt_toc_threshold</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QCheckBox" name="opt_use_auto_toc" >
-              <property name="text" >
-               <string>&amp;Force use of auto-generated Table of Contents</string>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1" >
-             <widget class="QLineEdit" name="opt_level1_toc" />
-            </item>
-            <item row="4" column="0" >
-             <widget class="QLabel" name="label_19" >
-              <property name="text" >
-               <string>Level &amp;1 TOC</string>
-              </property>
-              <property name="buddy" >
-               <cstring>opt_level1_toc</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" >
-             <widget class="QLabel" name="label_20" >
-              <property name="text" >
-               <string>Level &amp;2 TOC</string>
-              </property>
-              <property name="buddy" >
-               <cstring>opt_level2_toc</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="1" >
-             <widget class="QLineEdit" name="opt_level2_toc" />
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item row="2" column="0" >
-    <widget class="QDialogButtonBox" name="buttonBox" >
-     <property name="orientation" >
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons" >
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
+                </property>
+                <property name="textFormat" >
+                 <enum>Qt::RichText</enum>
+                </property>
+                <property name="wordWrap" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1" >
+               <widget class="QComboBox" name="opt_chapter_mark" />
+              </item>
+              <item row="2" column="0" >
+               <widget class="QLabel" name="label_9" >
+                <property name="text" >
+                 <string>Chapter &amp;mark:</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_chapter_mark</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_7" >
+             <property name="title" >
+              <string>Automatic &amp;Table of Contents</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_5" >
+              <item row="2" column="1" >
+               <widget class="QSpinBox" name="opt_max_toc_links" />
+              </item>
+              <item row="2" column="0" >
+               <widget class="QLabel" name="label_10" >
+                <property name="text" >
+                 <string>Number of &amp;links to add to Table of Contents</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_max_toc_links</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QCheckBox" name="opt_no_chapters_in_toc" >
+                <property name="text" >
+                 <string>Do not add &amp;detected chapters to the Table of Contents</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1" >
+               <widget class="QSpinBox" name="opt_toc_threshold" />
+              </item>
+              <item row="3" column="0" >
+               <widget class="QLabel" name="label_16" >
+                <property name="text" >
+                 <string>Chapter &amp;threshold</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_toc_threshold</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QCheckBox" name="opt_use_auto_toc" >
+                <property name="text" >
+                 <string>&amp;Force use of auto-generated Table of Contents</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1" >
+               <widget class="QLineEdit" name="opt_level1_toc" />
+              </item>
+              <item row="4" column="0" >
+               <widget class="QLabel" name="label_19" >
+                <property name="text" >
+                 <string>Level &amp;1 TOC</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_level1_toc</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0" >
+               <widget class="QLabel" name="label_20" >
+                <property name="text" >
+                 <string>Level &amp;2 TOC</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_level2_toc</cstring>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1" >
+               <widget class="QLineEdit" name="opt_level2_toc" />
+              </item>
+              <item row="6" column="1" >
+               <widget class="QLineEdit" name="opt_toc_title" />
+              </item>
+              <item row="6" column="0" >
+               <widget class="QLabel" name="toc_title_label" >
+                <property name="text" >
+                 <string>&amp;Title for generated TOC</string>
+                </property>
+                <property name="buddy" >
+                 <cstring>opt_toc_title</cstring>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
-   <item row="1" column="0" >
+   <item row="1" column="0" colspan="2" >
     <widget class="QTextBrowser" name="help_view" >
      <property name="maximumSize" >
       <size>
@@ -750,6 +804,16 @@ p, li { white-space: pre-wrap; }
      </property>
      <property name="acceptRichText" >
       <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2" >
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -774,8 +838,8 @@ p, li { white-space: pre-wrap; }
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>222</x>
-     <y>652</y>
+     <x>226</x>
+     <y>684</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -806,12 +870,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentIndex(int)</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>88</x>
-     <y>42</y>
+     <x>81</x>
+     <y>118</y>
     </hint>
     <hint type="destinationlabel" >
-     <x>659</x>
-     <y>12</y>
+     <x>866</x>
+     <y>11</y>
     </hint>
    </hints>
   </connection>

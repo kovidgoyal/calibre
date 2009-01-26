@@ -15,15 +15,17 @@ from lxml import etree
 
 class DefaultProfile(object):
     
-    flow_size   = sys.maxint
-    screen_size = None
+    flow_size            = sys.maxint
+    screen_size          = None
     remove_special_chars = False
+    remove_object_tags   = False
     
 class PRS505(DefaultProfile):
     
-    flow_size   = 270000
-    screen_size = (590, 765)
+    flow_size            = 270000
+    screen_size          = (590, 765)
     remove_special_chars = re.compile(u'[\u200b\u00ad]')
+    remove_object_tags   = True
         
 
 PROFILES = {

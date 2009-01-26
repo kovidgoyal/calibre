@@ -21,7 +21,10 @@ def string_to_authors(raw):
     return authors
 
 def authors_to_string(authors):
-    return ' & '.join([a.replace('&', '&&') for a in authors])
+    if authors is not None:
+        return ' & '.join([a.replace('&', '&&') for a in authors if a])
+    else:
+        return ''
 
 def author_to_author_sort(author):
     tokens = author.split()

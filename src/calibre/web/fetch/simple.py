@@ -11,6 +11,8 @@ import sys, socket, os, urlparse, logging, re, time, copy, urllib2, threading, t
 from urllib import url2pathname
 from threading import RLock
 from httplib import responses
+from PIL import Image
+from cStringIO import StringIO
 
 from calibre import setup_cli_handlers, browser, sanitize_file_name, \
                     relpath, LoggingInterface
@@ -183,8 +185,9 @@ class RecursiveFetcher(object, LoggingInterface):
             except urllib2.URLError, err:
                 if hasattr(err, 'code') and responses.has_key(err.code):
                     raise FetchError, responses[err.code]
-                if getattr(err, 'reason', [0])[0] == 104: # Connection reset by peer
-                    self.log_debug('Connection reset by peer retrying in 1 second.')
+                if getattr(err, 'reason', [0])[0] == 104 or \
+                    getattr(getattr(err, 'args', [None])[0], 'errno', None) == -2: # Connection reset by peer or Name or service not know
+                    self.log_debug('Temporary error, retrying in 1 second')
                     time.sleep(1)
                     with closing(self.browser.open(url)) as f:
                         data = response(f.read()+f.read())
@@ -304,12 +307,17 @@ class RecursiveFetcher(object, LoggingInterface):
             fname = sanitize_file_name('img'+str(c)+ext)
             if isinstance(fname, unicode):
                 fname = fname.encode('ascii', 'replace')
-            imgpath = os.path.join(diskpath, fname)
-            with self.imagemap_lock:
-                self.imagemap[iurl] = imgpath
-            with open(imgpath, 'wb') as x:
-                x.write(data)                
-            tag['src'] = imgpath
+            imgpath = os.path.join(diskpath, fname+'.jpg')
+            try:
+                im = Image.open(StringIO(data)).convert('RGBA')
+                with self.imagemap_lock:
+                    self.imagemap[iurl] = imgpath
+                with open(imgpath, 'wb') as x:
+                    im.save(x, 'JPEG')
+                tag['src'] = imgpath
+            except:
+                traceback.print_exc()
+                continue
 
     def absurl(self, baseurl, tag, key, filter=True): 
         iurl = tag[key]
@@ -399,6 +407,7 @@ class RecursiveFetcher(object, LoggingInterface):
                     if not isinstance(_fname, unicode):
                         _fname.decode('latin1', 'replace')
                     _fname = _fname.encode('ascii', 'replace').replace('%', '').replace(os.sep, '')
+                    _fname = sanitize_file_name(_fname)
                     res = os.path.join(linkdiskpath, _fname)
                     self.downloaded_paths.append(res)
                     self.filemap[nurl] = res

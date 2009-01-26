@@ -13,7 +13,7 @@ from calibre.web.feeds.news import BasicNewsRecipe
 class SpeigelOnline(BasicNewsRecipe):
     
     title = 'Spiegel Online' 
-    description = 'News from Germany'
+    description = 'Nachrichten des Magazins Der Spiegel'
     __author__ = 'Kovid Goyal'
     use_embedded_content   = False
     timefmt = ' [ %Y-%m-%d %a]'
