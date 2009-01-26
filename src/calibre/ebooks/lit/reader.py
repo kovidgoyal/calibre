@@ -11,6 +11,7 @@ import sys, struct, cStringIO, os
 import functools
 import re
 from urlparse import urldefrag
+from urllib import unquote as urlunquote
 from lxml import etree
 from calibre.ebooks.lit import LitError
 from calibre.ebooks.lit.maps import OPF_MAP, HTML_MAP
@@ -611,6 +612,8 @@ class LitReader(object):
                     offset, raw = u32(raw), raw[4:]
                     internal, raw = consume_sized_utf8_string(raw)
                     original, raw = consume_sized_utf8_string(raw)
+                    # The path should be stored unquoted, but not always
+                    original = urlunquote(original)
                     # Is this last one UTF-8 or ASCIIZ?
                     mime_type, raw = consume_sized_utf8_string(raw, zpad=True)
                     self.manifest[internal] = ManifestItem(

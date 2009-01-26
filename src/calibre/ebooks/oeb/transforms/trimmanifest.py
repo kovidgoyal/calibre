@@ -13,6 +13,7 @@ from urlparse import urldefrag
 from lxml import etree
 import cssutils
 from calibre.ebooks.oeb.base import XPNSMAP, CSS_MIME, OEB_DOCS
+from calibre.ebooks.oeb.base import urlnormalize
 
 LINK_SELECTORS = []
 for expr in ('//h:link/@href', '//h:img/@src', '//h:object/@data',
@@ -46,7 +47,7 @@ class ManifestTrimmer(object):
                    item.data is not None:
                     hrefs = [sel(item.data) for sel in LINK_SELECTORS]
                     for href in chain(*hrefs):
-                        href = item.abshref(href)
+                        href = item.abshref(urlnormalize(href))
                         if href in oeb.manifest.hrefs:
                             found = oeb.manifest.hrefs[href]
                             if found not in used:
