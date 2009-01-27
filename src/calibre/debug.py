@@ -83,6 +83,23 @@ def debug_device_driver():
     s = DeviceScanner()
     s.scan()
     print 'USB devices on system:', repr(s.devices)
+    if iswindows:
+        wmi = __import__('wmi', globals(), locals(), [], -1) 
+        drives = []
+        print 'Drives detected:'
+        print '\t', '(ID, Partitions, Drive letter)' 
+        for drive in wmi.WMI().Win32_DiskDrive():
+            if drive.Partitions == 0:
+                continue
+            try:
+                partition = drive.associators("Win32_DiskDriveToDiskPartition")[0]
+                logical_disk = partition.associators('Win32_LogicalDiskToPartition')[0]
+                prefix = logical_disk.DeviceID+os.sep
+                drives.append((str(drive.PNPDeviceID), drive.Index, prefix))
+            except IndexError:
+                drives.append(str(drive.PNPDeviceID))
+        for drive in drives:
+            print '\t', drive
     from calibre.devices import devices
     for dev in devices():
         print 'Looking for', dev.__name__
