@@ -5,7 +5,7 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 Read data from .mobi files
 '''
 
-import sys, struct, os, cStringIO, re, atexit, shutil, tempfile
+import sys, struct, os, cStringIO, re
 
 try:
     from PIL import Image as PILImage
@@ -14,7 +14,7 @@ except ImportError:
 
 from lxml import html, etree
 
-from calibre import __appname__, entity_to_unicode
+from calibre import entity_to_unicode
 from calibre.ebooks import DRMError
 from calibre.ebooks.chardet import ENCODING_PATS
 from calibre.ebooks.mobi import MobiError
@@ -45,7 +45,9 @@ class EXTHHeader(object):
             elif id == 203:
                 self.has_fake_cover = bool(struct.unpack('>L', content)[0]) 
             elif id == 201:
-                self.cover_offset, = struct.unpack('>L', content)
+                co, = struct.unpack('>L', content)
+                if co < 1e7:
+                    self.cover_offset = co 
             elif id == 202:
                 self.thumbnail_offset, = struct.unpack('>L', content)
             #else:
@@ -480,7 +482,7 @@ def get_metadata(stream):
         try:
             if hasattr(mr.book_header.exth, 'cover_offset'):
                 cover_index = mr.book_header.first_image_index + mr.book_header.exth.cover_offset
-                data  = mr.sections[cover_index][0]
+                data  = mr.sections[int(cover_index)][0]
             else:
                 data  = mr.sections[mr.book_header.first_image_index][0]
             buf = cStringIO.StringIO(data)
