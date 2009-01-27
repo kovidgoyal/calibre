@@ -334,8 +334,6 @@ class Manifest(object):
             # Possibly decode in user-specified encoding
             if self.oeb.encoding is not None:
                 data = data.decode(self.oeb.encoding, 'replace')
-            # Force to UNIX line encodings
-            data = data.replace('\r\n', '\n').replace('\r', '\n')
             # Handle broken XHTML w/ SVG (ugh)
             if 'svg:' in data and SVG_NS not in data:
                 data = data.replace(
@@ -824,7 +822,6 @@ class OEBBook(object):
     
     def _read_opf(self, opfpath):
         opf = self.container.read(opfpath)
-        opf = opf.replace('\r\n', '\n').replace('\r', '\n')
         try:
             opf = etree.fromstring(opf)
         except etree.XMLSyntaxError:
