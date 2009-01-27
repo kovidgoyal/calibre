@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2009-01-24 19:54+0000\n"
-"PO-Revision-Date: 2009-01-24 13:23+0000\n"
+"PO-Revision-Date: 2009-01-25 13:15+0000\n"
 "Last-Translator: S. Dorscht <Unknown>\n"
 "Language-Team: American English <kde-i18n-doc@lists.kde.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-01-25 08:36+0000\n"
+"X-Launchpad-Export-Date: 2009-01-27 01:16+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -140,7 +140,7 @@ msgstr "Metadaten aus Büchern in ZIP Archiven lesen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:196
 msgid "Read metadata from ebooks in RAR archives"
-msgstr ""
+msgstr "Metadaten von eBooks in RAR Archiven lesen"
 
 #: /home/kovid/work/calibre/src/calibre/customize/builtins.py:207
 msgid "Set metadata in EPUB files"
@@ -2123,6 +2123,7 @@ msgstr ""
 #: /home/kovid/work/calibre/src/calibre/gui2/__init__.py:64
 msgid "Disable notifications from the system tray icon"
 msgstr ""
+"Benachrichtigungen aus dem Systembereich der Kontrollleiste deaktivieren"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/device.py:72
 msgid "Device no longer connected."
@@ -2509,7 +2510,7 @@ msgstr ""
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:440
 msgid "Show &notifications in system tray"
-msgstr ""
+msgstr "Be&nachrichtigungen im Systembereich der Kontrollleiste anzeigen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:441
 msgid "Show cover &browser in a separate window (needs restart)"
@@ -2527,6 +2528,8 @@ msgstr "Nachrichten nach dem Senden an das Gerät aus der Bibliothek &löschen"
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:444
 msgid "&Number of covers to show in browse mode (needs restart):"
 msgstr ""
+"A&nzahl der anzuzeigenden Umschlagbilder in der Cover-Ansicht (Neustart "
+"erforderlich):"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:445
 msgid "Toolbar"
@@ -2558,7 +2561,7 @@ msgstr "Si&chtbare Spalten in Bibliothek-Ansicht wählen"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:454
 msgid "Use internal &viewer for:"
-msgstr ""
+msgstr "Internen &Viewer verwenden für:"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/dialogs/config_ui.py:455
 msgid "Free unused diskspace from the database"
@@ -4270,7 +4273,7 @@ msgstr "<b>Änderungen werden erst nach einem Neustart wirksam.</b>"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:64
 msgid " - LRF Viewer"
-msgstr " - LRF Vorschau"
+msgstr " - LRF Viewer"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main.py:157
 msgid "<b>No matches</b> for the search phrase <i>%s</i> were found."
@@ -4291,7 +4294,7 @@ msgstr "Analysiere LRF Datei"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:130
 msgid "LRF Viewer toolbar"
-msgstr "LRF Betrachter Symbolleiste"
+msgstr "LRF Viewer Symbolleiste"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/lrf_renderer/main_ui.py:131
 msgid "Next Page"
@@ -4861,6 +4864,8 @@ msgid ""
 "Set the output format that is used when converting ebooks and downloading "
 "news"
 msgstr ""
+"Geben Sie das Ausgabeformat an, das zur Konvertierung von eBooks und "
+"geladener Nachrichten verwendet wird"
 
 #: /home/kovid/work/calibre/src/calibre/gui2/main_ui.py:322
 msgid "Advanced search"
