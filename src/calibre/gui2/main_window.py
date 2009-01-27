@@ -3,7 +3,8 @@ __copyright__ = '2008, Kovid Goyal <kovid at kovidgoyal.net>'
 
 import StringIO, traceback, sys
 
-from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QCoreApplication, SIGNAL
+from PyQt4.Qt import QMainWindow, QString, Qt, QFont, QCoreApplication, SIGNAL,\
+                     QAction, QMenu, QMenuBar, QIcon
 from calibre.gui2.dialogs.conversion_error import ConversionErrorDialog
 from calibre.utils.config import OptionParser
 
@@ -33,6 +34,27 @@ class DebugWindow(ConversionErrorDialog):
         pass    
 
 class MainWindow(QMainWindow):
+
+    _menu_bar = None
+    
+    @classmethod
+    def create_application_menubar(cls):
+        mb = QMenuBar(None)
+        menu = QMenu()
+        for action in cls.get_menubar_actions():
+            menu.addAction(action)
+            yield action
+        mb.addMenu(menu)
+        cls._menu_bar = mb
+        
+    
+    @classmethod
+    def get_menubar_actions(cls):
+        preferences_action = QAction(QIcon(':/images/config.svg'), _('&Preferences'), None)
+        quit_action        = QAction(QIcon(':/images/window-close.svg'), _('&Quit'), None)
+        preferences_action.setMenuRole(QAction.PreferencesRole)
+        quit_action.setMenuRole(QAction.QuitRole)
+        return preferences_action, quit_action
     
     def __init__(self, opts, parent=None):
         QMainWindow.__init__(self, parent)

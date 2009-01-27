@@ -21,6 +21,9 @@ Run an embedded python interpreter.
     'Module specifications are of the form full.name.of.module,path_to_module.py', default=None
     )
     parser.add_option('-c', '--command', help='Run python code.', default=None)
+    parser.add_option('-e', '--exec-file', default=None, help='Run the python code in file.')
+    parser.add_option('-d', '--debug-device-driver', default=False, action='store_true', 
+                      help='Debug the specified device driver.')
     parser.add_option('-g', '--gui',  default=False, action='store_true',
                       help='Run the GUI',)
     parser.add_option('--migrate', action='store_true', default=False, 
@@ -75,6 +78,23 @@ def migrate(old, new):
     prefs['library_path'] = os.path.abspath(new)
     print 'Database migrated to', os.path.abspath(new)
     
+def debug_device_driver():
+    from calibre.devices.scanner import DeviceScanner
+    s = DeviceScanner()
+    s.scan()
+    print 'USB devices on system:', repr(s.devices)
+    from calibre.devices import devices
+    for dev in devices():
+        print 'Looking for', dev.__name__
+        connected = s.is_device_connected(dev)
+        if connected:
+            print 'Device Connected:', dev
+            print 'Trying to open device...'
+            d = dev()
+            d.open()
+            print 'Total space:', d.total_space()
+            break
+        
 
 def main(args=sys.argv):
     opts, args = option_parser().parse_args(args)
@@ -87,6 +107,11 @@ def main(args=sys.argv):
     elif opts.command:
         sys.argv = args[:1]
         exec opts.command
+    elif opts.exec_file:
+        sys.argv = args[:1]
+        execfile(opts.exec_file)
+    elif opts.debug_device_driver:
+        debug_device_driver()
     elif opts.migrate:
         if len(args) < 3:
             print 'You must specify the path to library1.db and the path to the new library folder'

@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>887</width>
-    <height>740</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="sizePolicy" >
@@ -43,7 +43,7 @@
         <x>0</x>
         <y>0</y>
         <width>879</width>
-        <height>700</height>
+        <height>710</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5" >
@@ -55,7 +55,7 @@
          <property name="minimumSize" >
           <size>
            <width>800</width>
-           <height>685</height>
+           <height>665</height>
           </size>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_3" >

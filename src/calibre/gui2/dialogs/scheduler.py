@@ -7,11 +7,11 @@ __docformat__ = 'restructuredtext en'
 Scheduler for automated recipe downloads
 '''
 
-import sys, copy
+import sys, copy, time
 from datetime import datetime, timedelta
 from PyQt4.Qt import QDialog, QApplication, QLineEdit, QPalette, SIGNAL, QBrush, \
                      QColor, QAbstractListModel, Qt, QVariant, QFont, QIcon, \
-                     QFile, QObject, QTimer, QMutex, QMenu, QAction
+                     QFile, QObject, QTimer, QMutex, QMenu, QAction, QTime
 
 from calibre import english_sort
 from calibre.gui2.dialogs.scheduler_ui import Ui_Dialog
@@ -66,7 +66,10 @@ class Recipe(object):
         return self.id == getattr(other, 'id', None)
     
     def __repr__(self):
-        return u'%s|%s|%s|%s'%(self.id, self.title, self.last_downloaded.ctime(), self.schedule)
+        schedule = self.schedule
+        if schedule and schedule > 1e5:
+            schedule = decode_schedule(schedule)
+        return u'%s|%s|%s|%s'%(self.id, self.title, self.last_downloaded.ctime(), schedule)
     
 builtin_recipes = [Recipe(m, r, True) for r, m in zip(recipes, recipe_modules)]
 
@@ -169,6 +172,11 @@ class RecipeModel(QAbstractListModel, SearchQueryParser):
             return QVariant(icon)
         
         return NONE
+    
+    def update_recipe_schedule(self, recipe):
+        for srecipe in self.recipes:
+            if srecipe == recipe:
+                srecipe.schedule = recipe.schedule
             
 
 class Search(QLineEdit):
@@ -210,7 +218,17 @@ class Search(QLineEdit):
             text = unicode(self.text())
             self.emit(SIGNAL('search(PyQt_PyObject)'), text)
 
-    
+def encode_schedule(day, hour, minute):
+    day = 1e7 * (day+1)
+    hour = 1e4 * (hour+1)
+    return day + hour + minute + 1
+
+def decode_schedule(num):
+    raw = '%d'%int(num)
+    day = int(raw[0])
+    hour = int(raw[2:4])
+    minute = int(raw[-2:])
+    return day-1, hour-1, minute-1
 
 class SchedulerDialog(QDialog, Ui_Dialog):
     
@@ -228,17 +246,22 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.connect(self.username, SIGNAL('textEdited(QString)'), self.set_account_info)
         self.connect(self.password, SIGNAL('textEdited(QString)'), self.set_account_info)
         self.connect(self.schedule, SIGNAL('stateChanged(int)'), self.do_schedule)
-        self.connect(self.schedule, SIGNAL('stateChanged(int)'), 
-                     lambda state: self.interval.setEnabled(state == Qt.Checked))
         self.connect(self.show_password, SIGNAL('stateChanged(int)'),
                      lambda state: self.password.setEchoMode(self.password.Normal if state == Qt.Checked else self.password.Password))
         self.connect(self.interval, SIGNAL('valueChanged(double)'), self.do_schedule)
+        self.connect(self.day, SIGNAL('currentIndexChanged(int)'), self.do_schedule)
+        self.connect(self.time, SIGNAL('timeChanged(QTime)'), self.do_schedule)
+        for button in (self.daily_button, self.interval_button):
+            self.connect(button, SIGNAL('toggled(bool)'), self.do_schedule)
         self.connect(self.search, SIGNAL('search(PyQt_PyObject)'), self._model.search)
         self.connect(self._model, SIGNAL('modelReset()'), lambda : self.detail_box.setVisible(False))
         self.connect(self.download, SIGNAL('clicked()'), self.download_now)
         self.search.setFocus(Qt.OtherFocusReason)
         self.old_news.setValue(gconf['oldest_news'])
         self.rnumber.setText(_('%d recipes')%self._model.rowCount(None))
+        for day in (_('day'), _('Monday'), _('Tuesday'), _('Wednesday'), 
+                    _('Thursday'), _('Friday'), _('Saturday'), _('Sunday')):
+            self.day.addItem(day)
         
     def download_now(self):
         recipe = self._model.data(self.recipes.currentIndex(), Qt.UserRole)
@@ -252,6 +275,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         config[key] = (username, password) if username and password else None
         
     def do_schedule(self, *args):
+        if not getattr(self, 'allow_scheduling', False):
+            return
         recipe = self.recipes.currentIndex()
         if not recipe.isValid():
             return
@@ -263,17 +288,26 @@ class SchedulerDialog(QDialog, Ui_Dialog):
             else:
                 recipe.last_downloaded = datetime.fromordinal(1)
                 recipes.append(recipe)
-            recipe.schedule = self.interval.value()
-            if recipe.schedule < 0.1:
-                recipe.schedule = 1/24.
             if recipe.needs_subscription and not config['recipe_account_info_%s'%recipe.id]:
                 error_dialog(self, _('Must set account information'), _('This recipe requires a username and password')).exec_()
                 self.schedule.setCheckState(Qt.Unchecked)
                 return
+            if self.interval_button.isChecked():
+                recipe.schedule = self.interval.value()
+                if recipe.schedule < 0.1:
+                    recipe.schedule = 1/24.
+            else:
+                day_of_week = self.day.currentIndex() - 1
+                if day_of_week < 0:
+                    day_of_week = 7
+                t = self.time.time()
+                hour, minute = t.hour(), t.minute()
+                recipe.schedule = encode_schedule(day_of_week, hour, minute)
         else:
             if recipe in recipes:
                 recipes.remove(recipe)
         save_recipes(recipes)
+        self._model.update_recipe_schedule(recipe)
         self.emit(SIGNAL('new_schedule(PyQt_PyObject)'), recipes)
                 
     def show_recipe(self, index):
@@ -282,8 +316,26 @@ class SchedulerDialog(QDialog, Ui_Dialog):
         self.title.setText(recipe.title)
         self.author.setText(_('Created by: ') + recipe.author)
         self.description.setText(recipe.description if recipe.description else '')
+        self.allow_scheduling = False
+        schedule = -1 if recipe.schedule is None else recipe.schedule
+        if schedule < 1e5 and schedule >= 0:
+            self.interval.setValue(schedule)
+            self.interval_button.setChecked(True)
+            self.day.setEnabled(False), self.time.setEnabled(False)
+        else:
+            if schedule > 0:
+                day, hour, minute = decode_schedule(schedule)
+            else:
+                day, hour, minute = 7, 12, 0
+            if day == 7:
+                day = -1
+            self.day.setCurrentIndex(day+1)
+            self.time.setTime(QTime(hour, minute))
+            self.daily_button.setChecked(True)
+            self.interval_button.setChecked(False)
+            self.interval.setEnabled(False)
         self.schedule.setChecked(recipe.schedule is not None)
-        self.interval.setValue(recipe.schedule if recipe.schedule is not None else 1)
+        self.allow_scheduling = True    
         self.detail_box.setVisible(True)
         self.account.setVisible(recipe.needs_subscription)
         self.interval.setEnabled(self.schedule.checkState() == Qt.Checked)
@@ -365,13 +417,22 @@ class Scheduler(QObject):
                 self.dirtied = False
             needs_downloading = set([])
             self.debug('Checking...')
-            now = datetime.utcnow()
+            nowt = datetime.utcnow()
             for recipe in self.recipes:
                 if recipe.schedule is None:
                     continue
-                delta = now - recipe.last_downloaded
-                if delta > timedelta(days=recipe.schedule):
-                    needs_downloading.add(recipe)
+                delta = nowt - recipe.last_downloaded
+                if recipe.schedule < 1e5:
+                    if delta > timedelta(days=recipe.schedule):
+                        needs_downloading.add(recipe)
+                else:
+                    day, hour, minute = decode_schedule(recipe.schedule)
+                    now = time.localtime()
+                    day_matches = day > 6 or day == now.tm_wday
+                    tnow = now.tm_hour*60 + now.tm_min
+                    matches = day_matches and (hour*60+minute) < tnow
+                    if matches and delta >= timedelta(days=1):
+                        needs_downloading.add(recipe)
                 
             self.debug('Needs downloading:', needs_downloading)
         

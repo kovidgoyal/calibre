@@ -61,6 +61,7 @@ class Config(ResizableDialog, Ui_Dialog):
         self.opt_toc_title.setVisible(False)
         self.toc_title_label.setVisible(False)
         self.opt_rescale_images.setVisible(False)
+        self.opt_ignore_tables.setVisible(False)
         
     def initialize(self):
         self.__w = []
