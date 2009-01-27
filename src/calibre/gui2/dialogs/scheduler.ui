@@ -6,7 +6,7 @@
     <x>0</x>
     <y>0</y>
     <width>726</width>
-    <height>551</height>
+    <height>575</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -43,24 +43,11 @@
    <item row="0" column="1" >
     <layout class="QVBoxLayout" name="verticalLayout_3" >
      <item>
-      <spacer name="horizontalSpacer_3" >
-       <property name="orientation" >
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0" >
-        <size>
-         <width>40</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
       <widget class="QGroupBox" name="detail_box" >
        <property name="title" >
         <string>Schedule for download</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2" >
+       <layout class="QVBoxLayout" name="verticalLayout_4" >
         <item>
          <widget class="QLabel" name="title" >
           <property name="font" >
@@ -110,70 +97,97 @@
         <item>
          <widget class="QCheckBox" name="schedule" >
           <property name="text" >
-           <string>&amp;Schedule for download every:</string>
+           <string>&amp;Schedule for download:</string>
           </property>
          </widget>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout" >
-          <item>
-           <spacer name="horizontalSpacer" >
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QDoubleSpinBox" name="interval" >
-            <property name="sizePolicy" >
-             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip" >
-             <string>Interval at which to download this recipe. A value of zero means that the recipe will be downloaded every hour.</string>
-            </property>
-            <property name="suffix" >
-             <string> days</string>
-            </property>
-            <property name="decimals" >
-             <number>1</number>
-            </property>
-            <property name="minimum" >
-             <double>0.000000000000000</double>
-            </property>
-            <property name="maximum" >
-             <double>365.100000000000023</double>
-            </property>
-            <property name="singleStep" >
-             <double>1.000000000000000</double>
-            </property>
-            <property name="value" >
-             <double>1.000000000000000</double>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_2" >
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
+         <widget class="QWidget" native="1" name="widget" >
+          <property name="enabled" >
+           <bool>false</bool>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2" >
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_2" >
+             <item>
+              <widget class="QRadioButton" name="daily_button" >
+               <property name="text" >
+                <string>Every </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="day" />
+             </item>
+             <item>
+              <widget class="QLabel" name="label_4" >
+               <property name="text" >
+                <string>at</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTimeEdit" name="time" />
+             </item>
+             <item>
+              <spacer name="horizontalSpacer" >
+               <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0" >
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout" >
+             <item>
+              <widget class="QRadioButton" name="interval_button" >
+               <property name="text" >
+                <string>Every </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="interval" >
+               <property name="sizePolicy" >
+                <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip" >
+                <string>Interval at which to download this recipe. A value of zero means that the recipe will be downloaded every hour.</string>
+               </property>
+               <property name="suffix" >
+                <string> days</string>
+               </property>
+               <property name="decimals" >
+                <number>1</number>
+               </property>
+               <property name="minimum" >
+                <double>0.000000000000000</double>
+               </property>
+               <property name="maximum" >
+                <double>365.100000000000023</double>
+               </property>
+               <property name="singleStep" >
+                <double>1.000000000000000</double>
+               </property>
+               <property name="value" >
+                <double>1.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="last_downloaded" >
@@ -315,8 +329,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>248</x>
-     <y>254</y>
+     <x>613</x>
+     <y>824</y>
     </hint>
     <hint type="destinationlabel" >
      <x>157</x>
@@ -331,12 +345,92 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel" >
-     <x>316</x>
-     <y>260</y>
+     <x>681</x>
+     <y>824</y>
     </hint>
     <hint type="destinationlabel" >
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>schedule</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>454</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>461</x>
+     <y>168</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>schedule</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>widget</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>458</x>
+     <y>137</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>461</x>
+     <y>169</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>daily_button</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>day</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>421</x>
+     <y>186</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>500</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>daily_button</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>time</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>442</x>
+     <y>193</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>603</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>interval_button</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>interval</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>428</x>
+     <y>213</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>495</x>
+     <y>218</y>
     </hint>
    </hints>
   </connection>
