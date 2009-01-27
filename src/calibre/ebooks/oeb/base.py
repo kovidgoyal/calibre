@@ -1039,9 +1039,19 @@ class OEBBook(object):
 
     def _ensure_cover_image(self):
         cover = None
-        spine0 = self.spine[0]
-        html = spine0.data
-        if self.metadata.cover:
+        hcover = self.spine[0]
+        if 'cover' in self.guide:
+            href = self.guide['cover'].href
+            item = self.manifest.hrefs[href]
+            media_type = item.media_type
+            if media_type in OEB_RASTER_IMAGES:
+                cover = item
+            elif media_type in OEB_DOCS:
+                hcover = item
+        html = hcover.data
+        if cover is not None:
+            pass
+        elif self.metadata.cover:
             id = str(self.metadata.cover[0])
             cover = self.manifest.ids[id]
         elif MS_COVER_TYPE in self.guide:
@@ -1049,16 +1059,16 @@ class OEBBook(object):
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//h:img[position()=1]'):
             img = xpath(html, '//h:img[position()=1]')[0]
-            href = spine0.abshref(img.get('src'))
+            href = hcover.abshref(img.get('src'))
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//h:object[position()=1]'):
             object = xpath(html, '//h:object[position()=1]')[0]
-            href = spine0.abshref(object.get('data'))
+            href = hcover.abshref(object.get('data'))
             cover = self.manifest.hrefs[href]
         elif xpath(html, '//svg:svg[position()=1]'):
             svg = copy.deepcopy(xpath(html, '//svg:svg[position()=1]')[0])
-            href = os.path.splitext(spine0.href)[0] + '.svg'
-            id, href = self.manifest.generate(spine0.id, href)
+            href = os.path.splitext(hcover.href)[0] + '.svg'
+            id, href = self.manifest.generate(hcover.id, href)
             cover = self.manifest.add(id, href, SVG_MIME, data=svg)
         if cover and not self.metadata.cover:
             self.metadata.add('cover', cover.id)
