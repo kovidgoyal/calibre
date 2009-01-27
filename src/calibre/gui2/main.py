@@ -100,7 +100,8 @@ class Main(MainWindow, Ui_MainWindow):
             self.system_tray_icon.show()
         self.system_tray_menu = QMenu()
         self.restore_action = self.system_tray_menu.addAction(QIcon(':/images/page.svg'), _('&Restore'))
-        self.donate_action  = self.system_tray_menu.addAction(QIcon(':/images/donate.svg'), _('&Donate'))
+        self.donate_action  = self.system_tray_menu.addAction(QIcon(':/images/donate.svg'), _('&Donate to support calibre'))
+        self.donate_button.setDefaultAction(self.donate_action)
         self.addAction(self.quit_action)
         self.action_restart = QAction(_('&Restart'), self)
         self.addAction(self.action_restart)
@@ -1422,7 +1423,7 @@ class Main(MainWindow, Ui_MainWindow):
         self.restart_after_quit = restart
         QApplication.instance().quit()
             
-    def donate(self):
+    def donate(self, *args):
         BUTTON = '''
         <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
             <input type="hidden" name="cmd" value="_s-xclick">

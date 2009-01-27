@@ -148,6 +148,7 @@ class CoverFlowButton(QToolButton):
         self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding))
         self.connect(self, SIGNAL('toggled(bool)'), self.adjust_tooltip)
         self.adjust_tooltip(False)
+        self.setCursor(Qt.PointingHandCursor)
         
     def adjust_tooltip(self, on):
         tt = _('Click to turn off Cover Browsing') if on else _('Click to browse books by their covers')
@@ -165,6 +166,7 @@ class TagViewButton(QToolButton):
         self.setIcon(QIcon(':/images/tags.svg'))
         self.setToolTip(_('Click to browse books by tags'))
         self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding))
+        self.setCursor(Qt.PointingHandCursor)
         self.setCheckable(True)
         self.setChecked(False)
         self.setAutoRaise(True)
