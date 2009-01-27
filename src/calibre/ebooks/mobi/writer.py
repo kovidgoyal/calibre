@@ -524,6 +524,10 @@ def config(defaults=None):
         help=_('Modify images to meet Palm device size limitations.'))
     mobi('toc_title', ['--toc-title'], default=None, 
          help=_('Title for any generated in-line table of contents.'))
+    mobi('ignore_tables', ['--ignore-tables'], default=False,
+         help=_('Render HTML tables as blocks of text instead of actual '
+                'tables. This is neccessary if the HTML contains very large '
+                'or complex tables.'))
     profiles = c.add_group('profiles', _('Device renderer profiles. '
         'Affects conversion of font sizes, image rescaling and rasterization '
         'of tables. Valid profiles are: %s.') % ', '.join(_profiles))
@@ -581,7 +585,7 @@ def oeb2mobi(opts, inpath):
     rasterizer.transform(oeb, context)
     trimmer = ManifestTrimmer()
     trimmer.transform(oeb, context)
-    mobimlizer = MobiMLizer()
+    mobimlizer = MobiMLizer(ignore_tables=opts.ignore_tables)
     mobimlizer.transform(oeb, context)
     writer = MobiWriter(compression=compression, imagemax=imagemax)
     writer.dump(oeb, outpath)
