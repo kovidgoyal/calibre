@@ -26,6 +26,7 @@ from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
 
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS = 'http://www.w3.org/1999/xhtml'
+OEB_DOC_NS = 'http://openebook.org/namespaces/oeb-document/1.0/'
 OPF1_NS = 'http://openebook.org/namespaces/oeb-package/1.0/'
 OPF2_NS = 'http://www.idpf.org/2007/opf'
 DC09_NS = 'http://purl.org/metadata/dublin_core'
@@ -356,10 +357,26 @@ class Manifest(object):
                     data = etree.tostring(data, encoding=unicode)
                     data = etree.fromstring(data)
             # Force into the XHTML namespace
-            if namespace(data.tag) != XHTML_NS:
+            if barename(data.tag) != 'html':
+                raise OEBError(
+                    'File %r does not appear to be (X)HTML' % self.href)
+            elif not namespace(data.tag):
                 data.attrib['xmlns'] = XHTML_NS
                 data = etree.tostring(data, encoding=unicode)
                 data = etree.fromstring(data)
+            elif namespace(data.tag) != XHTML_NS:
+                # OEB_DOC_NS, but possibly others
+                ns = namespace(data.tag)
+                attrib = dict(data.attrib)
+                nroot = etree.Element(XHTML('html'),
+                    nsmap={None: XHTML_NS}, attrib=attrib)
+                for elem in data.iterdescendants():
+                    if isinstance(elem.tag, basestring) and \
+                       namespace(elem.tag) == ns:
+                        elem.tag = XHTML(barename(elem.tag))
+                for elem in data:
+                    nroot.append(elem)
+                data = nroot
             # Remove any encoding-specifying <meta/> elements
             for meta in self.META_XP(data):
                 meta.getparent().remove(meta)
