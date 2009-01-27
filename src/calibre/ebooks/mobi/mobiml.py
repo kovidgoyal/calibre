@@ -79,6 +79,9 @@ class FormatState(object):
 
 
 class MobiMLizer(object):
+    def __init__(self, ignore_tables=False):
+        self.ignore_tables = ignore_tables
+    
     def transform(self, oeb, context):
         oeb.logger.info('Converting XHTML to Mobipocket markup...')
         self.oeb = oeb
@@ -341,6 +344,8 @@ class MobiMLizer(object):
             tag = 'tr'
         elif display == 'table-cell':
             tag = 'td'
+        if tag in TABLE_TAGS and self.ignore_tables:
+            tag = 'span' if tag == 'td' else 'div'
         if tag in TABLE_TAGS:
             for attr in ('rowspan', 'colspan'):
                 if attr in elem.attrib:
