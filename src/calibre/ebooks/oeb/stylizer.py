@@ -265,6 +265,8 @@ class Stylizer(object):
 
 
 class Style(object):
+    UNIT_RE = re.compile(r'^(-*[0-9]*[.]?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)$')
+    
     def __init__(self, element, stylizer):
         self._element = element
         self._profile = stylizer.profile
@@ -319,13 +321,11 @@ class Style(object):
         if isinstance(value, (int, long, float)):
             return value
         try:
-            if float(value) == 0:
-                return 0.0
+            return float(value) * 72.0 / self._profile.dpi
         except:
             pass
         result = value
-        m = re.search(
-            r"^(-*[0-9]*\.?[0-9]*)\s*(%|em|px|mm|cm|in|pt|pc)$", value)
+        m = self.UNIT_RE.match(value)
         if m is not None and m.group(1):
             value = float(m.group(1))
             unit = m.group(2)
