@@ -1,0 +1,24 @@
+#!/usr/bin/env  python
+__license__   = 'GPL v3'
+__copyright__ = '2009, Kovid Goyal kovid@kovidgoyal.net'
+__docformat__ = 'restructuredtext en'
+
+'''
+teleread.org
+'''
+
+from calibre.web.feeds.news import BasicNewsRecipe
+
+class Teleread(BasicNewsRecipe):
+    
+    title = 'Teleread Blog'
+    description = 'News & views on e-books, libraries, publishing and related topics'
+    __author__  = 'Kovid Goyal'
+    
+    feeds = [('Entries', 'http://www.teleread.org/feed/')]
+    
+    remove_tags = [dict(attrs={'class':['sociable', 'comments', 
+                                        'wlWriterSmartContent', 'feedflare']})]
+    
+    def get_article_url(self, article):
+        return article.get('feedburner_origlink', article.get('link', article.get('guid')))
