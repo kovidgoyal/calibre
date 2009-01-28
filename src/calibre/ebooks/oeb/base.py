@@ -23,6 +23,8 @@ from calibre import LoggingInterface
 from calibre.translations.dynamic import translate
 from calibre.startup import get_lang
 from calibre.ebooks.oeb.entitydefs import ENTITYDEFS
+from calibre.ebooks.metadata.epub import CoverRenderer
+from calibre.ptempfile import TemporaryDirectory
 
 XML_NS = 'http://www.w3.org/XML/1998/namespace'
 XHTML_NS = 'http://www.w3.org/1999/xhtml'
@@ -798,7 +800,6 @@ class TOC(object):
 class OEBBook(object):
     COVER_SVG_XP = XPath('h:body//svg:svg[position() = 1]')
     COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
-    COVER_IMG_XP = XPath('h:body//h:img[@src][position() = 1]')
 
     def __init__(self, opfpath=None, container=None, encoding=None,
                  logger=FauxLogger()):
@@ -1055,6 +1056,17 @@ class OEBBook(object):
         if self._toc_from_html(opf): return
         self._toc_from_spine(opf)
 
+    def _cover_from_html(self, hcover):
+        with TemporaryDirectory('_html_cover') as tdir:
+            writer = DirWriter()
+            writer.dump(self, tdir)
+            path = os.path.join(tdir, hcover.href)
+            renderer = CoverRenderer(path)
+            data = renderer.image_data
+        id, href = self.manifest.generate('cover', 'cover.jpeg')
+        item = self.manifest.add(id, href, JPEG_MIME, data=data)
+        return item
+        
     def _locate_cover_image(self):
         if self.metadata.cover:
             id = str(self.metadata.cover[0])
@@ -1088,18 +1100,10 @@ class OEBBook(object):
             item = self.manifest.hrefs.get(href, None)
             if item is not None and item.media_type in OEB_IMAGES:
                 return item
-        if self.COVER_IMG_XP(html):
-            img = self.COVER_IMG_XP(html)[0]
-            href = hcover.abshref(img.get('src'))
-            item = self.manifest.hrefs.get(href, None)
-            if item is not None and item.media_type in OEB_IMAGES:
-                return item            
-        return None
+        return self._cover_from_html(hcover)
         
     def _ensure_cover_image(self):
         cover = self._locate_cover_image()
-        if not cover:
-            return
         if self.metadata.cover:
             self.metadata.cover[0].value = cover.id
             return
