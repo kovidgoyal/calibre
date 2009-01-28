@@ -80,8 +80,8 @@ class Main(MainWindow, Ui_MainWindow):
         
         QObject.connect(self.search, SIGNAL('search(PyQt_PyObject, PyQt_PyObject)'), self.find)
         
-        self.action_next_page.setShortcuts(QKeySequence.MoveToNextPage)
-        self.action_previous_page.setShortcuts(QKeySequence.MoveToPreviousPage)
+        self.action_next_page.setShortcuts([QKeySequence.MoveToNextPage, QKeySequence(Qt.Key_Space)])
+        self.action_previous_page.setShortcuts([QKeySequence.MoveToPreviousPage, QKeySequence(Qt.Key_Backspace)])
         self.action_next_match.setShortcuts(QKeySequence.FindNext)
         self.addAction(self.action_next_match)
         QObject.connect(self.action_next_page, SIGNAL('triggered(bool)'), self.next) 
@@ -191,6 +191,7 @@ class Main(MainWindow, Ui_MainWindow):
             self.spin_box.setSuffix(' of %d'%(self.document.num_of_pages,))
             self.spin_box.updateGeometry()
             self.stack.setCurrentIndex(0)
+            self.graphics_view.setFocus(Qt.OtherFocusReason)
         elif self.renderer.exception is not None:
             exception = self.renderer.exception
             print >>sys.stderr, 'Error rendering document'
