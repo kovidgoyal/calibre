@@ -562,14 +562,16 @@ class Processor(Parser):
             text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
             self.log_info('\tDetected chapter: %s', text[:50])
             chapter_mark = self.opts.chapter_mark
-            if chapter_mark != 'none':
-                tag = 'hr' if chapter_mark != 'pagebreak' else 'br'
-                mark = etree.Element(tag)
+            if chapter_mark == 'pagebreak':
+                style = elem.get('style', '').split(';')
+                style = filter(None, map(lambda x: x.strip(), style))
+                style.append('page-break-before: always')
+                elem.set('style', '; '.join(style))
+            elif chapter_mark in ('rule', 'both'):
+                mark = etree.Element('hr')
                 elem.addprevious(mark)
                 if chapter_mark == 'both':
                     mark.set('style', 'page-break-before: always')
-                elif chapter_mark == 'pagebreak':
-                    mark.set('style', 'page-break-after: always')
     
     def save(self):
         style_path = os.path.splitext(os.path.basename(self.save_path()))[0]
