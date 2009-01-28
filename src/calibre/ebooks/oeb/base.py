@@ -353,9 +353,13 @@ class Manifest(object):
                 try:
                     data = etree.fromstring(data)
                 except etree.XMLSyntaxError:
+                    # TODO: Factor out HTML->XML coercion
                     self.oeb.logger.warn('Parsing file %r as HTML' % self.href)
                     data = html.fromstring(data)
                     data.attrib.pop('xmlns', None)
+                    for elem in data.iter(tag=etree.Comment):
+                        if elem.text:
+                            elem.text = elem.text.strip('-')
                     data = etree.tostring(data, encoding=unicode)
                     data = etree.fromstring(data)
             # Force into the XHTML namespace
