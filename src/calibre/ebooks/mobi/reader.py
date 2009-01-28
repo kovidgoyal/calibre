@@ -28,7 +28,7 @@ from calibre import sanitize_file_name
 
 class EXTHHeader(object):
     
-    def __init__(self, raw, codec):
+    def __init__(self, raw, codec, title):
         self.doctype = raw[:4]
         self.length, self.num_items = struct.unpack('>LL', raw[4:12])
         raw = raw[12:]
@@ -52,17 +52,9 @@ class EXTHHeader(object):
                 self.thumbnail_offset, = struct.unpack('>L', content)
             #else:
             #    print 'unknown record', id, repr(content)
-        title = re.search(r'\0+([^\0]+)\0+', raw[pos:])
         if title:
-            title = title.group(1).decode(codec, 'replace')
-            if len(title) > 2:
-                self.mi.title = title
-            else:
-                title = re.search(r'\0+([^\0]+)\0+', ''.join(reversed(raw[pos:])))
-                if title:
-                    self.mi.title = ''.join(reversed(title.group(1).decode(codec, 'replace')))
-            
-                
+            self.mi.title = title
+    
     def process_metadata(self, id, content, codec):
         if id == 100:
             if self.mi.authors == [_('Unknown')]:
@@ -121,6 +113,9 @@ class BookHeader(object):
             if self.compression_type == 'DH':
                 self.huff_offset, self.huff_number = struct.unpack('>LL', raw[0x70:0x78]) 
             
+            toff, tlen = struct.unpack('>II', raw[0x54:0x5c])
+            tend = toff + tlen
+            self.title = raw[toff:tend] if tend < len(raw) else _('Unknown')
             langcode  = struct.unpack('!L', raw[0x5C:0x60])[0]
             langid    = langcode & 0xFF
             sublangid = (langcode >> 10) & 0xFF
@@ -131,7 +126,7 @@ class BookHeader(object):
             self.exth_flag, = struct.unpack('>L', raw[0x80:0x84])
             self.exth = None
             if self.exth_flag & 0x40:
-                self.exth = EXTHHeader(raw[16+self.length:], self.codec)
+                self.exth = EXTHHeader(raw[16+self.length:], self.codec, self.title)
                 self.exth.mi.uid = self.unique_id
                 self.exth.mi.language = self.language
             
