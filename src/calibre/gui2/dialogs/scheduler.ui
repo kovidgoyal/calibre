@@ -5,7 +5,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>726</width>
+    <width>738</width>
     <height>575</height>
    </rect>
   </property>
@@ -193,6 +193,9 @@
          <widget class="QLabel" name="last_downloaded" >
           <property name="text" >
            <string/>
+          </property>
+          <property name="wordWrap" >
+           <bool>true</bool>
           </property>
          </widget>
         </item>
