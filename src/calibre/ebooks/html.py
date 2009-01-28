@@ -558,18 +558,20 @@ class Processor(Parser):
     
     def detect_chapters(self):
         self.detected_chapters = self.opts.chapter(self.root)
+        chapter_mark = self.opts.chapter_mark
+        page_break_before = 'display: block; page-break-before: always'
+        page_break_after = 'display: block; page-break-after: always'
         for elem in self.detected_chapters:
             text = u' '.join([t.strip() for t in elem.xpath('descendant::text()')])
             self.log_info('\tDetected chapter: %s', text[:50])
-            chapter_mark = self.opts.chapter_mark
             if chapter_mark == 'none':
                 continue
             elif chapter_mark == 'rule':
                 mark = etree.Element('hr')
             elif chapter_mark == 'pagebreak':
-                mark = etree.Element('div', style='page-break-after: always')
+                mark = etree.Element('div', style=page_break_after)
             else: # chapter_mark == 'both':
-                mark = etree.Element('hr', style='page-break-before: always')
+                mark = etree.Element('hr', style=page_break_before)
             elem.addprevious(mark)
     
     def save(self):
