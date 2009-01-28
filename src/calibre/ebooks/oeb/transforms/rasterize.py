@@ -23,6 +23,7 @@ from PyQt4.QtGui import QApplication
 from calibre.ebooks.oeb.base import XHTML_NS, XHTML, SVG_NS, SVG, XLINK
 from calibre.ebooks.oeb.base import SVG_MIME, PNG_MIME, JPEG_MIME
 from calibre.ebooks.oeb.base import xml2str, xpath, namespace, barename
+from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.stylizer import Stylizer
 
 IMAGE_TAGS = set([XHTML('img'), XHTML('object')])
@@ -78,7 +79,7 @@ class SVGRasterizer(object):
             svg = item.data
         hrefs = self.oeb.manifest.hrefs
         for elem in xpath(svg, '//svg:*[@xl:href]'):
-            href = elem.attrib[XLINK('href')]
+            href = urlnormalize(elem.attrib[XLINK('href')])
             path, frag = urldefrag(href)
             if not path:
                 continue
@@ -100,15 +101,15 @@ class SVGRasterizer(object):
     def rasterize_item(self, item, stylizer):
         html = item.data
         hrefs = self.oeb.manifest.hrefs
-        for elem in xpath(html, '//h:img'):
-            src = elem.get('src', None)
-            image = hrefs.get(item.abshref(src), None) if src else None
+        for elem in xpath(html, '//h:img[@src]'):
+            src = urlnormalize(elem.attrib['src'])
+            image = hrefs.get(item.abshref(src), None)
             if image and image.media_type == SVG_MIME:
                 style = stylizer.style(elem)
                 self.rasterize_external(elem, style, item, image)
-        for elem in xpath(html, '//h:object[@type="%s"]' % SVG_MIME):
-            data = elem.get('data', None)
-            image = hrefs.get(item.abshref(data), None) if data else None
+        for elem in xpath(html, '//h:object[@type="%s" and @data]' % SVG_MIME):
+            data = urlnormalize(elem.attrib['data'])
+            image = hrefs.get(item.abshref(data), None)
             if image and image.media_type == SVG_MIME:
                 style = stylizer.style(elem)
                 self.rasterize_external(elem, style, item, image)
