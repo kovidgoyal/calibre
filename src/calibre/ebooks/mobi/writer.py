@@ -23,6 +23,7 @@ from PIL import Image
 from calibre.ebooks.oeb.base import XML_NS, XHTML, XHTML_NS, OEB_DOCS, \
     OEB_RASTER_IMAGES
 from calibre.ebooks.oeb.base import xpath, barename, namespace, prefixname
+from calibre.ebooks.oeb.base import urlnormalize
 from calibre.ebooks.oeb.base import Logger, OEBBook
 from calibre.ebooks.oeb.profile import Context
 from calibre.ebooks.oeb.transforms.flatcss import CSSFlattener
@@ -178,7 +179,7 @@ class Serializer(object):
 
     def serialize_href(self, href, base=None):
         hrefs = self.oeb.manifest.hrefs
-        path, frag = urldefrag(href)
+        path, frag = urldefrag(urlnormalize(href))
         if path and base:
             path = base.abshref(path)
         if path and path not in hrefs:

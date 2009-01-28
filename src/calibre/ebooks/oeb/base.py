@@ -447,7 +447,7 @@ class Manifest(object):
             return cmp(skey, okey)
         
         def relhref(self, href):
-            if '/' not in self.href:
+            if '/' not in self.href or ':' in href:
                 return href
             base = os.path.dirname(self.href).split('/')
             target, frag = urldefrag(href)
@@ -463,7 +463,7 @@ class Manifest(object):
             return relhref
 
         def abshref(self, href):
-            if '/' not in self.href:
+            if '/' not in self.href or ':' in href:
                 return href
             dirname = os.path.dirname(self.href)
             href = os.path.join(dirname, href)
@@ -796,6 +796,10 @@ class TOC(object):
 
     
 class OEBBook(object):
+    COVER_SVG_XP = XPath('h:body//svg:svg[position() = 1]')
+    COVER_OBJECT_XP = XPath('h:body//h:object[@data][position() = 1]')
+    COVER_IMG_XP = XPath('h:body//h:img[@src][position() = 1]')
+
     def __init__(self, opfpath=None, container=None, encoding=None,
                  logger=FauxLogger()):
         if opfpath and not container:
@@ -971,7 +975,7 @@ class OEBBook(object):
         ncx = item.data
         self.manifest.remove(item)
         title = xpath(ncx, 'ncx:docTitle/ncx:text/text()')
-        title = title[0].strip() if title else unicode(self.metadata.title)
+        title = title[0].strip() if title else unicode(self.metadata.title[0])
         self.toc = toc = TOC(title)
         navmaps = xpath(ncx, 'ncx:navMap')
         for navmap in navmaps:
@@ -1051,42 +1055,56 @@ class OEBBook(object):
         if self._toc_from_html(opf): return
         self._toc_from_spine(opf)
 
-    def _ensure_cover_image(self):
-        cover = None
+    def _locate_cover_image(self):
+        if self.metadata.cover:
+            id = str(self.metadata.cover[0])
+            item = self.manifest.ids.get(id, None)
+            if item is not None:
+                return item
         hcover = self.spine[0]
         if 'cover' in self.guide:
             href = self.guide['cover'].href
             item = self.manifest.hrefs[href]
             media_type = item.media_type
-            if media_type in OEB_RASTER_IMAGES:
-                cover = item
+            if media_type in OEB_IMAGES:
+                return item
             elif media_type in OEB_DOCS:
                 hcover = item
         html = hcover.data
-        if cover is not None:
-            pass
-        elif self.metadata.cover:
-            id = str(self.metadata.cover[0])
-            cover = self.manifest.ids[id]
-        elif MS_COVER_TYPE in self.guide:
+        if MS_COVER_TYPE in self.guide:
             href = self.guide[MS_COVER_TYPE].href
-            cover = self.manifest.hrefs[href]
-        elif xpath(html, '//h:img[position()=1]'):
-            img = xpath(html, '//h:img[position()=1]')[0]
-            href = hcover.abshref(img.get('src'))
-            cover = self.manifest.hrefs[href]
-        elif xpath(html, '//h:object[position()=1]'):
-            object = xpath(html, '//h:object[position()=1]')[0]
-            href = hcover.abshref(object.get('data'))
-            cover = self.manifest.hrefs[href]
-        elif xpath(html, '//svg:svg[position()=1]'):
-            svg = copy.deepcopy(xpath(html, '//svg:svg[position()=1]')[0])
+            item = self.manifest.hrefs.get(href, None)
+            if item is not None and item.media_type in OEB_IMAGES:
+                return item
+        if self.COVER_SVG_XP(html):
+            svg = copy.deepcopy(self.COVER_SVG_XP(html)[0])
             href = os.path.splitext(hcover.href)[0] + '.svg'
             id, href = self.manifest.generate(hcover.id, href)
-            cover = self.manifest.add(id, href, SVG_MIME, data=svg)
-        if cover and not self.metadata.cover:
-            self.metadata.add('cover', cover.id)
-            
+            item = self.manifest.add(id, href, SVG_MIME, data=svg)
+            return item
+        if self.COVER_OBJECT_XP(html):
+            object = self.COVER_OBJECT_XP(html)[0]
+            href = hcover.abshref(object.get('data'))
+            item = self.manifest.hrefs.get(href, None)
+            if item is not None and item.media_type in OEB_IMAGES:
+                return item
+        if self.COVER_IMG_XP(html):
+            img = self.COVER_IMG_XP(html)[0]
+            href = hcover.abshref(img.get('src'))
+            item = self.manifest.hrefs.get(href, None)
+            if item is not None and item.media_type in OEB_IMAGES:
+                return item            
+        return None
+        
+    def _ensure_cover_image(self):
+        cover = self._locate_cover_image()
+        if not cover:
+            return
+        if self.metadata.cover:
+            self.metadata.cover[0].value = cover.id
+            return
+        self.metadata.add('cover', cover.id)
+    
     def _all_from_opf(self, opf):
         self._metadata_from_opf(opf)
         self._manifest_from_opf(opf)
