@@ -447,7 +447,7 @@ class Manifest(object):
             return cmp(skey, okey)
         
         def relhref(self, href):
-            if '/' not in self.href:
+            if '/' not in self.href or ':' in href:
                 return href
             base = os.path.dirname(self.href).split('/')
             target, frag = urldefrag(href)
@@ -463,7 +463,7 @@ class Manifest(object):
             return relhref
 
         def abshref(self, href):
-            if '/' not in self.href:
+            if '/' not in self.href or ':' in href:
                 return href
             dirname = os.path.dirname(self.href)
             href = os.path.join(dirname, href)
