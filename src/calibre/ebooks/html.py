@@ -647,6 +647,7 @@ class Processor(Parser):
                         added[elem] = add_item(_href, frag, text, toc, type='chapter')
                         add_item(_href, frag, 'Top', added[elem], type='chapter')
                 if self.opts.level2_toc is not None:
+                    added2 = {}
                     level2 = list(self.opts.level2_toc(self.root))
                     for elem in level2:
                         level1 = None
@@ -657,7 +658,21 @@ class Processor(Parser):
                                 text, _href, frag = elem_to_link(elem, href, counter)
                                 counter += 1
                                 if text:
+                                    added2[elem] = \
                                     add_item(_href, frag, text, level1, type='chapter')
+                    if self.opts.level3_toc is not None:
+                        level3 = list(self.opts.level3_toc(self.root))
+                        for elem in level3:
+                            level2 = None
+                            for item in self.root.iterdescendants():
+                                if item in added2.keys():
+                                    level2 = added2[item]
+                                elif item == elem and level2 is not None:
+                                    text, _href, frag = elem_to_link(elem, href, counter)
+                                    counter += 1
+                                    if text:
+                                        add_item(_href, frag, text, level2, type='chapter')
+                
                     
             if len(toc) > 0:
                 return
