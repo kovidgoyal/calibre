@@ -299,10 +299,10 @@ To learn more about writing advanced recipes using some of the facilities, avail
     :ref:`API Documentation <news_recipe>`
         Documentation of the ``BasicNewsRecipe`` class and all its important methods and fields.
 
-    `BasicNewsRecipe <http://bazaar.launchpad.net/~kovid/calibre/trunk/annotate/kovid%40kovidgoyal.net-20080509231359-le3xf7ynwc6eew90?file_id=1245%40b0dd1a5d-880a-0410-ada5-a57097536bc1%3Alibprs500%252Ftrunk%3Asrc%252Flibprs500%252Fweb%252Ffeeds%252Fnews.py>`_
+    `BasicNewsRecipe <http://bazaar.launchpad.net/~kovid/calibre/trunk/annotate/head:/src/calibre/web/feeds/news.py>`_
         The source code of ``BasicNewsRecipe``
 
-    `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/kovid%40kovidgoyal.net-20080509231359-le3xf7ynwc6eew90?file_id=1298%40b0dd1a5d-880a-0410-ada5-a57097536bc1%3Alibprs500%252Ftrunk%3Asrc%252Flibprs500%252Fweb%252Ffeeds%252Frecipes>`_
+    `Built-in recipes <http://bazaar.launchpad.net/~kovid/calibre/trunk/files/head:/src/calibre/web/feeds/recipes/>`_
         The source code for the built-in recipes that come with |app|
 
 Migrating old style profiles to recipes
