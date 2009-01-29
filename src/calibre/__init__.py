@@ -427,20 +427,15 @@ if isosx:
     try:
         if not os.path.exists(fdir):
             os.makedirs(fdir)
-    except:
-        pass
-    else:
         if not os.path.exists(os.path.join(fdir, 'LiberationSans_Regular.ttf')):
             from calibre.ebooks.lrf.fonts.liberation import __all__ as fonts
             for font in fonts:
                 l = {}
                 exec 'from calibre.ebooks.lrf.fonts.liberation.'+font+' import font_data' in l
-                try:
-                    open(os.path.join(fdir, font+'.ttf'), 'wb').write(l['font_data'])
-                except:
-                    import traceback
-                    traceback.print_exc()
-                    break
+                open(os.path.join(fdir, font+'.ttf'), 'wb').write(l['font_data'])
+    except:
+        import traceback
+        traceback.print_exc()
                 
 # Migrate from QSettings based config system
 from calibre.utils.config import migrate
