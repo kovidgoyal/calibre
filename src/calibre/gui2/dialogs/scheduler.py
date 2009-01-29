@@ -8,7 +8,7 @@ Scheduler for automated recipe downloads
 '''
 
 import sys, copy, time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from PyQt4.Qt import QDialog, QApplication, QLineEdit, QPalette, SIGNAL, QBrush, \
                      QColor, QAbstractListModel, Qt, QVariant, QFont, QIcon, \
                      QFile, QObject, QTimer, QMutex, QMenu, QAction, QTime
@@ -289,7 +289,8 @@ class SchedulerDialog(QDialog, Ui_Dialog):
                 recipe.last_downloaded = datetime.fromordinal(1)
                 recipes.append(recipe)
             if recipe.needs_subscription and not config['recipe_account_info_%s'%recipe.id]:
-                error_dialog(self, _('Must set account information'), _('This recipe requires a username and password')).exec_()
+                error_dialog(self, _('Must set account information'), 
+                             _('This recipe requires a username and password')).exec_()
                 self.schedule.setCheckState(Qt.Unchecked)
                 return
             if self.interval_button.isChecked():
@@ -433,7 +434,7 @@ class Scheduler(QObject):
                     day_matches = day > 6 or day == now.tm_wday
                     tnow = now.tm_hour*60 + now.tm_min
                     matches = day_matches and (hour*60+minute) < tnow
-                    if matches and delta >= timedelta(days=1):
+                    if matches and nowt.toordinal() < date.today().toordinal():
                         needs_downloading.add(recipe)
                 
             self.debug('Needs downloading:', needs_downloading)
